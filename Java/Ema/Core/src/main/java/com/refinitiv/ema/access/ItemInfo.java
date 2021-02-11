@@ -1,11 +1,11 @@
 package com.refinitiv.ema.access;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.MsgKey;
 import com.refinitiv.eta.valueadd.common.VaNode;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 class ItemInfo extends VaNode
 {

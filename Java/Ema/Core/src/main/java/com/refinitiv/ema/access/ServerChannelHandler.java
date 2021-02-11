@@ -188,7 +188,7 @@ class ServerChannelHandler implements ReactorChannelEventCallback
                 
                 String componentInfoString = "";
                 
-                if ( componentInfoList.size() != 0 )
+                if ( componentInfoList != null && componentInfoList.size() != 0 )
                 {
                 	componentInfoString = componentInfoList.get(0).componentVersion().toString();
                 	

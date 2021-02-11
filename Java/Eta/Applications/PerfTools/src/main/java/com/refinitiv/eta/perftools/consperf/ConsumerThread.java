@@ -37,12 +37,13 @@ import com.refinitiv.eta.perftools.common.DirectoryHandler;
 import com.refinitiv.eta.perftools.common.ItemEncoder;
 import com.refinitiv.eta.perftools.common.ItemFlags;
 import com.refinitiv.eta.perftools.common.ItemInfo;
+import com.refinitiv.eta.perftools.common.JsonConverterSession;
+import com.refinitiv.eta.perftools.common.JsonServiceNameToIdCallback;
 import com.refinitiv.eta.perftools.common.LatencyRandomArray;
 import com.refinitiv.eta.perftools.common.LatencyRandomArrayOptions;
 import com.refinitiv.eta.perftools.common.LoginHandler;
 import com.refinitiv.eta.perftools.common.MarketPriceItem;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
-import com.refinitiv.eta.perftools.common.ProviderPerfConfig;
 import com.refinitiv.eta.perftools.common.ResponseCallback;
 import com.refinitiv.eta.perftools.common.ShutdownCallback;
 import com.refinitiv.eta.perftools.common.XmlItemInfoList;
@@ -94,9 +95,15 @@ import com.refinitiv.eta.valueadd.reactor.ReactorConnectOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorJsonConversionEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorJsonConversionEventCallback;
+import com.refinitiv.eta.valueadd.reactor.ReactorJsonConverterOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToId;
+import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToIdCallback;
+import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToIdEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamInfo;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
@@ -105,7 +112,8 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
   * connecting to a provider, requesting items, and processing the received
   * refreshes and updates.
   */
-public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallback
+public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallback, JsonServiceNameToIdCallback,
+												ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
 {
     private static final int CONNECTION_RETRY_TIME = 1; // seconds
     private static final int ITEM_STREAM_ID_START = 6;
@@ -182,6 +190,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private TunnelStreamHandler _tunnelStreamHandler; // Use the VA Reactor tunnel stream instead of the ETA Channel for sending and receiving
     private TunnelStreamSubmitOptions _tunnelStreamSubmitOptions;
     private TunnelStreamInfo _tunnelStreamInfo;
+    protected JsonConverterSession		_jsonConverterSession;				// Use the converter library to converter between JSON and RWF messages.
 
     {
     	_eIter = CodecFactory.createEncodeIterator();
@@ -203,6 +212,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         _msgKey = CodecFactory.createMsgKey();
         _itemInfo = new ItemInfo();
         _tunnelStreamInfo = ReactorFactory.createTunnelStreamInfo();
+        _jsonConverterSession = new JsonConverterSession();
     }
 
 	public ConsumerThread(ConsumerThreadInfo consInfo, ConsPerfConfig consConfig, XmlItemInfoList itemList, XmlMsgData msgData, PostUserInfo postUserInfo, ShutdownCallback shutdownCallback) 
@@ -365,6 +375,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         connectOptions.majorVersion(Codec.majorVersion());
         connectOptions.minorVersion(Codec.minorVersion());        
         connectOptions.connectionType(_consPerfConfig.connectionType());
+        connectOptions.wSocketOpts().protocols(_consPerfConfig.protocolList());
         connectOptions.guaranteedOutputBuffers(_consPerfConfig.guaranteedOutputBuffers());
         connectOptions.numInputBuffers(_consPerfConfig.numInputBuffers());
         if (_consPerfConfig.sendBufSize() > 0)
@@ -503,6 +514,20 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 System.exit(ReactorReturnCodes.FAILURE);
             }
             
+            ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
+        	jsonConverterOptions.dataDictionary(_dictionaryHandler.dictionary());
+        	jsonConverterOptions.userSpec(this);
+            jsonConverterOptions.serviceNameToIdCallback(this);
+            jsonConverterOptions.jsonConversionEventCallback(this);
+
+            // Initialize the JSON converter
+            if ( _reactor.initJsonConverter(jsonConverterOptions, _errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("Reactor.initJsonConverter() failed: " + _errorInfo.toString());
+                System.exit(ReactorReturnCodes.FAILURE);
+            }
+            
+            
             _connectOptions.connectionList().add(_connectInfo);
             
             // set consumer role information
@@ -569,6 +594,18 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     
                 // Check if the test is configured for the correct buffer size to fit generic messages
                 printEstimatedGenMsgSizes(_channel);
+                
+                // Initializes the JSON converter library.
+                _jsonConverterSession.jsonConverterOptions().datadictionary(_dictionaryHandler.dictionary());
+                _jsonConverterSession.jsonConverterOptions().userClosure(this);
+                _jsonConverterSession.jsonConverterOptions().defaultServiceId(1);
+                _jsonConverterSession.jsonConverterOptions().serviceNameToIdCallback(this);
+                
+                if(_jsonConverterSession.initialize(_error) != CodecReturnCodes.SUCCESS)
+                {
+                	closeChannelAndShutDown("RWF/JSON Converter failed: " + _error.text());
+                	return;
+                }
     
                 // set service name in directory handler
                 _srcDirHandler.serviceName(_consPerfConfig.serviceName());
@@ -912,6 +949,43 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             _writeArgs.clear();
             _writeArgs.priority(WritePriorities.HIGH);
             _writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            
+            if(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+            {
+            	TransportBuffer convertedMsgBuffer = null;
+            	int ret = 0;
+            	
+            	do 
+            	{
+            		if ((convertedMsgBuffer = _jsonConverterSession.convertToJsonMsg(_channel, msgBuf, _error)) == null)
+            		{
+            			if(_error.errorId() == TransportReturnCodes.NO_BUFFERS)
+            			{
+            				if ((ret = _channel.flush(_error)) < TransportReturnCodes.SUCCESS)
+            				{
+            					closeChannelAndShutDown("rsslFlush() failed with return code " + ret + "<" + _error.text() + ">");
+            					return;
+            				}
+            			}
+            			else
+            			{
+            				_channel.releaseBuffer(msgBuf, _error);
+            				closeChannelAndShutDown("convertToJsonMsg(): Failed to convert RWF > JSON with error text: " + _error.text());
+            				return;
+            			}
+            			
+            		}
+            	} while(_error.errorId() == TransportReturnCodes.NO_BUFFERS);
+            	
+            	if(Objects.nonNull(convertedMsgBuffer))
+            	{
+            		/* Release the original RWF buffer and point the writing buffer to the JSON buffer */
+            		_channel.releaseBuffer(msgBuf, _error);
+            		msgBuf = convertedMsgBuffer;
+            	}
+            	
+            }
+            
             int retval = _channel.write(msgBuf, _writeArgs, _error);
 
             if (retval > TransportReturnCodes.FAILURE)
@@ -1047,13 +1121,56 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     /** Process transport response. */
 	public void processResponse(TransportBuffer buffer)
 	{
-        /* clear decode iterator */
-        _dIter.clear();
+        int ret = 0;
+        int cRet = 0;
+        TransportBuffer origBuffer;
+        Buffer decodedMsg;
+        int numConverted = 0;
+		
+        do {
+        	
+        	// clear decode iterator
+        	_dIter.clear();
+        	_responseMsg.clear();
+        	
+        	if(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+        	{
+        		origBuffer = buffer;
+        		
+        		if((cRet = _jsonConverterSession.convertFromJsonMessage(_channel,
+        				(numConverted == 0 ? origBuffer : null), _error)) == CodecReturnCodes.FAILURE)
+        		{
+        			ret = cRet;
+        			closeChannelAndShutDown("Error in Json Conversion with error text: " + _error.text());
+        			return;
+        		}
+        		
+        		numConverted++;
+        		
+        		if (cRet == CodecReturnCodes.SUCCESS)
+        		{
+        			decodedMsg = _jsonConverterSession.jsonConverterState().jsonMsg().rwfMsg().encodedMsgBuffer();
+        			ret = _dIter.setBufferAndRWFVersion(decodedMsg, _channel.majorVersion(), _channel.minorVersion());
+        		}
+    		
+    			if (cRet == CodecReturnCodes.END_OF_CONTAINER)
+    				break;
 
-        /* set buffer and version info */
-        _dIter.setBufferAndRWFVersion(buffer, _channel.majorVersion(), _channel.minorVersion());
+    			if (cRet != CodecReturnCodes.SUCCESS)
+    				continue;
+        	}
+        	else
+        	{
+        		ret = _dIter.setBufferAndRWFVersion(buffer, _channel.majorVersion(), _channel.minorVersion());
+        	}
+        	
+	        if (ret != CodecReturnCodes.SUCCESS)
+	        {
+	        	closeChannelAndShutDown("DecodeIterator.setBufferAndRWFVersion() failed with return code:  " + CodecReturnCodes.toString(ret));
+	            return;
+	        }
 
-        int ret = _responseMsg.decode(_dIter);
+        ret = _responseMsg.decode(_dIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
         	closeChannelAndShutDown("DecodeMsg(): Error " + ret);
@@ -1078,6 +1195,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 System.out.println("Unhandled Domain Type: " + _responseMsg.domainType());
                 break;
         }
+        
+        }while(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && cRet != CodecReturnCodes.END_OF_CONTAINER);
     }
     
     /* Process login response. */
@@ -1458,18 +1577,18 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
 	        if (!_consPerfConfig.useWatchlist()) // VA Reactor Watchlist not enabled
 	        {
-                int bufLen = _itemEncoder.estimateItemPostBufferLength(postItem.itemInfo());
+	        	Channel channel = _channel;
+                if (_consPerfConfig.useReactor()) // use VA Reactor 
+                {
+                    channel = _reactorChannel.channel();
+                }
+                
+                int bufLen = _itemEncoder.estimateItemPostBufferLength(postItem.itemInfo(), channel.protocolType());
                 
                 TransportBuffer msgBuf = null;
                 if ((msgBuf = getBuffer(bufLen, false)) == null)
                 {
                     return TransportReturnCodes.NO_BUFFERS;
-                }
-                
-                Channel channel = _channel;
-                if (_consPerfConfig.useReactor()) // use VA Reactor 
-                {
-                    channel = _reactorChannel.channel();
                 }
                 
     			if ((ret = _itemEncoder.encodeItemPost(channel, postItem.itemInfo(), msgBuf, _postUserInfo, encodeStartTime)) != CodecReturnCodes.SUCCESS)
@@ -1526,18 +1645,18 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 			
             if (!_consPerfConfig.useWatchlist()) // VA Reactor Watchlist not enabled
             {
-    			int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(genMsgItem.itemInfo());
+            	Channel channel = _channel;
+    			if (_consPerfConfig.useReactor()) // use VA Reactor 
+    			{
+    			    channel = _reactorChannel.channel();
+    			}
+    			
+    			int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(genMsgItem.itemInfo(), channel.protocolType());
     
     	        TransportBuffer msgBuf = null;
     			if ((msgBuf = getBuffer(bufLen, false)) == null) 
     			{
     				return TransportReturnCodes.NO_BUFFERS;
-    			}
-    
-    			Channel channel = _channel;
-    			if (_consPerfConfig.useReactor()) // use VA Reactor 
-    			{
-    			    channel = _reactorChannel.channel();
     			}
     			
     			if ((ret = _itemEncoder.encodeItemGenMsg(channel, genMsgItem.itemInfo(), msgBuf, encodeStartTime)) != CodecReturnCodes.SUCCESS) 
@@ -1651,7 +1770,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
                 for (int i = 0; i < _msgData.marketPricePostMsgCount(); ++i) 
                 {
-                    int bufLen = _itemEncoder.estimateItemPostBufferLength(_itemInfo);
+                    int bufLen = _itemEncoder.estimateItemPostBufferLength(_itemInfo, channel.protocolType());
                     testBuffer = channel.getBuffer(bufLen, false, _error);
                     if (testBuffer == null)
                     {
@@ -1700,7 +1819,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
 				for (int i = 0; i < _msgData.marketPriceGenMsgCount(); ++i) 
 				{
-					int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(_itemInfo);
+					int bufLen = _itemEncoder.estimateItemGenMsgBufferLength(_itemInfo, channel.protocolType());
 					testBuffer = channel.getBuffer(bufLen, false, _error);
                     if (testBuffer == null)
                     {
@@ -2327,7 +2446,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         
         if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving
         {
-            msgBuf = _channel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _error);
+            msgBuf = _channel.getBuffer(length, packedBuffer, _error);
         }
         else // use ETA VA Reactor for sending and receiving
         {
@@ -2335,7 +2454,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             {
             	if(Objects.isNull(_tunnelStreamHandler))
             	{
-            		msgBuf = _reactorChannel.getBuffer(length, ProviderPerfConfig.totalBuffersPerPack() > 1, _errorInfo);
+            		msgBuf = _reactorChannel.getBuffer(length, packedBuffer, _errorInfo);
             	}
             	else
             	{
@@ -2432,4 +2551,40 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     
         return selectTime;
     }
+
+	@Override
+	public int serviceNameToIdCallback(String serviceName, Object closure)
+	{
+		ConsumerThread consumerThread = (ConsumerThread)closure;
+		
+		if(consumerThread._srcDirHandler.serviceInfo().info().serviceName().toString().equals(serviceName))
+		{
+			return consumerThread._srcDirHandler.serviceInfo().serviceId();
+		}
+		
+		return CodecReturnCodes.FAILURE;
+	}
+
+	@Override
+	public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId,
+			ReactorServiceNameToIdEvent serviceNameToIdEvent) 
+	{
+		ConsumerThread consumerThread = (ConsumerThread)serviceNameToIdEvent.userSpecObj();
+		
+		if(consumerThread._srcDirHandler.serviceInfo().info().serviceName().toString().equals(serviceNameToId.serviceName()))
+		{
+			serviceNameToId.serviceId(consumerThread._srcDirHandler.serviceInfo().serviceId());
+			return ReactorReturnCodes.SUCCESS;
+		}
+		
+		return ReactorReturnCodes.FAILURE;
+	}
+
+	@Override
+	public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent)
+	{
+		System.out.println("JSON Conversion error: " + jsonConversionEvent.error().text());
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+	}
 }

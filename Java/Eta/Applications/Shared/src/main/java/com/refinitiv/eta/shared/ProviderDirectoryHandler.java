@@ -27,6 +27,8 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.json.converter.JsonConverterError;
+import com.refinitiv.eta.json.converter.ServiceNameIdConverter;
 
 /**
  * This is the source directory handler for the ETA Java Provider application.
@@ -42,7 +44,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * getting/setting the service id, checking if a request has minimal filter
  * flags, and closing source directory streams are also provided.
  */
-public class ProviderDirectoryHandler
+public class ProviderDirectoryHandler implements ServiceNameIdConverter
 {
     private static final int REJECT_MSG_SIZE = 1024;
     private static final int STATUS_MSG_SIZE = 1024;
@@ -54,7 +56,7 @@ public class ProviderDirectoryHandler
     private DirectoryRequest _directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
     private EncodeIterator _encodeIter = CodecFactory.createEncodeIterator();
     private DirectoryRequestInfoList _directoryRequestInfoList;
-    
+
     private boolean _enableGenericProvider; // used for generic provider
 
     // service name of provider
@@ -80,7 +82,7 @@ public class ProviderDirectoryHandler
     private ProviderSession _providerSession;
 
     private Service _service = DirectoryMsgFactory.createService();
-    
+
     public static final int GENERIC_DOMAIN = 200; // used for generic provider
 
     public ProviderDirectoryHandler(ProviderSession providerSession)
@@ -92,11 +94,11 @@ public class ProviderDirectoryHandler
         _directoryRequestInfoList = new DirectoryRequestInfoList();
         _providerSession = providerSession;
     }
-    
+
     /**
      * Enables the source directory handler for a generic provider.
      * A generic provider does not use a dictionary and is only capable
-     * of providing the user-defined generic domain. 
+     * of providing the user-defined generic domain.
      */
     public void enableGenericProvider()
     {
@@ -115,7 +117,7 @@ public class ProviderDirectoryHandler
      * Processes a source directory request. This consists of calling
      * directoryRequest.decode() to decode the request and calling
      * sendSourceDirectoryResponse() to send the source directory response.
-     * 
+     *
      * @param chnl - The channel of the response
      * @param msg - The partially decoded message
      * @param dIter - The decode iterator
@@ -165,7 +167,7 @@ public class ProviderDirectoryHandler
 
     /**
      * Sends directory close status message to a channel.
-     * 
+     *
      * @param chnl - The channel to send close status message to
      * @param error - Error information in case of encoding or socket writing
      *            failure.
@@ -186,7 +188,7 @@ public class ProviderDirectoryHandler
         {
             return CodecReturnCodes.FAILURE;
         }
-      
+
         // encode directory close
         _encodeIter.clear();
         int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
@@ -197,7 +199,7 @@ public class ProviderDirectoryHandler
         }
 
         _directoryStatus.streamId(directoryReqInfo.directoryRequest.streamId());
-        
+
         _directoryStatus.applyHasState();
         _directoryStatus.state().streamState(StreamStates.CLOSED);
         _directoryStatus.state().dataState(DataStates.SUSPECT);
@@ -229,7 +231,7 @@ public class ProviderDirectoryHandler
                 return ret;
             }
 
-            // send request reject status 
+            // send request reject status
             return _providerSession.write(chnl, msgBuf, error);
         }
         else
@@ -288,7 +290,7 @@ public class ProviderDirectoryHandler
 
     /**
      * Closes the source directory stream for a channel.
-     * 
+     *
      * @param chnl - The channel to close the source directory stream for
      */
     public void closeRequest(Channel chnl)
@@ -297,7 +299,7 @@ public class ProviderDirectoryHandler
         DirectoryRequestInfo dirReqInfo = findDirectoryReqInfo(chnl);
         if(dirReqInfo != null)
         {
-            // clear original request information 
+            // clear original request information
             System.out.println("Closing source directory stream id '" + dirReqInfo.directoryRequest.streamId() + "' with service name: " + _serviceName);
             dirReqInfo.clear();
         }
@@ -313,7 +315,7 @@ public class ProviderDirectoryHandler
                 return sourceDirectoryReqInfo;
             }
         }
-        
+
         return null;
     }
     private void closeStream(int streamId)
@@ -333,7 +335,7 @@ public class ProviderDirectoryHandler
 
     /**
      * Sends directory refresh message to a channel.
-     * 
+     *
      * @param chnl - The channel to send a source directory response to
      * @param srcDirReqInfo - The source directory request information
      * @param error - Error information populated in case of encoding or socket
@@ -411,7 +413,7 @@ public class ProviderDirectoryHandler
             qos.rate(QosRates.TICK_BY_TICK);
             qos.timeliness(QosTimeliness.REALTIME);
             _service.info().qosList().add(qos);
-         
+
             // dictionary used
             if (!_enableGenericProvider)
             {
@@ -427,11 +429,11 @@ public class ProviderDirectoryHandler
                 _service.info().dictionariesProvidedList().add(fieldDictionaryName);
                 _service.info().dictionariesProvidedList().add(enumTypeDictionaryName);
             }
-          
+
             // isSource = Service is provided directly from original publisher
             _service.info().applyHasIsSource();
             _service.info().isSource(1);
- 
+
             // itemList - Name of SymbolList that includes all of the items that
             // he publisher currently provides.
             if (!_enableGenericProvider)
@@ -439,7 +441,7 @@ public class ProviderDirectoryHandler
                 _service.info().applyHasItemList();
                 _service.info().itemList().data("_ETA_ITEM_LIST");
             }
- 
+
             // accepting customer status = no
             _service.info().applyHasAcceptingConsumerStatus();
             _service.info().acceptingConsumerStatus(0);
@@ -479,7 +481,7 @@ public class ProviderDirectoryHandler
 
             Service.ServiceLink serviceLink = new Service.ServiceLink();
 
-            // link name - Map Entry Key 
+            // link name - Map Entry Key
             serviceLink.name().data(linkName);
 
             // link type
@@ -502,7 +504,7 @@ public class ProviderDirectoryHandler
             error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             return ret;
         }
-        
+
         ret = _directoryRefresh.encode(_encodeIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
@@ -521,14 +523,14 @@ public class ProviderDirectoryHandler
     private boolean keyHasMinFilterFlags(MsgKey key)
     {
         return key.checkHasFilter() &&
-                (key.filter() & Directory.ServiceFilterFlags.INFO) != 0 &&
-                (key.filter() & Directory.ServiceFilterFlags.STATE) != 0 &&
-                (key.filter() & Directory.ServiceFilterFlags.GROUP) != 0;
+               (key.filter() & Directory.ServiceFilterFlags.INFO) != 0 &&
+               (key.filter() & Directory.ServiceFilterFlags.STATE) != 0 &&
+               (key.filter() & Directory.ServiceFilterFlags.GROUP) != 0;
     }
 
     /**
      * Gets the service name requested by the application.
-     * 
+     *
      * @return servicename - The service name requested by the application
      */
     public String serviceName()
@@ -538,7 +540,7 @@ public class ProviderDirectoryHandler
 
     /**
      * Sets the service name requested by the application.
-     * 
+     *
      * @param serviceName - The service name requested by the application
      */
     public void serviceName(String serviceName)
@@ -548,7 +550,7 @@ public class ProviderDirectoryHandler
 
     /**
      * Gets the service id requested by the application.
-     * 
+     *
      * @return serviceid - The service id requested by the application
      */
     public int serviceId()
@@ -558,11 +560,24 @@ public class ProviderDirectoryHandler
 
     /**
      * Sets the service id requested by the application.
-     * 
+     *
      * @param serviceId - The service id requested by the application
      */
     public void serviceId(int serviceId)
     {
         this._serviceId = serviceId;
+    }
+
+    @Override
+    public int serviceNameToId(String serviceName, JsonConverterError error) {
+        if (this.serviceName().equals(serviceName)) {
+            return serviceId();
+        }
+        return -1;
+    }
+
+    @Override
+    public String serviceIdToName(int id, JsonConverterError error) {
+        return null;
     }
 }

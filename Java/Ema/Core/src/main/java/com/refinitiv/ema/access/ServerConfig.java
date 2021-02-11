@@ -23,6 +23,8 @@ class ServerConfig
 	int 				highWaterMark;
 	int					connectionMinPingTimeout;
 	int					initializationTimeout;
+	String 				wsProtocols;
+	int 				maxFragmentSize;
 	String 				keystoreFile;
 	String 				keystorePasswd;
 	String				keystoreType;
@@ -51,6 +53,8 @@ class ServerConfig
 		connectionPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT;
 		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
+		wsProtocols = ActiveConfig.DEFAULT_WS_PROTOCOLS;
+		maxFragmentSize = ActiveConfig.DEFAULT_MAX_FRAGMENT_SIZE;
 		compressionThresholdSet = false;
 		keystoreFile = null;
 		keystorePasswd = null;

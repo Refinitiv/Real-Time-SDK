@@ -3,12 +3,12 @@ package com.refinitiv.eta.transport;
 /**
  * ETA Connect Options used in the
  * {@link Transport#connect(ConnectOptions, Error)} call.
- * 
+ *
  * @see Transport
  */
 public interface ConnectOptions
 {
-    
+
     /**
      * A character representation of component version information.
      *
@@ -18,28 +18,28 @@ public interface ConnectOptions
 
     /**
      * A character representation of component version information.
-     * 
+     *
      * @return the componentVersion
      */
     public String componentVersion();
-	
-     
-    
+
+
+
     /**
      * Type of connection to establish. Must be in the range of
      * {@link ConnectionTypes#SOCKET} - {@link ConnectionTypes#RELIABLE_MCAST}.
-     * 
+     *
      * @param connectionType the connectionType to set
-     * 
+     *
      * @see ConnectionTypes
      */
     public void connectionType(int connectionType);
 
     /**
      * Type of connection to establish.
-     * 
+     *
      * @return the connectionType
-     * 
+     *
      * @see ConnectionTypes
      */
     public int connectionType();
@@ -49,9 +49,9 @@ public interface ConnectOptions
      * This is typically used with {@link ConnectionTypes#SOCKET},
      * {@link ConnectionTypes#HTTP}, {@link ConnectionTypes#ENCRYPTED},
      * and fully connected/mesh multicast networks.
-     * 
+     *
      * @return the UnifiedNetworkInfo
-     * 
+     *
      */
     public UnifiedNetworkInfo unifiedNetworkInfo();
 
@@ -59,33 +59,33 @@ public interface ConnectOptions
      * Connection parameters when sending and receiving on different networks.
      * This is typically used with multicast networks that have different groups
      * of senders and receivers (e.g., NIProvider can send network and ADH on receive network).
-     * 
+     *
      * @return the SegmentedNetworkInfo
-     * 
+     *
      */
     public SegmentedNetworkInfo segmentedNetworkInfo();
 
     /**
      * Tunneling connection parameters.
-     * 
+     *
      * @return the TunnelingInfo
-     * 
+     *
      */
     public TunnelingInfo tunnelingInfo();
 
     /**
      * Proxy Credentials.
-     * 
+     *
      * @return the CredentialsInfo
-     * 
+     *
      */
     public CredentialsInfo credentialsInfo();
-    
+
     /**
      * Encryption connection options
-     * 
+     *
      * @return the EncryptionOptions
-     * 
+     *
      */
     public EncryptionOptions encryptionOptions();
 
@@ -94,48 +94,48 @@ public interface ConnectOptions
      * connection. Compression is negotiated between the client and server and
      * may not be performed if only the client has enabled. Must be in the
      * range of {@link CompressionTypes#NONE} - {@link CompressionTypes#LZ4}.
-     * 
+     *
      * @param compressionType the compressionType to set
-     * 
+     *
      * @see CompressionTypes
      */
     public void compressionType(int compressionType);
-    
+
     /**
      * The type of compression the client would like performed for this
      * connection. Compression is negotiated between the client and server and
      * may not be performed if only the client has enabled.
-     * 
+     *
      * @return the compressionType
-     * 
+     *
      * @see CompressionTypes
      */
     public int compressionType();
 
     /**
      * If true, the connection will use lock on reading.
-     * 
+     *
      * @param locking the readLocking to set
      */
     public void channelReadLocking(boolean locking);
 
     /**
      * If true, the connection uses lock on read.
-     * 
+     *
      * @return the locking
      */
     public boolean channelReadLocking();
 
     /**
      * If true, the connection will use lock on writing.
-     * 
+     *
      * @param locking the writeLocking to set
      */
     public void channelWriteLocking(boolean locking);
 
     /**
      * If true, the connection uses lock on write.
-     * 
+     *
      * @return the locking
      */
     public boolean channelWriteLocking();
@@ -155,15 +155,15 @@ public interface ConnectOptions
      * other necessary work in the application. An I/O notification mechanism
      * enables the application to read when data is available, and write when
      * output space is available.
-     * 
-     * 
+     *
+     *
      * @param blocking the blocking to set
      */
     public void blocking(boolean blocking);
 
     /**
      * If true, the connection will block.
-     * 
+     *
      * @return the blocking
      */
     public boolean blocking();
@@ -177,7 +177,7 @@ public interface ConnectOptions
      * heartbeat every pingTimeout/3 seconds. Must be in the range of 1 - 255.
      * If the value is 0, it will be adjusted to 1, and if the value is greater
      * than 255, it will be set to 255.
-     * 
+     *
      * @param pingTimeout the pingTimeout to set
      */
     public void pingTimeout(int pingTimeout);
@@ -189,7 +189,7 @@ public interface ConnectOptions
      * through the pingTimeout value on the {@link Channel}. When determining
      * the desired ping timeout, the typically used rule of thumb is to send a
      * heartbeat every pingTimeout/3 seconds.
-     * 
+     *
      * @return the pingTimeout
      */
     public int pingTimeout();
@@ -199,7 +199,7 @@ public interface ConnectOptions
      * use while writing data. Guaranteed output buffers are allocated at
      * initialization time. Must be in the range of 0 - 2,147,483,647. If the
      * argument value is less then 5, the guaranteed number of buffers will be set to 5.
-     * 
+     *
      * @param guaranteedOutputBuffers the guaranteedOutputBuffers to set
      */
     public void guaranteedOutputBuffers(int guaranteedOutputBuffers);
@@ -208,7 +208,7 @@ public interface ConnectOptions
      * A guaranteed number of buffers made available for this {@link Channel} to
      * use while writing data. Guaranteed output buffers are allocated at
      * initialization time.
-     * 
+     *
      * @return the guaranteedOutputBuffers
      */
     public int guaranteedOutputBuffers();
@@ -218,7 +218,7 @@ public interface ConnectOptions
      * This controls the maximum number of bytes that can be handled with a
      * single network read operation. Input buffers are allocated at
      * initialization time. Must be in the range of 0 - 2,147,483,647.
-     * 
+     *
      * @param numInputBuffers the numInputBuffers to set
      */
     public void numInputBuffers(int numInputBuffers);
@@ -228,7 +228,7 @@ public interface ConnectOptions
      * This controls the maximum number of bytes that can be handled with a
      * single network read operation. Input buffers are allocated at
      * initialization time.
-     * 
+     *
      * @return the numInputBuffers. The number must be greater than 0.
      */
     public int numInputBuffers();
@@ -238,14 +238,14 @@ public interface ConnectOptions
      * <BR>
      * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#majorVersion()}.
-     * 
+     *
      * @param majorVersion the majorVersion to set
      */
     public void majorVersion(int majorVersion);
 
     /**
      * The major version number of the {@link Channel}.
-     * 
+     *
      * @return the majorVersion
      */
     public int majorVersion();
@@ -255,7 +255,7 @@ public interface ConnectOptions
      * <BR>
      * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#minorVersion()}.
-     * 
+     *
      * @param minorVersion the minorVersion to set
      */
     public void minorVersion(int minorVersion);
@@ -270,7 +270,7 @@ public interface ConnectOptions
      * depend on any information in content being distributed. This information
      * is provided to help client and server applications manage the information
      * they are communicating.
-     * 
+     *
      * @return the minorVersion
      */
     public int minorVersion();
@@ -287,7 +287,7 @@ public interface ConnectOptions
      * <BR>
      * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#protocolType()}.
-     * 
+     *
      * @param protocolType the protocolType to set
      */
     public void protocolType(int protocolType);
@@ -301,7 +301,7 @@ public interface ConnectOptions
      * The transport layer is data neutral and does not change nor depend on any
      * information in content being distributed. This information is provided to
      * help client and server applications manage the information they are communicating.
-     * 
+     *
      * @return the protocolType
      */
     public int protocolType();
@@ -312,7 +312,7 @@ public interface ConnectOptions
      * returned from connect. This information can be useful for coupling this
      * {@link Channel} with other user created information, such as a watch list
      * associated with this connection.
-     * 
+     *
      * @param userSpecObject the userSpecObject to set. The object must be non null.
      */
     public void userSpecObject(Object userSpecObject);
@@ -323,7 +323,7 @@ public interface ConnectOptions
      * returned from connect. This information can be useful for coupling this
      * {@link Channel} with other user created information, such as a watch list
      * associated with this connection.
-     * 
+     *
      * @return the userSpecObject
      */
     public Object userSpecObject();
@@ -332,21 +332,21 @@ public interface ConnectOptions
      * A substructure containing TCP based connection type specific options.
      * These settings are used for {@link ConnectionTypes#SOCKET}, ConnectionTypes.HTTP,
      * and ConnectionTypes.ENCRYPTED.
-     * 
+     *
      * @return the tcpOpts
-     * 
+     *
      * @see TcpOpts
      */
     public TcpOpts tcpOpts();
-    
+
     /** Multicast transport specific options (used by {@link ConnectionTypes#RELIABLE_MCAST}).
-     * 
+     *
      * @return the multicastOpts
-     * 
+     *
      * @see MCastOpts
      * */
     public MCastOpts multicastOpts();
-	
+
     /**
      * Shared memory transport specific options (used by {@link ConnectionTypes#UNIDIR_SHMEM}).
      *
@@ -359,7 +359,7 @@ public interface ConnectOptions
      * where applicable.  Setting of 0 indicates to use default sizes. This can also
      * be set or changed via {@link Channel#ioctl(int, int, Error)}.
      * Must be in the range of 0 - 2,147,483,647.
-     * 
+     *
      * @param sysSendBufSize the sysSendBufSize to set
      */
     public void sysSendBufSize(int sysSendBufSize);
@@ -368,7 +368,7 @@ public interface ConnectOptions
      * The size (in kilobytes) of the system's send buffer used for this connection,
      * where applicable.  Setting of 0 indicates to use default sizes. This can also
      * be set or changed via {@link Channel#ioctl(int, int, Error)}.
-     * 
+     *
      * @return the sysSendBufSize
      */
     public int sysSendBufSize();
@@ -381,7 +381,7 @@ public interface ConnectOptions
      * to 64K. For values larger than 64K, you must use this method so that
      * sysRecvBufSize will be set prior to the connect system call.
      * Must be in the range of 0 - 2,147,483,647.
-     * 
+     *
      * @param sysRecvBufSize the sysRecvBufSize to set
      */
     public void sysRecvBufSize(int sysRecvBufSize);
@@ -391,33 +391,41 @@ public interface ConnectOptions
      * connection, where applicable. Setting of 0 indicates to use default
      * sizes. This can also be set or changed via
      * {@link Channel#ioctl(int, int, Error)} for values less than or equal to 64K.
-     * 
+     *
      * @return the sysRecvBufSize
      */
     public int sysRecvBufSize();
 
     /** Sequenced Multicast transport specific options (used by {@link ConnectionTypes#SEQUENCED_MCAST}).
-     * 
+     *
      * @return the SeqMCastOpts
-     * 
+     *
      * @see SeqMCastOpts
      * */
     public SeqMCastOpts seqMCastOpts();
-    
+
+    /** WebSocket transport specific options (used by {@link ConnectionTypes#WEBSOCKET}).
+     *
+     * @return the WSocketOpts
+     *
+     * @see WSocketOpts
+     *
+     */
+    public WSocketOpts wSocketOpts();
+
     /**
      * Clears ETA Connect Options.
      */
     public void clear();
 
     /**
-     * This method will perform a deep copy into the passed in parameter's 
+     * This method will perform a deep copy into the passed in parameter's
      *          members from the ConnectOptions calling this method.
-     * 
+     *
      * @param destOpts the value getting populated with the values of the calling ConnectOptions
-     *  
+     *
      * @return {@link TransportReturnCodes#SUCCESS} on success,
-     *         {@link TransportReturnCodes#FAILURE} if the destOpts is null. 
+     *         {@link TransportReturnCodes#FAILURE} if the destOpts is null.
      */
     public int copy(ConnectOptions destOpts);
-
 }

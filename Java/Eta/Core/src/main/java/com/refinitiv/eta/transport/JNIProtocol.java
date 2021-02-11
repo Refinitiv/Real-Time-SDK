@@ -41,7 +41,7 @@ public class JNIProtocol implements ProtocolInt
     }
 
     native int rsslInitialize(int rsslLocking, ErrorImpl error);
-    
+
     native int rsslUninitialize();
 
     @Override

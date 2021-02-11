@@ -20,6 +20,8 @@ import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.codec.StateCodes;
 import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.json.converter.JsonConverterError;
+import com.refinitiv.eta.json.converter.ServiceNameIdConverter;
 import com.refinitiv.eta.rdm.ClassesOfService.AuthenticationTypes;
 import com.refinitiv.eta.rdm.ClassesOfService.DataIntegrityTypes;
 import com.refinitiv.eta.rdm.ClassesOfService.FlowControlTypes;
@@ -33,7 +35,8 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStreamMsg.TunnelStreamAck;
 
 
 /** Represents a consumer component. */
-public class Consumer extends TestReactorComponent implements ReactorAuthTokenEventCallback, ReactorServiceEndpointEventCallback, ConsumerCallback, TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback
+public class Consumer extends TestReactorComponent implements ReactorAuthTokenEventCallback, ReactorServiceEndpointEventCallback, ConsumerCallback, TunnelStreamStatusEventCallback,
+        TunnelStreamDefaultMsgCallback, TunnelStreamQueueMsgCallback, ServiceNameIdConverter, ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
 {
     AckRangeList _ackRangeList = new AckRangeList();
     AckRangeList _nakRangeList = new AckRangeList();
@@ -103,7 +106,28 @@ public class Consumer extends TestReactorComponent implements ReactorAuthTokenEv
     {
         return _testReactor.handleTunnelStreamStatusEvent(event);
     }
-    
+
+    @Override
+    public int serviceNameToId(String serviceName, JsonConverterError error) {
+        return 0;
+    }
+
+    @Override
+    public String serviceIdToName(int id, JsonConverterError error) {
+        return null;
+    }
+
+    @Override
+    public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) {
+        System.out.println(jsonConversionEvent.error().text());
+        return 0;
+    }
+
+    @Override
+    public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId, ReactorServiceNameToIdEvent serviceNameToIdEvent) {
+        return 0;
+    }
+
     /** Information returned from openTunnelStream function. */
     public class OpenedTunnelStreamInfo
     {

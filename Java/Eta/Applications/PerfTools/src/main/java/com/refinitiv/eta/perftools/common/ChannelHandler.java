@@ -24,6 +24,7 @@ import com.refinitiv.eta.transport.WriteArgs;
 import com.refinitiv.eta.transport.WritePriorities;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.perftools.provperf.IProviderThread;
 
 /**
@@ -153,9 +154,42 @@ public class ChannelHandler
      */
     public int writeChannel(ClientChannelInfo clientChannelInfo, TransportBuffer msgBuffer, int writeFlags, Error error)
     {
+    	Channel channel = clientChannelInfo.channel;
         _writeArgs.clear();
         _writeArgs.priority(WritePriorities.HIGH);
         _writeArgs.flags(writeFlags);
+        
+        if(channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+        {
+        	TransportBuffer jsonMsgBuffer = null;
+        	int ret = 0;
+        	
+        	do 
+        	{
+        		if ((jsonMsgBuffer = _providerThread.getJsonConverterSession().convertToJsonMsg(channel, msgBuffer, error)) == null)
+        		{
+        			if(error.errorId() == TransportReturnCodes.NO_BUFFERS)
+        			{
+        				if ((ret = channel.flush(error)) < TransportReturnCodes.SUCCESS)
+        				{
+        					System.out.println("rsslFlush() failed with return code " + ret + "<" + error.text() + ">");
+        					return ret;
+        				}
+        			}
+        			else
+        			{
+        				System.out.println("convertToJsonMsg(): Failed to convert RWF > JSON with error text: " + error.text());
+        				channel.releaseBuffer(msgBuffer, error);
+        				return TransportReturnCodes.FAILURE;
+        			}
+        			
+        		}
+        	} while(error.errorId() == TransportReturnCodes.NO_BUFFERS);
+        	
+        	/* Releases the original buffer */
+        	channel.releaseBuffer(msgBuffer, error);
+        	msgBuffer = jsonMsgBuffer;
+        }
 
         // write buffer
         int ret = clientChannelInfo.channel.write(msgBuffer, _writeArgs, error);

@@ -3,6 +3,7 @@ package com.refinitiv.eta.perftools.common;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.MsgKey;
@@ -35,7 +36,9 @@ public class ProviderSession
     private int _unexpectedCloseCount;                          // Count of unexpected close messages received
     private ProviderThread _providerThread;                     // Provider thread of this session.
     private ReactorErrorInfo _errorInfo;                        // Use the VA Reactor instead of the ETA Channel for sending and receiving
-
+    private int _remaingPackedBufferLength;						// Keep track of the remaining packed buffer for handling JSON protocol
+    private Buffer _tempBufferForPacking;							// This is used as temporary buffer for encoding RWF message for message packing over JSON protocol.
+    
     /**
      * Instantiates a new provider session.
      *
@@ -69,6 +72,7 @@ public class ProviderSession
         _timeActivated = 0;
         _clientChannelInfo = clientChannelInfo;
         _unexpectedCloseCount = 0;
+        _remaingPackedBufferLength = 0;
     }
 
     /**
@@ -84,6 +88,7 @@ public class ProviderSession
         _timeActivated = 0;
         _clientChannelInfo = null;
         _unexpectedCloseCount = 0;
+        _tempBufferForPacking = null;
     }
 
     /**
@@ -181,7 +186,7 @@ public class ProviderSession
             itemInfo.attributes().domainType(DomainTypes.MARKET_PRICE);
             itemInfo.itemData(mpItem);
 
-            int bufLen = _itemEncoder.estimateRefreshBufferLength(itemInfo);
+            int bufLen = _itemEncoder.estimateRefreshBufferLength(itemInfo, _clientChannelInfo.channel.protocolType());
             TransportBuffer testBuffer = getTempBuffer(bufLen, error);
             if (testBuffer == null)
                 return PerfToolsReturnCodes.FAILURE;
@@ -199,7 +204,7 @@ public class ProviderSession
             // Update msgs
             for (int i = 0; i < _xmlMsgData.marketPriceUpdateMsgCount(); ++i)
             {
-                bufLen = _itemEncoder.estimateUpdateBufferLength(itemInfo);
+                bufLen = _itemEncoder.estimateUpdateBufferLength(itemInfo, _clientChannelInfo.channel.protocolType());
                 testBuffer = getTempBuffer(bufLen, error);
                 if (testBuffer == null)
                     return PerfToolsReturnCodes.FAILURE;
@@ -435,4 +440,20 @@ public class ProviderSession
             _clientChannelInfo.reactorChannel.releaseBuffer(msgBuf, _errorInfo);
         }
     }
+
+	public int remaingPackedBufferLength() {
+		return _remaingPackedBufferLength;
+	}
+
+	public void remaingPackedBufferLength(int remaingPackedBufferLength) {
+		this._remaingPackedBufferLength = remaingPackedBufferLength;
+	}
+
+	public Buffer tempWriteBuffer() {
+		return _tempBufferForPacking;
+	}
+
+	public void tempWriteBuffer(Buffer tempWriteBuffer) {
+		this._tempBufferForPacking = tempWriteBuffer;
+	}
 }

@@ -7,25 +7,6 @@
 
 package com.refinitiv.ema.access;
 
-import com.refinitiv.ema.access.Data;
-import com.refinitiv.ema.access.DataType;
-import com.refinitiv.ema.access.Key;
-import com.refinitiv.ema.access.OmmAscii;
-import com.refinitiv.ema.access.OmmBuffer;
-import com.refinitiv.ema.access.OmmDate;
-import com.refinitiv.ema.access.OmmDateTime;
-import com.refinitiv.ema.access.OmmDouble;
-import com.refinitiv.ema.access.OmmEnum;
-import com.refinitiv.ema.access.OmmError;
-import com.refinitiv.ema.access.OmmFloat;
-import com.refinitiv.ema.access.OmmInt;
-import com.refinitiv.ema.access.OmmQos;
-import com.refinitiv.ema.access.OmmReal;
-import com.refinitiv.ema.access.OmmRmtes;
-import com.refinitiv.ema.access.OmmState;
-import com.refinitiv.ema.access.OmmTime;
-import com.refinitiv.ema.access.OmmUInt;
-import com.refinitiv.ema.access.OmmUtf8;
 import com.refinitiv.ema.access.DataType.DataTypes;
 
 class KeyImpl implements Key

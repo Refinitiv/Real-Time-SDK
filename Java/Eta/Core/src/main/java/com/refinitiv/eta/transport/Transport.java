@@ -24,7 +24,7 @@ public class Transport
     static ReentrantLock _initLock; // lock used during initialize() and uninitialize()
     static private LibraryVersionInfoImpl _libVersionInfo = new LibraryVersionInfoImpl();
     static ByteBuffer _defaultComponentVersionBuffer;
-    
+
     static
     {
         Package thisPackage = Transport.class.getPackage();
@@ -79,14 +79,14 @@ public class Transport
 
     /**
      * Initializes the ETA transport API and all internal members.<BR>
-     * 
+     *
      * This is the first method called when using the ETA. It initializes internal data structures.
-     * 
+     *
      * @param initArgs Arguments for initialize
      * @param error ETA Error, to be populated in event of an error
-     * 
+     *
      * @return {@link TransportReturnCodes}
-     * 
+     *
      * @see InitArgs
      */
     public static int initialize(InitArgs initArgs, Error error)
@@ -117,7 +117,7 @@ public class Transport
                 _globalLock = new ReentrantLock();
             else
                 _globalLock = new DummyLock();
-            
+
             _globalLocking = initArgs.globalLocking();
             ++_numInitCalls;
         }
@@ -128,12 +128,12 @@ public class Transport
 
     /**
      * Uninitializes the ETA API and all internal members.<BR>
-     * 
+     *
      * This is the last method called by an application when using the ETA. 
      * If multiple threads call initialize() on Transport, they have to
      * call uninitialize() when the thread finishes.
      * The last uninitialize() call releases all internally pooled resources to GC.
-     * 
+     *
      * @return {@link TransportReturnCodes}
      */
     public static int uninitialize()
@@ -155,13 +155,13 @@ public class Transport
                     _transports[i] = null;
                 }
             }
-            
+
             for (int i = 0; i < _encryptedTransports.length; i++)
             {
                 if (_encryptedTransports[i] != null)
                 {
-                	_encryptedTransports[i].uninitialize();
-                	_encryptedTransports[i] = null;
+                    _encryptedTransports[i].uninitialize();
+                    _encryptedTransports[i] = null;
                 }
             }
             if (_hiddenTcpJni != null)
@@ -171,7 +171,7 @@ public class Transport
             }
             _globalLock.unlock();
         }
-        
+
         _initLock.unlock();
         return ret;
     }
@@ -187,11 +187,11 @@ public class Transport
 
     /**
      * Gets the IP address of a hostname.<BR>
-     * 
+     *
      * This method gets the IP address of a hostname in host byte order.
-     * 
+     *
      * @param hostName Hostname to get IP address for
-     * 
+     *
      * @return The IP address
      */
     public static InetSocketAddress hostByName(String hostName)
@@ -203,9 +203,9 @@ public class Transport
 
     /**
      * Gets the user name.<BR>
-     * 
+     *
      * This method gets the user name that the owner of the current process is logged in under.
-     * 
+     *
      * @return User name of user
      */
     public static String userName()
@@ -215,19 +215,19 @@ public class Transport
 
     /**
      * Initialize transport defined in opts if not initialized.<BR>
-     * 
+     *
      * Connects a client to a listening server.<BR>
-     * 
+     *
      * 1. Initialize ConnectOptions<BR>
      * 2. Set ConnectOptions to desired values<BR>
      * 3. Call connect to create Channel<BR>
      * 4. Read or write with the Channel<BR>
-     * 
+     *
      * @param opts Options used when connecting
      * @param error ETA Error, to be populated in event of an error
-     * 
+     *
      * @return Connected ETA channel or NULL
-     * 
+     *
      * @see ConnectOptions
      * @see Channel
      */
@@ -263,39 +263,41 @@ public class Transport
                     Protocol transport = null;
                     if (opts.connectionType() != HIDDEN_TCP_JNI)
                     {
-                    	if(opts.connectionType() == ConnectionTypes.ENCRYPTED)
-                    	{
-                    		if(opts.tunnelingInfo().tunnelingType().equalsIgnoreCase("none"))
-                    			transport = _encryptedTransports[opts.encryptionOptions().connectionType()];
-                    		else
-                    			transport = _encryptedTransports[ConnectionTypes.HTTP];
-                    	}
-                    	else
-                    	{
-                    		transport = _transports[opts.connectionType()];
-                    	}
+                        if(opts.connectionType() == ConnectionTypes.ENCRYPTED)
+                        {
+                            if(opts.tunnelingInfo().tunnelingType().equalsIgnoreCase("none"))
+                                transport = _encryptedTransports[opts.encryptionOptions().connectionType()];
+                            else
+                                transport = _encryptedTransports[ConnectionTypes.HTTP];
+                        }
+                        else
+                        {
+                            transport = _transports[opts.connectionType()];
+                        }
                     }
                     switch (opts.connectionType())
                     {
-                    	case ConnectionTypes.ENCRYPTED:
-                    		// Verify that the encryption type has been set correctly.  Error out if this is not the case.
-                    		if(opts.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
-                    		{
-                    			if(opts.encryptionOptions().connectionType() != ConnectionTypes.SOCKET && opts.encryptionOptions().connectionType() != ConnectionTypes.HTTP )
-                    			{
-                    				 error.channel(null);
-                                     error.errorId(TransportReturnCodes.FAILURE);
-                                     error.sysError(0);
-                                     error.text("Unsupported sub-protocol type configured in opts.encryptionOptions().connectionType()");
-                    			}
-                    		}
-                    		if (transport == null) // not initialized yet - first connection for this transport
+                        case ConnectionTypes.ENCRYPTED:
+                            // Verify that the encryption type has been set correctly.  Error out if this is not the case.
+                            if(opts.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
+                            {
+                                if (opts.encryptionOptions().connectionType() != ConnectionTypes.SOCKET
+                                    && opts.encryptionOptions().connectionType() != ConnectionTypes.HTTP
+                                    && opts.encryptionOptions().connectionType() != ConnectionTypes.WEBSOCKET) {
+                                    error.channel(null);
+                                    error.errorId(TransportReturnCodes.FAILURE);
+                                    error.sysError(0);
+                                    error.text("Unsupported sub-protocol type configured in opts.encryptionOptions().connectionType()");
+                                }
+                            }
+                            if (transport == null) // not initialized yet - first connection for this transport
                             {
                                 transport = new SocketProtocol(opts);
                                 _encryptedTransports[opts.connectionType()] = transport;
                             }
                             channel = transport.channel(opts, error);
                             break;
+                        case ConnectionTypes.WEBSOCKET:
                         case ConnectionTypes.SOCKET:
                         case ConnectionTypes.HTTP:
                             if (transport == null) // not initialized yet - first connection for this transport
@@ -348,16 +350,16 @@ public class Transport
 
     /**
      * Creates a ETA Server by binding to a port.<BR>
-     * 
+     *
      * 1. Initialize BindOptions<BR>
      * 2. Set BindOptions to desired values<BR>
      * 3. Call bind to create {@link Server}<BR>
-     * 
+     *
      * @param opts Options used when binding
      * @param error ETA Error, to be populated in event of an error
-     * 
+     *
      * @return Bound ETA server or NULL
-     * 
+     *
      * @see BindOptions
      * @see Server
      */
@@ -398,6 +400,7 @@ public class Transport
                     {
                         case ConnectionTypes.HTTP:
                         case ConnectionTypes.SOCKET:
+                        case ConnectionTypes.WEBSOCKET:
                         case ConnectionTypes.ENCRYPTED:
                             if (transport == null) // not initialized yet -/ first connection for this transport. For the server side, ENCRYPTED connections are the same as socket.
                             {
@@ -449,7 +452,7 @@ public class Transport
 
     /**
      * Programmatically extracts library and product version information that is compiled into this library.<BR>
-     * 
+     *
      * User can call this method to programmatically extract version information.<BR>
      *
      * @return the library version info

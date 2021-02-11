@@ -2,22 +2,22 @@ package com.refinitiv.eta.transport;
 
 /**
  * ETA Bind Options used in the {@link Transport#bind(BindOptions, Error)} call.
- * 
+ *
  * @see Transport
  */
 public interface BindOptions
 {
-    
+
     /**
      * A character representation of a component version information.
      *
      * @param componentVersion the component version
      */
     public void componentVersion(String componentVersion);
-	
+
     /**
      * A character representation of a component version information.
-     * 
+     *
      * @return the componentVersion
      */
     public String componentVersion();
@@ -25,7 +25,7 @@ public interface BindOptions
     /**
      * A character representation of a numeric port number or service name (as
      * defined in etc/services file) to bind and open a listening socket on.
-     * 
+     *
      * @param serviceName the serviceName to set. The serviceName must be non null.
      */
     public void serviceName(String serviceName);
@@ -33,7 +33,7 @@ public interface BindOptions
     /**
      * A character representation of a numeric port number or service name (as
      * defined in etc/services file) to bind and open a listening socket on.
-     * 
+     *
      * @return the serviceName
      */
     public String serviceName();
@@ -45,7 +45,7 @@ public interface BindOptions
      * systems which have multiple network interface cards. If not populated,
      * connection can be accepted on all interfaces. If the loopback address is
      * specified, connections can be accepted only when instantiating from the local machine.
-     * 
+     *
      * @param interfaceName the interfaceName to set
      */
     public void interfaceName(String interfaceName);
@@ -57,7 +57,7 @@ public interface BindOptions
      * systems which have multiple network interface cards. If not populated,
      * connection can be accepted on all interfaces. If the loopback address is
      * specified, connections can be accepted only when instantiating from the local machine.
-     * 
+     *
      * @return the interfaceName
      */
     public String interfaceName();
@@ -69,9 +69,9 @@ public interface BindOptions
      * force compression, regardless of client settings, by using the
      * forceCompression option
      * Must be in the range of {@link CompressionTypes#NONE} - {@link CompressionTypes#LZ4}.
-     * 
+     *
      * @param compressionType the compressionType to set
-     * 
+     *
      * @see CompressionTypes
      */
     public void compressionType(int compressionType);
@@ -82,9 +82,9 @@ public interface BindOptions
      * may not be performed if only the server has this enabled. The server can
      * force compression, regardless of client settings, by using the
      * forceCompression option.
-     * 
+     *
      * @return the compressionType
-     * 
+     *
      * @see CompressionTypes
      */
     public int compressionType();
@@ -97,7 +97,7 @@ public interface BindOptions
      * A compressionLevel of 6 is a compromise between speed and compression.
      * A compressionLevel of 0 will copy the data with no compression applied.
      * Compression level must be in the range of 0 - 9.
-     * 
+     *
      * @param compressionLevel the compressionLevel to set
      */
     public void compressionLevel(int compressionLevel);
@@ -108,7 +108,7 @@ public interface BindOptions
      * compression. A compressionLevel of 9 results in the best compression. A
      * compressionLevel of 6 is a compromise between speed and compression. A
      * compressionLevel of 0 will copy the data with no compression applied.
-     * 
+     *
      * @return the compressionLevel
      */
     public int compressionLevel();
@@ -119,7 +119,7 @@ public interface BindOptions
      * compressionType and compressionLevel specified by the server. If set to
      * false, the compression negotiation algorithm will be used to determine
      * compression setting.
-     * 
+     *
      * @param forceCompression the forceCompression to set
      */
     public void forceCompression(boolean forceCompression);
@@ -129,7 +129,7 @@ public interface BindOptions
      * compression. When enabled, compression will use the compressionType and
      * compressionLevel specified by the server. If set to false, the
      * compression negotiation algorithm will be used to determine compression setting.
-     * 
+     *
      * @return the forceCompression
      */
     public boolean forceCompression();
@@ -143,7 +143,7 @@ public interface BindOptions
      * typically not recommended. An application can leverage an I/O
      * notification mechanism to allow efficient use, while using other cycles
      * to perform other necessary work in the application.
-     * 
+     *
      * @param serverBlocking the serverBlocking to set
      */
     public void serverBlocking(boolean serverBlocking);
@@ -157,7 +157,7 @@ public interface BindOptions
      * typically not recommended. An application can leverage an I/O
      * notification mechanism to allow efficient use, while using other cycles
      * to perform other necessary work in the application.
-     * 
+     *
      * @return the serverBlocking
      */
     public boolean serverBlocking();
@@ -173,7 +173,7 @@ public interface BindOptions
      * using other cycles to perform other necessary work in the application. An
      * I/O notification mechanism enables the application to read when data is
      * available, and write when output space is available.
-     * 
+     *
      * @param channelsBlocking the channelsBlocking to set
      */
     public void channelsBlocking(boolean channelsBlocking);
@@ -189,7 +189,7 @@ public interface BindOptions
      * using other cycles to perform other necessary work in the application. An
      * I/O notification mechanism enables the application to read when data is
      * available, and write when output space is available.
-     * 
+     *
      * @return the channelsBlocking
      */
     public boolean channelsBlocking();
@@ -199,7 +199,7 @@ public interface BindOptions
      * to the client. If set to false, the server is not required to send
      * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this value to be set to true.
-     * 
+     *
      * @param serverToClientPings the serverToClientPings to set
      */
     public void serverToClientPings(boolean serverToClientPings);
@@ -209,7 +209,7 @@ public interface BindOptions
      * to the client. If set to false, the server is not required to send
      * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this value to be set to true.
-     * 
+     *
      * @return the serverToClientPings
      */
     public boolean serverToClientPings();
@@ -219,7 +219,7 @@ public interface BindOptions
      * to the server. If set to false, the client is not required to send
      * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this to be set to true.
-     * 
+     *
      * @param clientToServerPings the clientToServerPings to set
      */
     public void clientToServerPings(boolean clientToServerPings);
@@ -229,7 +229,7 @@ public interface BindOptions
      * to the server. If set to false, the client is not required to send
      * heartbeats. Refinitiv Real-Time Distribution System and other Refinitiv components
      * typically require this to be set to true.
-     * 
+     *
      * @return the clientToServerPings
      */
     public boolean clientToServerPings();
@@ -238,18 +238,17 @@ public interface BindOptions
      * An enumerated value that indicates the type of underlying connection
      * being used. Must be either {@link ConnectionTypes#SOCKET} or
      * {@link ConnectionTypes#ENCRYPTED}.
-     * 
      * @param connectionType the connectionType to set
-     * 
+     *
      * @see ConnectionTypes
      */
     public void connectionType(int connectionType);
 
     /**
      * An enumerated value that indicates the type of underlying connection being used.
-     * 
+     *
      * @return the connectionType
-     * 
+     *
      * @see ConnectionTypes
      */
     public int connectionType();
@@ -263,7 +262,7 @@ public interface BindOptions
      * used rule of thumb is to send a heartbeat every pingTimeout/3 seconds.
      * Must be in the range of 1 - 255. If the value is 0, it will be adjusted
      * to 1, and if the value is greater than 255, it will be set to 255.
-     * 
+     *
      * @param pingTimeout the pingTimeout to set
      */
     public void pingTimeout(int pingTimeout);
@@ -275,7 +274,7 @@ public interface BindOptions
      * negotiated value becomes available through the pingTimeout value on the
      * {@link Channel}. When determining the desired ping timeout, the typically
      * used rule of thumb is to send a heartbeat every pingTimeout/3 seconds.
-     * 
+     *
      * @return the pingTimeout
      */
     public int pingTimeout();
@@ -288,9 +287,9 @@ public interface BindOptions
      * {@link Channel}. When determining the desired ping timeout, the typically
      * used rule of thumb is to send a heartbeat every pingTimeout/3 seconds.
      * Must be in the range of 1 - 255.
-     * If the value is 0, it will be adjusted to 1, 
+     * If the value is 0, it will be adjusted to 1,
      * and if the value is greater than 255, it will be set to 255.
-     * 
+     *
      * @param minPingTimeout the minPingTimeout to set
      */
     public void minPingTimeout(int minPingTimeout);
@@ -302,7 +301,7 @@ public interface BindOptions
      * negotiated value becomes available through the pingTimeout value on the
      * {@link Channel}. When determining the desired ping timeout, the typically
      * used rule of thumb is to send a heartbeat every pingTimeout/3 seconds.
-     * 
+     *
      * @return the minPingTimeout
      */
     public int minPingTimeout();
@@ -317,7 +316,7 @@ public interface BindOptions
      * common message size between components.
      * Must be in the range of 20 - 2,147,483,647.
      * If the value is outside of this range, it will be set to default value of 6144.
-     * 
+     *
      * @param maxFragmentSize the maxFragmentSize to set
      */
     public void maxFragmentSize(int maxFragmentSize);
@@ -330,7 +329,7 @@ public interface BindOptions
      * guaranteed, shared, or input buffers created will use this size. This
      * value is passed to all connected client applications and enforces a
      * common message size between components.
-     * 
+     *
      * @return the maxFragmentSize
      */
     public int maxFragmentSize();
@@ -343,7 +342,7 @@ public interface BindOptions
      * unavailable. If equal to the guaranteedOutputBuffers value, no shared
      * pool buffers are available.
      * Must be in the range of 0 - 2,147,483,647.
-     * 
+     *
      * @param maxOutputBuffers the maxOutputBuffers to set
      */
     public void maxOutputBuffers(int maxOutputBuffers);
@@ -355,7 +354,7 @@ public interface BindOptions
      * use. Shared pool buffers are only used if all guaranteedOutputBuffers are
      * unavailable. If equal to the guaranteedOutputBuffers value, no shared
      * pool buffers are available.
-     * 
+     *
      * @return the maxOutputBuffers
      */
     public int maxOutputBuffers();
@@ -366,7 +365,7 @@ public interface BindOptions
      * maxFragmentSize bytes. Guaranteed output buffers are allocated at initialization time.
      * Must be in the range of 0 - 2,147,483,647.
      * If the argument value is less then 5, the guaranteed number of buffers will be set to 5.
-     * 
+     *
      * @param guaranteedOutputBuffers the guaranteedOutputBuffers to set
      */
     public void guaranteedOutputBuffers(int guaranteedOutputBuffers);
@@ -376,7 +375,7 @@ public interface BindOptions
      * use while writing data. Each buffer will be created to contain
      * maxFragmentSize bytes. Guaranteed output buffers are allocated at
      * initialization time.
-     * 
+     *
      * @return the guaranteedOutputBuffers
      */
     public int guaranteedOutputBuffers();
@@ -384,7 +383,7 @@ public interface BindOptions
     /**
      * Sets the number of input buffers (of maxFragmentSize) for reading data into.
      * Must be in the range of 0 - 2,147,483,647.
-     * 
+     *
      * @param numInputBuffers the numInputBuffers to set
      */
     public void numInputBuffers(int numInputBuffers);
@@ -395,7 +394,7 @@ public interface BindOptions
      * handled with a single network read operation on each channel. Each input
      * buffer will be created to contain maxFragmentSize bytes. Input buffers
      * are allocated at initialization time.
-     * 
+     *
      * @return the numInputBuffers
      */
     public int numInputBuffers();
@@ -410,7 +409,7 @@ public interface BindOptions
      * 1,048,567 shared pool buffers will be allowed. The shared pool is not
      * fully allocated at bind time. As needed, shared pool buffers are added
      * and reused until the server is shut down.
-     * 
+     *
      * @param sharedPoolSize the sharedPoolSize to set
      */
     public void sharedPoolSize(int sharedPoolSize);
@@ -423,7 +422,7 @@ public interface BindOptions
      * shared pool buffer will be created to contain maxFragmentSize bytes.
      * The shared pool is not fully allocated at bind time. As needed, shared
      * pool buffers are added and reused until the server is shut down.
-     * 
+     *
      * @return the sharedPoolSize
      */
     public int sharedPoolSize();
@@ -433,7 +432,7 @@ public interface BindOptions
      * performed. This setting is independent of any initialize locking mode
      * options. Enabling a shared pool lock allows shared pool use to remain
      * thread safe while still disabling channel locking.
-     * 
+     *
      * @param sharedPoolLock the sharedPoolLock to set
      */
     public void sharedPoolLock(boolean sharedPoolLock);
@@ -443,7 +442,7 @@ public interface BindOptions
      * performed. This setting is independent of any initialize locking mode
      * options. Enabling a shared pool lock allows shared pool use to remain
      * thread safe while still disabling channel locking.
-     * 
+     *
      * @return the sharedPoolLock
      */
     public boolean sharedPoolLock();
@@ -461,7 +460,7 @@ public interface BindOptions
      * <BR>
      * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#majorVersion()}.
-     * 
+     *
      * @param majorVersion the majorVersion to set
      */
     public void majorVersion(int majorVersion);
@@ -476,7 +475,7 @@ public interface BindOptions
      * depend on any information in content being distributed. This information
      * is provided to help client and server applications manage the information
      * they are communicating.
-     * 
+     *
      * @return the majorVersion
      */
     public int majorVersion();
@@ -486,7 +485,7 @@ public interface BindOptions
      * <BR>
      * If the ETA Codec package is being used, this should be set to
      * {@link com.refinitiv.eta.codec.Codec#minorVersion()}.
-     * 
+     *
      * @param minorVersion the minorVersion to set
      */
     public void minorVersion(int minorVersion);
@@ -501,7 +500,7 @@ public interface BindOptions
      * depend on any information in content being distributed. This information
      * is provided to help client and server applications manage the information
      * they are communicating.
-     * 
+     *
      * @return the minorVersion
      */
     public int minorVersion();
@@ -527,7 +526,7 @@ public interface BindOptions
      * nor depend on any information in content being distributed. This
      * information is provided to help client and server applications manage the
      * information they are communicating.
-     * 
+     *
      * @return the protocolType
      */
     public int protocolType();
@@ -539,7 +538,7 @@ public interface BindOptions
      * userSpecObject was not specified in the {@link AcceptOptions}. This
      * information can be useful for coupling this {@link Server} with other
      * user created information, such as a list of connected {@link Channel} structures.
-     * 
+     *
      * @param userSpecObject the userSpecObject to set. User specific object must be non null.
      */
     public void userSpecObject(Object userSpecObject);
@@ -551,7 +550,7 @@ public interface BindOptions
      * userSpecObject was not specified in the {@link AcceptOptions}. This
      * information can be useful for coupling this {@link Server} with other
      * user created information, such as a list of connected {@link Channel} structures.
-     * 
+     *
      * @return the userSpecObject
      */
     public Object userSpecObject();
@@ -559,13 +558,22 @@ public interface BindOptions
     /**
      * A substructure containing TCP based connection type specific options.
      * These settings are used for {@link ConnectionTypes#SOCKET} and ConnectionTypes.HTTP.
-     * 
+     *
      * @return the tcpOpts
-     * 
+     *
      * @see TcpOpts
      */
     public TcpOpts tcpOpts();
-    
+
+    /** WebSocket transport specific options (used by {@link ConnectionTypes#WEBSOCKET}).
+     *
+     * @return the WSocketOpts
+     *
+     * @see WSocketOpts
+     *
+     */
+    public WSocketOpts wSocketOpts();
+
     /**
      * The size (in kilobytes) of the system's receive buffer used for this
      * connection, where applicable. Setting of 0 indicates to use default
@@ -574,9 +582,9 @@ public interface BindOptions
      * For values larger than 64K, you must use this method so that
      * sysRecvBufSize will be set prior to the bind system call.
      * Must be in the range of 0 - 2,147,483,647.
-     * 
+     *
      * @param sysRecvBufSize the sysRecvBufSize to set
-     * 
+     *
      * @see java.net.Socket#setReceiveBufferSize(int)
      */
     public void sysRecvBufSize(int sysRecvBufSize);
@@ -586,31 +594,31 @@ public interface BindOptions
      * connection, where applicable. Setting of 0 indicates to use default
      * sizes. This can also be set or changed via
      * {@link Channel#ioctl(int, int, Error)} for values less than or equal to 64K.
-     * 
+     *
      * @return the sysRecvBufSize
      */
     public int sysRecvBufSize();
-    
+
     /**
      * Sets the group address for a UDP Multicast connection to write to.
-     * 
+     *
      * @param groupAddress the groupAddress to set
      */
     public void groupAddress(String groupAddress);
-    
+
     /**
      * Returns the groupAddress for the UDP Multicast connection to write to.
-     * 
+     *
      * @return the groupAddress
      */
     public String groupAddress();
-    
-    /** 
-     * Encrypted configuration options.  This is only active if the connection type is set to {@link ConnectionTypes#ENCRYPTED}.
+
+    /**
+     * Encrypted configuration options. This is only active if the connection type is set to {@link ConnectionTypes#ENCRYPTED}.
      * @return
      */
     public ServerEncryptionOptions encryptionOptions();
-    
+
     /**
      * Clears Bind Options.
      */

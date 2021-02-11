@@ -167,3 +167,49 @@ class OmmUnsupportedDomainTypeExceptionImpl extends OmmUnsupportedDomainTypeExce
 		return this;
 	}
 }
+
+class OmmJsonConverterExceptionImpl extends OmmJsonConverterException {
+
+	private static final long serialVersionUID = -2146394732735338988L;
+	private static final String OMMJSONCONVERTER_EXCEPTION_STRING = "OmmJsonConverterException";
+	private int errorCode;
+	private SessionInfo sessionInfo;
+
+	@Override
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	@Override
+	public SessionInfo getSessionInfo() {
+		return sessionInfo;
+	}
+
+	@Override
+	public String exceptionTypeAsString() {
+		return OMMJSONCONVERTER_EXCEPTION_STRING;
+	}
+
+	@Override
+	public int exceptionType() {
+		return ExceptionType.OmmJsonConverterException;
+	}
+
+	OmmJsonConverterExceptionImpl message(SessionInfo sessionInfo, int errorCode, String exceptMessage) {
+		this.errorCode = errorCode;
+		this._exceptMessage = exceptMessage;
+		return this;
+	}
+
+	@Override
+	public String toString()
+	{
+		_toString.setLength(0);
+		_toString.append("Exception Type='").append(exceptionTypeAsString()).append("', Text='").append(_exceptMessage)
+				.append("', ErrorCode='").append(errorCode)
+				.append("', SessionInfo='").append(sessionInfo.getChannelInformation().ipAddress())
+				.append("'");
+
+		return _toString.toString();
+	}
+}

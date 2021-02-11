@@ -415,4 +415,13 @@ public interface OmmProvider
 	 * @param handle identifies item or login stream 
 	 */
 	public void modifyIOCtl(int code, int value, long handle);
+
+	/**
+	 * Closes channel for connected client's channel and associated items.  Only relevant to IProvider
+	 * applications. This method throws an exception is called by NiProvider applications.
+	 *
+	 * @param clientHandle specifies a client handle to close its channel.
+	 * @throws OmmInvalidUsageException if is called by an NiProvider application or an invalid client handle.
+	 */
+	void closeChannel(long clientHandle);
 }

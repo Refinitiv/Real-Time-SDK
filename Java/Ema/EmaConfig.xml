@@ -14,7 +14,7 @@
 			<Name value="Consumer_1"/>
 
 			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
-			<!-- Channel or ChannelSet may be specified													-->
+			<!-- Channel or ChannelSet may be specified									-->
 			<Channel value="Channel_1"/>
 
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
@@ -36,49 +36,105 @@
 		<Consumer>
 			<Name value="Consumer_3"/>
 
-			<!-- Channel set to "RSSL_ENCRYPTED"														-->
-			<Channel value="Channel_4"/>
+			<!-- Channel set to "RSSL_ENCRYPTED" -->
+			<Channel value="Channel_3"/>
 
 			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
 			<Dictionary value="Dictionary_1"/>
 			<XmlTraceToStdout value="0"/>
+		</Consumer>
+
+		<Consumer>
+			<Name value="Consumer_4"/>
+
+			<Channel value="Channel_4"/>
+			
+			<Dictionary value="Dictionary_1"/>
+
+			<MaxDispatchCountApiThread value="6500"/>
+
+			<MaxDispatchCountUserThread value="6500"/>
+			<XmlTraceToStdout value="0"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
+			<Name value="Consumer_5"/>
+			<Channel value="Channel_5"/>
+
+			<Dictionary value="Dictionary_2"/>
+
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_6"/>
+			<Channel value="Channel_6"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_1"/>
+
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
+			<Name value="Consumer_5"/>
+			<Channel value="Channel_5"/>
+
+			<Dictionary value="Dictionary_2"/>
+
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_6"/>
+			<Channel value="Channel_6"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_1"/>
+
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
+		</Consumer>
+
+		<!-- Consumer with enabled RTT feature -->
+		<Consumer>
+			<Name value="Consumer_7"/>
+			<Channel value="Channel_1"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
+			<EnableRtt value="1"/>
 		</Consumer>
 
 		<!-- Performance tools consumers -->
 		<Consumer>
-			<Name value="Consumer_4"/>
-
-			<Channel value="Channel_12"/>
-			
+			<Name value="Perf_Consumer_1"/>
+			<Channel value="Perf_Channel_1"/>
 			<Dictionary value="Dictionary_1"/>
-
 			<MaxDispatchCountApiThread value="6500"/>
-
 			<MaxDispatchCountUserThread value="6500"/>
 		</Consumer>
-		
 		<Consumer>
-			<Name value="Consumer_5"/>
-			
-			<Channel value="Channel_13"/>
-			
+			<Name value="Perf_Consumer_WSJSON_1"/>
+			<Channel value="Perf_Channel_WSJSON_1"/>
 			<Dictionary value="Dictionary_2"/>
-
 			<MaxDispatchCountApiThread value="6500"/>
-
 			<MaxDispatchCountUserThread value="6500"/>
 		</Consumer>
-		
-		<!-- Session management consumer -->
 		<Consumer>
-			<Name value="Consumer_6"/>
-
-			<!-- Channel set to "RSSL_ENCRYPTED"														-->
-			<Channel value="Channel_15"/>
-
-			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Name value="Perf_Consumer_WSRWF_1"/>
+			<Channel value="Perf_Channel_WSRWF_1"/>
 			<Dictionary value="Dictionary_1"/>
-			<XmlTraceToStdout value="0"/>
+			<MaxDispatchCountApiThread value="6500"/>
+			<MaxDispatchCountUserThread value="6500"/>
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
@@ -97,7 +153,7 @@
 			<Name value="Provider_1"/>
 
 			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14003"					-->
-			<Channel value="Channel_3"/>
+			<Channel value="Channel_7"/>
 
 			<!-- Directory is optional.																	-->
 			<!-- the EMA provides hardcoded directory containing a single service named "NI_PUB".		-->
@@ -116,44 +172,29 @@
 		<NiProvider>
 			<Name value="Provider_2"/>
 
-			<Channel value="Channel_3"/>
+			<Channel value="Channel_6"/>
 
 			<Directory value="Directory_2"/>
 
 			<XmlTraceToStdout value="0"/>
+		</NiProvider>
+		<NiProvider>
+			<Name value="Provider_3"/>
+
+			<Channel value="Channel_6"/>
+
+			<Directory value="Directory_3"/>
 		</NiProvider>
 
 		<NiProvider>
 			<Name value="Provider_4"/>
 
-			<Channel value="Channel_11"/>
+			<Channel value="Channel_7"/>
 
 			<Directory value="Directory_1"/>
 
 			<XmlTraceToStdout value="0"/>
-		</NiProvider>
-		
-		<!-- Performance tools NIProviders -->
-		<NiProvider>
-			<Name value="Provider_5"/>
-			
-			<Channel value="Channel_14"/>
-			
-			<Directory value="Directory_1"/>			
-			
-			<XmlTraceToStdout value="0"/>
-		</NiProvider>
-		
-		<NiProvider>
-			<Name value="Provider_6"/>
-		
-			<Channel value="Channel_14"/>
-			
-			<Directory value="Directory_2"/>
-			
-			<XmlTraceToStdout value="0"/>
-		</NiProvider>
-		
+		</NiProvider>		
 	</NiProviderList>
 </NiProviderGroup>
 
@@ -193,6 +234,32 @@
 
         </IProvider>
 		<IProvider>
+			<!-- Name is mandatory                                                                       -->
+			<Name value="Provider_3"/>
+			<!-- Server is optional: now it specifies RSSL_WEBSOCKET connection options                  -->
+			<Server value="Server_2"/>
+			<!-- Directory is optional: defaulted to AdminControl::UserControlEnum                       -->
+			<!-- source directory configuration to use if OmmIProviderConfig::adminModel()               -->
+			<!-- was set to ApiControlEnum                                                               -->
+			<!-- this configuration also decides which dictionaries will be loaded at startup            -->
+			<!-- this configuration may be overwritten by OmmIProviderConfig::addAdminMsg()              -->
+			<Directory value="Directory_2"/>
+
+			<ItemCountHint value="10000"/>
+
+			<ServiceCountHint value="10000" />
+
+			<DispatchTimeoutApiThread value="500" />
+
+			<MaxDispatchCountApiThread value="500" />
+
+			<MaxDispatchCountUserThread value="500" />
+
+			<PipePort value="9009" />
+
+			<RefreshFirstRequired value="1" />
+		</IProvider>
+		<IProvider>
             <!-- Name is mandatory                                                                       -->
             <Name value="EncryptedProvider"/>
             <!-- Server is optional: defaulted to "RSSL_SOCKET + 14002"                                  -->
@@ -217,8 +284,7 @@
 			<PipePort value="9009" />
 
 			<RefreshFirstRequired value="1" />
-
-        </IProvider>
+		</IProvider>
     </IProviderList>
 </IProviderGroup>
 
@@ -257,47 +323,84 @@
 		</Channel>
 		<Channel>
 			<Name value="Channel_3"/>
-			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
 			<Host value="localhost"/>
-			<Port value="14003"/>
+			<Port value="14002"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_4"/>
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="localhost"/>
-			<Port value="14002"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
+			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
+				 when both of them are not set and the session management is enable. -->
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
 			<ObjectName value=""/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_5"/>
-			<ChannelType value="ChannelType::RSSL_HTTP"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- EMA discovers a host and a port from RDP service discovery for the specified location 
+			    when both of them are not set and the session management is enable. -->
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
+			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
+			<WsMaxMsgSize value="61440"/>
+			<WsProtocols value="tr_json2"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_6"/>
+			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
+			<WsMaxMsgSize value="61440"/>
+			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_7"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14003"/>
 			<!-- ObjectName is optional: defaulted to ""												-->
 			<ObjectName value=""/>
 		</Channel>
 		<Channel>
-			<Name value="Channel_11"/>
+			<Name value="Channel_8"/>
+			<ChannelType value="ChannelType::RSSL_HTTP"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="14003"/>
+			<!-- ObjectName is optional: defaulted to ""												-->
+			<ObjectName value=""/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_9"/>
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
-			<Port value="14002"/>
+			<Port value="14003"/>
 			<!-- ObjectName is optional: defaulted to ""												-->
 			<ObjectName value=""/>
 		</Channel>
 		
 		<!--Performance Tools Channels -->
 		<Channel>
-			<Name value="Channel_12"/>
+			<Name value="Perf_Channel_1"/>
 			<ChannelType value="ChannelType::RSSL_SOCKET"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
@@ -308,36 +411,31 @@
 			<Port value="14002"/>
 		</Channel>
 		<Channel>
-			<Name value="Channel_13"/>
-			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<Name value="Perf_Channel_WSJSON_1"/>
+			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
 			<CompressionType value="CompressionType::None"/>
-			<GuaranteedOutputBuffers value="5000"/>
-			<Host value="localhost"/>
-			<Port value="14002"/>
-		</Channel>
-		<Channel>
-			<Name value="Channel_14"/>
-			<ChannelType value="ChannelType::RSSL_SOCKET"/>
-			<GuaranteedOutputBuffers value="100000"/>
+			<GuaranteedOutputBuffers value="50000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="0"/>
 			<DirectWrite value="1"/>
 			<Host value="localhost"/>
-			<Port value="14003"/>
+			<Port value="14002"/>
+			<WsMaxMsgSize value="18432"/>
+			<WsProtocols value="rssl.json.v2"/>
 		</Channel>
 		<Channel>
-			<Name value="Channel_15"/>
-			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<Name value="Perf_Channel_WSRWF_1"/>
+			<ChannelType value="ChannelType::RSSL_WEBSOCKET"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<!-- EMA discovers a host and a port from EDP-RT service discovery for the specified location
-			     when both of them are not set and the session management is enable. -->
-			<Location value="us-east"/>
-
-			<EnableSessionManagement value="1"/>
-			<!-- ObjectName is optional: defaulted to ""												-->
-			<ObjectName value=""/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="0"/>
+			<DirectWrite value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+			<WsProtocols value="rssl.rwf"/>
 		</Channel>
+
 	</ChannelList>
 </ChannelGroup>
 
@@ -358,19 +456,32 @@
             <Port value="14002"/>
         </Server>
 		<Server>
-            <Name value="EncryptedServer"/>
-            <ServerType value="ServerType::RSSL_ENCRYPTED"/>
-            <!-- CompressionType is optional: defaulted to None -->
-            <!-- possible values: None, ZLib, LZ4 -->
-            <CompressionType value="CompressionType::None"/>
-            <GuaranteedOutputBuffers value="5000"/>
-            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
-            <ConnectionPingTimeout value="30000"/>
-            <!-- TcpNodelay is optional: defaulted to 1 -->
-            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
-            <TcpNodelay value="1"/>
-            <Port value="14002"/>
-        </Server>
+			<Name value="Server_2"/>
+			<!-- For WS connection server could use also RSSL_SOCKET type -->
+			<ServerType value="ServerType::RSSL_WEBSOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Port value="14002"/>
+			<!-- There are optional and used for applying WS connection -->
+			<MaxFragmentSize value="6144"/>
+			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
+		</Server>
+	    <Server>
+            	<Name value="EncryptedServer"/>
+            	<ServerType value="ServerType::RSSL_ENCRYPTED"/>
+            	<!-- CompressionType is optional: defaulted to None -->
+            	<!-- possible values: None, ZLib, LZ4 -->
+            	<CompressionType value="CompressionType::None"/>
+            	<GuaranteedOutputBuffers value="5000"/>
+            	<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            	<ConnectionPingTimeout value="30000"/>
+            	<!-- TcpNodelay is optional: defaulted to 1 -->
+            	<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            	<TcpNodelay value="1"/>
+            	<Port value="14002"/>
+            </Server>
     </ServerList>
 </ServerGroup>
 

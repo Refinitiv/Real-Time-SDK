@@ -9,6 +9,8 @@ import java.util.zip.Inflater;
 
 class ZlibCompressor extends Compressor
 {
+    public static final int DEFAULT_ZLIB_COMPRESSION_LEVEL = 6;
+
     private Deflater _deflater;
     private Inflater _inflater;
     private DeflaterOutputStream _deflaterOutputStream;
@@ -18,18 +20,66 @@ class ZlibCompressor extends Compressor
     private byte[] _compressByteArray;
     private int _numBytesAfterDecompress;
     private int _maxCompressionLen;
+    private boolean _appendTrailing;
+    private boolean _compressnocontexttakeover;
+    private boolean _nowrap;
+    private int _compressionLevel;
+    final static byte[] EndingTrailing = new byte[4];
 
+    {
+        EndingTrailing[0] = 0;
+        EndingTrailing[1] = 0;
+        EndingTrailing[2] = -1;
+        EndingTrailing[3] = -1;
+        _numBytesAfterDecompress = 0;
+        _maxCompressionLen = 6144;
+        _appendTrailing = false;
+        _compressnocontexttakeover = false;
+        _nowrap = false;
+        _compressionLevel = DEFAULT_ZLIB_COMPRESSION_LEVEL;
+    }
+
+    ZlibCompressor()
     {
         _deflater = new Deflater();
         _inflater = new Inflater();
-        _numBytesAfterDecompress = 0;
-        _maxCompressionLen = 6144;
-        _deflater.setLevel(6);
+        _deflater.setLevel(DEFAULT_ZLIB_COMPRESSION_LEVEL);
+    }
+
+    /*
+     * Specifies the nowrap option for the Inflater class.
+     * If the parameter 'nowrap' is true then the ZLIB header and checksum fields will not be used.
+     */
+    ZlibCompressor(int compressionLevel, boolean nowrap)
+    {
+        _deflater = new Deflater(compressionLevel, nowrap);
+        _inflater = new Inflater(nowrap);
+        
+        _compressionLevel = compressionLevel;
+        _nowrap = nowrap;
     }
 
     @Override
     int compress(TransportBufferImpl bufferToCompress, int dataStartPos, int lenToCompress)
     {
+        if (_appendTrailing) {
+            _deflater.reset();
+        }
+        
+        if(_compressnocontexttakeover) {
+        	
+        	_deflater.end();
+        	_deflater = new Deflater(_compressionLevel, _nowrap);
+        	
+        	if (_compressedBytesOutputStream == null)
+        		_compressedBytesOutputStream = new ByteArrayOutputStream(getMaxCompressedLength(_maxCompressionLen));
+        	else
+        		_compressedBytesOutputStream.reset();
+        	
+        	_deflaterOutputStream = new DeflaterOutputStream(_compressedBytesOutputStream, _deflater,
+                    getMaxCompressedLength(_maxCompressionLen), true);
+        }
+        
         // lazily initialize _compressedBytesOutputStream buffer since we don't know size up front
         if (_compressedBytesOutputStream == null)
         {
@@ -39,7 +89,7 @@ class ZlibCompressor extends Compressor
         if (_deflaterOutputStream == null)
         {
             _deflaterOutputStream = new DeflaterOutputStream(_compressedBytesOutputStream, _deflater,
-                                                             getMaxCompressedLength(_maxCompressionLen), true);
+                    getMaxCompressedLength(_maxCompressionLen), true);
         }
         // lazily initialize _compressByteArray buffer since we don't know size up front
         if (_compressByteArray == null)
@@ -73,6 +123,24 @@ class ZlibCompressor extends Compressor
     @Override
     int compress(ByteBuffer bufferToCompress, int dataStartPos, int lenToCompress)
     {
+        if (_appendTrailing) {
+            _deflater.reset();
+        }
+        
+        if(_compressnocontexttakeover) {
+        	
+        	_deflater.end();
+        	_deflater = new Deflater(_compressionLevel, _nowrap);
+        	
+        	if (_compressedBytesOutputStream == null)
+        		_compressedBytesOutputStream = new ByteArrayOutputStream(getMaxCompressedLength(_maxCompressionLen));
+        	else
+        		_compressedBytesOutputStream.reset();
+        	
+        	 _deflaterOutputStream = new DeflaterOutputStream(_compressedBytesOutputStream, _deflater,
+                     getMaxCompressedLength(_maxCompressionLen), true);
+        }
+        
         // lazily initialize _compressedBytesOutputStream buffer since we don't know size up front
         if (_compressedBytesOutputStream == null)
         {
@@ -82,7 +150,7 @@ class ZlibCompressor extends Compressor
         if (_deflaterOutputStream == null)
         {
             _deflaterOutputStream = new DeflaterOutputStream(_compressedBytesOutputStream, _deflater,
-                                                             getMaxCompressedLength(_maxCompressionLen), true);
+                    getMaxCompressedLength(_maxCompressionLen), true);
         }
         // lazily initialize _compressByteArray buffer since we don't know size up front
         if (_compressByteArray == null)
@@ -121,13 +189,25 @@ class ZlibCompressor extends Compressor
         {
             _decompressedBytes = new byte[_maxCompressionLen];
         }
+
         // copy bufferToDecompress contents to byte array
-        byte[] byteArray = new byte[lenToDecompress];
+        byte[] byteArray = new byte[lenToDecompress + 4];
         int contentStartPos = bufferToDecompress.dataStartPosition();
-        for (int i = 0; i < lenToDecompress; i++)
+        int i = 0;
+        for (; i < lenToDecompress; i++)
         {
             byteArray[i] = bufferToDecompress.data().get(contentStartPos + i);
         }
+
+        if(_appendTrailing)
+        {
+            lenToDecompress += 4;
+            for(int j = 0; j < 4; j++)
+            {
+                byteArray[i + j] = EndingTrailing[j];
+            }
+        }
+
         _inflater.setInput(byteArray, 0, lenToDecompress);
         try
         {
@@ -155,11 +235,22 @@ class ZlibCompressor extends Compressor
             _decompressedBytes = new byte[_maxCompressionLen];
         }
         // copy bufferToDecompress contents to byte array
-        byte[] byteArray = new byte[lenToDecompress];
-        for (int i = 0; i < lenToDecompress; i++)
+        byte[] byteArray = new byte[lenToDecompress + 4];
+        int i = 0;
+        for (; i < lenToDecompress; i++)
         {
             byteArray[i] = bufferToDecompress.buffer().get(dataStartPos + i);
         }
+
+        if(_appendTrailing)
+        {
+            lenToDecompress += 4;
+            for(int j = 0; j < 4; j++)
+            {
+                byteArray[i + j] = EndingTrailing[j];
+            }
+        }
+
         _inflater.setInput(byteArray, 0, lenToDecompress);
         try
         {
@@ -216,4 +307,15 @@ class ZlibCompressor extends Compressor
         _deflater.reset();
     }
 
+    @Override
+    void appendCompressTrailing()
+    {
+        _appendTrailing = true;
+    }
+
+    @Override
+    void compressnocontexttakeover()
+    {
+    	_compressnocontexttakeover = true;
+    }
 }

@@ -308,7 +308,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	                }
                 }
 
-				if (_baseImpl.loggerClient().isInfoEnabled())
+				if (_baseImpl.loggerClient().isInfoEnabled() && reactorChannelInfo.channelInfo().componentInfo() != null)
 				{
 					int count = reactorChannelInfo.channelInfo().componentInfo().size();
 					
@@ -572,13 +572,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             }
 		}
 	}
-	
+
+	@SuppressWarnings("fallthrough")
 	private String channelParametersToString(ActiveConfig activeConfig,  ChannelConfig channelCfg )
 	{
 		boolean bValidChType = true;
 		StringBuilder cfgParameters = new StringBuilder(512);
 		String compType;
-		String strConnectionType;
+		String strConnectionType = "SOCKET";
 		switch (channelCfg.compressionType)
 		{
 		case com.refinitiv.eta.transport.CompressionTypes.ZLIB:
@@ -605,17 +606,18 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		
 		switch (channelCfg.rsslConnectionType)
 		{
-		case com.refinitiv.eta.transport.ConnectionTypes.SOCKET:
-			{
-				SocketChannelConfig tempChannelCfg = (SocketChannelConfig) channelCfg;
-				strConnectionType = "SOCKET";
-				cfgParameters.append( "hostName " ).append( tempChannelCfg.hostName ).append( OmmLoggerClient.CR )
-				.append( "port " ).append( tempChannelCfg.serviceName ).append( OmmLoggerClient.CR )
-				.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
-				.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR );
+		case com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET:
+			strConnectionType = "WEBSOCKET";
+			//fallthrough because WEBSOCKET channel should be handled similarly to SOCKET
+		case com.refinitiv.eta.transport.ConnectionTypes.SOCKET: {
+			SocketChannelConfig tempChannelCfg = (SocketChannelConfig) channelCfg;
+			cfgParameters.append( "hostName " ).append( tempChannelCfg.hostName ).append( OmmLoggerClient.CR )
+					.append( "port " ).append( tempChannelCfg.serviceName ).append( OmmLoggerClient.CR )
+					.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
+					.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR );
 
-				break;
-			}
+			break;
+		}
 		case com.refinitiv.eta.transport.ConnectionTypes.HTTP:
 		case com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED:
 			{
@@ -635,7 +637,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					.append( "EnableSessionMgnt " ).append( ( tempEncryptedChannelCfg.enableSessionMgnt ? "true" : "false" ) ).append( OmmLoggerClient.CR )
 					.append( "Location " ).append( tempEncryptedChannelCfg.location ).append( OmmLoggerClient.CR );
 				}
-				
 				break;
 			}
 		default:
@@ -646,7 +647,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				break;
 			}
 		}
-		
+
+		if (channelCfg.rsslConnectionType == ConnectionTypes.WEBSOCKET
+				|| (channelCfg.rsslConnectionType == ConnectionTypes.ENCRYPTED && channelCfg.encryptedProtocolType == ConnectionTypes.WEBSOCKET)) {
+			cfgParameters
+					.append("WsMaxMsgSize ").append(channelCfg.wsMaxMsgSize).append(OmmLoggerClient.CR)
+					.append("WsProtocols ").append(channelCfg.wsProtocols).append(OmmLoggerClient.CR);
+		}
+
 		StringBuilder tempBlder = _baseImpl.strBuilder();
 		tempBlder.append( strConnectionType ).append( OmmLoggerClient.CR )
 		.append( "Channel name " ).append( channelCfg.name ).append( OmmLoggerClient.CR )
@@ -703,7 +711,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			
 			if (connectionType == com.refinitiv.eta.transport.ConnectionTypes.SOCKET  ||
 				connectionType == com.refinitiv.eta.transport.ConnectionTypes.HTTP ||
-				connectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED)
+				connectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED ||
+				connectionType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
 			{
 				ChannelInfo channelInfo = channelInfo(channelConfig.name, _rsslReactor);
 				channelInfo._channelConfig = channelConfig;
@@ -746,7 +755,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				case com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED:
 				{
 					if(channelConfig.encryptedProtocolType == com.refinitiv.eta.transport.ConnectionTypes.HTTP || 
-							channelConfig.encryptedProtocolType == com.refinitiv.eta.transport.ConnectionTypes.SOCKET)
+							channelConfig.encryptedProtocolType == com.refinitiv.eta.transport.ConnectionTypes.SOCKET ||
+							channelConfig.encryptedProtocolType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
 					{
 						_rsslReactorConnOptions.connectionList().get(i).enableSessionManagement(((EncryptedChannelConfig)channelConfig).enableSessionMgnt);
 						_rsslReactorConnOptions.connectionList().get(i).location(((EncryptedChannelConfig)channelConfig).location);
@@ -769,6 +779,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						}
 						connectOptions.tcpOpts().tcpNoDelay(((HttpChannelConfig) channelConfig).tcpNodelay);
 						connectOptions.tunnelingInfo().objectName(((HttpChannelConfig) channelConfig).objectName);
+						connectOptions.encryptionOptions().connectionType(channelConfig.encryptedProtocolType);
 						tunnelingConfiguration(connectOptions, (HttpChannelConfig)channelConfig);
 						break;
 					}
@@ -795,6 +806,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						break;
 					}
 				}
+				case com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET:
 				case com.refinitiv.eta.transport.ConnectionTypes.SOCKET:
 				{
 					connectOptions.unifiedNetworkInfo().address(((SocketChannelConfig) channelConfig).hostName);
@@ -848,6 +860,12 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				connectOptions.unifiedNetworkInfo().interfaceName( channelConfig.interfaceName);
 				connectOptions.unifiedNetworkInfo().unicastServiceName("");
 				channelNames.concat(channelConfig.name);
+
+				if (connectOptions.connectionType() == ConnectionTypes.WEBSOCKET
+						|| connectOptions.encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET) {
+					connectOptions.wSocketOpts().protocols(channelConfig.wsProtocols);
+					connectOptions.wSocketOpts().maxMsgSize(channelConfig.wsMaxMsgSize);
+				}
 				
 				if (_baseImpl.loggerClient().isTraceEnabled())
 				{
@@ -1210,19 +1228,40 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 
 	private void readEncryptedChannelConfig(ConnectOptions rsslOptions, EncryptionConfig channelConfig)
 	{
-		rsslOptions.tunnelingInfo().tunnelingType("encrypted");
-		rsslOptions.tunnelingInfo().KeystoreFile(channelConfig.KeyStoreFile);
-		rsslOptions.tunnelingInfo().KeystorePasswd(channelConfig.KeyStorePasswd);
-		if (channelConfig.KeyStoreType != null)
-			 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.KeyStoreType);
-		if (channelConfig.SecurityProtocol != null)
-			 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.SecurityProtocol);
-		if (channelConfig.SecurityProvider != null)
-			 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.SecurityProvider);
-		if (channelConfig.TrustManagerAlgorithm != null)
-			 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(channelConfig.TrustManagerAlgorithm);
-		if (channelConfig.KeyManagerAlgorithm != null)
-			 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(channelConfig.KeyManagerAlgorithm);
+		if(rsslOptions.encryptionOptions().connectionType() == ConnectionTypes.HTTP)
+		{
+			rsslOptions.tunnelingInfo().tunnelingType("encrypted");
+			
+			rsslOptions.tunnelingInfo().KeystoreFile(channelConfig.KeyStoreFile);
+			rsslOptions.tunnelingInfo().KeystorePasswd(channelConfig.KeyStorePasswd);
+			if (channelConfig.KeyStoreType != null)
+				 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.KeyStoreType);
+			if (channelConfig.SecurityProtocol != null)
+				 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.SecurityProtocol);
+			if (channelConfig.SecurityProvider != null)
+				 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.SecurityProvider);
+			if (channelConfig.TrustManagerAlgorithm != null)
+				 rsslOptions.tunnelingInfo().TrustManagerAlgorithm(channelConfig.TrustManagerAlgorithm);
+			if (channelConfig.KeyManagerAlgorithm != null)
+				 rsslOptions.tunnelingInfo().KeyManagerAlgorithm(channelConfig.KeyManagerAlgorithm);
+		}
+		else
+		{
+			rsslOptions.tunnelingInfo().tunnelingType("None");
+			rsslOptions.encryptionOptions().connectionType(rsslOptions.encryptionOptions().connectionType());
+			rsslOptions.encryptionOptions().KeystoreFile(channelConfig.KeyStoreFile);
+			rsslOptions.encryptionOptions().KeystorePasswd(channelConfig.KeyStorePasswd);
+			if (channelConfig.KeyStoreType != null)
+   			     rsslOptions.encryptionOptions().KeystoreType(channelConfig.KeyStoreType);
+			if (channelConfig.SecurityProtocol != null)
+  			     rsslOptions.encryptionOptions().SecurityProtocol(channelConfig.SecurityProtocol);
+			if (channelConfig.SecurityProvider != null)
+  			     rsslOptions.encryptionOptions().SecurityProvider(channelConfig.SecurityProvider);
+			if (channelConfig.TrustManagerAlgorithm != null)
+  			     rsslOptions.encryptionOptions().TrustManagerAlgorithm(channelConfig.TrustManagerAlgorithm);
+			if (channelConfig.KeyManagerAlgorithm != null)
+  			     rsslOptions.encryptionOptions().KeyManagerAlgorithm(channelConfig.KeyManagerAlgorithm);
+		}
 	}
 
 	private void setRsslReactorChannel(ReactorChannel rsslReactorChannl, ReactorChannelInfo rsslReactorChannlInfo, ReactorErrorInfo rsslReactorErrorInfo)

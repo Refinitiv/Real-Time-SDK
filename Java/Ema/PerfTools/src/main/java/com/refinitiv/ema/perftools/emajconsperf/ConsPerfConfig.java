@@ -5,9 +5,33 @@ import com.refinitiv.ema.perftools.common.CommandLine;
 /** Provides configuration that is not specific to any particular handler. */
 public class ConsPerfConfig
 {
+	/*
+	 * Defines sub-protocols for the websocket connection
+	 */
+	public static class WebSocketSubProtocol
+	{
+		public static final int RSSL_JSON_V2 = 1;
+		
+		public static final int RSSL_RWF = 2;
+		
+		public static String convertToString(int subProtocol)
+		{
+			switch(subProtocol)
+			{
+			case RSSL_JSON_V2:
+				return "rssl.json.v2";
+			case RSSL_RWF:
+				return "rssl.rwf";
+			default:
+				return "unspecified";
+			}
+		}
+	}
+	
 	private String _configString;
 	private static final int DEFAULT_THREAD_COUNT = 1;
 	private int _maxThreads;
+	
 
 	/* APPLICATION configuration */
 	private int	_steadyStateTime;			/* Time application runs before exiting. */
@@ -44,6 +68,7 @@ public class ConsPerfConfig
 	private boolean _primeJVM;				/* At startup, prime the JVM to optimize code by requesting a snapshot of all items before opening the streaming items. */
 	private boolean _useUserDispatch;          /* Use the EMA  USER_DISPATCH model instead of the EMA API_DISPATCH  model. */
 	private boolean _downcastDecoding;		/* Turn on the EMA data load downcast feature during decoding response payload. */
+	private int _webSocketSubProtocol;      /* Sub-protocol for the websocket connection. */
 	
 	private String _keyfile;				/* Keyfile for encryption */
 	private String _keypasswd;				/* Keyfile password */
@@ -77,6 +102,7 @@ public class ConsPerfConfig
         CommandLine.addOption("downcastDecoding", false, "Turn on the EMA data load downcast feature during decoding response payload");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
         CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("websocket", "", "Using websocket connection with specified sub-protocol: \"rssl.json.v2\" or \"rssl.rwf\"");
     }
 	
     /**
@@ -117,6 +143,34 @@ public class ConsPerfConfig
         _downcastDecoding = CommandLine.booleanValue("downcastDecoding");
         _keyfile = CommandLine.value("keyfile");
         _keypasswd = CommandLine.value("keypasswd");
+        
+        String wsSubProtocolStr = CommandLine.value("websocket");
+        _webSocketSubProtocol = 0;
+        if(!wsSubProtocolStr.isEmpty())
+        {
+        	switch(wsSubProtocolStr)
+        	{
+        	case "rssl.json.v2":
+        		_webSocketSubProtocol = WebSocketSubProtocol.RSSL_JSON_V2;
+        		break;
+        	case "rssl.rwf":
+        		_webSocketSubProtocol = WebSocketSubProtocol.RSSL_RWF;
+        		break;
+        	default:
+        		if(wsSubProtocolStr.equals("true"))
+        		{
+        			System.err.println("Config Error: Sub-protocol is unspecified for the websocket connection");
+        		}
+        		else
+        		{	
+        			System.err.println("Config Error: Invalid sub-protocol " + wsSubProtocolStr + " for the websocket connection");
+        		}
+        		
+                System.out.println(CommandLine.optionHelpString());
+                System.exit(-1);
+        	}
+        }
+        
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -274,7 +328,8 @@ public class ConsPerfConfig
 				"               Tick Rate: " + _ticksPerSec + "\n" +
 				"               Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
 				"        DowncastDecoding: " + (_downcastDecoding ? "True" : "False") + "\n" +
-				"    OperationModel Usage: " + useOperationModelUsageString + "\n";
+				"    OperationModel Usage: " + useOperationModelUsageString + "\n" +
+				"      Websocket protocol: " + WebSocketSubProtocol.convertToString(_webSocketSubProtocol) + "\n";
 	}
 
 	/* APPLICATION configuration */
@@ -576,5 +631,14 @@ public class ConsPerfConfig
     public String keypasswd()
     {
     	return _keypasswd;
+    }
+    /**
+     *  Returns sub-protocol for the websocket connection if specified.
+     *
+     * @return a valid websocket sub-protocol; otherwise 0 
+     */
+    public int webSocketSubProtocol()
+    {
+        return _webSocketSubProtocol;
     }
 }

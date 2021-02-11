@@ -28,7 +28,7 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStream;
  */
 class ChannelInfo
 {
-	ConnectionArg connectionArg;
+    ConnectionArg connectionArg;
     ReactorConnectOptions connectOptions = ReactorFactory.createReactorConnectOptions();
     ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
     ConsumerRole consumerRole = ReactorFactory.createConsumerRole();
@@ -42,30 +42,31 @@ class ChannelInfo
     DataDictionary dictionary;
     int fieldDictionaryStreamId = 0;
     int enumDictionaryStreamId = 0;
- 
+
     boolean shouldOffStreamPost = false;
     boolean shouldOnStreamPost = false;
     boolean shouldEnableEncrypted = false;
     boolean shouldEnableHttp = false;
+    boolean shouldEnableWebsocket = false;
     Buffer postItemName = CodecFactory.createBuffer();
-    
+
     DecodeIterator dIter = CodecFactory.createDecodeIterator();
     Msg responseMsg = CodecFactory.createMsg();
 
     LoginRefresh loginRefresh = (LoginRefresh)LoginMsgFactory.createMsg();
-	boolean hasServiceInfo = false;
+    boolean hasServiceInfo = false;
     Service serviceInfo = DirectoryMsgFactory.createService();
     ReactorChannel reactorChannel;
-    
-	List<String> mpItemList = new ArrayList<String>();
-	List<String> mppsItemList = new ArrayList<String>();
-	List<String> mboItemList = new ArrayList<String>();
-	List<String> mbopsItemList = new ArrayList<String>();
-	List<String> mbpItemList = new ArrayList<String>();
-	List<String> mbppsItemList = new ArrayList<String>();
-	List<String> ycItemList = new ArrayList<String>();
-	List<String> ycpsItemList = new ArrayList<String>();
-	List<String> slItemList = new ArrayList<String>();
+
+    List<String> mpItemList = new ArrayList<String>();
+    List<String> mppsItemList = new ArrayList<String>();
+    List<String> mboItemList = new ArrayList<String>();
+    List<String> mbopsItemList = new ArrayList<String>();
+    List<String> mbpItemList = new ArrayList<String>();
+    List<String> mbppsItemList = new ArrayList<String>();
+    List<String> ycItemList = new ArrayList<String>();
+    List<String> ycpsItemList = new ArrayList<String>();
+    List<String> slItemList = new ArrayList<String>();
 
     // streams items are non-recoverable, it is not sent again after
     // recovery
@@ -73,24 +74,24 @@ class ChannelInfo
     boolean mbopsRequestSent = false;
     boolean mbppsRequestSent = false;
     boolean ycpsRequestSent = false;
-    
+
     boolean requestsSent = false; // flag to track if we already made item request(s)
-    
+
     CacheInfo cacheInfo = new CacheInfo();
-    
+
     boolean tunnelStreamOpenSent = false; // flag to track if we already made a tunnel stream open request
-    
+
     // assume one tunnel stream per ReactorChannel
     TunnelStream tunnelStream;
     boolean hasTunnelStreamServiceInfo = false;
     Service tsServiceInfo = DirectoryMsgFactory.createService();
     boolean isTunnelStreamUp;
-    
-	long loginReissueTime; // represented by epoch time in milliseconds
-	boolean canSendLoginReissue;
-	
+
+    long loginReissueTime; // represented by epoch time in milliseconds
+    boolean canSendLoginReissue;
+
     {
-    	connectOptions.connectionList().add(connectInfo);
-    	loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
+        connectOptions.connectionList().add(connectInfo);
+        loginRefresh.rdmMsgType(LoginMsgType.REFRESH);
     }
 }

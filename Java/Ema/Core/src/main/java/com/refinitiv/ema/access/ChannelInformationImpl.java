@@ -208,13 +208,14 @@ class ChannelInformationImpl implements ChannelInformation
 	@Override
 	public int connectionType() {
 		switch (_connectionType) {
-		case 0: return ConnectionTypes.SOCKET;
-		case 1: return ConnectionTypes.ENCRYPTED;
-		case 2: return ConnectionTypes.HTTP;
-		case 3: return ConnectionTypes.UNIDIR_SHMEM;
-		case 4: return ConnectionTypes.RELIABLE_MCAST;
-		case 6: return ConnectionTypes.SEQUENCED_MCAST;
-		default: return _connectionType;	
+			case 0: return ConnectionTypes.SOCKET;
+			case 1: return ConnectionTypes.ENCRYPTED;
+			case 2: return ConnectionTypes.HTTP;
+			case 3: return ConnectionTypes.UNIDIR_SHMEM;
+			case 4: return ConnectionTypes.RELIABLE_MCAST;
+			case 6: return ConnectionTypes.SEQUENCED_MCAST;
+			case 7: return ConnectionTypes.WEBSOCKET;
+			default: return _connectionType;
 		}
 	}
 

@@ -115,7 +115,7 @@ class RmtesDecoderImpl implements RmtesDecoder
             return (char)set.get_table1()[mapIndex];
         }
         else if (set.get_table2() != null && mapIndex >= set.get_table2_start()
-                && mapIndex < (set.get_table2_start() + set.get_table2_length()))
+                 && mapIndex < (set.get_table2_start() + set.get_table2_length()))
         {
             return (char)set.get_table2()[mapIndex - set.get_table2_start()];
         }
@@ -134,7 +134,7 @@ class RmtesDecoderImpl implements RmtesDecoder
             return (char)set.get_table1()[mapIndex];
         }
         else if (set.get_table2() != null && mapIndex >= set.get_table2_start()
-                && mapIndex < (set.get_table2_start() + set.get_table2_length()))
+                 && mapIndex < (set.get_table2_start() + set.get_table2_length()))
         {
             return (char)set.get_table2()[mapIndex - set.get_table2_start()];
         }
@@ -220,7 +220,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         int state = RMTESParseState.NORMAL;
         int newState = RMTESParseState.NORMAL;
         int length = 0;
-        
+
         _gL = 0;
         _gR = 0;
 
@@ -500,7 +500,7 @@ class RmtesDecoderImpl implements RmtesDecoder
             state = newState;
         }
         while (i <= endPtr && newState != RMTESParseState.NORMAL);
-        
+
         if (state == RMTESParseState.NORMAL)
         {
             switch (_gL)
@@ -575,7 +575,7 @@ class RmtesDecoderImpl implements RmtesDecoder
                         return CodecReturnCodes.FAILURE;
                     }
                     else if ((_tempInfo = controlParse(cacheBuffer.byteData(), inIterCount,
-                                                       cacheBuffer.length(), _curWorkingSet)).getValue() == 0)
+                            cacheBuffer.length(), _curWorkingSet)).getValue() == 0)
                     {
                         _curWorkingSet = _tempInfo.getSet();
                         if (_tempInfo.getRetCode() == ESCReturnCode.ESC_ERROR)
@@ -610,7 +610,7 @@ class RmtesDecoderImpl implements RmtesDecoder
                     }
                 }
                 else if (_curWorkingSet.GL.get_shape() == CharSet.SHAPE_94 &&
-                        cacheBuffer.byteData().get(inIterCount) == 0x20) /* Space character, if 94 character set */
+                         cacheBuffer.byteData().get(inIterCount) == 0x20) /* Space character, if 94 character set */
                 {
                     if (outIterCount + 2 > rmtesBuffer.allocatedLength())
                     {
@@ -621,8 +621,8 @@ class RmtesDecoderImpl implements RmtesDecoder
                     inIterCount++;
                 }
                 else if (_curWorkingSet.GL.get_shape() == CharSet.SHAPE_94 &&
-                        cacheBuffer.byteData().get(inIterCount) == 0x7F) /* Delete character, if 94 character set */
-               {
+                         cacheBuffer.byteData().get(inIterCount) == 0x7F) /* Delete character, if 94 character set */
+                {
                     if (outIterCount + 2 > rmtesBuffer.allocatedLength())
                     {
                         return CodecReturnCodes.BUFFER_TOO_SMALL;
@@ -788,7 +788,7 @@ class RmtesDecoderImpl implements RmtesDecoder
                 }
             }
             else
-            /* UTF8 Encode */
+                /* UTF8 Encode */
             {
                 if (cacheBuffer.byteData() != null && cacheBuffer.byteData().get(inIterCount) == 0x1B) /* Escape control character */
                 {
@@ -812,7 +812,7 @@ class RmtesDecoderImpl implements RmtesDecoder
                     inIterCount++;
                 }
                 else
-                /* Just copy the data, since it's already encoded in UTF8 */
+                    /* Just copy the data, since it's already encoded in UTF8 */
                 {
                     if (outIterCount + 2 > rmtesBuffer.allocatedLength())
                     {
@@ -840,6 +840,321 @@ class RmtesDecoderImpl implements RmtesDecoder
                         inIterCount++;
                     else
                         inIterCount += _tempInfo.getValue();
+                }
+            }
+        }
+
+        /* Trim outer buffer length */
+        rmtesBuffer.length(outIterCount);
+
+        return CodecReturnCodes.SUCCESS;
+    }
+
+    private int UCS2ToUTF8(RmtesBuffer buffer, char ch, int pos) {
+
+        if (ch < 0x0080) {
+            if (pos + 1 <= buffer.allocatedLength()) {
+                buffer.byteData().put(pos, (byte)ch);
+                return 1;
+            }
+        } else if (ch < 0x0800) {
+            if (pos + 2 <= buffer.allocatedLength()) {
+                buffer.byteData().put(pos++, (byte)(0x0C0 | (ch >> 6)));
+                buffer.byteData().put(pos, (byte)(0x080 | (ch & 0x3F)));
+                return 2;
+            }
+        } else {
+            if (pos + 3 < buffer.allocatedLength()) {
+                buffer.byteData().put(pos++, (byte)(0x0E0 | (ch >> 12)));
+                buffer.byteData().put(pos++, (byte)(0x080 | ((ch >> 6) & 0x3F)));
+                buffer.byteData().put(pos++, (byte)(0x080 | (ch & 0x3F)));
+                return 3;
+            }
+        }
+
+        return -1;
+    }
+
+    public int RMTESToUTF8(RmtesBuffer rmtesBuffer, RmtesCacheBuffer cacheBuffer)
+    {
+        int state = RMTESParseState.NORMAL;
+        int inIterCount = 0;
+        int outIterCount = 0;
+        int encType = EncodeType.TYPE_RMTES;
+        int ret;
+
+        char tempChar;
+
+        _shiftGL = null;
+        _tmpGL = null;
+
+        if (rmtesBuffer.allocatedLength() == 0)
+            return CodecReturnCodes.INVALID_ARGUMENT;
+        if (cacheBuffer.length() == 0)
+            return CodecReturnCodes.NO_DATA;
+
+        _gL = 0;
+        _gR = 0;
+
+        _characterSet.initWorkingSet(_curWorkingSet);
+
+        _tempInfo.setRetCode(ESCReturnCode.ESC_SUCCESS);
+
+        while (inIterCount < cacheBuffer.length() && state != RMTESParseState.ERROR)
+        {
+            if (encType == EncodeType.TYPE_RMTES)
+            {
+                if (cacheBuffer.byteData() == null)
+                    return CodecReturnCodes.FAILURE;
+
+                if (((char)cacheBuffer.byteData().get(inIterCount) & 0xFF) < 0x20) // CL Character
+                {
+                    if (_shiftGL != null)
+                    {
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else if ((_tempInfo = controlParse(cacheBuffer.byteData(), inIterCount,
+                            cacheBuffer.length(), _curWorkingSet)).getValue() == 0)
+                    {
+                        _curWorkingSet = _tempInfo.getSet();
+                        if (_tempInfo.getRetCode() == ESCReturnCode.ESC_ERROR)
+                        {
+                            return CodecReturnCodes.FAILURE;
+                        }
+                        else if (_tempInfo.getRetCode() == ESCReturnCode.END_CHAR)
+                        {
+                            rmtesBuffer.length(outIterCount);
+                            return CodecReturnCodes.SUCCESS;
+                        }
+                        else if (_tempInfo.getRetCode() == ESCReturnCode.ESC_SUCCESS)
+                        {
+                            if (outIterCount + 1 > rmtesBuffer.allocatedLength())
+                            {
+                                return CodecReturnCodes.BUFFER_TOO_SMALL;
+                            }
+                            if (cacheBuffer.byteData() != null)
+                                rmtesBuffer.byteData().put(outIterCount++, cacheBuffer.byteData().get(inIterCount));
+                            else
+                                rmtesBuffer.byteData().put(outIterCount++, (byte)0);
+                            inIterCount++;
+                        }
+                    }
+                    else
+                    {
+                        _curWorkingSet = _tempInfo.getSet();
+                        inIterCount += _tempInfo.getValue();
+                        if (_tempInfo.getRetCode() == ESCReturnCode.UTF_ENC)
+                            encType = EncodeType.TYPE_UTF8;
+                    }
+                }
+                else if (_curWorkingSet.GL.get_shape() == CharSet.SHAPE_94 &&
+                         cacheBuffer.byteData().get(inIterCount) == 0x20) /* Space character, if 94 character set */
+                {
+                    if (outIterCount + 1 > rmtesBuffer.allocatedLength())
+                    {
+                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+                    }
+                    rmtesBuffer.byteData().put(outIterCount++, (byte)0x20); // < 0x0080 , it is UTF8 already
+                    inIterCount++;
+                }
+                else if (_curWorkingSet.GL.get_shape() == CharSet.SHAPE_94 &&
+                         cacheBuffer.byteData().get(inIterCount) == 0x7F) /* Delete character, if 94 character set */
+                {
+                    if (outIterCount + 3 > rmtesBuffer.allocatedLength()) // 0xFFFD needs 3 bytes in UTF8
+                    {
+                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+                    }
+                    rmtesBuffer.byteData().put(outIterCount++, (byte)(0x0E0 | (0xFFFD >> 12)));
+                    rmtesBuffer.byteData().put(outIterCount++, (byte)(0x080 | ((0xFFFD >> 6) & 0x3F)));
+                    rmtesBuffer.byteData().put(outIterCount++, (byte)(0x080 | (0xFFFD & 0x3F)));
+                    inIterCount++;
+                }
+                else if (((char)cacheBuffer.byteData().get(inIterCount) & 0xFF) < 0x80) // GL Character
+                {
+                    if (_shiftGL != null)
+                        _tmpGL = _shiftGL;
+                    else
+                        _tmpGL = _curWorkingSet.GL;
+
+                    if (isGLChar((char)cacheBuffer.byteData().get(inIterCount), _tmpGL))
+                    {
+                        if (_tmpGL.get_stride() == 2)
+                        {
+                            tempChar = (char)((char)cacheBuffer.byteData().get(inIterCount) & 0xFF);
+                            if (inIterCount < cacheBuffer.length())
+                            {
+                                inIterCount++;
+                                if (isGLChar((char)cacheBuffer.byteData().get(inIterCount), _tmpGL))
+                                {
+                                    char toPut = ConvertStride2GL(tempChar, (char)(cacheBuffer.byteData().get(inIterCount) & 0xFF), _tmpGL);
+                                    ret = UCS2ToUTF8(rmtesBuffer, toPut, outIterCount);
+
+                                    if (ret < 0)
+                                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                    else
+                                        outIterCount += ret;
+                                }
+                                else
+                                {
+                                    return CodecReturnCodes.FAILURE;
+                                }
+                            }
+                            else
+                            {
+                                return CodecReturnCodes.FAILURE;
+                            }
+                        }
+                        else
+                        {
+                            char toPut = GLConvertSingle1((char)(cacheBuffer.byteData().get(inIterCount) & 0xFF), _tmpGL);
+                            ret = UCS2ToUTF8(rmtesBuffer, toPut, outIterCount);
+
+                            if (ret < 0)
+                                return CodecReturnCodes.BUFFER_TOO_SMALL;
+                            else
+                                outIterCount += ret;
+
+                            if (_tmpGL.get_table2() != null)
+                            {
+                                tempChar = GLConvertSingle2((char)(cacheBuffer.byteData().get(inIterCount) & 0xFF), _tmpGL);
+
+                                if (tempChar != 0)
+                                {
+                                    ret = UCS2ToUTF8(rmtesBuffer, toPut, outIterCount);
+
+                                    if (ret < 0)
+                                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                    else
+                                        outIterCount += ret;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return CodecReturnCodes.FAILURE;
+                    }
+
+                    inIterCount++;
+                    _shiftGL = null;
+                }
+                else if (((char)cacheBuffer.byteData().get(inIterCount) & 0xFF) < 0xA0) // CR Character Set
+                {
+                    if (_shiftGL != null)
+                    {
+                        return CodecReturnCodes.FAILURE;
+                    }
+
+                    if (cacheBuffer.byteData().get(inIterCount) == 0x8E)
+                        _shiftGL = _curWorkingSet.G2;
+                    else if (cacheBuffer.byteData().get(inIterCount) == 0x8F)
+                        _shiftGL = _curWorkingSet.G3;
+                    else
+                    {
+                        if (outIterCount + 1 > rmtesBuffer.allocatedLength())
+                        {
+                            return CodecReturnCodes.BUFFER_TOO_SMALL;
+                        }
+                        rmtesBuffer.byteData().put(outIterCount++, (byte)0xFFFD);
+                    }
+
+                    inIterCount++;
+                }
+                else
+                {
+                    if (_shiftGL != null)
+                    {
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else if (isGRChar((char)cacheBuffer.byteData().get(inIterCount), _curWorkingSet.GR))
+                    {
+                        if (_curWorkingSet.GR.get_stride() == 2)
+                        {
+                            tempChar = (char)((char)cacheBuffer.byteData().get(inIterCount) & 0xFF);
+                            if (inIterCount < cacheBuffer.length())
+                            {
+                                inIterCount++;
+                                if (isGRChar((char)cacheBuffer.byteData().get(inIterCount), _curWorkingSet.GR))
+                                {
+                                    char toPut = ConvertStride2GR(tempChar, (char)(cacheBuffer.byteData().get(inIterCount) & 0xFF), _curWorkingSet.GR);
+                                    ret = UCS2ToUTF8(rmtesBuffer, toPut, outIterCount);
+
+                                    if (ret < 0)
+                                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                    else
+                                        outIterCount += ret;
+                                }
+                            }
+                            else
+                            {
+                                return CodecReturnCodes.BUFFER_TOO_SMALL;
+                            }
+                        }
+                        else
+                        {
+                            char toPut = GRConvertSingle1((char)(cacheBuffer.byteData().get(inIterCount) & 0xFF), _curWorkingSet.GR);
+                            ret = UCS2ToUTF8(rmtesBuffer, toPut, outIterCount);
+
+                            if (ret < 0)
+                                return CodecReturnCodes.BUFFER_TOO_SMALL;
+                            else
+                                outIterCount += ret;
+
+                            if (_curWorkingSet.GR.get_table2() != null)
+                            {
+                                tempChar = GRConvertSingle2((char)(cacheBuffer.byteData().get(inIterCount) & 0xFF), _curWorkingSet.GR);
+                                if (tempChar != 0)
+                                {
+                                    ret = UCS2ToUTF8(rmtesBuffer, tempChar, outIterCount);
+
+                                    if (ret < 0)
+                                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                    else
+                                        outIterCount += ret;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        return CodecReturnCodes.FAILURE;
+                    }
+
+                    inIterCount++;
+                }
+            }
+            else
+                /* UTF8 Encode */
+            {
+                if (cacheBuffer.byteData() != null && cacheBuffer.byteData().get(inIterCount) == 0x1B) /* Escape control character */
+                {
+                    _tempInfo = controlParse(cacheBuffer.byteData(), inIterCount, cacheBuffer.length(), _curWorkingSet);
+                    cacheBuffer.data(_tempInfo.getIter());
+                    _curWorkingSet = _tempInfo.getSet();
+                    if (_tempInfo.getValue() < 0)
+                    {
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        if (_tempInfo.getValue() == 0)
+                            inIterCount++;
+                        else
+                            inIterCount += _tempInfo.getValue();
+                    }
+                }
+                else if (cacheBuffer.byteData() != null && cacheBuffer.byteData().get(inIterCount) == 0x00)
+                {
+                    inIterCount++;
+                }
+                else
+                    /* Just copy the data, since it's already encoded in UTF8 */
+                {
+                    if (outIterCount + 1 > rmtesBuffer.allocatedLength())
+                        return CodecReturnCodes.BUFFER_TOO_SMALL;
+
+                    rmtesBuffer.byteData().put(outIterCount++, rmtesBuffer.byteData().get(outIterCount));
+                    inIterCount++;
                 }
             }
         }
@@ -907,7 +1222,7 @@ class RmtesDecoderImpl implements RmtesDecoder
         boolean escPresent = false;
         int state = RMTESParseState.NORMAL;
         int maxLen = 0;
-        
+
 
         if (fEntry.length() == 0)
             return CodecReturnCodes.INVALID_ARGUMENT;
@@ -979,7 +1294,7 @@ class RmtesDecoderImpl implements RmtesDecoder
                     else if (fEntry.data().get(inBufPos) == RHPA_CHAR)
                     {
                         /* Move cursor command */
-                    	/* Escape command is completed, flag as true */
+                        /* Escape command is completed, flag as true */
                         escPresent = true;
 
                         if (numCount >= 0)
@@ -1000,7 +1315,7 @@ class RmtesDecoderImpl implements RmtesDecoder
                     {
                         /* Repeat character command. This is always 1 char */
                         /* Check for overrun first */
-                    	/* Escape command completed */
+                        /* Escape command completed */
                         escPresent = true;
 
                         if (cacheBuffer.allocatedLength() < cacheBufferPos + numCount)

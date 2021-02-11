@@ -412,8 +412,9 @@ class ConfigReader
 					channelType = ConnectionTypes.ENCRYPTED;
 				else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 					channelType = ConnectionTypes.RELIABLE_MCAST;
-				else
-				{
+				else if (enumValue.equals("RSSL_WEBSOCKET")) {
+					channelType = ConnectionTypes.WEBSOCKET;
+				} else {
 					errorTracker().append( "no implementation in convertEnum for enumType [" )
 					.append( enumValue )
 					.append( "]")
@@ -431,6 +432,9 @@ class ConfigReader
 					channelType = ConnectionTypes.SOCKET;
 				else if(enumValue.equals("RSSL_HTTP"))
 					channelType = ConnectionTypes.HTTP;
+				else if (enumValue.equals("RSSL_WEBSOCKET")) {
+					channelType = ConnectionTypes.WEBSOCKET;
+				}
 				else
 				{
 					errorTracker().append( "no implementation in convertEnum for enumType [" )
@@ -442,12 +446,12 @@ class ConfigReader
 				if( channelType != -1 )
 					return ConfigManager.acquire().new IntConfigElement( parent, ConfigElement.Type.Enum,channelType);
 			}
-			else if ( enumType.equals("ServerType" ) )
-			{
+			else if ( enumType.equals("ServerType" ) ) {
 				int serverType = -1;
 
-				if(enumValue.equals("RSSL_SOCKET"))
+				if (enumValue.equals("RSSL_SOCKET") || enumValue.equals("RSSL_WEBSOCKET")) {
 					serverType = ConnectionTypes.SOCKET;
+				}
 				else if(enumValue.equals("RSSL_ENCRYPTED") )
 					serverType = ConnectionTypes.ENCRYPTED;
 				else
@@ -738,6 +742,9 @@ class ConfigReader
 			String attributeValue = null;
 			StringBuilder tmpAttribValue = new StringBuilder();
 			int size = attributeList.size();
+			boolean multipleValues = tagId == ConfigManager.ChannelSet
+					|| tagId == ConfigManager.WsProtocols
+					|| tagId == ConfigManager.ServerWsProtocols;
 
 			for (int i = 0; i < size; i++)
 			{
@@ -746,7 +753,7 @@ class ConfigReader
 				String attributeName = attribute.getName();
 				if(attributeName.equalsIgnoreCase("value") )
 				{
-					if(tagId == ConfigManager.ChannelSet)
+					if(multipleValues)
 					{
 						String tmpValue = (String) attribute.getValue();
 						if(tmpValue != null && !tmpValue.isEmpty() )
@@ -765,7 +772,7 @@ class ConfigReader
 				}
 			}
 
-			if( tagId == ConfigManager.ChannelSet )
+			if( multipleValues )
 				attributeValue = tmpAttribValue.toString();
 			ConfigElement e = makeConfigEntry(theNode.parent(),nodePtr.getName(),attributeValue,tagId);
 			return e;

@@ -1,6 +1,7 @@
 package com.refinitiv.eta.perftools.transportperf;
 
 
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.perftools.common.ClientChannelInfo;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ChannelState;
@@ -16,6 +17,7 @@ import com.refinitiv.eta.transport.Error;
 public class TransportSession
 {
     private final int SEQNUM_TIMESTAMP_LEN = 16; /* length of sequence number and timestamp */
+    private final int MSG_SIZE_LEN = 4;
     private ClientChannelInfo   _channelInfo;           /* Channel associated with this session */
     private int                 _maxMsgBufSize;         /* The buffer size to request from RSSL via rsslGetBuffer(); May vary according to fragment size and packing */
     private TransportBuffer     _writingBuffer;         /* Current buffer in use by this channel. */
@@ -88,6 +90,8 @@ public class TransportSession
     {
         int ret;
         long currentTime;
+        int msgPrefix = SEQNUM_TIMESTAMP_LEN;
+        boolean jsonProtocol = _channelInfo.channel.protocolType() == Codec.JSON_PROTOCOL_TYPE;
 
         /* Add latency timestamp, if appropriate. */
         if (sendLatency)
@@ -98,14 +102,23 @@ public class TransportSession
         if ((ret = getMsgBuffer(error)) < TransportReturnCodes.SUCCESS)
             return ret;
 
-        if (_writingBuffer.length() < TransportThreadConfig.msgSize())
+        int bufferLength = jsonProtocol
+                ? _writingBuffer.data().limit() - _writingBuffer.length() //because length will return 1 if something already was written
+                : _writingBuffer.length();
+
+        if (bufferLength < TransportThreadConfig.msgSize())
         {
             System.out.printf("Error: TransportSession.sendMsg(): Buffer length %d is too small to write next message.\n", _writingBuffer.length());
             System.exit(-1);
         }
-    
+
+        /* Add message length if it is JSON */
+        if (jsonProtocol) {
+            _writingBuffer.data().putInt(Integer.reverseBytes(TransportThreadConfig.msgSize()));
+            msgPrefix += MSG_SIZE_LEN;
+        }
+
         /* Add sequence number */
-                
         _writingBuffer.data().putLong(Long.reverseBytes(_sendSequenceNumber));
 
         /* Add currentTime */
@@ -113,7 +126,7 @@ public class TransportSession
 
         /* Zero out remainder of message */
 
-        for (int i = 0; i < TransportThreadConfig.msgSize() - SEQNUM_TIMESTAMP_LEN; i++)
+        for (int i = 0; i < TransportThreadConfig.msgSize() - msgPrefix; i++)
         {
             _writingBuffer.data().put((byte)0);
         }

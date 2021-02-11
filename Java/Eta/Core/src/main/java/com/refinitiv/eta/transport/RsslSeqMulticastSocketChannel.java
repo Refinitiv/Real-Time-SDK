@@ -61,14 +61,14 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
     // info that is set on accept or connect from options
     final ChannelInfoImpl _channelInfo = new ChannelInfoImpl();
 
-    
+
     // RsslConnectOptions start (for client connections)
     protected int _majorVersion;
     protected int _minorVersion;
     protected int _protocolType;
     // RsslConnectOptions end (for client connections)
 
-    
+
     // common RsslConnectOptions and RsslAcceptOptions
     protected Object _userSpecObject;
 
@@ -94,7 +94,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
     {
         return ConnectionTypes.SEQUENCED_MCAST;
     }
-    
+
     @Override
     public int close(Error error)
     {
@@ -161,9 +161,9 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
     }
 
     /* Write the EDF Header
-     * 
+     *
      * Preconditions: everything has been range checked to ensure that no overflow is possible
-     * 
+     *
      * Returns: 0 on success, -1 on failure (with the error populated).
      * The TransportBuffferImpl's position will be set to the beginning of the header.
      */
@@ -172,17 +172,17 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
         int offset = 0;
         int iter = 0;
         int hdrlen = EDF_VERSION_LEN + EDF_FLAGS_LEN + EDF_PROTOCOL_TYPE_LEN + EDF_HDR_LENGTH_LEN + EDF_INSTANCE_ID_LEN + EDF_PROTO_VER_MAJOR_LEN
-                + EDF_PROTO_VER_MINOR_LEN + EDF_SEQ_NUM_LEN;
+                     + EDF_PROTO_VER_MINOR_LEN + EDF_SEQ_NUM_LEN;
         /* Should check input flags and compute the offset here.
          * Since this there aren't any, this is 0 for both, and we can leave the values as-is. */
         bufferInt.data().position(offset + iter);
 
         /* put on version info */
         bufferInt.data().put(EDF_MAX_VERSION);
-        
+
         /* put on flags */
         bufferInt.data().put((byte)flags);
-        
+
         /* protocol type */
         bufferInt.data().put((byte)_protocolType);
 
@@ -236,7 +236,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
         _instanceId = opts.seqMCastOpts().instanceId();
         _userSpecObject = opts.userSpecObject();
         _blocking = opts.blocking();
-        
+
         if (opts.seqMCastOpts().maxMsgSize() > 65493)
             _channelInfo._maxFragmentSize = 65493;
         else
@@ -248,7 +248,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
             _channelInfo.sysRecvBufSize(_channelInfo._maxFragmentSize);
 
         if ((opts.segmentedNetworkInfo().recvAddress() != null && opts.segmentedNetworkInfo().recvAddress().length() > 0)
-                || (opts.segmentedNetworkInfo().recvServiceName() != null && opts.segmentedNetworkInfo().recvServiceName().length() > 0))
+            || (opts.segmentedNetworkInfo().recvServiceName() != null && opts.segmentedNetworkInfo().recvServiceName().length() > 0))
         {
             _host = opts.segmentedNetworkInfo().recvAddress();
             _port = opts.segmentedNetworkInfo().recvServiceName();
@@ -756,16 +756,16 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
 
             _endWriteMsgPosition = _writeData.data().position();
 
-            if (_endWriteMsgPosition > _writeData._packedMsgLengthPosition) // User put a message in buffer
+            if (_endWriteMsgPosition > _writeData._packedMsgOffSetPosition) // User put a message in buffer
             {
-                _writeData.data().position(_writeData._packedMsgLengthPosition - EDF_MSG_LEN_LEN);
+                _writeData.data().position(_writeData._packedMsgOffSetPosition - EDF_MSG_LEN_LEN);
                 _writeData.data().putShort((short)(_endWriteMsgPosition - _writeData.data().position() - EDF_MSG_LEN_LEN));
 
-                _writeData._packedMsgLengthPosition = _endWriteMsgPosition + EDF_MSG_LEN_LEN; // New packed message length
+                _writeData._packedMsgOffSetPosition = _endWriteMsgPosition + EDF_MSG_LEN_LEN; // New packed message length
             }
             else
             {
-                if (_writeData._packedMsgLengthPosition == EDF_MAX_HDR_LEN)
+                if (_writeData._packedMsgOffSetPosition == EDF_MAX_HDR_LEN)
                 {
                     // User hasn't set a message at all on this packet, do not send.
                     error.channel(this);
@@ -776,11 +776,11 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
                     return TransportReturnCodes.FAILURE;
                 }
                 // Remove length from ending of buffer since there is no additional message
-                _endWriteMsgPosition = _writeData._packedMsgLengthPosition - EDF_MSG_LEN_LEN;
+                _endWriteMsgPosition = _writeData._packedMsgOffSetPosition - EDF_MSG_LEN_LEN;
             }
 
             if (((writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) > 0 && (writeArgs.flags() & WriteFlags.WRITE_SEQNUM) == 0)
-                    || ((writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) == 0 && (writeArgs.flags() & WriteFlags.WRITE_SEQNUM) > 0))
+                || ((writeArgs.flags() & WriteFlags.WRITE_RETRANSMIT) == 0 && (writeArgs.flags() & WriteFlags.WRITE_SEQNUM) > 0))
             {
                 error.channel(this);
                 error.errorId(TransportReturnCodes.FAILURE);
@@ -901,7 +901,7 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
             }
 
             _writeData.data().position(EDF_MAX_HDR_LEN);
-            _writeData._packedMsgLengthPosition = EDF_MAX_HDR_LEN;
+            _writeData._packedMsgOffSetPosition = EDF_MAX_HDR_LEN;
             _writeData.data().limit(_writeData.data().position() + size); // Limit of the returned buffer is the size requested
 
             _bufferInUse = true;
@@ -945,18 +945,18 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
 
         _endWriteMsgPosition = _writeData.data().position();
 
-        if (_writeData._packedMsgLengthPosition >= _writeData.capacity())
+        if (_writeData._packedMsgOffSetPosition >= _writeData.capacity())
             return 0; // No more packing possible
 
-        _writeData.data().position(_writeData._packedMsgLengthPosition - EDF_MSG_LEN_LEN);
+        _writeData.data().position(_writeData._packedMsgOffSetPosition - EDF_MSG_LEN_LEN);
         _writeData.data().putShort((short)(_endWriteMsgPosition - _writeData.data().position() - EDF_MSG_LEN_LEN));
 
-        _writeData._packedMsgLengthPosition = _endWriteMsgPosition + EDF_MSG_LEN_LEN;
+        _writeData._packedMsgOffSetPosition = _endWriteMsgPosition + EDF_MSG_LEN_LEN;
 
         if (_writeData.data().limit() >= _endWriteMsgPosition + EDF_MSG_LEN_LEN)
             _writeData.data().position(_endWriteMsgPosition + EDF_MSG_LEN_LEN);
 
-        return (_writeData.data().limit() - _writeData._packedMsgLengthPosition); // Return how many bytes are left for packing
+        return (_writeData.data().limit() - _writeData._packedMsgOffSetPosition); // Return how many bytes are left for packing
     }
 
     @Override
@@ -1277,10 +1277,10 @@ public class RsslSeqMulticastSocketChannel extends EtaNode implements Channel
         return TransportReturnCodes.SUCCESS;
     }
 
-	@Override
-	public String hostname() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String hostname() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

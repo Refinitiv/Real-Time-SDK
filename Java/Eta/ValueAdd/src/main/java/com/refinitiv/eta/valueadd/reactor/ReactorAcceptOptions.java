@@ -12,10 +12,12 @@ public class ReactorAcceptOptions
     AcceptOptions _acceptOptions = null;
     int DEFAULT_TIMEOUT = 60;
     int _timeout = DEFAULT_TIMEOUT;
+    ReactorWSocketAcceptOptions _wsocketAcceptOptions;
 
     ReactorAcceptOptions()
     {
         _acceptOptions = TransportFactory.createAcceptOptions();
+        _wsocketAcceptOptions = new ReactorWSocketAcceptOptions();
     }
 
     /**
@@ -24,7 +26,7 @@ public class ReactorAcceptOptions
      * ReactorRole, ReactorErrorInfo)} method. This includes an option to reject
      * the connection as well as a userSpecObj. This is described in more detail
      * in the ETA Developers Guide.
-     * 
+     *
      * @return acceptOptions
      */
     public AcceptOptions acceptOptions()
@@ -33,13 +35,23 @@ public class ReactorAcceptOptions
     }
 
     /**
+     * Returns the {@link ReactorWSocketAcceptOptions} to specify whether to send a ping message to clients.
+     *
+     * @return ReactorWSocketAcceptOptions
+     */
+    public ReactorWSocketAcceptOptions websocketAcceptOptions()
+    {
+        return _wsocketAcceptOptions;
+    }
+
+    /**
      * The amount of time (in seconds) to wait for the successful connection
      * establishment of a {@link ReactorChannel}. If a timeout occurs, an event
      * is dispatched to the application to indicate that the ReactorChannel is
      * down. Timeout must be greater than zero. Default is 60 seconds.
-     * 
+     *
      * @param timeout the initialization timeout in seconds
-     * 
+     *
      * @return {@link ReactorReturnCodes#SUCCESS} if the timeout is valid,
      *         otherwise {@link ReactorReturnCodes#PARAMETER_OUT_OF_RANGE} if
      *         the timeout is out of range
@@ -55,7 +67,7 @@ public class ReactorAcceptOptions
 
     /**
      * Returns the initialization timeout value.
-     * 
+     *
      * @return the initialization timeout value
      */
     public int initTimeout()
@@ -70,5 +82,6 @@ public class ReactorAcceptOptions
     {
         _acceptOptions.clear();
         _timeout = DEFAULT_TIMEOUT;
+        _wsocketAcceptOptions.clear();
     }
 }

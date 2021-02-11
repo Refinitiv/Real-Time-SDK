@@ -4,17 +4,10 @@ import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.DataStates;
-import com.refinitiv.eta.codec.DataTypes;
-import com.refinitiv.eta.codec.Msg;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.RefreshMsg;
-import com.refinitiv.eta.codec.StateCodes;
-import com.refinitiv.eta.codec.StatusMsg;
-import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.json.converter.JsonProtocol;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ConnectionTypes;
@@ -23,6 +16,7 @@ import com.refinitiv.eta.transport.IoctlCodes;
 import com.refinitiv.eta.transport.Server;
 import com.refinitiv.eta.transport.Transport;
 import com.refinitiv.eta.transport.TransportBuffer;
+import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.valueadd.common.VaNode;
 import com.refinitiv.eta.valueadd.common.VaDoubleLinkList.Link;
 import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBase;
@@ -30,12 +24,12 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 
 /**
-* Channel representing a connection handled by a Reactor.
-* @see Reactor
-* @see Reactor#connect
-* @see Reactor#accept
-* @see #close
-*/
+ * Channel representing a connection handled by a Reactor.
+ * @see Reactor
+ * @see Reactor#connect
+ * @see Reactor#accept
+ * @see #close
+ */
 public class ReactorChannel extends VaNode
 {
     private Reactor _reactor = null;
@@ -54,11 +48,12 @@ public class ReactorChannel extends VaNode
     /* The last tunnel-stream expire time requested to the Worker, if one is currently requested. */
     private long _tunnelStreamManagerNextDispatchTime = 0;
     private boolean _hasTunnelStreamManagerNextDispatchTime = false;
-    
+
     private PingHandler _pingHandler = new PingHandler();
+    private boolean _sendPingMessage = false; /* This is used to indicate whether to send JSON ping message for server side. */
 
     /* Connection recovery information. */
-	private final int NO_RECONNECT_LIMIT = -1;
+    private final int NO_RECONNECT_LIMIT = -1;
     private ReactorConnectOptions _reactorConnectOptions;
     private int _reconnectAttempts;
     private int _reconnectDelay;
@@ -73,10 +68,10 @@ public class ReactorChannel extends VaNode
     private ReactorChannelInfo _reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
     private ClassOfService _defaultClassOfService = ReactorFactory.createClassOfService();
     private TunnelStreamRejectOptions _tunnelStreamRejectOptions = ReactorFactory.createTunnelStreamRejectOptions();
-    
+
     // watchlist support
     private Watchlist _watchlist;
-    
+
     /** The ReactorChannel's state. */
     public enum State
     {
@@ -102,16 +97,16 @@ public class ReactorChannel extends VaNode
     }
 
     State _state = State.UNKNOWN;
-    
+
     /* Link for ReactorChannel queue */
     private ReactorChannel _reactorChannelNext, _reactorChannelPrev;
-	
+
     private ReactorErrorInfo _errorInfoEDP = ReactorFactory.createReactorErrorInfo();
     LoginRequest _loginRequestForEDP;
     private RestConnectOptions _restConnectOptions;
     private ReactorTokenSession _tokenSession;
     private List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList = new ArrayList<ReactorServiceEndpointInfo>();
-    
+
     static class ReactorChannelLink implements Link<ReactorChannel>
     {
         public ReactorChannel getPrev(ReactorChannel thisPrev) { return thisPrev._reactorChannelPrev; }
@@ -123,7 +118,7 @@ public class ReactorChannel extends VaNode
 
     /**
      * The state of the ReactorChannel.
-     * 
+     *
      * @return the state of the ReactorChannel
      */
     public State state()
@@ -135,89 +130,89 @@ public class ReactorChannel extends VaNode
     {
         _state = state;
     }
-    
-    /** The internal session management's state for a channel. */
-    enum SessionMgntState 
-    {
-    	UNKNOWN,
-    	REQ_FAILURE_FOR_TOKEN_SERVICE,
-    	REQ_FAILURE_FOR_SERVICE_DISCOVERY,
-    	REQ_AUTH_TOKEN_USING_REFRESH_TOKEN,
-    	REQ_AUTH_TOKEN_USING_PASSWORD,
-    	RECEIVED_AUTH_TOKEN,
-    	QUERYING_SERVICE_DISCOVERY,
-    	RECEIVED_ENDPOINT_INFO,
-    	AUTHENTICATE_USING_PASSWD_GRANT,
-    	STOP_QUERYING_SERVICE_DISCOVERY
-    }
-    
-    private SessionMgntState _sessionMgntState = SessionMgntState.UNKNOWN;
-    
-	public SessionMgntState sessionMgntState() {
-		return _sessionMgntState;
-	}
 
-	public void sessionMgntState(SessionMgntState sessionMgntState) {
-		_sessionMgntState = sessionMgntState;
-	}
-	
-	void tokenSession(ReactorTokenSession tokenSession)
-	{
-		_tokenSession = tokenSession;
-		
-		if(tokenSession != null)
-		{
-			_tokenSession.addReactorChannel(this);
-		}
-	}
-	
-	ReactorTokenSession tokenSession()
-	{
-		return _tokenSession;
-	}
+    /** The internal session management's state for a channel. */
+    enum SessionMgntState
+    {
+        UNKNOWN,
+        REQ_FAILURE_FOR_TOKEN_SERVICE,
+        REQ_FAILURE_FOR_SERVICE_DISCOVERY,
+        REQ_AUTH_TOKEN_USING_REFRESH_TOKEN,
+        REQ_AUTH_TOKEN_USING_PASSWORD,
+        RECEIVED_AUTH_TOKEN,
+        QUERYING_SERVICE_DISCOVERY,
+        RECEIVED_ENDPOINT_INFO,
+        AUTHENTICATE_USING_PASSWD_GRANT,
+        STOP_QUERYING_SERVICE_DISCOVERY
+    }
+
+    private SessionMgntState _sessionMgntState = SessionMgntState.UNKNOWN;
+
+    public SessionMgntState sessionMgntState() {
+        return _sessionMgntState;
+    }
+
+    public void sessionMgntState(SessionMgntState sessionMgntState) {
+        _sessionMgntState = sessionMgntState;
+    }
+
+    void tokenSession(ReactorTokenSession tokenSession)
+    {
+        _tokenSession = tokenSession;
+
+        if(tokenSession != null)
+        {
+            _tokenSession.addReactorChannel(this);
+        }
+    }
+
+    ReactorTokenSession tokenSession()
+    {
+        return _tokenSession;
+    }
 
     void copyEDPErrorInfo(ReactorErrorInfo errorInfo)
     {
-    	_errorInfoEDP.code(errorInfo.code());
-    	_errorInfoEDP.location(errorInfo.location());
-    	_errorInfoEDP.error().errorId(errorInfo.error().errorId());
-    	_errorInfoEDP.error().sysError(errorInfo.error().sysError());
-    	_errorInfoEDP.error().text(errorInfo.error().text());
+        _errorInfoEDP.code(errorInfo.code());
+        _errorInfoEDP.location(errorInfo.location());
+        _errorInfoEDP.error().errorId(errorInfo.error().errorId());
+        _errorInfoEDP.error().sysError(errorInfo.error().sysError());
+        _errorInfoEDP.error().text(errorInfo.error().text());
     }
-    
+
     ReactorErrorInfo getEDPErrorInfo()
     {
-    	return _errorInfoEDP;
+        return _errorInfoEDP;
     }
-    
+
     RestConnectOptions restConnectOptions()
     {
-    	if (_restConnectOptions == null)
-    	{
-    		_restConnectOptions = new RestConnectOptions(_reactor._reactorOptions);
-    		_restConnectOptions.restResultClosure(new RestResultClosure(_reactor._restClient, this));
-    	}
-    	
-    	ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
-    	_restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
-    	_restConnectOptions.proxyPort(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyPort());
-    	_restConnectOptions.proxyUserName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyUsername());
-    	_restConnectOptions.proxyPassword(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyPasswd());
-    	_restConnectOptions.proxyDomain(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyDomain());
-    	_restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
-    	_restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());    	
-    	
-    	return _restConnectOptions;
+        if (_restConnectOptions == null)
+        {
+            _restConnectOptions = new RestConnectOptions(_reactor._reactorOptions);
+            _restConnectOptions.restResultClosure(new RestResultClosure(_reactor._restClient, this));
+        }
+
+        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        _restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
+        _restConnectOptions.proxyPort(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyPort());
+        _restConnectOptions.proxyUserName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyUsername());
+        _restConnectOptions.proxyPassword(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyPasswd());
+        _restConnectOptions.proxyDomain(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyDomain());
+        _restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
+        _restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());
+
+        return _restConnectOptions;
     }
-    
+
     List<ReactorServiceEndpointInfo> reactorServiceEndpointInfoList()
     {
-    	return _reactorServiceEndpointInfoList;
+        return _reactorServiceEndpointInfoList;
     }
-    
+
     /**
      * Returns a String representation of this object.
-     * 
+     *
      * @return string representation of this object
      */
     public String toString()
@@ -271,6 +266,7 @@ public class ReactorChannel extends VaNode
         _flushRequested = false;
         _flushAgain = false;
         _pingHandler.clear();
+        _sendPingMessage = false;
         _streamIdtoTunnelStreamTable.clear();
         _tunnelStreamRespMsg.clear();
         _hasTunnelStreamManagerNextDispatchTime = false;
@@ -282,19 +278,19 @@ public class ReactorChannel extends VaNode
             _watchlist = null;
         }
 
-		_reconnectAttempts = 0;
-		_reconnectDelay = 0;
-		_nextRecoveryTime = 0;
-		
-		_reactorConnectOptions = null;
-		_listIndex = 0;
-		
-	    _errorInfoEDP.clear();
-	    _loginRequestForEDP = null;		
-	    _reactorServiceEndpointInfoList.clear();
-	    _restConnectOptions = null;
+        _reconnectAttempts = 0;
+        _reconnectDelay = 0;
+        _nextRecoveryTime = 0;
+
+        _reactorConnectOptions = null;
+        _listIndex = 0;
+
+        _errorInfoEDP.clear();
+        _loginRequestForEDP = null;
+        _reactorServiceEndpointInfoList.clear();
+        _restConnectOptions = null;
     }
-    
+
     /* Check if the tunnel manager needs a dispatch, timer event, or channel flush. */
     int checkTunnelManagerEvents(ReactorErrorInfo errorInfo)
     {
@@ -367,9 +363,9 @@ public class ReactorChannel extends VaNode
     }
 
     /** Sets the {@link Reactor} associated with this ReactorChannel.
-    *
-    * @param reactor the associated Reactor
-    */
+     *
+     * @param reactor the associated Reactor
+     */
     public void reactor(Reactor reactor)
     {
         _reactor = reactor;
@@ -379,7 +375,7 @@ public class ReactorChannel extends VaNode
      * The old SelectableChannel associated with this ReactorChannel.
      * Must be unregistered when handling a {@link ReactorChannelEventTypes#FD_CHANGE}
      * event.
-     * 
+     *
      * @return old SelectableChannel
      */
     public SelectableChannel oldSelectableChannel()
@@ -391,11 +387,11 @@ public class ReactorChannel extends VaNode
     {
         _oldSelectableChannel = oldSelectableChannel;
     }
-    
+
     /**
      * The SelectableChannel associated with this ReactorChannel.
      * Used to register with a selector.
-     * 
+     *
      * @return SelectableChannel
      */
     public SelectableChannel selectableChannel()
@@ -422,7 +418,7 @@ public class ReactorChannel extends VaNode
 
     /**
      * The {@link Channel} associated with this ReactorChannel.
-     * 
+     *
      * @return Channel
      */
     public Channel channel()
@@ -432,7 +428,7 @@ public class ReactorChannel extends VaNode
 
     /**
      * The {@link Server} associated with this ReactorChannel.
-     * 
+     *
      * @return Server
      */
     public Server server()
@@ -502,7 +498,7 @@ public class ReactorChannel extends VaNode
 
     /**
      * The user specified object associated with this ReactorChannel.
-     * 
+     *
      * @return user specified object
      */
     public Object userSpecObj()
@@ -514,12 +510,12 @@ public class ReactorChannel extends VaNode
     {
         _userSpecObj = userSpecObj;
     }
-    
+
     Watchlist watchlist()
     {
         return _watchlist;
     }
-    
+
     void watchlist(Watchlist watchlist)
     {
         _watchlist = watchlist;
@@ -540,12 +536,23 @@ public class ReactorChannel extends VaNode
     {
         return _initializationEndTimeMs;
     }
-    
+
     PingHandler pingHandler()
     {
-    	return _pingHandler;
+        return _pingHandler;
     }
-    
+
+    /* This is used to set whether to enable JSON ping message */
+    void sendPingMessage(boolean sendPingMessage)
+    {
+        _sendPingMessage = sendPingMessage;
+    }
+
+    boolean sendPingMessage()
+    {
+        return _sendPingMessage;
+    }
+
     /**
      * Process this channel's events and messages from the Reactor. These are
      * passed to the calling application via the callback methods associated
@@ -553,7 +560,7 @@ public class ReactorChannel extends VaNode
      *
      * @param dispatchOptions options for how to dispatch
      * @param errorInfo error structure to be populated in the event of failure
-     * 
+     *
      * @return a positive value if dispatching succeeded and there are more messages to process or
      * {@link ReactorReturnCodes#SUCCESS} if dispatching succeeded and there are no more messages to process or
      * {@link ReactorReturnCodes#FAILURE}, if dispatching failed (refer to errorInfo for additional information)
@@ -564,23 +571,23 @@ public class ReactorChannel extends VaNode
             return ReactorReturnCodes.FAILURE;
         else if (dispatchOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.dispatch",
-                                               "dispatchOptions cannot be null.");
+                    "ReactorChannel.dispatch",
+                    "dispatchOptions cannot be null.");
         else if (_reactor.isShutdown())
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.dispatch",
-                                              "Reactor is shutdown, dispatch aborted.");
+                    "ReactorChannel.dispatch",
+                    "Reactor is shutdown, dispatch aborted.");
 
         return _reactor.dispatchChannel(this, dispatchOptions, errorInfo);
     }
 
     /**
      * Sends the given TransportBuffer to the channel.
-     * 
+     *
      * @param buffer the buffer to send
      * @param submitOptions options for how to send the message
      * @param errorInfo error structure to be populated in the event of failure
-     * 
+     *
      * @return {@link ReactorReturnCodes#SUCCESS}, if submit succeeded or
      * {@link ReactorReturnCodes#WRITE_CALL_AGAIN}, if the buffer cannot be written at this time or
      * {@link ReactorReturnCodes#FAILURE}, if submit failed (refer to errorInfo for additional information)
@@ -591,27 +598,27 @@ public class ReactorChannel extends VaNode
             return ReactorReturnCodes.FAILURE;
         else if (submitOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.submit",
-                                               "submitOptions cannot be null.");
+                    "ReactorChannel.submit",
+                    "submitOptions cannot be null.");
 
         _reactor._reactorLock.lock();
 
         try
         {
-        	if (_watchlist != null)
+            if (_watchlist != null)
                 return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE,
-                                                   "ReactorChannel.submit",
-                                                   "Cannot submit buffer when watchlist is enabled.");
-        	
-        	if (_reactor.isShutdown())
+                        "ReactorChannel.submit",
+                        "Cannot submit buffer when watchlist is enabled.");
+
+            if (_reactor.isShutdown())
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.submit",
-                                                  "Reactor is shutdown, submit aborted.");
+                        "ReactorChannel.submit",
+                        "Reactor is shutdown, submit aborted.");
             else if (_state == State.CLOSED)
-           	 	return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                         "ReactorChannel.submit",
                         "ReactorChannel is closed, submit aborted.");
-        	
+
             return _reactor.submitChannel(this, buffer, submitOptions, errorInfo);
         }
         finally
@@ -619,41 +626,41 @@ public class ReactorChannel extends VaNode
             _reactor._reactorLock.unlock();
         }
     }
-    
+
     /**
      * Sends a message to the channel.
-     * 
+     *
      * @param msg the message to send
      * @param submitOptions options for how to send the message
      * @param errorInfo error structure to be populated in the event of failure
-     * 
+     *
      * @return {@link ReactorReturnCodes#SUCCESS}, if submit succeeded or
      * {@link ReactorReturnCodes#WRITE_CALL_AGAIN}, if the message cannot be written at this time or
      * {@link ReactorReturnCodes#NO_BUFFERS}, if there are no more buffers to encode the message into or
      * {@link ReactorReturnCodes#FAILURE}, if submit failed (refer to errorInfo for additional information)
      */
     public int submit(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
-    {    
+    {
         if (errorInfo == null)
             return ReactorReturnCodes.FAILURE;
         else if (submitOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.submit",
-                                               "submitOptions cannot be null.");
-        
+                    "ReactorChannel.submit",
+                    "submitOptions cannot be null.");
+
         _reactor._reactorLock.lock();
-        
+
         try
         {
-        	 if (_reactor.isShutdown())
-                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                   "ReactorChannel.submit",
-                                                   "Reactor is shutdown, submit aborted.");
-             else if (_state == State.CLOSED)
-               	 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                            "ReactorChannel.submit",
-                            "ReactorChannel is closed, submit aborted.");
-        	 
+            if (_reactor.isShutdown())
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.submit",
+                        "Reactor is shutdown, submit aborted.");
+            else if (_state == State.CLOSED)
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.submit",
+                        "ReactorChannel is closed, submit aborted.");
+
             if (_watchlist == null) // watchlist not enabled, submit normally
             {
                 return _reactor.submitChannel(this, msg, submitOptions, errorInfo);
@@ -671,38 +678,38 @@ public class ReactorChannel extends VaNode
 
     /**
      * Sends an RDM message to the channel.
-     * 
+     *
      * @param rdmMsg the RDM message to send
      * @param submitOptions options for how to send the message
      * @param errorInfo error structure to be populated in the event of failure
-     * 
+     *
      * @return {@link ReactorReturnCodes#SUCCESS}, if submit succeeded or
      * {@link ReactorReturnCodes#WRITE_CALL_AGAIN}, if the message cannot be written at this time or
      * {@link ReactorReturnCodes#NO_BUFFERS}, if there are no more buffers to encode the message into or
      * {@link ReactorReturnCodes#FAILURE}, if submit failed (refer to errorInfo for additional information)
      */
     public int submit(MsgBase rdmMsg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
-    {    
+    {
         if (errorInfo == null)
             return ReactorReturnCodes.FAILURE;
         else if (submitOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.submit",
-                                               "submitOptions cannot be null.");
+                    "ReactorChannel.submit",
+                    "submitOptions cannot be null.");
 
         _reactor._reactorLock.lock();
 
         try
         {
-        	  if (_reactor.isShutdown())
-                  return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                    "ReactorChannel.submit",
-                                                    "Reactor is shutdown, submit aborted.");
-              else if (_state == State.CLOSED)
-                	 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                             "ReactorChannel.submit",
-                             "ReactorChannel is closed, submit aborted.");
-        	  
+            if (_reactor.isShutdown())
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.submit",
+                        "Reactor is shutdown, submit aborted.");
+            else if (_state == State.CLOSED)
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.submit",
+                        "ReactorChannel is closed, submit aborted.");
+
             if (_watchlist == null) // watchlist not enabled, submit normally
             {
                 return _reactor.submitChannel(this, rdmMsg, submitOptions, errorInfo);
@@ -722,39 +729,39 @@ public class ReactorChannel extends VaNode
      * Closes a reactor channel and removes it from the Reactor. May be called
      * inside or outside of a callback function, however the channel should no
      * longer be used afterwards.
-     * 
+     *
      * @param errorInfo error structure to be populated in the event of failure
-     * 
-	 * @return {@link ReactorReturnCodes} indicating success or failure
+     *
+     * @return {@link ReactorReturnCodes} indicating success or failure
      */
     public int close(ReactorErrorInfo errorInfo)
     {
-    	int retVal = ReactorReturnCodes.SUCCESS;
-    	
+        int retVal = ReactorReturnCodes.SUCCESS;
+
         if (errorInfo == null)
-        	retVal = ReactorReturnCodes.FAILURE;
-        
+            retVal = ReactorReturnCodes.FAILURE;
+
         _reactor._reactorLock.lock();
-        
+
         try {
-	        if (_reactor.isShutdown())
-	        	retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-	                                              "ReactorChannel.close",
-	                                              "Reactor is shutdown, close aborted.");
-	        if (state() != State.CLOSED)
-	        	retVal = _reactor.closeChannel(this, errorInfo);
-	        
-	        _tunnelStreamManager.close();
-	        
-	        if (_watchlist != null)
-	        {
-	            _watchlist.close();
-	        }
-	        
-	        _reactor.removeReactorChannel(this);
-	        
-	        return retVal;
-    	}
+            if (_reactor.isShutdown())
+                retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.close",
+                        "Reactor is shutdown, close aborted.");
+            if (state() != State.CLOSED)
+                retVal = _reactor.closeChannel(this, errorInfo);
+
+            _tunnelStreamManager.close();
+
+            if (_watchlist != null)
+            {
+                _watchlist.close();
+            }
+
+            _reactor.removeReactorChannel(this);
+
+            return retVal;
+        }
         finally
         {
             _reactor._reactorLock.unlock();
@@ -763,89 +770,297 @@ public class ReactorChannel extends VaNode
 
     /**
      * Gets a buffer from the ReactorChannel for writing a message.
-     * 
+     *
      * @param size the size(in bytes) of the buffer to get
      * @param packedBuffer whether the buffer allows packing multiple messages
      *        via {@link #packBuffer(TransportBuffer, ReactorErrorInfo)}
      * @param errorInfo error structure to be populated in the event of failure
-     * 
+     *
      * @return the buffer for writing the message or
      *         null, if an error occurred (errorInfo will be populated with information)
      */
-	public TransportBuffer getBuffer(int size, boolean packedBuffer, ReactorErrorInfo errorInfo)
-	{
-		return channel().getBuffer(size, packedBuffer, errorInfo.error());
-	}
-	
-	/**
-	 * Returns an unwritten buffer to the ReactorChannel.
-	 *
-	 * @param buffer the buffer to release
+    public TransportBuffer getBuffer(int size, boolean packedBuffer, ReactorErrorInfo errorInfo)
+    {
+        if (errorInfo == null)
+            return null;
+
+        if(channel().protocolType() == Codec.JSON_PROTOCOL_TYPE && packedBuffer)
+        {
+            _reactor._reactorLock.lock();
+
+            try
+            {
+                if (_reactor.isShutdown())
+                {
+                    _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "ReactorChannel.getBuffer",
+                            "Reactor is shutdown, getBuffer aborted.");
+                    return null;
+                }
+
+                TransportBuffer transportBuffer = channel().getBuffer(size, packedBuffer, errorInfo.error());
+
+                if(Objects.isNull(transportBuffer))
+                {
+                    errorInfo.location("ReactorChannel.getBuffer");
+                    errorInfo.code(ReactorReturnCodes.FAILURE);
+                    return transportBuffer;
+                }
+
+                ReactorPackedBuffer packedBufferImpl = ReactorFactory.createPackedBuffer();
+                packedBufferImpl.totalSize = size;
+                packedBufferImpl.remainingSize = size;
+
+                _reactor.packedBufferHashMap.put(transportBuffer, packedBufferImpl);
+
+                return transportBuffer;
+            }
+            finally
+            {
+                _reactor._reactorLock.unlock();
+            }
+        }
+        else
+        {
+            return channel().getBuffer(size, packedBuffer, errorInfo.error());
+        }
+    }
+
+    /**
+     * Returns an unwritten buffer to the ReactorChannel.
+     *
+     * @param buffer the buffer to release
      * @param errorInfo error structure to be populated in the event of failure
-	 *
-	 * @return {@link ReactorReturnCodes} indicating success or failure
-	 */
-	public int releaseBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
-	{
-		return channel().releaseBuffer(buffer, errorInfo.error());
-	}
-	
-	/**
-	 * Packs a buffer and returns the amount of available bytes remaining
+     *
+     * @return {@link ReactorReturnCodes} indicating success or failure
+     */
+    public int releaseBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
+    {
+        if (errorInfo == null)
+            return ReactorReturnCodes.FAILURE;
+
+        if (buffer == null)
+        {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    "ReactorChannel.releaseBuffer",
+                    "TransportBuffer is null.");
+        }
+
+        if(channel().protocolType() ==  Codec.JSON_PROTOCOL_TYPE)
+        {
+            _reactor._reactorLock.lock();
+
+            try
+            {
+                if (_reactor.isShutdown())
+                {
+                    return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "ReactorChannel.releaseBuffer",
+                            "Reactor is shutdown, releaseBuffer aborted.");
+                }
+
+                ReactorPackedBuffer packedBufferImpl = _reactor.packedBufferHashMap.get(buffer);
+
+                if (Objects.nonNull(packedBufferImpl))
+                {
+                    _reactor.packedBufferHashMap.remove(buffer);
+                    packedBufferImpl.returnToPool();
+                }
+
+                return channel().releaseBuffer(buffer, errorInfo.error());
+
+            }
+            finally
+            {
+                _reactor._reactorLock.unlock();
+            }
+        }
+        else
+        {
+            return channel().releaseBuffer(buffer, errorInfo.error());
+        }
+    }
+
+    /**
+     * Packs a buffer and returns the amount of available bytes remaining
      * in the buffer for packing.
-	 * 
-	 * @param buffer the buffer to be packed
-	 * @param errorInfo error structure to be populated in the event of failure
-	 * 
+     *
+     * @param buffer the buffer to be packed
+     * @param errorInfo error structure to be populated in the event of failure
+     *
      * @return {@link ReactorReturnCodes} or the amount of available bytes remaining
      *         in the buffer for packing
-	 */
-	public int packBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
-	{
-		return channel().packBuffer(buffer, errorInfo.error());
-	}
-	
-	/**
-	 * Returns information about the ReactorChannel.
-	 * 
-	 * @param info ReactorChannelInfo structure to be populated with information
-	 * @param errorInfo error structure to be populated in the event of failure
-	 * 
-	 * @return {@link ReactorReturnCodes} indicating success or failure
-	 */
-	public int info(ReactorChannelInfo info, ReactorErrorInfo errorInfo)
-	{
-		return channel().info(info.channelInfo(), errorInfo.error());
-	}
+     */
+    public int packBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
+    {
+        if (errorInfo == null)
+            return ReactorReturnCodes.FAILURE;
 
-	/**
-	 * Retrieve the total number of used buffers for a ReactorChannel.
-	 * 
-	 * @param errorInfo error structure to be populated in the event of failure
-	 * 
-	 * @return if positive, the total number of buffers in use by this channel or
-	 *         if negative, {@link ReactorReturnCodes} failure code
-	 */
-	public int bufferUsage(ReactorErrorInfo errorInfo)
-	{
-		return channel().bufferUsage(errorInfo.error());
-	}
-	
-	/**
-	 * Changes some aspects of the ReactorChannel.
-	 * 
-	 * @param code code indicating the option to change
-	 * @param value value to change the option to
-	 * @param errorInfo error structure to be populated in the event of failure
-	 * 
-	 * @return {@link ReactorReturnCodes} indicating success or failure
-	 * 
-	 * @see com.refinitiv.eta.transport.IoctlCodes
-	 */
-	public int ioctl(int code, int value, ReactorErrorInfo errorInfo)
-	{
-		return channel().ioctl(code, value, errorInfo.error());
-	}
+        if (buffer == null)
+        {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    "ReactorChannel.packBuffer",
+                    "TransportBuffer is null.");
+        }
+
+        if(channel().protocolType() ==  Codec.JSON_PROTOCOL_TYPE)
+        {
+            int ret = ReactorReturnCodes.SUCCESS;
+
+            _reactor._reactorLock.lock();
+
+            try
+            {
+
+                ReactorPackedBuffer packedBufferImpl = _reactor.packedBufferHashMap.get(buffer);
+
+                if (Objects.isNull(packedBufferImpl))
+                {
+                    return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "ReactorChannel.packBuffer",
+                            "Failed to find the packed buffer handling for JSON protocol.");
+                }
+
+                if(Objects.isNull(_reactor.jsonConverter))
+                {
+                    return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "Reactor.packBuffer", "The JSON converter library has not been initialized properly.");
+                }
+
+                _reactor._msg.clear();
+                _reactor._dIter.clear();
+                
+                Buffer decodeBuffer = packedBufferImpl.decodeBuffer(buffer);
+                
+                ret = _reactor._dIter.setBufferAndRWFVersion(decodeBuffer, majorVersion(), minorVersion());
+
+                ret = _reactor._msg.decode(_reactor._dIter);
+
+                if(ret == CodecReturnCodes.SUCCESS)
+                {
+                    _reactor.converterError.clear();
+                    _reactor.rwfToJsonOptions.clear();
+                    _reactor.rwfToJsonOptions.setJsonProtocolType(JsonProtocol.JSON_JPT_JSON2);
+
+                    if( _reactor.jsonConverter.convertRWFToJson(_reactor._msg, _reactor.rwfToJsonOptions, _reactor.conversionResults, _reactor.converterError) != CodecReturnCodes.SUCCESS)
+                    {
+                        return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                "Reactor.packBuffer", "Failed to convert RWF to JSON protocol. Error text: " + _reactor.converterError.getText());
+                    }
+
+                    Buffer jsonBuffer = packedBufferImpl.jsonBuffer(_reactor.conversionResults.getLength());
+
+                    _reactor.getJsonMsgOptions.clear();
+                    _reactor.getJsonMsgOptions.jsonProtocolType(JsonProtocol.JSON_JPT_JSON2);
+                    _reactor.getJsonMsgOptions.streamId(_reactor._msg.streamId());
+                    _reactor.getJsonMsgOptions.isCloseMsg(_reactor._msg.msgClass() == MsgClasses.CLOSE ? true : false );
+
+                    if (_reactor.jsonConverter.getJsonBuffer(jsonBuffer, _reactor.getJsonMsgOptions, _reactor.converterError) != CodecReturnCodes.SUCCESS)
+                    {
+                        return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                "Reactor.packBuffer", "Failed to get converted JSON message. Error text: " + _reactor.converterError.getText());
+                    }
+
+                    int neededSize = 0;
+
+                    if (packedBufferImpl.totalSize == packedBufferImpl.remainingSize)
+                    {
+                        neededSize = jsonBuffer.length();
+                    }
+                    else
+                    {
+                        neededSize = jsonBuffer.length() + 1; /* Plus 1 for handling ',' for JSON array */
+                    }
+
+                    if(neededSize < packedBufferImpl.remainingSize)
+                    {
+                        packedBufferImpl.remainingSize -= neededSize;
+
+                        if (packedBufferImpl.nextRWFBufferPosition() == 0)
+                        {
+                        	buffer.data().position(buffer.dataStartPosition());
+                        	buffer.data().put(jsonBuffer.data().array(), jsonBuffer.position(), jsonBuffer.length());
+                        }
+                        else
+                        {
+                        	buffer.data().position(packedBufferImpl.nextRWFBufferPosition());
+                        	buffer.data().put(jsonBuffer.data().array(), jsonBuffer.position(), jsonBuffer.length());
+                        }
+                        
+                        ret = channel().packBuffer(buffer, errorInfo.error());
+
+                        if(ret >= TransportReturnCodes.SUCCESS)
+                        {
+                        	packedBufferImpl.nextRWFBufferPosition(buffer.data().position());
+                        }
+                        
+                        return ret;
+                    }
+                    else
+                    {
+                        return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                                "Reactor.packBuffer", "Failed to pack buffer as the required buffer size(" + neededSize + ") is larger than "
+                                                      + "the remaining packed buffer size(" + packedBufferImpl.remainingSize + ").");
+                    }
+                }
+                else
+                {
+                    return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                            "Reactor.packBuffer", "Failed to decode the passed in buffer as RWF messages.");
+                }
+            }
+            finally
+            {
+                _reactor._reactorLock.unlock();
+            }
+        }
+        else
+        {
+            return channel().packBuffer(buffer, errorInfo.error());
+        }
+    }
+
+    /**
+     * Returns information about the ReactorChannel.
+     *
+     * @param info ReactorChannelInfo structure to be populated with information
+     * @param errorInfo error structure to be populated in the event of failure
+     *
+     * @return {@link ReactorReturnCodes} indicating success or failure
+     */
+    public int info(ReactorChannelInfo info, ReactorErrorInfo errorInfo)
+    {
+        return channel().info(info.channelInfo(), errorInfo.error());
+    }
+
+    /**
+     * Retrieve the total number of used buffers for a ReactorChannel.
+     *
+     * @param errorInfo error structure to be populated in the event of failure
+     *
+     * @return if positive, the total number of buffers in use by this channel or
+     *         if negative, {@link ReactorReturnCodes} failure code
+     */
+    public int bufferUsage(ReactorErrorInfo errorInfo)
+    {
+        return channel().bufferUsage(errorInfo.error());
+    }
+
+    /**
+     * Changes some aspects of the ReactorChannel.
+     *
+     * @param code code indicating the option to change
+     * @param value value to change the option to
+     * @param errorInfo error structure to be populated in the event of failure
+     *
+     * @return {@link ReactorReturnCodes} indicating success or failure
+     *
+     * @see com.refinitiv.eta.transport.IoctlCodes
+     */
+    public int ioctl(int code, int value, ReactorErrorInfo errorInfo)
+    {
+        return channel().ioctl(code, value, errorInfo.error());
+    }
 
     /**
      * When a {@link ReactorChannel} becomes active for a client or server, this is
@@ -856,12 +1071,12 @@ public class ReactorChannel extends VaNode
      * depend on any information in content being distributed. This information
      * is provided to help client and server applications manage the information
      * they are communicating.
-     * 
+     *
      * @return the majorVersion
      */
     public int majorVersion()
     {
-    	return (channel() != null ? channel().majorVersion() : Codec.majorVersion());
+        return (channel() != null ? channel().majorVersion() : Codec.majorVersion());
     }
 
     /**
@@ -871,9 +1086,9 @@ public class ReactorChannel extends VaNode
      * @return the host name
      */
     public String hostname() {
-		if (channel() == null)
-			return null;
-		return channel().hostname();
+        if (channel() == null)
+            return null;
+        return channel().hostname();
     }
 
     public int port() {
@@ -891,15 +1106,15 @@ public class ReactorChannel extends VaNode
      * depend on any information in content being distributed. This information
      * is provided to help client and server applications manage the information
      * they are communicating.
-     * 
-     * 
+     *
+     *
      * @return the minorVersion
      */
     public int minorVersion()
     {
-    	return (channel() != null ? channel().minorVersion() : Codec.minorVersion());
+        return (channel() != null ? channel().minorVersion() : Codec.minorVersion());
     }
-    
+
     /**
      * When a {@link ReactorChannel} becomes active for a client or server, this is
      * populated with the protocolType associated with the content being sent on
@@ -909,7 +1124,7 @@ public class ReactorChannel extends VaNode
      * depend on any information in content being distributed. This information
      * is provided to help client and server applications manage the information
      * they are communicating.
-     * 
+     *
      * @return the protocolType
      */
     public int protocolType()
@@ -922,17 +1137,17 @@ public class ReactorChannel extends VaNode
     {
         return _tunnelStreamManager;
     }
-    
+
     /**
      * Open a tunnel stream for a ReactorChannel. Used by TunnelStream consumers.
      * Once the TunnelStream is created, use it to send messages to and receive messages
      * from the tunnel stream.
-     * 
+     *
      * @param options the options for opening the tunnel stream
      * @param errorInfo error structure to be populated in the event of failure
-     *  
+     *
      * @return {@link ReactorReturnCodes} indicating success or failure
-     * 
+     *
      * @see TunnelStreamOpenOptions
      */
     public int openTunnelStream(TunnelStreamOpenOptions options, ReactorErrorInfo errorInfo)
@@ -941,57 +1156,57 @@ public class ReactorChannel extends VaNode
             return ReactorReturnCodes.FAILURE;
         else if (options == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.openTunnelStream",
-                                               "TunnelStreamOpenOptions cannot be null");
+                    "ReactorChannel.openTunnelStream",
+                    "TunnelStreamOpenOptions cannot be null");
         else if (options.statusEventCallback() == null)
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.openTunnelStream",
-                                              "TunnelStream statusEventCallback must be specified");            
+                    "ReactorChannel.openTunnelStream",
+                    "TunnelStream statusEventCallback must be specified");
         else if (options.defaultMsgCallback() == null)
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.openTunnelStream",
-                                              "TunnelStream defaultMsgCallback must be specified");            
+                    "ReactorChannel.openTunnelStream",
+                    "TunnelStream defaultMsgCallback must be specified");
         else if (_reactor.isShutdown())
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.openTunnelStream",
-                                              "Reactor is shutdown, openTunnelStream aborted");
-        
+                    "ReactorChannel.openTunnelStream",
+                    "Reactor is shutdown, openTunnelStream aborted");
+
         _reactor._reactorLock.lock();
         try
         {
             int ret;
-            
+
             // validate class of service first
             boolean isServer = (_server != null ? true : false);
             if (!options.classOfService().isValid(isServer, errorInfo))
             {
-                return ReactorReturnCodes.FAILURE;                
+                return ReactorReturnCodes.FAILURE;
             }
 
             if (options.name() != null && options.name().length() > 255)
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.openTunnelStream",
-                                                  "TunnelStream name is too long.");
+                        "ReactorChannel.openTunnelStream",
+                        "TunnelStream name is too long.");
             }
-            
-            
+
+
             WlInteger wlInteger = ReactorFactory.createWlInteger();
             wlInteger.value(options.streamId());
             if (_streamIdtoTunnelStreamTable.containsKey(wlInteger))
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.openTunnelStream",
-                                                  "TunnelStream is already open for stream id " + options.streamId());
+                        "ReactorChannel.openTunnelStream",
+                        "TunnelStream is already open for stream id " + options.streamId());
             }
-            
+
             if (_state != State.UP && _state != State.READY)
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.openTunnelStream",
-                                                  "Cannot open TunnelStreams while channel is down.");
+                        "ReactorChannel.openTunnelStream",
+                        "Cannot open TunnelStreams while channel is down.");
             }
-            
+
             // If recvWindowSize was -1, set it to reflect actual default value. 
             if (options.classOfService().flowControl().recvWindowSize() == -1) {
                 options.classOfService().flowControl().recvWindowSize(TunnelStream.DEFAULT_RECV_WINDOW);
@@ -1000,7 +1215,7 @@ public class ReactorChannel extends VaNode
             if (options.classOfService().flowControl().recvWindowSize() < options.classOfService().common().maxFragmentSize()) {
                 options.classOfService().flowControl().recvWindowSize(options.classOfService().common().maxFragmentSize());
             }
-            
+
             // open tunnel stream
             TunnelStream tunnelStream = _tunnelStreamManager.createTunnelStream(options);
             wlInteger.value(tunnelStream.streamId());
@@ -1009,10 +1224,10 @@ public class ReactorChannel extends VaNode
             if (tunnelStream.openStream(errorInfo.error()) < ReactorReturnCodes.SUCCESS)
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.openTunnelStream",
-                                                  "tunnelStream.openStream() failed");
+                        "ReactorChannel.openTunnelStream",
+                        "tunnelStream.openStream() failed");
             }
-            
+
             if ((ret = checkTunnelManagerEvents(errorInfo)) != ReactorReturnCodes.SUCCESS)
                 return ret;
 
@@ -1021,50 +1236,50 @@ public class ReactorChannel extends VaNode
         {
             _reactor._reactorLock.unlock();
         }
-            
+
         return ReactorReturnCodes.SUCCESS;
     }
-    
+
     /**
      * Accept a tunnel stream for a ReactorChannel. Used by TunnelStream providers.
      * Once the TunnelStream is accepted, use it to send messages to and receive messages
      * from the tunnel stream.
-     * 
+     *
      * @param event the request information of the tunnel stream request to accept
      * @param options the options for accepting the tunnel stream
      * @param errorInfo error structure to be populated in the event of failure
-     *  
+     *
      * @return {@link ReactorReturnCodes} indicating success or failure
-     * 
+     *
      * @see TunnelStreamRequestEvent
      * @see TunnelStreamAcceptOptions
      */
     public int acceptTunnelStream(TunnelStreamRequestEvent event, TunnelStreamAcceptOptions options, ReactorErrorInfo errorInfo)
     {
         int ret;
-        
+
         if (errorInfo == null)
             return ReactorReturnCodes.FAILURE;
         else if (event == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.acceptTunnelStream",
-                                               "TunnelStreamRequestEvent cannot be null");
+                    "ReactorChannel.acceptTunnelStream",
+                    "TunnelStreamRequestEvent cannot be null");
         else if (options == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.acceptTunnelStream",
-                                               "TunnelStreamAcceptOptions cannot be null");
+                    "ReactorChannel.acceptTunnelStream",
+                    "TunnelStreamAcceptOptions cannot be null");
         else if (options.statusEventCallback() == null)
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.acceptTunnelStream",
-                                              "TunnelStream statusEventCallback must be specified");            
+                    "ReactorChannel.acceptTunnelStream",
+                    "TunnelStream statusEventCallback must be specified");
         else if (options.defaultMsgCallback() == null)
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.acceptTunnelStream",
-                                              "TunnelStream defaultMsgCallback must be specified");            
+                    "ReactorChannel.acceptTunnelStream",
+                    "TunnelStream defaultMsgCallback must be specified");
         else if (_reactor.isShutdown())
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.acceptTunnelStream",
-                                              "Reactor is shutdown, acceptTunnelStream aborted");
+                    "ReactorChannel.acceptTunnelStream",
+                    "Reactor is shutdown, acceptTunnelStream aborted");
 
         _reactor._reactorLock.lock();
         try
@@ -1077,15 +1292,15 @@ public class ReactorChannel extends VaNode
                 _tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
                 _tunnelStreamRejectOptions.state().text().data("Unsupported class of service stream version: " + event.classOfService().common().streamVersion());
                 _tunnelStreamRejectOptions.expectedClassOfService(_defaultClassOfService);
-                
+
                 rejectTunnelStream(event, _tunnelStreamRejectOptions, errorInfo);
-                
+
                 return _reactor.populateErrorInfo(errorInfo,
-                                                  ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.acceptTunnelStream",
-                                                  "Unsupported class of service stream version: " + event.classOfService().common().streamVersion());
+                        ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.acceptTunnelStream",
+                        "Unsupported class of service stream version: " + event.classOfService().common().streamVersion());
             }
-            
+
             // send reject if request's class of service couldn't be fully decoded
             if (!event.classOfService().decodedProperly())
             {
@@ -1094,31 +1309,31 @@ public class ReactorChannel extends VaNode
                 _tunnelStreamRejectOptions.state().dataState(DataStates.SUSPECT);
                 _tunnelStreamRejectOptions.state().text().data("Requested class of service could not be fully decoded");
                 _tunnelStreamRejectOptions.expectedClassOfService(_defaultClassOfService);
-                
+
                 rejectTunnelStream(event, _tunnelStreamRejectOptions, errorInfo);
-                
+
                 return _reactor.populateErrorInfo(errorInfo,
-                                                  ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.acceptTunnelStream",
-                                                  "Requested class of service could not be fully decoded");
-            }          
-            
+                        ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.acceptTunnelStream",
+                        "Requested class of service could not be fully decoded");
+            }
+
             // validate accepted class of service
             boolean isServer = (_server != null ? true : false);
             options.classOfService().common().streamVersion(event.classOfService().common().streamVersion());
             if (!options.classOfService().isValid(isServer, errorInfo))
             {
                 return _reactor.populateErrorInfo(errorInfo,
-                                                  ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.acceptTunnelStream",
-                                                  "Accepted class of service is invalid");
+                        ReactorReturnCodes.FAILURE,
+                        "ReactorChannel.acceptTunnelStream",
+                        "Accepted class of service is invalid");
             }
-            
+
             // send TunnelStream refresh message
             _tunnelStreamRespMsg.clear();
             _tunnelStreamRespMsg.msgClass(MsgClasses.REFRESH);
             RefreshMsg refreshMsg = (RefreshMsg)_tunnelStreamRespMsg;
-            
+
             refreshMsg.applyPrivateStream();
             refreshMsg.applyQualifiedStream();
             refreshMsg.applySolicited();
@@ -1138,7 +1353,7 @@ public class ReactorChannel extends VaNode
             refreshMsg.containerType(DataTypes.FILTER_LIST);
             refreshMsg.msgKey().applyHasFilter();
             refreshMsg.msgKey().filter(options.classOfService().filterFlags());
-            
+
             /* If recvWindowSize was -1, set it to reflect actual default value. */
             /* If recvWindowSize was less than maxFragmentSize, set it to received maxFragmentSize. */
             if (options.classOfService().flowControl().recvWindowSize() == -1)
@@ -1147,7 +1362,7 @@ public class ReactorChannel extends VaNode
                 options.classOfService().flowControl().recvWindowSize(options.classOfService().common().maxFragmentSize());
 
             refreshMsg.encodedDataBody(options.classOfService().encode(this));
-            
+
             _reactorSubmitOptions.clear();
             while ((ret = submit(refreshMsg, _reactorSubmitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
@@ -1181,13 +1396,13 @@ public class ReactorChannel extends VaNode
             if (tunnelStream.openStream(errorInfo.error()) < ReactorReturnCodes.SUCCESS)
             {
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                                  "ReactorChannel.acceptTunnelStream",
-                                                  "tunnelStream.openStream() failed");
+                        "ReactorChannel.acceptTunnelStream",
+                        "tunnelStream.openStream() failed");
             }
 
             if ((ret = checkTunnelManagerEvents(errorInfo)) != ReactorReturnCodes.SUCCESS)
                 return ret;
-            
+
             // Set new tunnel stream's state to open.
             tunnelStream.state().streamState(StreamStates.OPEN);
             tunnelStream.state().dataState(DataStates.OK);
@@ -1197,14 +1412,14 @@ public class ReactorChannel extends VaNode
             tunnelStream.classOfService().flowControl().sendWindowSize(event.classOfService().flowControl().recvWindowSize());
             if (tunnelStream.classOfService().flowControl().sendWindowSize() < tunnelStream.classOfService().common().maxFragmentSize())
                 tunnelStream.classOfService().flowControl().sendWindowSize(tunnelStream.classOfService().common().maxFragmentSize());
-            
+
             return _reactor.sendAndHandleTunnelStreamStatusEventCallback("ReactorChannel.acceptTunnelStream",
-                                                                         this,
-                                                                         tunnelStream,
-                                                                         null,
-                                                                         refreshMsg,
-                                                                         refreshMsg.state(),
-                                                                         errorInfo);
+                    this,
+                    tunnelStream,
+                    null,
+                    refreshMsg,
+                    refreshMsg.state(),
+                    errorInfo);
         }
         finally
         {
@@ -1214,33 +1429,33 @@ public class ReactorChannel extends VaNode
 
     /**
      * Reject a tunnel stream for a ReactorChannel. Used by TunnelStream providers.
-     * 
+     *
      * @param event the request information of the tunnel stream request to reject
      * @param options the options for rejecting the tunnel stream
      * @param errorInfo error structure to be populated in the event of failure
-     *  
+     *
      * @return {@link ReactorReturnCodes} indicating success or failure
-     * 
+     *
      * @see TunnelStreamRequestEvent
      */
     public int rejectTunnelStream(TunnelStreamRequestEvent event, TunnelStreamRejectOptions options, ReactorErrorInfo errorInfo)
     {
         int ret;
-        
+
         if (errorInfo == null)
             return ReactorReturnCodes.FAILURE;
         else if (event == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.rejectTunnelStream",
-                                               "TunnelStreamRequestEvent cannot be null");
+                    "ReactorChannel.rejectTunnelStream",
+                    "TunnelStreamRequestEvent cannot be null");
         else if (options == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                               "ReactorChannel.rejectTunnelStream",
-                                               "options cannot be null");
+                    "ReactorChannel.rejectTunnelStream",
+                    "options cannot be null");
         else if (_reactor.isShutdown())
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
-                                              "ReactorChannel.rejectTunnelStream",
-                                              "Reactor is shutdown, rejectTunnelStream aborted");
+                    "ReactorChannel.rejectTunnelStream",
+                    "Reactor is shutdown, rejectTunnelStream aborted");
 
         _reactor._reactorLock.lock();
         try
@@ -1248,7 +1463,7 @@ public class ReactorChannel extends VaNode
             _tunnelStreamRespMsg.clear();
             _tunnelStreamRespMsg.msgClass(MsgClasses.STATUS);
             StatusMsg statusMsg = (StatusMsg)_tunnelStreamRespMsg;
-            
+
             statusMsg.applyPrivateStream();
             statusMsg.applyQualifiedStream();
             statusMsg.domainType(event.domainType());
@@ -1268,7 +1483,7 @@ public class ReactorChannel extends VaNode
                 statusMsg.msgKey().filter(options.expectedClassOfService().filterFlags());
                 statusMsg.encodedDataBody(options.expectedClassOfService().encode(this));
             }
-            
+
             _reactorSubmitOptions.clear();
             while ((ret = submit(statusMsg, _reactorSubmitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS)
             {
@@ -1296,7 +1511,7 @@ public class ReactorChannel extends VaNode
         {
             _reactor._reactorLock.unlock();
         }
-        
+
         return ReactorReturnCodes.SUCCESS;
     }
 
@@ -1305,7 +1520,7 @@ public class ReactorChannel extends VaNode
         return _streamIdtoTunnelStreamTable;
     }
 
-    /* Indicate that no tunnel-stream timer event is currently outstanding (use when a timer 
+    /* Indicate that no tunnel-stream timer event is currently outstanding (use when a timer
      * event has been received from the Worker). */
     void clearTunnelStreamManagerExpireTime()
     {
@@ -1313,138 +1528,138 @@ public class ReactorChannel extends VaNode
     }
 
     /* Stores connection options for reconnection. */
-	void reactorConnectOptions(ReactorConnectOptions reactorConnectOptions)
-	{
+    void reactorConnectOptions(ReactorConnectOptions reactorConnectOptions)
+    {
         if (_reactorConnectOptions == null)
             _reactorConnectOptions = ReactorFactory.createReactorConnectOptions();
 
-		reactorConnectOptions.copy(_reactorConnectOptions);
-		_reconnectDelay = 0;
-		_nextRecoveryTime = 0;
+        reactorConnectOptions.copy(_reactorConnectOptions);
+        _reconnectDelay = 0;
+        _nextRecoveryTime = 0;
     }
 
-	/* Determines the time at which reconnection should be attempted for this channel. */
-	void calculateNextReconnectTime()
-	{
-		if (_reconnectDelay < _reactorConnectOptions.reconnectMaxDelay())
-		{
-		    if (_reconnectDelay != 0)
-		    {
-		        _reconnectDelay *= 2;
-		    }
-		    else // set equal to reconnectMinDelay first time through
-		    {
-		        _reconnectDelay = _reactorConnectOptions.reconnectMinDelay();
-		    }
-		    
-			if (_reconnectDelay > _reactorConnectOptions.reconnectMaxDelay())
-			{
-				_reconnectDelay = _reactorConnectOptions.reconnectMaxDelay();
-			}
-		}
-		_nextRecoveryTime = System.currentTimeMillis() + _reconnectDelay;
-	}
-	
+    /* Determines the time at which reconnection should be attempted for this channel. */
+    void calculateNextReconnectTime()
+    {
+        if (_reconnectDelay < _reactorConnectOptions.reconnectMaxDelay())
+        {
+            if (_reconnectDelay != 0)
+            {
+                _reconnectDelay *= 2;
+            }
+            else // set equal to reconnectMinDelay first time through
+            {
+                _reconnectDelay = _reactorConnectOptions.reconnectMinDelay();
+            }
+
+            if (_reconnectDelay > _reactorConnectOptions.reconnectMaxDelay())
+            {
+                _reconnectDelay = _reactorConnectOptions.reconnectMaxDelay();
+            }
+        }
+        _nextRecoveryTime = System.currentTimeMillis() + _reconnectDelay;
+    }
+
     /* Resets info related to reconnection such as timers. Used when a channel is up. */
     void resetReconnectTimers()
     {
-		_reconnectAttempts = 0;
-		_reconnectDelay = 0;
-		_nextRecoveryTime = 0;
+        _reconnectAttempts = 0;
+        _reconnectDelay = 0;
+        _nextRecoveryTime = 0;
     }
 
     /* Returns whether this channel has reached its number of reconnect attempts. */
-	boolean recoveryAttemptLimitReached()
+    boolean recoveryAttemptLimitReached()
     {
         return (_reactorConnectOptions.reconnectAttemptLimit() != NO_RECONNECT_LIMIT &&
                 _reconnectAttempts == _reactorConnectOptions.reconnectAttemptLimit());
     }
 
-	ReactorConnectInfo getReactorConnectInfo()
-	{
-		return _reactorConnectOptions.connectionList().get(_listIndex);
-	}
-	
-	private Channel reconnect(ReactorConnectInfo reactorConnectInfo, Error error)
-	{
+    ReactorConnectInfo getReactorConnectInfo()
+    {
+        return _reactorConnectOptions.connectionList().get(_listIndex);
+    }
+
+    private Channel reconnect(ReactorConnectInfo reactorConnectInfo, Error error)
+    {
         userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
         reactorConnectInfo.connectOptions().channelReadLocking(true);
         reactorConnectInfo.connectOptions().channelWriteLocking(true);
-        
+
         // connect
         Channel channel = Transport.connect(reactorConnectInfo.connectOptions(), error);
-        
+
         if (channel != null)
             initializationTimeout(reactorConnectInfo.initTimeout());
 
-        return channel;		
-	}
-	
+        return channel;
+    }
+
     /* Attempts to reconnectEDP, using the next set of connection options in the channel's list. */
     Channel reconnectEDP(Error error)
     {
         ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-        
+
         ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
-        
+
         userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
 
-		// if done getting the auth token and service discovery
-    	if (_state == State.EDP_RT_DONE)
-    	{
-    		applyAccessToken();
+        // if done getting the auth token and service discovery
+        if (_state == State.EDP_RT_DONE)
+        {
+            applyAccessToken();
 
-    		if(Reactor.requestServiceDiscovery(reactorConnectInfo))
-    		{
-    			if (applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
-    			{
-    				_state = State.DOWN;
-    				error.text(errorInfo.error().text());
-        			return null;
-    			}
-    		}
+            if(Reactor.requestServiceDiscovery(reactorConnectInfo))
+            {
+                if (applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
+                {
+                    _state = State.DOWN;
+                    error.text(errorInfo.error().text());
+                    return null;
+                }
+            }
 
-			return reconnect(reactorConnectInfo, error);	
-    	}
-    	else if(_state == State.EDP_RT_FAILED)
-    	{
-    		error.text(_errorInfoEDP.error().text());
-    		
-    		_state = State.DOWN; /* Waiting to re-retry the failure with another channel info in the list. */
-    	}
-    	
-    	return null;
+            return reconnect(reactorConnectInfo, error);
+        }
+        else if(_state == State.EDP_RT_FAILED)
+        {
+            error.text(_errorInfoEDP.error().text());
+
+            _state = State.DOWN; /* Waiting to re-retry the failure with another channel info in the list. */
+        }
+
+        return null;
     }
-    
+
     boolean enableSessionManagement()
     {
-    	return _reactorConnectOptions.connectionList().get(_listIndex).enableSessionManagement();
+        return _reactorConnectOptions.connectionList().get(_listIndex).enableSessionManagement();
     }
-	
+
     /* Attempts to reconnect, using the next set of connection options in the channel's list. */
     Channel reconnect(Error error)
     {
-    	_reconnectAttempts++;
-    	if (++_listIndex == _reactorConnectOptions.connectionList().size())
-    	{
-    		_listIndex = 0;
-    	}
-    	
-        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);    	
-    	if (reactorConnectInfo.enableSessionManagement())
-    	{
-            ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
-            
-            /* Checks and changes the state of Reactor channel either State.EDP_RT or State.EDP_RT_DONE */
-    		if (_reactor.sessionManagementStartup(_tokenSession, reactorConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
-    		{
-    			error.text(errorInfo.error().text());
-    		}
-    		
-    		return null;
-    	}
+        _reconnectAttempts++;
+        if (++_listIndex == _reactorConnectOptions.connectionList().size())
+        {
+            _listIndex = 0;
+        }
 
-    	return reconnect(reactorConnectInfo, error);
+        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        if (reactorConnectInfo.enableSessionManagement())
+        {
+            ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+
+            /* Checks and changes the state of Reactor channel either State.EDP_RT or State.EDP_RT_DONE */
+            if (_reactor.sessionManagementStartup(_tokenSession, reactorConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+                error.text(errorInfo.error().text());
+            }
+
+            return null;
+        }
+
+        return reconnect(reactorConnectInfo, error);
     }
 
     /* Returns the time at which to attempt to recover this channel. */
@@ -1452,7 +1667,7 @@ public class ReactorChannel extends VaNode
     {
         return _nextRecoveryTime;
     }
-    
+
     /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
     boolean flushRequested()
     {
@@ -1477,71 +1692,78 @@ public class ReactorChannel extends VaNode
         _flushAgain = flushAgain;
     }
 
-	ReactorAuthTokenEventCallback reactorAuthTokenEventCallback() {
-		return _reactorConnectOptions.connectionList().get(_listIndex).reactorAuthTokenEventCallback();
-	}
-	
+    ReactorAuthTokenEventCallback reactorAuthTokenEventCallback() {
+        return _reactorConnectOptions.connectionList().get(_listIndex).reactorAuthTokenEventCallback();
+    }
+
     int applyServiceDiscoveryEndpoint (ReactorErrorInfo errorInfo)
     {
-    	ReactorServiceEndpointInfo endpointInfo = null;
-    	ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
-    	String transportType = "";
-    	boolean foundLocation = false;
-    	
-    	for(int index = 0; index < _reactorServiceEndpointInfoList.size(); index++)
-    	{
-    		endpointInfo = _reactorServiceEndpointInfoList.get(index);
-    		
-    		if ( reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
-    		{
-    			transportType = RestClient.EDP_RT_TRANSPORT_PROTOCOL_TCP;
-    		}
-    		    		
-    		if(endpointInfo.locationList().size() > 1 && endpointInfo.transport().equals(transportType))
-    		{
-    			if ( endpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
-    			{
-    				foundLocation = true;
-    				break;
-    			}
-    		}
-    	}
-    	
-    	if(foundLocation)
-    	{
-    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address(endpointInfo.endPoint());
-    		_reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName(endpointInfo.port());  
-    		return ReactorReturnCodes.SUCCESS;
-    	}
-    	else
-    	{
-    		_reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "ReactorChannel.applyServiceDiscoveryEndpoint", 
-        			"ReactorChannel.applyServiceDiscoveryEndpoint(): Could not find matching location: " + reactorConnectInfo.location() + 
-        			" for requesting RDP service discovery.");                	
-        	return ReactorReturnCodes.PARAMETER_INVALID;
-    	}
+        ReactorServiceEndpointInfo endpointInfo = null;
+        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        String transportType = "";
+        boolean foundLocation = false;
+
+        for(int index = 0; index < _reactorServiceEndpointInfoList.size(); index++)
+        {
+            endpointInfo = _reactorServiceEndpointInfoList.get(index);
+
+            if ( reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
+            {
+                if(reactorConnectInfo.connectOptions().encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET)
+                {
+                    transportType = RestClient.EDP_RT_TRANSPORT_PROTOCOL_WEBSOCKET;
+                }
+                else
+                {
+                    transportType = RestClient.EDP_RT_TRANSPORT_PROTOCOL_TCP;
+                }
+            }
+
+            if(endpointInfo.locationList().size() > 1 && endpointInfo.transport().equals(transportType))
+            {
+                if ( endpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
+                {
+                    foundLocation = true;
+                    break;
+                }
+            }
+        }
+
+        if(foundLocation)
+        {
+            _reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().address(endpointInfo.endPoint());
+            _reactorConnectOptions.connectionList().get(_listIndex).connectOptions().unifiedNetworkInfo().serviceName(endpointInfo.port());
+            return ReactorReturnCodes.SUCCESS;
+        }
+        else
+        {
+            _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "ReactorChannel.applyServiceDiscoveryEndpoint",
+                    "ReactorChannel.applyServiceDiscoveryEndpoint(): Could not find matching location: " + reactorConnectInfo.location() +
+                    " for requesting RDP service discovery.");
+            return ReactorReturnCodes.PARAMETER_INVALID;
+        }
     }
-    
+
     int applyAccessToken()
     {
-    	/* Checks to ensure that the application specifies the Login request in the ConsumerRole as well */
-    	if(_loginRequestForEDP != null)
-    	{
-    		_loginRequestForEDP.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
-    		_loginRequestForEDP.userName().data(_tokenSession.authTokenInfo().accessToken());
-    		// Do not send the password
-    		_loginRequestForEDP.flags(_loginRequestForEDP.flags() & ~LoginRequestFlags.HAS_PASSWORD);
-    	}
-    	
-    	return ReactorReturnCodes.SUCCESS;
-    }    
+        /* Checks to ensure that the application specifies the Login request in the ConsumerRole as well */
+        if(_loginRequestForEDP != null)
+        {
+            _loginRequestForEDP.userNameType(Login.UserIdTypes.AUTHN_TOKEN);
+            _loginRequestForEDP.userName().data(_tokenSession.authTokenInfo().accessToken());
+            // Do not send the password
+            _loginRequestForEDP.flags(_loginRequestForEDP.flags() & ~LoginRequestFlags.HAS_PASSWORD);
+        }
+
+        return ReactorReturnCodes.SUCCESS;
+    }
 
     /**
      * Populates a {@link ReactorChannelStats} object with channel statistics aggregated
      * since either the start of the channel or the last call to this method.
-     * 
+     *
      * After populating the object, all external statistic aggregators are reset.
-     * 
+     *
      * @param stats the {@link ReactorChannelStats} object to be populated
      */
     public void getReactorChannelStats(ReactorChannelStats stats)
@@ -1549,19 +1771,19 @@ public class ReactorChannel extends VaNode
         _reactor._reactorLock.lock();
 
         try {
-        	
-        	// Populate stats into ReactorChannelStats object
-        	stats.bytesRead(_reactor._readArgsAggregator.bytesRead());
-        	stats.bytesWritten(_reactor._writeArgsAggregator.bytesWritten());
-        	stats.uncompressedBytesRead(_reactor._readArgsAggregator.uncompressedBytesRead());
-        	stats.uncompressedBytesWritten(_reactor._writeArgsAggregator.uncompressedBytesWritten());
-        	stats.pingsReceived((int)pingHandler().getPingsReceived());
-        	stats.pingsSent((int)pingHandler().getPingsSent());
-        	
-        	// Reset aggregated stats
-        	pingHandler().resetAggregatedStats();
-        	_reactor._readArgsAggregator.clear();
-        	_reactor._writeArgsAggregator.clear();
+
+            // Populate stats into ReactorChannelStats object
+            stats.bytesRead(_reactor._readArgsAggregator.bytesRead());
+            stats.bytesWritten(_reactor._writeArgsAggregator.bytesWritten());
+            stats.uncompressedBytesRead(_reactor._readArgsAggregator.uncompressedBytesRead());
+            stats.uncompressedBytesWritten(_reactor._writeArgsAggregator.uncompressedBytesWritten());
+            stats.pingsReceived((int)pingHandler().getPingsReceived());
+            stats.pingsSent((int)pingHandler().getPingsSent());
+
+            // Reset aggregated stats
+            pingHandler().resetAggregatedStats();
+            _reactor._readArgsAggregator.clear();
+            _reactor._writeArgsAggregator.clear();
         }
         finally
         {

@@ -7,6 +7,8 @@
 
 package com.refinitiv.ema.access;
 
+import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.valueadd.reactor.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +19,6 @@ import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.WritePriorities;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
-import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
-import com.refinitiv.ema.access.ReqMsg;
 import com.refinitiv.ema.rdm.EmaRdm;
 
 class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer
@@ -34,6 +29,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	private ReqMsg loginRequest = EmaFactory.createReqMsg();
 	private OmmConsumerClient		_adminClient;
 	private Object					_adminClosure;
+	private ConsumerSessionInfo sessionInfo = new ConsumerSessionInfo();
+	private ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
 
 	OmmConsumerImpl(OmmConsumerConfig config)
 	{
@@ -41,7 +38,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		_activeConfig = new OmmConsumerActiveConfig();
 		_adminClient = null;
 		_adminClosure = null;
-		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
 	}
 	
 	//only for unit test, internal use
@@ -65,7 +62,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
 		_adminClient = client;
 		_adminClosure = null;
-		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);		
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
 	}
 	
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient client, Object closure)
@@ -113,7 +110,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
 	}
-	
+
 	@Override
 	public void uninitialize()
 	{
@@ -203,6 +200,10 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		case ExceptionType.OmmInvalidUsageException:
 			_consumerErrorClient.onInvalidUsage(ommException.getMessage());
 			_consumerErrorClient.onInvalidUsage(ommException.getMessage(), ((OmmInvalidUsageException)ommException).errorCode());
+			break;
+		case ExceptionType.OmmJsonConverterException:
+			_consumerErrorClient.onJsonConverterError((ConsumerSessionInfo) ((OmmJsonConverterException) ommException).getSessionInfo(),
+					((OmmJsonConverterException) ommException).getErrorCode(), ommException.getMessage());
 			break;
 		default:
 			break;
@@ -342,9 +343,16 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 						.append(_activeConfig.directoryRequestTimeOut).append(" milliseconds) for ");
 				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
 				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
-						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED)
+						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.WEBSOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
+					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
+							.append(")");
+				}
+				else if (loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.HTTP || 
+						 loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+				{
+					HttpChannelConfig channelConfig = ((HttpChannelConfig) loginChanInfo._channelConfig);
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
@@ -381,9 +389,16 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 						.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
 				ChannelInfo loginChanInfo = _loginCallbackClient.activeChannelInfo();
 				if( loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.SOCKET ||
-						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.ENCRYPTED)
+						loginChanInfo._channelConfig.rsslConnectionType  == ConnectionTypes.WEBSOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) loginChanInfo._channelConfig;
+					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
+							.append(")");
+				}
+				else if (loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.HTTP || 
+						 loginChanInfo._channelConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
+				{
+					HttpChannelConfig channelConfig = ((HttpChannelConfig) loginChanInfo._channelConfig);
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				}
@@ -435,7 +450,34 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 
 		_itemCallbackClient = new ItemCallbackClientConsumer(this);
 		_itemCallbackClient.initialize();
-		
+
+
+		jsonConverterOptions.clear();
+		DataDictionary dictionary = dictionaryCallbackClient().defaultRsslDictionary();
+		jsonConverterOptions.dataDictionary(dictionary);
+		jsonConverterOptions.serviceNameToIdCallback(this);
+		jsonConverterOptions.jsonConversionEventCallback(this);
+		jsonConverterOptions.defaultServiceId(_activeConfig.defaultConverterServiceId);
+		jsonConverterOptions.jsonExpandedEnumFields(_activeConfig.jsonExpandedEnumFields);
+		jsonConverterOptions.catchUnknownJsonKeys(_activeConfig.catchUnknownJsonKeys);
+		jsonConverterOptions.catchUnknownJsonFids(_activeConfig.catchUnknownJsonFids);
+		jsonConverterOptions.closeChannelFromFailure(_activeConfig.closeChannelFromFailure);
+
+		if (_rsslReactor.initJsonConverter(jsonConverterOptions, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS) {
+			strBuilder().append("Failed to initialize OmmBaseImpl (RWF/JSON Converter).")
+					.append("' Error Id='").append(_rsslErrorInfo.error().errorId()).append("' Internal sysError='")
+					.append(_rsslErrorInfo.error().sysError()).append("' Error Location='")
+					.append(_rsslErrorInfo.location()).append("' Error Text='")
+					.append(_rsslErrorInfo.error().text()).append("'. ");
+
+			String temp = _strBuilder.toString();
+
+			if (loggerClient().isErrorEnabled())
+				loggerClient().error(formatLogMessage(_activeConfig.instanceName, temp, Severity.ERROR));
+
+			throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
+		}
+
 		if(_adminClient != null)
 		{
 			/* RegisterClient does not require a fully encoded login message to set the callbacks */
@@ -449,7 +491,6 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		handleLoginReqTimeout();
 		loadDirectory();
 		loadDictionary();
-		
 	}
 	
 	@Override
@@ -473,6 +514,19 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			_consumerErrorClient.onInvalidHandle(handle, text);
 		else
 			throw (ommIHExcept().message(text, handle));
+	}
+
+	@Override
+	public void handleJsonConverterError(int errorCode, String text) {
+		sessionInfo.loadConsumerSession(super._rsslReactor.reactorChannel());
+		if (hasErrorClient()) {
+			_consumerErrorClient.onJsonConverterError(sessionInfo, errorCode, text);
+		} else {
+			if (userLock().isLocked()) {
+				userLock().unlock();
+			}
+			throw (ommJCExcept().message(sessionInfo, errorCode, text));
+		}
 	}
 
 	TunnelStreamSubmitOptions rsslTunnelStreamSubmitOptions()

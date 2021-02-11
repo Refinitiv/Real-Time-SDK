@@ -18,7 +18,7 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
     @SuppressWarnings("unused")
     private int ntlmResponseCount = 0;
     boolean stopScheme = false;
-	
+
     /**
      * Instantiates a new basic authentication scheme.
      *
@@ -34,20 +34,20 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
 
         _proxyAuthenticator = proxyAuthenticator;
     }
-	
+
     @Override
     public IProxyAuthenticator getProxyAuthenicator()
     {
         return _proxyAuthenticator;
     }
 
-    /* Processes a response from the proxy server 
+    /* Processes a response from the proxy server
      * and returns a (http) "Proxy-authorization: " value (e.g. "Basic dfdfakajas...") with a trailing \r\n
      * or returns an empty string if a "Proxy-authorization: " value does not need to be sent back to the proxy
-     * 
+     *
      * httpResponseCode is the http response code to handle (e.g. 407)
      * proxyServerResponse is a response from the proxy server to process (may be null)
-     * 
+     *
      * Throws ProxyAuthenticationException (an exception that halted the authentication process occurred)
      */
     @Override
@@ -56,8 +56,8 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
         StringBuilder proxyAuthorizationValue = new StringBuilder();
 
         String credentails = String.format("%s:%s",
-                                           _proxyAuthenticator.getCredentials().get(CredentialName.USERNAME),
-                                           _proxyAuthenticator.getCredentials().get(CredentialName.PASSWORD));
+                _proxyAuthenticator.getCredentials().get(CredentialName.USERNAME),
+                _proxyAuthenticator.getCredentials().get(CredentialName.PASSWORD));
 
         credentails = EncodingUtils.getAsciiString(Base64.getEncoder().encode(EncodingUtils.getBytes(credentails, DEFAULT_CHARSET)));
 
@@ -78,12 +78,12 @@ public class BasicAuthenticationScheme implements IAuthenticationScheme
 
         return proxyAuthorizationValue.toString();
     }
-	
+
     public String name()
     {
         return "BASIC";
     }
-	
+
     /* not useful in this scheme */
     public boolean stopScheme()
     {

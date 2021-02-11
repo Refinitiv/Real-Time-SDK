@@ -62,8 +62,8 @@ public class ConsPerfConfig
 	private int _tunnelStreamOutputBuffers;	/* Tunnel Stream Guaranteed Output Buffers. */
 	private boolean _tunnelStreamBufsUsed;  /* Control whether to print tunnel Stream buffers usage. */
 	private boolean _busyRead;              /* If set, the application will continually read rather than using notification. */
-	
-	private int _encryptedConnType = ConnectionTypes.ENCRYPTED; /* Encrypted connection type */
+	private String  _protocolList;          /* List of supported WS sub-protocols in order of preference(',' | white space delineated) */
+	private int _encryptedConnType = ConnectionTypes.SOCKET; /* Encrypted connection type */
 	private String _keyfile = null;			/* Keyfile for encrypted connection */
 	private String _keypasswd = null;		/* password for encrypted keyfile */
 
@@ -107,9 +107,10 @@ public class ConsPerfConfig
         CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
         CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
         CommandLine.addOption("busyRead", false, "If set, the application will continually read rather than using notification.");
+        CommandLine.addOption("pl", "", "List of supported WS sub-protocols in order of preference(',' | white space delineated)");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
         CommandLine.addOption("keypasswd", "", "Keystore password");        
-        CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'Socket', or 'http'");
+        CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
     }
 	
     /**
@@ -145,6 +146,7 @@ public class ConsPerfConfig
     	_interfaceName = CommandLine.value("if");
     	_username = CommandLine.value("uname");
     	_serviceName = CommandLine.value("serviceName");
+    	_protocolList = CommandLine.value("pl");
     	_displayStats = !CommandLine.booleanValue("noDisplayStats");
     	_tcpNoDelay = !CommandLine.booleanValue("tcpDelay");
     	_requestSnapshots = CommandLine.booleanValue("snapshot");
@@ -167,6 +169,10 @@ public class ConsPerfConfig
             {
             	_connectionType = ConnectionTypes.SOCKET;
             }
+            else if("websocket".equals(CommandLine.value("connType")))
+            {
+            	_connectionType = ConnectionTypes.WEBSOCKET;
+            }
             else if("encrypted".equals(CommandLine.value("connType")))
             {
             	_connectionType = ConnectionTypes.ENCRYPTED;
@@ -177,20 +183,24 @@ public class ConsPerfConfig
                 {
                 	_encryptedConnType = ConnectionTypes.SOCKET;
                 }
+            	else if("websocket".equals(CommandLine.value("encryptedConnectionType")))
+                {
+                	_encryptedConnType = ConnectionTypes.WEBSOCKET;
+                }
             	else if("http".equals(CommandLine.value("encryptedConnectionType")))
                 {
                 	_encryptedConnType = ConnectionTypes.HTTP;
                 }
             	else
             	{
-            		System.err.println("Config Error: Only socket or http encrypted connection type is supported.\n");
+            		System.err.println("Config Error: Only socket, websocket or http encrypted connection type is supported.\n");
                 	System.out.println(CommandLine.optionHelpString());
                 	System.exit(-1);
             	}
             }
             else
             {
-            	System.err.println("Config Error: Only socket or encrypted connection type is supported.\n");
+            	System.err.println("Config Error: Only socket, websocket or encrypted connection type is supported.\n");
             	System.out.println(CommandLine.optionHelpString());
             	System.exit(-1);
             }
@@ -215,9 +225,9 @@ public class ConsPerfConfig
         	System.exit(-1);
         }
         
-        if (_connectionType != ConnectionTypes.SOCKET && _connectionType != ConnectionTypes.ENCRYPTED)
+        if (_connectionType != ConnectionTypes.SOCKET && _connectionType != ConnectionTypes.WEBSOCKET && _connectionType != ConnectionTypes.ENCRYPTED)
         {
-			System.err.println("Config Error: Application only supports SOCKET connection type.\n");
+			System.err.println("Config Error: Application only supports SOCKET, WEBSOCKET and ENCRYPTED connection types.\n");
 			System.out.println(CommandLine.optionHelpString());
 			System.exit(-1);
         }
@@ -381,6 +391,7 @@ public class ConsPerfConfig
             "    Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
             "              Tunnel Stream: " + (_useTunnel ? "Yes" : "No") + "\n" +
             "      Tunnel Authentication: " + (_tunnelAuth ? "Yes" : "No") + "\n" +
+            "              Protocol list: " + (_protocolList.isEmpty() ? "Not specified" : _protocolList) + "\n" +
             "TunnelStream Output Buffers: " + _tunnelStreamOutputBuffers + "\n" +
             "Print TunnelStream Bufs Used: " + (_tunnelStreamBufsUsed ? "Yes" : "No") + "\n" +
             "                  Busy Read: " + (_busyRead ? "Yes" : "No") + "\n";
@@ -840,4 +851,14 @@ public class ConsPerfConfig
     {
         return _busyRead;
     }
+    
+    /**
+	 * The websocket sub-protocol list specified by users.
+	 * 
+	 * @return the sub-protocol list 
+	 */
+	public String protocolList()
+	{
+		return _protocolList;
+	}
 }

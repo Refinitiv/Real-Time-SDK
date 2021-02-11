@@ -19,21 +19,23 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.refinitiv.eta.transport.ConnectOptions;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
-import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
-
 
 
 public class ReactorWatchlistRDPJunit
@@ -78,6 +80,21 @@ public class ReactorWatchlistRDPJunit
 			_oauthCredentail = oAuthCredential;
 		}
 	}
+	
+	/* This data dictionary is used by JSON converter library. */
+	final static DataDictionary dictionary = CodecFactory.createDataDictionary();
+
+    @Before
+    public void init() {
+
+        final String dictionaryFileName = "../../../Java/etc/RDMFieldDictionary";
+        final String enumTypeFile = "../../../Java/etc/enumtype.def";
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
+        dictionary.clear();
+
+        assertEquals(CodecReturnCodes.SUCCESS, dictionary.loadFieldDictionary(dictionaryFileName, error));
+        assertEquals(CodecReturnCodes.SUCCESS,dictionary.loadEnumTypeDictionary(enumTypeFile, error));
+    }
 	
 	/*
 	 * Inner class to handle default callbacks. It simply stores the event to be
@@ -374,28 +391,49 @@ public class ReactorWatchlistRDPJunit
 	}
 
 	/* create default consumer connect options */
-	static ReactorConnectOptions createDefaultConsumerConnectOptionsForSessionManagment(TestReactorComponent reactor)
+	static ReactorConnectOptions createDefaultConsumerConnectOptionsForSessionManagment(TestReactorComponent reactor, boolean isWebsocket, String protocolList)
 	{
 		ReactorConnectOptions rcOpts = ReactorFactory.createReactorConnectOptions();
 		ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 		assertNotNull(rcOpts);
 		assertEquals(ReactorReturnCodes.PARAMETER_OUT_OF_RANGE, connectInfo.initTimeout(0));
-		assertEquals(ReactorReturnCodes.SUCCESS, connectInfo.initTimeout(10));
+		assertEquals(ReactorReturnCodes.SUCCESS, connectInfo.initTimeout(20));
 		connectInfo.connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+		if (isWebsocket) {
+			connectInfo.connectOptions().encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
+			connectInfo.connectOptions().wSocketOpts().protocols(protocolList);
+		}
 		connectInfo.connectOptions().majorVersion(Codec.majorVersion());
 		connectInfo.connectOptions().minorVersion(Codec.minorVersion());
 
-		connectInfo.connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
-		connectInfo.connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
-		connectInfo.connectOptions().tunnelingInfo().objectName("");
-		connectInfo.connectOptions().tunnelingInfo().KeystoreType("JKS");
-		connectInfo.connectOptions().tunnelingInfo().SecurityProtocol("TLS");
-		connectInfo.connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
-		connectInfo.connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
-		connectInfo.connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
-		connectInfo.connectOptions().tunnelingInfo().tunnelingType("encrypted");			
-		connectInfo.connectOptions().userSpecObject(reactor);		
-		setupProxyForConnectOptions(connectInfo.connectOptions());
+		if(isWebsocket)
+		{
+			connectInfo.connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+			connectInfo.connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+			connectInfo.connectOptions().encryptionOptions().KeystoreType("JKS");
+			connectInfo.connectOptions().encryptionOptions().SecurityProtocol("TLS");
+			connectInfo.connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
+			connectInfo.connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
+			connectInfo.connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");
+			connectInfo.connectOptions().userSpecObject(reactor);
+			
+			if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+				reactor.testReactor().initJsonConverter(dictionary);
+            		}
+		}
+		else
+		{			
+			connectInfo.connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+			connectInfo.connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+			connectInfo.connectOptions().tunnelingInfo().objectName("");
+			connectInfo.connectOptions().tunnelingInfo().KeystoreType("JKS");
+			connectInfo.connectOptions().tunnelingInfo().SecurityProtocol("TLS");
+			connectInfo.connectOptions().tunnelingInfo().SecurityProvider("SunJSSE");
+			connectInfo.connectOptions().tunnelingInfo().KeyManagerAlgorithm("SunX509");
+			connectInfo.connectOptions().tunnelingInfo().TrustManagerAlgorithm("PKIX");		
+			connectInfo.connectOptions().tunnelingInfo().tunnelingType("encrypted");			
+			connectInfo.connectOptions().userSpecObject(reactor);
+		}
 
 		connectInfo.enableSessionManagement(true);
 		rcOpts.connectionList().add(connectInfo);
@@ -426,8 +464,23 @@ public class ReactorWatchlistRDPJunit
 		return event;
 	}
 
+
 	@Test
-	public void RDPConnectSpecificLocationTest()
+	public void RDPConnectSpecificLocationTest_Socket() {
+		RDPConnectSpecificLocation(false, null);
+	}
+
+	@Test
+	public void RDPConnectSpecificLocationTest_WebSocket_Rwf() {
+		RDPConnectSpecificLocation(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectSpecificLocationTest_WebSocket_Json() {
+		RDPConnectSpecificLocation(true, "tr_json2");
+	}
+
+	private void RDPConnectSpecificLocation(boolean isWebsocket, String protocolList)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectSpecificLocationTest <<<<<<<<<<\n");
 		/* Test a queryServiceDiscovery */
@@ -459,7 +512,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocolList);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			rcOpts.connectionList().get(0).location("eu");
 
@@ -629,7 +682,21 @@ public class ReactorWatchlistRDPJunit
 	}
 
 	@Test
-	public void RDPConnectErrorInvalidConnectionTypeTest()
+	public void RDPConnectErrorInvalidConnectionTypeTest() {
+		RDPConnectErrorInvalidConnectionType(false, null);
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidConnectionTypeTest_WebSocket_Rwf() {
+		RDPConnectErrorInvalidConnectionType(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidConnectionTypeTest_WebSocket_Json() {
+		RDPConnectErrorInvalidConnectionType(false, "tr_json2");
+	}
+
+	private void RDPConnectErrorInvalidConnectionType(boolean isWebsocket, String protocolList)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidConnectionTypeTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -660,7 +727,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocolList);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			// set invalid connection type
 			rcOpts.connectionList().get(0).connectOptions().connectionType(ConnectionTypes.SOCKET);
@@ -690,7 +757,21 @@ public class ReactorWatchlistRDPJunit
 	}
 
 	@Test
-	public void RDPConnectErrorInvalidLocationTest()
+	public void RDPConnectErrorInvalidLocationTest() {
+		RDPConnectErrorInvalidLocation(false, null);
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidLocationTest_WebSocket_Rwf() {
+		RDPConnectErrorInvalidLocation(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidLocationTest_WebSocket_Json() {
+		RDPConnectErrorInvalidLocation(true, "tr_json2");
+	}
+
+	private void RDPConnectErrorInvalidLocation(boolean isWebSocket, String protocolList)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidLocationTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -721,7 +802,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebSocket, protocolList);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			rcOpts.connectionList().get(0).location("invalid_location");
 
@@ -755,7 +836,11 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectErrorAddressAndSessionManagmentSpecifiedTest()
+	public void RDPConnectErrorAddressAndSessionManagmentSpecifiedTest() {
+		RDPConnectErrorAddressAndSessionManagmentSpecified(false, null);
+	}
+
+	private void RDPConnectErrorAddressAndSessionManagmentSpecified(boolean isWebsocket, String protocolList)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorAddressAndSessionManagmentSpecifiedTest <<<<<<<<<<\n");		
 		assumeTrue(checkCredentials());	
@@ -829,7 +914,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocolList);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("FAKE ADDRESS");
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName("FAKE SERVICE NAME");			
@@ -852,7 +937,7 @@ public class ReactorWatchlistRDPJunit
 			assertNotNull(errorInfo);
 
 			//call it again to test when rest reactor already created, this time fix invalid parameter
-			rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocolList);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -905,7 +990,16 @@ public class ReactorWatchlistRDPJunit
 	}
 
 	@Test
-	public void RDPConnectTest()
+	public void RDPConnectTest() {
+		RDPConnect(false, null);
+	}
+
+	@Test
+	public void RDPConnectTest_WebSocket_Json() {
+		RDPConnect(true, "tr_json2");
+	}
+
+	private void RDPConnect(boolean isWebsocket, String protocolList)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -935,7 +1029,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocolList);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -991,7 +1085,16 @@ public class ReactorWatchlistRDPJunit
 
 
 	@Test
-	public void RDPConnectConnectionListTest()
+	public void RDPConnectConnectionListTest() {
+		RDPConnectConnectionList(false, null);
+	}
+
+	@Test
+	public void RDPConnectConnectionListTest_WebSocket_Json() {
+		RDPConnectConnectionList(true, "tr_json2");
+	}
+
+	private void RDPConnectConnectionList(boolean isWebsocket, String protocolList)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectConnectionListTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1036,7 +1139,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.enableSessionManagement(false);		
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocolList);
 
 			ReactorConnectInfo connectInfoSecond = rcOpts.connectionList().remove(0);		
 
@@ -1150,7 +1253,21 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectConnectionListErrorWrongCredentialsTest()
+	public void RDPConnectConnectionListErrorWrongCredentialsTest() {
+		RDPConnectConnectionListErrorWrongCredentials(false, null);
+	}
+
+	@Test
+	public void RDPConnectConnectionListErrorWrongCredentialsTest_WebSocket_Rwf() {
+		RDPConnectConnectionListErrorWrongCredentials(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectConnectionListErrorWrongCredentialsTest_WebSocket_Json() {
+		RDPConnectConnectionListErrorWrongCredentials(true, "tr_json2");
+	}
+
+	private  void RDPConnectConnectionListErrorWrongCredentials(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectConnectionListErrorWrongCredentialsTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1196,7 +1313,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.enableSessionManagement(false);		
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 
 			ReactorConnectInfo connectInfoSecond = rcOpts.connectionList().remove(0);		
 
@@ -1266,13 +1383,6 @@ public class ReactorWatchlistRDPJunit
 				assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
 				ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
 				assertTrue(authTokenEvent.errorInfo().error().text().contains("{\"error_description\":\"Invalid username or password.\",\"error\":\"access_denied\"}"));
-				
-				event = consumerReactor.pollEvent();
-				assertNotNull("Did not receive CHANNEL_EVENT", event);
-				assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-				chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-				assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
-				assertTrue(chnlEvent.errorInfo().error().text().contains("Failed REST request for the token service from HTTP status code 400"));
 			}
 
 		}
@@ -1284,7 +1394,21 @@ public class ReactorWatchlistRDPJunit
 
 
 	@Test
-	public void RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest()
+	public void RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest() {
+		RDPConnectConnectionListSecondConnectionRDPInvalidCredentials(false, null);
+	}
+
+	@Test
+	public void RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest_WebSocket_Rwf() {
+		RDPConnectConnectionListSecondConnectionRDPInvalidCredentials(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest_WebSocket_Json() {
+		RDPConnectConnectionListSecondConnectionRDPInvalidCredentials(true, "tr_json2");
+	}
+
+	private void RDPConnectConnectionListSecondConnectionRDPInvalidCredentials(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectConnectionListSecondConnectionRDPInvalidCredentialsTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1336,7 +1460,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.enableSessionManagement(false);		
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 
 			ReactorConnectInfo connectInfoSecond = rcOpts.connectionList().remove(0);		
 
@@ -1395,28 +1519,6 @@ public class ReactorWatchlistRDPJunit
 			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
 			authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
 			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));
-			
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = getTestEvent(consumerReactor, 10);
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
-			assertTrue(chnlEvent.errorInfo().error().text().contains("Failed REST request for the token service from HTTP status code 400"));
-			
-			// Consumer receives CHANNEL_DOWN_RECONNECTING event
-			event = getTestEvent(consumerReactor, 10);
-			assertNotNull("Did not receive CHANNEL_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
-			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
-			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
-			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
-			
-			event = getTestEvent(consumerReactor, 10);
-			assertNotNull("Did not receive AUTH_TOKEN_EVENT", event);
-			assertEquals("Expected TestReactorEventTypes.AUTH_TOKEN_EVENT, received: " + event.type(), TestReactorEventTypes.AUTH_TOKEN_EVENT, event.type());
-			authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
-			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));	
 		}
 		finally
 		{
@@ -1432,7 +1534,16 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest()
+	public void RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest() {
+		RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlag(false, null);
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest_WebSocket_Json() {
+		RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlag(true, "tr_json2");
+	}
+
+	private void RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlag(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledLoginReIssueSendWithRefreshFlagTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1462,7 +1573,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);				
@@ -1527,7 +1638,21 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectWatchlistDisabledAddressAndPortEmptyTest()
+	public void RDPConnectWatchlistDisabledAddressAndPortEmptyTest() {
+		RDPConnectWatchlistDisabledAddressAndPortEmpty(false, null);
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledAddressAndPortEmptyTest_WebSocket_Rwf() {
+		RDPConnectWatchlistDisabledAddressAndPortEmpty(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledAddressAndPortEmptyTest_WebSocket_Json() {
+		RDPConnectWatchlistDisabledAddressAndPortEmpty(true, "tr_json2");
+	}
+
+	private void RDPConnectWatchlistDisabledAddressAndPortEmpty(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledAddressAndPortEmptyTest <<<<<<<<<<\n");			
 		/* Test a to see if address and service name will be overwritten by service discovery when user sets them to 
@@ -1558,7 +1683,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("");
@@ -1577,7 +1702,21 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectWatchlistDisabledAddressAndPortSetTest()
+	public void RDPConnectWatchlistDisabledAddressAndPortSetTest() {
+		RDPConnectWatchlistDisabledAddressAndPortSet(false, null);
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledAddressAndPortSetTest_WebSocket_Rwf() {
+		RDPConnectWatchlistDisabledAddressAndPortSet(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledAddressAndPortSetTest_WebSocket_Json() {
+		RDPConnectWatchlistDisabledAddressAndPortSet(true, "tr_json2");
+	}
+
+	private void RDPConnectWatchlistDisabledAddressAndPortSet(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledAddressAndPortSetTest <<<<<<<<<<\n");			
 		/* Test a to see if address and service name will NOT be overwritten by service discovery when user sets them to 
@@ -1607,7 +1746,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("FAKE");
@@ -1627,7 +1766,16 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectWatchlistDisabledTest()
+	public void RDPConnectWatchlistDisabledTest() {
+		RDPConnectWatchlistDisabled(false, null);
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledTest_WebSocket_json() {
+		RDPConnectWatchlistDisabled(true, "tr_json2");
+	}
+
+	private void RDPConnectWatchlistDisabled(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1658,7 +1806,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -1713,7 +1861,16 @@ public class ReactorWatchlistRDPJunit
 	}
 
 	@Test
-	public void RDPConnectWatchlistDisabledConnectionListTest()
+	public void RDPConnectWatchlistDisabledConnectionListTest() {
+		RDPConnectWatchlistDisabledConnectionList(false, null);
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledConnectionListTest_WebSocket_json() {
+		RDPConnectWatchlistDisabledConnectionList(true, "tr_json2");
+	}
+
+	private void RDPConnectWatchlistDisabledConnectionList(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledConnectionListTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1758,7 +1915,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.enableSessionManagement(false);		
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 
 			ReactorConnectInfo connectInfoSecond = rcOpts.connectionList().remove(0);		
 
@@ -1842,7 +1999,16 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectWatchlistDisabledErrorNoRDMLoginTest()
+	public void RDPConnectWatchlistDisabledErrorNoRDMLoginTest() {
+		RDPConnectWatchlistDisabledErrorNoRDMLogin(false, null);
+	}
+
+	@Test
+	public void RDPConnectWatchlistDisabledErrorNoRDMLoginTest_WebSocket_Json() {
+		RDPConnectWatchlistDisabledErrorNoRDMLogin(true, "rssl.rwf");
+	}
+
+	private void RDPConnectWatchlistDisabledErrorNoRDMLogin(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectWatchlistDisabledErrorNoRDMLoginTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -1870,7 +2036,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
 			// since no RDMLoginRequest there is no user name or password, authentication will fail
@@ -1956,7 +2122,24 @@ public class ReactorWatchlistRDPJunit
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest()
+	public void RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest(){
+		RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPort(false, null);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest_WebSocket_Rwf(){
+		RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPort(true, "rssl.rwf");
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest_WebSocket_Json(){
+		RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPort(true, "tr_json2");
+	}
+
+	@SuppressWarnings("deprecation")
+	private void RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPort(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedClientIdBySpecifyingHostAndPortTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2036,7 +2219,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address(callback.host);
 			rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(callback.port);			
@@ -2065,7 +2248,23 @@ public class ReactorWatchlistRDPJunit
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public void RDPConnectUserSpecifiedClientIdTest()
+	public void RDPConnectUserSpecifiedClientIdTest() {
+		RDPConnectUserSpecifiedClientId(false, null);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectUserSpecifiedClientIdTest_Websocket_Rwf() {
+		RDPConnectUserSpecifiedClientId(true, "rssl.rwf");
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectUserSpecifiedClientIdTest_Websocket_Json() {
+		RDPConnectUserSpecifiedClientId(true, "tr_json2");
+	}
+
+	private void RDPConnectUserSpecifiedClientId(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2099,7 +2298,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -2127,7 +2326,24 @@ public class ReactorWatchlistRDPJunit
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public void RDPConnectErrorInvalidClientIdTest()
+	public void RDPConnectErrorInvalidClientIdTest() {
+		RDPConnectErrorInvalidClientId(false, null);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectErrorInvalidClientIdTest_WebSocket_Rwf() {
+		RDPConnectErrorInvalidClientId(true, "rssl.rwf");
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectErrorInvalidClientIdTest_WebSocket_Json() {
+		RDPConnectErrorInvalidClientId(true, "tr_json2");
+	}
+
+	@SuppressWarnings("deprecation")
+	private void RDPConnectErrorInvalidClientId(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidClientIdTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2161,7 +2377,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.FAILURE);		
@@ -2197,7 +2413,24 @@ public class ReactorWatchlistRDPJunit
 
 	@SuppressWarnings("deprecation")
 	@Test
-	public void RDPConnectErrorIncorrectCredentialsTest()
+	public void RDPConnectErrorIncorrectCredentialsTest() {
+		RDPConnectErrorIncorrectCredentials(false, null);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectErrorIncorrectCredentialsTest_WebSocket_Rwf() {
+		RDPConnectErrorIncorrectCredentials(true, "rssl.rwf");
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPConnectErrorIncorrectCredentialsTest_WebSocket_Json() {
+		RDPConnectErrorIncorrectCredentials(true, "tr_json2");
+	}
+
+	@SuppressWarnings("deprecation")
+	private void RDPConnectErrorIncorrectCredentials(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorIncorrectCredentialsTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2235,7 +2468,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.FAILURE);
@@ -2271,7 +2504,21 @@ public class ReactorWatchlistRDPJunit
 	}		 
 
 	@Test
-	public void RDPConnectErrorInvalidTokenServiceURLTest()
+	public void RDPConnectErrorInvalidTokenServiceURLTest() {
+		RDPConnectErrorInvalidTokenServiceURL(false, null);
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidTokenServiceURLTest_WebSocket_Rwf() {
+		RDPConnectErrorInvalidTokenServiceURL(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidTokenServiceURLTest_WebSocket_Json() {
+		RDPConnectErrorInvalidTokenServiceURL(true, "tr_json2");
+	}
+
+	private void RDPConnectErrorInvalidTokenServiceURL(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidTokenServiceURLTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2309,7 +2556,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.FAILURE);	
@@ -2322,7 +2569,21 @@ public class ReactorWatchlistRDPJunit
 	}		
 
 	@Test
-	public void RDPConnectUserSpecifiedTokenServiceUrlTest()
+	public void RDPConnectUserSpecifiedTokenServiceUrlTest() {
+		RDPConnectUserSpecifiedTokenServiceUrl(false, null);
+	}
+
+	@Test
+	public void RDPConnectUserSpecifiedTokenServiceUrlTest_WebSocket_Rwf() {
+		RDPConnectUserSpecifiedTokenServiceUrl(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectUserSpecifiedTokenServiceUrlTest_WebSocket_Json() {
+		RDPConnectUserSpecifiedTokenServiceUrl(true, "tr_json2");
+	}
+
+	private void RDPConnectUserSpecifiedTokenServiceUrl(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedTokenServiceUrlTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2360,7 +2621,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -2374,7 +2635,21 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectUserSpecifiedServiceDiscoveryUrlTest()
+	public void RDPConnectUserSpecifiedServiceDiscoveryUrlTest() {
+		RDPConnectUserSpecifiedServiceDiscoveryUrl(false, null);
+	}
+
+	@Test
+	public void RDPConnectUserSpecifiedServiceDiscoveryUrlTest_WebSocket_Rwf() {
+		RDPConnectUserSpecifiedServiceDiscoveryUrl(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectUserSpecifiedServiceDiscoveryUrlTest_WebSocket_Json() {
+		RDPConnectUserSpecifiedServiceDiscoveryUrl(true, "tr_json2");
+	}
+
+	private void RDPConnectUserSpecifiedServiceDiscoveryUrl(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectUserSpecifiedServiceDiscoveryUrlTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2410,7 +2685,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -2424,7 +2699,21 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPConnectErrorInvalidServiceDiscoveryURLTest()
+	public void RDPConnectErrorInvalidServiceDiscoveryURLTest() {
+		RDPConnectErrorInvalidServiceDiscoveryURL(false, null);
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidServiceDiscoveryURLTest_WebSocket_Rwf() {
+		RDPConnectErrorInvalidServiceDiscoveryURL(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPConnectErrorInvalidServiceDiscoveryURLTest_WebSocket_Json() {
+		RDPConnectErrorInvalidServiceDiscoveryURL(true, "tr_json2");
+	}
+
+	private void RDPConnectErrorInvalidServiceDiscoveryURL(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectErrorInvalidServiceDiscoveryURLTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -2462,7 +2751,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue(consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.FAILURE);	
@@ -2972,7 +3261,21 @@ public class ReactorWatchlistRDPJunit
 	}
 
 	@Test
-	public void RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnectTest()
+	public void RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnectTest() {
+		RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnect(false, null);
+	}
+
+	@Test
+	public void RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnectTest_WebSocket_Rwf() {
+		RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnect(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnectTest_WebSocket_Json() {
+		RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnect(true, "tr_json2");
+	}
+
+	private void RDPQueryServiceDiscoveryErrorUserNamePasswordAndSuccessConnect(boolean isWebsocket, String protocol)
 	{
 		
 		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
@@ -3053,7 +3356,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			
 			int ret = consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo);
@@ -3079,7 +3382,21 @@ public class ReactorWatchlistRDPJunit
 	}	
 
 	@Test
-	public void RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest()
+	public void RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest() {
+		RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnect(false, null);
+	}
+
+	@Test
+	public void RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest_WebSocket_Rwf() {
+		RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnect(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest_WebSocket_Json() {
+		RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnect(true, "tr_json2");
+	}
+
+	private void RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnect(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorPasswordAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -3156,7 +3473,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -3175,7 +3492,21 @@ public class ReactorWatchlistRDPJunit
 
 
 	@Test
-	public void RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest()
+	public void RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest() {
+		RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnect(false, null);
+	}
+
+	@Test
+	public void RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest_WebSocket_Rwf() {
+		RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnect(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest_WebSocket_Json() {
+		RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnect(true, "tr_json2");
+	}
+
+	private void RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnect(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPQueryServiceDiscoveryErrorInvalidClientIdAndSuccessConnectTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -3252,7 +3583,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);					
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -3772,7 +4103,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_CallbackTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_CallbackTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_Callback(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_CallbackTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_Callback(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_CallbackTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_Callback(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_Callback(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_CallbackTest <<<<<<<<<<\n");	
 		
@@ -3811,7 +4156,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
@@ -3845,7 +4190,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_NULL_Callback(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_NULL_Callback(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_NULL_Callback(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_NULL_Callback(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_NULL_CallbackTest <<<<<<<<<<\n");	
 		
@@ -3876,7 +4235,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			setupProxyForConnectOptions(connectInfo.connectOptions());
@@ -3910,7 +4269,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_ClientID(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_ClientID(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_ClientID(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_ClientID(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_ClientIDTest <<<<<<<<<<\n");	
 		
@@ -3938,7 +4311,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 			connectInfo.enableSessionManagement(true);
@@ -3960,7 +4333,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest <<<<<<<<<<\n");	
 		
@@ -3989,7 +4376,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 			connectInfo.enableSessionManagement(true);
@@ -4010,7 +4397,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_PasswordTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_PasswordTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_Password(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_PasswordTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_Password(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_PasswordTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_Password(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_Password(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_PasswordTest <<<<<<<<<<\n");	
 		
@@ -4038,7 +4439,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
@@ -4060,7 +4461,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_TokenScope(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_TokenScope(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_TokenScope(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_TokenScope(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_TokenScopeTest <<<<<<<<<<\n");	
 		
@@ -4088,7 +4503,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
@@ -4110,7 +4525,21 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest()
+	public void RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest() {
+		RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControl(false, null);
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest_WebSocket_Rwf() {
+		RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControl(true, "rssl.rwf");
+	}
+
+	@Test
+	public void RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest_WebSocket_Json() {
+		RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControl(true, "tr_json2");
+	}
+
+	private void RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControl(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_TakeExclusiveSignOnControlTest <<<<<<<<<<\n");	
 		
@@ -4139,7 +4568,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
 			
 			connectInfo.enableSessionManagement(true);
@@ -4161,7 +4590,16 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPConnectionUsingReactorOAuthCredentialOnlyTest()
+	public void RDPConnectionUsingReactorOAuthCredentialOnlyTest() {
+		RDPConnectionUsingReactorOAuthCredentialOnly(false, null);
+	}
+
+	@Test
+	public void RDPConnectionUsingReactorOAuthCredentialOnlyTest_WebSocket_Json() {
+		RDPConnectionUsingReactorOAuthCredentialOnly(true, "tr_json2");
+	}
+
+	private void RDPConnectionUsingReactorOAuthCredentialOnly(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPConnectionUsingReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -4196,7 +4634,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			
 			int ret = consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo);
@@ -4267,7 +4705,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, false, null);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
@@ -4293,7 +4731,16 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultiConnectionsConnectAndCloseWithSameCredentialTest()
+	public void RDPMultiConnectionsConnectAndCloseWithSameCredentialTest() {
+		RDPMultiConnectionsConnectAndCloseWithSameCredential(false, null);
+	}
+
+	@Test
+	public void RDPMultiConnectionsConnectAndCloseWithSameCredentialTest_WebSocket_Json() {
+		RDPMultiConnectionsConnectAndCloseWithSameCredential(true, "tr_json2");
+	}
+
+	private void RDPMultiConnectionsConnectAndCloseWithSameCredential(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultiConnectionsConnectAndCloseWithSameCredentialTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -4322,8 +4769,8 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
-			ReactorConnectOptions rcOpts2 = createDefaultConsumerConnectOptionsForSessionManagment(consumer2);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
+			ReactorConnectOptions rcOpts2 = createDefaultConsumerConnectOptionsForSessionManagment(consumer2, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			rcOpts2.connectionList().get(0).reactorAuthTokenEventCallback(consumer2);	
 
@@ -4354,7 +4801,16 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest()
+	public void RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest() {
+		RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnly(false, null);
+	}
+
+	@Test
+	public void RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest_Websocket_Json() {
+		RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnly(true, "tr_json2");
+	}
+
+	private void RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnly(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPMultiConnectionsConnectAndCloseWithSameCredential_Using_ReactorOAuthCredentialOnlyTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -4398,8 +4854,8 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
-			ReactorConnectOptions rcOpts2 = createDefaultConsumerConnectOptionsForSessionManagment(consumer2);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
+			ReactorConnectOptions rcOpts2 = createDefaultConsumerConnectOptionsForSessionManagment(consumer2, isWebsocket, protocol);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			rcOpts2.connectionList().get(0).reactorAuthTokenEventCallback(consumer2);	
 
@@ -4598,7 +5054,18 @@ public class ReactorWatchlistRDPJunit
 	
 	@SuppressWarnings("deprecation")
 	@Test
-	public void RDPSubmitCredentialInCallbackTest()
+	public void RDPSubmitCredentialInCallbackTest() {
+		RDPSubmitCredentialInCallback(false, null);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Test
+	public void RDPSubmitCredentialInCallbackTest_WebSocket_Json() {
+		RDPSubmitCredentialInCallback(true, "tr_json2");
+	}
+
+	@SuppressWarnings("deprecation")
+	private void RDPSubmitCredentialInCallback(boolean isWebsocket, String protocol)
 	{
 		System.out.println("\n>>>>>>>>> Running RDPSubmitCredentialInCallbackTest <<<<<<<<<<\n");	
 		assumeTrue(checkCredentials());
@@ -4648,7 +5115,7 @@ public class ReactorWatchlistRDPJunit
 			/*
 			 * create a Client Connection.
 			 */
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer);
+			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, false, null);
 			rcOpts.connectionList().get(0).reactorAuthTokenEventCallback(consumer);
 			oAuthCredential.reactorOAuthCredentialEventCallback(oAuthCredentialEventCallbackTest);
 			consumerRole.reactorOAuthCredential(oAuthCredential);
@@ -4675,7 +5142,7 @@ public class ReactorWatchlistRDPJunit
 				assertTrue("Expected SUCCESS", restClient.getAuthAccessTokenInfo(authOptions, restConnectOptions, authTokenInfo, true, errorInfo) == ReactorReturnCodes.SUCCESS);
 			}
 			
-			for(int i = 1 ;i < 60; i++)
+			for(int i = 1 ;i < 90; i++)
 			{
 				consumerReactor.dispatch(-1, 1000);
 			}

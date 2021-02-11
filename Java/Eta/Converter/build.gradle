@@ -1,0 +1,169 @@
+apply plugin: 'net.saliman.cobertura'
+apply plugin: 'net.saliman.cobertura'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
+
+//group = "com.refinitiv.eta"
+group = "com.rtsdk.eta"
+archivesBaseName = "converter"
+version "$SpecificationVersion"
+
+//sourceCompatibility = 1.8
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
+            }
+
+            pom.project {
+                name "$archivesBaseName"
+                packaging 'jar'
+                url 'https://github.com/Refinitiv/Elektron-SDK'
+                description 'Elektron Transport API (ETA) Java Edition'
+
+                scm {
+                    connection 'scm:git:git://github.com/Refinitiv/Elektron-SDK.git'
+                    developerConnection 'scm:git:ssh://github.com:Refinitiv/Elektron-SDK.git'
+                    url 'http://github.com/Refinitiv/Elektron-SDK/tree/master'
+                }
+
+                developers {
+                    developer {
+                        organization 'Refinitiv'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign configurations.archives
+}
+
+cobertura {
+    coverageFormats = ['html', 'xml']
+}
+
+eclipse {
+    project {
+        name = 'ESDK-Eta-Converter-Src'
+    }
+}
+
+dependencies {
+//    compile group: 'org.json', name: 'json', version: '20200518'
+//    compile group: 'org.json', name: 'json', version: '20160810'
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.0'
+// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.0'
+
+    compile project(':Eta:Core')
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
+
+    // needed for cobertura
+    testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+}
+
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+jar {
+    doFirst { println 'Creating UPA jar file' }
+
+    manifest {
+        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition'
+        from sharedManifest
+    }
+
+    from ('impl')
+            {
+                include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
+            }
+
+    destinationDir = file("../Libs/")
+    baseName = 'converter'
+}
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for ETA"
+    }
+
+    exclude '**/*Impl.java'
+    exclude '**/JUnit*.java'
+
+    destinationDir = file('../Docs/refman/upaj/')
+    title = "Elektron Transport API (ETA) " +  "${SpecificationVersion}" + " Java Edition"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('ETA')
+}
+
+task cleanJar (type: Delete) {
+    delete "${jar.archivePath}"
+}
+
+task cleanJavadoc (type: Delete) {
+    delete ('../Docs/refman/')
+}
+
+clean.dependsOn cleanJar, cleanJavadoc
+
+task javadocJar (type: Jar) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+    destinationDir = jar.destinationDir
+
+    manifest {
+        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition'
+        from sharedManifest
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+test {
+    // set to true to see the junit stdoutput
+    testLogging.showStandardStreams = false
+    maxParallelForks = Runtime.runtime.availableProcessors()
+}
+
+

@@ -7,17 +7,17 @@
 
 package com.refinitiv.ema.access;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmError.ErrorCode;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.DataDictionary;
+
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 class SeriesImpl extends CollectionDataImpl implements Series
 {

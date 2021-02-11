@@ -23,7 +23,7 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
      * 
      * Returns the current state
      */
-    ReadBufferState advanceOnApplicationRead(ReadArgsImpl readArgs)
+    ReadBufferState advanceOnApplicationRead(ReadArgsImpl readArgs, Error error)
     {
         assert (_state == ReadBufferState.KNOWN_COMPLETE);
 
@@ -84,13 +84,13 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
             _currentMsgStartPos += (_httpOverhead + _currentMsgRipcLen);
 
             _currentMsgRipcLen = UNKNOWN_LENGTH;
-            updateStateCurrentLenUnknown(readArgs);
+            updateStateCurrentLenUnknown(readArgs, error);
         }
 
         return _state;
     }
 
-    ReadBufferState advanceOnSocketChannelRead(int readReturnCode, ReadArgsImpl readArgs)
+    ReadBufferState advanceOnSocketChannelRead(int readReturnCode, ReadArgsImpl readArgs, Error error)
     {
         _lastReadPosition = _readIoBuffer.buffer().position();
 
@@ -107,14 +107,14 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
                 case KNOWN_INCOMPLETE:
                     if (readReturnCode != ReadReturnCodes.NO_DATA_READ)
                     {
-                        updateStateCurrentLenKnown(readArgs);
+                        updateStateCurrentLenKnown(readArgs, error);
                     }
                     break;
                 case UNKNOWN_INCOMPLETE: // fall through
                 case NO_DATA:
                     if (readReturnCode != ReadReturnCodes.NO_DATA_READ)
                     {
-                        updateStateCurrentLenUnknown(readArgs); // we only update state if we actually read some data
+                        updateStateCurrentLenUnknown(readArgs, error); // we only update state if we actually read some data
                     }
                     break;
                 default:
@@ -149,7 +149,7 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
     // if no,
     // then we check if (2nd and 3rd bytes are 0x0D and 0x0A) and (5th and 6th bytes are 0x00 and 0x03), if yes then we have a ping
     // if no, then we have an invalid HTTP data chunk
-    private void updateStateCurrentLenUnknown(ReadArgsImpl readArgs)
+    private void updateStateCurrentLenUnknown(ReadArgsImpl readArgs, Error error)
     {
         assert (_currentMsgRipcLen == UNKNOWN_LENGTH);
 
@@ -182,7 +182,7 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
             {// case 2 (messages with 6-byte http header)
                 decodeRipcHeader();
                 _httpOverhead = HTTP_HEADER6 + CHUNKEND_SIZE;
-                updateStateCurrentLenKnown(readArgs);
+                updateStateCurrentLenKnown(readArgs, null);
             }
             else if ((readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER3_CRLF_OFFSET) == CRLF)
                     & readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER3) == Ripc.Lengths.HEADER)

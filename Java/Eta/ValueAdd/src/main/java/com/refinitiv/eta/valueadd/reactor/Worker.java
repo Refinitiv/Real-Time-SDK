@@ -30,7 +30,7 @@ class Worker implements Runnable
     Selector _selector = null;
     ReactorChannel _workerReactorChannel = null; // The Worker's reactorChannel.
     ReactorChannel _reactorReactorChannel = null; // The Reactor's
-                                                  // reactorChannel.
+    // reactorChannel.
     com.refinitiv.eta.transport.Error _error = TransportFactory.createError();
     com.refinitiv.eta.transport.InProgInfo _inProg = TransportFactory.createInProgInfo();
 
@@ -41,7 +41,7 @@ class Worker implements Runnable
     volatile boolean _running = true;
 
     VaIteratableQueue _timerEventQueue = new VaIteratableQueue();
-    
+
     Reactor _reactor;
 
     Worker(ReactorChannel reactorChannel, SelectableBiDirectionalQueue queue)
@@ -82,7 +82,7 @@ class Worker implements Runnable
                             continue;
                         if (key.isConnectable())
                         {
-                            ReactorChannel reactorChannel = (ReactorChannel)key.attachment(); 
+                            ReactorChannel reactorChannel = (ReactorChannel)key.attachment();
                             // this is an extra measure because on the Solaris OS initial notification is different
                             if (reactorChannel.channel() != null &&
                                 (reactorChannel.channel().state() == ChannelState.INACTIVE || reactorChannel.channel().state() == ChannelState.INITIALIZING))
@@ -105,7 +105,7 @@ class Worker implements Runnable
                                 if (reactorChannel.channel() != null &&
                                     (reactorChannel.channel().state() == ChannelState.INACTIVE || reactorChannel.channel().state() == ChannelState.INITIALIZING))
                                 {
-                            		initializeChannel(reactorChannel);
+                                    initializeChannel(reactorChannel);
                                 }
                                 if (!key.isValid())
                                     continue;
@@ -123,7 +123,7 @@ class Worker implements Runnable
                 {
                     _running = false;
                 }
-                
+
                 // check guaranteed messaging timers
                 _timerEventQueue.rewind();
                 while (_timerEventQueue.hasNext())
@@ -131,27 +131,27 @@ class Worker implements Runnable
                     WorkerEvent event = (WorkerEvent)_timerEventQueue.next();
                     if (System.nanoTime() >= event.timeout())
                     {
-                    	if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
-                    	{
-                    		event._tokenSession.handleTokenReissue();
-                    		
-                    		_timerEventQueue.remove(event);
-							event.returnToPool();
-	                    } 
-                    	else
-                    	{
-	                        WorkerEventTypes eventType = WorkerEventTypes.TUNNEL_STREAM_DISPATCH_TIMEOUT;
-	                        if (event.eventType() == WorkerEventTypes.START_WATCHLIST_TIMER)
-	                        {
-	                            eventType = WorkerEventTypes.WATCHLIST_TIMEOUT;
-	                        }
-	                        
-	                        sendWorkerEvent(event.reactorChannel(), eventType, event.tunnelStream(),
-	                                        ReactorReturnCodes.SUCCESS, null, null);
-	                        
-	                        _timerEventQueue.remove(event);
-							event.returnToPool();	                        
-                    	}
+                        if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
+                        {
+                            event._tokenSession.handleTokenReissue();
+
+                            _timerEventQueue.remove(event);
+                            event.returnToPool();
+                        }
+                        else
+                        {
+                            WorkerEventTypes eventType = WorkerEventTypes.TUNNEL_STREAM_DISPATCH_TIMEOUT;
+                            if (event.eventType() == WorkerEventTypes.START_WATCHLIST_TIMER)
+                            {
+                                eventType = WorkerEventTypes.WATCHLIST_TIMEOUT;
+                            }
+
+                            sendWorkerEvent(event.reactorChannel(), eventType, event.tunnelStream(),
+                                    ReactorReturnCodes.SUCCESS, null, null);
+
+                            _timerEventQueue.remove(event);
+                            event.returnToPool();
+                        }
 
                     }
                 }
@@ -160,74 +160,74 @@ class Worker implements Runnable
                 _initChannelQueue.rewind();
                 while (_initChannelQueue.hasNext())
                 {
-                	ReactorChannel reactorChannel = (ReactorChannel)_initChannelQueue.next();
-            		// handle initialization timeout
-                	if (reactorChannel.state() == ReactorChannel.State.INITIALIZING)
-                	{
-                	    // this is an extra measure because on the Solaris OS initial notification is different
-                	    if (reactorChannel.channel() != null &&
-                	        (reactorChannel.channel().state() == ChannelState.INACTIVE || reactorChannel.channel().state() == ChannelState.INITIALIZING))
-                	    {
-                	        initializeChannel(reactorChannel);
-                	    }
+                    ReactorChannel reactorChannel = (ReactorChannel)_initChannelQueue.next();
+                    // handle initialization timeout
+                    if (reactorChannel.state() == ReactorChannel.State.INITIALIZING)
+                    {
+                        // this is an extra measure because on the Solaris OS initial notification is different
+                        if (reactorChannel.channel() != null &&
+                            (reactorChannel.channel().state() == ChannelState.INACTIVE || reactorChannel.channel().state() == ChannelState.INITIALIZING))
+                        {
+                            initializeChannel(reactorChannel);
+                        }
 
-                	}
+                    }
                 }
-                
+
                 // handle pings
                 _activeChannelQueue.rewind();
                 while (_activeChannelQueue.hasNext())
                 {
-                	ReactorChannel reactorChannel = (ReactorChannel)_activeChannelQueue.next();
+                    ReactorChannel reactorChannel = (ReactorChannel)_activeChannelQueue.next();
                     if (reactorChannel != null)
                     {
-	                    if (reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
-                    		&& reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING
-                    		&& reactorChannel.state() != ReactorChannel.State.DOWN
-                            && reactorChannel.state() != ReactorChannel.State.CLOSED                    		
-                    		&& reactorChannel.state() != ReactorChannel.State.EDP_RT 
-                    		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_DONE
-                    		&& reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED )
-	                    {
-	                    	if (reactorChannel.pingHandler().handlePings(reactorChannel.channel(), _error)
-	                    			< TransportReturnCodes.SUCCESS)
-	                    	{
-	                            reactorChannel.state(State.DOWN);
-	                            sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-	                                            ReactorReturnCodes.FAILURE, "Worker.run()",
-	                                            "Ping error for channel: " + _error.text());
-	                    	}
-	                    }
+                        if (reactorChannel.channel() != null && reactorChannel.channel().state() == ChannelState.ACTIVE
+                            && reactorChannel.state() != ReactorChannel.State.DOWN_RECONNECTING
+                            && reactorChannel.state() != ReactorChannel.State.DOWN
+                            && reactorChannel.state() != ReactorChannel.State.CLOSED
+                            && reactorChannel.state() != ReactorChannel.State.EDP_RT
+                            && reactorChannel.state() != ReactorChannel.State.EDP_RT_DONE
+                            && reactorChannel.state() != ReactorChannel.State.EDP_RT_FAILED )
+                        {
+                            if (reactorChannel.pingHandler().handlePings(reactorChannel, _error)
+                                < TransportReturnCodes.SUCCESS)
+                            {
+                                reactorChannel.state(State.DOWN);
+                                sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
+                                        ReactorReturnCodes.FAILURE, "Worker.run()",
+                                        "Ping error for channel: " + _error.text());
+                            }
+                        }
                     }
                 }
 
-                
+
                 // handle connection recovery (only for client connections)
                 _reconnectingChannelQueue.rewind();
                 while (_reconnectingChannelQueue.hasNext())
                 {
-                	ReactorChannel reactorChannel = (ReactorChannel)_reconnectingChannelQueue.next();
+                    ReactorChannel reactorChannel = (ReactorChannel)_reconnectingChannelQueue.next();
                     if (reactorChannel != null)
                     {
                         if (reactorChannel.nextRecoveryTime() > System.currentTimeMillis())
                             continue;
 
                         Channel channel = null;
-                        
+
                         if (reactorChannel.state() != State.EDP_RT &&
-                        	reactorChannel.state() != State.EDP_RT_DONE &&
-                        	reactorChannel.state() != State.EDP_RT_FAILED)
+                            reactorChannel.state() != State.EDP_RT_DONE &&
+                            reactorChannel.state() != State.EDP_RT_FAILED)
                         {
-                        	channel = reactorChannel.reconnect(_error);
+                            channel = reactorChannel.reconnect(_error);
                         }
-                        
-                        if (reactorChannel.state() == State.EDP_RT || 
-                        	reactorChannel.state() == State.EDP_RT_DONE ||
-                        	reactorChannel.state() == State.EDP_RT_FAILED)
+
+                        if (reactorChannel.state() == State.EDP_RT ||
+                            reactorChannel.state() == State.EDP_RT_DONE ||
+                            reactorChannel.state() == State.EDP_RT_FAILED)
                         {
-                        	channel = reactorChannel.reconnectEDP(_error);
+                            channel = reactorChannel.reconnectEDP(_error);
                         }
-                        
+
                         if (channel == null && reactorChannel.state() != State.EDP_RT)
                         {
                             // Reconnect attempt failed -- send channel down event.
@@ -238,14 +238,14 @@ class Worker implements Runnable
                             continue;
                         }
 
-                    	if (reactorChannel.state() != State.EDP_RT)
-                    	{
-                    		reactorChannel.selectableChannelFromChannel(channel);
-                    		reactorChannel.state(State.INITIALIZING);
-                    		_reconnectingChannelQueue.remove(reactorChannel);
+                        if (reactorChannel.state() != State.EDP_RT)
+                        {
+                            reactorChannel.selectableChannelFromChannel(channel);
+                            reactorChannel.state(State.INITIALIZING);
+                            _reconnectingChannelQueue.remove(reactorChannel);
 
-                    		processChannelInit(reactorChannel);   
-                    	}                       	
+                            processChannelInit(reactorChannel);
+                        }
                     }
                 }
             }
@@ -258,12 +258,12 @@ class Worker implements Runnable
             {
                 System.out.println("Worker.run() exception=" + e.getLocalizedMessage());
                 sendWorkerEvent(_reactorReactorChannel, WorkerEventTypes.SHUTDOWN,
-                                ReactorReturnCodes.FAILURE, "Worker.run",
-                                "exception occurred, " + e.getLocalizedMessage());
+                        ReactorReturnCodes.FAILURE, "Worker.run",
+                        "exception occurred, " + e.getLocalizedMessage());
                 break;
             }
         }
-        
+
         shutdown();
     }
 
@@ -280,13 +280,13 @@ class Worker implements Runnable
                 break;
             case CHANNEL_DOWN:
                 processChannelClose(reactorChannel);
-            	if (reactorChannel.server() == null && !event.reactorChannel().recoveryAttemptLimitReached())
+                if (reactorChannel.server() == null && !event.reactorChannel().recoveryAttemptLimitReached())
                 {
                     /* Go into connection recovery. */
                     reactorChannel.calculateNextReconnectTime();
                     _reconnectingChannelQueue.add(reactorChannel);
                 }
-            	break;
+                break;
             case CHANNEL_CLOSE:
                 processChannelClose(reactorChannel);
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_CLOSE_ACK,
@@ -302,24 +302,24 @@ class Worker implements Runnable
                 processChannelFDChange(reactorChannel);
                 break;
             case TOKEN_MGNT:
-            	// Setup a timer for token management 
-            	ReactorTokenSession tokenSession = event._tokenSession;
-            	
-            	if(tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE)
-            	{
-            		event.timeout(tokenSession.nextTokenReissueAttemptReqTime());
-            	}
-            	else if (tokenSession.sessionMgntState() == SessionState.AUTHENTICATE_USING_PASSWD_GRANT)
-            	{
-            		event.timeout(System.nanoTime()); /* Sends a request to get an access token now */
-            	}
-            	else
-            	{
-            		tokenSession.calculateNextAuthTokenRequestTime(tokenSession.authTokenInfo().expiresIn());          	
-            		event.timeout(tokenSession.nextAuthTokenRequestTime());	
-            	}
-            	
-            	_timerEventQueue.add(event);
+                // Setup a timer for token management
+                ReactorTokenSession tokenSession = event._tokenSession;
+
+                if(tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE)
+                {
+                    event.timeout(tokenSession.nextTokenReissueAttemptReqTime());
+                }
+                else if (tokenSession.sessionMgntState() == SessionState.AUTHENTICATE_USING_PASSWD_GRANT)
+                {
+                    event.timeout(System.nanoTime()); /* Sends a request to get an access token now */
+                }
+                else
+                {
+                    tokenSession.calculateNextAuthTokenRequestTime(tokenSession.authTokenInfo().expiresIn());
+                    event.timeout(tokenSession.nextAuthTokenRequestTime());
+                }
+
+                _timerEventQueue.add(event);
                 return;
             case START_DISPATCH_TIMER:
             case START_WATCHLIST_TIMER:
@@ -334,7 +334,7 @@ class Worker implements Runnable
         event.returnToPool();
     }
 
-	private void processChannelInit(ReactorChannel reactorChannel)
+    private void processChannelInit(ReactorChannel reactorChannel)
     {
         // add the reactorChannel to the init queue
         _initChannelQueue.add(reactorChannel);
@@ -355,11 +355,11 @@ class Worker implements Runnable
                 reactorChannel.state(State.CLOSED);
 
             sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                            ReactorReturnCodes.FAILURE, "Worker.processChannelInit", "Exception="
-                                    + e.getLocalizedMessage());
+                    ReactorReturnCodes.FAILURE, "Worker.processChannelInit", "Exception="
+                                                                             + e.getLocalizedMessage());
         }
     }
-	
+
     private void processChannelClose(ReactorChannel reactorChannel)
     {
         if (reactorChannel == null)
@@ -395,14 +395,14 @@ class Worker implements Runnable
                 if (!addSelectOption(reactorChannel, SelectionKey.OP_WRITE))
                 {
                     // Add select option failed for this reactorChannel.
-                	// Close this reactorChannel.
-                    if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN 
-                    		&& reactorChannel.state() != State.DOWN_RECONNECTING)
+                    // Close this reactorChannel.
+                    if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN
+                        && reactorChannel.state() != State.DOWN_RECONNECTING)
                     {
                         reactorChannel.state(State.DOWN);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                                    ReactorReturnCodes.FAILURE, "Worker.processChannelFlush",
-                                    "failed to add OP_WRITE to selectableChannel.");
+                                ReactorReturnCodes.FAILURE, "Worker.processChannelFlush",
+                                "failed to add OP_WRITE to selectableChannel.");
                     }
                 }
 
@@ -414,8 +414,8 @@ class Worker implements Runnable
                 {
                     // Remove select option failed for this reactorChannel.
                     // Close this reactorChannel.
-                    if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN 
-                    		&& reactorChannel.state() != State.DOWN_RECONNECTING)
+                    if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN
+                        && reactorChannel.state() != State.DOWN_RECONNECTING)
                     {
                         reactorChannel.state(State.DOWN);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
@@ -432,13 +432,13 @@ class Worker implements Runnable
                 {
                     // flush failed. Close this reactorChannel.
                     if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN
-                    		&& reactorChannel.state() != State.DOWN_RECONNECTING)
+                        && reactorChannel.state() != State.DOWN_RECONNECTING)
                     {
                         reactorChannel.state(State.DOWN);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                                    ReactorReturnCodes.FAILURE, "Worker.processChannelFlush",
-                                    "failed to flush selectableChannel, errorId=" + _error.errorId()
-                                            + " errorText=" + _error.text());
+                                ReactorReturnCodes.FAILURE, "Worker.processChannelFlush",
+                                "failed to flush selectableChannel, errorId=" + _error.errorId()
+                                + " errorText=" + _error.text());
                     }
                 }
             }
@@ -447,16 +447,16 @@ class Worker implements Runnable
 
     private void processChannelFDChange(ReactorChannel reactorChannel)
     {
-    	int options = 0;
-    	
+        int options = 0;
+
         // cancel old reactorChannel select
         try
         {
             SelectionKey key = reactorChannel.oldSelectableChannel().keyFor(_selector);
             if (key != null)
             {
-	            options = key.interestOps();
-	            key.cancel();
+                options = key.interestOps();
+                key.cancel();
             }
         }
         catch (Exception e)
@@ -466,28 +466,28 @@ class Worker implements Runnable
         // register selector with channel event's new reactorChannel
         try
         {
-        	if (options != 0)
-        	{
-	        	reactorChannel.selectableChannel().register(_selector,
-	        												options,
-	        												reactorChannel);
-        	}
+            if (options != 0)
+            {
+                reactorChannel.selectableChannel().register(_selector,
+                        options,
+                        reactorChannel);
+            }
         }
         catch (Exception e)
         {
             // selector register failed for this reactorChannel.
             // Close this reactorChannel.
             if (reactorChannel.state() != State.CLOSED && reactorChannel.state() != State.DOWN
-            		 && reactorChannel.state() != State.DOWN_RECONNECTING)
+                && reactorChannel.state() != State.DOWN_RECONNECTING)
             {
                 reactorChannel.state(State.DOWN);
-            
+
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                            ReactorReturnCodes.FAILURE, "Worker.processChannelFDChange",
-                            "selector register failed.");
+                        ReactorReturnCodes.FAILURE, "Worker.processChannelFDChange",
+                        "selector register failed.");
             }
         }
-	}
+    }
 
     private void initializeChannel(ReactorChannel reactorChannel)
     {
@@ -499,9 +499,9 @@ class Worker implements Runnable
             cancelRegister(reactorChannel);
             reactorChannel.state(ReactorChannel.State.DOWN);
             sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                            ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
-                            "Error initializing channel: errorId=" + _error.errorId() + " text="
-                                    + _error.text());
+                    ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
+                    "Error initializing channel: errorId=" + _error.errorId() + " text="
+                    + _error.text());
             return;
         }
 
@@ -514,9 +514,9 @@ class Worker implements Runnable
                     {
                         cancelRegister(reactorChannel);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                                        ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
-                                        "Error - failed to re-register on SCKT_CHNL_CHANGE: "
-                                                + _error.text());
+                                ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
+                                "Error - failed to re-register on SCKT_CHNL_CHANGE: "
+                                + _error.text());
                     }
                 }
                 else
@@ -526,9 +526,9 @@ class Worker implements Runnable
                     {
                         cancelRegister(reactorChannel);
                         sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                                        ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
-                                        "Error - exceeded initialization timeout ("
-                                                + reactorChannel.initializationTimeout() + " s)");
+                                ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
+                                "Error - exceeded initialization timeout ("
+                                + reactorChannel.initializationTimeout() + " s)");
                     }
                 }
 
@@ -545,13 +545,13 @@ class Worker implements Runnable
                 _initChannelQueue.remove(reactorChannel);
                 _activeChannelQueue.add(reactorChannel);
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_UP,
-                                ReactorReturnCodes.SUCCESS, null, null);
+                        ReactorReturnCodes.SUCCESS, null, null);
                 break;
             default:
                 cancelRegister(reactorChannel);
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
-                                ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
-                                "Error - invalid return code: " + retval);
+                        ReactorReturnCodes.FAILURE, "Worker.initializeChannel",
+                        "Error - invalid return code: " + retval);
         }
     }
 
@@ -562,7 +562,7 @@ class Worker implements Runnable
             SelectionKey key = reactorChannel.channel().selectableChannel().keyFor(_selector);
             if (key != null)
             {
-            	key.cancel();
+                key.cancel();
             }
         }
         catch (Exception e)
@@ -573,8 +573,8 @@ class Worker implements Runnable
     private boolean addSelectOption(ReactorChannel reactorChannel, int options)
     {
         if (reactorChannel == null || (reactorChannel.state() != State.INITIALIZING &&
-                    					reactorChannel.state() != State.UP &&
-                    					reactorChannel.state() != State.READY))
+                                       reactorChannel.state() != State.UP &&
+                                       reactorChannel.state() != State.READY))
             return false;
 
         Channel channel = reactorChannel.channel();
@@ -601,11 +601,11 @@ class Worker implements Runnable
         return true;
     }
 
-	private boolean removeSelectOption(ReactorChannel reactorChannel, int options)
+    private boolean removeSelectOption(ReactorChannel reactorChannel, int options)
     {
         if (reactorChannel == null || (reactorChannel.state() != State.INITIALIZING &&
-				reactorChannel.state() != State.UP &&
-				reactorChannel.state() != State.READY))
+                                       reactorChannel.state() != State.UP &&
+                                       reactorChannel.state() != State.READY))
             return false;
 
         Channel channel = reactorChannel.channel();
@@ -617,19 +617,19 @@ class Worker implements Runnable
         {
             try
             {
-            	int newOptions = key.interestOps() - options;
-    	        if (newOptions != 0)
-    	        {
-    	            try
-    	            {
-    	                channel.selectableChannel().register(_selector, newOptions, reactorChannel);
-    	            }
-    	            catch (ClosedChannelException e)
-    	            {
-    	                return false;
-    	            }
-    	        }
-    	        else
+                int newOptions = key.interestOps() - options;
+                if (newOptions != 0)
+                {
+                    try
+                    {
+                        channel.selectableChannel().register(_selector, newOptions, reactorChannel);
+                    }
+                    catch (ClosedChannelException e)
+                    {
+                        return false;
+                    }
+                }
+                else
                     key.cancel();
             } catch (Exception e) { } // channel may be closed
         }
@@ -644,7 +644,7 @@ class Worker implements Runnable
             SelectionKey key = inProg.oldSelectableChannel().keyFor(_selector);
             if (key != null)
             {
-            	key.cancel();
+                key.cancel();
             }
         }
         catch (Exception e)
@@ -657,20 +657,20 @@ class Worker implements Runnable
         try
         {
             reactorChannel.channel().selectableChannel()
-            .register(_selector, SelectionKey.OP_READ, reactorChannel);            
+                    .register(_selector, SelectionKey.OP_READ, reactorChannel);
         }
         catch (Exception e)
         {
             error.text(e.getMessage());
             return ReactorReturnCodes.FAILURE;
         }
-      
+
         // reset selectable channel on ReactorChannel to new one
         reactorChannel.selectableChannelFromChannel(reactorChannel.channel());
-        
+
         // set oldSelectableChannel on ReactorChannel
         reactorChannel.oldSelectableChannel(inProg.oldSelectableChannel());
-        
+
         return ReactorReturnCodes.SUCCESS;
     }
 
@@ -758,7 +758,7 @@ class Worker implements Runnable
                     {
                         reactorChannel.channel().close(_error);
                     }
-                    
+
                     reactorChannel.reactor().removeReactorChannel(reactorChannel);
                     reactorChannel.returnToPool();
                 }
@@ -773,7 +773,7 @@ class Worker implements Runnable
                     {
                         reactorChannel.channel().close(_error);
                     }
-                    
+
                     reactorChannel.reactor().removeReactorChannel(reactorChannel);
                     reactorChannel.returnToPool();
                 }
@@ -788,15 +788,15 @@ class Worker implements Runnable
                     {
                         reactorChannel.channel().close(_error);
                     }
-                    
+
                     reactorChannel.reactor().removeReactorChannel(reactorChannel);
                     reactorChannel.returnToPool();
                 }
             }
-            
+
             if(_reactor.numberOfTokenSession() != 0)
             {
-            	_reactor.removeAllTokenSession();
+                _reactor.removeAllTokenSession();
             }
         }
 
@@ -816,7 +816,7 @@ class Worker implements Runnable
         {
             _running = false;
             System.out.println("Worker.initializeWorker() failed, exception="
-                    + e.getLocalizedMessage());
+                               + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;
         }
 

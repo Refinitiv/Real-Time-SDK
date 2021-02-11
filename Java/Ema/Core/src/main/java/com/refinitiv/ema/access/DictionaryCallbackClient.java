@@ -57,6 +57,7 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	private List<ChannelDictionary<T>>						_channelDictList;
 	private List<ChannelDictionary<T>>							_channelDictPool;
 	private com.refinitiv.eta.codec.DataDictionary		_rsslLocalDictionary;
+	private ChannelDictionary<T> 						_channelDictionary;
 	private com.refinitiv.eta.codec.Buffer 			_rsslEncBuffer;
 	private com.refinitiv.eta.transport.Error			_rsslError;
 	private com.refinitiv.eta.codec.Int 				_rsslCurrentFid;
@@ -108,7 +109,8 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		{
 			_channelDictList = new ArrayList<>();
 			_channelDictPool = new ArrayList<>();
-			_channelDictPool.add(new ChannelDictionary<T>(_ommBaseImpl));
+			_channelDictionary = new ChannelDictionary<T>(_ommBaseImpl);
+			_channelDictPool.add(_channelDictionary);
 		}
 	}
 
@@ -330,15 +332,10 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 	
 	DataDictionary defaultRsslDictionary()
 	{
-		if (_channelDictList != null && !_channelDictList.isEmpty())
-		{
-			if (_channelDictList.get(0).isLoaded())
-				return _channelDictList.get(0).rsslDictionary();
-		}
-		else
+		if (isLocalDictionary()) {
 			return _rsslLocalDictionary;
-		
-		return null;
+		}
+		return _channelDictionary.rsslDictionary();
 	}
 	
 	int fldStreamId()

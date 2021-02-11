@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.valueadd.reactor.*;
 import org.slf4j.Logger;
 
 import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
@@ -31,24 +33,11 @@ import com.refinitiv.ema.access.OmmConsumer.DispatchTimeout;
 import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.EncodeIterator;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.Error;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.Reactor;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
-import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
-import com.refinitiv.eta.valueadd.reactor.TunnelStreamSubmitOptions;
 
 interface OmmCommonImpl
 {
@@ -62,7 +51,9 @@ interface OmmCommonImpl
 	void handleInvalidUsage(String text, int errorCode);
 	
 	void handleInvalidHandle(long handle, String text);
-	
+
+	void handleJsonConverterError(int errorCode, String text);
+
 	Logger loggerClient();
 	
 	String formatLogMessage(String clientName, String temp, int level);
@@ -84,7 +75,7 @@ interface OmmCommonImpl
 	void channelInformation(ChannelInformation ci);
 }
 
-abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
+abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback
 {
 	private final static int SHUTDOWN_TIMEOUT_IN_SECONDS = 3;
 
@@ -116,6 +107,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 	protected StringBuilder _dispatchStrBuilder = new StringBuilder(1024);
 	private OmmInvalidUsageExceptionImpl _ommIUExcept;
 	private OmmInvalidHandleExceptionImpl _ommIHExcept;
+	private OmmJsonConverterExceptionImpl _ommJCExcept;
 	private ActiveConfig _activeConfig;
 
 	protected LoginCallbackClient<T> _loginCallbackClient;
@@ -307,8 +299,26 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				_userLock.unlock();
 		}
 	}
-	
-	//only for unit test, internal use 
+
+	@Override
+	public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId, ReactorServiceNameToIdEvent serviceNameToIdEvent) {
+		Directory directory = directoryCallbackClient().directory(serviceNameToId.serviceName());
+		if (directory != null) {
+			serviceNameToId.serviceId(directory.service().serviceId());
+			return ReactorReturnCodes.SUCCESS;
+		}
+		return ReactorReturnCodes.FAILURE;
+	}
+
+	@Override
+	public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) {
+		if (jsonConversionEvent != null && jsonConversionEvent.error() != null) {
+			handleJsonConverterError(jsonConversionEvent.error().errorId(), jsonConversionEvent.error().text());
+		}
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
+	//only for unit test, internal use
 	void initializeForTest(ActiveConfig activeConfig,EmaConfigImpl config)
 	{
 		_activeConfig = activeConfig;
@@ -1066,11 +1076,11 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				
 				currentChannelConfig =  tunnelingChannelCfg;
 			}
-			else if(encrypedProtocol == ConnectionTypes.SOCKET)
+			else if(encrypedProtocol == ConnectionTypes.SOCKET || encrypedProtocol == ConnectionTypes.WEBSOCKET)
 			{
 				EncryptedChannelConfig encryptedChannelConfig = new EncryptedChannelConfig();
 				encryptedChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
-				encryptedChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
+				encryptedChannelConfig.encryptedProtocolType = encrypedProtocol;
 				
 				if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
 					encryptedChannelConfig.enableSessionMgnt = ce.intLongValue() == 0 ? false : true;
@@ -1129,11 +1139,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			
 			break;
 		}
+		case ConnectionTypes.WEBSOCKET:
 		case ConnectionTypes.SOCKET:
 		{
 			SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
 
-			socketChannelConfig.rsslConnectionType = ConnectionTypes.SOCKET;
+			socketChannelConfig.rsslConnectionType = connectionType;
 			readSocketChannelConfig(configImpl, attributes, socketChannelConfig);
 			
 			HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
@@ -1301,6 +1312,16 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				else
 					currentChannelConfig.initializationTimeout = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT : ce.intLongValue();
 			}
+
+			if (connectionType == ConnectionTypes.WEBSOCKET || encrypedProtocol == ConnectionTypes.WEBSOCKET) {
+				if((ce = attributes.getPrimitiveValue(ConfigManager.WsProtocols)) != null) {
+					currentChannelConfig.wsProtocols = ce.asciiValue();
+				}
+
+				if ((ce = attributes.getPrimitiveValue(ConfigManager.WsMaxMsgSize)) != null) {
+					currentChannelConfig.wsMaxMsgSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_WS_MAX_MSG_SIZE : ce.intLongValue();
+				}
+			}
 		}
 		
 		return currentChannelConfig;
@@ -1370,13 +1391,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 				ChannelConfig currentConfig = (channelInfo != null ) ? channelInfo._channelConfig : _activeConfig.channelConfigSet.get(  _activeConfig.channelConfigSet.size() -1 );
 				strBuilder().append("login failed (timed out after waiting ")
 						.append(_activeConfig.loginRequestTimeOut).append(" milliseconds) for ");
-				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET || (currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED && currentConfig.encryptedProtocolType == ConnectionTypes.SOCKET))
+				if (currentConfig.rsslConnectionType == ConnectionTypes.SOCKET ||
+						currentConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 				{
 					SocketChannelConfig channelConfig = (SocketChannelConfig) currentConfig;
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
 							.append(")");
 				} else if (currentConfig.rsslConnectionType == ConnectionTypes.HTTP || 
-						 (currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED && currentConfig.encryptedProtocolType == ConnectionTypes.HTTP))
+						 currentConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 				{
 					HttpChannelConfig channelConfig = ((HttpChannelConfig) currentConfig);
 					_strBuilder.append(channelConfig.hostName).append(":").append(channelConfig.serviceName)
@@ -1488,7 +1510,9 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 									}
 									finally
 									{
-										_userLock.unlock();
+										if (_userLock.isLocked()) {
+											_userLock.unlock();
+										}
 									}
 								}
 								while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT);
@@ -1586,6 +1610,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient
 			_ommIHExcept = new OmmInvalidHandleExceptionImpl();
 
 		return _ommIHExcept;
+	}
+
+	OmmJsonConverterExceptionImpl ommJCExcept() {
+		if (_ommJCExcept == null) {
+			_ommJCExcept = new OmmJsonConverterExceptionImpl();
+		}
+		return _ommJCExcept;
 	}
 
 	EncodeIterator rsslEncIter()

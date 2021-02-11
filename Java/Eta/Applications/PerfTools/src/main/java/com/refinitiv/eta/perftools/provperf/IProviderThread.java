@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.DecodeIterator;
@@ -16,6 +18,7 @@ import com.refinitiv.eta.shared.provider.ItemRejectReason;
 import com.refinitiv.eta.perftools.common.ChannelHandler;
 import com.refinitiv.eta.perftools.common.ClientChannelInfo;
 import com.refinitiv.eta.perftools.common.DictionaryProvider;
+import com.refinitiv.eta.perftools.common.JsonServiceNameToIdCallback;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
 import com.refinitiv.eta.perftools.common.ProviderPerfConfig;
 import com.refinitiv.eta.perftools.common.ProviderSession;
@@ -52,9 +55,15 @@ import com.refinitiv.eta.valueadd.reactor.ReactorChannelInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorJsonConversionEvent;
+import com.refinitiv.eta.valueadd.reactor.ReactorJsonConversionEventCallback;
+import com.refinitiv.eta.valueadd.reactor.ReactorJsonConverterOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
+import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToId;
+import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToIdCallback;
+import com.refinitiv.eta.valueadd.reactor.ReactorServiceNameToIdEvent;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamListenerCallback;
 import com.refinitiv.eta.valueadd.reactor.TunnelStreamRequestEvent;
 
@@ -63,7 +72,8 @@ import com.refinitiv.eta.valueadd.reactor.TunnelStreamRequestEvent;
  * accepting of new channels, processing of incoming messages and sending of
  * message bursts.
  */
-public class IProviderThread extends ProviderThread implements ProviderCallback, TunnelStreamListenerCallback
+public class IProviderThread extends ProviderThread implements ProviderCallback, TunnelStreamListenerCallback, JsonServiceNameToIdCallback,
+												ReactorJsonConversionEventCallback, ReactorServiceNameToIdCallback
 {
     private static final String applicationName = "ProvPerf";
     private static final String applicationId = "256";
@@ -234,7 +244,7 @@ public class IProviderThread extends ProviderThread implements ProviderCallback,
                           _channelInfo.pingTimeout()
                 );
 
-        int count = _channelInfo.componentInfo().size();
+        int count = (_channelInfo.componentInfo() == null ? 0 :_channelInfo.componentInfo().size());
         if (count == 0)
             System.out.printf("(No component info)");
         else
@@ -310,53 +320,94 @@ public class IProviderThread extends ProviderThread implements ProviderCallback,
     public int processMsg(ChannelHandler channelHandler, ClientChannelInfo clientChannelInfo, TransportBuffer msgBuf, Error error)
     {
         ProviderThread providerThread = channelHandler.providerThread();
+        Channel channel = clientChannelInfo.channel;
+        int ret = 0;
+        int cRet = 0;
+        TransportBuffer origBuffer;
+        Buffer decodedMsg;
+        int numConverted = 0;
+        
+        do {
+        	
+        	// clear decode iterator
+	        _decodeIter.clear();
+	        _tmpMsg.clear();
+        	
+        	if(channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+        	{
+        		origBuffer = msgBuf;
+        		
+        		if((cRet = providerThread.getJsonConverterSession().convertFromJsonMessage(channel,
+        				(numConverted == 0 ? origBuffer : null), error)) == CodecReturnCodes.FAILURE)
+        		{
+        			ret = cRet;
+        			System.out.println("Error in Json Conversion with error text: " + error.text());
+        			break;
+        		}
+        		
+        		numConverted++;
+        		
+        		if (cRet == CodecReturnCodes.SUCCESS)
+        		{
+        			decodedMsg = providerThread.getJsonConverterSession().jsonConverterState().jsonMsg().rwfMsg().encodedMsgBuffer();
+        			ret = _decodeIter.setBufferAndRWFVersion(decodedMsg, channel.majorVersion(), channel.minorVersion());
+        		}
+    		
+    			if (cRet == CodecReturnCodes.END_OF_CONTAINER)
+    				break;
 
-        // clear decode iterator
-        _decodeIter.clear();
-
-        int ret = _decodeIter.setBufferAndRWFVersion(msgBuf, clientChannelInfo.channel.majorVersion(), clientChannelInfo.channel.minorVersion());
-        if (ret != CodecReturnCodes.SUCCESS)
-        {
-            System.err.println("DecodeIterator.setBufferAndRWFVersion() failed with return code:  " + CodecReturnCodes.toString(ret));
-            error.errorId(ret);
-            return PerfToolsReturnCodes.FAILURE;
-        }
-
-        ret = _tmpMsg.decode(_decodeIter);
-        if (ret != CodecReturnCodes.SUCCESS)
-        {
-            System.err.println("Msg.decode() failed with return code:  " + CodecReturnCodes.toString(ret));
-            error.errorId(ret);
-            return PerfToolsReturnCodes.FAILURE;
-        }
-
-        switch (_tmpMsg.domainType())
-        {
-            case DomainTypes.LOGIN:
-                ret = _loginProvider.processMsg(channelHandler, clientChannelInfo, _tmpMsg, _decodeIter, error);
-                break;
-            case DomainTypes.SOURCE:
-                ret = _directoryProvider.processMsg(channelHandler, clientChannelInfo, _tmpMsg, _decodeIter, error);
-                break;
-            case DomainTypes.DICTIONARY:
-                ret = _dictionaryProvider.processMsg(channelHandler, clientChannelInfo, _tmpMsg, _decodeIter, error);
-                break;
-            case DomainTypes.MARKET_PRICE:
-                if (_xmlMsgData.marketPriceUpdateMsgCount() > 0)
-                    ret = _itemRequestHandler.processMsg(providerThread, (ProviderSession)clientChannelInfo.userSpec, _tmpMsg, _directoryProvider.openLimit(), _directoryProvider.serviceId(), _directoryProvider.qos(), _decodeIter, error);
-                else
-                    ret = _itemRequestHandler.sendRequestReject(providerThread, (ProviderSession)clientChannelInfo.userSpec, _tmpMsg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, error);
-                break;
-            default:
-                ret = _itemRequestHandler.sendRequestReject(providerThread, (ProviderSession)clientChannelInfo.userSpec, _tmpMsg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, error);
-                break;
-        }
-
-        if (ret > PerfToolsReturnCodes.SUCCESS)
-        {
-            // The method sent a message and indicated that we need to flush.
-            _channelHandler.requestFlush(clientChannelInfo);
-        }
+    			if (cRet != CodecReturnCodes.SUCCESS)
+    				continue;
+        	}
+        	else
+        	{
+        		ret = _decodeIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+        	}
+        	
+	        if (ret != CodecReturnCodes.SUCCESS)
+	        {
+	            System.err.println("DecodeIterator.setBufferAndRWFVersion() failed with return code:  " + CodecReturnCodes.toString(ret));
+	            error.errorId(ret);
+	            return PerfToolsReturnCodes.FAILURE;
+	        }
+	
+	        ret = _tmpMsg.decode(_decodeIter);
+	        if (ret != CodecReturnCodes.SUCCESS)
+	        {
+	            System.err.println("Msg.decode() failed with return code:  " + CodecReturnCodes.toString(ret));
+	            error.errorId(ret);
+	            return PerfToolsReturnCodes.FAILURE;
+	        }
+	
+	        switch (_tmpMsg.domainType())
+	        {
+	            case DomainTypes.LOGIN:
+	                ret = _loginProvider.processMsg(channelHandler, clientChannelInfo, _tmpMsg, _decodeIter, error);
+	                break;
+	            case DomainTypes.SOURCE:
+	                ret = _directoryProvider.processMsg(channelHandler, clientChannelInfo, _tmpMsg, _decodeIter, error);
+	                break;
+	            case DomainTypes.DICTIONARY:
+	                ret = _dictionaryProvider.processMsg(channelHandler, clientChannelInfo, _tmpMsg, _decodeIter, error);
+	                break;
+	            case DomainTypes.MARKET_PRICE:
+	                if (_xmlMsgData.marketPriceUpdateMsgCount() > 0)
+	                    ret = _itemRequestHandler.processMsg(providerThread, (ProviderSession)clientChannelInfo.userSpec, _tmpMsg, _directoryProvider.openLimit(), _directoryProvider.serviceId(), _directoryProvider.qos(), _decodeIter, error);
+	                else
+	                    ret = _itemRequestHandler.sendRequestReject(providerThread, (ProviderSession)clientChannelInfo.userSpec, _tmpMsg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, error);
+	                break;
+	            default:
+	                ret = _itemRequestHandler.sendRequestReject(providerThread, (ProviderSession)clientChannelInfo.userSpec, _tmpMsg, ItemRejectReason.DOMAIN_NOT_SUPPORTED, error);
+	                break;
+	        }
+	
+	        if (ret > PerfToolsReturnCodes.SUCCESS)
+	        {
+	            // The method sent a message and indicated that we need to flush.
+	            _channelHandler.requestFlush(clientChannelInfo);
+	        }
+        
+        }while(channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && cRet != CodecReturnCodes.END_OF_CONTAINER);
 
         return ret;
     }
@@ -414,6 +465,36 @@ public class IProviderThread extends ProviderThread implements ProviderCallback,
         {
             System.out.println("Error loading dictionary: " + _error.text());
             System.exit(CodecReturnCodes.FAILURE);
+        }
+        
+        if (ProviderPerfConfig.useReactor()) // use ETA VA Reactor
+        {
+        	ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
+        	jsonConverterOptions.dataDictionary(_dictionaryProvider.dictionary());
+        	jsonConverterOptions.userSpec(this);
+            jsonConverterOptions.serviceNameToIdCallback(this);
+            jsonConverterOptions.jsonConversionEventCallback(this);
+
+            // Initialize the JSON converter
+            if ( _reactor.initJsonConverter(jsonConverterOptions, _errorInfo) != ReactorReturnCodes.SUCCESS)
+            {
+                System.out.println("Reactor.initJsonConverter() failed: " + _errorInfo.toString());
+                System.exit(ReactorReturnCodes.FAILURE);
+            }
+        }
+        else
+        {
+            // Initializes the JSON converter library.
+            _jsonConverterSession.jsonConverterOptions().datadictionary(_dictionaryProvider.dictionary());
+            _jsonConverterSession.jsonConverterOptions().defaultServiceId(_directoryProvider.serviceId());
+            _jsonConverterSession.jsonConverterOptions().userClosure(this);
+            _jsonConverterSession.jsonConverterOptions().serviceNameToIdCallback(this);
+            
+            if(_jsonConverterSession.initialize(_error) != CodecReturnCodes.SUCCESS)
+            {
+            	System.out.println("RWF/JSON Converter failed: " + _error.text());
+            	System.exit(CodecReturnCodes.FAILURE);
+            }
         }
         
         getProvThreadInfo().dictionary(_dictionaryProvider.dictionary());
@@ -997,4 +1078,40 @@ public class IProviderThread extends ProviderThread implements ProviderCallback,
     {
     	return _channelHandler.handlerLock();
     }
+
+	@Override
+	public int serviceNameToIdCallback(String serviceName, Object closure)
+	{
+		IProviderThread providerThread = (IProviderThread)closure;
+		
+		if(providerThread._directoryProvider.serviceName().equals(serviceName))
+		{
+			return providerThread._directoryProvider.serviceId();
+		}
+		
+		return CodecReturnCodes.FAILURE;
+	}
+
+	@Override
+	public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId,
+			ReactorServiceNameToIdEvent serviceNameToIdEvent) 
+	{
+		IProviderThread providerThread = (IProviderThread)serviceNameToIdEvent.userSpecObj();
+		
+		if(providerThread._directoryProvider.serviceName().equals(serviceNameToId.serviceName()))
+		{
+			serviceNameToId.serviceId(providerThread._directoryProvider.serviceId());
+			return ReactorReturnCodes.SUCCESS;
+		}
+		
+		return ReactorReturnCodes.FAILURE;
+	}
+
+	@Override
+	public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) 
+	{
+		System.out.println("JSON Conversion error: " + jsonConversionEvent.error().text());
+
+        return ReactorCallbackReturnCodes.SUCCESS;
+	}
 }

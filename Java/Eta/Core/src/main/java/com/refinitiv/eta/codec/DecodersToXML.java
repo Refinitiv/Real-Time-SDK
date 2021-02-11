@@ -56,7 +56,7 @@ import com.refinitiv.eta.rdm.ElementNames;
 class DecodersToXML
 {
     private static int indents;
-    
+
     private static String encodeindents()
     {
         StringBuilder xmlString = new StringBuilder();
@@ -156,16 +156,18 @@ class DecodersToXML
             case DataTypes.QOS:
                 Qos qos = CodecFactory.createQos();
                 ret = Decoders.decodeQos(iter, qos);
-                if (ret >= CodecReturnCodes.SUCCESS)
-                {
+                if (ret == CodecReturnCodes.BLANK_DATA) {
+                    xmlString.append(" data=\"\"");
+                } else if (ret >= CodecReturnCodes.SUCCESS) {
                     xmlString.append(xmlDumpQos(qos));
                 }
                 break;
             case DataTypes.STATE:
                 State state = CodecFactory.createState();
                 ret = Decoders.decodeState(iter, state);
-                if (ret >= CodecReturnCodes.SUCCESS)
-                {
+                if (ret == CodecReturnCodes.BLANK_DATA) {
+                    xmlString.append(" data=\"\"");
+                } else if (ret >= CodecReturnCodes.SUCCESS) {
                     xmlString.append(xmlDumpState(state));
                 }
                 break;
@@ -182,7 +184,7 @@ class DecodersToXML
                 else if (ret >= CodecReturnCodes.SUCCESS)
                 {
                     xmlString.append(" data=\"");
-                    xmlString.append(xmlDumpString(out));
+                    xmlString.append(xmlDumpString(out, true));
                     xmlString.append("\"");
                 }
                 else
@@ -290,53 +292,6 @@ class DecodersToXML
         return xmlString.toString();
     }
 
-    private static String xmlDumpString(Buffer buf)
-    {
-        if (buf.data() != null)
-        {
-            StringBuilder xmlString = new StringBuilder();
-            int pos = ((BufferImpl)buf).position();
-            byte c = buf.data().get(pos++);
-
-            if (c != 0x00 || buf.length() > 1) // skip stuff below for empty string
-            {
-                for (int i = 0; i < buf.length(); i++)
-                {
-                    if (c < 0x20 || c > 0x7e)
-                    {
-                        xmlString.append("(");
-                        xmlString.append("0x" + String.format("%02X", c));
-                        xmlString.append(")");
-                    }
-                    else if (c == '<')
-                        xmlString.append("&lt;");
-                    else if (c == '>')
-                        xmlString.append("&gt;");
-                    else if (c == 0x26) // ampersand
-                        xmlString.append("&amp;");
-                    else if (c == 0x22) // quotation mark
-                        xmlString.append("&quot;");
-                    else if (c == 0x27) // apostrophe
-                        xmlString.append("&apos;");
-                    else
-                        // printable
-                        xmlString.append((char)c);
-
-                    if (pos < buf.data().limit())
-                    {
-                        c = buf.data().get(pos++);
-                    }
-                }
-            }
-
-            return xmlString.toString();
-        }
-        else
-        {
-            return "null";
-        }
-    }
-
     private static String dumpOpaqueToXML(Buffer buffer, DataDictionary dictionary)
     {
         StringBuilder xmlString = new StringBuilder();
@@ -361,7 +316,7 @@ class DecodersToXML
         indents++;
 
         xmlString.append("<json data=\"");
-        xmlString.append(xmlDumpString(buffer));
+        xmlString.append(xmlDumpString(buffer, true));
         xmlString.append("\" />\n");
 
         indents--;
@@ -529,7 +484,7 @@ class DecodersToXML
                 }
                 break;
             default:
-            	xmlString.append("decodeMsgClassToXML() failed to decode unknown message class");
+                xmlString.append("decodeMsgClassToXML() failed to decode unknown message class");
                 break;
         }
 
@@ -817,7 +772,7 @@ class DecodersToXML
         /* dump summary data */
         if (series.checkHasSummaryData())
             xmlString.append(decodeSummaryData(iterCopy, series.containerType(), series.encodedSummaryData(),
-                                               iterCopy.majorVersion(), iterCopy.minorVersion(), dictionary, setDb));
+                    iterCopy.majorVersion(), iterCopy.minorVersion(), dictionary, setDb));
 
         if (Decoders.getItemCount(iterCopy) == 0)
         {
@@ -910,7 +865,7 @@ class DecodersToXML
         /* dump summary data */
         if (map.checkHasSummaryData())
             xmlString.append(decodeSummaryData(iterCopy, map.containerType(), map.encodedSummaryData(),
-                                               iterCopy.majorVersion(), iterCopy.minorVersion(), dictionary, setDb));
+                    iterCopy.majorVersion(), iterCopy.minorVersion(), dictionary, setDb));
 
         mapEntry.clear();
         mapKeyData = createKeyData(map.keyPrimitiveType());
@@ -1000,7 +955,7 @@ class DecodersToXML
         /* dump summary data */
         if (vec.checkHasSummaryData())
             xmlString.append(decodeSummaryData(iterCopy, vec.containerType(), vec.encodedSummaryData(),
-                                               iterCopy.majorVersion(), iterCopy.minorVersion(), dictionary, setDb));
+                    iterCopy.majorVersion(), iterCopy.minorVersion(), dictionary, setDb));
 
         vectorEntry.clear();
         while ((ret = vectorEntry.decode(iterCopy)) != CodecReturnCodes.END_OF_CONTAINER)
@@ -1068,7 +1023,7 @@ class DecodersToXML
     }
 
     private static String decodeFieldListToXML(DecodeIterator iter, DataDictionary dictionary,
-            LocalFieldSetDefDb setDb, boolean copyIterator)
+                                               LocalFieldSetDefDb setDb, boolean copyIterator)
     {
         StringBuilder xmlString = new StringBuilder();
         int ret = 0;
@@ -1146,8 +1101,9 @@ class DecodersToXML
         copyIteratorInfo(iterCopy, (DecodeIteratorImpl)iter);
 
         ret = array.decode(iterCopy);
-        if (ret == CodecReturnCodes.NO_DATA || ret < CodecReturnCodes.SUCCESS)
+        if (ret == CodecReturnCodes.NO_DATA || ret < CodecReturnCodes.SUCCESS || ret == CodecReturnCodes.BLANK_DATA) {
             return "";
+        }
 
         xmlString.append(xmlDumpArrayBegin(array));
 
@@ -1173,7 +1129,7 @@ class DecodersToXML
     }
 
     private static String decodeElementListToXML(DecodeIterator iter, DataDictionary dictionary,
-            LocalElementSetDefDb setDb, boolean copyIterator)
+                                                 LocalElementSetDefDb setDb, boolean copyIterator)
     {
         StringBuilder xmlString = new StringBuilder();
         int ret = 0;
@@ -1430,7 +1386,7 @@ class DecodersToXML
     {
         return (" " + qos.toString());
     }
-    
+
     private static String xmlDumpWorstQos(Qos qos)
     {
         return (" " + qos.toString());
@@ -1445,17 +1401,17 @@ class DecodersToXML
     {
         return i64.toString();
     }
-    
+
     private static String xmlDumpDouble(Float f32)
     {
         return f32.toString();
     }
-    
+
     private static String xmlDumpDouble(Double d64)
     {
         return d64.toString();
     }
-    
+
     private static String xmlDumpMsgBegin(Msg msg, String tagName)
     {
         StringBuilder xmlString = new StringBuilder();
@@ -1819,7 +1775,7 @@ class DecodersToXML
                 if (refreshMsg.checkHasPostUserInfo())
                 {
                     xmlString.append(" postUserId=\"" + refreshMsg.postUserInfo().userId() + "\" postUserAddr=\""
-                            + refreshMsg.postUserInfo().userAddrToString(refreshMsg.postUserInfo().userAddr()) + "\"");
+                                     + refreshMsg.postUserInfo().userAddrToString(refreshMsg.postUserInfo().userAddr()) + "\"");
                 }
                 break;
             case MsgClasses.POST:
@@ -2393,7 +2349,7 @@ class DecodersToXML
     }
 
     private static String decodeSummaryData(DecodeIterator iter, int containerType, Buffer input,
-            int majorVer, int minorVer, DataDictionary dictionary, Object setDb)
+                                            int majorVer, int minorVer, DataDictionary dictionary, Object setDb)
     {
         StringBuilder xmlString = new StringBuilder();
 
@@ -2670,7 +2626,7 @@ class DecodersToXML
                 actionString = "Unknown";
         }
         /* Don't print the data element for deleted rows, there should not be any. */
-        xmlString.append("<filterEntry id=\"" + filterItem.id() + "\" action=\"" + actionString 
+        xmlString.append("<filterEntry id=\"" + filterItem.id() + "\" action=\"" + actionString
                          + "\" flags=\"0x" + String.format("%02X", filterItem.flags()));
 
         if (filterItem.flags() != 0)
@@ -2737,7 +2693,7 @@ class DecodersToXML
 
         return xmlString.toString();
     }
-    
+
     private static Object createKeyData(int dataType)
     {
         Object data = null;
@@ -2789,7 +2745,7 @@ class DecodersToXML
 
         return data;
     }
-    
+
     private static String xmlDumpArrayItemEnd()
     {
         return "/>\n";
@@ -2819,15 +2775,15 @@ class DecodersToXML
 
         return xmlString.toString();
     }
-    
+
     private static void copyIteratorInfo(DecodeIteratorImpl destIter, DecodeIteratorImpl sourceIter)
     {
         destIter.clear();
         destIter.setBufferAndRWFVersion(sourceIter._buffer, sourceIter.majorVersion(), sourceIter.minorVersion());
         destIter._curBufPos = sourceIter._curBufPos;
         if (destIter._curBufPos == 3 &&
-                sourceIter._buffer.data().get(2) == MsgClasses.REFRESH &&
-                sourceIter._buffer.data().get(3) == DomainTypes.DICTIONARY)
+            sourceIter._buffer.data().get(2) == MsgClasses.REFRESH &&
+            sourceIter._buffer.data().get(3) == DomainTypes.DICTIONARY)
         {
             destIter._curBufPos = 0;
         }
@@ -2856,7 +2812,7 @@ class DecodersToXML
             }
         }
     }
-    
+
     private static String xmlDumpSeriesRowEnd()
     {
         indents--;
@@ -3039,5 +2995,45 @@ class DecodersToXML
         xmlString.append("\">\n");
 
         return xmlString.toString();
+    }
+
+    public static String xmlDumpString(Buffer buf, boolean escape) {
+        final StringBuilder lineBuilder = new StringBuilder();
+        if (buf.data() != null) {
+            int pos = buf.position();
+            byte c = buf.data().get(pos++);
+
+            if (c != 0x00 || buf.length() > 1) {
+                for (int i = 0; i < buf.length(); i++) {
+                    if (escape) {
+                        if (c == '<') {
+                            lineBuilder.append("&lt;");
+                        } else if (c == '>') {
+                            lineBuilder.append("&gt;");
+                        } else if (c == 0x26) {
+                            // ampersand
+                            lineBuilder.append("&amp;");
+                        } else if (c == 0x22) {
+                            // quotation mark
+                            lineBuilder.append("&quot;");
+                        } else if (c == 0x27) {
+                            // apostrophe
+                            lineBuilder.append("&apos;");
+                        } else {
+                            lineBuilder.append((char) c);
+                        }
+                    } else if (c < 0x20 || c > 0x7e) {
+                        lineBuilder.append("(0x").append(String.format("%02X", c)).append(")");
+                    } else {
+                        lineBuilder.append((char) c);
+                    }
+
+                    if (pos < buf.data().limit()) {
+                        c = buf.data().get(pos++);
+                    }
+                }
+            }
+        }
+        return lineBuilder.toString();
     }
 }

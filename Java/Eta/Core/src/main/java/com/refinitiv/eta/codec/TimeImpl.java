@@ -3,10 +3,6 @@ package com.refinitiv.eta.codec;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.EncodeIterator;
-import com.refinitiv.eta.codec.Time;
-
 class TimeImpl implements Time
 {
     static final int BLANK_HOUR = 255;
@@ -382,8 +378,8 @@ class TimeImpl implements Time
     	return CodecReturnCodes.SUCCESS;
     }
 
-    @Override
-    public int value(String value)
+    @Deprecated
+    public int valueOld(String value)
     {
         int ret = CodecReturnCodes.SUCCESS;
         if (value == null)
@@ -622,6 +618,408 @@ class TimeImpl implements Time
         {
             return CodecReturnCodes.INVALID_ARGUMENT;
         }
+    }
+
+    @Override
+    public int value(String data) {
+        int tmpInt = 0;
+        int min = 0;
+        int sec = 0;
+        int hour = 0;
+        int milli = 0;
+        int micro = 0;
+        int nano = 0;
+        int numberCount = 0;
+        int position;
+        int end;
+        int placeValue = 0;
+        int i;
+
+        if (data == null || data.isEmpty()) {
+            this._hour = 255;
+            this._minute = 255;
+            this._second = 255;
+            this._millisecond = 65535;
+            this._microsecond = 2047;
+            this._nanosecond = 2047;
+
+            return CodecReturnCodes.BLANK_DATA;
+        }
+
+        position = 0;
+        end = data.length();
+
+        clear();
+
+        /* Check for ISO case of hh:mm:ss first*/
+        while (position < end && Character.isDigit(data.charAt(position))) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+            ++numberCount;
+            ++position;
+        }
+
+	    /** If there are 2 characters in the first number, this is minimally hh:mm.
+            It can also be:
+                hh:mm:ss
+                hh:mm:ss:mmm
+                hh:mm:ss:mmm:mmm
+                hh:mm:ss:mmm:mmm:nnn
+                hh:mm:ss.nnnnnnnnn
+                hh:mm:ss,nnnnnnnnn
+         */
+        if (numberCount == 2 && data.charAt(position) == ':') {
+            hour = tmpInt;
+            tmpInt = 0;
+            numberCount = 0;
+
+            position++;
+            if (position >= end) {
+                return CodecReturnCodes.INVALID_DATA;
+            }
+
+            while (position < end && Character.isDigit(data.charAt(position))) {
+                tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+                ++numberCount;
+                ++position;
+            }
+            min = tmpInt;
+
+            if (numberCount != 2) {
+                return CodecReturnCodes.INVALID_DATA;
+            }
+
+            /* Check to see if we're at the end or if there's a time zone(which will be dropped) */
+            if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                this._hour = hour;
+                this._minute = min;
+                return CodecReturnCodes.SUCCESS;
+            }
+
+            if (data.charAt(position) != ':') {
+                return CodecReturnCodes.INVALID_DATA;
+            }
+
+            position++;
+            tmpInt = 0;
+            numberCount = 0;
+
+            while (position < end && Character.isDigit(data.charAt(position))) {
+                tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+                ++numberCount;
+                ++position;
+            }
+            sec = tmpInt;
+
+            if (numberCount != 2) {
+                return CodecReturnCodes.INVALID_DATA;
+            }
+
+            /* Check to see if we're at the end or if there's a time zone(which will be dropped) */
+            if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                this._hour = hour;
+                this._minute = min;
+                this._second = sec;
+                return CodecReturnCodes.SUCCESS;
+            }
+
+            tmpInt = 0;
+            numberCount = 0;
+            if (data.charAt(position) == ':') {
+                ++position;
+
+                while (position < end && Character.isDigit(data.charAt(position))) {
+                    tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+                    ++numberCount;
+                    ++position;
+                }
+
+                milli = tmpInt;
+
+                if (numberCount != 3) {
+                    return CodecReturnCodes.INVALID_DATA;
+                }
+
+                if (position >= end) {
+                    this._hour = hour;
+                    this._minute = min;
+                    this._second = sec;
+                    this._millisecond = milli;
+                    return CodecReturnCodes.SUCCESS;
+                }
+
+                tmpInt = 0;
+                numberCount = 0;
+                if (data.charAt(position) != ':') {
+                    return CodecReturnCodes.INVALID_DATA;
+                }
+
+                position++;
+                while (position < end && Character.isDigit(data.charAt(position))) {
+                    tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+                    ++numberCount;
+                    ++position;
+                }
+                micro = tmpInt;
+
+                if (numberCount != 3) {
+                    return CodecReturnCodes.INVALID_DATA;
+                }
+
+                if (position >= end) {
+                    this._hour = hour;
+                    this._minute = min;
+                    this._second = sec;
+                    this._millisecond = milli;
+                    this._microsecond = micro;
+                    return CodecReturnCodes.SUCCESS;
+                }
+
+                tmpInt = 0;
+                numberCount = 0;
+                if (data.charAt(position) != ':') {
+                    return CodecReturnCodes.INVALID_DATA;
+                }
+
+                position++;
+                while (position < end && Character.isDigit(data.charAt(position))) {
+                    tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+                    ++numberCount;
+                    ++position;
+                }
+
+                nano = tmpInt;
+
+                if (numberCount != 3) {
+                    return CodecReturnCodes.INVALID_DATA;
+                } else {
+                    this._hour = hour;
+                    this._minute = min;
+                    this._second = sec;
+                    this._millisecond = milli;
+                    this._microsecond = micro;
+                    this._nanosecond = nano;
+                    return CodecReturnCodes.SUCCESS;
+                }
+            } else if (data.charAt(position) == '.' || data.charAt(position) == ',') {
+                ++position;
+                if (position == end) {
+                    return CodecReturnCodes.INVALID_DATA;
+                }
+
+                this._hour = hour;
+                this._minute = min;
+                this._second = sec;
+
+                placeValue = 100;
+                for (i = 0; i < 3; ++i) {
+                    if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                        return CodecReturnCodes.SUCCESS;
+                    } else if (Character.isDigit(data.charAt(position))) {
+                        this._millisecond = this._millisecond + Character.getNumericValue(data.charAt(position)) * placeValue;
+                        placeValue = placeValue / 10;
+                    } else {
+                        clear();
+                        return CodecReturnCodes.INVALID_DATA;
+                    }
+                    position++;
+                }
+
+                placeValue = 100;
+                for (i = 0; i < 3; ++i) {
+                    if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                        return CodecReturnCodes.SUCCESS;
+                    } else if (Character.isDigit(data.charAt(position))) {
+                        this._microsecond = this._microsecond + Character.getNumericValue(data.charAt(position)) * placeValue;
+                        placeValue = placeValue / 10;
+                    } else {
+                        clear();
+                        return CodecReturnCodes.INVALID_DATA;
+                    }
+                    position++;
+                }
+
+                placeValue = 100;
+                for (i = 0; i < 3; ++i) {
+                    if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                        return CodecReturnCodes.SUCCESS;
+                    } else if (Character.isDigit(data.charAt(position))) {
+                        this._nanosecond = this._nanosecond + Character.getNumericValue(data.charAt(position)) * placeValue;
+                        placeValue = placeValue / 10;
+                    } else {
+                        clear();
+                        return CodecReturnCodes.INVALID_DATA;
+                    }
+                    position++;
+                }
+
+                /* We've parsed all available data, and are ignoring any time zone specification */
+                return CodecReturnCodes.SUCCESS;
+            } else {
+                return CodecReturnCodes.INVALID_DATA;
+            }
+        } else if (numberCount == 6 || numberCount == 4) {
+            /**
+             *  This covers:
+             *  hhmm
+             *  hhmmss
+             *  hhmmss.nnnnnnnnn
+             *  hhmmss,nnnnnnnnn
+             */
+
+            /* reset tmp to the beginning */
+            position = 0;
+            /* Since we've verified that this is exactly 6 digits, we can just parse hhmmss */
+            for (i = 0; i < 2; ++i) {
+                this._hour = this._hour * 10 + Character.getNumericValue(data.charAt(position));
+                position++;
+            }
+
+            for (i = 0; i < 2; ++i) {
+                this._minute = this._minute * 10 + Character.getNumericValue(data.charAt(position));
+                position++;
+            }
+
+            if (numberCount == 6) {
+                for (i = 0; i < 2; ++i) {
+                    this._second = this._second * 10 + Character.getNumericValue(data.charAt(position));
+                    position++;
+                }
+
+                /* Ignoring ISO time zone formatting */
+                if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                    return CodecReturnCodes.SUCCESS;
+                } else if (data.charAt(position) == '.' || data.charAt(position) == ',') {
+                    ++position;
+                    if (position == end) {
+                        return CodecReturnCodes.INVALID_DATA;
+                    }
+
+                    placeValue = 100;
+                    for (i = 0; i < 3; ++i) {
+                        if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                            return CodecReturnCodes.SUCCESS;
+                        } else if (Character.isDigit(position)) {
+                            this._millisecond = this._millisecond + Character.getNumericValue(data.charAt(position)) * placeValue;
+                            placeValue = placeValue / 10;
+                        } else {
+                            clear();
+                            return CodecReturnCodes.INVALID_DATA;
+                        }
+                        position++;
+                    }
+
+                    placeValue = 100;
+                    for (i = 0; i < 3; ++i) {
+                        if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                            return CodecReturnCodes.SUCCESS;
+                        } else if (Character.isDigit(data.charAt(position))) {
+                            this._microsecond = this._microsecond + Character.getNumericValue(data.charAt(position)) * placeValue;
+                            placeValue = placeValue / 10;
+                        } else {
+                            clear();
+                            return CodecReturnCodes.INVALID_DATA;
+                        }
+                        position++;
+                    }
+
+                    placeValue = 100;
+                    for (i = 0; i < 3; ++i) {
+                        if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                            return CodecReturnCodes.SUCCESS;
+                        } else if (Character.isDigit(data.charAt(position))) {
+                            this._nanosecond = this._nanosecond + Character.getNumericValue(data.charAt(position)) * placeValue;
+                            placeValue = placeValue / 10;
+                        } else {
+                            clear();
+                            return CodecReturnCodes.INVALID_DATA;
+                        }
+                        position++;
+                    }
+
+                    /* We've parsed all available data, and are ignoring any time zone specification */
+                    return CodecReturnCodes.SUCCESS;
+                } else {
+                    return CodecReturnCodes.INVALID_DATA;
+                }
+            } else if (position >= end || data.charAt(position) == 'Z' || data.charAt(position) == '+' || data.charAt(position) == '-') {
+                return CodecReturnCodes.SUCCESS;
+            } else {
+                return CodecReturnCodes.INVALID_DATA;
+            }
+        }
+
+        /* Catchall for remaining alternate formats */
+        position = 0;
+
+        while (position < end && Character.isSpaceChar(data.charAt(position))) {
+            position++; /* skip whitespace */
+        }
+
+        /* if all whitespaces init to blank */
+        if (position >= end) {
+            this._hour = 255;
+            this._minute = 255;
+            this._second = 255;
+            this._millisecond = 65535;
+            this._microsecond = 2047;
+            this._nanosecond = 2047;
+            return CodecReturnCodes.BLANK_DATA;
+        }
+
+        for (tmpInt = 0; position < end && Character.isDigit(data.charAt(position)); position++) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+        }
+        this._hour = tmpInt;
+
+        while (position < end && ((data.charAt(position) == ':') || Character.isSpaceChar(data.charAt(position)))) {
+            position++;
+        }
+
+        if (position >= end || !Character.isDigit(data.charAt(position))) {
+            return CodecReturnCodes.INVALID_DATA;
+        }
+
+        for (tmpInt = 0; position < end && Character.isDigit(data.charAt(position)); position++) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+            this._minute = tmpInt;
+        }
+
+        while (position < end && (data.charAt(position) == ':' || Character.isSpaceChar(data.charAt(position)))) {
+            position++;
+        }
+
+        for (tmpInt = 0; position < end && Character.isDigit(data.charAt(position)); position++) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+            this._second = tmpInt;
+        }
+
+        while (position < end && (data.charAt(position) == ':' || Character.isSpaceChar(data.charAt(position)))) {
+            position++;
+        }
+
+        for (tmpInt = 0; position < end && Character.isDigit(data.charAt(position)); position++) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+            this._millisecond = tmpInt;
+        }
+
+        while (position < end && (data.charAt(position) == ':' || Character.isSpaceChar(data.charAt(position)))) {
+            position++;
+        }
+
+        for (tmpInt = 0; position < end && Character.isDigit(data.charAt(position)); position++) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+            this._microsecond = tmpInt;
+        }
+
+        while (position < end && (data.charAt(position) == ':' || Character.isSpaceChar(data.charAt(position)))) {
+            position++;
+        }
+
+        for (tmpInt = 0; position < end && Character.isDigit(data.charAt(position)); position++) {
+            tmpInt = tmpInt * 10 + Character.getNumericValue(data.charAt(position));
+            this._nanosecond = tmpInt;
+        }
+        return CodecReturnCodes.SUCCESS;
     }
 
     @Override

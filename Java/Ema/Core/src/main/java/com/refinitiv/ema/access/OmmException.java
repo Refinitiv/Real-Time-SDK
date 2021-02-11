@@ -52,6 +52,11 @@ public abstract class OmmException extends RuntimeException
 		 *  Indicates unsupported domain type exception
 		 */
 		public static final int OmmUnsupportedDomainTypeException = 5;
+
+		/**
+		 * Indicates exception during proceeding the JSON converter.
+		 */
+		public static final int OmmJsonConverterException = 6;
 	}
 
 	

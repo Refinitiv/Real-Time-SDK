@@ -31,17 +31,19 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.transport.WriteArgs;
 import com.refinitiv.eta.transport.WriteFlags;
 import com.refinitiv.eta.transport.WritePriorities;
+import com.refinitiv.eta.codec.XmlTraceDump;
+import com.refinitiv.eta.shared.JsonConverterInitOptions;
 
 
 /**
  * Encapsulate ETA transport methods for the interactive provider and generic
  * provider example applications.
- * 
+ *
  * <P>
  * Typical usage:
  * <ol>
  * <li>
- * Call {@link #init(boolean, Error)} to create a listening socket. This method
+ * Call {@link #init(JsonConverterInitOptions, boolean, Error)} to create a listening socket. This method
  * initializes etaj transport and binds the server to a local port.</li>
  * <li>Poll socket events from server socket using selector.</li>
  * <li>If a new client session is trying to connect, accept or reject it using
@@ -58,14 +60,14 @@ public class ProviderSession
 
     // client sessions over this limit gets disconnected.
     public static final int CLIENT_SESSIONS_LIMIT = 30;
-    
+
     public Selector selector;
     public ClientSessionInfo[] clientSessions = new ClientSessionInfo[CLIENT_SESSIONS_LIMIT];
-    
+
     private Server _server;
     private int _clientSessionCount = 0;
-    private Msg _xmlMsg = CodecFactory.createMsg();
-    private DecodeIterator _xmlDIter = CodecFactory.createDecodeIterator();
+    private StringBuilder xmlString = new StringBuilder();
+    private XmlTraceDump xmlTraceDump = CodecFactory.createXmlTraceDump();
     private boolean shouldXmlTrace = false;
     private DataDictionary _dictionaryForXml;
 
@@ -77,22 +79,23 @@ public class ProviderSession
     private ReadArgs _readArgs = TransportFactory.createReadArgs();
     private Error _error = TransportFactory.createError();
     private ChannelInfo _channelInfo = TransportFactory.createChannelInfo();
-    
+    private JsonConverterInitOptions converterInitOptions;
     private boolean _enableChannelWriteLocking;
- 
+
 
     /**
      * Initializes etaj transport and binds the server to a local port.
-     * 
+     *
      * @param globalLock flag to enable global locking on ETA Transport
      * @param error Error information when init fails.
-     * 
+     *
      * @return {@link TransportReturnCodes#SUCCESS} if successful,
      *         {@link TransportReturnCodes#FAILURE} when bind fails.
      */
-    public int init(boolean globalLock, Error error)
+    public int init(JsonConverterInitOptions converterInitOptions, boolean globalLock, Error error)
     {
         _clientSessionCount = 0;
+        this.converterInitOptions = converterInitOptions;
         for (ClientSessionInfo clientSessionInfo : clientSessions)
         {
             clientSessionInfo.clear();
@@ -112,15 +115,15 @@ public class ProviderSession
         _initArgs.globalLocking(globalLock);
         if (Transport.initialize(_initArgs, error) != TransportReturnCodes.SUCCESS)
             return TransportReturnCodes.FAILURE;
-              
+
         // set bind options
         _bindOptions.guaranteedOutputBuffers(500);
         _bindOptions.majorVersion(Codec.majorVersion());
         _bindOptions.minorVersion(Codec.minorVersion());
         _bindOptions.protocolType(Codec.protocolType());
-        
+
         _server = Transport.bind(_bindOptions, error);
-        
+
         if (_server == null)
         {
             error.text("Unable to bind server: " + error.text());
@@ -134,9 +137,9 @@ public class ProviderSession
         }
         catch (Exception e)
         {
-        	System.out.println(" Shut down the provider.");
+            System.out.println(" Shut down the provider.");
             _server.close(error);
-            
+
             Transport.uninitialize();
             error.text(e.getMessage());
             error.errorId(TransportReturnCodes.FAILURE);
@@ -154,20 +157,20 @@ public class ProviderSession
         {
             clientSessions[i] = new ClientSessionInfo();
         }
-        
+
         _bindOptions.clear();
     }
 
     /**
      * Handle new client connection.
-     * 
+     *
      * @param server - Server session
      * @param error - error information when accept fails.
      * @return {@link TransportReturnCodes#SUCCESS} or
      *         {@link TransportReturnCodes#FAILURE}
      */
     public int handleNewClientSession(Server server, Error error)
-    {    	  	    	
+    {
         _clientSessionCount++;
         acceptOptions.clear();
         if (_clientSessionCount <= NUM_CLIENT_SESSIONS)
@@ -176,65 +179,66 @@ public class ProviderSession
         }
         else
         {
-            acceptOptions.nakMount(true);    
+            acceptOptions.nakMount(true);
         }
         acceptOptions.channelWriteLocking(_enableChannelWriteLocking);
-        
+
         Channel clientChannel = server.accept(acceptOptions, error);
-                
+
         if (clientChannel == null)
             return TransportReturnCodes.FAILURE;
 
         ClientSessionInfo clientSessionInfo = null;
-        
+
         // find an available client session
         boolean clientSessionFound = false;
         for (int i = 0; i < clientSessions.length; i++)
         {
             clientSessionInfo = clientSessions[i];
-             	 
-            if (clientSessionInfo.clientChannel == null) 
+
+            if (clientSessionInfo.clientChannel == null)
             {
                 clientSessionInfo.clientChannel = clientChannel;
-                clientSessionInfo.start_time = System.currentTimeMillis();  
+                clientSessionInfo.start_time = System.currentTimeMillis();
                 clientSessionFound = true;
                 break;
             }
             if (clientSessionInfo.clientChannel == clientChannel)
             {
-            	clientSessionInfo.start_time = System.currentTimeMillis();  
+                clientSessionInfo.start_time = System.currentTimeMillis();
                 clientSessionFound = true;
                 break;
-            }      
+            }
         }
-                              
-        if (clientSessionFound == false) 
+
+        if (clientSessionFound == false)
         {
             for (int i = 0; i < clientSessions.length; i++)
             {
-            	if (clientSessionInfo.clientChannel.selectableChannel() == null 
-            			|| !clientSessionInfo.clientChannel.selectableChannel().isOpen())
-                {            		
+                if (clientSessionInfo.clientChannel.selectableChannel() == null
+                        || !clientSessionInfo.clientChannel.selectableChannel().isOpen())
+                {
                     removeChannel(clientSessionInfo.clientChannel, error);
-                	clientSessionInfo.clientChannel = clientChannel;
-                	clientSessionInfo.start_time = System.currentTimeMillis();
+                    clientSessionInfo.clientChannel = clientChannel;
+                    clientSessionInfo.start_time = System.currentTimeMillis();
                     clientSessionFound = true;
                     break;
-                } 
+                }
             }
         }
 
         // close channel if no more client sessions
-        if (clientSessionFound == false) 
-        {       	
+        if (clientSessionFound == false)
+        {
             _clientSessionCount--;
             System.out.println("Rejected client:" + clientChannel.selectableChannel() + " " + _clientSessionCount);
             removeChannel(clientChannel, error);
-            return TransportReturnCodes.SUCCESS;          
+            return TransportReturnCodes.SUCCESS;
         } else {
+            clientSessionInfo.jsonSession.clear();
             clientSessionInfo.socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(clientChannel.selectableChannel());
         }
-                
+
         System.out.println("New client: " + clientChannel.selectableChannel());
 
         try
@@ -243,12 +247,14 @@ public class ProviderSession
         }
         catch (Exception e)
         {
-        	removeChannel(clientChannel, error);
+            removeChannel(clientChannel, error);
             Transport.uninitialize();
             error.text("register select Exception: " + e.getMessage());
             error.errorId(TransportReturnCodes.FAILURE);
             return TransportReturnCodes.SUCCESS;
         }
+
+        //make converter init
         return TransportReturnCodes.SUCCESS;
     }
 
@@ -283,7 +289,7 @@ public class ProviderSession
             System.out.println("channelClosed portno="
                     + channel.selectableChannel() + "<"
                     + error.text() + ">");
-        	
+
             removeClientSessionForChannel(channel, error);
             callback.processChannelClose(channel);
         }
@@ -333,6 +339,7 @@ public class ProviderSession
         {
             if (clientSessionInfo.clientChannel != null && clientSessionInfo.clientChannel.state() == ChannelState.ACTIVE)
             {
+                clientSessionInfo.jsonSession.clear();
                 removeChannel(clientSessionInfo.clientChannel, error);
             }
         }
@@ -352,7 +359,7 @@ public class ProviderSession
 
         /* clear the bind options */
         _bindOptions.clear();
-        
+
         /* free memory for dictionary */
         Transport.uninitialize();
     }
@@ -376,8 +383,8 @@ public class ProviderSession
         int ret = channel.init(_inProgInfo, error);
         if (ret < TransportReturnCodes.SUCCESS)
         {
-            System.out.println("sessionInactive: " + error.text());            
-            removeClientSessionForChannel(channel, error);           
+            System.out.println("sessionInactive: " + error.text());
+            removeClientSessionForChannel(channel, error);
             callback.processChannelClose(channel);
 
             return TransportReturnCodes.SUCCESS;
@@ -407,51 +414,51 @@ public class ProviderSession
                 if (channel.info(_channelInfo, _error) == TransportReturnCodes.SUCCESS)
                 {
                     System.out.printf( "Channel Info:\n" +
-                    				   "  Connected Hostname: %s\n" +
-                    				   "  Connected IP: %s\n" +
-                                       "  Max Fragment Size: %d\n" +
-                                       "  Output Buffers: %d Max, %d Guaranteed\n" +
-                                       "  Input Buffers: %d\n" +
-                                       "  Send/Recv Buffer Sizes: %d/%d\n" + 
-                                       "  Ping Timeout: %d\n",  
-                                       _channelInfo.clientHostname(),
-                                       _channelInfo.clientIP(),
-                                       _channelInfo.maxFragmentSize(),
-                                       _channelInfo.maxOutputBuffers(), _channelInfo.guaranteedOutputBuffers(),
-                                       _channelInfo.numInputBuffers(),
-                                       _channelInfo.sysSendBufSize(), _channelInfo.sysRecvBufSize(),
-                                       _channelInfo.pingTimeout()
-                                       );
+                                    "  Connected Hostname: %s\n" +
+                                    "  Connected IP: %s\n" +
+                                    "  Max Fragment Size: %d\n" +
+                                    "  Output Buffers: %d Max, %d Guaranteed\n" +
+                                    "  Input Buffers: %d\n" +
+                                    "  Send/Recv Buffer Sizes: %d/%d\n" +
+                                    "  Ping Timeout: %d\n",
+                            _channelInfo.clientHostname(),
+                            _channelInfo.clientIP(),
+                            _channelInfo.maxFragmentSize(),
+                            _channelInfo.maxOutputBuffers(), _channelInfo.guaranteedOutputBuffers(),
+                            _channelInfo.numInputBuffers(),
+                            _channelInfo.sysSendBufSize(), _channelInfo.sysRecvBufSize(),
+                            _channelInfo.pingTimeout()
+                    );
                     System.out.println( "  Client To Server Pings: " + _channelInfo.clientToServerPings() +
-                    					"\n  Server To Client Pings: " + _channelInfo.serverToClientPings() +
-                    					"\n");
+                            "\n  Server To Client Pings: " + _channelInfo.serverToClientPings() +
+                            "\n");
                     System.out.printf("  Connected component version: ");
 
-                    int count = _channelInfo.componentInfo().size();
-                    if(count == 0)
+                    if(Objects.isNull(_channelInfo.componentInfo()) || _channelInfo.componentInfo().size() == 0)
                         System.out.printf("(No component info)");
                     else
                     {
+                        int count = _channelInfo.componentInfo().size();
                         for(int i = 0; i < count; ++i)
                         {
                             System.out.println(_channelInfo.componentInfo().get(i).componentVersion());
-                           if (i < count - 1)
-                               System.out.printf(", ");
+                            if (i < count - 1)
+                                System.out.printf(", ");
                         }
                     }
                 }
-                        
+
                 System.out.printf("\n\n");
 
-                initPingHandler(channel);
-                
+                initClientSession(channel);
+
                 if (channel.ioctl(IoctlCodes.SYSTEM_WRITE_BUFFERS, sendBufSize, error) != TransportReturnCodes.SUCCESS)
                     System.out.println("channel.ioctl() failed: " + error.text());
 
                 if (channel.ioctl(IoctlCodes.SYSTEM_READ_BUFFERS, rcvBufSize, error) != TransportReturnCodes.SUCCESS)
                     System.out.println("channel.ioctl() failed: " + error.text());
                 break;
-   
+
             default:
                 System.out.println("Bad return value ret=" + ret + " " + error.text());
                 removeClientSessionForChannel(channel, error);
@@ -471,9 +478,10 @@ public class ProviderSession
             {
                 if (shouldXmlTrace)
                 {
-                    _xmlDIter.clear();
-                    _xmlDIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-                    System.out.println(_xmlMsg.decodeToXml(_xmlDIter, _dictionaryForXml));
+                    xmlString.setLength(0);
+                    xmlString.append("\nRead message: ");
+                    xmlTraceDump.dumpBuffer(channel, channel.protocolType(), msgBuf, _dictionaryForXml, xmlString, error);
+                    System.out.println(xmlString);
                 }
                 callback.processReceivedMsg(channel, msgBuf);
                 setMsgReceived(channel);
@@ -488,8 +496,8 @@ public class ProviderSession
                         System.out.println("channelInactive chnl ="
                                 + channel.selectableChannel() + " < "
                                 + error.text() + ">"
-                                + ",  state = " + channel.state());     
-                                                
+                                + ",  state = " + channel.state());
+
                         removeClientSessionForChannel(channel, error);
                         callback.processChannelClose(channel);
                         return TransportReturnCodes.FAILURE;
@@ -501,21 +509,21 @@ public class ProviderSession
                         setMsgReceived(channel);
                         break;
                     default:
-                       if (_readArgs.readRetVal() < 0 && _readArgs.readRetVal() != TransportReturnCodes.READ_WOULD_BLOCK)
-                       {
+                        if (_readArgs.readRetVal() < 0 && _readArgs.readRetVal() != TransportReturnCodes.READ_WOULD_BLOCK)
+                        {
                             System.out.println("Read error=" + error.text() + "<" + _readArgs.readRetVal() + ">");
-                       }
+                        }
                 }
             }
         }
         while (_readArgs.readRetVal() > TransportReturnCodes.SUCCESS);
 
         return TransportReturnCodes.SUCCESS;
-    
+
     }
 
     /*
-     * Sets the ReceivedClientMsg flag for a channel. 
+     * Sets the ReceivedClientMsg flag for a channel.
      * chnl - The channel to set the ReceivedClientMsg flag for
      */
     private void setMsgReceived(Channel chnl)
@@ -533,20 +541,23 @@ public class ProviderSession
     /*
      * Init pinghandler for the client channel that just become active.
      * chnl - The channel to init pinghandler for.
-     * 
+     *
      */
-    private void initPingHandler(Channel chnl)
+    private void initClientSession(Channel chnl)
     {
         for (ClientSessionInfo clientSessionInfo : clientSessions)
         {
             if (clientSessionInfo.clientChannel == chnl)
             {
                 clientSessionInfo.pingHandler.initPingHandler(clientSessionInfo.clientChannel.pingTimeout());
+                if (chnl.protocolType() == Codec.JSON_PROTOCOL_TYPE) {
+                    clientSessionInfo.jsonSession.initialize(chnl, converterInitOptions, _error);
+                }
                 break;
             }
         }
     }
-    
+
     private void handleFDChange(Channel channel)
     {
         System.out.println("Read() Channel Change - Old Channel: "
@@ -556,11 +567,11 @@ public class ProviderSession
         try
         {
             SelectionKey key = channel.oldSelectableChannel().keyFor(selector);
-            key.cancel();           
+            key.cancel();
         }
         catch (Exception e)
         {
- 
+
         } // old channel may be null so ignore
 
         /* add new channel read select */
@@ -572,7 +583,7 @@ public class ProviderSession
         {
         }
     }
-    
+
     private int reRegister(Channel channel, InProgInfo inProg, Object att, Error error)
     {
         /* cancel old channel read select */
@@ -588,9 +599,9 @@ public class ProviderSession
         }
         /* add new channel read select */
         try
-        {                                         
-        	inProg.newSelectableChannel().register(selector, SelectionKey.OP_READ , 
-                    channel);            
+        {
+            inProg.newSelectableChannel().register(selector, SelectionKey.OP_READ ,
+                    channel);
         }
         catch (Exception e)
         {
@@ -640,14 +651,14 @@ public class ProviderSession
      */
     public void removeClientSessionForChannel(Channel chnl, Error error)
     {
-       for (ClientSessionInfo clientSessionInfo : clientSessions)
-       {
-    	   if (clientSessionInfo.clientChannel == chnl)
-    	   {
-    		   removeClientSession(clientSessionInfo, error);
-    		   break;
-    	   }    	  
-       }
+        for (ClientSessionInfo clientSessionInfo : clientSessions)
+        {
+            if (clientSessionInfo.clientChannel == chnl)
+            {
+                removeClientSession(clientSessionInfo, error);
+                break;
+            }
+        }
     }
 
     /*
@@ -656,7 +667,7 @@ public class ProviderSession
      */
     private void removeClientSession(ClientSessionInfo clientSessionInfo, Error error)
     {
-        _clientSessionCount--;   
+        _clientSessionCount--;
         removeChannel(clientSessionInfo.clientChannel, error);
     }
 
@@ -671,15 +682,15 @@ public class ProviderSession
      * client session for
      */
     public void removeInactiveClientSessionForChannel(ClientSessionInfo clientSessionInfo, Error error)
-    {      	
-    	clientSessionInfo.clear();
-    }    
-    
+    {
+        clientSessionInfo.clear();
+    }
+
     /*
      * Removes a channel. chnl - The channel to be removed
      */
     private void removeChannel(Channel chnl, Error error)
-    {    	 
+    {
         try
         {
             removeOption(chnl, SelectionKey.OP_READ);
@@ -691,7 +702,7 @@ public class ProviderSession
         }
         if (chnl.state() != ChannelState.INACTIVE)
         {
-       
+
             int ret = chnl.close(error);
             if (ret < TransportReturnCodes.SUCCESS)
             {
@@ -702,9 +713,9 @@ public class ProviderSession
 
     private void removeOption(Channel channel, int option)
             throws ClosedChannelException
-    { 	
-    	if (channel.selectableChannel() == null) return;
-    	
+    {
+        if (channel.selectableChannel() == null) return;
+
         SelectionKey key = channel.selectableChannel().keyFor(selector);
         if (key == null || !key.isValid())
             return;
@@ -758,22 +769,44 @@ public class ProviderSession
      */
     public int write(Channel channel, TransportBuffer msgBuf, Error error)
     {
+        TransportBuffer tempBuf = msgBuf;
         if (channel == null)
             return TransportReturnCodes.FAILURE;
 
         if (shouldXmlTrace)
         {
-            _xmlDIter.clear();
-            _xmlDIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-            System.out.println(_xmlMsg.decodeToXml(_xmlDIter, _dictionaryForXml));
+            xmlString.setLength(0);
+            xmlString.append("\nWrite message (RWF): ");
+            xmlTraceDump.dumpBuffer(channel, Codec.RWF_PROTOCOL_TYPE, tempBuf, _dictionaryForXml, xmlString, error);
+            System.out.println(xmlString);
         }
 
-        _writeArgs.clear();
-        _writeArgs.priority(WritePriorities.HIGH);
-        _writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+        if (channel.protocolType() == Codec.JSON_PROTOCOL_TYPE) {
+            final JsonSession jsonSession = getClientSessionForChannel(channel).jsonSession;
+            
+            if( jsonSession.convertToJson(msgBuf, error) != CodecReturnCodes.SUCCESS)
+            {
+            	return TransportReturnCodes.FAILURE;
+            }
+            
+            tempBuf = jsonSession.getTransportJsonBuffer(error);
+            
+            if(tempBuf == null)
+            {
+            	return TransportReturnCodes.FAILURE;
+            }
+
+            if (shouldXmlTrace)
+            {
+                xmlString.setLength(0);
+                xmlString.append("Write message (JSON): ");
+                xmlTraceDump.dumpBuffer(channel, channel.protocolType(), tempBuf, _dictionaryForXml, xmlString, error);
+                System.out.println(xmlString.toString());
+            }
+        }
 
         // write data to the channel
-        int retval = channel.write(msgBuf, _writeArgs, error);
+        int retval = channel.write(tempBuf, _writeArgs, error);
 
         if (retval > TransportReturnCodes.FAILURE)
         {
@@ -798,7 +831,7 @@ public class ProviderSession
                     // connection
                     // Continue with next operations.
                 }
-                    break;
+                break;
                 case TransportReturnCodes.WRITE_CALL_AGAIN:
                 {
                     /*
@@ -815,8 +848,8 @@ public class ProviderSession
                         retval = channel.flush(error);
                         if (retval < TransportReturnCodes.SUCCESS)
                             System.out.println("channel flush failed with returned code: " + retval + " - " + error.text());
-                        retval = channel.write(msgBuf, _writeArgs,
-                                               error);
+                        retval = channel.write(tempBuf, _writeArgs,
+                                error);
                     }
 
                     /*
@@ -829,7 +862,7 @@ public class ProviderSession
                         return regForWriteNotification(channel, error);
                     }
                 }
-                    break;
+                break;
                 case TransportReturnCodes.WRITE_FLUSH_FAILED:
                 {
                     /*
@@ -860,7 +893,7 @@ public class ProviderSession
                 {
                     /* write failed, release buffer */
                     String writeError = error.text();
-                    channel.releaseBuffer(msgBuf, error);
+                    channel.releaseBuffer(tempBuf, error);
                     error.text(writeError);
                     return TransportReturnCodes.FAILURE;
                 }
@@ -928,7 +961,7 @@ public class ProviderSession
 
     /**
      * Allows the user to trace messages via XML.
-     * 
+     *
      * @param dictionary dictionary for XML tracing (can be null).
      */
     public void enableXmlTrace(DataDictionary dictionary)
@@ -936,7 +969,7 @@ public class ProviderSession
         _dictionaryForXml = dictionary;
         shouldXmlTrace = true;
     }
-    
+
     /**
      * Allows the user to enable write locking for accepted channels.
      */
@@ -944,5 +977,5 @@ public class ProviderSession
     {
         _enableChannelWriteLocking = true;
     }
-        
+
 }

@@ -187,8 +187,7 @@ public class ItemHandler
                 if ((msg.flags() & RequestMsgFlags.HAS_WORST_QOS) != 0 &&
                         (msg.flags() & RequestMsgFlags.HAS_QOS) != 0)
                 {
-                    if (!((RequestMsg)msg).qos().isInRange(((RequestMsg)msg).worstQos(), _providerQos))
-
+                    if(!_providerQos.isInRange(((RequestMsg)msg).qos(), ((RequestMsg)msg).worstQos()))
                     {
                         return sendItemRequestReject(chnl, msg.streamId(),
                                                 msg.domainType(), ItemRejectReason.QOS_NOT_SUPPORTED, false, error);
@@ -1304,6 +1303,8 @@ public class ItemHandler
             System.out.println("Received an on-stream post for item= " + itemInfo.itemName);
         }
         
+        // This is used to indicate whether an ACK message is sent.
+        boolean sendAck = false;
         
         // if the post message contains another message, then use the
         // "contained" message as the update/refresh/status
@@ -1334,6 +1335,8 @@ public class ItemHandler
                         {
                             return ret;
                         }
+                        
+                        sendAck = true;
                     }
                 
                     break;
@@ -1350,7 +1353,8 @@ public class ItemHandler
                         {
                             return ret;
                         }
-
+                        
+                        sendAck = true;
                     }
                     break;
 
@@ -1368,6 +1372,8 @@ public class ItemHandler
                             ret = sendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, "client has insufficient rights to close/delete an item", error);
                             if (ret != CodecReturnCodes.SUCCESS)
                                 return ret;
+                            
+                            sendAck = true;
                         }
                     }
                     break;
@@ -1401,14 +1407,21 @@ public class ItemHandler
                     return ret;
                 }
 
+                sendAck = true;
             }
         }
+        
+        int ret;
 
-        int ret = sendAck(chnl, postMsg, NakCodes.NONE, null, error);
-        if (ret != CodecReturnCodes.SUCCESS)
+        if(sendAck == false)
         {
-            return ret;
+        	ret = sendAck(chnl, postMsg, NakCodes.NONE, null, error);
+        	if (ret != CodecReturnCodes.SUCCESS)
+        	{
+        		return ret;
+        	}
         }
+        
         // send the post to all public streams with this item open
         for (ItemRequestInfo itemReqInfoL : _itemRequestWatchList)
         {

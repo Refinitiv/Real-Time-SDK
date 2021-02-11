@@ -1,6 +1,7 @@
 package com.refinitiv.eta.perftools.common;
 
 import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.codec.DataStates;
@@ -290,7 +291,7 @@ public class ItemEncoder
 	 * @param itemInfo item information to calculate post message length.
 	 * @return buffer size length 
 	 */
-	public int estimateItemPostBufferLength(ItemInfo itemInfo)
+	public int estimateItemPostBufferLength(ItemInfo itemInfo, int protocol)
 	{
 		int bufferSize = 64;
 
@@ -304,6 +305,11 @@ public class ItemEncoder
 				bufferSize = 0;
 				break;
 		}
+		
+		if(protocol == Codec.JSON_PROTOCOL_TYPE)
+		{
+			bufferSize *= 2;
+		}
 
 		return bufferSize;
 	}
@@ -314,7 +320,7 @@ public class ItemEncoder
 	 * @param itemInfo item information to calculate generic message length.
 	 * @return buffer size length 
 	 */
-	public int estimateItemGenMsgBufferLength(ItemInfo itemInfo)
+	public int estimateItemGenMsgBufferLength(ItemInfo itemInfo, int protocol)
 	{
 		int bufferSize = 64;
 
@@ -328,6 +334,11 @@ public class ItemEncoder
 				bufferSize = 0;
 				break;
 		}
+		
+		if(protocol == Codec.JSON_PROTOCOL_TYPE)
+		{
+			bufferSize *= 2;
+		}
 
 		return bufferSize;
 	}
@@ -339,7 +350,7 @@ public class ItemEncoder
      * 
      * @return buffer size length 
      */
-    public int estimateRefreshBufferLength(ItemInfo itemInfo)
+    public int estimateRefreshBufferLength(ItemInfo itemInfo, int protocol)
     {
         int bufferSize = 64;
 
@@ -358,6 +369,11 @@ public class ItemEncoder
                 bufferSize = 0;
                 break;
         }
+        
+        if(protocol == Codec.JSON_PROTOCOL_TYPE)
+		{
+			bufferSize *= 2;
+		}
 
         return bufferSize;
     }
@@ -370,7 +386,7 @@ public class ItemEncoder
      * 
      * @return buffer size length 
      */
-    public int estimateUpdateBufferLength(ItemInfo itemInfo)
+    public int estimateUpdateBufferLength(ItemInfo itemInfo, int protocol)
     {
         int bufferSize = 64;
 
@@ -384,34 +400,20 @@ public class ItemEncoder
                 bufferSize = 0;
                 break;
         }
+        
+        if(protocol == Codec.JSON_PROTOCOL_TYPE)
+		{
+			bufferSize *= 2;
+		}
 
         return bufferSize;
     }
     
-    /**
-     * Encodes a Update message for an item.
-     *
-     * @param channel - channel to encode update message for.
-     * @param itemInfo - market data item to encode update message for.
-     * @param msgBuf  - TransportBuffer to encode update message into.
-     * @param postUserInfo the post user info
-     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the update message.
-     * @param error - detailed error information in case of encoding failures.
-     * @return &lt;0 if encoding fails, 0 otherwise.
-     */
-	public int encodeUpdate(Channel channel, 
-	        ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo,
+    private int encodeUpdate(Channel channel, ItemInfo itemInfo, PostUserInfo postUserInfo,
 	        long encodeStartTime, Error error)
 	{
-	    _eIter.clear();
-	    int ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-	    if (ret != CodecReturnCodes.SUCCESS)
-	    {
-	        error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
-	        error.errorId(ret);
-	        return ret;
-	    }
-
+    	int ret = CodecReturnCodes.SUCCESS;
+    	
 	    _tmpMsg.clear();
 	    _tmpMsg.msgClass(MsgClasses.UPDATE);
 
@@ -467,6 +469,60 @@ public class ItemEncoder
 
 	    return ret;
 	}
+    
+    /**
+     * Encodes a Update message for an item.
+     *
+     * @param channel - channel to encode update message for.
+     * @param itemInfo - market data item to encode update message for.
+     * @param msgBuf  - TransportBuffer to encode update message into.
+     * @param postUserInfo the post user info
+     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the update message.
+     * @param error - detailed error information in case of encoding failures.
+     * @return &lt;0 if encoding fails, 0 otherwise.
+     */
+	public int encodeUpdate(Channel channel, 
+	        ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo,
+	        long encodeStartTime, Error error)
+	{
+	    _eIter.clear();
+	    int ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	        error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+	        error.errorId(ret);
+	        return ret;
+	    }
+	    
+	    return encodeUpdate(channel, itemInfo, postUserInfo, encodeStartTime, error);
+	}
+	
+	/**
+     * Encodes a Update message for an item.
+     *
+     * @param channel - channel to encode update message for.
+     * @param itemInfo - market data item to encode update message for.
+     * @param msgBuf  - Buffer to encode update message into.
+     * @param postUserInfo the post user info
+     * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the update message.
+     * @param error - detailed error information in case of encoding failures.
+     * @return &lt;0 if encoding fails, 0 otherwise.
+     */
+	public int encodeUpdate(Channel channel, 
+	        ItemInfo itemInfo, Buffer msgBuf, PostUserInfo postUserInfo,
+	        long encodeStartTime, Error error)
+	{
+	    _eIter.clear();
+	    int ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	        error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+	        error.errorId(ret);
+	        return ret;
+	    }
+	    
+	    return encodeUpdate(channel, itemInfo, postUserInfo, encodeStartTime, error);
+	}
 	
     /**
      * Estimates the length of a Generic message for an item.
@@ -493,29 +549,10 @@ public class ItemEncoder
         return bufferSize;
     }
     
-
-	/**
-	 * Encodes a Refresh message for an item.
-	 *
-	 * @param channel - channel to encode refresh message for.
-	 * @param itemInfo - market data item to encode refresh message for.
-	 * @param msgBuf  - TransportBuffer to encode refresh message into.
-	 * @param postUserInfo the post user info
-	 * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the refresh message.
-	 * @param error - detailed error information in case of encoding failures.
-	 * @return &lt;0 if encoding fails, 0 otherwise.
-	 */
-    public int encodeRefresh(Channel channel,
-            ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo, long encodeStartTime, Error error)
+    private int encodeRefresh(Channel channel,
+            ItemInfo itemInfo, PostUserInfo postUserInfo, long encodeStartTime, Error error)
 	{
-	    _eIter.clear();
-	    int ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-	    if (ret != CodecReturnCodes.SUCCESS)
-	    {
-	        error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
-	        return ret;
-	    }
-
+    	int ret = 0;
 	    _tmpMsg.clear();
 	    _tmpMsg.msgClass(MsgClasses.REFRESH);
 
@@ -579,5 +616,56 @@ public class ItemEncoder
 	    }
 
 	    return ret;
+	}
+    
+
+	/**
+	 * Encodes a Refresh message for an item.
+	 *
+	 * @param channel - channel to encode refresh message for.
+	 * @param itemInfo - market data item to encode refresh message for.
+	 * @param msgBuf  - TransportBuffer to encode refresh message into.
+	 * @param postUserInfo the post user info
+	 * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the refresh message.
+	 * @param error - detailed error information in case of encoding failures.
+	 * @return &lt;0 if encoding fails, 0 otherwise.
+	 */
+    public int encodeRefresh(Channel channel,
+            ItemInfo itemInfo, TransportBuffer msgBuf, PostUserInfo postUserInfo, long encodeStartTime, Error error)
+	{
+	    _eIter.clear();
+	    int ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	        error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+	        return ret;
+	    }
+	    
+	    return encodeRefresh(channel, itemInfo, postUserInfo, encodeStartTime, error);
+	}
+    
+    /**
+	 * Encodes a Refresh message for an item.
+	 *
+	 * @param channel - channel to encode refresh message for.
+	 * @param itemInfo - market data item to encode refresh message for.
+	 * @param msgBuf  - Buffer to encode refresh message into.
+	 * @param postUserInfo the post user info
+	 * @param encodeStartTime - if &gt;0, this is a latency timestamp to be included in the refresh message.
+	 * @param error - detailed error information in case of encoding failures.
+	 * @return &lt;0 if encoding fails, 0 otherwise.
+	 */
+    public int encodeRefresh(Channel channel,
+            ItemInfo itemInfo, Buffer msgBuf, PostUserInfo postUserInfo, long encodeStartTime, Error error)
+	{
+	    _eIter.clear();
+	    int ret = _eIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+	    if (ret != CodecReturnCodes.SUCCESS)
+	    {
+	        error.text("EncodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
+	        return ret;
+	    }
+	    
+	    return encodeRefresh(channel, itemInfo, postUserInfo, encodeStartTime, error);
 	}
 }

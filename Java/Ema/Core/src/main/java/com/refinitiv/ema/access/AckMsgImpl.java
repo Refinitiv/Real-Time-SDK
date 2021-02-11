@@ -7,12 +7,12 @@
 
 package com.refinitiv.ema.access;
 
-import java.nio.ByteBuffer;
-
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmError.ErrorCode;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.CodecReturnCodes;
+
+import java.nio.ByteBuffer;
 
 class AckMsgImpl extends MsgImpl implements AckMsg
 {

@@ -18,7 +18,7 @@ dependencies {
 
 mainClassName = 'com.refinitiv.ema.perftools.emajconsperf.emajConsPerf'
 
-def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms2048m -Xmx2048m"
+def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms3048m -Xmx3048m"
 def APP_ARGS
 
 javadoc {

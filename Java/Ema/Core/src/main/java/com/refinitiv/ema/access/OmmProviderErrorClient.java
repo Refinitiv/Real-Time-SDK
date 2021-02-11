@@ -50,4 +50,14 @@ public interface OmmProviderErrorClient
 	 * @param errorCode specifies associated error code
 	 */ 
 	public default void onInvalidUsage(String text, int errorCode) {}
+
+	/**
+	 * In
+	 * <br>Requires OmmProvider constructor to have an OmmProviderErrorClient.
+	 * @param providerSessionInfo specifies associated info about converter session of provider.
+	 * @param errorCode specifies associated error code.
+	 * @param text specifies associated error text.
+	 */
+	public default void onJsonConverterError(ProviderSessionInfo providerSessionInfo, int errorCode, String text) {
+	}
 }

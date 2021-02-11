@@ -85,13 +85,14 @@ class ProgrammaticConfigure
 		final static int COMPRESSION_TYPE_FLAG =			0x001000;
 		final static int DIRECTWRITE_FLAG =					0x002000;
 		final static int INIT_TIMEOUT_FLAG =				0x004000;
-		final static int KEYSTORE_FILE_FLAG = 				0x008000;
-		final static int KEYSTORE_PASSWD_FLAG =				0x010000;
-		final static int KEYSTORE_TYPE_FLAG =				0x020000;
-		final static int SECURITY_PROTOCOL_FLAG =			0x040000;
-		final static int SECURITY_PROVIDER_FLAG =			0x080000;
-		final static int KEY_MANAGER_ALGO_FLAG =			0x100000;
-		final static int TRUST_MANAGER_ALGO_FLAG =			0x200000;
+		final static int MAX_FRAGMENT_SIZE_FLAG =			0x008000;
+		final static int KEYSTORE_FILE_FLAG = 				0x010000;
+		final static int KEYSTORE_PASSWD_FLAG =				0x020000;
+		final static int KEYSTORE_TYPE_FLAG =				0x040000;
+		final static int SECURITY_PROTOCOL_FLAG =			0x080000;
+		final static int SECURITY_PROVIDER_FLAG =			0x100000;
+		final static int KEY_MANAGER_ALGO_FLAG =			0x200000;
+		final static int TRUST_MANAGER_ALGO_FLAG =			0x400000;
 	}
 
 	/** @class TunnelingEntryFlag
@@ -103,6 +104,15 @@ class ProgrammaticConfigure
 		final static int PROXYPORT_FLAG =			0x002;
 		final static int PROXYHOST_FLAG =			0x004;
 		final static int SECURITY_PROTOCOL_FLAG =	0x008;
+	}
+
+	/**
+	 * @class WebSocketFlag
+	 * An enumeration representing websocket entry level config variables.
+	 */
+	class WebSocketFlag {
+		final static int WS_PROTOCOLS_FLAG =		0x001;
+		final static int WS_MAX_MSG_SIZE_FLAG = 	0x002;
 	}
 	
 	final static int MAX_UNSIGNED_INT16	= 0xFFFF;
@@ -916,6 +926,18 @@ class ProgrammaticConfigure
 										{
 											if (eentry.intValue() >= 0)
 												((ActiveConfig)activeConfig).reconnectMaxDelay = convertToInt(eentry.intValue());
+										} else if (eentry.name().equals("DefaultServiceID")) {
+											if (eentry.intValue() >= 0) {
+												((ActiveConfig) activeConfig).defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
+											}
+										} else if (eentry.name().equals("JsonExpandedEnumFields")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+										} else if (eentry.name().equals("CatchUnknownJsonFids")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+										} else if (eentry.name().equals("CatchUnknownJsonKeys")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
 										}
 										break;
 									default:
@@ -978,8 +1000,19 @@ class ProgrammaticConfigure
 										{
 											if (eentry.intValue() >= 0)
 												activeConfig.dispatchTimeoutApiThread = convertToInt(eentry.intValue());
+										} else if (eentry.name().equals("DefaultServiceID")) {
+											if (eentry.intValue() >= 0) {
+												((ActiveConfig) activeConfig).defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
+											}
+										} else if (eentry.name().equals("JsonExpandedEnumFields")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+										} else if (eentry.name().equals("CatchUnknownJsonFids")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+										} else if (eentry.name().equals("CatchUnknownJsonKeys")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
+											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
 										}
-										
 										break;
 									default:
 										break;
@@ -1307,8 +1340,9 @@ class ProgrammaticConfigure
 	@SuppressWarnings("static-access")
 	void retrieveChannelInfo( MapEntry mapEntry, String channelName, ActiveConfig activeConfig, int setByFnCalled, ChannelConfig fileCfg)
 	{
-		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null, location = null;
-		int flags = 0, channelType = 0, compressionType = 0, tunnelingFlags = 0, encryptedProtocol = 0;
+		String interfaceName = null, host = null, port = null, objectName = null, tunnelingProxyHost = null, tunnelingProxyPort = null,
+				location = null, wsProtocols = null;
+		int flags = 0, channelType = 0, compressionType = 0, tunnelingFlags = 0, encryptedProtocol = 0, webSocketFlags = 0;
 		long guaranteedOutputBuffers= 0;
 		long compressionThreshold= 0;
 		long connectionPingTimeout= 0;
@@ -1318,6 +1352,7 @@ class ProgrammaticConfigure
 		long highWaterMark= 0;
 		long initializationTimeout = 0;
 		long tcpNodelay = 0, directWrite = 0, enableSessionMgnt = 0;
+		long wsMaxMsgSize = 0;
 	
 		for (ElementEntry channelEntry : mapEntry.elementList())
 		{
@@ -1353,6 +1388,9 @@ class ProgrammaticConfigure
 				{
 					tunnelingProxyHost = channelEntry.ascii().ascii();
 					tunnelingFlags |= TunnelingEntryFlag.PROXYHOST_FLAG;
+				} else if (channelEntry.name().equals("WsProtocols")) {
+					wsProtocols = channelEntry.ascii().ascii();
+					webSocketFlags |= WebSocketFlag.WS_PROTOCOLS_FLAG;
 				}
 				else if ( channelEntry.name().equals("ChannelType"))
 				{
@@ -1362,7 +1400,8 @@ class ProgrammaticConfigure
 					{
 					case ConnectionTypes.SOCKET:
 					case ConnectionTypes.HTTP:
-					case ConnectionTypes.ENCRYPTED: 
+					case ConnectionTypes.ENCRYPTED:
+					case ConnectionTypes.WEBSOCKET:
 						flags |= ChannelEntryFlag.CHANNELTYPE_FLAG;
 						break;
 					default:
@@ -1380,6 +1419,7 @@ class ProgrammaticConfigure
 					{
 					case ConnectionTypes.SOCKET:
 					case ConnectionTypes.HTTP:
+					case ConnectionTypes.WEBSOCKET:
 						flags |= ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG;
 						break;
 					default:
@@ -1469,6 +1509,9 @@ class ProgrammaticConfigure
 				{
 					enableSessionMgnt = channelEntry.intValue();
 					flags |= ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG;
+				} else if (channelEntry.name().equals("WsMaxMsgSize")) {
+					wsMaxMsgSize = channelEntry.intValue();
+					webSocketFlags |= WebSocketFlag.WS_MAX_MSG_SIZE_FLAG;
 				}
 				break;
 			default:
@@ -1492,15 +1535,17 @@ class ProgrammaticConfigure
 	
 			ChannelConfig currentChannelConfig = null;
 			
-			if (channelType == ConnectionTypes.SOCKET)
+			if (channelType == ConnectionTypes.SOCKET || channelType == ConnectionTypes.WEBSOCKET)
 			{
 				SocketChannelConfig socketChannelConfig = new SocketChannelConfig();
 				socketChannelConfig.serviceName = activeConfig.defaultServiceName;
+				socketChannelConfig.rsslConnectionType = channelType;
 				currentChannelConfig = socketChannelConfig;
 				activeConfig.channelConfigSet.add( currentChannelConfig );
 
 				SocketChannelConfig fileCfgSocket = null;
-				if ( fileCfg != null && (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET))
+				if ( fileCfg != null
+						&& (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET || fileCfg.rsslConnectionType == ConnectionTypes.WEBSOCKET))
 					fileCfgSocket = (SocketChannelConfig)( fileCfg );
 
 				if ( (flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0 )
@@ -1547,7 +1592,6 @@ class ProgrammaticConfigure
 					socketChannelConfig.httpProxyKRB5ConfigFile = fileCfgSocket.httpProxyKRB5ConfigFile;
 					
 				}
-
 			}
 			else if (channelType == ConnectionTypes.HTTP )
 			{
@@ -1692,9 +1736,10 @@ class ProgrammaticConfigure
 					}
 					break;
 				case ConnectionTypes.SOCKET:
+				case ConnectionTypes.WEBSOCKET:
 					EncryptedChannelConfig encryptedSocketChannelConfig = new EncryptedChannelConfig();
 					encryptedSocketChannelConfig.rsslConnectionType = ConnectionTypes.ENCRYPTED;
-					encryptedSocketChannelConfig.encryptedProtocolType = ConnectionTypes.SOCKET;
+					encryptedSocketChannelConfig.encryptedProtocolType = encryptedProtocol;
 					currentChannelConfig = encryptedSocketChannelConfig;
 					activeConfig.channelConfigSet.add( currentChannelConfig );
 
@@ -1822,14 +1867,26 @@ class ProgrammaticConfigure
 				currentChannelConfig.initializationTimeout = convertToInt(initializationTimeout);
 			else if ( useFileCfg )
 				currentChannelConfig.initializationTimeout = fileCfg.initializationTimeout;
+
+			if ((webSocketFlags & WebSocketFlag.WS_PROTOCOLS_FLAG) != 0 && wsProtocols != null) {
+				currentChannelConfig.wsProtocols = wsProtocols;
+			} else if (useFileCfg) {
+				currentChannelConfig.wsProtocols = fileCfg.wsProtocols;
+			}
+
+			if ((webSocketFlags & WebSocketFlag.WS_MAX_MSG_SIZE_FLAG) != 0 && wsProtocols != null) {
+				currentChannelConfig.wsMaxMsgSize = convertToInt(wsMaxMsgSize);
+			} else if (useFileCfg) {
+				currentChannelConfig.wsMaxMsgSize = fileCfg.wsMaxMsgSize;
+			}
 		}
 	}
 
 	void retrieveServerInfo(MapEntry mapEntry, String serverName,
 		ActiveServerConfig activeServerConfig, int setByFnCalled, ServerConfig fileCfg)
 	{
-		String interfaceName = null, port = null;
-		int flags = 0, serverType = 0, compressionType = 0;
+		String interfaceName = null, port = null, wsProtocols = null;
+		int flags = 0, serverType = 0, compressionType = 0, webSocketFlags = 0;
 		long guaranteedOutputBuffers= 0;
 		long compressionThreshold= 0;
 		long connectionPingTimeout= 0;
@@ -1841,6 +1898,7 @@ class ProgrammaticConfigure
 		long tcpNodelay = 0;
 		long directWrite = 0;
 		long initializationTimeout = 0;
+		long maxFragmentSize = 0;
 		String keystoreFile = null;
 		String keystorePasswd = null;
 		String keystoreType = null;
@@ -1872,6 +1930,7 @@ class ProgrammaticConfigure
 					{
 					case ConnectionTypes.ENCRYPTED:
 					case ConnectionTypes.SOCKET:
+					case ConnectionTypes.WEBSOCKET:
 						flags |= ServerEntryFlag.SERVERTYPE_FLAG;
 						break;
 					default:
@@ -1898,6 +1957,9 @@ class ProgrammaticConfigure
 						.append( "] in Programmatic Configuration. Use default CompressionType [CompressionType::None] " ).create(Severity.ERROR);
 						break;
 					}
+				} else if (serverEntry.name().equals("WsProtocols")) {
+					webSocketFlags |= WebSocketFlag.WS_PROTOCOLS_FLAG;
+					wsProtocols = serverEntry.ascii().ascii();
 				}
 				else if (serverEntry.name().equals("KeystoreFile"))
 				{
@@ -1991,6 +2053,9 @@ class ProgrammaticConfigure
 				{
 					initializationTimeout = serverEntry.intValue();
 					flags |= ServerEntryFlag.INIT_TIMEOUT_FLAG;
+				} else if (serverEntry.name().equals("MaxFragmentSize")) {
+					maxFragmentSize = serverEntry.intValue();
+					flags |= ServerEntryFlag.MAX_FRAGMENT_SIZE_FLAG;
 				}
 				break;
 			default:
@@ -2081,9 +2146,19 @@ class ProgrammaticConfigure
 				currentServerConfig.initializationTimeout = convertToInt(initializationTimeout);
 			else if ( fileCfg != null )
 				currentServerConfig.initializationTimeout = fileCfg.initializationTimeout;
+
+			if ((flags & ServerEntryFlag.MAX_FRAGMENT_SIZE_FLAG) != 0 && maxFragmentSize >= 0) {
+				currentServerConfig.maxFragmentSize = convertToInt(maxFragmentSize);
+			} else if (fileCfg != null) {
+				currentServerConfig.maxFragmentSize = fileCfg.maxFragmentSize;
+			}
+
+			if ((webSocketFlags & WebSocketFlag.WS_PROTOCOLS_FLAG) != 0 && wsProtocols != null) {
+				currentServerConfig.wsProtocols = wsProtocols;
+			} else if (fileCfg != null) {
+				currentServerConfig.wsProtocols = fileCfg.wsProtocols;
 			
-			if(serverType == ConnectionTypes.ENCRYPTED)
-			{
+			if(serverType == ConnectionTypes.ENCRYPTED) {
 				if ((flags & ServerEntryFlag.KEYSTORE_FILE_FLAG) != 0 && keystoreFile != null)
 					currentServerConfig.keystoreFile = keystoreFile;
 				
@@ -2103,7 +2178,7 @@ class ProgrammaticConfigure
 					currentServerConfig.keyManagerAlgorithm = keyManagerAlgorithm;
 				
 				if ((flags & ServerEntryFlag.TRUST_MANAGER_ALGO_FLAG) != 0 && trustManagerAlgorithm != null)
-					currentServerConfig.trustManagerAlgorithm = trustManagerAlgorithm;
+					currentServerConfig.trustManagerAlgorithm = trustManagerAlgorithm; }
 			}
 		}
 	}
@@ -2723,7 +2798,9 @@ class ProgrammaticConfigure
 				channelType = ConnectionTypes.ENCRYPTED;
 			else if(enumValue.equals("RSSL_RELIABLE_MCAST"))
 				channelType = ConnectionTypes.RELIABLE_MCAST;
-			else
+			else if(enumValue.equals("RSSL_WEBSOCKET")) {
+				channelType = ConnectionTypes.WEBSOCKET;
+			} else
 			{
 				_emaConfigErrList.append( "no conversion in convertToEnum for enumType [" )
 				.append( enumValue )
@@ -2741,6 +2818,9 @@ class ProgrammaticConfigure
 				channelType = ConnectionTypes.SOCKET;
 			else if(enumValue.equals("RSSL_HTTP"))
 				channelType = ConnectionTypes.HTTP;
+			else if(enumValue.equals("RSSL_WEBSOCKET")) {
+				channelType = ConnectionTypes.WEBSOCKET;
+			}
 			else
 			{
 				_emaConfigErrList.append( "no conversion in convertToEnum for enumType [" )
@@ -2755,7 +2835,7 @@ class ProgrammaticConfigure
 		{
 			int serverType = INVALID_RETVAL;
 
-			if(enumValue.equals("RSSL_SOCKET"))
+			if(enumValue.equals("RSSL_SOCKET") || enumValue.equals("RSSL_WEBSOCKET"))
 				serverType = ConnectionTypes.SOCKET;
 			if(enumValue.equals("RSSL_ENCRYPTED"))
 				serverType = ConnectionTypes.ENCRYPTED;

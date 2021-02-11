@@ -106,6 +106,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
 		
 		_fanoutDirectoryMsg = DirectoryMsgFactory.createMsg();
+
+		_serviceIdConverter = new ServiceIdConverter(_ommIProviderDirectoryStore);
 	}
 	
 	//only for unit test, internal use
@@ -130,6 +132,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		_storeUserSubmitted = _activeConfig.directoryAdminControl == OmmIProviderConfig.AdminControl.API_CONTROL ? true : false;
 		
 		_fanoutDirectoryMsg = DirectoryMsgFactory.createMsg();
+
+		_serviceIdConverter = new ServiceIdConverter(_ommIProviderDirectoryStore);
 	}
 
 	@Override
@@ -1564,6 +1568,28 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 		}
 		
 		userLock().unlock();
+	}
+
+	@Override
+	public void closeChannel(long clientHandle) {
+		userLock().lock();
+
+
+		ClientSession clientSession = serverChannelHandler().getClientSession(_longValue);
+
+		if (clientSession != null) {
+			_itemWatchList.processCloseLogin(clientSession);
+			serverChannelHandler().closeChannel(clientSession.channel());
+			userLock().unlock();
+		} else {
+			userLock().unlock();
+			strBuilder()
+					.append("Invalid passed in client handle: ")
+					.append(clientHandle)
+					.append(" in the closeChannel() method.");
+
+			throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+		}
 	}
 
 

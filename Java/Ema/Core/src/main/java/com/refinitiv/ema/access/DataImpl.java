@@ -7,11 +7,11 @@
 
 package com.refinitiv.ema.access;
 
-import java.nio.ByteBuffer;
-
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.valueadd.common.VaNode;
+
+import java.nio.ByteBuffer;
 
 class DataImpl extends VaNode implements Data
 {

@@ -7,6 +7,7 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.ServerSocketChannel;
+import java.util.Objects;
 
 class ServerImpl extends EtaNode implements Server
 {
@@ -165,7 +166,7 @@ class ServerImpl extends EtaNode implements Server
         _transport = transport;
         _state = ChannelState.INACTIVE;
         _componentInfo.componentVersion().data(Transport._defaultComponentVersionBuffer, 0,
-                                               Transport._defaultComponentVersionBuffer.limit());
+                Transport._defaultComponentVersionBuffer.limit());
         _context = null;
     }
 
@@ -175,16 +176,26 @@ class ServerImpl extends EtaNode implements Server
         // copy the bind options to data member
         ((BindOptionsImpl)options).copyTo(_bindOpts);
 
+        // validate specified WS protocols
+        final String wsProtocolCheckStr = WebSocketSupportedProtocols.validateProtocolList(_bindOpts.wSocketOpts().protocols());
+        if (Objects.nonNull(wsProtocolCheckStr)) {
+            error.channel(null);
+            error.errorId(TransportReturnCodes.FAILURE);
+            error.sysError(0);
+            error.text("Invalid protocol found in protocol list. protocol: " + wsProtocolCheckStr);
+            return TransportReturnCodes.FAILURE;
+        }
+
         _portNumber = _bindOpts.port();
         _connType = _bindOpts.connectionType();
         try
         {
-        	 // first check if it's encrypted.  If so, initialize the encrypted context helper
-        	if(options.connectionType() == ConnectionTypes.ENCRYPTED)
-        	{
-        		_context = new EncryptedContextHelper(options);
-        	}
-        	 
+            // first check if it's encrypted.  If so, initialize the encrypted context helper
+            if(options.connectionType() == ConnectionTypes.ENCRYPTED)
+            {
+                _context = new EncryptedContextHelper(options);
+            }
+
             // if configured, specify the interface name
             InetSocketAddress socketAddress = null;
 
@@ -224,7 +235,7 @@ class ServerImpl extends EtaNode implements Server
                 ((SharedPool)_sharedPool)._sharedPoolLock = _realSharedPoolLock;
             else
                 ((SharedPool)_sharedPool)._sharedPoolLock = _dummySharedPoolLock;
-            
+
             if(_bindOpts.componentVersion() != null)
             {
                 try
@@ -368,10 +379,10 @@ class ServerImpl extends EtaNode implements Server
     @Override
     public String toString()
     {
-        return "Server" + "\n" + 
-               "\tsrvrScktChannel: " + _srvrScktChannel + "\n" + 
-               "\tstate: " + _state + "\n" + 
-               "\tportNumber: " + _portNumber + "\n" + 
+        return "Server" + "\n" +
+               "\tsrvrScktChannel: " + _srvrScktChannel + "\n" +
+               "\tstate: " + _state + "\n" +
+               "\tportNumber: " + _portNumber + "\n" +
                "\tuserSpecObject: " + _userSpecObject + "\n";
     }
 
@@ -513,7 +524,7 @@ class ServerImpl extends EtaNode implements Server
 
     /* Shrink the sharedPool by numToShrink.
      * Do this by adding numToShrink sharedPool to global pool (SocketProtocol).
-     * 
+     *
      * Returns the number actually shrunk, which may not be the numToShrink.
      */
     int shrinkSharedPoolBuffers(int numToShrink)
@@ -528,7 +539,7 @@ class ServerImpl extends EtaNode implements Server
      * If the number of available buffers (not in use) is smaller than
      * what needs to be returned (because the buffers are being used),
      * just shrink by that number.
-     * 
+     *
      * Returns the new value of sharedPoolSize
      */
     int adjustSharedPoolBuffers(int value)
@@ -557,7 +568,7 @@ class ServerImpl extends EtaNode implements Server
         return ((SharedPool)_sharedPool).bufferUsage(error);
     }
 
-    @Override 
+    @Override
     public int close(Error error)
     {
         if (_state != ChannelState.INACTIVE)
@@ -691,7 +702,7 @@ class ServerImpl extends EtaNode implements Server
     }
     
     public EncryptedContextHelper context() {
-		return _context;
-	}
+        return _context;
+    }
 
 }

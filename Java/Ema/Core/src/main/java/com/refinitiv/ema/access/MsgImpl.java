@@ -7,23 +7,12 @@
 
 package com.refinitiv.ema.access;
 
-import java.nio.ByteBuffer;
-
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmError.ErrorCode;
-import com.refinitiv.eta.codec.AckMsgFlags;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.GenericMsgFlags;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.MsgKey;
-import com.refinitiv.eta.codec.MsgKeyFlags;
-import com.refinitiv.eta.codec.PostMsgFlags;
-import com.refinitiv.eta.codec.RefreshMsgFlags;
-import com.refinitiv.eta.codec.StatusMsgFlags;
-import com.refinitiv.eta.codec.UpdateMsgFlags;
+import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
+
+import java.nio.ByteBuffer;
 
 class MsgImpl extends DataImpl implements Msg
 {

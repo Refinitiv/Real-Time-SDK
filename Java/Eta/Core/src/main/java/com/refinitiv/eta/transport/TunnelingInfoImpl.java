@@ -203,8 +203,6 @@ class TunnelingInfoImpl implements TunnelingInfo
     @Override
     public void KeystoreFile(String KeystoreFile)
     {
-        assert (KeystoreFile != null) : "KeystoreFile must be non-null";
-
         _KeystoreFile = KeystoreFile;
     }
 

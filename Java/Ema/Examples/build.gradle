@@ -36,6 +36,8 @@ task deleteDictionary( type: Delete ) {
 	delete "$projectDir/enumtype.def"
 }
 
+def JVM_OPTIONS = "-Xms512m -Xmx512m"
+
 task deleteEmaConfig( type: Delete ) {
 	delete "$projectDir/EmaConfig.xml"
 }
@@ -89,6 +91,9 @@ fileTree('.') {
 		description 'This task runs the ' + TaskDescription
 
 		dependsOn copyDictionary, copyEmaConfig
+
+		if (JVM_OPTIONS)
+			jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
 
 		main = exampleMainLocation
 		classpath = sourceSets.main.runtimeClasspath

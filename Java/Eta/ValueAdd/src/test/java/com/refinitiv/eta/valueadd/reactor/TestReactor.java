@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.codec.DataStates;
 import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.StateCodes;
@@ -65,6 +66,8 @@ public class TestReactor {
 
     /** Controls whether reactor does XML tracing. */
     private static boolean _enableReactorXmlTracing = false;
+    
+    private boolean initJsonConverter = false;
 
 	/** Creates a TestReactor. */
 	public TestReactor()
@@ -104,12 +107,26 @@ public class TestReactor {
 			e.printStackTrace();
 			fail("Caught I/O exception");
 		}
-	}	
+	}
 	
     /** Enables XML tracing on created reactors (convenience function for test debugging). */
     public static void enableReactorXmlTracing()
     {
         _enableReactorXmlTracing = true;
+    }
+    
+    public void initJsonConverter(DataDictionary dictionary)
+    {
+    	if(initJsonConverter)
+    		return;
+    	
+    	ReactorErrorInfo errorInfo = new ReactorErrorInfo();
+        ReactorJsonConverterOptions options = new ReactorJsonConverterOptions();
+        options.dataDictionary(dictionary);
+        
+        assertEquals(ReactorReturnCodes.SUCCESS,_reactor.initJsonConverter(options, errorInfo));
+        
+        initJsonConverter = true;
     }
 
 	/** Calls dispatch on the component's Reactor, and will store received events for later review.
@@ -427,7 +444,8 @@ public class TestReactor {
         connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
         connectOpts.connectionList().get(0).connectOptions().pingTimeout(opts.pingTimeout());
         connectOpts.connectionList().get(0).initTimeout(opts.consumerChannelInitTimeout());
-        
+        if (opts.getProtocolList() != null)
+			connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
         
         if (opts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
         {

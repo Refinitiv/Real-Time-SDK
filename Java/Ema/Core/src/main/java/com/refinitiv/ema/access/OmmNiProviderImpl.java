@@ -56,7 +56,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	private OmmProviderClient _adminClient;
 	private Object _adminClosure;
 	private ChannelInfo _activeChannelInfo;
-	
+
 	private static final long MIN_LONG_VALUE = 1;
     private static final long MAX_LONG_VALUE = Long.MAX_VALUE;
     
@@ -1416,7 +1416,12 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		else
 			throw (ommIHExcept().message(text, handle));
 	}
-	
+
+	@Override
+	public final void handleJsonConverterError(int errorCode, String text) {
+		throw new UnsupportedOperationException();
+	}
+
 	void remapServiceIdAndServcieName(DirectoryRefresh directoryRefresh)
 	{
 		List<Service> serviceList = directoryRefresh.serviceList();
@@ -1870,5 +1875,13 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 		StringBuilder temp = strBuilder();
 		temp.append("NIProvider applications do not support the modifyIOCtl(int code, int value, long handle) method");
 		handleInvalidUsage(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+	}
+
+	@Override
+	public void closeChannel(long clientHandle) {
+		throw ommIUExcept().message(
+				"NIProvider applications do not support the closeChannel() method",
+				OmmInvalidUsageException.ErrorCode.INVALID_OPERATION
+		);
 	}
 }

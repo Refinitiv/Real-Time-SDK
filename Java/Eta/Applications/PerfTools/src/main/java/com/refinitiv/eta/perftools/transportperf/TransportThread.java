@@ -536,6 +536,8 @@ public class TransportThread extends Thread
         _copts.seqMCastOpts().maxMsgSize(TransportPerfConfig.maxFragmentSize());
 		_copts.multicastOpts().tcpControlPort(TransportPerfConfig.tcpControlPort());
 		_copts.multicastOpts().portRoamRange(TransportPerfConfig.portRoamRange());
+
+		_copts.wSocketOpts().protocols(TransportPerfConfig.protocolList());
         /* Multicast statistics are retrieved via Channel.info(),
          * so set the per-channel-lock when taking them. */
         if (TransportPerfConfig.takeMCastStats())

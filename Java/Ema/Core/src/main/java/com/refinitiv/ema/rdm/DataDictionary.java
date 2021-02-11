@@ -7,10 +7,10 @@
 
 package com.refinitiv.ema.rdm;
 
-import java.util.List;
-
 import com.refinitiv.ema.access.OmmInvalidUsageException;
 import com.refinitiv.ema.access.Series;
+
+import java.util.List;
 
 /**
  * This class houses all known fields loaded from an RDM field dictionary and

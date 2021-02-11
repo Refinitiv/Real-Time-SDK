@@ -55,6 +55,8 @@ public class TransportPerfConfig
     private static boolean      _rAddr;                     // Whether an inbound address was specified
     private static boolean      _takeMCastStats;            // Running a multicast connection and we want stats
 
+    private static String       _protocolList;              // Sub-protocol list used for WebSocket connection.
+
     private static String 		_tcpControlPort;
     private static int			_portRoamRange;
     
@@ -92,7 +94,7 @@ public class TransportPerfConfig
         CommandLine.addOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
         CommandLine.addOption("noDisplayStats", false, "Stop printout of stats to screen");
         CommandLine.addOption("threads", 1, "Number of transport threads to create");
-        CommandLine.addOption("connType", "socket", "Type of connection(\"socket\", \"http (client only)\", \"encrypted (client only)\", \"reliableMCast\", \"shmem\", \" seqMCast\")");
+        CommandLine.addOption("connType", "socket", "Type of connection(\"socket\", \"websocket\", \"http (client only)\", \"encrypted (client only)\", \"reliableMCast\", \"shmem\", \" seqMCast\")");
         CommandLine.addOption("reflectMsgs", false, "Reflect received messages back, rather than generating our own");
         CommandLine.addOption("outputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in BindOptions/ConnectOptions)");
         CommandLine.addOption("maxFragmentSize", 6144, " Max size of buffers(configures maxFragmentSize in BindOptions/ConnectOptions)");
@@ -124,6 +126,11 @@ public class TransportPerfConfig
         CommandLine.addOption("krbfile", "C:\\Kerberos\\krb5.conf", "proxyKRBConfigFile");
         CommandLine.addOption("keyfile", "C:\\Certificates\\internet.jks", "keystoreFile");
         CommandLine.addOption("keypasswd", "", "keystore password");
+        CommandLine.addOption("pl",  "",
+                "WebSocket sub-protocol list for requesting a protocol or listing only supported protocols respectively\n" +
+                "for client and server 'appType'. White-space or comma delinated list in order of preference\n" +
+                "(\"rssl.rwf, rssl.json.v2, tr_json2\")\n" +
+                "NOTE: 'tr_json2' is deprecated and replaced by rssl.json.v2\n");
         
         // TransportThreadConfig
         CommandLine.addOption("tickRate", 1000, "Ticks per second");
@@ -198,10 +205,12 @@ public class TransportPerfConfig
             {
                 _connectionType = ConnectionTypes.UNIDIR_SHMEM;
             }
-              else if (_connectionTypeString.equals("seqMCast"))
-                {
-                    _connectionType = ConnectionTypes.SEQUENCED_MCAST;
-                }
+            else if (_connectionTypeString.equals("seqMCast"))
+            {
+                _connectionType = ConnectionTypes.SEQUENCED_MCAST;
+            } else if (_connectionTypeString.equals("websocket")) {
+                _connectionType = ConnectionTypes.WEBSOCKET;
+            }
             else
             {
                 _connectionType = -1; // error
@@ -272,6 +281,8 @@ public class TransportPerfConfig
             {
                 _sAddr = true;
             }
+
+            _protocolList = CommandLine.value("pl");
             
             _tcpNoDelay = !CommandLine.booleanValue("tcpDelay");
                 
@@ -468,8 +479,8 @@ public class TransportPerfConfig
         _configString = "--- TEST INPUTS ---\n\n" +
                 "                Runtime: " + _runTime + " sec\n" +
                 "        Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
-                ((_connectionType == ConnectionTypes.RELIABLE_MCAST && _sAddr) ? multicastConfig() : unicastConfig()) + "\n" + 
-                                                
+                ((_connectionType == ConnectionTypes.RELIABLE_MCAST && _sAddr) ? multicastConfig() : unicastConfig()) + "\n" +
+                "    WebSocket protocols: " + (!_protocolList.isEmpty() ? _protocolList : "N/A") + "\n" +
                 "               App Type: " + (_appType == SERVER ? "server" : "client") + "\n" + 
                 "           Thread Count: " + _threadCount + "\n" +
                 "              Busy Read: " + (_busyRead ? "Yes" : "No") + "\n" +                
@@ -816,6 +827,13 @@ public class TransportPerfConfig
     public static boolean takeMCastStats()
     {
         return _takeMCastStats;
+    }
+
+    /**
+     * @return Sub-protocol list used for WebSocket connection.
+     */
+    public static String protocolList() {
+        return _protocolList;
     }
 
     /**

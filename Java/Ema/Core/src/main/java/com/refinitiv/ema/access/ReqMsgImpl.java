@@ -7,18 +7,13 @@
 
 package com.refinitiv.ema.access;
 
+import com.refinitiv.ema.access.DataType.DataTypes;
+import com.refinitiv.ema.access.OmmError.ErrorCode;
+import com.refinitiv.eta.codec.*;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.refinitiv.ema.access.DataType.DataTypes;
-import com.refinitiv.ema.access.OmmError.ErrorCode;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.Qos;
-import com.refinitiv.eta.codec.QosRates;
-import com.refinitiv.eta.codec.QosTimeliness;
 
 class ReqMsgImpl extends MsgImpl implements ReqMsg
 {

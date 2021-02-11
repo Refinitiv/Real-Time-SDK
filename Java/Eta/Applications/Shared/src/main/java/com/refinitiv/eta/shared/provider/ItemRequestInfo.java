@@ -4,6 +4,7 @@ import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.MsgKey;
 import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 
 /**
  * Item request information.
@@ -18,6 +19,7 @@ public class ItemRequestInfo
     public boolean includeKeyInUpdates;
     public MsgKey msgKey;
     public Channel channel;
+    public ReactorChannel reactorChannel;
     public boolean isInUse;
     public int domainType;
 
@@ -34,6 +36,7 @@ public class ItemRequestInfo
         includeKeyInUpdates = false;
         msgKey = CodecFactory.createMsgKey();
         channel = null;
+        reactorChannel = null;
         isInUse = false;
         domainType = 0;
     }
@@ -51,6 +54,7 @@ public class ItemRequestInfo
         includeKeyInUpdates = false;
         msgKey.clear();
         channel = null;
+        reactorChannel = null;
         isInUse = false;
         domainType = 0;
     }
@@ -193,6 +197,24 @@ public class ItemRequestInfo
     public void channel(Channel channel)
     {
     	this.channel = channel;
+    }
+
+    /**
+     * ReactorChannel.
+     *
+     * @return the reactor channel.
+     */
+    public ReactorChannel reactorChannel() {
+        return reactorChannel;
+    }
+
+    /**
+     * ReactorChannel.
+     *
+     * @param reactorChannel the reactor channel.
+     */
+    public void reactorChannel(ReactorChannel reactorChannel) {
+        this.reactorChannel = reactorChannel;
     }
 
     /**

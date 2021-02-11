@@ -1,9 +1,6 @@
 package com.refinitiv.eta.transport;
 
-import com.refinitiv.eta.transport.ConnectOptions;
-import com.refinitiv.eta.transport.ConnectionTypes;
-import com.refinitiv.eta.transport.TcpOpts;
-import com.refinitiv.eta.transport.UnifiedNetworkInfo;
+import com.refinitiv.eta.transport.WSocketOptsImpl;
 
 class ConnectOptionsImpl implements ConnectOptions
 {
@@ -32,9 +29,8 @@ class ConnectOptionsImpl implements ConnectOptions
     private int _sysSendBufSize;
     private int _sysRecvBufSize;
     private SeqMCastOptsImpl _seqMCastOpts = new SeqMCastOptsImpl();
+    private WSocketOptsImpl _wsocketOpts = new WSocketOptsImpl();
 
-
-    
     ConnectOptionsImpl()
     {
         _compressionType = Ripc.CompressionTypes.NONE;
@@ -45,9 +41,8 @@ class ConnectOptionsImpl implements ConnectOptions
         _mcastOpts.packetTTL(5);
         _seqMCastOpts.maxMsgSize(3000);
         _seqMCastOpts.instanceId(0);
-
     }
-	
+
     @Override
     public void clear()
     {
@@ -80,6 +75,8 @@ class ConnectOptionsImpl implements ConnectOptions
         _tunneling.clear();
         _encryptionOpts.clear();
         _credentials.clear();
+        _wsocketOpts.protocols("");
+        _wsocketOpts.maxMsgSize(61440);
     }
 
     @Override
@@ -94,7 +91,7 @@ class ConnectOptionsImpl implements ConnectOptions
             destOptsImpl._componentVersion = new String(_componentVersion);
         else
             destOptsImpl._componentVersion = null;
-        
+
         destOptsImpl._connectionType = _connectionType;
         destOptsImpl._compressionType = _compressionType;
         destOptsImpl._blocking = _blocking;
@@ -118,33 +115,36 @@ class ConnectOptionsImpl implements ConnectOptions
         destOptsImpl._sysSendBufSize = _sysSendBufSize;
         destOptsImpl._sysRecvBufSize = _sysRecvBufSize;
         _seqMCastOpts.copy(destOptsImpl._seqMCastOpts);
+        _wsocketOpts.copy(destOptsImpl._wsocketOpts);
         _encryptionOpts.copy(destOptsImpl._encryptionOpts);
 
         return TransportReturnCodes.SUCCESS;
     }
-    
+
     @Override
     public String toString()
     {
-        return "ConnectOptions" + "\n" + 
+        return "ConnectOptions" + "\n" +
                "\tcomponentVersion: " + _componentVersion + "\n" +
-               "\tconnectionType: " + _connectionType + "\n" + 
-               "\tcompressionType: " + _compressionType + "\n" + 
-               "\tblocking: " + _blocking + "\n" + 
-               "\tpingTimeout: " + _pingTimeout + "\n" + 
-               "\tguaranteedOutputBuffers: " + _guaranteedOutputBuffers + "\n" + 
-               "\tnumInputBuffers: " + _numInputBuffers + "\n" + 
-               "\tsysSendBufSize: " + _sysSendBufSize + "\n" + 
-               "\tsysRecvBufSize: " + _sysRecvBufSize + "\n" + 
-               "\tmajorVersion: " + _majorVersion + "\n" + 
-               "\tminorVersion: " + _minorVersion + "\n" + 
-               "\tprotocolType: " + _protocolType + "\n" + 
-               "\tuserSpecObject: " + _userSpecObject + "\n" + 
-               "\tnetworkType: " + _networkType + "\n" + 
-               "\ttcpOpts: " + _tcpOpts + "\n" + 
-               "\tunifiedNetworkInfo: " + _unified + "\n" + 
-               "\tsegmentedNetworkInfo: " + _segmented + 
-               "\tseqMCastOpts: " + _seqMCastOpts;
+               "\tconnectionType: " + _connectionType + "\n" +
+               "\tcompressionType: " + _compressionType + "\n" +
+               "\tblocking: " + _blocking + "\n" +
+               "\tpingTimeout: " + _pingTimeout + "\n" +
+               "\tguaranteedOutputBuffers: " + _guaranteedOutputBuffers + "\n" +
+               "\tnumInputBuffers: " + _numInputBuffers + "\n" +
+               "\tsysSendBufSize: " + _sysSendBufSize + "\n" +
+               "\tsysRecvBufSize: " + _sysRecvBufSize + "\n" +
+               "\tmajorVersion: " + _majorVersion + "\n" +
+               "\tminorVersion: " + _minorVersion + "\n" +
+               "\tprotocolType: " + _protocolType + "\n" +
+               "\tuserSpecObject: " + _userSpecObject + "\n" +
+               "\tnetworkType: " + _networkType + "\n" +
+               "\ttcpOpts: " + _tcpOpts + "\n" +
+               "\tunifiedNetworkInfo: " + _unified + "\n" +
+               "\tsegmentedNetworkInfo: " + _segmented +
+               "\tseqMCastOpts: " + _seqMCastOpts + "\n" +
+               "\tWSocketOpts:" + _wsocketOpts + "\n" +
+               "\tEncryptionOpts:" + _encryptionOpts;
     }
 
     @Override
@@ -157,8 +157,8 @@ class ConnectOptionsImpl implements ConnectOptions
     public String componentVersion()
     {
         return _componentVersion;
-    }       
-    
+    }
+
     @Override
     public void connectionType(int connectionType)
     {
@@ -339,7 +339,7 @@ class ConnectOptionsImpl implements ConnectOptions
     {
         return _credentials;
     }
-    
+
     @Override
     public EncryptionOptions encryptionOptions()
     {
@@ -368,8 +368,8 @@ class ConnectOptionsImpl implements ConnectOptions
     public boolean channelWriteLocking()
     {
         return _writeLocking;
-    }   
-    
+    }
+
     @Override
     public void sysSendBufSize(int sysSendBufSize)
     {
@@ -402,5 +402,10 @@ class ConnectOptionsImpl implements ConnectOptions
     public SeqMCastOpts seqMCastOpts()
     {
         return _seqMCastOpts;
+    }
+
+    @Override
+    public WSocketOpts wSocketOpts() {
+        return _wsocketOpts;
     }
 }

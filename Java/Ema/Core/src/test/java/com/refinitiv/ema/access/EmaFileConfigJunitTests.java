@@ -24,6 +24,7 @@ public class EmaFileConfigJunitTests extends TestCase
 	public static final int ChannelTypeEncrypted = 1;
 	public static final int ChannelTypeHttp = 2;
 	public static final int ChannelTypeMcast = 4;
+	public static final int ChannelTypeWebSocket = 7;
 	public static final int CompressionTypeNone = 0;
 	public static final int CompressionTypeZLib = 1;
 	public static final int CompressionTypeLZ4 = 2;
@@ -325,7 +326,53 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("Location == us-east", strValue.contentEquals("us-east"));
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EnableSessionMgnt);
 		TestUtilities.checkResult("EnableSessionManagement == 1", boolValue == true);
-		
+
+
+		// Checks ChannelType == RSSL_CONN_TYPE_WEBSOCKET values from Channel_11
+		ConsChannelVal = "Channel_11";
+		System.out.println("\nRetrieving Channel_11 configuration values ");
+		channelConnType = JUnitTestConnect.configGetChannelType(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("channelConnType == ChannelType::RSSL_WEBSOCKET", channelConnType == ChannelTypeWebSocket);
+		chanHost = JUnitTestConnect.configGetChanHost(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("Host == localhost", chanHost.contentEquals("localhost"));
+		chanPort = JUnitTestConnect.configGetChanPort(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("Port == 14011", chanPort.contentEquals("14011"));
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers);
+		TestUtilities.checkResult("GuaranteedOutputBuffers == 5000", intLongValue == 5000);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout);
+		TestUtilities.checkResult("GuaranteedOutputBuffers == 30000", intLongValue == 30000);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay);
+		TestUtilities.checkResult("TcpNodelay == 0", boolValue);
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.WsMaxMsgSize);
+		TestUtilities.checkResult("WsMaxMsgSize == 100500", intLongValue == 100500);
+		//XML contains "rssl.json.v2, rssl.rwf" but space will be removed after XML parsing.
+		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.WsProtocols);
+		TestUtilities.checkResult("WsProtocols == rssl.json.v2,rssl.rwf", "rssl.json.v2,rssl.rwf".contentEquals(strValue));
+
+		// Checks ChannelType == RSSL_CONN_TYPE_ENCRYPTED and EncryptedProtocolType == RSSL_WEBSOCKET values from Channel_12
+		ConsChannelVal = "Channel_12";
+		System.out.println("\nRetrieving Channel_12 configuration values ");
+		channelConnType = JUnitTestConnect.configGetChannelType(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("channelConnType == ChannelType::RSSL_ENCRYPTED", channelConnType == ChannelTypeEncrypted);
+		channelConnType = JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EncryptedProtocolType);
+		TestUtilities.checkResult("channelConnType == ChannelType::RSSL_WEBSOCKET", channelConnType == ChannelTypeWebSocket);
+		chanHost = JUnitTestConnect.configGetChanHost(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("Host == localhost", chanHost.contentEquals("localhost"));
+		chanPort = JUnitTestConnect.configGetChanPort(testConfig, ConsChannelVal);
+		TestUtilities.checkResult("Port == 14012", chanPort.contentEquals("14012"));
+
+		// Checks Server with ServerType == WEBSOCKET (should be parsed as SOCKET).
+		ConsChannelVal = "Server_3";
+		System.out.println("\nRetrieving Server_3 configuration values ");
+		channelConnType = JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerType);
+		TestUtilities.checkResult("serverType == ChannelType::RSSL_SOCKET", channelConnType == ChannelTypeSocket);
+		chanPort = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerPort);
+		TestUtilities.checkResult("Port == 14012", chanPort.contentEquals("14011"));
+		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerMaxFragmentSize);
+		TestUtilities.checkResult("MaxFragmentSize == 100500", intLongValue == 100500);
+		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerWsProtocols);
+		TestUtilities.checkResult("ServerWsProtocols = rssl.json.v2,rssl.rwf", strValue.contentEquals("rssl.json.v2,rssl.rwf"));
+
 		// Check Dictionary_1 configuration.
 		ConsDictionary = "Dictionary_1";
 		System.out.println("\nRetrieving Dictionary_1 configuration values ");
@@ -1318,6 +1365,235 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("RdmFieldDictionaryFileName == ./RDMFieldDictionary", strValue.contentEquals("./RDMFieldDictionary"));		
 			strValue =   JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryEnumTypeDefFileName, -1);
 			TestUtilities.checkResult("RdmFieldDictionaryFileName == ./enumtype.def", strValue.contentEquals("./enumtype.def"));		
+
+			cons = null;
+		}
+		catch ( OmmException excp)
+		{
+			System.out.println(excp.getMessage());
+			TestUtilities.checkResult("Receiving exception, test failed.", false );
+		}
+	}
+
+	public void testLoadingCfgFromProgrammaticConfigWS() {
+		TestUtilities.printTestHead("testLoadingCfgFromProgrammaticConfigWS","Test loading all configuration parameters programmatically for WebSocket");
+
+		Map outermostMap = EmaFactory.createMap();
+		Map innerMap = EmaFactory.createMap();
+		ElementList elementList = EmaFactory.createElementList();
+		ElementList innerElementList = EmaFactory.createElementList();
+
+		try
+		{
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorMsgEventPoolLimit", 100));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReactorChannelEventPoolLimit", 150));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("WorkerEventPoolLimit", 200));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamMsgEventPoolLimit", 250));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TunnelStreamStatusEventPoolLimit", 300));
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "GlobalConfig", MapEntry.MapAction.ADD, innerElementList ));
+			innerElementList.clear();
+
+			elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_1"));
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_1"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_1"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ItemCountHint", 5000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ServiceCountHint", 2000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ObeyOpenWindow", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("PostAckTimeout", 1200));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("RequestTimeout", 2400));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxOutstandingPosts", 9999));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("DispatchTimeoutApiThread", 60));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("CatchUnhandledException", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 4444));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 7777));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("RestRequestTimeOut", 65000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptLimit", 9));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptInterval", 9000));
+			innerElementList.add(EmaFactory.createElementEntry().doubleValue("TokenReissueRatio", 0.9));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
+
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+
+			elementList.add(EmaFactory.createElementEntry().map( "ConsumerList", innerMap ));
+			innerMap.clear();
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "ConsumerGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_WEBSOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("InterfaceName", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::ZLib"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 8000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 7777));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("SysRecvBufSize", 150000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("SysSendBufSize", 200000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("HighWaterMark", 3000));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("CompressionThreshold", 12856));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ConnectionPingTimeout", 30000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14002"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 66));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("WsProtocols", "rssl.rwf, tr_json2"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("WsMaxMsgSize", 100500));
+
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_1", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+
+			elementList.add(EmaFactory.createElementEntry().map( "ChannelList", innerMap ));
+			innerMap.clear();
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "ChannelGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+
+			innerElementList.add(EmaFactory.createElementEntry().ascii("DictionaryType", "DictionaryType::ChannelDictionary"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryFileName", "./RDMFieldDictionary"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefFileName", "./enumtype.def"));
+
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Dictionary_1", MapEntry.MapAction.ADD, innerElementList));
+			innerElementList.clear();
+
+			elementList.add(EmaFactory.createElementEntry().map( "DictionaryList", innerMap ));
+
+			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "DictionaryGroup", MapEntry.MapAction.ADD, elementList ));
+
+			OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig().config(outermostMap);
+			OmmConsumer cons = JUnitTestConnect.createOmmConsumer(testConfig);
+
+			// Check default consumer name (Conusmer_2) and associated values
+			System.out.println("Retrieving DefaultConsumer configuration values: (DefaultConsumer value=Consumer_1) ");
+
+			String defaultConsName = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDefaultConsumerName, -1);
+			TestUtilities.checkResult("DefaultConsumer value != null", defaultConsName != null);
+			TestUtilities.checkResult("DefaultConsumer value == Consumer_1", defaultConsName.contentEquals("Consumer_1") );
+			String ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
+			TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
+			TestUtilities.checkResult("Channel value == Channel_1", ConsChannelVal.contentEquals("Channel_1") );
+			String ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
+			TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
+			TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
+			int intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ItemCountHint, -1);
+			TestUtilities.checkResult("ItemCountHint value == 5000", intLongValue == 5000 );
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ServiceCountHint, -1);
+			TestUtilities.checkResult("ServiceCountHint value == 2000", intLongValue == 2000 );
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerObeyOpenWindow, -1);
+			TestUtilities.checkResult("ObeyOpenWindow value == 1", intLongValue == 1 );
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerPostAckTimeout, -1);
+			TestUtilities.checkResult("PostAckTimeout value == 1200", intLongValue == 1200 );
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RequestTimeout, -1);
+			TestUtilities.checkResult("RequestTimeout value == 2400", intLongValue == 2400 );
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMaxOutstandingPosts, -1);
+			TestUtilities.checkResult("MaxOutstandingPosts value == 9999", intLongValue == 9999 );
+			int intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.DispatchTimeoutApiThread, -1);
+			TestUtilities.checkResult("DispatchTimeoutApiThread value == 60", intValue == 60 );
+
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountApiThread, -1);
+			TestUtilities.checkResult("MaxDispatchCountApiThread value == 300", intLongValue == 300 );
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.MaxDispatchCountUserThread, -1);
+			TestUtilities.checkResult("MaxDispatchCountUserThread value == 700", intLongValue == 700 );
+
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReconnectAttemptLimit, -1);
+			TestUtilities.checkResult("ReconnectAttemptLimit == 10", intValue == 10);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReconnectMinDelay, -1);
+			TestUtilities.checkResult("ReconnectMinDelay == 4444", intValue == 4444);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReconnectMaxDelay, -1);
+			TestUtilities.checkResult("ReconnectMaxDelay == 7777", intValue == 7777);
+			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
+			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
+			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
+
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestRequestTimeout, -1);
+			TestUtilities.checkResult("RestRequestTimeout == 65000", intValue == 65000);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReissueTokenAttemptLimit, -1);
+			TestUtilities.checkResult("ReissueTokenAttemptLimit == 9", intValue == 9);
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ReissueTokenAttemptInterval, -1);
+			TestUtilities.checkResult("ReissueTokenAttemptInterval == 9000", intValue == 9000);
+			double doubleValue = JUnitTestConnect.activeConfigGetDoubleValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio, -1);
+			TestUtilities.checkResult("TokenReissueRatio == 0.9", doubleValue == 0.9);
+			String enableRtt = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt, -1);
+			TestUtilities.checkResult("EnableRtt value == true", enableRtt.contentEquals("true") );
+			int value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorMsgEventPoolLimit;
+			TestUtilities.checkResult("ReactorMsgEventPoolLimit ==  100", value == 100);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.reactorChannelEventPoolLimit;
+			TestUtilities.checkResult("ReactorChannelEventPoolLimit == 150", value == 150);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.workerEventPoolLimit;
+			TestUtilities.checkResult("WorkerEventPoolLimit == 200", value == 200);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamMsgEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit == 250", value == 250);
+			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamStatusEventPoolLimit;
+			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 300", value == 300);
+
+
+			// Check values of Consumer_1
+			System.out.println("\nRetrieving Consumer_1 configuration values ");
+
+			ConsChannelVal = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
+			TestUtilities.checkResult("Channel value != null", ConsChannelVal != null);
+			TestUtilities.checkResult("Channel value == Channel_1", ConsChannelVal.contentEquals("Channel_1") );
+			ConsDictionary = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryName, -1);
+			TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
+			TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
+
+			// Check Channel configuration:
+			// Check Channel_1 configuration.
+			System.out.println("\nRetrieving Channel_1 configuration values ");
+			int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
+			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_WEBSOCKET", channelConnType == ChannelTypeWebSocket);
+
+			String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
+			TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));
+
+			// Check WebSocket attributes
+			strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.WsProtocols, 0);
+			TestUtilities.checkResult("WsProtocols == tr_json2", strValue.contentEquals("rssl.rwf, tr_json2"));
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.WsMaxMsgSize, 0);
+			TestUtilities.checkResult("WsMaxMsgSize == 100500", intValue == 100500);
+
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionType, 0);
+			TestUtilities.checkResult("CompressionType == CompressionType::ZLib", intValue == CompressionTypeZLib);
+
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.GuaranteedOutputBuffers, 0);
+			TestUtilities.checkResult("GuaranteedOutputBuffers == 8000", intLongValue == 8000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.NumInputBuffers, 0);
+			TestUtilities.checkResult("NumInputBuffers == 7777", intLongValue == 7777);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysRecvBufSize, 0);
+			TestUtilities.checkResult("SysRecvBufSize == 150000", intLongValue == 150000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.SysSendBufSize, 0);
+			TestUtilities.checkResult("SysSendBufSize == 200000", intLongValue == 200000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.HighWaterMark, 0);
+			TestUtilities.checkResult("HighWaterMark == 3000", intLongValue == 3000);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionThreshold, 0);
+			TestUtilities.checkResult("CompressionThreshold == 12856", intLongValue == 12856);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ConnectionPingTimeout, 0);
+			TestUtilities.checkResult("ConnectionPingTimeout == 30000", intLongValue == 30000);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.TcpNodelay, 0);
+			TestUtilities.checkResult("TcpNodelay == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.DirectWrite, 0);
+			TestUtilities.checkResult("DirectWrite == 1", boolValue == true);
+			String chanHost = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Host, 0);
+			TestUtilities.checkResult("Host == localhost", chanHost.contentEquals("localhost"));
+			String chanPort = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Port, 0);
+			TestUtilities.checkResult("Port == 14002", chanPort.contentEquals("14002"));
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout, 0);
+			TestUtilities.checkResult("InitializationTimeout == 66", intLongValue == 66);
+
+			// Check Dictionary_1 configuration.
+			System.out.println("\nRetrieving Dictionary_1 configuration values ");
+			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryType, -1);
+			TestUtilities.checkResult("DictionaryType == DictionaryType::ChannelDictionary (0)", intValue == 0);
+			strValue =  JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryRDMFieldDictFileName, -1);
+			TestUtilities.checkResult("RdmFieldDictionaryFileName == ./RDMFieldDictionary", strValue.contentEquals("./RDMFieldDictionary"));
+			strValue =   JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeDictionary, JUnitTestConnect.DictionaryEnumTypeDefFileName, -1);
+			TestUtilities.checkResult("RdmFieldDictionaryFileName == ./enumtype.def", strValue.contentEquals("./enumtype.def"));
 
 			cons = null;
 		}
@@ -2693,10 +2969,11 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 {
 	TestUtilities.printTestHead("testLoadCfgFromProgrammaticConfigForIProv","Test loading all IProvider configuration parameters programmatically");
 	
-	//two testcases:
+	//three testcases:
 	//test case 0: NOT loading EmaConfig file from working dir.
 	//test case 1: loading EmaConfigTest file
-	for (int testCase = 0; testCase < 2; testCase++)
+	//test case 2: WebSocket connection.
+	for (int testCase = 0; testCase < 3; testCase++)
 	{
 		System.out.println(" #####Now it is running test case " + testCase);
 
@@ -2748,8 +3025,13 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 
 			outermostMap.add(EmaFactory.createMapEntry().keyAscii( "IProviderGroup", MapEntry.MapAction.ADD, elementList));
 			elementList.clear();
-			
-			innerElementList.add(EmaFactory.createElementEntry().ascii("ServerType", "ServerType::RSSL_SOCKET"));
+			if (testCase == 2) {
+				innerElementList.add(EmaFactory.createElementEntry().ascii("ServerType", "ServerType::RSSL_WEBSOCKET"));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("MaxFragmentSize", 100500));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("WsProtocols", "rssl.json.v2, rssl.rwf"));
+			} else {
+				innerElementList.add(EmaFactory.createElementEntry().ascii("ServerType", "ServerType::RSSL_SOCKET"));
+			}
 			innerElementList.add(EmaFactory.createElementEntry().ascii("CompressionType", "CompressionType::ZLib"));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("GuaranteedOutputBuffers", 8000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("NumInputBuffers", 7777));
@@ -2764,7 +3046,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("HighWaterMark", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 100));
-			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Server_1", MapEntry.MapAction.ADD, innerElementList)); 
+			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Server_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 
 			innerElementList.add(EmaFactory.createElementEntry().ascii("ServerType", "ServerType::RSSL_SOCKET"));
@@ -2912,10 +3194,11 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			System.out.println("Using Ema Config: " + localConfigPath);
 			
 			OmmIProviderImpl prov = null;
-			if (testCase == 0)
+			if (testCase == 0 || testCase == 2) {
 				prov = (OmmIProviderImpl) JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig().config(outermostMap));
-			else if (testCase == 1)
+			} else if (testCase == 1) {
 				prov = (OmmIProviderImpl) JUnitTestConnect.createOmmIProvider(EmaFactory.createOmmIProviderConfig(localConfigPath).config(outermostMap));
+			}
 			
 			String defaultProvName = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.IProviderName);
 			TestUtilities.checkResult("DefaultProvider value != null", defaultProvName != null);
@@ -2979,7 +3262,15 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			provServerVal = "Server_1";
 			System.out.println("\nRetrieving Server_1 configuration values "); 
 			int serverConnType = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerType);
-			TestUtilities.checkResult("serverConnType == ServerType::RSSL_SOCKET", serverConnType == ChannelTypeSocket);
+			if (testCase == 2) {
+				TestUtilities.checkResult("serverConnType == ServerType::RSSL_SOCKET", serverConnType == ChannelTypeSocket);
+				String serverWsProtocols = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerWsProtocols);
+				TestUtilities.checkResult("wsProtocols == rssl.json.v2, rssl.rwf", "rssl.json.v2, rssl.rwf".contentEquals(serverWsProtocols));
+				intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerMaxFragmentSize);
+				TestUtilities.checkResult("maxFragmentSize == 100500", intLongValue == 100500);
+			} else {
+				TestUtilities.checkResult("serverConnType == ServerType::RSSL_SOCKET", serverConnType == ChannelTypeSocket);
+			}
 		
 			String strValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.InterfaceName);
 			TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));
@@ -3847,7 +4138,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("EnforceAckIDValidation", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
-			
+
 			elementList.add(EmaFactory.createElementEntry().map("IProviderList", innerMap));
 			innerMap.clear();
 

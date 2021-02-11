@@ -678,6 +678,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
             
             _dictionaryRefresh.state().text().data("Field Dictionary Refresh (starting fid " + _dictionaryRefresh.startFid() + ")");
             
+            msgBuf.data().limit(_maxFieldDictFragmentSize);
+            
             _encodeIter.clear();
             int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());
             if (ret != CodecReturnCodes.SUCCESS)
@@ -805,6 +807,8 @@ class DictionaryHandler implements RDMDictionaryMsgCallback
                 
                 return CodecReturnCodes.FAILURE;
             }
+            
+            msgBuf.data().limit(_maxEnumTypeFragmentSize);
     
             _encodeIter.clear();
             int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, reactorChannel.majorVersion(), reactorChannel.minorVersion());

@@ -84,6 +84,8 @@ public class JUnitTestConnect
 	public static final int ChannelType  = ConfigManager.ChannelType;
 	public static final int EncryptedProtocolType  = ConfigManager.EncryptedProtocolType;
 	public static final int ChannelInitTimeout = ConfigManager.ChannelInitTimeout;
+	public static final int WsProtocols = ConfigManager.WsProtocols;
+	public static final int WsMaxMsgSize = ConfigManager.WsMaxMsgSize;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap  = ConfigManager.ChannelDisconnectOnGap; 
@@ -182,6 +184,8 @@ public class JUnitTestConnect
 	public static final int ServerName = ConfigManager.ServerName;
 	public static final int ServerType = ConfigManager.ServerType;
 	public static final int ServerInitTimeout = ConfigManager.ServerInitTimeout;
+	public static final int ServerWsProtocols = ConfigManager.ServerWsProtocols;
+	public static final int ServerMaxFragmentSize = ConfigManager.ServerMaxFragmentSize;
 	
 	// Server: Socket
 	public static final int ServerCompressionThreshold = ConfigManager.ServerCompressionThreshold;
@@ -827,6 +831,9 @@ public class JUnitTestConnect
 			attributes = consConfig.xmlConfig().getDictionaryAttributes(name);
 		else if (type == ConfigGroupTypeProvider)
 			attributes = consConfig.xmlConfig().getIProviderAttributes(name);
+		else if (type == ConfigGroupTypeServer) {
+			attributes = consConfig.xmlConfig().getServerAttributes(name);
+		}
 
 		if (attributes != null) {
 			return attributes.getPrimitiveValue(configParam);
@@ -875,14 +882,14 @@ public class JUnitTestConnect
 
 			if (configParam == TcpNodelay)
 			{
-				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET || chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 					return ((SocketChannelConfig)chanConfig).tcpNodelay;
 				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 					return ((HttpChannelConfig)chanConfig).tcpNodelay;
 			}
 			else if (configParam == DirectWrite)
 			{
-				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET || chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 					return ((SocketChannelConfig)chanConfig).directWrite;
 			}
 			else if (configParam == EnableSessionMgnt)
@@ -967,6 +974,8 @@ public class JUnitTestConnect
 				return chanConfig.connectionPingTimeout;
 			else if (configParam == ChannelInitTimeout)
 				return chanConfig.initializationTimeout;
+			else if (configParam == WsMaxMsgSize)
+				return chanConfig.wsMaxMsgSize;
 		}
 		else if (type == ConfigGroupTypeDictionary)
 		{
@@ -1050,14 +1059,14 @@ public class JUnitTestConnect
 				return chanConfig.name;
 			else if (configParam == Port)
 			{
-					if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+					if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET || chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 						return ((SocketChannelConfig)chanConfig).serviceName;
 					else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 						return ((HttpChannelConfig)chanConfig).serviceName;
 			}
 			else if (configParam == Host)
 			{
-				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET)
+				if (chanConfig.rsslConnectionType == ConnectionTypes.SOCKET || chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
 					return ((SocketChannelConfig)chanConfig).hostName;
 				else if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 					return ((HttpChannelConfig)chanConfig).hostName;
@@ -1081,6 +1090,10 @@ public class JUnitTestConnect
 			{
 				if (chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 					return ((EncryptedChannelConfig)chanConfig).location;
+			} else if (configParam == WsProtocols) {
+				if (chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET) {
+					return chanConfig.wsProtocols;
+				}
 			}
 		}
 		else if (type == ConfigGroupTypeDictionary)
@@ -1373,6 +1386,9 @@ public class JUnitTestConnect
 				return activeConfig.serverConfig.connectionMinPingTimeout;
 			else if (configParam == ServerInitTimeout)
 				return activeConfig.serverConfig.initializationTimeout;
+			else if (configParam == ServerMaxFragmentSize) {
+				return activeConfig.serverConfig.maxFragmentSize;
+			}
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");   
@@ -1404,6 +1420,8 @@ public class JUnitTestConnect
 			else if (configParam == Port)
 			{
 				return ((SocketServerConfig)activeConfig.serverConfig).serviceName;
+			} else if (configParam == ServerWsProtocols) {
+				return activeConfig.serverConfig.wsProtocols;
 			}
 		}
 		

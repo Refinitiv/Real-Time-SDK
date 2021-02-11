@@ -9,6 +9,7 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.DateTime;
 import com.refinitiv.eta.perftools.common.ClientChannelInfo;
@@ -154,7 +155,7 @@ public class TransportPerf implements ShutdownCallback
                 TransportPerfConfig.connectionType() == ConnectionTypes.ENCRYPTED ||
                 TransportPerfConfig.connectionType() == ConnectionTypes.SEQUENCED_MCAST))
         {
-            System.out.printf("Error: Does not support http, encypted, or sequenced multicast connectionType while running as server.");
+            System.out.printf("Error: Does not support http, encrypted, or sequenced multicast connectionType while running as server.");
             System.exit(-1);            
         }
                                 
@@ -673,6 +674,7 @@ public class TransportPerf implements ShutdownCallback
         sopts.compressionLevel(TransportPerfConfig.compressionLevel());
         sopts.serviceName(TransportPerfConfig.portNo());
         sopts.sysRecvBufSize(TransportPerfConfig.recvBufSize());
+        sopts.wSocketOpts().protocols(TransportPerfConfig.protocolList());
 
         if ((srvr = Transport.bind(sopts, error)) == null)
             return null;

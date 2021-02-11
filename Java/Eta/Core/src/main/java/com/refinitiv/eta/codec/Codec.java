@@ -18,6 +18,10 @@ public class Codec
 {
     /** The RWF protocol type. */
     static public final int RWF_PROTOCOL_TYPE = 0;
+
+    /** The JSON protocol type. */
+    public static final int JSON_PROTOCOL_TYPE = 2;
+
     static private LibraryVersionInfoImpl _libVersionInfo = new LibraryVersionInfoImpl();
 
     static

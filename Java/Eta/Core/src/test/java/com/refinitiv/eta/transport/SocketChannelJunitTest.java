@@ -33,23 +33,23 @@ public class SocketChannelJunitTest
     @BeforeClass
     public static void setRunningInJunits()
     {
-    	ErrorImpl._runningInJunits = true;
+        ErrorImpl._runningInJunits = true;
     }
 
     @AfterClass
     public static void clearRunningInJunits()
     {
-    	ErrorImpl._runningInJunits = false;
+        ErrorImpl._runningInJunits = false;
     }
-        
+
     final static int TIMEOUTMS = 10000; // 10 seconds.
-    
+
     /*
      * The default port NetworkReplay will listen on
      */
     private static final int DEFAULT_LISTEN_PORT = 4323;
-    final static String DEFAULT_LISTEN_PORT_AS_STRING = Integer.toString(DEFAULT_LISTEN_PORT);    
-    
+    final static String DEFAULT_LISTEN_PORT_AS_STRING = Integer.toString(DEFAULT_LISTEN_PORT);
+
     /*
      * The base directory name where the test data files are located
      */
@@ -73,7 +73,7 @@ public class SocketChannelJunitTest
     /*
      * Return the length of the first packed header, which included the RIPC
      * header(3) and the packed header(2).
-     * 
+     *
      * @param channel
      * @return the length of the first packed header.
      */
@@ -85,7 +85,7 @@ public class SocketChannelJunitTest
     /*
      * Return the length of the additional packed header, which included the
      * packed header(2).
-     * 
+     *
      * @param channel
      * @return the length of the additional packed header.
      */
@@ -98,7 +98,7 @@ public class SocketChannelJunitTest
      * Return the length of the first fragment header, which included the RIPC
      * header (3), Extended Flags (1), total message length (4), and the
      * fragmentId(2(RIPC13)|1(RIPC12)).
-     * 
+     *
      * @param channel
      * @return the length of the first fragment header.
      */
@@ -111,7 +111,7 @@ public class SocketChannelJunitTest
      * Return the length of the additional fragment header, which included the
      * RIPC header (3), Extended Flags (1), and the
      * fragmentId(2(RIPC13)|1(RIPC12)).
-     * 
+     *
      * @param channel
      * @return the length of the additional fragment header.
      */
@@ -126,18 +126,18 @@ public class SocketChannelJunitTest
         // relative-get and absolute-get (10K buffer with 10K copies).
         // Bulk-get was fastest by far. Relative-get was twice as fast
         // as absolute-get, but was still ~26x slower than the bulk-get.
-        
+
         byte[] msg = new byte[buffer.data().limit()-buffer.data().position()];
         buffer.data().get(msg);
-        
+
         return msg;
     }
-    
+
     int compareAsString(TransportBuffer thisTransportBuf, TransportBuffer thatTransportBuf)
     {
         int len = 0, thisLen = 0, thatLen = 0;
         byte b1, b2;
-        
+
         ByteBuffer thisBBuf = thisTransportBuf.data();
         ByteBuffer thatBBuf = thatTransportBuf.data();
 
@@ -171,7 +171,7 @@ public class SocketChannelJunitTest
             return 1; // this is greater than that\
         }
     }
-    
+
     /*
      * GIVEN a file containing a single, complete message,
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
@@ -186,7 +186,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/020_single_complete_message.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/020_single_complete_message.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -198,12 +198,12 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
             RsslSocketChannel consumerChannel = createReplaySocketChannel(replay);
-            
+
             connectChannel(consumerChannel, DEFAULT_LISTEN_PORT); // connect to the NetworkReplay
             waitForChannelActive(consumerChannel); // wait for the channel to become active
 
@@ -215,7 +215,7 @@ public class SocketChannelJunitTest
             // read from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             final byte[] msg = getBytesFromBuffer(msgBuf);
@@ -247,8 +247,8 @@ public class SocketChannelJunitTest
 
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }  
-    
+    }
+
     /*
      * GIVEN a newly-connected socket channel
      * WHEN the user invokes RsslSocketChannel.read(ReadArgs, Error)
@@ -266,9 +266,9 @@ public class SocketChannelJunitTest
             initTransport(false); // initialize RSSL
 
             // load the messages to replay
-            
+
             replay = parseReplayFile(RIPC_CONNECT_ACK_HANDSHAKE_FILE);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -280,7 +280,7 @@ public class SocketChannelJunitTest
             // initialize variables required for reading from a channel
             final ReadArgs readArgs = TransportFactory.createReadArgs();
             final Error error = TransportFactory.createError();
-            
+
             @SuppressWarnings("unused")
             TransportBuffer msgBuf;
 
@@ -300,8 +300,8 @@ public class SocketChannelJunitTest
 
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }  
-    
+    }
+
     /*
      * GIVEN a newly-connected socket channel
      * WHEN the user invokes RsslSocketChannel.read(ReadArgs, Error)
@@ -320,7 +320,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(RIPC_CONNECT_ACK_HANDSHAKE_FILE);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -336,7 +336,7 @@ public class SocketChannelJunitTest
             // force an IOException to be thrown when the RsslSocketChannel
             //(internally) attempts to read from the network
             replay.forceNextReadToFail("this will cause the channel read to fail");
-            
+
             @SuppressWarnings("unused")
             TransportBuffer msgBuf;
 
@@ -357,7 +357,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN a single input file containing two (concatenated) messages such
      * that they (should) be read into the same buffer when the
@@ -371,7 +371,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/030_expected_two_msgs_single_net_read.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/030_input_two_msgs_single_net_read.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -383,7 +383,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -404,7 +404,7 @@ public class SocketChannelJunitTest
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -412,7 +412,7 @@ public class SocketChannelJunitTest
              */
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.bytesRead());
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
+
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertTrue(readArgs.readRetVal() == TransportReturnCodes.SUCCESS); // no more data
@@ -427,7 +427,7 @@ public class SocketChannelJunitTest
              */
             assertEquals(0, readArgs.bytesRead());
             assertEquals(expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
+
             // the next call should return null data, and a "RSSL_RET_READ_WOULD_BLOCK" return code
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
@@ -449,12 +449,12 @@ public class SocketChannelJunitTest
         }
 
     }
-    
+
     /*
      * GIVEN an input file containing a single message that is
      * broken into two parts, such that the first part contains
      * the RIPC header, and part of the message, and the 2nd
-     * part contains the rest of the message 
+     * part contains the rest of the message
      * WHEN the user invokes
      * RsslSocketChannel.read(ReadArgs, Error)
      * THEN the first invocation will return a {@code null} message
@@ -468,11 +468,11 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/040_expected_two_part_known_incomplete.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/040_input_two_part_known_incomplete.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0, cumulativeBytesRead = 0;
-        
+
         try
         {
             initTransport(false); // initialize RSSL
@@ -483,7 +483,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -511,7 +511,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(385, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             final byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
@@ -523,7 +523,7 @@ public class SocketChannelJunitTest
              */
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, cumulativeBytesRead);
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, cumulativeUncompressedBytesRead);
-            
+
             // the next call should return null data, and a "RSSL_RET_READ_WOULD_BLOCK" return code
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
@@ -547,7 +547,7 @@ public class SocketChannelJunitTest
         }
 
     }
-    
+
     /*
      * GIVEN an input file containing a single message that is
      * broken into two parts, such that the first part contains
@@ -560,17 +560,17 @@ public class SocketChannelJunitTest
      * AND the second invocation will return the expected message
      * and a value exactly equal to success
      * AND the third invocation will return READ_WOULD_BLOCK
-     */    
+     */
     @Test
     public void twoPartUnknownIncomplete()
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/050_expected_two_part_unknown_incomplete.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/050_input_two_part_unknown_incomplete.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0, cumulativeBytesRead = 0;
-        
+
         try
         {
             initTransport(false); // initialize RSSL
@@ -581,7 +581,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -609,7 +609,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(385, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             final byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
@@ -621,7 +621,7 @@ public class SocketChannelJunitTest
              */
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, cumulativeBytesRead);
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, cumulativeUncompressedBytesRead);
-            
+
             // the next call should return null data, and a "RSSL_RET_READ_WOULD_BLOCK" return code
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
@@ -653,8 +653,8 @@ public class SocketChannelJunitTest
      * error (<= instead of <) caused us to also read an additional
      * byte containing junk data (left over from previously read data)
      * as the RIPC flag. This in-turn caused the state machine to
-     * incorrectly interpret the message as being "packed". 
-     * 
+     * incorrectly interpret the message as being "packed".
+     *
      * The input file contains:<br/>
      * a) The RIPC handshake<br/>
      * b) The first message, with a total length of 34 bytes, plus
@@ -667,7 +667,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/051_expected_unknown_incomplete.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/051_input_unknown_incomplete.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -679,7 +679,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -706,7 +706,7 @@ public class SocketChannelJunitTest
                 _readIoBuffer.buffer().put(packedFlag);
             }
             _readIoBuffer.buffer().rewind(); // get read for "regular" reads
-            
+
             // read from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertTrue(readArgs.readRetVal() > TransportReturnCodes.SUCCESS);
@@ -722,8 +722,8 @@ public class SocketChannelJunitTest
              */
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + 2, readArgs.bytesRead());
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
-            
+
+
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
@@ -731,7 +731,7 @@ public class SocketChannelJunitTest
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -739,7 +739,7 @@ public class SocketChannelJunitTest
              */
             assertEquals(expectedMessages[2].length + Ripc.Lengths.HEADER - 2, readArgs.bytesRead());
             assertEquals(expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
+
             // the next call should return null data, and a "RSSL_RET_READ_WOULD_BLOCK" return code
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
@@ -776,14 +776,14 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
- 
+
     /*
      * GIVEN an input file that tests the KNOWN_INSUFFICIENT state:
-     * 
+     *
      * (Note: when the RsslSocketChannel is in the KNOWN_INSUFFICIENT
      * state, it knows the length of the "next" message, but there is
      * insufficient space in the read buffer to accommodate it.
-     * 
+     *
      * For this unit test, we will override the capacity of the
      * RsslSocketChannel read buffer to be 35 bytes.
      * The input file will contain two complete messages that, combined,
@@ -793,13 +793,13 @@ public class SocketChannelJunitTest
      * have a total length of 10 bytes. When the RsslSocketChannel
      * (internally) performs a network read, the entire first message, plus
      * the first three bytes of the second message will fill the entire read buffer.
-     * 
+     *
      * After the first message is processed (by the application), the state
      * machine will transition from the KNOWN_COMPLETE state to the
      * KNOWN_INSUFFICENT state. This will require the buffer to be compacted
      * before the rest of the second message can be read by the
      * RsslSocketChannel.)
-     * 
+     *
      * WHEN the user invokes
      * RsslSocketChannel.read(ReadArgs, Error)
      * THEN the first invocation will return the expected message
@@ -807,7 +807,7 @@ public class SocketChannelJunitTest
      * AND the second invocation will return the expected message
      * and a value exactly equal to success
      * AND the third invocation will return READ_WOULD_BLOCK
-     */    
+     */
     @Test
     public void knownInsufficient()
     {
@@ -816,7 +816,7 @@ public class SocketChannelJunitTest
         final int readBufferCapacity = 35; // bytes
         knownInsufficient(expectedFile, inputFile, readBufferCapacity);
     }
-   
+
     /*
      * This is essentially the same as the knownInsufficient() test
      * case, but the readBufferCapacity and input to NetworkReplay has been
@@ -830,14 +830,14 @@ public class SocketChannelJunitTest
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/056_expected_known_insufficient_remain_buf.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/056_input_known_insufficient_remain_buf.txt";
         final int readBufferCapacity = 36; // bytes
-        
+
         knownInsufficient(expectedFile, inputFile, readBufferCapacity);
     }
-    
+
     /* general knownInsufficient test */
     private void knownInsufficient(String expectedFile, String inputFile, final int readBufferCapacity)
     {
-        
+
         NetworkReplay replay = null;
 
         try
@@ -849,7 +849,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -871,7 +871,7 @@ public class SocketChannelJunitTest
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -879,14 +879,14 @@ public class SocketChannelJunitTest
              */
             if (readBufferCapacity == 35)
             {
-            	assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.bytesRead());
+                assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.bytesRead());
             }
             else
             {
-            	assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + 3, readArgs.bytesRead());            	
+                assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + 3, readArgs.bytesRead());
             }
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
+
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
@@ -902,14 +902,14 @@ public class SocketChannelJunitTest
              */
             if (readBufferCapacity == 35)
             {
-            	assertEquals(0, readArgs.bytesRead());
+                assertEquals(0, readArgs.bytesRead());
             }
             else
             {
-            	assertEquals(7, readArgs.bytesRead());
+                assertEquals(7, readArgs.bytesRead());
             }
             assertEquals(expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
+
             // the next call should return null data, and a "RSSL_RET_READ_WOULD_BLOCK" return code
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
@@ -930,15 +930,15 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN an input file that tests the UNKNOWN_INSUFFICIENT state:
-     * 
+     *
      * (Note: when the RsslSocketChannel is in the UNKNOWN_INSUFFICIENT
      * state, it dosn't know the length of the "next" message, and there is
      * insufficient space in the read buffer to accommodate the rest of the
      * RIPC header.
-     * 
+     *
      * For this unit test, we will override the capacity of the
      * RsslSocketChannel buffer to be 35 bytes. The input file will
      * contain two complete messages that, combined, will exceeded the length
@@ -947,12 +947,12 @@ public class SocketChannelJunitTest
      * have a total length of 10 bytes. When the RsslSocketChannel
      * (internally) performs a network read, the entire first message, plus
      * the first byte of the second message will fill the entire read buffer.
-     * 
+     *
      * After the first message is processed (by the application), the state
      * machine will transition from the KNOWN_COMPLETE state to the
      * UNKNOWN_INSUFFICENT state. This will require the buffer to be compacted
      * before the rest of the second message can be read.
-     * 
+     *
      * WHEN the user invokes
      * RsslSocketChannel.read(ReadArgs, Error)
      * THEN the first invocation will return the expected message
@@ -960,14 +960,14 @@ public class SocketChannelJunitTest
      * AND the second invocation will return the expected message
      * and a value exactly equal to success
      * AND the third invocation will return READ_WOULD_BLOCK
-     */    
+     */
     @Test
     public void unknownInsufficient()
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/058_expected_unknown_insufficient.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/058_input_unknown_insufficient.txt";
         final int readBufferCapacity = 35; // bytes
-        
+
         NetworkReplay replay = null;
 
         try
@@ -979,7 +979,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1001,7 +1001,7 @@ public class SocketChannelJunitTest
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -1009,8 +1009,8 @@ public class SocketChannelJunitTest
              */
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER + expectedMessages[2].length + Ripc.Lengths.HEADER, readArgs.bytesRead());
             assertEquals(expectedMessages[1].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
-            
-            
+
+
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
@@ -1046,22 +1046,22 @@ public class SocketChannelJunitTest
 
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }    
+    }
 
-    
+
     /*
-     * GIVEN an input file containing a single ping message 
+     * GIVEN an input file containing a single ping message
      * WHEN the user invokes
      * RsslSocketChannel.read(ReadArgs, Error)
      * THEN the first invocation will return a {@code null} message
      * and a value equal to READ_PING
      * AND the second invocation will return  READ_WOULD_BLOCK
-     */    
+     */
     @Test
     public void testPingMessage()
     {
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/ping_message.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -1070,19 +1070,19 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
             RsslSocketChannel consumerChannel = createReplaySocketChannel(replay);
-            
+
             connectChannel(consumerChannel, DEFAULT_LISTEN_PORT); // connect to the NetworkReplay
             waitForChannelActive(consumerChannel); // wait for the channel to become active
 
             // initialize variables required for reading from a channel
             final ReadArgs readArgs = TransportFactory.createReadArgs();
             final Error error = TransportFactory.createError();
-            
+
             @SuppressWarnings("unused")
             TransportBuffer msgBuf;
 
@@ -1109,7 +1109,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN a transport initialized to use GLOBAL_AND_CHANNEL locking
      * WHEN the user invokes
@@ -1118,7 +1118,7 @@ public class SocketChannelJunitTest
      * THEN the first invocation will return a {@code null} message
      * AND a value equal to READ_IN_PROGRESS
      * AND the second invocation will return  READ_WOULD_BLOCK
-     */    
+     */
     @Test
     public void testReadLockFailure()
     {
@@ -1133,7 +1133,7 @@ public class SocketChannelJunitTest
 
             // allocate a channel that reads from our NetworkReplay
             RsslSocketChannel consumerChannel = createReplaySocketChannel(replay);
-            
+
             // create a mock read lock
             Lock readLock = Mockito.mock(Lock.class);
             // the first call to trylock() will fail, the second will succeed
@@ -1146,14 +1146,14 @@ public class SocketChannelJunitTest
             // initialize variables required for reading from a channel
             final ReadArgs readArgs = TransportFactory.createReadArgs();
             final Error error = TransportFactory.createError();
-            
+
             @SuppressWarnings("unused")
             TransportBuffer msgBuf;
 
             // read from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertTrue(readArgs.readRetVal() == TransportReturnCodes.READ_IN_PROGRESS);
-            
+
             // the next call should return null data, and a "RSSL_RET_READ_WOULD_BLOCK" return code
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             // the return value should (exactly) equal SUCCESS because there is no more data to process
@@ -1173,8 +1173,8 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
-    
+
+
     /*
      * GIVEN a single input file containing a single complete message
      * WHEN we force end of stream AFTER the first time the user invokes
@@ -1191,7 +1191,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/020_single_complete_message.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/020_single_complete_message.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -1203,7 +1203,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1224,14 +1224,14 @@ public class SocketChannelJunitTest
             final byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             assertTrue(consumerChannel.state() != ChannelState.CLOSED);
-            
+
             replay.forceEndOfStream();
-            
+
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertTrue(readArgs.readRetVal() == TransportReturnCodes.FAILURE); // no more data
-            
+
             assertEquals(ChannelState.CLOSED, consumerChannel.state());
         }
         catch (IOException e)
@@ -1253,9 +1253,9 @@ public class SocketChannelJunitTest
      * GIVEN a file containing a single, complete packed message,
      * message that has only one part where the message format
      * is as follows:
-     * 
+     *
      * {@code XXYZZAAAAAAAAAAAA}
-     * 
+     *
      * In the message above:
      * <ul>
      *     <li>{@code XX} is the two-byte RIPC message length (for the entire message)</li>
@@ -1275,7 +1275,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/060_expected_single_complete_1part_packed.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/060_input_single_complete_1part_packed.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -1287,7 +1287,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1336,22 +1336,22 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
-     * 
+     *
      * GIVEN a file containing and a single (complete) packed message,
      * such that the packed message has only one part, and the length
-     * of said part is zero bytes. The message format is as follows: 
-     * 
+     * of said part is zero bytes. The message format is as follows:
+     *
      * {@code XXYZZ}
-     * 
+     *
      * In the message above:
      * <ul>
      *     <li>{@code XX} is the two-byte RIPC message length (for the entire message)</li>
      *     <li>{@code Y} is the one-byte RIPC message flag</li>
      *     <li>{@code ZZ} is the two-byte length of the first (and only) packed message</li>
      * </ul>
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * and then invoke it again
      * THEN the first call to read returns a message with a length of zero
@@ -1363,7 +1363,7 @@ public class SocketChannelJunitTest
     public void readSinglePackedEmptyPayload()
     {
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/070_single_packed_with_empty_payload.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -1372,7 +1372,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1407,15 +1407,15 @@ public class SocketChannelJunitTest
 
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }    
+    }
 
-    
+
     /*
      * GIVEN a file containing and a single (complete) packed message,
-     * where the packed message has two parts. The message format is as follows: 
-     * 
+     * where the packed message has two parts. The message format is as follows:
+     *
      * {@code XXYZZAAAAAAAAAAAANNBBBBBBBBBBBB}
-     * 
+     *
      * In the message above:
      * <ul>
      *     <li>{@code XX} is the two-byte RIPC message length (for the entire message)</li>
@@ -1425,7 +1425,7 @@ public class SocketChannelJunitTest
      *     <li>{@code NN} is the two-byte length of the second packed message</li>
      *     <li>{@code BBBBBBBBBBBB} represents the second packed message</li>
      * </ul>
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns 1st packed message
@@ -1440,7 +1440,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/080_expected_single_complete_2part_packed.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/080_input_single_complete_2part_packed.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -1452,7 +1452,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1480,14 +1480,14 @@ public class SocketChannelJunitTest
              * the comparison.
              */
             int headerAndDataLen = firstPackedHeaderLength() + expectedMessages[1].length +
-            		additionalPackedHeaderLength()+ expectedMessages[2].length;
+                                   additionalPackedHeaderLength()+ expectedMessages[2].length;
             assertEquals(headerAndDataLen, readArgs.bytesRead());
             assertEquals(headerAndDataLen, readArgs.uncompressedBytesRead());
-            
+
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
@@ -1499,7 +1499,7 @@ public class SocketChannelJunitTest
              */
             assertEquals(0, readArgs.bytesRead());
             assertEquals(0, readArgs.uncompressedBytesRead());
-            
+
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal()); // no more data
@@ -1518,15 +1518,15 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN a file containing the RIPC handshake, and a single (complete)
      * packed message, where the packed message has three parts. The last
      * part is "empty" (it has a length of zero.) The message format is
-     * as follows:  
-     * 
+     * as follows:
+     *
      * {@code XXYZZAAAAAAAAAAAANNBBBBBBBBBBBBOO}
-     * 
+     *
      * In the message above:
      * <ul>
      *     <li>{@code XX} is the two-byte RIPC message length (for the entire message)</li>
@@ -1537,7 +1537,7 @@ public class SocketChannelJunitTest
      *     <li>{@code BBBBBBBBBBBB} represents the second packed message</li>
      *     <li>{@code OO} is the two-byte length of the third packed message</li>
      * </ul>
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns 1st packed message
@@ -1552,7 +1552,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/090_expected_3part_packed_last_part_empty.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/090_input_3part_packed_last_part_empty.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -1564,7 +1564,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1585,25 +1585,25 @@ public class SocketChannelJunitTest
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain transport headers, so add it for
              * the comparison.
              */
             int headerAndDataLen = firstPackedHeaderLength()+ expectedMessages[1].length +
-            		additionalPackedHeaderLength()+ expectedMessages[2].length + additionalPackedHeaderLength();
+                                   additionalPackedHeaderLength()+ expectedMessages[2].length + additionalPackedHeaderLength();
             assertEquals(headerAndDataLen, readArgs.bytesRead());
             assertEquals(headerAndDataLen, readArgs.uncompressedBytesRead());
 
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertTrue(readArgs.readRetVal() > TransportReturnCodes.SUCCESS);
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain transport headers, so add it for
@@ -1615,7 +1615,7 @@ public class SocketChannelJunitTest
             readArgs.clear();
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal()); // no more data
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * The last packed message had a length of zero, so just account
@@ -1634,20 +1634,20 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }    
-    
-    
+    }
+
+
     /*
      * GIVEN a file containing the RIPC handshake, and a fragmented message
      * consisting of one "fragment header" message, and one "fragment"
      * message where:
-     *  
+     *
      * The format of the message containing the fragment header is as follows:
      * {@code AABCDDDDEFFFFFFFFFF}
-     * 
+     *
      * In the message above:
      * <ul>
      *     <li>{@code AA} is the two-byte RIPC message length (for the entire message)</li>
@@ -1657,10 +1657,10 @@ public class SocketChannelJunitTest
      *     <li>{@code E} is the one-byte fragment ID</li>
      *     <li>{@code FFFFFFF} is the data</li>
      * </ul>
-     * 
+     *
      * The format of the message containing the fragment is as follows:
      * {@code AABCDEFFF}
-     * 
+     *
      * In the message above:
      * <ul>
      *     <li>{@code AA} is the two-byte RIPC message length (for the entire message)</li>
@@ -1669,7 +1669,7 @@ public class SocketChannelJunitTest
      *     <li>{@code D} is the one-byte fragment id</li>
      *     <li>{@code EEE} is the data</li>
      * </ul>
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -1684,11 +1684,11 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/100_expected_fragmented.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/100_input_fragmented.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0, cumulativeBytesRead = 0;
-        
+
         try
         {
             initTransport(false); // initialize RSSL
@@ -1699,7 +1699,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1727,7 +1727,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[2].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             final byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
@@ -1738,7 +1738,7 @@ public class SocketChannelJunitTest
              * back on for the comparison.
              */
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
+                                      + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
             assertEquals(headerAndDataLength, cumulativeBytesRead);
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
 
@@ -1758,17 +1758,17 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN an input file containing the RIPC handshake, and a fragmented
      * message consisting of one "fragment header" message, and one "fragment"
      * message, where BOTH the fragment header message and the fragment message
      * will be read from the network in a single call tojava.nio.channels.SocketChannel.read()
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -1783,9 +1783,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/105_expected_fragment_header+frag_single_read.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/105_input_fragment_header+frag_single_read.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -1798,7 +1798,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1824,18 +1824,18 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(9, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify cumulative ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
              * back on for the comparison.
              */
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
+                                      + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
 
             readArgs.clear();
@@ -1854,11 +1854,11 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }    
-    
+    }
+
     /*
      * GIVEN an input file containing the RIPC handshake, and two fragmented
      * messages such that the smaller one follows the larger one. (The
@@ -1866,7 +1866,7 @@ public class SocketChannelJunitTest
      * fragment buffers. Since the first message is larger than the second
      * one, we should be able to re-use the same fragment buffer allocated
      * for the first message.)
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -1885,7 +1885,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/110_expected_smaller_frag_follows_larger.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/110_input_smaller_frag_follows_larger.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0, cumulativeBytesRead = 0;
@@ -1900,7 +1900,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -1928,19 +1928,19 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[2].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             // compare the first (larger) message
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify cumulative ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
              * back on for the comparison.
              */
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
+                                      + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
             assertEquals(headerAndDataLength, cumulativeBytesRead);
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
 
@@ -1964,14 +1964,14 @@ public class SocketChannelJunitTest
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify cumulative ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
              * back on for the comparison.
              */
             headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[2].length;
+                                  + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[2].length;
             assertEquals(headerAndDataLength, cumulativeBytesRead);
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
 
@@ -1991,18 +1991,18 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN an input file containing the RIPC handshake, an "out-of-sequence"
      * fragment such that we receive the fragment, but we never received its
      * corresponding fragment header, and a "normal" RIPC message. The purpose
      * of this test is to verify we can recover from the scenario where we
      * receive an out-of-sequence fragment.
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -2017,7 +2017,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/115_expected_frag_out_of_sequence.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/115_input_frag_out_of_sequence.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -2029,7 +2029,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -2049,11 +2049,11 @@ public class SocketChannelJunitTest
 
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             final byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal()); // no more data
         }
@@ -2067,17 +2067,17 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }      
-    
+    }
+
     /*
      * GIVEN an input file containing the RIPC handshake, a fragment header
      * with a "total message length" (data length) that exceeds Java's MAX_INT,
      * a normal RIPC message, a fragment associated with the fragment
      * header, and finally, another normal message.
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -2096,7 +2096,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/120_expected_frag_max_int.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/120_input_frag_max_int.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -2108,7 +2108,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -2130,11 +2130,11 @@ public class SocketChannelJunitTest
             // the first normal RIPC message
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             // this message is a fragment associated with the above fragment header
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal());
@@ -2142,7 +2142,7 @@ public class SocketChannelJunitTest
             // the second normal RIPC message
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
@@ -2161,16 +2161,16 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * GIVEN an input file containing the RIPC handshake, a fragment header,
      * a normal RIPC message, a second fragment header with the
      * same ID as the first fragment header, and a fragment.
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -2189,7 +2189,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/125_expected_dupe_frag_headers.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/125_input_dupe_frag_headers.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -2201,7 +2201,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -2223,11 +2223,11 @@ public class SocketChannelJunitTest
             // the first normal RIPC message
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             // read the second fragment header (with the duplicate fragment id)
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal());
@@ -2235,7 +2235,7 @@ public class SocketChannelJunitTest
             // read the fragment (associated with the second fragment header)
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
@@ -2254,17 +2254,17 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }    
-    
+    }
+
     /*
      * GIVEN an input file containing the RIPC handshake, a fragment header,
      * a normal RIPC message, a second fragment header of the same size with
      * a different frag ID as the first fragment header, and one fragment
      * for each fragID.
-     * 
+     *
      * WHEN we invoke RsslSocketChannel.read(ByteBuffer)
      * several times
      * THEN the first call to read returns null
@@ -2285,7 +2285,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/130_expected_two_frag_msgs_same_size_diff_ids.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/130_input_two_frag_msgs_same_size_diff_ids.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0, cumulativeBytesRead = 0;
@@ -2300,7 +2300,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -2330,11 +2330,11 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[2].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             // read the second fragment header (same size as first fragment)
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal());
@@ -2342,7 +2342,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[3].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             // read the first fragment (associated with the first fragment header)
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
@@ -2350,7 +2350,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[4].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
@@ -2362,7 +2362,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[5].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[3], msg); //first array element is initial RIPC message
@@ -2374,9 +2374,9 @@ public class SocketChannelJunitTest
              * Expect two fragment headers, two additional fragments and one normal msg.
              */
             int headerAndDataLength = (firstFragmentHeaderLength(consumerChannel) * 2)
-                    + (additionalFragmentHeaderLength(consumerChannel) * 2) + Ripc.Lengths.HEADER
-                    + expectedMessages[1].length + expectedMessages[2].length
-                    + expectedMessages[3].length;
+                                      + (additionalFragmentHeaderLength(consumerChannel) * 2) + Ripc.Lengths.HEADER
+                                      + expectedMessages[1].length + expectedMessages[2].length
+                                      + expectedMessages[3].length;
             assertEquals(headerAndDataLength, cumulativeBytesRead);
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
 
@@ -2396,21 +2396,21 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     @Test
     public void normalMessageFollowsFragmentedMessage()
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/140_expected_normal_msg_follow_frag_msg.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/140_input_normal_msg_follow_frag_msg.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0, cumulativeBytesRead = 0;
-        
+
         try
         {
             initTransport(false); // initialize RSSL
@@ -2421,7 +2421,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -2443,11 +2443,11 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[1].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             // this call reads the first fragment header
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) == null);
             assertEquals(TransportReturnCodes.READ_WOULD_BLOCK, readArgs.readRetVal());
@@ -2463,11 +2463,11 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[3].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[2], msg); //first array element is initial RIPC message
-            
+
             // read the first fragment (associated with the first fragment header)
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
@@ -2475,7 +2475,7 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[4].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[3], msg); //first array element is initial RIPC message
@@ -2487,11 +2487,11 @@ public class SocketChannelJunitTest
             cumulativeBytesRead += readArgs.bytesRead();
             assertEquals(expectedInput[5].length + Ripc.Lengths.HEADER, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[4], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify cumulative ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -2499,9 +2499,9 @@ public class SocketChannelJunitTest
              * Expect one fragment header, one additional fragments and three normal msgs.
              */
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel) + (Ripc.Lengths.HEADER * 3)
-                    + expectedMessages[1].length + expectedMessages[2].length
-                    + expectedMessages[3].length + expectedMessages[4].length;
+                                      + additionalFragmentHeaderLength(consumerChannel) + (Ripc.Lengths.HEADER * 3)
+                                      + expectedMessages[1].length + expectedMessages[2].length
+                                      + expectedMessages[3].length + expectedMessages[4].length;
             assertEquals(headerAndDataLength, cumulativeBytesRead);
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
 
@@ -2521,16 +2521,16 @@ public class SocketChannelJunitTest
             {
                 replay.stopListener();
             }
-            
+
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * Returns an array of messages that we would expect to receive from a call
      * to RsslSocketChannel.read(ReadArgs, Error). NOTE:
      * The RIPC headers will be stripped from these messages.
-     * 
+     *
      * @param replayFile The replay file containing the messages
      * @return An array of messages that we would expect to receive from a call
      *         to RsslSocketChannel.read(ReadArgs, Error)
@@ -2551,10 +2551,10 @@ public class SocketChannelJunitTest
 
     /*
      * Invokes RsslTransport.initialize(
-     * 
+     *
      * @throws IOException
      */
-    private void initTransport(boolean globalLocking) throws IOException
+    static void initTransport(boolean globalLocking) throws IOException
     {
         final Error error = TransportFactory.createError();
 
@@ -2565,7 +2565,7 @@ public class SocketChannelJunitTest
             throw new IOException("RsslTransport.initialize() failed: " + error.text());
         }
     }
-    
+
     /*
      * Connect the provided channel (to the {@code NetworkReplay})
      * @param portNumber The port number the network replay is listening on
@@ -2586,7 +2586,7 @@ public class SocketChannelJunitTest
     /*
      * Creates a new instance of a RsslSocketChannel and overrides its
      * RsslSocketChannel.read(ByteBuffer) method
-     * 
+     *
      * @param replay
      * @return
      */
@@ -2613,13 +2613,13 @@ public class SocketChannelJunitTest
         };
 
         assertTrue(consumerChannel.connectionType() == ConnectionTypes.SOCKET);
-        
+
         return consumerChannel;
     }
-    
+
     /*
      * Waits for the specified channel to become active
-     * 
+     *
      * @param channel
      * @throws IOException
      */
@@ -2642,7 +2642,7 @@ public class SocketChannelJunitTest
                 if ((retval = channel.init(inProg, error)) < TransportReturnCodes.SUCCESS)
                 {
                     String initFail = "\nChannel " + channel.selectableChannel() + " inactive: "
-                            + error.text();
+                                      + error.text();
                     System.err.println(initFail);
                     throw new IOException(initFail);
                 }
@@ -2652,15 +2652,15 @@ public class SocketChannelJunitTest
                     {
                         case TransportReturnCodes.CHAN_INIT_IN_PROGRESS:
                             System.out.println("\nChannel " + channel.selectableChannel()
-                                    + " In Progress...");
+                                               + " In Progress...");
                             break;
                         case TransportReturnCodes.SUCCESS:
                             System.out.println("\nChannel " + channel.selectableChannel()
-                                    + " Is Active");
+                                               + " Is Active");
                             break;
                         default:
                             String badRet = "\nBad return value channel="
-                                    + channel.selectableChannel() + " <" + error.text() + ">";
+                                            + channel.selectableChannel() + " <" + error.text() + ">";
                             System.out.println(badRet);
                             throw new IOException(badRet);
                     }
@@ -2687,7 +2687,7 @@ public class SocketChannelJunitTest
 
     /*
      * Parses a network replay file and returns a populated NetworkReplay
-     * 
+     *
      * @param fileName The name of the network replay file to parse
      * @return A populated NetworkReplay
      * @throws IOException Thrown if the file could not be parsed
@@ -2702,7 +2702,7 @@ public class SocketChannelJunitTest
 
     /*
      * Returns a ConnectOptions for the specified address
-     * 
+     *
      * @param hostname The hostname or IP address to connect to
      * @param portno The port number to connect to
      * @return A ConnectOptions for the specified address
@@ -2729,179 +2729,179 @@ public class SocketChannelJunitTest
     private void printMessage(final byte[] msg, RsslSocketChannel channel)
     {
         assertTrue(channel != null);
-        
+
         System.out.println("-- begin --");
         if (msg != null)
         {
             ByteBuffer temp = ByteBuffer.wrap(msg);
-            System.out.println(Transport.toHexString(temp, 0, temp.limit()));            
+            System.out.println(Transport.toHexString(temp, 0, temp.limit()));
         }
         System.out.println("-- end --");
     }
-    
+
     ////// START basic write(), flush() and ping() tests //////
     /*
      * 1. Call write method with
-     * 
+     *
      * - DIRECT_SOCKET_WRITE flag set
      * - no buffers queued
      * -java.nio.channels.SocketChannel.write() returns all bytes sent
-     * 
+     *
      * Expected Result:
-     * 
+     *
      * Buffer directly written to network and write method returns 0.
      */
     @Test
     public void basicWFPTestCase1()
     {
-    	String testData = "basicWFPTestCase1";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
-    	byteBuf.position();
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-        
+        String testData = "basicWFPTestCase1";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
+        byteBuf.position();
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+
         try
-    	{
-	        // create the RsslSocketChannel to test
-            	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-            	{
-            		@Override
-            		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-            		{
-            			return 0;
-            		}
-            		@Override
-            		void releaseBufferInternal(TransportBuffer bufferInt) 
-            		{
-            			
-            		}
-            	}
-            	;
-            	// set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
-	    	
-	    	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
-	    	transBuf._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf.data().put(byteBuf);
-	    	transBuf._isWriteBuffer = true;
-	    	
-	       SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        //java.nio.channels.SocketChannel.write() returns all bytes sent
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(bufLen + 3));
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl;
-	        
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+                }
+            }
+                    ;
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
 
-	        // write call should return success
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertEquals(TransportReturnCodes.SUCCESS, rsslChnl.write(transBuf, writeArgs, error));
-	        // bytesWritten should be bufLen
-	        assertTrue(writeArgs.bytesWritten() == bufLen + 3);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
-    }  
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
+
+            SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
+
+            //java.nio.channels.SocketChannel.write() returns all bytes sent
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(bufLen + 3));
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
+
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            // write call should return success
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertEquals(TransportReturnCodes.SUCCESS, rsslChnl.write(transBuf, writeArgs, error));
+            // bytesWritten should be bufLen
+            assertTrue(writeArgs.bytesWritten() == bufLen + 3);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
+    }
 
     /*
      * 2. Call write method with
-     * 
+     *
      * - HIGH priority
      * - DIRECT_SOCKET_WRITE flag set
      * - no buffers queued
      * -java.nio.channels.SocketChannel.write() returns partial bytes sent
-     * 
+     *
      * Expected Result:
-     * 
+     *
      * Buffer put in flush buffer and write method returns the remaining bytes queued.
      */
     @Test
     public void basicWFPTestCase2()
     {
-    	String testData = "basicWFPTestCase2";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
-    	byteBuf.position(0);
-    	byteBuf.put(testData.getBytes());
-    	String partialTestData = "WFPTestCase2";
-    	int partialBufLen = partialTestData.length();
-    	ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
-    	partialByteBuf.put(partialTestData.getBytes());
-    	partialByteBuf.position(0);
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
-        	}
-        	;
-	    		    	
-	    	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
-	    	transBuf._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf.data().put(byteBuf);
-	    	transBuf._isWriteBuffer = true;
-	    	
+        String testData = "basicWFPTestCase2";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
+        byteBuf.position(0);
+        byteBuf.put(testData.getBytes());
+        String partialTestData = "WFPTestCase2";
+        int partialBufLen = partialTestData.length();
+        ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
+        partialByteBuf.put(partialTestData.getBytes());
+        partialByteBuf.position(0);
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
+            }
+                    ;
+
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
+
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(5 + 3));
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl;
-	        
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+            //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(5 + 3));
 
-	        // write should return bufLen - 5
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(rsslChnl.write(transBuf, writeArgs, error) == (bufLen - 5));
-	        // bytesWritten should be 5
-	        
-	        assertTrue(writeArgs.bytesWritten() == 5 + 3);
-	        // _totalBytesQueued should be partialBufLen
-	        assertTrue(rsslChnl._totalBytesQueued == partialBufLen);
-	        
-	    	// create SocketBuffer to compare to partial buffer in queue
-	    	TransportBufferImpl partBuf = new TransportBufferImpl(partialBufLen);
-	    	partBuf.data().put(partialByteBuf);
-	    	partBuf._length = partBuf.data().limit();
-	    	partBuf._data.position(0);
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
 
-	    	// flush buffer should contain partial message
-	        assertEquals(0, compareAsString(rsslChnl._releaseBufferArray[0], partBuf));
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            // write should return bufLen - 5
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(rsslChnl.write(transBuf, writeArgs, error) == (bufLen - 5));
+            // bytesWritten should be 5
+
+            assertTrue(writeArgs.bytesWritten() == 5 + 3);
+            // _totalBytesQueued should be partialBufLen
+            assertTrue(rsslChnl._totalBytesQueued == partialBufLen);
+
+            // create SocketBuffer to compare to partial buffer in queue
+            TransportBufferImpl partBuf = new TransportBufferImpl(partialBufLen);
+            partBuf.data().put(partialByteBuf);
+            partBuf._length = partBuf.data().limit();
+            partBuf._data.position(0);
+
+            // flush buffer should contain partial message
+            assertEquals(0, compareAsString(rsslChnl._releaseBufferArray[0], partBuf));
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
-    
+
     /*
      * 3. Call write method with
      *
@@ -2915,74 +2915,74 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase3()
     {
-    	String testData = "basicWFPTestCase3";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
-    	byteBuf.position(0);
-    	byteBuf.put(testData.getBytes());
-    	String partialTestData = "WFPTestCase3";
-    	int partialBufLen = partialTestData.length();
-    	ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
-    	partialByteBuf.put(partialTestData.getBytes());
-    	partialByteBuf.position(0);
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
-        	}
-        	;
-	    		    	
-	    	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
-	    	transBuf._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf.data().put(byteBuf);
-	    	transBuf._isWriteBuffer = true;
-	    	
+        String testData = "basicWFPTestCase3";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
+        byteBuf.position(0);
+        byteBuf.put(testData.getBytes());
+        String partialTestData = "WFPTestCase3";
+        int partialBufLen = partialTestData.length();
+        ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
+        partialByteBuf.put(partialTestData.getBytes());
+        partialByteBuf.position(0);
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
+            }
+                    ;
+
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
+
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(5 + 3));
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl;
-	        
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+            //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(5 + 3));
 
-	        // write should return bufLen - 5
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	    	assertTrue(rsslChnl.write(transBuf, writeArgs, error) == bufLen - 5);
-	        // bytesWritten should be 5
-	        assertTrue(writeArgs.bytesWritten() == 5 + 3);
-	        // _totalBytesQueued should be partialBufLen
-	        assertTrue(rsslChnl._totalBytesQueued == partialBufLen);
-	        
-	    	// create SocketBuffer to compare to partial buffer in queue
-	    	TransportBufferImpl partBuf = new TransportBufferImpl(partialBufLen);
-	    	partBuf.data().put(partialByteBuf);
-	    	partBuf._length = partBuf.data().limit();
-	    	partBuf._data.position(0);
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
 
-	    	// flush buffer should contain partial message
-	        assertTrue(compareAsString(rsslChnl._releaseBufferArray[0], partBuf) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            // write should return bufLen - 5
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(rsslChnl.write(transBuf, writeArgs, error) == bufLen - 5);
+            // bytesWritten should be 5
+            assertTrue(writeArgs.bytesWritten() == 5 + 3);
+            // _totalBytesQueued should be partialBufLen
+            assertTrue(rsslChnl._totalBytesQueued == partialBufLen);
+
+            // create SocketBuffer to compare to partial buffer in queue
+            TransportBufferImpl partBuf = new TransportBufferImpl(partialBufLen);
+            partBuf.data().put(partialByteBuf);
+            partBuf._length = partBuf.data().limit();
+            partBuf._data.position(0);
+
+            // flush buffer should contain partial message
+            assertTrue(compareAsString(rsslChnl._releaseBufferArray[0], partBuf) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -2998,74 +2998,74 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase4()
     {
-    	String testData = "basicWFPTestCase4";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
-    	byteBuf.position(0);
-    	byteBuf.put(testData.getBytes());
-    	String partialTestData = "WFPTestCase4";
-    	int partialBufLen = partialTestData.length();
-    	ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
-    	partialByteBuf.put(partialTestData.getBytes());
-    	partialByteBuf.position(0);
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
-        	}
-        	;
-	    		    	
-	    	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
-	    	transBuf._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf.data().put(byteBuf);
-	    	transBuf._isWriteBuffer = true;
-	    	
+        String testData = "basicWFPTestCase4";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
+        byteBuf.position(0);
+        byteBuf.put(testData.getBytes());
+        String partialTestData = "WFPTestCase4";
+        int partialBufLen = partialTestData.length();
+        ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
+        partialByteBuf.put(partialTestData.getBytes());
+        partialByteBuf.position(0);
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
+            }
+                    ;
+
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
+
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(5 + 3));
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl;
-	        
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+            //java.nio.channels.SocketChannel.write() returns 5 bytes sent (3 is for RIPC header)
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)(5 + 3));
 
-	        // write should return bufLen - 5
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(rsslChnl.write(transBuf, writeArgs, error) == bufLen - 5);
-	        // bytesWritten should be 5
-	        assertTrue(writeArgs.bytesWritten() == 5 + 3);
-	        // _totalBytesQueued should be partialBufLen
-	        assertTrue(rsslChnl._totalBytesQueued == partialBufLen);
-	        
-	    	// create SocketBuffer to compare to partial buffer in queue
-	    	TransportBufferImpl partBuf = new TransportBufferImpl(partialBufLen);
-	    	partBuf.data().put(partialByteBuf);
-	    	partBuf._length = partBuf.data().limit();
-	    	partBuf._data.position(0);
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
 
-	    	// flush buffer should contain partial message
-	        assertTrue(compareAsString(rsslChnl._releaseBufferArray[0], partBuf) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            // write should return bufLen - 5
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(rsslChnl.write(transBuf, writeArgs, error) == bufLen - 5);
+            // bytesWritten should be 5
+            assertTrue(writeArgs.bytesWritten() == 5 + 3);
+            // _totalBytesQueued should be partialBufLen
+            assertTrue(rsslChnl._totalBytesQueued == partialBufLen);
+
+            // create SocketBuffer to compare to partial buffer in queue
+            TransportBufferImpl partBuf = new TransportBufferImpl(partialBufLen);
+            partBuf.data().put(partialByteBuf);
+            partBuf._length = partBuf.data().limit();
+            partBuf._data.position(0);
+
+            // flush buffer should contain partial message
+            assertTrue(compareAsString(rsslChnl._releaseBufferArray[0], partBuf) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3081,50 +3081,50 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase5()
     {
-    	String testData = "basicWFPTestCase5";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	                return 17;
-	            }
-	        };
-	        
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
-	    		    	
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
+        String testData = "basicWFPTestCase5";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	transBuf._isWriteBuffer = true;
-	    	transBuf.data(byteBuf);
-	        
-	        // write should return remaining bytes queued
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == 17);
-	        
-	    	// end of queue should contain message
-	        assertEquals((ScktChnl._highPriorityQueue)._tail, transBuf);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    return 17;
+                }
+            };
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            transBuf._isWriteBuffer = true;
+            transBuf.data(byteBuf);
+
+            // write should return remaining bytes queued
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == 17);
+
+            // end of queue should contain message
+            assertEquals((ScktChnl._highPriorityQueue)._tail, transBuf);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3140,50 +3140,50 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase6()
     {
-    	String testData = "basicWFPTestCase6";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	                return 17;
-	            }
-	        };
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase6";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    return 17;
+                }
+            };
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	transBuf._isWriteBuffer = true;
-	    	transBuf.data(byteBuf);
-	    	
-	        // write should return remaining bytes queued
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == 17);
-	        
-	    	// end of queue should contain message
-	        assertEquals((ScktChnl._mediumPriorityQueue)._tail, transBuf);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            transBuf._isWriteBuffer = true;
+            transBuf.data(byteBuf);
+
+            // write should return remaining bytes queued
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == 17);
+
+            // end of queue should contain message
+            assertEquals((ScktChnl._mediumPriorityQueue)._tail, transBuf);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3199,50 +3199,50 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase7()
     {
-    	String testData = "basicWFPTestCase7";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	                return 17;
-	            }
-	        };
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase7";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    return 17;
+                }
+            };
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	transBuf._isWriteBuffer = true;
-	    	transBuf.data(byteBuf);
-	    	
-	        // write should return remaining bytes queued
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == 17);
-	        
-	    	// end of queue should contain message
-	        assertEquals((ScktChnl._lowPriorityQueue)._tail, transBuf);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            transBuf._isWriteBuffer = true;
+            transBuf.data(byteBuf);
+
+            // write should return remaining bytes queued
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == 17);
+
+            // end of queue should contain message
+            assertEquals((ScktChnl._lowPriorityQueue)._tail, transBuf);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3258,44 +3258,44 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase8()
     {
-    	String testData = "basicWFPTestCase8";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase8";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	scktBuf._isWriteBuffer = true;
-	    	scktBuf.data(byteBuf);
-	    	
-	        // write should return the total bytes queued
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(scktBuf, writeArgs, error) > 0);
-	        
-	    	// end of queue should contain message
-	        assertEquals((ScktChnl._highPriorityQueue)._tail, scktBuf);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            scktBuf._isWriteBuffer = true;
+            scktBuf.data(byteBuf);
+
+            // write should return the total bytes queued
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(scktBuf, writeArgs, error) > 0);
+
+            // end of queue should contain message
+            assertEquals((ScktChnl._highPriorityQueue)._tail, scktBuf);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3312,53 +3312,53 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase9()
     {
-    	String testData = "basicWFPTestCase9";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to empty queue and return 0
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	            	_highPriorityQueue.clear();
-	                return 0;
-	            }
-	        };
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase9";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to empty queue and return 0
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    _highPriorityQueue.clear();
+                    return 0;
+                }
+            };
 
-	        // create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	transBuf._isWriteBuffer = true;
-	    	transBuf.data(byteBuf);
-	        // change high water mark so next call exceeds it
-	        ScktChnl._highWaterMark = 10;
-	        
-	        // write should return SUCCESS
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.SUCCESS);
-	        
-	        // queue should be empty
-	        assertEquals((ScktChnl._highPriorityQueue)._tail, null);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            transBuf._isWriteBuffer = true;
+            transBuf.data(byteBuf);
+            // change high water mark so next call exceeds it
+            ScktChnl._highWaterMark = 10;
+
+            // write should return SUCCESS
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.SUCCESS);
+
+            // queue should be empty
+            assertEquals((ScktChnl._highPriorityQueue)._tail, null);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3374,44 +3374,44 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase10()
     {
-    	String testData = "basicWFPTestCase10";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase10";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
 
 
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	transBuf.data().put(testData.getBytes());
-	        // write should return the total bytes queued
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) > 0);
-	        
-	    	// end of queue should contain message
-	        assertEquals((ScktChnl._mediumPriorityQueue)._tail, transBuf);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            transBuf.data().put(testData.getBytes());
+            // write should return the total bytes queued
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) > 0);
+
+            // end of queue should contain message
+            assertEquals((ScktChnl._mediumPriorityQueue)._tail, transBuf);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3428,55 +3428,55 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase11()
     {
-    	String testData = "basicWFPTestCase11";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to empty queue and return 0
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	            	_mediumPriorityQueue.clear();
-	                return 0;
-	            }
-	        };
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase11";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to empty queue and return 0
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    _mediumPriorityQueue.clear();
+                    return 0;
+                }
+            };
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
 
-	   
-	    	TransportBufferImpl transBuf= sBuf.getBufferSlice(bufLen + 3, false);
-	    	transBuf.data().put(testData.getBytes());
-	    	
-	        // change high water mark so next call exceeds it
-	        ScktChnl._highWaterMark = 10;
-	        
-	        // write should return SUCCESS
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.SUCCESS);
-	        
-	        // queue should be empty
-	        assertEquals((ScktChnl._mediumPriorityQueue)._tail, null);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+
+
+            TransportBufferImpl transBuf= sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            transBuf.data().put(testData.getBytes());
+
+            // change high water mark so next call exceeds it
+            ScktChnl._highWaterMark = 10;
+
+            // write should return SUCCESS
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.SUCCESS);
+
+            // queue should be empty
+            assertEquals((ScktChnl._mediumPriorityQueue)._tail, null);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3492,44 +3492,44 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase12()
     {
-    	String testData = "basicWFPTestCase12";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase12";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-   	
-	    	TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	scktBuf.data().put(testData.getBytes());
-	    	
-	        // write should return the total bytes queued
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(scktBuf, writeArgs, error) > 0);
-	        
-	    	// end of queue should contain message
-	        assertEquals((ScktChnl._lowPriorityQueue)._tail, scktBuf);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+
+            TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            scktBuf.data().put(testData.getBytes());
+
+            // write should return the total bytes queued
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(scktBuf, writeArgs, error) > 0);
+
+            // end of queue should contain message
+            assertEquals((ScktChnl._lowPriorityQueue)._tail, scktBuf);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3546,53 +3546,53 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase13()
     {
-    	String testData = "basicWFPTestCase13";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to empty queue and return 0
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	            	_lowPriorityQueue.clear();
-	                return 0;
-	            }
-	        };
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        String testData = "basicWFPTestCase13";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to empty queue and return 0
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    _lowPriorityQueue.clear();
+                    return 0;
+                }
+            };
 
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
 
-	    	TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false);
-	    	scktBuf.data().put(testData.getBytes());
-	        // change high water mark so next call exceeds it
-	        ScktChnl._highWaterMark = 10;
-	        
-	        // write should return SUCCESS
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(scktBuf, writeArgs, error) == TransportReturnCodes.SUCCESS);
-	        
-	        // queue should be empty
-	        assertEquals((ScktChnl._lowPriorityQueue)._tail, null);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+
+            TransportBufferImpl scktBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION);
+            scktBuf.data().put(testData.getBytes());
+            // change high water mark so next call exceeds it
+            ScktChnl._highWaterMark = 10;
+
+            // write should return SUCCESS
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(scktBuf, writeArgs, error) == TransportReturnCodes.SUCCESS);
+
+            // queue should be empty
+            assertEquals((ScktChnl._lowPriorityQueue)._tail, null);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3605,144 +3605,144 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase14()
     {
-    	String testDataHigh = "basicWFPTestCase14High";
-    	String testDataMedium = "basicWFPTestCase14Medium";
-    	String testDataLow = "basicWFPTestCase14Low";
-    	int bufLenHigh = testDataHigh.length();
-    	int bufLenMedium = testDataMedium.length();
-    	int bufLenLow = testDataLow.length();
-    	ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
-    	byteBufHigh.put(testDataHigh.getBytes());
-    	ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
-    	byteBufMedium.put(testDataMedium.getBytes());
-    	ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
-    	byteBufLow.put(testDataLow.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+        String testDataHigh = "basicWFPTestCase14High";
+        String testDataMedium = "basicWFPTestCase14Medium";
+        String testDataLow = "basicWFPTestCase14Low";
+        int bufLenHigh = testDataHigh.length();
+        int bufLenMedium = testDataMedium.length();
+        int bufLenLow = testDataLow.length();
+        ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
+        byteBufHigh.put(testDataHigh.getBytes());
+        ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
+        byteBufMedium.put(testDataMedium.getBytes());
+        ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
+        byteBufLow.put(testDataLow.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-        		@Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-        	}
-        	;
-	    	TransportBufferImpl [] transBufHigh = new TransportBufferImpl[4];
-	    	TransportBufferImpl [] transBufMedium = new TransportBufferImpl[4];
-	    	TransportBufferImpl [] transBufLow = new TransportBufferImpl[4];
-	    	for (int i=0; i<4; i++)
-	    	{
-	    		transBufHigh[i] = new TransportBufferImpl(bufLenHigh+3);
-	    		
-	    		transBufHigh[i]._isWriteBuffer = true;
-	    		transBufHigh[i]._data.position(3);
-	    		byteBufHigh.flip();
-	    		transBufHigh[i].data().put(byteBufHigh);
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
 
-	    		transBufMedium[i] = new TransportBufferImpl(bufLenMedium+3);
-	    		
-	    		transBufMedium[i]._isWriteBuffer = true;
-	    		transBufMedium[i]._data.position(3);
-	    		byteBufMedium.flip();
-	    		transBufMedium[i].data().put(byteBufMedium);
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
 
-	    		transBufLow[i] = new TransportBufferImpl(bufLenLow+3);
-	    		transBufLow[i]._isWriteBuffer = true;
-	    		transBufLow[i]._data.position(3);
-	    		byteBufLow.flip();
-	    		transBufLow[i].data().put(byteBufLow);
-	    	}
-	    	
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
+                }
+            }
+                    ;
+            TransportBufferImpl [] transBufHigh = new TransportBufferImpl[4];
+            TransportBufferImpl [] transBufMedium = new TransportBufferImpl[4];
+            TransportBufferImpl [] transBufLow = new TransportBufferImpl[4];
+            for (int i=0; i<4; i++)
+            {
+                transBufHigh[i] = new TransportBufferImpl(bufLenHigh+3);
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+                transBufHigh[i]._isWriteBuffer = true;
+                transBufHigh[i]._data.position(3);
+                byteBufHigh.flip();
+                transBufHigh[i].data().put(byteBufHigh);
 
-	    	int cumulativeBytesQueued = 0, writeReturnVal = 0;
-	    	
-	    	for (int i=0; i<4; i++)
-	    	{
-	    		// queue several buffers by calling the write method several times with no write flags
-	    		cumulativeBytesQueued += (bufLenHigh + 3);
-	    		writeArgs.priority(WritePriorities.HIGH);
-	    		writeArgs.flags(WriteFlags.NO_FLAGS);
-	    		writeReturnVal = rsslChnl.write(transBufHigh[i], writeArgs, error);
-	    		System.out.println("writeReturnVal, i "+ writeReturnVal + " " + i);
-	    		// write return value should be cumulative bytes queued
-	    		assertEquals(cumulativeBytesQueued, writeReturnVal);	    	
-	    		// bytesWritten should be scktBufHigh.getLength()
-	    		assertTrue(writeArgs.bytesWritten() == transBufHigh[i].data().limit()-transBufHigh[i].data().position());
-	    		cumulativeBytesQueued += (bufLenMedium + 3);
-	    		writeArgs.priority(WritePriorities.MEDIUM);
-	    		writeArgs.flags(WriteFlags.NO_FLAGS);
-	    		writeReturnVal = rsslChnl.write(transBufMedium[i], writeArgs, error);
-	    		// write return value should be cumulative bytes queued
-	    		assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	    		// bytesWritten should be scktBufMedium.getLength()
-	    		assertTrue(writeArgs.bytesWritten() == transBufMedium[i].data().limit()-transBufMedium[i].data().position());
-	    		cumulativeBytesQueued += (bufLenLow + 3);
-	    		writeArgs.priority(WritePriorities.LOW);
-	    		writeArgs.flags(WriteFlags.NO_FLAGS);
-	    		writeReturnVal = rsslChnl.write(transBufLow[i], writeArgs, error);
-	    		// write return value should be cumulative bytes queued
-	    		assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	    		// bytesWritten should be scktBufLow.getLength()
-	    		assertTrue(writeArgs.bytesWritten() == transBufLow[i].data().limit()-transBufLow[i].data().position());
-	    	}
+                transBufMedium[i] = new TransportBufferImpl(bufLenMedium+3);
 
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
-	        assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued);
-	    	
+                transBufMedium[i]._isWriteBuffer = true;
+                transBufMedium[i]._data.position(3);
+                byteBufMedium.flip();
+                transBufMedium[i].data().put(byteBufMedium);
+
+                transBufLow[i] = new TransportBufferImpl(bufLenLow+3);
+                transBufLow[i]._isWriteBuffer = true;
+                transBufLow[i]._data.position(3);
+                byteBufLow.flip();
+                transBufLow[i].data().put(byteBufLow);
+            }
+
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            int cumulativeBytesQueued = 0, writeReturnVal = 0;
+
+            for (int i=0; i<4; i++)
+            {
+                // queue several buffers by calling the write method several times with no write flags
+                cumulativeBytesQueued += (bufLenHigh + 3);
+                writeArgs.priority(WritePriorities.HIGH);
+                writeArgs.flags(WriteFlags.NO_FLAGS);
+                writeReturnVal = rsslChnl.write(transBufHigh[i], writeArgs, error);
+                System.out.println("writeReturnVal, i "+ writeReturnVal + " " + i);
+                // write return value should be cumulative bytes queued
+                assertEquals(cumulativeBytesQueued, writeReturnVal);
+                // bytesWritten should be scktBufHigh.getLength()
+                assertTrue(writeArgs.bytesWritten() == transBufHigh[i].data().limit()-transBufHigh[i].data().position());
+                cumulativeBytesQueued += (bufLenMedium + 3);
+                writeArgs.priority(WritePriorities.MEDIUM);
+                writeArgs.flags(WriteFlags.NO_FLAGS);
+                writeReturnVal = rsslChnl.write(transBufMedium[i], writeArgs, error);
+                // write return value should be cumulative bytes queued
+                assertTrue(writeReturnVal == cumulativeBytesQueued);
+                // bytesWritten should be scktBufMedium.getLength()
+                assertTrue(writeArgs.bytesWritten() == transBufMedium[i].data().limit()-transBufMedium[i].data().position());
+                cumulativeBytesQueued += (bufLenLow + 3);
+                writeArgs.priority(WritePriorities.LOW);
+                writeArgs.flags(WriteFlags.NO_FLAGS);
+                writeReturnVal = rsslChnl.write(transBufLow[i], writeArgs, error);
+                // write return value should be cumulative bytes queued
+                assertTrue(writeReturnVal == cumulativeBytesQueued);
+                // bytesWritten should be scktBufLow.getLength()
+                assertTrue(writeArgs.bytesWritten() == transBufLow[i].data().limit()-transBufLow[i].data().position());
+            }
+
+
+            // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
+            assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued);
+
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        //java.nio.channels.SocketChannel.write() returns all bytes sent
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)cumulativeBytesQueued);
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl;
-	        
-	        // flush should return SUCCESS
-	        assertTrue(rsslChnl.flush(error) == TransportReturnCodes.SUCCESS);
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be 0
-	        assertTrue(rsslChnl._totalBytesQueued == 0);
 
-	        // priority queues in RsslSocketChannel should be empty
-	        assertEquals((rsslChnl._highPriorityQueue)._tail, null);
-	        assertEquals((rsslChnl._mediumPriorityQueue)._tail, null);
-	        assertEquals((rsslChnl._lowPriorityQueue)._tail, null);
-	        
-	        // verify that the _gatherWriteArray's order matches expected flush order.
-	        assertEquals(transBufHigh[0].data(),   rsslChnl._gatheringWriteArray[0]); // H
-	        assertEquals(transBufMedium[0].data(), rsslChnl._gatheringWriteArray[1]); // M
-	        assertEquals(transBufHigh[1].data(),   rsslChnl._gatheringWriteArray[2]); // H
-	        assertEquals(transBufLow[0].data(),    rsslChnl._gatheringWriteArray[3]); // L
-	        assertEquals(transBufHigh[2].data(),   rsslChnl._gatheringWriteArray[4]); // H
-	        assertEquals(transBufMedium[1].data(), rsslChnl._gatheringWriteArray[5]); // M
-	        assertEquals(transBufHigh[3].data(),   rsslChnl._gatheringWriteArray[6]); // H
-	        assertEquals(transBufMedium[2].data(), rsslChnl._gatheringWriteArray[7]); // M
+            //java.nio.channels.SocketChannel.write() returns all bytes sent
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)cumulativeBytesQueued);
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
+
+            // flush should return SUCCESS
+            assertTrue(rsslChnl.flush(error) == TransportReturnCodes.SUCCESS);
+
+            // _totalBytesQueued in RsslSocketChannel should be 0
+            assertTrue(rsslChnl._totalBytesQueued == 0);
+
+            // priority queues in RsslSocketChannel should be empty
+            assertEquals((rsslChnl._highPriorityQueue)._tail, null);
+            assertEquals((rsslChnl._mediumPriorityQueue)._tail, null);
+            assertEquals((rsslChnl._lowPriorityQueue)._tail, null);
+
+            // verify that the _gatherWriteArray's order matches expected flush order.
+            assertEquals(transBufHigh[0].data(),   rsslChnl._gatheringWriteArray[0]); // H
+            assertEquals(transBufMedium[0].data(), rsslChnl._gatheringWriteArray[1]); // M
+            assertEquals(transBufHigh[1].data(),   rsslChnl._gatheringWriteArray[2]); // H
+            assertEquals(transBufLow[0].data(),    rsslChnl._gatheringWriteArray[3]); // L
+            assertEquals(transBufHigh[2].data(),   rsslChnl._gatheringWriteArray[4]); // H
+            assertEquals(transBufMedium[1].data(), rsslChnl._gatheringWriteArray[5]); // M
+            assertEquals(transBufHigh[3].data(),   rsslChnl._gatheringWriteArray[6]); // H
+            assertEquals(transBufMedium[2].data(), rsslChnl._gatheringWriteArray[7]); // M
             assertEquals(transBufLow[1].data(),    rsslChnl._gatheringWriteArray[8]); // L
             assertEquals(transBufMedium[3].data(), rsslChnl._gatheringWriteArray[9]); // M
             assertEquals(transBufLow[2].data(),    rsslChnl._gatheringWriteArray[10]); // L
             assertEquals(transBufLow[3].data(),    rsslChnl._gatheringWriteArray[11]); // L
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3757,182 +3757,182 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase15()
     {
-    	String testDataHigh = "basicWFPTestCase15High";
-    	String testDataMedium = "basicWFPTestCase15Medium";
-    	String testDataLow = "basicWFPTestCase15Low";
-    	int bufLenHigh = testDataHigh.length();
-    	int bufLenMedium = testDataMedium.length();
-    	int bufLenLow = testDataLow.length();
-    	ByteBuffer byteBufHigh1 = ByteBuffer.allocate(bufLenHigh);
-    	ByteBuffer byteBufHigh2 = ByteBuffer.allocate(bufLenHigh);
-    	ByteBuffer byteBufHigh3 = ByteBuffer.allocate(bufLenHigh);
-    	ByteBuffer byteBufMedium1 = ByteBuffer.allocate(bufLenMedium);
-    	ByteBuffer byteBufMedium2 = ByteBuffer.allocate(bufLenMedium);
-    	ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
-    	byteBufHigh1.position(0);
-    	byteBufHigh2.position(0);
-    	byteBufHigh3.position(0);
-    	byteBufMedium1.position(0);
-    	byteBufMedium2.position(0);
-    	byteBufLow.position(0);
-    	byteBufHigh1.put(testDataHigh.getBytes());
-    	byteBufHigh2.put(testDataHigh.getBytes());
-    	byteBufHigh3.put(testDataHigh.getBytes());
-    	byteBufMedium1.put(testDataMedium.getBytes());
-    	byteBufMedium2.put(testDataMedium.getBytes());
-    	byteBufLow.put(testDataLow.getBytes());
-    	String partialTestData = "Case15Low";
-    	int partialBufLen = partialTestData.length();
-    	ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
-    	partialByteBuf.put(partialTestData.getBytes());
-    	partialByteBuf.position(0);
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        	    void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        	        return;
-        		}
-        	}
-        	;
-	    		    	
-	    	TransportBufferImpl transBufHigh1 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh1._isWriteBuffer = true;
-	    	transBufHigh1._data.position(3);
-	    	byteBufHigh1.flip();
-	    	transBufHigh1.data().put(byteBufHigh1);
-	    	
-	    	TransportBufferImpl transBufHigh2 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh2._isWriteBuffer = true;
-	    	transBufHigh2._data.position(3);
-	    	byteBufHigh2.flip();
-	    	transBufHigh2.data().put(byteBufHigh2);
-	    	
-	    	TransportBufferImpl transBufHigh3 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh3._isWriteBuffer = true;
-	    	transBufHigh3._data.position(3);
-	    	byteBufHigh3.flip();
-	    	transBufHigh3.data().put(byteBufHigh3);
-	    	
-	    	TransportBufferImpl transBufMedium1 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium1._isWriteBuffer = true;
-	    	transBufMedium1._data.position(3);
-	    	byteBufMedium1.flip();
-	    	transBufMedium1.data().put(byteBufMedium1);
-	    	
-	    	TransportBufferImpl transBufMedium2 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium2._isWriteBuffer = true;
-	    	transBufMedium2._data.position(3);
-	    	byteBufMedium2.flip();
-	    	transBufMedium2.data().put(byteBufMedium2);
-	    	
-	    	TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow._isWriteBuffer = true;
-	    	transBufLow._data.position(3);
-	    	byteBufLow.flip();
-	    	transBufLow.data().put(byteBufLow);
-	    	
-	    	
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
+        String testDataHigh = "basicWFPTestCase15High";
+        String testDataMedium = "basicWFPTestCase15Medium";
+        String testDataLow = "basicWFPTestCase15Low";
+        int bufLenHigh = testDataHigh.length();
+        int bufLenMedium = testDataMedium.length();
+        int bufLenLow = testDataLow.length();
+        ByteBuffer byteBufHigh1 = ByteBuffer.allocate(bufLenHigh);
+        ByteBuffer byteBufHigh2 = ByteBuffer.allocate(bufLenHigh);
+        ByteBuffer byteBufHigh3 = ByteBuffer.allocate(bufLenHigh);
+        ByteBuffer byteBufMedium1 = ByteBuffer.allocate(bufLenMedium);
+        ByteBuffer byteBufMedium2 = ByteBuffer.allocate(bufLenMedium);
+        ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
+        byteBufHigh1.position(0);
+        byteBufHigh2.position(0);
+        byteBufHigh3.position(0);
+        byteBufMedium1.position(0);
+        byteBufMedium2.position(0);
+        byteBufLow.position(0);
+        byteBufHigh1.put(testDataHigh.getBytes());
+        byteBufHigh2.put(testDataHigh.getBytes());
+        byteBufHigh3.put(testDataHigh.getBytes());
+        byteBufMedium1.put(testDataMedium.getBytes());
+        byteBufMedium2.put(testDataMedium.getBytes());
+        byteBufLow.put(testDataLow.getBytes());
+        String partialTestData = "Case15Low";
+        int partialBufLen = partialTestData.length();
+        ByteBuffer partialByteBuf = ByteBuffer.allocate(partialBufLen);
+        partialByteBuf.put(partialTestData.getBytes());
+        partialByteBuf.position(0);
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
+                    return;
+                }
+            }
+                    ;
 
-	    	int cumulativeBytesQueued = 0, writeReturnVal = 0;
+            TransportBufferImpl transBufHigh1 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh1._isWriteBuffer = true;
+            transBufHigh1._data.position(3);
+            byteBufHigh1.flip();
+            transBufHigh1.data().put(byteBufHigh1);
 
-	    	// queue several buffers by calling the write method several times with no write flags
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufHigh1, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh1.data().limit()-transBufHigh1.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufMedium1, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium1.data().limit()-transBufMedium1.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufHigh2, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh2.data().limit()-transBufHigh2.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufLow, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow.data().limit()-transBufLow.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufHigh3, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh3.data().limit()-transBufHigh3.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufMedium2, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium2.data().limit()-transBufMedium2.data().position());
+            TransportBufferImpl transBufHigh2 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh2._isWriteBuffer = true;
+            transBufHigh2._data.position(3);
+            byteBufHigh2.flip();
+            transBufHigh2.data().put(byteBufHigh2);
 
-	        // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
-	        assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued);
-	        
+            TransportBufferImpl transBufHigh3 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh3._isWriteBuffer = true;
+            transBufHigh3._data.position(3);
+            byteBufHigh3.flip();
+            transBufHigh3.data().put(byteBufHigh3);
+
+            TransportBufferImpl transBufMedium1 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium1._isWriteBuffer = true;
+            transBufMedium1._data.position(3);
+            byteBufMedium1.flip();
+            transBufMedium1.data().put(byteBufMedium1);
+
+            TransportBufferImpl transBufMedium2 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium2._isWriteBuffer = true;
+            transBufMedium2._data.position(3);
+            byteBufMedium2.flip();
+            transBufMedium2.data().put(byteBufMedium2);
+
+            TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
+            transBufLow._isWriteBuffer = true;
+            transBufLow._data.position(3);
+            byteBufLow.flip();
+            transBufLow.data().put(byteBufLow);
+
+
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            int cumulativeBytesQueued = 0, writeReturnVal = 0;
+
+            // queue several buffers by calling the write method several times with no write flags
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufHigh1, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh1.data().limit()-transBufHigh1.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufMedium1, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium1.data().limit()-transBufMedium1.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufHigh2, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh2.data().limit()-transBufHigh2.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufLow, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow.data().limit()-transBufLow.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufHigh3, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh3.data().limit()-transBufHigh3.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufMedium2, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium2.data().limit()-transBufMedium2.data().position());
+
+            // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
+            assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued);
+
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        //java.nio.channels.SocketChannel.write() returns partial bytes sent
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)92);
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl;
-	        
-	        // flush should return bytes remaining to be sent
-	        assertTrue(rsslChnl.flush(error) == (cumulativeBytesQueued - 92));
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
-	        assertTrue(rsslChnl._totalBytesQueued == (cumulativeBytesQueued - 92));
-	        
-	        // _isFlushPending in RsslSocketChannel should be true
-	        assertTrue(rsslChnl._isFlushPending == true);
-	        
-	        // _writeArrayPosition in RsslSocketChannel should be 3
-	        assertTrue(rsslChnl._writeArrayPosition == 3);
-	        
-	    	// create SocketBuffer to compare to partial buffer in queue
-	    	TransportBufferImpl partialBuf = new TransportBufferImpl(partialBufLen);
-	    	partialBuf.data().put(partialByteBuf);
-	    	partialBuf._length = partialBuf.data().limit();
-	    	partialBuf._data.position(0);
 
-	    	// _gatheringWriteArray/_releaseBufferArray in RsslSocketChannel should contain remaining bytes sent
-	    	assertTrue(rsslChnl._gatheringWriteArray[rsslChnl._writeArrayPosition] == rsslChnl._releaseBufferArray[rsslChnl._writeArrayPosition].data());
-	        assertTrue(compareAsString(rsslChnl._releaseBufferArray[rsslChnl._writeArrayPosition], partialBuf) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            //java.nio.channels.SocketChannel.write() returns partial bytes sent
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)92);
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
+
+            // flush should return bytes remaining to be sent
+            assertTrue(rsslChnl.flush(error) == (cumulativeBytesQueued - 92));
+
+            // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
+            assertTrue(rsslChnl._totalBytesQueued == (cumulativeBytesQueued - 92));
+
+            // _isFlushPending in RsslSocketChannel should be true
+            assertTrue(rsslChnl._isFlushPending == true);
+
+            // _writeArrayPosition in RsslSocketChannel should be 3
+            assertTrue(rsslChnl._writeArrayPosition == 3);
+
+            // create SocketBuffer to compare to partial buffer in queue
+            TransportBufferImpl partialBuf = new TransportBufferImpl(partialBufLen);
+            partialBuf.data().put(partialByteBuf);
+            partialBuf._length = partialBuf.data().limit();
+            partialBuf._data.position(0);
+
+            // _gatheringWriteArray/_releaseBufferArray in RsslSocketChannel should contain remaining bytes sent
+            assertTrue(rsslChnl._gatheringWriteArray[rsslChnl._writeArrayPosition] == rsslChnl._releaseBufferArray[rsslChnl._writeArrayPosition].data());
+            assertTrue(compareAsString(rsslChnl._releaseBufferArray[rsslChnl._writeArrayPosition], partialBuf) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -3947,916 +3947,916 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase16()
     {
-    	String testDataHigh = "basicWFPTestCase16High";
-    	String testDataMedium = "basicWFPTestCase16Medium";
-    	String testDataLow = "basicWFPTestCase16Low";
-    	int bufLenHigh = testDataHigh.length();
-    	int bufLenMedium = testDataMedium.length();
-    	int bufLenLow = testDataLow.length();
-    	ByteBuffer byteBufHigh1 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh2 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh3 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh4 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh5 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh6 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh7 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh8 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh9 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh10 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh11 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh12 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh13 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh14 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh15 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh16 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh17 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh18 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh19 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh20 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh21 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh22 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh23 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufHigh24 = ByteBuffer.allocate(bufLenHigh );
-    	ByteBuffer byteBufMedium1 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium2 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium3 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium4 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium5 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium6 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium7 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium8 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium9 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium10 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium11 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium12 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium13 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium14 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium15 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufMedium16 = ByteBuffer.allocate(bufLenMedium );
-    	ByteBuffer byteBufLow1 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow2 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow3 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow4 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow5 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow6 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow7 = ByteBuffer.allocate(bufLenLow );
-    	ByteBuffer byteBufLow8 = ByteBuffer.allocate(bufLenLow );
-    	byteBufHigh1.put(testDataHigh.getBytes());
-    	byteBufHigh2.put(testDataHigh.getBytes());
-    	byteBufHigh3.put(testDataHigh.getBytes());
-    	byteBufHigh4.put(testDataHigh.getBytes());
-    	byteBufHigh5.put(testDataHigh.getBytes());
-    	byteBufHigh6.put(testDataHigh.getBytes());
-    	byteBufHigh7.put(testDataHigh.getBytes());
-    	byteBufHigh8.put(testDataHigh.getBytes());
-    	byteBufHigh9.put(testDataHigh.getBytes());
-    	byteBufHigh10.put(testDataHigh.getBytes());
-    	byteBufHigh11.put(testDataHigh.getBytes());
-    	byteBufHigh12.put(testDataHigh.getBytes());
-    	byteBufHigh13.put(testDataHigh.getBytes());
-    	byteBufHigh14.put(testDataHigh.getBytes());
-    	byteBufHigh15.put(testDataHigh.getBytes());
-    	byteBufHigh16.put(testDataHigh.getBytes());
-    	byteBufHigh17.put(testDataHigh.getBytes());
-    	byteBufHigh18.put(testDataHigh.getBytes());
-    	byteBufHigh19.put(testDataHigh.getBytes());
-    	byteBufHigh20.put(testDataHigh.getBytes());
-    	byteBufHigh21.put(testDataHigh.getBytes());
-    	byteBufHigh22.put(testDataHigh.getBytes());
-    	byteBufHigh23.put(testDataHigh.getBytes());
-    	byteBufHigh24.put(testDataHigh.getBytes());
-    	byteBufMedium1.put(testDataMedium.getBytes());
-    	byteBufMedium2.put(testDataMedium.getBytes());
-    	byteBufMedium3.put(testDataMedium.getBytes());
-    	byteBufMedium4.put(testDataMedium.getBytes());
-    	byteBufMedium5.put(testDataMedium.getBytes());
-    	byteBufMedium6.put(testDataMedium.getBytes());
-    	byteBufMedium7.put(testDataMedium.getBytes());
-    	byteBufMedium8.put(testDataMedium.getBytes());
-    	byteBufMedium9.put(testDataMedium.getBytes());
-    	byteBufMedium10.put(testDataMedium.getBytes());
-    	byteBufMedium11.put(testDataMedium.getBytes());
-    	byteBufMedium12.put(testDataMedium.getBytes());
-    	byteBufMedium13.put(testDataMedium.getBytes());
-    	byteBufMedium14.put(testDataMedium.getBytes());
-    	byteBufMedium15.put(testDataMedium.getBytes());
-    	byteBufMedium16.put(testDataMedium.getBytes());
-    	byteBufLow1.put(testDataLow.getBytes());
-    	byteBufLow2.put(testDataLow.getBytes());
-    	byteBufLow3.put(testDataLow.getBytes());
-    	byteBufLow4.put(testDataLow.getBytes());
-    	byteBufLow5.put(testDataLow.getBytes());
-    	byteBufLow6.put(testDataLow.getBytes());
-    	byteBufLow7.put(testDataLow.getBytes());
-    	byteBufLow8.put(testDataLow.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// overridejava.nio.channels.SocketChannel write
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	            @Override
-	            public long write(ByteBuffer[] srcs, int offset, int length)
-	            {
-	            	int bytesWritten = 92, cumulativeBytes = 0;
-	            	
-	            	// write 92 bytes to _junitTestBuffer for each call
-	            	for (int i = offset; i < offset + length; i++)
-	            	{
-	            		for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
-	            		{
-	            			_junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
-	            			cumulativeBytes++;
-	            			if (cumulativeBytes == bytesWritten)
-	            			{
-	            				break;
-	            			}
-	            		}
-            			if (cumulativeBytes == bytesWritten)
-            			{
-            				break;
-            			}
-	            	}
-	            	
-	                return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
-	            }
+        String testDataHigh = "basicWFPTestCase16High";
+        String testDataMedium = "basicWFPTestCase16Medium";
+        String testDataLow = "basicWFPTestCase16Low";
+        int bufLenHigh = testDataHigh.length();
+        int bufLenMedium = testDataMedium.length();
+        int bufLenLow = testDataLow.length();
+        ByteBuffer byteBufHigh1 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh2 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh3 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh4 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh5 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh6 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh7 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh8 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh9 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh10 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh11 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh12 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh13 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh14 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh15 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh16 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh17 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh18 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh19 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh20 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh21 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh22 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh23 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufHigh24 = ByteBuffer.allocate(bufLenHigh );
+        ByteBuffer byteBufMedium1 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium2 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium3 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium4 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium5 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium6 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium7 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium8 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium9 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium10 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium11 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium12 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium13 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium14 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium15 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufMedium16 = ByteBuffer.allocate(bufLenMedium );
+        ByteBuffer byteBufLow1 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow2 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow3 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow4 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow5 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow6 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow7 = ByteBuffer.allocate(bufLenLow );
+        ByteBuffer byteBufLow8 = ByteBuffer.allocate(bufLenLow );
+        byteBufHigh1.put(testDataHigh.getBytes());
+        byteBufHigh2.put(testDataHigh.getBytes());
+        byteBufHigh3.put(testDataHigh.getBytes());
+        byteBufHigh4.put(testDataHigh.getBytes());
+        byteBufHigh5.put(testDataHigh.getBytes());
+        byteBufHigh6.put(testDataHigh.getBytes());
+        byteBufHigh7.put(testDataHigh.getBytes());
+        byteBufHigh8.put(testDataHigh.getBytes());
+        byteBufHigh9.put(testDataHigh.getBytes());
+        byteBufHigh10.put(testDataHigh.getBytes());
+        byteBufHigh11.put(testDataHigh.getBytes());
+        byteBufHigh12.put(testDataHigh.getBytes());
+        byteBufHigh13.put(testDataHigh.getBytes());
+        byteBufHigh14.put(testDataHigh.getBytes());
+        byteBufHigh15.put(testDataHigh.getBytes());
+        byteBufHigh16.put(testDataHigh.getBytes());
+        byteBufHigh17.put(testDataHigh.getBytes());
+        byteBufHigh18.put(testDataHigh.getBytes());
+        byteBufHigh19.put(testDataHigh.getBytes());
+        byteBufHigh20.put(testDataHigh.getBytes());
+        byteBufHigh21.put(testDataHigh.getBytes());
+        byteBufHigh22.put(testDataHigh.getBytes());
+        byteBufHigh23.put(testDataHigh.getBytes());
+        byteBufHigh24.put(testDataHigh.getBytes());
+        byteBufMedium1.put(testDataMedium.getBytes());
+        byteBufMedium2.put(testDataMedium.getBytes());
+        byteBufMedium3.put(testDataMedium.getBytes());
+        byteBufMedium4.put(testDataMedium.getBytes());
+        byteBufMedium5.put(testDataMedium.getBytes());
+        byteBufMedium6.put(testDataMedium.getBytes());
+        byteBufMedium7.put(testDataMedium.getBytes());
+        byteBufMedium8.put(testDataMedium.getBytes());
+        byteBufMedium9.put(testDataMedium.getBytes());
+        byteBufMedium10.put(testDataMedium.getBytes());
+        byteBufMedium11.put(testDataMedium.getBytes());
+        byteBufMedium12.put(testDataMedium.getBytes());
+        byteBufMedium13.put(testDataMedium.getBytes());
+        byteBufMedium14.put(testDataMedium.getBytes());
+        byteBufMedium15.put(testDataMedium.getBytes());
+        byteBufMedium16.put(testDataMedium.getBytes());
+        byteBufLow1.put(testDataLow.getBytes());
+        byteBufLow2.put(testDataLow.getBytes());
+        byteBufLow3.put(testDataLow.getBytes());
+        byteBufLow4.put(testDataLow.getBytes());
+        byteBufLow5.put(testDataLow.getBytes());
+        byteBufLow6.put(testDataLow.getBytes());
+        byteBufLow7.put(testDataLow.getBytes());
+        byteBufLow8.put(testDataLow.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	            @Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
-	            
-	            @Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-        	}
-        	;
-	    	
-        	ScktChnl._junitTestBuffer = new byte[1224];
-        	ScktChnl._junitTestBufPosition = 0;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // overridejava.nio.channels.SocketChannel write
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                @Override
+                public long write(ByteBuffer[] srcs, int offset, int length)
+                {
+                    int bytesWritten = 92, cumulativeBytes = 0;
 
-	    	TransportBufferImpl transBufHigh1 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh1._isWriteBuffer = true;
-	    	transBufHigh1._data.position(3);
-	    	byteBufHigh1.flip();
-	    	transBufHigh1.data().put(byteBufHigh1);
-	    	
-	    	TransportBufferImpl transBufHigh2 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh2._isWriteBuffer = true;
-	    	transBufHigh2._data.position(3);
-	    	byteBufHigh2.flip();
-	    	transBufHigh2.data().put(byteBufHigh2);
-	    	
-	    	TransportBufferImpl transBufHigh3 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh3._isWriteBuffer = true;
-	    	transBufHigh3._data.position(3);
-	    	byteBufHigh3.flip();
-	    	transBufHigh3.data().put(byteBufHigh3);
-	    	
-	    	TransportBufferImpl transBufHigh4 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh4._isWriteBuffer = true;
-	    	transBufHigh4._data.position(3);
-	    	byteBufHigh4.flip();
-	    	transBufHigh4.data().put(byteBufHigh4);
-	    	
-	    	TransportBufferImpl transBufHigh5 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh5._isWriteBuffer = true;
-	    	transBufHigh5._data.position(3);
-	    	byteBufHigh5.flip();
-	    	transBufHigh5.data().put(byteBufHigh5);
-	    	
-	    	TransportBufferImpl transBufHigh6 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh6._isWriteBuffer = true;
-	    	transBufHigh6._data.position(3);
-	    	byteBufHigh6.flip();
-	    	transBufHigh6.data().put(byteBufHigh6);
-	    	
-	    	TransportBufferImpl transBufHigh7 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh7._isWriteBuffer = true;
-	    	transBufHigh7._data.position(3);
-	    	byteBufHigh7.flip();
-	    	transBufHigh7.data().put(byteBufHigh7);
-	    	
-	    	TransportBufferImpl transBufHigh8 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh8._isWriteBuffer = true;
-	    	transBufHigh8._data.position(3);
-	    	byteBufHigh8.flip();
-	    	transBufHigh8.data().put(byteBufHigh8);
-	    	
-	    	TransportBufferImpl transBufHigh9 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh9._isWriteBuffer = true;
-	    	transBufHigh9._data.position(3);
-	    	byteBufHigh9.flip();
-	    	transBufHigh9.data().put(byteBufHigh9);
-	    	
-	    	TransportBufferImpl transBufHigh10 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh10._isWriteBuffer = true;
-	    	transBufHigh10._data.position(3);
-	    	byteBufHigh10.flip();
-	    	transBufHigh10.data().put(byteBufHigh10);
-	    	
-	    	TransportBufferImpl transBufHigh11 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh11._isWriteBuffer = true;
-	    	transBufHigh11._data.position(3);
-	    	byteBufHigh11.flip();
-	    	transBufHigh11.data().put(byteBufHigh11);
-	    	
-	    	TransportBufferImpl transBufHigh12 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh12._isWriteBuffer = true;
-	    	transBufHigh12._data.position(3);
-	    	byteBufHigh12.flip();
-	    	transBufHigh12.data().put(byteBufHigh12);
-	    	
-	    	TransportBufferImpl transBufHigh13 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh13._isWriteBuffer = true;
-	    	transBufHigh13._data.position(3);
-	    	byteBufHigh13.flip();
-	    	transBufHigh13.data().put(byteBufHigh13);
-	    	
-	    	TransportBufferImpl transBufHigh14 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh14._isWriteBuffer = true;
-	    	transBufHigh14._data.position(3);
-	    	byteBufHigh14.flip();
-	    	transBufHigh14.data().put(byteBufHigh14);
-	    	
-	    	TransportBufferImpl transBufHigh15 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh15._isWriteBuffer = true;
-	    	transBufHigh15._data.position(3);
-	    	byteBufHigh15.flip();
-	    	transBufHigh15.data().put(byteBufHigh15);
-	    	
-	    	TransportBufferImpl transBufHigh16 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh16._isWriteBuffer = true;
-	    	transBufHigh16._data.position(3);
-	    	byteBufHigh16.flip();
-	    	transBufHigh16.data().put(byteBufHigh16);
-	    	
-	    	TransportBufferImpl transBufHigh17 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh17._isWriteBuffer = true;
-	    	transBufHigh17._data.position(3);
-	    	byteBufHigh17.flip();
-	    	transBufHigh17.data().put(byteBufHigh17);
-	    	
-	    	TransportBufferImpl transBufHigh18 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh18._isWriteBuffer = true;
-	    	transBufHigh18._data.position(3);
-	    	byteBufHigh18.flip();
-	    	transBufHigh18.data().put(byteBufHigh18);
-	    	
-	    	TransportBufferImpl transBufHigh19 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh19._isWriteBuffer = true;
-	    	transBufHigh19._data.position(3);
-	    	byteBufHigh19.flip();
-	    	transBufHigh19.data().put(byteBufHigh19);
-	    	
-	    	TransportBufferImpl transBufHigh20 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh20._isWriteBuffer = true;
-	    	transBufHigh20._data.position(3);
-	    	byteBufHigh20.flip();
-	    	transBufHigh20.data().put(byteBufHigh20);
-	    	
-	    	TransportBufferImpl transBufHigh21 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh21._isWriteBuffer = true;
-	    	transBufHigh21._data.position(3);
-	    	byteBufHigh21.flip();
-	    	transBufHigh21.data().put(byteBufHigh21);
-	    	
-	    	TransportBufferImpl transBufHigh22 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh22._isWriteBuffer = true;
-	    	transBufHigh22._data.position(3);
-	    	byteBufHigh22.flip();
-	    	transBufHigh22.data().put(byteBufHigh22);
-	    	
-	    	TransportBufferImpl transBufHigh23 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh23._isWriteBuffer = true;
-	    	transBufHigh23._data.position(3);
-	    	byteBufHigh23.flip();
-	    	transBufHigh23.data().put(byteBufHigh23);
-	    	
-	    	TransportBufferImpl transBufHigh24 = new TransportBufferImpl(bufLenHigh+3);
-	    	transBufHigh24._isWriteBuffer = true;
-	    	transBufHigh24._data.position(3);
-	    	byteBufHigh24.flip();
-	    	transBufHigh24.data().put(byteBufHigh24);
-	    	
-	    	TransportBufferImpl transBufMedium1 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium1._isWriteBuffer = true;
-	    	transBufMedium1._data.position(3);
-	    	byteBufMedium1.flip();
-	    	transBufMedium1.data().put(byteBufMedium1);
-	    	
-	    	TransportBufferImpl transBufMedium2 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium2._isWriteBuffer = true;
-	    	transBufMedium2._data.position(3);
-	    	byteBufMedium2.flip();
-	    	transBufMedium2.data().put(byteBufMedium2);
-	    	
-	    	TransportBufferImpl transBufMedium3 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium3._isWriteBuffer = true;
-	    	transBufMedium3._data.position(3);
-	    	byteBufMedium3.flip();
-	    	transBufMedium3.data().put(byteBufMedium3);
-	    	
-	    	TransportBufferImpl transBufMedium4 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium4._isWriteBuffer = true;
-	    	transBufMedium4._data.position(3);
-	    	byteBufMedium4.flip();
-	    	transBufMedium4.data().put(byteBufMedium4);
-	    	
-	    	TransportBufferImpl transBufMedium5 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium5._isWriteBuffer = true;
-	    	transBufMedium5._data.position(3);
-	    	byteBufMedium5.flip();
-	    	transBufMedium5.data().put(byteBufMedium5);
-	    	
-	    	TransportBufferImpl transBufMedium6 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium6._isWriteBuffer = true;
-	    	transBufMedium6._data.position(3);
-	    	byteBufMedium6.flip();
-	    	transBufMedium6.data().put(byteBufMedium6);
-	    	
-	    	TransportBufferImpl transBufMedium7 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium7._isWriteBuffer = true;
-	    	transBufMedium7._data.position(3);
-	    	byteBufMedium7.flip();
-	    	transBufMedium7.data().put(byteBufMedium7);
-	    	
-	    	TransportBufferImpl transBufMedium8 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium8._isWriteBuffer = true;
-	    	transBufMedium8._data.position(3);
-	    	byteBufMedium8.flip();
-	    	transBufMedium8.data().put(byteBufMedium8);
-	    	
-	    	TransportBufferImpl transBufMedium9 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium9._data.position(3);
-	    	byteBufMedium9.flip();
-	    	transBufMedium9.data().put(byteBufMedium9);
-	    	transBufMedium9._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufMedium10 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium10._data.position(3);
-	    	byteBufMedium10.flip();
-	    	transBufMedium10.data().put(byteBufMedium10);
-	    	transBufMedium10._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufMedium11 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium11._data.position(3);
-	    	byteBufMedium11.flip();
-	    	transBufMedium11.data().put(byteBufMedium11);
-	    	transBufMedium11._isWriteBuffer = true;
+                    // write 92 bytes to _junitTestBuffer for each call
+                    for (int i = offset; i < offset + length; i++)
+                    {
+                        for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
+                        {
+                            _junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
+                            cumulativeBytes++;
+                            if (cumulativeBytes == bytesWritten)
+                            {
+                                break;
+                            }
+                        }
+                        if (cumulativeBytes == bytesWritten)
+                        {
+                            break;
+                        }
+                    }
 
-	    	TransportBufferImpl transBufMedium12 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium12._data.position(3);
-	    	byteBufMedium12.flip();
-	    	transBufMedium12.data().put(byteBufMedium12);
-	    	transBufMedium12._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufMedium13 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium13._data.position(3);
-	    	byteBufMedium13.flip();
-	    	transBufMedium13.data().put(byteBufMedium13);
-	    	transBufMedium13._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufMedium14 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium14._data.position(3);
-	    	byteBufMedium14.flip();
-	    	transBufMedium14.data().put(byteBufMedium14);
-	    	transBufMedium14._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufMedium15 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium15._data.position(3);
-	    	byteBufMedium15.flip();
-	    	transBufMedium15.data().put(byteBufMedium15);
-	    	transBufMedium15._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufMedium16 = new TransportBufferImpl(bufLenMedium+3);
-	    	transBufMedium16._data.position(3);
-	    	byteBufMedium16.flip();
-	    	transBufMedium16.data().put(byteBufMedium16);
-	    	transBufMedium16._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow1 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow1._data.position(3);
-	    	byteBufLow1.flip();
-	    	transBufLow1.data().put(byteBufLow1);
-	    	transBufLow1._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow2 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow2._data.position(3);
-	    	byteBufLow2.flip();
-	    	transBufLow2.data().put(byteBufLow2);
-	    	transBufLow2._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow3 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow3._data.position(3);
-	    	byteBufLow3.flip();
-	    	transBufLow3.data().put(byteBufLow3);
-	    	transBufLow3._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow4 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow4._data.position(3);
-	    	byteBufLow4.flip();
-	    	transBufLow4.data().put(byteBufLow4);
-	    	transBufLow4._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow5 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow5._data.position(3);
-	    	byteBufLow5.flip();
-	    	transBufLow5.data().put(byteBufLow5);
-	    	transBufLow5._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow6 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow6._data.position(3);
-	    	byteBufLow6.flip();
-	    	transBufLow6.data().put(byteBufLow6);
-	    	transBufLow6._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow7 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow7._data.position(3);
-	    	byteBufLow7.flip();
-	    	transBufLow7.data().put(byteBufLow7);
-	    	transBufLow7._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl transBufLow8 = new TransportBufferImpl(bufLenLow+3);
-	    	transBufLow8._data.position(3);
-	    	byteBufLow8.flip();
-	    	transBufLow8.data().put(byteBufLow8);
-	    	transBufLow8._isWriteBuffer = true;
-	    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+                    return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
+                }
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
 
-	    	int cumulativeBytesQueued = 0, writeReturnVal = 0;
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
 
-	    	// queue several buffers by calling the write method several times with no write flags
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh1, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh1.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh1.data().limit()-transBufHigh1.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium1, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium1.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium1.data().limit()-transBufMedium1.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh2, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh2.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh2.data().limit()-transBufHigh2.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow1, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow1.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow1.data().limit()-transBufLow1.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh3, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh3.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh3.data().limit()-transBufHigh3.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium2, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium2.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium2.data().limit()-transBufMedium2.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh4, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh4.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh4.data().limit()-transBufHigh4.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium3, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium3.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium3.data().limit()-transBufMedium3.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh5, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh5.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh5.data().limit()-transBufHigh5.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow2, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow2.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow2.data().limit()-transBufLow2.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh6, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh6.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh6.data().limit()-transBufHigh6.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium4, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium4.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium4.data().limit()-transBufMedium4.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh7, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh7.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh7.data().limit()-transBufHigh7.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium5, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium5.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium5.data().limit()-transBufMedium5.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh8, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh8.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh8.data().limit()-transBufHigh8.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow3, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow3.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow3.data().limit()-transBufLow3.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh9, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh9.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh9.data().limit()-transBufHigh9.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium6, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium6.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium6.data().limit()-transBufMedium6.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh10, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh10.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh10.data().limit()-transBufHigh10.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium7, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium7.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium7.data().limit()-transBufMedium7.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh11, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh11.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh11.data().limit()-transBufHigh11.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow4, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow4.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow4.data().limit()-transBufLow4.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh12, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh12.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh12.data().limit()-transBufHigh12.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium8, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium8.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium8.data().limit()-transBufMedium8.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh13, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh13.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh13.data().limit()-transBufHigh13.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium9, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium9.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium9.data().limit()-transBufMedium9.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh14, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh14.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh14.data().limit()-transBufHigh14.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow5, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow5.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow5.data().limit()-transBufLow5.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh15, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh15.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh15.data().limit()-transBufHigh15.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium10, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium10.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium10.data().limit()-transBufMedium10.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh16, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);
-	        // bytesWritten should be scktBufHigh16.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh16.data().limit()-transBufHigh16.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium11, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium11.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium11.data().limit()-transBufMedium11.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh17, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);
-	        // bytesWritten should be scktBufHigh17.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh17.data().limit()-transBufHigh17.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow6, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow6.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow6.data().limit()-transBufLow6.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh18, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);
-	        // bytesWritten should be scktBufHigh18.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh18.data().limit()-transBufHigh18.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium12, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium12.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium12.data().limit()-transBufMedium12.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh19, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh19.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh19.data().limit()-transBufHigh19.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium13, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium13.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium13.data().limit()-transBufMedium13.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh20, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh20.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh20.data().limit()-transBufHigh20.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow7, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow7.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow7.data().limit()-transBufLow7.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh21, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh21.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh21.data().limit()-transBufHigh21.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium14, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium14.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium14.data().limit()-transBufMedium14.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh22, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh22.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh22.data().limit()-transBufHigh22.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium15, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium15.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium15.data().limit()-transBufMedium15.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh23, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh23.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh23.data().limit()-transBufHigh23.data().position());
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow8, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufLow8.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufLow8.data().limit()-transBufLow8.data().position());
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh24, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufHigh24.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufHigh24.data().limit()-transBufHigh24.data().position());
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium16, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	        // bytesWritten should be scktBufMedium16.getLength()
-	        assertTrue(writeArgs.bytesWritten() == transBufMedium16.data().limit()-transBufMedium16.data().position());
+                }
+            }
+                    ;
 
-	        // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
-	        assertTrue(ScktChnl._totalBytesQueued == cumulativeBytesQueued);
-	        
-	        while (cumulativeBytesQueued > 0)
-	        {
-	        	int bytesFlushed = 0, flushRetVal;
-	        	
-	        	flushRetVal = ScktChnl.flush(error);
-	        	bytesFlushed = cumulativeBytesQueued - flushRetVal;
-	        
-		        // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
-		        assertTrue(ScktChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
-		        
-		        // decrement cumulativeBytesQueued by bytesFlushed
-		        cumulativeBytesQueued -= bytesFlushed;
-	        }
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be 0
-	        assertTrue(ScktChnl._totalBytesQueued == 0);
-	        
-	        // verify bytes are written in correct order
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 3, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 28, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 55, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 80, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 104, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 129, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 156, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 181, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 208, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 233, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 257, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 282, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 309, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 334, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 361, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 386, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 410, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 435, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 462, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 487, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 514, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 539, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 563, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 588, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 615, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 640, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 667, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 692, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 716, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 741, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 768, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 793, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 820, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 845, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 869, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 894, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 921, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 946, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 973, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 998, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1022, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 1047, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1074, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 1099, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1126, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 1151, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1175, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 1200, testDataMedium.length())) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            ScktChnl._junitTestBuffer = new byte[1224];
+            ScktChnl._junitTestBufPosition = 0;
+
+            TransportBufferImpl transBufHigh1 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh1._isWriteBuffer = true;
+            transBufHigh1._data.position(3);
+            byteBufHigh1.flip();
+            transBufHigh1.data().put(byteBufHigh1);
+
+            TransportBufferImpl transBufHigh2 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh2._isWriteBuffer = true;
+            transBufHigh2._data.position(3);
+            byteBufHigh2.flip();
+            transBufHigh2.data().put(byteBufHigh2);
+
+            TransportBufferImpl transBufHigh3 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh3._isWriteBuffer = true;
+            transBufHigh3._data.position(3);
+            byteBufHigh3.flip();
+            transBufHigh3.data().put(byteBufHigh3);
+
+            TransportBufferImpl transBufHigh4 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh4._isWriteBuffer = true;
+            transBufHigh4._data.position(3);
+            byteBufHigh4.flip();
+            transBufHigh4.data().put(byteBufHigh4);
+
+            TransportBufferImpl transBufHigh5 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh5._isWriteBuffer = true;
+            transBufHigh5._data.position(3);
+            byteBufHigh5.flip();
+            transBufHigh5.data().put(byteBufHigh5);
+
+            TransportBufferImpl transBufHigh6 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh6._isWriteBuffer = true;
+            transBufHigh6._data.position(3);
+            byteBufHigh6.flip();
+            transBufHigh6.data().put(byteBufHigh6);
+
+            TransportBufferImpl transBufHigh7 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh7._isWriteBuffer = true;
+            transBufHigh7._data.position(3);
+            byteBufHigh7.flip();
+            transBufHigh7.data().put(byteBufHigh7);
+
+            TransportBufferImpl transBufHigh8 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh8._isWriteBuffer = true;
+            transBufHigh8._data.position(3);
+            byteBufHigh8.flip();
+            transBufHigh8.data().put(byteBufHigh8);
+
+            TransportBufferImpl transBufHigh9 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh9._isWriteBuffer = true;
+            transBufHigh9._data.position(3);
+            byteBufHigh9.flip();
+            transBufHigh9.data().put(byteBufHigh9);
+
+            TransportBufferImpl transBufHigh10 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh10._isWriteBuffer = true;
+            transBufHigh10._data.position(3);
+            byteBufHigh10.flip();
+            transBufHigh10.data().put(byteBufHigh10);
+
+            TransportBufferImpl transBufHigh11 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh11._isWriteBuffer = true;
+            transBufHigh11._data.position(3);
+            byteBufHigh11.flip();
+            transBufHigh11.data().put(byteBufHigh11);
+
+            TransportBufferImpl transBufHigh12 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh12._isWriteBuffer = true;
+            transBufHigh12._data.position(3);
+            byteBufHigh12.flip();
+            transBufHigh12.data().put(byteBufHigh12);
+
+            TransportBufferImpl transBufHigh13 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh13._isWriteBuffer = true;
+            transBufHigh13._data.position(3);
+            byteBufHigh13.flip();
+            transBufHigh13.data().put(byteBufHigh13);
+
+            TransportBufferImpl transBufHigh14 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh14._isWriteBuffer = true;
+            transBufHigh14._data.position(3);
+            byteBufHigh14.flip();
+            transBufHigh14.data().put(byteBufHigh14);
+
+            TransportBufferImpl transBufHigh15 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh15._isWriteBuffer = true;
+            transBufHigh15._data.position(3);
+            byteBufHigh15.flip();
+            transBufHigh15.data().put(byteBufHigh15);
+
+            TransportBufferImpl transBufHigh16 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh16._isWriteBuffer = true;
+            transBufHigh16._data.position(3);
+            byteBufHigh16.flip();
+            transBufHigh16.data().put(byteBufHigh16);
+
+            TransportBufferImpl transBufHigh17 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh17._isWriteBuffer = true;
+            transBufHigh17._data.position(3);
+            byteBufHigh17.flip();
+            transBufHigh17.data().put(byteBufHigh17);
+
+            TransportBufferImpl transBufHigh18 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh18._isWriteBuffer = true;
+            transBufHigh18._data.position(3);
+            byteBufHigh18.flip();
+            transBufHigh18.data().put(byteBufHigh18);
+
+            TransportBufferImpl transBufHigh19 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh19._isWriteBuffer = true;
+            transBufHigh19._data.position(3);
+            byteBufHigh19.flip();
+            transBufHigh19.data().put(byteBufHigh19);
+
+            TransportBufferImpl transBufHigh20 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh20._isWriteBuffer = true;
+            transBufHigh20._data.position(3);
+            byteBufHigh20.flip();
+            transBufHigh20.data().put(byteBufHigh20);
+
+            TransportBufferImpl transBufHigh21 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh21._isWriteBuffer = true;
+            transBufHigh21._data.position(3);
+            byteBufHigh21.flip();
+            transBufHigh21.data().put(byteBufHigh21);
+
+            TransportBufferImpl transBufHigh22 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh22._isWriteBuffer = true;
+            transBufHigh22._data.position(3);
+            byteBufHigh22.flip();
+            transBufHigh22.data().put(byteBufHigh22);
+
+            TransportBufferImpl transBufHigh23 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh23._isWriteBuffer = true;
+            transBufHigh23._data.position(3);
+            byteBufHigh23.flip();
+            transBufHigh23.data().put(byteBufHigh23);
+
+            TransportBufferImpl transBufHigh24 = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh24._isWriteBuffer = true;
+            transBufHigh24._data.position(3);
+            byteBufHigh24.flip();
+            transBufHigh24.data().put(byteBufHigh24);
+
+            TransportBufferImpl transBufMedium1 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium1._isWriteBuffer = true;
+            transBufMedium1._data.position(3);
+            byteBufMedium1.flip();
+            transBufMedium1.data().put(byteBufMedium1);
+
+            TransportBufferImpl transBufMedium2 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium2._isWriteBuffer = true;
+            transBufMedium2._data.position(3);
+            byteBufMedium2.flip();
+            transBufMedium2.data().put(byteBufMedium2);
+
+            TransportBufferImpl transBufMedium3 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium3._isWriteBuffer = true;
+            transBufMedium3._data.position(3);
+            byteBufMedium3.flip();
+            transBufMedium3.data().put(byteBufMedium3);
+
+            TransportBufferImpl transBufMedium4 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium4._isWriteBuffer = true;
+            transBufMedium4._data.position(3);
+            byteBufMedium4.flip();
+            transBufMedium4.data().put(byteBufMedium4);
+
+            TransportBufferImpl transBufMedium5 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium5._isWriteBuffer = true;
+            transBufMedium5._data.position(3);
+            byteBufMedium5.flip();
+            transBufMedium5.data().put(byteBufMedium5);
+
+            TransportBufferImpl transBufMedium6 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium6._isWriteBuffer = true;
+            transBufMedium6._data.position(3);
+            byteBufMedium6.flip();
+            transBufMedium6.data().put(byteBufMedium6);
+
+            TransportBufferImpl transBufMedium7 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium7._isWriteBuffer = true;
+            transBufMedium7._data.position(3);
+            byteBufMedium7.flip();
+            transBufMedium7.data().put(byteBufMedium7);
+
+            TransportBufferImpl transBufMedium8 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium8._isWriteBuffer = true;
+            transBufMedium8._data.position(3);
+            byteBufMedium8.flip();
+            transBufMedium8.data().put(byteBufMedium8);
+
+            TransportBufferImpl transBufMedium9 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium9._data.position(3);
+            byteBufMedium9.flip();
+            transBufMedium9.data().put(byteBufMedium9);
+            transBufMedium9._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium10 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium10._data.position(3);
+            byteBufMedium10.flip();
+            transBufMedium10.data().put(byteBufMedium10);
+            transBufMedium10._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium11 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium11._data.position(3);
+            byteBufMedium11.flip();
+            transBufMedium11.data().put(byteBufMedium11);
+            transBufMedium11._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium12 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium12._data.position(3);
+            byteBufMedium12.flip();
+            transBufMedium12.data().put(byteBufMedium12);
+            transBufMedium12._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium13 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium13._data.position(3);
+            byteBufMedium13.flip();
+            transBufMedium13.data().put(byteBufMedium13);
+            transBufMedium13._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium14 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium14._data.position(3);
+            byteBufMedium14.flip();
+            transBufMedium14.data().put(byteBufMedium14);
+            transBufMedium14._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium15 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium15._data.position(3);
+            byteBufMedium15.flip();
+            transBufMedium15.data().put(byteBufMedium15);
+            transBufMedium15._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium16 = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium16._data.position(3);
+            byteBufMedium16.flip();
+            transBufMedium16.data().put(byteBufMedium16);
+            transBufMedium16._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow1 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow1._data.position(3);
+            byteBufLow1.flip();
+            transBufLow1.data().put(byteBufLow1);
+            transBufLow1._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow2 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow2._data.position(3);
+            byteBufLow2.flip();
+            transBufLow2.data().put(byteBufLow2);
+            transBufLow2._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow3 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow3._data.position(3);
+            byteBufLow3.flip();
+            transBufLow3.data().put(byteBufLow3);
+            transBufLow3._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow4 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow4._data.position(3);
+            byteBufLow4.flip();
+            transBufLow4.data().put(byteBufLow4);
+            transBufLow4._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow5 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow5._data.position(3);
+            byteBufLow5.flip();
+            transBufLow5.data().put(byteBufLow5);
+            transBufLow5._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow6 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow6._data.position(3);
+            byteBufLow6.flip();
+            transBufLow6.data().put(byteBufLow6);
+            transBufLow6._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow7 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow7._data.position(3);
+            byteBufLow7.flip();
+            transBufLow7.data().put(byteBufLow7);
+            transBufLow7._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow8 = new TransportBufferImpl(bufLenLow+3);
+            transBufLow8._data.position(3);
+            byteBufLow8.flip();
+            transBufLow8.data().put(byteBufLow8);
+            transBufLow8._isWriteBuffer = true;
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            int cumulativeBytesQueued = 0, writeReturnVal = 0;
+
+            // queue several buffers by calling the write method several times with no write flags
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh1, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh1.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh1.data().limit()-transBufHigh1.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium1, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium1.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium1.data().limit()-transBufMedium1.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh2, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh2.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh2.data().limit()-transBufHigh2.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow1, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow1.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow1.data().limit()-transBufLow1.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh3, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh3.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh3.data().limit()-transBufHigh3.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium2, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium2.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium2.data().limit()-transBufMedium2.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh4, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh4.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh4.data().limit()-transBufHigh4.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium3, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium3.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium3.data().limit()-transBufMedium3.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh5, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh5.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh5.data().limit()-transBufHigh5.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow2, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow2.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow2.data().limit()-transBufLow2.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh6, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh6.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh6.data().limit()-transBufHigh6.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium4, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium4.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium4.data().limit()-transBufMedium4.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh7, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh7.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh7.data().limit()-transBufHigh7.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium5, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium5.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium5.data().limit()-transBufMedium5.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh8, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh8.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh8.data().limit()-transBufHigh8.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow3, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow3.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow3.data().limit()-transBufLow3.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh9, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh9.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh9.data().limit()-transBufHigh9.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium6, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium6.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium6.data().limit()-transBufMedium6.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh10, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh10.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh10.data().limit()-transBufHigh10.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium7, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium7.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium7.data().limit()-transBufMedium7.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh11, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh11.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh11.data().limit()-transBufHigh11.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow4, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow4.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow4.data().limit()-transBufLow4.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh12, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh12.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh12.data().limit()-transBufHigh12.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium8, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium8.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium8.data().limit()-transBufMedium8.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh13, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh13.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh13.data().limit()-transBufHigh13.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium9, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium9.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium9.data().limit()-transBufMedium9.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh14, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh14.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh14.data().limit()-transBufHigh14.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow5, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow5.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow5.data().limit()-transBufLow5.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh15, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh15.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh15.data().limit()-transBufHigh15.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium10, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium10.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium10.data().limit()-transBufMedium10.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh16, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh16.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh16.data().limit()-transBufHigh16.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium11, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium11.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium11.data().limit()-transBufMedium11.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh17, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh17.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh17.data().limit()-transBufHigh17.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow6, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow6.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow6.data().limit()-transBufLow6.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh18, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh18.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh18.data().limit()-transBufHigh18.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium12, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium12.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium12.data().limit()-transBufMedium12.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh19, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh19.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh19.data().limit()-transBufHigh19.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium13, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium13.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium13.data().limit()-transBufMedium13.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh20, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh20.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh20.data().limit()-transBufHigh20.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow7, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow7.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow7.data().limit()-transBufLow7.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh21, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh21.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh21.data().limit()-transBufHigh21.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium14, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium14.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium14.data().limit()-transBufMedium14.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh22, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh22.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh22.data().limit()-transBufHigh22.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium15, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium15.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium15.data().limit()-transBufMedium15.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh23, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh23.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh23.data().limit()-transBufHigh23.data().position());
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow8, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufLow8.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufLow8.data().limit()-transBufLow8.data().position());
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh24, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufHigh24.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufHigh24.data().limit()-transBufHigh24.data().position());
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium16, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued);
+            // bytesWritten should be scktBufMedium16.getLength()
+            assertTrue(writeArgs.bytesWritten() == transBufMedium16.data().limit()-transBufMedium16.data().position());
+
+            // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
+            assertTrue(ScktChnl._totalBytesQueued == cumulativeBytesQueued);
+
+            while (cumulativeBytesQueued > 0)
+            {
+                int bytesFlushed = 0, flushRetVal;
+
+                flushRetVal = ScktChnl.flush(error);
+                bytesFlushed = cumulativeBytesQueued - flushRetVal;
+
+                // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
+                assertTrue(ScktChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
+
+                // decrement cumulativeBytesQueued by bytesFlushed
+                cumulativeBytesQueued -= bytesFlushed;
+            }
+
+            // _totalBytesQueued in RsslSocketChannel should be 0
+            assertTrue(ScktChnl._totalBytesQueued == 0);
+
+            // verify bytes are written in correct order
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 3, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 28, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 55, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 80, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 104, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 129, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 156, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 181, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 208, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 233, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 257, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 282, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 309, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 334, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 361, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 386, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 410, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 435, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 462, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 487, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 514, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 539, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 563, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 588, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 615, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 640, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 667, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 692, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 716, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 741, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 768, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 793, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 820, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 845, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 869, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 894, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 921, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 946, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 973, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 998, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1022, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 1047, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1074, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 1099, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1126, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 1151, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 1175, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 1200, testDataMedium.length())) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -4870,33 +4870,33 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase17()
     {
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	    	
-	       SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	       Mockito.stub(scktChnl.write((ByteBuffer)Mockito.anyObject())).toReturn(3);
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        ScktChnl._scktChannel = scktChnl;
-	        
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
-	        
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+        Error error = TransportFactory.createError();
 
-	        // ping call should return success
-	        assertTrue(ScktChnl.ping(error) == TransportReturnCodes.SUCCESS);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+
+            SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
+
+            Mockito.stub(scktChnl.write((ByteBuffer)Mockito.anyObject())).toReturn(3);
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            ScktChnl._scktChannel = scktChnl;
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            // ping call should return success
+            assertTrue(ScktChnl.ping(error) == TransportReturnCodes.SUCCESS);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -4910,33 +4910,33 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase18()
     {
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	    	
-	       SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	       Mockito.stub(scktChnl.write((ByteBuffer)Mockito.anyObject())).toReturn(1);
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        ScktChnl._scktChannel = scktChnl;
-	        
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
-	        
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+        Error error = TransportFactory.createError();
 
-	        // ping call should return partial bytes sent
-	        assertTrue(ScktChnl.ping(error) > 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+
+            SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
+
+            Mockito.stub(scktChnl.write((ByteBuffer)Mockito.anyObject())).toReturn(1);
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            ScktChnl._scktChannel = scktChnl;
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            // ping call should return partial bytes sent
+            assertTrue(ScktChnl.ping(error) > 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -4949,34 +4949,34 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase19()
     {
-    	Error error = TransportFactory.createError();
-    	final int flushRetVal = 57;
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return 0
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	    	    protected int flushInternal(Error error)
-	            {
-	                return flushRetVal;
-	            }
-	        };
-	    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        Error error = TransportFactory.createError();
+        final int flushRetVal = 57;
 
-	        // set _totalBytesQueued greater than 0 to simulate buffers queued
-	        ScktChnl._totalBytesQueued = 19;
-	        
-	        // ping call should return flush method return value
-	        assertTrue(ScktChnl.ping(error) == flushRetVal);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return 0
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                protected int flushInternal(Error error)
+                {
+                    return flushRetVal;
+                }
+            };
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued greater than 0 to simulate buffers queued
+            ScktChnl._totalBytesQueued = 19;
+
+            // ping call should return flush method return value
+            assertTrue(ScktChnl.ping(error) == flushRetVal);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -4989,35 +4989,35 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase20()
     {
-    	String testData = "basicWFPTestCase20";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	    		    	
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBuffer transBuf = sBuf.getBufferSlice(bufLen + 3, false) ;   	 	    	 
-	        
-	        // set RsslSocketChannel state to INITIALIZING
-	        ScktChnl._state = ChannelState.INITIALIZING;
-	        
-	        // write call should return failure
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.FAILURE);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        String testData = "basicWFPTestCase20";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBuffer transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION) ;
+
+            // set RsslSocketChannel state to INITIALIZING
+            ScktChnl._state = ChannelState.INITIALIZING;
+
+            // write call should return failure
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.FAILURE);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -5030,23 +5030,23 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase21()
     {
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	        
-	        // set RsslSocketChannel state to INITIALIZING
-	        ScktChnl._state = ChannelState.INITIALIZING;
-	        
-	        // flush call should return failure
-	        assertTrue(ScktChnl.flush(error) == TransportReturnCodes.FAILURE);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+
+            // set RsslSocketChannel state to INITIALIZING
+            ScktChnl._state = ChannelState.INITIALIZING;
+
+            // flush call should return failure
+            assertTrue(ScktChnl.flush(error) == TransportReturnCodes.FAILURE);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -5061,48 +5061,48 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase22()
     {
-    	String testData = "basicWFPTestCase22";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-    		// reset all queues and total bytes written
-	    	ScktChnl._highPriorityQueue.clear();
-	    	ScktChnl._mediumPriorityQueue.clear();
-	    	ScktChnl._lowPriorityQueue.clear();
-	    	ScktChnl._totalBytesQueued = 0;
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
-	        
-	    	// create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false) ;
-	    	transBuf._isWriteBuffer = true;
-	    	transBuf.data(byteBuf);
+        String testData = "basicWFPTestCase22";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+            // reset all queues and total bytes written
+            ScktChnl._highPriorityQueue.clear();
+            ScktChnl._mediumPriorityQueue.clear();
+            ScktChnl._lowPriorityQueue.clear();
+            ScktChnl._totalBytesQueued = 0;
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION) ;
+            transBuf._isWriteBuffer = true;
+            transBuf.data(byteBuf);
 
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-            
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toThrow(new IOException());
-	        
-	        ScktChnl._scktChannel = scktChnl; 	
-	    	
-	        // write should return FAILURE
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.WRITE_FLUSH_FAILED);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toThrow(new IOException());
+
+            ScktChnl._scktChannel = scktChnl;
+
+            // write should return FAILURE
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == TransportReturnCodes.WRITE_FLUSH_FAILED);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -5116,80 +5116,80 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase23()
     {
-    	String testData = "basicWFPTestCase23";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+        String testData = "basicWFPTestCase23";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-        		@Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-        	}
-        	;
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
 
-        	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
-        	transBuf._isWriteBuffer = true;
-        	transBuf._data.position(3);
-        	byteBuf.flip();
-        	transBuf.data().put(byteBuf);
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
 
-        	// reset all queues
-	    	rsslChnl._highPriorityQueue.clear();
-	    	rsslChnl._mediumPriorityQueue.clear();
-	    	rsslChnl._lowPriorityQueue.clear();
-	    		    	
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
-	        
-	        // set _totalBytesQueued to 0
-	        rsslChnl._totalBytesQueued = 0;
-	    	
-	       SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	        
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toThrow(new IOException());
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        rsslChnl._scktChannel = scktChnl; 	
-	    		    		        
-	        // write should return socket buffer testData length
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(rsslChnl.write(transBuf, writeArgs, error) == (transBuf.data().limit()-transBuf.data().position()));
-	        
-	        // change high water mark so next call exceeds it
-	        rsslChnl._highWaterMark = 10;
-	        
+                }
+            }
+                    ;
 
-        	TransportBufferImpl transBuf1 = new TransportBufferImpl(bufLen+3);
-        	transBuf1._data.position(3);
-        	byteBuf.flip();
-        	transBuf1.data().put(byteBuf);
-        	transBuf1._isWriteBuffer = true;
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
+            transBuf._isWriteBuffer = true;
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+
+            // reset all queues
+            rsslChnl._highPriorityQueue.clear();
+            rsslChnl._mediumPriorityQueue.clear();
+            rsslChnl._lowPriorityQueue.clear();
+
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0
+            rsslChnl._totalBytesQueued = 0;
+
+            SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
+
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toThrow(new IOException());
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            rsslChnl._scktChannel = scktChnl;
+
+            // write should return socket buffer testData length
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(rsslChnl.write(transBuf, writeArgs, error) == (transBuf.data().limit()-transBuf.data().position()));
+
+            // change high water mark so next call exceeds it
+            rsslChnl._highWaterMark = 10;
+
+
+            TransportBufferImpl transBuf1 = new TransportBufferImpl(bufLen+3);
+            transBuf1._data.position(3);
+            byteBuf.flip();
+            transBuf1.data().put(byteBuf);
+            transBuf1._isWriteBuffer = true;
 //	        transBuf.data().position(transBuf.data().limit());
-	        // write should return WRITE_FLUSH_FAILED
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(rsslChnl.write(transBuf1, writeArgs, error) == TransportReturnCodes.WRITE_FLUSH_FAILED);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // write should return WRITE_FLUSH_FAILED
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(rsslChnl.write(transBuf1, writeArgs, error) == TransportReturnCodes.WRITE_FLUSH_FAILED);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -5202,56 +5202,56 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase24()
     {
-    	String testData = "basicWFPTestCase24";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-    		// reset all queues
-	    	ScktChnl._highPriorityQueue.clear();
-	    	ScktChnl._mediumPriorityQueue.clear();
-	    	ScktChnl._lowPriorityQueue.clear();
-	    		    	
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
-	        
-	        // set _totalBytesQueued to 0
-	        ScktChnl._totalBytesQueued = 0;
+        String testData = "basicWFPTestCase24";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	        // create SocketBuffer and set to test data
-	    	SocketBuffer sBuf = new SocketBuffer(null, 6144);
-	    	TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false) ; 
-	    	transBuf._isWriteBuffer = true;
-	    	transBuf.data(byteBuf);
-	    	
-	    	SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	    	
-	        Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toThrow(new IOException());
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        ScktChnl._scktChannel = scktChnl; 	
-	    		    		        
-	        // write should return socket buffer testData length
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(ScktChnl.write(transBuf, writeArgs, error) == (transBuf.data().limit()-transBuf.data().position()));
-	        
-	        // flush call should return failure
-	        assertTrue(ScktChnl.flush(error) == TransportReturnCodes.WRITE_FLUSH_FAILED);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+            // reset all queues
+            ScktChnl._highPriorityQueue.clear();
+            ScktChnl._mediumPriorityQueue.clear();
+            ScktChnl._lowPriorityQueue.clear();
+
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0
+            ScktChnl._totalBytesQueued = 0;
+
+            // create SocketBuffer and set to test data
+            SocketBuffer sBuf = new SocketBuffer(null, 6144);
+            TransportBufferImpl transBuf = sBuf.getBufferSlice(bufLen + 3, false, SocketBuffer.RIPC_WRITE_POSITION) ;
+            transBuf._isWriteBuffer = true;
+            transBuf.data(byteBuf);
+
+            SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
+
+            Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toThrow(new IOException());
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            ScktChnl._scktChannel = scktChnl;
+
+            // write should return socket buffer testData length
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(ScktChnl.write(transBuf, writeArgs, error) == (transBuf.data().limit()-transBuf.data().position()));
+
+            // flush call should return failure
+            assertTrue(ScktChnl.flush(error) == TransportReturnCodes.WRITE_FLUSH_FAILED);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
-    
+
     /*
      * 25. Call ping method with
      *
@@ -5262,25 +5262,25 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase25()
     {
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	        
-	        // set RsslSocketChannel state to INITIALIZING
-	        ScktChnl._state = ChannelState.INITIALIZING;
-	        
-	        // ping call should return failure
-	        assertTrue(ScktChnl.ping(error) == TransportReturnCodes.FAILURE);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+
+            // set RsslSocketChannel state to INITIALIZING
+            ScktChnl._state = ChannelState.INITIALIZING;
+
+            // ping call should return failure
+            assertTrue(ScktChnl.ping(error) == TransportReturnCodes.FAILURE);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
-    
+
     /*
      * 26. Call ping method with
      *
@@ -5291,197 +5291,197 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase26()
     {
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel();
-	        
-	    	SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
-	       
-	        Mockito.stub(scktChnl.write((ByteBuffer)Mockito.anyObject())).toThrow(new IOException());
-	        
-	        // set RsslSocketChannel internal socket channel to mock socket channel
-	        ScktChnl._scktChannel = scktChnl;
-	        
-	        //set RsslSocketChannel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+        Error error = TransportFactory.createError();
 
-	        // set _totalBytesQueued to 0 so ping directly calls socket channel write
-	        ScktChnl._totalBytesQueued = 0;
-	        
-	        // ping call should return failure
-	        assertTrue(ScktChnl.ping(error) == TransportReturnCodes.FAILURE);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+        try
+        {
+            // create the RsslSocketChannel to test
+            RsslSocketChannel ScktChnl = new RsslSocketChannel();
+
+            SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
+
+            Mockito.stub(scktChnl.write((ByteBuffer)Mockito.anyObject())).toThrow(new IOException());
+
+            // set RsslSocketChannel internal socket channel to mock socket channel
+            ScktChnl._scktChannel = scktChnl;
+
+            //set RsslSocketChannel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 so ping directly calls socket channel write
+            ScktChnl._totalBytesQueued = 0;
+
+            // ping call should return failure
+            assertTrue(ScktChnl.ping(error) == TransportReturnCodes.FAILURE);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
-    
+
     /*
      * 27. Call write method and then flush method with
-	 *
-	 * - HIGH priority
-	 * - DIRECT_SOCKET_WRITE flag set
-	 * - no buffers queued
-	 * -java.nio.channels.SocketChannel.write() returns partial bytes sent for write call
-	 * -java.nio.channels.SocketChannel.write() returns all bytes sent for flush call
-	 *
-	 * Expected Result: Write method with DIRECT_SOCKET_WRITE flag set always flushed first.
-	 * Check that priority flush strategy is maintained from start of test to end of test.
+     *
+     * - HIGH priority
+     * - DIRECT_SOCKET_WRITE flag set
+     * - no buffers queued
+     * -java.nio.channels.SocketChannel.write() returns partial bytes sent for write call
+     * -java.nio.channels.SocketChannel.write() returns all bytes sent for flush call
+     *
+     * Expected Result: Write method with DIRECT_SOCKET_WRITE flag set always flushed first.
+     * Check that priority flush strategy is maintained from start of test to end of test.
      */
-    @Test	
+    @Test
     public void basicWFPTestCase27()
     {
-    	String testDataHigh = "basicWFPTestCase27High";
-    	String testDataMedium = "basicWFPTestCase27Medium";
-    	String testDataLow = "basicWFPTestCase27Low";
-    	int bufLenHigh = testDataHigh.length();
-    	int bufLenMedium = testDataMedium.length();
-    	int bufLenLow = testDataLow.length();
-    	ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
-    	ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
-    	ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
-    	byteBufHigh.put(testDataHigh.getBytes());
-    	byteBufMedium.put(testDataMedium.getBytes());
-    	byteBufLow.put(testDataLow.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// overridejava.nio.channels.SocketChannel write
-	    	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-	    	{
-	            @Override
-	            public long write(ByteBuffer[] srcs, int offset, int length)
-	            {
-	            	int bytesWritten = 16, cumulativeBytes = 0;
-	            	
-	            	// write 16 bytes to _junitTestBuffer for each call
-	            	for (int i = offset; i < offset + length; i++)
-	            	{
-	            		for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
-	            		{
-	            			_junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
-	            			cumulativeBytes++;
-	            			if (cumulativeBytes == bytesWritten)
-	            			{
-	            				break;
-	            			}
-	            		}
-            			if (cumulativeBytes == bytesWritten)
-            			{
-            				break;
-            			}
-	            	}
-	            	
-	                return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
-	            }
+        String testDataHigh = "basicWFPTestCase27High";
+        String testDataMedium = "basicWFPTestCase27Medium";
+        String testDataLow = "basicWFPTestCase27Low";
+        int bufLenHigh = testDataHigh.length();
+        int bufLenMedium = testDataMedium.length();
+        int bufLenLow = testDataLow.length();
+        ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
+        ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
+        ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
+        byteBufHigh.put(testDataHigh.getBytes());
+        byteBufMedium.put(testDataMedium.getBytes());
+        byteBufLow.put(testDataLow.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	            @Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+        try
+        {
+            // create the RsslSocketChannel to test
+            // overridejava.nio.channels.SocketChannel write
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public long write(ByteBuffer[] srcs, int offset, int length)
+                {
+                    int bytesWritten = 16, cumulativeBytes = 0;
 
-	            @Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-        	}
-        	;
+                    // write 16 bytes to _junitTestBuffer for each call
+                    for (int i = offset; i < offset + length; i++)
+                    {
+                        for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
+                        {
+                            _junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
+                            cumulativeBytes++;
+                            if (cumulativeBytes == bytesWritten)
+                            {
+                                break;
+                            }
+                        }
+                        if (cumulativeBytes == bytesWritten)
+                        {
+                            break;
+                        }
+                    }
+
+                    return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
+                }
+
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
+
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
+
+                }
+            }
+                    ;
 
             rsslChnl._junitTestBuffer = new byte[1224];
             rsslChnl._junitTestBufPosition = 0;
 
-        	TransportBufferImpl transBufHigh = new TransportBufferImpl(bufLenHigh+3);
-        	transBufHigh._data.position(3);
-        	transBufHigh._isWriteBuffer = true;
-        	byteBufHigh.flip();
-        	transBufHigh.data().put(byteBufHigh);
+            TransportBufferImpl transBufHigh = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh._data.position(3);
+            transBufHigh._isWriteBuffer = true;
+            byteBufHigh.flip();
+            transBufHigh.data().put(byteBufHigh);
 
-        	TransportBufferImpl transBufMedium = new TransportBufferImpl(bufLenMedium+3);
-        	transBufMedium._data.position(3);
-        	transBufMedium._isWriteBuffer = true;
-        	byteBufMedium.flip();
-        	transBufMedium.data().put(byteBufMedium);
+            TransportBufferImpl transBufMedium = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium._data.position(3);
+            transBufMedium._isWriteBuffer = true;
+            byteBufMedium.flip();
+            transBufMedium.data().put(byteBufMedium);
 
-        	TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
-        	transBufLow._data.position(3);
-        	transBufLow._isWriteBuffer = true;
-        	byteBufLow.flip();
-        	transBufLow.data().put(byteBufLow);
+            TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
+            transBufLow._data.position(3);
+            transBufLow._isWriteBuffer = true;
+            byteBufLow.flip();
+            transBufLow.data().put(byteBufLow);
 
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
 
-	    	int cumulativeBytesQueued = 0, writeReturnVal = 0;
+            int cumulativeBytesQueued = 0, writeReturnVal = 0;
 
-	    	// call the write method with DIRECT_SOCKET_WRITE write flag
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	    	writeReturnVal = rsslChnl.write(transBufHigh, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be 16
-	        assertTrue(writeArgs.bytesWritten() == 16);
-	        
-	        // queue a couple more buffers by calling the write method with no write flags
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufMedium, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertEquals(cumulativeBytesQueued - 16, writeReturnVal);
-	        // bytesWritten should be scktBufMedium.getLength()
-	        assertTrue(writeArgs.bytesWritten() == (transBufMedium.data().limit()-transBufMedium.data().position()));
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = rsslChnl.write(transBufLow, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be scktBufLow.getLength()
-	        assertTrue(writeArgs.bytesWritten() == (transBufLow.data().limit()-transBufLow.data().position()));
+            // call the write method with DIRECT_SOCKET_WRITE write flag
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            writeReturnVal = rsslChnl.write(transBufHigh, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be 16
+            assertTrue(writeArgs.bytesWritten() == 16);
 
-	        // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
-	        assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued - 16);
-	        
-	        while (cumulativeBytesQueued > 0)
-	        {
-	        	int bytesFlushed = 0, flushRetVal;
-	        	
-	        	flushRetVal = rsslChnl.flush(error);
-	        	bytesFlushed = cumulativeBytesQueued - flushRetVal;
-	        
-		        // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
-		        assertTrue(rsslChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
-		        
-		        // decrement cumulativeBytesQueued by bytesFlushed
-		        cumulativeBytesQueued -= bytesFlushed;
-	        }
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be 0
-	        assertTrue(rsslChnl._totalBytesQueued == 0);
-	        
-	        // verify bytes are written in correct order
-	        assertTrue(testDataHigh.compareTo(new String(rsslChnl._junitTestBuffer, 3, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(rsslChnl._junitTestBuffer, 28, testDataMedium.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(rsslChnl._junitTestBuffer, 55, testDataLow.length())) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // queue a couple more buffers by calling the write method with no write flags
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufMedium, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertEquals(cumulativeBytesQueued - 16, writeReturnVal);
+            // bytesWritten should be scktBufMedium.getLength()
+            assertTrue(writeArgs.bytesWritten() == (transBufMedium.data().limit()-transBufMedium.data().position()));
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = rsslChnl.write(transBufLow, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be scktBufLow.getLength()
+            assertTrue(writeArgs.bytesWritten() == (transBufLow.data().limit()-transBufLow.data().position()));
+
+            // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
+            assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued - 16);
+
+            while (cumulativeBytesQueued > 0)
+            {
+                int bytesFlushed = 0, flushRetVal;
+
+                flushRetVal = rsslChnl.flush(error);
+                bytesFlushed = cumulativeBytesQueued - flushRetVal;
+
+                // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
+                assertTrue(rsslChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
+
+                // decrement cumulativeBytesQueued by bytesFlushed
+                cumulativeBytesQueued -= bytesFlushed;
+            }
+
+            // _totalBytesQueued in RsslSocketChannel should be 0
+            assertTrue(rsslChnl._totalBytesQueued == 0);
+
+            // verify bytes are written in correct order
+            assertTrue(testDataHigh.compareTo(new String(rsslChnl._junitTestBuffer, 3, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(rsslChnl._junitTestBuffer, 28, testDataMedium.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(rsslChnl._junitTestBuffer, 55, testDataLow.length())) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -5499,153 +5499,153 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase28()
     {
-    	String testDataHigh = "basicWFPTestCase28High";
-    	String testDataMedium = "basicWFPTestCase28Medium";
-    	String testDataLow = "basicWFPTestCase28Low";
-    	int bufLenHigh = testDataHigh.length();
-    	int bufLenMedium = testDataMedium.length();
-    	int bufLenLow = testDataLow.length();
-    	ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
-    	ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
-    	ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
-    	byteBufHigh.put(testDataHigh.getBytes());
-    	byteBufMedium.put(testDataMedium.getBytes());
-    	byteBufLow.put(testDataLow.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// overridejava.nio.channels.SocketChannel write
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
-	            @Override
-	            public long write(ByteBuffer[] srcs, int offset, int length)
-	            {
-	            	int bytesWritten = 16, cumulativeBytes = 0;
-	            	
-	            	// write 16 bytes to _junitTestBuffer for each call
-	            	for (int i = offset; i < offset + length; i++)
-	            	{
-	            		for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
-	            		{
-	            			_junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
-	            			cumulativeBytes++;
-	            			if (cumulativeBytes == bytesWritten)
-	            			{
-	            				break;
-	            			}
-	            		}
-            			if (cumulativeBytes == bytesWritten)
-            			{
-            				break;
-            			}
-	            	}
-	            	
-	                return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
-	            }
+        String testDataHigh = "basicWFPTestCase28High";
+        String testDataMedium = "basicWFPTestCase28Medium";
+        String testDataLow = "basicWFPTestCase28Low";
+        int bufLenHigh = testDataHigh.length();
+        int bufLenMedium = testDataMedium.length();
+        int bufLenLow = testDataLow.length();
+        ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
+        ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
+        ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
+        byteBufHigh.put(testDataHigh.getBytes());
+        byteBufMedium.put(testDataMedium.getBytes());
+        byteBufLow.put(testDataLow.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	            @Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+        try
+        {
+            // create the RsslSocketChannel to test
+            // overridejava.nio.channels.SocketChannel write
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
+                @Override
+                public long write(ByteBuffer[] srcs, int offset, int length)
+                {
+                    int bytesWritten = 16, cumulativeBytes = 0;
 
-	            @Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-	        };
-	        
+                    // write 16 bytes to _junitTestBuffer for each call
+                    for (int i = offset; i < offset + length; i++)
+                    {
+                        for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
+                        {
+                            _junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
+                            cumulativeBytes++;
+                            if (cumulativeBytes == bytesWritten)
+                            {
+                                break;
+                            }
+                        }
+                        if (cumulativeBytes == bytesWritten)
+                        {
+                            break;
+                        }
+                    }
+
+                    return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
+                }
+
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
+
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
+
+                }
+            };
+
             ScktChnl._junitTestBuffer = new byte[1224];
             ScktChnl._junitTestBufPosition = 0;
 
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
 
-	        // create SocketBuffer and set to test data
-        	TransportBufferImpl transBufHigh = new TransportBufferImpl(bufLenHigh+3);
-        	transBufHigh._data.position(3);
-        	byteBufHigh.flip();
-        	transBufHigh.data().put(byteBufHigh);
-        	transBufHigh._isWriteBuffer = true;
-        	
-        	TransportBufferImpl transBufMedium = new TransportBufferImpl(bufLenMedium+3);
-        	transBufMedium._data.position(3);
-        	byteBufMedium.flip();
-        	transBufMedium.data().put(byteBufMedium);
-        	transBufMedium._isWriteBuffer = true;
-        	
-        	TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
-        	transBufLow._data.position(3);
-        	byteBufLow.flip();
-        	transBufLow.data().put(byteBufLow);
-        	transBufLow._isWriteBuffer = true;
-        	
-	    	int cumulativeBytesQueued = 0, writeReturnVal = 0;
+            // create SocketBuffer and set to test data
+            TransportBufferImpl transBufHigh = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh._data.position(3);
+            byteBufHigh.flip();
+            transBufHigh.data().put(byteBufHigh);
+            transBufHigh._isWriteBuffer = true;
 
-	    	// call the write method with DIRECT_SOCKET_WRITE write flag
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	    	writeReturnVal = ScktChnl.write(transBufMedium, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be 16
-	        assertTrue(writeArgs.bytesWritten() == 16);
-	        
-	        // queue a couple more buffers by calling the write method with no write flags
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be scktBufHigh.getLength()
-	        assertTrue(writeArgs.bytesWritten() == (transBufHigh.data().limit()-transBufHigh.data().position()));
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufLow, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be scktBufLow.getLength()
-	        assertTrue(writeArgs.bytesWritten() == (transBufLow.data().limit()-transBufLow.data().position()));
+            TransportBufferImpl transBufMedium = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium._data.position(3);
+            byteBufMedium.flip();
+            transBufMedium.data().put(byteBufMedium);
+            transBufMedium._isWriteBuffer = true;
 
-	        // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
-	        assertTrue(ScktChnl._totalBytesQueued == cumulativeBytesQueued - 16);
-	        
-	        while (cumulativeBytesQueued > 0)
-	        {
-	        	int bytesFlushed = 0, flushRetVal;
-	        	
-	        	flushRetVal = ScktChnl.flush(error);
-	        	bytesFlushed = cumulativeBytesQueued - flushRetVal;
-	        
-		        // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
-		        assertTrue(ScktChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
-		        
-		        // decrement cumulativeBytesQueued by bytesFlushed
-		        cumulativeBytesQueued -= bytesFlushed;
-	        }
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be 0
-	        assertTrue(ScktChnl._totalBytesQueued == 0);
-	        
-	        // verify bytes are written in correct order
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 3, testDataMedium.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 30, testDataHigh.length())) == 0);
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 55, testDataLow.length())) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
+            transBufLow._data.position(3);
+            byteBufLow.flip();
+            transBufLow.data().put(byteBufLow);
+            transBufLow._isWriteBuffer = true;
+
+            int cumulativeBytesQueued = 0, writeReturnVal = 0;
+
+            // call the write method with DIRECT_SOCKET_WRITE write flag
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            writeReturnVal = ScktChnl.write(transBufMedium, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be 16
+            assertTrue(writeArgs.bytesWritten() == 16);
+
+            // queue a couple more buffers by calling the write method with no write flags
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be scktBufHigh.getLength()
+            assertTrue(writeArgs.bytesWritten() == (transBufHigh.data().limit()-transBufHigh.data().position()));
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufLow, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be scktBufLow.getLength()
+            assertTrue(writeArgs.bytesWritten() == (transBufLow.data().limit()-transBufLow.data().position()));
+
+            // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
+            assertTrue(ScktChnl._totalBytesQueued == cumulativeBytesQueued - 16);
+
+            while (cumulativeBytesQueued > 0)
+            {
+                int bytesFlushed = 0, flushRetVal;
+
+                flushRetVal = ScktChnl.flush(error);
+                bytesFlushed = cumulativeBytesQueued - flushRetVal;
+
+                // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
+                assertTrue(ScktChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
+
+                // decrement cumulativeBytesQueued by bytesFlushed
+                cumulativeBytesQueued -= bytesFlushed;
+            }
+
+            // _totalBytesQueued in RsslSocketChannel should be 0
+            assertTrue(ScktChnl._totalBytesQueued == 0);
+
+            // verify bytes are written in correct order
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 3, testDataMedium.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 30, testDataHigh.length())) == 0);
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 55, testDataLow.length())) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
 
     /*
@@ -5663,360 +5663,360 @@ public class SocketChannelJunitTest
     @Test
     public void basicWFPTestCase29()
     {
-    	String testDataHigh = "basicWFPTestCase29High";
-    	String testDataMedium = "basicWFPTestCase29Medium";
-    	String testDataLow = "basicWFPTestCase29Low";
-    	int bufLenHigh = testDataHigh.length();
-    	int bufLenMedium = testDataMedium.length();
-    	int bufLenLow = testDataLow.length();
-    	ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
-    	ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
-    	ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
-    	byteBufHigh.put(testDataHigh.getBytes());
-    	byteBufMedium.put(testDataMedium.getBytes());
-    	byteBufLow.put(testDataLow.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// overridejava.nio.channels.SocketChannel write
-	    	RsslSocketChannel ScktChnl = new RsslSocketChannel()
-	    	{
+        String testDataHigh = "basicWFPTestCase29High";
+        String testDataMedium = "basicWFPTestCase29Medium";
+        String testDataLow = "basicWFPTestCase29Low";
+        int bufLenHigh = testDataHigh.length();
+        int bufLenMedium = testDataMedium.length();
+        int bufLenLow = testDataLow.length();
+        ByteBuffer byteBufHigh = ByteBuffer.allocate(bufLenHigh);
+        ByteBuffer byteBufMedium = ByteBuffer.allocate(bufLenMedium);
+        ByteBuffer byteBufLow = ByteBuffer.allocate(bufLenLow);
+        byteBufHigh.put(testDataHigh.getBytes());
+        byteBufMedium.put(testDataMedium.getBytes());
+        byteBufLow.put(testDataLow.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+
+        try
+        {
+            // create the RsslSocketChannel to test
+            // overridejava.nio.channels.SocketChannel write
+            RsslSocketChannel ScktChnl = new RsslSocketChannel()
+            {
                 @Override
-	            public long write(ByteBuffer[] srcs, int offset, int length)
-	            {
-	            	int bytesWritten = 16, cumulativeBytes = 0;
-	            	
-	            	// write 16 bytes to _junitTestBuffer for each call
-	            	for (int i = offset; i < offset + length; i++)
-	            	{
-	            		for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
-	            		{
-	            			_junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
-	            			cumulativeBytes++;
-	            			if (cumulativeBytes == bytesWritten)
-	            			{
-	            				break;
-	            			}
-	            		}
-            			if (cumulativeBytes == bytesWritten)
-            			{
-            				break;
-            			}
-	            	}
-	            	
-	                return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
-	            }
+                public long write(ByteBuffer[] srcs, int offset, int length)
+                {
+                    int bytesWritten = 16, cumulativeBytes = 0;
 
-	            @Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+                    // write 16 bytes to _junitTestBuffer for each call
+                    for (int i = offset; i < offset + length; i++)
+                    {
+                        for (int j = srcs[i].position(); j < srcs[i].limit(); j++)
+                        {
+                            _junitTestBuffer[_junitTestBufPosition++] = srcs[i].get(j);
+                            cumulativeBytes++;
+                            if (cumulativeBytes == bytesWritten)
+                            {
+                                break;
+                            }
+                        }
+                        if (cumulativeBytes == bytesWritten)
+                        {
+                            break;
+                        }
+                    }
 
-	            @Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-	    	};
-	        
-	    	ScktChnl._junitTestBuffer = new byte[1224];
-	    	ScktChnl._junitTestBufPosition = 0;
+                    return (cumulativeBytes < bytesWritten) ? cumulativeBytes : bytesWritten;
+                }
 
-	        // set channel state to ACTIVE
-	        ScktChnl._state = ChannelState.ACTIVE;
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ScktChnl._totalBytesQueued = 0;
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
 
-	        // create SocketBuffer and set to test data
-        	TransportBufferImpl transBufHigh = new TransportBufferImpl(bufLenHigh+3);
-        	transBufHigh._data.position(3);
-        	byteBufHigh.flip();
-        	transBufHigh.data().put(byteBufHigh);
-        	transBufHigh._isWriteBuffer = true;
-        	
-        	TransportBufferImpl transBufMedium = new TransportBufferImpl(bufLenMedium+3);
-        	transBufMedium._data.position(3);
-        	byteBufMedium.flip();
-        	transBufMedium.data().put(byteBufMedium);
-        	transBufMedium._isWriteBuffer = true;
+                }
+            };
 
-        	TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
-        	transBufLow._data.position(3);
-        	byteBufLow.flip();
-        	transBufLow.data().put(byteBufLow);
-        	transBufLow._isWriteBuffer = true;
-        	
-	    	int cumulativeBytesQueued = 0, writeReturnVal = 0;
+            ScktChnl._junitTestBuffer = new byte[1224];
+            ScktChnl._junitTestBufPosition = 0;
 
-	    	// call the write method with DIRECT_SOCKET_WRITE write flag
-	    	cumulativeBytesQueued += (bufLenLow + 3);
-	        writeArgs.priority(WritePriorities.LOW);
-	        writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	    	writeReturnVal = ScktChnl.write(transBufLow, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be 16
-	        assertTrue(writeArgs.bytesWritten() == 16);
-	        
-	        // queue a couple more buffers by calling the write method with no write flags
-	    	cumulativeBytesQueued += (bufLenHigh + 3);
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufHigh, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be scktBufHigh.getLength()
-	        assertTrue(writeArgs.bytesWritten() == (transBufHigh.data().limit()-transBufHigh.data().position()));
-	    	cumulativeBytesQueued += (bufLenMedium + 3);
-	        writeArgs.priority(WritePriorities.MEDIUM);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	    	writeReturnVal = ScktChnl.write(transBufMedium, writeArgs, error);
-	    	// write return value should be cumulative bytes queued
-	        assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
-	        // bytesWritten should be scktBufMedium.getLength()
-	        assertTrue(writeArgs.bytesWritten() == (transBufMedium.data().limit()-transBufMedium.data().position()));
+            // set channel state to ACTIVE
+            ScktChnl._state = ChannelState.ACTIVE;
 
-	        // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
-	        assertTrue(ScktChnl._totalBytesQueued == cumulativeBytesQueued - 16);
-	        
-	        while (cumulativeBytesQueued > 0)
-	        {
-	        	int bytesFlushed = 0, flushRetVal;
-	        	
-	        	flushRetVal = ScktChnl.flush(error);
-	        	bytesFlushed = cumulativeBytesQueued - flushRetVal;
-	        
-		        // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
-		        assertTrue(ScktChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
-		        
-		        // decrement cumulativeBytesQueued by bytesFlushed
-		        cumulativeBytesQueued -= bytesFlushed;
-	        }
-	        
-	        // _totalBytesQueued in RsslSocketChannel should be 0
-	        assertTrue(ScktChnl._totalBytesQueued == 0);
-	        
-	        // verify bytes are written in correct order
-	        assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 3, testDataLow.length())) == 0);
-	        assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 27, testDataHigh.length())) == 0);
-	        assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 52, testDataMedium.length())) == 0);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
+            // set _totalBytesQueued to 0 for no buffers queued
+            ScktChnl._totalBytesQueued = 0;
+
+            // create SocketBuffer and set to test data
+            TransportBufferImpl transBufHigh = new TransportBufferImpl(bufLenHigh+3);
+            transBufHigh._data.position(3);
+            byteBufHigh.flip();
+            transBufHigh.data().put(byteBufHigh);
+            transBufHigh._isWriteBuffer = true;
+
+            TransportBufferImpl transBufMedium = new TransportBufferImpl(bufLenMedium+3);
+            transBufMedium._data.position(3);
+            byteBufMedium.flip();
+            transBufMedium.data().put(byteBufMedium);
+            transBufMedium._isWriteBuffer = true;
+
+            TransportBufferImpl transBufLow = new TransportBufferImpl(bufLenLow+3);
+            transBufLow._data.position(3);
+            byteBufLow.flip();
+            transBufLow.data().put(byteBufLow);
+            transBufLow._isWriteBuffer = true;
+
+            int cumulativeBytesQueued = 0, writeReturnVal = 0;
+
+            // call the write method with DIRECT_SOCKET_WRITE write flag
+            cumulativeBytesQueued += (bufLenLow + 3);
+            writeArgs.priority(WritePriorities.LOW);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            writeReturnVal = ScktChnl.write(transBufLow, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be 16
+            assertTrue(writeArgs.bytesWritten() == 16);
+
+            // queue a couple more buffers by calling the write method with no write flags
+            cumulativeBytesQueued += (bufLenHigh + 3);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufHigh, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be scktBufHigh.getLength()
+            assertTrue(writeArgs.bytesWritten() == (transBufHigh.data().limit()-transBufHigh.data().position()));
+            cumulativeBytesQueued += (bufLenMedium + 3);
+            writeArgs.priority(WritePriorities.MEDIUM);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            writeReturnVal = ScktChnl.write(transBufMedium, writeArgs, error);
+            // write return value should be cumulative bytes queued
+            assertTrue(writeReturnVal == cumulativeBytesQueued - 16);
+            // bytesWritten should be scktBufMedium.getLength()
+            assertTrue(writeArgs.bytesWritten() == (transBufMedium.data().limit()-transBufMedium.data().position()));
+
+            // _totalBytesQueued in RsslSocketChannel should be cumulative bytes queued
+            assertTrue(ScktChnl._totalBytesQueued == cumulativeBytesQueued - 16);
+
+            while (cumulativeBytesQueued > 0)
+            {
+                int bytesFlushed = 0, flushRetVal;
+
+                flushRetVal = ScktChnl.flush(error);
+                bytesFlushed = cumulativeBytesQueued - flushRetVal;
+
+                // _totalBytesQueued in RsslSocketChannel should be bytes remaining to be sent
+                assertTrue(ScktChnl._totalBytesQueued == (cumulativeBytesQueued - bytesFlushed));
+
+                // decrement cumulativeBytesQueued by bytesFlushed
+                cumulativeBytesQueued -= bytesFlushed;
+            }
+
+            // _totalBytesQueued in RsslSocketChannel should be 0
+            assertTrue(ScktChnl._totalBytesQueued == 0);
+
+            // verify bytes are written in correct order
+            assertTrue(testDataLow.compareTo(new String(ScktChnl._junitTestBuffer, 3, testDataLow.length())) == 0);
+            assertTrue(testDataHigh.compareTo(new String(ScktChnl._junitTestBuffer, 27, testDataHigh.length())) == 0);
+            assertTrue(testDataMedium.compareTo(new String(ScktChnl._junitTestBuffer, 52, testDataMedium.length())) == 0);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
     }
     ////// END basic write(), flush() and ping() tests //////
 
     /*
      * Create a TransportBuffer with zero length
-     * write the buffer via channel 
+     * write the buffer via channel
      * Also create a TransportBuffer with a fix length
-     * write the buffer via channel without anything actual written 
+     * write the buffer via channel without anything actual written
      *
      * Expected Result: TransportReturnCodes.FAILURE
      */
     @Test
     public void writeZeroLenghtBufferTest()
-    {  
-    	int BUF_SIZE = 0;
-       	int BUF_SIZE1 = 100;
-       	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// overridejava.nio.channels.SocketChannel write
-	    	RsslSocketChannel scktChnl = new RsslSocketChannel();
-	        // set channel state to ACTIVE
-	        scktChnl._state = ChannelState.ACTIVE;
-	        
-	       	TransportBufferImpl transBuf = new TransportBufferImpl(BUF_SIZE);
-	       	transBuf._isWriteBuffer = true;
-	        assertEquals(TransportReturnCodes.FAILURE, scktChnl.write(transBuf, writeArgs, error));
+    {
+        int BUF_SIZE = 0;
+        int BUF_SIZE1 = 100;
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
 
-	       	transBuf = new TransportBufferImpl(BUF_SIZE1);
-	       	transBuf._isWriteBuffer = true;
-	        assertEquals(TransportReturnCodes.FAILURE, scktChnl.write(transBuf, writeArgs, error));	        
+        try
+        {
+            // create the RsslSocketChannel to test
+            // overridejava.nio.channels.SocketChannel write
+            RsslSocketChannel scktChnl = new RsslSocketChannel();
+            // set channel state to ACTIVE
+            scktChnl._state = ChannelState.ACTIVE;
 
-    
-	        
-	       	TransportBufferImpl transBuf1 = new TransportBufferImpl(BUF_SIZE1);	        
-	       	transBuf1._isWriteBuffer = true;
-	    	transBuf1._isPacked = true;
-            
-			ByteBuffer bb = transBuf1.data();
-			bb.put("packed test #11".getBytes());
-			assertTrue(scktChnl.packBuffer(transBuf1, error) > 0);
-			
+            TransportBufferImpl transBuf = new TransportBufferImpl(BUF_SIZE);
+            transBuf._isWriteBuffer = true;
+            assertEquals(TransportReturnCodes.FAILURE, scktChnl.write(transBuf, writeArgs, error));
 
-			bb.put("packed test #22".getBytes());
-			assertTrue(scktChnl.packBuffer(transBuf1, error) > 0);
+            transBuf = new TransportBufferImpl(BUF_SIZE1);
+            transBuf._isWriteBuffer = true;
+            assertEquals(TransportReturnCodes.FAILURE, scktChnl.write(transBuf, writeArgs, error));
 
-			bb.put("final packing test #3".getBytes());
-			
 
-	        assertTrue(scktChnl.write(transBuf1, writeArgs, error) > 0);
-    	
-    	
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
-    }    
-    
-    
-    
-    
+
+            TransportBufferImpl transBuf1 = new TransportBufferImpl(BUF_SIZE1);
+            transBuf1._isWriteBuffer = true;
+            transBuf1._isPacked = true;
+
+            ByteBuffer bb = transBuf1.data();
+            bb.put("packed test #11".getBytes());
+            assertTrue(scktChnl.packBuffer(transBuf1, error) > 0);
+
+
+            bb.put("packed test #22".getBytes());
+            assertTrue(scktChnl.packBuffer(transBuf1, error) > 0);
+
+            bb.put("final packing test #3".getBytes());
+
+
+            assertTrue(scktChnl.write(transBuf1, writeArgs, error) > 0);
+
+
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
+    }
+
+
+
+
     /*
      * Compressed Write Test - compares to expected results from ETAC
-     * 
+     *
      * Writes three times since stream produces different output for same data.
      */
     @Test
     public void compressedWriteTest()
     {
-    	String testData = "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
-    	byteBuf.put(testData.getBytes());
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	Error error = TransportFactory.createError();
-    	RsslSocketChannel rsslChnl = null;
-    	ConnectOptions connectOpts = getDefaultConnectOptions();
-    	
-    	try
-    	{
-	        // create the RsslSocketChannel to test
-    		// override flush to return positive number
-    	    
-    	    InitArgs initArgs = TransportFactory.createInitArgs();
-    	    initArgs.globalLocking(false);
-    	    assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
-    	    RsslSocketChannel initChannel = (RsslSocketChannel) Transport.connect(connectOpts, error);
-    	    assertNotNull(initChannel);
-    	    rsslChnl = getNetworkReplayChannel(Transport._transports[0],2);
-    	    assertNotNull(rsslChnl);
-	    		    	
-	        // set channel state to ACTIVE
-	        rsslChnl._state = ChannelState.ACTIVE;
-	        
-	        // set-up channel for compression
-	        rsslChnl._sessionOutCompression = 1;
-	        rsslChnl._sessionCompLevel = 9;
-	        rsslChnl._compressor = rsslChnl._ZlibCompressor;
-	        rsslChnl._compressor.compressionLevel(rsslChnl._sessionCompLevel);
+        String testData = "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen);
+        byteBuf.put(testData.getBytes());
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+        RsslSocketChannel rsslChnl = null;
+        ConnectOptions connectOpts = getDefaultConnectOptions();
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        rsslChnl._totalBytesQueued = 0;
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
 
-	    	// create SocketBuffer and set to test data
-	    	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
-	    	transBuf._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf.data().put(byteBuf);
-	    	transBuf._isWriteBuffer = true;
-	        
-	    	/* FIRST WRITE */
-	        // write should return the total bytes queued
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(rsslChnl.write(transBuf, writeArgs, error) > 0);
+            InitArgs initArgs = TransportFactory.createInitArgs();
+            initArgs.globalLocking(false);
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
+            RsslSocketChannel initChannel = (RsslSocketChannel) Transport.connect(connectOpts, error);
+            assertNotNull(initChannel);
+            rsslChnl = getNetworkReplayChannel(Transport._transports[0],2);
+            assertNotNull(rsslChnl);
+
+            // set channel state to ACTIVE
+            rsslChnl._state = ChannelState.ACTIVE;
+
+            // set-up channel for compression
+            rsslChnl._sessionOutCompression = 1;
+            rsslChnl._sessionCompLevel = 9;
+            rsslChnl._compressor = rsslChnl._ZlibCompressor;
+            rsslChnl._compressor.compressionLevel(rsslChnl._sessionCompLevel);
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            rsslChnl._totalBytesQueued = 0;
+
+            // create SocketBuffer and set to test data
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen+3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
+
+            /* FIRST WRITE */
+            // write should return the total bytes queued
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(rsslChnl.write(transBuf, writeArgs, error) > 0);
             assertEquals(74, writeArgs.bytesWritten());
             assertEquals(81, writeArgs.uncompressedBytesWritten());
 
-	        // end of queue should contain compressed message
+            // end of queue should contain compressed message
             TransportBufferImpl buf = (TransportBufferImpl) (rsslChnl._highPriorityQueue)._tail;
-            
-	        // should equal output form ETAC
-	        byte[] expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Compressed1.txt");
-	        assertNotNull(expected);
-	        byte[] bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
 
-	    	/* SECOND WRITE */
-	        // write should return the total bytes queued
-	    	byteBuf.clear();
-	    	byteBuf.put(testData.getBytes());
+            // should equal output form ETAC
+            byte[] expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Compressed1.txt");
+            assertNotNull(expected);
+            byte[] bytes = new byte[buf.data().limit()];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
 
-	    	TransportBufferImpl transBuf1 = new TransportBufferImpl(bufLen+3);
-	    	transBuf1._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf1.data().put(byteBuf);
-	    	transBuf1._isWriteBuffer = true;
+            /* SECOND WRITE */
+            // write should return the total bytes queued
+            byteBuf.clear();
+            byteBuf.put(testData.getBytes());
 
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(rsslChnl.write(transBuf1, writeArgs, error) > 0);
+            TransportBufferImpl transBuf1 = new TransportBufferImpl(bufLen+3);
+            transBuf1._data.position(3);
+            byteBuf.flip();
+            transBuf1.data().put(byteBuf);
+            transBuf1._isWriteBuffer = true;
+
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(rsslChnl.write(transBuf1, writeArgs, error) > 0);
             assertEquals(13, writeArgs.bytesWritten());
             assertEquals(81, writeArgs.uncompressedBytesWritten());
 
-	        // end of queue should contain compressed message
-            buf = (TransportBufferImpl) (rsslChnl._highPriorityQueue)._tail;	        
-	        // should equal output form ETAC
-	        expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Compressed2.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
+            // end of queue should contain compressed message
+            buf = (TransportBufferImpl) (rsslChnl._highPriorityQueue)._tail;
+            // should equal output form ETAC
+            expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Compressed2.txt");
+            assertNotNull(expected);
+            bytes = new byte[buf.data().limit()];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
 
-	    	/* THIRD WRITE */
-	        // write should return the total bytes queued
-	        byteBuf.clear();
-	    	byteBuf.put(testData.getBytes());
-	    	TransportBufferImpl transBuf2 = new TransportBufferImpl(bufLen+3);
-	    	transBuf2._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf2.data().put(byteBuf);
-	    	transBuf2._isWriteBuffer = true;
+            /* THIRD WRITE */
+            // write should return the total bytes queued
+            byteBuf.clear();
+            byteBuf.put(testData.getBytes());
+            TransportBufferImpl transBuf2 = new TransportBufferImpl(bufLen+3);
+            transBuf2._data.position(3);
+            byteBuf.flip();
+            transBuf2.data().put(byteBuf);
+            transBuf2._isWriteBuffer = true;
 
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(rsslChnl.write(transBuf2, writeArgs, error) > 0);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(rsslChnl.write(transBuf2, writeArgs, error) > 0);
             assertEquals(12, writeArgs.bytesWritten());
             assertEquals(81, writeArgs.uncompressedBytesWritten());
 
-	        // end of queue should contain compressed message
+            // end of queue should contain compressed message
             buf = (TransportBufferImpl) (rsslChnl._highPriorityQueue)._tail;
-	        
-	        // should equal output form ETAC
-	        expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Compressed3.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf.data().limit()];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-	        
-	        rsslChnl.close(error);
-	        initChannel.close(error);
-    	}
-    	catch(Exception e)
-    	{
-    		assertTrue(false);
-    	}
-    	finally
-    	{
-    	    assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-    	}
+
+            // should equal output form ETAC
+            expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Compressed3.txt");
+            assertNotNull(expected);
+            bytes = new byte[buf.data().limit()];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
+
+            rsslChnl.close(error);
+            initChannel.close(error);
+        }
+        catch(Exception e)
+        {
+            assertTrue(false);
+        }
+        finally
+        {
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+        }
     }
-    
+
     /*
      * Packed Write Test - compares to expected results from ETAC
-     * 
+     *
      * Writes the same sequence as TransportTest writes.
      */
     @SuppressWarnings("deprecation")
-	@Test
+    @Test
     public void packedWriteTest()
     {
         final Error error = TransportFactory.createError();
@@ -6030,101 +6030,101 @@ public class SocketChannelJunitTest
             InitArgs initArgs = TransportFactory.createInitArgs();
             initArgs.globalLocking(false);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
-        	// need to create ProtocolInt for Socket, so need to connect
-        	Channel initChannel = Transport.connect(connectOpts, error);
-        	assertNotNull(initChannel);
+            // need to create ProtocolInt for Socket, so need to connect
+            Channel initChannel = Transport.connect(connectOpts, error);
+            assertNotNull(initChannel);
             channel = getNetworkReplayChannel(Transport._transports[0], 5);
             assertNotNull(channel);
             try
             {
-            	while (!((RsslSocketChannel)channel).scktChannel().finishConnect()) {}
+                while (!((RsslSocketChannel)channel).scktChannel().finishConnect()) {}
             } catch (Exception e) {}
 
-	        // set channel state to ACTIVE
-	        ((RsslSocketChannel)channel)._state = ChannelState.ACTIVE;
-	        
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ((RsslSocketChannel)channel)._totalBytesQueued = 0;
-	        
-	        // change high water mark so cannot exceed it
-	        ((RsslSocketChannel)channel)._highWaterMark = 10000;
-	        
-	        // get 500 byte buffer
+            // set channel state to ACTIVE
+            ((RsslSocketChannel)channel)._state = ChannelState.ACTIVE;
+
+            // set _totalBytesQueued to 0 for no buffers queued
+            ((RsslSocketChannel)channel)._totalBytesQueued = 0;
+
+            // change high water mark so cannot exceed it
+            ((RsslSocketChannel)channel)._highWaterMark = 10000;
+
+            // get 500 byte buffer
             TransportBuffer sendbuffer = channel.getBuffer(500, true, error);
             assertEquals(500, sendbuffer.length());
-            
-			ByteBuffer bb = sendbuffer.data();
-			bb.put("packed test #1".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
-			
 
-			bb.put("packed test #2".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            ByteBuffer bb = sendbuffer.data();
+            bb.put("packed test #1".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("final packing test #3".getBytes());
-			
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
+
+            bb.put("packed test #2".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+
+            bb.put("final packing test #3".getBytes());
+
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
             assertEquals(58, writeArgs.uncompressedBytesWritten());
             assertEquals(58, writeArgs.bytesWritten());
 
-	        // end of queue should contain packed message
+            // end of queue should contain packed message
             TransportBufferImpl buf = (TransportBufferImpl)((RsslSocketChannel)channel)._highPriorityQueue._tail;
 
             // should equal output from ETAC
-	    	byte[] expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Packed1.txt");
-	        assertNotNull(expected);
-	        byte[] bytes = new byte[buf._length];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
+            byte[] expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Packed1.txt");
+            assertNotNull(expected);
+            byte[] bytes = new byte[buf._length];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
 
-	        sendbuffer = channel.getBuffer(500, true, error);
+            sendbuffer = channel.getBuffer(500, true, error);
 
-	        bb = sendbuffer.data();
-			bb.put("packing2 test #1".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            bb = sendbuffer.data();
+            bb.put("packing2 test #1".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("packing2 test #2".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            bb.put("packing2 test #2".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("packing3 final test #3".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            bb.put("packing3 final test #3".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
             assertEquals(63, writeArgs.uncompressedBytesWritten());
             assertEquals(63, writeArgs.bytesWritten());
 
-	        // end of queue should contain packed message
+            // end of queue should contain packed message
             buf = (TransportBufferImpl)((RsslSocketChannel)channel)._highPriorityQueue._tail;
-	        
-	        // should equal output from ETAC
-	    	expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Packed2.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf._length];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-	        initChannel.close(error);
+
+            // should equal output from ETAC
+            expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/Packed2.txt");
+            assertNotNull(expected);
+            bytes = new byte[buf._length];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
+            initChannel.close(error);
         }
         finally
         {
             if (channel != null)
                 channel.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
 
     /*
      * Compressed Packed Write Test - compares to expected results from ETAC
-     * 
+     *
      * Writes the same sequence as TransportTest writes.
      */
     @SuppressWarnings("deprecation")
-	@Test
+    @Test
     public void compressedPackedWriteTest()
     {
         final Error error = TransportFactory.createError();
@@ -6138,98 +6138,98 @@ public class SocketChannelJunitTest
             InitArgs initArgs = TransportFactory.createInitArgs();
             initArgs.globalLocking(false);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
-        	// need to create ProtocolInt for Socket, so need to connect
-        	Channel initChannel = Transport.connect(connectOpts, error);
-        	assertNotNull(initChannel);
+            // need to create ProtocolInt for Socket, so need to connect
+            Channel initChannel = Transport.connect(connectOpts, error);
+            assertNotNull(initChannel);
             channel = getNetworkReplayChannel(Transport._transports[0], 5);
             assertNotNull(channel);
             try
             {
-            	while (!((RsslSocketChannel)channel).scktChannel().finishConnect()) {}
+                while (!((RsslSocketChannel)channel).scktChannel().finishConnect()) {}
             } catch (Exception e) {}
 
-	        // set channel state to ACTIVE
-	        ((RsslSocketChannel)channel)._state = ChannelState.ACTIVE;
-	        
-	        // set-up channel for compression
-	        ((RsslSocketChannel)channel)._sessionOutCompression = 1;
-	        ((RsslSocketChannel)channel)._sessionCompLevel = 9;
-	        ((RsslSocketChannel)channel)._compressor = ((RsslSocketChannel)channel)._ZlibCompressor;
-	        ((RsslSocketChannel)channel)._compressor.compressionLevel(((RsslSocketChannel)channel)._sessionCompLevel);
+            // set channel state to ACTIVE
+            ((RsslSocketChannel)channel)._state = ChannelState.ACTIVE;
 
-	        // set _totalBytesQueued to 0 for no buffers queued
-	        ((RsslSocketChannel)channel)._totalBytesQueued = 0;
-	        
-	        // change high water mark so cannot exceed it
-	        ((RsslSocketChannel)channel)._highWaterMark = 10000;
+            // set-up channel for compression
+            ((RsslSocketChannel)channel)._sessionOutCompression = 1;
+            ((RsslSocketChannel)channel)._sessionCompLevel = 9;
+            ((RsslSocketChannel)channel)._compressor = ((RsslSocketChannel)channel)._ZlibCompressor;
+            ((RsslSocketChannel)channel)._compressor.compressionLevel(((RsslSocketChannel)channel)._sessionCompLevel);
 
-	        // get 500 byte buffer
+            // set _totalBytesQueued to 0 for no buffers queued
+            ((RsslSocketChannel)channel)._totalBytesQueued = 0;
+
+            // change high water mark so cannot exceed it
+            ((RsslSocketChannel)channel)._highWaterMark = 10000;
+
+            // get 500 byte buffer
             TransportBuffer sendbuffer = channel.getBuffer(500, true, error);
-            
-			ByteBuffer bb = sendbuffer.data();
-			bb.put("packed test #1".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("packed test #2".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            ByteBuffer bb = sendbuffer.data();
+            bb.put("packed test #1".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("final packing test #3".getBytes());
-			
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
+            bb.put("packed test #2".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+
+            bb.put("final packing test #3".getBytes());
+
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
             assertEquals(58, writeArgs.uncompressedBytesWritten());
             assertEquals(47, writeArgs.bytesWritten());
 
-	        // end of queue should contain packed message
+            // end of queue should contain packed message
             TransportBufferImpl buf = (TransportBufferImpl) ((RsslSocketChannel)channel)._highPriorityQueue._tail;
 
             // should equal output from ETAC
-	    	byte[] expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/PackedCompressed1.txt");
-	        assertNotNull(expected);
-	        byte[] bytes = new byte[buf._length];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
+            byte[] expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/PackedCompressed1.txt");
+            assertNotNull(expected);
+            byte[] bytes = new byte[buf._length];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
 
-	        sendbuffer = channel.getBuffer(500, true, error);
+            sendbuffer = channel.getBuffer(500, true, error);
 
-	        bb = sendbuffer.data();
-			bb.put("packing2 test #1".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            bb = sendbuffer.data();
+            bb.put("packing2 test #1".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("packing2 test #2".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            bb.put("packing2 test #2".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-			bb.put("packing3 final test #3".getBytes());
-			assertTrue(channel.packBuffer(sendbuffer, error) > 0);
+            bb.put("packing3 final test #3".getBytes());
+            assertTrue(channel.packBuffer(sendbuffer, error) > 0);
 
-	        writeArgs.priority(WritePriorities.HIGH);
-	        writeArgs.flags(WriteFlags.NO_FLAGS);
-	        assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.NO_FLAGS);
+            assertTrue(channel.write(sendbuffer, writeArgs, error) > 0);
             assertEquals(63, writeArgs.uncompressedBytesWritten());
             assertEquals(29, writeArgs.bytesWritten());
 
-	        // end of queue should contain packed message
+            // end of queue should contain packed message
             buf = (TransportBufferImpl) ((RsslSocketChannel)channel)._highPriorityQueue._tail;
-	        
-	        // should equal output from ETAC
-	    	expected =
-	            ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/PackedCompressed2.txt");
-	        assertNotNull(expected);
-	        bytes = new byte[buf._length];
-	        buf.data().get(bytes);
-	        assertArrayEquals(expected, bytes);
-	        initChannel.close(error);
+
+            // should equal output from ETAC
+            expected =
+                    ParseHexFile.parse(BASE_TEST_DATA_DIR_NAME + "/PackedCompressed2.txt");
+            assertNotNull(expected);
+            bytes = new byte[buf._length];
+            buf.data().get(bytes);
+            assertArrayEquals(expected, bytes);
+            initChannel.close(error);
         }
         finally
         {
             if (channel != null)
                 channel.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
-    
+
     /*
      * Decompress compressed login and source directory messages.
      */
@@ -6238,7 +6238,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/UncompressedConsumerMessages.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedConsumerMessages.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -6250,7 +6250,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6267,14 +6267,14 @@ public class SocketChannelJunitTest
             // read login response from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             // read source directory response from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
@@ -6300,7 +6300,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * Decompress compressed packed message.
      */
@@ -6309,9 +6309,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Packed.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedPacked.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -6324,7 +6324,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6358,7 +6358,7 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(0, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6372,7 +6372,7 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(0, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6386,7 +6386,7 @@ public class SocketChannelJunitTest
             assertEquals(expectedInput[2].length + Ripc.Lengths.HEADER, readArgs.bytesRead()); // compressed bytes read
             assertEquals(63, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6421,7 +6421,7 @@ public class SocketChannelJunitTest
             msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[6], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify cumulative ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -6429,10 +6429,10 @@ public class SocketChannelJunitTest
              * Expect two packed headers, and four additional packed messages.
              */
             int headerAndDataLength = (firstPackedHeaderLength() * 2)
-                    + (additionalPackedHeaderLength() * 4) + expectedMessages[1].length
-                    + expectedMessages[2].length + expectedMessages[3].length
-                    + expectedMessages[4].length + expectedMessages[5].length
-                    + expectedMessages[6].length;
+                                      + (additionalPackedHeaderLength() * 4) + expectedMessages[1].length
+                                      + expectedMessages[2].length + expectedMessages[3].length
+                                      + expectedMessages[4].length + expectedMessages[5].length
+                                      + expectedMessages[6].length;
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
         }
         catch (IOException e)
@@ -6448,7 +6448,7 @@ public class SocketChannelJunitTest
 
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
-    }  
+    }
 
     /*
      * Decompress arbitrary length compressed fragmented message.
@@ -6458,9 +6458,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -6473,7 +6473,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6498,17 +6498,17 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(1038, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             // verify cumulative ReadArgs.uncompressedBytesRead()
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
+                                      + additionalFragmentHeaderLength(consumerChannel) + expectedMessages[1].length;
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
         }
         catch (IOException e)
@@ -6525,7 +6525,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * Decompress compressed fragmented message of size 6144 compression level 0.
      */
@@ -6534,9 +6534,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6144.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6144L0.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -6549,7 +6549,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6574,14 +6574,14 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(6147, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify cumulative ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -6604,7 +6604,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * Decompress compressed fragmented message of size 6144 compression level 9.
      */
@@ -6613,7 +6613,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6144.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6144L9.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -6625,7 +6625,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6642,14 +6642,14 @@ public class SocketChannelJunitTest
             // read compressed fragmented message from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-            
+
             /*
              * verify ReadArgs.bytesRead() and ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
@@ -6682,9 +6682,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6131.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6131L0.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -6697,7 +6697,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6722,7 +6722,7 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(6134, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6752,7 +6752,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * Decompress compressed fragmented message of size 6131 compression level 9.
      */
@@ -6761,7 +6761,7 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6131.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6131L9.txt";
-        
+
         NetworkReplay replay = null;
 
         try
@@ -6773,7 +6773,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6790,7 +6790,7 @@ public class SocketChannelJunitTest
             // read compressed fragmented message from the channel
             assertTrue((msgBuf = consumerChannel.read(readArgs, error)) != null);
             assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6831,11 +6831,11 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6131.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6131L0X2.txt";
-        
+
         NetworkReplay replay = null;
 
         int cumulativeUncompressedBytesRead = 0;
-        
+
         try
         {
             initTransport(false); // initialize RSSL
@@ -6846,7 +6846,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6871,7 +6871,7 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(6134, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6890,7 +6890,7 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(6134, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -6921,7 +6921,7 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      * Decompress compressed fragmented message of size 6145 compression level 0.
      */
@@ -6930,9 +6930,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6145.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6145L0.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -6942,10 +6942,10 @@ public class SocketChannelJunitTest
             // the messages we expect from calls to RsslSocketChannel.read() (does not include RIPC headers)
             final byte[][] expectedMessages = parseExpectedMessages(expectedFile);
             final byte[][] expectedInput = parseExpectedMessages(inputFile);
-            
+
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -6975,26 +6975,26 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(23, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
             byte[] msg = getBytesFromBuffer(msgBuf);
             printMessage(msg, consumerChannel);
             assertArrayEquals(expectedMessages[1], msg); //first array element is initial RIPC message
-        
+
             /*
              * verify cumulative ReadArgs.uncompressedBytesRead()
              * Expected file does not contain the Transport headers, so add it
              * back on for the comparison. Expect one firstFragment (compressed),
-             * followed by an additionalFragment (compressed), followed by an 
+             * followed by an additionalFragment (compressed), followed by an
              * additionalFragment (uncompressed).
              */
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + (additionalFragmentHeaderLength(consumerChannel) * 2)
-                    + expectedMessages[1].length;
+                                      + (additionalFragmentHeaderLength(consumerChannel) * 2)
+                                      + expectedMessages[1].length;
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
-}
+        }
         catch (IOException e)
         {
             fail(e.getLocalizedMessage());
@@ -7018,9 +7018,9 @@ public class SocketChannelJunitTest
     {
         final String expectedFile = BASE_TEST_DATA_DIR_NAME + "/Fragmented6145.txt";
         final String inputFile = BASE_TEST_DATA_DIR_NAME + "/CompressedFragmented6145L9.txt";
-        
+
         NetworkReplay replay = null;
-        
+
         int cumulativeUncompressedBytesRead = 0;
 
         try
@@ -7033,7 +7033,7 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
@@ -7058,7 +7058,7 @@ public class SocketChannelJunitTest
             assertEquals(0, readArgs.bytesRead()); // compressed bytes read
             assertEquals(23, readArgs.uncompressedBytesRead());
             cumulativeUncompressedBytesRead += readArgs.uncompressedBytesRead();
-            
+
             assertEquals(msgBuf.data().limit() - msgBuf.data().position(), msgBuf.data().remaining());
 
             // compare with expected output
@@ -7073,8 +7073,8 @@ public class SocketChannelJunitTest
              * followed by an additionalFragment (uncompressed).
              */
             int headerAndDataLength = firstFragmentHeaderLength(consumerChannel)
-                    + additionalFragmentHeaderLength(consumerChannel)
-                    + expectedMessages[1].length;
+                                      + additionalFragmentHeaderLength(consumerChannel)
+                                      + expectedMessages[1].length;
             assertEquals(headerAndDataLength, cumulativeUncompressedBytesRead);
         }
         catch (IOException e)
@@ -7094,7 +7094,7 @@ public class SocketChannelJunitTest
 
     /*
      * Blocked connect test.
-     * 
+     *
      * Channel must be in ACTIVE state when connect call returns.
      */
     @Test
@@ -7113,17 +7113,17 @@ public class SocketChannelJunitTest
 
             // load the messages to replay
             replay = parseReplayFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             // allocate a channel that reads from our NetworkReplay
             RsslSocketChannel consumerChannel = createReplaySocketChannel(replay);
 
             connectOpts.blocking(true);
-            
+
             consumerChannel._scktChannel = new SocketHelper();
             assertEquals(TransportReturnCodes.SUCCESS, consumerChannel.connect(connectOpts, error));
-        	assertEquals(ChannelState.ACTIVE, consumerChannel.state());
+            assertEquals(ChannelState.ACTIVE, consumerChannel.state());
         }
         catch (IOException e)
         {
@@ -7138,12 +7138,12 @@ public class SocketChannelJunitTest
             if (channel != null)
                 channel.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
 
-	/*
+    /*
      * Blocked accept test.
-     * 
+     *
      * Channel must be in ACTIVE state when accept call returns.
      */
     @Test
@@ -7165,18 +7165,18 @@ public class SocketChannelJunitTest
             bindOpts.majorVersion(Codec.majorVersion());
             bindOpts.minorVersion(Codec.minorVersion());
             bindOpts.protocolType(Codec.protocolType());
-            
+
             // bind server
             assertTrue((server = Transport.bind(bindOpts, error)) != null);
-            
+
             // start client thread to connect to this server
             (new Thread(new ClientConnector())).start();
-            
+
             // wait until client is ready
             while (!_clientReady) {}
-            
+
             assertTrue((channel = (RsslSocketChannel)server.accept(acceptOptions, error)) != null);
-        	assertEquals(ChannelState.ACTIVE, channel.state());
+            assertEquals(ChannelState.ACTIVE, channel.state());
         }
         catch (IOException e)
         {
@@ -7187,11 +7187,11 @@ public class SocketChannelJunitTest
             if (channel != null)
                 channel.close(error);
             if (server != null)
-            	server.close(error);
+                server.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
-    
+
     /*
      * Server buffer usage test.
      */
@@ -7217,39 +7217,39 @@ public class SocketChannelJunitTest
             bindOpts.maxOutputBuffers(10);
             bindOpts.sharedPoolSize(100);
             bindOpts.guaranteedOutputBuffers(5);
-            
+
             // bind server
             assertTrue((server = Transport.bind(bindOpts, error)) != null);
-            
+
             // start client thread to connect to this server
             (new Thread(new ClientConnector())).start();
-            
+
             // wait until client is ready
             while (!_clientReady) {}
-            
+
             assertTrue((channel = (RsslSocketChannel)server.accept(acceptOptions, error)) != null);
             assertEquals(ChannelState.ACTIVE, channel.state());
-        
+
             // Make sure buffer usage is equal to how many buffers are actually used
             @SuppressWarnings("unused")
             TransportBuffer tBuffer;
-            
+
             for  (int i = 0; i < 5; ++i)
             {
                 tBuffer = channel.getBuffer(6142, false, error);
             }
-            
+
             int ret = server.bufferUsage(error);
             assertEquals(0, ret);
-            
+
             for  (int i = 5; i < 10; ++i)
             {
                 tBuffer = channel.getBuffer(6142, false, error);
             }
-            
+
             ret = server.bufferUsage(error);
             assertEquals(5, ret);
-            
+
             // Close channel and server
             channel.close(error);
             server.close(error);
@@ -7266,17 +7266,17 @@ public class SocketChannelJunitTest
             if (server != null)
                 server.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }        
+        }
     }
-    
-	/*
+
+    /*
      * Blocked read/write test.
-     * 
+     *
      * Correct data must be returned after one call to read/write.
-     * 
+     *
      * Includes tests for buffer usage - Checks if buffers used = output of bufferUsage()
      */
-    @Test 
+    @Test
     public void blockedReadWriteTest()
     {
         final Error error = TransportFactory.createError();
@@ -7285,7 +7285,7 @@ public class SocketChannelJunitTest
         BindOptions bindOpts = TransportFactory.createBindOptions();
         AcceptOptions acceptOptions = TransportFactory.createAcceptOptions();
         ReadArgs readArgs = TransportFactory.createReadArgs();
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
 
         try
         {
@@ -7297,37 +7297,37 @@ public class SocketChannelJunitTest
             bindOpts.majorVersion(Codec.majorVersion());
             bindOpts.minorVersion(Codec.minorVersion());
             bindOpts.protocolType(Codec.protocolType());
-            
+
             // bind server
             assertTrue((server = Transport.bind(bindOpts, error)) != null);
-            
+
             // start client thread to connect to this server
             (new Thread(new ClientConnector())).start();
-            
+
             // wait until client is ready
             while (!_clientReady) {}
-            
+
             assertTrue((channel = (RsslSocketChannel)server.accept(acceptOptions, error)) != null);
-        	assertEquals(ChannelState.ACTIVE, channel.state());
-        
-        	// tell client to do read/write
-        	_doReadWrite = true;
-        	
-        	Thread.sleep(1000);
-        	TransportBuffer readBuf = null;
+            assertEquals(ChannelState.ACTIVE, channel.state());
+
+            // tell client to do read/write
+            _doReadWrite = true;
+
+            Thread.sleep(1000);
+            TransportBuffer readBuf = null;
             assertTrue((readBuf = channel.read(readArgs, error)) != null);
-        	assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-        	assertArrayEquals("transport blocking read/write test 1".getBytes(), getBytesFromBuffer(readBuf));
-        	Thread.sleep(1000); // delay so the other side blocks on read
-        	writeArgs.priority(WritePriorities.HIGH);
-        	writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-        	TransportBuffer writeBuf = null;
-        	assertTrue((writeBuf = channel.getBuffer(100, false, error)) != null);
-        	writeBuf.data().put("transport blocking read/write test 2".getBytes());
-        	assertEquals(0, channel.write(writeBuf, writeArgs, error));
+            assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
+            assertArrayEquals("transport blocking read/write test 1".getBytes(), getBytesFromBuffer(readBuf));
+            Thread.sleep(1000); // delay so the other side blocks on read
+            writeArgs.priority(WritePriorities.HIGH);
+            writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+            TransportBuffer writeBuf = null;
+            assertTrue((writeBuf = channel.getBuffer(100, false, error)) != null);
+            writeBuf.data().put("transport blocking read/write test 2".getBytes());
+            assertEquals(0, channel.write(writeBuf, writeArgs, error));
             assertTrue((readBuf = channel.read(readArgs, error)) != null);
-        	assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-        	assertArrayEquals("got it!!!".getBytes(), getBytesFromBuffer(readBuf));
+            assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
+            assertArrayEquals("got it!!!".getBytes(), getBytesFromBuffer(readBuf));
         }
         catch (Exception e)
         {
@@ -7335,18 +7335,18 @@ public class SocketChannelJunitTest
         }
         finally
         {
-			_doReadWrite = false;
+            _doReadWrite = false;
             if (channel != null)
                 channel.close(error);
             if (server != null)
-            	server.close(error);
+                server.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
-    
+
     /*
      * Blocked connect test with RIPC VERSION12 fallback.
-     * 
+     *
      * Channel must be in ACTIVE state when connect call returns.
      */
     @Test
@@ -7363,22 +7363,22 @@ public class SocketChannelJunitTest
 
             // start RIPC version fallback server to connect to
             (new Thread(new RIPCFallbackServer())).start();
-            
-	        connectOpts.unifiedNetworkInfo().address("localhost");
-	        connectOpts.unifiedNetworkInfo().serviceName("14002");
-	        connectOpts.majorVersion(Codec.majorVersion());
-	        connectOpts.minorVersion(Codec.minorVersion());
-	        connectOpts.protocolType(Codec.protocolType());
-	        connectOpts.blocking(true);
-	        
-	        // set starting RIPC version to be VERSION12
-	        ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION12);
-			
-			// wait until server is ready
+
+            connectOpts.unifiedNetworkInfo().address("localhost");
+            connectOpts.unifiedNetworkInfo().serviceName("14002");
+            connectOpts.majorVersion(Codec.majorVersion());
+            connectOpts.minorVersion(Codec.minorVersion());
+            connectOpts.protocolType(Codec.protocolType());
+            connectOpts.blocking(true);
+
+            // set starting RIPC version to be VERSION12
+            ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION12);
+
+            // wait until server is ready
             while (!_serverReady) {}
 
             assertTrue((channel = Transport.connect(connectOpts, error)) != null);
-        	assertEquals(ChannelState.ACTIVE, channel.state());
+            assertEquals(ChannelState.ACTIVE, channel.state());
         }
         catch (IOException e)
         {
@@ -7386,17 +7386,17 @@ public class SocketChannelJunitTest
         }
         finally
         {
-	        // set starting RIPC version back to VERSION13
-	        ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION13);
+            // set starting RIPC version back to VERSION13
+            ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION13);
             if (channel != null)
                 channel.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
-    
+
     /*
      * Blocked connect test with RIPC VERSION11 fallback.
-     * 
+     *
      * Channel must be in ACTIVE state when connect call returns.
      */
     @Test
@@ -7413,22 +7413,22 @@ public class SocketChannelJunitTest
 
             // start RIPC version fallback server to connect to
             (new Thread(new RIPCFallbackServer())).start();
-            
-	        connectOpts.unifiedNetworkInfo().address("localhost");
-	        connectOpts.unifiedNetworkInfo().serviceName("14002");
-	        connectOpts.majorVersion(Codec.majorVersion());
-	        connectOpts.minorVersion(Codec.minorVersion());
-	        connectOpts.protocolType(Codec.protocolType());
-	        connectOpts.blocking(true);
-	        
-	        // set starting RIPC version to be VERSION11
-	        ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION11);
-			
-			// wait until server is ready
+
+            connectOpts.unifiedNetworkInfo().address("localhost");
+            connectOpts.unifiedNetworkInfo().serviceName("14002");
+            connectOpts.majorVersion(Codec.majorVersion());
+            connectOpts.minorVersion(Codec.minorVersion());
+            connectOpts.protocolType(Codec.protocolType());
+            connectOpts.blocking(true);
+
+            // set starting RIPC version to be VERSION11
+            ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION11);
+
+            // wait until server is ready
             while (!_serverReady) {}
 
             assertTrue((channel = Transport.connect(connectOpts, error)) != null);
-        	assertEquals(ChannelState.ACTIVE, channel.state());
+            assertEquals(ChannelState.ACTIVE, channel.state());
         }
         catch (IOException e)
         {
@@ -7436,77 +7436,77 @@ public class SocketChannelJunitTest
         }
         finally
         {
-	        // set starting RIPC version back to VERSION13
-	        ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION13);
+            // set starting RIPC version back to VERSION13
+            ipcProtocolManager.startingVersion(Ripc.ConnectionVersions.VERSION13);
             if (channel != null)
                 channel.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }    	
+        }
     }
-    
+
     /*
-     * Verify NIC binding on the consumer side 
-     * i.e RsslSocketChannel class must create InetSocketAddress with the 
+     * Verify NIC binding on the consumer side
+     * i.e RsslSocketChannel class must create InetSocketAddress with the
      * specified interface name and call bind on the socket channel
      */
     @Test
     public void consumerNICBindTest()
     {
-    	final String inputFile = RIPC_CONNECT_ACK_HANDSHAKE_FILE;
-    	NetworkReplay replay = null;
+        final String inputFile = RIPC_CONNECT_ACK_HANDSHAKE_FILE;
+        NetworkReplay replay = null;
 
-    	ConnectOptions connectOpts = getConnectOptions("localhost", DEFAULT_LISTEN_PORT_AS_STRING);
-    	
-		// set the interface name on consumer
-    	connectOpts.unifiedNetworkInfo().interfaceName("127.0.0.1");
+        ConnectOptions connectOpts = getConnectOptions("localhost", DEFAULT_LISTEN_PORT_AS_STRING);
 
-    	InProgInfo inProg = TransportFactory.createInProgInfo();
-    	Error error = TransportFactory.createError();
-    	Channel channel = null;
+        // set the interface name on consumer
+        connectOpts.unifiedNetworkInfo().interfaceName("127.0.0.1");
 
-    	TestServer server = new TestServer(DEFAULT_LISTEN_PORT);
+        InProgInfo inProg = TransportFactory.createInProgInfo();
+        Error error = TransportFactory.createError();
+        Channel channel = null;
 
-    	try
-    	{
-    		replay = parseReplayFile(inputFile);
+        TestServer server = new TestServer(DEFAULT_LISTEN_PORT);
 
-    		initTransport(false); // initialize RSSL
+        try
+        {
+            replay = parseReplayFile(inputFile);
 
-    		server.setupServerSocket();
+            initTransport(false); // initialize RSSL
 
-    		assertNotNull(channel = Transport.connect(connectOpts, error));
-    		assertEquals(ChannelState.INITIALIZING, channel.state());
+            server.setupServerSocket();
+
+            assertNotNull(channel = Transport.connect(connectOpts, error));
+            assertEquals(ChannelState.INITIALIZING, channel.state());
 
             server.waitForAcceptable();
             server.acceptSocket();
 
-    		assertEquals(TransportReturnCodes.CHAN_INIT_IN_PROGRESS, channel.init(inProg, error));
-    		assertEquals(ChannelState.INITIALIZING, channel.state());
+            assertEquals(TransportReturnCodes.CHAN_INIT_IN_PROGRESS, channel.init(inProg, error));
+            assertEquals(ChannelState.INITIALIZING, channel.state());
 
-    		// read ConnectReq and send ConnectAck
+            // read ConnectReq and send ConnectAck
             server.waitForReadable();
-    		server.readMessageFromSocket();
-    		server.writeMessageToSocket(replay.read());
+            server.readMessageFromSocket();
+            server.writeMessageToSocket(replay.read());
 
-    		Thread.sleep(1000);
+            Thread.sleep(1000);
 
-    		// call channel.init to read ConnectAck
-    		assertEquals(TransportReturnCodes.SUCCESS, channel.init(inProg, error));
-    		assertEquals(ChannelState.ACTIVE, channel.state());
-    	}
-    	catch (IOException | InterruptedException e)
-    	{
-    		fail(e.getLocalizedMessage());
-    	}
-    	finally
-    	{
-    		cleanupForTestsWithTestServer(replay, channel, server, null, error);
-    	}
+            // call channel.init to read ConnectAck
+            assertEquals(TransportReturnCodes.SUCCESS, channel.init(inProg, error));
+            assertEquals(ChannelState.ACTIVE, channel.state());
+        }
+        catch (IOException | InterruptedException e)
+        {
+            fail(e.getLocalizedMessage());
+        }
+        finally
+        {
+            cleanupForTestsWithTestServer(replay, channel, server, null, error);
+        }
     }
 
     /*
-     * Verify NIC binding on the provider side 
-     * i.e SocketServer class must create InetSocketAddress with the 
+     * Verify NIC binding on the provider side
+     * i.e SocketServer class must create InetSocketAddress with the
      * specified interface name use this with bind()
      */
     @Test
@@ -7524,13 +7524,13 @@ public class SocketChannelJunitTest
         int recvBufSize = 50000;
         int sendBufSize = 40000;
         BindOptions bOpts = TransportFactory.createBindOptions();
-        
+
         bOpts.serviceName(DEFAULT_LISTEN_PORT_AS_STRING);
         bOpts.connectionType(ConnectionTypes.SOCKET);
-        
-		// set the interface name on provider
-		bOpts.interfaceName("localhost");
-		
+
+        // set the interface name on provider
+        bOpts.interfaceName("localhost");
+
         bOpts.sysRecvBufSize(recvBufSize);
         AcceptOptions aOpts = TransportFactory.createAcceptOptions();
         aOpts.sysSendBufSize(sendBufSize);
@@ -7590,11 +7590,11 @@ public class SocketChannelJunitTest
         opts.minorVersion(Codec.minorVersion());
         opts.protocolType(Codec.protocolType());
         opts.guaranteedOutputBuffers(numBuffers);
-        
+
         try
         {
             replay.parseFile(inputFile);
-            
+
             replay.startListener(DEFAULT_LISTEN_PORT);
 
             RsslSocketChannel channel = new RsslSocketChannel()
@@ -7612,48 +7612,48 @@ public class SocketChannelJunitTest
                 @Override
                 public int close(Error error)
                 {
-                	int ret = TransportReturnCodes.SUCCESS;
-                	
+                    int ret = TransportReturnCodes.SUCCESS;
+
                     // first set channel state to closed
                     try
                     {
-                    	if (_state != ChannelState.CLOSED)
-                    	{
-                    		_state = ChannelState.CLOSED;
-            				_scktChannel.close();
-                		}
-                		else
-                		{
-            				error.channel(this);
-            				error.errorId(TransportReturnCodes.FAILURE);
-            				error.sysError(0);
-            				error.text("socket channel is already closed ");
-            				ret = TransportReturnCodes.FAILURE;
-                		}
+                        if (_state != ChannelState.CLOSED)
+                        {
+                            _state = ChannelState.CLOSED;
+                            _scktChannel.close();
+                        }
+                        else
+                        {
+                            error.channel(this);
+                            error.errorId(TransportReturnCodes.FAILURE);
+                            error.sysError(0);
+                            error.text("socket channel is already closed ");
+                            ret = TransportReturnCodes.FAILURE;
+                        }
                     }
-        			catch (IOException e) 
-        			{
-        				error.channel(this);
-        				error.errorId(TransportReturnCodes.FAILURE);
-        				error.sysError(0);
-        				error.text("socket channel close failed ");
-        				ret = TransportReturnCodes.FAILURE;
-        			}
+                    catch (IOException e)
+                    {
+                        error.channel(this);
+                        error.errorId(TransportReturnCodes.FAILURE);
+                        error.sysError(0);
+                        error.text("socket channel close failed ");
+                        ret = TransportReturnCodes.FAILURE;
+                    }
                     finally
                     {
-                    	if (ret == TransportReturnCodes.FAILURE)
-                    	{
-                    		return ret;
-                    	}
+                        if (ret == TransportReturnCodes.FAILURE)
+                        {
+                            return ret;
+                        }
                     }
 
                     return ret;
                 }
 
-            };            
+            };
 
             channel._transport = (SocketProtocol) transport;
-            
+
             channel._scktChannel = new SocketHelper();
             channel.connect(opts, error);
             assertTrue(channel.state() == ChannelState.INITIALIZING);
@@ -7673,8 +7673,8 @@ public class SocketChannelJunitTest
                 replay.stopListener();
             }
         }
-		return null;
-    }  
+        return null;
+    }
 
     private ConnectOptions getDefaultConnectOptions()
     {
@@ -7687,7 +7687,7 @@ public class SocketChannelJunitTest
         connectOpts.protocolType(Codec.protocolType());
         return connectOpts;
     }
-    
+
     private ConnectOptions getConnectOptions(String host, String port)
     {
         ConnectOptions connectOpts = TransportFactory.createConnectOptions();
@@ -7699,115 +7699,115 @@ public class SocketChannelJunitTest
         connectOpts.protocolType(Codec.protocolType());
         return connectOpts;
     }
-    
+
     // used for client to server testing
     private class ClientConnector implements Runnable
     {
-		public void run()
-		{
-	        final Error error = TransportFactory.createError();
-	        ConnectOptions connectOpts = TransportFactory.createConnectOptions();
-	        RsslSocketChannel channel = null;
+        public void run()
+        {
+            final Error error = TransportFactory.createError();
+            ConnectOptions connectOpts = TransportFactory.createConnectOptions();
+            RsslSocketChannel channel = null;
 
-			try
-			{
-				initTransport(false); // initialize RSSL
-				
-		        connectOpts.unifiedNetworkInfo().address("localhost");
-		        connectOpts.unifiedNetworkInfo().serviceName("14002");
-		        connectOpts.majorVersion(Codec.majorVersion());
-		        connectOpts.minorVersion(Codec.minorVersion());
-		        connectOpts.protocolType(Codec.protocolType());
-		        connectOpts.blocking(true);
-				
-		        _clientReady = true; // tell server that client is ready
-	            assertTrue((channel = (RsslSocketChannel)Transport.connect(connectOpts, error)) != null);
-	        	assertEquals(ChannelState.ACTIVE, channel.state());
-	        	Thread.sleep(1000);
-	        	// do read/write if necessary
-	        	if (_doReadWrite)
-	        	{
-		        	Thread.sleep(1000); // delay so the other side blocks on read
-	        		ReadArgs readArgs = TransportFactory.createReadArgs();
-	            	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-	            	writeArgs.priority(WritePriorities.HIGH);
-	            	writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-	            	TransportBuffer writeBuf = channel.getBuffer(100, false, error);
-	            	writeBuf.data().put("transport blocking read/write test 1".getBytes());
-	            	assertEquals(0, channel.write(writeBuf, writeArgs, error));
-	            	TransportBuffer readBuf = null;
-	                assertTrue((readBuf = channel.read(readArgs, error)) != null);
-	            	assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
-	            	assertArrayEquals("transport blocking read/write test 2".getBytes(), getBytesFromBuffer(readBuf));
-		        	Thread.sleep(1000); // delay so the other side blocks on read
-	            	writeBuf = channel.getBuffer(100, false, error);
-	            	writeBuf.data().put("got it!!!".getBytes());
-	            	assertTrue(channel.write(writeBuf, writeArgs, error) == 0);
-	        	}
-	        }
-	        catch (Exception e)
-	        {
-	            fail(e.getLocalizedMessage());
-	        }
-	        finally
-	        {
-				_clientReady = false;
-	            if (channel != null)
-	                channel.close(error);
-	            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-	        }    				
-		}
+            try
+            {
+                initTransport(false); // initialize RSSL
+
+                connectOpts.unifiedNetworkInfo().address("localhost");
+                connectOpts.unifiedNetworkInfo().serviceName("14002");
+                connectOpts.majorVersion(Codec.majorVersion());
+                connectOpts.minorVersion(Codec.minorVersion());
+                connectOpts.protocolType(Codec.protocolType());
+                connectOpts.blocking(true);
+
+                _clientReady = true; // tell server that client is ready
+                assertTrue((channel = (RsslSocketChannel)Transport.connect(connectOpts, error)) != null);
+                assertEquals(ChannelState.ACTIVE, channel.state());
+                Thread.sleep(1000);
+                // do read/write if necessary
+                if (_doReadWrite)
+                {
+                    Thread.sleep(1000); // delay so the other side blocks on read
+                    ReadArgs readArgs = TransportFactory.createReadArgs();
+                    WriteArgs writeArgs = TransportFactory.createWriteArgs();
+                    writeArgs.priority(WritePriorities.HIGH);
+                    writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
+                    TransportBuffer writeBuf = channel.getBuffer(100, false, error);
+                    writeBuf.data().put("transport blocking read/write test 1".getBytes());
+                    assertEquals(0, channel.write(writeBuf, writeArgs, error));
+                    TransportBuffer readBuf = null;
+                    assertTrue((readBuf = channel.read(readArgs, error)) != null);
+                    assertEquals(TransportReturnCodes.SUCCESS, readArgs.readRetVal());
+                    assertArrayEquals("transport blocking read/write test 2".getBytes(), getBytesFromBuffer(readBuf));
+                    Thread.sleep(1000); // delay so the other side blocks on read
+                    writeBuf = channel.getBuffer(100, false, error);
+                    writeBuf.data().put("got it!!!".getBytes());
+                    assertTrue(channel.write(writeBuf, writeArgs, error) == 0);
+                }
+            }
+            catch (Exception e)
+            {
+                fail(e.getLocalizedMessage());
+            }
+            finally
+            {
+                _clientReady = false;
+                if (channel != null)
+                    channel.close(error);
+                assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+            }
+        }
     }
-    
+
     // used for blocking RIPC version fallback testing
     private class RIPCFallbackServer implements Runnable
     {
-		public void run()
-		{
-	        final Error error = TransportFactory.createError();
-	        BindOptions bindOpts = TransportFactory.createBindOptions();
-	        AcceptOptions acceptOptions = TransportFactory.createAcceptOptions();
-	        Server server = null;
-	        RsslSocketChannel channel = null;
+        public void run()
+        {
+            final Error error = TransportFactory.createError();
+            BindOptions bindOpts = TransportFactory.createBindOptions();
+            AcceptOptions acceptOptions = TransportFactory.createAcceptOptions();
+            Server server = null;
+            RsslSocketChannel channel = null;
 
-			try
-			{
-				initTransport(false); // initialize RSSL
-				
-				bindOpts.serviceName("14002");
-	            bindOpts.majorVersion(Codec.majorVersion());
-	            bindOpts.minorVersion(Codec.minorVersion());
-	            bindOpts.protocolType(Codec.protocolType());
-	            bindOpts.channelsBlocking(true);
-	            bindOpts.serverBlocking(true);
-								
-	            // bind server
-	            assertTrue((server = Transport.bind(bindOpts, error)) != null);
-				
-				_serverReady = true; // tell client that server is ready
-	            
-	            // accept connection
-	            assertTrue((channel = (RsslSocketChannel)server.accept(acceptOptions, error)) != null);
-	        	assertEquals(ChannelState.ACTIVE, channel.state());
-	        }
-	        catch (Exception e)
-	        {
-	            fail(e.getLocalizedMessage());
-	        }
-	        finally
-	        {
-				_serverReady = false;
-	            if (channel != null)
-	                channel.close(error);
-	            if (server != null)
-	            	server.close(error);
-	            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-	        }    				
-		}
+            try
+            {
+                initTransport(false); // initialize RSSL
+
+                bindOpts.serviceName("14002");
+                bindOpts.majorVersion(Codec.majorVersion());
+                bindOpts.minorVersion(Codec.minorVersion());
+                bindOpts.protocolType(Codec.protocolType());
+                bindOpts.channelsBlocking(true);
+                bindOpts.serverBlocking(true);
+
+                // bind server
+                assertTrue((server = Transport.bind(bindOpts, error)) != null);
+
+                _serverReady = true; // tell client that server is ready
+
+                // accept connection
+                assertTrue((channel = (RsslSocketChannel)server.accept(acceptOptions, error)) != null);
+                assertEquals(ChannelState.ACTIVE, channel.state());
+            }
+            catch (Exception e)
+            {
+                fail(e.getLocalizedMessage());
+            }
+            finally
+            {
+                _serverReady = false;
+                if (channel != null)
+                    channel.close(error);
+                if (server != null)
+                    server.close(error);
+                assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+            }
+        }
     }
 
     /*
-     * 
+     *
      * @return RsslBindOptions populated with default options.
      */
     private BindOptions getDefaultBindOptions()
@@ -7852,7 +7852,7 @@ public class SocketChannelJunitTest
 
             server = Transport.bind(bindOpts, error);
             assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
-                                  + error.sysError(), server);
+                          + error.sysError(), server);
 
             // test Server.ioctl(int code, Object object, Error error)
             assertEquals(TransportReturnCodes.FAILURE, server.ioctl(99999, null, error));
@@ -7872,12 +7872,12 @@ public class SocketChannelJunitTest
 
             // set _totalBytesQueued to 0 for no buffers queued
             scktChnl._totalBytesQueued = 0;
-            
+
             // test Channel.ioctl(int code, int value, Error error)
             assertEquals(TransportReturnCodes.FAILURE, scktChnl.ioctl(99999, 1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
             assertTrue("Code is not valid.".equals(error.text()));
-            
+
             // test Channel.ioctl(int code, Object value, Error error)
             assertEquals(TransportReturnCodes.FAILURE, scktChnl.ioctl(99999, "non null", error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
@@ -7913,7 +7913,7 @@ public class SocketChannelJunitTest
 
             server = Transport.bind(bindOpts, error);
             assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
-                                  + error.sysError(), server);
+                          + error.sysError(), server);
 
             // Server.ioctl(IoctlCodes.COMPONENT_INFO, Object object, Error
             // error)
@@ -8004,7 +8004,7 @@ public class SocketChannelJunitTest
         assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.NUM_GUARANTEED_BUFFERS, -1, error));
         assertEquals(TransportReturnCodes.FAILURE, error.errorId());
     }
-    
+
     /*
      * Create a SocketProtocol with empty global buffer pool, and
      * RsslSocketChannel with a set number of guaranteedOutputBuffers. While
@@ -8029,7 +8029,7 @@ public class SocketChannelJunitTest
         final Error error = TransportFactory.createError();
         ConnectOptions opts = TransportFactory.createConnectOptions();
         opts.guaranteedOutputBuffers(initialBufferCount);
-        
+
         // setup the RsslSocketChannel
         SocketProtocol transport = new SocketProtocol(opts);
         RsslSocketChannel rsslChnl = new RsslSocketChannel(transport, transport._channelPool);
@@ -8037,21 +8037,21 @@ public class SocketChannelJunitTest
         rsslChnl._writeLock = new DummyLock();
         rsslChnl.dataFromOptions(opts);
         rsslChnl.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         // verify setup.
         Pool bufferPool = transport.getPool(rsslChnl._internalMaxFragmentSize);
         assertEquals(0, bufferPool.size());
         assertEquals(initialBufferCount, rsslChnl._availableBuffers.size());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.maxOutputBuffers());
-        
+
         // allocate inUseCount buffers
         for(int i = 0; i < inUseCount; i++)
         {
             assertNotNull(rsslChnl.getBuffer((rsslChnl._internalMaxFragmentSize - 3), false, error));
             assertEquals(0, error.errorId());
         }
-        
+
         // shrink guaranteedOutputBuffers, expect it to return a different value (postShrinkBufferCount) since there were not.
         bufferCount = initialBufferCount - shrinkCount;
         assertEquals(postShrinkBufferCount, rsslChnl.ioctl(IoctlCodes.NUM_GUARANTEED_BUFFERS, bufferCount, error));
@@ -8061,7 +8061,7 @@ public class SocketChannelJunitTest
         assertEquals(postShrinkBufferCount, rsslChnl._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.maxOutputBuffers());
     }
-    
+
     /*
      * Test setting MAX_NUM_BUFFERS to various values. Verify that it changes as expected.
      */
@@ -8071,11 +8071,11 @@ public class SocketChannelJunitTest
         int initialBufferCount = 50;
         int newMaxNumBuffers = 100;
         int newMinNumBuffers = 20;
-        
+
         final Error error = TransportFactory.createError();
         ConnectOptions opts = TransportFactory.createConnectOptions();
         opts.guaranteedOutputBuffers(initialBufferCount);
-        
+
         // setup the RsslSocketChannel
         SocketProtocol transport = new SocketProtocol(opts);
         RsslSocketChannel rsslChnl = new RsslSocketChannel(transport, transport._channelPool);
@@ -8092,25 +8092,25 @@ public class SocketChannelJunitTest
         assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.maxOutputBuffers());
-        
+
         // modify MAX_NUM_BUFFERS to a larger value.
         assertEquals(newMaxNumBuffers, rsslChnl.ioctl(IoctlCodes.MAX_NUM_BUFFERS, newMaxNumBuffers, error));
         assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.guaranteedOutputBuffers());
         assertEquals(newMaxNumBuffers, rsslChnl._channelInfo.maxOutputBuffers());
-        
+
         // modify MAX_NUM_BUFFERS to a smaller value.
         assertEquals(initialBufferCount + 5, rsslChnl.ioctl(IoctlCodes.MAX_NUM_BUFFERS, initialBufferCount + 5, error));
         assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount + 5, rsslChnl._channelInfo.maxOutputBuffers());
-        
+
         // modify MAX_NUM_BUFFERS to a value smaller than guaranteedOutputBuffers
         assertEquals(initialBufferCount, rsslChnl.ioctl(IoctlCodes.MAX_NUM_BUFFERS, newMinNumBuffers, error));
         assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount, rsslChnl._channelInfo.maxOutputBuffers());
-        
+
         // modify MAX_NUM_BUFFERS to a negative value, expect it to fail.
         assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.MAX_NUM_BUFFERS, -1, error));
         assertEquals(TransportReturnCodes.FAILURE, error.errorId());
@@ -8145,7 +8145,7 @@ public class SocketChannelJunitTest
 
             server = Transport.bind(bindOpts, error);
             assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
-                                  + error.sysError(), server);
+                          + error.sysError(), server);
 
             getAndVerifyServerInfo(server, serverInfo, error, 0, 0);
 
@@ -8193,7 +8193,7 @@ public class SocketChannelJunitTest
 
     /*
      * Verify that the Server.sharedPool and sharedPoolSize
-     * can be modified 
+     * can be modified
      * with Channel.ioctl and IoctlCodes.SERVER_NUM_POOL_BUFFER.
      * This test will allocate several buffers from the sharedPool,
      * then increase and reduce the sharedPoolSize. It verifies that
@@ -8216,7 +8216,7 @@ public class SocketChannelJunitTest
 
             server = Transport.bind(bindOpts, error);
             assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
-                                  + error.sysError(), server);
+                          + error.sysError(), server);
 
             ServerImpl socketServer = (ServerImpl)server;
             // The "global" pool.
@@ -8241,7 +8241,7 @@ public class SocketChannelJunitTest
             assertTrue(socketBuffer[2] != socketBuffer[1]);
             socketBuffer[3] = ((ServerImpl)server).getBufferFromServerPool();
             assertNull(socketBuffer[3]);
-            
+
             assertEquals(3, server.bufferUsage(error));
             assertEquals(3, socketServer._bindOpts._sharedPoolSize);
             assertEquals(0, socketServer._sharedPool.size());
@@ -8256,7 +8256,7 @@ public class SocketChannelJunitTest
             assertEquals(5, socketServer._bindOpts._sharedPoolSize);
             assertEquals(0, socketServer._sharedPool.size());
             assertEquals(0, bufferPool.size());
-            
+
             socketBuffer[3] = ((ServerImpl)server).getBufferFromServerPool();
             assertNotNull(socketBuffer[3]);
             assertTrue(socketBuffer[3] != socketBuffer[0]);
@@ -8271,7 +8271,7 @@ public class SocketChannelJunitTest
             socketBuffer[5] = ((ServerImpl)server).getBufferFromServerPool();
             assertNull(socketBuffer[5]);
             assertEquals(5, server.bufferUsage(error));
-            
+
             /*
              * use IoctlCodes.SERVER_NUM_POOL_BUFFERS to decrease the size of
              * the sharedPoolSize to 4, then allocate one more SocketBuffers,
@@ -8299,18 +8299,18 @@ public class SocketChannelJunitTest
             assertEquals(5, socketServer._bindOpts._sharedPoolSize);
             assertEquals(2, socketServer._sharedPool.size());
             assertEquals(0, bufferPool.size());
-            
+
             socketBuffer[3] = ((ServerImpl)server).getBufferFromServerPool();
             assertNotNull(socketBuffer[3]);
             assertTrue(socketBuffer[3] != socketBuffer[0]);
             assertTrue(socketBuffer[3] != socketBuffer[1]);
             assertTrue(socketBuffer[3] != socketBuffer[2]);
-            
+
             assertEquals(4, server.bufferUsage(error));
             assertEquals(5, socketServer._bindOpts._sharedPoolSize);
             assertEquals(1, socketServer._sharedPool.size());
             assertEquals(0, bufferPool.size());
-            
+
             /*
              * decrease the sharedPoolSize to 2. Since there is only one free buffer in sharedPool,
              * the sharedPoolSize should be reduced to 4.
@@ -8320,11 +8320,11 @@ public class SocketChannelJunitTest
             assertEquals(4, socketServer._bindOpts._sharedPoolSize);
             assertEquals(0, socketServer._sharedPool.size());
             assertEquals(1, bufferPool.size());
-            
+
             /*
              * release all of the buffers, then decrease the sharedPoolSize to 2. Since there are four
              * free buffers in sharedPool, the sharedPoolSize should be reduced to 2, and the global
-             * pool will increase from 1 to 3. 
+             * pool will increase from 1 to 3.
              */
             socketBuffer[3].returnToPool();
             socketBuffer[3] = null;
@@ -8338,12 +8338,12 @@ public class SocketChannelJunitTest
             socketBuffer[0].returnToPool();
             socketBuffer[0] = null;
             assertEquals(0, server.bufferUsage(error));
-            
+
             assertEquals(2, server.ioctl(IoctlCodes.SERVER_NUM_POOL_BUFFERS, 2, error));
             assertEquals(2, socketServer._bindOpts._sharedPoolSize);
             assertEquals(2, socketServer._sharedPool.size());
             assertEquals(3, bufferPool.size());
-            
+
             // call ioctl to set SERVER_NUM_POOL_BUFFERS to the same value that it already is.
             assertEquals(2, server.ioctl(IoctlCodes.SERVER_NUM_POOL_BUFFERS, 2, error));
             assertEquals(2, socketServer._bindOpts._sharedPoolSize);
@@ -8361,7 +8361,7 @@ public class SocketChannelJunitTest
      * Use Channel.ioctl() to change Priority Flush Order. Perform several
      * priority writes of High, Medium and Low. Call flush method with
      * java.nio.channels.SocketChannel.write() returns all bytes sent.
-     * 
+     *
      * Expected Result: Buffers written per priority flush strategy and flush
      * method returns 0.
      */
@@ -8386,45 +8386,45 @@ public class SocketChannelJunitTest
         try
         {
             // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
 
-        		@Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-        	}
-        	;
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
 
-        	TransportBufferImpl [] transBufHigh = new TransportBufferImpl[4];
-        	TransportBufferImpl [] transBufMedium = new TransportBufferImpl[4];
-        	TransportBufferImpl [] transBufLow = new TransportBufferImpl[4];
-        	for (int i=0; i<4; i++)
-        	{
-        		transBufHigh[i] = new TransportBufferImpl(bufLenHigh+3);
-        		transBufHigh[i]._data.position(3);
-        		byteBufHigh.flip();
-        		transBufHigh[i].data().put(byteBufHigh);
-        		transBufHigh[i]._isWriteBuffer = true;
-        		
-        		transBufMedium[i] = new TransportBufferImpl(bufLenMedium+3);
-        		transBufMedium[i]._data.position(3);
-        		byteBufMedium.flip();
-        		transBufMedium[i].data().put(byteBufMedium);
-        		transBufMedium[i]._isWriteBuffer = true;
-        		
-        		transBufLow[i] = new TransportBufferImpl(bufLenLow+3);
-        		transBufLow[i]._data.position(3);
-        		byteBufLow.flip();
-        		transBufLow[i].data().put(byteBufLow);
-        		transBufLow[i]._isWriteBuffer = true;
-        	}
+                }
+            }
+                    ;
+
+            TransportBufferImpl [] transBufHigh = new TransportBufferImpl[4];
+            TransportBufferImpl [] transBufMedium = new TransportBufferImpl[4];
+            TransportBufferImpl [] transBufLow = new TransportBufferImpl[4];
+            for (int i=0; i<4; i++)
+            {
+                transBufHigh[i] = new TransportBufferImpl(bufLenHigh+3);
+                transBufHigh[i]._data.position(3);
+                byteBufHigh.flip();
+                transBufHigh[i].data().put(byteBufHigh);
+                transBufHigh[i]._isWriteBuffer = true;
+
+                transBufMedium[i] = new TransportBufferImpl(bufLenMedium+3);
+                transBufMedium[i]._data.position(3);
+                byteBufMedium.flip();
+                transBufMedium[i].data().put(byteBufMedium);
+                transBufMedium[i]._isWriteBuffer = true;
+
+                transBufLow[i] = new TransportBufferImpl(bufLenLow+3);
+                transBufLow[i]._data.position(3);
+                byteBufLow.flip();
+                transBufLow[i].data().put(byteBufLow);
+                transBufLow[i]._isWriteBuffer = true;
+            }
 
             // set channel state to ACTIVE
             rsslChnl._state = ChannelState.ACTIVE;
@@ -8443,7 +8443,7 @@ public class SocketChannelJunitTest
             // Use Channel.ioctl() to change Priority Flush Order to something invalid.
             // (larger than 32 characters)
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.PRIORITY_FLUSH_ORDER, "HMLHMLHLMHLMHLMHLHLMHLMHLMHLMHLMHLMHLMHL", error));
-            
+
             // Use Channel.ioctl() to change Priority Flush Order
             assertEquals(TransportReturnCodes.SUCCESS, rsslChnl.ioctl(IoctlCodes.PRIORITY_FLUSH_ORDER, "LMLHLM", error));
 
@@ -8451,40 +8451,40 @@ public class SocketChannelJunitTest
 
             // queue several buffers by calling the write method several times
             // with no write flags
-	    	for (int i=0; i<4; i++)
-	    	{
-	    		// queue several buffers by calling the write method several times with no write flags
-	    		cumulativeBytesQueued += (bufLenHigh + 3);
-	    		writeArgs.priority(WritePriorities.HIGH);
-	    		writeArgs.flags(WriteFlags.NO_FLAGS);
-	    		writeReturnVal = rsslChnl.write(transBufHigh[i], writeArgs, error);
-	    		System.out.println("writeReturnVal, i "+ writeReturnVal + " " + i);
-	    		// write return value should be cumulative bytes queued
-	    		assertEquals(cumulativeBytesQueued, writeReturnVal);	    	
-	    		// bytesWritten should be scktBufHigh.getLength()
-	    		assertTrue(writeArgs.bytesWritten() == transBufHigh[i].data().limit()-transBufHigh[i].data().position());
-	    		cumulativeBytesQueued += (bufLenMedium + 3);
-	    		writeArgs.priority(WritePriorities.MEDIUM);
-	    		writeArgs.flags(WriteFlags.NO_FLAGS);
-	    		writeReturnVal = rsslChnl.write(transBufMedium[i], writeArgs, error);
-	    		// write return value should be cumulative bytes queued
-	    		assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	    		// bytesWritten should be scktBufMedium.getLength()
-	    		assertTrue(writeArgs.bytesWritten() == transBufMedium[i].data().limit()-transBufMedium[i].data().position());
-	    		cumulativeBytesQueued += (bufLenLow + 3);
-	    		writeArgs.priority(WritePriorities.LOW);
-	    		writeArgs.flags(WriteFlags.NO_FLAGS);
-	    		writeReturnVal = rsslChnl.write(transBufLow[i], writeArgs, error);
-	    		// write return value should be cumulative bytes queued
-	    		assertTrue(writeReturnVal == cumulativeBytesQueued);	    	
-	    		// bytesWritten should be scktBufLow.getLength()
-	    		assertTrue(writeArgs.bytesWritten() == transBufLow[i].data().limit()-transBufLow[i].data().position());
-	    	}
+            for (int i=0; i<4; i++)
+            {
+                // queue several buffers by calling the write method several times with no write flags
+                cumulativeBytesQueued += (bufLenHigh + 3);
+                writeArgs.priority(WritePriorities.HIGH);
+                writeArgs.flags(WriteFlags.NO_FLAGS);
+                writeReturnVal = rsslChnl.write(transBufHigh[i], writeArgs, error);
+                System.out.println("writeReturnVal, i "+ writeReturnVal + " " + i);
+                // write return value should be cumulative bytes queued
+                assertEquals(cumulativeBytesQueued, writeReturnVal);
+                // bytesWritten should be scktBufHigh.getLength()
+                assertTrue(writeArgs.bytesWritten() == transBufHigh[i].data().limit()-transBufHigh[i].data().position());
+                cumulativeBytesQueued += (bufLenMedium + 3);
+                writeArgs.priority(WritePriorities.MEDIUM);
+                writeArgs.flags(WriteFlags.NO_FLAGS);
+                writeReturnVal = rsslChnl.write(transBufMedium[i], writeArgs, error);
+                // write return value should be cumulative bytes queued
+                assertTrue(writeReturnVal == cumulativeBytesQueued);
+                // bytesWritten should be scktBufMedium.getLength()
+                assertTrue(writeArgs.bytesWritten() == transBufMedium[i].data().limit()-transBufMedium[i].data().position());
+                cumulativeBytesQueued += (bufLenLow + 3);
+                writeArgs.priority(WritePriorities.LOW);
+                writeArgs.flags(WriteFlags.NO_FLAGS);
+                writeReturnVal = rsslChnl.write(transBufLow[i], writeArgs, error);
+                // write return value should be cumulative bytes queued
+                assertTrue(writeReturnVal == cumulativeBytesQueued);
+                // bytesWritten should be scktBufLow.getLength()
+                assertTrue(writeArgs.bytesWritten() == transBufLow[i].data().limit()-transBufLow[i].data().position());
+            }
 
             // _totalBytesQueued in RsslSocketChannel should be cumulative bytes
             // queued
             assertTrue(rsslChnl._totalBytesQueued == cumulativeBytesQueued);
-	    	
+
             SocketHelper scktChnl = Mockito.mock(SocketHelper.class);
 
             // java.nio.channels.SocketChannel.write() returns all bytes sent
@@ -8535,10 +8535,10 @@ public class SocketChannelJunitTest
      * <li>SYSTEM_READ_BUFFERS
      * <li>SYSTEM_WRITE_BUFFERS
      * </ul>
-     * 
+     *
      */
     @SuppressWarnings("deprecation")
-	@Test
+    @Test
     public void ioctlVerifyChannelReset()
     {
         final Error error = TransportFactory.createError();
@@ -8600,7 +8600,7 @@ public class SocketChannelJunitTest
             /*
              * We have the original channel back.
              */
-            
+
             assertEquals(chnl2, chnl);
             RsslSocketChannel socketChannel2 = (RsslSocketChannel)chnl;
 
@@ -8661,22 +8661,22 @@ public class SocketChannelJunitTest
         try
         {
             // create the RsslSocketChannel to test
-        	RsslSocketChannel rsslChnl = new RsslSocketChannel()
-        	{
-        		@Override
-        		public int releaseBuffer(TransportBuffer bufferInt, Error error) 
-        		{
-        			return 0;
-        		}
+            RsslSocketChannel rsslChnl = new RsslSocketChannel()
+            {
+                @Override
+                public int releaseBuffer(TransportBuffer bufferInt, Error error)
+                {
+                    return 0;
+                }
 
-        		@Override
-        		void releaseBufferInternal(TransportBuffer bufferInt) 
-        		{
-        			
-        		}
-        	}
-        	;
-	    		    	
+                @Override
+                void releaseBufferInternal(TransportBuffer bufferInt)
+                {
+
+                }
+            }
+                    ;
+
             // set channel state to ACTIVE
             rsslChnl._state = ChannelState.ACTIVE;
 
@@ -8696,11 +8696,11 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, rsslChnl.ioctl(IoctlCodes.HIGH_WATER_MARK, 5, error));
 
             // create SocketBuffer and set to test data
-	    	TransportBufferImpl transBuf = new TransportBufferImpl(bufLen + 3);
-	    	transBuf._data.position(3);
-	    	byteBuf.flip();
-	    	transBuf.data().put(byteBuf);
-	    	transBuf._isWriteBuffer = true;
+            TransportBufferImpl transBuf = new TransportBufferImpl(bufLen + 3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
 
             // call the write method with no write flags, queued bytes should
             // exceed high water mark.
@@ -8724,17 +8724,17 @@ public class SocketChannelJunitTest
             Mockito.stub(scktChnl.write((ByteBuffer[])Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt())).toReturn((long)smallCumulativeBytesQueued);
 
             // create SocketBuffer and set to test data
-	    	TransportBufferImpl smallTransBuf1 = new TransportBufferImpl(smallBufLen1 + 3);
-	    	smallTransBuf1._data.position(3);
-	    	smallByteBuf1.flip();
-	    	smallTransBuf1.data().put(smallByteBuf1);	    	
-	    	smallTransBuf1._isWriteBuffer = true;
-	    	
-	    	TransportBufferImpl smallTransBuf2 = new TransportBufferImpl(smallBufLen2 + 3);
-	    	smallTransBuf2._data.position(3);
-	    	smallByteBuf2.flip();
-	    	smallTransBuf2.data().put(smallByteBuf2);	    	
-	    	smallTransBuf2._isWriteBuffer = true;
+            TransportBufferImpl smallTransBuf1 = new TransportBufferImpl(smallBufLen1 + 3);
+            smallTransBuf1._data.position(3);
+            smallByteBuf1.flip();
+            smallTransBuf1.data().put(smallByteBuf1);
+            smallTransBuf1._isWriteBuffer = true;
+
+            TransportBufferImpl smallTransBuf2 = new TransportBufferImpl(smallBufLen2 + 3);
+            smallTransBuf2._data.position(3);
+            smallByteBuf2.flip();
+            smallTransBuf2.data().put(smallByteBuf2);
+            smallTransBuf2._isWriteBuffer = true;
 
             writeArgs.priority(WritePriorities.HIGH);
             writeArgs.flags(WriteFlags.NO_FLAGS);
@@ -8749,7 +8749,7 @@ public class SocketChannelJunitTest
             // The high water mark should have been hit.
             // Verify there are no bytes queued.
             assertEquals(0, rsslChnl._totalBytesQueued);
-            
+
             // test invalid value
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.HIGH_WATER_MARK, -9999, error));
 
@@ -8779,7 +8779,7 @@ public class SocketChannelJunitTest
             if (ret < TransportReturnCodes.SUCCESS)
             {
                 fail("consumerChannel.close() failed with return code " + ret + ", error="
-                        + error.text());
+                     + error.text());
             }
             consumerChannel = null;
         }
@@ -8807,7 +8807,7 @@ public class SocketChannelJunitTest
     private void cleanupForTestsWithTestClient(NetworkReplay replay, Server server, Channel serverChannel, TestClient client, Thread tClient, Selector selector, Error error)
     {
         int ret;
-        
+
         assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         if (replay != null)
         {
@@ -8821,7 +8821,7 @@ public class SocketChannelJunitTest
             if (ret < TransportReturnCodes.SUCCESS)
             {
                 fail("server.close() failed with return code " + ret + ", error="
-                        + error.text());
+                     + error.text());
             }
             server = null;
         }
@@ -8832,11 +8832,11 @@ public class SocketChannelJunitTest
             if (ret < TransportReturnCodes.SUCCESS)
             {
                 fail("serverChannel.close() failed with return code " + ret
-                        + ", error=" + error.text());
+                     + ", error=" + error.text());
             }
             serverChannel = null;
         }
-        
+
         if (selector != null)
         {
             try
@@ -8854,7 +8854,7 @@ public class SocketChannelJunitTest
         if (tClient != null)
         {
             tClient.interrupt();
-    
+
             // give client time to shut down.
             try
             {
@@ -8866,16 +8866,16 @@ public class SocketChannelJunitTest
         }
 
     }
-    
-    private Server serverBind(Selector selector, BindOptions bOpts, Error error)
+
+    static Server serverBind(Selector selector, BindOptions bOpts, Error error)
     {
         return serverBind(selector, bOpts, 60, 30, Ripc.CompressionTypes.NONE, 0 /* compression level */,
-                          Codec.protocolType(), Codec.majorVersion(), Codec.minorVersion(), false, error);
+                Codec.protocolType(), Codec.majorVersion(), Codec.minorVersion(), false, error);
     }
 
     /*
-     * Helper method to bind ETAJ server socket. 
-     * 
+     * Helper method to bind ETAJ server socket.
+     *
      * @param selector
      * @param pingTimeout
      * @param minPingTimeout
@@ -8888,8 +8888,8 @@ public class SocketChannelJunitTest
      * @param channelsBlocking
      * @return Server
      */
-    private Server serverBind(Selector selector, BindOptions bOpts, int pingTimeout, int minPingTimeout, int compressionType,
-                            int compressionLevel, int protocolType, int majorVersion, int minorVersion, boolean blocking, Error error)
+    static Server serverBind(Selector selector, BindOptions bOpts, int pingTimeout, int minPingTimeout, int compressionType,
+                             int compressionLevel, int protocolType, int majorVersion, int minorVersion, boolean blocking, Error error)
     {
         bOpts.pingTimeout(pingTimeout);
         bOpts.minPingTimeout(minPingTimeout);
@@ -8902,7 +8902,7 @@ public class SocketChannelJunitTest
         bOpts.minorVersion(minorVersion);
         bOpts.channelsBlocking(blocking);
         bOpts.serverBlocking(blocking);
-        
+
         Server server = Transport.bind(bOpts, error);
         if (server == null)
             assertNotNull("failed to bind server, reason=" + error.text(), server);
@@ -8924,14 +8924,14 @@ public class SocketChannelJunitTest
 
     /*
      * accept a connection or fail after timeout.
-     * 
+     *
      * @param selector
      * @param nakMount boolean indicating
      *            AcceptOptions.nakMount(boolean)
      * @param error
      * @return Channel
      */
-    private Channel serverAccept(Selector selector, AcceptOptions aOpts, Error error)
+    static Channel serverAccept(Selector selector, AcceptOptions aOpts, Error error)
     {
 
         Set<SelectionKey> keySet = null;
@@ -8960,7 +8960,7 @@ public class SocketChannelJunitTest
                             else
                             {
                                 assertTrue("server.accept() failed to return a valid Channel, error="
-                                                   + error.text(), false);
+                                           + error.text(), false);
                             }
                         }
                     }
@@ -8978,7 +8978,7 @@ public class SocketChannelJunitTest
 
     /*
      * Calls channel.init() one time and returns the current channel state.
-     * 
+     *
      * @param channel
      * @throws IOException
      */
@@ -8996,7 +8996,7 @@ public class SocketChannelJunitTest
                 // fail("\nChannel " + channel.selectableChannel() + " inactive: "
                 // + error.text());
                 System.out.println("initChannel(): Channel " + channel.selectableChannel()
-                        + " inactive: " + error.text());
+                                   + " inactive: " + error.text());
                 // return channelState as inactive for our junits.
                 return ChannelState.INACTIVE;
             }
@@ -9008,8 +9008,8 @@ public class SocketChannelJunitTest
                         if (inProg.flags() == InProgFlags.SCKT_CHNL_CHANGE)
                         {
                             System.out.println("\nChannel In Progress - New Channel: "
-                                    + channel.selectableChannel() + " Old Channel: "
-                                    + inProg.oldSelectableChannel());
+                                               + channel.selectableChannel() + " Old Channel: "
+                                               + inProg.oldSelectableChannel());
                         }
                         System.out.println("\nChannel " + channel.selectableChannel() + " In Progress...");
                         break;
@@ -9018,7 +9018,7 @@ public class SocketChannelJunitTest
                         break;
                     default:
                         fail("\nBad return value channel=" + channel.selectableChannel() + " <"
-                                + error.text() + ">");
+                             + error.text() + ">");
                 }
             }
         }
@@ -9028,7 +9028,7 @@ public class SocketChannelJunitTest
 
     /*
      * Calls channel.init() until the specified state is reached or timeout occurs.
-     * 
+     *
      * @param channel
      * @param state to be reached.
      * @param inProg
@@ -9040,7 +9040,7 @@ public class SocketChannelJunitTest
         long currentTimeMs = System.currentTimeMillis();
         long endTimeMs = currentTimeMs + TIMEOUTMS;
         int channelState;
-        
+
         try
         {
             while (System.currentTimeMillis() < endTimeMs)
@@ -9058,7 +9058,7 @@ public class SocketChannelJunitTest
         {
         }
         fail("timeout waiting for channel state " + ChannelState.toString(state)
-                + " current channel state is " + ChannelState.toString(channel.state()));
+             + " current channel state is " + ChannelState.toString(channel.state()));
     }
 
     /*
@@ -9177,7 +9177,7 @@ public class SocketChannelJunitTest
             assertEquals(ChannelState.INITIALIZING, channel.state());
 
             server.waitForAcceptable();
-            server.acceptSocket();            
+            server.acceptSocket();
 
             assertEquals(TransportReturnCodes.CHAN_INIT_IN_PROGRESS, channel.init(inProg, error));
             assertEquals(ChannelState.INITIALIZING, channel.state());
@@ -9188,7 +9188,7 @@ public class SocketChannelJunitTest
             server.writeMessageToSocket(replay.read());
 
             Thread.sleep(1000);
-            
+
             // call channel.init to read ConnectAck
             assertEquals(TransportReturnCodes.SUCCESS, channel.init(inProg, error));
             assertEquals(ChannelState.ACTIVE, channel.state());
@@ -9215,7 +9215,7 @@ public class SocketChannelJunitTest
             assertEquals(165537, ((RsslSocketChannel)channel)._scktChannel.socket().getReceiveBufferSize());
             channel.ioctl(IoctlCodes.SYSTEM_WRITE_BUFFERS, 165537, error);
             assertEquals(165537, ((RsslSocketChannel)channel)._scktChannel.socket().getSendBufferSize());
-            
+
             // set ioctl SYSTEM_READ_BUFFERS with invalid data.
             assertEquals(TransportReturnCodes.FAILURE, channel.ioctl(IoctlCodes.SYSTEM_READ_BUFFERS, -1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
@@ -9324,7 +9324,7 @@ public class SocketChannelJunitTest
      * with Channel.ioctl() after the channel is connected.
      */
     @SuppressWarnings("deprecation")
-	@Test
+    @Test
     public void ioctlSystemReadWriteBuffersDefaultServerTest()
     {
         String inputFile = RIPC_CONNECT_REQ_HANDSHAKE_FILE;
@@ -9407,7 +9407,7 @@ public class SocketChannelJunitTest
      * non-default value via AcceptOpts prior to accept().
      */
     @SuppressWarnings("deprecation")
-	@Test
+    @Test
     public void ioctlSystemReadWriteBuffersServerTest()
     {
         String inputFile = RIPC_CONNECT_REQ_HANDSHAKE_FILE;
@@ -9464,13 +9464,13 @@ public class SocketChannelJunitTest
             assertEquals(recvBufSize, ((ServerImpl)server).srvrScktChannel().socket().getReceiveBufferSize());
             assertEquals(recvBufSize, ((RsslSocketChannel)serverChannel).scktChannel().socket().getReceiveBufferSize());
             assertEquals(sendBufSize, ((RsslSocketChannel)serverChannel).scktChannel().socket().getSendBufferSize());
-            
+
             // set ioctl SYSTEM_READ_BUFFERS with invalid data.
             assertEquals(TransportReturnCodes.FAILURE, server.ioctl(IoctlCodes.SYSTEM_READ_BUFFERS, -1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
             assertEquals(TransportReturnCodes.FAILURE, serverChannel.ioctl(IoctlCodes.SYSTEM_READ_BUFFERS, -1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             // set ioctl SYSTEM_WRITE_BUFFERS with invalid data.
             assertEquals(TransportReturnCodes.FAILURE, serverChannel.ioctl(IoctlCodes.SYSTEM_WRITE_BUFFERS, -1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
@@ -9491,7 +9491,7 @@ public class SocketChannelJunitTest
      * value larger than 64K via AcceptOpts prior to accept().
      */
     @SuppressWarnings("deprecation")
-	@Test
+    @Test
     public void ioctlSystemReadWriteBuffersLargerThan64KServerTest()
     {
         String inputFile = RIPC_CONNECT_REQ_HANDSHAKE_FILE;
@@ -9548,7 +9548,7 @@ public class SocketChannelJunitTest
             assertEquals(recvBufSize, ((ServerImpl)server).srvrScktChannel().socket().getReceiveBufferSize());
             assertEquals(recvBufSize, ((RsslSocketChannel)serverChannel).scktChannel().socket().getReceiveBufferSize());
             assertEquals(sendBufSize, ((RsslSocketChannel)serverChannel).scktChannel().socket().getSendBufferSize());
-            
+
             /*
              * Use ioctl to change System Read Buffer size on server and System
              * Read/Write Buffer size channel.
@@ -9561,7 +9561,7 @@ public class SocketChannelJunitTest
             assertEquals(recvBufSize, ((RsslSocketChannel)serverChannel).scktChannel().socket().getReceiveBufferSize());
             assertEquals(TransportReturnCodes.SUCCESS, serverChannel.ioctl(IoctlCodes.SYSTEM_WRITE_BUFFERS, sendBufSize, error));
             assertEquals(sendBufSize, ((RsslSocketChannel)serverChannel).scktChannel().socket().getSendBufferSize());
-            
+
             /*
              * Use ioctl to change System Read Buffer size on server and System
              * Read/Write Buffer size channel.
@@ -9613,8 +9613,8 @@ public class SocketChannelJunitTest
         {
             // create the RsslSocketChannel to test
             // override flush to return positive number
-        	// set channel state to ACTIVE
-            
+            // set channel state to ACTIVE
+
             InitArgs initArgs = TransportFactory.createInitArgs();
             initArgs.globalLocking(false);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
@@ -9623,13 +9623,13 @@ public class SocketChannelJunitTest
             rsslChnl = getNetworkReplayChannel(Transport._transports[0],2);
             assertNotNull(rsslChnl);
 
-            
-        	TransportBufferImpl transBuf = new TransportBufferImpl(testData80.length() + 3);
-        	transBuf._data.position(3);
-        	byteBuf.flip();
-        	transBuf.data().put(byteBuf);
-        	transBuf._isWriteBuffer = true;
-    	
+
+            TransportBufferImpl transBuf = new TransportBufferImpl(testData80.length() + 3);
+            transBuf._data.position(3);
+            byteBuf.flip();
+            transBuf.data().put(byteBuf);
+            transBuf._isWriteBuffer = true;
+
 
             // set channel state to ACTIVE
             rsslChnl._state = ChannelState.ACTIVE;
@@ -9641,7 +9641,7 @@ public class SocketChannelJunitTest
             rsslChnl._compressor.compressionLevel(rsslChnl._sessionCompLevel);
             rsslChnl._sessionCompLowThreshold = rsslChnl.ZLIB_COMPRESSION_THRESHOLD;
             rsslChnl._channelInfo._compressionType = CompressionTypes.ZLIB;
-            
+
             // set _totalBytesQueued to 0 for no buffers queued
             rsslChnl._totalBytesQueued = 0;
 
@@ -9675,10 +9675,10 @@ public class SocketChannelJunitTest
             byteBuf.position(0);
             byteBuf.limit(80);
             byteBuf.put(testData80.getBytes());
-        	byteBuf.flip();
-        	transBuf._data.position(3);
-        	transBuf._data.limit(83);
-        	transBuf.data().put(byteBuf);
+            byteBuf.flip();
+            transBuf._data.position(3);
+            transBuf._data.limit(83);
+            transBuf.data().put(byteBuf);
             transBuf._isOwnedByApp = true;
 
             writeArgs.priority(WritePriorities.HIGH);
@@ -9707,10 +9707,10 @@ public class SocketChannelJunitTest
             byteBuf.position(0);
             byteBuf.limit(80);
             byteBuf.put(testData80.getBytes());
-        	byteBuf.flip();
-        	transBuf._data.position(3);
-        	transBuf._data.limit(83);
-        	transBuf.data().put(byteBuf);
+            byteBuf.flip();
+            transBuf._data.position(3);
+            transBuf._data.limit(83);
+            transBuf.data().put(byteBuf);
             transBuf._isOwnedByApp = true;
 
             writeArgs.priority(WritePriorities.HIGH);
@@ -9741,10 +9741,10 @@ public class SocketChannelJunitTest
             byteBuf.position(0);
             byteBuf.limit(80);
             byteBuf.put(testData80.getBytes());
-        	byteBuf.flip();
-        	transBuf._data.position(3);
-        	transBuf._data.limit(83);
-        	transBuf.data().put(byteBuf);
+            byteBuf.flip();
+            transBuf._data.position(3);
+            transBuf._data.limit(83);
+            transBuf.data().put(byteBuf);
             transBuf._isOwnedByApp = true;
 
             writeArgs.priority(WritePriorities.HIGH);
@@ -9760,7 +9760,7 @@ public class SocketChannelJunitTest
             // verify that the RIPC header has RipcFlags.Data (0x02)
             // and is not RipcFlags.CompressedData (0x05).
             assertEquals(0x02, bb.get(2));
-            
+
 
             // verify that Channel.ioctl(COMPRESSION_THRESHOLD) passes if value equals 30 (the minimum).
             error.clear();
@@ -9772,39 +9772,39 @@ public class SocketChannelJunitTest
             error.clear();
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, 29, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             error.clear();
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, 0, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             error.clear();
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, -1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             // change compression type to LZ4 and try same COMPRESSION_THRESHOLD tests which should fail
             rsslChnl._sessionOutCompression = CompressionTypes.LZ4;
             rsslChnl._sessionCompLevel = 9;
             rsslChnl._compressor = rsslChnl._Lz4Compressor;
             rsslChnl._compressor.compressionLevel(rsslChnl._sessionCompLevel);
             rsslChnl._sessionCompLowThreshold = rsslChnl.LZ4_COMPRESSION_THRESHOLD;
-            
+
             error.clear();
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, 29, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             error.clear();
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, 0, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             error.clear();
             assertEquals(TransportReturnCodes.FAILURE, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, -1, error));
             assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-            
+
             // now try 30 with LZ4 which should pass
             error.clear();
             assertEquals(TransportReturnCodes.SUCCESS, rsslChnl.ioctl(IoctlCodes.COMPRESSION_THRESHOLD, 30, error));
             assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
-            
+
             rsslChnl.close(error);
             initChannel.close(error);
         }
@@ -9817,153 +9817,153 @@ public class SocketChannelJunitTest
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
-    
+
     /*
      */
     @Test
     public void releaseBufferTest()
     {
-    	String testData = "releaseBufferTest";
-    	int bufLen = testData.length();
-    	ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
-    	byteBuf.position(3);
-    	byteBuf.put(testData.getBytes());
-    	Error error = TransportFactory.createError();
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    	ConnectOptions ops = getDefaultConnectOptions();
-    	ops.guaranteedOutputBuffers(8);
+        String testData = "releaseBufferTest";
+        int bufLen = testData.length();
+        ByteBuffer byteBuf = ByteBuffer.allocate(bufLen + 3);
+        byteBuf.position(3);
+        byteBuf.put(testData.getBytes());
+        Error error = TransportFactory.createError();
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        ConnectOptions ops = getDefaultConnectOptions();
+        ops.guaranteedOutputBuffers(8);
 
-    	try
-    	{
-    		// create the RsslSocketChannel to test
-    		// override flush to return positive number
-    		// set channel state to ACTIVE
+        try
+        {
+            // create the RsslSocketChannel to test
+            // override flush to return positive number
+            // set channel state to ACTIVE
 
-    		InitArgs initArgs = TransportFactory.createInitArgs();
-    		initArgs.globalLocking(false);
-    		assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
-    		RsslSocketChannel initChannel = (RsslSocketChannel) Transport.connect(ops, error);
-    		assertNotNull(initChannel);
-    		RsslSocketChannel channel = getNetworkReplayChannel(Transport._transports[0],8);
+            InitArgs initArgs = TransportFactory.createInitArgs();
+            initArgs.globalLocking(false);
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.initialize(initArgs, error));
+            RsslSocketChannel initChannel = (RsslSocketChannel) Transport.connect(ops, error);
+            assertNotNull(initChannel);
+            RsslSocketChannel channel = getNetworkReplayChannel(Transport._transports[0],8);
             channel._isJunitTest = true;
 
-    		TransportBufferImpl buf1 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    		buf1._isWriteBuffer = true;
-     		
-    		assertEquals(6100, buf1.length());
-    		assertEquals(1, channel.bufferUsage(error));
-    		TransportBufferImpl buf2 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    		
-    		assertEquals(2, channel.bufferUsage(error));
-    		
-    		TransportBufferImpl buf3 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    		
-    		
-    		assertEquals(3, channel.bufferUsage(error));
-    		TransportBufferImpl buf4 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    		
-    		assertEquals(4, channel.bufferUsage(error));
+            TransportBufferImpl buf1 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+            buf1._isWriteBuffer = true;
 
-    		TransportBufferImpl buf5 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    		
-    		assertEquals(5, channel.bufferUsage(error));
-    		
-    		TransportBufferImpl buf6 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    		
-    		assertEquals(6, channel.bufferUsage(error));
+            assertEquals(6100, buf1.length());
+            assertEquals(1, channel.bufferUsage(error));
+            TransportBufferImpl buf2 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
 
-    		TransportBufferImpl buf7 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
-    	
-    		assertEquals(7, channel.bufferUsage(error));
+            assertEquals(2, channel.bufferUsage(error));
 
-       		buf1.data().put(testData.getBytes());
-    		channel.write(buf1, writeArgs, error);
-    		channel.flush(error);
-    		
-    		assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
-    		assertEquals(6, channel.bufferUsage(error));
-    		
-    		channel.releaseBuffer(buf2, error);
-    		assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
-    		assertEquals(5, channel.bufferUsage(error));
-    		
-    		TransportBuffer buf8 = channel.getBuffer(6100, false, error);
-    		
-    		TransportBuffer buf = channel.getBuffer(6100, false, error);
-    		
-    		assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
-    		assertEquals(7, channel.bufferUsage(error));
-    		assertEquals(buf1, buf);
-    		
-    		buf = channel.getBuffer(6100, false, error);
-    		assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
-    		assertEquals(8, channel.bufferUsage(error));
-    		assertEquals(buf2, buf);
-    		
-    		channel.releaseBuffer(buf1, error);
-    		assertEquals(7, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf2, error);	// is not released because is current Buffer
-    		assertEquals(7, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf3, error);
-    		assertEquals(6, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf4, error);
-    		assertEquals(5, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf5, error);
-    		assertEquals(4, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf6, error);
-    		assertEquals(3, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf7, error);
-    		assertEquals(2, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf8, error);
-    		
-    		assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
-    		assertEquals(1, channel.bufferUsage(error));
-    		
-    		channel.releaseBuffer(buf1, error);
-    		channel.releaseBuffer(buf2, error);
-    		channel.releaseBuffer(buf3, error);
-    		channel.releaseBuffer(buf4, error);
-    		channel.releaseBuffer(buf5, error);
-    		channel.releaseBuffer(buf6, error);
-    		channel.releaseBuffer(buf7, error);
-    		channel.releaseBuffer(buf8, error);
-    		
-    		assertEquals(TransportReturnCodes.FAILURE, error.errorId());
-    		assertEquals(1, channel.bufferUsage(error));
-    		
-    		TransportBufferImpl buf11 = (TransportBufferImpl)channel.getBuffer(60000, false, error);
-    		buf11._isWriteBuffer = true;
-    		assertEquals(60000, buf11.length());
-    		assertEquals(2, channel.bufferUsage(error));
-    		TransportBuffer buf12 = channel.getBuffer(60000, false, error);
-    		assertEquals(3, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf11, error);
-    		assertEquals(2, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf11, error);
-    		assertEquals(2, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf12, error);
-    		assertEquals(1, channel.bufferUsage(error));
-    		channel.releaseBuffer(buf11, error);
-    		assertEquals(1, channel.bufferUsage(error));
-    		buf = channel.getBuffer(60000, false, error);
-    		assertEquals(buf, buf11);
-    		assertEquals(2, channel.bufferUsage(error));
-    		buf = channel.getBuffer(60000, false, error);
-    		assertEquals(buf, buf12);
-    		assertEquals(3, channel.bufferUsage(error));
-    		
-    		
-    		channel.close(error);
-    		initChannel.close(error);
-    	}
-    	catch (Exception e)
-    	{
-    		assertTrue(e.toString(), false);
-    	}
-    	finally
-    	{
-    		assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-    	}
+            TransportBufferImpl buf3 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+
+
+            assertEquals(3, channel.bufferUsage(error));
+            TransportBufferImpl buf4 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+
+            assertEquals(4, channel.bufferUsage(error));
+
+            TransportBufferImpl buf5 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+
+            assertEquals(5, channel.bufferUsage(error));
+
+            TransportBufferImpl buf6 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+
+            assertEquals(6, channel.bufferUsage(error));
+
+            TransportBufferImpl buf7 = (TransportBufferImpl)channel.getBuffer(6100, false, error);
+
+            assertEquals(7, channel.bufferUsage(error));
+
+            buf1.data().put(testData.getBytes());
+            channel.write(buf1, writeArgs, error);
+            channel.flush(error);
+
+            assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
+            assertEquals(6, channel.bufferUsage(error));
+
+            channel.releaseBuffer(buf2, error);
+            assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
+            assertEquals(5, channel.bufferUsage(error));
+
+            TransportBuffer buf8 = channel.getBuffer(6100, false, error);
+
+            TransportBuffer buf = channel.getBuffer(6100, false, error);
+
+            assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
+            assertEquals(7, channel.bufferUsage(error));
+            assertEquals(buf1, buf);
+
+            buf = channel.getBuffer(6100, false, error);
+            assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
+            assertEquals(8, channel.bufferUsage(error));
+            assertEquals(buf2, buf);
+
+            channel.releaseBuffer(buf1, error);
+            assertEquals(7, channel.bufferUsage(error));
+            channel.releaseBuffer(buf2, error);	// is not released because is current Buffer
+            assertEquals(7, channel.bufferUsage(error));
+            channel.releaseBuffer(buf3, error);
+            assertEquals(6, channel.bufferUsage(error));
+            channel.releaseBuffer(buf4, error);
+            assertEquals(5, channel.bufferUsage(error));
+            channel.releaseBuffer(buf5, error);
+            assertEquals(4, channel.bufferUsage(error));
+            channel.releaseBuffer(buf6, error);
+            assertEquals(3, channel.bufferUsage(error));
+            channel.releaseBuffer(buf7, error);
+            assertEquals(2, channel.bufferUsage(error));
+            channel.releaseBuffer(buf8, error);
+
+            assertEquals(TransportReturnCodes.SUCCESS, error.errorId());
+            assertEquals(1, channel.bufferUsage(error));
+
+            channel.releaseBuffer(buf1, error);
+            channel.releaseBuffer(buf2, error);
+            channel.releaseBuffer(buf3, error);
+            channel.releaseBuffer(buf4, error);
+            channel.releaseBuffer(buf5, error);
+            channel.releaseBuffer(buf6, error);
+            channel.releaseBuffer(buf7, error);
+            channel.releaseBuffer(buf8, error);
+
+            assertEquals(TransportReturnCodes.FAILURE, error.errorId());
+            assertEquals(1, channel.bufferUsage(error));
+
+            TransportBufferImpl buf11 = (TransportBufferImpl)channel.getBuffer(60000, false, error);
+            buf11._isWriteBuffer = true;
+            assertEquals(60000, buf11.length());
+            assertEquals(2, channel.bufferUsage(error));
+            TransportBuffer buf12 = channel.getBuffer(60000, false, error);
+            assertEquals(3, channel.bufferUsage(error));
+            channel.releaseBuffer(buf11, error);
+            assertEquals(2, channel.bufferUsage(error));
+            channel.releaseBuffer(buf11, error);
+            assertEquals(2, channel.bufferUsage(error));
+            channel.releaseBuffer(buf12, error);
+            assertEquals(1, channel.bufferUsage(error));
+            channel.releaseBuffer(buf11, error);
+            assertEquals(1, channel.bufferUsage(error));
+            buf = channel.getBuffer(60000, false, error);
+            assertEquals(buf, buf11);
+            assertEquals(2, channel.bufferUsage(error));
+            buf = channel.getBuffer(60000, false, error);
+            assertEquals(buf, buf12);
+            assertEquals(3, channel.bufferUsage(error));
+
+
+            channel.close(error);
+            initChannel.close(error);
+        }
+        catch (Exception e)
+        {
+            assertTrue(e.toString(), false);
+        }
+        finally
+        {
+            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
+        }
     }
 
     /*
@@ -10007,7 +10007,7 @@ public class SocketChannelJunitTest
         assertEquals(initialBufferCount, rsslChnl2._availableBuffers.size());
         assertEquals(initialBufferCount, rsslChnl2._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount, rsslChnl2._channelInfo.maxOutputBuffers());
-        
+
         // release all buffers back to pool
         rsslChnl1.shrinkGuaranteedOutputBuffers(rsslChnl1._availableBuffers.size());
         rsslChnl2.shrinkGuaranteedOutputBuffers(rsslChnl2._availableBuffers.size());
@@ -10019,7 +10019,7 @@ public class SocketChannelJunitTest
         bufferPool = transport.getPool(rsslChnl2._internalMaxFragmentSize);
         assertEquals(initialBufferCount*2, bufferPool.size());
         assertEquals(0, rsslChnl2._availableBuffers.size());
-        
+
         // get the buffers back
         rsslChnl1.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
         rsslChnl2.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
@@ -10049,7 +10049,7 @@ public class SocketChannelJunitTest
         bufferPool = transport.getPool(rsslChnl2._internalMaxFragmentSize);
         assertEquals(initialBufferCount*2, bufferPool.size());
         assertEquals(0, rsslChnl2._availableBuffers.size());
-        
+
         // get the buffers back
         rsslChnl1.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
         rsslChnl2.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
@@ -10068,12 +10068,12 @@ public class SocketChannelJunitTest
         assertEquals(initialBufferCount, rsslChnl2._channelInfo.guaranteedOutputBuffers());
         assertEquals(initialBufferCount, rsslChnl2._channelInfo.maxOutputBuffers());
     }
-    
+
     @Test
     public void SocketBufferTest()
     {
-    	Error error = TransportFactory.createError();
-    	WriteArgs writeArgs = TransportFactory.createWriteArgs();
+        Error error = TransportFactory.createError();
+        WriteArgs writeArgs = TransportFactory.createWriteArgs();
         ConnectOptions opts = TransportFactory.createConnectOptions();
         opts.unifiedNetworkInfo().address("localhost");
         opts.unifiedNetworkInfo().serviceName("14002");
@@ -10082,15 +10082,16 @@ public class SocketChannelJunitTest
         // setup the RsslSocketChannel
         Transport._globalLock = new DummyLock();
         SocketProtocol transport = new SocketProtocol(opts);
-        
+
         RsslSocketChannel rsslChnl = (RsslSocketChannel) transport.channel(opts, error);
         rsslChnl._state = ChannelState.ACTIVE;
         rsslChnl._highWaterMark = 100000;
         rsslChnl._readLock = new DummyLock();
         rsslChnl._writeLock = new DummyLock();
+        rsslChnl._protocolFunctions = rsslChnl.ripcProtocolFunctions;
         rsslChnl.dataFromOptions(opts);
         rsslChnl.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         TransportBufferImpl transBuf1 = (TransportBufferImpl)rsslChnl.getBuffer(2000, false, error);
         transBuf1.data().put("Buffer 1".getBytes());
         TransportBufferImpl transBuf2 = (TransportBufferImpl)rsslChnl.getBuffer(3000, false, error);
@@ -10107,15 +10108,16 @@ public class SocketChannelJunitTest
         rsslChnl.write(transBuf3, writeArgs, error);
         rsslChnl.write(transBuf4, writeArgs, error);
         rsslChnl.close(error);
-        
+
         RsslSocketChannel rsslChnl2 = (RsslSocketChannel) transport.channel(opts, error);
         rsslChnl2._state = ChannelState.ACTIVE;
         rsslChnl2._highWaterMark = 100000;
         rsslChnl2._readLock = new DummyLock();
         rsslChnl2._writeLock = new DummyLock();
+        rsslChnl2._protocolFunctions = rsslChnl.ripcProtocolFunctions;
         rsslChnl2.dataFromOptions(opts);
         rsslChnl2.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         TransportBufferImpl transBuf21 = (TransportBufferImpl)rsslChnl2.getBuffer(2000, false, error);
         transBuf21.data().put("Buffer 21".getBytes());
         TransportBufferImpl transBuf22 = (TransportBufferImpl)rsslChnl2.getBuffer(3000, false, error);
@@ -10132,15 +10134,16 @@ public class SocketChannelJunitTest
         rsslChnl.write(transBuf23, writeArgs, error);
         rsslChnl.write(transBuf24, writeArgs, error);
         rsslChnl2.close(error);
-        
+
         RsslSocketChannel rsslChnl3 = (RsslSocketChannel) transport.channel(opts, error);
         rsslChnl3._state = ChannelState.ACTIVE;
         rsslChnl3._highWaterMark = 100000;
         rsslChnl3._readLock = new DummyLock();
         rsslChnl3._writeLock = new DummyLock();
+        rsslChnl3._protocolFunctions = rsslChnl.ripcProtocolFunctions;
         rsslChnl3.dataFromOptions(opts);
         rsslChnl3.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         TransportBufferImpl transBuf31 = (TransportBufferImpl)rsslChnl3.getBuffer(2000, false, error);
         transBuf31.data().put("Buffer 21".getBytes());
         TransportBufferImpl transBuf32 = (TransportBufferImpl)rsslChnl3.getBuffer(4000, false, error);
@@ -10165,7 +10168,7 @@ public class SocketChannelJunitTest
         rsslChnl._writeLock = new DummyLock();
         rsslChnl.dataFromOptions(opts);
         rsslChnl.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         transBuf1 = (TransportBufferImpl)rsslChnl.getBuffer(3000, false, error);
         transBuf1.data().put("Buffer 1".getBytes());
         transBuf2 = (TransportBufferImpl)rsslChnl.getBuffer(4000, false, error);
@@ -10190,7 +10193,7 @@ public class SocketChannelJunitTest
         rsslChnl3._writeLock = new DummyLock();
         rsslChnl3.dataFromOptions(opts);
         rsslChnl3.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         transBuf31 = (TransportBufferImpl)rsslChnl3.getBuffer(3000, false, error);
         transBuf31.data().put("Buffer 1".getBytes());
         transBuf32 = (TransportBufferImpl)rsslChnl3.getBuffer(3000, false, error);
@@ -10215,7 +10218,7 @@ public class SocketChannelJunitTest
         rsslChnl._writeLock = new DummyLock();
         rsslChnl.dataFromOptions(opts);
         rsslChnl.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         transBuf1 = (TransportBufferImpl)rsslChnl.getBuffer(3000, false, error);
         transBuf1.data().put("Buffer 1".getBytes());
         transBuf2 = (TransportBufferImpl)rsslChnl.getBuffer(2000, false, error);
@@ -10232,7 +10235,7 @@ public class SocketChannelJunitTest
         transBuf5.data().put("Buffer 5".getBytes());
         rsslChnl.write(transBuf5, writeArgs, error);
         rsslChnl.close(error);
-        
+
         rsslChnl3 = (RsslSocketChannel) transport.channel(opts, error);
         rsslChnl3._state = ChannelState.ACTIVE;
         rsslChnl3._highWaterMark = 100000;
@@ -10240,7 +10243,7 @@ public class SocketChannelJunitTest
         rsslChnl3._writeLock = new DummyLock();
         rsslChnl3.dataFromOptions(opts);
         rsslChnl3.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         transBuf31 = (TransportBufferImpl)rsslChnl3.getBuffer(4000, false, error);
         transBuf31.data().put("Buffer 1".getBytes());
         rsslChnl3.write(transBuf31, writeArgs, error);
@@ -10265,7 +10268,7 @@ public class SocketChannelJunitTest
         rsslChnl._writeLock = new DummyLock();
         rsslChnl.dataFromOptions(opts);
         rsslChnl.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         transBuf1 = (TransportBufferImpl)rsslChnl.getBuffer(3000, false, error);
         transBuf1.data().put("Buffer 1".getBytes());
         transBuf2 = (TransportBufferImpl)rsslChnl.getBuffer(3000, false, error);
@@ -10282,7 +10285,7 @@ public class SocketChannelJunitTest
         transBuf5.data().put("Buffer 5".getBytes());
         rsslChnl.write(transBuf5, writeArgs, error);
         rsslChnl.close(error);
-        
+
         rsslChnl3 = (RsslSocketChannel) transport.channel(opts, error);
         rsslChnl3._state = ChannelState.ACTIVE;
         rsslChnl3._highWaterMark = 100000;
@@ -10290,7 +10293,7 @@ public class SocketChannelJunitTest
         rsslChnl3._writeLock = new DummyLock();
         rsslChnl3.dataFromOptions(opts);
         rsslChnl3.growGuaranteedOutputBuffers(opts.guaranteedOutputBuffers());
-        
+
         transBuf31 = (TransportBufferImpl)rsslChnl3.getBuffer(2000, false, error);
         transBuf31.data().put("Buffer 1".getBytes());
         transBuf32 = (TransportBufferImpl)rsslChnl3.getBuffer(3000, false, error);

@@ -7,9 +7,9 @@
 
 package com.refinitiv.ema.access;
 
-import java.nio.ByteBuffer;
-
 import com.refinitiv.eta.codec.CodecReturnCodes;
+
+import java.nio.ByteBuffer;
 
 class OmmXmlImpl extends DataImpl implements OmmXml
 {

@@ -1,0 +1,3 @@
+# file,location
+,Applications/Examples
+Consumer.java,Applications/Examples/src/main/java/com/refinitiv/eta/examples/consumer

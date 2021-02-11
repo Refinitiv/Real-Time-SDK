@@ -27,6 +27,7 @@ including:
  This is found by visiting my.Refinitiv.com, launching Eikon, and 
  searching for "App Key Generator". Eikon login is required to generate clientID.
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
+-websocket Use the WebSocket transport protocol (optional).
 -keyfile keystore file for creating an encrypted connection.
 -keypasswd keystore password for creating an encrypted connection.
 Note: please refer to README.md of RTSDK Java for generating a keystore file.
@@ -56,7 +57,11 @@ gradlew.bat runConsumer113 -PcommandLineArgs='-username <username> -password <pa
 + Instantiates and modifies an OmmConsumerConfig object
   - Sets the user credential
   - Sets the consumer name to "Consumer_4"
-  - The Consumer_4 uses the Channel_4 channel name for using the RSSL_ENCRYPTED channel type.
+  - The Consumer_4 uses the Channel_4 channel name for using the RSSL_ENCRYPTED
+	channel type and the RSSL_SOCKET encrypted protocol type.
+    or sets the consumer name to "Consumer_5" in case of the WebSocket transport protocol.
+    The Consumer_5 uses the Channel_5 channel name for using the RSSL_ENCRYPTED
+	channel type and the RSSL_WEBSOCKET encrypted protocol type.
   - Loads configuration information for the specified consumer name
     from the EmaConfig.xml file in the application's working folder
 + Instantiates an OmmConsumer object which initializes the connection 

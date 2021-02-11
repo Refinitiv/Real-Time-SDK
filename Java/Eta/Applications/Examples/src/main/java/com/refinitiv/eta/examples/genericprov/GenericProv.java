@@ -18,11 +18,7 @@ import com.refinitiv.eta.codec.RefreshMsg;
 import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.codec.StateCodes;
 import com.refinitiv.eta.codec.StreamStates;
-import com.refinitiv.eta.shared.ClientSessionInfo;
-import com.refinitiv.eta.shared.CommandLine;
-import com.refinitiv.eta.shared.ProviderDirectoryHandler;
-import com.refinitiv.eta.shared.ProviderSession;
-import com.refinitiv.eta.shared.ReceivedMsgCallback;
+import com.refinitiv.eta.shared.*;
 import com.refinitiv.eta.examples.common.ProviderLoginHandler;
 import com.refinitiv.eta.examples.common.UnSupportedMsgHandler;
 import com.refinitiv.eta.rdm.DomainTypes;
@@ -90,11 +86,11 @@ public class GenericProv implements ReceivedMsgCallback
     private DecodeIterator _dIter;
     private Msg _requestMsg;
     private Error _error;
-    
+
     private long _runtime;
 
     private final int UPDATE_INTERVAL = 1;
-    
+
     /* default server port number */
     private final String defaultSrvrPortNo = "14002";
 
@@ -103,7 +99,7 @@ public class GenericProv implements ReceivedMsgCallback
 
     /* default run time in seconds */
     private final String defaultRuntime = "1200"; // seconds
-    
+
     private final int REFRESH_LEN = 128;
 
     public GenericProv()
@@ -118,7 +114,7 @@ public class GenericProv implements ReceivedMsgCallback
         _refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         _error = TransportFactory.createError();
     }
-    
+
     /*
      * Parses command line arguments, initializes provider session which creates
      * listening socket. It also initializes the Login Handler.
@@ -145,15 +141,25 @@ public class GenericProv implements ReceivedMsgCallback
 
         // get bind options from the provider session
         BindOptions bindOptions = _providerSession.getBindOptions();
-        
+
         // set the connection parameters on the bind options
         bindOptions.serviceName(CommandLine.value("p"));
         bindOptions.interfaceName(CommandLine.value("i"));
-        
+
         // enable channel write locking
         _providerSession.enableChannelWriteLocking();
+
+        final JsonConverterInitOptions jsonConverterInitOptions = new JsonConverterInitOptions(
+                _directoryHandler, null, false, CommandLine.booleanValue("x"));
         
-        int ret = _providerSession.init(false, _error);
+        int defaultServiceId = CommandLine.intValue("id");
+        
+        if(defaultServiceId != 0)
+        {
+        	jsonConverterInitOptions.setDefaultServiceId(defaultServiceId);
+        }
+
+        int ret = _providerSession.init(jsonConverterInitOptions, false, _error);
         if (ret != TransportReturnCodes.SUCCESS)
         {
             System.out.println("Error initializing server: " + _error.text());
@@ -173,7 +179,7 @@ public class GenericProv implements ReceivedMsgCallback
         _directoryHandler.enableGenericProvider();
         _runtime = System.currentTimeMillis() + CommandLine.intValue("runtime") * 1000;
     }
-    
+
     /*
      * Main loop that handles new client connections, reading and
      * processing requests from the channel.
@@ -306,7 +312,7 @@ public class GenericProv implements ReceivedMsgCallback
             System.out.println("DecodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
             cleanupAndExit();
         }
-        
+
         ret = _requestMsg.decode(_dIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
@@ -331,7 +337,7 @@ public class GenericProv implements ReceivedMsgCallback
                 }
                 break;
             case ProviderDirectoryHandler.GENERIC_DOMAIN:
-                if (_requestMsg.msgClass() == MsgClasses.GENERIC) 
+                if (_requestMsg.msgClass() == MsgClasses.GENERIC)
                 {
                     // process file request from generic consumer
                     processGenericConsumerRequest(channel, (GenericMsg)_requestMsg);
@@ -357,7 +363,7 @@ public class GenericProv implements ReceivedMsgCallback
     {
         int ret;
         TransportBuffer buffer = channel.getBuffer(REFRESH_LEN, false, _error);
-        
+
         _encIter.clear();
         _encIter.setBufferAndRWFVersion(buffer, channel.majorVersion(), channel.minorVersion());
         _refreshMsg.clear();
@@ -381,7 +387,7 @@ public class GenericProv implements ReceivedMsgCallback
             System.out.println("RefreshMsg encoding failure: " + ret);
             System.exit(-1);
         }
-        
+
         // send message
         if (( ret = _providerSession.write(channel, buffer, _error)) != TransportReturnCodes.SUCCESS)
         {

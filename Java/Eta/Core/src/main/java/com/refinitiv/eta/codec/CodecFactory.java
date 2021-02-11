@@ -612,4 +612,8 @@ public class CodecFactory
     {
         return new ElementSetDefDbImpl(x);
     }
+
+    public static XmlTraceDump createXmlTraceDump() {
+        return new XmlTraceDumpImpl();
+    }
 }

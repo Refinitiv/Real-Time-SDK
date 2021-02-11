@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      	--
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  					--
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            		--
+// *|           Copyright (C) 2020 Refinitiv. All rights reserved.            		--
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series400.ex450_MP_QueryServiceDiscovery;
@@ -90,6 +90,7 @@ public class Consumer
 	static String proxyDomain;
 	static String proxyKrb5Configfile;
 	static boolean takeExclusiveSignOnControl = true;
+	static boolean connectWebSocket = false;
 	public static String host;
 	public static String port;
 	public static String location = "us-east";
@@ -105,7 +106,8 @@ public class Consumer
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -location location to get an endpoint from RDP service \r\n"
 	    		+ "\tdiscovery. Defaults to \"us-east\" (optional).\n"
-	    		+ "  -clientId client ID for application making the request to \r\n" 
+	    		+ "  -clientId client ID for application making the request to \r\n"
+	    		+ "  -websocket Use the WebSocket transport protocol (optional) \r\n"
 	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption.\n"
 	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
@@ -215,6 +217,11 @@ public class Consumer
     				
     				++argsCount;				
     			}
+    			else if ("-websocket".equals(args[argsCount]))
+    			{
+    				connectWebSocket = true;
+    				++argsCount;
+    			}
     			else // unrecognized command line argument
     			{
     				printHelp();
@@ -246,6 +253,12 @@ public class Consumer
 		
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_1"));
 		
+		if(connectWebSocket)
+		{
+			// Use FileDictionary instead of ChannelDictionary as WebSocket connection has issue to download dictionary from Refinitiv Data Platform
+			innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_1"));
+		}
+		
 		elementMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 		innerElementList.clear();
 		
@@ -256,6 +269,13 @@ public class Consumer
 		elementList.clear();
 		
 		innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_ENCRYPTED"));
+		
+		if(connectWebSocket)
+		{
+			innerElementList.add(EmaFactory.createElementEntry().ascii("EncryptedProtocolType", "EncryptedProtocolType::RSSL_WEBSOCKET"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("WsProtocols", "tr_json2"));
+		}
+		
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Host", host));
 		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", port));
 		innerElementList.add(EmaFactory.createElementEntry().intValue("EnableSessionManagement", 1));
@@ -267,6 +287,22 @@ public class Consumer
 		elementMap.clear();
 		
 		configDb.add(EmaFactory.createMapEntry().keyAscii("ChannelGroup", MapEntry.MapAction.ADD, elementList));
+		elementList.clear();
+		
+		if(connectWebSocket)
+		{
+			innerElementList.add( EmaFactory.createElementEntry().ascii( "DictionaryType", "DictionaryType::FileDictionary" ));
+			innerElementList.add( EmaFactory.createElementEntry().ascii( "RdmFieldDictionaryFileName", "./RDMFieldDictionary" ));
+			innerElementList.add( EmaFactory.createElementEntry().ascii( "EnumTypeDefFileName", "./enumtype.def" ));
+			elementMap.add( EmaFactory.createMapEntry().keyAscii( "Dictionary_1", MapEntry.MapAction.ADD, innerElementList ));
+			innerElementList.clear();
+		
+			elementList.add( EmaFactory.createElementEntry().map( "DictionaryList", elementMap ));
+			elementMap.clear();
+		
+			configDb.add( EmaFactory.createMapEntry().keyAscii( "DictionaryGroup", MapEntry.MapAction.ADD, elementList ));
+			elementList.clear();
+		}
 	}
 	
 	public static void main(String[] args)
@@ -283,7 +319,8 @@ public class Consumer
 			if (!readCommandlineArgs(args, config)) return;
 			
 			serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().username(userName)
-					.password(password).clientId(clientId).transport(ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+					.password(password).clientId(clientId)
+					.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
 					.takeExclusiveSignOnControl(takeExclusiveSignOnControl)
 					.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
 					.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);

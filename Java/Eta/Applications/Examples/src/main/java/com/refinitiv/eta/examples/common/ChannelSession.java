@@ -8,36 +8,20 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.DataDictionary;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.shared.JsonConverterInitOptions;
+import com.refinitiv.eta.shared.JsonSession;
 import com.refinitiv.eta.shared.PingHandler;
 import com.refinitiv.eta.shared.network.ChannelHelper;
-import com.refinitiv.eta.transport.Channel;
-import com.refinitiv.eta.transport.ChannelState;
-import com.refinitiv.eta.transport.ConnectOptions;
-import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.*;
 import com.refinitiv.eta.transport.Error;
-import com.refinitiv.eta.transport.InProgFlags;
-import com.refinitiv.eta.transport.InProgInfo;
-import com.refinitiv.eta.transport.InitArgs;
-import com.refinitiv.eta.transport.ReadArgs;
-import com.refinitiv.eta.transport.Transport;
-import com.refinitiv.eta.transport.TransportBuffer;
-import com.refinitiv.eta.transport.TransportFactory;
-import com.refinitiv.eta.transport.TransportReturnCodes;
-import com.refinitiv.eta.transport.WriteArgs;
-import com.refinitiv.eta.transport.WriteFlags;
-import com.refinitiv.eta.transport.WritePriorities;
 
 /**
  * Manages ETA channel and provides methods for connection establishment,
  * channel initialization, read, and write methods for Consumer and NIProvider
  * example applications.
  * <P>
- * 
+ *
  * Usage of this class within the Consumer and NIProvider applications:<br>
  * 1. Call {@link #initTransport(boolean, Error)} to initialize ETA <br>
  * 2. Call {@link #connect(InProgInfo, Error)}.<br>
@@ -45,17 +29,17 @@ import com.refinitiv.eta.transport.WritePriorities;
  * active that is channel state is ChannelState.ACTIVE. <br>
  * 4. When channel state is ChannelState.ACTIVE, send Login Request. <br>
  * 5. Read and process responses.
- * 
+ *
  * <p>
  * This class also detects connection failures and provides a query method for
  * the application to retry connection establishment.
- * 
+ *
  * <p>
  * This class is a wrapper utility class for ETA's Channel and Transport classes
  * and handles typical return codes from ETA, for example, file descriptor
  * changes during read, connection failures, registering for write when there is
  * more data in the queue, flushing of data after write, flush failures.
- * 
+ *
  * @see Transport#initialize(InitArgs, Error)
  * @see Transport#connect(ConnectOptions, Error)
  * @see Channel#init(InProgInfo, Error)
@@ -77,31 +61,34 @@ public class ChannelSession
     private int selectRetVal;
     private boolean userSpecifiedSelectTime = false;
 
-    private Msg xmlMsg = CodecFactory.createMsg();
-    private DecodeIterator xmlIter = CodecFactory.createDecodeIterator();
+    private XmlTraceDump xmlTraceDump = CodecFactory.createXmlTraceDump();
     private boolean shouldXmlTrace = false;
     private DataDictionary dictionaryForXml;
     private WriteArgs writeArgs = TransportFactory.createWriteArgs();
-    
-	public long loginReissueTime; // represented by epoch time in milliseconds
-	public boolean canSendLoginReissue;
-	public boolean isLoginReissue;
 
-	private int socketFdValue;
-    
+    public long loginReissueTime; // represented by epoch time in milliseconds
+    public boolean canSendLoginReissue;
+    public boolean isLoginReissue;
+
+    private int socketFdValue;
+    private JsonSession jsonSession;
+    private JsonConverterInitOptions converterInitOptions;
+    private StringBuilder dump = new StringBuilder();
+
     /**
      * Instantiates a new channel session.
      */
     public ChannelSession()
     {
         copts.clear();
+        jsonSession = new JsonSession();
     }
 
     /**
      * Allows the user to specify a select timeout. The default select timeout
      * will be one third of the channel's negotiated ping time out. Providers
      * will use this method to control their content update time.
-     * 
+     *
      * @param selectTime a value greater than zero.
      * @return true if the selectTime was greater than zero.
      */
@@ -109,7 +96,7 @@ public class ChannelSession
     {
         if (selectTime <= 0)
             return false;
-        
+
         userSpecifiedSelectTime = true;
         this.selectTime = selectTime;
         return true;
@@ -117,7 +104,7 @@ public class ChannelSession
 
     /**
      * Allows the user to trace messages via XML.
-     * 
+     *
      * @param dictionary dictionary for XML tracing (can be null).
      */
     public void enableXmlTrace(DataDictionary dictionary)
@@ -128,13 +115,13 @@ public class ChannelSession
 
     /**
      * Initializes the ETA transport API and all internal members.<BR>
-     * 
+     *
      * This is the first method called when using the ETA. It initializes
      * internal data structures.
-     * 
+     *
      * @param globalLock flag to enable global locking on ETA Transport
      * @param error ETA Error, to be populated in event of an error
-     * 
+     *
      * @return {@link TransportReturnCodes}
      */
     public int initTransport(boolean globalLock, Error error)
@@ -174,7 +161,7 @@ public class ChannelSession
 
     /**
      * Returns underlying ETA channel.
-     * 
+     *
      * @return ETA channel
      */
     public Channel channel()
@@ -184,7 +171,7 @@ public class ChannelSession
 
     /**
      * Retrieves the {@link TransportBuffer} from channel.
-     * 
+     *
      * @param size - Size of the transport buffer to retrieve.
      * @param packedBuffer - Set to true if you plan on packing multiple
      *            messages into the same buffer
@@ -210,7 +197,7 @@ public class ChannelSession
 
     /**
      * Transport channel state.
-     * 
+     *
      * @return {@link ChannelState}
      */
     public int channelState()
@@ -231,7 +218,7 @@ public class ChannelSession
 
     /**
      * Cleans up channel and sets connection recovery flag to true.
-     * 
+     *
      * @param error ETA error information when channel cleanup fails.
      * @return {@link TransportReturnCodes}
      */
@@ -246,7 +233,7 @@ public class ChannelSession
 
     /**
      * Reads from a channel.
-     * 
+     *
      * @param pingHandler - PingHandler's flag for server message received is
      *            set when read is done.
      * @param callbackclient - Callback client to call when message is received.
@@ -278,7 +265,7 @@ public class ChannelSession
             return TransportReturnCodes.SUCCESS;
 
         Iterator<SelectionKey> iter = keySet.iterator();
-        
+
         while (iter.hasNext())
         {
             SelectionKey key = iter.next();
@@ -343,7 +330,7 @@ public class ChannelSession
         try
         {
             channel.selectableChannel().register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE,
-                                           channel);
+                    channel);
         }
         catch (Exception e)
         {
@@ -359,12 +346,12 @@ public class ChannelSession
 
     /**
      * Initializes ETA non-blocking channel.
-     * 
+     *
      * @param inProg {@link InProgInfo}
      * @param error ETA error information in case of failure
-     * 
+     *
      * @return {@link TransportReturnCodes}
-     * 
+     *
      * @see Channel#init(InProgInfo, Error)
      */
     public int initChannel(InProgInfo inProg, Error error)
@@ -397,6 +384,9 @@ public class ChannelSession
                 //define fd value of channel
                 socketFdValue = ChannelHelper.defineFdValueOfSelectableChannel(channel.selectableChannel());
                 shouldRecoverConnection = false;
+                if (channel.protocolType() == Codec.JSON_PROTOCOL_TYPE) {
+                    jsonSession.initialize(channel, converterInitOptions, error);
+                }
                 break;
             default:
                 uninit(error);
@@ -422,7 +412,7 @@ public class ChannelSession
 
         /* clear the connect options */
         copts.clear();
-        
+
         return Transport.uninitialize();
     }
 
@@ -436,9 +426,10 @@ public class ChannelSession
             {
                 if (shouldXmlTrace)
                 {
-                    xmlIter.clear();
-                    xmlIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-                    System.out.println(xmlMsg.decodeToXml(xmlIter, dictionaryForXml));
+                    dump.setLength(0);
+                    dump.append("\nRead message: ");
+                    xmlTraceDump.dumpBuffer(channel, channel.protocolType(), msgBuf, dictionaryForXml, dump, error);
+                    System.out.println(dump.toString());
                 }
                 callbackclient.processResponse(this, msgBuf);
 
@@ -454,7 +445,7 @@ public class ChannelSession
                             + error.text() + ">" + ". Will retry shortly.");
 
                     return recoverConnection(error);
-               }
+                }
                 else if (readArgs.readRetVal() == TransportReturnCodes.READ_FD_CHANGE)
                 {
                     handleFDChange();
@@ -476,7 +467,7 @@ public class ChannelSession
         System.out.println("Read() Channel Change - Old Channel: "
                 + channel.oldSelectableChannel() + " New Channel: "
                 + channel.selectableChannel());
-        
+
         // cancel old channel read select
         try
         {
@@ -491,7 +482,7 @@ public class ChannelSession
         try
         {
             channel.selectableChannel().register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE,
-                                           channel);
+                    channel);
         }
         catch (Exception e)
         {
@@ -521,11 +512,11 @@ public class ChannelSession
                 key.cancel();
             }
             // call select to ensure channel is immediately de-registered from selector after canceling keys
-        	try
-        	{
-				selector.selectNow();
-			}
-        	catch (IOException e) { }
+            try
+            {
+                selector.selectNow();
+            }
+            catch (IOException e) { }
             int ret = channel.close(error);
             if (ret != TransportReturnCodes.SUCCESS)
             {
@@ -538,8 +529,8 @@ public class ChannelSession
         return TransportReturnCodes.SUCCESS;
     }
 
-    
-    
+
+
     /**
      * Writes the content of the {@link TransportBuffer} to the ETA channel.
      *
@@ -550,22 +541,47 @@ public class ChannelSession
      */
     public int write(TransportBuffer msgBuf, Error error)
     {
+        TransportBuffer tempBuf = msgBuf;
         if (channel == null)
             return TransportReturnCodes.FAILURE;
 
         if (shouldXmlTrace)
         {
-            xmlIter.clear();
-            xmlIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
-            System.out.println(xmlMsg.decodeToXml(xmlIter, dictionaryForXml));
+            dump.setLength(0);
+            dump.append("\nWriting message (RWF):");
+            xmlTraceDump.dumpBuffer(channel, Codec.RWF_PROTOCOL_TYPE, tempBuf, dictionaryForXml, dump, error);
+            System.out.println(dump.toString());
+        }
+
+        if (channel.protocolType() == Codec.JSON_PROTOCOL_TYPE) {
+        	
+            if( jsonSession.convertToJson(msgBuf, error) != CodecReturnCodes.SUCCESS)
+            {
+            	return TransportReturnCodes.FAILURE;
+            }
+            
+            tempBuf = jsonSession.getTransportJsonBuffer(error);
+            
+            if(tempBuf == null)
+            {
+            	return TransportReturnCodes.FAILURE;
+            }
+
+            if (shouldXmlTrace)
+            {
+                dump.setLength(0);
+                dump.append("\nWriting message (JSON):");
+                xmlTraceDump.dumpBuffer(channel, channel.protocolType(), tempBuf, dictionaryForXml, dump, error);
+                System.out.println(dump.toString());
+            }
         }
 
         // write data to the channel
         writeArgs.clear();
         writeArgs.priority(WritePriorities.HIGH);
         writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
-        int retval = channel.write(msgBuf, writeArgs,
-                               error);
+        int retval = channel.write(tempBuf, writeArgs,
+                error);
 
         if (retval > TransportReturnCodes.FAILURE)
         {
@@ -593,8 +609,8 @@ public class ChannelSession
                     retval = channel.flush(error);
                     if (retval < TransportReturnCodes.SUCCESS)
                         System.out.println("Channel flush failed with returned code: " + retval + " - " + error.text());
-                    retval = channel.write(msgBuf, writeArgs,
-                                           error);
+                    retval = channel.write(tempBuf, writeArgs,
+                            error);
                 }
 
                 //register for write if there's still data queued
@@ -631,7 +647,7 @@ public class ChannelSession
             {
                 /* write failed, release buffer */
                 String writeError = error.text();
-                channel.releaseBuffer(msgBuf, error);
+                channel.releaseBuffer(tempBuf, error);
                 error.text(writeError);
                 return retval;
             }
@@ -679,7 +695,7 @@ public class ChannelSession
      * 1. Call {@link #connect(InProgInfo, Error)}.<br>
      * 2. Call {@link #initChannel(InProgInfo, Error)} in loop until channel
      * becomes active, ChannelState.ACTIVE
-     * 
+     *
      * @param inProg - {@link InProgInfo}
      * @param error - ETA error information in case of connection failure.
      * @return {@link TransportReturnCodes}
@@ -692,33 +708,33 @@ public class ChannelSession
         {
             if (copts.segmentedNetworkInfo().recvAddress() != null)
             {
-                logstr = "Attempting segmented connect...\n"; 
-                logstr +=String.format("Reading from: %s:%s unicastPort %s...\n", 
-                                       copts.segmentedNetworkInfo().recvAddress(),
-                                       copts.segmentedNetworkInfo().recvServiceName(),
-                                       copts.segmentedNetworkInfo().unicastServiceName());
+                logstr = "Attempting segmented connect...\n";
+                logstr +=String.format("Reading from: %s:%s unicastPort %s...\n",
+                        copts.segmentedNetworkInfo().recvAddress(),
+                        copts.segmentedNetworkInfo().recvServiceName(),
+                        copts.segmentedNetworkInfo().unicastServiceName());
                 if (copts.segmentedNetworkInfo().sendAddress() != null)
                 {
                     logstr += String.format("Writing to: %s:%s",
-                                           copts.segmentedNetworkInfo().sendAddress(),
-                                           copts.segmentedNetworkInfo().sendServiceName());
+                            copts.segmentedNetworkInfo().sendAddress(),
+                            copts.segmentedNetworkInfo().sendServiceName());
                 }
             }
         }
         else if (copts.connectionType() != ConnectionTypes.RELIABLE_MCAST)
         {
             logstr = String.format("Attempting to connect to server %s:%s ...",
-                                    copts.unifiedNetworkInfo().address(), 
-                                    copts.unifiedNetworkInfo().serviceName() );
+                    copts.unifiedNetworkInfo().address(),
+                    copts.unifiedNetworkInfo().serviceName() );
         }
         else
         {
             logstr = String.format("Attempting segmented connect to server %s:%s  %s:%s unicastPort %s...",
-                                    copts.segmentedNetworkInfo().sendAddress(),
-                                    copts.segmentedNetworkInfo().sendServiceName(),
-                                    copts.segmentedNetworkInfo().recvAddress(),
-                                    copts.segmentedNetworkInfo().recvServiceName(),
-                                    copts.segmentedNetworkInfo().unicastServiceName());
+                    copts.segmentedNetworkInfo().sendAddress(),
+                    copts.segmentedNetworkInfo().sendServiceName(),
+                    copts.segmentedNetworkInfo().recvAddress(),
+                    copts.segmentedNetworkInfo().recvServiceName(),
+                    copts.segmentedNetworkInfo().unicastServiceName());
         }
 
         System.out.println( logstr );
@@ -732,7 +748,7 @@ public class ChannelSession
         try
         {
             channel.selectableChannel().register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE,
-                                           channel);
+                    channel);
 
         }
         catch (ClosedChannelException cce)
@@ -750,10 +766,10 @@ public class ChannelSession
         shouldRecoverConnection = false;
         return TransportReturnCodes.SUCCESS;
     }
-    
+
     /**
      * Allows the user to specify the connect options.
-     * 
+     *
      * @param connectOptions connect options to set
      */
     public void connectOptions(ConnectOptions connectOptions)
@@ -774,7 +790,7 @@ public class ChannelSession
             copts.sysRecvBufSize(connectOptions.sysRecvBufSize());
         }
         copts.pingTimeout(connectOptions.pingTimeout());
-        
+
         if (connectOptions.userSpecObject() != null)
         {
             copts.userSpecObject(connectOptions.userSpecObject());
@@ -790,20 +806,20 @@ public class ChannelSession
     {
         return selectRetVal;
     }
-    
+
     /**
      * Allows the user to specify the connection type.
-     * 
+     *
      * @param connectionType connection type to set
      */
     public void setConnectionType(int connectionType)
     {
         copts.connectionType(connectionType);
     }
-    
+
     /**
      * Allows the user to specify the tunneling connect options.
-     * 
+     *
      * @param connectOptions tunneling connect options to set
      */
     public void tunnelingConnectOptions(ConnectOptions connectOptions)
@@ -830,10 +846,10 @@ public class ChannelSession
         copts.encryptionOptions().KeyManagerAlgorithm(connectOptions.encryptionOptions().KeyManagerAlgorithm());
         copts.encryptionOptions().TrustManagerAlgorithm(connectOptions.encryptionOptions().TrustManagerAlgorithm());
     }
-    
+
     /**
      * Allows the user to specify the proxy credentials connect options.
-     * 
+     *
      * @param connectOptions credentials options to set
      */
     public void credentialsConnectOptions(ConnectOptions connectOptions)
@@ -848,5 +864,16 @@ public class ChannelSession
     public int socketFdValue() {
         return socketFdValue;
     }
-    
+
+    public void setConverterInitOptions(JsonConverterInitOptions options) {
+        this.converterInitOptions = options;
+    }
+
+    public int getChannelProtocolType() {
+        return channel.protocolType();
+    }
+
+    public JsonSession getJsonSession() {
+        return jsonSession;
+    }
 }

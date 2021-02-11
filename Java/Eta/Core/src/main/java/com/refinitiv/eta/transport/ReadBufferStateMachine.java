@@ -1,9 +1,15 @@
 package com.refinitiv.eta.transport;
 
+import com.refinitiv.eta.transport.ProtocolFunctions;
+
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+
+import com.refinitiv.eta.codec.Codec;
+
 
 //                     +------------+
 //                     |A    No     |
@@ -54,7 +60,7 @@ class ReadBufferStateMachine
         /* The last invocation of java.nio.channels.SocketChannel::read(ByteBuffer[]) indicated we reached the end of the data stream */
         static final int END_OF_STREAM = -1;
     }
-    
+
     /* The minimum capacity of the buffer associated with this state machine */
     protected static final int MIN_BUFFER_CAPACITY = 32; // an arbitrary (and likely very inefficient) minimum "read IO" buffer size, in bytes
 
@@ -66,12 +72,12 @@ class ReadBufferStateMachine
 
     /* When network (read) IO is performed, RIPC messages will be read into this ByteBuffer */
     protected ByteBufferPair _readIoBuffer;
-    
+
     /* This reference will point to the buffer that contains the "current" data to be read by the application.
      * When we process fragmented and compressed messages, the buffer referenced by this variable may not be the same as the "read IO buffer".
      */
     protected ByteBufferPair _dataBuffer;
-    
+
     /* Maps a fragment ID to a ByteBuffer providing (temporary) storage for the fragmented message data. */
     protected final Map<Integer, ByteBufferPair> _fragmentedMessages = new HashMap<Integer, ByteBufferPair>();
 
@@ -100,7 +106,7 @@ class ReadBufferStateMachine
     /* The fragment ID of the last reassembled fragmented message returned to the user. */
     protected int _lastReassembledFragmentId = 0;
     protected final RsslSocketChannel _SocketChannelCallBack;
-    
+
     /* For message decompression. */
     protected ByteBufferPair _decompressBuffer;
 
@@ -138,12 +144,15 @@ class ReadBufferStateMachine
     int HTTP_HEADER3 = 0;  // HTTP chunk header size for ping
     int HTTP_HEADER3_CRLF_OFFSET = 1;  // offset of CRLF in HTTP_HEADER3
     int HTTP_HEADER6 = 0;  // HTTP chunk header size for login refresh/update, directory refresh/update,
-                           // dictionary fragment header, dictionary fragment, item refresh/update
+    // dictionary fragment header, dictionary fragment, item refresh/update
     int HTTP_HEADER6_CRLF_OFFSET = 4;  // offset of CRLF in HTTP_HEADER6
     int CHUNKEND_SIZE = 0; // HTTP chunk ending size, which is bytes 0x0D and 0x0A
     int _httpOverhead = 0; // (HTTP_HEADER3 or HTTP_HEADER6) + CHUNKEND_SIZE
 
-    
+    protected ProtocolFunctions _protocolFunctions;
+
+    protected final byte[] _maskBytes = new byte[4];
+
     /* callBackChannel is an RsslSocketChannel used to access the buffer pool maintained by the RsslSocketChannel. */
     ReadBufferStateMachine(RsslSocketChannel callBackChannel)
     {
@@ -152,14 +161,14 @@ class ReadBufferStateMachine
     }
 
     /* Initializes the state machine.
-     * 
+     *
      * readIoBuffer is the ByteBuffer used for all all network I/O (reads).
      * The current position of this buffer must be 0.
-     * 
+     *
      * Throws IllegalArgumentException
      * Thrown if buffer is null or in an invalid state.
      */
-    void initialize(ByteBufferPair readIoBuffer) throws IllegalArgumentException
+    void initialize(ByteBufferPair readIoBuffer, ProtocolFunctions protocolFunctions) throws IllegalArgumentException
     {
         validateBuffer(readIoBuffer);
         _readIoBuffer = readIoBuffer;
@@ -184,6 +193,13 @@ class ReadBufferStateMachine
 
         // clear out the _fragmentedMessages map
         _fragmentedMessages.clear();
+
+        _protocolFunctions = protocolFunctions;
+    }
+
+    void initialize(ByteBufferPair readIoBuffer) throws IllegalArgumentException
+    {
+        initialize(readIoBuffer,  new RipcProtocolFunctions(_SocketChannelCallBack));
     }
 
     /* Returns the current state of the machine. */
@@ -209,7 +225,7 @@ class ReadBufferStateMachine
 
         if (_subState == ReadBufferSubState.PROCESSING_PACKED_MESSAGE)
         {
-            retVal = (_dataPosition + _dataLength) != (_currentMsgStartPos + HTTP_HEADER6 + _currentMsgRipcLen);
+            retVal = (_dataPosition + _dataLength) != (_currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + _currentMsgRipcLen);
         }
         else if (_subState == ReadBufferSubState.PROCESSING_PACKED_COMPRESSED_MESSAGE)
         {
@@ -226,12 +242,12 @@ class ReadBufferStateMachine
     }
 
     /* Transitions from the current state to the next one, because data was read from the java.nio.channels.SocketChannel
-     * 
+     *
      * readReturnCode is the return code from java.nio.channels.SocketChannel::read(ByteBuffer)
-     * 
+     *
      * Returns the new ReadBufferState
      */
-    ReadBufferState advanceOnSocketChannelRead(int readReturnCode, ReadArgsImpl readArgs)
+    ReadBufferState advanceOnSocketChannelRead(int readReturnCode, ReadArgsImpl readArgs, Error error)
     {
         _lastReadPosition = _readIoBuffer.buffer().position();
 
@@ -248,14 +264,14 @@ class ReadBufferStateMachine
                 case KNOWN_INCOMPLETE:
                     if (readReturnCode != ReadReturnCodes.NO_DATA_READ)
                     {
-                        updateStateCurrentLenKnown(readArgs);
+                        updateStateCurrentLenKnown(readArgs, error);
                     }
                     break;
                 case UNKNOWN_INCOMPLETE: // fall through
                 case NO_DATA:
                     if (readReturnCode != ReadReturnCodes.NO_DATA_READ)
                     {
-                        updateStateCurrentLenUnknown(readArgs); // we only update state if we actually read some data
+                        updateStateCurrentLenUnknown(readArgs, error); // we only update state if we actually read some data
                     }
                     break;
                 default:
@@ -270,9 +286,9 @@ class ReadBufferStateMachine
 
         return _state;
     }
-    
+
     /* Advances the state machine because ByteBuffer::compact() was invoked on the ByteBuffer used for network IO (reads).
-     * 
+     *
      * Returns the new ReadBufferState.
      * ASSUMPTION: the current state is ReadBufferState.KNOWN_INSUFFICENT or ReadBufferState.UNKNOWN_INSUFFICIENT
      */
@@ -299,19 +315,19 @@ class ReadBufferStateMachine
 
     /* Advances the state machine to the next state.
      * Invoke this method *after* the user has processed a message.
-     * 
+     *
      * IMPORTANT: if this method returns ReadBufferState.NO_DATA,
      * the caller must rewind the buffer (invoke ByteBuffer::rewind()
-     * 
+     *
      * ASSUMPTION: the current state is ReadBufferState.KNOWN_COMPLETE
-     * 
+     *
      * Returns the current state
      */
-    ReadBufferState advanceOnApplicationRead(ReadArgsImpl readArgs)
+    ReadBufferState advanceOnApplicationRead(ReadArgsImpl readArgs, Error error)
     {
         assert (_state == ReadBufferState.KNOWN_COMPLETE);
 
-        final int calculatedEndPos = (_currentMsgStartPos + _currentMsgRipcLen) + _httpOverhead;
+        final int calculatedEndPos = (_currentMsgStartPos + _protocolFunctions.messageLength()) + _httpOverhead;
 
         assert (calculatedEndPos <= _readIoBuffer.buffer().position());
 
@@ -350,6 +366,14 @@ class ReadBufferStateMachine
                 ByteBufferPair toReturn = _fragmentedMessages.remove(_lastReassembledFragmentId);
                 _SocketChannelCallBack.releasePair(toReturn);
                 break;
+            case PROCESSING_COMPLETE_FRAGMENTED_JSON_MESSAGE:
+                // return the fragmentation buffer to the pool
+                if(_SocketChannelCallBack.getWsSession() != null && _SocketChannelCallBack.getWsSession().reassemblyBuffer != null)
+                {
+                    _SocketChannelCallBack.releasePair(_SocketChannelCallBack.getWsSession().reassemblyBuffer);
+                    _SocketChannelCallBack.getWsSession().reassemblyBuffer = null;
+                }
+                break;
             default:
                 assert (false); // code should never reach here
                 break; // do nothing
@@ -359,7 +383,7 @@ class ReadBufferStateMachine
         if (calculatedEndPos == _readIoBuffer.buffer().position())
         {
             _currentMsgStartPos = 0;
-            _currentMsgRipcLen = UNKNOWN_LENGTH;
+            _protocolFunctions.unsetMessageLength();
             _state = ReadBufferState.NO_DATA;
             // IMPORTANT: the caller MUST invoke _readIoBuffer.rewind()
         }
@@ -367,35 +391,35 @@ class ReadBufferStateMachine
         {
             // Not adding an HTTP_HEADER here,
             // since the 'http' or 'encrypted' cases will use ReadBufferStateMachineHTTP::advanceOnApplicationRead()
-            _currentMsgStartPos += _currentMsgRipcLen;
-            _currentMsgRipcLen = UNKNOWN_LENGTH;
-            updateStateCurrentLenUnknown(readArgs);
+            _currentMsgStartPos += _protocolFunctions.messageLength();
+            _protocolFunctions.unsetMessageLength();
+            updateStateCurrentLenUnknown(readArgs, error);
         }
 
         return _state;
     }
 
-    /* Returns the position of the current RIPC message. */
-    int currentRipcMessagePosition()
+    /* Returns the position of the current RIPC or Websocket message. */
+    int currentMessagePosition()
     {
         return _currentMsgStartPos;
     }
 
-    /* Returns the length of the current RIPC message (length includes the RIPC header)
+    /* Returns the length of the current RIPC or Websocket message (length includes the header)
      * ASSUMPTION: this method is only invoked when the current state is ReadBufferState.KNOWN_COMPLETE
-     * 
+     *
      * Returns the length of the current RIPC message (length includes the RIPC header)
      */
-    int currentRipcMessageLength()
+    int currentMessageLength()
     {
         assert (_state == ReadBufferState.KNOWN_COMPLETE);
 
-        return _currentMsgRipcLen;
+        return _protocolFunctions.messageLength();
     }
 
     /* Returns a reference to the buffer containing the current data
      * ASSUMPTION: The current state is ReadBufferState.KNOWN_COMPLETE
-     * 
+     *
      * Returns a reference to the buffer containing the current data
      */
     ByteBufferPair dataBuffer()
@@ -407,7 +431,7 @@ class ReadBufferStateMachine
 
     /* Returns the position of the current data
      * ASSUMPTION: The current state is ReadBufferState.KNOWN_COMPLETE
-     * 
+     *
      * Returns the position of the current data
      */
     int dataPosition()
@@ -419,7 +443,7 @@ class ReadBufferStateMachine
 
     /* Returns the length of the current data
      * ASSUMPTION: The current state is ReadBufferState.KNOWN_COMPLETE
-     * 
+     *
      * Returns the length of the current data
      */
     int dataLength()
@@ -429,117 +453,292 @@ class ReadBufferStateMachine
         return _dataLength;
     }
 
-    /* Updates the state machine when the length of the current message is unknown. */
-    private void updateStateCurrentLenUnknown(ReadArgsImpl readArgs)
+    private void resizeReassemblyBuffer(WebSocketSession websocketSession, ByteBufferPair bufferPair, int position, int length)
     {
-        assert (_currentMsgRipcLen == UNKNOWN_LENGTH);
+        // Increase the buffer's length
+        websocketSession.reassemblyBufferLength *= 2;
+        ByteBufferPair tempReassemblyBuffer = _SocketChannelCallBack.acquirePair(websocketSession.reassemblyBufferLength);
 
-        // Not adding an HTTP_HEADER here, since the 'http' or 'encrypted' cases will use ReadBufferStateMachineHTTP::updateStateCurrentLenUnknown()
+        websocketSession.reassemblyBuffer.buffer().limit(websocketSession.reassemblyBuffer.buffer().position());
+        websocketSession.reassemblyBuffer.buffer().position(0);
+        tempReassemblyBuffer.buffer().put(websocketSession.reassemblyBuffer.buffer());
+        _SocketChannelCallBack.releasePair(websocketSession.reassemblyBuffer);  // Returns the old buffer back to the pool.
 
-        if (_currentMsgStartPos + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().position())
+        websocketSession.reassemblyBuffer = tempReassemblyBuffer;
+        copyMessageData(websocketSession.reassemblyBuffer, bufferPair, position, length);
+        websocketSession.reassemblyBufferDataLength += length;
+    }
+
+    private void handleFragmentedJSONMessages(ReadArgsImpl readArgs, WebSocketSession websocketSession, ByteBufferPair bufferPair, int position, int length)
+    {
+        /* Checks whether this function needs to handle WS fragmented messages */
+        if (websocketSession.wsFrameHdr.fragment || websocketSession.wsFrameHdr.opcode == WebSocketFrameParser._WS_OPC_CONT)
         {
-            decodeRipcHeader();
+            readArgs._uncompressedBytesRead = length;
 
-            updateStateCurrentLenKnown(readArgs);
+            if(websocketSession.wsFrameHdr.fragment)
+            {
+                if(websocketSession.wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT) /* This is the first fragmented message */
+                {
+                    /* preallocates buffer to assemble fragmented messages and resizes if needed. */
+                    websocketSession.reassemblyBufferLength = length * 10;
+                    websocketSession.reassemblyBuffer = _SocketChannelCallBack.acquirePair(websocketSession.reassemblyBufferLength);
+                    copyMessageData(websocketSession.reassemblyBuffer, bufferPair, position, length);
+                    websocketSession.reassemblyBufferDataLength = length;
+                }
+                else
+                {
+                    if(websocketSession.reassemblyBufferLength >= (websocketSession.reassemblyBufferDataLength + length)  )
+                    {
+                        copyMessageData(websocketSession.reassemblyBuffer, bufferPair, position, length);
+                        websocketSession.reassemblyBufferDataLength += length;
+                    }
+                    else
+                    {
+                        resizeReassemblyBuffer(websocketSession, bufferPair, position, length);
+                    }
+                }
+
+                _dataLength = 0;
+                _subState = ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE;
+            }
+            else
+            {	/* This is the last fragmented message */
+
+                if(websocketSession.reassemblyBufferLength >= (websocketSession.reassemblyBufferDataLength + length)  )
+                {
+                    copyMessageData(websocketSession.reassemblyBuffer, bufferPair, position, length);
+                    websocketSession.reassemblyBufferDataLength += length;
+                }
+                else
+                {
+                    resizeReassemblyBuffer(websocketSession, bufferPair, position, length);
+                }
+
+                _dataBuffer = websocketSession.reassemblyBuffer;
+                _dataBuffer.buffer().limit(_dataBuffer.buffer().position());
+                _dataLength = _dataBuffer.buffer().limit();
+                _dataPosition = 0;
+                _subState = ReadBufferSubState.PROCESSING_COMPLETE_FRAGMENTED_JSON_MESSAGE;
+            }
         }
-        else if (_currentMsgStartPos + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().limit())
+    }
+
+    void initializeDecompressBuffer() {
+        if (Objects.isNull(_decompressBuffer)) {
+            _decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
+        }
+    }
+
+    void executeDecompressing(ReadArgsImpl readArgs) {
+        _SocketChannelCallBack._compressor.appendCompressTrailing();
+        int uncompressedLength = _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer, _dataPosition, _dataLength);
+        _dataLength = uncompressedLength;
+        _dataBuffer = _decompressBuffer;
+        _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
+        readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
+    }
+
+    /* Updates the state machine when the length of the current message is unknown. */
+    private void updateStateCurrentLenUnknown(ReadArgsImpl readArgs, Error error)
+    {
+        /* Read additional transport header if any */
+        if( _protocolFunctions.readPrependTransportHdr(readArgs._bytesRead, readArgs, error) == 1 )
         {
-            _state = ReadBufferState.UNKNOWN_INCOMPLETE;
+            return; // return to read more data from network
+        }
+
+        if (_protocolFunctions.isRWFProtocol()) // Handling for RWF protocol
+        {
+            assert (_currentMsgRipcLen == UNKNOWN_LENGTH);
+
+            // Not adding an HTTP_HEADER here, since the 'http' or 'encrypted' cases will use ReadBufferStateMachineHTTP::updateStateCurrentLenUnknown()
+
+            if (_currentMsgStartPos + _protocolFunctions.additionalHdrLength() + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().position())
+            {
+                decodeRipcHeader();
+
+                updateStateCurrentLenKnown(readArgs, error);
+            }
+            else if (_currentMsgStartPos + _protocolFunctions.additionalHdrLength() + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().limit())
+            {
+                _state = ReadBufferState.UNKNOWN_INCOMPLETE;
+            }
+            else
+            {
+                _state = ReadBufferState.UNKNOWN_INSUFFICIENT;
+            }
         }
         else
-        {
-            _state = ReadBufferState.UNKNOWN_INSUFFICIENT;
+        { 	// Handling for JSON protocol and control frames.
+            _state = ReadBufferState.KNOWN_COMPLETE;
+            _subState = ReadBufferSubState.NORMAL;
+            _dataLength = (int) _SocketChannelCallBack.getWsSession().wsFrameHdr.payloadLen;
+            _dataPosition = _currentMsgStartPos + _SocketChannelCallBack.getWsSession().wsFrameHdr.hdrLen;
+            _dataBuffer = _readIoBuffer;
+
+            /* Checks whether the payload is compressed */
+            if(_SocketChannelCallBack.getWsSession().wsFrameHdr.compressed)
+            {
+                if (_decompressBuffer == null)
+                {
+                    _decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
+                }
+
+                int uncompressedLength = _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer, _dataPosition, _dataLength );
+
+                _dataLength = uncompressedLength;
+
+                _dataBuffer = _decompressBuffer;
+
+                _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
+
+                readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
+
+                handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _decompressBuffer, _dataPosition, _dataLength);
+            }
+            else
+            {
+                readArgs._uncompressedBytesRead = readArgs._bytesRead;
+
+                handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+            }
         }
     }
 
     /* Updates the state machine when the length of the current message is known. */
-    protected void updateStateCurrentLenKnown(ReadArgsImpl readArgs)
+    protected void updateStateCurrentLenKnown(ReadArgsImpl readArgs, Error error)
     {
-        // calculatedEndPos is the end of the RIPC message
+    	/* Read additional transport header if any for JSON protocol only. */
+    	if(_SocketChannelCallBack.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+    	{
+    		_protocolFunctions.readPrependTransportHdr(readArgs._bytesRead, readArgs, error);
+    	}
+    	
+        // calculatedEndPos is the end of the RIPC or JSON message
         // (if we have http, then calculatedEndPos is at the position of /r/n at the end of the http chunk)
-        final int calculatedEndPos = (_currentMsgStartPos + HTTP_HEADER6 + _currentMsgRipcLen);
+        final int calculatedEndPos = (_currentMsgStartPos + HTTP_HEADER6 + _protocolFunctions.messageLength());
 
         if (calculatedEndPos <= _readIoBuffer.buffer().position())
         {
             _state = ReadBufferState.KNOWN_COMPLETE;
 
-            if (_currentMsgRipcLen != Ripc.Lengths.HEADER)
-            {
-                // this is NOT a ping message
-
-                if ((_currentMsgRipcFlags & Ripc.Flags.PACKING) > 0)
-                {
-                    if ((_currentMsgRipcFlags & Ripc.Flags.COMPRESSION) == 0)
-                    {
-                        readArgs._uncompressedBytesRead = _currentMsgRipcLen + _httpOverhead;
-                        _subState = ReadBufferSubState.PROCESSING_PACKED_MESSAGE;
-                    }
-                    else
-                    {
-                        _subState = ReadBufferSubState.PROCESSING_PACKED_COMPRESSED_MESSAGE;
-                    }
-                    processPackedMessage(calculatedEndPos, readArgs);
-                }
-                else if ((_currentMsgRipcFlags & Ripc.Flags.HAS_OPTIONAL_FLAGS) > 0)
-                {
-                    // Only fragmented messages are using these flags.
-                    // And packed and fragmented messages are mutually exclusive
-                    // but fragmented messages can be compressed.
-                    if ((_currentMsgRipcFlags & Ripc.Flags.COMPRESSION) == 0)
-                    {
-                        _subState = ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE;
-                    }
-                    else
-                    {
-                        _subState = ReadBufferSubState.PROCESSING_FRAGMENTED_COMPRESSED_MESSAGE;
-                    }
-                    processExtendedMessage(calculatedEndPos, readArgs);
-                }
-                else if ((_currentMsgRipcFlags & Ripc.Flags.COMPRESSION) > 0)
-                {
-
-                    if ((_currentMsgRipcFlags & Ripc.Flags.COMP_FRAGMENT) == 0 && !_compressedFragmentWaitingForSecondMsg)
-                    {
-                        // normal compressed message: not part of a COMP_FRAGMENT pair
-                        processCompressedMessage(calculatedEndPos);
-                    }
-                    else
-                    // compressed fragmented message
-                    {
-                        if (_subState == ReadBufferSubState.PROCESSING_FRAGMENTED_COMPRESSED_MESSAGE)
-                        {
-                            // This is not a fragment, but part of the fragment group.
-                            // The second part of the CompFragment sequence that we are waiting for has arrived.
-                            processExtendedMessageNonFragment(calculatedEndPos, readArgs);
-                        }
-                        else if (_subState == ReadBufferSubState.PROCESSING_PACKED_COMPRESSED_MESSAGE)
-                        {
-                            processPackedMessage(calculatedEndPos, readArgs);
-                        }
-                        else
-                        {
-                            // Non-fragmented handling of CompFragment sequence:
-                            // This will handle first and last message in the sequence (CompFragment x8 followed by CompressedData x4)
-                            processCompFragmentSequence(calculatedEndPos, readArgs);
-                        }
-                    }
-                }
-                else
-                {
-                    _subState = ReadBufferSubState.NORMAL;
-                    _dataLength = _currentMsgRipcLen - Ripc.Lengths.HEADER;
-                    _dataPosition = _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER;
-                    _dataBuffer = _readIoBuffer;
-
-                    readArgs._uncompressedBytesRead = _currentMsgRipcLen + _httpOverhead;
-                }
-            }
+            if (_protocolFunctions.isRWFProtocol()) // Handling for RWF protocol
+        	{
+	            if (_currentMsgRipcLen != Ripc.Lengths.HEADER)
+	            {
+	                // this is NOT a ping message
+	
+	                if ((_currentMsgRipcFlags & Ripc.Flags.PACKING) > 0)
+	                {
+	                    if ((_currentMsgRipcFlags & Ripc.Flags.COMPRESSION) == 0)
+	                    {
+	                        readArgs._uncompressedBytesRead = _currentMsgRipcLen + _httpOverhead;
+	                        _subState = ReadBufferSubState.PROCESSING_PACKED_MESSAGE;
+	                    }
+	                    else
+	                    {
+	                        _subState = ReadBufferSubState.PROCESSING_PACKED_COMPRESSED_MESSAGE;
+	                    }
+	                    processPackedMessage(calculatedEndPos, readArgs);
+	                }
+	                else if ((_currentMsgRipcFlags & Ripc.Flags.HAS_OPTIONAL_FLAGS) > 0)
+	                {
+	                    // Only fragmented messages are using these flags.
+	                    // And packed and fragmented messages are mutually exclusive
+	                    // but fragmented messages can be compressed.
+	                    if ((_currentMsgRipcFlags & Ripc.Flags.COMPRESSION) == 0)
+	                    {
+	                        _subState = ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE;
+	                    }
+	                    else
+	                    {
+	                        _subState = ReadBufferSubState.PROCESSING_FRAGMENTED_COMPRESSED_MESSAGE;
+	                    }
+	                    processExtendedMessage(calculatedEndPos, readArgs);
+	                }
+	                else if ((_currentMsgRipcFlags & Ripc.Flags.COMPRESSION) > 0)
+	                {
+	
+	                    if ((_currentMsgRipcFlags & Ripc.Flags.COMP_FRAGMENT) == 0 && !_compressedFragmentWaitingForSecondMsg)
+	                    {
+	                        // normal compressed message: not part of a COMP_FRAGMENT pair
+	                        processCompressedMessage(calculatedEndPos);
+	                    }
+	                    else
+	                    // compressed fragmented message
+	                    {
+	                        if (_subState == ReadBufferSubState.PROCESSING_FRAGMENTED_COMPRESSED_MESSAGE)
+	                        {
+	                            // This is not a fragment, but part of the fragment group.
+	                            // The second part of the CompFragment sequence that we are waiting for has arrived.
+	                            processExtendedMessageNonFragment(calculatedEndPos, readArgs);
+	                        }
+	                        else if (_subState == ReadBufferSubState.PROCESSING_PACKED_COMPRESSED_MESSAGE)
+	                        {
+	                            processPackedMessage(calculatedEndPos, readArgs);
+	                        }
+	                        else
+	                        {
+	                            // Non-fragmented handling of CompFragment sequence:
+	                            // This will handle first and last message in the sequence (CompFragment x8 followed by CompressedData x4)
+	                            processCompFragmentSequence(calculatedEndPos, readArgs);
+	                        }
+	                    }
+	                }
+	                else
+	                {
+	                    _subState = ReadBufferSubState.NORMAL;
+	                    _dataLength = _protocolFunctions.messageLength() - _protocolFunctions.entireHeaderLength();
+	                    _dataPosition = _currentMsgStartPos + _protocolFunctions.entireHeaderLength() + HTTP_HEADER6;
+	                    _dataBuffer = _readIoBuffer;
+	
+	                    readArgs._uncompressedBytesRead = _protocolFunctions.messageLength() + _httpOverhead;
+	                }
+	            }
+	            else
+	            {
+	                // this is a ping message
+	                _dataLength = 0;
+	                _dataPosition = calculatedEndPos;
+	                _subState = ReadBufferSubState.NORMAL;
+	            }
+        	}
             else
             {
-                // this is a ping message
-                _dataLength = 0;
-                _dataPosition = calculatedEndPos;
-                _subState = ReadBufferSubState.NORMAL;
+            	// Handling for JSON protocol and control frames.
+        		_state = ReadBufferState.KNOWN_COMPLETE;
+        		_subState = ReadBufferSubState.NORMAL;
+        		_dataLength = (int) _SocketChannelCallBack.getWsSession().wsFrameHdr.payloadLen;
+        		_dataPosition = _currentMsgStartPos + _SocketChannelCallBack.getWsSession().wsFrameHdr.hdrLen;
+        		_dataBuffer = _readIoBuffer;
+
+        		/* Checks whether the payload is compressed */
+        		if(_SocketChannelCallBack.getWsSession().wsFrameHdr.compressed)
+        		{
+        			if (_decompressBuffer == null)
+        			{
+        				_decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
+        			}
+        			
+        			int uncompressedLength = _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer, _dataPosition, _dataLength );
+        			
+                    _dataLength = uncompressedLength;
+                    
+                    _dataBuffer = _decompressBuffer;
+                    
+                    _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
+
+                    readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
+                    
+                    handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _decompressBuffer, _dataPosition, _dataLength);
+        		}
+        		else
+        		{
+        			readArgs._uncompressedBytesRead = readArgs._bytesRead;
+        			
+        			handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+        		}
             }
         }
         else if (calculatedEndPos <= _readIoBuffer.buffer().limit())
@@ -551,9 +750,9 @@ class ReadBufferStateMachine
             _state = ReadBufferState.KNOWN_INSUFFICENT;
         }
     }
-    
+
     /* Processes the start of a packed message.
-     * 
+     *
      * calculatedEndPos is the calculated end position (in the read IO buffer) of the message
      */
     private void processPackedMessage(final int calculatedEndPos, ReadArgsImpl readArgs)
@@ -561,10 +760,10 @@ class ReadBufferStateMachine
         // read the length of the first packed message
         if (_subState == ReadBufferSubState.PROCESSING_PACKED_MESSAGE)
         {
-            _dataLength = readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER);
+            _dataLength = readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Lengths.HEADER);
             if (_dataLength > 0)
             {
-                _dataPosition = _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER + Ripc.Offsets.PACKED_MSG_DATA;
+                _dataPosition = _currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Lengths.HEADER + Ripc.Offsets.PACKED_MSG_DATA;
             }
             else
             {
@@ -579,8 +778,8 @@ class ReadBufferStateMachine
                 _decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
             }
 
-            final int startOfDataPos = _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER;
-            final int ripcFlags = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG);
+            final int startOfDataPos = _currentMsgStartPos + HTTP_HEADER6 + _protocolFunctions.additionalHdrLength() + Ripc.Lengths.HEADER;
+            final int ripcFlags = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + _protocolFunctions.additionalHdrLength() + Ripc.Offsets.MSG_FLAG);
             if ((ripcFlags & Ripc.Flags.COMP_FRAGMENT) > 0)
             {
                 compFragmentAssembly(calculatedEndPos, startOfDataPos);
@@ -592,7 +791,7 @@ class ReadBufferStateMachine
 
                 // Since this is the first part of a split compressed message, we only know the bytesRead.
                 // Just add this part's RIPC Header to uncompressedBytesRead.
-                readArgs._uncompressedBytesRead = Ripc.Lengths.HEADER;
+                readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + Ripc.Lengths.HEADER;
             }
             else if (_compressedFragmentWaitingForSecondMsg && (ripcFlags & Ripc.Flags.COMPRESSION) > 0)
             {
@@ -615,14 +814,15 @@ class ReadBufferStateMachine
                     // Add the entire compressed message here to bytesRead,
                     // advancedToNextPackedMessage() will only update the uncompressedBytesRead,
                     // as it processes each packed message.
-                    int headerLength = Ripc.Lengths.HEADER;
+                    int headerLength = _protocolFunctions.additionalHdrLength() + Ripc.Lengths.HEADER;
                     readArgs._uncompressedBytesRead = headerLength + _httpOverhead + _decompressBuffer.buffer().position();
                 }
             }
             else
             {
                 int uncompressedLength = _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer, _currentMsgStartPos
-                        + HTTP_HEADER6 + Ripc.Lengths.HEADER, calculatedEndPos - (_currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER));
+                        + HTTP_HEADER6 + _protocolFunctions.additionalHdrLength() + Ripc.Lengths.HEADER, calculatedEndPos - 
+                        (_currentMsgStartPos + HTTP_HEADER6 + _protocolFunctions.additionalHdrLength() + Ripc.Lengths.HEADER));
                 _dataLength = readUShort(_decompressBuffer.buffer(), 0);
                 if (_dataLength > 0)
                 {
@@ -637,7 +837,7 @@ class ReadBufferStateMachine
                 // Add the entire compressed message here,
                 // advancedToNextPackedMessage() will only update the
                 // uncompressedBytesRead, as it processes each packed message.
-                readArgs._uncompressedBytesRead = Ripc.Lengths.HEADER + _httpOverhead + uncompressedLength;
+                readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + Ripc.Lengths.HEADER + _httpOverhead + uncompressedLength;
             }
         }
     }
@@ -651,7 +851,7 @@ class ReadBufferStateMachine
 
         assert (_compressedFragmentWaitingForSecondMsg == true);
 
-        compFragmentAssembly(calculatedEndPos, _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER);
+        compFragmentAssembly(calculatedEndPos, _currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Lengths.HEADER);
 
         data = _fragmentedMessages.get(_compressedFragmentFragId);
 
@@ -694,7 +894,7 @@ class ReadBufferStateMachine
             _dataPosition = calculatedEndPos; // advance to the end of the message
             _dataBuffer = _readIoBuffer;
             if (_subState != ReadBufferSubState.PROCESSING_FRAGMENTED_COMPRESSED_MESSAGE
-                    && _subState != ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE)
+                && _subState != ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE)
             {
                 _subState = ReadBufferSubState.NORMAL;
             }
@@ -704,7 +904,7 @@ class ReadBufferStateMachine
     /* Process compFragment message in the normal case: no fragmentation */
     void processCompFragmentSequence(int calculatedEndPos, ReadArgsImpl readArgs)
     {
-        if (!compFragmentAssembly(calculatedEndPos, _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER))
+        if (!compFragmentAssembly(calculatedEndPos, _currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Lengths.HEADER))
         {
             // waiting for second part of the fragmented compression
             _dataBuffer = _readIoBuffer;
@@ -729,14 +929,14 @@ class ReadBufferStateMachine
     }
 
     /* Processes the start of a compressed message
-     * 
+     *
      * calculatedEndPos is the calculated end position (in the read IO buffer) of the message
      */
     private void processCompressedMessage(final int calculatedEndPos)
     {
         _subState = ReadBufferSubState.PROCESSING_COMPRESSED_MESSAGE;
         _dataLength = _currentMsgRipcLen - Ripc.Lengths.HEADER;
-        _dataPosition = _currentMsgStartPos + HTTP_HEADER6 + Ripc.Lengths.HEADER;
+        _dataPosition = _currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Lengths.HEADER;
         _dataBuffer = _readIoBuffer;
     }
 
@@ -745,7 +945,7 @@ class ReadBufferStateMachine
      * The second part will be a normal CompressedData flag (x4).
      * A fragmented message can occur with normal messages, or fragmented messages
      * (in which case the CompFrag flag will be combined with the fragmentation flag (x1)).
-     * 
+     *
      * Returns true when the second part of the fragmented compression is received and re-assembled with the first.
      * Returns false after processing the first part of the fragmented compression (compFrag flag).
      */
@@ -783,7 +983,7 @@ class ReadBufferStateMachine
                 _decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
             }
             _dataLength = _SocketChannelCallBack._compressor.decompress(_compressedFragmentAssemblyBuffer, _decompressBuffer, 0,
-                                                                        _compressedFragmentAssemblyBuffer.buffer().position());
+                    _compressedFragmentAssemblyBuffer.buffer().position());
 
             // we now have a complete compressed fragmented message
             return true;
@@ -792,7 +992,7 @@ class ReadBufferStateMachine
 
     /* Validates the specified ByteBufferPair,
      * and throws an IllegalArgumentException if said ByteBuffer is insufficient in size, or in an invalid initial state
-     * 
+     *
      * pair is the ByteBuffer to validate
      */
     private void validateBuffer(ByteBufferPair pair)
@@ -814,10 +1014,10 @@ class ReadBufferStateMachine
      */
     protected void decodeRipcHeader()
     {
-        assert (_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().position());
+        assert (_currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().position());
 
-        _currentMsgRipcLen = readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER6);
-        _currentMsgRipcFlags = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG);
+        _currentMsgRipcLen = readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6);
+        _currentMsgRipcFlags = _readIoBuffer.buffer().get(_currentMsgStartPos + _protocolFunctions.additionalHdrLength() + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG);
     }
 
     /* Processes the "extended header" in the current RIPC message.
@@ -826,7 +1026,7 @@ class ReadBufferStateMachine
      * or null if the complete fragmented message has not been received
      * (or if we cannot correctly process the fragmented message).
      * ASSUMPTION: The current state is ReadBufferState.KNOWN_COMPLETE
-     * 
+     *
      * calculatedEndPos is the calculated end position of the current message (in the read IO buffer)
      */
     private void processExtendedMessage(final int calculatedEndPos, ReadArgsImpl readArgs)
@@ -835,22 +1035,22 @@ class ReadBufferStateMachine
 
         ByteBufferPair data = null;
 
-        final int ripcExtendedFlags = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.EXTENDED_FLAGS);
-        final int ripcFlags = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG);
+        int currentStartPos = _currentMsgStartPos + _protocolFunctions.additionalHdrLength();
+        final int ripcExtendedFlags = _readIoBuffer.buffer().get(currentStartPos + HTTP_HEADER6 + Ripc.Offsets.EXTENDED_FLAGS);
+        final int ripcFlags = _readIoBuffer.buffer().get(currentStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG);
 
         int fragmentId = 0;
 
         if ((ripcExtendedFlags & Ripc.Flags.Optional.FRAGMENT_HEADER) > 0)
         {
             // this message contains a fragmented header (the start of a fragmented message)
-            final long totalMessageLength = readUInt(_readIoBuffer.buffer(),
-                                                     _currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENTED_MSG_LENGTH);
+            final long totalMessageLength = readUInt(_readIoBuffer.buffer(), currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENTED_MSG_LENGTH);
 
             /* RIPC13 and beyond use a two byte fragId, pre RIPC13 was a one byte fragId */
             if (_ripcVersion >= Ripc.RipcVersions.VERSION13)
-                fragmentId = _readIoBuffer.buffer().getShort(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_HEADER_FRAGMENT_ID);
+                fragmentId = _readIoBuffer.buffer().getShort(currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_HEADER_FRAGMENT_ID);
             else
-                fragmentId = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_HEADER_FRAGMENT_ID);
+                fragmentId = _readIoBuffer.buffer().get(currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_HEADER_FRAGMENT_ID);
 
             data = acquireFragmentBuffer(fragmentId, totalMessageLength);
             if (data != null)
@@ -859,7 +1059,7 @@ class ReadBufferStateMachine
                 // adjust the limit to the match the frag message size.
                 data.buffer().limit((int)totalMessageLength);
             }
-            int startOfDataPos = (_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_HEADER_FRAGMENT_ID + _fragIdLen);
+            int startOfDataPos = (currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_HEADER_FRAGMENT_ID + _fragIdLen);
             _fragmentationHeaderLength = Ripc.Lengths.FIRST_FRAGMENT_WITHOUT_FRAGID + _fragIdLen;
             if (_subState == ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE)
             {
@@ -884,7 +1084,7 @@ class ReadBufferStateMachine
                     }
 
                     _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer,
-                                                                  startOfDataPos, calculatedEndPos - startOfDataPos);
+                            startOfDataPos, calculatedEndPos - startOfDataPos);
 
                     copyMessageData(data, _decompressBuffer, _decompressBuffer.buffer().position(), _decompressBuffer.buffer().limit());
 
@@ -899,12 +1099,12 @@ class ReadBufferStateMachine
 
             // RIPC13 and beyond use a two byte fragId, pre RIPC13 was a one byte fragId
             if (_ripcVersion >= Ripc.RipcVersions.VERSION13)
-                fragmentId = _readIoBuffer.buffer().getShort(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_ID);
+                fragmentId = _readIoBuffer.buffer().getShort(currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_ID);
             else
-                fragmentId = _readIoBuffer.buffer().get(_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_ID);
+                fragmentId = _readIoBuffer.buffer().get(currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_ID);
 
             data = _fragmentedMessages.get(fragmentId); // returns null if we don't know about this fragment id
-            int startOfDataPos = (_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_ID + _fragIdLen);
+            int startOfDataPos = (currentStartPos + HTTP_HEADER6 + Ripc.Offsets.FRAGMENT_ID + _fragIdLen);
             _fragmentationHeaderLength = Ripc.Lengths.ADDITIONAL_FRAGMENT_WITHOUT_FRAGID + _fragIdLen;
             if (_subState == ReadBufferSubState.PROCESSING_FRAGMENTED_MESSAGE)
             {
@@ -929,8 +1129,8 @@ class ReadBufferStateMachine
                     }
 
                     _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer,
-                                                                  startOfDataPos, calculatedEndPos - startOfDataPos);
-                    
+                            startOfDataPos, calculatedEndPos - startOfDataPos);
+
                     copyMessageData(data, _decompressBuffer, _decompressBuffer.buffer().position(), _decompressBuffer.buffer().limit());
 
                     readArgs._uncompressedBytesRead = _fragmentationHeaderLength +
@@ -942,19 +1142,19 @@ class ReadBufferStateMachine
 
         updateFragmentHandler(calculatedEndPos, data, fragmentId);
     }
-    
+
     /* Copies data from the specified src ByteBuffer to the specified dest  ByteBuffer,
      * if both are non-null, and the specified source offset and source length are valid.
-     * 
+     *
      * dest is the data that will be copied to this ByteBuffer, starting at the current destination ByteBuffer::position().
      *      If this parameter is null, no action will be taken.
-     * 
+     *
      * src is the data that will be copied from this ByteBuffer, starting from the specified offset.
      *      If this parameter is null, no action will be taken.
-     * 
+     *
      * srcOffset is the data that will be copied, starting from this offset in the source ByteBuffer.
      *      If this parameter exceeds the source ByteBuffer::limit(), no action will be taken.
-     * 
+     *
      * If there is sufficient space remaining in the destination ByteBuffer,
      * the number of bytes specified by the srcLength value will be copied from the source ByteBuffer to the destination source ByteBuffer.
      * If the source offset + the source length exceeds the limit of the source ByteBuffer, no action will be taken.
@@ -985,15 +1185,15 @@ class ReadBufferStateMachine
             src.buffer().position(tempSrcPos);
         }
     }
-    
+
     /* Returns a buffer used to store the data in a fragmented message,
      * or null if a buffer could not be acquired (i.e. because the requested length is invalid )
-     * 
+     *
      * fragmentId is the ID of the fragment
-     * 
+     *
      * totalMessageLength is the total length of fragmented message, after all the fragments are received.
      *           (This length is "just the data", and does not include the overhead of the RIPC headers.)
-     * 
+     *
      * Returns a buffer used to store the data in a fragmented message,
      *         or null if a buffer could not be acquired (i.e. because the requested length is invalid)
      */
@@ -1027,13 +1227,13 @@ class ReadBufferStateMachine
 
         return messageData;
     }
-    
-    
+
+
     /* Advances the data position to the next packed message (or to the end of the entire RIPC message)
      * ASSUMPTION: the current state is KNOWN_COMPLETE
      * ASSUMPTION: the current sub-state is PROCESSING_PACKED_MESSAGE or PROCESSING_PACKED_COMPRESSED_MESSAGE
      * ASSUMPTION: we are not already at the end of the RIPC message
-     * 
+     *
      * calculatedEndPos is the calculated end of the entire RIPC message
      */
     protected void advanceToNextPackedMessage(final int calculatedEndPos, ReadArgsImpl readArgs)
@@ -1111,6 +1311,11 @@ class ReadBufferStateMachine
         {
             _fragIdLen = Ripc.Offsets.FRAGMENT_ID_LENGTH_RIPC12;
         }
+    }
+
+    ProtocolFunctions protocolFunctions()
+    {
+        return _protocolFunctions;
     }
 }
 

@@ -13,6 +13,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
         compile project(':Eta:Core')
+        compile project(':Eta:Converter')
         compile project(':Eta:ValueAdd')
         compile project(':Eta:ValueAddCache')
         compile project(':Eta:AnsiPage')

@@ -48,4 +48,13 @@ public interface OmmConsumerErrorClient
 	 * @param errorCode specifies associated error code
 	 */ 
 	public default void onInvalidUsage(String text, int errorCode) {}
+
+	/**
+	 * Invoked in case of error during RWF/JSON conversion.
+	 * @param consumerSessionInfo specifies associated info about converter session of consumer.
+	 * @param errorCode specifies associated error code.
+	 * @param text specifies associated error text.
+	 */
+	default void onJsonConverterError(ConsumerSessionInfo consumerSessionInfo, int errorCode, String text) {
+	}
 }

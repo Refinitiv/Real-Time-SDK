@@ -33,6 +33,8 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 {
     private static final int LATENCY_RANDOM_ARRAY_SET_COUNT = 20;
     private static final String DEFAULT_PERF_CONSUMER_CONFIG_NAME = "Perf_Consumer_1";
+    private static final String DEFAULT_PERF_CONSUMER_NAME_WSJSON = "Perf_Consumer_WSJSON_1";
+    private static final String DEFAULT_PERF_CONSUMER_NAME_WSRWF = "Perf_Consumer_WSRWF_1";
     
     protected ConsumerThreadInfo _consThreadInfo; /* thread information */
     protected ConsPerfConfig _consPerfConfig; /* configuration information */
@@ -170,7 +172,19 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	{
 		try
 		{
-			_ommConfig = EmaFactory.createOmmConsumerConfig().consumerName(DEFAULT_PERF_CONSUMER_CONFIG_NAME);
+			String consumerName = DEFAULT_PERF_CONSUMER_CONFIG_NAME;
+			
+			switch(_consPerfConfig.webSocketSubProtocol())
+			{
+			case ConsPerfConfig.WebSocketSubProtocol.RSSL_JSON_V2:
+				consumerName = DEFAULT_PERF_CONSUMER_NAME_WSJSON;
+				break;
+			case ConsPerfConfig.WebSocketSubProtocol.RSSL_RWF:
+				consumerName = DEFAULT_PERF_CONSUMER_NAME_WSRWF;
+				break;
+			}
+			
+			_ommConfig = EmaFactory.createOmmConsumerConfig().consumerName(consumerName);
 			// A blank user name is an invalid input to OmmConsumerConfig.username and will trigger an invalid usage exception.
 			if(_consPerfConfig.username().length() != 0)
 				_ommConfig.username(_consPerfConfig.username());

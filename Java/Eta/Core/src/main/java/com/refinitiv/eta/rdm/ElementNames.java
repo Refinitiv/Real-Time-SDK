@@ -115,11 +115,11 @@ public class ElementNames
     /** AcceptingConsumerStatus */
     public static final Buffer ACCEPTING_CONS_STATUS = CodecFactory.createBuffer();
     /** @deprecated due to spelling error
-	 * 				use {@link #SOURCE_MIRROR_MODE}
-	 */
+     * 				use {@link #SOURCE_MIRROR_MODE}
+     */
     public static final Buffer SOURCE_MIROR_MODE = CodecFactory.createBuffer();
-	/** SourceMirroringMode */
-	public static final Buffer SOURCE_MIRROR_MODE = CodecFactory.createBuffer();
+    /** SourceMirroringMode */
+    public static final Buffer SOURCE_MIRROR_MODE = CodecFactory.createBuffer();
     /** ConsumerStatus */
     public static final Buffer CONS_STATUS = CodecFactory.createBuffer();
     /** ServiceState */
@@ -192,7 +192,7 @@ public class ElementNames
     public static final Buffer ENUM_RT_VERSION = CodecFactory.createBuffer();
     /** DT_Version */
     public static final Buffer ENUM_DT_VERSION = CodecFactory.createBuffer();
-    
+
     // Field Set Definition names
     /** NUMENTRIES */
     public static final Buffer SET_NUMENTRIES = CodecFactory.createBuffer();
@@ -246,6 +246,8 @@ public class ElementNames
     public static final Buffer VIEW_TYPE = CodecFactory.createBuffer();
     /** :ViewData */
     public static final Buffer VIEW_DATA = CodecFactory.createBuffer();
+
+    public static final Buffer BATCH_STREAMID_LIST = CodecFactory.createBuffer();
 
     static
     {
@@ -322,7 +324,7 @@ public class ElementNames
         AUTHN_ERROR_CODE.data("AuthenticationErrorCode");
         /** AUTHN_ERROR_TEXT */
         AUTHN_ERROR_TEXT.data("AuthenticationErrorText");
-        
+
         // RDMService - Well known Element Names
         /** RDMService Name */
         NAME.data("Name");
@@ -347,11 +349,11 @@ public class ElementNames
         /** AcceptingConsumerStatus */
         ACCEPTING_CONS_STATUS.data("AcceptingConsumerStatus");
         /** @deprecated Uses buffer with spelling error in name
-		 * 				use {@link #SOURCE_MIRROR_MODE instead}
-		 */
+         * 				use {@link #SOURCE_MIRROR_MODE instead}
+         */
         SOURCE_MIROR_MODE.data("SourceMirroringMode");
-		/** SourceMirroringMode */
-		SOURCE_MIRROR_MODE.data("SourceMirroringMode");
+        /** SourceMirroringMode */
+        SOURCE_MIRROR_MODE.data("SourceMirroringMode");
         /** ConsumerStatus */
         CONS_STATUS.data("ConsumerStatus");
         /** ServiceState */
@@ -424,7 +426,7 @@ public class ElementNames
         ENUM_RT_VERSION.data("RT_Version");
         /** DT_Version */
         ENUM_DT_VERSION.data("DT_Version");
-        
+
         // Field Set Definition names
         /** NUMENTRIES */
         SET_NUMENTRIES.data("NUMENTRIES");
@@ -434,32 +436,32 @@ public class ElementNames
         SET_TYPES.data("TYPES");
         /** NAMES */
         SET_NAMES.data("NAMES");
-        
+
         // Multicast information
         /** ReferenceDataServerHost */
-         REFERENCE_DATA_SERVER_HOST.data("ReferenceDataServerHost");
+        REFERENCE_DATA_SERVER_HOST.data("ReferenceDataServerHost");
         /** ReferenceDataServerPort */
-         REFERENCE_DATA_SERVER_PORT.data("ReferenceDataServerPort");
+        REFERENCE_DATA_SERVER_PORT.data("ReferenceDataServerPort");
         /** SnapshotServerHost */
-         SNAPSHOT_SERVER_HOST.data("SnapshotServerHost");
+        SNAPSHOT_SERVER_HOST.data("SnapshotServerHost");
         /** SnapshotServerPort */
-         SNAPSHOT_SERVER_PORT.data("SnapshotServerPort");
+        SNAPSHOT_SERVER_PORT.data("SnapshotServerPort");
         /** GapRecoveryServerHost */
-         GAP_RECOVERY_SERVER_HOST.data("GapRecoveryServerHost");
+        GAP_RECOVERY_SERVER_HOST.data("GapRecoveryServerHost");
         /** GapRecoveryServerPort */
-         GAP_RECOVERY_SERVER_PORT.data("GapRecoveryServerPort");
+        GAP_RECOVERY_SERVER_PORT.data("GapRecoveryServerPort");
         /** StreamingMulticastChannels */
-         STREAMING_MCAST_CHANNELS.data("StreamingMulticastChannels");
+        STREAMING_MCAST_CHANNELS.data("StreamingMulticastChannels");
         /** GapMulticastChannels */
-         GAP_MCAST_CHANNELS.data("GapMulticastChannels");
+        GAP_MCAST_CHANNELS.data("GapMulticastChannels");
         /** Address */
-         ADDRESS.data("Address");
+        ADDRESS.data("Address");
         /** Domain */
-         DOMAIN.data("Domain");
+        DOMAIN.data("Domain");
         /** MulticastGroup */
-         MULTICAST_GROUP.data("MulticastGroup");
-         /** Channel ID */
-         CHANNEL_ID.data("ChannelId");
+        MULTICAST_GROUP.data("MulticastGroup");
+        /** Channel ID */
+        CHANNEL_ID.data("ChannelId");
         /** RoundTripLatency */
         ROUND_TRIP_LATENCY.data("RoundTripLatency");
         /** Ticks */
@@ -478,5 +480,7 @@ public class ElementNames
         VIEW_TYPE.data(":ViewType");
         /** :ViewData */
         VIEW_DATA.data(":ViewData");
+
+        BATCH_STREAMID_LIST.data(":StreamIdList");
     }
 }

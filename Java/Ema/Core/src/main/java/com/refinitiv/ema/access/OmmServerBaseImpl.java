@@ -25,6 +25,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.valueadd.reactor.*;
 import org.slf4j.Logger;
 
 import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
@@ -35,11 +38,6 @@ import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
 import com.refinitiv.ema.access.OmmIProviderConfig.OperationModel;
 import com.refinitiv.ema.access.OmmException.ExceptionType;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.RequestMsg;
 import com.refinitiv.eta.transport.BindOptions;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.Server;
@@ -47,19 +45,7 @@ import com.refinitiv.eta.transport.Transport;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.WriteFlags;
 import com.refinitiv.eta.transport.WritePriorities;
-import com.refinitiv.eta.valueadd.reactor.ProviderRole;
-import com.refinitiv.eta.valueadd.reactor.Reactor;
-import com.refinitiv.eta.valueadd.reactor.ReactorAcceptOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
-import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
-
-abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClient
+abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClient, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback
 {
 	private final static int SHUTDOWN_TIMEOUT_IN_SECONDS = 3;
 	
@@ -81,7 +67,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	protected StringBuilder _dispatchStrBuilder = new StringBuilder(1024);
 	private OmmInvalidUsageExceptionImpl _ommIUExcept;
 	private OmmInvalidHandleExceptionImpl _ommIHExcept;
-	private LongObject	_longValue = new LongObject();
+	private OmmJsonConverterExceptionImpl ommJCExcept;
+	protected LongObject _longValue = new LongObject();
 	
 	private HashMap<LongObject, ItemInfo>	_itemInfoMap;
 	
@@ -91,6 +78,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	protected ReactorOptions _rsslReactorOpts = ReactorFactory.createReactorOptions();
 	protected ReactorErrorInfo _rsslErrorInfo = ReactorFactory.createReactorErrorInfo();
 	private ReactorDispatchOptions _rsslDispatchOptions = ReactorFactory.createReactorDispatchOptions();
+	private ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
 
 	private Selector _selector;
 	private ExecutorService _executor;
@@ -138,6 +126,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	protected ItemCallbackClient<OmmProviderClient> _itemCallbackClient;
 	private SelectionKey _pipeSelectKey;
 	private ArrayList<ReactorChannel> _connectedChannels;
+
+	private ProviderSessionInfo sessionInfo = new ProviderSessionInfo();
 
 	abstract OmmProvider provider();
 	
@@ -282,6 +272,32 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			
 			 _itemCallbackClient = new ItemCallbackClientProvider(this);
 			 _itemCallbackClient.initialize();
+
+
+			jsonConverterOptions.clear();
+			jsonConverterOptions.dataDictionary(getDefaultDataDictionary());
+			jsonConverterOptions.serviceNameToIdCallback(this);
+			jsonConverterOptions.jsonConversionEventCallback(this);
+			jsonConverterOptions.defaultServiceId(activeConfig.defaultConverterServiceId);
+			jsonConverterOptions.jsonExpandedEnumFields(activeConfig.jsonExpandedEnumFields);
+			jsonConverterOptions.catchUnknownJsonKeys(activeConfig.catchUnknownJsonKeys);
+			jsonConverterOptions.catchUnknownJsonFids(activeConfig.catchUnknownJsonFids);
+			jsonConverterOptions.closeChannelFromFailure(activeConfig.closeChannelFromFailure);
+
+			if (_rsslReactor.initJsonConverter(jsonConverterOptions, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS) {
+				strBuilder().append("Failed to initialize OmmServerBaseImpl (RWF/JSON Converter).")
+						.append("' Error Id='").append(_rsslErrorInfo.error().errorId()).append("' Internal sysError='")
+						.append(_rsslErrorInfo.error().sysError()).append("' Error Location='")
+						.append(_rsslErrorInfo.location()).append("' Error Text='")
+						.append(_rsslErrorInfo.error().text()).append("'. ");
+
+				String temp = _strBuilder.toString();
+
+				if (_loggerClient.isErrorEnabled())
+					_loggerClient.error(formatLogMessage(activeConfig.instanceName, temp, Severity.ERROR));
+
+				throw (ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR));
+			}
 			
 			_providerRole.channelEventCallback(_serverChannelHandler);
 			_providerRole.loginMsgCallback(_loginHandler);
@@ -290,7 +306,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	        _providerRole.defaultMsgCallback(_marketItemHandler);
 	        
 			_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);
-			if (_activeServerConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET && ((SocketServerConfig) _activeServerConfig.serverConfig).directWrite )
+			if ((_activeServerConfig.serverConfig.rsslConnectionType == ConnectionTypes.SOCKET || _activeServerConfig.serverConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET)
+					&& ((SocketServerConfig) _activeServerConfig.serverConfig).directWrite )
 			{
 				_rsslSubmitOptions.writeArgs().flags( _rsslSubmitOptions.writeArgs().flags() |  WriteFlags.DIRECT_SOCKET_WRITE);
 			}
@@ -308,6 +325,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysRecvBufSize);
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysSendBufSize);
 			_bindOptions.compressionType(_activeServerConfig.serverConfig.compressionType);
+			_bindOptions.maxFragmentSize(_activeServerConfig.serverConfig.maxFragmentSize);
+			_bindOptions.wSocketOpts().protocols(_activeServerConfig.serverConfig.wsProtocols);
 			_bindOptions.encryptionOptions().keystoreFile(_activeServerConfig.serverConfig.keystoreFile);
 			_bindOptions.encryptionOptions().keystorePasswd(_activeServerConfig.serverConfig.keystorePasswd);
 			if(_activeServerConfig.serverConfig.keystoreType != null)
@@ -442,7 +461,27 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				_userLock.unlock();
 		}
 	}
-	
+
+	@Override
+	public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) {
+		final Error error = jsonConversionEvent.error();
+		handleJsonConverterError(error.errorId(), error.text());
+		return ReactorReturnCodes.SUCCESS;
+	}
+
+	@Override
+	public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId, ReactorServiceNameToIdEvent serviceNameToIdEvent) {
+		if (serviceNameToId.serviceName() == null || serviceNameToId.serviceName().isEmpty()) {
+			return ReactorReturnCodes.FAILURE;
+		}
+		DirectoryServiceStore.ServiceIdInteger serviceId = directoryServiceStore().serviceId(serviceNameToId.serviceName());
+		if (serviceId != null) {
+			serviceNameToId.serviceId(serviceId.value());
+			return ReactorReturnCodes.SUCCESS;
+		}
+		return ReactorReturnCodes.FAILURE;
+	}
+
 	void uninitialize()
 	{
 		try
@@ -576,6 +615,29 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if (value >= 0)
 					_activeServerConfig.maxDispatchCountUserThread = value;
 			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.DefaultServiceID)) != null) {
+				value = ce.intLongValue();
+				if (value >= 0) {
+					_activeServerConfig.defaultConverterServiceId = ce.intLongValue();
+				}
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.JsonExpandedEnumFields)) != null) {
+				_activeServerConfig.jsonExpandedEnumFields = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnknownJsonKeys)) != null) {
+				_activeServerConfig.catchUnknownJsonKeys = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnknownJsonFids)) != null) {
+				_activeServerConfig.catchUnknownJsonKeys = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CloseChannelFromConverterFailure)) != null) {
+				_activeServerConfig.catchUnknownJsonKeys = ce.intLongValue() > 0;
+			}
 				
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 				_activeServerConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
@@ -695,6 +757,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		{
 		case ConnectionTypes.ENCRYPTED:
 		case ConnectionTypes.SOCKET:
+		case ConnectionTypes.WEBSOCKET:
 		{
 			SocketServerConfig socketServerConfig = new SocketServerConfig();
 			newServerConfig = socketServerConfig;
@@ -804,6 +867,18 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				else
 					newServerConfig.initializationTimeout = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT : ce.intLongValue();
 			}
+
+            if ((ce = attributes.getPrimitiveValue(ConfigManager.ServerMaxFragmentSize)) != null) {
+				if ( ce.intLongValue()  > maxInt ) {
+					newServerConfig.maxFragmentSize = maxInt;
+				} else {
+					newServerConfig.maxFragmentSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT : ce.intLongValue();
+				}
+			}
+
+            if ((ce = attributes.getPrimitiveValue(ConfigManager.ServerWsProtocols)) != null) {
+            	newServerConfig.wsProtocols = ce.asciiValue();
+			}
 		}
 		
 		return newServerConfig;
@@ -852,6 +927,10 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_ommProviderErrorClient.onInvalidUsage(ommException.getMessage());
 			_ommProviderErrorClient.onInvalidUsage(ommException.getMessage(), ((OmmInvalidUsageException)ommException).errorCode());
 			break;
+		case ExceptionType.OmmJsonConverterException:
+			_ommProviderErrorClient.onJsonConverterError((ProviderSessionInfo) ((OmmJsonConverterException) ommException).getSessionInfo(),
+					((OmmJsonConverterException) ommException).getErrorCode(), ommException.getMessage());
+			break;
 		default:
 			break;
 		}
@@ -871,6 +950,13 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_ommIHExcept = new OmmInvalidHandleExceptionImpl();
 
 		return _ommIHExcept;
+	}
+
+	OmmJsonConverterExceptionImpl ommJCExcept() {
+		if (ommJCExcept == null) {
+			ommJCExcept = new OmmJsonConverterExceptionImpl();
+		}
+		return ommJCExcept;
 	}
 	
 	public void handleInvalidUsage(String text, int errorCode)
@@ -893,7 +979,20 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		else
 			throw (ommIHExcept().message(text, handle));
 	}
-	
+
+	@Override
+	public void handleJsonConverterError(int errorCode, String text) {
+		sessionInfo.loadProviderSession(provider(), _rsslReactor.reactorChannel());
+		if (hasErrorClient()) {
+			_ommProviderErrorClient.onJsonConverterError(sessionInfo, errorCode, text);
+		} else {
+			if (userLock().isLocked()) {
+				userLock().unlock();
+			}
+			throw (ommJCExcept().message(sessionInfo, errorCode, text));
+		}
+	}
+
 	public Logger loggerClient()
 	{
 		return _loggerClient;
@@ -1603,5 +1702,20 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 	public ReactorErrorInfo rsslErrorInfo() {
 		return _rsslErrorInfo;
+	}
+
+	//Find default dictionary
+	private DataDictionary getDefaultDataDictionary() {
+		DataDictionary dataDictionary = null;
+		if (_activeServerConfig.getServiceDictionaryConfigCollection() != null) {
+			for (ServiceDictionaryConfig serviceDictionaryConfig : _activeServerConfig.getServiceDictionaryConfigCollection()) {
+				int serviceId = serviceDictionaryConfig.serviceId;
+				dataDictionary = dictionaryHandler().getDictionaryByServiceId(serviceId);
+				if (dataDictionary != null) {
+					break;
+				}
+			}
+		}
+		return dataDictionary;
 	}
 }

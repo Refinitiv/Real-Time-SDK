@@ -37,6 +37,7 @@ class BindOptionsImpl implements BindOptions
     private int _sysRecvBufSize;
     private String _groupAddress;
     private ServerEncryptionOptionsImpl _encryptionOptions = new ServerEncryptionOptionsImpl();
+    private WSocketOptsImpl _wsocketOpts = new WSocketOptsImpl();
 
     BindOptionsImpl()
     {
@@ -84,6 +85,7 @@ class BindOptionsImpl implements BindOptions
         copyTo._sysRecvBufSize = _sysRecvBufSize;
         copyTo._groupAddress = _groupAddress;
         _encryptionOptions.copy(copyTo._encryptionOptions);
+        _wsocketOpts.copy(copyTo._wsocketOpts);
     }
 
     @Override
@@ -115,6 +117,8 @@ class BindOptionsImpl implements BindOptions
         _tcpOpts.tcpNoDelay(false);
         _sysRecvBufSize = 0;
         _groupAddress = null;
+        _wsocketOpts.protocols("");
+        _wsocketOpts.maxMsgSize(61440);
         _encryptionOptions.clear();
     }
 
@@ -123,34 +127,35 @@ class BindOptionsImpl implements BindOptions
     {
         return "BindOptions" + "\n" +
                "\tcomponentVersion: " + _componentVersion + "\n" +
-               "\tserviceName: " + _serviceName + "\n" + 
+               "\tserviceName: " + _serviceName + "\n" +
                "\tinterfaceName: " + _interfaceName + "\n" +
-               "\tcompressionType: " + _compressionType + "\n" + 
-               "\tinterfaceName: " + _interfaceName + "\n" + 
-               "\tcompressionType: " + _compressionType + "\n" + 
-               "\tcompressionLevel: " + _compressionLevel + "\n" + 
-               "\tforceCompression: " + _forceCompression + "\n" + 
-               "\tserverBlocking: " + _serverBlocking + "\n" + 
-               "\tchannelsBlocking: " + _channelsBlocking + "\n" + 
-               "\tserverToClientPings: " + _serverToClientPings + "\n" + 
-               "\tclientToServerPings: " + _clientToServerPings + "\n" + 
-               "\tconnectionType: " + _connectionType + "\n" + 
-               "\tpingTimeout: " + _pingTimeout + "\n" + 
-               "\tminPingTimeout: " + _minPingTimeout + "\n" + 
-               "\tmaxFragmentSize: " + _maxFragmentSize + "\n" + 
-               "\tmaxOutputBuffers: " + _maxOutputBuffers + "\n" + 
-               "\tguaranteedOutputBuffers: " + _guaranteedOutputBuffers + "\n" + 
-               "\tnumInputBuffers: " + _numInputBuffers + "\n" + 
+               "\tcompressionType: " + _compressionType + "\n" +
+               "\tinterfaceName: " + _interfaceName + "\n" +
+               "\tcompressionType: " + _compressionType + "\n" +
+               "\tcompressionLevel: " + _compressionLevel + "\n" +
+               "\tforceCompression: " + _forceCompression + "\n" +
+               "\tserverBlocking: " + _serverBlocking + "\n" +
+               "\tchannelsBlocking: " + _channelsBlocking + "\n" +
+               "\tserverToClientPings: " + _serverToClientPings + "\n" +
+               "\tclientToServerPings: " + _clientToServerPings + "\n" +
+               "\tconnectionType: " + _connectionType + "\n" +
+               "\tpingTimeout: " + _pingTimeout + "\n" +
+               "\tminPingTimeout: " + _minPingTimeout + "\n" +
+               "\tmaxFragmentSize: " + _maxFragmentSize + "\n" +
+               "\tmaxOutputBuffers: " + _maxOutputBuffers + "\n" +
+               "\tguaranteedOutputBuffers: " + _guaranteedOutputBuffers + "\n" +
+               "\tnumInputBuffers: " + _numInputBuffers + "\n" +
                "\tsharedPoolSize: " + _sharedPoolSize + "\n" +
-               "\tsharedPoolLock: " + _sharedPoolLock + "\n" + 
-               "\tsysRecvBufSize: " + _sysRecvBufSize + "\n" + 
-               "\tmajorVersion: " + _majorVersion + "\n" + 
-               "\tminorVersion: " + _minorVersion + "\n" + 
-               "\tprotocolType: " + _protocolType + "\n" + 
-               "\tuserSpecObject: " + _userSpecObject + 
-               "\tgroupAddress: " + _groupAddress + 
-               "\ttcpOpts: " + _tcpOpts +
-               "\t" + _encryptionOptions.toString();
+               "\tsharedPoolLock: " + _sharedPoolLock + "\n" +
+               "\tsysRecvBufSize: " + _sysRecvBufSize + "\n" +
+               "\tmajorVersion: " + _majorVersion + "\n" +
+               "\tminorVersion: " + _minorVersion + "\n" +
+               "\tprotocolType: " + _protocolType + "\n" +
+               "\tuserSpecObject: " + _userSpecObject + "\n" +
+               "\tgroupAddress: " + _groupAddress + "\n" +
+               "\ttcpOpts: " + _tcpOpts + "\n" +
+               "\tencryptionOpts" + _encryptionOptions.toString() + "\n" +
+               "\tWSocketOpts:" + _wsocketOpts;
     }
 
     @Override
@@ -210,8 +215,8 @@ class BindOptionsImpl implements BindOptions
     @Override
     public void compressionType(int compressionType)
     {
-        assert (compressionType >= 0 && compressionType <= Ripc.CompressionTypes.MAX_DEFINED) : 
-            "compressionType is out of range. Refer to CompTypes";
+        assert (compressionType >= 0 && compressionType <= Ripc.CompressionTypes.MAX_DEFINED) :
+                "compressionType is out of range. Refer to CompTypes";
 
         _compressionType = compressionType;
     }
@@ -299,13 +304,13 @@ class BindOptionsImpl implements BindOptions
     @Override
     public void connectionType(int connectionType)
     {
-        assert (connectionType >= 0 && connectionType <= ConnectionTypes.MAX_DEFINED && connectionType != 4) : 
-            "connectionType is out of range. Refer to ConnectionTypes";
+        assert (connectionType >= 0 && connectionType <= ConnectionTypes.MAX_DEFINED && connectionType != 4) :
+                "connectionType is out of range. Refer to ConnectionTypes";
 
         assert (connectionType != ConnectionTypes.SEQUENCED_MCAST) : "Sequenced Multicast does not support binding into a Server";
 
         if (connectionType >= 0 && connectionType <= ConnectionTypes.MAX_DEFINED && connectionType != 4
-                && connectionType != ConnectionTypes.SEQUENCED_MCAST)
+            && connectionType != ConnectionTypes.SEQUENCED_MCAST)
             _connectionType = connectionType;
     }
 
@@ -541,10 +546,15 @@ class BindOptionsImpl implements BindOptions
     {
         return _groupAddress;
     }
-    
+
+    @Override
+    public WSocketOpts wSocketOpts() {
+        return _wsocketOpts;
+    }
+
     @Override
     public ServerEncryptionOptions encryptionOptions()
     {
-    	return _encryptionOptions;
+        return _encryptionOptions;
     }
 }

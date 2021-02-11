@@ -109,6 +109,11 @@ class ConfigManager
 	public static final int ReissueTokenAttemptLimit = 47;
 	public static final int ReissueTokenAttemptInterval = 48;
 	public static final int EnableRtt = 49;
+	public static final int DefaultServiceID = 50;
+	public static final int JsonExpandedEnumFields = 51;
+	public static final int CatchUnknownJsonFids = 52;
+	public static final int CatchUnknownJsonKeys = 53;
+	public static final int CloseChannelFromConverterFailure = 54;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -118,7 +123,7 @@ class ConfigManager
 	public static final int ChannelType = 104;
 	public static final int ChannelInitTimeout = 105;
 	
-	// Channel: Socket, HTTP, Encrypted
+	// Channel: Socket, HTTP, Encrypted, WebSocket
 	public static final int ChannelCompressionThreshold = 200;
 	public static final int ChannelCompressionType = 201;
 	public static final int ChannelHost = 202;
@@ -131,6 +136,8 @@ class ConfigManager
 	public static final int ChannelEnableSessionMgnt = 209;
 	public static final int ChannelLocation = 210;
 	public static final int EncryptedProtocolType = 211;
+	public static final int WsProtocols = 212;
+	public static final int WsMaxMsgSize = 213;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap = 300;
@@ -248,6 +255,8 @@ class ConfigManager
 	public static final int ServerName = 903;
 	public static final int ServerType = 904;
 	public static final int ServerInitTimeout = 905;
+	public static final int ServerWsProtocols = 906;
+	public static final int ServerMaxFragmentSize = 907;
 	
 	// Server: Socket
 	public static final int ServerCompressionThreshold = 1000;
@@ -263,7 +272,7 @@ class ConfigManager
 	public static final int ReactorMsgEventPoolLimit = 1103;
 	public static final int TunnelStreamMsgEventPoolLimit = 1104;
 	public static final int TunnelStreamStatusEventPoolLimit = 1105;
-	
+
 	public static final int MAX_UINT16 = 0xFFFF;
 	
 	static
@@ -323,7 +332,12 @@ class ConfigManager
 		ConsumerTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
 		ConsumerTagDict.add( "XmlTraceWrite",XmlTraceWrite );
 		ConsumerTagDict.add( "EnableRtt",EnableRtt );
-		
+		ConsumerTagDict.add("DefaultServiceID", DefaultServiceID);
+		ConsumerTagDict.add("JsonExpandedEnumFields", JsonExpandedEnumFields);
+		ConsumerTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
+		ConsumerTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
+		ConsumerTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
 		ChannelTagDict.add( "Channel",Channel );
@@ -351,6 +365,8 @@ class ConfigManager
 		ChannelTagDict.add( "EnableSessionManagement",ChannelEnableSessionMgnt );
 		ChannelTagDict.add( "Location",ChannelLocation );
 		ChannelTagDict.add( "EncryptedProtocolType", EncryptedProtocolType);
+		ChannelTagDict.add("WsProtocols", WsProtocols);
+		ChannelTagDict.add("WsMaxMsgSize", WsMaxMsgSize);
 		
 		// ConnectionTypes.MCAST
 		ChannelTagDict.add( "DisconnectOnGap",ChannelDisconnectOnGap );
@@ -422,6 +438,11 @@ class ConfigManager
 		NiProviderTagDict.add( "XmlTraceToMultipleFiles",XmlTraceToMultipleFiles );
 		NiProviderTagDict.add( "XmlTraceToStdout",XmlTraceToStdout );
 		NiProviderTagDict.add( "XmlTraceWrite",XmlTraceWrite );
+		NiProviderTagDict.add("DefaultServiceID", DefaultServiceID);
+		NiProviderTagDict.add("JsonExpandedEnumFields", JsonExpandedEnumFields);
+		NiProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
+		NiProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
+		NiProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		
 		
 		DirectoryTagDict.add( "DirectoryGroup", DirectoryGroup);
@@ -493,6 +514,11 @@ class ConfigManager
 		IProviderTagDict.add( "XmlTraceToFile", XmlTraceToFile );
 		IProviderTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
 		IProviderTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );
+		IProviderTagDict.add("DefaultServiceID", DefaultServiceID);
+		IProviderTagDict.add("JsonExpandedEnumFields", JsonExpandedEnumFields);
+		IProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
+		IProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
+		IProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
@@ -514,6 +540,8 @@ class ConfigManager
 		ServerTagDict.add( "DirectWrite",ServerDirectSocketWrite );
 		ServerTagDict.add( "ConnectionMinPingTimeout", ConnectionMinPingTimeout);
 		ServerTagDict.add( "InitializationTimeout", ServerInitTimeout );
+		ServerTagDict.add("WsProtocols", ServerWsProtocols);
+		ServerTagDict.add("MaxFragmentSize", ServerMaxFragmentSize);
 
 		GlobalConfigDict.add( "GlobalConfig", GlobalConfig );
 		GlobalConfigDict.add( "WorkerEventPoolLimit", WorkerEventPoolLimit );
@@ -521,7 +549,7 @@ class ConfigManager
 		GlobalConfigDict.add( "ReactorMsgEventPoolLimit",ReactorMsgEventPoolLimit );
 		GlobalConfigDict.add( "TunnelStreamMsgEventPoolLimit", TunnelStreamMsgEventPoolLimit);
 		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
-		
+
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
 		CONSUMER_GROUP.complete();
@@ -636,7 +664,8 @@ class ConfigManager
 			"Vendor",
 			"XmlTraceFileName",
 			"ProxyHost",
-			"ProxyPort"
+			"ProxyPort",
+			"WsProtocols"
 	};
 
 	public static String EnumeratedValues[] = {
@@ -735,7 +764,14 @@ class ConfigManager
 		"XmlTraceToMultipleFiles",
 		"XmlTraceToStdout",
 		"XmlTraceWrite",
-		"EnableRtt"
+		"EnableRtt",
+		"MaxFragmentSize",
+		"WsMaxMsgSize",
+		"DefaultServiceID",
+		"JsonExpandedEnumFields",
+		"CatchUnknownJsonFids",
+		"CatchUnknownJsonKeys",
+		"CloseChannelFromConverterFailure"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

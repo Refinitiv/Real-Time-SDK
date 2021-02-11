@@ -69,6 +69,7 @@ dependencies {
         compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.12'
         compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.12'
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+        compile project(':Eta:Converter')
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito
@@ -88,6 +89,7 @@ dependencies {
 	}
 
 	compile project(':Eta:Core')
+    compile project(':Eta:Converter')
 
 	testCompile project(':Eta:Core').sourceSets.test.output
 

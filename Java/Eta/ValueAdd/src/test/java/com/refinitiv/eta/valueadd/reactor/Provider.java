@@ -13,11 +13,14 @@ import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.Qos;
 import com.refinitiv.eta.codec.QosRates;
 import com.refinitiv.eta.codec.QosTimeliness;
+import com.refinitiv.eta.json.converter.JsonConverterError;
+import com.refinitiv.eta.json.converter.ServiceNameIdConverter;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 
-public class Provider extends TestReactorComponent implements ProviderCallback, TunnelStreamListenerCallback, TunnelStreamStatusEventCallback, TunnelStreamDefaultMsgCallback
+public class Provider extends TestReactorComponent implements ProviderCallback, TunnelStreamListenerCallback, TunnelStreamStatusEventCallback,
+        TunnelStreamDefaultMsgCallback, ServiceNameIdConverter, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback
 {
 
 	public Provider(TestReactor testReactor)
@@ -164,5 +167,26 @@ public class Provider extends TestReactorComponent implements ProviderCallback, 
     public int listenerCallback(TunnelStreamRequestEvent event)
     {
         return _testReactor.handleTunnelStreamRequestEvent(event);
+    }
+
+    @Override
+    public int serviceNameToId(String serviceName, JsonConverterError error) {
+        return 0;
+    }
+
+    @Override
+    public String serviceIdToName(int id, JsonConverterError error) {
+        return null;
+    }
+
+    @Override
+    public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) {
+        System.out.println(jsonConversionEvent.error().text());
+        return 0;
+    }
+
+    @Override
+    public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId, ReactorServiceNameToIdEvent serviceNameToIdEvent) {
+        return 0;
     }
 }

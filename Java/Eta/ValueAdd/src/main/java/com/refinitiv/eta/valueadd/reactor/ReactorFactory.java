@@ -30,6 +30,7 @@ public class ReactorFactory
     static VaPool _wlItemGroupPool = new VaPool(true);
     static VaPool _wlIntegerPool = new VaPool(true);
     static VaPool _wlViewPool = new VaPool(true);
+    static VaPool _packedBufferPool = new VaPool(true);
 
     private static final int DEFAULT_POOL_LIMIT = -1;
     /**
@@ -40,7 +41,7 @@ public class ReactorFactory
         throw new AssertionError();
     }
 
-    
+
     /**
      * Sets maximum number of events in _reactorMsgEventPoolLimit, if value is negative then amount of events is unlimited 
      * @param reactorMsgEventPoolLimit value to set
@@ -101,7 +102,7 @@ public class ReactorFactory
             System.out.println("ReactorFactory.createReactor: ReactorErrorInfo cannot be null, reactor not created.");
             return null;
         }
-         
+
         Reactor reactor = new Reactor(options, errorInfo);
         if (!reactor.isShutdown())
             return reactor;
@@ -111,9 +112,9 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorErrorInfo}.
-     * 
+     *
      * @return {@link ReactorErrorInfo} object
-     * 
+     *
      * @see ReactorErrorInfo
      */
     public static ReactorErrorInfo createReactorErrorInfo()
@@ -123,21 +124,21 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorOptions}.
-     * 
+     *
      * @return {@link ReactorOptions} object
-     * 
+     *
      * @see ReactorOptions
      */
     public static ReactorOptions createReactorOptions()
     {
         return new ReactorOptions();
     }
-    
+
     /**
      * Create {@link ReactorChannelStats}.
-     * 
+     *
      * @return {@link ReactorChannelStats} object
-     * 
+     *
      * @see ReactorChannelStats
      */
     public static ReactorChannelStats createReactorChannelStats()
@@ -147,9 +148,9 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorConnectOptions}.
-     * 
+     *
      * @return {@link ReactorConnectOptions} object
-     * 
+     *
      * @see ReactorConnectOptions
      */
     public static ReactorConnectOptions createReactorConnectOptions()
@@ -159,9 +160,9 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorAcceptOptions}.
-     * 
+     *
      * @return {@link ReactorAcceptOptions} object
-     * 
+     *
      * @see ReactorAcceptOptions
      */
     public static ReactorAcceptOptions createReactorAcceptOptions()
@@ -171,9 +172,9 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorDispatchOptions}.
-     * 
+     *
      * @return {@link ReactorDispatchOptions} object
-     * 
+     *
      * @see ReactorDispatchOptions
      */
     public static ReactorDispatchOptions createReactorDispatchOptions()
@@ -183,9 +184,9 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorSubmitOptions}.
-     * 
+     *
      * @return {@link ReactorSubmitOptions} object
-     * 
+     *
      * @see ReactorSubmitOptions
      */
     public static ReactorSubmitOptions createReactorSubmitOptions()
@@ -195,9 +196,9 @@ public class ReactorFactory
 
     /**
      * Create {@link TunnelStreamOpenOptions}.
-     * 
+     *
      * @return {@link TunnelStreamOpenOptions} object
-     * 
+     *
      * @see TunnelStreamOpenOptions
      */
     public static TunnelStreamOpenOptions createTunnelStreamOpenOptions()
@@ -207,9 +208,9 @@ public class ReactorFactory
 
     /**
      * Create a ConsumerRole.
-     * 
+     *
      * @return {@link ConsumerRole} object
-     * 
+     *
      * @see ConsumerRole
      */
     public static ConsumerRole createConsumerRole()
@@ -219,9 +220,9 @@ public class ReactorFactory
 
     /**
      * Create a ProviderRole.
-     * 
+     *
      * @return {@link ProviderRole} object
-     * 
+     *
      * @see ProviderRole
      */
     public static ProviderRole createProviderRole()
@@ -231,21 +232,21 @@ public class ReactorFactory
 
     /**
      * Create a NIProviderRole.
-     * 
+     *
      * @return {@link NIProviderRole} object
-     * 
+     *
      * @see NIProviderRole
      */
     public static NIProviderRole createNIProviderRole()
     {
         return new NIProviderRole();
     }
-    
+
     /**
      * Create {@link ReactorChannelInfo}.
-     * 
+     *
      * @return {@link ReactorChannelInfo} object
-     * 
+     *
      * @see ReactorChannelInfo
      */
     public static ReactorChannelInfo createReactorChannelInfo()
@@ -255,57 +256,57 @@ public class ReactorFactory
 
     /**
      * Create {@link ReactorConnectInfo}.
-     * 
+     *
      * @return {@link ReactorConnectInfo} object
-     * 
+     *
      * @see ReactorConnectInfo
      */
     public static ReactorConnectInfo createReactorConnectInfo()
     {
         return new ReactorConnectInfo();
     }
-    
+
     /**
      * Create {@link TunnelStreamAcceptOptions}.
-     * 
+     *
      * @return {@link TunnelStreamAcceptOptions} object
-     * 
+     *
      * @see TunnelStreamAcceptOptions
      */
     public static TunnelStreamAcceptOptions createTunnelStreamAcceptOptions()
     {
         return new TunnelStreamAcceptOptions();
     }
-    
+
     /**
      * Create {@link TunnelStreamRejectOptions}.
-     * 
+     *
      * @return {@link TunnelStreamRejectOptions} object
-     * 
+     *
      * @see TunnelStreamRejectOptions
      */
     public static TunnelStreamRejectOptions createTunnelStreamRejectOptions()
     {
         return new TunnelStreamRejectOptions();
     }
-    
+
     /**
      * Create {@link TunnelStreamSubmitOptions}.
-     * 
+     *
      * @return {@link TunnelStreamSubmitOptions} object
-     * 
+     *
      * @see TunnelStreamSubmitOptions
      */
     public static TunnelStreamSubmitOptions createTunnelStreamSubmitOptions()
     {
         return new TunnelStreamSubmitOptions();
     }
-    
+
     /**
      * Create {@link ClassOfService}.
-     * 
+     *
      * @return {@link ClassOfService} object
-     * 
+     *
      * @see ClassOfService
      */
     public static ClassOfService createClassOfService()
@@ -315,16 +316,16 @@ public class ReactorFactory
 
     /**
      * Creates {@link ReactorServiceDiscoveryOptions}.
-    *
-    * @return {@link ReactorServiceDiscoveryOptions} object
-    * 
-    * @see ReactorServiceDiscoveryOptions
-    */
+     *
+     * @return {@link ReactorServiceDiscoveryOptions} object
+     *
+     * @see ReactorServiceDiscoveryOptions
+     */
     public static ReactorServiceDiscoveryOptions createReactorServiceDiscoveryOptions()
     {
         return new ReactorServiceDiscoveryOptions();
     }
-    
+
     /**
      * Creates {@link TunnelStreamInfo}
      *
@@ -338,38 +339,50 @@ public class ReactorFactory
 
     /**
      * Creates {@link ReactorOAuthCredential}.
-     * 
+     *
      * @return {@link ReactorOAuthCredential} object
-     * 
+     *
      * @see ReactorOAuthCredential
      */
     public static ReactorOAuthCredential createReactorOAuthCredential()
     {
-    	return new ReactorOAuthCredential();
+        return new ReactorOAuthCredential();
     }
-    
+
     /**
      * Creates {@link ReactorOAuthCredentialRenewal}.
-     * 
+     *
      * @return {@link ReactorOAuthCredentialRenewal} object
-     * 
+     *
      * @see ReactorOAuthCredentialRenewal
      */
     public static ReactorOAuthCredentialRenewal createReactorOAuthCredentialRenewal()
     {
-    	return new ReactorOAuthCredentialRenewal();
+        return new ReactorOAuthCredentialRenewal();
     }
-    
+
     /**
      * Creates {@link ReactorOAuthCredentialRenewalOptions}.
-     * 
+     *
      * @return {@link ReactorOAuthCredentialRenewalOptions} object
-     * 
+     *
      * @see ReactorOAuthCredentialRenewalOptions
      */
     public static ReactorOAuthCredentialRenewalOptions createReactorOAuthCredentialRenewalOptions()
     {
-    	return new ReactorOAuthCredentialRenewalOptions();
+        return new ReactorOAuthCredentialRenewalOptions();
+    }
+
+    /**
+     * Creates {@link ReactorJsonConverterOptions}.
+     *
+     * @return {@link ReactorJsonConverterOptions} object
+     *
+     * @see ReactorJsonConverterOptions
+     */
+    public static ReactorJsonConverterOptions createReactorJsonConverterOptions()
+    {
+        return new ReactorJsonConverterOptions();
     }
 
     /**
@@ -401,7 +414,7 @@ public class ReactorFactory
         }
         return reactorChannel;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -421,7 +434,7 @@ public class ReactorFactory
         }
         return rdmLoginMsgEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -441,7 +454,7 @@ public class ReactorFactory
         }
         return rdmDirectoryMsgEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -461,7 +474,7 @@ public class ReactorFactory
         }
         return rdmDictionaryMsgEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -481,7 +494,7 @@ public class ReactorFactory
         }
         return reactorMsgEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -501,68 +514,68 @@ public class ReactorFactory
         }
         return reactorChannelEvent;
     }
-    
+
     /**
      * Creates a new ReactorAuthTokenEvent object.
-    *
-    * @return the reactor Auth token event
-    */
+     *
+     * @return the reactor Auth token event
+     */
     static ReactorAuthTokenEvent createReactorAuthTokenEvent()
     {
-    	ReactorAuthTokenEvent reactorAuthTokenEvent = (ReactorAuthTokenEvent)_reactorAuthTokenEventPool.poll();
+        ReactorAuthTokenEvent reactorAuthTokenEvent = (ReactorAuthTokenEvent)_reactorAuthTokenEventPool.poll();
         if(reactorAuthTokenEvent == null)
         {
-        	reactorAuthTokenEvent = new ReactorAuthTokenEvent();
+            reactorAuthTokenEvent = new ReactorAuthTokenEvent();
             _reactorAuthTokenEventPool.updatePool(reactorAuthTokenEvent);
         }
         else
         {
-        	reactorAuthTokenEvent.clear();
+            reactorAuthTokenEvent.clear();
         }
         return reactorAuthTokenEvent;
     }
 
     /**
      * Creates a new ReactorServiceEndpointEvent object.
-    *
-    * @return the reactor service endpoint event
-    */
+     *
+     * @return the reactor service endpoint event
+     */
     static ReactorServiceEndpointEvent createReactorServiceEndpointEvent()
     {
-    	ReactorServiceEndpointEvent reactorServiceEndpointEvent = (ReactorServiceEndpointEvent)_reactorServiceEndpointEventPool.poll();
+        ReactorServiceEndpointEvent reactorServiceEndpointEvent = (ReactorServiceEndpointEvent)_reactorServiceEndpointEventPool.poll();
         if(reactorServiceEndpointEvent == null)
         {
-        	reactorServiceEndpointEvent = new ReactorServiceEndpointEvent();
+            reactorServiceEndpointEvent = new ReactorServiceEndpointEvent();
             _reactorServiceEndpointEventPool.updatePool(reactorServiceEndpointEvent);
         }
         else
         {
-        	reactorServiceEndpointEvent.clear();
+            reactorServiceEndpointEvent.clear();
         }
         return reactorServiceEndpointEvent;
-    }    
-    
+    }
+
     /**
      * Creates a new ReactorOAuthCredentialEvent object.
-    *
-    * @return the reactor OAuth credential event
-    */
+     *
+     * @return the reactor OAuth credential event
+     */
     static ReactorOAuthCredentialEvent createReactorOAuthCredentialEvent()
     {
-    	ReactorOAuthCredentialEvent reactorOAuthCredentialEvent = (ReactorOAuthCredentialEvent)_reactorOAuthCredentialEventPool.poll();
+        ReactorOAuthCredentialEvent reactorOAuthCredentialEvent = (ReactorOAuthCredentialEvent)_reactorOAuthCredentialEventPool.poll();
         if(reactorOAuthCredentialEvent == null)
         {
-        	reactorOAuthCredentialEvent = new ReactorOAuthCredentialEvent();
-        	_reactorOAuthCredentialEventPool.updatePool(reactorOAuthCredentialEvent);
+            reactorOAuthCredentialEvent = new ReactorOAuthCredentialEvent();
+            _reactorOAuthCredentialEventPool.updatePool(reactorOAuthCredentialEvent);
         }
         else
         {
-        	reactorOAuthCredentialEvent.clear();
+            reactorOAuthCredentialEvent.clear();
         }
-        
+
         return reactorOAuthCredentialEvent;
-    }    
-    
+    }
+
     /**
      * Creates a new Reactor object.
      *
@@ -602,7 +615,7 @@ public class ReactorFactory
         }
         return tunnelStreamMsgEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -622,7 +635,7 @@ public class ReactorFactory
         }
         return queueMsgEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -642,7 +655,7 @@ public class ReactorFactory
         }
         return workerEvent;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -766,7 +779,7 @@ public class ReactorFactory
         }
         return wlService;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -774,19 +787,19 @@ public class ReactorFactory
      */
     static WlItemGroup createWlItemGroup()
     {
-    	WlItemGroup wlItemGroup = (WlItemGroup)_wlItemGroupPool.poll();
-    	if (wlItemGroup == null)
-    	{
-    		wlItemGroup = new WlItemGroup();
-    		_wlItemGroupPool.updatePool(wlItemGroup);
-    	}
-    	else
-    	{
-    		wlItemGroup.clear();
-    	}
-    	return wlItemGroup;
+        WlItemGroup wlItemGroup = (WlItemGroup)_wlItemGroupPool.poll();
+        if (wlItemGroup == null)
+        {
+            wlItemGroup = new WlItemGroup();
+            _wlItemGroupPool.updatePool(wlItemGroup);
+        }
+        else
+        {
+            wlItemGroup.clear();
+        }
+        return wlItemGroup;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -806,7 +819,7 @@ public class ReactorFactory
         }
         return wlInteger;
     }
-    
+
     /**
      * Creates a new Reactor object.
      *
@@ -825,5 +838,27 @@ public class ReactorFactory
             wlView.clear();
         }
         return wlView;
+    }
+    
+    /**
+     * Creates a new ReactorPackedBuffer object or get it from the pool.
+     *
+     * @return the ReactorPackedBuffer
+     */
+    static ReactorPackedBuffer createPackedBuffer()
+    {
+    	ReactorPackedBuffer packedBuffer = (ReactorPackedBuffer)_packedBufferPool.poll();
+    	
+    	if(packedBuffer == null)
+    	{
+    		packedBuffer = new ReactorPackedBuffer();
+    		_packedBufferPool.updatePool(packedBuffer);
+    	}
+    	else
+    	{
+    		packedBuffer.clear();
+    	}
+    	
+    	return packedBuffer;
     }
 }

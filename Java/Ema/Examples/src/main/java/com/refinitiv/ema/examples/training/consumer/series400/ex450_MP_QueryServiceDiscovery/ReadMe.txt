@@ -29,6 +29,7 @@ including:
  This is found by visiting my.Refinitiv.com, launching Eikon, and
  searching for "App Key Generator". Eikon login is required to generate clientID.
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
+-websocket Use the WebSocket transport protocol (optional).
 -location location to get an endpoint from Refinitiv Data Platform service discovery. Now, it is either
  "us-east" by default or "eu-west" (optional).
 -keyfile keystore file for creating an encrypted connection.
@@ -61,7 +62,8 @@ gradlew.bat runConsumer450 -PcommandLineArgs='-username <username> -password <pa
 + Instantiates and modifies an OmmConsumerConfig object
   - Sets the user credential
   - Sets the consumer name to "Consumer_1"
-  - The Consumer_1 uses the Channel_1 channel name for using the RSSL_ENCRYPTED channel type.
+  - The Consumer_1 uses the Channel_1 channel name for using the RSSL_ENCRYPTED channel type
+    and either the RSSL_SOCKET or RSSL_WEBSOCKET encrypted protocol type.   
   - sets OmmConsumer configuration with data from the programmatic configuration
 + Instantiates an OmmConsumer object which initializes the connection 
   and send login request to the endpoint of the specified location.

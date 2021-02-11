@@ -15,58 +15,19 @@ import static org.junit.Assert.assertTrue;
 import static java.lang.Math.abs;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.codec.Map;
+import com.refinitiv.eta.transport.ConnectionTypes;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.refinitiv.eta.codec.AckMsg;
-import com.refinitiv.eta.codec.Array;
-import com.refinitiv.eta.codec.ArrayEntry;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.CloseMsg;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.DataDictionary;
-import com.refinitiv.eta.codec.DataStates;
-import com.refinitiv.eta.codec.DataTypes;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.ElementEntry;
-import com.refinitiv.eta.codec.ElementList;
-import com.refinitiv.eta.codec.EncodeIterator;
-import com.refinitiv.eta.codec.FieldEntry;
-import com.refinitiv.eta.codec.FieldList;
-import com.refinitiv.eta.codec.FilterEntryActions;
-import com.refinitiv.eta.codec.Int;
-import com.refinitiv.eta.codec.Map;
-import com.refinitiv.eta.codec.MapEntry;
-import com.refinitiv.eta.codec.MapEntryActions;
-import com.refinitiv.eta.codec.MapEntryFlags;
-import com.refinitiv.eta.codec.Msg;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.NakCodes;
-import com.refinitiv.eta.codec.PostMsg;
-import com.refinitiv.eta.codec.QosRates;
-import com.refinitiv.eta.codec.QosTimeliness;
-import com.refinitiv.eta.codec.Real;
-import com.refinitiv.eta.codec.RealHints;
-import com.refinitiv.eta.codec.RefreshMsg;
-import com.refinitiv.eta.codec.RefreshMsgFlags;
-import com.refinitiv.eta.codec.RequestMsg;
-import com.refinitiv.eta.codec.RequestMsgFlags;
-import com.refinitiv.eta.codec.StateCodes;
-import com.refinitiv.eta.codec.StatusMsg;
-import com.refinitiv.eta.codec.StreamStates;
-import com.refinitiv.eta.codec.UInt;
-import com.refinitiv.eta.codec.GenericMsg;
-import com.refinitiv.eta.codec.UpdateMsg;
 import com.refinitiv.eta.rdm.Dictionary.VerbosityValues;
 import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.Directory;
@@ -99,9 +60,62 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
 
 public class ReactorWatchlistJUnitNew
 {
+    DataDictionary dictionary = CodecFactory.createDataDictionary();
+
+    @Before
+    public void init() {
+
+        final String dictionaryFileName1 = "../../../Java/etc/RDMFieldDictionary";
+        final String enumTypeFile = "../../../Java/etc/enumtype.def";
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
+        dictionary.clear();
+
+        dictionary.loadFieldDictionary(dictionaryFileName1, error);
+        dictionary.loadEnumTypeDictionary(enumTypeFile, error);
+    }
+
+    private void setupWebsocket(boolean isWebsocket, String protocolList, Consumer consumer, Provider provider, ConsumerProviderSessionOptions opts) {
+
+        if (isWebsocket) {
+            opts.connectionType(ConnectionTypes.WEBSOCKET);
+            opts.setProtocolList(protocolList);
+            if (protocolList.contains("tr_json2") || protocolList.contains("rssl.json.v2")) {
+
+                ReactorErrorInfo errorInfo = new ReactorErrorInfo();
+                ReactorJsonConverterOptions options = new ReactorJsonConverterOptions();
+                options.serviceNameToIdCallback(consumer);
+                options.jsonConversionEventCallback(consumer);
+                options.dataDictionary(dictionary);
+                assertEquals(CodecReturnCodes.SUCCESS, consumer._testReactor._reactor.initJsonConverter(options, errorInfo));
+
+                options.serviceNameToIdCallback(provider);
+                options.jsonConversionEventCallback(provider);
+                assertEquals(CodecReturnCodes.SUCCESS, provider._testReactor._reactor.initJsonConverter(options, errorInfo));
+            }
+        }
+    }
+
     @Test
-    public void itemMultipartRefreshTimeoutTest()
-    {
+    public void itemMultipartRefreshTimeoutTest_Socket() {
+
+        itemMultipartRefreshTimeout(false, null);
+    }
+
+    @Test
+    public void itemMultipartRefreshTimeoutTest_WebSocket_Rwf() {
+
+        itemMultipartRefreshTimeout(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemMultipartRefreshTimeoutTest_WebSocket_Json() {
+
+        itemMultipartRefreshTimeout(true, "tr_json2");
+    }
+
+
+    private void itemMultipartRefreshTimeout(boolean isWebsocket, String protocolList) {
+
         /* Test a simple request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -145,7 +159,11 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -247,8 +265,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void directoryUserRequestTest()
-    {
+    public void directoryUserRequestTest_Socket() {
+
+        directoryUserRequest(false, null);
+    }
+
+    @Test
+    public void directoryUserRequestTest_WebSocket_Rwf() {
+
+        directoryUserRequest(true, "rssl.rwf");
+    }
+
+    @Test
+    public void directoryUserRequestTest_WebSocket_Json() {
+
+        directoryUserRequest(true, "tr_json2");
+    }
+
+    private void directoryUserRequest(boolean isWebsocket, String protocolList) {
+
         /* Test the user calling the initial directory SubmitRequest with no default directory request */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -283,7 +318,11 @@ public class ReactorWatchlistJUnitNew
         /* Connect the consumer and provider. Setup login stream automatically. */
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // Consumer submits source directory request
@@ -407,7 +446,7 @@ public class ReactorWatchlistJUnitNew
         directoryRequest.streamId(3);
         directoryRequest.filter(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);
         assertTrue(consumer.submit(directoryRequest, submitOptions) >= ReactorReturnCodes.SUCCESS);
-                
+
         /* Consumer receives directory refresh. */
         consumerReactor.dispatch(1);
         event = consumerReactor.pollEvent();
@@ -472,18 +511,30 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void itemServiceUpdatedTest()
-    {
+    public void itemServiceUpdatedTest_Socket() {
+
+        itemServiceUpdated(false, null);
+    }
+
+    @Test
+    public void itemServiceUpdatedTest_WebSocket_Rwf() {
+
+        itemServiceUpdated(true, "rssl.rwf");
+    }
+
+    /* JSON format doesn't properly support streamStates > 5, this scenario won't work properly */
+
+    private void itemServiceUpdated(boolean isWebsocket, String protocolList) {
+
         /* Test a simple request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
         RDMDirectoryMsgEvent directoryMsgEvent;
-        Msg msg = CodecFactory.createMsg();
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
@@ -519,7 +570,11 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -654,8 +709,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void itemServiceUpDownMultipleItemsTest()
-    {
+    public void itemServiceUpDownMultipleItemsTest_Socket() {
+
+        itemServiceUpDownMultipleItems(false, null);
+    }
+
+    @Test
+    public void itemServiceUpDownMultipleItemsTest_WebSocket_Rwf() {
+
+        itemServiceUpDownMultipleItems(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemServiceUpDownMultipleItemsTest_WebSocket_Json() {
+
+        itemServiceUpDownMultipleItems(true, "tr_json2");
+    }
+
+    private void itemServiceUpDownMultipleItems(boolean isWebsocket, String protocolList) {
+
         /* Test a simple request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -701,7 +773,11 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -950,17 +1026,26 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void itemGroupUpdatedTest()
-    {
+    public void itemGroupUpdatedTest_Socket() {
+
+        itemGroupUpdated(false, null);
+    }
+
+    @Test
+    public void itemGroupUpdatedTest_WebSocket_Rwf() {
+
+        itemGroupUpdated(true, "rssl.rwf");
+    }
+
+    private void itemGroupUpdated(boolean isWebsocket, String protocolList) {
         /* Test a simple request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
-        Msg msg = CodecFactory.createMsg();
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         RDMDirectoryMsgEvent directoryMsgEvent;
@@ -997,7 +1082,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -1489,10 +1577,26 @@ public class ReactorWatchlistJUnitNew
         }
     }
 
+    @Test
+    public void privateStreamOpenCallbackSubmitTest_Socket() {
+
+        privateStreamOpenCallbackSubmit(false, null);
+    }
 
     @Test
-    public void privateStreamOpenCallbackSubmitTest()
-    {
+    public void privateStreamOpenCallbackSubmitTest_WebSocket_Rwf() {
+
+        privateStreamOpenCallbackSubmit(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamOpenCallbackSubmitTest_WebSocket_Json() {
+
+        privateStreamOpenCallbackSubmit(true, "tr_json2");
+    }
+
+    private void privateStreamOpenCallbackSubmit(boolean isWebsocket, String protocolList) {
+
         TestReactorEvent event;
         ReactorChannelEvent chnlEvent;
         ReactorMsgEvent msgEvent;
@@ -1528,6 +1632,8 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
         
         // connect consumer
@@ -1552,24 +1658,38 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-        
+
         TestReactorComponent.closeSession(consumer, provider);
     }
-    
-    
+
     @Test
-    public void fanoutTest()
-    {
+    public void fanoutTest_Socket() {
+
+        fanout(false, null);
+    }
+
+    @Test
+    public void fanoutTest_WebSocket_Rwf() {
+
+        fanout(true, "rssl.rwf");
+    }
+
+    @Test
+    public void fanoutTest_WebSocket_Json() {
+
+        fanout(true, "tr_json2");
+    }
+
+    private void fanout(boolean isWebsocket, String protocolList) {
 
     	ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
     	TestReactorEvent event;
         ReactorMsgEvent msgEvent;
-        Msg msg = CodecFactory.createMsg();
-        GenericMsg genericMsg = (GenericMsg)msg;
+        GenericMsg genericMsg = (GenericMsg)CodecFactory.createMsg();
         GenericMsg receivedGenericMsg;
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         DirectoryRequest _directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
         DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
@@ -1608,7 +1728,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -1622,7 +1745,7 @@ public class ReactorWatchlistJUnitNew
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
         assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-        
+
         /* Consumer sends second request. */
         requestMsg.clear();
         requestMsg.msgClass(MsgClasses.REQUEST);
@@ -1641,7 +1764,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(TestReactorEventTypes.MSG, event.type());
         msgEvent = (ReactorMsgEvent)event.reactorEvent();
         assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
-        
+
         receivedRequestMsg = (RequestMsg)msgEvent.msg();
         assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
         assertTrue(receivedRequestMsg.checkStreaming());
@@ -1884,20 +2007,35 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void emptyStatusMsgTest()
-    {
+    public void emptyStatusMsgTest_Socket() {
+
+        emptyStatusMsg(false, null);
+    }
+
+    @Test
+    public void emptyStatusMsgTest_WebSocket_Rwf() {
+
+        emptyStatusMsg(true, "rssl.rwf");
+    }
+    @Test
+    public void emptyStatusMsgTest_WebSocket_Json() {
+
+        emptyStatusMsg(true, "tr_json2");
+    }
+
+    private void emptyStatusMsg(boolean isWebsocket, String protocolList) {
 
     	ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
     	TestReactorEvent event;
         ReactorMsgEvent msgEvent;
         Msg msg = CodecFactory.createMsg();
-        StatusMsg statusMsg = (StatusMsg)msg;
+        StatusMsg statusMsg = (StatusMsg)CodecFactory.createMsg();
         StatusMsg receivedStatusMsg;
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
-        UpdateMsg updateMsg = (UpdateMsg)msg;
+        UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
         UpdateMsg receivedUpdateMsg;        
        
         int providerStreamId;
@@ -1919,7 +2057,6 @@ public class ReactorWatchlistJUnitNew
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
         consumerRole.watchlistOptions().requestTimeout(3000);
-       
         
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
@@ -1934,7 +2071,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -2029,26 +2169,26 @@ public class ReactorWatchlistJUnitNew
         updateMsg.containerType(DataTypes.NO_DATA);
         assertTrue(provider.submitAndDispatch(updateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
         
-	/* Consumer receives status msg. */
-	consumerReactor.dispatch(2);
-	event = consumerReactor.pollEvent();
-	assertEquals(TestReactorEventTypes.MSG, event.type());
-	msgEvent = (ReactorMsgEvent) event.reactorEvent();
-	assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
-	receivedStatusMsg = (StatusMsg) msgEvent.msg();
-    assertEquals(5, receivedStatusMsg.streamId());
-	assertTrue(receivedStatusMsg.checkHasMsgKey());
-	assertTrue(receivedStatusMsg.msgKey().checkHasServiceId());
-	assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
-	assertTrue(receivedStatusMsg.msgKey().checkHasName());
-	assertTrue(receivedStatusMsg.msgKey().name().toString().equals("TRI.N"));
-	assertEquals(DomainTypes.MARKET_PRICE, receivedStatusMsg.domainType());
-	assertEquals(DataTypes.NO_DATA, receivedStatusMsg.containerType());
-	assertFalse(receivedStatusMsg.checkHasState());
-	assertNotNull(msgEvent.streamInfo());
-    assertNotNull(msgEvent.streamInfo().serviceName());
-    assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));      
-        
+        /* Consumer receives status msg. */
+        consumerReactor.dispatch(2);
+        event = consumerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.MSG, event.type());
+        msgEvent = (ReactorMsgEvent) event.reactorEvent();
+        assertEquals(MsgClasses.STATUS, msgEvent.msg().msgClass());
+        receivedStatusMsg = (StatusMsg) msgEvent.msg();
+        assertEquals(5, receivedStatusMsg.streamId());
+        assertTrue(receivedStatusMsg.checkHasMsgKey());
+        assertTrue(receivedStatusMsg.msgKey().checkHasServiceId());
+        assertEquals(Provider.defaultService().serviceId(), receivedRefreshMsg.msgKey().serviceId());
+        assertTrue(receivedStatusMsg.msgKey().checkHasName());
+        assertTrue(receivedStatusMsg.msgKey().name().toString().equals("TRI.N"));
+        assertEquals(DomainTypes.MARKET_PRICE, receivedStatusMsg.domainType());
+        assertEquals(DataTypes.NO_DATA, receivedStatusMsg.containerType());
+        assertFalse(receivedStatusMsg.checkHasState());
+        assertNotNull(msgEvent.streamInfo());
+        assertNotNull(msgEvent.streamInfo().serviceName());
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+
         /* Consumer receives update */
         event = consumerReactor.pollEvent();
         assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -2062,12 +2202,29 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));        
         
-	TestReactorComponent.closeSession(consumer, provider);
+	    TestReactorComponent.closeSession(consumer, provider);
     }
 
     @Test
-    public void privateStreamOpenCallbackSubmitReSubmitTest()
-    {
+    public void privateStreamOpenCallbackSubmitReSubmitTest_Socket() {
+
+        privateStreamOpenCallbackSubmitReSubmit(false, null);
+    }
+
+    @Test
+    public void privateStreamOpenCallbackSubmitReSubmitTest_WebSocket_Rwf() {
+
+        privateStreamOpenCallbackSubmitReSubmit(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamOpenCallbackSubmitReSubmitTest_WebSocket_Json() {
+
+        privateStreamOpenCallbackSubmitReSubmit(true, "tr_json2");
+    }
+
+    private void privateStreamOpenCallbackSubmitReSubmit(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -2108,7 +2265,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         opts.numStatusEvents(1); // set number of expected status message from request submitted in channel open callback
         TestReactor.openSession(consumer, provider, opts);
         
@@ -2187,8 +2347,25 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void privateStreamSubmitTest()
-    {
+    public void privateStreamSubmitTest_Socket() {
+
+        privateStreamSubmit(false, null);
+    }
+
+    @Test
+    public void privateStreamSubmitTest_WebSocket_Rwf() {
+
+        privateStreamSubmit(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamSubmitTest_WebSocket_Json() {
+
+        privateStreamSubmit(true, "tr_json2");
+    }
+
+    private void privateStreamSubmit(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -2229,7 +2406,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // submit private stream request message
@@ -2319,8 +2499,25 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void privateStreamSubmitReissueTest()
-    {
+    public void privateStreamSubmitReissueTest_Socket() {
+
+        privateStreamSubmitReissue(false, null);
+    }
+
+    @Test
+    public void privateStreamSubmitReissueTest_WebSocket_Rwf() {
+
+        privateStreamSubmitReissue(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamSubmitReissueTest_WebSocket_Json() {
+
+        privateStreamSubmitReissue(true, "tr_json2");
+    }
+
+    private void privateStreamSubmitReissue(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -2361,7 +2558,11 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // submit private stream request message
@@ -2531,8 +2732,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void privateStreamAggregationTest()
-    {
+    public void privateStreamAggregationTest_Socket() {
+
+        privateStreamAggregation(false, null);
+    }
+
+    @Test
+    public void privateStreamAggregationTest_WebSocket_Rwf() {
+
+        privateStreamAggregation(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamAggregationTest_WebSocket_Json() {
+
+        privateStreamAggregation(true, "tr_json2");
+    }
+
+    private void privateStreamAggregation(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -2543,7 +2761,7 @@ public class ReactorWatchlistJUnitNew
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
-                
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -2570,7 +2788,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // submit private stream request message twice
@@ -2644,8 +2865,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void privateStreamNonPrivateStreamAggregationTest()
-    {
+    public void privateStreamNonPrivateStreamAggregationTest_Socket() {
+
+        privateStreamNonPrivateStreamAggregation(false, null);
+    }
+
+    @Test
+    public void privateStreamNonPrivateStreamAggregationTest_WebSocket_Rwf() {
+
+        privateStreamNonPrivateStreamAggregation(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamNonPrivateStreamAggregationTest_WebSocket_Json() {
+
+        privateStreamNonPrivateStreamAggregation(true, "tr_json2");
+    }
+
+    private void privateStreamNonPrivateStreamAggregation(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -2683,7 +2921,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // submit non private stream request first then private stream request second
@@ -2754,8 +2995,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void privateStreamRecoveryTest()
-    {
+    public void privateStreamRecoveryTest_Socket() {
+
+        privateStreamRecovery(false, null);
+    }
+
+    @Test
+    public void privateStreamRecoveryTest_WebSocket_Rwf() {
+
+        privateStreamRecovery(true, "rssl.rwf");
+    }
+
+    @Test
+    public void privateStreamRecoveryTest_WebSocket_Json() {
+
+        privateStreamRecovery(true, "tr_json2");
+    }
+
+    private void privateStreamRecovery(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -2799,7 +3057,10 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(1);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // submit private stream request message
@@ -2924,8 +3185,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestTest()
-    {
+    public void batchRequestTest_Socket() {
+
+        batchRequest(false, null);
+    }
+
+    @Test
+    public void batchRequestTest_WebSocket_Rwf() {
+
+        batchRequest(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestTest_WebSocket_Json() {
+
+        batchRequest(true, "tr_json2");
+    }
+
+    private void batchRequest(boolean isWebsocket, String protocolList) {
+
         /* Test a simple batch request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -2970,7 +3248,11 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -3108,8 +3390,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestNormalRequestBeforeTest()
-    {
+    public void batchRequestNormalRequestBeforeTest_Socket() {
+
+        batchRequestNormalRequestBefore(false, null);
+    }
+
+    @Test
+    public void batchRequestNormalRequestBeforeTest_WebSocket_Rwf() {
+
+        batchRequestNormalRequestBefore(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestNormalRequestBeforeTest_WebSocket_Json() {
+
+        batchRequestNormalRequestBefore(true, "tr_json2");
+    }
+
+    private void batchRequestNormalRequestBefore(boolean isWebsocket, String protocolList) {
+
         /* Test a simple batch request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -3154,7 +3453,11 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -3372,8 +3675,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestNormalRequestAfterTest()
-    {
+    public void batchRequestNormalRequestAfterTest_Socket() {
+
+        batchRequestNormalRequestAfter(false, null);
+    }
+
+    @Test
+    public void batchRequestNormalRequestAfterTest_WebSocket_Rwf() {
+
+        batchRequestNormalRequestAfter(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestNormalRequestAfterTest_WebSocket_Json() {
+
+        batchRequestNormalRequestAfter(true, "tr_json2");
+    }
+
+    private void batchRequestNormalRequestAfter(boolean isWebsocket, String protocolList) {
+
         /* Test a simple batch request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -3418,7 +3738,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -3644,8 +3967,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestOutOfOrderTest()
-    {
+    public void batchRequestOutOfOrderTest_Socket() {
+
+        batchRequestOutOfOrder(false, null);
+    }
+
+    @Test
+    public void batchRequestOutOfOrderTest_WebSocket_Rwf() {
+
+        batchRequestOutOfOrder(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestOutOfOrderTest_WebSocket_Json() {
+
+        batchRequestOutOfOrder(true, "tr_json2");
+    }
+
+    private void batchRequestOutOfOrder(boolean isWebsocket, String protocolList) {
+
         /* Test a batch request/refresh exchange with the watchlist enabled, where two requests are sent
          * before both are received. */
         
@@ -3695,7 +4035,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -3926,8 +4269,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestOverlappingStreamsTest()
-    {
+    public void batchRequestOverlappingStreamsTes_Socket() {
+
+        batchRequestOverlappingStreams(false, null);
+    }
+
+    @Test
+    public void batchRequestOverlappingStreamsTes_WebSocket_Rwf() {
+
+        batchRequestOverlappingStreams(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestOverlappingStreamsTes_WebSocket_Json() {
+
+        batchRequestOverlappingStreams(true, "tr_json2");
+    }
+
+    void batchRequestOverlappingStreams(boolean isWebsocket, String protocolList) {
+
         /* Test a batch request where a stream we would create overlaps an already created stream, and fails. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -3971,7 +4331,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request on stream id 6. */
@@ -4057,8 +4420,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestServiceIdAndServiceNameTest()
-    {
+    public void batchRequestServiceIdAndServiceNameTest_Socket() {
+
+        batchRequestServiceIdAndServiceName(false, null);
+    }
+
+    @Test
+    public void batchRequestServiceIdAndServiceNameTest_WebSocket_Rwf() {
+
+        batchRequestServiceIdAndServiceName(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestServiceIdAndServiceNameTest_WebSocket_Json() {
+
+        batchRequestServiceIdAndServiceName(true, "tr_json2");
+    }
+
+    private void batchRequestServiceIdAndServiceName(boolean isWebsocket, String protocolList) {
+
         /* Test a batch request where we set the serviceId on the request, as well as serviceName in watchlist, to fail. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -4096,7 +4476,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer sends request. */
@@ -4125,8 +4508,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestMsgKeyItemNameTest()
-    {
+    public void batchRequestMsgKeyItemNameTest_Socket() {
+
+        batchRequestMsgKeyItemName(false, null);
+    }
+
+    @Test
+    public void batchRequestMsgKeyItemNameTest_WebSocket_Rwf() {
+
+        batchRequestMsgKeyItemName(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestMsgKeyItemNameTest_WebSocket_Json() {
+
+        batchRequestMsgKeyItemName(true, "tr_json2");
+    }
+
+    private void batchRequestMsgKeyItemName(boolean isWebsocket, String protocolList) {
+
         /* Test a batch request where MsgKey ItemName is set on the request, which should fail */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -4164,7 +4564,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer sends request. */
@@ -4195,8 +4598,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestSymbolListTest()
-    {
+    public void batchRequestSymbolListTest_Socket() {
+
+        batchRequestSymbolList(false, null);
+    }
+
+    @Test
+    public void batchRequestSymbolListTest_WebSocket_Rwf() {
+
+        batchRequestSymbolList(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestSymbolListTest_WebSocket_Json() {
+
+        batchRequestSymbolList(true, "tr_json2");
+    }
+
+    private void batchRequestSymbolList(boolean isWebsocket, String protocolList) {
+
         /* Test a batch request/refresh exchange that has a symbolList, with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -4241,7 +4661,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -4382,8 +4805,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestSymbolListTestNoBehaviors()
-    {
+    public void batchRequestSymbolListTestNoBehaviors_Socket() {
+
+        batchRequestSymbolListNoBehaviors(false, null);
+    }
+
+    @Test
+    public void batchRequestSymbolListTestNoBehaviors_WebSocket_Rwf() {
+
+        batchRequestSymbolListNoBehaviors(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestSymbolListTestNoBehaviors_WebSocket_Json() {
+
+        batchRequestSymbolListNoBehaviors(true, "tr_json2");
+    }
+
+    private void batchRequestSymbolListNoBehaviors(boolean isWebsocket, String protocolList) {
+
         /* Test a batch request/refresh exchange that has a symbolList, with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -4428,7 +4868,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -4571,17 +5014,33 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void batchRequestWithViewTest()
-    {
+    public void batchRequestWithViewTest_Socket() {
+
+        batchRequestWithView(false, null);
+    }
+
+    @Test
+    public void batchRequestWithViewTest_WebSocket_Rwf() {
+
+        batchRequestWithView(true, "rssl.rwf");
+    }
+
+    @Test
+    public void batchRequestWithViewTest_WebSocket_Json() {
+
+        batchRequestWithView(true, "tr_json2");
+    }
+
+    private void batchRequestWithView(boolean isWebsocket, String protocolList) {
+
         /* Test a simple batch view request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
-        Msg msg = CodecFactory.createMsg();
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         int providerStreamId;
@@ -4617,6 +5076,8 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
         TestReactor.openSession(consumer, provider, opts);
         
@@ -4715,7 +5176,8 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.FIELD_LIST, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-        assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody()));
+        if (protocolList == null || !protocolList.contains("json"))
+            assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody())); //transformation to json alters the hint and value of the real number (without altering the real number)
         
         // Provider processes request for IBM.N
         event = providerReactor.pollEvent();
@@ -4771,7 +5233,8 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.FIELD_LIST, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-        assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody()));
+        if (protocolList == null || !protocolList.contains("json"))
+            assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody())); //transformation to json alters the hint and value of the real number (without altering the real number)
 
         TestReactorComponent.closeSession(consumer, provider);
     }
@@ -4979,7 +5442,6 @@ public class ReactorWatchlistJUnitNew
         	msg.encodedDataBody(buffer);
         }
 	}
-	
 
 	private void encodeBatchWithSymbolList(ReactorChannel rc, RequestMsg msg, boolean hasBehaviors) {
         Buffer buf = CodecFactory.createBuffer();
@@ -5088,18 +5550,35 @@ public class ReactorWatchlistJUnitNew
 		assertTrue(ret >= ReactorReturnCodes.SUCCESS);		
     }
 
-   @Test
-    public void symbolListDataStreamTest()
-    {
+    @Test
+    public void symbolListDataStreamTest_Socket() {
+
+        symbolListDataStream(false, null);
+    }
+
+    @Test
+    public void symbolListDataStreamTest_WebSocket_Rwf() {
+
+        symbolListDataStream(true, "rssl.rwf");
+    }
+
+    @Test
+    public void symbolListDataStreamTest_WebSocket_Json() {
+
+        symbolListDataStream(true, "tr_json2");
+    }
+
+    private void symbolListDataStream(boolean isWebsocket, String protocolList) {
+
         /* Test a symbolList data stream request/refresh exchange with the watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
         Msg msg = CodecFactory.createMsg();
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         int providerStreamId;
                 
@@ -5134,7 +5613,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -5143,40 +5625,40 @@ public class ReactorWatchlistJUnitNew
         requestMsg.streamId(5);
         requestMsg.domainType(DomainTypes.SYMBOL_LIST);
         requestMsg.applyStreaming();
-        
-	    Buffer payload = CodecFactory.createBuffer(); 
+
+	    Buffer payload = CodecFactory.createBuffer();
 	    payload.data(ByteBuffer.allocate(1024));
 
 	    EncodeIterator encIter = CodecFactory.createEncodeIterator();
 		encIter.clear();
 		encIter.setBufferAndRWFVersion(payload, consumerReactor._reactor.reactorChannel().majorVersion(),
 				consumerReactor._reactor.reactorChannel().minorVersion());
-			
+
 		requestMsg.clear();
 		/* set-up message */
 		requestMsg.msgClass(MsgClasses.REQUEST);
 		requestMsg.streamId(5);
-		requestMsg.domainType(DomainTypes.SYMBOL_LIST);	       
-		requestMsg.containerType(DataTypes.ELEMENT_LIST);	       
+		requestMsg.domainType(DomainTypes.SYMBOL_LIST);
+		requestMsg.containerType(DataTypes.ELEMENT_LIST);
 		requestMsg.applyHasQos();
 		requestMsg.qos().rate(QosRates.TICK_BY_TICK);
 		requestMsg.qos().timeliness(QosTimeliness.REALTIME);
 		requestMsg.applyHasPriority();
 		requestMsg.priority().priorityClass(1);
-		requestMsg.priority().count(1);	      
+		requestMsg.priority().count(1);
 		requestMsg.applyStreaming();
-	       		
+
 		ElementList elementList = CodecFactory.createElementList();
 		elementList.clear();
 		elementList.applyHasStandardData();
-		
+
 		int ret = elementList.encodeInit(encIter, null, 0);
 		assertTrue(ret >= ReactorReturnCodes.SUCCESS);
 
         encodeSymbolListBehaviorsElement(encIter, SymbolList.SymbolListDataStreamRequestFlags.SYMBOL_LIST_DATA_STREAMS);
 		ret = elementList.encodeComplete(encIter, true);
 		assertTrue(ret >= ReactorReturnCodes.SUCCESS);
-        requestMsg.encodedDataBody(payload);        
+        requestMsg.encodedDataBody(payload);
         submitOptions.clear();
         submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
         assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
@@ -5317,17 +5799,34 @@ public class ReactorWatchlistJUnitNew
         TestReactorComponent.closeSession(consumer, provider);
     }    
 
-   @Test
-   public void symbolListDataSnapshotTest()
-   {
+    @Test
+    public void symbolListDataSnapshotTest_Socket() {
+
+       symbolListDataSnapshot(false, null);
+    }
+
+    @Test
+    public void symbolListDataSnapshotTest_WebSocket_Rwf() {
+
+        symbolListDataSnapshot(true, "rssl.rwf");
+    }
+
+    @Test
+    public void symbolListDataSnapshotTest_WebSocket_Json() {
+
+        symbolListDataSnapshot(true, "tr_json2");
+    }
+
+    private void symbolListDataSnapshot(boolean isWebsocket, String protocolList) {
+
        /* Test a symbol list snapshot request, that also requests data snapshots. */
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
        Msg msg = CodecFactory.createMsg();
-       RequestMsg requestMsg = (RequestMsg)msg;
+       RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
        RequestMsg receivedRequestMsg;
-       RefreshMsg refreshMsg = (RefreshMsg)msg;
+       RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
        RefreshMsg receivedRefreshMsg;
        UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
        CloseMsg receivedCloseMsg;
@@ -5365,7 +5864,10 @@ public class ReactorWatchlistJUnitNew
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
        opts.reconnectAttemptLimit(-1);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
 
        Buffer payload = CodecFactory.createBuffer(); 
@@ -5749,8 +6251,25 @@ public class ReactorWatchlistJUnitNew
    }    
 
     @Test
-    public void symbolListDataStreamTest_Reconnect()
-    {
+    public void symbolListDataStreamTest_Reconnect_Socket() {
+
+        symbolListDataStream_Reconnect(false, null);
+    }
+
+    @Test
+    public void symbolListDataStreamTest_Reconnect_WebSocket_Rwf() {
+
+        symbolListDataStream_Reconnect(true, "rssl.rwf");
+    }
+
+    @Test
+    public void symbolListDataStreamTest_Reconnect_WebSocket_Json() {
+
+        symbolListDataStream_Reconnect(true, "tr_json2");
+    }
+
+    private void symbolListDataStream_Reconnect(boolean isWebsocket, String protocolList) {
+
         /* Test recovery of symbol list data streams after reconnect:
          * 1) Open a symbol list stream, requesting data streams
          * 2) Establish symbol list and item streams
@@ -5800,7 +6319,10 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends symbol list request, which requests data streams. */
@@ -6251,8 +6773,25 @@ public class ReactorWatchlistJUnitNew
     }    
 
     @Test
-    public void symbolListDataStreamUpdateSymbolListTest()
-    {
+    public void symbolListDataStreamUpdateSymbolListTest_Socket() {
+
+        symbolListDataStreamUpdateSymbolList(false, null);
+    }
+
+    @Test
+    public void symbolListDataStreamUpdateSymbolListTest_WebSocket_Rwf() {
+
+        symbolListDataStreamUpdateSymbolList(true, "rssl.rwf");
+    }
+
+    @Test
+    public void symbolListDataStreamUpdateSymbolListTest_WebSocket_Json() {
+
+        symbolListDataStreamUpdateSymbolList(true, "tr_json2");
+    }
+
+    private void symbolListDataStreamUpdateSymbolList(boolean isWebsocket, String protocolList) {
+
         /* Test updates to a symbol list with a consumer requesting symbol list data streams:
          * - Initially send a symbol list refresh with three items, which will be automatically requested. Refresh these items.
          * - Send an update to add a fourth item, which will be automatically requested. Refresh this item (with a non-streaming refresh).
@@ -6307,7 +6846,10 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         Buffer payload = CodecFactory.createBuffer(); 
@@ -6836,8 +7378,25 @@ public class ReactorWatchlistJUnitNew
     }    
 
     @Test
-    public void symbolListDataStreamTest_MsgKey()
-    {
+    public void symbolListDataStreamTest_MsgKey_Socket() {
+
+        symbolListDataStream_MsgKey(false, null);
+    }
+
+    @Test
+    public void symbolListDataStreamTest_MsgKey_WebSocket_Rwf() {
+
+        symbolListDataStream_MsgKey(true, "rssl.rwf");
+    }
+
+    @Test
+    public void symbolListDataStreamTest_MsgKey_WebSocket_Json() {
+
+        symbolListDataStream_MsgKey(true, "tr_json2");
+    }
+
+    private void symbolListDataStream_MsgKey(boolean isWebsocket, String protocolList) {
+
         /* Test that the watchlist adds the MsgKey to symbol list data streams when appropriate --
          * namely when the initial response does not contain one. */
 
@@ -6888,7 +7447,10 @@ public class ReactorWatchlistJUnitNew
             opts.setupDefaultLoginStream(true);
             opts.setupDefaultDirectoryStream(true);
             opts.reconnectAttemptLimit(-1);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
             provider.bind(opts);
+
             TestReactor.openSession(consumer, provider, opts);
 
             /* Consumer sends symbol list request, which requests data streams. */
@@ -7247,8 +7809,25 @@ public class ReactorWatchlistJUnitNew
    }
 
    @Test
-   public void symbolListDataStreamTest_FromChannelOpenCallback()
-   {
+   public void symbolListDataStreamTest_FromChannelOpenCallback_Socket() {
+
+       symbolListDataStream_FromChannelOpenCallback(false, null);
+   }
+
+    @Test
+    public void symbolListDataStreamTest_FromChannelOpenCallback_WebSocket_Rwf() {
+
+        symbolListDataStream_FromChannelOpenCallback(true, "rssl.rwf");
+    }
+
+    @Test
+    public void symbolListDataStreamTest_FromChannelOpenCallback_WebSocket_Json() {
+
+        symbolListDataStream_FromChannelOpenCallback(true, "tr_json2");
+    }
+
+   private void symbolListDataStream_FromChannelOpenCallback(boolean isWebsocket, String protocolList) {
+
        /* Test requesting a symbol list with data streams from the channel-open callback. */
 
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -7294,7 +7873,10 @@ public class ReactorWatchlistJUnitNew
        opts.setupDefaultDirectoryStream(true);
        opts.reconnectAttemptLimit(-1);
        opts.numStatusEvents(1);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
 
        /* Provider receives symbol list request. */
@@ -7487,9 +8069,26 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }    
 
-   @Test
-   public void singleOpenZeroOpenCallbackSubmitRecoverTest()
-   {
+    @Test
+    public void singleOpenZeroOpenCallbackSubmitRecoverTest_Socket() {
+
+        singleOpenZeroOpenCallbackSubmitRecover(false, null);
+    }
+
+    @Test
+    public void singleOpenZeroOpenCallbackSubmitRecoverTest_WebSocket_Rwf() {
+
+        singleOpenZeroOpenCallbackSubmitRecover(true, "rssl.rwf");
+    }
+
+    @Test
+    public void singleOpenZeroOpenCallbackSubmitRecoverTest_WebSocket_Json() {
+
+        singleOpenZeroOpenCallbackSubmitRecover(true, "tr_json2");
+    }
+
+   private void singleOpenZeroOpenCallbackSubmitRecover(boolean isWebsocket, String protocolList) {
+
        TestReactorEvent event;
                
        /* Create reactors. */
@@ -7526,7 +8125,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        opts.numStatusEvents(1); // set number of expected status message from request submitted in channel open callback
        TestReactor.openSession(consumer, provider, opts);
        
@@ -7539,8 +8141,25 @@ public class ReactorWatchlistJUnitNew
    }
    
    @Test
-   public void itemPauseResumeTest()
-   {
+   public void itemPauseResumeTest_Socket() {
+
+       itemPauseResume(false, null);
+   }
+
+    @Test
+    public void itemPauseResumeTest_WebSocket_Rwf() {
+
+        itemPauseResume(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemPauseResumeTest_WebSocket_Json() {
+
+        itemPauseResume(true, "tr_json2");
+    }
+
+    private void itemPauseResume(boolean isWebsocket, String protocolList) {
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -7582,7 +8201,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        // submit two aggregated request messages
@@ -7758,9 +8380,26 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
     
-   @Test
-   public void loginPauseResumeTest()
-   {
+    @Test
+    public void loginPauseResumeTest_Socket() {
+
+        loginPauseResume(false, null);
+    }
+
+    @Test
+    public void loginPauseResumeTest_WebSocket_Rwf() {
+
+        loginPauseResume(true, "rssl.rwf");
+    }
+
+    @Test
+    public void loginPauseResumeTest_WebSocket_Json() {
+
+        loginPauseResume(true, "tr_json2");
+    }
+
+    private void loginPauseResume(boolean isWebsocket, String protocolList) {
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -7801,7 +8440,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        // submit a item request messages
@@ -8086,9 +8728,26 @@ public class ReactorWatchlistJUnitNew
 		TestReactorComponent.closeSession(consumer, provider);
 	}
  
-   @Test
-   public void loginPauseResumeTokenTest()
-   {
+    @Test
+    public void loginPauseResumeTokenTest_Socket() {
+
+        loginPauseResumeToken(false, null);
+    }
+
+    @Test
+    public void loginPauseResumeTokenTest_WebSocket_Rwf() {
+
+        loginPauseResumeToken(true, "rssl.rwf");
+    }
+
+    @Test
+    public void loginPauseResumeTokenTest_WebSocket_Json() {
+
+        loginPauseResumeToken(true, "tr_json2");
+    }
+
+    private void loginPauseResumeToken(boolean isWebsocket, String protocolList) {
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -8137,7 +8796,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        // submit a item request messages
@@ -8291,9 +8953,26 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }   
  
-   @Test
-   public void itemDoubleCloseTest()
-   {
+    @Test
+    public void itemDoubleCloseTest_Socket() {
+
+       itemDoubleClose(false, null);
+   }
+
+    @Test
+    public void itemDoubleCloseTest_WebSocket_Rwf() {
+
+        itemDoubleClose(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemDoubleCloseTest_WebSocket_Json() {
+
+        itemDoubleClose(true, "tr_json2");
+    }
+
+    private void itemDoubleClose(boolean isWebsocket, String protocolList) {
+
        /* Test a simple request/refresh exchange with the watchlist enabled. */
        
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -8338,7 +9017,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        /* Consumer sends request. */
@@ -8428,9 +9110,9 @@ public class ReactorWatchlistJUnitNew
        assertTrue(consumer.submitAndDispatch(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
    }
    
-   /* Used by serviceDownCloseItemRecoverTest. */
-   class CloseUserRequestFromDirectoryCallbackConsumer extends Consumer
-   {
+    /* Used by serviceDownCloseItemRecoverTest. */
+    class CloseUserRequestFromDirectoryCallbackConsumer extends Consumer
+    {
        public CloseUserRequestFromDirectoryCallbackConsumer(TestReactor testReactor)
        {
            super(testReactor);
@@ -8460,9 +9142,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void serviceDownCloseItemRecoverTest()
-   {
+    @Test
+    public void serviceDownCloseItemRecoverTest_Socket() {
+
+        serviceDownCloseItemRecover(false, null);
+    }
+
+    @Test
+    public void serviceDownCloseItemRecoverTest_WebSocket_Rwf() {
+
+        serviceDownCloseItemRecover(true, "rssl.rwf");
+    }
+
+    @Test
+    public void serviceDownCloseItemRecoverTest_WebSocket_Json() {
+
+        serviceDownCloseItemRecover(true, "tr_json2");
+    }
+
+    private void serviceDownCloseItemRecover(boolean isWebsocket, String protocolList) {
+
        /* Test a simple request/refresh exchange with the watchlist enabled. */
        
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -8510,7 +9209,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        /* Consumer sends request. */
@@ -8934,9 +9636,26 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
 
-   @Test
-   public void serviceDownOpenItemRecoverTest()
-   {
+    @Test
+    public void serviceDownOpenItemRecoverTest_Socket() {
+
+       serviceDownOpenItemRecover(false, null);
+   }
+
+    @Test
+    public void serviceDownOpenItemRecoverTest_Socket_Rwf() {
+
+        serviceDownOpenItemRecover(true, "rssl.rwf");
+    }
+
+    @Test
+    public void serviceDownOpenItemRecoverTest_Socket_Json() {
+
+        serviceDownOpenItemRecover(true, "tr_json2");
+    }
+
+    private void serviceDownOpenItemRecover(boolean isWebsocket, String protocolList) {
+
        /* Test a simple request/refresh exchange with the watchlist enabled. */
        
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -8982,7 +9701,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        /* Consumer sends request. */
@@ -9521,9 +10243,26 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
 
-   @Test
-   public void closeConsumerChannelTest()
-   {
+    @Test
+    public void closeConsumerChannelTest_Socket() {
+
+        closeConsumerChannel(false, null);
+    }
+
+    @Test
+    public void closeConsumerChannelTest_WebSocket_Rwf() {
+
+        closeConsumerChannel(true, "rssl.rwf");
+    }
+
+    @Test
+    public void closeConsumerChannelTest_WebSocket_Json() {
+
+        closeConsumerChannel(true, "tr_json2");
+    }
+
+    private void closeConsumerChannel(boolean isWebsocket, String protocolList) {
+
        /* Test opening some streams and then closing the channel from the consumer side. */
 
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -9567,7 +10306,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
 
        /* Consumer sends request. */
@@ -9654,8 +10396,8 @@ public class ReactorWatchlistJUnitNew
    }
    
    /* Used by submitPostOnItemRefeshTest. */
-   class PostFromDefaultMsgCallbackConsumer extends Consumer
-   {
+    class PostFromDefaultMsgCallbackConsumer extends Consumer
+    {
        public PostFromDefaultMsgCallbackConsumer(TestReactor testReactor)
        {
            super(testReactor);
@@ -9694,9 +10436,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void submitPostOnItemRefeshTest()
-   {
+    @Test
+    public void submitPostOnItemRefeshTest_Socket() {
+
+       submitPostOnItemRefesh(false, null);
+   }
+
+    @Test
+    public void submitPostOnItemRefeshTest_WebSocket_Rwf() {
+
+        submitPostOnItemRefesh(true, "rssl.rwf");
+    }
+
+    @Test
+    public void submitPostOnItemRefeshTest_WebSocket_Json() {
+
+        submitPostOnItemRefesh(true, "tr_json2");
+    }
+
+    private void submitPostOnItemRefesh(boolean isWebsocket, String protocolList) {
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -9738,7 +10497,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        /* Consumer sends request. */
@@ -9821,10 +10583,9 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
 
-   
-   /* Used by submitOffstreamPostOnItemRefeshTest. */
-   class OffPostFromDefaultMsgCallbackConsumer extends Consumer
-   {
+    /* Used by submitOffstreamPostOnItemRefeshTest. */
+    class OffPostFromDefaultMsgCallbackConsumer extends Consumer
+    {
        public OffPostFromDefaultMsgCallbackConsumer(TestReactor testReactor)
        {
            super(testReactor);
@@ -9890,9 +10651,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void submitOffstreamPostOnItemRefeshTest()
-   {
+    @Test
+    public void submitOffstreamPostOnItemRefeshTest_Socket() {
+
+       submitOffstreamPostOnItemRefesh(false, null);
+   }
+
+    @Test
+    public void submitOffstreamPostOnItemRefeshTest_WebSocket_Rwf() {
+
+        submitOffstreamPostOnItemRefesh(true, "rssl.rwf");
+    }
+
+    @Test
+    public void submitOffstreamPostOnItemRefeshTest_WebSocket_Json() {
+
+        submitOffstreamPostOnItemRefesh(true, "tr_json2");
+    }
+
+    private void submitOffstreamPostOnItemRefesh(boolean isWebsocket, String protocolList) {
+
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
        TestReactorEvent event;
        ReactorMsgEvent msgEvent;
@@ -9934,7 +10712,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        /* Consumer sends request. */
@@ -10045,18 +10826,21 @@ public class ReactorWatchlistJUnitNew
        dIter.setBufferAndRWFVersion(offstreamPost.encodedDataBody(), msgEvent.reactorChannel().majorVersion(), msgEvent.reactorChannel().minorVersion());
        Msg extractedMsg = CodecFactory.createMsg();
        assertEquals(extractedMsg.decode(dIter), ReactorReturnCodes.SUCCESS);
-       assertEquals(0, extractedMsg.flags());
+       if (protocolList == null || (!protocolList.contains("json"))) /* JSON Converter uses some default values for Refresh message, hence flags do not coincide */
+           assertEquals(0, extractedMsg.flags());
        extractedMsg.streamId(3);
        assertTrue(provider.submitAndDispatch(extractedMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
 
-       /* Consumer receives extracted refresh message. */
-       consumerReactor.dispatch(1);
-       event = consumerReactor.pollEvent();
-       assertEquals(TestReactorEventTypes.MSG, event.type());
-       msgEvent = (ReactorMsgEvent)event.reactorEvent();
-       assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
-       assertEquals(0, msgEvent.msg().flags());
-       
+       if (protocolList == null || (!protocolList.contains("json"))) {
+           /* Consumer receives extracted refresh message. */
+           consumerReactor.dispatch(1);
+           event = consumerReactor.pollEvent();
+           assertEquals(TestReactorEventTypes.MSG, event.type());
+           msgEvent = (ReactorMsgEvent)event.reactorEvent();
+           assertEquals(MsgClasses.REFRESH, msgEvent.msg().msgClass());
+           assertEquals(0, msgEvent.msg().flags());
+       }
+
        // sleep for 7 seconds and no more consumer events should be received
        try
        {
@@ -10070,18 +10854,42 @@ public class ReactorWatchlistJUnitNew
    }
 
     @Test
-    public void snapshotOnStreamingAggregationTest()
+    public void snapshotOnStreamingAggregationTest_Socket()
     {
-        snapshotOnStreamingAggregationTest(false);
+        snapshotOnStreamingAggregationTest(false, false, null);
     }
 
     @Test
-    public void snapshotOnStreamingAggregationTest_dispatchBetweenItemRequests()
+    public void snapshotOnStreamingAggregationTest_dispatchBetweenItemRequests_Socket()
     {
-        snapshotOnStreamingAggregationTest(true);
+        snapshotOnStreamingAggregationTest(true, false, null);
     }
 
-    public void snapshotOnStreamingAggregationTest(boolean dispatchBetweenItemRequests)
+    @Test
+    public void snapshotOnStreamingAggregationTest_WebSocket_Rwf()
+    {
+        snapshotOnStreamingAggregationTest(false, true, "rssl.rwf");
+    }
+
+    @Test
+    public void snapshotOnStreamingAggregationTest_dispatchBetweenItemRequests_WebSocket_Rwf()
+    {
+        snapshotOnStreamingAggregationTest(true, true, "rssl.rwf");
+    }
+
+    @Test
+    public void snapshotOnStreamingAggregationTest_WebSocket_Json()
+    {
+        snapshotOnStreamingAggregationTest(false, true, "tr_json2");
+    }
+
+    @Test
+    public void snapshotOnStreamingAggregationTest_dispatchBetweenItemRequests_WebSocket_Json()
+    {
+        snapshotOnStreamingAggregationTest(true, true, "tr_json2");
+    }
+
+    private void snapshotOnStreamingAggregationTest(boolean dispatchBetweenItemRequests, boolean isWebsocket, String protocolList)
     {
 		/* Test aggregation of a snapshot request onto a streaming request. */
         
@@ -10129,7 +10937,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends streaming request. */
@@ -10428,7 +11239,21 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        
+        opts.setProtocolList("rssl.rwf");
+        opts.connectionType(ConnectionTypes.WEBSOCKET);
         provider.bind(opts);
+
+        ReactorJsonConverterOptions options = new ReactorJsonConverterOptions();
+        options.serviceNameToIdCallback(consumer);
+        options.jsonConversionEventCallback(consumer);
+        assertEquals(CodecReturnCodes.SUCCESS, consumer._testReactor._reactor.initJsonConverter(options, consumerReactor._errorInfo));
+
+        options.serviceNameToIdCallback(provider);
+        options.jsonConversionEventCallback(provider);
+        assertEquals(CodecReturnCodes.SUCCESS, provider._testReactor._reactor.initJsonConverter(options, providerReactor._errorInfo));
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends streaming request. */
@@ -10598,8 +11423,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void streamingSnapshotBeforeChannelReadyTest()
-    {
+    public void streamingSnapshotBeforeChannelReadyTest_Socket() {
+
+        streamingSnapshotBeforeChannelReady(false, null);
+    }
+
+    @Test
+    public void streamingSnapshotBeforeChannelReadyTest_WebSocket_Rwf() {
+
+        streamingSnapshotBeforeChannelReady(true, "rssl.rwf");
+    }
+
+    @Test
+    public void streamingSnapshotBeforeChannelReadyTest_WebSocket_Json() {
+
+        streamingSnapshotBeforeChannelReady(true, "tr_json2");
+    }
+
+    private void streamingSnapshotBeforeChannelReady(boolean isWebsocket, String protocolList) {
+
         /* Test aggregation of streaming then Snapshot requests before channel ready */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -10645,7 +11487,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         opts.numStatusEvents(2); // set number of expected status message from request submitted in channel open callback
         TestReactor.openSession(consumer, provider, opts);
         
@@ -10756,8 +11601,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void snapshotStreamingBeforeChannelReadyTest()
-    {
+    public void snapshotStreamingBeforeChannelReadyTest_Socket() {
+
+        snapshotStreamingBeforeChannelReady(false, null);
+    }
+
+    @Test
+    public void snapshotStreamingBeforeChannelReadyTest_WebSocket_Rwf() {
+
+        snapshotStreamingBeforeChannelReady(true, "rssl.rwf");
+    }
+
+    @Test
+    public void snapshotStreamingBeforeChannelReadyTest_WebSocket_Json() {
+
+        snapshotStreamingBeforeChannelReady(true, "tr_json2");
+    }
+
+    private void snapshotStreamingBeforeChannelReady(boolean isWebsocket, String protocolList) {
+
         /* Test aggregation of streaming then Snapshot requests before channel ready */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -10803,6 +11665,9 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
         provider.bind(opts);
         opts.numStatusEvents(2); // set number of expected status message from request submitted in channel open callback
         TestReactor.openSession(consumer, provider, opts);
@@ -10913,8 +11778,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void snapshotStreamingViewMixAggregationBeforeChannelReadyTest()
-    {
+    public void snapshotStreamingViewMixAggregationBeforeChannelReadyTest_Socket() {
+
+        snapshotStreamingViewMixAggregationBeforeChannelReady(false, null);
+    }
+
+    @Test
+    public void snapshotStreamingViewMixAggregationBeforeChannelReadyTest_WebSocket_Rwf() {
+
+        snapshotStreamingViewMixAggregationBeforeChannelReady(true, "rssl.rwf");
+    }
+
+    @Test
+    public void snapshotStreamingViewMixAggregationBeforeChannelReadyTest_WebSocket_Json() {
+
+        snapshotStreamingViewMixAggregationBeforeChannelReady(true, "tr_json2");
+    }
+
+    private void snapshotStreamingViewMixAggregationBeforeChannelReady(boolean isWebsocket, String protocolList) {
+
         /* Test aggregation of 4 requests, Snapshot, Snapshot-View, Streaming, and Streaming-View */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -10960,6 +11842,9 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+
         provider.bind(opts);
         opts.numStatusEvents(4); // set number of expected status message from request submitted in channel open callback
         TestReactor.openSession(consumer, provider, opts);
@@ -11127,8 +12012,25 @@ public class ReactorWatchlistJUnitNew
     }
    
     @Test
-    public void snapshotAggregationOnClosedStreamTest()
-    {
+    public void snapshotAggregationOnClosedStreamTest_Socket() {
+
+        snapshotAggregationOnClosedStream(false, null);
+    }
+
+    @Test
+    public void snapshotAggregationOnClosedStreamTest_WebSocket_Rwf() {
+
+        snapshotAggregationOnClosedStream(true, "rssl.rwf");
+    }
+
+    @Test
+    public void snapshotAggregationOnClosedStreamTest_WebSocket_Json() {
+
+        snapshotAggregationOnClosedStream(true, "tr_json2");
+    }
+
+    private void snapshotAggregationOnClosedStream(boolean isWebsocket, String protocolList) {
+
         /* Test aggregation of a snapshot request, using a previously closed stream. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -11173,7 +12075,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends snapshot request for TRI1, TRI2, TRI3 */
@@ -11420,8 +12325,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void streamingAggregationCloseReuseStreamTest()
-    {
+    public void streamingAggregationCloseReuseStreamTest_Socket() {
+
+        streamingAggregationCloseReuseStream(false, null);
+    }
+
+    @Test
+    public void streamingAggregationCloseReuseStreamTest_WebSocket_Rwf() {
+
+        streamingAggregationCloseReuseStream(true, "rssl.rwf");
+    }
+
+    @Test
+    public void streamingAggregationCloseReuseStreamTest_WebSocket_Json() {
+
+        streamingAggregationCloseReuseStream(true, "tr_json2");
+    }
+
+    private void streamingAggregationCloseReuseStream(boolean isWebsocket, String protocolList) {
+
         /* Test aggregation of a streaming request, using a previously closed stream. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -11466,7 +12388,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends streaming request for TRI1, TRI2, TRI3 */
@@ -11638,8 +12563,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void snapshotBeforeStreamingRequest()
-    {
+    public void snapshotBeforeStreamingRequest_Socket() {
+
+        snapshotBeforeStreamingRequest(false, null);
+    }
+
+    @Test
+    public void snapshotBeforeStreamingRequest_WebSocket_Rwf() {
+
+        snapshotBeforeStreamingRequest(true, "rssl.rwf");
+    }
+
+    @Test
+    public void snapshotBeforeStreamingRequest_WebSocket_Json() {
+
+        snapshotBeforeStreamingRequest(true, "tr_json2");
+    }
+
+    private void snapshotBeforeStreamingRequest(boolean isWebsocket, String protocolList) {
+
 		/* Test aggregation of a snapshot request onto a streaming request. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -11684,7 +12626,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends snapshot request */
@@ -11847,21 +12792,21 @@ public class ReactorWatchlistJUnitNew
         TestReactorComponent.closeSession(consumer, provider);
     }
     
-   @Test
-   public void loginClosedRecoverTest_SingleOpenOn()
+    @Test
+    public void loginClosedRecoverTest_SingleOpenOn()
    {
        loginClosedRecoverTest(true);
    }
    
-   @Test
-   public void loginClosedRecoverTest_SingleOpenOff()
+    @Test
+    public void loginClosedRecoverTest_SingleOpenOff()
    {
        loginClosedRecoverTest(false);
    }
    
    
-   public void loginClosedRecoverTest(boolean singleOpen)
-   {
+    public void loginClosedRecoverTest(boolean singleOpen)
+    {
        /* Tests behavior in response to receiving login closed/recover.
         * We should see:
         * - Watchlist disconnects in response to receiving this
@@ -11927,7 +12872,7 @@ public class ReactorWatchlistJUnitNew
        opts.reconnectAttemptLimit(-1);
        opts.reconnectMinDelay(reconnectMinDelay);
        opts.reconnectMaxDelay(reconnectMaxDelay);
-       
+
        provider.bind(opts);
        TestReactor.openSession(consumer, provider, opts);
        
@@ -12407,9 +13352,9 @@ public class ReactorWatchlistJUnitNew
        providerReactor.close();
    }
 
-   /* Used by submitOffstreamPostOnItemRefeshTest. */
-   class PriorityChangeFromCallbackConsumer extends Consumer
-   {
+    /* Used by submitOffstreamPostOnItemRefeshTest. */
+    class PriorityChangeFromCallbackConsumer extends Consumer
+    {
        public PriorityChangeFromCallbackConsumer(TestReactor testReactor)
        {
            super(testReactor);
@@ -12441,9 +13386,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void priorityChangeInAndOutOfCallbackTest()
-   {
+    @Test
+    public void priorityChangeInAndOutOfCallbackTest_Socket() {
+
+       priorityChangeInAndOutOfCallback(false, null);
+   }
+
+    @Test
+    public void priorityChangeInAndOutOfCallbackTest_WebSocket_Rwf() {
+
+        priorityChangeInAndOutOfCallback(true, "rssl.rwf");
+    }
+
+    @Test
+    public void priorityChangeInAndOutOfCallbackTest_WebSocket_Json() {
+
+        priorityChangeInAndOutOfCallback(true, "tr_json2");
+    }
+
+    private void priorityChangeInAndOutOfCallback(boolean isWebsocket, String protocolList) {
+
        /* Simple test of changing priority both inside and outside a callback.
         * Reproduced ETA-2144 (a NullPointerException when changing priority) */
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -12487,7 +13449,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
        
        /* Consumer sends request. */
@@ -12624,9 +13589,9 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
 
-   /* Used by snapshotAggregationBeforeChannelReadyTestd Test. */
-   class sendMultipleSnapshotsBeforeChannelReady extends Consumer
-   {
+    /* Used by snapshotAggregationBeforeChannelReadyTestd Test. */
+    class sendMultipleSnapshotsBeforeChannelReady extends Consumer
+    {
        public sendMultipleSnapshotsBeforeChannelReady(TestReactor testReactor)
        {
            super(testReactor);
@@ -12674,9 +13639,9 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   /* Used by itemViewAggregateSnapshotBeforeChannelReadyTest Test. */
-   class itemViewAggregateSnapshotBeforeChannelReadyTest extends Consumer
-   {
+    /* Used by itemViewAggregateSnapshotBeforeChannelReadyTest Test. */
+    class itemViewAggregateSnapshotBeforeChannelReadyTest extends Consumer
+    {
        public itemViewAggregateSnapshotBeforeChannelReadyTest(TestReactor testReactor)
        {
            super(testReactor);
@@ -12737,9 +13702,9 @@ public class ReactorWatchlistJUnitNew
        }
    }
    
-   /* Used by snapshotStreamingViewMixAggregationBeforeChannelReadyTest Test. */
-   class snapshotStreamingViewMixAggregationBeforeChannelReady extends Consumer
-   {
+    /* Used by snapshotStreamingViewMixAggregationBeforeChannelReadyTest Test. */
+    class snapshotStreamingViewMixAggregationBeforeChannelReady extends Consumer
+    {
        public snapshotStreamingViewMixAggregationBeforeChannelReady(TestReactor testReactor)
        {
            super(testReactor);
@@ -12839,9 +13804,9 @@ public class ReactorWatchlistJUnitNew
        }
    }
    
-   /* Used by streamingSnapshotBeforeChannelReadyTest Test. */
-   class streamingSnapshotBeforeChannelReady extends Consumer
-   {
+    /* Used by streamingSnapshotBeforeChannelReadyTest Test. */
+    class streamingSnapshotBeforeChannelReady extends Consumer
+    {
        public streamingSnapshotBeforeChannelReady(TestReactor testReactor)
        {
            super(testReactor);
@@ -12894,9 +13859,9 @@ public class ReactorWatchlistJUnitNew
        }
    }
    
-   /* Used by snapshotStreamingBeforeChannelReadyTest Test. */
-   class snapshotStreamingBeforeChannelReady extends Consumer
-   {
+    /* Used by snapshotStreamingBeforeChannelReadyTest Test. */
+    class snapshotStreamingBeforeChannelReady extends Consumer
+    {
        public snapshotStreamingBeforeChannelReady(TestReactor testReactor)
        {
            super(testReactor);
@@ -12949,10 +13914,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
    
-   
-   @Test
-   public void snapshotAggregationBeforeChannelReadyTest()
-   {
+    @Test
+    public void snapshotAggregationBeforeChannelReadyTest_Socket() {
+
+       snapshotAggregationBeforeChannelReady(false, null);
+   }
+
+    @Test
+    public void snapshotAggregationBeforeChannelReadyTest_WebSocket_Rwf() {
+
+       snapshotAggregationBeforeChannelReady(true, "rssl.rwf");
+   }
+
+    @Test
+    public void snapshotAggregationBeforeChannelReadyTest_WebSocket_Json() {
+
+       snapshotAggregationBeforeChannelReady(true, "tr_json2");
+   }
+
+    private void snapshotAggregationBeforeChannelReady(boolean isWebsocket, String protocolList) {
+
 		/* Test aggregation of a snapshot request onto a streaming request. */
        
        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -12993,9 +13974,12 @@ public class ReactorWatchlistJUnitNew
 		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
 		opts.setupDefaultLoginStream(true);
 		opts.setupDefaultDirectoryStream(true);
-		provider.bind(opts);
-		opts.numStatusEvents(2); // set number of expected status message from request submitted in channel open callback
-		TestReactor.openSession(consumer, provider, opts);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+       provider.bind(opts);
+
+       opts.numStatusEvents(2); // set number of expected status message from request submitted in channel open callback
+       TestReactor.openSession(consumer, provider, opts);
 
        /* Provider receives request. */
        providerReactor.dispatch(1);
@@ -13075,10 +14059,10 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
 
-   /* Used by itemCloseAndReopenTest. 
+    /* Used by itemCloseAndReopenTest.
     * Closes TRI on stream 5 and reopens it. */
-   class ItemCloseAndReopenConsumer extends Consumer
-   {
+    class ItemCloseAndReopenConsumer extends Consumer
+    {
        public ItemCloseAndReopenConsumer(TestReactor testReactor)
        {
            super(testReactor);
@@ -13118,9 +14102,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void itemCloseAndReopenTest()
-   {
+    @Test
+    public void itemCloseAndReopenTest_Socket() {
+
+       itemCloseAndReopen(false, null);
+   }
+
+    @Test
+    public void itemCloseAndReopenTest_WebSocket_Rwf() {
+
+       itemCloseAndReopen(true, "rssl.rwf");
+   }
+
+    @Test
+    public void itemCloseAndReopenTest_WebSocket_Json() {
+
+       itemCloseAndReopen(true, "tr_json2");
+   }
+
+    private void itemCloseAndReopen(boolean isWebsocket, String protocolList) {
+
        /* Test closing and reopening an item inside and outside the msg callback 
         * (the former reproduced ETA-2163). */
 
@@ -13168,7 +14169,10 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
 
        /* Consumer sends request. */
@@ -13422,9 +14426,9 @@ public class ReactorWatchlistJUnitNew
        TestReactorComponent.closeSession(consumer, provider);
    }
 
-   /* Used by closeFromCallbackTest. */
-   class CloseFromCallbackConsumer extends Consumer
-   {
+    /* Used by closeFromCallbackTest. */
+    class CloseFromCallbackConsumer extends Consumer
+    {
        public CloseFromCallbackConsumer(TestReactor testReactor)
        {
            super(testReactor);
@@ -13459,9 +14463,26 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void itemCloseFromCallbackTest()
-   {	   
+    @Test
+    public void itemCloseFromCallbackTest_Socket() {
+
+       itemCloseFromCallback_Update(false, null);
+   }
+
+    @Test
+    public void itemCloseFromCallbackTest_WebSocket_Rwf() {
+
+       itemCloseFromCallback_Update(true, "rssl.rwf");
+   }
+
+    @Test
+    public void itemCloseFromCallbackTest_WebSocket_Json() {
+
+       itemCloseFromCallback_Update(true, "tr_json2");
+   }
+
+    private void itemCloseFromCallback_Update(boolean isWebsocket, String protocolList) {
+
        /* Opening two streams for an item and closing both within the callback. 
         * Tested in response to an update message as well as a group status. */
 
@@ -13510,10 +14531,12 @@ public class ReactorWatchlistJUnitNew
        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
        opts.setupDefaultLoginStream(true);
        opts.setupDefaultDirectoryStream(true);
+
+       setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
        provider.bind(opts);
+
        TestReactor.openSession(consumer, provider, opts);
 
-       
        /* Test consumer closes in response to an update. */
        for (int i = 0; i < 3; ++i)
        {
@@ -13650,7 +14673,7 @@ public class ReactorWatchlistJUnitNew
            updateMsg.domainType(DomainTypes.MARKET_PRICE);
            updateMsg.containerType(DataTypes.NO_DATA);
            assertTrue(provider.submitAndDispatch(updateMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-           
+
            /* Consumer receives update (closes on first update fanout, so only receives one). */
            consumerReactor.dispatch(1);
            event = consumerReactor.pollEvent();
@@ -13664,7 +14687,7 @@ public class ReactorWatchlistJUnitNew
            assertNotNull(msgEvent.streamInfo());
            assertNotNull(msgEvent.streamInfo().serviceName());
            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-          
+
 
            /* Provider receives reissue and close. */
            providerReactor.dispatch(2);
@@ -13693,13 +14716,89 @@ public class ReactorWatchlistJUnitNew
            assertEquals(providerStreamId, receivedCloseMsg.streamId());
            assertEquals(DomainTypes.MARKET_PRICE, receivedCloseMsg.domainType());
        }
+       
+       TestReactorComponent.closeSession(consumer, provider);
+   }
 
-       /* Test consumer closes in response to group status. */
-       for (int i = 0; i < 2; ++i)
-       {
+    @Test
+    public void itemCloseFromCallbackTestOpen_Socket() {
+
+        itemCloseFromCallback_Open(false, null);
+    }
+
+    @Test
+    public void itemCloseFromCallbackTestOpen_WebSocket_Rwf() {
+
+        itemCloseFromCallback_Open(true, "rssl.rwf");
+    }
+
+    /* no json protocol test for this case since it doesn't support 'groupId' field */
+
+    private void itemCloseFromCallback_Open(boolean isWebsocket, String protocolList) {
+
+        /* Opening two streams for an item and closing both within the callback.
+         * Tested in response to an update message as well as a group status. */
+
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        ReactorMsgEvent msgEvent;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
+        RequestMsg receivedRequestMsg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+        RefreshMsg receivedRefreshMsg;
+        UpdateMsg updateMsg = (UpdateMsg)CodecFactory.createMsg();
+        UpdateMsg receivedUpdateMsg;
+        StatusMsg receivedStatusMsg;
+        CloseMsg receivedCloseMsg;
+        RDMDirectoryMsgEvent directoryMsgEvent;
+        int providerStreamId;
+
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+
+        consumerReactor._reactor.reactorOptions().enableXmlTracing();
+        providerReactor._reactor.reactorOptions().enableXmlTracing();
+
+        /* Create consumer. */
+        Consumer consumer = new CloseFromCallbackConsumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(3000);
+
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+        provider.bind(opts);
+
+        TestReactor.openSession(consumer, provider, opts);
+
+        /* Test consumer closes in response to group status. */
+        for (int i = 0; i < 2; ++i)
+        {
     	   /* Test closing in response to open & closed group status messages. */
            int msgStreamState = (i == 0) ? StreamStates.OPEN : StreamStates.CLOSED;
-           
+
 	       for (int j = 0; j < 3; ++j)
 	       {
 	           /* Consumer sends request. */
@@ -13713,14 +14812,14 @@ public class ReactorWatchlistJUnitNew
 	           submitOptions.clear();
 	           submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
 	           assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-	
+
 	           /* Provider receives request. */
 	           providerReactor.dispatch(1);
 	           event = providerReactor.pollEvent();
 	           assertEquals(TestReactorEventTypes.MSG, event.type());
 	           msgEvent = (ReactorMsgEvent)event.reactorEvent();
 	           assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
-	
+
 	           receivedRequestMsg = (RequestMsg)msgEvent.msg();
 	           assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
 	           assertTrue(receivedRequestMsg.checkStreaming());
@@ -13733,7 +14832,7 @@ public class ReactorWatchlistJUnitNew
 	           assertEquals(1, receivedRequestMsg.priority().priorityClass());
 	           assertEquals(1, receivedRequestMsg.priority().count());
 	           providerStreamId = receivedRequestMsg.streamId();
-	
+
 	           /* Consumer sends request. */
 	           requestMsg.clear();
 	           requestMsg.msgClass(MsgClasses.REQUEST);
@@ -13745,14 +14844,14 @@ public class ReactorWatchlistJUnitNew
 	           submitOptions.clear();
 	           submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
 	           assertTrue(consumer.submitAndDispatch(requestMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-	
+
 	           /* Provider receives request. */
 	           providerReactor.dispatch(1);
 	           event = providerReactor.pollEvent();
 	           assertEquals(TestReactorEventTypes.MSG, event.type());
 	           msgEvent = (ReactorMsgEvent)event.reactorEvent();
 	           assertEquals(MsgClasses.REQUEST, msgEvent.msg().msgClass());
-	
+
 	           receivedRequestMsg = (RequestMsg)msgEvent.msg();
 	           assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
 	           assertTrue(receivedRequestMsg.checkStreaming());
@@ -13765,7 +14864,7 @@ public class ReactorWatchlistJUnitNew
 	           assertEquals(1, receivedRequestMsg.priority().priorityClass());
 	           assertEquals(2, receivedRequestMsg.priority().count());
 	           providerStreamId = receivedRequestMsg.streamId();
-	
+
 	           /* Provider sends refresh .*/
 	           refreshMsg.clear();
 	           refreshMsg.msgClass(MsgClasses.REFRESH);
@@ -13784,12 +14883,12 @@ public class ReactorWatchlistJUnitNew
 	           refreshMsg.groupId(groupId);
 	           refreshMsg.state().streamState(StreamStates.OPEN);
 	           refreshMsg.state().dataState(DataStates.OK);
-	
+
 	           assertTrue(provider.submitAndDispatch(refreshMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-	
+
 	           /* Consumer receives refresh. */
 	           consumerReactor.dispatch(2);
-	
+
 	           event = consumerReactor.pollEvent();
 	           assertEquals(TestReactorEventTypes.MSG, event.type());
 	           msgEvent = (ReactorMsgEvent)event.reactorEvent();
@@ -13808,7 +14907,7 @@ public class ReactorWatchlistJUnitNew
 	           assertNotNull(msgEvent.streamInfo());
 	           assertNotNull(msgEvent.streamInfo().serviceName());
 	           assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-	
+
 	           event = consumerReactor.pollEvent();
 	           assertEquals(TestReactorEventTypes.MSG, event.type());
 	           msgEvent = (ReactorMsgEvent)event.reactorEvent();
@@ -13911,13 +15010,13 @@ public class ReactorWatchlistJUnitNew
                }
            }
        }
-       
-       TestReactorComponent.closeSession(consumer, provider);
-   }
 
-   /* Used by closeFromCallbackTest. */
-   class CloseLoginStreamFromCallbackConsumer extends Consumer
-   {
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+
+    /* Used by closeFromCallbackTest. */
+    class CloseLoginStreamFromCallbackConsumer extends Consumer
+    {
        public CloseLoginStreamFromCallbackConsumer (TestReactor testReactor)
        {
            super(testReactor);
@@ -13970,9 +15069,14 @@ public class ReactorWatchlistJUnitNew
        }
    }
 
-   @Test
-   public void loginCloseFromCallbackTest()
-   {
+    @Test
+    public void loginCloseFromCallbackTest_Socket() {
+
+       loginCloseFromCallback(false, null);
+   }
+
+    private void loginCloseFromCallback(boolean isWebsocket, String protocolList) {
+
        for (int i = 0; i < 2; ++i)
        {
            ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -14013,7 +15117,10 @@ public class ReactorWatchlistJUnitNew
            opts.setupDefaultLoginStream(false);
            opts.setupDefaultDirectoryStream(false);
            opts.numStatusEvents(1);
+
+           setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
            provider.bind(opts);
+
            TestReactor.openSession(consumer, provider, opts);
 
            /* Provider receives login request. */
@@ -14075,8 +15182,13 @@ public class ReactorWatchlistJUnitNew
    }
 
     @Test
-    public void redirectedTest()
-    {
+    public void redirectedTest_Socket() {
+
+        redirected(false, null);
+    }
+
+    private void redirected(boolean isWebsocket, String protocolList) {
+
 		/* Test receiving a StatusMsg or RefreshMsg with a REDIRECTED stream state for an item. 
          * Tests with and without RequestMsg.applyMsgKeyInUpdates(). */
         
@@ -14126,7 +15238,10 @@ public class ReactorWatchlistJUnitNew
             ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
             opts.setupDefaultLoginStream(true);
             opts.setupDefaultDirectoryStream(true);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
             provider.bind(opts);
+
             TestReactor.openSession(consumer, provider, opts);
 
             /* -- Redirecting StatusMsg -- */
@@ -14284,8 +15399,13 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void msgKeyInUpdatesTest()
-    {
+    public void msgKeyInUpdatesTest_Socket() {
+
+        msgKeyInUpdates(false, null);
+    }
+
+    private void msgKeyInUpdates(boolean isWebsocket, String protocolList) {
+
         /* Test that the requestMsg.msgKeyInUpdates() flag does not appear on the wire even if requested,
          * and that the WL adds keys to Refresh/Update/Status/Generic/AckMsgs if it is requested.
          * Tests with and without RequestMsg.applyMsgKeyInUpdates().
@@ -14349,7 +15469,10 @@ public class ReactorWatchlistJUnitNew
                 ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
                 opts.setupDefaultLoginStream(true);
                 opts.setupDefaultDirectoryStream(true);
+
+                setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
                 provider.bind(opts);
+
                 TestReactor.openSession(consumer, provider, opts);
 
                 /* Consumer sends request. */
@@ -14863,8 +15986,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void itemViewAggregateStreamingTest()
-    {
+    public void itemViewAggregateStreamingTest_Socket() {
+
+        itemViewAggregateStreaming(false, null);
+    }
+
+    @Test
+    public void itemViewAggregateStreamingTest_WebSocket_Rwf() {
+
+        itemViewAggregateStreaming(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemViewAggregateStreamingTest_WebSocket_Json() {
+
+        itemViewAggregateStreaming(true, "tr_json2");
+    }
+
+    private void itemViewAggregateStreaming(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -14907,7 +16047,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         // submit two aggregated request messages
@@ -15170,8 +16313,25 @@ public class ReactorWatchlistJUnitNew
     
     
     @Test
-    public void itemViewAggregateSnapshotBeforeChannelReadyTest()
-    {
+    public void itemViewAggregateSnapshotBeforeChannelReadyTest_Socket() {
+
+        itemViewAggregateSnapshotBeforeChannelReady(false, null);
+    }
+
+    @Test
+    public void itemViewAggregateSnapshotBeforeChannelReadyTest_WebSocket_Rwf() {
+
+        itemViewAggregateSnapshotBeforeChannelReady(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemViewAggregateSnapshotBeforeChannelReadyTest_WebSocket_Json() {
+
+        itemViewAggregateSnapshotBeforeChannelReady(true, "tr_json2");
+    }
+
+    private void itemViewAggregateSnapshotBeforeChannelReady(boolean isWebsocket, String protocolList) {
+
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
@@ -15211,7 +16371,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         opts.numStatusEvents(2); // set number of expected status message from request submitted in channel open callback
         TestReactor.openSession(consumer, provider, opts);
 
@@ -15379,8 +16542,25 @@ public class ReactorWatchlistJUnitNew
  	}
     
     @Test
-    public void itemRequestMultipleTimeoutTestWithServiceUpdate()
-    {
+    public void itemRequestMultipleTimeoutTestWithServiceUpdate_Socket() {
+
+        itemRequestMultipleTimeoutTestWithServiceUpdate(false, null);
+    }
+
+    @Test
+    public void itemRequestMultipleTimeoutTestWithServiceUpdate_WebSocket_Rwf() {
+
+        itemRequestMultipleTimeoutTestWithServiceUpdate(true, "rssl.rwf");
+    }
+
+    @Test
+    public void itemRequestMultipleTimeoutTestWithServiceUpdate_WebSocket_Json() {
+
+        itemRequestMultipleTimeoutTestWithServiceUpdate(true, "tr_json2");
+    }
+
+    private void itemRequestMultipleTimeoutTestWithServiceUpdate(boolean isWebsocket, String protocolList) {
+
         /* Test multiple request timeouts with a service update and make sure item fanout happens only once. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -15421,7 +16601,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer sends request. */
@@ -16572,8 +17755,25 @@ public class ReactorWatchlistJUnitNew
     }
         
     @Test
-    public void SendItemsFromDefaultMsgCallbackConsumerTest()
-    {
+    public void SendItemsFromDefaultMsgCallbackConsumerTest_Socket() {
+
+        SendItemsFromDefaultMsgCallbackConsumer(false, null);
+    }
+
+    @Test
+    public void SendItemsFromDefaultMsgCallbackConsumerTest_WebSocket_Rwf() {
+
+        SendItemsFromDefaultMsgCallbackConsumer(true, "rssl.rwf");
+    }
+
+    @Test
+    public void SendItemsFromDefaultMsgCallbackConsumerTest_WebSocket_Json() {
+
+        SendItemsFromDefaultMsgCallbackConsumer(true, "tr_json2");
+    }
+
+    private void SendItemsFromDefaultMsgCallbackConsumer(boolean isWebsocket, String protocolList) {
+
     	/* Opening two items, one snapshot, another one realtime, 
     	 * and resend one same item, one diff item during the callback. */
     	
@@ -16616,7 +17816,11 @@ public class ReactorWatchlistJUnitNew
           ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
           opts.setupDefaultLoginStream(true);
           opts.setupDefaultDirectoryStream(true);
+
+
+          setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
           provider.bind(opts);
+
           TestReactor.openSession(consumer, provider, opts);
 
           /* Consumer sends snapshot request. */
@@ -16931,8 +18135,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void SendItemsFromDefaultMsgCallbackConsumer1Test()
-    {
+    public void SendItemsFromDefaultMsgCallbackConsumer1Test_Socket() {
+
+        SendItemsFromDefaultMsgCallbackConsumer1(false,  null);
+    }
+
+    @Test
+    public void SendItemsFromDefaultMsgCallbackConsumer1Test_WebSocket_Rwf() {
+
+        SendItemsFromDefaultMsgCallbackConsumer1(true,  "rssl.rwf");
+    }
+
+    @Test
+    public void SendItemsFromDefaultMsgCallbackConsumer1Test_WebSocket_Json() {
+
+        SendItemsFromDefaultMsgCallbackConsumer1(true,  "tr_json2");
+    }
+
+    private void SendItemsFromDefaultMsgCallbackConsumer1(boolean isWebsocket, String protocolList) {
+
     	/* Opening two items, one snapshot, another one realtime, 
     	 * and resend one same item which is waiting for refresh msg in watchlist. */
     	
@@ -16975,7 +18196,10 @@ public class ReactorWatchlistJUnitNew
           ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
           opts.setupDefaultLoginStream(true);
           opts.setupDefaultDirectoryStream(true);
+
+          setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
           provider.bind(opts);
+
           TestReactor.openSession(consumer, provider, opts);
 
           /* Consumer sends snapshot request. */
@@ -17150,8 +18374,25 @@ public class ReactorWatchlistJUnitNew
       }
     
     @Test
-    public void changeViewByReissueRequestWhilePendingRefreshTest()
-    {
+    public void changeViewByReissueRequestWhilePendingRefreshTest_Socket() {
+
+        changeViewByReissueRequestWhilePendingRefresh(false, null);
+    }
+
+    @Test
+    public void changeViewByReissueRequestWhilePendingRefreshTest_WebSocket_Rwf() {
+
+        changeViewByReissueRequestWhilePendingRefresh(true, "rssl.rwf");
+    }
+
+    @Test
+    public void changeViewByReissueRequestWhilePendingRefreshTest_WebSocket_Json() {
+
+        changeViewByReissueRequestWhilePendingRefresh(true, "tr_json2");
+    }
+
+    private void changeViewByReissueRequestWhilePendingRefresh(boolean isWebsocket, String protocolList) {
+
         /* Test changing a view on an item by another request of same user stream while waiting for that item's refresh. */
     	/* steps:
     	 * request an item request "TRI" on stream 5 by one user
@@ -17204,7 +18445,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Request TRI (no view). */
@@ -17305,8 +18549,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(providerStreamId, receivedRequestMsg.streamId());
         assertTrue(receivedRequestMsg.msgKey().checkHasServiceId());
         assertTrue(receivedRequestMsg.checkStreaming());
-        assertTrue(receivedRequestMsg.checkHasView()); 
-        assertTrue(checkHasCorrectView(provider, receivedRequestMsg, viewFieldList)); 
+        assertTrue(receivedRequestMsg.checkHasView());
+     //   if (!protocolList.contains("json"))
+            assertTrue(checkHasCorrectView(provider, receivedRequestMsg, viewFieldList));
         
         /* Reissue TRI again, now with ASK/QUOTIM. */
         requestMsg.clear();
@@ -17427,8 +18672,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void changeViewByPartialReissueRequestWhilePendingRefreshTest()
-    {
+    public void changeViewByPartialReissueRequestWhilePendingRefreshTest_Socket() {
+
+        changeViewByPartialReissueRequestWhilePendingRefresh(false, null);
+    }
+
+    @Test
+    public void changeViewByPartialReissueRequestWhilePendingRefreshTest_WebSocket_Json() {
+
+        changeViewByPartialReissueRequestWhilePendingRefresh(true, "tr_json2");
+    }
+
+    @Test
+    public void changeViewByPartialReissueRequestWhilePendingRefreshTest_WebSocket_Rwf() {
+
+        changeViewByPartialReissueRequestWhilePendingRefresh(true, "rssl.rwf");
+    }
+
+    private void changeViewByPartialReissueRequestWhilePendingRefresh(boolean isWebsocket, String protocolList) {
+
         /* Test changing a view on an item by another request of diff user stream while waiting for that item's refresh. */
     	/* steps:
     	 * request an item request "TRI" on stream 5 by one user
@@ -17481,7 +18743,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Request TRI (no view). */
@@ -17814,8 +19079,19 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void groupMergeAndStatusFanoutTest()
-    {
+    public void groupMergeAndStatusFanoutTest_Socket() {
+
+        groupMergeAndStatusFanout(false, null);
+    }
+
+    @Test
+    public void groupMergeAndStatusFanoutTest_WebSocket_Rwf() {
+
+        groupMergeAndStatusFanout(true, "rssl.rwf");
+    }
+
+    private void groupMergeAndStatusFanout(boolean isWebsocket, String protocolList) {
+
         /* Test updating an item group via item-specific message and group status. 
          * - Open an item (and another item)
          * - Change the first item's group via item message. Send a group close on the original group to make sure it moved.
@@ -17826,10 +19102,9 @@ public class ReactorWatchlistJUnitNew
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
         TestReactorEvent event;
         ReactorMsgEvent msgEvent;
-        Msg msg = CodecFactory.createMsg();
-        RequestMsg requestMsg = (RequestMsg)msg;
+        RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
         RequestMsg receivedRequestMsg;
-        RefreshMsg refreshMsg = (RefreshMsg)msg;
+        RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
         RefreshMsg receivedRefreshMsg;
         StatusMsg receivedStatusMsg;
         RDMDirectoryMsgEvent directoryMsgEvent;
@@ -17851,6 +19126,9 @@ public class ReactorWatchlistJUnitNew
         /* Create reactors. */
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
+
+        consumerReactor._reactor.reactorOptions().enableXmlTracing();
+        providerReactor._reactor.reactorOptions().enableXmlTracing();
 
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
@@ -17879,7 +19157,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer sends request. */
@@ -18917,7 +20198,21 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
         opts.openWindow(1);
+
+        
+        opts.setProtocolList("rssl.rwf");
+        opts.connectionType(ConnectionTypes.WEBSOCKET);
         provider.bind(opts);
+
+        ReactorJsonConverterOptions options = new ReactorJsonConverterOptions();
+        options.serviceNameToIdCallback(consumer);
+        options.jsonConversionEventCallback(consumer);
+        assertEquals(CodecReturnCodes.SUCCESS, consumer._testReactor._reactor.initJsonConverter(options, consumerReactor._errorInfo));
+
+        options.serviceNameToIdCallback(provider);
+        options.jsonConversionEventCallback(provider);
+        assertEquals(CodecReturnCodes.SUCCESS, provider._testReactor._reactor.initJsonConverter(options, providerReactor._errorInfo));
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Request TRI. */
@@ -19236,8 +20531,25 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void consumerLoginCloseTest()
-    {
+    public void consumerLoginCloseTest_Socket() {
+
+        consumerLoginClose(false, null);
+    }
+
+    @Test
+    public void consumerLoginCloseTest_WebSocket_Rwf() {
+
+        consumerLoginClose(true, "rssl.rwf");
+    }
+
+    @Test
+    public void consumerLoginCloseTest_WebSocket_Json() {
+
+        consumerLoginClose(true, "tr_json2");
+    }
+
+    private void consumerLoginClose(boolean isWebsocket, String protocolList) {
+
         /* Test closing login stream from consumer. Test that an item requested is also considered closed when this happens. */
 
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -19286,7 +20598,10 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer sends request. */
@@ -19433,8 +20748,25 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void loginClosedStatusTest()
-    {
+    public void loginClosedStatusTest_Socket() {
+
+        loginClosedStatus(false, null);
+    }
+
+    @Test
+    public void loginClosedStatusTest_WebSocket_Rwf() {
+
+        loginClosedStatus(true, "rssl.rwf");
+    }
+
+    @Test
+    public void loginClosedStatusTest_WebSocket_Json() {
+
+        loginClosedStatus(true, "tr_json2");
+    }
+
+    private void loginClosedStatus(boolean isWebsocket, String protocolList) {
+
         /* Test closing login stream from provider. Test that an item requested is also considered closed when this happens. */
 
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -19484,7 +20816,10 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer sends request. */
@@ -19691,8 +21026,25 @@ public class ReactorWatchlistJUnitNew
 
 
     @Test
-    public void channelDownCallbackSubmitTest()
-    {
+    public void channelDownCallbackSubmitTest_Socket() {
+
+        channelDownCallbackSubmit(false, null);
+    }
+
+    @Test
+    public void channelDownCallbackSubmitTest_WebSocket_Rwf() {
+
+        channelDownCallbackSubmit(true, "rssl.rwf");
+    }
+
+    @Test
+    public void channelDownCallbackSubmitTest_WebSocket_Json() {
+
+        channelDownCallbackSubmit(true, "tr_json2");
+    }
+
+    private void channelDownCallbackSubmit(boolean isWebsocket, String protocolList) {
+
         /* Test submitting messages when the channel goes down. */
 
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -19738,7 +21090,10 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer requests TRI. */
@@ -19870,8 +21225,25 @@ public class ReactorWatchlistJUnitNew
     }    
 
     @Test
-    public void dictionaryRecoveryTest()
-    {
+    public void dictionaryRecoveryTest_Socket() {
+
+        dictionaryRecovery(false, null);
+    }
+
+    @Test
+    public void dictionaryRecoveryTest_WebSocket_Rwf() {
+
+        dictionaryRecovery(true, "rssl.rwf");
+    }
+
+    @Test
+    public void dictionaryRecoveryTest_WebSocket_Json() {
+
+        dictionaryRecovery(true, "tr_json2");
+    }
+
+    private void dictionaryRecovery(boolean isWebsocket, String protocolList) {
+
         /* Test dictionary recovery behavior --
          * - A dictionary that has not received a complete refresh is recovered
          * - A dictionary that has received a complete refresh is not recovered */
@@ -19896,6 +21268,9 @@ public class ReactorWatchlistJUnitNew
         TestReactor consumerReactor = new TestReactor();
         TestReactor providerReactor = new TestReactor();
 
+        //consumerReactor._reactor.reactorOptions().enableXmlTracing();
+        //providerReactor._reactor.reactorOptions().enableXmlTracing();
+
         /* Create consumer. */
         Consumer consumer = new Consumer(consumerReactor);
         ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
@@ -19909,7 +21284,7 @@ public class ReactorWatchlistJUnitNew
         consumerRole.defaultMsgCallback(consumer);
         consumerRole.watchlistOptions().enableWatchlist(true);
         consumerRole.watchlistOptions().channelOpenCallback(consumer);
-        consumerRole.watchlistOptions().requestTimeout(3000);
+        consumerRole.watchlistOptions().requestTimeout(20000);
 
         /* Create provider. */
         Provider provider = new Provider(providerReactor);
@@ -19925,7 +21300,11 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.reconnectAttemptLimit(-1);
+        opts.setNumOfGuaranteedBuffers(1000);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
 
         /* Consumer sends dictionary request. */
@@ -19984,7 +21363,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataStates.SUSPECT, receivedDictionaryStatus.state().dataState());
         assertNotNull(dictionaryMsgEvent.streamInfo());
         assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
-        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));      
+        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
 
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.openSession(consumer, provider, opts, true);
@@ -20081,7 +21460,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataStates.SUSPECT, receivedDictionaryStatus.state().dataState());
         assertNotNull(dictionaryMsgEvent.streamInfo());
         assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
-        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString())); 
+        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
 
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.openSession(consumer, provider, opts, true);
@@ -20093,8 +21472,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void dualRequestWithDifferentServiceTest()
-    {
+    public void dualRequestWithDifferentServiceTest_Socket() {
+
+        dualRequestWithDifferentService(false, null);
+    }
+
+    @Test
+    public void dualRequestWithDifferentServiceTest_WebSocket_Rwf() {
+
+        dualRequestWithDifferentService(true, "rssl.rwf");
+    }
+
+    @Test
+    public void dualRequestWithDifferentServiceTest_WebSocket_Json() {
+
+        dualRequestWithDifferentService(true, "tr_json2");
+    }
+
+    private void dualRequestWithDifferentService(boolean isWebsocket, String protocolList) {
+
         /* Test sending two requests with different services and watchlist enabled. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -20139,6 +21535,8 @@ public class ReactorWatchlistJUnitNew
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
         opts.setupSecondDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
         TestReactor.openSession(consumer, provider, opts);
         
@@ -20268,8 +21666,25 @@ public class ReactorWatchlistJUnitNew
     }
     
     @Test
-    public void serviceDownWithMulipleDirectoryRequestsTest()
-    {
+    public void serviceDownWithMulipleDirectoryRequestsTest_Socket() {
+
+        serviceDownWithMulipleDirectoryRequests(false, null);
+    }
+
+    @Test
+    public void serviceDownWithMulipleDirectoryRequestsTest_WebSocket_Rwf() {
+
+        serviceDownWithMulipleDirectoryRequests(true, "rssl.rwf");
+    }
+
+    @Test
+    public void serviceDownWithMulipleDirectoryRequestsTest_WebSocket_Json() {
+
+        serviceDownWithMulipleDirectoryRequests(true, "tr_json2");
+    }
+
+    private void serviceDownWithMulipleDirectoryRequests(boolean isWebsocket, String protocolList) {
+
         /* Test two directory request with filter 0 and make sure call backs for responses have filter 0.
          * Test a third directory request with INFO filter only and make sure no response received by user
          * when only STATE filter is sent by provider.
@@ -20326,7 +21741,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
         
         /* Consumer opens second directory stream with stream id 5. */
@@ -20610,8 +22028,25 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void serviceDownThenUpDirectoryRequestTest()
-    {
+    public void serviceDownThenUpDirectoryRequestTest_Socket() {
+
+        serviceDownThenUpDirectoryRequest(false, null);
+    }
+
+    @Test
+    public void serviceDownThenUpDirectoryRequestTest_WebSocket_Rwf() {
+
+        serviceDownThenUpDirectoryRequest(true, "rssl.rwf");
+    }
+
+    @Test
+    public void serviceDownThenUpDirectoryRequestTest_WebSocket_Json() {
+
+        serviceDownThenUpDirectoryRequest(true, "tr_json2");
+    }
+
+    private void serviceDownThenUpDirectoryRequest(boolean isWebsocket, String protocolList) {
+
         /* Test directory request and get first response not found and then get directory update with service. */
         
         ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -20660,7 +22095,10 @@ public class ReactorWatchlistJUnitNew
         ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
         opts.setupDefaultLoginStream(true);
         opts.setupDefaultDirectoryStream(true);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
         provider.bind(opts);
+
         TestReactor.openSession(consumer, provider, opts);
                 
         /* Provider sends service update with original requested service of serviceId 2.*/
@@ -20695,8 +22133,25 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void closeWhileDisconnectedTest()
-    {
+    public void closeWhileDisconnectedTest_Socket() {
+
+        closeWhileDisconnected(false, null);
+    }
+
+    @Test
+    public void closeWhileDisconnectedTest_WebSocket_Rwf() {
+
+        closeWhileDisconnected(true, "rssl.rwf");
+    }
+
+    @Test
+    public void closeWhileDisconnectedTest_WebSocket_Json() {
+
+        closeWhileDisconnected(true, "tr_json2");
+    }
+
+    private void closeWhileDisconnected(boolean isWebsocket, String protocolList) {
+
     	for (boolean useServiceNames : new boolean[] {true, false} )
     	{
     		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -20735,7 +22190,10 @@ public class ReactorWatchlistJUnitNew
     		ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
     		opts.setupDefaultLoginStream(true);
     		opts.setupDefaultDirectoryStream(true);
-    		provider.bind(opts);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+            provider.bind(opts);
+
     		TestReactor.openSession(consumer, provider, opts);
     		
     		final class TestData
@@ -21518,8 +22976,23 @@ public class ReactorWatchlistJUnitNew
 		
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
     }
+
     @Test
-    public void loginReissue_SunnyTest()
+    public void loginReissue_SunnyTest_Socket() {
+        loginReissue_Sunny(false, null);
+    }
+
+    @Test
+    public void loginReissue_SunnyTest_WebSocket_Rwf() {
+        loginReissue_Sunny(true, "rssl.rwf");
+    }
+
+    @Test
+    public void loginReissue_SunnyTest_WebSocket_Json() {
+        loginReissue_Sunny(true, "tr_json2");
+    }
+
+    private void loginReissue_Sunny(boolean isWebsocket, String protocolList)
     {
         String test = "loginReissue_SunnyTest()";
         System.out.println("\n" + test + " Running...");
@@ -21606,7 +23079,10 @@ public class ReactorWatchlistJUnitNew
             opts.setupDefaultLoginStream(true);
             opts.setupDefaultDirectoryStream(true);
             opts.reconnectAttemptLimit(-1);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
             provider.bind(opts);
+
             System.out.println(test + " 1) Consumer sending login request[0]");
             TestReactor.openSession(consumer, provider, opts);
             System.out.println(test + " 1) Consumer sent login request[0]");
@@ -21656,7 +23132,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(provRequest[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json"))) /* JSON converter doesn't write name when nameType is COOKIE */
                 assertEquals(provRequest[1].userName().toString(), userNames[0]);
 
             System.out.println(test + " 7) Provider validated login request[1]");
@@ -21720,7 +23196,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(consRefresh[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json"))) /* JSON converter doesn't write name when nameType is COOKIE */
                 assertEquals(consRefresh[1].userName().toString(), userNames[0]);
             System.out.println(test + " 9) Consumer validated login refresh[0]");
         }
@@ -21728,7 +23204,21 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void loginReissueWithConnectionRecovery_BeforeLoginSubmitTest()
+    public void loginReissueWithConnectionRecovery_BeforeLoginSubmitTest_Socket() {
+        loginReissueWithConnectionRecovery_BeforeLoginSubmit(false, null);
+    }
+
+    @Test
+    public void loginReissueWithConnectionRecovery_BeforeLoginSubmitTest_WebSocket_Rwf() {
+        loginReissueWithConnectionRecovery_BeforeLoginSubmit(true, "rssl.rwf");
+    }
+
+    @Test
+    public void loginReissueWithConnectionRecovery_BeforeLoginSubmitTest_WebSocket_Json() {
+        loginReissueWithConnectionRecovery_BeforeLoginSubmit(true, "tr_json2");
+    }
+
+    private void loginReissueWithConnectionRecovery_BeforeLoginSubmit(boolean isWebsocket, String protocolList)
     {
         String test = "loginReissueWithConnectionRecovery_BeforeLoginSubmitTest()";
         System.out.println("\n" + test + " Running...");
@@ -21817,6 +23307,8 @@ public class ReactorWatchlistJUnitNew
             opts.setupDefaultLoginStream(true);
             opts.setupDefaultDirectoryStream(true);
             opts.reconnectAttemptLimit(-1);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
             provider.bind(opts);
             System.out.println(test + " 1) Consumer sending login request[0]");
             TestReactor.openSession(consumer, provider, opts);
@@ -21860,7 +23352,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 consRequest[1].userName().data(userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 consRequest[1].userName().data(userNames[0]);
 
             System.out.println(test + " 5) Consumer sending login request[1]");
@@ -21901,7 +23393,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(provRequest[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(provRequest[1].userName().toString(), userNames[0]);
 
             System.out.println(test + " 7) Provider validated login request[1]");
@@ -21965,7 +23457,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(consRefresh[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(consRefresh[1].userName().toString(), userNames[0]);
             System.out.println(test + " 9) Consumer validated login refresh[1]");
         }
@@ -21973,7 +23465,21 @@ public class ReactorWatchlistJUnitNew
     }
 
     @Test
-    public void loginReissueWithConnectionRecovery_AfterLoginSubmitTest()
+    public void loginReissueWithConnectionRecovery_AfterLoginSubmitTest_Socket() {
+        loginReissueWithConnectionRecovery_AfterLoginSubmit(false, null);
+    }
+
+    @Test
+    public void loginReissueWithConnectionRecovery_AfterLoginSubmitTest_WebSocket_Rwf() {
+        loginReissueWithConnectionRecovery_AfterLoginSubmit(true, "rssl.rwf");
+    }
+
+    @Test
+    public void loginReissueWithConnectionRecovery_AfterLoginSubmitTest_WebSocket_Json() {
+        loginReissueWithConnectionRecovery_AfterLoginSubmit(true, "tr_json2");
+    }
+
+    private void loginReissueWithConnectionRecovery_AfterLoginSubmit(boolean isWebsocket, String protocolList)
     {
         String test = "loginReissueWithConnectionRecovery_AfterLoginSubmitTest()";
         System.out.println("\n" + test + " Running...");
@@ -22064,6 +23570,8 @@ public class ReactorWatchlistJUnitNew
             opts.setupDefaultLoginStream(true);
             opts.setupDefaultDirectoryStream(true);
             opts.reconnectAttemptLimit(-1);
+
+            setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
             provider.bind(opts);
             System.out.println(test + " 1) Consumer sending login request[0]");
             TestReactor.openSession(consumer, provider, opts);
@@ -22116,7 +23624,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(provRequest[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(provRequest[1].userName().toString(), userNames[0]);
 
             System.out.println(test + " 7) Provider validated login request[1]");
@@ -22180,7 +23688,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(provRequest[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(provRequest[1].userName().toString(), userNames[0]);
 
             System.out.println(test + " 9) Provider validated login request[1]");
@@ -22244,7 +23752,7 @@ public class ReactorWatchlistJUnitNew
             }
             else if (userNameType == Login.UserIdTypes.TOKEN)
                 assertEquals(consRefresh[1].userName().toString(), userNames[1]);
-            else
+            else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(consRefresh[1].userName().toString(), userNames[0]);
             System.out.println(test + " 11) Consumer validated login refresh[1]");
         }

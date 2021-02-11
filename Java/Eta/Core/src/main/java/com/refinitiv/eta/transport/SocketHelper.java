@@ -32,13 +32,13 @@ public class SocketHelper
         return _socket.bind(local);
     }
 
-    
+
     public <T> SocketChannel setOption(SocketOption<T> name, T value) throws IOException
     {
         return _socket.setOption(name, value);
     }
 
-    
+
     public SocketChannel shutdownInput() throws IOException
     {
         return _socket.shutdownInput();
@@ -73,7 +73,7 @@ public class SocketHelper
     {
         return _socket.getRemoteAddress();
     }
-    
+
 
     public long read(ByteBuffer[] dsts, int offset, int length) throws IOException
     {
@@ -124,12 +124,12 @@ public class SocketHelper
     {
         return _socket.configureBlocking(block);
     }
-    
+
     public boolean isConnected()
     {
         return _socket.isConnected();
     }
-    
+
     public boolean isBlocking()
     {
         return _socket.isBlocking();
@@ -154,16 +154,16 @@ public class SocketHelper
     {
         _socket.close();
     }
-    
+
     public void completedProxyConnection()
     {
-    	_completedProxy = true;
+        _completedProxy = true;
     }
 
     public boolean postProxyInit() throws IOException
     {
-    	/* No-op here, used in encrypted case. */
-    	return true;
+        /* No-op here, used in encrypted case. */
+        return true;
     }
 
     public long read(ByteBuffer[] dsts) throws IOException
@@ -195,12 +195,12 @@ public class SocketHelper
     {
         return _socket;
     }
-    
+
     public void initialize(ConnectOptions options) throws IOException
     {
-    	_completedProxy = false;
+        _completedProxy = false;
     }
-    
+
     public void initialize(BindOptions options, EncryptedContextHelper encryptedContext) throws IOException
     {
     	// No proxy connections for servers 

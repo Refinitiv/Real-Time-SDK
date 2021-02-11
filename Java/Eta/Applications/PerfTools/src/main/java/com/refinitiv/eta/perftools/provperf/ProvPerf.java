@@ -201,6 +201,7 @@ public class ProvPerf
         _bindOptions.sysRecvBufSize(ProviderPerfConfig.recvBufSize());
         _bindOptions.maxFragmentSize(ProviderPerfConfig.maxFragmentSize());
         _bindOptions.tcpOpts().tcpNoDelay(ProviderPerfConfig.tcpNoDelay());
+        _bindOptions.wSocketOpts().protocols(ProviderPerfConfig.protocolList());
 	}
 
     /*

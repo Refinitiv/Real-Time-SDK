@@ -6,4 +6,5 @@ eclipse {
 
 dependencies {
 	compile project(':Eta:ValueAdd')
+    compile project(':Eta:Converter')
 }

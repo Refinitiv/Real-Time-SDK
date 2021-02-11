@@ -13,6 +13,8 @@ import com.refinitiv.eta.codec.Msg;
 import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.State;
 import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.json.converter.JsonConverterError;
+import com.refinitiv.eta.json.converter.ServiceNameIdConverter;
 import com.refinitiv.eta.rdm.Directory;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.Error;
@@ -33,7 +35,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * processing the response. Methods for setting the service name, getting the
  * service information, and closing a source directory stream are also provided.
  */
-public class DirectoryHandler
+public class DirectoryHandler implements ServiceNameIdConverter
 {
     private static final int SRCDIR_STREAM_ID = 2;
 
@@ -42,11 +44,11 @@ public class DirectoryHandler
 
     public static int TRANSPORT_BUFFER_SIZE_REQUEST = ChannelSession.MAX_MSG_SIZE;
     public static int TRANSPORT_BUFFER_SIZE_CLOSE = ChannelSession.MAX_MSG_SIZE;
-    
+
     private Buffer serviceName ;    // requested service
     private Service service;        // service cache for the requested service
     private State state;            // directory stream state
- 
+
     private DirectoryRequest directoryRequest = (DirectoryRequest)DirectoryMsgFactory.createMsg();
     private DirectoryRefresh directoryRefresh = (DirectoryRefresh)DirectoryMsgFactory.createMsg();
     private DirectoryUpdate directoryUpdate = (DirectoryUpdate)DirectoryMsgFactory.createMsg();
@@ -71,7 +73,7 @@ public class DirectoryHandler
 
     /**
      * Sets the service name requested by the application.
-     * 
+     *
      * @param servicename - The service name requested by the application
      */
     public void serviceName(String servicename)
@@ -119,7 +121,7 @@ public class DirectoryHandler
         //this will be updated as refresh and status messages are received
         state.dataState(DataStates.NO_CHANGE);
         state.streamState(StreamStates.UNSPECIFIED);
-        
+
         //encode source directory request
         directoryRequest.clear();
         directoryRequest.streamId(SRCDIR_STREAM_ID);
@@ -134,14 +136,14 @@ public class DirectoryHandler
             return ret;
         }
         System.out.println(directoryRequest.toString());
-        
+
         //send source directory request
         ret = chnl.write(msgBuf, error);
         if (ret != TransportReturnCodes.SUCCESS)
         {
             return ret;
         }
-        
+
         return CodecReturnCodes.SUCCESS;
     }
 
@@ -176,7 +178,7 @@ public class DirectoryHandler
 
                 state.dataState(directoryRefresh.state().dataState());
                 state.streamState(directoryRefresh.state().streamState());
-                
+
                 processServiceRefresh(directoryRefresh.serviceList(), error);
                 if (service.action() == MapEntryActions.DELETE)
                 {
@@ -188,13 +190,13 @@ public class DirectoryHandler
             case MsgClasses.UPDATE:
                 System.out.println("Received Source Directory Update");
                 ret = directoryUpdate.decode(dIter, msg);
-                     
+
                 if (ret != CodecReturnCodes.SUCCESS)
                 {
                     error.text("Error decoding directory update: <" + CodecReturnCodes.toString(ret) + ">");
                     return ret;
                 }
-                
+
                 System.out.println(directoryUpdate.toString());
                 processServiceUpdate(directoryUpdate.serviceList(), error);
                 if (service.action() == MapEntryActions.DELETE)
@@ -206,7 +208,7 @@ public class DirectoryHandler
 
             case MsgClasses.STATUS:
                 ret = directoryStatus.decode(dIter, msg);
-                
+
                 if (ret != CodecReturnCodes.SUCCESS)
                 {
                     error.text("Error decoding directory status: <" + CodecReturnCodes.toString(ret) + ">");
@@ -214,7 +216,7 @@ public class DirectoryHandler
                 }
                 System.out.println("Received Source Directory Status:");
                 System.out.println(directoryStatus.toString());
-                
+
                 if (directoryStatus.checkHasState())
                 {
                     this.state.dataState(directoryStatus.state().dataState());
@@ -234,16 +236,16 @@ public class DirectoryHandler
     {
         for (Service rdmService : serviceList)
         {
-            if (rdmService.action() == MapEntryActions.DELETE && rdmService.serviceId() == service.serviceId() ) 
+            if (rdmService.action() == MapEntryActions.DELETE && rdmService.serviceId() == service.serviceId() )
             {
                 service.action(MapEntryActions.DELETE);
             }
-                                    
+
             if(rdmService.info().serviceName().toString() != null)
             {
                 System.out.println("Received serviceName: " + rdmService.info().serviceName());
             }
-            
+
             // update service cache - assume cache is built with previous refresh message
             if (rdmService.serviceId() == service.serviceId())
             {
@@ -252,16 +254,16 @@ public class DirectoryHandler
         }
     }
 
-    
+
     private void processServiceRefresh(List<Service> serviceList, Error error)
     {
         for (Service rdmService : serviceList)
         {
-            if (rdmService.action() == MapEntryActions.DELETE && rdmService.serviceId() == service.serviceId() ) 
+            if (rdmService.action() == MapEntryActions.DELETE && rdmService.serviceId() == service.serviceId() )
             {
                 service.action(MapEntryActions.DELETE);
             }
-            
+
             if(rdmService.info().serviceName().toString() != null)
             {
                 System.out.println("Received serviceName: " + rdmService.info().serviceName());
@@ -270,8 +272,8 @@ public class DirectoryHandler
             if (rdmService.info().serviceName().equals(serviceName))
             {
                 rdmService.copy(service);
-             }
-        }        
+            }
+        }
     }
 
     /**
@@ -289,10 +291,10 @@ public class DirectoryHandler
          */
         if (state.isFinal())
             return CodecReturnCodes.SUCCESS;
-        
+
         //get a buffer for the source directory close
         TransportBuffer msgBuf = chnl.getTransportBuffer(TRANSPORT_BUFFER_SIZE_CLOSE, false,
-                                                         error);
+                error);
         if (msgBuf == null)
         {
             return CodecReturnCodes.FAILURE;
@@ -315,9 +317,26 @@ public class DirectoryHandler
         {
             return ret;
         }
-        
+
         service.clear(); //stream is closed. cached service information is invalid.
-        
+
         return TransportReturnCodes.SUCCESS;
+    }
+    @Override
+    public int serviceNameToId(String serviceName, JsonConverterError error) {
+
+        if (this.serviceName.toString().equals(serviceName))
+            return service.serviceId();
+
+        return 0;
+    }
+
+    @Override
+    public String serviceIdToName(int id, JsonConverterError error) {
+
+        if (service.serviceId() == id)
+            return this.serviceName.toString();
+
+        return null;
     }
 }

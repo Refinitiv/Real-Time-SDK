@@ -219,7 +219,7 @@ class ItemHandler
                 }
             case MsgClasses.CLOSE:
                 System.out.println("Received Item close for streamId " + msg.streamId());
-                closeStream(chnl.channel(), msg.streamId());
+                closeStream(chnl.channel(), msg.streamId(), errorInfo);
                 break;
             case MsgClasses.POST:
                 return processPost(chnl, msg, dIter, errorInfo);
@@ -320,7 +320,7 @@ class ItemHandler
                     }
 
                     rejectReasonSet.clear();
-                    itemReqInfo = getNewItemReqInfo(chnl, msg, itemStream, rejectReasonSet);
+                    itemReqInfo = getNewItemReqInfo(chnl, msg, itemStream, rejectReasonSet, errorInfo);
                     if (itemReqInfo == null)
                     {
                         // Batch requests should not be used to reissue item
@@ -349,7 +349,7 @@ class ItemHandler
                     {
                         //snapshot request - so we dont have to send updates
                         //free item request info
-                        freeItemReqInfo(itemReqInfo);
+                        freeItemReqInfo(itemReqInfo, errorInfo);
                     }
                     else
                     {
@@ -452,7 +452,7 @@ class ItemHandler
         {
             //No matching items. This is a new request.
             rejectReasonSet.clear();
-            itemReqInfo = getNewItemReqInfo(chnl, msg, msg.streamId(), rejectReasonSet);
+            itemReqInfo = getNewItemReqInfo(chnl, msg, msg.streamId(), rejectReasonSet, errorInfo);
         }
 
         if (itemReqInfo == null)
@@ -484,7 +484,7 @@ class ItemHandler
         {
             //snapshot request - so we dont have to send updates
             //free item request info
-            freeItemReqInfo(itemReqInfo);
+            freeItemReqInfo(itemReqInfo, errorInfo);
         }
         else
         {
@@ -593,14 +593,14 @@ class ItemHandler
     /*
      * Closes a dictionary stream.
      */
-    private void closeStream(Channel chnl, int streamId)
+    private void closeStream(Channel chnl, int streamId, ReactorErrorInfo errorInfo)
     {
         ItemRequestInfo itemRequestInfo = _itemRequestWatchList.get(chnl, streamId);
         //remove original item request information
         if (itemRequestInfo != null)
         {
             System.out.println("Closing item stream id " + itemRequestInfo.streamId() + " with item name: " + itemRequestInfo.itemName());
-            freeItemReqInfo(itemRequestInfo);
+            freeItemReqInfo(itemRequestInfo, errorInfo);
         }
         else
         {
@@ -611,7 +611,7 @@ class ItemHandler
     /*
      * Deletes a symbol list item.
      */
-    private void deleteSymbolListItem(ItemRequestInfo itemReqInfo)
+    private void deleteSymbolListItem(ItemRequestInfo itemReqInfo, ReactorErrorInfo errorInfo)
     {
         Buffer delItem = itemReqInfo.itemName();
 
@@ -641,7 +641,7 @@ class ItemHandler
                         //Only send Symbol List updates to active channels that have made requests
                         if (itemReqInfoL.domainType() == DomainTypes.SYMBOL_LIST && itemReqInfoL.channel().state() == ChannelState.ACTIVE)
                         {
-                            sendSLItemUpdates(itemReqInfoL.channel(), itemReqInfo, SymbolListItems.SYMBOL_LIST_UPDATE_DELETE, itemReqInfoL.streamId());
+                            sendSLItemUpdates(itemReqInfoL.reactorChannel(), itemReqInfo, SymbolListItems.SYMBOL_LIST_UPDATE_DELETE, itemReqInfoL.streamId(), errorInfo);
                         }
                     }
                 }
@@ -653,7 +653,7 @@ class ItemHandler
     /*
      * Frees item request information for an item.
      */
-    private void freeItemReqInfo(ItemRequestInfo itemReqInfo)
+    private void freeItemReqInfo(ItemRequestInfo itemReqInfo, ReactorErrorInfo errorInfo)
     {
         if (itemReqInfo != null)
         {
@@ -665,7 +665,7 @@ class ItemHandler
 
             if (itemReqInfo.domainType() != DomainTypes.SYMBOL_LIST && itemReqInfo.itemInfo().interestCount() == 0)
             {
-                deleteSymbolListItem(itemReqInfo);
+                deleteSymbolListItem(itemReqInfo, errorInfo);
             }
 
             //free item information if no more interest
@@ -872,7 +872,7 @@ class ItemHandler
      * Initializes a new item request information structure for a channel (or
      * rejects the request if its channel has too many items open).
      */
-    private ItemRequestInfo getNewItemReqInfo(ReactorChannel channel, Msg msg, int stream, EnumSet<ItemRejectReason> rejectReasons)
+    private ItemRequestInfo getNewItemReqInfo(ReactorChannel channel, Msg msg, int stream, EnumSet<ItemRejectReason> rejectReasons, ReactorErrorInfo errorInfo)
     {
         ItemRequestInfo itemRequestInfo = null;
         int count = 0;
@@ -884,7 +884,7 @@ class ItemHandler
         {
             if (itemReqInfo.isInUse())
             {
-                if (itemReqInfo.channel() == channel)
+                if (itemReqInfo.channel() == channel.channel())
                 {
                     ++count;
                     if (count >= DirectoryHandler.OPEN_LIMIT)
@@ -908,6 +908,7 @@ class ItemHandler
             return null;
         }
 
+        itemRequestInfo.reactorChannel(channel);
         itemRequestInfo.channel(channel.channel());
         itemRequestInfo.isInUse(true);
         if (copyMsgKey(itemRequestInfo.msgKey(), msg.msgKey()) != CodecReturnCodes.SUCCESS)
@@ -973,7 +974,7 @@ class ItemHandler
 
             if (itemRequestInfo.itemInfo().domainType() != DomainTypes.SYMBOL_LIST)
             {
-                addSymbolListItem(channel, itemRequestInfo);
+                addSymbolListItem(channel, itemRequestInfo, errorInfo);
             }
         }
         //get IsStreamingRequest
@@ -1007,7 +1008,7 @@ class ItemHandler
     /*
      * Adds a symbol list item.
      */
-    private void addSymbolListItem(ReactorChannel channel, ItemRequestInfo itemReqInfo)
+    private void addSymbolListItem(ReactorChannel channel, ItemRequestInfo itemReqInfo, ReactorErrorInfo errorInfo)
     {
         int itemVacancy = 0;
         Buffer newItem = itemReqInfo.itemName();
@@ -1047,7 +1048,7 @@ class ItemHandler
         {
             if (itemReqInfoL.domainType() == DomainTypes.SYMBOL_LIST)
             {
-                sendSLItemUpdates(itemReqInfoL.channel(), itemReqInfo, SymbolListItems.SYMBOL_LIST_UPDATE_ADD, itemReqInfoL.streamId());
+                sendSLItemUpdates(itemReqInfoL.reactorChannel(), itemReqInfo, SymbolListItems.SYMBOL_LIST_UPDATE_ADD, itemReqInfoL.streamId(), errorInfo);
             }
         }
     }
@@ -1055,24 +1056,24 @@ class ItemHandler
     /*
      * Sends symbol list item update messages.
      */
-    private void sendSLItemUpdates(Channel chnl, ItemRequestInfo itemReqInfo, int responseType, int streamId)
+    private void sendSLItemUpdates(ReactorChannel reactorChannel, ItemRequestInfo itemReqInfo, int responseType, int streamId, ReactorErrorInfo errorInfo)
     {
         //get a buffer for the response
-        TransportBuffer msgBuf = chnl.getBuffer(SymbolListItems.MAX_SYMBOL_LIST_SIZE, false, _error);
+        TransportBuffer msgBuf = reactorChannel.channel().getBuffer(SymbolListItems.MAX_SYMBOL_LIST_SIZE, false, _error);
         if (msgBuf == null)
         {
             System.out.println("chnl.getBuffer(): Failed " + _error.text());
             return;
         }
 
-        int ret = _symbolListItemWatchList.encodeResponse(chnl, itemReqInfo.itemInfo(), msgBuf, streamId, true,
+        int ret = _symbolListItemWatchList.encodeResponse(reactorChannel.channel(), itemReqInfo.itemInfo(), msgBuf, streamId, true,
                                                           serviceId(), itemReqInfo.isStreamingRequest(), _dictionaryHandler.dictionary(), responseType, _error);
         if (ret != CodecReturnCodes.SUCCESS)
         {
             System.out.println("encodeSymbolListResponse() failed");
         }
 
-        if (chnl.write(msgBuf, _writeArgs, _error) == TransportReturnCodes.FAILURE)
+        if (reactorChannel.submit(msgBuf, _submitOptions, errorInfo) == TransportReturnCodes.FAILURE)
             System.out.println("Error writing message: " + _error.text());
     }
 
@@ -1551,14 +1552,14 @@ class ItemHandler
                         errorInfo.error().text("nestedMsg.encode() failed");
                         return CodecReturnCodes.FAILURE;
                     }
-                    
-                    ret = itemReqInfoL.channel().write(sendBuf, _writeArgs, _error);
+
+                    ret = itemReqInfoL.reactorChannel().submit(sendBuf, _submitOptions, errorInfo);
                     if (ret < TransportReturnCodes.SUCCESS)
                         return CodecReturnCodes.FAILURE;
 
                     // check if its a status close and close any open streams if it is
                     if (_nestedMsg.msgClass() == MsgClasses.STATUS && ((StatusMsg)_nestedMsg).checkHasState() && ((StatusMsg)_nestedMsg).state().streamState() == StreamStates.CLOSED)
-                        closeStream(itemReqInfoL.channel(), _nestedMsg.streamId());
+                        closeStream(itemReqInfoL.channel(), _nestedMsg.streamId(), errorInfo);
                 }
                 else
                 {
@@ -1570,7 +1571,8 @@ class ItemHandler
                         errorInfo.error().text("nestedMsg.encode() failed");
                         return CodecReturnCodes.FAILURE;
                     }
-                    ret = itemReqInfoL.channel().write(sendBuf, _writeArgs, _error);
+
+                    ret = itemReqInfoL.reactorChannel().submit(sendBuf, _submitOptions, errorInfo);
                     if (ret < TransportReturnCodes.SUCCESS)
                         return CodecReturnCodes.FAILURE;
                 }
@@ -1607,14 +1609,14 @@ class ItemHandler
     /*
      * Closes all item requests for the closed channel.
      */
-    void closeStream(ReactorChannel reactorChannel)
+    void closeStream(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
     {
         //find original item request information associated with channel
         for (ItemRequestInfo itemRequestInfoL : _itemRequestWatchList)
         {
             if (itemRequestInfoL.channel() == reactorChannel.channel() && itemRequestInfoL.isInUse())
             {
-                freeItemReqInfo(itemRequestInfoL);
+                freeItemReqInfo(itemRequestInfoL, errorInfo);
             }
         }
     }

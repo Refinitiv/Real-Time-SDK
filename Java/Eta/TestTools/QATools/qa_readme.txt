@@ -19,6 +19,8 @@ consumer-Item-001: Alters consumer to decode Date/Time/DateTime and print using 
 
 consumer-HttpReconnect-001:  Alters consumer which calls chnl.channel().reconnectClient(error) when receive login response.
 
+consumer-Ws-001: Alters Consumer to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4'.
+
 Module:  Value Add Provider 
 ---------------------------
 
@@ -35,11 +37,13 @@ vaprovider-ProvFunc-001: Adds command line arguments to turn set open window to 
 
 vaprovider-ProvFunc-002: Market price refresh/updates were altered to send out negative FIDs 
 
+vaprovider-Ws-001: Alters VAProvider to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4' and option -compressionLevel to 0-9.
 
 Module:  Provider 
 ---------------------------
 
 provider-Item-001:    Alters Provider which send TEMPORARY_REJECT on every 5th item request from consumer. Expand OPEN_LIMIT to 50000.
+provider-Ws-001:      Alters Provider to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4' and option -compressionLevel to 0-9.
 
 Module:  Value Add Consumer 
 ---------------------------
@@ -73,6 +77,8 @@ vaconsumer-ChnlStats-005: Alters VAConsumer to create 5 connections with 1 react
 in order to test ReactorChannelStatistic and sessionMgnt for 5 connections same username and password share AccessToken, this behavior introduced in Java version 1.5.1.
 And testing reactor options to identify tokenServiceUrl, serviceDiscoveryUrl.
 The new configuration parameters introduce in version 1.4.0 for reactor to test 'restRequestTimeout', 'tokenReissueRatio', 'reissueTokenAttemptLimit' and 'reissueTokenAttemptInterval'.
+
+vaconsumer-Ws-001: Alters VAConsumer to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4'.
 
 Module:  Watchlist Consumer 
 ---------------------------

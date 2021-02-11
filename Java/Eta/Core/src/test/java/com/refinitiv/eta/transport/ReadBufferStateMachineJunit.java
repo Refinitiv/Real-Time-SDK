@@ -21,13 +21,13 @@ import com.refinitiv.eta.transport.RsslSocketChannel;
 /**
  * These are some *very* basic tests of the
  * {@link ReadBufferStateMachine} to test some corner cases not handled by
- * the real JUnit tests in {@link SocketChannelJunitTest} 
+ * the real JUnit tests in {@link SocketChannelJunitTest}
  */
 public class ReadBufferStateMachineJunit
 {
     /**
      * Given a valid {@link ByteBuffer}
-     * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer} 
+     * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer}
      * the initial state of the machine is "no data"
      */
     @Test
@@ -37,11 +37,11 @@ public class ReadBufferStateMachineJunit
         final ReadBufferStateMachine stateMachine = new ReadBufferStateMachine(chnl);
         assertEquals(ReadBufferState.NO_DATA, stateMachine.state());
     }
-        
+
     /**
      * Given a {@link ByteBuffer} with a capacity less than the minimum
      * required by the state machine
-     * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer} 
+     * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer}
      * an {@link IllegalArgumentException} is thrown
      */
     @Test
@@ -50,7 +50,7 @@ public class ReadBufferStateMachineJunit
         try
         {
             final ByteBufferPair buf =  new ByteBufferPair(null, (ReadBufferStateMachine.MIN_BUFFER_CAPACITY - 1), true);
-            
+
             final RsslSocketChannel chnl = new RsslSocketChannel();
             final ReadBufferStateMachine stateMachine = new ReadBufferStateMachine(chnl);
             stateMachine.initialize(buf);
@@ -61,10 +61,10 @@ public class ReadBufferStateMachineJunit
             assertTrue(true);
         }
     }
-    
+
     /**
-     * Given a {@link ByteBuffer} with a non-zero initial {@link ByteBuffer#position()} 
-     * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer} 
+     * Given a {@link ByteBuffer} with a non-zero initial {@link ByteBuffer#position()}
+     * When I create a {@link ReadBufferStateMachine} using said {@link ByteBuffer}
      * an {@link IllegalArgumentException} is thrown
      */
     @Test
@@ -75,7 +75,7 @@ public class ReadBufferStateMachineJunit
             final int aNonZeroInitalPosition = 1;
             final ByteBufferPair buf = new ByteBufferPair(null, ReadBufferStateMachine.MIN_BUFFER_CAPACITY, true);
             buf.buffer().position(aNonZeroInitalPosition);
-            
+
             final RsslSocketChannel chnl = new RsslSocketChannel();
             final ReadBufferStateMachine stateMachine = new ReadBufferStateMachine(chnl);
             stateMachine.initialize(buf);
@@ -85,16 +85,16 @@ public class ReadBufferStateMachineJunit
         {
             assertTrue(true);
         }
-    } 
+    }
 
     /**
-     * 
-     * Given a {@link ReadBufferStateMachine} 
+     *
+     * Given a {@link ReadBufferStateMachine}
      * when the initial state of the machine is "no data"
-     * and the first call to {@link ReadBufferStateMachine#advanceOnSocketChannelRead(int)}
+     * and the first call to {@link ReadBufferStateMachine#advanceOnSocketChannelRead(int, ReadArgsImpl, Error)}
      * passed the value {@code 0}
      * then the state of {@link ReadBufferStateMachine} will still be "no data"
-     * 
+     *
      */
     @Test
     public void firstCallToProcessReadHasNodata()
@@ -105,7 +105,7 @@ public class ReadBufferStateMachineJunit
         final ReadBufferStateMachine stateMachine = new ReadBufferStateMachine(chnl);
         stateMachine.initialize(buf);
         assertEquals(ReadBufferState.NO_DATA, stateMachine.state());
-        
-        assertEquals(ReadBufferState.NO_DATA, stateMachine.advanceOnSocketChannelRead(0, readArgs));
+
+        assertEquals(ReadBufferState.NO_DATA, stateMachine.advanceOnSocketChannelRead(0, readArgs, TransportFactory.createError()));
     }
 }

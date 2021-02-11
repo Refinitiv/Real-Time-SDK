@@ -27,4 +27,7 @@ enum ReadBufferSubState
      * ASSUMPTION: It is not possible to have a message that is both packed and fragmented
      */
     PROCESSING_FRAGMENTED_MESSAGE,
+
+    /* We are processing a complete fragmented JSON message over the websocket connection. */
+    PROCESSING_COMPLETE_FRAGMENTED_JSON_MESSAGE
 }

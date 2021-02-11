@@ -11,6 +11,7 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
     static final int RIPC_WRITE_POSITION = 3;
     static final byte FRAGMENT_RIPC_FLAGS = 0x04;
     static final byte FRAGMENT_HEADER_RIPC_FLAGS = 0x08;
+    static final int PACKED_JSON_MSG_DELIMITER = 1;
 
     /* RIPC Version dependent.
      * FragId is one-byte Pre RIPC13, two bytes RIPC13 and beyond.
@@ -25,12 +26,25 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
     /* This position is set in the write buffer when the buffer is obtained via getBuffer method. */
     int _startPosition;
 
+    /* This is used to indicate the start position for the WebSocket frame header. */
+    int _startWsHeader = 0;
+
+    /* This is data start offset for JSON protocol */
+    int _dataStartOffSet = 0;
+
     /* The total length of the buffer (including header). */
     int _length;
 
+    /* The header length. Defaults to the RIPC header length */
+    private int _headerLength = RIPC_WRITE_POSITION;
+
     /* this will be used for packed buffers */
     boolean _isPacked = false;
-    int _packedMsgLengthPosition;
+    int opCode = -1;
+
+    /* This is the position to set the length of a message for the RWF protocol.
+     * This is the position to write a JSON message for JSON protocol */
+    int _packedMsgOffSetPosition;
 
     /* Remembers whether the application owns this buffer
      * (got it from getBuffer() and has not successfully written it) */
@@ -79,10 +93,24 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         return false;
     }
 
+    int isPackedBuffer(Channel chnl, Error error)
+    {
+        if (!_isPacked)
+        {
+            error.channel(chnl);
+            error.errorId(TransportReturnCodes.FAILURE);
+            error.sysError(0);
+            error.text("cannot pack a buffer with packing disabled");
+            return TransportReturnCodes.FAILURE;
+        }
+
+        return TransportReturnCodes.SUCCESS;
+    }
+
     /* Update the packed header with the length of the message being packed.
-     * 
+     *
      * reserveNextPackedHdr is true, if this method will attempt to reserve space (i.e. the packed header) for another packed message.
-     * 
+     *
      * Returns the amount of user available bytes remaining for packing.
      */
     int pack(boolean reserveNextPackedHdr, Channel chnl, Error error)
@@ -97,28 +125,28 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
             return TransportReturnCodes.FAILURE;
         }
 
-        if (_data.position() > (_packedMsgLengthPosition + PACKED_HDR))
+        if (_data.position() > (_packedMsgOffSetPosition + PACKED_HDR))
         {
             // write the length of the message being packed
-            int len = _data.position() - _packedMsgLengthPosition - PACKED_HDR;
-            _data.putShort(_packedMsgLengthPosition, (short)len);
+            int len = _data.position() - _packedMsgOffSetPosition - PACKED_HDR;
+            _data.putShort(_packedMsgOffSetPosition, (short)len);
 
             // set new mark for the next message
-            _packedMsgLengthPosition = _data.position();
+            _packedMsgOffSetPosition = _data.position();
         }
 
         if (reserveNextPackedHdr)
         {
             // attempt to reserve space for the next packed_hdr.
-            if ((_packedMsgLengthPosition + PACKED_HDR) > _data.limit())
+            if ((_packedMsgOffSetPosition + PACKED_HDR) > _data.limit())
                 return 0;
 
-            _data.position(_packedMsgLengthPosition + PACKED_HDR);
+            _data.position(_packedMsgOffSetPosition + PACKED_HDR);
         }
         else
         {
             // don't reserve space for the next packed_hdr, we're done packing.
-            _data.position(_packedMsgLengthPosition);
+            _data.position(_packedMsgOffSetPosition);
             return 0;
         }
 
@@ -130,12 +158,51 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         return -1;
     }
 
+    protected void populateRipcHeader(BigBuffer bigBuffer, boolean firstFragment, int flags, int optFlags, int fragmentedMsgLength, int entriePayloadLength)
+    {
+        if(firstFragment)
+        {
+            _data.putShort((short)fragmentedMsgLength);
+            _data.put((byte)flags); // add flags in the third byte of header
+            _data.put((byte)optFlags); // add Ext flags (08) in the fourth byte of header
+            _data.putInt(entriePayloadLength); // add the length of the payload
+
+            // add fragment ID in the ninth byte of header
+            if (bigBuffer.ripcVersion() >= Ripc.RipcVersions.VERSION13)
+            {
+                // two byte fragId
+                _data.putShort(bigBuffer.fragmentId());
+            }
+            else
+            {
+                // one byte fragId
+                _data.put((byte)bigBuffer.fragmentId());
+            }
+        }
+        else
+        {
+            _data.putShort((short)fragmentedMsgLength);
+            _data.put((byte)flags); // add flags in the third byte of header
+            _data.put((byte)optFlags); // add Ext flags (04) in the fourth byte of header
+
+            // add fragment ID in the fifth byte of header
+            if (bigBuffer.ripcVersion() >= Ripc.RipcVersions.VERSION13)
+            {
+                _data.putShort(bigBuffer.fragmentId()); // two byte fragId starting version 13
+            }
+            else
+            {
+                _data.put((byte)bigBuffer.fragmentId()); // one byte fragId older versions
+            }
+        }
+    }
+
     /* Populates a fragment when not using compression.
-     * 
+     *
      * bigBuffer is the source of data to be fragmented
      * firstFragment is true if this is first fragment of the set
      * flags is the RipcFlags for the fragment
-     * 
+     *
      * Returns the number of payload bytes written to this fragment
      */
     protected int populateFragment(BigBuffer bigBuffer, boolean firstFragment, int flags, WriteArgs writeArgs)
@@ -149,24 +216,11 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         if (firstFragment)
         {
             limit = position;
-            // in the first fragment the length is equal to the buffer capacity
-            _data.position(0);
-            _data.putShort((short)_data.capacity());
-            _data.put((byte)flags); // add flags in the third byte of header
-            _data.put(FRAGMENT_HEADER_RIPC_FLAGS); // add Ext flags (08) in the fourth byte of header
-            _data.putInt(limit); // add the length of the payload
 
-            // add fragment ID in the ninth byte of header
-            if (bigBuffer.ripcVersion() >= Ripc.RipcVersions.VERSION13)
-            {
-                // two byte fragId
-                _data.putShort(bigBuffer.fragmentId());
-            }
-            else
-            {
-                // one byte fragId
-                _data.put((byte)bigBuffer.fragmentId());
-            }
+            _data.position(0);
+
+            /* Populate RIPC header for the first fragmented message */
+            populateRipcHeader(bigBuffer, true, flags, FRAGMENT_HEADER_RIPC_FLAGS, _data.capacity(), limit);
 
             _data.limit(_data.capacity());
 
@@ -181,7 +235,6 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         }
         else
         {
-            _data.position(0);
             int bytesToCopy = limit - position;
             if (_data.capacity() <= (bytesToCopy + _nextFragmentHeaderLength))
             {
@@ -192,21 +245,10 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
                 bytesCopied = bytesToCopy;
             }
 
+            _data.position(0);
+            populateRipcHeader(bigBuffer, false, flags, FRAGMENT_RIPC_FLAGS, bytesCopied + _nextFragmentHeaderLength, 0);
+
             _length = bytesCopied + _nextFragmentHeaderLength;
-            _data.putShort((short)(bytesCopied + _nextFragmentHeaderLength));
-            _data.put((byte)flags); // add flags in the third byte of header
-            _data.put(FRAGMENT_RIPC_FLAGS); // add Ext flags (04) in the fourth byte of header
-
-            // add fragment ID in the fifth byte of header
-            if (bigBuffer.ripcVersion() >= Ripc.RipcVersions.VERSION13)
-            {
-                _data.putShort(bigBuffer.fragmentId()); // two byte fragId starting version 13
-            }
-            else
-            {
-                _data.put((byte)bigBuffer.fragmentId()); // one byte fragId older versions
-            }
-
             _data.limit(_length);
             // update uncompressed bytes written
             ((WriteArgsImpl)writeArgs).uncompressedBytesWritten(uncompressedBytesWritten + bytesCopied + _nextFragmentHeaderLength);
@@ -227,7 +269,7 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
     }
 
     /* Populates the first (header) fragment with the given data.
-     * 
+     *
      * flags is the flags for the RipcFlags field
      * optFlags is the flags for the RipcOptionalFlags field
      * fragId is the fragment Id for this fragment
@@ -235,7 +277,7 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
      * inData is the array containing the source data to be added to this fragment
      * offset is the offset in the source data array
      * inDataLength is the number of bytes to be copied from the inData array (starting from offset) and added to this fragment
-     * 
+     *
      * Returns the number of payload bytes copied to the fragment.
      * Returns TransportReturnCodes.FAILURE before any data is copied, if the input data will not fit in the fragment.
      */
@@ -272,14 +314,14 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
     }
 
     /* Populates the Nth fragment in the set (N>1) with the given data.
-     * 
+     *
      * flags is the flags for the RipcFlags field
      * optFlags is the flags for the RipcOptionalFlags field
      * fragId is the fragment Id for this fragment
      * inData is the array containing the source data to be added to this fragment
      * offset is the starting position of input data in the inData array
      * inDataLength is the number of bytes of input data to be added to the fragment
-     * 
+     *
      * Returns the number of payload bytes copied to the fragment.
      * Returns TransportReturnCodes.FAILURE before any data is copied, if the input data will not fit in the fragment.
      */
@@ -326,10 +368,17 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         _data.limit(lastPosition);
     }
 
+    /* This is used to override the default header length for the WebSocket connection type. */
+    /* Note: this doesn't include the packed header length if any. */
+    void headerLength(int headerLength)
+    {
+        _headerLength = headerLength;
+    }
+
     /* Should be called only if buffer is packed. */
     int packedLen()
     {
-        return (_data.position() - _startPosition - RIPC_WRITE_POSITION);
+        return (_data.position() - _startPosition - _headerLength);
     }
 
     @Override
@@ -341,17 +390,17 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         {
             if (!_isPacked) // normal buffer
             {
-                if (_data.position() - _startPosition - RIPC_WRITE_POSITION > 0)
+                if (_data.position() - _startPosition - _headerLength > 0)
                 {
-                    len = _data.position() - _startPosition - RIPC_WRITE_POSITION;
+                    len = _data.position() - _startPosition - _headerLength;
                 }
             }
             else
             // packed buffer
             {
-                if (_data.position() - _startPosition - RIPC_WRITE_POSITION - PACKED_HDR > 0)
+                if (_data.position() - _startPosition - _headerLength - PACKED_HDR > 0)
                 {
-                    len = _data.position() - _startPosition - RIPC_WRITE_POSITION - PACKED_HDR;
+                    len = _data.position() - _startPosition - _headerLength - PACKED_HDR;
                 }
             }
         }
@@ -373,9 +422,9 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         {
             if (!_isPacked) // normal buffer
             {
-                if (_data.position() - _startPosition - RIPC_WRITE_POSITION > 0)
+                if (_data.position() - _startPosition - _headerLength > 0)
                 {
-                    len = _data.position() - _startPosition - RIPC_WRITE_POSITION;
+                    len = _data.position() - _startPosition - _headerLength;
                 }
                 else
                     len = 0;
@@ -383,9 +432,9 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
             else
             // packed buffer
             {
-                if (_data.position() - _startPosition - RIPC_WRITE_POSITION - PACKED_HDR > 0)
+                if (_data.position() - _startPosition - _headerLength - PACKED_HDR > 0)
                 {
-                    len = _data.position() - _startPosition - RIPC_WRITE_POSITION - PACKED_HDR;
+                    len = _data.position() - _startPosition - _headerLength - PACKED_HDR;
                 }
                 else
                     len = 0;
@@ -412,8 +461,8 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
             // determine length and positions
             if (_isWriteBuffer) // write buffer
             {
-                len = _data.position() - _startPosition - RIPC_WRITE_POSITION;
-                srcStartPos = _startPosition + RIPC_WRITE_POSITION;
+                len = _data.position() - _startPosition - _headerLength;
+                srcStartPos = _startPosition + _headerLength;
             }
             else // read buffer
             {
@@ -441,14 +490,14 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
 
         if (_isWriteBuffer) // write buffer
         {
-            dataStartPos = _startPosition + RIPC_WRITE_POSITION;
+            dataStartPos = _startPosition + _headerLength;
         }
         else // read buffer
         {
             dataStartPos = _data.position();
         }
 
-        return dataStartPos;
+        return (dataStartPos + _dataStartOffSet);
     }
 
     @Override
@@ -456,7 +505,7 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
     {
         if (_isWriteBuffer) // write buffer
         {
-            return _data.limit() - (_startPosition + RIPC_WRITE_POSITION);
+            return _data.limit() - (_startPosition + _headerLength);
         }
         else // read buffer
         {
@@ -464,4 +513,38 @@ class TransportBufferImpl extends EtaNode implements TransportBuffer
         }
     }
 
+    static int packBuffer(TransportBufferImpl packedBuffer, boolean reserveNextPackedHdr, Channel chnl, Error error)
+    {
+        if( packedBuffer.isPackedBuffer(chnl, error) != TransportReturnCodes.SUCCESS)
+        {
+            return TransportReturnCodes.FAILURE;
+        }
+
+        if (packedBuffer.data().position() > (packedBuffer._packedMsgOffSetPosition + TransportBufferImpl.PACKED_HDR))
+        {
+            // write the length of the message being packed
+            int len = packedBuffer.data().position() - packedBuffer._packedMsgOffSetPosition - TransportBufferImpl.PACKED_HDR;
+            packedBuffer.data().putShort(packedBuffer._packedMsgOffSetPosition, (short)len);
+
+            // set new mark for the next message
+            packedBuffer._packedMsgOffSetPosition = packedBuffer.data().position();
+        }
+
+        if (reserveNextPackedHdr)
+        {
+            // attempt to reserve space for the next packed_hdr.
+            if ((packedBuffer._packedMsgOffSetPosition + TransportBufferImpl.PACKED_HDR) > packedBuffer.data().limit())
+                return 0;
+
+            packedBuffer.data().position(packedBuffer._packedMsgOffSetPosition + TransportBufferImpl.PACKED_HDR);
+        }
+        else
+        {
+            // don't reserve space for the next packed_hdr, we're done packing.
+            packedBuffer.data().position(packedBuffer._packedMsgOffSetPosition);
+            return 0;
+        }
+
+        return packedBuffer.data().limit() - packedBuffer.data().position();
+    }
 }

@@ -127,7 +127,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
     protected RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool, boolean encrypted)
     {
-        super(transport, channelPool, encrypted);
+        super(transport, channelPool, ConnectionTypes.HTTP, encrypted);
 
         _http = true;
         HTTP_HEADER4 = 4;
@@ -172,6 +172,9 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         _writeLock = new ReentrantLock();
 
         _readBufStateMachine = new ReadBufferStateMachineHTTP(this);
+        
+        /* Overrides the default from RsslSocketChannel for unit testing */
+        ripcProtocolFunctions._readBufferStateMachine = _readBufStateMachine;
 
         _http = true;
         HTTP_HEADER4 = 4;
@@ -184,7 +187,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         HTTP_TransferEncoding = new byte[26];
         HTTP_ContentType = new byte[38];
     }
-    
+
     /* TEST ONLY: This is not a valid constructor. (only for JUnit tests) */
     protected RsslHttpSocketChannel(int connectionType)
     {
@@ -264,7 +267,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     error.text("Failed to initialize socket channel: " + ex.getMessage());
                     return TransportReturnCodes.FAILURE;
                 }
-                
+
                 dataFromOptions(opts);
             }
             else
@@ -350,7 +353,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 }
                 else
                     _cachedInetSocketAddress = new InetSocketAddress(_cachedConnectOptions.unifiedNetworkInfo().address(),
-                                                                     ((UnifiedNetworkInfoImpl)(_cachedConnectOptions.unifiedNetworkInfo())).port());
+                            ((UnifiedNetworkInfoImpl)(_cachedConnectOptions.unifiedNetworkInfo())).port());
             }
 
             // if interfaceName is specified, bind to NIC
@@ -482,6 +485,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             else
             // send ping buffer
             {
+                ByteBuffer _pingBuffer = ripcProtocolFunctions.pingBuffer;
                 _pingBuffer.rewind();
 
                 if (!_encrypted)
@@ -615,15 +619,15 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     retVal = initChnlWaitProxyAck(inProg, error); // may throw a ProxyAuthenticationException
                     if (retVal == TransportReturnCodes.CHAN_INIT_IN_PROGRESS && _proxyAuthenticator.isAuthenticated())
                     {
-                    	/* If this is encrypted, start the encryption dance. _scktChannel.finishConnect will return false until the TLS handshake has finished.  */
-                    	if(_encrypted)
-                    	{
-                    		_scktChannel.postProxyInit();
-                    		_initChnlState = InitChnlState.HTTP_CONNECTING;
-                    		// break out here, we're done
-                    		break;
-                    	}
-                    	
+                        /* If this is encrypted, start the encryption dance. _scktChannel.finishConnect will return false until the TLS handshake has finished.  */
+                        if(_encrypted)
+                        {
+                            _scktChannel.postProxyInit();
+                            _initChnlState = InitChnlState.HTTP_CONNECTING;
+                            // break out here, we're done
+                            break;
+                        }
+
                         _httpPOSTwriteBuffer = setupClientPOSThttpRequest(_initChnlWriteBuffer);
                         if (_httpPOSTwriteBuffer == null)
                             return TransportReturnCodes.FAILURE;
@@ -762,9 +766,9 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             // note that we could cache the msgLen, but normally we should be reading an entire HTTP OK here.
 
             httpOKsize = HTTP_OK_FROM_SERVER.length + CHUNKEND_SIZE + HTTP_TransferEncoding.length + CHUNKEND_SIZE + HTTP_ContentType.length
-                    + HTTP_HEADER_END_SIZE;
+                         + HTTP_HEADER_END_SIZE;
             firstHTTPchunkHeader_size = HTTP_HEADER3 + firstHTTPchunk_size + CHUNKEND_SIZE; // e.g. 0x37 0x0D 0x0a 00 07 00 00 00 00 01 0x0D 0x0A
-                                                                                            // (in this example chunk size is 07 and http session ID is 01)
+            // (in this example chunk size is 07 and http session ID is 01)
             if (dst.position() >= (httpOKsize + firstHTTPchunkHeader_size))
             {
                 int retVal = parsePOSThttpResponse(dst);
@@ -879,18 +883,18 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 ((ReadArgsImpl)readArgs)._bytesRead = 0;
                 ((ReadArgsImpl)readArgs)._uncompressedBytesRead = 0;
 
-                updateState((ReadArgsImpl)readArgs);
+                updateState((ReadArgsImpl)readArgs, error);
 
                 // if we don't already have data to give the user, read from the network
                 if (_readBufStateMachine.state() != ReadBufferState.KNOWN_COMPLETE)
                 {
-                    performReadIO((ReadArgsImpl)readArgs);
+                    performReadIO((ReadArgsImpl)readArgs, error);
                 }
 
                 if (_httpReconnectState)
                 {
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                        System.out.println(" RECON rcvACKnewChannel = " + rcvACKnewChannel + 
+                        System.out.println(" RECON rcvACKnewChannel = " + rcvACKnewChannel +
                                            " rcvEndOfResponseOldChannel = " + rcvEndOfResponseOldChannel);
                     if (rcvACKnewChannel && rcvEndOfResponseOldChannel)
                     {
@@ -927,7 +931,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 switch (_readBufStateMachine.state())
                 {
                     case KNOWN_COMPLETE:
-                        int entireMessageLength = _readBufStateMachine.currentRipcMessageLength();
+                        int entireMessageLength = _readBufStateMachine.currentMessageLength();
 
                         if (entireMessageLength != Ripc.Lengths.HEADER)
                         {
@@ -988,7 +992,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                         populateErrorDetails(error, TransportReturnCodes.FAILURE, "Closed channel - read End-Of-Stream");
                         break;
                     default:
-                        returnValue = (_readIoBuffer.buffer().position() - _readBufStateMachine.currentRipcMessagePosition());
+                        returnValue = (_readIoBuffer.buffer().position() - _readBufStateMachine.currentMessagePosition());
                         assert (returnValue > TransportReturnCodes.SUCCESS);
                         break;
                 }
@@ -1047,17 +1051,17 @@ class RsslHttpSocketChannel extends RsslSocketChannel
      * (throws IOException if an IO exception occurs)
      */
     @SuppressWarnings("fallthrough")
-	private void performReadIO(ReadArgsImpl readArgs) throws IOException
+    private void performReadIO(ReadArgsImpl readArgs, Error error) throws IOException
     {
         switch (_readBufStateMachine.state())
         {
             case KNOWN_INSUFFICENT: // fall through
             case UNKNOWN_INSUFFICIENT:
                 _readIoBuffer.buffer().limit(_readIoBuffer.buffer().position()); // because compact() copies everything up to the limit
-                _readIoBuffer.buffer().position(_readBufStateMachine.currentRipcMessagePosition());
+                _readIoBuffer.buffer().position(_readBufStateMachine.currentMessagePosition());
                 _readIoBuffer.buffer().compact();
                 _readBufStateMachine.advanceOnCompact();
-                                // fall through
+                // fall through
             case END_OF_STREAM: // fall through
             case NO_DATA:       // fall through
             case KNOWN_INCOMPLETE:   // fall through
@@ -1141,8 +1145,8 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 }
 
 //                //bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above read lines with this one
-                
-                _readBufStateMachine.advanceOnSocketChannelRead(bytesRead, readArgs);
+
+                _readBufStateMachine.advanceOnSocketChannelRead(bytesRead, readArgs, error);
                 break;
             default:
                 assert (false); // code should not reach here
@@ -1152,7 +1156,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
     /* WARNING: Creates Garbage. For debugging only, this method reads data from the network and prints the data as hex
      * (so it can later be played back using NetworkReplay)
-     * 
+     *
      * Returns the number of bytes read from the network.
      */
     @SuppressWarnings("unused")
@@ -1176,7 +1180,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         _debugOutput.append(" of ");
         _debugOutput.append(_totalBytesRead);
         _debugOutput.append(" total bytes) cur RIPC pos: ");
-        _debugOutput.append(_readBufStateMachine.currentRipcMessagePosition() + _readBufStateMachine.HTTP_HEADER6);
+        _debugOutput.append(_readBufStateMachine.currentMessagePosition() + _readBufStateMachine.HTTP_HEADER6);
         _debugOutput.append(" prev pos: ");
         _debugOutput.append(posBeforeRead);
         _debugOutput.append(" new pos: ");
@@ -1455,7 +1459,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     {
                         if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                             System.out.println(String.format("Ignoring a response from the proxy that did not contain a response code (%d/%d)",
-                                                             _ignoredConnectResponses, MAX_IGNORED_RESPONSES));
+                                    _ignoredConnectResponses, MAX_IGNORED_RESPONSES));
                         return;
                     }
                     else
@@ -1524,7 +1528,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 System.out.println("IOException in readCONNECThttpResponse: " + e.getMessage());
         }
     }
-    
+
     /* Reconnect to proxy because we had authenticatorResponse.isProxyConnectionClose() during httpReconnectState.
      * (different from forceReconnect(InProgInfo, Error))
      */
@@ -1585,7 +1589,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 }
                 else
                     _cachedInetSocketAddress = new InetSocketAddress(_cachedConnectOptions.unifiedNetworkInfo().address(),
-                                                                     ((UnifiedNetworkInfoImpl)(_cachedConnectOptions.unifiedNetworkInfo())).port());
+                            ((UnifiedNetworkInfoImpl)(_cachedConnectOptions.unifiedNetworkInfo())).port());
             }
 
             // if interfaceName is specified, bind to NIC
@@ -1641,7 +1645,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         }
         return ret;
     }
-    	
+
     /* Only for httpReconnectState.
      * First handshake on new connection (send HTTP POST ... and get back a Reconnect ACK).
      * The Reconnect ACK is 0x31, 0x0D, 0x0A, 0x03, 0x0D, 0x0A
@@ -1674,7 +1678,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         else
             throw new IOException("rcvReconnectACK during httpReconnectState==false");
     }
-    
+
     /* Create "POST HTTP" message (with _httpReconnectOpCode) for httpReconnectState */
     protected void setupClientPOSThttpRequestReconnectState(ByteBuffer buf)
     {
@@ -1715,7 +1719,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     {
         int bufferIndex = 0;
         reader.position(bufferIndex);
- 
+
         try
         {
             // we expect 0x31 0x0D 0x0A 0x03 0x0D 0x0A

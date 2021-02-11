@@ -24,6 +24,9 @@ class ChannelConfig
 	int 				highWaterMark;
 	ChannelInfo			channelInfo;
 	int					initializationTimeout;
+	String 				wsProtocols;
+	int					wsMaxMsgSize;
+
 
 	ChannelConfig() 
 	{
@@ -44,6 +47,8 @@ class ChannelConfig
 		rsslConnectionType = ActiveConfig.DEFAULT_CONNECTION_TYPE;
 		encryptedProtocolType = ActiveConfig.DEFAULT_ENCRYPTED_PROTOCOL_TYPE;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_TIMEOUT;
+		wsProtocols = ActiveConfig.DEFAULT_WS_PROTOCOLS;
+		wsMaxMsgSize = ActiveConfig.DEFAULT_WS_MAX_MSG_SIZE;
 		compressionThresholdSet = false;
 	}
 	

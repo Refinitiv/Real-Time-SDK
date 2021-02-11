@@ -11,7 +11,7 @@ import org.apache.http.util.EncodingUtils;
 public class NegotiateKerberosAuthenticationScheme extends KerberosAuthenticationScheme
 {
     // Negotiate/Kerberos is called SPNEGO(=Simple and Protected GSSAPI Negotiation)
-    
+
     // Example krb5 config file:
     //		[libdefaults]
     //			default_realm = EXAMPLE.COM

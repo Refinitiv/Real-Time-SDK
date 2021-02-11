@@ -9,7 +9,7 @@ import java.util.HashMap;
 import com.refinitiv.eta.test.network.replay.NetworkReplay;
 import com.refinitiv.eta.test.network.replay.NetworkReplayFactory;
 
-class SocketProtocol implements ProtocolInt 
+class SocketProtocol implements ProtocolInt
 {
     private int _connectionType;
     private int _subProtocol;
@@ -45,24 +45,47 @@ class SocketProtocol implements ProtocolInt
     final Pool _serverPool = new TrackingPool(this);
     final HashMap<Integer, Pool> _writeBufferChannelPools = new HashMap<Integer, Pool>();
     final ArrayList<RsslSocketChannel> _busyList = new ArrayList<RsslSocketChannel>();
-
-    SocketProtocol(BindOptions options)
+    
+    SocketProtocol()
     {
-        _connectionType = options.connectionType();
-        if(_connectionType == ConnectionTypes.ENCRYPTED)
-        {
-        	/* This is just to make sure everything flows through cleanly. */
-       		_subProtocol = ConnectionTypes.SOCKET;
-        }
-    	
+        _connectionType = ConnectionTypes.SOCKET;
         // The global lock is locked by Transport
 
         // create pools used by this transport
         // 1. add channels to channel pool
         for (int i = 0; i < NUMBER_SOCKET_CHANNELS; i++)
         {
-        	 RsslSocketChannel channel = createChannel();
-             channel.returnToPool();
+            RsslSocketChannel channel = new RsslSocketChannel(this, _channelPool);
+            channel.returnToPool();
+        }
+
+        // 2. buffers will be added to the pool when connected and size is known from server
+
+        // 3. add servers to server pool
+        for (int i = 0; i < NUMBER_SERVERS; i++)
+        {
+            ServerImpl server = new ServerImpl(this, _serverPool);
+            server.returnToPool();
+        }
+    }
+
+    SocketProtocol(BindOptions options)
+    {
+        _connectionType = options.connectionType();
+        if(_connectionType == ConnectionTypes.ENCRYPTED)
+        {
+            /* This is just to make sure everything flows through cleanly. */
+            _subProtocol = ConnectionTypes.SOCKET;
+        }
+
+        // The global lock is locked by Transport
+
+        // create pools used by this transport
+        // 1. add channels to channel pool
+        for (int i = 0; i < NUMBER_SOCKET_CHANNELS; i++)
+        {
+            RsslSocketChannel channel = createChannel();
+            channel.returnToPool();
         }
 
         // 2. buffers will be added to the pool when connected and size is known from server
@@ -82,16 +105,16 @@ class SocketProtocol implements ProtocolInt
         _connectionType = options.connectionType();
         if(_connectionType == ConnectionTypes.ENCRYPTED)
         {
-        	if(options.tunnelingInfo().tunnelingType().equals("None"))
-        	{
-        		_subProtocol = options.encryptionOptions().connectionType();
-        	}
-        	else
-        	{
-        		_subProtocol = ConnectionTypes.HTTP;
-        	}
+            if(options.tunnelingInfo().tunnelingType().equals("None"))
+            {
+                _subProtocol = options.encryptionOptions().connectionType();
+            }
+            else
+            {
+                _subProtocol = ConnectionTypes.HTTP;
+            }
         }
-        
+
         // create pools used by this transport
         // 1. add channels to channel pool
         for (int i = 0; i < NUMBER_SOCKET_CHANNELS; i++)
@@ -141,7 +164,7 @@ class SocketProtocol implements ProtocolInt
         else
         {
             // For debugging only: create a NetworkReplayChannel and replay the data in the specified file
-            channel = createReplaySocketChannel(((TcpOptsImpl)options.tcpOpts()).replay());
+            channel = createReplaySocketChannel(((TcpOptsImpl)options.tcpOpts()).replay(), options.connectionType());
         }
 
         if (channel._http)
@@ -166,14 +189,14 @@ class SocketProtocol implements ProtocolInt
     private RsslSocketChannel createChannel()
     {
         if (_connectionType == ConnectionTypes.ENCRYPTED)
-        	if(_subProtocol == ConnectionTypes.SOCKET)
-        		return new RsslSocketChannel(this, _channelPool, true);
-        	else
-        		return new RsslHttpSocketChannel(this, _channelPool, true);
+            if(_subProtocol == ConnectionTypes.SOCKET || _subProtocol == ConnectionTypes.WEBSOCKET)
+                return new RsslSocketChannel(this, _channelPool, _connectionType, true);
+            else
+                return new RsslHttpSocketChannel(this, _channelPool, true);
         else if (_connectionType == ConnectionTypes.HTTP)
             return new RsslHttpSocketChannel(this, _channelPool, false);
-        else if (_connectionType == ConnectionTypes.SOCKET)
-            return new RsslSocketChannel(this, _channelPool, false);
+        else if (_connectionType == ConnectionTypes.SOCKET || _connectionType == ConnectionTypes.WEBSOCKET)
+            return new RsslSocketChannel(this, _channelPool, _connectionType, false);
         else
             throw new IllegalArgumentException("Connection type " + _connectionType + " not implemented");
     }
@@ -181,7 +204,7 @@ class SocketProtocol implements ProtocolInt
     /* USED ONLY FOR DEBUGGING
      * Creates a new instance of a RsslSocketChannel and overrides its RsslSocketChannel::read(ByteBuffer) method
      */
-    private RsslSocketChannel createReplaySocketChannel(String replayFilename)
+    private RsslSocketChannel createReplaySocketChannel(String replayFilename, int connectionType)
     {
         assert (replayFilename != null);
 
@@ -226,7 +249,7 @@ class SocketProtocol implements ProtocolInt
             }
             else
             {
-                consumerChannel = new RsslSocketChannel(this, _channelPool, isEncrypted())
+                consumerChannel = new RsslSocketChannel(this, _channelPool, connectionType, isEncrypted())
                 {
                     @Override
                     protected int read(ByteBuffer dst) throws NotYetConnectedException, IOException
@@ -243,7 +266,7 @@ class SocketProtocol implements ProtocolInt
 
         return consumerChannel;
     }
-    
+
     @Override
     public Channel channel(AcceptOptions options, Server srvr, Object object, Error error)
     {
@@ -260,7 +283,7 @@ class SocketProtocol implements ProtocolInt
 
             if (channel == null)
             {
-                channel = new RsslSocketChannel(this, _channelPool, (srvr.connectionType() == ConnectionTypes.ENCRYPTED));
+                channel = new RsslSocketChannel(this, _channelPool, srvr.connectionType(), (srvr.connectionType() == ConnectionTypes.ENCRYPTED));
                 // System.out.println("POOL EXPAND = " + _channelPool._queue._size + " ACTIVESIZE = " + ((TrackingPool)_channelPool)._active.size() + " iCount = " + iCount);
                 break;
             }

@@ -16,7 +16,12 @@ abstract class BaseConfig
 	final static int DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD	    = 100;
 	final static int DEFAULT_DISPATCH_TIMEOUT_API_THREAD		= 0;
 	final static int DEFAULT_USER_DISPATCH						= OmmConsumerConfig.OperationModel.API_DISPATCH;
-	
+	final static int DEFAULT_CONVERTER_SERVICE_ID 				= 1;
+	final static boolean DEFAULT_JSON_ENUM_EXPAND_FIELDS		= false;
+	final static boolean DEFAULT_CATCH_UNKNOWN_JSON_KEYS		= false;
+	final static boolean DEFAULT_CATCH_UNKNOWN_JSON_FIDS		= true;
+	final static boolean DEFAULT_CLOSE_CHANNEL_FROM_FAILURE		= true;
+
 	BaseConfig()
 	{
 		itemCountHint = DEFAULT_ITEM_COUNT_HINT;
@@ -29,6 +34,11 @@ abstract class BaseConfig
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 		traceStr = new StringBuilder(500);
 		globalConfig = new GlobalConfig();
+		defaultConverterServiceId = DEFAULT_CONVERTER_SERVICE_ID;
+		jsonExpandedEnumFields = DEFAULT_JSON_ENUM_EXPAND_FIELDS;
+		catchUnknownJsonKeys = DEFAULT_CATCH_UNKNOWN_JSON_KEYS;
+		catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
+		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 	}
 	
 	void clear()
@@ -45,6 +55,11 @@ abstract class BaseConfig
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 		globalConfig.clear();
 		traceStr.setLength(0);
+		defaultConverterServiceId = DEFAULT_CONVERTER_SERVICE_ID;
+		jsonExpandedEnumFields = DEFAULT_JSON_ENUM_EXPAND_FIELDS;
+		catchUnknownJsonKeys = DEFAULT_CATCH_UNKNOWN_JSON_KEYS;
+		catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
+		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 	}
 	
 	StringBuilder configTrace()
@@ -59,6 +74,11 @@ abstract class BaseConfig
 		.append("\n\t configuredName: ").append(configuredName) 
 		.append("\n\t instanceName: ").append(instanceName) 
 		.append("\n\t xmlTraceEnable: ").append(xmlTraceEnable)
+		.append("\n\t defaultConverterServiceId: ").append(defaultConverterServiceId)
+		.append("\n\t jsonExpandedEnumFields: ").append(jsonExpandedEnumFields)
+		.append("\n\t catchUnknownJsonKeys: ").append(catchUnknownJsonKeys)
+		.append("\n\t catchUnknownJsonFids: ").append(catchUnknownJsonFids)
+		.append("\n\t closeChannelFromFailure: ").append(closeChannelFromFailure)
 		.append("\n\t globalConfig.reactorChannelEventPoolLimit: ").append(globalConfig.reactorChannelEventPoolLimit)
 		.append("\n\t globalConfig.reactorMsgEventPoolLimit: ").append(globalConfig.reactorMsgEventPoolLimit)
 		.append("\n\t globalConfig.workerEventPoolLimit: ").append(globalConfig.workerEventPoolLimit)
@@ -80,4 +100,9 @@ abstract class BaseConfig
 	boolean 				xmlTraceEnable;
 	StringBuilder			traceStr;
 	GlobalConfig            globalConfig;
+	int 					defaultConverterServiceId;
+	boolean					jsonExpandedEnumFields;
+	boolean					catchUnknownJsonKeys;
+	boolean					catchUnknownJsonFids;
+	boolean					closeChannelFromFailure;
 }

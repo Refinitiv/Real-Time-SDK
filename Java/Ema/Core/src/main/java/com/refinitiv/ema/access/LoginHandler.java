@@ -122,7 +122,8 @@ class LoginHandler implements RDMLoginMsgCallback
 				
 					itemInfo.setRequestMsg(requestMsg);
 					itemInfo.clientSession(clientSession);
-				
+					clientSession.setLoginHandle(itemInfo.handle().value());
+
 					_ommServerBaseImpl.addItemInfo(clientSession, itemInfo);
 					
 					_itemInfoList.add(itemInfo);
@@ -274,7 +275,8 @@ class LoginHandler implements RDMLoginMsgCallback
 					
 					_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
 					_ommServerBaseImpl.ommProviderClient().onClose(reqMsg, _ommServerBaseImpl.ommProviderEvent());
-					
+
+					clientSession.resetLoginHandle();
 					_ommServerBaseImpl.serverChannelHandler().closeChannel(loginMsgEvent.reactorChannel());
 				}
 			
@@ -391,7 +393,8 @@ class LoginHandler implements RDMLoginMsgCallback
 				_ommServerBaseImpl.ommProviderEvent()._handle = itemInfo.handle();
 				
 				_ommServerBaseImpl.ommProviderClient().onAllMsg(reqMsg, _ommServerBaseImpl.ommProviderEvent());
-				_ommServerBaseImpl.ommProviderClient().onClose(reqMsg, _ommServerBaseImpl.ommProviderEvent());	
+				_ommServerBaseImpl.ommProviderClient().onClose(reqMsg, _ommServerBaseImpl.ommProviderEvent());
+				clientSession.resetLoginHandle();
 			}
 		}
 		

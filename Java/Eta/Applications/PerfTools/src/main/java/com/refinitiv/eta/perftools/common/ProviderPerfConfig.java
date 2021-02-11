@@ -55,10 +55,10 @@ public class ProviderPerfConfig
     private static boolean             _useReactor;                  // Use the VA Reactor instead of the ETA Channel for sending and receiving.
     private static int                 _tunnelStreamOutputBuffers;   // Tunnel Stream Guaranteed Output Buffers.
     private static boolean             _tunnelStreamBufsUsed;        // Control whether to print tunnel Stream buffers usage.
-    
-    private static int				   _connectionType;				 // Connection Type, either ConnectionTypes.SOCKET or ConnectionTypes.ENCRYPTED
-    private static String			   _keyfile;					 // Keyfile location for encrypted connections
-    private static String			   _keypasswd;					 // Keyfile password for encrypted connections
+    private static String              _protocolList;                // List of supported WS sub-protocols in order of preference(',' | white space delineated)
+    private static int                 _connectionType;				 // Connection Type, either ConnectionTypes.SOCKET or ConnectionTypes.ENCRYPTED
+    private static String              _keyfile;					 // Keyfile location for encrypted connections
+    private static String              _keypasswd;					 // Keyfile password for encrypted connections
 
     static
     {
@@ -96,7 +96,7 @@ public class ProviderPerfConfig
         CommandLine.addOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
         CommandLine.addOption("tunnelStreamOutputBufs", 5000, "Number of output buffers(configures guaranteedOutputBuffers in Tunnel Stream)");
         CommandLine.addOption("tunnelStreamBuffersUsed", false, "Print stats of buffers used by tunnel stream");
-        
+        CommandLine.addOption("pl", "", "List of supported WS sub-protocols in order of preference(',' | white space delineated)");
         CommandLine.addOption("c", (String)null, "Provider connection type.  Either \"socket\" or \"encrypted\"");
         CommandLine.addOption("keyfile", (String)null, "jks encoded keyfile for Encrypted connections");
         CommandLine.addOption("keypasswd", (String)null, "password for keyfile");
@@ -138,6 +138,7 @@ public class ProviderPerfConfig
         _tcpNoDelay = !CommandLine.booleanValue("tcpDelay");
         
         _serviceName = CommandLine.value("serviceName");
+        _protocolList = CommandLine.value("pl");
         
         if(CommandLine.value("c") != null && CommandLine.value("c").equals("encrypted"))
         {
@@ -304,6 +305,7 @@ public class ProviderPerfConfig
             "               Service Name: " + _serviceName + "\n" +
             "                 Service ID: " + _serviceId + "\n" +
             "                 Open Limit: " + _openLimit + "\n" +
+            "              Protocol list: " + (_protocolList.isEmpty() ? "Not specified" : _protocolList) + "\n" +
             "TunnelStream Output Buffers: " + _tunnelStreamOutputBuffers + "\n" +
             "Print TunnelStream Bufs Used: " + (_tunnelStreamBufsUsed ? "Yes" : "No") + "\n" +
             "                Use Reactor: " + (_useReactor ? "Yes" : "No") + "\n";
@@ -945,5 +947,15 @@ public class ProviderPerfConfig
 	public static boolean tunnelStreamBufsUsed()
 	{
 		return _tunnelStreamBufsUsed;
+	}
+	
+	/**
+	 * The websocket sub-protocol list specified by users.
+	 * 
+	 * @return the sub-protocol list 
+	 */
+	public static String protocolList()
+	{
+		return _protocolList;
 	}
 }

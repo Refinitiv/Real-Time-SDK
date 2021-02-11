@@ -79,7 +79,7 @@ class CryptoHelper
 {
 
     public static final String[] CLIENT_PROTOCOLS = {"TLSv1.2"};
-    
+
     /**
      * "HTTPS" algorithm performs endpoint verification as described in 
      * https://tools.ietf.org/html/rfc2818#section-3
@@ -109,7 +109,6 @@ class CryptoHelper
         
         EncryptionOptionsImpl encOpts = (EncryptionOptionsImpl)options.encryptionOptions();
 
-                
     	if(options.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
     	{
     		keystorePassword = encOpts.KeystorePasswd();
@@ -129,13 +128,13 @@ class CryptoHelper
             trustManagerAlgorithm = options.tunnelingInfo().TrustManagerAlgorithm();
             securityProtocol = options.tunnelingInfo().SecurityProtocol();
             keyManagerAlgorithm = options.tunnelingInfo().KeyManagerAlgorithm();
-    	}
-        
+        }
+
         char[] keystorePasswordChars = keystorePassword != null ? keystorePassword.toCharArray() : null;
         if (keystoreFile != null && !keystoreFile.isEmpty())
         {
 
-        		clientKS = initializeClientKeystore(keystorePasswordChars, keystoreFile, keystoreType);
+            clientKS = initializeClientKeystore(keystorePasswordChars, keystoreFile, keystoreType);
         }
         else
         {
@@ -157,7 +156,7 @@ class CryptoHelper
             }
             else
                 clientTMF = javax.net.ssl.TrustManagerFactory.getInstance(trustManagerAlgorithm,
-                		securityProvider);
+                        securityProvider);
         }
         catch (NoSuchAlgorithmException | NoSuchProviderException e)
         {
@@ -191,12 +190,11 @@ class CryptoHelper
             		clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(encOpts._defaultKeyManagerAlgorithm, encOpts._defaultSecurityProvider);
             	else
                     clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(encOpts._defaultKeyManagerAlgorithm, securityProvider);
-
             }
             else
             {
                 clientKMF = javax.net.ssl.KeyManagerFactory.getInstance(options.tunnelingInfo().KeyManagerAlgorithm(),
-                		securityProvider);
+                        securityProvider);
             }
             clientKMF.init(clientKS, keystorePasswordChars);
 
@@ -213,7 +211,7 @@ class CryptoHelper
         {
             throw new IOException("KeyManagementException when initializing SSLContext:  " + e.getMessage());
         }
-        
+
         _connectionKeyManagerAlgorithm = keyManagerAlgorithm;
         _hostName = options.unifiedNetworkInfo().address();
         try
@@ -478,7 +476,7 @@ class CryptoHelper
                     }
                     break;
                 default:
-                	throw new IOException("Invalid handshake status for CryptoHelper.performHandshake()");
+                    throw new IOException("Invalid handshake status for CryptoHelper.performHandshake()");
             }
         }
 
@@ -591,7 +589,7 @@ class CryptoHelper
         if (keepReading)
         {
             while ((_netRecvBuffer.remaining() != 0) && (result.getStatus() != Status.BUFFER_UNDERFLOW)
-                    && (result.getStatus() != Status.BUFFER_OVERFLOW))
+                   && (result.getStatus() != Status.BUFFER_OVERFLOW))
             {
                 result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
                 // check the result of this decryption
@@ -630,7 +628,7 @@ class CryptoHelper
         // fill the _netRecvBuffer
         return _socketChannel.read(_netRecvBuffer);
     }
-    
+
     // Start TLS/SSL handshaking with the server peer.
     void doHandshake() throws IOException
     {
@@ -638,7 +636,7 @@ class CryptoHelper
         _engine.beginHandshake();
         performHandshake();
     }
-    
+
     private void checkEngine()
     {
         if(_engine == null){
@@ -656,19 +654,19 @@ class CryptoHelper
 
     // the Java SSLEngine buffers
     private ByteBuffer _netRecvBuffer; // for the data (handshake and encrypted) received directly from the network.
-                                       // emptied by SSLEngine::unwrap()
+    // emptied by SSLEngine::unwrap()
 
     private ByteBuffer _appRecvBuffer; // for the decrypted data received from the other peer.
-                                       // filled by SSLEngine::unwrap() with decrypted application data
-                                       // and emptied by the application
+    // filled by SSLEngine::unwrap() with decrypted application data
+    // and emptied by the application
 
     private ByteBuffer _appSendBuffer; // for the data (not yet encrypted) to be sent to the other peer.
-                                       // filled by the application
-                                       // and then emptied by SSLEngine::wrap()
+    // filled by the application
+    // and then emptied by SSLEngine::wrap()
 
     private ByteBuffer _netSendBuffer; // for the data (handshake and encrypted) to be sent to the network.
-                                       // filled by SSLEngine::wrap()
-                                       // and emptied by writing it to SocketChannel
+    // filled by SSLEngine::wrap()
+    // and emptied by writing it to SocketChannel
 
     private int readCount; // number of bytes read after each read(ByteBuffer[], offset, length) call
 }

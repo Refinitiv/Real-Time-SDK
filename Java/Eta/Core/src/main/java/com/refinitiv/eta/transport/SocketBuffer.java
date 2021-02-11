@@ -21,6 +21,7 @@ class SocketBuffer extends EtaNode
             if ((slice = (TransportBufferImpl)super.poll()) != null)
             {
                 --_available;
+                slice._dataStartOffSet = 0;
             }
             else
             {
@@ -88,12 +89,12 @@ class SocketBuffer extends EtaNode
         _slicesPool = new SlicesPool(this);
     }
 
-    TransportBufferImpl getBufferSlice(int size, boolean packedBuffer)
+    TransportBufferImpl getBufferSlice(int size, boolean packedBuffer, int headerLength)
     {
         // locked by calling method
         TransportBufferImpl slice = null;
 
-        int _headerLength = RIPC_WRITE_POSITION;
+        int _headerLength = headerLength;
         if (!packedBuffer)
         {
             _isPacked = false;
@@ -119,7 +120,7 @@ class SocketBuffer extends EtaNode
             if (_isPacked)
             {
                 slice._isPacked = true;
-                slice._packedMsgLengthPosition = slice._startPosition + RIPC_WRITE_POSITION;
+                slice._packedMsgOffSetPosition = slice._startPosition + headerLength;
             }
             else
             {

@@ -175,6 +175,10 @@ public abstract class TestReactorComponent {
             bindOpts.minorVersion(Codec.minorVersion());
             bindOpts.pingTimeout(opts.pingTimeout());
             bindOpts.minPingTimeout(opts.pingTimeout());
+			bindOpts.guaranteedOutputBuffers(opts.getNumOfGuaranteedBuffers());
+
+            if (opts.getProtocolList() != null)
+            	bindOpts.wSocketOpts().protocols(opts.getProtocolList());
             /* allow multiple tests to run at the same time, if the port is in use it might mean that
                another parallel test is using this port, so just try to get another port */
             while (_server == null)

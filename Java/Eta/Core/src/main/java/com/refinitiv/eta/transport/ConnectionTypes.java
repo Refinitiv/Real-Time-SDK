@@ -6,7 +6,7 @@ package com.refinitiv.eta.transport;
  */
 public class ConnectionTypes
 {
-    
+
     /**
      * Instantiates a new connection types.
      */
@@ -22,7 +22,7 @@ public class ConnectionTypes
      * based applications.
      */
     public static final int SOCKET = 0;
-    
+
 
     /**
      * Indicates that the {@link Channel} is using an SSL/TLS encrypted
@@ -30,8 +30,8 @@ public class ConnectionTypes
      * a ETA Transport consumer based application.
      */
     public static final int ENCRYPTED = 1;
-    
-    
+
+
     /**
      * Indicates that the {@link Channel} is using an HTTP TCP-based socket
      * connection. This type can be used by a ETA Transport
@@ -45,20 +45,27 @@ public class ConnectionTypes
      * server to one or more shared memory clients.
      */
     public static final int UNIDIR_SHMEM = 3;
-    
+
     /**
      * Indicates that the {@link Channel} is using a reliable multicast based
      * connection. This type can be used to connect on a unified/mesh network
      * where send and receive networks are the same or a segmented network where
      * send and receive networks are different.
-     */    
+     */
     public static final int RELIABLE_MCAST = 4;
-    
+
     public static final int SEQUENCED_MCAST = 6;
 
+    /**
+     * Indicates that the {@link Channel} is using a standard TCP-based WebSocket
+     * connection. This type can be used to connect between any ETA Transport
+     * based applications.
+     */
+    public static final int WEBSOCKET = 7;
+
     /* max defined connectionType */
-    static final int MAX_DEFINED = SEQUENCED_MCAST;
-    
+    static final int MAX_DEFINED = WEBSOCKET;
+
     /**
      * Provide string representation for a connection type value.
      *
@@ -79,8 +86,10 @@ public class ConnectionTypes
                 return "shmem";
             case RELIABLE_MCAST:
                 return "reliableMCast";
+            case WEBSOCKET:
+                return "webSocket";
             default:
                 return Integer.toString(type);
         }
-    }    
+    }
 }

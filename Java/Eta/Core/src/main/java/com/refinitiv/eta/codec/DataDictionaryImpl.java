@@ -3,6 +3,8 @@ package com.refinitiv.eta.codec;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.ElementNames;
@@ -15,6 +17,7 @@ class DataDictionaryImpl implements DataDictionary
     private final int ENUM_TABLE_MAX_COUNT = ((MAX_FID) - (MIN_FID) + 1);
     private final int MAX_ENUM_TYPE_COUNT = 2500;
     private final int INIT_TO_STRING_SIZE = 2000000;
+    private final ReentrantLock fieldNametoIdMapLock = new ReentrantLock();
 
     // Dictionary - Element names that should be hidden
     private final Buffer ENUM_FID = CodecFactory.createBuffer();
@@ -50,7 +53,7 @@ class DataDictionaryImpl implements DataDictionary
     final Buffer                _infoEnumFilename = CodecFactory.createBuffer();
     final Buffer                _infoEnumDesc = CodecFactory.createBuffer();
     final Buffer                _infoEnumDate = CodecFactory.createBuffer();
-    
+
     // dictionary parsing variables
     private File _fieldDictFile;
     private File _enumTypeDefFile;
@@ -61,7 +64,7 @@ class DataDictionaryImpl implements DataDictionary
     private int _enumTypeArrayCount = -1;
     private final int[] _referenceFidArray = new int[MAX_ENUM_TYPE_COUNT];
     private final Buffer[] _referenceFidAcronymArray = new Buffer[MAX_ENUM_TYPE_COUNT];
-    
+
     // dictionary encoding variables
     private final Buffer NAME = CodecFactory.createBuffer();
     private final Buffer FID = CodecFactory.createBuffer();
@@ -82,7 +85,7 @@ class DataDictionaryImpl implements DataDictionary
     private final ElementSetDefEntry[] enumSetDefEntries = new ElementSetDefEntryImpl[4];
     private final ElementSetDef enumSetDef0_Normal = CodecFactory.createElementSetDef();
     private final ElementSetDef enumSetDef0_Verbose = CodecFactory.createElementSetDef();
-    
+
     // dictionary encode/decode container variables
     SeriesImpl series = (SeriesImpl)CodecFactory.createSeries();
     VectorImpl vector = (VectorImpl)CodecFactory.createVector();
@@ -103,6 +106,8 @@ class DataDictionaryImpl implements DataDictionary
     Enum tempEnum = CodecFactory.createEnum();
     FieldSetDef newSetDef = CodecFactory.createFieldSetDef();
     LocalFieldSetDefDb fieldSetDef = CodecFactory.createLocalFieldSetDefDb();
+
+    private HashMap<String,Integer> fieldNametoIdMap;
 
     StringBuilder dictionaryString; // for toString method
     String	toString;
@@ -192,16 +197,24 @@ class DataDictionaryImpl implements DataDictionary
 
     final int c_MfeedError = -2;
     final String c_defaultVersion = "";
-    
+
     @Override
     public void clear()
     {
         _isInitialized = false;
-        
+
         if ( dictionaryString != null )
-        	dictionaryString.setLength(0);
+            dictionaryString.setLength(0);
+        fieldNametoIdMapLock.lock();
+        try {
+            if (fieldNametoIdMap != null)
+                fieldNametoIdMap.clear();
+        } finally {
+            fieldNametoIdMapLock.unlock();
+        }
+
     }
-    
+
     @Override
     public DictionaryEntry entry(int fieldId)
     {
@@ -218,7 +231,7 @@ class DataDictionaryImpl implements DataDictionary
         return ((entry._enumTypeTable != null) &&
                 (value.toInt() <= entry._enumTypeTable.maxValue())) ? entry._enumTypeTable.enumTypes()[value.toInt()] : null;
     }
-    
+
     @Override
     public int loadFieldDictionary(String filename, Error error)
     {
@@ -271,7 +284,7 @@ class DataDictionaryImpl implements DataDictionary
                 {
                     /* Tags */
                     if (copyDictionaryTag(tagName(_fieldDictFileLine), tagValue(_fieldDictFileLine), Dictionary.Types.FIELD_DEFINITIONS, error)
-                            != CodecReturnCodes.SUCCESS)
+                        != CodecReturnCodes.SUCCESS)
                     {
                         _fileInput.close();
                         return CodecReturnCodes.FAILURE;
@@ -340,9 +353,9 @@ class DataDictionaryImpl implements DataDictionary
                 newDictEntry._rippleToField = 0;
 
                 if (!(_fieldDictFileLine[ripplesToPos] == 'N' &&
-                        _fieldDictFileLine[ripplesToPos + 1] == 'U' &&
-                        _fieldDictFileLine[ripplesToPos + 2] == 'L' &&
-                        _fieldDictFileLine[ripplesToPos + 3] == 'L'))
+                      _fieldDictFileLine[ripplesToPos + 1] == 'U' &&
+                      _fieldDictFileLine[ripplesToPos + 2] == 'L' &&
+                      _fieldDictFileLine[ripplesToPos + 3] == 'L'))
                 {
                     if (rippleAcronym.length() > 0)
                     {
@@ -365,7 +378,7 @@ class DataDictionaryImpl implements DataDictionary
                 if (newDictEntry._fieldType == c_MfeedError)
                 {
                     setError(error, "Unknown Field Type '" + new String(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition)
-                            + "' (Line=" + lineNum + ").");
+                                    + "' (Line=" + lineNum + ").");
                     return CodecReturnCodes.FAILURE;
                 }
 
@@ -391,7 +404,7 @@ class DataDictionaryImpl implements DataDictionary
                 if (tmpRwfType < 0)
                 {
                     setError(error, "Illegal Rwf Type '" + new String(_fieldDictFileLine, _startPosition, _lastPosition - _startPosition)
-                            + "' (Line=" + lineNum + ").");
+                                    + "' (Line=" + lineNum + ").");
                     return CodecReturnCodes.FAILURE;
                 }
                 newDictEntry._rwfType = tmpRwfType;
@@ -446,13 +459,13 @@ class DataDictionaryImpl implements DataDictionary
 
             return CodecReturnCodes.FAILURE;
         }
-        
+
         if ( dictionaryString != null )
-        	dictionaryString.setLength(0);
+            dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     @Override
     public int loadEnumTypeDictionary(String filename, Error error)
     {
@@ -497,9 +510,9 @@ class DataDictionaryImpl implements DataDictionary
                 }
 
                 if (_enumTypeDefFileLine[_lastPosition + 0] == '!' &&
-                        _enumTypeDefFileLine[_lastPosition + 1] == 't' &&
-                        _enumTypeDefFileLine[_lastPosition + 2] == 'a' &&
-                        _enumTypeDefFileLine[_lastPosition + 3] == 'g')
+                    _enumTypeDefFileLine[_lastPosition + 1] == 't' &&
+                    _enumTypeDefFileLine[_lastPosition + 2] == 'a' &&
+                    _enumTypeDefFileLine[_lastPosition + 3] == 'g')
                 {
                     /* Tags */
                     if (lengthRead < 14)
@@ -508,7 +521,7 @@ class DataDictionaryImpl implements DataDictionary
                     }
 
                     if (copyDictionaryTag(tagName(_enumTypeDefFileLine), tagValue(_enumTypeDefFileLine), Dictionary.Types.ENUM_TABLES, error)
-                            != CodecReturnCodes.SUCCESS)
+                        != CodecReturnCodes.SUCCESS)
                     {
                         _fileInput.close();
                         return CodecReturnCodes.FAILURE;
@@ -555,7 +568,7 @@ class DataDictionaryImpl implements DataDictionary
                     if (_enumTypeArrayCount >= 0)
                     {
                         if (addTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray,
-                                                 _enumTypeArrayCount, error, lineNum) != CodecReturnCodes.SUCCESS)
+                                _enumTypeArrayCount, error, lineNum) != CodecReturnCodes.SUCCESS)
                             return CodecReturnCodes.FAILURE;
 
                         maxValue = 0;
@@ -635,7 +648,7 @@ class DataDictionaryImpl implements DataDictionary
             }
 
             if (addTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue, _enumTypeArray,
-                                     _enumTypeArrayCount, error, -1) != CodecReturnCodes.SUCCESS)
+                    _enumTypeArrayCount, error, -1) != CodecReturnCodes.SUCCESS)
             {
                 return CodecReturnCodes.FAILURE;
             }
@@ -650,9 +663,9 @@ class DataDictionaryImpl implements DataDictionary
         {
             return CodecReturnCodes.FAILURE;
         }
-        
+
         if ( dictionaryString != null )
-        	dictionaryString.setLength(0);
+            dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
@@ -667,7 +680,7 @@ class DataDictionaryImpl implements DataDictionary
             error.text(errorStr);
         }
     }
-    
+
     int initDictionary(Error error)
     {
         assert !_isInitialized : "Dictionary already initialized";
@@ -921,7 +934,7 @@ class DataDictionaryImpl implements DataDictionary
         }
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     int fieldType(char[] fileData)
     {
         if (compareTo(fileData, "INTEGER"))
@@ -931,7 +944,7 @@ class DataDictionaryImpl implements DataDictionary
         else if (compareTo(fileData, "ENUMERATED"))
             return MfFieldTypes.ENUMERATED;
         else if (compareTo(fileData, "TIME_SECONDS"))
-            return MfFieldTypes.TIME_SECONDS;        
+            return MfFieldTypes.TIME_SECONDS;
         else if (compareTo(fileData, "TIME"))
             return MfFieldTypes.TIME;
         else if (compareTo(fileData, "PRICE"))
@@ -1005,10 +1018,12 @@ class DataDictionaryImpl implements DataDictionary
             return DataTypes.OPAQUE;
         else if (compareTo(fileData, "MSG"))
             return DataTypes.MSG;
+        else if (compareTo(fileData, "JSON"))
+            return DataTypes.JSON;
 
         return -1;
     }
-    
+
     /* Adds field information to a dictionary entry.
      * Maintains a enumeration table reference if one is found.
      * Callers should not use the entry pointer afterwards -- if the entry is copied rather than used the pointer will be freed. */
@@ -1076,7 +1091,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     /* Copies FieldDictionary-related information between entries.
      * Used for entries that were already initialized by the enumType dictionary. */
     int copyEntryFieldDictInfo(DictionaryEntry oEntryInt, DictionaryEntry iEntryInt, Error error)
@@ -1092,7 +1107,7 @@ class DataDictionaryImpl implements DataDictionary
             if (oEntry._acronym.equals(iEntry._acronym) == false)
             {
                 setError(error, "Acronym mismatch \"" + oEntry._acronym.toString() + "\" and \"" + iEntry._acronym.toString()
-                        + "\" between Field Dictionary and Enum Type Dictionary");
+                                + "\" between Field Dictionary and Enum Type Dictionary");
                 return CodecReturnCodes.FAILURE;
             }
         }
@@ -1112,9 +1127,9 @@ class DataDictionaryImpl implements DataDictionary
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     int addTableToDictionary(int fidsCount, int[] fidArray, Buffer[] fidAcronymArray, int maxValue,
-            EnumType[] enumTypeArray, int enumTypeArrayCount, Error error, int lineNum)
+                             EnumType[] enumTypeArray, int enumTypeArrayCount, Error error, int lineNum)
     {
         EnumTypeTable table;
 
@@ -1197,7 +1212,7 @@ class DataDictionaryImpl implements DataDictionary
             if (fidAcronym.length() > 0 && (entry._acronym.equals(fidAcronym) == false))
             {
                 setError(error, "Acronym mismatch \"" + entry._acronym.toString() + "\" and \"" + fidAcronym.toString()
-                        + "\" between Field Dictionary and Enum Type Dictionary");
+                                + "\" between Field Dictionary and Enum Type Dictionary");
                 return CodecReturnCodes.FAILURE;
             }
 
@@ -1213,7 +1228,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     @Override
     public int extractDictionaryType(DecodeIterator iterInt, Int dictionaryType, Error error)
     {
@@ -1228,7 +1243,7 @@ class DataDictionaryImpl implements DataDictionary
         tempDecIter.clear();
 
         ((BufferImpl)tempBuffer).data_internal(iter._buffer.data(), iter._curBufPos,
-                                               (iter._buffer.length() - iter._curBufPos));
+                (iter._buffer.length() - iter._curBufPos));
         tempDecIter.setBufferAndRWFVersion(tempBuffer, iter._reader.majorVersion(), iter._reader.minorVersion());
 
         if ((ret = series.decode(tempDecIter)) < 0)
@@ -1284,7 +1299,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     @Override
     public int encodeFieldDictionary(EncodeIterator iter, Int currentFid, int verbosity, Error error)
     {
@@ -1371,7 +1386,7 @@ class DataDictionaryImpl implements DataDictionary
                 {
                     if ((ret = encodeDataDictEntry(iter, _entriesArray[(int)curFid - MIN_FID], verbosity, error, setDb)) < 0)
                         return CodecReturnCodes.FAILURE;
-    
+
                     /* If we have filled the buffer, then complete */
                     if (ret == CodecReturnCodes.DICT_PART_ENCODED)
                         break;
@@ -1420,7 +1435,7 @@ class DataDictionaryImpl implements DataDictionary
         {
             /* decode summary data here */
 
-            /* since we own dictionary, lets assume that we create memory here - 
+            /* since we own dictionary, lets assume that we create memory here -
              * they should only delete this with our delete dictionary method */
 
             if (elemList.decode(iter, null) < 0)
@@ -1566,13 +1581,13 @@ class DataDictionaryImpl implements DataDictionary
                 return CodecReturnCodes.FAILURE;
             newDictEntry = null;
         }
-        
+
         if ( dictionaryString != null )
-        	dictionaryString.setLength(0);
+            dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     @Override
     public int encodeEnumTypeDictionary(EncodeIterator iter, int verbosity, Error error)
     {
@@ -1759,7 +1774,7 @@ class DataDictionaryImpl implements DataDictionary
 
                 arr.clear();
                 arr.itemLength(0);
-                arr.primitiveType(DataTypes.ASCII_STRING);
+                arr.primitiveType(getDisplayPrimitiveType(table));
                 if ((ret = arr.encodeInit(iter)) < 0)
                 {
                     setError(error, "encodeArrayInit failed " + ret);
@@ -1810,48 +1825,48 @@ class DataDictionaryImpl implements DataDictionary
 
         return CodecReturnCodes.SUCCESS;
     }
-    
 
-    
+
+
     private int rollbackEnumDictionaryElementList(EncodeIterator iter)
     {
-    	int ret;
-    	if ((ret = elemList.encodeComplete(iter, false)) < 0 )
-    		return ret;
-    	if ((ret = seriesEntry.encodeComplete(iter, false)) < 0)
-    		return ret;
-    	return series.encodeComplete(iter, true);
-    }    
-    
+        int ret;
+        if ((ret = elemList.encodeComplete(iter, false)) < 0 )
+            return ret;
+        if ((ret = seriesEntry.encodeComplete(iter, false)) < 0)
+            return ret;
+        return series.encodeComplete(iter, true);
+    }
+
     private int rollbackEnumDictionaryElementEntry(EncodeIterator iter)
     {
-    	int ret;
-    	if ((ret = elemEntry.encodeComplete(iter, false)) < 0 )
-    		return ret;
-    	return rollbackEnumDictionaryElementList(iter);
-    }      
-    
+        int ret;
+        if ((ret = elemEntry.encodeComplete(iter, false)) < 0 )
+            return ret;
+        return rollbackEnumDictionaryElementList(iter);
+    }
+
     private int rollbackEnumDictionaryArray(EncodeIterator iter)
     {
-    	int ret;
-    	if ((ret = arr.encodeComplete(iter, false)) < 0 )
-    		return ret;
-    	return rollbackEnumDictionaryElementEntry(iter);
-    }      
-    
+        int ret;
+        if ((ret = arr.encodeComplete(iter, false)) < 0 )
+            return ret;
+        return rollbackEnumDictionaryElementEntry(iter);
+    }
+
     private int rollbackEnumDictionarySeriesEntry(EncodeIterator iter)
     {
-    	int ret;
-    	if ((ret = seriesEntry.encodeComplete(iter, false)) < 0 )
-    		return ret;
-    	return series.encodeComplete(iter, true);
-    }    
-    
+        int ret;
+        if ((ret = seriesEntry.encodeComplete(iter, false)) < 0 )
+            return ret;
+        return series.encodeComplete(iter, true);
+    }
+
     @Override
     public int encodeEnumTypeDictionaryAsMultiPart(EncodeIterator iter, Int currentEnumTableEntry, int verbosity, Error error)
     {
         int ret;
-        int curEnumTableEntry = (int) currentEnumTableEntry.toLong();        
+        int curEnumTableEntry = (int) currentEnumTableEntry.toLong();
 
         if (!_isInitialized)
         {
@@ -1914,7 +1929,7 @@ class DataDictionaryImpl implements DataDictionary
     		/* Need to keep track of the number of the series entry we are encoding, if it is the first series entry
 			in the message and we get the RSSL_RET_BUFFER_TOO_SMALL we can not encode partial series entry and 
 			we need to fail */
-        	int startCount = curEnumTableEntry;        	
+            int startCount = curEnumTableEntry;
 
             for (; curEnumTableEntry < _enumTableCount; ++curEnumTableEntry)
             {
@@ -1924,23 +1939,23 @@ class DataDictionaryImpl implements DataDictionary
                 seriesEntry.clear();
 
                 if ((ret = seriesEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionarySeriesEntry(iter)) < 0)
-                	{
-                		setError(error, "encodeSeriesEntryInit failed " + ret);
-                    	return CodecReturnCodes.FAILURE;
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}
+                    if ((ret = rollbackEnumDictionarySeriesEntry(iter)) < 0)
+                    {
+                        setError(error, "encodeSeriesEntryInit failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
-            		setError(error, "encodeSeriesEntryInit failed " + ret);
-            		return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                    setError(error, "encodeSeriesEntryInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
                 }
 
                 elemList.clear();
@@ -1948,23 +1963,23 @@ class DataDictionaryImpl implements DataDictionary
                 elemList.setId(0);
 
                 if ((ret = elemList.encodeInit(iter, setDb, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryElementList(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryElementList failed " + ret);
-                		return CodecReturnCodes.FAILURE;
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}
+                    if ((ret = rollbackEnumDictionaryElementList(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryElementList failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
-                	setError(error, "encodeElementListInit failed " + ret);
-                	return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                    setError(error, "encodeElementListInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
                 }
 
                 table = _enumTables[curEnumTableEntry];
@@ -1974,18 +1989,18 @@ class DataDictionaryImpl implements DataDictionary
                 elemEntry.dataType(DataTypes.ARRAY);
                 elemEntry.name(ElementNames.ENUM_FIDS);
                 if ((ret = elemEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
-                		return CodecReturnCodes.FAILURE;                		
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}
+                    if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
@@ -1997,18 +2012,18 @@ class DataDictionaryImpl implements DataDictionary
                 arr.itemLength(2);
                 arr.primitiveType(DataTypes.INT);
                 if ((ret = arr.encodeInit(iter)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryArray failed " + ret);
-                		return CodecReturnCodes.FAILURE;                     		
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}
+                    if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
@@ -2021,18 +2036,18 @@ class DataDictionaryImpl implements DataDictionary
                     tempInt.value(table.fidReferences()[j]);
                     arrEntry.clear();
                     if ((ret = arrEntry.encode(iter, tempInt)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                    		curEnumTableEntry > startCount)
+                        curEnumTableEntry > startCount)
                     {
-                    	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
-                    	{
-                    		setError(error, "rollbackEnumDictionaryArray failed " + ret);
-                    		return CodecReturnCodes.FAILURE;                     		
-                    	}
-                    	else
-                    	{
-                    		currentEnumTableEntry.value(curEnumTableEntry);
-                    		return CodecReturnCodes.DICT_PART_ENCODED;
-                    	}                   	
+                        if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                        {
+                            setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                            return CodecReturnCodes.FAILURE;
+                        }
+                        else
+                        {
+                            currentEnumTableEntry.value(curEnumTableEntry);
+                            return CodecReturnCodes.DICT_PART_ENCODED;
+                        }
                     }
                     else if (ret < 0)
                     {
@@ -2058,18 +2073,18 @@ class DataDictionaryImpl implements DataDictionary
                 elemEntry.dataType(DataTypes.ARRAY);
                 elemEntry.name(ElementNames.ENUM_VALUE);
                 if ((ret = elemEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
-                		return CodecReturnCodes.FAILURE;                   		
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}   
+                    if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
@@ -2081,23 +2096,23 @@ class DataDictionaryImpl implements DataDictionary
                 arr.itemLength(0);
                 arr.primitiveType(DataTypes.ENUM);
                 if ((ret = arr.encodeInit(iter)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryArray failed " + ret);
-                		return CodecReturnCodes.FAILURE;                 		
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}
+                    if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
                     setError(error, "encodeArrayInit failed " + ret);
-                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;           	
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
                 }
 
                 for (int j = 0; j <= table.maxValue(); ++j)
@@ -2107,23 +2122,23 @@ class DataDictionaryImpl implements DataDictionary
                     {
                         tempEnum.value(table.enumTypes()[j].value());
                         if ((ret = arrEntry.encode(iter, tempEnum)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                        		curEnumTableEntry > startCount)
+                            curEnumTableEntry > startCount)
                         {
-                        	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
-                        	{
-                        		setError(error, "rollbackEnumDictionaryArray failed " + ret);
-                        		return CodecReturnCodes.FAILURE;                   		
-                        	}
-                        	else
-                        	{
-                        		currentEnumTableEntry.value(curEnumTableEntry);
-                        		return CodecReturnCodes.DICT_PART_ENCODED;
-                        	}
+                            if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                            {
+                                setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                                return CodecReturnCodes.FAILURE;
+                            }
+                            else
+                            {
+                                currentEnumTableEntry.value(curEnumTableEntry);
+                                return CodecReturnCodes.DICT_PART_ENCODED;
+                            }
                         }
                         else if (ret < 0)
                         {
                             setError(error, "encodeArrayEntry failed " + ret);
-                            return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;      
+                            return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
                         }
                     }
                 }
@@ -2145,69 +2160,69 @@ class DataDictionaryImpl implements DataDictionary
                 elemEntry.dataType(DataTypes.ARRAY);
                 elemEntry.name(ElementNames.ENUM_DISPLAY);
                 if ((ret = elemEntry.encodeInit(iter, 0)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
-                		return CodecReturnCodes.FAILURE;                   		
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}
+                    if ((ret = rollbackEnumDictionaryElementEntry(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryElementEntry failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
                 else if (ret < 0)
                 {
                     setError(error, "encodeElementEntryInit failed " + ret);
-                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;     
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
                 }
 
                 arr.clear();
                 arr.itemLength(0);
-                arr.primitiveType(DataTypes.ASCII_STRING);
+                arr.primitiveType(getDisplayPrimitiveType(table));
                 if ((ret = arr.encodeInit(iter)) == CodecReturnCodes.BUFFER_TOO_SMALL &&
-                		curEnumTableEntry > startCount)
+                    curEnumTableEntry > startCount)
                 {
-                	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
-                	{
-                		setError(error, "rollbackEnumDictionaryArray failed " + ret);
-                		return CodecReturnCodes.FAILURE;                   		
-                	}
-                	else
-                	{
-                		currentEnumTableEntry.value(curEnumTableEntry);
-                		return CodecReturnCodes.DICT_PART_ENCODED;
-                	}                		
+                    if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                    {
+                        setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                        return CodecReturnCodes.FAILURE;
+                    }
+                    else
+                    {
+                        currentEnumTableEntry.value(curEnumTableEntry);
+                        return CodecReturnCodes.DICT_PART_ENCODED;
+                    }
                 }
-            	else if (ret < 0)
-            	{
-            		setError(error, "encodeArrayInit failed " + ret);
-            		return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;     
-            	}
+                else if (ret < 0)
+                {
+                    setError(error, "encodeArrayInit failed " + ret);
+                    return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
+                }
 
                 for (int j = 0; j <= table.maxValue(); ++j)
                 {
                     arrEntry.clear();
                     if (table.enumTypes()[j] != null && (ret = arrEntry.encode(iter, table.enumTypes()[j].display()))== CodecReturnCodes.BUFFER_TOO_SMALL &&
-                    		curEnumTableEntry > startCount)
+                        curEnumTableEntry > startCount)
                     {
-                    	if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
-                    	{
-                    		setError(error, "rollbackEnumDictionaryArray failed " + ret);
-                    		return CodecReturnCodes.FAILURE;                   		
-                    	}
-                    	else
-                    	{
-                    		currentEnumTableEntry.value(curEnumTableEntry);
-                    		return CodecReturnCodes.DICT_PART_ENCODED;
-                    	}                      	
+                        if ((ret = rollbackEnumDictionaryArray(iter)) < 0)
+                        {
+                            setError(error, "rollbackEnumDictionaryArray failed " + ret);
+                            return CodecReturnCodes.FAILURE;
+                        }
+                        else
+                        {
+                            currentEnumTableEntry.value(curEnumTableEntry);
+                            return CodecReturnCodes.DICT_PART_ENCODED;
+                        }
                     }
                     else if (ret < 0)
                     {
                         setError(error, "encodeArrayEntry failed " + ret);
-                		return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;                     	
+                        return ret == CodecReturnCodes.BUFFER_TOO_SMALL ? ret : CodecReturnCodes.FAILURE;
                     }
                 }
 
@@ -2242,13 +2257,87 @@ class DataDictionaryImpl implements DataDictionary
             setError(error, "encodeSeriesComplete failed " + ret);
             return CodecReturnCodes.FAILURE;
         }
-        
+
         if ( dictionaryString != null )
-        	dictionaryString.setLength(0);
+            dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
+    static final int one_byte_start = 0;
+    static final int one_byte_start_mask = 128;
+
+    static final int two_byte_first_start = 192;
+    static final int two_byte_first_mask = 224;
+
+    static final int three_byte_first_start = 224;
+    static final int three_byte_first_mask = 240;
+
+    static final int four_byte_first_start = 240;
+    static final int four_byte_first_mask = 248;
+
+    static final int multibyte_next_start = 128;
+    static final int multibyte_next_mask = 192;
+
+
+    private int getDisplayEntryStringType(Buffer buffer) {
+
+        int i = buffer.position();
+        int type = DataTypes.ASCII_STRING;
+
+        while (i < buffer.length()) {
+            if (((buffer.data().get(i) & 0xFF) & one_byte_start_mask) == one_byte_start) {
+                i++;
+            } else if (((buffer.data().get(i) & 0xFF) & two_byte_first_mask) == two_byte_first_start) {
+                if ((i + 1 < buffer.length()) && ((buffer.data().get(i + 1) & 0xFF) & multibyte_next_mask) == multibyte_next_start) {
+                    type = DataTypes.UTF8_STRING;
+                } else {
+                    return DataTypes.RMTES_STRING;
+                }
+                i += 2;
+            } else if (((buffer.data().get(i) & 0xFF) & three_byte_first_mask) == three_byte_first_start) {
+                if ((i + 2 < buffer.length()) && ((buffer.data().get(i + 1) & 0xFF) & multibyte_next_mask) == multibyte_next_start
+                        && ((buffer.data().get(i + 2) & 0xFF) & multibyte_next_mask) == multibyte_next_start ) {
+                    type = DataTypes.UTF8_STRING;
+                } else {
+                    return DataTypes.RMTES_STRING;
+                }
+                i += 3;
+            } else if (((buffer.data().get(i) & 0xFF) & four_byte_first_mask) == four_byte_first_start) {
+                if ((i + 3 < buffer.length()) && ((buffer.data().get(i + 1) & 0xFF) & multibyte_next_mask) == multibyte_next_start
+                        && ((buffer.data().get(i + 2) & 0xFF) & multibyte_next_mask) == multibyte_next_start
+                        && ((buffer.data().get(i + 3) & 0xFF) & multibyte_next_mask) == multibyte_next_start) {
+                    type = DataTypes.UTF8_STRING;
+                } else {
+                    return DataTypes.RMTES_STRING;
+                }
+                i += 4;
+            } else {
+                return DataTypes.RMTES_STRING;
+            }
+        }
+
+        return type;
+    }
+
+    private int getDisplayPrimitiveType(EnumTypeTable table) {
+
+        int dataType = DataTypes.ASCII_STRING;
+        int currType;
+        for (int i = 0; i <= table.maxValue(); i++) {
+            if (table.enumTypes()[i] != null && table.enumTypes()[i].display() != null && table.enumTypes()[i].display().data() != null) {
+                currType = getDisplayEntryStringType(table.enumTypes()[i].display());
+                if (currType == DataTypes.RMTES_STRING) {
+                    return DataTypes.RMTES_STRING;
+                } else if (currType == DataTypes.UTF8_STRING) {
+                    dataType = currType;
+                }
+            }
+        }
+
+        return dataType;
+    }
+
     @Override
     public int decodeEnumTypeDictionary(DecodeIterator iter, int verbosity, Error error)
     {
@@ -2446,7 +2535,7 @@ class DataDictionaryImpl implements DataDictionary
                     }
 
                     if ((arr._primitiveType != DataTypes.ASCII_STRING) && (arr._primitiveType != DataTypes.RMTES_STRING)
-                            && (arr._primitiveType != DataTypes.UTF8_STRING))
+                        && (arr._primitiveType != DataTypes.UTF8_STRING))
                     {
                         setError(error, "'" + ElementNames.ENUM_DISPLAY.toString() + "' array has wrong primtive type.");
                         return CodecReturnCodes.FAILURE;
@@ -2506,7 +2595,7 @@ class DataDictionaryImpl implements DataDictionary
 
             _enumTypeArrayCount = enumValueCount;
             if (addTableToDictionary(fidsCount, _referenceFidArray, _referenceFidAcronymArray, maxValue,
-                                     _enumTypeArray, _enumTypeArrayCount, error, -1) != CodecReturnCodes.SUCCESS)
+                    _enumTypeArray, _enumTypeArrayCount, error, -1) != CodecReturnCodes.SUCCESS)
             {
                 return CodecReturnCodes.FAILURE;
             }
@@ -2515,19 +2604,19 @@ class DataDictionaryImpl implements DataDictionary
             fidsCount = 0;
             _enumTypeArrayCount = -1;
         }
-        
+
         if ( dictionaryString != null )
-        	dictionaryString.setLength(0);
+            dictionaryString.setLength(0);
 
         return CodecReturnCodes.SUCCESS;
     }
-    
+
     @Override
     public FieldSetDefDb fieldSetDef()
     {
         return fieldSetDef;
     }
-    
+
     /* gets the start of data from a line of data */
     private void findLineStart(char[] fileData)
     {
@@ -2542,9 +2631,9 @@ class DataDictionaryImpl implements DataDictionary
         for (_lineStartPosition = _lastPosition; _lineStartPosition < fileData.length; _lineStartPosition++)
         {
             if (fileData[_lineStartPosition] != ' ' &&
-                    fileData[_lineStartPosition] != '\t' &&
-                    fileData[_lineStartPosition] != '\r' &&
-                    fileData[_lineStartPosition] != '\n')
+                fileData[_lineStartPosition] != '\t' &&
+                fileData[_lineStartPosition] != '\r' &&
+                fileData[_lineStartPosition] != '\n')
             {
                 _lastPosition = _lineStartPosition;
                 break;
@@ -2587,7 +2676,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return new String(fileData, _startPosition, _lastPosition - _startPosition);
     }
-    
+
     /* depends on tagName() being call beforehand */
     private String tagValue(char[] fileData)
     {
@@ -2640,7 +2729,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return new String(fileData, _startPosition, _lastPosition - _startPosition);
     }
-    
+
     /* depends on acronym() being call beforehand */
     private String ddeAcronym(char[] fileData)
     {
@@ -2651,8 +2740,8 @@ class DataDictionaryImpl implements DataDictionary
             if (!startFound)
             {
                 if (fileData[_lastPosition] != ' ' &&
-                        fileData[_lastPosition] != '\t' &&
-                        fileData[_lastPosition] != '"')
+                    fileData[_lastPosition] != '\t' &&
+                    fileData[_lastPosition] != '"')
                 {
                     _startPosition = _lastPosition;
                     startFound = true;
@@ -2669,7 +2758,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return new String(fileData, _startPosition, _lastPosition - _startPosition);
     }
-    
+
     /* depends on acronym() being call beforehand */
     private boolean isDisplayHex(char[] fileData)
     {
@@ -2706,7 +2795,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return hexLen;
     }
-    
+
     /* depends on hexLength() being call beforehand */
     private boolean setDisplayToHex(char[] fileData, Buffer displayBuf, int hexLen)
     {
@@ -2798,7 +2887,7 @@ class DataDictionaryImpl implements DataDictionary
     {
         return intField(fileData);
     }
-    
+
     /* depends on fid() being call beforehand */
     private int ripplesToPosition(char[] fileData)
     {
@@ -2825,7 +2914,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return _startPosition;
     }
-    
+
     /* depends on ripplesToPosition() being call beforehand */
     private void findFieldTypeStr(char[] fileData)
     {
@@ -2850,13 +2939,13 @@ class DataDictionaryImpl implements DataDictionary
             }
         }
     }
-    
+
     /* depends on fieldTypeStr() being call beforehand */
     private int length(char[] fileData)
     {
         return intField(fileData);
     }
-    
+
     /* depends on length() being call beforehand */
     private int enumLength(char[] fileData)
     {
@@ -2917,13 +3006,13 @@ class DataDictionaryImpl implements DataDictionary
             }
         }
     }
-    
+
     /* depends on rwfTypeStr() being call beforehand */
     private int rwfLength(char[] fileData)
     {
         return intField(fileData);
     }
-    
+
     /* depends on display() being call beforehand */
     private String meaning(char[] fileData)
     {
@@ -2993,10 +3082,10 @@ class DataDictionaryImpl implements DataDictionary
             else
             {
                 if (fileData[_lastPosition] == ' ' ||
-                        fileData[_lastPosition] == '\t' ||
-                        fileData[_lastPosition] == ')' ||
-                        fileData[_lastPosition] == '\r' ||
-                        fileData[_lastPosition] == '\n')
+                    fileData[_lastPosition] == '\t' ||
+                    fileData[_lastPosition] == ')' ||
+                    fileData[_lastPosition] == '\r' ||
+                    fileData[_lastPosition] == '\n')
                 {
                     break;
                 }
@@ -3023,7 +3112,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return ((isNegative == false) ? intValue : -intValue);
     }
-    
+
     /* utility for fieldType() and rwfFieldType() */
     private boolean compareTo(char[] fileData, String compareStr)
     {
@@ -3119,8 +3208,8 @@ class DataDictionaryImpl implements DataDictionary
                 }
                 break;
             default:
-            	setError(error, "Invalid Dictionary Type: " + type);
-            	return CodecReturnCodes.FAILURE;
+                setError(error, "Invalid Dictionary Type: " + type);
+                return CodecReturnCodes.FAILURE;
         }
 
         if ((ret = elemList.encodeComplete(iter, true)) < 0)
@@ -3137,7 +3226,7 @@ class DataDictionaryImpl implements DataDictionary
 
         return 1;
     }
-    
+
     int encodeDataDictEntry(EncodeIterator iter, DictionaryEntryImpl entry, int verbosity, Error error, LocalElementSetDefDbImpl setDb)
     {
         int ret;
@@ -3224,7 +3313,7 @@ class DataDictionaryImpl implements DataDictionary
         tempUInt.value(entry.rwfLength());
         ret = elemEntry.encode(iter, tempUInt);
         if ((verbosity >= Dictionary.VerbosityValues.NORMAL && ret != CodecReturnCodes.SUCCESS
-                || verbosity < Dictionary.VerbosityValues.NORMAL && ret != CodecReturnCodes.SET_COMPLETE))
+             || verbosity < Dictionary.VerbosityValues.NORMAL && ret != CodecReturnCodes.SET_COMPLETE))
         {
             setError(error, "encodeElementEntry RWFLEN " + entry.rwfLength() + " failed " + ret);
             return CodecReturnCodes.FAILURE;
@@ -3359,49 +3448,49 @@ class DataDictionaryImpl implements DataDictionary
     {
         return _infoEnumDate;
     }
-    
+
     @Override
     public String toString()
     {
         if (!_isInitialized)
             return null;
-        
+
         if ( dictionaryString == null )
-        	dictionaryString = new StringBuilder(INIT_TO_STRING_SIZE);
+            dictionaryString = new StringBuilder(INIT_TO_STRING_SIZE);
 
         if ( dictionaryString.length() == 0 )
         {
-        	dictionaryString = new StringBuilder(INIT_TO_STRING_SIZE);
+            dictionaryString = new StringBuilder(INIT_TO_STRING_SIZE);
 
-        	dictionaryString.append("Data Dictionary Dump: MinFid=" + _minFid + " MaxFid=" + _maxFid + " NumEntries " + _numberOfEntries + "\n\n");
+            dictionaryString.append("Data Dictionary Dump: MinFid=" + _minFid + " MaxFid=" + _maxFid + " NumEntries " + _numberOfEntries + "\n\n");
 
-        	dictionaryString.append("Tags:\n  DictionaryId=\"" + _infoDictionaryId + "\"\n\n");
+            dictionaryString.append("Tags:\n  DictionaryId=\"" + _infoDictionaryId + "\"\n\n");
 
-        	dictionaryString.append("  [Field Dictionary Tags]\n" +
-                      "      Filename=\"" + _infoFieldFilename + "\"\n" +
-                      "          Desc=\"" + _infoFieldDesc + "\"\n" +
-                      "       Version=\"" + _infoFieldVersion + "\"\n" +
-                      "         Build=\"" + _infoFieldBuild + "\"\n" +
-                      "          Date=\"" + _infoFieldDate + "\"\n\n");
+            dictionaryString.append("  [Field Dictionary Tags]\n" +
+                                    "      Filename=\"" + _infoFieldFilename + "\"\n" +
+                                    "          Desc=\"" + _infoFieldDesc + "\"\n" +
+                                    "       Version=\"" + _infoFieldVersion + "\"\n" +
+                                    "         Build=\"" + _infoFieldBuild + "\"\n" +
+                                    "          Date=\"" + _infoFieldDate + "\"\n\n");
 
-        	dictionaryString.append("  [Enum Type Dictionary Tags]\n" +
-                      "      Filename=\"" + _infoEnumFilename + "\"\n" +
-                      "          Desc=\"" + _infoEnumDesc + "\"\n" +
-                      "    RT_Version=\"" + _infoEnumRTVersion + "\"\n" +
-                      "    DT_Version=\"" + _infoEnumDTVersion + "\"\n" +
-                      "          Date=\"" + _infoEnumDate + "\"\n\n");
+            dictionaryString.append("  [Enum Type Dictionary Tags]\n" +
+                                    "      Filename=\"" + _infoEnumFilename + "\"\n" +
+                                    "          Desc=\"" + _infoEnumDesc + "\"\n" +
+                                    "    RT_Version=\"" + _infoEnumRTVersion + "\"\n" +
+                                    "    DT_Version=\"" + _infoEnumDTVersion + "\"\n" +
+                                    "          Date=\"" + _infoEnumDate + "\"\n\n");
 
-        	dictionaryString.append("Field Dictionary:\n");
+            dictionaryString.append("Field Dictionary:\n");
 
             for (int i = 0; i <= MAX_FID - MIN_FID; i++)
             {
                 if (_entriesArray[i] != null && _entriesArray[i].rwfType() != DataTypes.UNKNOWN)
                 {
-                	dictionaryString.append("  Fid=" + _entriesArray[i].fid() + " '" + _entriesArray[i].acronym() + "' '" + _entriesArray[i].ddeAcronym() +
-                              "' Type=" + _entriesArray[i].fieldType() +
-                              " RippleTo=" + _entriesArray[i].rippleToField() + " Len=" + _entriesArray[i].length() +
-                              " EnumLen=" + _entriesArray[i].enumLength() +
-                              " RwfType=" + _entriesArray[i].rwfType() + " RwfLen=" + _entriesArray[i].rwfLength() + "\n");
+                    dictionaryString.append("  Fid=" + _entriesArray[i].fid() + " '" + _entriesArray[i].acronym() + "' '" + _entriesArray[i].ddeAcronym() +
+                                            "' Type=" + _entriesArray[i].fieldType() +
+                                            " RippleTo=" + _entriesArray[i].rippleToField() + " Len=" + _entriesArray[i].length() +
+                                            " EnumLen=" + _entriesArray[i].enumLength() +
+                                            " RwfType=" + _entriesArray[i].rwfType() + " RwfLen=" + _entriesArray[i].rwfLength() + "\n");
                 }
             }
 
@@ -3414,7 +3503,7 @@ class DataDictionaryImpl implements DataDictionary
                 EnumTypeTable table = _enumTables[i];
 
                 for (int j = 0; j < table.fidReferenceCount(); ++j)
-                	dictionaryString.append("(Referenced by Fid " + table.fidReferences()[j] + ")\n");
+                    dictionaryString.append("(Referenced by Fid " + table.fidReferences()[j] + ")\n");
 
                 for (int j = 0; j <= table.maxValue(); ++j)
                 {
@@ -3422,18 +3511,68 @@ class DataDictionaryImpl implements DataDictionary
 
                     if (enumType != null)
                     {
-                    	dictionaryString.append("value=" + enumType.value() +
-                                  " display=\"" + enumType.display() +
-                                  "\" meaning=\"" + enumType.meaning() + "\"\n");
+                        dictionaryString.append("value=" + enumType.value() +
+                                                " display=\"" + enumType.display() +
+                                                "\" meaning=\"" + enumType.meaning() + "\"\n");
                     }
                 }
 
                 dictionaryString.append("\n");
             }
-            
+
             toString = dictionaryString.toString();
         }
 
         return toString;
+    }
+
+    @Override
+    public boolean hasEntry(String fieldName) {
+        fieldNametoIdMapLock.lock();
+        try {
+            HashMap<String, Integer> nameToIdMap = fieldNameToIdMap();
+            return nameToIdMap != null ? nameToIdMap.containsKey(fieldName) : false;
+        } finally {
+            fieldNametoIdMapLock.unlock();
+        }
+    }
+
+    @Override
+    public DictionaryEntry entry(String fieldName) {
+
+        if (fieldName == null)
+            return null;
+        fieldNametoIdMapLock.lock();
+        try {
+            Integer fid = fieldNameToIdMap().get(fieldName);
+            return fid != null ? entry(fid) : null;
+        } finally {
+            fieldNametoIdMapLock.unlock();
+        }
+    }
+
+    private HashMap<String,Integer> fieldNameToIdMap()
+    {
+        if ( fieldNametoIdMap == null )
+        {
+            fieldNametoIdMap = new HashMap<>(numberOfEntries());
+        }
+
+        if ( fieldNametoIdMap.size() == 0 )
+        {
+            DictionaryEntry dictionaryEntry;
+
+            for( int fieldId = minFid(); fieldId <= maxFid(); fieldId++ )
+            {
+                dictionaryEntry = entry(fieldId);
+
+                if ( dictionaryEntry != null && dictionaryEntry.acronym().data() != null )
+                {
+                    fieldNametoIdMap.put(dictionaryEntry.acronym().toString(), dictionaryEntry.fid());
+                }
+            }
+        }
+
+        return fieldNametoIdMap;
     }
 }

@@ -7,10 +7,6 @@
 
 package com.refinitiv.ema.access;
 
-import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-
 import com.refinitiv.ema.access.Data.DataCode;
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.domain.login.Login;
@@ -21,6 +17,10 @@ import com.refinitiv.ema.rdm.EmaRdm;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.State;
+
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.util.Iterator;
 
 abstract class LoginImpl implements Login
 {

@@ -7,8 +7,9 @@
 
 package com.refinitiv.ema.access;
 
-import java.util.concurrent.locks.ReentrantLock;
 import com.refinitiv.eta.valueadd.common.VaPool;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 class ServerPool
 {

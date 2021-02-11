@@ -8,7 +8,7 @@ public class EncryptedSocketHelper extends SocketHelper
 {
     private CryptoHelper _crypto;
     private boolean _completedHandshake = false;
-    
+
     @Override
     public int read(ByteBuffer dst) throws IOException
     {
@@ -39,13 +39,13 @@ public class EncryptedSocketHelper extends SocketHelper
         checkCrypto();
         boolean result = super.connect(remote, proxy);
         if(proxy == false) {
-	        _crypto.initializeEngine(_socket);
-	        _completedHandshake = false;
-	        _completedProxy = true;
+            _crypto.initializeEngine(_socket);
+            _completedHandshake = false;
+            _completedProxy = true;
         }
         return result;
     }
-    
+
     @Override
     public void initialize(ConnectOptions options) throws IOException
     {
@@ -83,13 +83,13 @@ public class EncryptedSocketHelper extends SocketHelper
         }
         return connected;
     }
-    
+
     public boolean postProxyInit() throws IOException
     {
-    	_completedProxy = true;
-    	_crypto.initializeEngine(_socket);
+        _completedProxy = true;
+        _crypto.initializeEngine(_socket);
         _completedHandshake = false;
-    	return true;
+        return true;
     }
 
     private void checkCrypto() throws IOException

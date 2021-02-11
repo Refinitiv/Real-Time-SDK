@@ -11,6 +11,7 @@ dependencies {
 	compile project(':Eta:ValueAdd')
 	compile project(':Eta:ValueAddCache')
 	compile project(':Eta:Applications:Shared')
+	compile project(':Eta:Converter')
 	// Adding dependency on the jdacsEtalib.jar
 	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
 }

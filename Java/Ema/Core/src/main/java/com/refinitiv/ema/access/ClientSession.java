@@ -28,6 +28,7 @@ class ClientSession extends VaNode
     private OmmServerBaseImpl _ommServerBaseImpl;
     private boolean _removingInCloseAll;
     private boolean _isADHSession = false;
+    private LongObject _loginHandle;
     protected int _majorVersion;
     protected int _minorVersion;
 
@@ -46,6 +47,7 @@ class ClientSession extends VaNode
     	
     	_clientHandle = new LongObject();
         _clientHandle.value(ServerPool.getClientHandle());
+		_loginHandle = new LongObject();
         _rsslReactorChannel = null;
         _isLogin = false;
         _removingInCloseAll = false;
@@ -158,6 +160,7 @@ class ClientSession extends VaNode
         			break;
         		case EmaRdm.MMT_LOGIN:
         			_ommServerBaseImpl._loginHandler.getItemInfoList().remove(itemInfo);
+					_loginHandle.clear();
         			break;
         		default:
         			break;
@@ -222,8 +225,21 @@ class ClientSession extends VaNode
         return _isLogin;
     }
 
-    void clear()
+	public long getLoginHandle() {
+		return _loginHandle.value();
+	}
+
+	public void setLoginHandle(long loginHandle) {
+		this._loginHandle.value(loginHandle);
+	}
+
+	public void resetLoginHandle() {
+    	this._loginHandle.clear();
+	}
+
+	void clear()
     {
+		_loginHandle.clear();
     	_itemInfoByStreamIdMap.clear();
     	_serviceGroupIdToItemInfoMap.clear();
     	

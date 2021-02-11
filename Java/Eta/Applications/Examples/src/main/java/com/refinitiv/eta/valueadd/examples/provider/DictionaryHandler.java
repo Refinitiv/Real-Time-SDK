@@ -339,6 +339,8 @@ class DictionaryHandler
 
             _dictionaryRefresh.state().text().data("Field Dictionary Refresh (starting fid " + _dictionaryRefresh.startFid() + ")");
 
+            msgBuf.data().limit(MAX_FIELD_DICTIONARY_MSG_SIZE);
+            
             // clear encode iterator
             _encodeIter.clear();
             int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());
@@ -424,6 +426,8 @@ class DictionaryHandler
         	
         	_dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh (starting enum " + _dictionaryRefresh.startEnumTableCount() + ")");
 
+        	msgBuf.data().limit(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE);
+        	
         	// clear encode iterator
 	        _encodeIter.clear();
 	        int ret = _encodeIter.setBufferAndRWFVersion(msgBuf, chnl.majorVersion(), chnl.minorVersion());

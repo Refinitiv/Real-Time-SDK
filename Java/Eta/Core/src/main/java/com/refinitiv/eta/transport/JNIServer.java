@@ -17,20 +17,20 @@ public class JNIServer extends EtaNode implements Server
 
     /* ServerSocketChannel of this ETA server. */
     public ServerSocketChannel _srvrScktChannel;
-    
+
     /* State of this ETA server. */
     public int _state;
-    
+
     /* Port number this server is bound to. */
     public int _portNumber;
-    
+
     /* A user specified object, possibly a closure. */
     public Object _userSpecObject;
 
     JNIServer()
     {
         _componentInfo.componentVersion().data(Transport._defaultComponentVersionBuffer, 0,
-                                               Transport._defaultComponentVersionBuffer.limit());
+                Transport._defaultComponentVersionBuffer.limit());
     }
 
     @Override
@@ -43,7 +43,7 @@ public class JNIServer extends EtaNode implements Server
         catch (Exception e)
         {
             setError(error, null, TransportReturnCodes.FAILURE, error.sysError(),
-                     "JNI rsslGetServerInfo() exception: " + error.text());
+                    "JNI rsslGetServerInfo() exception: " + error.text());
             return TransportReturnCodes.FAILURE;
         }
     }
@@ -60,7 +60,7 @@ public class JNIServer extends EtaNode implements Server
         catch (Exception e)
         {
             setError(error, null, TransportReturnCodes.FAILURE, error.sysError(),
-                     "JNI rsslServerIoctl() exception: " + error.text());
+                    "JNI rsslServerIoctl() exception: " + error.text());
             return TransportReturnCodes.FAILURE;
         }
     }
@@ -84,7 +84,7 @@ public class JNIServer extends EtaNode implements Server
         catch (Exception e)
         {
             setError(error, null, TransportReturnCodes.FAILURE, error.sysError(),
-                     "JNI rsslServerIoctl() exception: " + error.text());
+                    "JNI rsslServerIoctl() exception: " + error.text());
             return TransportReturnCodes.FAILURE;
         }
     }
@@ -101,7 +101,7 @@ public class JNIServer extends EtaNode implements Server
         catch (Exception e)
         {
             setError(error, null, TransportReturnCodes.FAILURE, error.sysError(),
-                     "JNI rsslServerBufferUsage() exception: " + error.text());
+                    "JNI rsslServerBufferUsage() exception: " + error.text());
             return TransportReturnCodes.FAILURE;
         }
     }
@@ -120,7 +120,7 @@ public class JNIServer extends EtaNode implements Server
         catch (Exception e)
         {
             setError(error, null, TransportReturnCodes.FAILURE, error.sysError(),
-                     "JNI rsslCloseServer() exception: " + error.text());
+                    "JNI rsslCloseServer() exception: " + error.text());
             return TransportReturnCodes.FAILURE;
         }
     }
@@ -174,10 +174,10 @@ public class JNIServer extends EtaNode implements Server
     @Override
     public String toString()
     {
-        return "Server" + "\n" + 
-               "\tsrvrScktChannel: " + _srvrScktChannel + "\n" + 
-               "\tstate: " + _state + "\n" + 
-               "\tportNumber: " + _portNumber + "\n" + 
+        return "Server" + "\n" +
+               "\tsrvrScktChannel: " + _srvrScktChannel + "\n" +
+               "\tstate: " + _state + "\n" +
+               "\tportNumber: " + _portNumber + "\n" +
                "\tuserSpecObject: " + _userSpecObject + "\n";
     }
 
@@ -227,13 +227,13 @@ public class JNIServer extends EtaNode implements Server
 
     /* Socket ID of this RSSL server. */
     public int _socketId;
-    
+
     /* Pointer to the actual rsslServer in C. */
     public long _rsslServerCPtr;
-    
+
     /* If true, the server will be allowed to block. */
     public boolean _serverBlocking;
-    
+
     /* If true, the channels will be allowed to block. */
     public boolean _channelsBlocking;
 
@@ -304,8 +304,8 @@ public class JNIServer extends EtaNode implements Server
         error.text(text);
     }
 
-	@Override
-	public int connectionType() {
-		return _bindOpts.connectionType();
-	}
+    @Override
+    public int connectionType() {
+        return _bindOpts.connectionType();
+    }
 }

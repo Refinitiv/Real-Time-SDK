@@ -3,31 +3,18 @@ package com.refinitiv.eta.examples.provider;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.Msg;
-import com.refinitiv.eta.shared.ClientSessionInfo;
-import com.refinitiv.eta.shared.CommandLine;
-import com.refinitiv.eta.shared.LoginRequestInfo;
-import com.refinitiv.eta.shared.ProviderDirectoryHandler;
-import com.refinitiv.eta.shared.ProviderSession;
-import com.refinitiv.eta.shared.ReceivedMsgCallback;
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.shared.*;
 import com.refinitiv.eta.examples.common.ProviderDictionaryHandler;
 import com.refinitiv.eta.examples.common.ProviderLoginHandler;
 import com.refinitiv.eta.examples.common.UnSupportedMsgHandler;
 import com.refinitiv.eta.rdm.DomainTypes;
-import com.refinitiv.eta.transport.BindOptions;
-import com.refinitiv.eta.transport.Channel;
-import com.refinitiv.eta.transport.ChannelState;
-import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.*;
 import com.refinitiv.eta.transport.Error;
-import com.refinitiv.eta.transport.Server;
-import com.refinitiv.eta.transport.TransportBuffer;
-import com.refinitiv.eta.transport.TransportFactory;
-import com.refinitiv.eta.transport.TransportReturnCodes;
 
 /**
  * This is the main class for the ETA Java Provider application. It is a
@@ -108,15 +95,18 @@ import com.refinitiv.eta.transport.TransportReturnCodes;
  * <li>-runtime run time. Default is 1200 seconds. Controls the time the
  * application will run before exiting, in seconds.
  * <li>-rtt application (provider) supports calculation of Round Trip Latency
+ * <li>-pl commas (',') delineated list of supported sub-protocols for asserting WebSocket connection
+ * <li>-httpHdr expand all enumerated values with a JSON protocol
+ * <li>-jsonEnumExpand http header will be accessible on the provider side through callback function
  * </ul>
- * 
+ *
  * @see ProviderSession
  * @see ProviderDictionaryHandler
  * @see ProviderDirectoryHandler
  * @see ProviderLoginHandler
  * @see ItemHandler
  */
-public class Provider implements ReceivedMsgCallback
+public class Provider implements ReceivedMsgCallback, HttpCallback
 {
     private ProviderSession _providerSession;
     private DecodeIterator _dIter = CodecFactory.createDecodeIterator();
@@ -133,6 +123,8 @@ public class Provider implements ReceivedMsgCallback
     private static final int UPDATE_INTERVAL = 1;
     private long publishTime = 0;
 
+    private static final String DEFAULT_WS_PROTOCOL = "rssl.rwf, rssl.json.v2";
+
     /* default server port number */
     private static final String defaultSrvrPortNo = "14002";
 
@@ -141,9 +133,9 @@ public class Provider implements ReceivedMsgCallback
 
     /* default run time in seconds */
     private static final String defaultRuntime = "1200"; // seconds
-    
+
     public static final int CLIENT_SESSION_INIT_TIMEOUT = 30; // seconds
-    
+
     public Provider()
     {
         _providerSession = new ProviderSession();
@@ -166,7 +158,7 @@ public class Provider implements ReceivedMsgCallback
      * Parses command line arguments, initializes provider session which creates
      * listening socket. It also initializes Login, Directory, Dictionary and
      * Item Handlers.
-     * 
+     *
      * @param args - command line arguments
      */
     public void init(String[] args)
@@ -194,37 +186,57 @@ public class Provider implements ReceivedMsgCallback
         String connectionType = CommandLine.value("c");
         if(connectionType != null && connectionType.equals("encrypted"))
         {
-        	 System.out.println("keyfile: " + CommandLine.value("keyfile"));
-        	 System.out.println("keypasswd: " + CommandLine.value("keypasswd"));
+            System.out.println("keyfile: " + CommandLine.value("keyfile"));
+            System.out.println("keypasswd: " + CommandLine.value("keypasswd"));
         }
+        System.out.println("protocolList: " + CommandLine.value("pl"));
+        System.out.println("httpHdrEnabled: " + CommandLine.value("httpHdr"));
+        System.out.println("jsonEnumExpand: " + CommandLine.value("jsonEnumExpand"));
 
         if ( ! _dictionaryHandler.loadDictionary(_error) )
         {
-    	   /* if no local dictionary found maybe we can request it from ADH */
-    	   System.out.println("Local dictionary not available, will try to request it from ADH if it supports the Provider Dictionary Download\n");
+            /* if no local dictionary found maybe we can request it from ADH */
+            System.out.println("Local dictionary not available, will try to request it from ADH if it supports the Provider Dictionary Download\n");
         }
-        
+
         // get bind options from the provider session
         BindOptions bindOptions = _providerSession.getBindOptions();
-        
+
         // set the connection parameters on the bind options
         bindOptions.serviceName(CommandLine.value("p"));
         bindOptions.interfaceName(CommandLine.value("i"));
         if(connectionType != null && connectionType.equals("encrypted"))
         {
-        	bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
-        	bindOptions.encryptionOptions().keystoreFile(CommandLine.value("keyfile"));
-        	bindOptions.encryptionOptions().keystorePasswd(CommandLine.value("keypasswd"));
+            bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
+            bindOptions.encryptionOptions().keystoreFile(CommandLine.value("keyfile"));
+            bindOptions.encryptionOptions().keystorePasswd(CommandLine.value("keypasswd"));
         }
-        
-        int ret = _providerSession.init(false, _error);
+        bindOptions.wSocketOpts().protocols(CommandLine.value("pl"));
+
+        if (CommandLine.booleanValue("httpHdr")) {
+            bindOptions.wSocketOpts().httpCallback();
+        }
+
+        final JsonConverterInitOptions converterInitOptions = new JsonConverterInitOptions(
+                _directoryHandler,
+                _dictionaryHandler.dictionary(),
+                CommandLine.booleanValue("jsonEnumExpand"),
+                CommandLine.booleanValue("x")
+        );
+
+        int defaultServiceId = CommandLine.intValue("id");
+        if (defaultServiceId != 0) {
+            converterInitOptions.setDefaultServiceId(defaultServiceId);
+        }
+
+        int ret = _providerSession.init(converterInitOptions, false, _error);
         if (ret != TransportReturnCodes.SUCCESS)
         {
             System.out.println("Error initializing server: " + _error.text());
             System.exit(TransportReturnCodes.FAILURE);
         }
 
-        
+
         // enable XML tracing
         if (CommandLine.booleanValue("x"))
         {
@@ -239,15 +251,14 @@ public class Provider implements ReceivedMsgCallback
         {
             _loginHandler.enableRtt(CommandLine.booleanValue("rtt"));
             _directoryHandler.serviceId(CommandLine.intValue("id"));
-        	_itemHandler.serviceId(CommandLine.intValue("id"));
-        	_runtime = System.currentTimeMillis() + CommandLine.intValue("runtime") * 1000;
-        	
+            _itemHandler.serviceId(CommandLine.intValue("id"));
+            _runtime = System.currentTimeMillis() + CommandLine.intValue("runtime") * 1000;
         }
         catch (NumberFormatException ile)
         {
-        	System.err.println("Invalid argument, number expected.\t");
-        	System.err.println(ile.getMessage());
-        	System.exit(-1);
+            System.err.println("Invalid argument, number expected.\t");
+            System.err.println(ile.getMessage());
+            System.exit(-1);
         }
     }
 
@@ -264,6 +275,9 @@ public class Provider implements ReceivedMsgCallback
         CommandLine.addOption("c", (String)null, "Provider connection type.  Either \"socket\" or \"encrypted\"");
         CommandLine.addOption("keyfile", (String)null, "jks encoded keyfile for Encrypted connections");
         CommandLine.addOption("keypasswd", (String)null, "password for keyfile");
+        CommandLine.addOption("pl", DEFAULT_WS_PROTOCOL, "commas (',') delineated list of supported sub-protocols for asserting WebSocket connection");
+        CommandLine.addOption("jsonEnumExpand", false, "if specified, expand all enumerated values with a JSON protocol");
+        CommandLine.addOption("httpHdr", false, "if specified, http header will be accessible on the provider side through callback function");
     }
 
     /*
@@ -279,13 +293,13 @@ public class Provider implements ReceivedMsgCallback
         {
             // send close status messages to all streams on all channels
             for (ClientSessionInfo clientSessionInfo : _providerSession.clientSessions)
-            {                	
-            	if ((clientSessionInfo != null) && 
-            			(clientSessionInfo.clientChannel() != null && 
-            			clientSessionInfo.clientChannel().selectableChannel() != null && 
-            			clientSessionInfo.clientChannel().state() != ChannelState.INACTIVE))                	                		
+            {
+                if ((clientSessionInfo != null) &&
+                    (clientSessionInfo.clientChannel() != null &&
+                     clientSessionInfo.clientChannel().selectableChannel() != null &&
+                     clientSessionInfo.clientChannel().state() != ChannelState.INACTIVE))
                 {
-                    // send close status messages to all item streams 
+                    // send close status messages to all item streams
                     int ret = _itemHandler.sendCloseStatusMsgs(clientSessionInfo.clientChannel(), _error);
                     if (ret != 0)
                         System.out.println("Error sending item close: " + _error.text());
@@ -300,23 +314,23 @@ public class Provider implements ReceivedMsgCallback
                     if (ret != 0)
                         System.out.println("Error sending dictionary close: " + _error.text());
 
-                    // flush before exiting 
-                    if ( clientSessionInfo.clientChannel() != null && clientSessionInfo.clientChannel().selectableChannel() != null) 
+                    // flush before exiting
+                    if ( clientSessionInfo.clientChannel() != null && clientSessionInfo.clientChannel().selectableChannel() != null)
                     {
-                    	SelectionKey key = clientSessionInfo.clientChannel().selectableChannel().keyFor(_providerSession.selector);
-                    
-                    	if (key != null && key.isValid() && key.isWritable())
-                    	{
-                    		ret = 1;
-                    		while (ret > TransportReturnCodes.SUCCESS)
-                    		{
-                    			ret = clientSessionInfo.clientChannel().flush(_error);
-                    		}
-                    		if (ret < TransportReturnCodes.SUCCESS)
-                    		{
-                    			System.out.println("clientChannel.flush() failed with return code " + ret + _error.text());
-                    		}
-                    	}
+                        SelectionKey key = clientSessionInfo.clientChannel().selectableChannel().keyFor(_providerSession.selector);
+
+                        if (key != null && key.isValid() && key.isWritable())
+                        {
+                            ret = 1;
+                            while (ret > TransportReturnCodes.SUCCESS)
+                            {
+                                ret = clientSessionInfo.clientChannel().flush(_error);
+                            }
+                            if (ret < TransportReturnCodes.SUCCESS)
+                            {
+                                System.out.println("clientChannel.flush() failed with return code " + ret + _error.text());
+                            }
+                        }
                     }
                 }
             }
@@ -337,14 +351,14 @@ public class Provider implements ReceivedMsgCallback
     public void run()
     {
         int ret = 0;
- 
+
         // main loop
         while (true)
         {
             Set<SelectionKey> keySet = null;
             try
             {
-                if (_providerSession.selector.select(UPDATE_INTERVAL * 200) > 0)  
+                if (_providerSession.selector.select(UPDATE_INTERVAL * 200) > 0)
                 {
                     keySet = _providerSession.selector.selectedKeys();
                 }
@@ -359,40 +373,40 @@ public class Provider implements ReceivedMsgCallback
             {
                 /* Send market price updates for each connected channel */
                 _itemHandler.updateItemInfo();
-                
+
                 for (ClientSessionInfo clientSessionInfo : _providerSession.clientSessions)
-                {   
-                    if ((clientSessionInfo != null) && 
-                    		(clientSessionInfo.clientChannel() != null && 
-                    				clientSessionInfo.clientChannel().selectableChannel() != null && 
-                    				clientSessionInfo.clientChannel().state() != ChannelState.INACTIVE))
+                {
+                    if ((clientSessionInfo != null) &&
+                        (clientSessionInfo.clientChannel() != null &&
+                         clientSessionInfo.clientChannel().selectableChannel() != null &&
+                         clientSessionInfo.clientChannel().state() != ChannelState.INACTIVE))
                     {
                         _loginHandler.proceedLoginRttMessage(clientSessionInfo.clientChannel(), _error);
-                    	ret = _itemHandler.sendItemUpdates(clientSessionInfo.clientChannel(), _error);
+                        ret = _itemHandler.sendItemUpdates(clientSessionInfo.clientChannel(), _error);
                         if (ret != CodecReturnCodes.SUCCESS)
                         {
-                        	System.out.println(_error.text());                            
+                            System.out.println(_error.text());
                             processChannelClose(clientSessionInfo.clientChannel());
-                            _providerSession.removeClientSessionForChannel(clientSessionInfo.clientChannel(), _error);                            
+                            _providerSession.removeClientSessionForChannel(clientSessionInfo.clientChannel(), _error);
                             removeInactiveSessions();
                         }
                     }
                 }
                 publishTime = System.currentTimeMillis() + 1000;
             }
-            
+
             if (keySet != null)
             {
-            	checkTimeout();           	
+                checkTimeout();
                 Iterator<SelectionKey> iter = keySet.iterator();
-                                
+
                 while (iter.hasNext())
                 {
                     SelectionKey key = iter.next();
                     iter.remove();
                     if(!key.isValid())
                     {
-                    	key.cancel();
+                        key.cancel();
                         continue;
                     }
                     if (key.isAcceptable())
@@ -400,34 +414,34 @@ public class Provider implements ReceivedMsgCallback
                         ret = _providerSession.handleNewClientSession((Server)key.attachment(), _error);
                         if (ret != TransportReturnCodes.SUCCESS)
                         {
-                        	System.out.println("accept error, text: " + _error.text());
+                            System.out.println("accept error, text: " + _error.text());
                             continue;
                         }
                     }
                     else if (key.isReadable())
-                    {               
+                    {
                         ret = _providerSession.read((Channel)key.attachment(), _error, this);
                         if (ret != TransportReturnCodes.SUCCESS)
-                        {                        	
-                           	try
-                        	{
-                        		key.channel().close();
-                        	}
-                        	catch(Exception e)
-                        	{
-                        	}                        	
-                            System.out.println("read error, text: " + _error.text());                  
+                        {
+                            try
+                            {
+                                key.channel().close();
+                            }
+                            catch(Exception e)
+                            {
+                            }
+                            System.out.println("read error, text: " + _error.text());
                             continue;
                         }
                     }
                     else if (key.isWritable() && ((Channel)key.attachment()).state() == ChannelState.ACTIVE)
                     {
-                        _providerSession.flush(key, _error);     
+                        _providerSession.flush(key, _error);
                     }
                 }
             }
- 
-            /* Handle pings */           
+
+            /* Handle pings */
             _providerSession.handlePings();
 
             /* Handle run-time */
@@ -440,11 +454,34 @@ public class Provider implements ReceivedMsgCallback
      */
     public void processReceivedMsg(Channel channel, TransportBuffer msgBuf)
     {
+        int ret;
+
         /* clear decode iterator */
         _dIter.clear();
 
-        /* set buffer and version info */
-        int ret = _dIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+        if (channel.protocolType() == Codec.JSON_PROTOCOL_TYPE) {
+            final ClientSessionInfo clientSessionInfo = _providerSession.getClientSessionForChannel(channel);
+            ret = clientSessionInfo.getJsonSession().convertFromJson(msgBuf, _error);
+
+            if (ret == TransportReturnCodes.FAILURE) {
+                System.out.printf("\nJson to RWF conversion failed. Additional information: %s\n", _error.text());
+                return;
+            }
+
+            if (ret == TransportReturnCodes.READ_PING) {
+                return;
+            }
+
+            ret = _dIter.setBufferAndRWFVersion(
+                    clientSessionInfo.getJsonSession().getJsonMsg().rwfMsg().encodedMsgBuffer(),
+                    channel.majorVersion(),
+                    channel.minorVersion()
+            );
+        } else {
+            /* set buffer and version info */
+            ret = _dIter.setBufferAndRWFVersion(msgBuf, channel.majorVersion(), channel.minorVersion());
+        }
+
         if (ret != CodecReturnCodes.SUCCESS)
         {
             System.out.println("DecodeIterator.setBufferAndRWFVersion() failed with return code: " + CodecReturnCodes.toString(ret));
@@ -453,7 +490,7 @@ public class Provider implements ReceivedMsgCallback
             removeInactiveSessions();
 
         }
-        
+
         ret = _receivedMsg.decode(_dIter);
         if (ret != CodecReturnCodes.SUCCESS)
         {
@@ -474,36 +511,36 @@ public class Provider implements ReceivedMsgCallback
                     _providerSession.removeClientSessionForChannel(channel, _error);
                     removeInactiveSessions();
                 }
-                
+
                 // request dictionary from ADH if not available locally
                 if ( ! _dictionaryHandler.isDictionaryReady() )
                 {
-                	LoginRequestInfo loginReqInfo = _loginHandler.findLoginRequestInfo(channel);
+                    LoginRequestInfo loginReqInfo = _loginHandler.findLoginRequestInfo(channel);
 
-                	if( loginReqInfo.loginRequest().checkHasAttrib() &&
-                		loginReqInfo.loginRequest().attrib().checkHasProviderSupportDictionaryDownload() && 
-                		loginReqInfo.loginRequest().attrib().supportProviderDictionaryDownload() ==1 )
-                	{
-                		int requestStatus = _dictionaryHandler.sendDictionaryRequests(channel,_error,_directoryHandler.serviceId());
-                		if( requestStatus == CodecReturnCodes.SUCCESS )
-                		{
-                			System.out.println("Sent Dictionary Request\n");
-                		}
-                		else
-                		{
-                			System.out.println("Dictionary could not be downloaded, unable to send the request to the connection "+_error.text());
+                    if( loginReqInfo.loginRequest().checkHasAttrib() &&
+                        loginReqInfo.loginRequest().attrib().checkHasProviderSupportDictionaryDownload() &&
+                        loginReqInfo.loginRequest().attrib().supportProviderDictionaryDownload() ==1 )
+                    {
+                        int requestStatus = _dictionaryHandler.sendDictionaryRequests(channel,_error,_directoryHandler.serviceId());
+                        if( requestStatus == CodecReturnCodes.SUCCESS )
+                        {
+                            System.out.println("Sent Dictionary Request\n");
+                        }
+                        else
+                        {
+                            System.out.println("Dictionary could not be downloaded, unable to send the request to the connection "+_error.text());
                             processChannelClose(channel);
                             _providerSession.removeClientSessionForChannel(channel, _error);
                             removeInactiveSessions();
-                		}
-                	}
-                	else
-                	{
-                		System.out.println("Dictionary could not be downloaded, the connection does not support Provider Dictionary Download");
+                        }
+                    }
+                    else
+                    {
+                        System.out.println("Dictionary could not be downloaded, the connection does not support Provider Dictionary Download");
                         processChannelClose(channel);
                         _providerSession.removeClientSessionForChannel(channel, _error);
                         removeInactiveSessions();
-                	}
+                    }
                 }
                 break;
             }
@@ -518,7 +555,7 @@ public class Provider implements ReceivedMsgCallback
                 }
                 break;
             case DomainTypes.DICTIONARY:
-            	if(_dictionaryHandler.processMessage(channel,_receivedMsg, _dIter, _error) != 0)
+                if(_dictionaryHandler.processMessage(channel,_receivedMsg, _dIter, _error) != 0)
                 {
                     System.out.println("Error processing dictionary message: " + _error.text());
                     processChannelClose(channel);
@@ -526,7 +563,7 @@ public class Provider implements ReceivedMsgCallback
                     removeInactiveSessions();
                 }
                 break;
-                
+
             case DomainTypes.MARKET_PRICE:
             case DomainTypes.MARKET_BY_ORDER:
             case DomainTypes.MARKET_BY_PRICE:
@@ -553,40 +590,40 @@ public class Provider implements ReceivedMsgCallback
 
     private void checkTimeout()
     {
-       	for (ClientSessionInfo clientSessionInfo : _providerSession.clientSessions)
-        {  		
-        	if (clientSessionInfo != null && 
-        			clientSessionInfo.clientChannel() != null && 
-        			clientSessionInfo.clientChannel().state() == ChannelState.INITIALIZING)
-        	{
-        		if ((System.currentTimeMillis() - clientSessionInfo.startTime()) > CLIENT_SESSION_INIT_TIMEOUT * 1000)
-        		{	
-        			System.out.println("Provider close clientSesson due to timeout of initialization " + clientSessionInfo.clientChannel().selectableChannel() +  " curTime = " + System.currentTimeMillis() +  " startTime = " +  clientSessionInfo.startTime());               		
-        			_providerSession.removeClientSessionForChannel(clientSessionInfo.clientChannel(), _error);
-        			removeInactiveSessions();
-        		}
-         	}
+        for (ClientSessionInfo clientSessionInfo : _providerSession.clientSessions)
+        {
+            if (clientSessionInfo != null &&
+                clientSessionInfo.clientChannel() != null &&
+                clientSessionInfo.clientChannel().state() == ChannelState.INITIALIZING)
+            {
+                if ((System.currentTimeMillis() - clientSessionInfo.startTime()) > CLIENT_SESSION_INIT_TIMEOUT * 1000)
+                {
+                    System.out.println("Provider close clientSesson due to timeout of initialization " + clientSessionInfo.clientChannel().selectableChannel() +  " curTime = " + System.currentTimeMillis() +  " startTime = " +  clientSessionInfo.startTime());
+                    _providerSession.removeClientSessionForChannel(clientSessionInfo.clientChannel(), _error);
+                    removeInactiveSessions();
+                }
+            }
         }
     }
-    
+
     private void removeInactiveSessions()
     {
-       	for (ClientSessionInfo clientSessionInfo : _providerSession.clientSessions)
+        for (ClientSessionInfo clientSessionInfo : _providerSession.clientSessions)
         {
-            if (clientSessionInfo != null && 
-            		clientSessionInfo.clientChannel() != null && 
-            		 clientSessionInfo.clientChannel().state() == ChannelState.INACTIVE && clientSessionInfo.startTime() > 0 )
+            if (clientSessionInfo != null &&
+                clientSessionInfo.clientChannel() != null &&
+                clientSessionInfo.clientChannel().state() == ChannelState.INACTIVE && clientSessionInfo.startTime() > 0 )
             {
-        		System.out.println("Provider close clientSesson due to inactive state ");
-        		_providerSession.removeInactiveClientSessionForChannel(clientSessionInfo, _error);            	
-            }                        
+                System.out.println("Provider close clientSesson due to inactive state ");
+                _providerSession.removeInactiveClientSessionForChannel(clientSessionInfo, _error);
+            }
         }
     }
-  
-    
+
+
     private void uninit()
     {
-    	_providerSession.uninit();
+        _providerSession.uninit();
     }
 
     private void cleanupAndExit()
@@ -595,12 +632,35 @@ public class Provider implements ReceivedMsgCallback
         System.exit(TransportReturnCodes.FAILURE);
     }
 
-	@Override
-	public void processChannelClose(Channel channel)
-	{
-		_itemHandler.closeRequests(channel);
-		_dictionaryHandler.closeRequests(channel);
-		_directoryHandler.closeRequest(channel);
-		_loginHandler.closeRequestAndRtt(channel);
-	}
+    @Override
+    public void processChannelClose(Channel channel)
+    {
+        _itemHandler.closeRequests(channel);
+        _dictionaryHandler.closeRequests(channel);
+        _directoryHandler.closeRequest(channel);
+        _loginHandler.closeRequestAndRtt(channel);
+    }
+
+    @Override
+    public void httpCallback(HttpMessage httpMessage, Error error) {
+        if (error.errorId() < TransportReturnCodes.SUCCESS) {
+            System.out.printf("Http header error %s \n", error.text());
+        }
+
+        final List<HttpHeader> httpHeaders = httpMessage.getHttpHeaders();
+        System.out.println("HTTP header data:");
+        if (Objects.nonNull(httpHeaders) && !httpHeaders.isEmpty()) {
+            httpHeaders.forEach(httpHeader -> System.out.printf("%s: %s\n", httpHeader.getHeaderName(), httpHeader.getSimpleHeaderValue()));
+        } else {
+            System.out.println("Failed to get HTTP headers.");
+        }
+
+        final java.util.Map<String, String> cookies = httpMessage.getCookies();
+        System.out.println("HTTP cookies data:");
+        if (Objects.nonNull(cookies) && !cookies.isEmpty()) {
+            cookies.forEach((key, value) -> System.out.printf("%s: %s\n", key, value));
+        } else {
+            System.out.println("HTTP cookies is empty.");
+        }
+    }
 }

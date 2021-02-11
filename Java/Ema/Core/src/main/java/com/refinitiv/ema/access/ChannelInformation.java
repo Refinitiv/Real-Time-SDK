@@ -100,6 +100,13 @@ public interface ChannelInformation
 		 * for reading from an Refinitiv Direct Feed system.
 	     */
 	    public static final int SEQUENCED_MCAST = 6;
+
+		/**
+		 * Indicates that the channel is using a standard TCP-based WebSocket
+		 * connection. This type can be used to connect between any ETA Transport
+		 * based applications.
+		 */
+	    public static final int WEBSOCKET = 7;
 	}
 
 	/**

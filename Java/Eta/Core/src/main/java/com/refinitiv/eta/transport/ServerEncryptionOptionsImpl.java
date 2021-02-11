@@ -112,8 +112,6 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
     @Override
     public void keystoreFile(String KeystoreFile)
     {
-        assert (KeystoreFile != null) : "KeystoreFile must be non-null";
-
         _KeystoreFile = KeystoreFile;
     }
 
@@ -126,8 +124,6 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
     @Override
     public void keystorePasswd(String KeystorePasswd)
     {
-        assert (KeystorePasswd != null) : "KeystorePasswd must be non-null";
-
         _KeystorePasswd = KeystorePasswd;
     }
 

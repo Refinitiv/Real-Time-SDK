@@ -9,6 +9,8 @@ package com.refinitiv.eta.valueadd.reactor;
 
 public class ConsumerProviderSessionOptions {
 	private int _connectionType;
+	private int _protocolType;
+	private String _protocolList;
     private int _reconnectAttemptLimit;
     private int _reconnectMinDelay = 1000;
     private int _reconnectMaxDelay = 1000;
@@ -19,6 +21,7 @@ public class ConsumerProviderSessionOptions {
 	private int _pingTimeout = 60;
     private int _consumerChannelInitTimeout = 60;
     private long _openWindow = -1;
+    private int numOfGuaranteedBuffers = 50;
 	
 	/** Returns the type of connection the session will use. */
 	public int connectionType() { return _connectionType; }
@@ -149,5 +152,29 @@ public class ConsumerProviderSessionOptions {
     public void openWindow(long openWindow)
     {
     	_openWindow = openWindow;
+    }
+
+    public int getProtocolType() {
+        return _protocolType;
+    }
+
+    public void setProtocolType(int _protocolType) {
+        this._protocolType = _protocolType;
+    }
+
+    public String getProtocolList() {
+        return _protocolList;
+    }
+
+    public void setProtocolList(String _protocolList) {
+        this._protocolList = _protocolList;
+    }
+
+    public int getNumOfGuaranteedBuffers() {
+        return numOfGuaranteedBuffers;
+    }
+
+    public void setNumOfGuaranteedBuffers(int numOfGuaranteedBuffers) {
+        this.numOfGuaranteedBuffers = numOfGuaranteedBuffers;
     }
 }

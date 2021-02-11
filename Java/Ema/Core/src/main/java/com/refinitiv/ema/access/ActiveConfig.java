@@ -77,6 +77,9 @@ abstract class ActiveConfig extends BaseConfig
 	final static String DEFAULT_CONS_NAME						= "EmaConsumer";
 	final static String DEFAULT_IPROV_NAME						= "EmaIProvider";
 	final static String DEFAULT_NIPROV_NAME						= "EmaNiProvider";
+	final static String DEFAULT_WS_PROTOCOLS					= "rssl.json.v2, rssl.rwf, tr_json2";
+	final static int DEFAULT_WS_MAX_MSG_SIZE					= 61440;
+	final static int DEFAULT_MAX_FRAGMENT_SIZE 					= 6144;
 	
 	final static int SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL   = 0x01;  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 	final static int SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL = 0x02;  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -109,6 +112,9 @@ abstract class ActiveConfig extends BaseConfig
 	int						reconnectMinDelay;
 	int						reconnectMaxDelay;
 	boolean 				msgKeyInUpdates;
+	String					wsProtocols;
+	int 					wsMaxMsgSize;
+	int						maxFragmentSize;
 	
 	ActiveConfig(String defaultServiceName)
 	{
@@ -130,6 +136,9 @@ abstract class ActiveConfig extends BaseConfig
 		 reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL;
 		 restRequestTimeout = DEFAULT_REST_REQUEST_TIMEOUT;
 		 tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
+		 wsProtocols = DEFAULT_WS_PROTOCOLS;
+		 wsMaxMsgSize = DEFAULT_WS_MAX_MSG_SIZE;
+		 maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
 		 channelConfigSet = new ArrayList<>();
 	}
 
@@ -152,6 +161,9 @@ abstract class ActiveConfig extends BaseConfig
 		reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL;
 		restRequestTimeout = DEFAULT_REST_REQUEST_TIMEOUT;
 		tokenReissueRatio = DEFAULT_TOKEN_REISSUE_RATIO;
+		wsProtocols = DEFAULT_WS_PROTOCOLS;
+		wsMaxMsgSize = DEFAULT_WS_MAX_MSG_SIZE;
+		maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
 		dictionaryConfig.clear();
 
 		rsslRDMLoginRequest = null;
@@ -177,7 +189,10 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t reissueTokenAttemptInterval: ").append(reissueTokenAttemptInterval)
 		.append("\n\t restRequestTimeOut: ").append(restRequestTimeout)
 		.append("\n\t tokenReissueRatio: ").append(tokenReissueRatio)
-		.append("\n\t loginRequestTimeOut: ").append(loginRequestTimeOut);
+		.append("\n\t loginRequestTimeOut: ").append(loginRequestTimeOut)
+		.append("\n\t wsProtocols: ").append(wsProtocols)
+		.append("\n\t wsMaxMsgSize: ").append(wsMaxMsgSize)
+		.append("\n\t maxFragmentSize: ").append(maxFragmentSize);
 		
 		return traceStr;
 	}

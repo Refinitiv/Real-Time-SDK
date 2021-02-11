@@ -48,8 +48,8 @@ public class HTTPSocketBuffer extends SocketBuffer
         {
             return (_available == _totalSliceCount);
         }
-    }	
-	
+    }
+
     int http_write_position = 6;
     int http_chunk_end_size = 2;
     final SlicesPool _slicesPool = new SlicesPool(this);
@@ -91,7 +91,7 @@ public class HTTPSocketBuffer extends SocketBuffer
             if (_isPacked)
             {
                 slice._isPacked = true;
-                slice._packedMsgLengthPosition = slice._startPosition + SocketBuffer.RIPC_WRITE_POSITION
+                slice._packedMsgOffSetPosition = slice._startPosition + SocketBuffer.RIPC_WRITE_POSITION
                                                  + http_write_position + http_chunk_end_size;
             }
             else

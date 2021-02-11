@@ -1,5 +1,6 @@
 package com.refinitiv.eta.valueadd.reactor;
 
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.transport.Error;
@@ -32,14 +33,14 @@ class PingHandler
     {
         _sentLocalMsg = true;
     }
-    
+
     /*
      * Indicate that we received a message from the remote connection
      */
     void receivedPing()
     {
-    	if (_trackPings)
-    		_pingsReceived++;
+        if (_trackPings)
+            _pingsReceived++;
     }
 
     /*
@@ -47,8 +48,8 @@ class PingHandler
      */
     void sentPing()
     {
-    	if (_trackPings)
-    		_pingsSent++;
+        if (_trackPings)
+            _pingsSent++;
     }
 
     /*
@@ -69,39 +70,51 @@ class PingHandler
 
     /*
      * Handles the ping processing for a channel.
-	 *
+     *
      * Sends a ping to the remote (connection) if the next local ping time
      * has expired and a local message was not sent to the remote (connection).
-     * 
+     *
      * Checks if a ping has been received from the remote (connection)
      * within the next receive ping time.
      */
-    public int handlePings(Channel chnl, Error error)
+    public int handlePings(ReactorChannel reactorChannel, Error error)
     {
         long currentTime = System.currentTimeMillis();
+        Channel chnl = reactorChannel.channel();
 
         /* handle local pings */
         if (currentTime >= _nextLocalPingTime)
         {
+            boolean isJSONProtocol = chnl.protocolType() == Codec.JSON_PROTOCOL_TYPE ? true : false;
             /*
              * check if local message was sent to the remote (connection) since
              * last time
              */
-            if (_sentLocalMsg)
+            if (_sentLocalMsg && !isJSONProtocol)
             {
                 _sentLocalMsg = false;
             }
             else
             {
-                /* send ping to remote (connection) */
-                int ret = chnl.ping(error);
-                if (ret < TransportReturnCodes.SUCCESS)
+                boolean sendPing = true;
+
+                if (isJSONProtocol && reactorChannel.sendPingMessage() == false)
                 {
-                    return ret;
+                    sendPing = false;
                 }
-                else if (ret == TransportReturnCodes.SUCCESS)
+
+                if(sendPing)
                 {
-                	sentPing();
+                    /* send ping to remote (connection) */
+                    int ret = chnl.ping(error);
+                    if (ret < TransportReturnCodes.SUCCESS)
+                    {
+                        return ret;
+                    }
+                    else if (ret == TransportReturnCodes.SUCCESS)
+                    {
+                        sentPing();
+                    }
                 }
             }
 
@@ -137,26 +150,26 @@ class PingHandler
 
         return TransportReturnCodes.SUCCESS;
     }
-    
+
     /*
      * access pings received
      */
     long getPingsReceived()
     {
-    	return _pingsReceived;
+        return _pingsReceived;
     }
-    
+
     /*
      * access pings sent
      */
     long getPingsSent()
     {
-    	return _pingsSent;
+        return _pingsSent;
     }
-    
+
     void trackPings(boolean trackPings)
     {
-    	_trackPings = trackPings;
+        _trackPings = trackPings;
     }
 
     /*
@@ -173,13 +186,13 @@ class PingHandler
         _receivedRemoteMsg = false;
         _sentLocalMsg = false;
     }
-    
+
     /*
      * Resets aggregated metrics only
      */
     void resetAggregatedStats()
     {
-    	_pingsReceived = 0;
+        _pingsReceived = 0;
         _pingsSent = 0;
     }
 }
