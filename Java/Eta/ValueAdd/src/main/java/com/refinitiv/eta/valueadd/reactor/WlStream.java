@@ -510,16 +510,20 @@ class WlStream extends VaNode
 
     private void removeViewFromMsg(Msg msg)
     {
-        msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
-        _viewBuffer.clear();
-        msg.encodedDataBody(_viewBuffer);
-        msg.containerType(DataTypes.NO_DATA);
-        if(_aggregateView != null && _aggregateView.viewHandler() != null)
-        {
-            _aggregateView.viewHandler().aggregateViewUncommit(_aggregateView);
-        }
-        _pendingViewChange = true;
-        _viewSubsetContained = false;
+    	/* Clears the view flag and the payload only when there is a view for this item stream. But the reissue request doesn't have a view flag to clear the view */
+    	if( (msg.flags() & RequestMsgFlags.HAS_VIEW) != 0 )
+    	{
+    		msg.flags(msg.flags() & ~RequestMsgFlags.HAS_VIEW);
+    		_viewBuffer.clear();
+    		msg.encodedDataBody(_viewBuffer);
+    		msg.containerType(DataTypes.NO_DATA);
+    		if(_aggregateView != null && _aggregateView.viewHandler() != null)
+    		{
+    			_aggregateView.viewHandler().aggregateViewUncommit(_aggregateView);
+    		}
+    		_pendingViewChange = true;
+    		_viewSubsetContained = false;
+    	}
     }
 
     /* Update the applicable post tables after successfully sending a post message. */
