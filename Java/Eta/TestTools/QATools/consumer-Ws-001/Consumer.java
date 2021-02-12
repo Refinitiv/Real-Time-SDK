@@ -137,7 +137,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
  * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
- * <li>-protocolList Specifies the list of supported protocols
+ * <li>-pl Specifies the list of supported protocols
  * <li>-jsonEnumExpand If specified, expand all enumerated values with a JSON protocol
  * </ul>
  *
@@ -587,7 +587,7 @@ public class Consumer implements ResponseCallback, HttpCallback
                     _tunnelingConnectOpts.encryptionOptions().connectionType(ConnectionTypes.HTTP);
                 else if (subProtocol.equals("websocket")) {
                     _tunnelingConnectOpts.encryptionOptions().connectionType(ConnectionTypes.WEBSOCKET);
-                    channelSession.getConnectOptions().wSocketOpts().protocols(CommandLine.value("protocolList"));
+                    channelSession.getConnectOptions().wSocketOpts().protocols(CommandLine.value("pl"));
                 }
             }
         }
@@ -599,7 +599,7 @@ public class Consumer implements ResponseCallback, HttpCallback
             setHTTPconfiguration(_tunnelingConnectOpts);
         } else if (connectionType.equals("websocket")) {
             channelSession.setConnectionType(ConnectionTypes.WEBSOCKET);
-            channelSession.getConnectOptions().wSocketOpts().protocols(CommandLine.value("protocolList"));
+            channelSession.getConnectOptions().wSocketOpts().protocols(CommandLine.value("pl"));
         }
 
         // build tunneling and credentials config and pass to channelSession
@@ -619,6 +619,9 @@ public class Consumer implements ResponseCallback, HttpCallback
                 CommandLine.booleanValue("jsonEnumExpand"),
                 CommandLine.booleanValue("x")
         );
+        
+        /* Specifies a default service ID for the converter library */
+        converterInitOptions.setDefaultServiceId(1);
 
         channelSession.setConverterInitOptions(converterInitOptions);
     }
@@ -1407,7 +1410,7 @@ public class Consumer implements ResponseCallback, HttpCallback
         CommandLine.addOption("aid", "", "Specifies the Application ID.");
         CommandLine.addOption("rtt", false, "Enables RTT feature.");
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'Socket', or 'http'");
-        CommandLine.addOption("protocolList", DEFAULT_WS_PROTOCOL, "Specifies the list of protocols supported by the application");
+        CommandLine.addOption("pl", DEFAULT_WS_PROTOCOL, "Specifies the list of protocols supported by the application");
         CommandLine.addOption("jsonEnumExpand", false, "If specified, expand all enumerated values with a JSON protocol");
         //API QA
         CommandLine.addOption("compressionType", "Specify compressionType either ZLib or LZ4");

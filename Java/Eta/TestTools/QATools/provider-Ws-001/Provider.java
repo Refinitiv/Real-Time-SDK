@@ -132,7 +132,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
     private static final String defaultServiceName = "DIRECT_FEED";
 
     /* default run time in seconds */
-    private static final String defaultRuntime = "1200"; // seconds   
+    private static final String defaultRuntime = "1200"; // seconds
 
     public static final int CLIENT_SESSION_INIT_TIMEOUT = 30; // seconds
 
@@ -190,7 +190,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
             System.out.println("keypasswd: " + CommandLine.value("keypasswd"));
         }
         System.out.println("protocolList: " + CommandLine.value("pl"));
-        System.out.println("httpHdrEnabled: " + CommandLine.value("httpHdr")); //TODO internal callback
+        System.out.println("httpHdrEnabled: " + CommandLine.value("httpHdr"));
         System.out.println("jsonEnumExpand: " + CommandLine.value("jsonEnumExpand"));
         //APIQA
         System.out.println("compressionType: " + CommandLine.value("compressionType"));
@@ -224,8 +224,8 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         if(connectionType != null && connectionType.equals("encrypted"))
         {
             bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
-            bindOptions.encryptionOptions().KeystoreFile(CommandLine.value("keyfile"));
-            bindOptions.encryptionOptions().KeystorePasswd(CommandLine.value("keypasswd"));
+            bindOptions.encryptionOptions().keystoreFile(CommandLine.value("keyfile"));
+            bindOptions.encryptionOptions().keystorePasswd(CommandLine.value("keypasswd"));
         }
         bindOptions.wSocketOpts().protocols(CommandLine.value("pl"));
 
@@ -239,6 +239,12 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
                 CommandLine.booleanValue("jsonEnumExpand"),
                 CommandLine.booleanValue("x")
         );
+
+        int defaultServiceId = CommandLine.intValue("id");
+        if (defaultServiceId != 0) {
+            converterInitOptions.setDefaultServiceId(defaultServiceId);
+        }
+
         int ret = _providerSession.init(converterInitOptions, false, _error);
         if (ret != TransportReturnCodes.SUCCESS)
         {

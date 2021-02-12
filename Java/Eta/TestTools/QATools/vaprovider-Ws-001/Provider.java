@@ -270,6 +270,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
         jsonConverterOptions.dataDictionary(dictionaryHandler.dictionary());
         jsonConverterOptions.serviceNameToIdCallback(this);
         jsonConverterOptions.jsonConversionEventCallback(this);
+        jsonConverterOptions.defaultServiceId(serviceId);
 
         // Initialize the JSON converter
         if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
@@ -282,10 +283,10 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
         if(providerCmdLineParser.connectionType() == ConnectionTypes.ENCRYPTED)
         {
             bindOptions.connectionType(providerCmdLineParser.connectionType());
-            bindOptions.encryptionOptions().KeystoreFile(providerCmdLineParser.keyfile());
-            bindOptions.encryptionOptions().KeystorePasswd(providerCmdLineParser.keypasswd());
+            bindOptions.encryptionOptions().keystoreFile(providerCmdLineParser.keyfile());
+            bindOptions.encryptionOptions().keystorePasswd(providerCmdLineParser.keypasswd());
         }
-        bindOptions.guaranteedOutputBuffers(500);
+        bindOptions.guaranteedOutputBuffers(1500);
         bindOptions.majorVersion(Codec.majorVersion());
         bindOptions.minorVersion(Codec.minorVersion());
         bindOptions.protocolType(Codec.protocolType());
