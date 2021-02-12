@@ -41,17 +41,26 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
 
     private static final Map<String, Integer> STRING_TO_RWF_MSG_CLASS = new HashMap<>();;
     private static final Map<String, Integer> STRING_TO_JSON_MSG_CLASS = new HashMap<>();
+    
+    static final String UPDATE_STR = "Update";
+    static final String GENERIC_STR = "Generic";
+    static final String REFRESH_STR = "Refresh";
+    static final String REQUEST_STR = "Request";
+    static final String POST_STR = "Post";
+    static final String STATUS_STR = "Status";
+    static final String CLOSE_STR = "Close";
+    static final String ACK_STR = "Ack";
 
     static
     {
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.REQUEST_STR, MsgClasses.REQUEST);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.REFRESH_STR, MsgClasses.REFRESH);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.STATUS_STR, MsgClasses.STATUS);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.UPDATE_STR, MsgClasses.UPDATE);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.CLOSE_STR, MsgClasses.CLOSE);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.ACK_STR, MsgClasses.ACK);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.GENERIC_STR, MsgClasses.GENERIC);
-        STRING_TO_RWF_MSG_CLASS.put(MsgClasses.POST_STR, MsgClasses.POST);
+        STRING_TO_RWF_MSG_CLASS.put(REQUEST_STR, MsgClasses.REQUEST);
+        STRING_TO_RWF_MSG_CLASS.put(REFRESH_STR, MsgClasses.REFRESH);
+        STRING_TO_RWF_MSG_CLASS.put(STATUS_STR, MsgClasses.STATUS);
+        STRING_TO_RWF_MSG_CLASS.put(UPDATE_STR, MsgClasses.UPDATE);
+        STRING_TO_RWF_MSG_CLASS.put(CLOSE_STR, MsgClasses.CLOSE);
+        STRING_TO_RWF_MSG_CLASS.put(ACK_STR, MsgClasses.ACK);
+        STRING_TO_RWF_MSG_CLASS.put(GENERIC_STR, MsgClasses.GENERIC);
+        STRING_TO_RWF_MSG_CLASS.put(POST_STR, MsgClasses.POST);
 
         STRING_TO_JSON_MSG_CLASS.put(JsonMsgClasses.PING_STR, JsonMsgClasses.PING);
         STRING_TO_JSON_MSG_CLASS.put(JsonMsgClasses.PONG_STR, JsonMsgClasses.PONG);

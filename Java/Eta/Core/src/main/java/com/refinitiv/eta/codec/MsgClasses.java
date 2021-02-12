@@ -7,16 +7,6 @@ package com.refinitiv.eta.codec;
  */
 public class MsgClasses
 {
-
-    public static final String UPDATE_STR = "Update";
-    public static final String GENERIC_STR = "Generic";
-    public static final String REFRESH_STR = "Refresh";
-    public static final String REQUEST_STR = "Request";
-    public static final String POST_STR = "Post";
-    public static final String STATUS_STR = "Status";
-    public static final String CLOSE_STR = "Close";
-    public static final String ACK_STR = "Ack";
-
     /**
      * This class is not instantiated
      */
@@ -106,28 +96,28 @@ public class MsgClasses
         switch (msgClass)
         {
             case UPDATE:
-                ret = UPDATE_STR;
+                ret = "UPDATE";
                 break;
             case GENERIC:
-                ret = GENERIC_STR;
+                ret = "GENERIC";
                 break;
             case REFRESH:
-                ret = REFRESH_STR;
+                ret = "REFRESH";
                 break;
             case REQUEST:
-                ret = REQUEST_STR;
+                ret = "REQUEST";
                 break;
             case POST:
-                ret = POST_STR;
+                ret = "POST";
                 break;
             case STATUS:
-                ret = STATUS_STR;
+                ret = "STATUS";
                 break;
             case CLOSE:
-                ret = CLOSE_STR;
+                ret = "CLOSE";
                 break;
             case ACK:
-                ret = ACK_STR;
+                ret = "ACK";
                 break;
             default:
                 ret = Integer.toString(msgClass);
