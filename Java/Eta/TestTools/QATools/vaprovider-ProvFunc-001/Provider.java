@@ -918,7 +918,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback
         dictionaryHandler.closeStream(reactorChannel);
         directoryHandler.closeStream(reactorChannel);
         loginHandler.closeStream(reactorChannel);
-        itemHandler.closeStream(reactorChannel);
+        itemHandler.closeStream(reactorChannel, errorInfo);
         reactorChannel.close(errorInfo);
         clientSessionCount--;
     }
