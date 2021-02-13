@@ -351,17 +351,6 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			System.exit(ReactorReturnCodes.FAILURE);
 		}
 
-		jsonConverterOptions.dataDictionary(dictionary);
-		jsonConverterOptions.serviceNameToIdCallback(this);
-		jsonConverterOptions.jsonConversionEventCallback(this);
-
-		// Initialize the JSON converter
-		if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
-		{
-			System.out.println("Reactor.initJsonConverter() failed: " + errorInfo.toString());
-			System.exit(ReactorReturnCodes.FAILURE);
-		}
-
 		// register selector with reactor's reactorChannel.
 		try
 		{
@@ -399,6 +388,17 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 			// add to ChannelInfo list
 			chnlInfoList.add(chnlInfo);
+		}
+
+		jsonConverterOptions.dataDictionary(dictionary);
+		jsonConverterOptions.serviceNameToIdCallback(this);
+		jsonConverterOptions.jsonConversionEventCallback(this);
+
+		// Initialize the JSON converter
+		if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
+		{
+			System.out.println("Reactor.initJsonConverter() failed: " + errorInfo.toString());
+			System.exit(ReactorReturnCodes.FAILURE);
 		}
 	}
 
@@ -976,7 +976,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		// initialize dictionary
 		if (chnlInfo.dictionary == null)
 		{
-			chnlInfo.dictionary = CodecFactory.createDataDictionary();
+			chnlInfo.dictionary = dictionary;
 		}
 
 		switch (msgType)
@@ -1516,13 +1516,9 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			enumTypeDictionaryLoadedFromFile == false)
 		{
 			chnlInfo.consumerRole.dictionaryDownloadMode(DictionaryDownloadModes.FIRST_AVAILABLE);
+            dictionary = CodecFactory.createDataDictionary(); //drop the old dictionary
 		}
-
-		if (fieldDictionaryLoadedFromFile == true &&
-			enumTypeDictionaryLoadedFromFile == true)
-		{
-			chnlInfo.dictionary = dictionary;
-		}
+		chnlInfo.dictionary = dictionary;
 		chnlInfo.shouldOffStreamPost = consumerCmdLineParser.enableOffpost();
 		// this application requires at least one market price item to be
 		// requested for on-stream posting to be performed
