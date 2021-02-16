@@ -73,7 +73,7 @@ class AppClient implements OmmProviderClient, OmmProviderErrorClient {
         System.out.printf("\nonJsonConverter callback function\n" +
                 "Error text: %s\n" +
                 "Error code: %d\n" +
-                "Closing the client channel", text, errorCode
+                "Closing the client channel\n", text, errorCode
         );
         providerSessionInfo.getProvider().closeChannel(providerSessionInfo.getClientHandle());
     }

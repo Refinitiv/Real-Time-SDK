@@ -1574,7 +1574,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	public void closeChannel(long clientHandle) {
 		userLock().lock();
 
-
+		_longValue.value(clientHandle);
 		ClientSession clientSession = serverChannelHandler().getClientSession(_longValue);
 
 		if (clientSession != null) {
@@ -1587,8 +1587,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 					.append("Invalid passed in client handle: ")
 					.append(clientHandle)
 					.append(" in the closeChannel() method.");
-
-			throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+			
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
 		}
 	}
 

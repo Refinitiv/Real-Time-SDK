@@ -17,9 +17,9 @@ abstract class HeaderSecWebSocketExtensionsHandler implements HeaderWebSocketHan
         if (session.hasCompressionSupport()) {
             final List<String> extensionValues = parser.getStringValues(header);
             for (String extension : extensionValues) {
-                if (extension.equals(DEFLATE)) {
+                if (extension.equalsIgnoreCase(DEFLATE)) {
                     session.setDeflate(true);
-                } else if (extension.equals(SERVER_CONTEXT_EXTENSION)) {
+                } else if (extension.equalsIgnoreCase(SERVER_CONTEXT_EXTENSION)) {
                 	if(session.isClient)
                 	{
                 		session.applyNoInboundContextTakeOver();
@@ -28,7 +28,7 @@ abstract class HeaderSecWebSocketExtensionsHandler implements HeaderWebSocketHan
                 	{
                 		session.applyNoOutboundContextTakeOver();
                 	}
-                } else if (extension.equals(CLIENT_CONTEXT_EXTENSION)) {
+                } else if (extension.equalsIgnoreCase(CLIENT_CONTEXT_EXTENSION)) {
                 	if(!session.isClient)
                 	{
                 		session.applyNoInboundContextTakeOver();
