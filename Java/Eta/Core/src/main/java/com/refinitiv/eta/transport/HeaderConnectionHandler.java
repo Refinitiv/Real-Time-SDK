@@ -9,7 +9,7 @@ class HeaderConnectionHandler implements HeaderWebSocketHandler {
     @Override
     public int decodeWebSocketHeader(WebSocketSession session, HttpMessageHandler parser, HttpHeader header, Error error) {
         final List<String> headerValues = parser.getStringValues(header);
-        if (headerValues.stream().anyMatch(value -> value.equals(CONNECTION_EXPECTED_VALUE))) {
+        if (headerValues.stream().anyMatch(value -> value.equalsIgnoreCase(CONNECTION_EXPECTED_VALUE))) {
             session.setConnectionUpgrade(true);
             return TransportReturnCodes.SUCCESS;
         }

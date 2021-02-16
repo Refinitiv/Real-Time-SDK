@@ -52,7 +52,7 @@ interface OmmCommonImpl
 	
 	void handleInvalidHandle(long handle, String text);
 
-	void handleJsonConverterError(int errorCode, String text);
+	void handleJsonConverterError(ReactorChannel reactorChannel, int errorCode, String text);
 
 	Logger loggerClient();
 	
@@ -313,7 +313,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	@Override
 	public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) {
 		if (jsonConversionEvent != null && jsonConversionEvent.error() != null) {
-			handleJsonConverterError(jsonConversionEvent.error().errorId(), jsonConversionEvent.error().text());
+			handleJsonConverterError(jsonConversionEvent.reactorChannel(), jsonConversionEvent.error().errorId(), jsonConversionEvent.error().text());
 		}
 		return ReactorCallbackReturnCodes.SUCCESS;
 	}

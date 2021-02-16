@@ -154,6 +154,7 @@ public class Reactor
     private boolean closeChannelFromFailure = false;
     private ParseJsonOptions parseJsonOptions = ConverterFactory.createParseJsonOptions();
     JsonConverterError converterError = ConverterFactory.createJsonConverterError();
+    JsonConverterError getMessageError = ConverterFactory.createJsonConverterError();
     private DecodeJsonMsgOptions decodeJsonMsgOptions = ConverterFactory.createDecodeJsonMsgOptions();
     private JsonMsg jsonMsg = ConverterFactory.createJsonMsg();
     private Msg jsonDecodeMsg = CodecFactory.createMsg();
@@ -3222,7 +3223,8 @@ public class Reactor
                         jsonErrorParams.fillParams(converterError, jsonMsg.rwfMsg().streamId());
                         jsonErrorOutputBuffer.clear();
 
-                        if( (retval = jsonConverter.getErrorMessage(jsonErrorOutputBuffer, jsonErrorParams, converterError)) == CodecReturnCodes.SUCCESS)
+                        getMessageError.clear();
+                        if( (retval = jsonConverter.getErrorMessage(jsonErrorOutputBuffer, jsonErrorParams, getMessageError)) == CodecReturnCodes.SUCCESS)
                         {
                             TransportBuffer msgBuffer = reactorChannel.getBuffer(jsonErrorOutputBuffer.length(), false, errorInfo);
 

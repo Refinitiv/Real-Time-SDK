@@ -465,7 +465,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	@Override
 	public int reactorJsonConversionEventCallback(ReactorJsonConversionEvent jsonConversionEvent) {
 		final Error error = jsonConversionEvent.error();
-		handleJsonConverterError(error.errorId(), error.text());
+		handleJsonConverterError(jsonConversionEvent.reactorChannel(), error.errorId(), error.text());
 		return ReactorReturnCodes.SUCCESS;
 	}
 
@@ -981,8 +981,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	}
 
 	@Override
-	public void handleJsonConverterError(int errorCode, String text) {
-		sessionInfo.loadProviderSession(provider(), _rsslReactor.reactorChannel());
+	public void handleJsonConverterError(ReactorChannel reactorChannel, int errorCode, String text) {
+		sessionInfo.loadProviderSession(provider(), reactorChannel);
 		if (hasErrorClient()) {
 			_ommProviderErrorClient.onJsonConverterError(sessionInfo, errorCode, text);
 		} else {
