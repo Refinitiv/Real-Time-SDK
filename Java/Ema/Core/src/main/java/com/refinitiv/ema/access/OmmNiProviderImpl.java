@@ -1418,7 +1418,7 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	}
 
 	@Override
-	public final void handleJsonConverterError(int errorCode, String text) {
+	public final void handleJsonConverterError(ReactorChannel reactorChannel, int errorCode, String text) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -517,8 +517,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	}
 
 	@Override
-	public void handleJsonConverterError(int errorCode, String text) {
-		sessionInfo.loadConsumerSession(super._rsslReactor.reactorChannel());
+	public void handleJsonConverterError(ReactorChannel reactorChannel, int errorCode, String text) {
+		sessionInfo.loadConsumerSession(reactorChannel);
 		if (hasErrorClient()) {
 			_consumerErrorClient.onJsonConverterError(sessionInfo, errorCode, text);
 		} else {
