@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.44_RealTimeDistributionSystem_20.81		09/16/2020
-!	* Modified 09/16/2020 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.44.
+!   Version	 4.20.46_RealTimeDistributionSystem_21.21		02/10/2021
+!	* Modified 02/10/2021 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.46.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.44_RealTimeDistributionSystem
+!   Version: 4.20.46_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Refinitiv 2020
+! Copyright Refinitiv 2021
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.44
-!tag Build     1
-!tag Date      17-Jul-2020
+!tag Version   4.20.46
+!tag Build     3
+!tag Date      27-Jan-2021
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -2181,7 +2181,7 @@ MORE_NEWS  "MORE NEWS FLAG"       727  NULL        ALPHANUMERIC        1  RMTES_
 !
 BCAST_REF  "BROADCAST XREF"       728  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 !
-! Contains the "primary RIC" used for accessing News 
+! Contains the "primary RIC" and/or relevant topic codes used for accessing News.
 !
 MON_PAGES  "MON PAGES"            729  NULL        ALPHANUMERIC       27  RMTES_STRING    27
 !
@@ -2903,8 +2903,7 @@ CNV_DATE2  "CNV DATE2"            946  NULL        DATE               11  DATE  
 !
 WNT_RATIO  "WNT RATIO"            947  NULL        PRICE              17  REAL64           9
 !
-! Number of warrants needed to buy or sell one underlying share or one unit of another 
-! underlying.
+! Warrant Ratio.  The number of warrants per underlying instrument.
 !
 SESS1_HFLG "SESS1 HFLG"           948  NULL        ALPHANUMERIC        1  RMTES_STRING     1
 !
@@ -3792,7 +3791,7 @@ NEUTRL_PRC "NEUTRAL PRICE"       1461  NULL        PRICE              17  REAL64
 !
 STRIKE_RAT "STRIKE RATIO"        1462  NULL        PRICE              17  REAL64           9
 !
-! The strike ratio is the number of equity shares per warrant.
+! Strike Ratio. The number of underlying instruments per warrant.
 !
 INC_DIFF   "INCM DIFFERENTL"     1463  NULL        PRICE              17  REAL64           9
 !
@@ -11631,7 +11630,7 @@ INFL_ACCR  "INFLATION ACCRUAL"   4395  NULL        PRICE              17  REAL64
 !
 PRICE_METH "PRICING METHOD"      4396  NULL        ENUMERATED    3 ( 3 )  ENUM             1
 !
-! Price Method. How a bond is quoted. e.g. price, yield, discount, spread, volatility
+! Price method of the trade and quote fields, e.g., TRDPRC_1 #6, BID #22, ASK #25.
 !
 REAL_YLDA  "ASK REAL YIELD"      4397  NULL        PRICE              17  REAL64           9
 !
@@ -13255,7 +13254,7 @@ SPONSOR    "SPONSOR"             4989  NULL        ALPHANUMERIC       30  RMTES_
 !
 MID_PRICE1 "MID-PRICE 1"         4990  MID_PRICE2  PRICE              17  REAL64           9
 !
-! The mid-price between the BID(#22) and ASK(#25) prices.
+! The mid value between the BID (#22) and the ASK (#25).
 !
 FRNTRD_PRC "FRN TRADE PRICE"     5001  NULL        PRICE              17  REAL64           9
 !
@@ -17317,7 +17316,7 @@ METADATA5  "METADATA 5"          6393  NULL        ALPHANUMERIC      255  RMTES_
 !
 DDS_DSO_ID "DDS DSO ID"          6401  NULL        BINARY              3  UINT64           2
 !
-! Elektron (DDS) equivalent of the IDN FID DSO_ID. Has its own set of values.
+! Refinitiv Real-Time equivalent of the IDN FID DSO_ID. Has its own set of values.
 !
 BR_PNAC    "BR PNAC"             6402  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -19553,7 +19552,7 @@ MN_LIQM_OZ "MIN LIQ MKER ORD"    7059  NULL        INTEGER            15   INT64
 !
 CD_NAK_REJ "CONTRB NAK FID"      7060  NULL        INTEGER            15   INT64           8
 !
-! Elektron Contributions NAK FID
+! Refinitiv Real-Time Contributions NAK FID
 !
 DUDT_MAXLA "DUDT MAX LATENCY"    7061  NULL        INTEGER            15   INT64           8
 !
@@ -19920,10 +19919,22 @@ WEEK_NUM   "WEEK NUMBER"         7162  NULL        INTEGER            15   INT64
 !
 ! Week Number - The time-period the reference price is valid for.
 !
-PRE_INT284 "PRED INTEGER 284"    7163  NULL        INTEGER            15   INT64           8
-PRE_INT285 "PRED INTEGER 285"    7164  NULL        INTEGER            15   INT64           8
-PRE_INT286 "PRED INTEGER 286"    7165  NULL        INTEGER            15   INT64           8
-PRE_INT287 "PRED INTEGER 287"    7166  NULL        INTEGER            15   INT64           8
+NO_ASK_MOC "NUM ASK ORDER MOC"   7163  NULL        INTEGER            15   INT64           8
+!
+! Number of Market-on-Close (MOC) orders on the ASK side of the book.
+!
+NO_BID_MOC "NUM BID ORDER MOC"   7164  NULL        INTEGER            15   INT64           8
+!
+! Number of Market-on-Close (MOC) orders on the BID side of the book.
+!
+SESSION_ID "SESSION ID"          7165  NULL        INTEGER            15   INT64           8
+!
+! Code to indicate the current session of an instrument.
+!
+TRD_SES_ID "TRD SESSION ID"      7166  NULL        INTEGER            15   INT64           8
+!
+! Session ID field for the last eligible trades.
+!
 PRE_INT288 "PRED INTEGER 288"    7167  NULL        INTEGER            15   INT64           8
 PRE_INT289 "PRED INTEGER 289"    7168  NULL        INTEGER            15   INT64           8
 PRE_INT290 "PRED INTEGER 290"    7169  NULL        INTEGER            15   INT64           8
@@ -23683,7 +23694,7 @@ PR_TRD_RIC "PRIM TRD RIC"        8310  NULL        ALPHANUMERIC       32  ASCII_
 !
 BCASTREF32 "BROADCAST REF32"     8311  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
-! Contains the "primary RIC" used for accessing News
+! Contains the "primary RIC" and/or relevant topic codes used for accessing News.
 !
 EXCHCODE_2 "EXCHANGE CODE 2"     8312  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 !
@@ -26712,10 +26723,22 @@ NAVTRD_DT  "NAV TRD DT"          9374  NULL        DATE               11  DATE  
 !
 ! Date of last NAV trade.
 !
-PRE_DT264  "PRED DATE 264"       9375  NULL        DATE               11  DATE             4
-PRE_DT265  "PRED DATE 265"       9376  NULL        DATE               11  DATE             4
-PRE_DT266  "PRED DATE 266"       9377  NULL        DATE               11  DATE             4
-PRE_DT267  "PRED DATE 267"       9378  NULL        DATE               11  DATE             4
+SH_POS_DT  "SHORT POS DATE"      9375  NULL        DATE               11  DATE             4
+!
+! Short Interest Position Date.
+!
+REFPRC_DT3 "REF PRICE DATE 3"    9376  NULL        DATE               11  DATE             4
+!
+! Third Reference Price Date.
+!
+LEG4_SETDT "LEG4 SETLMENT DT"    9377  NULL        DATE               11  DATE             4
+!
+! Settlement Date - Leg 4.
+!
+OBSV_DATE  "OBSERVATION DATE"    9378  NULL        DATE               11  DATE             4
+!
+! Observation Date.
+!
 PRE_DT268  "PRED DATE 268"       9379  NULL        DATE               11  DATE             4
 PRE_DT269  "PRED DATE 269"       9380  NULL        DATE               11  DATE             4
 PRE_DT270  "PRED DATE 270"       9381  NULL        DATE               11  DATE             4
@@ -30804,81 +30827,308 @@ ASIZ10_DEC "ASK SIZE 10 DEC"    10844  NULL        PRICE              17  REAL64
 !
 ! Decimal ask size field associated with the fields BEST_ASKn.
 !
-PRERL1854  "PRED REAL 1854"     10845  NULL        PRICE              17  REAL64           9
-PRERL1855  "PRED REAL 1855"     10846  NULL        PRICE              17  REAL64           9
-PRERL1856  "PRED REAL 1856"     10847  NULL        PRICE              17  REAL64           9
-PRERL1857  "PRED REAL 1857"     10848  NULL        PRICE              17  REAL64           9
-PRERL1858  "PRED REAL 1858"     10849  NULL        PRICE              17  REAL64           9
-PRERL1859  "PRED REAL 1859"     10850  NULL        PRICE              17  REAL64           9
-PRERL1860  "PRED REAL 1860"     10851  NULL        PRICE              17  REAL64           9
-PRERL1861  "PRED REAL 1861"     10852  NULL        PRICE              17  REAL64           9
-PRERL1862  "PRED REAL 1862"     10853  NULL        PRICE              17  REAL64           9
-PRERL1863  "PRED REAL 1863"     10854  NULL        PRICE              17  REAL64           9
-PRERL1864  "PRED REAL 1864"     10855  NULL        PRICE              17  REAL64           9
-PRERL1865  "PRED REAL 1865"     10856  NULL        PRICE              17  REAL64           9
-PRERL1866  "PRED REAL 1866"     10857  NULL        PRICE              17  REAL64           9
-PRERL1867  "PRED REAL 1867"     10858  NULL        PRICE              17  REAL64           9
-PRERL1868  "PRED REAL 1868"     10859  NULL        PRICE              17  REAL64           9
-PRERL1869  "PRED REAL 1869"     10860  NULL        PRICE              17  REAL64           9
-PRERL1870  "PRED REAL 1870"     10861  NULL        PRICE              17  REAL64           9
-PRERL1871  "PRED REAL 1871"     10862  NULL        PRICE              17  REAL64           9
-PRERL1872  "PRED REAL 1872"     10863  NULL        PRICE              17  REAL64           9
-PRERL1873  "PRED REAL 1873"     10864  NULL        PRICE              17  REAL64           9
-PRERL1874  "PRED REAL 1874"     10865  NULL        PRICE              17  REAL64           9
-PRERL1875  "PRED REAL 1875"     10866  NULL        PRICE              17  REAL64           9
-PRERL1876  "PRED REAL 1876"     10867  NULL        PRICE              17  REAL64           9
-PRERL1877  "PRED REAL 1877"     10868  NULL        PRICE              17  REAL64           9
-PRERL1878  "PRED REAL 1878"     10869  NULL        PRICE              17  REAL64           9
-PRERL1879  "PRED REAL 1879"     10870  NULL        PRICE              17  REAL64           9
-PRERL1880  "PRED REAL 1880"     10871  NULL        PRICE              17  REAL64           9
-PRERL1881  "PRED REAL 1881"     10872  NULL        PRICE              17  REAL64           9
-PRERL1882  "PRED REAL 1882"     10873  NULL        PRICE              17  REAL64           9
-PRERL1883  "PRED REAL 1883"     10874  NULL        PRICE              17  REAL64           9
-PRERL1884  "PRED REAL 1884"     10875  NULL        PRICE              17  REAL64           9
-PRERL1885  "PRED REAL 1885"     10876  NULL        PRICE              17  REAL64           9
-PRERL1886  "PRED REAL 1886"     10877  NULL        PRICE              17  REAL64           9
-PRERL1887  "PRED REAL 1887"     10878  NULL        PRICE              17  REAL64           9
-PRERL1888  "PRED REAL 1888"     10879  NULL        PRICE              17  REAL64           9
-PRERL1889  "PRED REAL 1889"     10880  NULL        PRICE              17  REAL64           9
-PRERL1890  "PRED REAL 1890"     10881  NULL        PRICE              17  REAL64           9
-PRERL1891  "PRED REAL 1891"     10882  NULL        PRICE              17  REAL64           9
-PRERL1892  "PRED REAL 1892"     10883  NULL        PRICE              17  REAL64           9
-PRERL1893  "PRED REAL 1893"     10884  NULL        PRICE              17  REAL64           9
-PRERL1894  "PRED REAL 1894"     10885  NULL        PRICE              17  REAL64           9
-PRERL1895  "PRED REAL 1895"     10886  NULL        PRICE              17  REAL64           9
-PRERL1896  "PRED REAL 1896"     10887  NULL        PRICE              17  REAL64           9
-PRERL1897  "PRED REAL 1897"     10888  NULL        PRICE              17  REAL64           9
-PRERL1898  "PRED REAL 1898"     10889  NULL        PRICE              17  REAL64           9
-PRERL1899  "PRED REAL 1899"     10890  NULL        PRICE              17  REAL64           9
-PRERL1900  "PRED REAL 1900"     10891  NULL        PRICE              17  REAL64           9
-PRERL1901  "PRED REAL 1901"     10892  NULL        PRICE              17  REAL64           9
-PRERL1902  "PRED REAL 1902"     10893  NULL        PRICE              17  REAL64           9
-PRERL1903  "PRED REAL 1903"     10894  NULL        PRICE              17  REAL64           9
-PRERL1904  "PRED REAL 1904"     10895  NULL        PRICE              17  REAL64           9
-PRERL1905  "PRED REAL 1905"     10896  NULL        PRICE              17  REAL64           9
-PRERL1906  "PRED REAL 1906"     10897  NULL        PRICE              17  REAL64           9
-PRERL1907  "PRED REAL 1907"     10898  NULL        PRICE              17  REAL64           9
-PRERL1908  "PRED REAL 1908"     10899  NULL        PRICE              17  REAL64           9
-PRERL1909  "PRED REAL 1909"     10900  NULL        PRICE              17  REAL64           9
-PRERL1910  "PRED REAL 1910"     10901  NULL        PRICE              17  REAL64           9
-PRERL1911  "PRED REAL 1911"     10902  NULL        PRICE              17  REAL64           9
-PRERL1912  "PRED REAL 1912"     10903  NULL        PRICE              17  REAL64           9
-PRERL1913  "PRED REAL 1913"     10904  NULL        PRICE              17  REAL64           9
-PRERL1914  "PRED REAL 1914"     10905  NULL        PRICE              17  REAL64           9
-PRERL1915  "PRED REAL 1915"     10906  NULL        PRICE              17  REAL64           9
-PRERL1916  "PRED REAL 1916"     10907  NULL        PRICE              17  REAL64           9
-PRERL1917  "PRED REAL 1917"     10908  NULL        PRICE              17  REAL64           9
-PRERL1918  "PRED REAL 1918"     10909  NULL        PRICE              17  REAL64           9
-PRERL1919  "PRED REAL 1919"     10910  NULL        PRICE              17  REAL64           9
-PRERL1920  "PRED REAL 1920"     10911  NULL        PRICE              17  REAL64           9
-PRERL1921  "PRED REAL 1921"     10912  NULL        PRICE              17  REAL64           9
-PRERL1922  "PRED REAL 1922"     10913  NULL        PRICE              17  REAL64           9
-PRERL1923  "PRED REAL 1923"     10914  NULL        PRICE              17  REAL64           9
-PRERL1924  "PRED REAL 1924"     10915  NULL        PRICE              17  REAL64           9
-PRERL1925  "PRED REAL 1925"     10916  NULL        PRICE              17  REAL64           9
-PRERL1926  "PRED REAL 1926"     10917  NULL        PRICE              17  REAL64           9
-PRERL1927  "PRED REAL 1927"     10918  NULL        PRICE              17  REAL64           9
-PRERL1928  "PRED REAL 1928"     10919  NULL        PRICE              17  REAL64           9
+INIT_MRN_S "INIT MARGIN SCTR"   10845  NULL        PRICE              17  REAL64           9
+!
+! Speculator Initial Margin.
+!
+INIT_MRN_H "INIT MARGIN HEDG"   10846  NULL        PRICE              17  REAL64           9
+!
+! Hedge Initial Margin.
+!
+MRN_MAINTN "MAINTN MARGIN"      10847  NULL        PRICE              17  REAL64           9
+!
+! Maintenance Margin.
+!
+LEG4_CPN   "LEG4 COUPON RATE"   10848  NULL        PRICE              17  REAL64           9
+!
+! Coupon Rate - Leg 4.
+!
+ANA_BIDPRC "ANALYTICS BID PRC"  10849  NULL        PRICE              17  REAL64           9
+!
+! Analytic Bid Price.
+!
+ANA_ASKPRC "ANALYTICS ASK PRC"  10850  NULL        PRICE              17  REAL64           9
+!
+! Analytic Ask Price.
+!
+ANA_MIDPRC "ANALYTICS MID PRC"  10851  NULL        PRICE              17  REAL64           9
+!
+! Analytic Mid Price.
+!
+ANA_TRDPRC "ANALYTICS TRD PRC"  10852  NULL        PRICE              17  REAL64           9
+!
+! Analytic Trade Price.
+!
+DELTA_MID  "MID DELTA"          10853  NULL        PRICE              17  REAL64           9
+!
+! Mid Delta.
+!
+GAMMA_MID  "MID GAMMA"          10854  NULL        PRICE              17  REAL64           9
+!
+! Mid Gamma.
+!
+THETA_MID  "MID THETA"          10855  NULL        PRICE              17  REAL64           9
+!
+! Mid Theta.
+!
+VEGA_MID   "MID VEGA"           10856  NULL        PRICE              17  REAL64           9
+!
+! Mid Vega.
+!
+RHO_MID    "MID RHO"            10857  NULL        PRICE              17  REAL64           9
+!
+! Mid Rho.
+!
+PCR_OI     "PUTCALL RTO OI"     10858  NULL        PRICE              17  REAL64           9
+!
+! Put Call Ratio by Open Interest.
+!
+HST_PCR_OI "HST PUTCALL RTO OI" 10859  NULL        PRICE              17  REAL64           9
+!
+! Previous Day's Put Call Ratio by Open Interest.
+!
+PCR_OI_NC  "PUTCALL RTO OI NC"  10860  NULL        PRICE              17  REAL64           9
+!
+! Put Call Ratio by Open Interest Net Change.
+!
+PCR_VL_NC  "PUTCALL RTIO VL NC" 10861  NULL        PRICE              17  REAL64           9
+!
+! Put Call Ratio by Volume Net Change.
+!
+C_OPINT_1  "CALL OPINT"         10862  NULL        PRICE              17  REAL64           9
+!
+! Total Call Open Interest.
+!
+C_OPINT_NC "CALL OPINT NETCHNG" 10863  NULL        PRICE              17  REAL64           9
+!
+! Total Call Open Interest Net Change.
+!
+P_OPINT_1  "PUT OPINT"          10864  NULL        PRICE              17  REAL64           9
+!
+! Total Put Open Interest.
+!
+P_OPINT_NC "PUT OPINT NETCHNG"  10865  NULL        PRICE              17  REAL64           9
+!
+! Total Put Open Interest Net Change.
+!
+PCVMA_5D   "PC VOL RTO MA 5D"   10866  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Put-Call Volume Ratio Moving Average.
+!
+PCVMA_10D  "PC VOL RTO MA 10D"  10867  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Put-Call Volume Ratio Moving Average.
+!
+PCVMA_20D  "PC VOL RTO MA 20D"  10868  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Put-Call Volume Ratio Moving Average.
+!
+PCVMA_50D  "PC VOL RTO MA 50D"  10869  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Put-Call Volume Ratio Moving Average.
+!
+PCOIMA_5D  "PC OI RTO MA 5D"    10870  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Put-Call Open Interest Ratio Moving Average.
+!
+PCOIMA_10D "PC OI RTO MA 10D"   10871  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Put-Call Open Interest Ratio Moving Average.
+!
+PCOIMA_20D "PC OI RTO MA 20D"   10872  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Put-Call Open Interest Ratio Moving Average.
+!
+PCOIMA_50D "PC OI RTO MA 50D"   10873  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Put-Call Open Interest Ratio Moving Average.
+!
+VMA_5D_P   "VMA 5D PUT"         10874  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Put Volume Moving Average.
+!
+VMA_10D_P  "VMA 10D PUT"        10875  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Put Volume Moving Average.
+!
+VMA_20D_P  "VMA 20D PUT"        10876  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Put Volume Moving Average.
+!
+VMA_50D_P  "VMA 50D PUT"        10877  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Put Volume Moving Average.
+!
+VMA_5D_C   "VMA 5D CALL"        10878  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Call Volume Moving Average.
+!
+VMA_10D_C  "VMA 10D CALL"       10879  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Call Volume Moving Average.
+!
+VMA_20D_C  "VMA 20D CALL"       10880  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Call Volume Moving Average.
+!
+VMA_50D_C  "VMA 50D CALL"       10881  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Call Volume Moving Average.
+!
+OIMA_P_5D  "OI MA 5D PUT"       10882  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Put Open Interest Moving Average.
+!
+OIMA_P_10D "OI MA 10D PUT"      10883  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Put Open Interest Moving Average.
+!
+OIMA_P_20D "OI MA 20D PUT"      10884  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Put Open Interest Moving Average.
+!
+OIMA_P_50D "OI MA 50D PUT"      10885  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Put Open Interest Moving Average.
+!
+OIMA_C_5D  "OI MA 5D CALL"      10886  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Call Open Interest Moving Average.
+!
+OIMA_C_10D "OI MA 10D CALL"     10887  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Call Open Interest Moving Average.
+!
+OIMA_C_20D "OI MA 20D CALL"     10888  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Call Open Interest Moving Average.
+!
+OIMA_C_50D "OI MA 50D CALL"     10889  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Call Open Interest Moving Average.
+!
+OIMA_5D    "OI MA 5D"           10890  NULL        PRICE              17  REAL64           9
+!
+! 5 Day Total Open Interest Moving Average.
+!
+OIMA_10D   "OI MA 10D"          10891  NULL        PRICE              17  REAL64           9
+!
+! 10 Day Total Open Interest Moving Average.
+!
+OIMA_20D   "OI MA 20D"          10892  NULL        PRICE              17  REAL64           9
+!
+! 20 Day Total Open Interest Moving Average.
+!
+OIMA_50D   "OI MA 50D"          10893  NULL        PRICE              17  REAL64           9
+!
+! 50 Day Total Open Interest Moving Average.
+!
+C_ACVOL_NC "CALL ACVOL NETCHNG" 10894  NULL        PRICE              17  REAL64           9
+!
+! Call options accumulated volume net change.
+!
+P_ACVOL_NC "PUT ACVOL NETCHNG"  10895  NULL        PRICE              17  REAL64           9
+!
+! Put options accumulated volume net change.
+!
+ACVOL_NC   "ACVOL NETCHNG"      10896  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Volume Net Change.
+!
+LSTTN_PAR  "LST TRD TNOV PAR"   10897  NULL        PRICE              17  REAL64           9
+!
+! Last trade turnover in par value.
+!
+BIDSZL1_2  "BID SIZE L1_2"      10898  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Bid Volume Level 1-2.
+!
+BIDSZL1_3  "BID SIZE L1_3"      10899  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Bid Volume Level 1-3.
+!
+BIDSZL1_4  "BID SIZE L1_4"      10900  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Bid Volume Level 1-4.
+!
+BIDSZL1_5  "BID SIZE L1_5"      10901  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Bid Volume Level 1-5.
+!
+ASKSZL1_2  "ASK SIZE L1_2"      10902  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Ask Volume Level 1-2.
+!
+ASKSZL1_3  "ASK SIZE L1_3"      10903  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Ask Volume Level 1-3.
+!
+ASKSZL1_4  "ASK SIZE L1_4"      10904  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Ask Volume Level 1-4.
+!
+ASKSZL1_5  "ASK SIZE L1_5"      10905  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Ask Volume Level 1-5.
+!
+WTDASZL1_2 "WTD ASK SZ L1_2"    10906  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Bid Volume Level 1-2.
+!
+WTDASZL1_3 "WTD ASK SZ L1_3"    10907  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Bid Volume Level 1-3.
+!
+WTDASZL1_4 "WTD ASK SZ L1_4"    10908  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Bid Volume Level 1-4.
+!
+WTDASZL1_5 "WTD ASK SZ L1_5"    10909  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Bid Volume Level 1-5.
+!
+WTDBDZL1_2 "WTD BID SZ L1_2"    10910  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Ask Volume Level 1-2.
+!
+WTDBDZL1_3 "WTD BID SZ L1_3"    10911  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Ask Volume Level 1-3.
+!
+WTDBDZL1_4 "WTD BID SZ L1_4"    10912  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Ask Volume Level 1-4.
+!
+WTDBDZL1_5 "WTD BID SZ L1_5"    10913  NULL        PRICE              17  REAL64           9
+!
+! Average Weighted Ask Volume Level 1-5.
+!
+FR_VA_LMT  "FRGN OWN LMT VAL"   10914  NULL        PRICE              17  REAL64           9
+!
+! Foreign ownership limit in nominal value.
+!
+FR_NVA_OWN "FRGN OWN NET VAL"   10915  NULL        PRICE              17  REAL64           9
+!
+! Net amount, in nominal value, of the instrument currently owned by foreign investors.
+!
+FR_VA_OWN  "FRGN OWN TTL VAL"   10916  NULL        PRICE              17  REAL64           9
+!
+! Total amount, in nominal value, of the instrument currently owned by foreign 
+! investors.
+!
+FR_VA_REM  "FRGN REM VAL"       10917  NULL        PRICE              17  REAL64           9
+!
+! Remaining amount, in nominal value, of the instrument available to foreign 
+! investors. 
+!
+FR_VA_UDRN "FRGN UNDRAWN VAL"   10918  NULL        PRICE              17  REAL64           9
+!
+! Undrawn amount of the instrument available for foreign investors. 
+!
+FR_UTL_PCT "FRGN UTIL PCT"      10919  NULL        PRICE              17  REAL64           9
+!
+! Utilised percentage of the total available foreign investment limit.
+!
 PRERL1929  "PRED REAL 1929"     10920  NULL        PRICE              17  REAL64           9
 PRERL1930  "PRED REAL 1930"     10921  NULL        PRICE              17  REAL64           9
 PRERL1931  "PRED REAL 1931"     10922  NULL        PRICE              17  REAL64           9
@@ -32254,9 +32504,18 @@ MBS_PL_NUM "MBS POOL NUM"       11880  NULL        ALPHANUMERIC       10  RMTES_
 !
 ! MBS Pool Number.
 !
-PRE_10T156 "PRED 10 TXT 156"    11881  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T157 "PRED 10 TXT 157"    11882  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T158 "PRED 10 TXT 158"    11883  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+OFBK_P_XID "OFFBK TRD PRC XID"  11881  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Trading System identifier code for off-book trades.
+!
+IRG_BUYID  "IRG BUYER ID"       11882  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the buy side of an ineligible trade
+!
+IRG_SELID  "IRG SELLER ID"      11883  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Code identifying the market participant on the sell side of an ineligible trade
+!
 PRE_10T159 "PRED 10 TXT 159"    11884  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T160 "PRED 10 TXT 160"    11885  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T161 "PRED 10 TXT 161"    11886  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -32424,7 +32683,10 @@ QTECCYI_TP "QTE CCY INT TYPE"   12005  NULL        ALPHANUMERIC       24  RMTES_
 !
 ! Quote Currency Interest Rate Type. 
 !
-PRE_24T079 "PRED 24 TXT 079"    12006  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+LEG4_CLA_N "LEG4 NAT INST CLA"  12006  NULL        ALPHANUMERIC       24  RMTES_STRING    24
+!
+! Native instrument classification code associated with Nth leg of a strategy.
+!
 PRE_24T080 "PRED 24 TXT 080"    12007  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T081 "PRED 24 TXT 081"    12008  NULL        ALPHANUMERIC       24  RMTES_STRING    24
 PRE_24T082 "PRED 24 TXT 082"    12009  NULL        ALPHANUMERIC       24  RMTES_STRING    24
@@ -33687,7 +33949,7 @@ BLKTRDP_UT "BLK TRD PRC PRE UT" 12847  NULL        ENUMERATED    3 ( 4 )  ENUM  
 !
 EP_SCO_CAT "EP SCORE CATEGORY"  12848  NULL        ENUMERATED    3 ( 6 )  ENUM             1
 !
-! Elektron Pulse Score Category
+! Refinitiv Real-Time Pulse Score Category.
 !
 RQT_ITM_NT "REQUEST ITEM NM TP" 12849  NULL        ENUMERATED    3 ( 5 )  ENUM             1
 !
@@ -35540,7 +35802,7 @@ RPT_BS_CCY "RPT BASE CURRENCY"  13586  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 RPT_P_METH "RPT PRC METHOD"     13587  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
-! Price method of instrument as reported in the trade or quote message
+! Price method of instrument as reported by the source.
 !
 PD_P_CCY   "PRVD TRD PRC CCY"   13588  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -37807,10 +38069,22 @@ NAVTRD_NS  "NAV TRD TM NS"      14678  NULL        INTEGER            15  TIME  
 !
 ! Time of last NAV trade.
 !
-PRE_249_NS "PRED TIME NS 249"   14679  NULL        INTEGER            15  TIME             8
-PRE_250_NS "PRED TIME NS 250"   14680  NULL        INTEGER            15  TIME             8
-PRE_251_NS "PRED TIME NS 251"   14681  NULL        INTEGER            15  TIME             8
-PRE_252_NS "PRED TIME NS 252"   14682  NULL        INTEGER            15  TIME             8
+ANA_BID_NS "ANALYTICS BID TIME" 14679  NULL        INTEGER            15  TIME             8
+!
+! Analytic Bid Time.
+!
+ANA_ASK_NS "ANALYTICS ASK TIME" 14680  NULL        INTEGER            15  TIME             8
+!
+! Analytic Ask Time.
+!
+ANA_MID_NS "ANALYTICS MID TIME" 14681  NULL        INTEGER            15  TIME             8
+!
+! Analytic Mid Time.
+!
+ANA_TRD_NS "ANALYTICS TRD TIME" 14682  NULL        INTEGER            15  TIME             8
+!
+! Analytic Trade Time.
+!
 PRE_253_NS "PRED TIME NS 253"   14683  NULL        INTEGER            15  TIME             8
 PRE_254_NS "PRED TIME NS 254"   14684  NULL        INTEGER            15  TIME             8
 PRE_255_NS "PRED TIME NS 255"   14685  NULL        INTEGER            15  TIME             8
@@ -39758,7 +40032,10 @@ MAS_ID     "MAS ID"             32495  NULL        INTEGER            15  UINT64
 !
 ! Markets Attributable Source ID.
 !
-PR_UINT018 "PRED UNS INT 018"   32496  NULL        INTEGER            15  UINT64           8
+TAC_ACVOL  "TRD AT CLS ACVOL"   32496  NULL        INTEGER            15  UINT64           8
+!
+! Trading-at-close (price) accumulated volume.
+!
 PR_UINT019 "PRED UNS INT 019"   32497  NULL        INTEGER            15  UINT64           8
 PR_UINT020 "PRED UNS INT 020"   32498  NULL        INTEGER            15  UINT64           8
 PR_UINT021 "PRED UNS INT 021"   32499  NULL        INTEGER            15  UINT64           8
@@ -39998,12 +40275,30 @@ WADJ_ACVOL "WEIGHT ADJ ACVOL"   32602  NULL        PRICE              17  REAL64
 !
 ! Weight-adjusted accumulated volume
 !
-PRE_LRL045 "PRED LRG REAL 045"  32603  NULL        PRICE              17  REAL64           9
-PRE_LRL046 "PRED LRG REAL 046"  32604  NULL        PRICE              17  REAL64           9
-PRE_LRL047 "PRED LRG REAL 047"  32605  NULL        PRICE              17  REAL64           9
-PRE_LRL048 "PRED LRG REAL 048"  32606  NULL        PRICE              17  REAL64           9
-PRE_LRL049 "PRED LRG REAL 049"  32607  NULL        PRICE              17  REAL64           9
-PRE_LRL050 "PRED LRG REAL 050"  32608  NULL        PRICE              17  REAL64           9
+TOTBVL_DEC "TOT BUY VOL DEC"    32603  NULL        PRICE              17  REAL64           9
+!
+! Total buy volume. With decimals.
+!
+TOTSVL_DEC "TOT SEL VOL DEC"    32604  NULL        PRICE              17  REAL64           9
+!
+! Total sell volume. With decimals.
+!
+ACVL_USETL "UNSETTLED ACVOL"    32605  NULL        PRICE              17  REAL64           9
+!
+! Accumulated Unsettled Volume.
+!
+CSBD_ACVOL "CROSS BORDER ACVOL" 32606  NULL        PRICE              17  REAL64           9
+!
+! Cross Border Accumulated Volume.
+!
+LCAL_ACVOL "LOCAL ACVOL"        32607  NULL        PRICE              17  REAL64           9
+!
+! Local Accumulated Volume.
+!
+TAC_TNOV   "TRD AT CLS TNOV"    32608  NULL        PRICE              17  REAL64           9
+!
+! Trading-at-close (price) turnover.
+!
 PRE_LRL051 "PRED LRG REAL 051"  32609  NULL        PRICE              17  REAL64           9
 PRE_LRL052 "PRED LRG REAL 052"  32610  NULL        PRICE              17  REAL64           9
 PRE_LRL053 "PRED LRG REAL 053"  32611  NULL        PRICE              17  REAL64           9
@@ -40409,9 +40704,9 @@ CD_DELETE  "CD_DELETE"          32755  NULL        INTEGER            10  UINT64
 !
 CD_DENYRSN "CD_DENYRSN"         32756  NULL        INTEGER            10  UINT64           8
 !
-! When an application receives a NAK code of RSSL_NAKC_DENIED_BY_SRC (UPA) or 
+! When an application receives a NAK code of RSSL_NAKC_DENIED_BY_SRC (ETA) or 
 ! NackCode::DeniedBySrc (RFA) this field carries a reason code. This code indicates 
-! why the CSG denied the contribution.  See Appendix C
+! why the CSG denied the contribution. See Appendix C
 !
 CD_ACKSTS  "CD_ACKSTS"          32757  NULL        INTEGER            10  UINT64           8
 !
