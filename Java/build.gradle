@@ -167,6 +167,7 @@ task uploadAll ( ) {
 		dependsOn ':Eta:Core:uploadArchives'
 		dependsOn ':Eta:ValueAdd:uploadArchives'
 		dependsOn ':Eta:ValueAddCache:uploadArchives'
+		dependsOn ':Eta:Converter:uploadArchives'
 		dependsOn ':Ema:Core:uploadArchives'
 	}
 	else
