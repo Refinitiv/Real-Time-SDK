@@ -7,9 +7,9 @@ import com.refinitiv.eta.transport.TransportBuffer;
 public interface JsonConverter {
 
     /**
-     * parses the JSON contained in the Buffer provided and stores the parsed JSON internally until {@see decodeJsonMsg()} method is called;
-     * in case two subsequent calls to this method are performed without calling {@see decodeJsonMsg()} between them,
-     * messages obtained after the last call to parseJsonMsg will be stored internally and retrieved when {@see decodeJsonMsg()} is called
+     * parses the JSON contained in the Buffer provided and stores the parsed JSON internally until {@link decodeJsonMsg} method is called;
+     * in case two subsequent calls to this method are performed without calling {@link decodeJsonMsg} between them,
+     * messages obtained after the last call to parseJsonMsg will be stored internally and retrieved when {@link decodeJsonMsg} is called
      *
      * @param inBuffer buffer that holds the JSON that contains one message or an array of messages to be transformed to RWF format
      * @param options options to be applied during parsing
@@ -19,9 +19,9 @@ public interface JsonConverter {
     int parseJsonBuffer(Buffer inBuffer, ParseJsonOptions options, JsonConverterError error);
 
     /**
-     * parses the JSON contained in the TransportBuffer provided and stores the parsed JSON internally until {@see decodeJsonMsg()} method is called;
-     * in case two subsequent calls to this method are performed without calling {@see decodeJsonMsg()} between them,
-     * messages obtained after the last call to parseJsonMsg will be stored internally and retrieved when {@see decodeJsonMsg()} is called
+     * parses the JSON contained in the TransportBuffer provided and stores the parsed JSON internally until {@link decodeJsonMsg} method is called;
+     * in case two subsequent calls to this method are performed without calling {@link decodeJsonMsg} between them,
+     * messages obtained after the last call to parseJsonMsg will be stored internally and retrieved when {@link decodeJsonMsg} is called
      *
      * @param inBuffer transport buffer that holds the JSON that contains one message or an array of messages to be transformed to RWF format
      * @param options options to be applied during parsing
@@ -32,14 +32,14 @@ public interface JsonConverter {
 
     /**
      * transforms the parsed JSON message to RWF format and encodes it to the provided outRwfBuffer;
-     * in case the input JSON parsed by {@see parseJsonBuffer()} method contained an array of messages,
+     * in case the input JSON parsed by {@link parseJsonBuffer} method contained an array of messages,
      * transforms the next available message and encodes it into the supplied outRwfBuffer
      *
      * @param jsonMsg JSON message object to which the incoming buffer data is decoded and output RWF message is encoded
      * @param options options applied during decoding
      * @param error in case of decoding FAILURE carries information about error that has occurred
-     * @return CodecReturnCodes.SUCCESS in case of successful JSON -> RWF transformation when there are more messages to be transformed
-     * (if an array of messages was supplied to {@see parseJsonBuffer()} method),
+     * @return CodecReturnCodes.SUCCESS in case of successful JSON to RWF transformation when there are more messages to be transformed
+     * (if an array of messages was supplied to {@link parseJsonBuffer} method),
      * CodecReturnCodes.END_OF_CONTAINER in case all messages were transformed successfully and there are no more messages waiting for the conversion,
      * CodecReturnCodes.FAILURE in case transformation of the current message failed
      */
@@ -47,7 +47,7 @@ public interface JsonConverter {
 
 
     /**
-     * converts the inMsg supplied to JSON format and stores the converted message internally until {@see getJsonBuffer()} method is called
+     * converts the inMsg supplied to JSON format and stores the converted message internally until {@link getJsonBuffer} method is called
      *
      * @param inMsg message in RWF format to be converted to JSON format
      * @param options options that are going to be used during transformation
@@ -58,7 +58,7 @@ public interface JsonConverter {
     int convertRWFToJson(Msg inMsg, RWFToJsonOptions options, ConversionResults outResults, JsonConverterError error);
 
     /**
-     * converts the inMsg supplied to JSON format and stores the converted message internally until {@see getJsonBuffer()} method is called
+     * converts the inMsg supplied to JSON format and stores the converted message internally until {@link getJsonBuffer} method is called
      *
      * @param inMsg message in RWF format to be converted to JSON format
      * @param options options that are going to be used during transformation
@@ -68,11 +68,11 @@ public interface JsonConverter {
     int convertRWFToJson(Msg inMsg, RWFToJsonOptions options, JsonConverterError error);
 
     /**
-     * fetches the converted JSON message that is currently stored internally by the converter after the call to {@see convertRWFToJson()} method
+     * fetches the converted JSON message that is currently stored internally by the converter after the call to {@link convertRWFToJson} method
      *
      * @param buffer Buffer that holds the output Json message
      * @param options options used to fetch the JSON message; in case the streamID provided in the original message should be replaced by another
-     *                value, {@see GetJsonMsgOptions.streamId} should be set to this other value, in case this field is left null, the streamId
+     *                value, {@link GetJsonMsgOptions#streamId} should be set to this other value, in case this field is left null, the streamId
      *                in the output JSON message will not be altered
      * @param error in case of conversion FAILURE carries information about error that has occurred
      * @return CodecReturnCodes.SUCCESS in case of successful conversion, CodecReturnCodes.FAILURE otherwise
@@ -80,7 +80,7 @@ public interface JsonConverter {
     int getJsonBuffer(Buffer buffer, GetJsonMsgOptions options, JsonConverterError error);
 
     /**
-     * fetches the converted JSON message that is currently stored internally by the converter after the call to {@see convertRWFToJson()} method
+     * fetches the converted JSON message that is currently stored internally by the converter after the call to {@link convertRWFToJson} method
      *
      * @param buffer TransportBuffer that holds the output Json message
      * @param options options used to fetch the JSON message
@@ -90,8 +90,8 @@ public interface JsonConverter {
     int getJsonBuffer(TransportBuffer buffer, GetJsonMsgOptions options, JsonConverterError error);
 
     /**
-     * in case of failed JSON -> RWF conversion, prepares an error message based on the original JSON message received
-     * and error information obtained from the call to {@see decodeJsonMsg}
+     * in case of failed JSON to RWF conversion, prepares an error message based on the original JSON message received
+     * and error information obtained from the call to {@link decodeJsonMsg}
      *
      * @param outBuffer the Buffer that contains the resulting error message
      * @param params parameters used to prepare JSON error message

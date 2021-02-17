@@ -615,7 +615,7 @@ public interface BindOptions
 
     /**
      * Encrypted configuration options. This is only active if the connection type is set to {@link ConnectionTypes#ENCRYPTED}.
-     * @return
+     * @return the Server Encryption Options
      */
     public ServerEncryptionOptions encryptionOptions();
 
