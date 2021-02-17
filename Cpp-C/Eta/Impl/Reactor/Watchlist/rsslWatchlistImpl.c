@@ -327,7 +327,8 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 					}
 
 					/* Send empty response when either service name or service ID is not found. */
-					if (serviceList.serviceCount == 0)
+					/* ... and service cache is not empty. */
+					if (serviceList.serviceCount == 0 && pWatchlistImpl->base.pServiceCache->_serviceList.count > 0)
 					{
 						wlSendServiceListToRequest(&pWatchlistImpl->base, &pWatchlistImpl->directory,
 							pDirectoryRequest, NULL, 0,
