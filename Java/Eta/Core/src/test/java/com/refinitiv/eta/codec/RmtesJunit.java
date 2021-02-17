@@ -19,8 +19,6 @@ import org.junit.Test;
 
 import com.refinitiv.eta.codec.CharSet.RmtesWorkingSet;
 
-import javax.xml.bind.DatatypeConverter;
-
 public class RmtesJunit
 {
 
