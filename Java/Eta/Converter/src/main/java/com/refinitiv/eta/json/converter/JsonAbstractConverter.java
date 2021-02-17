@@ -65,7 +65,7 @@ public abstract class JsonAbstractConverter implements JsonConverter {
     int serviceNameToId(String serviceName, JsonConverterError error) {
        if (serviceNameIdConverter == null) {
            error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "ServiceNameToId callback was not configured, cannot get id for service '" + serviceName + "'");
-           return 0; //return 0 to match serviceId range 0-65535
+           return -1; // return -1 to indicate invalid service ID
        }
 
        return serviceNameIdConverter.serviceNameToId(serviceName, error);

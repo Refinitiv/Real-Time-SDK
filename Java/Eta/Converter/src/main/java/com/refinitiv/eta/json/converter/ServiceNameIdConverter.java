@@ -9,7 +9,7 @@ public interface ServiceNameIdConverter {
      * Converts the given service name to id
      * @param serviceName service name to be converted
      * @param error {@link JsonConverterError} instance that carries error information in case of failed conversion
-     * @return the id corresponding to the provided service name
+     * @return the id corresponding to the provided service name; otherwise -1 to indicate service ID not found.
      */
     int serviceNameToId(String serviceName, JsonConverterError error);
 
@@ -17,7 +17,7 @@ public interface ServiceNameIdConverter {
      * Converts the given service id to service name
      * @param id service id to be converted
      * @param error {@link JsonConverterError} instance that carries error information in case of failed conversion
-     * @return service name corresponding to the provided service id
+     * @return service name corresponding to the provided service id; otherwise null to indicate service name not found.
      */
-    String serviceIdToName(int id, JsonConverterError error);
+    default String serviceIdToName(int id, JsonConverterError error) { return null;}
 }

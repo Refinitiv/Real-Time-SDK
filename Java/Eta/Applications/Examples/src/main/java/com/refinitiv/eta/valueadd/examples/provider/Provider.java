@@ -884,9 +884,13 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
     public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId,
                                               ReactorServiceNameToIdEvent serviceNameToIdEvent)
     {
-        serviceNameToId.serviceId(serviceId);
+    	if(directoryHandler.serviceName().equals(serviceNameToId.serviceName()))
+    	{
+    		serviceNameToId.serviceId(directoryHandler.serviceId());
+    		return ReactorReturnCodes.SUCCESS;
+    	}
 
-        return ReactorReturnCodes.SUCCESS;
+        return ReactorReturnCodes.FAILURE;
     }
 
     /*

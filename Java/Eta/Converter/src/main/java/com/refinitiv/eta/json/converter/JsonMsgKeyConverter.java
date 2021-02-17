@@ -81,11 +81,35 @@ class JsonMsgKeyConverter extends AbstractRsslMessageChunkTypeConverter {
                     if (error.isFailed())
                         break;
 
-                    msgKey.applyHasServiceId();
+                    int serviceId = -1; // indicate unknown service ID
                     if (currentNode.isTextual())
-                        msgKey.serviceId(converter.serviceNameToId(getText(currentNode, key, error), error));
+                    {
+                    	serviceId = converter.serviceNameToId(getText(currentNode, key, error), error);
+                    	
+                    	 if(serviceId == -1)
+                    	 {
+                    		if(!error.isFailed()) // Checks whether a failure is set.
+                    		{
+                    			error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "token: " + key + " , failed to find appropriate service ID");
+                    		}
+                    		
+                    		return;
+                    	 }
+                    }
                     else
-                        msgKey.serviceId(getInt(currentNode, key, error));
+                    {
+                    	serviceId = getInt(currentNode, key, error);
+                    }
+                   
+                    // Valid service ID range is between 0 and 65535
+                    if(serviceId < 0)
+                    {
+                	error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "token: " + key + " , invalid service ID " + serviceId);
+                	return;
+                    }
+                    
+                    msgKey.serviceId(serviceId);
+               	    msgKey.applyHasServiceId();
                     
                     break;
                 default:
