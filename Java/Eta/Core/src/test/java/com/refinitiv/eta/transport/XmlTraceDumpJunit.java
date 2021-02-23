@@ -14,7 +14,7 @@ public class XmlTraceDumpJunit {
     private static final int TEST_BUFFER_SIZE = 512;
 
     private static final String PREFIX = "\nTest Ongoing Msg\n";
-    private static final String RWF_MSG_DUMP_LINE = "<Close domainType=\"0\" streamId=\"0\" containerType=\"NO_DATA\" flags=\"0x01 (HAS_EXTENDED_HEADER)\" dataSize=\"0\">";
+    private static final String RWF_MSG_DUMP_LINE = "<CLOSE domainType=\"0\" streamId=\"0\" containerType=\"NO_DATA\" flags=\"0x01 (HAS_EXTENDED_HEADER)\" dataSize=\"0\">";
     private static final String JSON_MSG = "{\"key1\": \"value\", \"name\": \"ok\", \"flag\": true}";
     private static final String EXPECTED_JSON_DUMP = PREFIX + JSON_MSG;
 
@@ -83,7 +83,7 @@ public class XmlTraceDumpJunit {
 
     @Test
     public void testTraceDumpCodecForRwfProtocol() {
-        final String expectedLine = "<Close domainType=\"0\" streamId=\"0\" containerType=\"NO_DATA\" flags=\"0x01 (HAS_EXTENDED_HEADER)\" dataSize=\"0\">";
+        final String expectedLine = "<CLOSE domainType=\"0\" streamId=\"0\" containerType=\"NO_DATA\" flags=\"0x01 (HAS_EXTENDED_HEADER)\" dataSize=\"0\">";
         final Error error = TransportFactory.createError();
         Transport._globalLock = new DummyLock();
         final RsslSocketChannel channel = new RsslSocketChannel(ConnectionTypes.SOCKET, Codec.RWF_PROTOCOL_TYPE);
