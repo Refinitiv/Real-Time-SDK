@@ -39,13 +39,13 @@ public interface WSocketOpts
 
 	/**
 	 * Apply callback function for accessing to WS Handshake request and response.
-	 * @param httpCallback
+	 * @param httpCallback the callback function
 	 */
 	void httpCallback(HttpCallback httpCallback);
 
 	/**
-	 * Apply callback function for accessing to WS handshake request and response.
-	 * @return
+	 * The callback function for accessing to WS handshake request and response.
+	 * @return the callback function
 	 */
 	HttpCallback httpCallback();
 

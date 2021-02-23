@@ -86,6 +86,7 @@ public class ProviderSession
     /**
      * Initializes etaj transport and binds the server to a local port.
      *
+     * @param converterInitOptions JSON Converter options
      * @param globalLock flag to enable global locking on ETA Transport
      * @param error Error information when init fails.
      *

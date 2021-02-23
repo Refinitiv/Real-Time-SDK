@@ -320,13 +320,19 @@ class ReactorTokenSession implements RestCallback
     	
 		try
 		{
-			/* Don't send token reissue request when there is no channel for this session. */
-			if(_reactorChannelList.size() == 0)
+			/* Don't send token reissue request when there is no channel for this session or this Reactor is shutting down. */
+			if(_reactorChannelList.size() == 0 || _reactor.isShutdown())
 				return;
 		}
 		finally
 		{
 			_reactorChannelListLock.unlock();
+		}
+		
+		/* Changes the state to use the password grant as the previous request has been canceled. */
+		if(_sessionState == SessionState.REQ_AUTH_TOKEN_USING_PASSWORD)
+		{
+			_sessionState = SessionState.AUTHENTICATE_USING_PASSWD_GRANT;
 		}
 		
 		if (_sessionState == SessionState.REQUEST_TOKEN_FAILURE || _sessionState == SessionState.AUTHENTICATE_USING_PASSWD_GRANT)
@@ -392,11 +398,20 @@ class ReactorTokenSession implements RestCallback
 	@Override
 	public int RestResponseCallback(RestResponse response, RestEvent event) 
 	{
-		lock();
+		/* Do nothing as the Reactor is shutting down.*/
+		if(_reactor.isShutdown())
+			return ReactorReturnCodes.SUCCESS;
 		
-		parseTokenInfomation(response, _authTokenInfo);
+		try
+		{
+			lock();
 		
-		unlock();
+			parseTokenInfomation(response, _authTokenInfo);
+		}
+		finally
+		{
+			unlock();
+		}
 		
 		switch (event.eventType())
 		{
@@ -521,7 +536,7 @@ class ReactorTokenSession implements RestCallback
 				/* Stop retrying for the HTTP 403 and 451 status codes */
 				if (event.eventType() != RestEventTypes.STOPPED)
 				{
-					if (handlesTokenReissueFailed() )
+					if (handlesTokenReissueFailed())
 					{
 						_reactor.sendAuthTokenWorkerEvent(this);
 					}
@@ -540,7 +555,11 @@ class ReactorTokenSession implements RestCallback
 
 	@Override
 	public int RestErrorCallback(RestEvent event, String errorText)
-	{		
+	{	
+		/* Do nothing as the Reactor is shutting down.*/
+		if(_reactor.isShutdown())
+			return ReactorReturnCodes.SUCCESS;
+		
 		/* Iterates through the ReactorChannel list */
 		_reactorChannelListLock.lock();
 		

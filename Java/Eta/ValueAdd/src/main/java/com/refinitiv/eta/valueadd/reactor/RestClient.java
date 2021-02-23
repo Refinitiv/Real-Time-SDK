@@ -110,6 +110,11 @@ class RestClient implements Runnable, RestCallback {
 	public int RestResponseCallback(RestResponse response, RestEvent event)
 	{
 		ReactorChannel reactorChannel = (ReactorChannel)event.resultClosure().userSpecObj();
+		
+		/* Do nothing as the Reactor is shutting down.*/
+		if(reactorChannel.reactor().isShutdown())
+			return ReactorReturnCodes.SUCCESS;
+		
 		switch (event.eventType())
 		{
 		case RestEventTypes.COMPLETED:
@@ -176,6 +181,10 @@ class RestClient implements Runnable, RestCallback {
 	public int RestErrorCallback(RestEvent event, String errorText)
 	{
 		ReactorChannel reactorChannel = (ReactorChannel)event.resultClosure().userSpecObj();
+		
+		/* Do nothing as the Reactor is shutting down.*/
+		if(reactorChannel.reactor().isShutdown())
+			return ReactorReturnCodes.SUCCESS;
 		
 		RestReactor.populateErrorInfo(reactorChannel.getEDPErrorInfo(),
                 ReactorReturnCodes.FAILURE,

@@ -1120,7 +1120,8 @@ public class Reactor
 
         try
         {
-            if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE || tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST)
+            if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE || tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST
+            		|| tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_PASSWORD || tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN)
             {
                 return ReactorReturnCodes.SUCCESS;
             }
