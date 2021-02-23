@@ -245,7 +245,11 @@ class BasicPrimitiveConverter {
                 if (real.hint() - RealHints.FRACTION_1 > 0) {
                     long whole = value >> (real.hint() - RealHints.FRACTION_1);
                     int remainder = (int) (value & numerator_mask[real.hint() - RealHints.FRACTION_1]);
-                    return length + getLongLengthCompare(whole) + 1 + (real.hint() - RealHints.FRACTION_1 - Long.numberOfTrailingZeros(remainder)) + (asString ? 2 : 0);
+                    if(remainder == 0) {
+                    	return length + getLongLengthCompare(whole) + (asString? 2 : 0);
+                    } else {
+                    	return length + getLongLengthCompare(whole) + 1 + (real.hint() - RealHints.FRACTION_1 - Long.numberOfTrailingZeros(remainder)) + (asString ? 2 : 0);
+                    }
                 } else {
                     return length + getLongLengthCompare(value)  + (asString ? 2 : 0);
                 }
@@ -341,7 +345,7 @@ class BasicPrimitiveConverter {
                             value = nv;
                         }
                         buffer[end] = '.';
-                        writeLong(nv, longLength + exponent, start, buffer);
+                        writeLong(nv, end-start, start, buffer);
                     }
                     else {
                         buffer[start++] = '0';

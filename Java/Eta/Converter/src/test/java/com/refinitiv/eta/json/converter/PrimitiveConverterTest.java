@@ -30,6 +30,7 @@ public class PrimitiveConverterTest {
         EncodeIterator enc = CodecFactory.createEncodeIterator();
         DecodeIterator dec = CodecFactory.createDecodeIterator();
         UInt uInt = CodecFactory.createUInt();
+        Int integer = CodecFactory.createInt();
         Buffer buf = CodecFactory.createBuffer();
 
         //Test with 15
@@ -47,6 +48,23 @@ public class PrimitiveConverterTest {
         assertEquals('1', (char)jsonBuf.data[5]);
         assertEquals('5', (char)jsonBuf.data[6]);
         assertEquals(0, jsonBuf.data[7]);
+        
+      //Test with -15
+        buf.data(ByteBuffer.allocate(30));
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        integer.value(-15);
+        integer.encode(enc);
+        jsonBuf = new JsonBuffer();
+        jsonBuf.data = new byte[100];
+        jsonBuf.position = 5;
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.INT).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[4]);
+        assertEquals('-', jsonBuf.data[5]);
+        assertEquals('1', (char)jsonBuf.data[6]);
+        assertEquals('5', (char)jsonBuf.data[7]);
+        assertEquals(0, jsonBuf.data[8]);
 
         //Test with a long number that doesn't fit the initial byte array
         buf.clear();
@@ -55,19 +73,19 @@ public class PrimitiveConverterTest {
         dec.clear();
         jsonBuf.data = new byte[10];
         jsonBuf.position = 3;
-
-        uInt.value(123456789123456L);
+        uInt.value(12345678091234567L);
         enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         uInt.encode(enc);
 
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(true, converter.getPrimitiveHandler(DataTypes.UINT).encodeJson(dec, jsonBuf, convError));
         assertEquals(0, jsonBuf.data[2]);
-        assertEquals('1', (char)jsonBuf.data[3]);
-        assertEquals('2', (char)jsonBuf.data[4]);
-        assertEquals('3', (char)jsonBuf.data[5]);
-        assertEquals('6', (char)jsonBuf.data[17]);
-        assertEquals(0, jsonBuf.data[18]);
+        int length = "12345678091234567".length();
+        int i;
+        for (i = 0; i < length; i++) {
+            assertEquals("12345678091234567".charAt(i), jsonBuf.data[i + 3]);
+        }
+        assertEquals((i+3), jsonBuf.position);
     }
 
     @Test
@@ -76,23 +94,820 @@ public class PrimitiveConverterTest {
         DecodeIterator dec = CodecFactory.createDecodeIterator();
         Real real = CodecFactory.createReal();
         Buffer buf = CodecFactory.createBuffer();
-
+        int i;
+        
+        /* Preserve trailing zeroes with > 32-bit value before decimal */
         buf.data(ByteBuffer.allocate(50));
         JsonBuffer jsonBuf = new JsonBuffer();
         jsonBuf.data = new byte[10];
         jsonBuf.position = 1;
 
-        real.value(9321654987123L, 25);
+        real.clear();
+        real.value(6543210123000L, 11);
         enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         real.encode(enc);
 
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
         assertEquals(0, jsonBuf.data[0]);
-        int length = "1165206873390.375".length();
-        for (int i = 0; i < length; i++) {
-            assertEquals("1165206873390.375".charAt(i), jsonBuf.data[i + 1]);
+        int length = "6543210123.000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("6543210123.000".charAt(i), jsonBuf.data[i + 1]);
         }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Preserve trailing zeroes with > 32-bit value before decimal, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf = new JsonBuffer();
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-6543210123000L, 11);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-6543210123.000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-6543210123.000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Preserve trailing zeroes with < 32-bit value before decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf = new JsonBuffer();
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(65432101000L, 11);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "65432101.000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("65432101.000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Preserve trailing zeroes with < 32-bit value before decimal, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf = new JsonBuffer();
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-65432101000L, 11);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-65432101.000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-65432101.000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, no decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(6543210123L, 14);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "6543210123".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("6543210123".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, no decimal, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-6543210123L, 14);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-6543210123".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-6543210123".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, no decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(654321012, 14);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "654321012".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("654321012".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, no decimal, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-654321012, 14);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-654321012".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-654321012".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, no decimal, add trailing zeroes */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(6543210123L, 18);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "65432101230000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("65432101230000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, no decimal, add trailing zeroes, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-6543210123L, 18);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-65432101230000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-65432101230000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, no decimal, add trailing zeroes */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(654321012, 18);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "6543210120000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("6543210120000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, no decimal, add trailing zeroes, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-654321012, 18);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-6543210120000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-6543210120000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(9876543210123L, 1);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "0.9876543210123".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("0.9876543210123".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, decimal, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9876543210123L, 1);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-0.9876543210123".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-0.9876543210123".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(654321012, 5);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "0.654321012".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("0.654321012".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-654321012, 5);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-0.654321012".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-0.654321012".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, decimal, leading zeroes */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(98765432101L, 0);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "0.00098765432101".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("0.00098765432101".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* > 32-bit value, decimal, leading zeroes, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-98765432101L, 0);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-0.00098765432101".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-0.00098765432101".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, decimal, leading zeroes */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(654321012, 0);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "0.00000654321012".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("0.00000654321012".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* < 32-bit value, decimal, leading zeroes, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-654321012, 0);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-0.00000654321012".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-0.00000654321012".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max 64-bit value, no decimal */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(9223372036854775807L, 14);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "9223372036854775807".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("9223372036854775807".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max negative 64-bit value, no decimal */
+        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775807L, 14);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-9223372036854775807".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-9223372036854775807".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max 64-bit value, decimal, > 32-bit, then < 32-bit */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(9223372036854775807L, 5);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "9223372036.854775807".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("9223372036.854775807".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max negative 64-bit value, > 32-bit, then < 32-bit */
+        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775807L, 5);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-9223372036.854775807".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-9223372036.854775807".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max 64-bit value, decimal, < 32-bit, then > 32-bit */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(9223372036854775807L, 4);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "922337203.6854775807".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("922337203.6854775807".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max negative 64-bit value, < 32-bit, then > 32-bit */
+        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775807L, 4);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-922337203.6854775807".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-922337203.6854775807".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max 64-bit value, trailing zeroes */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(9223372036854775807L, 19);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "922337203685477580700000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("922337203685477580700000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max negative 64-bit value, trailing zeroes */
+        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775807L, 19);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-922337203685477580700000".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-922337203685477580700000".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* blank */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.blank();
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "null".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("null".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* blank */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(55, 3);
+        real.blank();
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "null".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("null".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* positive infinity */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(55, 33);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "Inf".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("Inf".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* negative infinity */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(55, 34);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-Inf".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-Inf".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* not a number */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(55, 35);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "NaN".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("NaN".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* Simple fraction 50/2 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(50, 23);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "25".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("25".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* Simple fraction 50/2, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-50, 23);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-25".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-25".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 50/128 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(50, 29);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "0.390625".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("0.390625".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 50/128, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-50, 29);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-0.390625".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-0.390625".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 50/32 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(50, 27);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "1.5625".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("1.5625".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 50/32, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-50, 27);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-1.5625".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-1.5625".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 98765432101234/2 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(98765432101234L, 23);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "49382716050617".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("49382716050617".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 98765432101234/2, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-98765432101234L, 23);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-49382716050617".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-49382716050617".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 98765432101234/128 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(98765432101234L, 29);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "771604938290.8906".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("771604938290.8906".charAt(i), jsonBuf.data[i + 1]);
+        }
+        
+        /* More complex fraction 98765432101234/128, negative */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-98765432101234L, 29);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-771604938290.8906".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-771604938290.8906".charAt(i), jsonBuf.data[i + 1]);
+        }
+       
+       
     }
 
     @Test
