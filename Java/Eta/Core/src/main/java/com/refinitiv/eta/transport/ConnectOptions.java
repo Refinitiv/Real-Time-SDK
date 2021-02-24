@@ -66,7 +66,10 @@ public interface ConnectOptions
     public SegmentedNetworkInfo segmentedNetworkInfo();
 
     /**
-     * Tunneling connection parameters.
+     * Tunneling connection parameters. The encryption configuration here is for legacy applications.
+     * New encrypted connections should set connectionType() to ConnectionTypes.ENCRYPTED, 
+     * tunnelingInfo.tunnelingType() to "none", and configure the 
+     * encrypted connection with the encryptionOptions class below.
      *
      * @return the TunnelingInfo
      *
@@ -82,7 +85,9 @@ public interface ConnectOptions
     public CredentialsInfo credentialsInfo();
 
     /**
-     * Encryption connection options
+     * Encryption connection options.  This will be used when the connectionType has been set to 
+     * ConnectionTypes.ENCRYPTED, and tunnelingInfo.tunnelingType() has been set to "none".
+     * This is used for encrypted HTTP, socket, and websocket connections. 
      *
      * @return the EncryptionOptions
      *
