@@ -169,6 +169,7 @@ public class JsonRealConverterTest {
     	   }
        }
     }
+    
     @Test
     public void testOutOfRangeDecimalValuesTest() throws IOException {
         final String postMsg = "{\"ID\":2,\"Type\":\"Post\",\"Domain\":\"MarketPrice\",\"Key\":{\"Name\":\"TRI.N\",\"Service\":1},\"PostID\":3,\"PermData\":\"AwO9ZWLA\","
@@ -181,6 +182,34 @@ public class JsonRealConverterTest {
         
         assertEquals(CodecReturnCodes.FAILURE, ret);
         assertEquals("JSON Converter unexpected value: Failed to converter the JSON numeric '9223372036854775808' value to Real", convError.getText());
+    }
+    
+    @Test
+    public void testOutOfRangeDecimalValuesTest2() throws IOException {
+        final String postMsg = "{\"ID\":2,\"Type\":\"Post\",\"Domain\":\"MarketPrice\",\"Key\":{\"Name\":\"TRI.N\",\"Service\":1},\"PostID\":3,\"PermData\":\"AwO9ZWLA\","
+        		+ "\"Fields\":{\"ASK\":6.666666666666666}}}";
+
+        jsonBuffer.data(postMsg);
+        assertEquals(SUCCESS, converter.parseJsonBuffer(jsonBuffer, parseJsonOptions, convError));
+        
+        int ret = converter.decodeJsonMsg(jsonMsg, decodeJsonMsgOptions, convError);
+        
+        assertEquals(CodecReturnCodes.FAILURE, ret);
+        assertEquals("JSON Converter encode error: code=-22, 'ASK' encoding failure", convError.getText());
+    }
+    
+    @Test
+    public void testOutOfRangeDecimalValuesTest3() throws IOException {
+        final String postMsg = "{\"ID\":2,\"Type\":\"Post\",\"Domain\":\"MarketPrice\",\"Key\":{\"Name\":\"TRI.N\",\"Service\":1},\"PostID\":3,\"PermData\":\"AwO9ZWLA\","
+        		+ "\"Fields\":{\"ACVOL_1\":-6.666666666666666}}}";
+
+        jsonBuffer.data(postMsg);
+        assertEquals(SUCCESS, converter.parseJsonBuffer(jsonBuffer, parseJsonOptions, convError));
+        
+        int ret = converter.decodeJsonMsg(jsonMsg, decodeJsonMsgOptions, convError);
+        
+        assertEquals(CodecReturnCodes.FAILURE, ret);
+        assertEquals("JSON Converter encode error: code=-22, 'ACVOL_1' encoding failure", convError.getText());
     }
 	
 	

@@ -311,6 +311,7 @@ class RealImpl implements Real
         int maxStringLen = MAX_STRLEN;
         boolean isNeg = false;
         int valIdx = 0;
+        int ret = CodecReturnCodes.SUCCESS;
         _stringVal = null;
 
         valueUInt.clear();
@@ -404,7 +405,11 @@ class RealImpl implements Real
             // number must be no bigger than max string length
             if (trimmedVal.length() <= maxStringLen)
             {
-                value(!isNeg ? longValue : -longValue, RealHints.EXPONENT0);
+                ret = value(!isNeg ? longValue : -longValue, RealHints.EXPONENT0);
+                
+                if(ret != CodecReturnCodes.SUCCESS)
+                	return ret;
+                
                 _isBlank = false;
             }
             else
@@ -448,7 +453,11 @@ class RealImpl implements Real
         		return CodecReturnCodes.INVALID_ARGUMENT;
         	}
 
-            value(!isNeg ? longValue: -longValue, RealHints.EXPONENT0 - exponent);
+            ret = value(!isNeg ? longValue: -longValue, RealHints.EXPONENT0 - exponent);
+            
+            if(ret != CodecReturnCodes.SUCCESS)
+            	return ret;
+            
             if (trimmedVal.charAt(0) != '+')
             {
                 _isBlank = false;
@@ -492,12 +501,20 @@ class RealImpl implements Real
                 }
 
                 valueUInt.value((valueUInt.toLong() * denominator.toLong()) + numerator.toLong());
-                value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), hint);
+                ret = value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), hint);
+                
+                if(ret != CodecReturnCodes.SUCCESS)
+                	return ret;
+                
                 _isBlank = false;
             }
             else if (valIdx == trimmedVal.length())
             {
-                value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), RealHints.EXPONENT0);
+                ret = value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), RealHints.EXPONENT0);
+                
+                if(ret != CodecReturnCodes.SUCCESS)
+                	return ret;
+                
                 _isBlank = false;
             }
             else
@@ -522,7 +539,11 @@ class RealImpl implements Real
             }
 
             /* value stays as value */
-            value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), hint);
+            ret = value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), hint);
+            
+            if(ret != CodecReturnCodes.SUCCESS)
+            	return ret;
+            
             _isBlank = false;
         }
         else
