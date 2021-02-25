@@ -390,13 +390,21 @@ class RealImpl implements Real
         }
 
         valIdx = rwf_atonumber_end_trailzero(trimmedVal, valIdx, valueUInt, foundDigit, trailzerovalue, trailzerocount, nextDigit, tempValue);
+        
+        // Checks for overflow condition of the long data type
+        long longValue = valueUInt.toLong();
+    	
+    	if(longValue < 0)
+    	{
+    		return CodecReturnCodes.INVALID_ARGUMENT;
+    	}
 
         if (valIdx == trimmedVal.length())
         {
             // number must be no bigger than max string length
             if (trimmedVal.length() <= maxStringLen)
             {
-                value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), RealHints.EXPONENT0);
+                value(!isNeg ? longValue : -longValue, RealHints.EXPONENT0);
                 _isBlank = false;
             }
             else
@@ -431,8 +439,16 @@ class RealImpl implements Real
                 // error
                 return CodecReturnCodes.INVALID_ARGUMENT;
             }
+            
+            // Checks for overflow condition of the long data type
+            longValue = valueUInt.toLong();
+        	
+        	if(longValue < 0)
+        	{
+        		return CodecReturnCodes.INVALID_ARGUMENT;
+        	}
 
-            value(!isNeg ? valueUInt.toLong() : -valueUInt.toLong(), RealHints.EXPONENT0 - exponent);
+            value(!isNeg ? longValue: -longValue, RealHints.EXPONENT0 - exponent);
             if (trimmedVal.charAt(0) != '+')
             {
                 _isBlank = false;

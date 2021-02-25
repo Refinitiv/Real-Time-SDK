@@ -51,6 +51,9 @@ abstract class AbstractRsslMessageTypeConverter extends AbstractTypeConverter {
         if (result == ENCODE_CONTAINER) {
             encodeMsgPayload(dataNode, msg, iter, error);
         }
+        
+        if (error.isFailed())
+            return;
 
         result = msg.encodeComplete(iter, error.isSuccessful());
 
