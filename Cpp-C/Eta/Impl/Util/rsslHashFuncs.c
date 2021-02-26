@@ -72,25 +72,12 @@ RsslUInt32 rsslPolyHash(const char* buf, const RsslUInt32 length)
 	return crc;
 }
 
-/* Calculate the denominator used in the IDN Hashing entity ID
- * equation.
- */
-unsigned long rsslHashDenominator(RsslUInt32 numberOfHashingEntities)
+RSSL_API RsslUInt32 rsslHashingEntityId(const char *buf, const RsslUInt32 length, const RsslUInt32 numberOfHashingEntities)
 {
 	const unsigned long long TotalRange = 0x100000000ull;
 
-	unsigned long denominator = (unsigned long)(TotalRange / numberOfHashingEntities);
-	if (TotalRange % numberOfHashingEntities != 0)
-		++denominator;
+	const unsigned long long rawHashValue = rsslPolyHash(buf, length);
+	const unsigned long long sum = ((rawHashValue * numberOfHashingEntities) / TotalRange) + 1;
 
-	return denominator;
-}
-
-RSSL_API RsslUInt32 rsslHashingEntityId(const char *buf, const RsslUInt32 length, const RsslUInt32 numberOfHashingEntities)
-{
-	RsslUInt32 sum = rsslPolyHash(buf, length) / rsslHashDenominator(numberOfHashingEntities);
-
-	sum += 1;//add 1 to make it 1-based
-
-	return sum;
+	return (RsslUInt32)sum;
 }
