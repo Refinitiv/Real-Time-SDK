@@ -490,7 +490,19 @@ public class JsonRealConverterTest {
 	 @Test
 	 public void maxNegativeDecimalValueRangeTest()
 	 {
-		 String inputValue = "-922337203685477580.7";
+		 String inputValue = "-922337203685477580.8";
+		 Real real = CodecFactory.createReal();
+		 real.clear();
+		 
+		 int ret = JsonRealConverter.processReal(inputValue, real);
+		 
+		 assertEquals(CodecReturnCodes.SUCCESS, ret);
+	 }
+	 
+	 @Test
+	 public void maxNegativeDecimalValueRangeTest2()
+	 {
+		 String inputValue = "-9223372036854775808";
 		 Real real = CodecFactory.createReal();
 		 real.clear();
 		 
@@ -509,30 +521,6 @@ public class JsonRealConverterTest {
 		 int ret = JsonRealConverter.processReal(inputValue, real);
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, ret);
-	 }
-	 
-	 @Test
-	 public void OutOfRangeNegativeDecimalValueRangeTest()
-	 {
-		 String inputValue = "-922337203685477580.8";
-		 Real real = CodecFactory.createReal();
-		 real.clear();
-		 
-		 int ret = JsonRealConverter.processReal(inputValue, real);
-		 
-		 assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
-	 }
-	 
-	 @Test
-	 public void OutOfRangeNegativeDecimalValueRangeTest2()
-	 {
-		 String inputValue = "-9223372036854775808.8";
-		 Real real = CodecFactory.createReal();
-		 real.clear();
-		 
-		 int ret = JsonRealConverter.processReal(inputValue, real);
-		 
-		 assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
 	 }
 	 
 	 @Test

@@ -397,7 +397,21 @@ class RealImpl implements Real
     	
     	if(longValue < 0)
     	{
-    		return CodecReturnCodes.INVALID_ARGUMENT;
+    		if(!isNeg)
+    		{
+    			return CodecReturnCodes.INVALID_ARGUMENT;
+    		}
+    		else 
+    		{
+    			if(longValue == Long.MIN_VALUE)
+    			{
+    				isNeg = false;
+    			}
+    			else if(!value.equals("-9223372036854775807"))
+    			{
+    				return CodecReturnCodes.INVALID_ARGUMENT;
+    			}
+    		}
     	}
 
         if (valIdx == trimmedVal.length())
@@ -448,9 +462,23 @@ class RealImpl implements Real
             // Checks for overflow condition of the long data type
             longValue = valueUInt.toLong();
         	
-        	if(longValue < 0)
+            if(longValue < 0)
         	{
-        		return CodecReturnCodes.INVALID_ARGUMENT;
+        		if(!isNeg)
+        		{
+        			return CodecReturnCodes.INVALID_ARGUMENT;
+        		}
+        		else 
+        		{
+        			if(longValue == Long.MIN_VALUE)
+        			{
+        				isNeg = false;
+        			}
+        			else if(!value.equals("-922337203685477580.7"))
+        			{
+        				return CodecReturnCodes.INVALID_ARGUMENT;
+        			}
+        		}
         	}
 
             ret = value(!isNeg ? longValue: -longValue, RealHints.EXPONENT0 - exponent);

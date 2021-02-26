@@ -164,6 +164,62 @@ public class RealJunit
 	}
 	
 	@Test
+	public void realMaximumAndMinimumValuesTest() 
+	{
+		Real real = CodecFactory.createReal();
+		int ret  = real.value("9223372036854775807");
+		
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(Long.MAX_VALUE, real.toLong());
+		assertEquals(RealHints.EXPONENT0, real.hint());
+		
+		real.clear();
+		ret  = real.value("922337203685477580.7");
+		
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(Long.MAX_VALUE, real.toLong());
+		assertEquals(RealHints.EXPONENT_1, real.hint());
+		
+		real.clear();
+		ret  = real.value("-9223372036854775808");
+		
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(Long.MIN_VALUE, real.toLong());
+		assertEquals(RealHints.EXPONENT0, real.hint());
+		
+		real.clear();
+		ret  = real.value("-922337203685477580.8");
+		
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(Long.MIN_VALUE, real.toLong());
+		assertEquals(RealHints.EXPONENT_1, real.hint());
+	}
+	
+	@Test
+	public void realOverflowValuesTest() 
+	{
+		Real real = CodecFactory.createReal();
+		int ret  = real.value("9223372036854775808");
+		
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+
+		real.clear();
+		ret  = real.value("922337203685477580.8");
+		
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+		
+		real.clear();
+		ret  = real.value("-9223372036854775809");
+		
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+		
+		real.clear();
+		ret  = real.value("-922337203685477580.9");
+		
+		assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
+	}
+	
+	@Test
 	public void realTest() 
 	{
 		//Real Related Conversion test
