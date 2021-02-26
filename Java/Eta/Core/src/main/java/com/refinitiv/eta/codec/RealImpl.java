@@ -407,7 +407,7 @@ class RealImpl implements Real
     			{
     				isNeg = false;
     			}
-    			else if(!value.equals("-9223372036854775807"))
+    			else
     			{
     				return CodecReturnCodes.INVALID_ARGUMENT;
     			}
@@ -474,7 +474,7 @@ class RealImpl implements Real
         			{
         				isNeg = false;
         			}
-        			else if(!value.equals("-922337203685477580.7"))
+        			else
         			{
         				return CodecReturnCodes.INVALID_ARGUMENT;
         			}

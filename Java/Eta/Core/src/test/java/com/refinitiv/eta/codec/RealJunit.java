@@ -193,6 +193,20 @@ public class RealJunit
 		assertEquals(CodecReturnCodes.SUCCESS, ret);
 		assertEquals(Long.MIN_VALUE, real.toLong());
 		assertEquals(RealHints.EXPONENT_1, real.hint());
+		
+		real.clear();
+		ret  = real.value("-9223372036854775807");
+		
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(Long.MIN_VALUE+1, real.toLong());
+		assertEquals(RealHints.EXPONENT0, real.hint());
+		
+		real.clear();
+		ret  = real.value("-922337203685477580.7");
+		
+		assertEquals(CodecReturnCodes.SUCCESS, ret);
+		assertEquals(Long.MIN_VALUE+1, real.toLong());
+		assertEquals(RealHints.EXPONENT_1, real.hint());
 	}
 	
 	@Test
