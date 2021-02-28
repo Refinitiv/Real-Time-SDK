@@ -85,7 +85,7 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
         }
         
         if (result != SUCCESS) {
-        	error.setEncodeError(result, "");
+        	error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "Failed to converter the JSON numeric '" + node.asText() + "' value to Real");
             return;
         }
     }
@@ -136,14 +136,34 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
 	    		/* Found decimal */
 	    		if(decimalIndex != -1)
 	    		{
+	    			long orgValue;
+	    			
+	    			orgValue = value;
+	    			
 	    			/* find out how many digits are between the . and the E. */
 	    			posExp = expoIndex - decimalIndex - 1;
-	    			value = value * (int)Math.pow(10, posExp);
+	    			value = value * (long)Math.pow(10, posExp);
 	    			
 	    			if(!foundNegative)
+	    			{
 	    				value += Long.parseLong(strValue.substring(decimalIndex + 1, expoIndex));
+	    				
+	    				/* Checks for overflow from the maximum positive value */
+	    				if(value < orgValue)
+	    				{
+	    					return FAILURE;
+	    				}
+	    			}
 	    			else
+	    			{
 	    				value -= Long.parseLong(strValue.substring(decimalIndex + 1, expoIndex));
+	    				
+	    				/* Checks for overflow from the maximum negative value */
+	    				if(value > orgValue)
+	    				{
+	    					return FAILURE;
+	    				}
+	    			}
 	    		}
 	    		
 	    		/* Checks negative exponential */
@@ -228,6 +248,8 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
             	result = real.value(dataNode.asInt(), RealHints.EXPONENT0);
             } else if (dataNode.isLong()) {
             	result = real.value(dataNode.asLong(), RealHints.EXPONENT0);
+            } else if (dataNode.isBigInteger()) {
+            	result = real.value(dataNode.bigIntegerValue().longValueExact(), RealHints.EXPONENT0);
             } else if (dataNode.isFloat()) {
             	result = processReal(dataNode.asText(), real);
             } else if (dataNode.isTextual()) {
@@ -258,7 +280,12 @@ class JsonRealConverter extends AbstractPrimitiveTypeConverter {
                 error.setEncodeError(result, key);
                 return;
             }
-        } finally {
+        }
+        catch(Exception exep) {
+        	error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "Failed to converter the JSON numeric '" + dataNode.asText() + "' value to Real");
+            return;
+        }
+        finally {
             JsonFactory.releaseReal(real);
         }
     }
