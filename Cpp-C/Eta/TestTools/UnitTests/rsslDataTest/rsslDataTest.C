@@ -63,25 +63,56 @@
 /* precalculated hash values */
 static const struct
 {
-	char buf[13 + 1]; RsslUInt32 hash;
+	const char* buf; RsslUInt32 hash;
 }
 precalculatedHashValues[] = {
-	"1.1:22:33:444", 1,
-	"2.2:33:44:555", 3,
-	"3.3:44:55:666", 3,
-	"4.4:55:66:777", 4,
-	"5.5:66:77:888", 7,
-	"6.6:77:88:999", 2,
-	"7.7:88:99:000", 8,
-	"8.8:99:00:aaa", 5,
-	"9.9:00:aa:bbb", 4,
-	"0.0:aa:bb:ccc", 10,
-	"a.a:bb:cc:ddd", 5,
-	"b.b:cc:dd:eee", 2,
-	"c.c:dd:ee:fff", 2,
-	"d.d:ee:ff:hhh", 8,
-	"e.e:ff:hh:jjj", 5,
-	"f.f:hh:jj:kkk", 4,
+	"![ES3W3010B1",				451,
+	"CN102001101=CFXW",			631,
+	"CNHI.DY",					631,
+	"DECL4LFD.F",				676,
+	"DECP9GWL.F",				406,
+	"DEDFU0MG.F",				451,
+	"DEGA1NEQ.EW",				496,
+	"DEGF4V9S.F",				631,
+	"DEHX31RG.EW",				541,
+	"DEHZ9TQV.EW",				316,
+	"DEKE1CR3.F",				271,
+	"DEUD3MKR.EW",				496,
+	"DEVE9ZUB.EW",				406,
+	"DEVP3QE0.F",				676,
+	"DEVP79SG.F",				316,
+	"FSL6F3C74102A050F=FINR",	586,
+	"KLACA292119500.MP",		271,
+	"MSA403C4C1J1E100F=FINR",	676,
+	"PTGOV2YF12Y=R",			631,
+	"TRNLBFVDc2",				361,
+	"TWBP2YX10Y=ICSG",			586,
+	"US45950KCR95=BNTW",		631,
+	"US983919AJ06=VS",			226,
+	"WIR_u.LNX",				496,
+	"WSPL182011500.M",			586,
+
+	"!!ECBREFDATE",				695,
+	"!!ECREFDATE",				31,
+	"!.!L!LMLS54!AAAA",			375,
+	"!.D2FMLS54/DHM",			21,
+	"!.MAUSEQDELAY",			503,
+	"!.RR65",					531,
+	"!0E1A999.DEp",				353,
+	"!0MK4999.DEp",				491,
+	"!1BOJ01AE999.DEp",			174,
+	"!1CEM01AE999.DEp",			305,
+
+	"zCcv1",					75,
+	"!FW1G999.DEp",				115,
+	"![1#KRKTBBMK=KFIA",		300,
+	"![BBB+CNG4Y=KFIA",			414,
+	"![S1RZ0-F1",				621,
+	"#073F8A007",				266,
+	"0#REEe*.i+C",				717,
+	"134#CHXCOM.CXC",			106,
+	"13667ZEY1=RRPS",			287,
+	"nTNF1WfW",					703,
 };
 
 
@@ -11638,8 +11669,8 @@ TEST(hashFuncsTest, PolyHashEqual)
 {
 	for (int i = 0; i < sizeof(precalculatedHashValues) / sizeof(precalculatedHashValues[0]); ++i)
 	{
-		RsslUInt32 hash1 = rsslPolyHash(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf));
-		RsslUInt32 hash2 = rsslPolyHash(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf));
+		RsslUInt32 hash1 = rsslPolyHash(precalculatedHashValues[i].buf, (RsslUInt32)strlen(precalculatedHashValues[i].buf));
+		RsslUInt32 hash2 = rsslPolyHash(precalculatedHashValues[i].buf, (RsslUInt32)strlen(precalculatedHashValues[i].buf));
 
 		ASSERT_TRUE(hash1 == hash2);
 	}
@@ -11649,8 +11680,8 @@ TEST(hashFuncsTest, PolyHashNotEqual)
 {
 	for (int i = 1; i < sizeof(precalculatedHashValues) / sizeof(precalculatedHashValues[0]); ++i)
 	{
-		RsslUInt32 hash1 = rsslPolyHash(precalculatedHashValues[i - 1].buf, sizeof(precalculatedHashValues[i - 1].buf));
-		RsslUInt32 hash2 = rsslPolyHash(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf));
+		RsslUInt32 hash1 = rsslPolyHash(precalculatedHashValues[i - 1].buf, (RsslUInt32)strlen(precalculatedHashValues[i - 1].buf));
+		RsslUInt32 hash2 = rsslPolyHash(precalculatedHashValues[i].buf, (RsslUInt32)strlen(precalculatedHashValues[i].buf));
 
 		ASSERT_TRUE(hash1 != hash2);
 	}
@@ -11660,7 +11691,7 @@ TEST(hashFuncsTest, HashingEntityIdsPrecalculated)
 {
 	for (int i = 0; i < sizeof(precalculatedHashValues) / sizeof(precalculatedHashValues[0]); ++i)
 	{
-		RsslUInt32 hash = rsslHashingEntityId(precalculatedHashValues[i].buf, sizeof(precalculatedHashValues[i].buf), 10);
+		RsslUInt32 hash = rsslHashingEntityId(precalculatedHashValues[i].buf, (RsslUInt32)strlen(precalculatedHashValues[i].buf), 720);
 
 		ASSERT_TRUE(hash == precalculatedHashValues[i].hash);
 	}

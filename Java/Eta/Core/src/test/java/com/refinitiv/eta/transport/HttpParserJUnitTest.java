@@ -3,6 +3,7 @@ package com.refinitiv.eta.transport;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +27,7 @@ public class HttpParserJUnitTest {
 
     private static final String GET_REQUEST_WITHOUT_URI_TEST2 = "GET HTTP/1.1";
 
-    private static final String[] GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3 = new String[]{
-            "GET /testing HTTP/1.1\r\nCont@ent-type: application/json\r\n",
-            "GET /testing HTTP/1.1\r\nAnother one: wow\r\n",
-            "GET /testing HTTP/1.1\r\nCustom-header-1: ==12©3==\r\n",
-            "GET /testing HTTP/1.1\r\nHeader1: head\rHeader2: net\n",
-    };
+    private static final byte[][] GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3 = new byte[4][];
 
     //this is correct header for parser, but here Header2 and net is values for Header1.
     private static final String GET_REQUEST_HEADER_WITH_DIFF_DELIMS_TEST4 =
@@ -56,13 +52,34 @@ public class HttpParserJUnitTest {
             JSON_MSG_BODY;
 
     private static final String RESPONSE_WITHOUT_STATUS_TEST7 = "HTTP/1.1  OK\n";
-
-    private static final String[] RESPONSE_WITH_INCORRECT_HEADERS_TEST8 = new String[]{
-            "HTTP/1.1 200 OK\r\nCont@ent-type: application/json\r\n",
-            "HTTP/1.1 200 OK\r\nAnother one: wow\r\n",
-            "HTTP/1.1 200 OK\r\nCustom-header-1: ==12©3==\r\n",
-            "HTTP/1.1 200 OK\r\nHeader1: head\rHeader2: net\n",
-    };
+    
+    private static final byte[][] RESPONSE_WITH_INCORRECT_HEADERS_TEST8 = new byte[4][];
+    
+    static {
+    	
+    	/* "GET /testing HTTP/1.1\r\nCont@ent-type: application/json\r\n" */
+    	GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[0] = new byte[] {71, 69, 84, 32, 47, 116, 101, 115, 116, 105, 110, 103, 32, 72, 84, 84, 80, 47, 49, 46, 49, 13, 10, 67, 111, 110, 116, 64, 101, 110, 116, 45, 116, 121, 112, 101, 58, 32, 97, 112, 112, 108, 105, 99, 97, 116, 105, 111, 110, 47, 106, 115, 111, 110, 13, 10};
+    	
+    	/* "GET /testing HTTP/1.1\r\nAnother one: wow\r\n" */
+    	GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[1] = new byte[] {71, 69, 84, 32, 47, 116, 101, 115, 116, 105, 110, 103, 32, 72, 84, 84, 80, 47, 49, 46, 49, 13, 10, 65, 110, 111, 116, 104, 101, 114, 32, 111, 110, 101, 58, 32, 119, 111, 119, 13, 10};
+    	
+    	GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[2] = new byte[] {71, 69, 84, 32, 47, 116, 101, 115, 116, 105, 110, 103, 32, 72, 84, 84, 80, 47, 49, 46, 49, 13, 10, 67, 117, 115, 116, 111, 109, 45, 104, 101, 97, 100, 101, 114, 45, 49, 58, 32, 61, 61, 49, 50, -62, -87, 51, 61, 61, 13, 10};
+    	
+    	/* "GET /testing HTTP/1.1\r\nHeader1: head\rHeader2: net\n" */
+    	GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[3] = new byte[] {71, 69, 84, 32, 47, 116, 101, 115, 116, 105, 110, 103, 32, 72, 84, 84, 80, 47, 49, 46, 49, 13, 10, 72, 101, 97, 100, 101, 114, 49, 58, 32, 104, 101, 97, 100, 13, 72, 101, 97, 100, 101, 114, 50, 58, 32, 110, 101, 116, 10};
+    	
+    	
+    	/*  "HTTP/1.1 200 OK\r\nCont@ent-type: application/json\r\n" */
+    	RESPONSE_WITH_INCORRECT_HEADERS_TEST8[0] = new byte[] {72, 84, 84, 80, 47, 49, 46, 49, 32, 50, 48, 48, 32, 79, 75, 13, 10, 67, 111, 110, 116, 64, 101, 110, 116, 45, 116, 121, 112, 101, 58, 32, 97, 112, 112, 108, 105, 99, 97, 116, 105, 111, 110, 47, 106, 115, 111, 110, 13, 10};
+    
+    	/* "HTTP/1.1 200 OK\r\nAnother one: wow\r\n" */
+    	RESPONSE_WITH_INCORRECT_HEADERS_TEST8[1] = new byte[] {72, 84, 84, 80, 47, 49, 46, 49, 32, 50, 48, 48, 32, 79, 75, 13, 10, 65, 110, 111, 116, 104, 101, 114, 32, 111, 110, 101, 58, 32, 119, 111, 119, 13, 10};
+    	
+    	RESPONSE_WITH_INCORRECT_HEADERS_TEST8[2] = new byte[] {72, 84, 84, 80, 47, 49, 46, 49, 32, 50, 48, 48, 32, 79, 75, 13, 10, 67, 117, 115, 116, 111, 109, 45, 104, 101, 97, 100, 101, 114, 45, 49, 58, 32, 61, 61, 49, 50, -62, -87, 51, 61, 61, 13, 10};
+    	
+    	/* "HTTP/1.1 200 OK\r\nHeader1: head\rHeader2: net\n" */
+    	RESPONSE_WITH_INCORRECT_HEADERS_TEST8[3] = new byte[] {72, 84, 84, 80, 47, 49, 46, 49, 32, 50, 48, 48, 32, 79, 75, 13, 10, 72, 101, 97, 100, 101, 114, 49, 58, 32, 104, 101, 97, 100, 13, 72, 101, 97, 100, 101, 114, 50, 58, 32, 110, 101, 116, 10};
+    }
 
     private final HttpRequest httpRequest = new HttpRequest();
     private final HttpResponse httpResponse = new HttpResponse();
@@ -145,14 +162,13 @@ public class HttpParserJUnitTest {
 
     //Test 3
     @Test
-    public void givenFewGetRequestsWithIncorrectHeaders_whenRequestShouldBeParsed_thenReturnHeaderErrors() {
+    public void givenFewGetRequestsWithIncorrectHeaders_whenRequestShouldBeParsed_thenReturnHeaderErrors() throws UnsupportedEncodingException {
         int start = 0;
         for (int i = 0; i < GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3.length; i++) {
-            final String request = GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[i];
-            byteData.put(request.getBytes());
-            int returnCode = httpMessageHandler.parseHttpRequest(httpRequest, byteData, request.length(), start, error);
-            assertEquals("Request assertion was failed for: \n" + request, ParserReturnCodes.INVALID_HEADER_GROUP, returnCode);
-            start += request.length();
+            byteData.put(GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[i]);
+            int returnCode = httpMessageHandler.parseHttpRequest(httpRequest, byteData, GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[i].length, start, error);
+            assertEquals("Request assertion was failed for: \n" + new String(GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[i], "UTF-8"), ParserReturnCodes.INVALID_HEADER_GROUP, returnCode);
+            start += GET_REQUEST_ARRAY_WITH_INCORRECT_HEADERS_TEST3[i].length;
             httpRequest.clear();
         }
     }
@@ -249,14 +265,13 @@ public class HttpParserJUnitTest {
 
     //Test 8
     @Test
-    public void givenFewGetResponsesWithIncorrectHeaders_whenResponseShouldBeParsed_thenReturnHeaderErrors() {
+    public void givenFewGetResponsesWithIncorrectHeaders_whenResponseShouldBeParsed_thenReturnHeaderErrors() throws UnsupportedEncodingException {
         int start = 0;
         for (int i = 0; i < RESPONSE_WITH_INCORRECT_HEADERS_TEST8.length; i++) {
-            final String response = RESPONSE_WITH_INCORRECT_HEADERS_TEST8[i];
-            byteData.put(response.getBytes());
-            int returnCode = httpMessageHandler.parseHttpResponse(httpResponse, byteData, response.length(), start, error);
-            assertEquals("Response assertion was failed for: \n" + response, ParserReturnCodes.INVALID_HEADER_GROUP, returnCode);
-            start += response.length();
+            byteData.put(RESPONSE_WITH_INCORRECT_HEADERS_TEST8[i]);
+            int returnCode = httpMessageHandler.parseHttpResponse(httpResponse, byteData, RESPONSE_WITH_INCORRECT_HEADERS_TEST8[i].length, start, error);
+            assertEquals("Response assertion was failed for: \n" + new String(RESPONSE_WITH_INCORRECT_HEADERS_TEST8[i], "UTF-8"), ParserReturnCodes.INVALID_HEADER_GROUP, returnCode);
+            start += RESPONSE_WITH_INCORRECT_HEADERS_TEST8[i].length;
             httpResponse.clear();
         }
     }
