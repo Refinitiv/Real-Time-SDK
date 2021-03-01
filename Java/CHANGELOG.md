@@ -14,7 +14,7 @@ CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.1.L1 aka EMA 3.6.1.L1 and ETA 3.6.1.
 
 New Features Added
 ------------------
-This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library. This release adds Server Side Encryption support in EMA and ETA.
+This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl.rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library. This release adds Server Side Encryption support in EMA and ETA.
 
 Customer Issues Resolved
 ------------------
