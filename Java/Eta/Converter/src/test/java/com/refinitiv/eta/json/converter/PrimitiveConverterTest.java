@@ -85,6 +85,25 @@ public class PrimitiveConverterTest {
         for (i = 0; i < length; i++) {
             assertEquals("12345678091234567".charAt(i), jsonBuf.data[i + 3]);
         }
+        
+      //Test with a long negative number that doesn't fit the initial byte array
+        buf.clear();
+        buf.data(ByteBuffer.allocate(30));
+        enc.clear();
+        dec.clear();
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 3;
+        uInt.value(-12345678091234567L);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        uInt.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.INT).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[2]);
+        length = "-12345678091234567".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-12345678091234567".charAt(i), jsonBuf.data[i + 3]);
+        }
         assertEquals((i+3), jsonBuf.position);
     }
 
@@ -500,22 +519,21 @@ public class PrimitiveConverterTest {
         assertEquals((i+1), jsonBuf.position);
         
         /* Max negative 64-bit value, no decimal */
-        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
         buf.data(ByteBuffer.allocate(50));
         jsonBuf.data = new byte[10];
         jsonBuf.position = 1;
 
         real.clear();
-        real.value(-9223372036854775807L, 14);
+        real.value(-9223372036854775808L, 14);
         enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         real.encode(enc);
 
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
         assertEquals(0, jsonBuf.data[0]);
-        length = "-9223372036854775807".length();
+        length = "-9223372036854775808".length();
         for (i = 0; i < length; i++) {
-            assertEquals("-9223372036854775807".charAt(i), jsonBuf.data[i + 1]);
+            assertEquals("-9223372036854775808".charAt(i), jsonBuf.data[i + 1]);
         }
         assertEquals((i+1), jsonBuf.position);
         
@@ -539,22 +557,21 @@ public class PrimitiveConverterTest {
         assertEquals((i+1), jsonBuf.position);
         
         /* Max negative 64-bit value, > 32-bit, then < 32-bit */
-        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
         buf.data(ByteBuffer.allocate(50));
         jsonBuf.data = new byte[10];
         jsonBuf.position = 1;
 
         real.clear();
-        real.value(-9223372036854775807L, 5);
+        real.value(-9223372036854775808L, 5);
         enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         real.encode(enc);
 
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
         assertEquals(0, jsonBuf.data[0]);
-        length = "-9223372036.854775807".length();
+        length = "-9223372036.854775808".length();
         for (i = 0; i < length; i++) {
-            assertEquals("-9223372036.854775807".charAt(i), jsonBuf.data[i + 1]);
+            assertEquals("-9223372036.854775808".charAt(i), jsonBuf.data[i + 1]);
         }
         assertEquals((i+1), jsonBuf.position);
         
@@ -578,22 +595,21 @@ public class PrimitiveConverterTest {
         assertEquals((i+1), jsonBuf.position);
         
         /* Max negative 64-bit value, < 32-bit, then > 32-bit */
-        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
         buf.data(ByteBuffer.allocate(50));
         jsonBuf.data = new byte[10];
         jsonBuf.position = 1;
 
         real.clear();
-        real.value(-9223372036854775807L, 4);
+        real.value(-9223372036854775808L, 4);
         enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         real.encode(enc);
 
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
         assertEquals(0, jsonBuf.data[0]);
-        length = "-922337203.6854775807".length();
+        length = "-922337203.6854775808".length();
         for (i = 0; i < length; i++) {
-            assertEquals("-922337203.6854775807".charAt(i), jsonBuf.data[i + 1]);
+            assertEquals("-922337203.6854775808".charAt(i), jsonBuf.data[i + 1]);
         }
         assertEquals((i+1), jsonBuf.position);
         
@@ -617,22 +633,21 @@ public class PrimitiveConverterTest {
         assertEquals((i+1), jsonBuf.position);
         
         /* Max negative 64-bit value, trailing zeroes */
-        /* Note that the current print algorithm cannot handle the full negative value due to 2's compliment math */
         buf.data(ByteBuffer.allocate(50));
         jsonBuf.data = new byte[10];
         jsonBuf.position = 1;
 
         real.clear();
-        real.value(-9223372036854775807L, 19);
+        real.value(-9223372036854775808L, 19);
         enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         real.encode(enc);
 
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
         assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
         assertEquals(0, jsonBuf.data[0]);
-        length = "-922337203685477580700000".length();
+        length = "-922337203685477580800000".length();
         for (i = 0; i < length; i++) {
-            assertEquals("-922337203685477580700000".charAt(i), jsonBuf.data[i + 1]);
+            assertEquals("-922337203685477580800000".charAt(i), jsonBuf.data[i + 1]);
         }
         assertEquals((i+1), jsonBuf.position);
         
@@ -907,7 +922,82 @@ public class PrimitiveConverterTest {
             assertEquals("-771604938290.8906".charAt(i), jsonBuf.data[i + 1]);
         }
        
+        /* Max negative 64-bit value, fraction 2 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775808L, 22);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-9223372036854775808".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-9223372036854775808".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
        
+        
+        /* Max negative 64-bit value, fraction 1 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775808L, 22);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-9223372036854775808".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-9223372036854775808".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max negative 64-bit value, fraction 1/2 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775808L, 23);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-4611686018427387904".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-4611686018427387904".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
+        
+        /* Max negative 64-bit value, fraction 1/128 */
+        buf.data(ByteBuffer.allocate(50));
+        jsonBuf.data = new byte[10];
+        jsonBuf.position = 1;
+
+        real.clear();
+        real.value(-9223372036854775808L, 29);
+        enc.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        real.encode(enc);
+
+        dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        assertEquals(true, converter.getPrimitiveHandler(DataTypes.REAL).encodeJson(dec, jsonBuf, convError));
+        assertEquals(0, jsonBuf.data[0]);
+        length = "-72057594037927936".length();
+        for (i = 0; i < length; i++) {
+            assertEquals("-72057594037927936".charAt(i), jsonBuf.data[i + 1]);
+        }
+        assertEquals((i+1), jsonBuf.position);
     }
 
     @Test

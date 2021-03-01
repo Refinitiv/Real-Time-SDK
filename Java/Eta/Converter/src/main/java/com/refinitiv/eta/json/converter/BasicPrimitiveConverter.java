@@ -170,6 +170,7 @@ class BasicPrimitiveConverter {
             if (value < 0) {
                 buffer[start++] = '-';
                 value *= -1;
+                posLength--;
             }
 
             long q;
@@ -196,7 +197,7 @@ class BasicPrimitiveConverter {
 
         int length = getLongLengthCompare(value);
         if (BufferHelper.checkAndResize(buffer, length, error)) {
-            writeLong(value, getPositiveLongLengthCompare(Math.abs(value)), buffer.position, buffer.data);
+            writeLong(value, length, buffer.position, buffer.data);
             buffer.position += length;
             return true;
         } else
@@ -236,10 +237,13 @@ class BasicPrimitiveConverter {
             long value = real.toLong();
             if (value == 0) {
                 return 1 + (asString ? 2 : 0);
-            }
-            if (value < 0) {
-                value *= -1;
-                length++;
+            } else if (value < 0) {
+            	/* For these calculations, getLongLengthCompare will add the '-' character on it's result */
+            	if (value != Long.MIN_VALUE)
+            	{
+            		value *= -1;
+                	length++;
+            	}
             }
             if (real.hint() - RealHints.FRACTION_1 >= 0) {
                 if (real.hint() - RealHints.FRACTION_1 > 0) {
@@ -272,6 +276,7 @@ class BasicPrimitiveConverter {
 
     static void writeReal(Real real, byte[] buffer, int start, boolean asString) {
         long value = real.toLong();
+        boolean maxNegativeLong = false;
 
         if (real.isBlank()) {
             BufferHelper.copyToByteArray(ConstCharArrays.nullBytes, start, buffer);
@@ -299,9 +304,20 @@ class BasicPrimitiveConverter {
             buffer[start++] = '0';
         } else {
 
-            if (value < 0) {
+            if (value < 0 && (real.hint() < RealHints.EXPONENT0 || real.hint() > RealHints.FRACTION_1)) {
                 value *= -1;
-                buffer[start++] = '-';
+                
+                if(real.toLong() == Long.MIN_VALUE) {
+                	maxNegativeLong = true;
+                	if(real.hint() < RealHints.FRACTION_1) {
+                		value = Long.MAX_VALUE;
+                		buffer[start++] = '-';
+                	}
+                } else {
+                	buffer[start++] = '-';
+                }
+                	
+                	
             }
 
             if (real.hint() - RealHints.FRACTION_1 >= 0) {
@@ -341,7 +357,14 @@ class BasicPrimitiveConverter {
                         long nv = value;
                         while (exponent++ < 0) {
                             nv = value / 10;
-                            buffer[end--] = (byte)(ConstCharArrays.digits[(int)(value - nv * 10)] & 0xFF);
+                            if(maxNegativeLong == false)
+                            {
+                            	buffer[end--] = (byte)(ConstCharArrays.digits[(int)(value - nv * 10)] & 0xFF);
+                            } else {
+                            	buffer[end--] = (byte)(ConstCharArrays.digits[(int)(value - nv * 10 + 1)] & 0xFF);
+                            	maxNegativeLong = false;
+                            }
+                            	
                             value = nv;
                         }
                         buffer[end] = '.';
