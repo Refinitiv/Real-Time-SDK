@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
 
-Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+Copyright (C) 2019-2021 Refinitiv. All rights reserved.
 
 # ETA Java Documentation
 
@@ -42,9 +42,9 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
 
 - Consists of:
 
-   - A transport-level API allowing for connectivity using TCP, HTTP, HTTPS, sockets, reliable and unreliable UDP multicast, and Shared Memory.
+   - A transport-level API allowing for connectivity using TCP, HTTP, HTTPS, sockets, websockets, reliable and unreliable UDP multicast, and Shared Memory.
 
-   - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages.
+   - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages. Websocket transport also supports JSON data format which must adhere to Refinitiv [Websocket protocol specification](https://github.com/Refinitiv/websocket-api/blob/master/WebsocketAPI_ProtocolSpecification.pdf).
 
 - RMTES Support: Several classes and methods can be used to process RMTES content and convert to several Unicode formats for interpretation.
 
@@ -55,6 +55,10 @@ In addtion, HTML documentation is available in Java/Eta/Docs. For addtional docu
    - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices.  The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download.  The Reactor also allows for dispatching of events to user implemented callback functions.  In addition, it handles flushing of user written content and manages network pings on the user's behalf.  Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content. Reactor also provides opportunity in-box support of RTT monitoring for consumer applications.
 
    - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules.  Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models.  When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
+
+    - Auto-conversion of JSON to RWF or vice versa by Reactor for Websocket Transport: Reactor does automatic conversion of JSON data from a Websocket connection, to RWF, and presents RWF to application layer. Please view documentation section for further details. 
+
+- RWF/JSON conversion library for users to convert JSON messages to RWF and vice-versa from a Websocket connection: This exists as a separate library.
 
 - DACS library for users to create custom locks for content publishing
 
@@ -99,7 +103,6 @@ Users can use Transport API to write interactive providers capable of the follow
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
 #### Provider Applications: Non-Interactive
-
 Users can use Transport API to write non-interactive applications that start up and begin publishing data to ADH.
 
 - Connect to one or many ADH devices using TCP sockets or reliable UDP multicast, making only configuration changes.
@@ -118,22 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.6.0.0.jar               eta3.6.0.L1       The ETA - Java Edition library.  Includes
+    eta-3.6.1.0.jar               eta3.6.1.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.6.0.0.jar       eta3.6.0.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.6.1.0.jar       eta3.6.1.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.6.0.0.jar  eta3.6.0.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.6.1.0.jar  eta3.6.1.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
+
+    etaConverter-3.6.1.0.jar      eta3.6.1.L1       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.7           The ETA Java DACS library.
 
-    ansipage-3.6.0.0.jar          eta3.6.0.L1       The ANSI decoders and encoders.
+    ansipage-3.6.1.0.jar          eta3.6.1.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.6.0.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.6.1.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -157,29 +162,34 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates.  Users can upgrade to a higher JRE version if they encounter problems.
 
+- ETA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
+
+- The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
+
+
 # Reference Information
 
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.6.0
+    Release Number: 3.6.1
     Load Number: 1
-    Load ID: etaj3.6.0.L1.all
-        Supersedes: etaj3.5.1.L1.all.rrg
+    Load ID: etaj3.6.1.L1.all
+        Supersedes: etaj3.6.0.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.44_RealTimeDistributionSystem_20.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.46_RealTimeDistributionSystem_21.21 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
     Veracode, Refinitiv Standard v21, https://www.veracode.com/.
-    Black Duck by Synopsis, 2019.12.1, https://www.blackducksoftware.com/.
+    Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.

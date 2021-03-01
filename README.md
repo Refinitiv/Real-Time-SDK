@@ -1,10 +1,10 @@
 # Refinitiv Real-Time SDK Announcement
 
-Elektron SDK is now rebranded to Refinitiv Real-Time SDK (RTSDK).
+Elektron SDK (ESDK) is now rebranded to Refinitiv Real-Time SDK (RTSDK).
 
 In general, please note that Refinitiv products will be undergoing brand changes to reflect Refinitiv branding. 
 
-Starting with release Refinitiv Real-Time SDK version 2.0 (ETA & EMA 3.6), rebranding activities will be completed and will impact customers in the following manner where applicable: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. Customers of impacted applications written to ESDK/RTSDK will be required to alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following: 
+Starting with release, Refinitiv Real-Time SDK version 2.0 (ETA & EMA 3.6), rebranding activities have been completed and impact customers in the following manner where applicable: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. Customers of impacted applications written to RTSDK will be required to alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following: 
 
 - For specific details on impact of changes to applications with RTSDK 2.0, please see [REBRAND.md](REBRAND.md). 
 - For general details regarding impact of rebranding, support questions, and timelines with RTSDK and other APIs, please see the [API Product Change Notification (PCN)](https://my.refinitiv.com/content/mytr/en/pcnpage/12072.html).

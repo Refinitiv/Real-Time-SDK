@@ -5,11 +5,30 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+Copyright (C) 2019-2021 Refinitiv. All rights reserved.
 
 # New In This Release
 
 Please refer to the CHANGELOG file in this section to see what is new in this release of Refinitiv Real-Time SDK - C/C++ Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version.
+
+### External Dependencies
+
+External modules used by this version of RTSDK C/C++:
+
+	Dependency		Version
+	----------		-------
+	openSSL 		1.0.1e
+	openSSL			1.1.1a
+	cJSON			v1.7.10
+	curl			7.63.0
+	googletest		release-1.8.1
+	libxml2			2.9.9
+	lz4			1.8.3
+	zlib			1.2.11
+
+- Please note that curl and openSSL are dynamically loaded at runtime.  
+- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build OpenSSL, and we recommend that all deployed versions of OpenSSL are patched to the latest version available. 
+   
 
 ### Supported Platforms, OSs, Compilers
 
@@ -65,24 +84,13 @@ Platforms & Compilers:
 	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
 	GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
 	GCC compiler suite version 8.3.1 or higher for CentOS 8.0, 64-bit, qualification with RH8 library build 
+	Clang compiler version 9.0.1 for CentOS 8.0, 64-bit, qualification with RH8 library build 
 
 * Eta VACache library built 
 
 NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8, Oracle Linux 7 and Red Hat 6 are available in release packages available on Refinitiv Developer Portal. 
 
 #### Tested Versions
-External modules used by this version of RTSDK C/C++:
-
-	Dependency		Version
-	----------		-------
-	openSSL 		1.0.1e
-	openSSL 		1.1.1a
-	cJSON			v1.7.10
-	curl			7.63.0
-	googletest		release-1.8.1
-	libxml2			2.9.9
-	lz4			1.8.3
-	zlib			1.2.11
 
 ##### Windows
 This release has been tested with supported valid OS/compiler combinations.
@@ -103,6 +111,7 @@ This release has been tested with the following on supported platform/OS combina
 	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 	n/a			RHEL7_64_GCC740
 	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 	n/a			RHEL8_64_GCC831
 	CentOS 8.0 64-bit                		GCC 8.3.1	RHEL8_64_GCC831 	CENTOS8_64_GCC831
+	CentOS 8.0 64-bit                		Clang 9.0.1     RHEL8_64_GCC831         CENTOS8_64_Clang901	
 
 	n/a = This is not a tested combination
 
@@ -145,7 +154,7 @@ Please refer to top level README.md and to Cpp-C/Eta/README.md or Cpp-C/Ema/READ
 
 # Installation and Build
 
-Please refer to Installation Guide for [ETA](Cpp-C/Eta/Docs/RTSDK_C_Installation_Guide.pdf) or [EMA](Cpp-C/Ema/Docs/RTSDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
+Please refer to Installation Guide for [ETA](Eta/Docs/RTSDK_C_Installation_Guide.pdf) or [EMA](Ema/Docs/RTSDK_C_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
 
 ## Install RTSDK 
 There are 3 ways to install Refinitiv Real-Time SDK:
