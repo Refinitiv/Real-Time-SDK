@@ -55,7 +55,6 @@ abstract class AbstractPrimitiveTypeConverter extends AbstractTypeConverter {
         } catch (Exception e) {
 
             error.setError(JsonConverterErrorCodes.JSON_ERROR, e.getMessage());
-            System.out.println(e.getMessage());
             return false;
         } finally {
 
