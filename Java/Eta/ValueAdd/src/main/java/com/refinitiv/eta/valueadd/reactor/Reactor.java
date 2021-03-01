@@ -384,6 +384,13 @@ public class Reactor
             _workerQueue = null;
             _reactorChannel.returnToPool();
             _reactorChannel = null;
+            
+            // Releases all references for the JSON converter library.
+            serviceNameToIdCallback = null;
+            JsonConversionEventCallback = null;
+            jsonConverter = null;
+            jsonConverterUserSpec = null;
+            serviceNameIdConverterClient = null;
 
             int tRetCode = Transport.uninitialize();
             if (tRetCode != TransportReturnCodes.SUCCESS)
