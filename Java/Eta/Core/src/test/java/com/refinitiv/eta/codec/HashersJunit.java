@@ -116,6 +116,35 @@ public class HashersJunit
     	305
     };
     
+    private static final long precalculatedPolyHashValues[] =
+    {
+    		Long.decode("0x00000000a0000016").longValue(),
+    		Long.decode("0x00000000e000009e").longValue(),
+    		Long.decode("0x00000000e0000169").longValue(),
+    		Long.decode("0x00000000f00001ac").longValue(),
+    		Long.decode("0x00000000900000a1").longValue(),
+    		Long.decode("0x00000000a000011f").longValue(),
+    		Long.decode("0x00000000b0000115").longValue(),
+    		Long.decode("0x00000000e0000092").longValue(),
+    		Long.decode("0x00000000c0000110").longValue(),
+    		Long.decode("0x0000000070000050").longValue(),
+    		Long.decode("0x0000000060000074").longValue(),
+    		Long.decode("0x00000000b0000074").longValue(),
+    		Long.decode("0x00000000900000ad").longValue(),
+    		Long.decode("0x00000000f00000bb").longValue(),
+    		Long.decode("0x0000000070000050").longValue(),
+    		Long.decode("0x00000000d00000d0").longValue(),
+    		Long.decode("0x0000000060000070").longValue(),
+    		Long.decode("0x00000000f000012c").longValue(),
+    		Long.decode("0x00000000e00000b7").longValue(),
+    		Long.decode("0x0000000080000009").longValue(),
+    		Long.decode("0x00000000d0000091").longValue(),
+    		Long.decode("0x00000000e0000130").longValue(),
+    		Long.decode("0x000000005000004f").longValue(),
+    		Long.decode("0x00000000b00000f7").longValue(),
+    		Long.decode("0x00000000d0000122").longValue()
+    };
+    
     private static final int NUMBER_OF_BUCKETS = 720;
 
     @Test
@@ -126,6 +155,18 @@ public class HashersJunit
             ByteBuffer buf = ByteBuffer.wrap(testStrings[i].getBytes());
             int hash = Hashers.hashingEntityId(buf, buf.position(), buf.limit(), NUMBER_OF_BUCKETS);
             assertEquals(precalculatedHashes[i], hash);
+        }
+    }
+    
+    @Test
+    public void polyHashValuesTest()
+    {
+    	/* Test only the first 25 RICS from testStrings */
+        for (int i = 0; i < 25; i++)
+        {
+            ByteBuffer buf = ByteBuffer.wrap(testStrings[i].getBytes());
+            long hash = Hashers.polyHash(buf, buf.position(), buf.limit());
+            assertEquals(precalculatedPolyHashValues[i], hash);
         }
     }
 }

@@ -50,13 +50,21 @@ public class Hashers
         0xEA2367C9L, 0x567FFB76L, 0x7511B3E4L, 0xC94D2F5BL
     };
 
-    private static long polyHash(ByteBuffer buf, int position, int length)
+    /**
+     * Calculates the hash value for a buffer by calculating the crc32 using the polynomial (0xF3C5F6A9)
+     *
+     * @param buffer specifies a buffer containing data to calculate hash code.
+     * @param position specifies a start position of the buffer.
+     * @param length specifies a length of data
+     * @return a hash value
+     */
+    public static long polyHash(ByteBuffer buffer, int position, int length)
     {
         long crc = 0;
         int len = position + length;
 
         for (int i = position; i < len; i++)
-            crc = hashCrcTable[(int)(crc ^ buf.get(i)) & 0xFF] ^ (crc >> 8);
+            crc = hashCrcTable[(int)(crc ^ buffer.get(i)) & 0xFF] ^ (crc >> 8);
 
         return crc;
     }
