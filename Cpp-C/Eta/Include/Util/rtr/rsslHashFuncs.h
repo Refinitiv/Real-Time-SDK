@@ -15,6 +15,12 @@
 extern "C" {
 #endif
 
+/* Calculate the hash value for a buffer/len by calculating the crc32
+ * using the polynomial (0xF3C5F6A9). This is what is used in IDN
+ * today and seems to give the best network traffic segmentation hashing
+ */
+RSSL_API RsslUInt32 rsslPolyHash(const char* buf, const RsslUInt32 length);
+
 /** 
  * @brief Implements a basic hash function.
  */

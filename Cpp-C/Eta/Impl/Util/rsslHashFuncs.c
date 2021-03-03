@@ -7,7 +7,6 @@
  */
 
 #include "rtr/rsslHashFuncs.h"
-#include "rtr/rsslHashFuncsInt.h"
 
 
 /* CRC32 table for polynomial 0xF3C5F6A9 */
@@ -61,7 +60,7 @@ RsslUInt32 __rssl_hash_crc_table[256] = {
  * using the polynomial (0xF3C5F6A9). This is what is used in IDN
  * today and seems to give the best network traffic segmentation hashing
  */
-RsslUInt32 rsslPolyHash(const char* buf, const RsslUInt32 length)
+RSSL_API RsslUInt32 rsslPolyHash(const char* buf, const RsslUInt32 length)
 {
 	register RsslUInt32 crc = 0;
 

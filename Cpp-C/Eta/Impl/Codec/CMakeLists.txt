@@ -57,7 +57,6 @@ else()
                 rtr/rsslIteratorUtilsInt.h
                 rtr/rsslMessageInt.h
                 rtr/rwfConvert.h
-                rtr/rsslHashFuncsInt.h
 
                 #Transport source files
                 ${Eta_SOURCE_DIR}/Impl/Transport/ripccomp.c
