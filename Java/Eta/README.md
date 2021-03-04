@@ -166,6 +166,9 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
+- ETA Java ValueAdd cache code which uses JNI is not compatible with the following JDK versions on Windows: Open JDK 1.11, JDK 1.11, Open JDK 1.8, JDK 1.8 update 261 or higher. Please note that this is not an issue on Linux.
+
+
 
 # Reference Information
 
