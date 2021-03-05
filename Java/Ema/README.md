@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+Copyright (C) 2019-2021 Refinitiv. All rights reserved.
   
 # EMA Java Documentation
 
@@ -76,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.6.0.0.jar         ema3.6.0.L1
+    ema-3.6.1.0.jar         ema3.6.1.L1
 
 # EMA Java Issues and Workarounds
  
@@ -86,29 +86,33 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates. Users can upgrade to a higher JRE version if they encounter problems.
 
+- EMA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
+
+- The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
+
 # Reference Information
 
     I-COS Questionnaire: 6313
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.6.0
+    Release Number: 3.6.1
     Load Number: 1
-    Load ID: ema3.6.0.L1.java
-        Supersedes: ema3.5.1.L1.java
+    Load ID: ema3.6.1.L1.java
+        Supersedes: ema3.6.0.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.44_RealTimeDistributionSystem_20.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.46_RealTimeDistributionSystem_21.21 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
     Veracode, Refinitiv Standard v21, https://www.veracode.com/.
-    Black Duck by Synopsis, 2019.12.1, https://www.blackducksoftware.com/.
+    Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
 
 # Notes
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

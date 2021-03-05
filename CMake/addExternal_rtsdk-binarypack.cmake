@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2020 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019-2021 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 include(rcdevExternalUtils)
 
 if(NOT rtsdk-binarypack_url)
-	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-2.0.0.L1/RTSDK-BinaryPack-2.0.0.L1.tar.xz")
+	set(rtsdk-binarypack_url "https://github.com/Refinitiv/Real-Time-SDK/releases/download/Real-Time-SDK-2.0.1.L1/RTSDK-BinaryPack-2.0.1.L1.tar.xz")
 endif()
 if(NOT rtsdk-binarypack_hash)
 	# .xz MD5 hash
 	# .tar.xz 
-	set(rtsdk-binarypack_hash "MD5=505ade3381b1f5dbdd7e154203173362")
+	set(rtsdk-binarypack_hash "MD5=7617370ba11cee5ec21538e7f1f9363d")
 endif()
 if(NOT rtsdk-binarypack_version)
-	set(rtsdk-binarypack_version "2.0.0.0")
+	set(rtsdk-binarypack_version "2.0.1.0")
 endif()
 	
 # If the option for using the system installed 

@@ -5,12 +5,9 @@ apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
-//group = "com.refinitiv.eta"
-group = "com.rtsdk.eta"
-archivesBaseName = "converter"
+group = "com.refinitiv.eta.json.converter"
+archivesBaseName = "etaConverter"
 version "$SpecificationVersion"
-
-//sourceCompatibility = 1.8
 
 uploadArchives {
     repositories {
@@ -28,13 +25,13 @@ uploadArchives {
             pom.project {
                 name "$archivesBaseName"
                 packaging 'jar'
-                url 'https://github.com/Refinitiv/Elektron-SDK'
-                description 'Elektron Transport API (ETA) Java Edition'
+                url 'https://github.com/Refinitiv/Real-Time-SDK'
+                description 'Elektron Transport API (ETA) Java Edition Converter Classes'
 
                 scm {
-                    connection 'scm:git:git://github.com/Refinitiv/Elektron-SDK.git'
-                    developerConnection 'scm:git:ssh://github.com:Refinitiv/Elektron-SDK.git'
-                    url 'http://github.com/Refinitiv/Elektron-SDK/tree/master'
+                    connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
                 }
 
                 developers {
@@ -64,22 +61,15 @@ cobertura {
 
 eclipse {
     project {
-        name = 'ESDK-Eta-Converter-Src'
+        name = 'RTSDK-Eta-Converter-Src'
     }
 }
 
 dependencies {
-//    compile group: 'org.json', name: 'json', version: '20200518'
-//    compile group: 'org.json', name: 'json', version: '20160810'
-// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.0'
-// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.0'
 
     compile project(':Eta:Core')
-
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.0'
 
     // needed for cobertura
     testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
@@ -96,10 +86,10 @@ ext.sharedManifest = manifest {
 }
 
 jar {
-    doFirst { println 'Creating UPA jar file' }
+    doFirst { println 'Creating ETA jar file' }
 
     manifest {
-        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition'
+        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition Converter classes'
         from sharedManifest
     }
 
@@ -109,36 +99,32 @@ jar {
             }
 
     destinationDir = file("../Libs/")
-    baseName = 'converter'
+    baseName = 'etajConverter'
 }
 
 javadoc {
     doFirst {
-        println "Generating javadoc for ETA"
+        println "Generating javadoc for ETA Converter"
     }
 
     exclude '**/*Impl.java'
     exclude '**/JUnit*.java'
 
-    destinationDir = file('../Docs/refman/upaj/')
-    title = "Elektron Transport API (ETA) " +  "${SpecificationVersion}" + " Java Edition"
+    destinationDir = file('../Docs/refman/etajconverter/')
+    title = "ETA Converter JAVA " +  "${SpecificationVersion}"
 
     options.footer ("${javadoc_footer}")
     options.header ("${javadoc_header}")
     options.bottom ("${javadoc_bottom}")
 
-    options.setWindowTitle ('ETA')
+    options.setWindowTitle ('ETA Converter')
 }
 
 task cleanJar (type: Delete) {
     delete "${jar.archivePath}"
 }
 
-task cleanJavadoc (type: Delete) {
-    delete ('../Docs/refman/')
-}
-
-clean.dependsOn cleanJar, cleanJavadoc
+clean.dependsOn cleanJar
 
 task javadocJar (type: Jar) {
     classifier = 'javadoc'
@@ -146,7 +132,7 @@ task javadocJar (type: Jar) {
     destinationDir = jar.destinationDir
 
     manifest {
-        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition'
+        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition Converter Classes'
         from sharedManifest
     }
 }

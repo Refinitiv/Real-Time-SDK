@@ -60,10 +60,19 @@ public class BasicPrimitiveConverterTest {
 
     @Test
     public void testWriteLong() {
-        byte[] buf = new byte[35];
-        BasicPrimitiveConverter.writeLong(-12345677812345L, 14, 7, buf);
-        for (int i = 7; i < 20; i++)
-            assertEquals("12345677812345".charAt(i - 7), (char)buf[i + 1]);
+    	 byte[] buf = new byte[35];
+    	 int i;
+         BasicPrimitiveConverter.writeLong(12345677812345L, 14, 7, buf);
+         for (i = 7; i < 21; i++) {
+             assertEquals("12345677812345".charAt(i - 7), (char)buf[i]);
+         }
+         assertEquals(buf[i+1], 0); 
+         buf = new byte[35];
+        BasicPrimitiveConverter.writeLong(-12345677812345L, 15, 7, buf);
+        for (i = 7; i < 22; i++) {
+            assertEquals("-12345677812345".charAt(i - 7), (char)buf[i]);
+        }
+        assertEquals(buf[i+1], 0); 
     }
 
     @Test

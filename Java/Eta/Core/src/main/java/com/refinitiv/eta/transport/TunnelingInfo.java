@@ -10,7 +10,11 @@ public interface TunnelingInfo
     /**
      * Tunneling type.
      * Possible values are "None", http", or "encrypted"
-     * For HTTP Tunneling, tunnelingType has to be set to "http" or "encrypted"
+     * If ConnectOptions.ConnectionType is set to ConnectionTypes.ENCRYPTED, this can be set to either "http" or "None".
+     * "None" will not use any encryption related configuration in this structure. To configure the 
+     * encrypted connection, use the ConnectOptions.encryptionOptions  
+     * "http" will use the HTTPS connection type, with additional encryption configuration provided by this class. 
+     * For legacy HTTP Tunneling configurations, tunnelingType has to be set to "http" or "encrypted"
      * 
      * @param tunnelingType the tunnelingType to set
      */

@@ -593,11 +593,6 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	return RSSL_RC_CRET_SUCCESS;
 }
 
-RsslReactorCallbackRet oAuthCredentialEventCallback2(RsslReactor *pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent)
-{
-	return RSSL_RC_CRET_SUCCESS;
-}
-
 TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_Callback)
 {
 	rsslClearCreateReactorOptions(&mOpts);
@@ -618,17 +613,6 @@ TEST_F(ReactorSessionMgntTest, MultipleOpenConnections_SameUser_Diff_Callback)
 	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_SUCCESS);
-
-	_reactorOmmConsumerRole.pOAuthCredential = NULL;
-	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);
-	_reactorOAuthCredential.userName = g_userName;
-	_reactorOAuthCredential.password = g_password;
-	_reactorOAuthCredential.clientId = g_userName;
-	_reactorOAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback2;
-	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
-
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The RsslReactorOAuthCredentialEventCallback of RsslReactorOAuthCredential is not equal for the same token session.");
 
 	_reactorOmmConsumerRole.pOAuthCredential = NULL;
 	rsslClearReactorOAuthCredential(&_reactorOAuthCredential);

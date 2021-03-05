@@ -50,32 +50,39 @@ public class Hashers
         0xEA2367C9L, 0x567FFB76L, 0x7511B3E4L, 0xC94D2F5BL
     };
 
-    private static long polyHash(ByteBuffer buf, int position, int length)
+    /**
+     * Calculates the hash value for a buffer by calculating the crc32 using the polynomial (0xF3C5F6A9)
+     *
+     * @param buffer specifies a buffer containing data to calculate hash code.
+     * @param position specifies a start position of the buffer.
+     * @param length specifies a length of data
+     * @return a hash value
+     */
+    public static long polyHash(ByteBuffer buffer, int position, int length)
     {
         long crc = 0;
         int len = position + length;
 
         for (int i = position; i < len; i++)
-            crc = hashCrcTable[(int)(crc ^ buf.get(i)) & 0xFF] ^ (crc >>> 8);
+            crc = hashCrcTable[(int)(crc ^ buffer.get(i)) & 0xFF] ^ (crc >> 8);
 
         return crc;
     }
 
-    private static long hashDenominator(int numberOfHashingEntities)
+    /**
+     * Calculates a hashing entity ID
+     * 
+     * @param buffer specifies a buffer containing data to calculate hash code.
+     * @param position specifies a start position of the buffer.
+     * @param length specifies a length of data
+     * @param numBuckets specifies a number of buckets
+     * @return a hash code
+     */
+    public static int hashingEntityId(ByteBuffer buffer, int position, int length, int numBuckets)
     {
-        long totalRange = 0x100000000L;
-	long denominator = totalRange / numberOfHashingEntities;
-	if (totalRange % numberOfHashingEntities != 0)
-		++denominator;
-        return denominator;
-    }
+    	long totalRange = 0x100000000L;
+    	long sum = ((polyHash(buffer, position, length) * numBuckets) / totalRange) + 1; //add 1 to make it 1-based
 
-    public static int hashingEntityId(ByteBuffer buf, int position, int length, int numberOfHashingEntities)
-    {
-        int sum = (int)(polyHash(buf, position, length) / hashDenominator(numberOfHashingEntities));
-
-	sum += 1;//add 1 to make it 1-based
-
-        return sum;
+        return (int)sum;
     }
 }

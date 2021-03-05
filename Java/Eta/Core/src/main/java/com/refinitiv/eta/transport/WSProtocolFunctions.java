@@ -192,6 +192,8 @@ class WSProtocolFunctions implements ProtocolFunctions {
 						/* Move the buffer's position beyond this message */
 						_readBufferStateMachine._currentMsgStartPos += (_webSocketSession.wsFrameHdr.hdrLen + _webSocketSession.wsFrameHdr.payloadLen);
 						
+						_webSocketSession.wsFrameHdr.reset();
+						
 						return readPrependTransportHdr(bytesRead, readArgs, error);
 					}
 				}

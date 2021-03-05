@@ -1061,17 +1061,25 @@ class RestReactor
 				for (String component : contentComponents) {
 					String[] nameValue = component.split("=");
 
-					if ("password".equals(nameValue[0])) {
-						nameValue[1] = "<*** password ***>";
+					if(nameValue.length == 2)
+					{
+						if ("password".equals(nameValue[0])) {
+							nameValue[1] = "<*** password ***>";
+						}
+						if ("newPassword".equals(nameValue[0])) {
+							nameValue[1] = "<*** newPassword ***>";
+						}
+						if ("client_secret".equals(nameValue[0])) {
+							nameValue[1] = "<*** client_secret ***>";
+						}
+						
+						requestLogBuffer.append("        " + nameValue[0] + ": " + nameValue[1]);
 					}
-					if ("newPassword".equals(nameValue[0])) {
-						nameValue[1] = "<*** newPassword ***>";
+					else if (nameValue.length == 1)
+					{
+						requestLogBuffer.append("        " + nameValue[0] + ": N/A");
 					}
-					if ("client_secret".equals(nameValue[0])) {
-						nameValue[1] = "<*** client_secret ***>";
-					}
-
-					requestLogBuffer.append("        " + nameValue[0] + ": " + nameValue[1]);
+					
 					requestLogBuffer.append("\n");
 				}
 			} 

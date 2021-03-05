@@ -289,6 +289,7 @@ public class ItemEncoder
 	 * Estimates the length of a Post message for an item.
 	 * 
 	 * @param itemInfo item information to calculate post message length.
+	 * @param protocol specifies JSON protocol.
 	 * @return buffer size length 
 	 */
 	public int estimateItemPostBufferLength(ItemInfo itemInfo, int protocol)
@@ -318,6 +319,7 @@ public class ItemEncoder
 	 * Estimates the length of a Generic message for an item.
 	 * 
 	 * @param itemInfo item information to calculate generic message length.
+	 * @param protocol specifies JSON protocol.
 	 * @return buffer size length 
 	 */
 	public int estimateItemGenMsgBufferLength(ItemInfo itemInfo, int protocol)
@@ -347,6 +349,7 @@ public class ItemEncoder
      * Estimates the length of a Refresh message for an item.
      * 
      * @param itemInfo item information to calculate refresh message length.
+     * @param protocol specifies JSON protocol.
      * 
      * @return buffer size length 
      */
@@ -383,6 +386,7 @@ public class ItemEncoder
      * Estimates the length of a Update message for an item.
      * 
      * @param itemInfo item information to calculate update message length.
+     * @param protocol specifies JSON protocol.
      * 
      * @return buffer size length 
      */

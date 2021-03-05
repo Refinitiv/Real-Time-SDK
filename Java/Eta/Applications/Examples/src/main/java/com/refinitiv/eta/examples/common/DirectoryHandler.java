@@ -328,7 +328,7 @@ public class DirectoryHandler implements ServiceNameIdConverter
         if (this.serviceName.toString().equals(serviceName))
             return service.serviceId();
 
-        return 0;
+        return -1;
     }
 
     @Override

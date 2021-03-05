@@ -5,11 +5,35 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+Copyright (C) 2019-2021 Refinitiv. All rights reserved.
 
 # New In This Release
 
 Please refer to the CHANGELOG file in this section to see what is new in this release of Refinitiv Real-Time SDK - Java Edition. Also in CHANGELOG is a list of issues fixed in this release and a history of features and fixes introduced per released version. 
+
+### External Dependencies
+
+External modules used by this version of RTSDK Java:
+
+	Dependency		Version
+	----------		-------
+	commons-codec 		1.11
+	commons-collections 	3.2.2
+	commons-configuration	1.10
+	commons-lang		2.6
+	commons-logging		1.2
+	junit			4.12
+	json			20180130
+	httpclient		4.5.13
+	httpclient-cache	4.5.13
+	httpcore-nio		4.4.13
+	httpcore-nio		4.4.12
+	httpmime		4.5.13
+	mockito-all		1.9.0
+	slf4j-api		1.7.12
+	slf4j-jdk14		1.7.12
+	xpp3			1.1.4c
+
 
 ### Supported Platforms, OSs, Compilers
 
@@ -85,21 +109,21 @@ Authentication Schemes:
 This release supports encryption for TLS 1.2.  
 
 ##### Generating a keystore file
-The **keystore** file is used to contain your own private keys and public key certificates which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. If you do not need to include your own private keys, the recommendation is to use the cacerts file as your keystore file.  The **cacerts** file comes with your java installation. If you do need to [create your own keystore file](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html), please follow industry standard instructions. 
+The **keystore** file is used to contain your own private keys and public key certificates which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. If you do not need to include your own private keys, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you do need to [create your own keystore file](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html), please follow industry standard instructions. 
 
 ### Interoperability
 
 RTSDK Java supports connectivity to the following platforms:
 
-- Refinitiv Real-Time Distribution System (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher.
-- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Direct Feed
+- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS version 2.6 and higher, ADH version 2.6 and higher.
+- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Real-Time - Optimized, Refinitiv Direct Feed
 
 NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.4.2
-- ADH 3.4.2
+- ADS 3.5.0
+- ADH 3.5.0
 - DACS 7.6
 
 # Documentation
@@ -108,7 +132,7 @@ Please refer to top level README.md and to Java/Eta/README.md or Java/Ema/README
 
 # Installation & Build
 
-Please refer to Installation Guides for [ETA](Java/Eta/Docs/RTSDK_J_Installation_Java.pdf) and [EMA](Java/Ema/Docs/RTSDK_J_Installation_Java.pdf) for detailed instructions. In this section are some basic details.
+Please refer to Installation Guides for [ETA](Eta/Docs/RTSDK_J_Installation_Java.pdf) and [EMA](Ema/Docs/RTSDK_J_Installation_Java.pdf) for detailed instructions. In this section are some basic details.
 
 ## Install RTSDK 
 This section shows the required setup needed before you can build any of the Java APIs.
@@ -182,40 +206,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.0.0</version>
+		<version>3.6.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.0.0</version>
+		<version>3.6.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.0.0</version>
+		<version>3.6.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.0.0</version>
+		<version>3.6.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.0.0</version>
+		<version>3.6.1.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.0.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.0.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.0.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.0.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.0.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.1.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.1.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.1.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.1.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.1.0'
 
 # Developing 
 

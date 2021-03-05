@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake.
 
-Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+Copyright (C) 2019-2021 Refinitiv. All rights reserved.
 
 # ETA C-Edition Documentation
 
@@ -48,17 +48,17 @@ The Enterprise Transport API fully supports all OMM constructs and messages.
 
     - A transport-level API allowing for connectivity using TCP sockets, HTTP, HTTPS, websockets, reliable and unreliable UDP multicast, and Shared Memory.
 
-    - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages sent over the wire in a binary data format called, Refinitiv Wire Format (RWF).  Websocket transport also supports JSON data format which must adhere to Refinitiv [Websocket protocol specification](https://github.com/Refinitiv/websocket-api/blob/master/WebsocketAPI_ProtocolSpecification.pdf).
+    - OMM Encoder and Decoders, allowing full use of all OMM constructs and messages sent over the wire in a binary data format called, Refinitiv Wire Format (RWF). Websocket transport also supports JSON data format which must adhere to Refinitiv [Websocket protocol specification](https://github.com/Refinitiv/websocket-api/blob/master/WebsocketAPI_ProtocolSpecification.pdf).
     
     - RMTES Support: Several structures and functions can be used to process RMTES content and convert to several Unicode formats for interpretation. 
     
 - Open Source performance tools:
 
-    - Allow users to measure the performance through their system.  Customers can modify the tools to suit their specific needs.  These are found in the Value Add portion of this package.
+    - Allow users to measure the performance through their system. Customers can modify the tools to suit their specific needs. These are found in the Value Add portion of this package.
     
 - Open Source value added helpers:
 
-    - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices.  The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download.  The Reactor also allows for dispatching of events to user implemented callback functions.  In addition, it handles flushing of user written content and manages network pings on the user's behalf.  Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content.
+    - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices. The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download. The Reactor also allows for dispatching of events to user implemented callback functions. In addition, it handles flushing of user written content and manages network pings on the user's behalf. Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content.
 
     - The Administration Domain Model Representations are RDM specific representations of the OMM administrative domain models. This Value Added Component contains structures that represent the messages within the Login, Source Directory, and Dictionary domains. This component also handles all encoding and decoding functionality for these domain models, so the application needs only to manipulate the message's structure members to send or receive this content. This not only significantly reduces the amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
     
@@ -102,8 +102,7 @@ Users can use Transport API to write interactive providers capable of the follow
 - Receive requests and respond to Streaming and Snapshot based Requests.
 - Receive and respond to requests for Batch, Views, and Symbol Lists.
 - Receive requests for Pause and Resume on active Data Streams.
-- Receive and acknowledge Post Messages
-(used when receiving Consumer-based Publishing and Contributions).
+- Receive and acknowledge Post Messages (used when receiving Consumer-based Publishing and Contributions).
 - Send and receive Generic Messages.
 - Accept multiple connections, or allow multiple consumers to connect to a provider.
 
@@ -141,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.6.0.L1     
-    librsslVA.lib             eta3.6.0.L1
-    librsslVACache.lib        eta3.6.0.L1
-    libansi.lib               eta3.6.0.L1
-    libdacs.lib               eta3.6.0.L1
+    librssl.lib*              eta3.6.1.L1     
+    librsslVA.lib             eta3.6.1.L1
+    librsslVACache.lib        eta3.6.1.L1
+    libansi.lib               eta3.6.1.L1
+    libdacs.lib               eta3.6.1.L1
 
     *librssl.lib includes JsonConverter
 
@@ -153,27 +152,27 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.6.0.L1
-    librssl.lib               eta3.6.0.L1
-    librssl.pdb               eta3.6.0.L1
-    librsslVA.dll             eta3.6.0.L1
-    librsslVA.lib             eta3.6.0.L1
-    librsslVA.pdb             eta3.6.0.L1
-    librsslVACache.dll        eta3.6.0.L1
-    librsslVACache.lib        eta3.6.0.L1
-    librsslVACache.pdb        eta3.6.0.L1
-    librsslJsonConverter.dll  eta3.6.0.L1
-    librsslJsonConverter.lib  eta3.6.0.L1
-    librsslJsonConverter.pdb  eta3.6.0.L1
+    librssl.dll               eta3.6.1.L1
+    librssl.lib               eta3.6.1.L1
+    librssl.pdb               eta3.6.1.L1
+    librsslVA.dll             eta3.6.1.L1
+    librsslVA.lib             eta3.6.1.L1
+    librsslVA.pdb             eta3.6.1.L1
+    librsslVACache.dll        eta3.6.1.L1
+    librsslVACache.lib        eta3.6.1.L1
+    librsslVACache.pdb        eta3.6.1.L1
+    librsslJsonConverter.dll  eta3.6.1.L1
+    librsslJsonConverter.lib  eta3.6.1.L1
+    librsslJsonConverter.pdb  eta3.6.1.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
 
 In addition, several versions of a shared library can co-exist on the machine. This allows for easy upgrade of functionality by deploying a newer shared library. It is important to ensure that the application is using a version that is binary compatible to the library that it originally linked with.  
 
-To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.6.0.L1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in ETA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
+To help with this, Transport API provides several versioning mechanisms for its open source and closed source shared libraries. Each open source library is provided with its package version appended to the end. For example, librssl.so.3.6.1.L1. For closed source shared libraries, the binary version is appended to the name. For example, librsslVACache.so.3. Embedded in each library is a shared object name (soname) that conveys binary compatibility information. For example, assuming that the embedded soname is librssl.so.1, if binary compatibility were to change in ETA, this embedded soname would be updated to be librssl.so.2. This naming convention is intended to help protect applications from using a non-compatible version of the shared library. 
 
-The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.6.0.L1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.6.0.L1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.6.0.L1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
+The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.3.6.1.L1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.3.6.1.L1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.3.6.1.L1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
 
 	./LinuxSoLink
     
@@ -182,22 +181,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.6.0.L1
-    librsslVA.a                        eta3.6.0.L1
-    librsslVACache.a                   eta3.6.0.L1
-    libansi.lib                        eta3.6.0.L1
-    libdacs.lib                        eta3.6.0.L1
+    librssl.a                          eta3.6.1.L1
+    librsslVA.a                        eta3.6.1.L1
+    librsslVACache.a                   eta3.6.1.L1
+    libansi.lib                        eta3.6.1.L1
+    libdacs.lib                        eta3.6.1.L1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.6.0.0                 librssl.so.13                   eta3.6.0.L1
-    librsslVA.so.3.6.0.0               librsslVA.so.16                 eta3.6.0.L1
-    librsslJsonConverter.so.3.6.0.0    librsslJsonConverter.so.2       eta3.6.0.L1
+    librssl.so.3.6.1.0                 librssl.so.14                   eta3.6.1.L1
+    librsslVA.so.3.6.1.0               librsslVA.so.16                 eta3.6.1.L1
+    librsslJsonConverter.so.3.6.1.0    librsslJsonConverter.so.2       eta3.6.1.L1
 
-    librsslVACache.so.3.6.0.0          librsslVACache.so.3             eta3.6.0.L1
-    librsslRelMcast.so.3.6.0.0         librsslRelMcast.so.2            eta3.6.0.L1
+    librsslVACache.so.3.6.1.0          librsslVACache.so.3             eta3.6.1.L1
+    librsslRelMcast.so.3.6.1.0         librsslRelMcast.so.2            eta3.6.1.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -226,26 +225,26 @@ The Transport API provides a helpful script that will create soft links for the 
     I-COS Questionnaire: 6211
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
-    Release Number: 3.6.0
+    Release Number: 3.6.1
     Load Number: 1
-    Windows Load ID: eta3.6.0.L1.win
-        Supersedes: eta3.5.1.L1.win.rrg
-    Linux Load ID: eta3.6.0.L1.linux
-        Supersedes: eta3.5.1.L1.linux.rrg
+    Windows Load ID: eta3.6.1.L1.win
+        Supersedes: eta3.6.0.L1.win.rrg
+    Linux Load ID: eta3.6.1.L1.linux
+        Supersedes: eta3.6.0.L1.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.44_RealTimeDistributionSystem_20.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.46_RealTimeDistributionSystem_21.21 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
     Veracode, Refinitiv Standard v21, https://www.veracode.com/.
-    Black Duck by Synopsis, 2019.12.1, https://www.blackducksoftware.com/.
+    Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
 
 # Notes:
 - This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.

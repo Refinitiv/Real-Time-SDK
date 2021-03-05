@@ -384,6 +384,13 @@ public class Reactor
             _workerQueue = null;
             _reactorChannel.returnToPool();
             _reactorChannel = null;
+            
+            // Releases all references for the JSON converter library.
+            serviceNameToIdCallback = null;
+            JsonConversionEventCallback = null;
+            jsonConverter = null;
+            jsonConverterUserSpec = null;
+            serviceNameIdConverterClient = null;
 
             int tRetCode = Transport.uninitialize();
             if (tRetCode != TransportReturnCodes.SUCCESS)
@@ -1120,7 +1127,8 @@ public class Reactor
 
         try
         {
-            if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE || tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST)
+            if ( tokenSession.sessionMgntState() == SessionState.REQUEST_TOKEN_FAILURE || tokenSession.sessionMgntState() == SessionState.STOP_TOKEN_REQUEST
+            		|| tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_PASSWORD || tokenSession.sessionMgntState() == SessionState.REQ_AUTH_TOKEN_USING_REFRESH_TOKEN)
             {
                 return ReactorReturnCodes.SUCCESS;
             }
