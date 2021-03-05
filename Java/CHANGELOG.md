@@ -18,13 +18,13 @@ This release introduces support for Websocket Transport in RTSDK with capabiliti
 
 Customer Issues Resolved
 ------------------
-[Github # 96] - [RTSDK-2707] - Java, UPA: IndexOutOfBoundsException thrown when applying RMTES to cache 
-[GitHub # 131] - [RTSDK-3813] - Duplicate FID in EMA Java View request returns all fields in Refresh Response message
-[GitHub # 123] - [RTSDK-3965] - Avoid incorrect pattern of use of ReentrantLock.tryLock()
-[GitHub # 146] - [RTSDK-4114] - Nullpointer Exception in OmmConsumerImpl
-[GitHub # 148] - [RTSDK-4175] -  NPE in Server.accept if connection is not available
-[GitHub # 149] - [RTSDK-4187] -  Unable to reset view to get all fields
-[GitHub # 151] - [RTSDK-4289] - Unable to resume a stream that was opened in a paused state
+- [Github # 96] - [RTSDK-2707] - Java, UPA: IndexOutOfBoundsException thrown when applying RMTES to cache 
+- [GitHub # 131] - [RTSDK-3813] - Duplicate FID in EMA Java View request returns all fields in Refresh Response message
+- [GitHub # 123] - [RTSDK-3965] - Avoid incorrect pattern of use of ReentrantLock.tryLock()
+- [GitHub # 146] - [RTSDK-4114] - Nullpointer Exception in OmmConsumerImpl
+- [GitHub # 148] - [RTSDK-4175] -  NPE in Server.accept if connection is not available
+- [GitHub # 149] - [RTSDK-4187] -  Unable to reset view to get all fields
+- [GitHub # 151] - [RTSDK-4289] - Unable to resume a stream that was opened in a paused state
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -40,67 +40,67 @@ This release introduces support for Websocket Transport in RTSDK with capabiliti
 
 EMA Java 3.6.1.L1 Issues Resolved
 ---------------------------------
-[RTSDK-3813] - Duplicate FID in EMA Java View request returns all fields in Refresh Response message [GitHub # 131]
-[RTSDK-3965] - Avoid incorrect pattern of use of ReentrantLock.tryLock() [GitHub # 123]
-[RTSDK-4013] - EMAJ does NOT set HAS_SERVICE_ID flag on onStream postMsg with if it sets serviceName
-[RTSDK-4114] - Nullpointer Exception in OmmConsumerImpl [GitHub # 146]
-[RTSDK-4418] - Documentation: Change Readme to fix "Consumer" to "Custom" for 320 example
+- [RTSDK-3813] - Duplicate FID in EMA Java View request returns all fields in Refresh Response message [GitHub # 131]
+- [RTSDK-3965] - Avoid incorrect pattern of use of ReentrantLock.tryLock() [GitHub # 123]
+- [RTSDK-4013] - EMAJ does NOT set HAS_SERVICE_ID flag on onStream postMsg with if it sets serviceName
+- [RTSDK-4114] - Nullpointer Exception in OmmConsumerImpl [GitHub # 146]
+- [RTSDK-4418] - Documentation: Change Readme to fix "Consumer" to "Custom" for 320 example
 
 ETA Java 3.6.1.L1 Issues Resolved
 ---------------------------------
-[RTSDK-2707] - Java, UPA: IndexOutOfBoundsException thrown when applying RMTES to cache [Github # 96]
-[RTSDK-4175] -  NPE in Server.accept if connection is not available [GitHub # 148]
-[RTSDK-4383] - ETAJ issue with xml dumping blank data
-[RTSDK-4707] - ETAJ RMTES Unit Test does not build on Java 9 or above
+- [RTSDK-2707] - Java, UPA: IndexOutOfBoundsException thrown when applying RMTES to cache [Github # 96]
+- [RTSDK-4175] -  NPE in Server.accept if connection is not available [GitHub # 148]
+- [RTSDK-4383] - ETAJ issue with xml dumping blank data
+- [RTSDK-4707] - ETAJ RMTES Unit Test does not build on Java 9 or above
 
 Both ETA Java and EMA Java 3.6.1.L1 Issues Resolved
 ---------------------------------------------------
-[RTSDK-1752] - ESDKJava Websocket Transport Support - Design
-[RTSDK-3418] - ESDKJ Server Side Encryption
-[RTSDK-4110] - ETAJ Websocket Transport: Support XML tracing for the JSON2 protocol
-[RTSDK-4127] - Server Side Encryption, Implementation: Extend ETAJ to handle server-side encrypted interactions
-[RTSDK-4129] - Server Side Encryption, Interface: Extend the ETAJ server bind interface to handle all of the encrypted configuration
-[RTSDK-4138] - JSON <-> RWF converters
-[RTSDK-4139] - ESDKJ RWF/JSON Conversion: ESDK simple data JSON->RWF converters
-[RTSDK-4140] - ESDKJ RWF/JSON Conversion: ESDK messages JSON->RWF converters
-[RTSDK-4141] - ESDKJ RWF/JSON Conversion: Dictionary integration to support enumerated fields
-[RTSDK-4142] - ESDKJ RWF/JSON Conversion: ESDK containers JSON->RWF converters
-[RTSDK-4144] - ESDKJ RWF/JSON Conversion: Java primitive types to byte[] converters
-[RTSDK-4145] - ESDKJ RWF/JSON Conversion: ESDK simple data RWF-JSON converters
-[RTSDK-4146] - ESDKJ RWF/JSON Conversion: ESDK messages RWF->JSON converters
-[RTSDK-4147] - ESDKJ RWF/JSON Conversion: ESDK containers RWF->JSON converters
-[RTSDK-4187] -  Unable to reset view to get all fields [GitHub # 149]
-[RTSDK-4190] - Websocket Transport: Implement proxy and encryption support for WebSocket connection type.
-[RTSDK-4289] - Unable to resume a stream that was opened in a paused state [GitHub # 151]
-[RTSDK-4312] - Implement server side encryption support for WebSocket connection type.
-[RTSDK-4316] - ESDKJ RWF/JSON Conversion: Introduce RsslEncode/DecodeJsonMsgOptions
-[RTSDK-4319] - ESDKJ RWF/JSON Conversion: Json Messages converters ping/pong/error
-[RTSDK-4384] - Websocket Transport: Modify transportTest to support websocket transport and perform integration testing
-[RTSDK-4385] - ESDKJ RWF/JSON Conversion: Create unit tests for JSON -> RWF container converters
-[RTSDK-4386] - ESDKJ RWF/JSON Conversion: Create unit tests for Messages
-[RTSDK-4421] - ESDK-Documentation: Copyright Notice link on Refman footer is linked to invalid page
-[RTSDK-4422] - ESDKJ RWF/JSON Conversion: Support an array of Json messages supplied to parseJson method
-[RTSDK-4423] - ESDKJ RWF/JSON Conversion: Unit tests for messages encoded in containers (sunny cases)
-[RTSDK-4424] - ESDKJ RWF/JSON Conversion: RWF -> JSON Negative case scenarios for containers
-[RTSDK-4425] - ESDKJ RWF/JSON Conversion: RWF -> JSON Negative case scenarios for messages
-[RTSDK-4426] - ESDKJ RWF/JSON Conversion: JSON -> RWF Negative case scenarios for containers
-[RTSDK-4427] - ESDKJ RWF/JSON Conversion: JSON -> RWF Negative case scenarios for messages
-[RTSDK-4428] - ESDKJ RWF/JSON Conversion: Add factory for creating options
-[RTSDK-4429] - Add auto conversion feature between RWF and JSON to the Reactor library
-[RTSDK-4431] - Websocket Transport: Modify ETAJ Provider application to support the websocket transport
-[RTSDK-4432] - Websocket Transport: Modify ETAJ Consumer application to support the websocket transport
-[RTSDK-4433] - Modify ETAJ VAConsumer and WatchlistConsumer applications to support the websocket transport
-[RTSDK-4434] - Modify ETAJ VAProvider application to support the websocket transport
-[RTSDK-4442] - ESDKJ RWF/JSON Conversion: Converter library cleanup
-[RTSDK-4448] - ESDKJ RWF/JSON Conversion: Refactor library to create converter Builder by ConverterFactory class
-[RTSDK-4461] - ESDKJ RWF/JSON Conversion: Add method for getting failed json message
-[RTSDK-4474] - Enhance the ETAJ TransportPerf tool to support websocket transport
-[RTSDK-4476] - Enhance the EMAJ library to support the websocket connection type
-[RTSDK-4477] - EMAJ: Provides additional examples for IProvider and Consumer to support the websocket connection type.
-[RTSDK-4478] - Modify the Cons113 and Cons450 to support the websocket connection type.
-[RTSDK-4492] - Update gradle-wrapper.jar
-[RTSDK-4545] - Add hashing algorithm, rsslHashingEntityId
-[RTSDK-4597] - Update RTSDK Apache HTTPCOMPONENT to 4.5.13
+- [RTSDK-1752] - ESDKJava Websocket Transport Support - Design
+- [RTSDK-3418] - ESDKJ Server Side Encryption
+- [RTSDK-4110] - ETAJ Websocket Transport: Support XML tracing for the JSON2 protocol
+- [RTSDK-4127] - Server Side Encryption, Implementation: Extend ETAJ to handle server-side encrypted interactions
+- [RTSDK-4129] - Server Side Encryption, Interface: Extend the ETAJ server bind interface to handle all of the encrypted configuration
+- [RTSDK-4138] - JSON <-> RWF converters
+- [RTSDK-4139] - ESDKJ RWF/JSON Conversion: ESDK simple data JSON->RWF converters
+- [RTSDK-4140] - ESDKJ RWF/JSON Conversion: ESDK messages JSON->RWF converters
+- [RTSDK-4141] - ESDKJ RWF/JSON Conversion: Dictionary integration to support enumerated fields
+- [RTSDK-4142] - ESDKJ RWF/JSON Conversion: ESDK containers JSON->RWF converters
+- [RTSDK-4144] - ESDKJ RWF/JSON Conversion: Java primitive types to byte[] converters
+- [RTSDK-4145] - ESDKJ RWF/JSON Conversion: ESDK simple data RWF-JSON converters
+- [RTSDK-4146] - ESDKJ RWF/JSON Conversion: ESDK messages RWF->JSON converters
+- [RTSDK-4147] - ESDKJ RWF/JSON Conversion: ESDK containers RWF->JSON converters
+- [RTSDK-4187] -  Unable to reset view to get all fields [GitHub # 149]
+- [RTSDK-4190] - Websocket Transport: Implement proxy and encryption support for WebSocket connection type.
+- [RTSDK-4289] - Unable to resume a stream that was opened in a paused state [GitHub # 151]
+- [RTSDK-4312] - Implement server side encryption support for WebSocket connection type.
+- [RTSDK-4316] - ESDKJ RWF/JSON Conversion: Introduce RsslEncode/DecodeJsonMsgOptions
+- [RTSDK-4319] - ESDKJ RWF/JSON Conversion: Json Messages converters ping/pong/error
+- [RTSDK-4384] - Websocket Transport: Modify transportTest to support websocket transport and perform integration testing
+- [RTSDK-4385] - ESDKJ RWF/JSON Conversion: Create unit tests for JSON -> RWF container converters
+- [RTSDK-4386] - ESDKJ RWF/JSON Conversion: Create unit tests for Messages
+- [RTSDK-4421] - ESDK-Documentation: Copyright Notice link on Refman footer is linked to invalid page
+- [RTSDK-4422] - ESDKJ RWF/JSON Conversion: Support an array of Json messages supplied to parseJson method
+- [RTSDK-4423] - ESDKJ RWF/JSON Conversion: Unit tests for messages encoded in containers (sunny cases)
+- [RTSDK-4424] - ESDKJ RWF/JSON Conversion: RWF -> JSON Negative case scenarios for containers
+- [RTSDK-4425] - ESDKJ RWF/JSON Conversion: RWF -> JSON Negative case scenarios for messages
+- [RTSDK-4426] - ESDKJ RWF/JSON Conversion: JSON -> RWF Negative case scenarios for containers
+- [RTSDK-4427] - ESDKJ RWF/JSON Conversion: JSON -> RWF Negative case scenarios for messages
+- [RTSDK-4428] - ESDKJ RWF/JSON Conversion: Add factory for creating options
+- [RTSDK-4429] - Add auto conversion feature between RWF and JSON to the Reactor library
+- [RTSDK-4431] - Websocket Transport: Modify ETAJ Provider application to support the websocket transport
+- [RTSDK-4432] - Websocket Transport: Modify ETAJ Consumer application to support the websocket transport
+- [RTSDK-4433] - Modify ETAJ VAConsumer and WatchlistConsumer applications to support the websocket transport
+- [RTSDK-4434] - Modify ETAJ VAProvider application to support the websocket transport
+- [RTSDK-4442] - ESDKJ RWF/JSON Conversion: Converter library cleanup
+- [RTSDK-4448] - ESDKJ RWF/JSON Conversion: Refactor library to create converter Builder by ConverterFactory class
+- [RTSDK-4461] - ESDKJ RWF/JSON Conversion: Add method for getting failed json message
+- [RTSDK-4474] - Enhance the ETAJ TransportPerf tool to support websocket transport
+- [RTSDK-4476] - Enhance the EMAJ library to support the websocket connection type
+- [RTSDK-4477] - EMAJ: Provides additional examples for IProvider and Consumer to support the websocket connection type.
+- [RTSDK-4478] - Modify the Cons113 and Cons450 to support the websocket connection type.
+- [RTSDK-4492] - Update gradle-wrapper.jar
+- [RTSDK-4545] - Add hashing algorithm, rsslHashingEntityId
+- [RTSDK-4597] - Update RTSDK Apache HTTPCOMPONENT to 4.5.13
 
 --------------------------------------------
 RTSDK Java Release 2.0.0.L1 (Oct 19, 2020)

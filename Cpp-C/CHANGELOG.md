@@ -14,11 +14,11 @@ CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.1.L1 aka EMA 3.6.1.L1 and ETA 3.6.1
 
 Customer Issues Resolved
 ------------------
-[Case Number: 05224063] - [RTSDK-214] - Consumer crashes when decoding using wrong field type
-[GitHub # 82] - [RTSDK-1761] - Remove malloc.h for clang; qualification with clang on RH8
-[GitHub # 134] - [RTSDK-3964] - Use after free in OmmServerBaseImpl.cpp
-[GitHub # 153] - [RTSDK-4308] - Error in DirectoryHandler when using more than 5 services
-[GitHub # 119] - [RTSDK-4402] - Support additional Source Directory attributes via EmaConfig
+- [Case Number: 05224063] - [RTSDK-214] - Consumer crashes when decoding using wrong field type
+- [GitHub # 82] - [RTSDK-1761] - Remove malloc.h for clang; qualification with clang on RH8
+- [GitHub # 134] - [RTSDK-3964] - Use after free in OmmServerBaseImpl.cpp
+- [GitHub # 153] - [RTSDK-4308] - Error in DirectoryHandler when using more than 5 services
+- [GitHub # 119] - [RTSDK-4402] - Support additional Source Directory attributes via EmaConfig
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -30,29 +30,29 @@ RTSDK C++/C Release 2.0.1.L1 (Mar 4, 2021)
 
 EMA C++ 3.6.1.L1 Issues Resolved
 --------------------------------
-[RTSDK-444] - Change Consumer270 to not use the hasMsgKey()
-[RTSDK-3775] - Add unit test EMA C++ [GitHub # 128]
-[RTSDK-3964] - Use after free in OmmServerBaseImpl.cpp [GitHub # 134]
-[RTSDK-4248] - Avoid empty catch(std::bad_alloc) blocks
-[RTSDK-4308] - Error in DirectoryHandler when using more than 5 services [GitHub # 153]
-[RTSDK-4402] - Support additional Source Directory attributes via EmaConfig [GitHub # 119]
-[RTSDK-4629] - EMACPP ServerType::RSSL_ENCRYPTED doesn't take WsProtocols
+- [RTSDK-444] - Change Consumer270 to not use the hasMsgKey()
+- [RTSDK-3775] - Add unit test EMA C++ [GitHub # 128]
+- [RTSDK-3964] - Use after free in OmmServerBaseImpl.cpp [GitHub # 134]
+- [RTSDK-4248] - Avoid empty catch(std::bad_alloc) blocks
+- [RTSDK-4308] - Error in DirectoryHandler when using more than 5 services [GitHub # 153]
+- [RTSDK-4402] - Support additional Source Directory attributes via EmaConfig [GitHub # 119]
+- [RTSDK-4629] - EMACPP ServerType::RSSL_ENCRYPTED doesn't take WsProtocols
 
 ETA C 3.6.1.L1 Issues Resolved
 --------------------------------
-[RTSDK-214] - Consumer crashes when decoding using wrong field type [Case Number: 05224063]
-[RTSDK-3411] - Warnings when build with GCC 740
-[RTSDK-4171] - Linux shared memory server creation issue - remove resources incomplete, under non-root account
-[RTSDK-4295] - rsslTransportUnitTest fails when certificate and key are not passed in commandline args
-[RTSDK-3976] - RWF JSON Conversion Issue: Converting of a zero length message causes a crash
-[RTSDK-4544] - Add hashing algorithm, rsslHashingEntityId 
+- [RTSDK-214] - Consumer crashes when decoding using wrong field type [Case Number: 05224063]
+- [RTSDK-3411] - Warnings when build with GCC 740
+- [RTSDK-4171] - Linux shared memory server creation issue - remove resources incomplete, under non-root account
+- [RTSDK-4295] - rsslTransportUnitTest fails when certificate and key are not passed in commandline args
+- [RTSDK-3976] - RWF JSON Conversion Issue: Converting of a zero length message causes a crash
+- [RTSDK-4544] - Add hashing algorithm, rsslHashingEntityId 
 
 Both ETA C and EMA C++ 3.6.1.L1 Issues Resolved
 -----------------------------------------------
-[RTSDK-1761] - Remove malloc.h for clang; qualification with clang on RH8 [GitHub # 82]
-[RTSDK-3207] - Source directory request for invalid serviceId or serviceName give full source directory
-[RTSDK-4404] - Unreachable or dead code due to wrong behavior of some rsslEncode / rsslDecode functions
-[RTSDK-4421] - ESDK-Documentation: Copyright Notice link on Refman footer is linked to invalid page
+- [RTSDK-1761] - Remove malloc.h for clang; qualification with clang on RH8 [GitHub # 82]
+- [RTSDK-3207] - Source directory request for invalid serviceId or serviceName give full source directory
+- [RTSDK-4404] - Unreachable or dead code due to wrong behavior of some rsslEncode / rsslDecode functions
+- [RTSDK-4421] - ESDK-Documentation: Copyright Notice link on Refman footer is linked to invalid page
 
 
 --------------------------------------------
