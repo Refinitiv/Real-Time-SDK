@@ -19,7 +19,17 @@ public class RealJunit
 	{
 		Real real = CodecFactory.createReal();
 		real.value(val, hint);
-		String s = String.valueOf(val);
+		String s;
+		
+		if( RealHints.EXPONENT_14 <= hint && hint <= RealHints.EXPONENT_1)
+		{
+			s = String.format(RealImpl.decimalStringFormat[hint],val);
+		}
+		else
+		{
+			s = String.valueOf(val);
+		}
+		
 		assertTrue(s.equals(real.toString()));
 	}
 	
@@ -208,6 +218,17 @@ public class RealJunit
 		testRealToString(0.75, RealHints.EXPONENT_2);
 		testRealToString(5, RealHints.EXPONENT_2);
 		testRealToString(1.125, RealHints.EXPONENT_3);
+		testRealToString(78989393.12558696, RealHints.EXPONENT_8);
+		testRealToString(93931255869.8, RealHints.EXPONENT_7);
+		testRealToString(78919.555, RealHints.EXPONENT_14);
+		testRealToString(78919.55, RealHints.EXPONENT_13);
+		testRealToString(210.0, RealHints.EXPONENT1);
+		testRealToString(2100.00, RealHints.EXPONENT2);
+		testRealToString(21000.000, RealHints.EXPONENT3);
+		testRealToString(210000.0000, RealHints.EXPONENT4);
+		testRealToString(2100000.00000, RealHints.EXPONENT5);
+		testRealToString(21000000.000000, RealHints.EXPONENT6);
+		testRealToString(210000000.0000000, RealHints.EXPONENT7);
 		
 		testRealToDouble("-12");
 		testRealToDouble("-12.");
@@ -574,6 +595,55 @@ public class RealJunit
 		testReal.value(java.lang.Float.NaN, 0);
 		assertTrue(java.lang.Float.isNaN((float)testReal.toDouble()));
 		assertTrue(testReal.hint() == RealHints.NOT_A_NUMBER);
+	}
+	
+	@Test
+	public void realTailingZerosTest() 
+	{
+		Real real = CodecFactory.createReal();
+		real.clear();
+		
+		real.value("555.0");
+		assertEquals("555.0", real.toString());
+		
+		real.value("-555.00");
+		assertEquals("-555.00", real.toString());
+		
+		real.value("555.000");
+		assertEquals("555.000", real.toString());
+		
+		real.value("-555.0000");
+		assertEquals("-555.0000", real.toString());
+		
+		real.value("555.00000");
+		assertEquals("555.00000", real.toString());
+		
+		real.value("-555.000000");
+		assertEquals("-555.000000", real.toString());
+		
+		real.value("555.0000000");
+		assertEquals("555.0000000", real.toString());
+		
+		real.value("-555.00000000");
+		assertEquals("-555.00000000", real.toString());
+		
+		real.value("555.000000000");
+		assertEquals("555.000000000", real.toString());
+		
+		real.value("-555.0000000000");
+		assertEquals("-555.0000000000", real.toString());
+		
+		real.value("555.00000000000");
+		assertEquals("555.00000000000", real.toString());
+		
+		real.value("-555.000000000000");
+		assertEquals("-555.000000000000", real.toString());
+		
+		real.value("555.0000000000000");
+		assertEquals("555.0000000000000", real.toString());
+		
+		real.value("-555.00000000000000");
+		assertEquals("-555.00000000000000", real.toString());
 	}
 
 	private void testDoubleToRealOutOfRange(double val, int hint)
