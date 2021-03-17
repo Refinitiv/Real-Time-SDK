@@ -248,6 +248,11 @@ void initNIProvPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			sscanf(argv[iargs], "%llu", &directoryConfig.serviceId);
 		}
+		else if (0 == strcmp("-openLimit", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			sscanf(argv[iargs], "%llu", &directoryConfig.openLimit);
+		}
 		/* Perf Test configuration */
 		else if (0 == strcmp("-itemFile", argv[iargs]))
 		{
@@ -484,9 +489,11 @@ void printNIProvPerfConfig(FILE *file)
 
 	fprintf(file,
 			"            Service ID: %llu\n"
-			"          Service Name: %s\n",
+			"          Service Name: %s\n"
+			"            Open Limit: %llu\n",
 			directoryConfig.serviceId,
-			directoryConfig.serviceName
+			directoryConfig.serviceName,
+			directoryConfig.openLimit
 		  );
 
 	fprintf(file,
@@ -541,6 +548,7 @@ void exitWithUsage()
 			"  -serviceName <name>              Service Name\n"
 			"  -uname <name>                    Username to use in login request\n"
 			"  -serviceId <ID>                  Service ID\n"
+			"  -openLimit <count>               Max number of items consumer may request per connection.\n"
 			"\n"
 			"  -itemFile <file name>            Name of the file to get items from for publishing\n"
 			"  -msgFile <file name>             Name of the file that specifies the data content in messages\n"
