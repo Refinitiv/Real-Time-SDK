@@ -176,6 +176,7 @@ public abstract class TestReactorComponent {
             bindOpts.pingTimeout(opts.pingTimeout());
             bindOpts.minPingTimeout(opts.pingTimeout());
 			bindOpts.guaranteedOutputBuffers(opts.getNumOfGuaranteedBuffers());
+			bindOpts.compressionType(opts.compressionType());
 
             if (opts.getProtocolList() != null)
             	bindOpts.wSocketOpts().protocols(opts.getProtocolList());

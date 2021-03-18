@@ -439,6 +439,9 @@ public class TestReactor {
         connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
         connectOpts.connectionList().get(0).connectOptions().connectionType(opts.connectionType());
         connectOpts.connectionList().get(0).connectOptions().userSpecObject(component);
+        connectOpts.connectionList().get(0).connectOptions().compressionType(opts.compressionType());
+        connectOpts.connectionList().get(0).connectOptions().numInputBuffers(20);
+        
         connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
         connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
         connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
