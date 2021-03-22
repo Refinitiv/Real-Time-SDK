@@ -146,7 +146,10 @@ void OmmConsumerImpl::loadDictionary()
 {
 	if (getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
 	{
-		_pDictionaryCallbackClient->loadDictionaryFromFile();
+		if (!_atExit)
+		{
+			_pDictionaryCallbackClient->loadDictionaryFromFile();
+		}
 	}
 	else
 	{
@@ -182,10 +185,14 @@ void OmmConsumerImpl::loadDictionary()
 			return;
 		}
 		else
+		{
 			if (timeOutLengthInMicroSeconds != 0) pWatcher->cancel();
+		}
+	}
 
-		if (_atExit)
-			throwIueException("Application or user initiated exit while waiting for dictionary response.", OmmInvalidUsageException::InvalidOperationEnum);
+	if (_atExit)
+	{
+		throwIueException("Application or user initiated exit while waiting for dictionary response.", OmmInvalidUsageException::InvalidOperationEnum);
 	}
 }
 
@@ -223,10 +230,14 @@ void OmmConsumerImpl::loadDirectory()
 		return;
 	}
 	else
+	{
 		if ( timeOutLengthInMicroSeconds != 0 ) pWatcher->cancel();
+	}
 
 	if ( _atExit )
+	{
 		throwIueException( "Application or user initiated exit while waiting for directory response.", OmmInvalidUsageException::InvalidOperationEnum );
+	}
 }
 
 void OmmConsumerImpl::reLoadDirectory()

@@ -856,6 +856,11 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
 		}
 
+		if (_atExit)
+		{
+			throwIueException("Application or user initiated exit while running initialize.", OmmInvalidUsageException::InvalidOperationEnum);
+		}
+
 		_userLock.unlock();
 	}
 	catch (const OmmException& ommException)

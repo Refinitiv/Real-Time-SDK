@@ -1352,7 +1352,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		_pItemCallbackClient = ItemCallbackClient::create( *this );
 		_pItemCallbackClient->initialize();
 
-		if (getImplType() == OmmCommonImpl::ConsumerEnum)
+		if (!_atExit && getImplType() == OmmCommonImpl::ConsumerEnum)
 		{
 			Dictionary* dictionary = getDictionaryCallbackClient().getDefaultDictionary();
 			RsslReactorJsonConverterOptions jsonConverterOptions;
@@ -1382,7 +1382,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		/* Now that all the handlers are setup, initialize the login stream handle, if set */
-		if (_hasConsAdminClient)
+		if (!_atExit && _hasConsAdminClient)
 		{
 			ReqMsg loginRequest;
 			loginRequest.clear().domainType(ema::rdm::MMT_LOGIN);
@@ -1390,15 +1390,18 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		/* Consumer and Provider side should be mutually exclusive */
-		if (_hasProvAdminClient)
+		if (!_atExit && _hasProvAdminClient)
 		{
 			ReqMsg loginRequest;
 			loginRequest.clear().domainType(ema::rdm::MMT_LOGIN);
 			_pItemCallbackClient->registerClient(loginRequest, _provAdminClient, _adminClosure, 0);
 		}
 
-		_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
-		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getReactorOAuthCredential() );
+		if (!_atExit)
+		{
+			_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
+			_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getReactorOAuthCredential() );
+		}
 
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;
@@ -1456,6 +1459,11 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
 		}
 		
+		if (_atExit)
+		{
+			throwIueException("Application or user initiated exit while running initialize.", OmmInvalidUsageException::InvalidOperationEnum);
+		}
+
 		_userLock.unlock();
 	}
 	catch ( const OmmException& ommException )
