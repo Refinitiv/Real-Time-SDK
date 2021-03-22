@@ -975,7 +975,7 @@ class WSProtocolFunctions implements ProtocolFunctions {
 	        _rsslSocketChannel.writeFragment(fragment, writeArgs);
 
 	        // If there are extra bytes that could not fit in the fragment, write the remainder of the compressed bytes into an extra message.
-	        // Extra bytes start at position userBytesForFragment (after data sent in previous message)
+	        // Extra bytes start at position inDataLength (after data sent in previous message)
 	        if (extraBytes > 0)
 	        {
 	            // Populate second message
@@ -990,7 +990,7 @@ class WSProtocolFunctions implements ProtocolFunctions {
 	        	
 	        	/* Sets position for putting compressed data */
 	            compFragmentBuffer.data().limit(compFragmentBuffer._data.position() + extraBytes);
-	            compFragmentBuffer.data().put(compressedBytes, userBytesForFragment, extraBytes);
+	            compFragmentBuffer.data().put(compressedBytes, inDataLength, extraBytes);
 	            
 	            /* Set the WebSocket frame header */
 				WebSocketFrameParser.encode(compFragmentBuffer._data, compFragmentBuffer._startWsHeader, msgLength, _rsslSocketChannel.protocolType(),
