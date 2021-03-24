@@ -72,20 +72,32 @@ const EmaVector< ItemInfo* >&	LoginHandler::getLoginItemList()
 
 void LoginHandler::addItemInfo(ItemInfo* itemInfo)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-
-	_itemInfoList.push_back(itemInfo);
-
-	_pOmmServerBaseImpl->_userLock.unlock();
+	try
+	{
+		_pOmmServerBaseImpl->_userLock.lock();
+		_itemInfoList.push_back(itemInfo);
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }
 
 void LoginHandler::removeItemInfo(ItemInfo* itemInfo)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-	
-	_itemInfoList.removeValue(itemInfo);
-
-	_pOmmServerBaseImpl->_userLock.unlock();
+	try
+	{
+		_pOmmServerBaseImpl->_userLock.lock();
+		_itemInfoList.removeValue(itemInfo);
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }
 
 RsslReactorCallbackRet LoginHandler::loginCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMLoginMsgEvent* pRDMLoginMsgEvent)
@@ -637,48 +649,56 @@ void LoginHandler::destroy(LoginHandler*& loginHandler)
 
 void LoginHandler::notifyChannelDown(ClientSession* clientSession)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-
-	ItemInfo* itemInfo;
-
-	for (UInt32 index = 0; index < _itemInfoList.size(); index++)
+	try
 	{
-		itemInfo = _itemInfoList[index];
+		_pOmmServerBaseImpl->_userLock.lock();
 
-		if (clientSession == itemInfo->getClientSession())
+		ItemInfo* itemInfo;
+
+		for (UInt32 index = 0; index < _itemInfoList.size(); index++)
 		{
-			_pOmmServerBaseImpl->_reqMsg.clear();
-			_pOmmServerBaseImpl->_reqMsg.initialImage(false);
-			_pOmmServerBaseImpl->_reqMsg.interestAfterRefresh(false);
-			_pOmmServerBaseImpl->_reqMsg.streamId(itemInfo->getStreamId());
+			itemInfo = _itemInfoList[index];
 
-			if (itemInfo->hasNameType())
+			if (clientSession == itemInfo->getClientSession())
 			{
-				_pOmmServerBaseImpl->_reqMsg.nameType(itemInfo->getNameType());
+				_pOmmServerBaseImpl->_reqMsg.clear();
+				_pOmmServerBaseImpl->_reqMsg.initialImage(false);
+				_pOmmServerBaseImpl->_reqMsg.interestAfterRefresh(false);
+				_pOmmServerBaseImpl->_reqMsg.streamId(itemInfo->getStreamId());
+
+				if (itemInfo->hasNameType())
+				{
+					_pOmmServerBaseImpl->_reqMsg.nameType(itemInfo->getNameType());
+				}
+
+				if (itemInfo->hasName())
+				{
+					_pOmmServerBaseImpl->_reqMsg.name(itemInfo->getName());
+				}
+
+				_pOmmServerBaseImpl->_reqMsg.domainType(MMT_LOGIN);
+
+				StaticDecoder::setData(&_pOmmServerBaseImpl->_reqMsg, 0);
+
+				_pOmmServerBaseImpl->ommProviderEvent._clientHandle = itemInfo->getClientSession()->getClientHandle();
+				_pOmmServerBaseImpl->ommProviderEvent._closure = _pOmmServerBaseImpl->_pClosure;
+				_pOmmServerBaseImpl->ommProviderEvent._provider = _pOmmServerBaseImpl->getProvider();
+				_pOmmServerBaseImpl->ommProviderEvent._handle = (UInt64)itemInfo;
+
+				_pOmmServerBaseImpl->_pOmmProviderClient->onAllMsg(_pOmmServerBaseImpl->_reqMsg, _pOmmServerBaseImpl->ommProviderEvent);
+				_pOmmServerBaseImpl->_pOmmProviderClient->onClose(_pOmmServerBaseImpl->_reqMsg, _pOmmServerBaseImpl->ommProviderEvent);
+
+				clientSession->setLoginHandle(0); /* Unset login handle when EMA receives login close message. */
+
+				break;
 			}
-
-			if (itemInfo->hasName())
-			{
-				_pOmmServerBaseImpl->_reqMsg.name(itemInfo->getName());
-			}
-
-			_pOmmServerBaseImpl->_reqMsg.domainType(MMT_LOGIN);
-
-			StaticDecoder::setData(&_pOmmServerBaseImpl->_reqMsg, 0);
-
-			_pOmmServerBaseImpl->ommProviderEvent._clientHandle = itemInfo->getClientSession()->getClientHandle();
-			_pOmmServerBaseImpl->ommProviderEvent._closure = _pOmmServerBaseImpl->_pClosure;
-			_pOmmServerBaseImpl->ommProviderEvent._provider = _pOmmServerBaseImpl->getProvider();
-			_pOmmServerBaseImpl->ommProviderEvent._handle = (UInt64)itemInfo;
-
-			_pOmmServerBaseImpl->_pOmmProviderClient->onAllMsg(_pOmmServerBaseImpl->_reqMsg, _pOmmServerBaseImpl->ommProviderEvent);
-			_pOmmServerBaseImpl->_pOmmProviderClient->onClose(_pOmmServerBaseImpl->_reqMsg, _pOmmServerBaseImpl->ommProviderEvent);
-
-			clientSession->setLoginHandle(0); /* Unset login handle when EMA receives login close message. */
-
-			break;
 		}
-	}
 
-	_pOmmServerBaseImpl->_userLock.unlock();
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }

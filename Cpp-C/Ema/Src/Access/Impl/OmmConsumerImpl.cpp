@@ -308,25 +308,39 @@ Int64 OmmConsumerImpl::dispatch( Int64 timeOut )
 UInt64 OmmConsumerImpl::registerClient( const ReqMsg& reqMsg, OmmConsumerClient& ommConsClient,
                                         void* closure, UInt64 parentHandle )
 {
-	_userLock.lock();
+	try
+	{
+		_userLock.lock();
 
-	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient( reqMsg, ommConsClient, closure, parentHandle ) : 0;
+		UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient(reqMsg, ommConsClient, closure, parentHandle) : 0;
 
-	_userLock.unlock();
-
-	return handle;
+		_userLock.unlock();
+		return handle;
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 UInt64 OmmConsumerImpl::registerClient( const TunnelStreamRequest& tunnelStreamRequest,
                                         OmmConsumerClient& ommConsClient, void* closure )
 {
-	_userLock.lock();
+	try
+	{
+		_userLock.lock();
 
-	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient( tunnelStreamRequest, ommConsClient, closure ) : 0;
+		UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient(tunnelStreamRequest, ommConsClient, closure) : 0;
 
-	_userLock.unlock();
-
-	return handle;
+		_userLock.unlock();
+		return handle;
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 RsslReactorCallbackRet OmmConsumerImpl::tunnelStreamStatusEventCallback( RsslTunnelStream* pTunnelStream, RsslTunnelStreamStatusEvent* pTunnelStreamStatusEvent )

@@ -116,20 +116,32 @@ const EmaVector< ItemInfo* >&	DictionaryHandler::getDictionaryItemList()
 
 void DictionaryHandler::addItemInfo(ItemInfo* itemInfo)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-
-	_itemInfoList.push_back(itemInfo);
-
-	_pOmmServerBaseImpl->_userLock.unlock();
+	try
+	{
+		_pOmmServerBaseImpl->_userLock.lock();
+		_itemInfoList.push_back(itemInfo);
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }
 
 void DictionaryHandler::removeItemInfo(ItemInfo* itemInfo)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-
-	_itemInfoList.removeValue(itemInfo);
-
-	_pOmmServerBaseImpl->_userLock.unlock();
+	try
+	{
+		_pOmmServerBaseImpl->_userLock.lock();
+		_itemInfoList.removeValue(itemInfo);
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }
 
 RsslReactorCallbackRet DictionaryHandler::dictionaryCallback(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMDictionaryMsgEvent* pRDMDictionaryMsgEvent)

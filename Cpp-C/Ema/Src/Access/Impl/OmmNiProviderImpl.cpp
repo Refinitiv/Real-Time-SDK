@@ -493,12 +493,20 @@ void OmmNiProviderImpl::loadDirectory()
 
 void OmmNiProviderImpl::reLoadDirectory()
 {
-	_userLock.lock();
+	try
+	{
+		_userLock.lock();
 
-	reLoadConfigSourceDirectory();
-	reLoadUserSubmitSourceDirectory();
+		reLoadConfigSourceDirectory();
+		reLoadUserSubmitSourceDirectory();
 
-	_userLock.unlock();
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmNiProviderImpl::reLoadUserSubmitSourceDirectory()
@@ -819,7 +827,18 @@ UInt64 OmmNiProviderImpl::registerClient( const ReqMsg& reqMsg, OmmProviderClien
 		return 0;
 	}
 
-	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient( reqMsg, ommProvClient, closure, parentHandle ) : 0;
+	UInt64 handle = 0;
+
+	try
+	{
+		handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient(reqMsg, ommProvClient, closure, parentHandle) : 0;
+
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 
 	if ( handle )
 	{
@@ -872,9 +891,17 @@ void OmmNiProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
 		return;
 	}
 
-	if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
+	try
+	{
+		if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
 
-	_userLock.unlock();
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmNiProviderImpl::unregister( UInt64 handle )

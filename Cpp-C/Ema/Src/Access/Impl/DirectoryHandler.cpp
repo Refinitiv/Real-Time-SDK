@@ -404,20 +404,32 @@ const EmaVector< ItemInfo* >&	DirectoryHandler::getDirectoryItemList()
 
 void DirectoryHandler::addItemInfo(ItemInfo* itemInfo)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-
-	_itemInfoList.push_back(itemInfo);
-
-	_pOmmServerBaseImpl->_userLock.unlock();
+	try
+	{
+		_pOmmServerBaseImpl->_userLock.lock();
+		_itemInfoList.push_back(itemInfo);
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }
 
 void DirectoryHandler::removeItemInfo(ItemInfo* itemInfo)
 {
-	_pOmmServerBaseImpl->_userLock.lock();
-
-	_itemInfoList.removeValue(itemInfo);
-
-	_pOmmServerBaseImpl->_userLock.unlock();
+	try
+	{
+		_pOmmServerBaseImpl->_userLock.lock();
+		_itemInfoList.removeValue(itemInfo);
+		_pOmmServerBaseImpl->_userLock.unlock();
+	}
+	catch (...)
+	{
+		_pOmmServerBaseImpl->_userLock.unlock();
+		throw;
+	}
 }
 
 void DirectoryHandler::sendDirectoryReject(RsslReactorChannel* reactorChannel, RsslInt32 streamId, RsslStateCodes stateCode, EmaString& stateText)

@@ -1247,7 +1247,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
 			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
-			return;
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		{
@@ -1319,7 +1318,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
 			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
-			return;
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		{
@@ -1377,7 +1375,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
 					_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
 				throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
-				return;
 			}
 		}
 
@@ -1428,13 +1425,11 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 				}
 
 				throwIueException( failureMsg, OmmInvalidUsageException::LoginRequestTimeOutEnum );
-				return;
 			}
 			else if ( _state == RsslChannelUpStreamNotOpenEnum )
 			{
 				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
 				throwIueException( getLoginCallbackClient().getLoginFailureMessage(), OmmInvalidUsageException::LoginRequestRejectedEnum );
-				return;
 			}
 			else
 			{
@@ -1445,7 +1440,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		else
 		{
 			throwIueException( "Application or user initiated exit while waiting for login response.", OmmInvalidUsageException::InvalidOperationEnum );
-			return;
 		}
 
 		loadDirectory();
@@ -2043,38 +2037,62 @@ OmmLoggerClient& OmmBaseImpl::getOmmLoggerClient()
 
 void OmmBaseImpl::reissue( const ReqMsg& reqMsg, UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->reissue( reqMsg, handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmBaseImpl::unregister( UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->unregister( handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->unregister(handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmBaseImpl::submit( const GenericMsg& genericMsg, UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->submit( genericMsg, handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->submit(genericMsg, handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmBaseImpl::submit( const PostMsg& postMsg, UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->submit( postMsg, handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->submit(postMsg, handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 ActiveConfig& OmmBaseImpl::getActiveConfig()
@@ -2108,9 +2126,17 @@ int OmmBaseImpl::runLog( void* pExceptionStructure, const char* file, unsigned i
 	char reportBuf[EMA_BIG_STR_BUFF_SIZE * 10];
 	if ( retrieveExceptionContext( pExceptionStructure, file, line, reportBuf, EMA_BIG_STR_BUFF_SIZE * 10 ) > 0 )
 	{
-		_userLock.lock();
-		if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf );
-		_userLock.unlock();
+		try
+		{
+			_userLock.lock();
+			if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf);
+			_userLock.unlock();
+		}
+		catch (...)
+		{
+			_userLock.unlock();
+			throw;
+		}
 	}
 
 	return 1;

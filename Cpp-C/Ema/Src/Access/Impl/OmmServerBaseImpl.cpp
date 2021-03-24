@@ -1708,9 +1708,17 @@ int OmmServerBaseImpl::runLog(void* pExceptionStructure, const char* file, unsig
 	char reportBuf[EMA_BIG_STR_BUFF_SIZE * 10];
 	if (retrieveExceptionContext(pExceptionStructure, file, line, reportBuf, EMA_BIG_STR_BUFF_SIZE * 10) > 0)
 	{
-		_userLock.lock();
-		if (_pLoggerClient) _pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf);
-		_userLock.unlock();
+		try
+		{
+			_userLock.lock();
+			if (_pLoggerClient) _pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf);
+			_userLock.unlock();
+		}
+		catch (...)
+		{
+			_userLock.unlock();
+			throw;
+		}
 	}
 
 	return 1;
@@ -1987,17 +1995,33 @@ bool OmmServerBaseImpl::UInt64Equal_To::operator()(const UInt64& x, const UInt64
 	return x == y ? true : false;
 }
 
-void OmmServerBaseImpl::addConnectedChannel(RsslReactorChannel* channel) {
-  _userLock.lock();
-  connectedChannels.push_back(channel);
-  _userLock.unlock();
+void OmmServerBaseImpl::addConnectedChannel(RsslReactorChannel* channel)
+{
+	try
+	{
+		_userLock.lock();
+		connectedChannels.push_back(channel);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmServerBaseImpl::removeConnectedChannel(RsslReactorChannel* channel) {
-  _userLock.lock();
-  connectedChannels.removeValue(channel);
-  _userLock.unlock();
-
+	try
+	{
+		_userLock.lock();
+		connectedChannels.removeValue(channel);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInformation>& ci) {
