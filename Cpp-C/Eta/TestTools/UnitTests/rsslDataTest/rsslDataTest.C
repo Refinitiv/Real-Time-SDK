@@ -1139,11 +1139,117 @@ TEST(elementSetDefDictionaryTest,elementSetDefDictionaryTest)
 	rsslDeleteElementSetDefDb(&outputDb);
 }
 
+TEST(enumTypeDisplayStringsDictionaryTest, enumTypeDisplayStringsDictionaryTest)
+{
+	RsslBuffer RSSL_ENAME_ENUM_FID = { 3, (char*)"FID" };
+	RsslBuffer RSSL_ENAME_VALUES = { 6, (char*)"VALUES" };
+	RsslBuffer RSSL_ENAME_DISPLAYS = { 8, (char*)"DISPLAYS" };
+
+	RsslEncodeIterator eIter;
+	RsslDecodeIterator dIter;
+	RsslDataDictionary dictionary;
+	RsslBuffer errorText;
+	RsslRet ret;
+	RsslEnum enumValue;
+	FILE* dictionaryDump;
+	
+	RsslSeries			series = RSSL_INIT_SERIES;
+	RsslElementList		elementList = RSSL_INIT_ELEMENT_LIST;
+	RsslElementEntry	element = RSSL_INIT_ELEMENT_ENTRY;
+	RsslLocalElementSetDefDb elListSetDb;
+	RsslSeriesEntry row = RSSL_INIT_SERIES_ENTRY;
+	RsslArray arr; 
+	RsslBuffer arrEntry;
+
+
+	errorText.data = (char*)malloc(255 * sizeof(char));
+	errorText.length = 255;
+
+	rsslClearDataDictionary(&dictionary);
+
+	rsslLoadEnumTypeDictionary("enumtype.def", &dictionary, &errorText);
+	dictionaryDump = fopen("enumType.dump", "w");
+	ASSERT_TRUE(rsslPrintDataDictionary(dictionaryDump, &dictionary) == RSSL_RET_SUCCESS);
+
+	rsslClearEncodeIterator(&eIter);
+	rsslSetEncodeIteratorBuffer(&eIter, &tbufBig);
+	ASSERT_TRUE(rsslEncodeEnumTypeDictionary(&eIter, &dictionary, RDM_DICTIONARY_VERBOSE, &errorText) == RSSL_RET_SUCCESS);
+
+	rsslClearDecodeIterator(&dIter);
+	rsslSetDecodeIteratorBuffer(&dIter, &tbufBig);
+
+	ASSERT_TRUE(rsslDecodeSeries(&dIter, &series) == RSSL_RET_SUCCESS);
+
+	if (rsslSeriesCheckHasSummaryData(&series))
+	{
+		ASSERT_TRUE(rsslDecodeElementList(&dIter, &elementList, NULL) == RSSL_RET_SUCCESS);
+		while ((ret = rsslDecodeElementEntry(&dIter, &element)) != RSSL_RET_END_OF_CONTAINER)
+		{
+			ASSERT_TRUE(ret >= 0);
+			RsslUInt tempUInt;
+			RsslInt tempInt;
+			if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_DICT_TYPE))
+			{
+				ASSERT_TRUE(rsslDecodeUInt(&dIter, &tempUInt) >= 0);
+			}
+			else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_DICTIONARY_ID))
+			{
+				ASSERT_TRUE(rsslDecodeInt(&dIter, &tempInt) >= 0);
+			}
+		}
+	}
+
+	char setDefMemory[3825];
+	if (rsslSeriesCheckHasSetDefs(&series))
+	{
+		rsslClearLocalElementSetDefDb(&elListSetDb);
+		elListSetDb.entries.data = setDefMemory;
+		elListSetDb.entries.length = sizeof(setDefMemory);
+		ASSERT_TRUE(rsslDecodeLocalElementSetDefDb(&dIter, &elListSetDb) >= 0);
+	}
+
+	while ((ret = rsslDecodeSeriesEntry(&dIter, &row)) != RSSL_RET_END_OF_CONTAINER) {
+		
+		ASSERT_TRUE(rsslDecodeElementList(&dIter, &elementList, &elListSetDb) == RSSL_RET_SUCCESS);
+		RsslInt fidInt;
+		while ((ret = rsslDecodeElementEntry(&dIter, &element)) != RSSL_RET_END_OF_CONTAINER) {
+			if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ENUM_FIDS) || rsslBufferIsEqual(&element.name, &RSSL_ENAME_ENUM_FID))
+			{
+				ASSERT_TRUE(rsslDecodeArray(&dIter, &arr) == RSSL_RET_SUCCESS);
+				while ((ret = rsslDecodeArrayEntry(&dIter, &arrEntry)) != RSSL_RET_END_OF_CONTAINER)
+				{
+					rsslDecodeInt(&dIter, &fidInt);
+				}
+			}
+			else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ENUM_VALUE) ||
+				rsslBufferIsEqual(&element.name, &RSSL_ENAME_VALUES)) {
+				ASSERT_TRUE(rsslDecodeArray(&dIter, &arr) == RSSL_RET_SUCCESS);
+				RsslEnum valueEnum;
+				while ((ret = rsslDecodeArrayEntry(&dIter, &arrEntry)) != RSSL_RET_END_OF_CONTAINER)
+				{
+					ASSERT_TRUE(rsslDecodeEnum(&dIter, &valueEnum) >= 0);
+				}
+			}
+
+			/* Check array type */
+			else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_ENUM_DISPLAY) ||
+				rsslBufferIsEqual(&element.name, &RSSL_ENAME_DISPLAYS)) {
+				ASSERT_TRUE(rsslDecodeArray(&dIter, &arr) >= 0);
+				if (fidInt == 12762 || fidInt == 54 || fidInt == 13012 || fidInt == 6106 || fidInt == 5370 || fidInt == 13611)
+					ASSERT_TRUE(arr.primitiveType == RSSL_DT_RMTES_STRING);
+				else if (fidInt == 2131 || fidInt == 4 || fidInt == 13612 || fidInt == 37 || fidInt == 4379 || fidInt == 3298 || fidInt == 49 || fidInt == 52)
+					ASSERT_TRUE(arr.primitiveType == RSSL_DT_ASCII_STRING);
+				while ((ret = rsslDecodeArrayEntry(&dIter, &arrEntry)) != RSSL_RET_END_OF_CONTAINER) {}
+			}
+		}
+	}
+}
+
 TEST(fieldDictionaryTest,fieldDictionaryTest)
 {
 	RsslEncodeIterator eIter;
 	RsslDecodeIterator dIter;
-	RsslDataDictionary dictionary, decodeDictionary; 
+	RsslDataDictionary dictionary, decodeDictionary;
 	RsslBuffer errorText;
 	RsslBuffer smallBuffer;
 	RsslBuffer fieldName;
@@ -1212,7 +1318,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
     	free(smallBuffer.data);
 		return; /* This is usually because the file isn't found. May as well stop here. */
 	}
-	
+
 	/* Custom dict adds 4 Fids */
 	ASSERT_TRUE(dictionary.numberOfEntries == rdmFieldDictionaryFidCount + c_Custom_Fids);
 
@@ -1223,7 +1329,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 	{
 		ASSERT_TRUE((ret = rsslPrintDataDictionary( dictionaryDump, &dictionary)) == RSSL_RET_SUCCESS);
 	}
-	else 
+	else
 		FAIL() << "Print Field Dictionary(couldn't get file handle)";
 
 	// Test encode/decode
@@ -1236,7 +1342,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 	rsslClearDecodeIterator(&dIter);
 	rsslClearDataDictionary(&decodeDictionary);
 	rsslSetDecodeIteratorBuffer(&dIter, &tbufBig);
-	ret = rsslDecodeFieldDictionary(&dIter, &decodeDictionary, RDM_DICTIONARY_VERBOSE, &errorText); 
+	ret = rsslDecodeFieldDictionary(&dIter, &decodeDictionary, RDM_DICTIONARY_VERBOSE, &errorText);
 	ASSERT_TRUE(ret == RSSL_RET_SUCCESS);
 	//if (ret != RSSL_RET_SUCCESS)
 		//printf("\t%s", errorText.data);
@@ -1262,7 +1368,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 		}
 		else
 		{
-			
+
 			ASSERT_TRUE(rsslBufferIsEqual(&pDecodeDictEntry->acronym, &pDictionaryEntry->acronym));
 			ASSERT_TRUE(rsslBufferIsEqual(&pDecodeDictEntry->ddeAcronym, &pDictionaryEntry->ddeAcronym));
 			ASSERT_TRUE(pDecodeDictEntry->enumLength == pDictionaryEntry->enumLength);
@@ -1280,7 +1386,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 	{
 		ASSERT_TRUE((ret = rsslPrintDataDictionary( dictionaryDump, &decodeDictionary)) == RSSL_RET_SUCCESS);
 	}
-	else 
+	else
 		FAIL() << "Print Field Dictionary(couldn't get file handle)";
 
 	// Test sending dictionary in multiple parts
@@ -1333,7 +1439,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 		}
 		else
 		{
-			
+
 			ASSERT_TRUE(rsslBufferIsEqual(&pDecodeDictEntry->acronym, &pDictionaryEntry->acronym));
 			ASSERT_TRUE(rsslBufferIsEqual(&pDecodeDictEntry->ddeAcronym, &pDictionaryEntry->ddeAcronym));
 			ASSERT_TRUE(pDecodeDictEntry->enumLength == pDictionaryEntry->enumLength);
@@ -1345,7 +1451,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 		}
 		++currentFid;
 	} while (currentFid != RSSL_MAX_FID);
-	
+
 
 
 	dictionaryDump = fopen(multipartDictionaryDecodeDumpFileName, "w");
@@ -1353,7 +1459,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 	{
 		ASSERT_TRUE((ret = rsslPrintDataDictionary( dictionaryDump, &decodeDictionary)) == RSSL_RET_SUCCESS);
 	}
-	else 
+	else
 		FAIL() << "Print Field Dictionary(couldn't get file handle)";
 
 	// Test looking up fields by name.
@@ -1446,7 +1552,7 @@ TEST(fieldDictionaryTest,fieldDictionaryTest)
 	// Test rsslDeleteFieldDictionary
 	ASSERT_TRUE((ret = rsslDeleteDataDictionary(&dictionary)) == RSSL_RET_SUCCESS);
 	ASSERT_TRUE((ret = rsslDeleteDataDictionary(&decodeDictionary)) == RSSL_RET_SUCCESS);
-	
+
 	free(errorText.data);
 	free(smallBuffer.data);
 
