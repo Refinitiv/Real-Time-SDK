@@ -6,7 +6,7 @@ apply plugin: 'signing'
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
 group = "com.refinitiv.eta.json.converter"
-archivesBaseName = "etaConverter"
+archivesBaseName = "etajConverter"
 version "$SpecificationVersion"
 
 uploadArchives {

@@ -22,6 +22,9 @@ External modules used by this version of RTSDK Java:
 	commons-configuration	1.10
 	commons-lang		2.6
 	commons-logging		1.2
+	jackson-annotations     2.11.0  
+	jackson-core            2.11.0  
+	jackson-databind        2.11.0  
 	junit			4.12
 	json			20180130
 	httpclient		4.5.13
