@@ -7170,6 +7170,36 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_4);
 	ASSERT_EQ(testReal.value,(-9223372036854775807 - 1));
 
+	testStrBuf.length = sprintf(testString, "209223372036854775808");  // tests the value over than the maximum
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "-209223372036854775808");  // tests the value less than the minimum
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "115119442144910009760");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "115119442144910009766");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1151194421449.10009766");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1151194421449.1000976");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_INVALID_DATA);
+
+	testStrBuf.length = sprintf(testString, "1151194421449.100097");
+	testStrBuf.data = testString;
+	ASSERT_TRUE(rsslNumericStringToReal(&testReal, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(testReal.hint == RSSL_RH_EXPONENT_6);
+	ASSERT_TRUE(testReal.value == 1151194421449100097);
+
 	/* Additional Real conversion tests */
 	rsslClearBuffer(&testDataBuf);
 	testDataBuf.data = testData;
@@ -7191,6 +7221,17 @@ TEST(stringConversionTest,stringConversionTest)
 	ASSERT_TRUE( rsslRealToString(&testDataBuf, &testReal) == RSSL_RET_SUCCESS );
 	ASSERT_TRUE( rsslNumericStringToReal(&testRealOut, &testDataBuf) == RSSL_RET_SUCCESS );
 	ASSERT_TRUE( rsslRealIsEqual(&testReal, &testRealOut) == RSSL_TRUE );
+
+	testReal.isBlank = false;
+	testReal.hint = RSSL_RH_EXPONENT0;
+	testReal.value = (std::numeric_limits<RsslInt>::max)();
+
+	rsslClearBuffer(&testStrBuf);
+	testStrBuf.length = sprintf(testString, "9223372036854775807");
+	testStrBuf.data = testString;
+
+	ASSERT_TRUE(rsslNumericStringToReal(&testRealOut, &testStrBuf) == RSSL_RET_SUCCESS);
+	ASSERT_TRUE(rsslRealIsEqual(&testReal, &testRealOut) == RSSL_TRUE);
 
 	rsslClearBuffer(&testDataBuf);
 	testDataBuf.data = testData;
@@ -7819,6 +7860,52 @@ TEST(stringConversionTest, floatToStringConversionTest)
 		testStr = tValues[i].strVal;
 #endif
 		EXPECT_TRUE(testFloatToString(testFloat, testStr, errorText)) << errorText;
+	}
+}
+
+TEST(stringConversionTest, stringToRealBig64BitConversionTest)
+{
+	RsslReal val;
+	RsslRet ret;
+	RsslBuffer buf;
+	size_t i;
+
+	struct {
+		char *pRealStr;
+		RsslRet expectedRet;
+		RsslUInt8 expectedHint;
+		RsslInt expectedValue;
+	}
+	testData[] =
+	{
+		"1151194421449.10009766", RSSL_RET_INVALID_DATA, 0, 0,
+		"1151194421449.10009700", RSSL_RET_SUCCESS, RSSL_RH_EXPONENT_6, 1151194421449100097LL,
+		"1151194421449.100097", RSSL_RET_SUCCESS, RSSL_RH_EXPONENT_6, 1151194421449100097LL,
+
+		"-1151194421449.10009766", RSSL_RET_INVALID_DATA, 0, 0,
+		"-1151194421449.10009700", RSSL_RET_SUCCESS, RSSL_RH_EXPONENT_6, -1151194421449100097LL,
+		"-1151194421449.100097", RSSL_RET_SUCCESS, RSSL_RH_EXPONENT_6, -1151194421449100097LL,
+
+		"115119442144910009766", RSSL_RET_INVALID_DATA, 0, 0,
+		"115119442144910009760", RSSL_RET_INVALID_DATA, 0, 0,
+		"115119442144910009700", RSSL_RET_SUCCESS, RSSL_RH_EXPONENT2, 1151194421449100097LL,
+
+		"-115119442144910009766", RSSL_RET_INVALID_DATA, 0, 0,
+		"-115119442144910009760", RSSL_RET_INVALID_DATA, 0, 0,
+		"-115119442144910009700", RSSL_RET_SUCCESS, RSSL_RH_EXPONENT2, -1151194421449100097LL,
+	};
+
+	for (i = 0; i < sizeof(testData) / sizeof(testData[0]); i++)
+	{
+		buf.data = testData[i].pRealStr;
+		buf.length = (rtrUInt32)strlen(buf.data);
+		ret = rsslNumericStringToReal(&val, &buf);
+		EXPECT_EQ(ret, testData[i].expectedRet);
+		if (testData[i].expectedRet == RSSL_RET_SUCCESS)
+		{
+			EXPECT_EQ(val.hint, testData[i].expectedHint);
+			EXPECT_EQ(val.value, testData[i].expectedValue);
+		}
 	}
 }
 
