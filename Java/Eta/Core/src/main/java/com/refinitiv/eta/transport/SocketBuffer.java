@@ -22,6 +22,7 @@ class SocketBuffer extends EtaNode
             {
                 --_available;
                 slice._dataStartOffSet = 0;
+                slice.headerLength(RIPC_WRITE_POSITION);
             }
             else
             {

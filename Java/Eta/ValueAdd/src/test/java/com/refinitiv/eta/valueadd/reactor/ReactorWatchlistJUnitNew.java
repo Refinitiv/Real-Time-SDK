@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.codec.Map;
+import com.refinitiv.eta.transport.CompressionTypes;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefreshFlags;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryStatus;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
@@ -61,6 +63,8 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
 public class ReactorWatchlistJUnitNew
 {
     DataDictionary dictionary = CodecFactory.createDataDictionary();
+    
+    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
 
     @Before
     public void init() {
@@ -21469,6 +21473,206 @@ public class ReactorWatchlistJUnitNew
         providerReactor.dispatch(0);
 
         TestReactorComponent.closeSession(consumer, provider);
+    }
+    
+    @Test
+    public void downloadDictionaryCompressionTest_ZLIB_Socket() {
+
+    	downloadDataDictionaryCompressionTest(false, null, CompressionTypes.ZLIB);
+    }
+
+    @Test
+    public void downloadDictionaryCompressionTest_WebSocket_Rwf() {
+
+    	downloadDataDictionaryCompressionTest(true, "rssl.rwf", CompressionTypes.ZLIB);
+    }
+    
+    private void downloadDataDictionaryCompressionTest(boolean isWebsocket, String protocolList, int compressionType)
+    {
+    	ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
+    	EncodeIterator eIter = CodecFactory.createEncodeIterator();
+    	
+        ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+        TestReactorEvent event;
+        RDMDictionaryMsgEvent dictionaryMsgEvent;
+        DictionaryRequest dictionaryRequest = (DictionaryRequest)DictionaryMsgFactory.createMsg();
+        DictionaryRequest receivedDictionaryRequest;
+        DictionaryRefresh dictionaryRefresh = (DictionaryRefresh)DictionaryMsgFactory.createMsg();
+        int providerStreamId;
+
+        /* Create reactors. */
+        TestReactor consumerReactor = new TestReactor();
+        TestReactor providerReactor = new TestReactor();
+
+        /* Create consumer. */
+        Consumer consumer = new Consumer(consumerReactor);
+        ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
+        consumerRole.initDefaultRDMLoginRequest();
+
+        consumerRole.initDefaultRDMDirectoryRequest();
+        consumerRole.channelEventCallback(consumer);
+        consumerRole.loginMsgCallback(consumer);
+        consumerRole.directoryMsgCallback(consumer);
+        consumerRole.dictionaryMsgCallback(consumer);
+        consumerRole.defaultMsgCallback(consumer);
+        consumerRole.watchlistOptions().enableWatchlist(true);
+        consumerRole.watchlistOptions().channelOpenCallback(consumer);
+        consumerRole.watchlistOptions().requestTimeout(20000);
+
+        /* Create provider. */
+        Provider provider = new Provider(providerReactor);
+        ProviderRole providerRole = (ProviderRole)provider.reactorRole();
+        providerRole.channelEventCallback(provider);
+        providerRole.loginMsgCallback(provider);
+        providerRole.directoryMsgCallback(provider);
+        providerRole.dictionaryMsgCallback(provider);
+        providerRole.defaultMsgCallback(provider);
+
+        /* Connect the consumer and provider. Setup login & directory streams automatically. */
+        ConsumerProviderSessionOptions opts = new ConsumerProviderSessionOptions();
+        opts.setupDefaultLoginStream(true);
+        opts.setupDefaultDirectoryStream(true);
+        opts.reconnectAttemptLimit(-1);
+        opts.setNumOfGuaranteedBuffers(1000);
+        opts.compressionType(compressionType);
+
+        setupWebsocket(isWebsocket, protocolList, consumer, provider, opts);
+        provider.bind(opts);
+
+        TestReactor.openSession(consumer, provider, opts);
+
+        /* Consumer sends dictionary request. */
+        dictionaryRequest.clear();
+        dictionaryRequest.rdmMsgType(DictionaryMsgType.REQUEST);
+        dictionaryRequest.streamId(5);
+        dictionaryRequest.applyStreaming();
+        dictionaryRequest.dictionaryName().data("RWFEnum");
+        submitOptions.clear();
+        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
+        assertTrue(consumer.submitAndDispatch(dictionaryRequest, submitOptions) >= ReactorReturnCodes.SUCCESS);
+
+        /* Provider receives dictionary request. */
+        providerReactor.dispatch(1);
+        event = providerReactor.pollEvent();
+        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());
+        dictionaryMsgEvent = (RDMDictionaryMsgEvent)event.reactorEvent();
+        assertEquals(DictionaryMsgType.REQUEST, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+
+        receivedDictionaryRequest = (DictionaryRequest)dictionaryMsgEvent.rdmDictionaryMsg();
+        assertTrue(receivedDictionaryRequest.checkStreaming());
+        assertEquals(Provider.defaultService().serviceId(), receivedDictionaryRequest.serviceId());
+        assertTrue(receivedDictionaryRequest.dictionaryName().toString().equals("RWFEnum"));
+        assertEquals(DomainTypes.DICTIONARY, receivedDictionaryRequest.domainType());
+        
+        providerStreamId = receivedDictionaryRequest.streamId();
+
+    	/* Encode fragmented dictionary refresh messages. */
+        dictionaryRefresh.clear();
+        dictionaryRefresh.rdmMsgType(DictionaryMsgType.REFRESH);
+        dictionaryRefresh.streamId(providerStreamId);
+        dictionaryRefresh.applySolicited();
+        dictionaryRefresh.dictionaryName().data("RWFEnum");
+        dictionaryRefresh.dictionaryType(Dictionary.Types.ENUM_TABLES);
+        dictionaryRefresh.verbosity(VerbosityValues.NORMAL);
+        dictionaryRefresh.serviceId(Provider.defaultService().serviceId());
+        dictionaryRefresh.state().streamState(StreamStates.OPEN);
+        dictionaryRefresh.state().dataState(DataStates.OK);
+        dictionaryRefresh.state().code(StateCodes.NONE);
+        dictionaryRefresh.dictionary(dictionary);
+        
+        boolean firstMultiPart = true;
+        TransportBuffer msgBuf = null;
+        
+        int numOfMessages = 0;
+        
+        while (true)
+        {
+            // get a buffer for the dictionary response
+            msgBuf = provider.reactorChannel().getBuffer(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, false, errorInfo);
+            
+            assertNotNull(msgBuf);
+    	        	
+            dictionaryRefresh.state().text().data("Enum Type Dictionary Refresh (starting enum " + dictionaryRefresh.startEnumTableCount() + ")");
+
+        	msgBuf.data().limit(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE);
+        	
+        	// clear encode iterator
+        	eIter.clear();
+	        eIter.setBufferAndRWFVersion(msgBuf, provider.reactorChannel().majorVersion(), provider.reactorChannel().minorVersion());
+	
+            if (firstMultiPart)
+            {
+            	dictionaryRefresh.applyClearCache();
+            	firstMultiPart = false;
+            }
+            else
+            	dictionaryRefresh.flags( DictionaryRefreshFlags.SOLICITED );   	        
+	        
+	        // encode message
+	        int ret = dictionaryRefresh.encode(eIter);
+	        
+	        assertTrue(ret >= CodecReturnCodes.SUCCESS);
+	        
+	        assertEquals(ReactorReturnCodes.SUCCESS, provider.reactorChannel().submit(msgBuf, submitOptions, errorInfo));
+	        
+	        ++numOfMessages;
+	        
+	        // break out of loop when all dictionary responses sent
+            if (ret == CodecReturnCodes.SUCCESS)
+            {
+                break;
+            }
+        }
+        
+        providerReactor.dispatch(0);
+        
+        checkDictionaryResponseMessages(consumerReactor, numOfMessages, 5, "RWFEnum");
+
+        TestReactorComponent.closeSession(consumer, provider);
+    }
+    
+    private void checkDictionaryResponseMessages(TestReactor consumerReactor, int numOfMessages, int streamId, String itemName)
+    {
+    	/* Consumer receives refresh. */
+        consumerReactor.dispatch(numOfMessages);
+        
+        TestReactorEvent event;
+        RDMDictionaryMsgEvent dictionaryMsgEvent;
+        DictionaryRefresh receivedDictionaryRefresh;
+
+        for(int i = 1; i <= numOfMessages; ++i)
+        {
+        	event = consumerReactor.pollEvent();
+	        assertEquals(TestReactorEventTypes.DICTIONARY_MSG, event.type());        
+	        dictionaryMsgEvent = (RDMDictionaryMsgEvent) event.reactorEvent();
+	        assertEquals(DictionaryMsgType.REFRESH, dictionaryMsgEvent.rdmDictionaryMsg().rdmMsgType());
+	
+	        receivedDictionaryRefresh = (DictionaryRefresh)dictionaryMsgEvent.rdmDictionaryMsg();
+	        assertEquals(streamId, receivedDictionaryRefresh.streamId());
+	        assertTrue(receivedDictionaryRefresh.checkSolicited()); 
+	        assertEquals(itemName, receivedDictionaryRefresh.dictionaryName().toString());
+	        assertEquals(StreamStates.OPEN, receivedDictionaryRefresh.state().streamState());
+	        assertEquals(DataStates.OK, receivedDictionaryRefresh.state().dataState());
+	        assertEquals(Provider.defaultService().serviceId(), receivedDictionaryRefresh.serviceId());
+	        assertNotNull(dictionaryMsgEvent.streamInfo());
+	        assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
+	        assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+	        
+	        if(i == numOfMessages)
+	        {
+	        	assertTrue(receivedDictionaryRefresh.checkRefreshComplete());
+	        }
+	        else
+	        {
+	        	if( i == 1)
+	        	{
+	        		/* Checks clear cache flag for the first message. */
+	        		assertTrue(receivedDictionaryRefresh.checkClearCache()); 
+	        	}
+	        	
+	        	assertFalse(receivedDictionaryRefresh.checkRefreshComplete());
+	        }
+        }
     }
     
     @Test

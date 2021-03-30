@@ -2275,6 +2275,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                     // copy the data from bigBuffer to the first transport buffer
                     TransportBufferImpl transportBuffer = ((BigBuffer)buffer)._firstBuffer;
                     ((BigBuffer)buffer)._firstBuffer = null;
+                    transportBuffer.headerLength(getProtocolFunctions().estimateHeaderLength());
                     transportBuffer._data.position(getProtocolFunctions().estimateHeaderLength());
 
                     buffer._data.limit(buffer._data.position());
