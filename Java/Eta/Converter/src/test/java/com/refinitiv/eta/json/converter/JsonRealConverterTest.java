@@ -265,7 +265,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals(inputValue, real.toString()); 
+		 assertEquals("0.00010", real.toString()); 
 	 }
 	 
 	 @Test
@@ -276,7 +276,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals("2.155E-4", real.toString()); 
+		 assertEquals("0.0002155", real.toString()); 
 	 }
 	 
 	 @Test
@@ -342,7 +342,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals("-2.155E-4", real.toString());
+		 assertEquals("-0.0002155", real.toString());
 	 }
 	 
 	 
@@ -387,7 +387,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals(inputValue, real.toString()); 
+		 assertEquals("0.00000000000010", real.toString()); 
 	 }
 	 
 	 @Test
