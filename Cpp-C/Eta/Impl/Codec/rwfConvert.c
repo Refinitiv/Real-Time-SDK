@@ -1154,7 +1154,8 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 
 RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *endptr )
 {
-	RsslUInt64	value = 0,tempValue = 0;
+	RsslInt64	value = 0;
+	RsslUInt64	tempValue = 0;
 	RsslInt64	trailzerovalue = 0;
 	RsslInt32	trailzerocount = 0;
 	int			isNeg;
