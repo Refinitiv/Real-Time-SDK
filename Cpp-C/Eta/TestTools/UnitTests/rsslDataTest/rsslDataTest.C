@@ -1150,7 +1150,6 @@ TEST(enumTypeDisplayStringsDictionaryTest, enumTypeDisplayStringsDictionaryTest)
 	RsslDataDictionary dictionary;
 	RsslBuffer errorText;
 	RsslRet ret;
-	RsslEnum enumValue;
 	FILE* dictionaryDump;
 	
 	RsslSeries			series = RSSL_INIT_SERIES;
