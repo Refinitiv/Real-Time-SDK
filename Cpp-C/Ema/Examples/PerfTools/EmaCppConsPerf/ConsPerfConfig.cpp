@@ -12,7 +12,7 @@ statsFilename("ConsStats"), writeStatsInterval(5), displayStats(true), logLatenc
 itemRequestCount(100000), commonItemCount(0), itemRequestsPerSec(35000), requestSnapshots(false),
 serviceName("DIRECT_FEED"), useServiceId(false), useUserDispatch( false ), itemFilename("350k.xml"),
 msgFilename("MsgData.xml"), postsPerSec(0), latencyPostsPerSec(0), genMsgsPerSec(0), latencyGenMsgsPerSec(0), apiThreadBindList(0),
-websocketProtocol(NoWebSocketEnum)
+consumerName(""), websocketProtocol(NoWebSocketEnum)
 {
 	apiThreadBindList = new long[1];
 	apiThreadBindList[0] = -1;	
@@ -52,6 +52,8 @@ void ConsPerfConfig::clearPerfConfig()
 	msgFilename = "MsgData.xml";
 	useServiceId = false;
 	useUserDispatch = false;
+	consumerName = "";
+	websocketProtocol = NoWebSocketEnum;
 }
 
 ConsPerfConfig::~ConsPerfConfig()

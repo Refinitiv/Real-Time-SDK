@@ -54,6 +54,8 @@ public:
 	Int32			_requestsPerTickRemainder;
 	long			*apiThreadBindList;	// CPU ID list for threads that handle connections.  See -threads 
 
+	EmaString		consumerName;				// Name of the Consumer component in EmaConfig.xml. See -consumerName.
+
 	enum WebsocketProtocol
 	{
 		NoWebSocketEnum,

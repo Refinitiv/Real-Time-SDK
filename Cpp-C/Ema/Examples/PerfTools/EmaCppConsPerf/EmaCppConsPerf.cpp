@@ -359,6 +359,16 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			}
 			consPerfConfig.ticksPerSec = atoi(argv[iargs++]);
 		}
+		else if (strcmp("-consumerName", argv[iargs]) == 0)
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			consPerfConfig.consumerName = argv[iargs++];
+		}
 		else if (strcmp("-websocket", argv[iargs]) == 0)
 		{
 			++iargs;
@@ -524,8 +534,8 @@ void EmaCppConsPerf::exitOnMissingArgument(char **argv, int argPos)
 void EmaCppConsPerf::exitWithUsage()
 {
 	logText = "Options:\n";
-	logText += "  -?                                    Shows this usage\n";
-	logText += "  -tickRate <ticks per second>          Ticks per second\n";
+	logText += "   -?                                   Shows this usage\n";
+	logText += "   -tickRate <ticks per second>         Ticks per second\n";
 	logText += "   -itemCount <count>                   Number of items to request\n";
 	logText += "   -commonItemCount <count>             Number of items common to all consumers, if using multiple connections.\n";
 	logText += "   -requestRate <items/sec>             Rate at which to request items\n";
@@ -537,7 +547,7 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -uname <name>                        Username to use in login request\n";
 	logText += "   -serviceName <name>                  Service Name\n";
 	logText += "   -useServiceId <1 Or 0>               Value 1 will use serviceId in the Requests\n\n";
-	logText += "   -useUserDispatch <1 Or 0>            Value 1 will use UserDispatch \n";
+	logText += "   -useUserDispatch <1 Or 0>            Value 1 will use UserDispatch\n";
 	logText += "   -itemFile <file name>                Name of the file to get item names from\n";
 	logText += "   -msgFile <file name>                 Name of the file that specifies the data content in messages\n";
 	logText += "   -summaryFile <filename>              Name of file for logging summary info.\n";
@@ -546,15 +556,16 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -noDisplayStats                      Stop printout of stats to screen.\n";
 	logText += "   -latencyFile <filename>              Base name of file for logging latency.\n\n";
 	logText += "   -steadyStateTime <seconds>           Time consumer will run the steady-state portion of the test.\n";
-	logText += "                                          Also used as a timeout during the startup-state portion.\n";
-	logText += "    -apiThreads <thread list>			list of Api threads in ApiDispatch mode (which create 1 connection each),\n";
+	logText += "                                          Also used as a timeout during the startup-state portion.\n\n";
+	logText += "   -apiThreads <thread list>            List of Api threads in ApiDispatch mode (which create 1 connection each),\n";
 	logText += "                                          by their bound CPU. Comma-separated list. -1 means do not bind.\n";
-	logText += "                                         Must match the count of listed in -threads option.\n";
-	logText += "                                          (e.g. \"-apiThreads 0,1 \" creates two threads bound to CPU's 0 and 1)\n";
+	logText += "                                          Must match the count of listed in -threads option.\n";
+	logText += "                                          (e.g. \"-apiThreads 0,1\" creates two threads bound to CPU's 0 and 1)\n";
 	logText += "   -mainThread <CpuId>                  CPU of the main thread of the app that collects & prints stats. \n";
-	logText += "   -threads <thread list>               list of threads(which create 1 connection each),\n";
+	logText += "   -threads <thread list>               List of threads (which create 1 connection each),\n";
 	logText += "                                          by their bound CPU. Comma-separated list. -1 means do not bind.\n";
-	logText += "                                          (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n";
+	logText += "                                          (e.g. \"-threads 0,1\" creates two threads bound to CPU's 0 and 1)\n\n";
+	logText += "   -consumerName <name>                 Name of the Consumer component in config file EmaConfig.xml that will be used to configure connection.\n";
 	logText += "   -websocket <protocol>                Using websocket connection with specified tunnel protocol: \"rssl.json.v2\" or \"rssl.rwf\".\n";
 
 	AppUtil::logError(logText);
