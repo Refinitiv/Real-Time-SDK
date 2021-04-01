@@ -563,7 +563,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 			reactorConnectInfo[i].rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 			reactorConnectInfo[i].rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
 			reactorConnectInfo[i].rsslConnectOptions.connectionType = activeConfigChannelSet[i]->connectionType;
-			reactorConnectInfo[i].rsslConnectOptions.pingTimeout = activeConfigChannelSet[i]->connectionPingTimeout;
+			reactorConnectInfo[i].rsslConnectOptions.pingTimeout = activeConfigChannelSet[i]->connectionPingTimeout / 1000;
 			reactorConnectInfo[i].rsslConnectOptions.guaranteedOutputBuffers = activeConfigChannelSet[i]->guaranteedOutputBuffers;
 			reactorConnectInfo[i].rsslConnectOptions.sysRecvBufSize = activeConfigChannelSet[i]->sysRecvBufSize;
 			reactorConnectInfo[i].rsslConnectOptions.sysSendBufSize = activeConfigChannelSet[i]->sysSendBufSize;
