@@ -879,7 +879,10 @@ rtr_msgb_t *rwsDataBuffer(RsslSocketChannel *rsslSocketChannel, size_t size, Rss
 	rtr_msgb_t			*retBuf = 0;
 	size_t				neededSize = size;
 
-	if (IPC_NULL_PTR(rsslSocketChannel, "", "rsslSocketChannel", error))
+	if (IPC_NULL_PTR(rsslSocketChannel, "rwsDataBuffer", "rsslSocketChannel", error))
+		return 0;
+
+	if (IPC_NULL_PTR(rsslSocketChannel->guarBufPool, "rwsDataBuffer", "rsslSocketChannel->guarBufPool", error))
 		return 0;
 
 	IPC_MUTEX_LOCK(rsslSocketChannel);
@@ -2610,6 +2613,23 @@ ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *rsslSocketChannel, RsslError 
 		rwsInitializeProtocolFuncs();
 		ipcSetSocketChannelProtocolHdrFuncs(rsslSocketChannel, RSSL_CONN_TYPE_WEBSOCKET);
 		rsslSocketChannel->intState = RIPC_INT_ST_READ_HDR;
+
+		rsslSocketChannel->guarBufPool = rtr_dfltcAllocatePool(
+			rsslSocketChannel->server->maxGuarMsgs,
+			rsslSocketChannel->server->maxGuarMsgs, 10,
+			rsslSocketChannel->maxMsgSize,
+			rsslSocketChannel->server->sharedBufPool,
+			(rsslSocketChannel->server->maxNumMsgs - rsslSocketChannel->server->maxGuarMsgs),
+			0);
+		if (rsslSocketChannel->guarBufPool == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text,MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Could not allocate memory for session's output buffer",
+						__FILE__,__LINE__);
+
+			return(RIPC_CONN_ERROR);
+		}
 
 		return (RIPC_CONN_IN_PROGRESS);
 	}
@@ -5410,7 +5430,7 @@ void rwsClearSession(rwsSession_t *wsSess)
 	wsSess->connUpgrade = 0;
 	wsSess->deflate = 0;
 	wsSess->compressed = 0;
-	wsSess->protocol = 0;
+	wsSess->protocol = RWS_SP_NONE;
 	wsSess->url = 0;
 	wsSess->host = 0;
 	wsSess->port = 0;
