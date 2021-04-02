@@ -69,6 +69,7 @@ public class ConsPerfConfig
 	private boolean _useUserDispatch;          /* Use the EMA  USER_DISPATCH model instead of the EMA API_DISPATCH  model. */
 	private boolean _downcastDecoding;		/* Turn on the EMA data load downcast feature during decoding response payload. */
 	private int _webSocketSubProtocol;      /* Sub-protocol for the websocket connection. */
+	private String _consumerName;			/* Name of the Consumer component in EmaConfig.xml. See -consumerName. */
 	
 	private String _keyfile;				/* Keyfile for encryption */
 	private String _keypasswd;				/* Keyfile password */
@@ -101,7 +102,8 @@ public class ConsPerfConfig
         CommandLine.addOption("useUserDispatch", false, "Use the EMA USER_DISPATCH model instead of the EMA API_DISPATCH model for sending and receiving");
         CommandLine.addOption("downcastDecoding", false, "Turn on the EMA data load downcast feature during decoding response payload");
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
-        CommandLine.addOption("keypasswd", "", "Keystore password");        
+        CommandLine.addOption("keypasswd", "", "Keystore password");
+        CommandLine.addOption("consumerName", "", "Name of the Consumer component in config file EmaConfig.xml that will be usd to configure connection.");
         CommandLine.addOption("websocket", "", "Using websocket connection with specified sub-protocol: \"rssl.json.v2\" or \"rssl.rwf\"");
     }
 	
@@ -170,6 +172,8 @@ public class ConsPerfConfig
                 System.exit(-1);
         	}
         }
+        
+        _consumerName = CommandLine.value("consumerName");
         
         try
         {
@@ -632,6 +636,7 @@ public class ConsPerfConfig
     {
     	return _keypasswd;
     }
+    
     /**
      *  Returns sub-protocol for the websocket connection if specified.
      *
@@ -640,5 +645,14 @@ public class ConsPerfConfig
     public int webSocketSubProtocol()
     {
         return _webSocketSubProtocol;
+    }
+    
+    /** 
+     * Consumer name
+     * @return Consumer name
+     */
+    public String consumerName()
+    {
+    	return _consumerName;
     }
 }

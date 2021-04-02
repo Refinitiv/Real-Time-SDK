@@ -107,7 +107,6 @@
 		<Consumer>
 			<Name value="Consumer_7"/>
 			<Channel value="Channel_1"/>
-			<Logger value="Logger_1"/>
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0"/>
 			<DefaultServiceID value="1"/>

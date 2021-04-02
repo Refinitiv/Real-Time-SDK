@@ -174,14 +174,21 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 		{
 			String consumerName = DEFAULT_PERF_CONSUMER_CONFIG_NAME;
 			
-			switch(_consPerfConfig.webSocketSubProtocol())
+			if(_consPerfConfig.consumerName().isEmpty())
 			{
-			case ConsPerfConfig.WebSocketSubProtocol.RSSL_JSON_V2:
-				consumerName = DEFAULT_PERF_CONSUMER_NAME_WSJSON;
-				break;
-			case ConsPerfConfig.WebSocketSubProtocol.RSSL_RWF:
-				consumerName = DEFAULT_PERF_CONSUMER_NAME_WSRWF;
-				break;
+				switch(_consPerfConfig.webSocketSubProtocol())
+				{
+				case ConsPerfConfig.WebSocketSubProtocol.RSSL_JSON_V2:
+					consumerName = DEFAULT_PERF_CONSUMER_NAME_WSJSON;
+					break;
+				case ConsPerfConfig.WebSocketSubProtocol.RSSL_RWF:
+					consumerName = DEFAULT_PERF_CONSUMER_NAME_WSRWF;
+					break;
+				}
+			}
+			else
+			{
+				consumerName = _consPerfConfig.consumerName();
 			}
 			
 			_ommConfig = EmaFactory.createOmmConsumerConfig().consumerName(consumerName);
@@ -202,6 +209,8 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 		catch(Exception e)
 		{
 			System.out.println("Exception found"+e);
+			_consThreadInfo.shutdown(true);
+			return;
 		}
 		
 		_srcDirHandler.serviceName(_consPerfConfig.serviceName());
