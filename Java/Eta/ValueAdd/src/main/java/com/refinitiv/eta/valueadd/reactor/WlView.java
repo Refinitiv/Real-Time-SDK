@@ -135,4 +135,19 @@ public class WlView extends VaNode
 	{
 		_elemCount = 0;
 	}
+	
+	@Override
+	public void returnToPool()
+	{
+		/* Clear out all pooled elements */
+		_viewFieldIdCountMap = null;
+		_viewElementNameCountMap = null;
+		_newViews = null;
+		_mergedViews = null;
+		_committedViews = null;
+		_fieldIdList = null;
+		_elementNameList = null;
+
+    		super.returnToPool();
+    	}
 }

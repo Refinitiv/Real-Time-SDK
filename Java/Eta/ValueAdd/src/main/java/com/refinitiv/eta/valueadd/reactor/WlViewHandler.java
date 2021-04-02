@@ -652,14 +652,6 @@ public class WlViewHandler
 		_viewFieldIdListPool.add(aggView._fieldIdList);
 		_viewElementNameListPool.add(aggView._elementNameList);
 		
-		/* Clear out all pooled elements */
-		aggView._viewFieldIdCountMap = null;
-		aggView._viewElementNameCountMap = null;
-		aggView._newViews = null;
-		aggView._mergedViews = null;
-		aggView._committedViews = null;
-		aggView._fieldIdList = null;
-		aggView._elementNameList = null;
 		aggView.returnToPool();
 	}
 	
@@ -850,15 +842,6 @@ public class WlViewHandler
 	{
 		_viewFieldIdListPool.add(view._fieldIdList);
 		_viewElementNameListPool.add(view._elementNameList);
-		
-		/* Clear out all pooled elements */
-		view._viewFieldIdCountMap = null;
-		view._viewElementNameCountMap = null;
-		view._newViews = null;
-		view._mergedViews = null;
-		view._committedViews = null;
-		view._fieldIdList = null;
-		view._elementNameList = null;
 		view.returnToPool();
 	}
 	

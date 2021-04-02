@@ -619,4 +619,19 @@ class Watchlist extends VaNode
         _streamIdtoWlRequestTable.clear();
         _streamIdtoWlStreamTable.clear();
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	_reactorChannel = null;
+        _reactor = null;
+        _role = null;
+        _watchlistOptions = null;
+        
+        _loginHandler.clear();
+        _directoryHandler.clear();
+        _itemHandler.clear();
+    	
+    	super.returnToPool();
+    }
 }

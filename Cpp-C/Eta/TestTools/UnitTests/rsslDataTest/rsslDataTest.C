@@ -7870,7 +7870,7 @@ TEST(stringConversionTest, stringToRealBig64BitConversionTest)
 	size_t i;
 
 	struct {
-		char *pRealStr;
+		char pRealStr[32];
 		RsslRet expectedRet;
 		RsslUInt8 expectedHint;
 		RsslInt expectedValue;

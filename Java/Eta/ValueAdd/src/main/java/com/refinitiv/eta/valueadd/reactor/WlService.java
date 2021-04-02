@@ -102,21 +102,35 @@ class WlService extends VaNode
     void clear()
     {
         _numOutstandingRequests = 0;
-        WlRequest wlRequest = null;
-        while ((wlRequest = _waitingRequestList.poll()) != null)
-        {
-        	wlRequest.state(State.RETURN_TO_POOL);
-            wlRequest.returnToPool();
-        }
+        
+        _waitingRequestList.clear();
 
         /*  Clear stream list (don't repool streams; item handler will already do that) */
         _streamList.clear();
-        for (int i = 0; i < _itemGroupList.size(); ++i)
-        {
-        	_itemGroupTable.get(_itemGroupList.get(i)).returnToPool();
-        }
+        
         _itemGroupTable.clear();
         _itemGroupList.clear();
         _tableKey = null;
-    }    
+    }
+    
+    @Override
+    public void returnToPool()
+    {
+    	 WlRequest wlRequest = null;
+         while ((wlRequest = _waitingRequestList.poll()) != null)
+         {
+         	wlRequest.state(State.RETURN_TO_POOL);
+                wlRequest.returnToPool();
+         }
+         
+         for (int i = 0; i < _itemGroupList.size(); ++i)
+         {
+         	_itemGroupTable.get(_itemGroupList.get(i)).returnToPool();
+         }
+
+         _itemGroupTable.clear();
+         _itemGroupList.clear();
+    	
+    	super.returnToPool();
+    }
 }

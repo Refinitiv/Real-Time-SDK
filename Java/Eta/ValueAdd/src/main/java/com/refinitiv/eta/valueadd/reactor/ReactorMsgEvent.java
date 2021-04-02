@@ -65,6 +65,18 @@ public class ReactorMsgEvent extends ReactorEvent
         _msg = null;
         _streamInfo.clear();
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	/* Clears user-specified object given when the stream was opened by users.*/
+    	_streamInfo.clear();
+    	
+    	_transportBuffer = null;
+        _msg = null;
+    	
+    	super.returnToPool();
+    }
 
     /**
      * Returns a String representation of this object.

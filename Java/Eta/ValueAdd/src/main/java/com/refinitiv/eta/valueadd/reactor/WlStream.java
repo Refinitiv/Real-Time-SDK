@@ -961,6 +961,8 @@ class WlStream extends VaNode
         	_aggregateView = null;
     	}
         _requestsWithViewCount = 0;
+        _reactorChannel = null;
+        _reactor = null;
     }
     
 	WlView aggregateView()
@@ -977,6 +979,32 @@ class WlStream extends VaNode
 	public void returnToPool()
 	{
 		assert(!inPool());
+		
+		// return any WlPostTimeoutInfo back to pool
+		WlPostTimeoutInfo postTimeoutInfo = null;
+		while ((postTimeoutInfo = _postTimeoutInfoList.poll()) != null)
+		{
+			postTimeoutInfo.returnToPool();
+		}
+		_postTimeoutInfoList.clear();
+        
+		if (_aggregateView != null)
+		{
+        		_aggregateView.clear();
+        		_aggregateView.returnToPool();
+        		_aggregateView = null;
+    		}
+        
+		_handler  = null;
+		_requestMsg = null;
+		_itemAggregationKey = null;
+		_reactorChannel = null;
+		_reactor = null;
+		_itemGroup = null;
+		_tableKey = null;
+		_groupTableKey = null;
+		_wlService = null;
+		
 		super.returnToPool();
 	}
 }

@@ -60,4 +60,12 @@ class WlItemGroup extends VaNode
 		_streamIdToItemGroupTable.clear();
 	}
 	
+	@Override
+	public void returnToPool()
+	{
+		_wlService = null;
+		_groupId = null;
+    	
+    		super.returnToPool();
+	}
 }

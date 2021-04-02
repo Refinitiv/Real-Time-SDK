@@ -920,8 +920,8 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 	bindOptions.sysRecvBufSize = _activeServerConfig.pServerConfig->sysRecvBufSize;
 	bindOptions.sysSendBufSize = _activeServerConfig.pServerConfig->sysSendBufSize;
 	bindOptions.interfaceName = const_cast<char*>(_activeServerConfig.pServerConfig->interfaceName.c_str());
-	bindOptions.pingTimeout = _activeServerConfig.pServerConfig->connectionPingTimeout;
-	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout;
+	bindOptions.pingTimeout = _activeServerConfig.pServerConfig->connectionPingTimeout / 1000;
+	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout / 1000;
 	bindOptions.componentVersion = (char *)componentVersion.c_str();
 	bindOptions.forceCompression = RSSL_TRUE;
 

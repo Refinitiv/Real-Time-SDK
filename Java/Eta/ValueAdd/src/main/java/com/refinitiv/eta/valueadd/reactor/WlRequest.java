@@ -374,6 +374,12 @@ class WlRequest extends VaNode
         /* Mark that this WlRequest is pooled before repooling it. */
         _state = State.RETURN_TO_POOL;
         
+        _handler = null;
+        _stream = null;
+        
+        /* Clears user-specified object given when the stream was opened by users.*/
+        _streamInfo.clear();
+        
         super.returnToPool();
     }
 }

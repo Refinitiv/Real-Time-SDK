@@ -8,8 +8,6 @@
 package com.refinitiv.eta.codec;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -748,6 +746,32 @@ public class RmtesJunit
         assertEquals(10, rmtesCacheBuffer.length());
         assertEquals(100, rmtesCacheBuffer.allocatedLength());
         assertEquals(byteBuffer, rmtesCacheBuffer.byteData());
+    }
+    
+    @Test
+    public void outOffBufferEscSeqTest()
+    {
+    	byte[] invalidRmtestByteArray = new byte[] {0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x1B, 0x25, 0x55};
+    	Buffer buffer = CodecFactory.createBuffer();
+    	
+    	buffer.data(ByteBuffer.wrap(invalidRmtestByteArray), 6, 2); /* Set the position and length of RMTES data portion in the buffer */
+    	
+    	RmtesDecoder rmtesDecoder = CodecFactory.createRmtesDecoder();
+    	RmtesCacheBuffer rmtesCacheBuffer = CodecFactory.createRmtesCacheBuffer(5);
+    	
+    	assertEquals(CodecReturnCodes.FAILURE, rmtesDecoder.RMTESApplyToCache(buffer, rmtesCacheBuffer));
+    }
+    
+    @Test
+    public void outOffBufferEscSeqTest2()
+    {
+    	Buffer inBuffer = CodecFactory.createBuffer(); 
+    	inBuffer.data(ByteBuffer.wrap(new byte[]{27,37}));
+
+    	RmtesDecoder rmtesDecoder = CodecFactory.createRmtesDecoder();
+    	RmtesCacheBuffer rmtesCacheBuffer = CodecFactory.createRmtesCacheBuffer(5);
+    	
+    	assertEquals(CodecReturnCodes.FAILURE, rmtesDecoder.RMTESApplyToCache(inBuffer, rmtesCacheBuffer));
     }
 
 }

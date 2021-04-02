@@ -37,4 +37,12 @@ public class ReactorServiceEndpointEvent extends ReactorEvent
 		return _userSpecObject;
 	}
 	
+	@Override
+	public void returnToPool()
+	{
+		_userSpecObject = null;
+		_reactorServiceEndpointInfoList = null;
+    	
+		super.returnToPool();
+	}
 }
