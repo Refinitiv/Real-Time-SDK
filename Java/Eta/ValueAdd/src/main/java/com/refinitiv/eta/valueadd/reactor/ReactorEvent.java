@@ -45,6 +45,14 @@ public class ReactorEvent extends VaNode
     }
     
     @Override
+    public void returnToPool()
+    {
+    	_reactorChannel = null;
+    	
+    	super.returnToPool();
+    }
+    
+    @Override
     /**
      * Returns a String representation of this object.
      * 

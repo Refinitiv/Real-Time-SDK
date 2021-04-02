@@ -252,4 +252,12 @@ class ClientSession extends VaNode
         _isLogin = false;
         _removingInCloseAll = false;
     }
+	
+	@Override
+    public void returnToPool()
+    {
+		_rsslReactorChannel = null;
+    	
+    	super.returnToPool();
+    }
 }

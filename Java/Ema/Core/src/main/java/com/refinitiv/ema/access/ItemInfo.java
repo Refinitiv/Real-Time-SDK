@@ -266,6 +266,8 @@ class ItemInfo extends VaNode
             _postIdsCount.clear();
         }
         
+        _clientSession = null;
+        
         super.returnToPool();
     }
 }

@@ -49,6 +49,16 @@ class WorkerEvent extends ReactorEvent
         _tokenSession = null;
     }
     
+    @Override
+    public void returnToPool()
+    {
+    	_tunnelStream = null;
+        _restClient = null;
+        _tokenSession = null;
+    	
+    	super.returnToPool();
+    }
+    
     /**
      * Returns a String representation of this object.
      * 

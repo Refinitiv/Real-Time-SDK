@@ -65,4 +65,13 @@ public class TunnelStreamStatusEvent extends ReactorMsgEvent
         _tunnelStream = null;
         _authInfo = null;
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	_tunnelStream = null;
+        _authInfo = null;
+    	
+    	super.returnToPool();
+    }
 }

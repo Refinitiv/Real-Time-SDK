@@ -2688,6 +2688,11 @@ abstract class Item<T> extends VaNode
 	{
 		if (_itemIdObj != null) _itemIdObj.returnToPool();
 		if (_streamIdObj != null) _streamIdObj.returnToPool();
+	
+		_closure = null;
+		_parent = null;
+		_client = null;
+		_closedStatusClient = null;
 		
 		returnToPool();
 	}

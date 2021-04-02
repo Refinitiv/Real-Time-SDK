@@ -553,6 +553,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		} finally
 		{
 			_userLock.unlock();
+			_rsslReactor = null;
+			_server = null;
 		}
 	}
 	

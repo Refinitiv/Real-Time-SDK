@@ -289,6 +289,26 @@ public class ReactorChannel extends VaNode
         _loginRequestForEDP = null;
         _reactorServiceEndpointInfoList.clear();
         _restConnectOptions = null;
+        _role = null;
+    }
+    
+    @Override
+    public void returnToPool()
+    {
+         /* Releases user-specified object specified by users if any. */
+         _userSpecObj = null;
+    	
+    	 _tokenSession = null;
+         _reactor = null;
+         _selectableChannel = null;
+         _channel = null;
+         _server = null;
+         _reactorConnectOptions = null;
+         _loginRequestForEDP = null;
+         _restConnectOptions = null;
+         _role = null;
+    	
+    	super.returnToPool();
     }
 
     /* Check if the tunnel manager needs a dispatch, timer event, or channel flush. */
@@ -567,7 +587,7 @@ public class ReactorChannel extends VaNode
      */
     public int dispatch(ReactorDispatchOptions dispatchOptions, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (dispatchOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -594,7 +614,7 @@ public class ReactorChannel extends VaNode
      */
     public int submit(TransportBuffer buffer, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (submitOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -641,7 +661,7 @@ public class ReactorChannel extends VaNode
      */
     public int submit(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (submitOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -690,7 +710,7 @@ public class ReactorChannel extends VaNode
      */
     public int submit(MsgBase rdmMsg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (submitOptions == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -738,7 +758,7 @@ public class ReactorChannel extends VaNode
     {
         int retVal = ReactorReturnCodes.SUCCESS;
 
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             retVal = ReactorReturnCodes.FAILURE;
 
         _reactor._reactorLock.lock();
@@ -756,6 +776,9 @@ public class ReactorChannel extends VaNode
             if (_watchlist != null)
             {
                 _watchlist.close();
+                
+                /* This watch list is returned to the pool when it is closed. */
+                _watchlist = null;
             }
 
             _reactor.removeReactorChannel(this);
@@ -781,7 +804,7 @@ public class ReactorChannel extends VaNode
      */
     public TransportBuffer getBuffer(int size, boolean packedBuffer, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return null;
 
         if(channel().protocolType() == Codec.JSON_PROTOCOL_TYPE && packedBuffer)
@@ -836,7 +859,7 @@ public class ReactorChannel extends VaNode
      */
     public int releaseBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
 
         if (buffer == null)
@@ -893,7 +916,7 @@ public class ReactorChannel extends VaNode
      */
     public int packBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
 
         if (buffer == null)
@@ -1152,7 +1175,7 @@ public class ReactorChannel extends VaNode
      */
     public int openTunnelStream(TunnelStreamOpenOptions options, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (options == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1258,7 +1281,7 @@ public class ReactorChannel extends VaNode
     {
         int ret;
 
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (event == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1442,7 +1465,7 @@ public class ReactorChannel extends VaNode
     {
         int ret;
 
-        if (errorInfo == null)
+        if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         else if (event == null)
             return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1768,6 +1791,9 @@ public class ReactorChannel extends VaNode
      */
     public void getReactorChannelStats(ReactorChannelStats stats)
     {
+    	if(stats == null || _reactor == null)
+    		return;
+    	
         _reactor._reactorLock.lock();
 
         try {

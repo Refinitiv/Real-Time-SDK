@@ -72,6 +72,12 @@ class ChannelInfo
 		return this;
 	}
 	
+	void clear()
+	{
+		_name = null;
+		_rsslReactor = null;
+	}
+	
 	String name()
 	{
 		return _name;
@@ -1287,6 +1293,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		{
 			_baseImpl.loginCallbackClient().removeChannelInfo(chanInfo.rsslReactorChannel());
 			_channelList.remove( chanInfo );
+			chanInfo.clear();
 			_channelPool.add( chanInfo );
 		}
 	}

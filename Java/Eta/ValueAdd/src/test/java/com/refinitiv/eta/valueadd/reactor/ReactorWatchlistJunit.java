@@ -131,6 +131,7 @@ public class ReactorWatchlistJunit
     {
         Selector _selector = null;
         ReactorChannelEvent _lastChannelEvent = null;
+        ReactorChannel _lastReactorChannel = null;
         ReactorMsgEvent _lastDefaultMsgEvent = null;
         RDMLoginMsgEvent _lastLoginMsgEvent = null;
         RDMDirectoryMsgEvent _lastDirectoryMsgEvent = null;
@@ -161,6 +162,13 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = _lastChannelEvent;
             _lastChannelEvent = null;
             return event;
+        }
+        
+        ReactorChannel lastReactorChannel()
+        {
+            ReactorChannel reactorChannel = _lastReactorChannel;
+            _lastReactorChannel = null;
+            return reactorChannel;
         }
 
         ReactorMsgEvent lastDefaultMsgEvent()
@@ -274,6 +282,7 @@ public class ReactorWatchlistJunit
                             + event.toString());
 
             _lastChannelEvent = event;
+            _lastReactorChannel = event.reactorChannel();
 
             ReactorChannel rc = event.reactorChannel();
             int eventType = event.eventType();
@@ -488,22 +497,24 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // attempt to submit buffer with watchlist enabled, it should fail with INVALID_USAGE
-            TransportBuffer msgBuf = event.reactorChannel().channel().getBuffer(1000, false, errorInfo.error());
+            TransportBuffer msgBuf = lastReactorChannel.channel().getBuffer(1000, false, errorInfo.error());
             assertNotNull(msgBuf);
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
             submitOptions.requestMsgOptions().userSpecObj(new String("Unit Test"));
             assertEquals("DIRECT_FEED", submitOptions.serviceName());
             assertNotNull(submitOptions.requestMsgOptions().userSpecObj());
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(msgBuf, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(msgBuf, submitOptions, errorInfo));
             
             // attempt to submit market price RDM message, it should fail with INVALID_USAGE
             MarketPriceRequestDummmy marketPriceRequest = new MarketPriceRequestDummmy();
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(marketPriceRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(marketPriceRequest, submitOptions, errorInfo));
             
             // fake that channel is down and make sure submit still works
-            event.reactorChannel().state(ReactorChannel.State.DOWN_RECONNECTING);
+            lastReactorChannel.state(ReactorChannel.State.DOWN_RECONNECTING);
 
             // submit login request and make sure it succeeds
             assertNull(consumerRole.rdmLoginRequest());
@@ -511,14 +522,14 @@ public class ReactorWatchlistJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
 
             
             // now set channel state back to UP
-            event.reactorChannel().state(ReactorChannel.State.UP);
+            lastReactorChannel.state(ReactorChannel.State.UP);
             
             // trigger channel up event and dispatch
-            event.reactorChannel().watchlist().loginHandler().channelUp(errorInfo);
+            lastReactorChannel.watchlist().loginHandler().channelUp(errorInfo);
             ReactorJunit.dispatchReactor(selector, reactor);
             
             // make sure login request gets sent to provider
@@ -652,7 +663,10 @@ public class ReactorWatchlistJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -1582,7 +1596,10 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -1598,7 +1615,7 @@ public class ReactorWatchlistJunit
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
             submitOptions.requestMsgOptions().userSpecObj("Unit Test");
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
             
             // have the TestServer send the LoginRefresh to the Reactor.
             testServer.writeMessageToSocket(replay.read());
@@ -1650,7 +1667,7 @@ public class ReactorWatchlistJunit
 
             // attempt to submit post message again here
             // it should fail since post message has no MsgKey
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             // submit with same post id twice, should fail on second submit
             postMsg.applyHasMsgKey();
@@ -1658,25 +1675,25 @@ public class ReactorWatchlistJunit
             postMsg.msgKey().name().data("MsgKeyName");
             postMsg.applyHasPostId();
             postMsg.postId(1);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
             
             // now try same post id with same sequence numbers, this should fail on second submit
             postMsg.flags(postMsg.flags() & ~PostMsgFlags.POST_COMPLETE);
             postMsg.postId(2);
             postMsg.applyHasSeqNum();
             postMsg.seqNum(1);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             // now try same post id with different sequence numbers, this should pass
             postMsg.applyHasPartNum();
             postMsg.postId(3);
             postMsg.seqNum(1);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
             postMsg.seqNum(2);
             postMsg.applyPostComplete();
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -1824,7 +1841,10 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -1894,7 +1914,7 @@ public class ReactorWatchlistJunit
             postMsg.seqNum(1);
             postMsg.applyPostComplete();
             postMsg.applyAck();
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -1927,7 +1947,7 @@ public class ReactorWatchlistJunit
             assertEquals(NakCodes.NO_RESPONSE, ackMsg.nakCode());
 
             // submit PostMsg requiring ACK again
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -2084,8 +2104,11 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
-    
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
+            
             /*
              * the reactor will send out our default LoginRequest. wait for
              * testServer to read the LoginRequest, then send the LoginResponse
@@ -2146,12 +2169,12 @@ public class ReactorWatchlistJunit
             assertNotNull(loginRequest);
             loginRequest.userName().data("NEW NAME");
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             // reissue login request with user token change - this should pass
             watchlist.loginHandler()._loginRequest.userNameType(Login.UserIdTypes.TOKEN);
             loginRequest.userNameType(Login.UserIdTypes.TOKEN);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
 
             /*
              * the reactor will send out another LoginRequest. wait for
@@ -2185,23 +2208,23 @@ public class ReactorWatchlistJunit
             loginRequestInstanceIdChange.rdmMsgType(LoginMsgType.REQUEST);
             consumerRole.rdmLoginRequest().copy(loginRequestInstanceIdChange);
             loginRequestInstanceIdChange.instanceId().data("DifferentInstanceId");
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(loginRequestInstanceIdChange, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(loginRequestInstanceIdChange, submitOptions, errorInfo));
             
             // reissue different password - this should fail
             LoginRequest loginRequestPasswordChange = (LoginRequest)LoginMsgFactory.createMsg();
             loginRequestPasswordChange.rdmMsgType(LoginMsgType.REQUEST);
             consumerRole.rdmLoginRequest().copy(loginRequestPasswordChange);
             loginRequestPasswordChange.password().data("DifferentPassword");
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(loginRequestPasswordChange, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(loginRequestPasswordChange, submitOptions, errorInfo));
 
             // reissue login request with same instance id - this should pass
             watchlist.loginHandler()._loginRequest.instanceId().data("DifferentInstanceId");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequestInstanceIdChange, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequestInstanceIdChange, submitOptions, errorInfo));
 
             // reissue login request with same password - this should pass
             watchlist.loginHandler()._loginRequest.password().data("DifferentPassword");
             loginRequestPasswordChange.instanceId().data("DifferentInstanceId"); // need this since cached instance id was just changed above
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequestPasswordChange, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequestPasswordChange, submitOptions, errorInfo));
 
             // reset the msgReturnCode to SUCCESS.
             callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
@@ -2735,7 +2758,10 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
     
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -3009,6 +3035,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit some items before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -3023,19 +3051,19 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.streamId(6);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.streamId(7);
             requestMsg.msgKey().name().data("IBM");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             // attempt to submit another item with NO_REFRESH flag set
             // this should fail
             requestMsg.streamId(8);
             requestMsg.msgKey().name().data("WFM");
             requestMsg.applyNoRefresh();
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));            
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));            
     
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -3160,8 +3188,8 @@ public class ReactorWatchlistJunit
             closeMsg.msgClass(MsgClasses.CLOSE);
             closeMsg.streamId(1);
             closeMsg.domainType(DomainTypes.LOGIN);
-            assertEquals(ReactorReturnCodes.SUCCESS, msgEvent.reactorChannel().submit(closeMsg, submitOptions, errorInfo));
-            assertEquals(ReactorReturnCodes.SUCCESS, msgEvent.reactorChannel().submit(closeMsg, submitOptions, errorInfo));            
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(closeMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(closeMsg, submitOptions, errorInfo));            
         }
         catch (Exception e)
         {
@@ -3278,6 +3306,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit some items before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -3291,12 +3321,12 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.streamId(6);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.streamId(7);
             requestMsg.msgKey().name().data("IBM");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
     
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -3399,14 +3429,14 @@ public class ReactorWatchlistJunit
             requestMsg.flags(requestMsg.flags() & ~RequestMsgFlags.STREAMING);
             requestMsg.msgKey().name().data("TRI");
             requestMsg.streamId(6);
-            assertEquals(ReactorReturnCodes.FAILURE, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.FAILURE, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             // now reissue second TRI request with STREAMING flag back on
             // this should be successful
             requestMsg.applyStreaming();
             requestMsg.msgKey().name().data("TRI");
             requestMsg.streamId(6);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             // now have the TestServer send a TRI update to the Reactor.
             testServer.writeMessageToSocket(replay.read());
@@ -3578,6 +3608,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit two of the same items before login and directory stream is open
             // submit first TRI as snapshot and second as streaming
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -3592,10 +3624,10 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.applyStreaming();
             requestMsg.streamId(6);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
     
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -3699,7 +3731,7 @@ public class ReactorWatchlistJunit
             
             // now try to re-submit snapshot request as streaming, this should be successful
             requestMsg.streamId(5);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
         }
         catch (Exception e)
@@ -3876,6 +3908,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit a market by price request
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
@@ -3890,7 +3924,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out the market by price item request.
@@ -3917,7 +3951,7 @@ public class ReactorWatchlistJunit
 
             // send out the second market by price request
             requestMsg.streamId(6);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             /*
              * the watchlist will wait to send out the second market by price item request
@@ -4109,6 +4143,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             /*
              * the reactor will send out our default LoginRequest. wait for
              * testServer to read the LoginRequest, then send the LoginResponse
@@ -4179,7 +4215,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().name().data("RWFFld");
             requestMsg.msgKey().applyHasFilter();
             requestMsg.msgKey().filter(Dictionary.VerbosityValues.MINIMAL);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out dictionary request
@@ -4215,7 +4251,7 @@ public class ReactorWatchlistJunit
             requestMsg.streamId(7);
             requestMsg.msgKey().name().data("RWFEnum");
             requestMsg.msgKey().filter(Dictionary.VerbosityValues.VERBOSE);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out dictionary request
@@ -4250,12 +4286,12 @@ public class ReactorWatchlistJunit
             submitOptions.serviceName("123456");
             requestMsg.streamId(5);
             requestMsg.msgKey().name().data("RWFFld");
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             // change filter of field dictionary request and attempt to reissue
             submitOptions.serviceName("DIRECT_FEED");
             requestMsg.msgKey().filter(Dictionary.VerbosityValues.NORMAL);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out dictionary request
@@ -4270,7 +4306,7 @@ public class ReactorWatchlistJunit
             // this should pass since provider may not advertise all names in service's dictionary list
             requestMsg.streamId(8);
             requestMsg.msgKey().name().data("XYZ");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
         }
         catch (Exception e)
         {
@@ -4387,6 +4423,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit an item before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -4403,7 +4441,7 @@ public class ReactorWatchlistJunit
             requestMsg.applyHasPriority();
             requestMsg.priority().priorityClass(5);
             requestMsg.priority().count(2);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
     
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -4487,7 +4525,7 @@ public class ReactorWatchlistJunit
             requestMsg.streamId(6);
             requestMsg.priority().priorityClass(5);
             requestMsg.priority().count(2);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out an item request for TRI.
@@ -4517,7 +4555,7 @@ public class ReactorWatchlistJunit
             requestMsg.streamId(7);
             requestMsg.priority().priorityClass(6);
             requestMsg.priority().count(2);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out an item request for TRI.
@@ -4548,7 +4586,7 @@ public class ReactorWatchlistJunit
             closeMsg.msgClass(MsgClasses.CLOSE);
             closeMsg.streamId(6);
             closeMsg.domainType(DomainTypes.MARKET_PRICE);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(closeMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(closeMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out an item reissue for TRI since item was closed.
@@ -4563,7 +4601,7 @@ public class ReactorWatchlistJunit
             requestMsg.streamId(8);
             requestMsg.priority().priorityClass(6);
             requestMsg.priority().count(10);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             /* Dispatch reactor in case we need to restart internal flushing. */
             ReactorJunit.dispatchReactor(selector, reactor);
@@ -4695,6 +4733,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit an item before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -4714,7 +4754,7 @@ public class ReactorWatchlistJunit
             requestMsg.applyHasWorstQos();
             requestMsg.worstQos().timeliness(QosTimeliness.DELAYED_UNKNOWN);
             requestMsg.worstQos().rate(QosRates.JIT_CONFLATED);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
     
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -4799,7 +4839,7 @@ public class ReactorWatchlistJunit
             requestMsg.qos().rate(QosRates.JIT_CONFLATED);
             requestMsg.worstQos().timeliness(QosTimeliness.DELAYED_UNKNOWN);
             requestMsg.worstQos().rate(QosRates.JIT_CONFLATED);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out an item request for TRI.
@@ -4831,7 +4871,7 @@ public class ReactorWatchlistJunit
             requestMsg.qos().rate(QosRates.TICK_BY_TICK);
             requestMsg.worstQos().timeliness(QosTimeliness.REALTIME);
             requestMsg.worstQos().rate(QosRates.JIT_CONFLATED);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /* the watchlist won't send out the third TRI request since the qos range is out of range */
             try
@@ -4954,6 +4994,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             /*
              * the reactor will send out our default LoginRequest. wait for
              * testServer to read the LoginRequest, then send the LoginResponse
@@ -5022,24 +5064,24 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().name().data("TRI");
             submitOptions.clear();
             submitOptions.requestMsgOptions().userSpecObj("REQUEST TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.streamId(6);
             requestMsg.msgKey().name().data("IBM");
             requestMsg.flags(requestMsg.flags() & ~RequestMsgFlags.STREAMING);
             submitOptions.clear();
             submitOptions.requestMsgOptions().userSpecObj("REQUEST IBM");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             requestMsg.streamId(7);
             requestMsg.msgKey().name().data("WFM");
             requestMsg.applyStreaming();
             submitOptions.clear();
             submitOptions.requestMsgOptions().userSpecObj("REQUEST WFM");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             // change service id of third item request and attempt to reissue
             // this should fail
             requestMsg.msgKey().serviceId(2);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the watchlist will send out one item request since the open window is 1
@@ -5226,7 +5268,10 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -5294,7 +5339,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().serviceId(1);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             /*
              * the watchlist will send out one item request since the open window is 1
@@ -5316,7 +5361,7 @@ public class ReactorWatchlistJunit
             postMsg.postId(1);
             postMsg.applyAck();
             postMsg.applyPostComplete();
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             // have the TestServer send the Item Refresh to the Reactor.
             testServer.writeMessageToSocket(replay.read());
@@ -5333,25 +5378,25 @@ public class ReactorWatchlistJunit
             assertNotNull(msgEvent);
 
             // now that item stream is open, submit with same post id twice, should fail on second submit
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             // now try same post id with same sequence numbers, this should fail on second submit
             postMsg.flags(postMsg.flags() & ~PostMsgFlags.POST_COMPLETE);
             postMsg.postId(2);
             postMsg.applyHasSeqNum();
             postMsg.seqNum(1);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             // now try same post id with different sequence numbers, this should pass
             postMsg.applyHasPartNum();
             postMsg.postId(3);
             postMsg.seqNum(1);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
             postMsg.seqNum(2);
             postMsg.applyPostComplete();
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -5374,7 +5419,7 @@ public class ReactorWatchlistJunit
             
             // now set maxOutstandingPosts to 0, post submit should fail
             watchlist.watchlistOptions().maxOutstandingPosts(0);
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             // reset the msgReturnCode to SUCCESS.
             callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
@@ -5488,7 +5533,10 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -5556,7 +5604,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().serviceId(1);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             /*
              * the watchlist will send out one item request.
@@ -5593,7 +5641,7 @@ public class ReactorWatchlistJunit
             postMsg.seqNum(1);
             postMsg.applyPostComplete();
             postMsg.applyAck();
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -5623,7 +5671,7 @@ public class ReactorWatchlistJunit
             assertEquals(NakCodes.NO_RESPONSE, ackMsg.nakCode());
 
             // submit PostMsg requiring ACK again
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -5656,7 +5704,7 @@ public class ReactorWatchlistJunit
             // submit PostMsg requiring ACK again with second part of multi-part refresh
             postMsg.seqNum(2);
             postMsg.applyPostComplete();
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -5797,7 +5845,10 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-            Watchlist watchlist = event.reactorChannel().watchlist();
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
+            Watchlist watchlist = lastReactorChannel.watchlist();
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -5865,7 +5916,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().serviceId(1);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             /*
              * the watchlist will send out one item request.
@@ -5900,7 +5951,7 @@ public class ReactorWatchlistJunit
             postMsg.postId(1);
             postMsg.applyPostComplete();
             postMsg.applyAck();
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -5933,7 +5984,7 @@ public class ReactorWatchlistJunit
             assertEquals(NakCodes.NO_RESPONSE, ackMsg.nakCode());
 
             // submit PostMsg requiring ACK again
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(postMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(postMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out the PostMsg. wait for
@@ -6089,6 +6140,8 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
     
             // submit an item before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -6104,7 +6157,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -6340,6 +6393,8 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
         
             // submit an item before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -6355,7 +6410,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -6596,6 +6651,8 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
+            
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
     
             // submit an item before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -6612,7 +6669,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
            
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -6830,7 +6887,9 @@ public class ReactorWatchlistJunit
             ReactorChannelEvent event = callbackHandler.lastChannelEvent();
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_UP, event.eventType());
-    
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+
+            
             // submit an item before login and directory stream is open
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -6845,7 +6904,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().nameType(InstrumentNameTypes.RIC);
             requestMsg.msgKey().applyHasName();
             requestMsg.msgKey().name().data("TRI");
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -6952,7 +7011,7 @@ public class ReactorWatchlistJunit
             closeMsg.streamId(5);
             closeMsg.domainType(DomainTypes.MARKET_PRICE);
             closeMsg.containerType(DataTypes.NO_DATA);     
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(closeMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(closeMsg, submitOptions, errorInfo));
             
         }
         catch (Exception e)
@@ -7069,6 +7128,9 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+
+            
             // submit login request and make sure selector is triggered and dispatch succeeds
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -7080,7 +7142,7 @@ public class ReactorWatchlistJunit
 
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -7128,7 +7190,7 @@ public class ReactorWatchlistJunit
             ReactorSubmitOptions directoryRequestSubmitOptions = ReactorFactory.createReactorSubmitOptions();
             directoryRequestSubmitOptions.clear();
             directoryRequestSubmitOptions.requestMsgOptions().userSpecObj(new String("Unit Test"));
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, directoryRequestSubmitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(directoryRequest, directoryRequestSubmitOptions, errorInfo));
             
             /*
              * the reactor will send out our default DirectoryRequest. wait for
@@ -7304,6 +7366,9 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+
+            
             // submit login request and make sure selector is triggered and dispatch succeeds
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -7315,7 +7380,7 @@ public class ReactorWatchlistJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -7518,6 +7583,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit login request and make sure selector is triggered and dispatch succeeds
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -7529,7 +7596,7 @@ public class ReactorWatchlistJunit
 
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -7573,7 +7640,7 @@ public class ReactorWatchlistJunit
                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);
             directoryRequest.applyStreaming();
             assertNotNull(directoryRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(directoryRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default DirectoryRequest. wait for
@@ -7632,7 +7699,7 @@ public class ReactorWatchlistJunit
             directoryRequest.filter(Directory.ServiceFilterFlags.DATA);
             directoryRequest.applyStreaming();
             assertNotNull(directoryRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(directoryRequest, submitOptions, errorInfo));
             
             /*
              * call dispatch which should read the DirectoryRefresh, invoke
@@ -7795,6 +7862,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit login request and make sure selector is triggered and dispatch succeeds
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -7817,7 +7886,7 @@ public class ReactorWatchlistJunit
             ReactorSubmitOptions directoryRequestSubmitOptions = ReactorFactory.createReactorSubmitOptions();
             directoryRequestSubmitOptions.clear();
             directoryRequestSubmitOptions.requestMsgOptions().userSpecObj(new String("Unit Test"));
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, directoryRequestSubmitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(directoryRequest, directoryRequestSubmitOptions, errorInfo));
 
             /*
              * go back to the select loop, the consumerReactorChannel should
@@ -7832,7 +7901,7 @@ public class ReactorWatchlistJunit
 
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -8043,6 +8112,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+            
             // submit login request and make sure selector is triggered and dispatch succeeds
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -8054,7 +8125,7 @@ public class ReactorWatchlistJunit
 
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -8099,7 +8170,7 @@ public class ReactorWatchlistJunit
                     Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.GROUP);
             directoryRequest.applyStreaming();
             assertNotNull(directoryRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(directoryRequest, submitOptions, errorInfo));
            
             /*
              * the reactor will send out our default DirectoryRequest. wait for
@@ -8143,7 +8214,7 @@ public class ReactorWatchlistJunit
             directoryRequest.applyHasServiceId();
             directoryRequest.serviceId(0);
             submitOptions.serviceName("TRI");
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(directoryRequest, submitOptions, errorInfo));
             
             // Send failing directory request because of changing service Id
             RequestMsg requestMsg = (RequestMsg)CodecFactory.createMsg();
@@ -8155,7 +8226,7 @@ public class ReactorWatchlistJunit
             requestMsg.msgKey().filter(Directory.ServiceFilterFlags.GROUP | Directory.ServiceFilterFlags.LINK);
             requestMsg.msgKey().serviceId(10);
             submitOptions.serviceName("DIRECT_FEED");
-            assertEquals(ReactorReturnCodes.INVALID_USAGE, event.reactorChannel().submit(requestMsg, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.INVALID_USAGE, lastReactorChannel.submit(requestMsg, submitOptions, errorInfo));
 
             // reset the msgReturnCode to SUCCESS.
             callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.SUCCESS);
@@ -8275,6 +8346,8 @@ public class ReactorWatchlistJunit
             assertNotNull(event);
             assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
             
+            ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
+
             // submit login request and make sure selector is triggered and dispatch succeeds
             ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
             submitOptions.serviceName("DIRECT_FEED");
@@ -8286,7 +8359,7 @@ public class ReactorWatchlistJunit
             consumerRole.initDefaultRDMDirectoryRequest();
             LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
             assertNotNull(loginRequest);
-            assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+            assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
             
             /*
              * the reactor will send out our default LoginRequest. wait for
@@ -8489,6 +8562,8 @@ public class ReactorWatchlistJunit
     		ReactorChannelEvent event = callbackHandler.lastChannelEvent();
     		assertNotNull(event);
     		assertEquals(ReactorChannelEventTypes.CHANNEL_READY, event.eventType());
+    		
+    		ReactorChannel lastReactorChannel = callbackHandler.lastReactorChannel();
 
     		// submit login request and make sure selector is triggered and dispatch succeeds
     		ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -8501,7 +8576,7 @@ public class ReactorWatchlistJunit
 
     		LoginRequest  loginRequest = consumerRole.rdmLoginRequest();
     		assertNotNull(loginRequest);
-    		assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(loginRequest, submitOptions, errorInfo));
+    		assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(loginRequest, submitOptions, errorInfo));
 
     		/*
     		 * the reactor will send out our default LoginRequest. wait for
@@ -8546,7 +8621,7 @@ public class ReactorWatchlistJunit
     		directoryRequest.applyStreaming();
     		assertNotNull(directoryRequest);
     		    		
-    		assertEquals(ReactorReturnCodes.SUCCESS, event.reactorChannel().submit(directoryRequest, submitOptions, errorInfo));
+    		assertEquals(ReactorReturnCodes.SUCCESS, lastReactorChannel.submit(directoryRequest, submitOptions, errorInfo));
 
     		/*
     		 * the reactor will send out our default DirectoryRequest. wait for
