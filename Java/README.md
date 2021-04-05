@@ -29,7 +29,7 @@ External modules used by this version of RTSDK Java:
 	json			20180130
 	httpclient		4.5.13
 	httpclient-cache	4.5.13
-	httpcore-nio		4.4.13
+	httpcore		4.4.13
 	httpcore-nio		4.4.12
 	httpmime		4.5.13
 	mockito-all		1.9.0
@@ -209,40 +209,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.1.0</version>
+		<version>3.6.1.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.1.0</version>
+		<version>3.6.1.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.1.0</version>
+		<version>3.6.1.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.1.0</version>
+		<version>3.6.1.1</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.1.0</version>
+		<version>3.6.1.1</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.1.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.1.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.1.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.1.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.1.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.1.1'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.1.1'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.1.1'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.1.1'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.1.1'
 
 # Developing 
 

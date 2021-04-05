@@ -38,16 +38,16 @@ subprojects {
 
 ext.YEAR = '2021'
 
-ext.BuildDate = 'Fri Feb 19 12:25:01 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.6.1.0'
+ext.BuildDate = 'Web Mar 31 12:25:01 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.6.1.1'
 ext.SpecificationVersionShort = '3.6.1'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
 
 // Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L2.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L2.all.rrg'
 
 // NOTE! update with new asset version
 ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.0.1.L1'
