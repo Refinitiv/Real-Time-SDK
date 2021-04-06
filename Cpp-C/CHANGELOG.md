@@ -9,20 +9,22 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.1.L1 aka EMA 3.6.1.L1 and ETA 3.6.1.L1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.1.L2 aka EMA 3.6.1.L2 and ETA 3.6.1.L2 
 ----------------------------------------------------------------------------------------
 
-Customer Issues Resolved
-------------------
-- [Case Number: 05224063] - [RTSDK-214] - Consumer crashes when decoding using wrong field type
-- [GitHub # 82] - [RTSDK-1761] - Remove malloc.h for clang; qualification with clang on RH8
-- [GitHub # 134] - [RTSDK-3964] - Use after free in OmmServerBaseImpl.cpp
-- [GitHub # 153] - [RTSDK-4308] - Error in DirectoryHandler when using more than 5 services
-- [GitHub # 119] - [RTSDK-4402] - Support additional Source Directory attributes via EmaConfig
+This release removes unused files from GitHub and RRG packages 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.1.L2 (March 31, 2021)
+--------------------------------------------
+
+Both ETA C and EMA C++ 3.6.1.L2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-4860, RTSDK-4861] - Remove unused EtaJni files 
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.1.L1 (Mar 4, 2021)
