@@ -252,6 +252,7 @@ protected:
 	OmmProviderEvent			ommProviderEvent;
 	void*						_pClosure;
 	bool						_bApiDispatchThreadStarted;
+	bool						_bUninitializeInvoked;
 
 	ReqMsg                      _reqMsg;
 	StatusMsg					_statusMsg;

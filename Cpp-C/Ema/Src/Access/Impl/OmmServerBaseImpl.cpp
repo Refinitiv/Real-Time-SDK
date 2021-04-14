@@ -68,7 +68,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_theTimeOuts(),
 	_pRsslServer(0),
 	_pClosure(closure),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
@@ -99,7 +100,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_theTimeOuts(),
 	_pRsslServer(0),
 	_pClosure(closure),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	try
 	{
@@ -1096,6 +1098,13 @@ void OmmServerBaseImpl::cleanUp()
 void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 {
 	OmmBaseImplMap<OmmServerBaseImpl>::remove(this);
+
+	// prevents invoking uninitialize twice
+	if (_bUninitializeInvoked)
+	{
+		return;
+	}
+	_bUninitializeInvoked = true;
 
 	_atExit = true;
 
