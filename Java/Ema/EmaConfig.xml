@@ -361,7 +361,7 @@
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
 			<Host value="localhost"/>
-			<Port value="14002"/>
+			<Port value="15000"/>
 			<WsMaxMsgSize value="61440"/>
 			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
 		</Channel>
@@ -462,7 +462,7 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
-			<Port value="14002"/>
+			<Port value="15000"/>
 			<!-- There are optional and used for applying WS connection -->
 			<MaxFragmentSize value="6144"/>
 			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
