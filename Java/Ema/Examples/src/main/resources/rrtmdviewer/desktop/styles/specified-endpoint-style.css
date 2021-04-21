@@ -1,0 +1,117 @@
+/*Specified Endpoint settings CSS*/
+
+.button {
+    -fx-padding: 2;
+    -fx-border-insets: 2;
+    -fx-background-insets: 2;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-pref-height: 40px;
+    -fx-pref-width: 130px;
+    -fx-border-color: #A8A8A8;
+}
+
+.vbox {
+    -fx-padding: 2px;
+    -fx-border-insets: 2px;
+    -fx-background-insets: 2px;
+}
+
+.boxwithframe {
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-color: lightgray;
+    -fx-spacing: 20px;
+}
+
+.boxwithoutframe {
+    -fx-spacing: 20px;
+}
+
+
+.vboxwithframe {
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-color: lightgray;
+    -fx-spacing: 10px;
+}
+
+.customcheckbox {
+    -fx-padding: 5 10 0 0;
+    -fx-border-insets: 5 10 0 0;
+    -fx-background-insets: 5 10 0 0;
+}
+
+.tabpanel {
+    -fx-border-color: #A8A8A8;
+}
+
+.inputfield {
+   -fx-max-width: 200px;
+   -fx-min-width: 200px;
+   -fx-max-height: 30px;
+   -fx-min-height: 30px;
+}
+
+.optionslabel {
+   -fx-max-width: 200px;
+   -fx-min-width: 200px;
+   -fx-padding: 0 0 0 20;
+   -fx-border-insets: 0 0 0 20;
+   -fx-background-insets: 0 0 0 20;
+}
+
+.innerbox {
+    -fx-padding: 5;
+    -fx-border-insets: 5;
+    -fx-background-insets: 5;
+}
+
+.filechoosertextfield {
+    -fx-max-width: 175px;
+    -fx-min-width: 175px;
+    -fx-max-height: 30px;
+    -fx-min-height: 30px;
+}
+
+.filechooserbutton {
+    -fx-max-width: 30px;
+    -fx-min-width: 30px;
+    -fx-max-height: 30px;
+    -fx-min-height: 30px;
+}
+
+.list-view {
+	-fx-padding: 2;
+    -fx-border-insets: 2;
+    -fx-background-insets: 2;
+	-fx-border-color: lightgray;
+}
+
+.button-box {
+	-fx-max-width: 35;
+	-fx-min-width: 35;
+}
+
+.innerboxwithframe {
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-color: lightgray;
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+}
+
+#errorTextArea {
+    -fx-text-fill: red;
+}
+
+.root {
+    -fx-font-size: 13px;
+}

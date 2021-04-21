@@ -74,7 +74,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_hasConsAdminClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
@@ -106,7 +107,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasProvAdminClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 	
@@ -139,7 +141,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasProvAdminClient(true),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 
@@ -173,7 +176,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_hasProvAdminClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
 	try
@@ -214,7 +218,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasProvAdminClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 	try
@@ -253,7 +258,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_bEventReceived( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
 	try
@@ -294,7 +300,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasProvAdminClient(true),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 	try
@@ -1564,6 +1571,13 @@ void OmmBaseImpl::cleanUp()
 void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 {
 	OmmBaseImplMap<OmmBaseImpl>::remove(this);
+
+	// prevents invoking uninitialize twice
+	if ( _bUninitializeInvoked )
+	{
+		return;
+	}
+	_bUninitializeInvoked = true;
 
 	_atExit = true;
 

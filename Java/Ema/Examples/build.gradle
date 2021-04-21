@@ -1,5 +1,11 @@
-apply plugin: 'application'
+plugins {
+	id 'org.openjfx.javafxplugin' version '0.0.9' apply(false)
+}
 
+apply plugin: 'application'
+if (JavaVersion.current().java11Compatible) {
+	apply plugin: 'org.openjfx.javafxplugin'
+}
 eclipse {
         project {
                 name = 'RTSDK-Ema-Examples'
@@ -8,6 +14,14 @@ eclipse {
 
 dependencies {
 	compile project(':Ema:Core')
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+if (JavaVersion.current().java11Compatible) {
+	javafx {
+		version = "16"
+		modules = ['javafx.controls', 'javafx.fxml']
+	}
 }
 
 mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
@@ -36,7 +50,8 @@ task deleteDictionary( type: Delete ) {
 	delete "$projectDir/enumtype.def"
 }
 
-def JVM_OPTIONS = "-Xms512m -Xmx512m"
+def JVM_OPTIONS = "-Xms512m -Xmx1024m"
+def JVM_OPTIONS_RTTVIEWER_DESKTOP = "-Xms1g -Xmx2g"
 
 task deleteEmaConfig( type: Delete ) {
 	delete "$projectDir/EmaConfig.xml"
@@ -82,6 +97,8 @@ fileTree('.') {
 		TaskDescription = 'IProvider ' + TaskDescription
 		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.IProvider'
         ExampleType = 'Interactive Provider'
+	} else {
+		return
 	}
 
 	// creating tasks for running all the examples dynamically
@@ -98,5 +115,23 @@ fileTree('.') {
 		main = exampleMainLocation
 		classpath = sourceSets.main.runtimeClasspath
 	}
+}
+
+task runrrtviewerdesktop ( type: JavaExec ) {
+	def exampleMainLocation = 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+	def TaskDescription = 'RRTMDViewerDesktop'
+	group 'Run EMA RRTMDViewer desktop'
+
+	description 'This task runs the ' + TaskDescription
+
+	dependsOn copyDictionary, copyEmaConfig
+
+	jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rrtmdviewer/desktop/logging.properties"
+
+	if (JVM_OPTIONS_RTTVIEWER_DESKTOP)
+		jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS_RTTVIEWER_DESKTOP ) )
+
+	main = exampleMainLocation
+	classpath = sourceSets.main.runtimeClasspath
 }
 

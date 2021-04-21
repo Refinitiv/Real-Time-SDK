@@ -1,0 +1,32 @@
+.inputfield {
+   -fx-max-width: 200px;
+   -fx-min-width: 200px;
+   -fx-max-height: 25px;
+   -fx-min-height: 25px;
+}
+
+.optionslabel {
+   -fx-max-width: 200px;
+   -fx-min-width: 200px;
+   -fx-padding: 0 0 0 20;
+   -fx-border-insets: 0 0 0 20;
+   -fx-background-insets: 0 0 0 20;
+}
+
+.vboxwithframe {
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-color: lightgray;
+    -fx-spacing: 10px;
+}
+
+.root {
+    -fx-font-size: 13px;
+}
+
+#errorDebugAreaInternal {
+    -fx-text-fill: red;
+}

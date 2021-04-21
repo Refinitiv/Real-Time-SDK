@@ -1091,19 +1091,36 @@ void EmaCppConsPerf::printSummaryStatistics(FILE *file)
 
 void EmaCppConsPerf::consumerCleanupThreads()
 {
+	printf("\ncleanupThreads.\n\n");
+	// Waits until all threads stop executing
 	const UInt64 ctSize = consumerThreads.size();
-	UInt64 count =0;
-	while(1)
+	UInt64 i;
+
+	if (!shutdownThreads())
 	{
-		count = 0;
-		for( UInt64 i = 0; i < ctSize; ++i )
+		for (i = 0; i < ctSize; ++i)
 		{
-			consumerThreads[i]->stopThread = true;
-			if( !(consumerThreads[i]->running))				
-				count++;
+			consumerThreads[i]->setStopThread();
 		}
-		if( count == ctSize)
-			break;
+
+		PerfTimeValue startTime = perftool::common::GetTime::getTimeMilli();
+		PerfTimeValue currentTime = startTime;
+
+		bool threadRunning = true;
+		while (threadRunning && currentTime < startTime + 5000)
+		{
+			AppUtil::sleep(100);
+
+			threadRunning = false;
+			for (i = 0; i < ctSize; ++i)
+			{
+				if (consumerThreads[i]->isRunning()) {
+					threadRunning = true;
+					break;
+				}
+			}
+			currentTime = perftool::common::GetTime::getTimeMilli();
+		}
 	}
 
 	if (consPerfConfig.threadCount == 1)
@@ -1116,7 +1133,7 @@ void EmaCppConsPerf::consumerCleanupThreads()
 	printSummaryStatistics(stdout);
 	printSummaryStatistics(summaryFile);
 
-	for( UInt64 i = 0; i < ctSize; ++i )
+	for( i = 0; i < ctSize; ++i )
 	{
 		if( !consumerThreads[i]->testPassed )
 		{
@@ -1143,11 +1160,12 @@ bool EmaCppConsPerf::shutdownThreads()
 	const UInt64 ctSize = consumerThreads.size();
 	for( UInt64 i = 0; i < ctSize; ++i )
 	{
-		if( !(consumerThreads[i]->running))
+		ConsumerThread* pConsumerThread = consumerThreads[i];
+		if( !pConsumerThread->isRunning() || pConsumerThread->isStopped())
 			count++;
 	}
-		if(count == ctSize)
-			return true;
+	if(count == ctSize)
+		return true;
 	return false;
 }
 bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
@@ -1242,6 +1260,11 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 
 	startTime = perftool::common::GetTime::getTimeMilli();
 
+	// Registers Ctrl+C handler in the handler's chain after EMA.
+	// OmmBaseImplMap is used to uninitilalize for internal EMA objects.
+	AppUtil::sleep( 10 );
+	CtrlBreakHandler::registerAction();
+
 	// Sleep for one more second so some stats can be gathered before first printout.
 	AppUtil::sleep( 1000 );
 	while ( !shutdownThreads() )
@@ -1278,11 +1301,12 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 
 			break;
 		}
-		if(CtrlBreakHandler::isTerminated() )
-			break;
 
 		nextTime = currentTime + 1000;
-		AppUtil::sleep( nextTime - currentTime );	
+		AppUtil::sleepUI( nextTime - currentTime );	
+
+		if (CtrlBreakHandler::isTerminated())
+			break;
 	}
 
 	consumerCleanupThreads();

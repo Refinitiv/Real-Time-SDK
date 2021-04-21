@@ -759,7 +759,7 @@ public class ReactorChannel extends VaNode
         int retVal = ReactorReturnCodes.SUCCESS;
 
         if (errorInfo == null || _reactor == null)
-            retVal = ReactorReturnCodes.FAILURE;
+            return ReactorReturnCodes.FAILURE;
 
         _reactor._reactorLock.lock();
 

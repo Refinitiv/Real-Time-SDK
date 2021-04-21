@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.46
-!tag Build_RDMD  4.20.46
-!tag DT_Version  21.21
-!tag Date        16-Feb-2021
+!tag RT_Version  4.20.47
+!tag Build_RDMD  4.20.47
+!tag DT_Version  21.31
+!tag Date        22-Mar-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -4860,6 +4860,7 @@ LEG40_TYPE 12832
      13       "MBS "   Mortgage-Backed Security
      14       "WNT "   Warrants
      15       "LEPO"   Low Exercise Price Options
+     16       "FOPT"   Flex Option
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -4951,6 +4952,10 @@ PAY_FREQ2  12798
 U_PAY_FREQ 12878
 LEG1_PAYFQ 12960
 LEG2_PAYFQ 12961
+LEG3_PAYFQ 13092
+LEG4_PAYFQ 13093
+LEG5_PAYFQ 13094
+LEG6_PAYFQ 13095
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8739,6 +8744,9 @@ DRK_EXID   13610
    1641        "HEE"   Hellenic Energy Exchange
    1642        "CXN"   CHINA CHENGXIN INFORMATION TECHNOLOGY (CCXE)
    1643        "MLA"   MEAT & LIVESTOCK AUSTRALIA
+   1644        "GXI"   General Index
+   1645        "MCB"   MALAYSIAN COCOA BOARD
+   1646        "IAG"   AUSTRALIAN GOVT (DEP OF INDUSTRY, SCI, NRG & RES)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12898,6 +12906,7 @@ UNDLY_TYPE  8925
      44     "Multi "   Multiple Underlying Securities / Reference Assets
      45     "CusIdx"   Customized Index
      46     "Versus"   Underlying / Reference asset price derived from more than one securities
+     47     "FOPT  "   Flex Option(s)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13295,6 +13304,7 @@ REFPRC_TP4 13491
      44   "Pred_Val"   Predictable Value
      45   "NFA     "   Financial Market Pricing Center defined fair market price.
      46   "PRD_SPRD"   The price spread between the two grades of products.
+     47   "OCR NZ  "   Official Cash Rate announced by the Reserve Bank of New Zealand (RBNZ)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17291,6 +17301,7 @@ AVGPRC_TP2 13082
      11   "YEAR AVG"   Calendar year average price
      12   "BID AVG "   Average of BID High and BID Low
      13   " MTDAvg "   Month To Date
+     14   "DAY AVG "   Day Average
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17557,7 +17568,7 @@ CMD_SUB2   13021
      38       "KERO"   Kerosene
      39       "LLSO"   Light Louisiana Sweet (LLS)
      40       "MARS"   Mars
-     41       "NAPH"   Naptha
+     41       "NAPH"   Naphtha
      42       "NGLO"   NGL
      43       "TAPI"   Tapis
      44       "URAL"   Urals
@@ -18080,10 +18091,6 @@ PADD       13091
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET391 13092
-PRE_1ET392 13093
-PRE_1ET393 13094
-PRE_1ET394 13095
 PRE_1ET395 13096
 PRE_1ET396 13097
 PRE_1ET397 13098
@@ -21186,6 +21193,7 @@ ORGN_PORT  13579
     654   "NG YHT  "   Yoho
     655   "GA ADO  "   Adolo
     656   "FR DKK  "   Dunkerque
+    657   "DE FRA  "   Frankfurt am Main
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21551,6 +21559,7 @@ LOAD_ZONE  13578
    2004   "EUT     "   EU-25
    2005   "EUF     "   EU-15
    2006   "WOL     "   World
+   2007   "NOR AMR "   North America
 !
 ! ACRONYM    FID
 ! -------    ---

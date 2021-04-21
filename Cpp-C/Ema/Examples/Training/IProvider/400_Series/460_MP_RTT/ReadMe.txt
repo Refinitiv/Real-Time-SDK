@@ -22,7 +22,7 @@ Detailed Description
 + Instantiates an OmmProvider object which:
   - listens on the port from the EmaConfig.xml file
   - specifies the websocket connection type and websocket sub protocols from the EmaConfig.xml file
-  - loads source directory from the EmaConfi.xml file
+  - loads source directory from the EmaConfig.xml file
 + Accepts a login request
 + Processes an item request for MarketPrice domain.
  - Creates streaming item (refresh and updates) and publishes them

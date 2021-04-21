@@ -53,6 +53,12 @@ pEmaOmmConsumer( NULL )
 }
 ConsumerThread::~ConsumerThread()
 {
+	stop();
+	clean();
+}
+
+void  ConsumerThread::clean()
+{
 	if( pEmaOmmConsumer )
 		delete pEmaOmmConsumer;
 	if( latencyLogFile )
@@ -63,9 +69,9 @@ ConsumerThread::~ConsumerThread()
 	UInt64 i = 0;
 	if(itReqListSize > 0)
 	{
-		for( i = 0; i < itReqListSize; ++i)
+		for (i = 0; i < itReqListSize; ++i)
 		{
-			if( itemRequestList[i] )
+			if ( itemRequestList[i] )
 			{
 				delete itemRequestList[i];
 				itemRequestList[i] = NULL;
@@ -116,21 +122,17 @@ void  ConsumerThread::start()
 
 void  ConsumerThread::stop()
 {
-	if ( running )
-	{
-		running = false;
 #if defined(WIN32)
-		WaitForSingleObject( _handle, INFINITE );
-		CloseHandle( _handle );
-		_handle = 0;
-		_threadId = 0;
+	WaitForSingleObject( _handle, INFINITE );
+	CloseHandle( _handle );
+	_handle = 0;
+	_threadId = 0;
 #else
-		pthread_join( _threadId, NULL );
-		_threadId = 0;
+	pthread_join( _threadId, NULL );
+	_threadId = 0;
 #endif
-	}
-
 	running = false;
+	return;
 }
 
 bool ConsumerThread::initialize()
@@ -306,7 +308,7 @@ void ConsumerThread::run()
 			failureLocation += "] == cpuId[";
 			failureLocation.append(cpuId);
 			failureLocation += "] ";
-			stop();
+			running = false;
 			return;
 		}
 		if( !pConsPerfCfg->useUserDispatch && cpuId  != -1 )
@@ -321,10 +323,10 @@ void ConsumerThread::run()
 		AppUtil::logError( excp.toString());
 		testPassed = false;
 		failureLocation = "ConsumerThread::run() - new OmmConsumer() failed";
-		stop();
+		running = false;
 		return;
 	}
-
+	
 	if( !pConsPerfCfg->useUserDispatch && apiThreadCpuId != -1  && cpuId  != -1)
 	{
 		EmaString consumerApiThread(BASECONSUMER_NAME);
@@ -341,87 +343,91 @@ void ConsumerThread::run()
 		AppUtil::logError( excp.toString());
 		testPassed = false;
 		failureLocation = "ConsumerThread::run() - registerClient() for MMT_DIRECTORY  failed";
-		stop();
+		running = false;
 		return;
 	}
 
-	while( 1 )
-	{
-		if( pConsPerfCfg->useUserDispatch )
-			pEmaOmmConsumer->dispatch( 10 );
-		
-		if( isDesiredServiceUp )
-				break;
-		if(!running || stopThread)
-		{
-			break;
-		}
-
-		AppUtil::sleep( 10 );
-	}
-
-	currentTime = perftool::common::GetTime::getTimeMicro();
-	nextTickTime = currentTime + microSecPerTick;
-	itemsRequestedCount = 0;
-
-	if( !pConsPerfCfg->useUserDispatch )
-	{ // ApiDispatch
+	try {
 		while( 1 )
 		{
+			if( pConsPerfCfg->useUserDispatch )
+				pEmaOmmConsumer->dispatch( 10 );
+		
+			if( isDesiredServiceUp )
+					break;
 			if(!running || stopThread)
 			{
 				break;
 			}
-			currentTime = perftool::common::GetTime::getTimeMicro();
-			// read until no more to read and then write leftover from previous burst
-			if( currentTime >= nextTickTime)
+
+			AppUtil::sleep( 10 );
+		}
+
+		currentTime = perftool::common::GetTime::getTimeMicro();
+		nextTickTime = currentTime + microSecPerTick;
+		itemsRequestedCount = 0;
+
+		if( !pConsPerfCfg->useUserDispatch )
+		{ // ApiDispatch
+			while( running && !stopThread )
 			{
-				nextTickTime += microSecPerTick;
-				// only send bursts on tick boundary
-	            // send item request and post bursts
-	            if (sendBursts(currentTicks, postsPerTick, postsPerTickRemainder, genMsgsPerTick, genMsgsPerTickRemainder) == false)
+				currentTime = perftool::common::GetTime::getTimeMicro();
+				// read until no more to read and then write leftover from previous burst
+				if( currentTime >= nextTickTime)
+				{
+					nextTickTime += microSecPerTick;
+					// only send bursts on tick boundary
+					// send item request and post bursts
+					if (sendBursts(currentTicks, postsPerTick, postsPerTickRemainder, genMsgsPerTick, genMsgsPerTickRemainder) == false)
+					{
+						testPassed = false;
+						failureLocation = "ConsumerThread::run() - sendBursts at ApiDispatch";
+						break;
+					}
+
+					if (++currentTicks == pConsPerfCfg->ticksPerSec)
+						currentTicks = 0;
+				}
+				else			
+					AppUtil::sleep( (nextTickTime - currentTime) / 1000 );
+			}
+		}
+		else { // UserDispatch
+			while( running && !stopThread )
+			{
+				if( sendBursts(currentTicks, postsPerTick, postsPerTickRemainder, genMsgsPerTick, genMsgsPerTickRemainder) == false)
 				{
 					testPassed = false;
-					failureLocation = "ConsumerThread::run() - sendBursts at ApiDispatch";
+					failureLocation = "ConsumerThread::run() - sendBursts failed at UserDispatch";
 					break;
 				}
-
-	            if (++currentTicks == pConsPerfCfg->ticksPerSec)
-	                currentTicks = 0;
-			}
-			else			
-				AppUtil::sleep( (nextTickTime - currentTime) / 1000 );
-		}
-	}
-	else { // UserDispatch
-		while( 1 )
-		{
-			if(!running || stopThread)
-			{
-				break;
-			}
-
-			if( sendBursts(currentTicks, postsPerTick, postsPerTickRemainder, genMsgsPerTick, genMsgsPerTickRemainder) == false)
-			{
-				testPassed = false;
-				failureLocation = "ConsumerThread::run() - sendBursts failed at UserDispatch";
-				break;
-			}
-			currentTime = perftool::common::GetTime::getTimeMicro();
-			if( currentTime < nextTickTime )			
-				pEmaOmmConsumer->dispatch( (nextTickTime - currentTime) ); // Dispatch either sleeps or works (dispatching msgs) till next tick time;
-			else
-			{
-				pEmaOmmConsumer->dispatch( OmmConsumer::NoWaitEnum ); // Dispatch few messages		
-				nextTickTime += microSecPerTick;
-			}
+				currentTime = perftool::common::GetTime::getTimeMicro();
+				if( currentTime < nextTickTime )			
+					pEmaOmmConsumer->dispatch( (nextTickTime - currentTime) ); // Dispatch either sleeps or works (dispatching msgs) till next tick time;
+				else
+				{
+					pEmaOmmConsumer->dispatch( OmmConsumer::NoWaitEnum ); // Dispatch few messages		
+					nextTickTime += microSecPerTick;
+				}
 		
-			if (++currentTicks == pConsPerfCfg->ticksPerSec)
-					currentTicks = 0;
+				if (++currentTicks == pConsPerfCfg->ticksPerSec)
+						currentTicks = 0;
+			}
 		}
 	}
-
-	stop();	
+	catch (const OmmException& excp) {
+		AppUtil::logError(excp.toString());
+		testPassed = false;
+		failureLocation = "ConsumerThread::run() - Exception in main loop.";
+	}
+	catch (...)
+	{
+		testPassed = false;
+		failureLocation = "ConsumerThread::run() - GeneralException in main loop.";
+	}
+	AppUtil::log("Thread %s - finished.\n", consumerName.c_str());
+	running = false;
+	return;
 }
 
 bool ConsumerThread::sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 &postsPerTickRemainder, Int32 &genMsgsPerTick, Int32 &genMsgsPerTickRemainder)
@@ -472,7 +478,7 @@ bool ConsumerThread::sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 
 bool ConsumerThread::sendItemRequestBurst(UInt32 itemBurstCount)
 {
 
-	for( UInt32 i = 0; i < itemBurstCount; i++)
+	for( UInt32 i = 0; i < itemBurstCount && !stopThread; i++)
 	{	
 		if( itemsRequestedCount == itemListCount)
 			break;

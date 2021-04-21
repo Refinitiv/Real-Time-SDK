@@ -1,0 +1,91 @@
+/*Discovered Endpoint CSS*/
+.grey-area-box {
+    -fx-border-color: #d9d9d9;
+    -fx-border-style: solid;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+}
+
+.grey-area-label-box {
+    -fx-background-color: #f4f4f4;
+    -fx-padding: 0 0 0 20;
+    -fx-border-insets: 0 0 0 20;
+    -fx-background-insets: 0 0 0 20;
+}
+
+.grey-area-label-box:disabled {
+    -fx-background-color: #f4f4f4;
+    -fx-opacity: 1.0;
+    -fx-text-fill: #808080;
+    -fx-padding: 0 0 0 20;
+    -fx-border-insets: 0 0 0 20;
+    -fx-background-insets: 0 0 0 20;
+}
+
+.grey-area-small-box {
+    -fx-border-color: #d9d9d9;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+}
+
+.area-without-frame {
+     -fx-padding: 3px;
+     -fx-border-insets: 3px;
+     -fx-background-insets: 3px;
+}
+
+.innerhbox {
+     -fx-padding: 20px;
+     -fx-border-insets: 20px;
+     -fx-background-insets: 20px;
+}
+
+.connect-button {
+    -fx-font-weight: BOLD;
+    -fx-font-size: 18px;
+}
+
+.inputfield {
+   -fx-max-width: 200px;
+   -fx-min-width: 200px;
+   -fx-max-height: 25px;
+   -fx-min-height: 25px;
+}
+
+.optionslabel {
+   -fx-max-width: 200px;
+   -fx-min-width: 200px;
+   -fx-padding: 0 0 0 20;
+   -fx-border-insets: 0 0 0 20;
+   -fx-background-insets: 0 0 0 20;
+}
+
+.innerboxwithframe {
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-color: lightgray;
+    -fx-padding: 3px;
+    -fx-border-insets: 3px;
+    -fx-background-insets: 3px;
+}
+
+.checkboxoption {
+   -fx-padding: 0 0 0 20;
+   -fx-border-insets: 0 0 0 20;
+   -fx-background-insets: 0 0 0 20;
+}
+
+#errorTextArea {
+    -fx-text-fill: red;
+}
+
+.root {
+    -fx-font-size: 13px;
+}

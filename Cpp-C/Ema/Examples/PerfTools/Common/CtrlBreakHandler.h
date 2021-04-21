@@ -69,9 +69,13 @@ public:
 		*/
 		static bool isTerminated() { return m_isTerminated; }
 	//@}
-#ifndef WIN32
+
+	///@name Register action handler
+	//@{
+		/** method to register a handler for CTRL-C or CTRL_BREAK
+		*/
 		static void registerAction();
-#endif
+	//@}
 
 private:
 

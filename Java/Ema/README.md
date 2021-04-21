@@ -76,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.6.1.1.jar         ema3.6.1.L2
+    ema-3.6.1.2.jar         ema3.6.1.G1
 
 # EMA Java Issues and Workarounds
  
@@ -105,7 +105,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.46_RealTimeDistributionSystem_21.21 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.47_RealTimeDistributionSystem_21.31 for RWF and Marketfeed Record Templates
 
 # Security
 

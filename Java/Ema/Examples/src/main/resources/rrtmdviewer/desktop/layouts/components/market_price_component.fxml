@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<?import javafx.scene.control.ListView?>
+<fx:root type="javafx.scene.layout.Pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: #F0F0F0;" stylesheets="@../../styles/specified-endpoint-style.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox alignment="TOP_RIGHT" layoutX="2.0" style="-fx-background-color: #F0F0F0;">
+         <children>
+            <TableView prefHeight="300" fx:id="table"/>
+            <ListView fx:id="statusLabel" prefHeight="100" style="-fx-border-color: lightgray; -fx-background-color: #D8D8D8;;" />
+            <Button fx:id="unregisterButton" mnemonicParsing="false" stylesheets="@../../styles/specified-endpoint-style.css" text="UNREGISTER" />
+         </children>
+      </VBox>
+   </children>
+</fx:root>

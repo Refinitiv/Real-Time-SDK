@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane focusTraversable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="229.0" prefWidth="450.0" stylesheets="@../styles/application-settings.css" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.application.ApplicationSettingsController">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="45.0" layoutY="31.0" spacing="20.0" AnchorPane.leftAnchor="45.0" AnchorPane.rightAnchor="44.0">
+         <children>
+            <Label alignment="CENTER" prefHeight="40.0" prefWidth="242.0" text="Select endpoint configuration:" textAlignment="CENTER" wrapText="true" />
+            <VBox alignment="CENTER" spacing="25.0">
+               <children>
+                  <RadioButton focusTraversable="false" mnemonicParsing="false" prefHeight="17.0" selected="true" text="Discover Endpoint" userData="DISCOVERED">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="applicationTypeToggleGroup" />
+                     </toggleGroup>
+                     <tooltip>
+                        <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="User must specify RRTO authentication credentials and choose to connect to a RRTO endpoint from a list of discovered endpoints. The Viewer does Service Discovery based on the type of connection requested by user and provides RRTO endpoints in a drop down list to choose from." wrapText="true">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip>
+                  </RadioButton>
+                  <RadioButton focusTraversable="false" mnemonicParsing="false" prefHeight="17.0" text="Specify Endpoint" toggleGroup="$applicationTypeToggleGroup" userData="SPECIFIED">
+                     <tooltip>
+                        <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="User may specify an endpoint defined by a host and a port and a connection type. This mode does not require authentication and connects to the specified endpoint." wrapText="true">
+                           <font>
+                              <Font size="11.0" />
+                           </font>
+                        </Tooltip>
+                     </tooltip>
+                  </RadioButton>
+               </children>
+            </VBox>
+            <HBox alignment="CENTER_RIGHT">
+               <children>
+                  <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleActionButton" prefHeight="25.0" prefWidth="98.0" text="Next" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

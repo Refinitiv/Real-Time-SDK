@@ -7,6 +7,7 @@
 
 #include "AppUtil.h"
 #include "CtrlBreakHandler.h"
+#include "GetTime.h"
 #include "Mutex.h"
 
 #include <stdlib.h>
@@ -172,6 +173,27 @@ void AppUtil::sleep(UInt64 millisecs)
     sleeptime.tv_nsec = (millisecs % 1000) * 1000000;
     nanosleep(&sleeptime,0);
 #endif
+}
+
+void AppUtil::sleepUI(UInt64 millisecs, UInt64 millisecsQuantum)
+{
+	PerfTimeValue startTime = perftool::common::GetTime::getTimeMilli();
+	PerfTimeValue currentTime = startTime;
+	PerfTimeValue endTime = startTime + millisecs;
+	bool lastSleep = false;
+
+	while (!lastSleep && currentTime <= endTime && !CtrlBreakHandler::isTerminated())
+	{
+		if (currentTime + millisecsQuantum > endTime)
+		{
+			millisecsQuantum = endTime - currentTime;
+			lastSleep = true;
+		}
+
+		sleep(millisecsQuantum);
+
+		currentTime = perftool::common::GetTime::getTimeMilli();
+	}
 }
 
 Int32 AppUtil::getHostAddress(UInt32* address)

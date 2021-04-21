@@ -244,6 +244,11 @@ public:
 
 	void run();
 
+	bool isRunning() { return running; }
+	bool isStopped() { return stopThread; }
+
+	void setStopThread() { stopThread = true; }
+
 	bool sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 &postsPerTickRemainder, Int32 &genMsgsPerTick, Int32 &genMsgsPerTickRemainder );
 
 	bool sendItemRequestBurst(UInt32 itemBurstCount);
@@ -312,6 +317,8 @@ protected:
 #endif
 private:
 	void dumpConsumerItemList();
+
+	void clean();
 };
  
 inline void MarketPriceClient::init( ConsumerThread *pConsThr )

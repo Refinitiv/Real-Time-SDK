@@ -9,26 +9,51 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.1.L1 aka EMA 3.6.1.L1 and ETA 3.6.1.L1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.1.G1 aka EMA 3.6.1.G1 and ETA 3.6.1.G1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl.rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library. This release adds Server Side Encryption support in EMA and ETA.
+This is a maintenace release which also introduces the Refinitiv Real-Time Market Data Viewer (RRTViewer), an OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an OMM Provider.
 
 Customer Issues Resolved
 ------------------
-- [Github # 96] - [RTSDK-2707] - Java, UPA: IndexOutOfBoundsException thrown when applying RMTES to cache 
-- [GitHub # 131] - [RTSDK-3813] - Duplicate FID in EMA Java View request returns all fields in Refresh Response message
-- [GitHub # 123] - [RTSDK-3965] - Avoid incorrect pattern of use of ReentrantLock.tryLock()
-- [GitHub # 146] - [RTSDK-4114] - Nullpointer Exception in OmmConsumerImpl
-- [GitHub # 148] - [RTSDK-4175] -  NPE in Server.accept if connection is not available
-- [GitHub # 149] - [RTSDK-4187] -  Unable to reset view to get all fields
-- [GitHub # 151] - [RTSDK-4289] - Unable to resume a stream that was opened in a paused state
+- [Case Number: 09614140] - [RTSDK-4728] - Memory cleanup upon uninitialization
+- [Case Number: 09700273] - [RTSDK-4810] - OMMInvalidUsageException with RMTES Field when requesting 0005.HK MarketPrice instrument
+- [GitHub #171] - [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.1.G1 (April 21, 2021)
+--------------------------------------------
+
+New Features Added
+------------------
+This is a maintenace release which also introduces the Refinitiv Real-Time Market Data Viewer (RRTViewer), a OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an OMM Provider.
+
+EMA Java 3.6.1.G1 Issues Resolved
+---------------------------------
+- [RTSDK-4454] - Add EMAJ Refinitiv Real-Time Market Data Viewer GUI application
+- [RTSDK-4720] - Support encryption connection type for EMAJ consumer performance tool
+- [RTSDK-4954] - Correction to IProvider180 README file
+- [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml - [GitHub #171] 
+
+ETA Java 3.6.1.G1 Issues Resolved
+---------------------------------
+- [RTSDK-4382] - Change RDP 'scope' default value to trapi.streaming.pricing.read
+- [RTSDK-4742] - ETAJ Real.toString truncates trailing zeroes
+- [RTSDK-4766] - Added unit tests for rsslNumericStringToReal with additional inputs such as 1151194421449.10009766 
+- [RTSDK-4809] - ETA Providers cannot provide dictionary to Consumer when compression is enabled over websocket using rssl.rwf
+- [RTSDK-4810] - OMMInvalidUsageException with RMTES Field when requesting 0005.HK MarketPrice instrument - [Case Number: 09700273]
+
+Both ETA Java and EMA Java 3.6.1.G1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-4502] - Compression resulting in additional fragmentation (specific corner case) with download dictionary causes channel down
+- [RTSDK-4728] - Memory cleanup upon uninitialization - [Case Number: 09614140]
+- [RTSDK-4813] - EMAJ/ETAJ:  Update Readme.md file to add Jackson parser as an external dependency
 
 --------------------------------------------
 RTSDK Java Release 2.0.1.L1 (March 4, 2021)

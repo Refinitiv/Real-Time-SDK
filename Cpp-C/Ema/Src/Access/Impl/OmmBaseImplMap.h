@@ -205,7 +205,6 @@ private:
 	{
 		_listLock.lock();
 
-		UInt32 i;
 		UInt32 size = _clientList.size();
 		EmaVector< T* > copyClientList(size);
 
@@ -225,10 +224,10 @@ private:
 		}
 		_listLock.unlock();
 
-		OmmBaseImplMap<T>::sleep(200);
+		OmmBaseImplMap<T>::sleep(500);
 
 		size = copyClientList.size();
-		for (i = 0; i < size; ++i)
+		for (UInt32 i = 0; i < size; ++i)
 		{
 			T* pTemp = copyClientList[i];
 			pTemp->uninitialize(false, false);

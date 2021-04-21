@@ -25,28 +25,34 @@ struct sigaction CtrlBreakHandler::_oldSigAction;
 CtrlBreakHandler::CtrlBreakHandler()
 {
 #if defined(WIN32)
-	SetConsoleCtrlHandler( &CtrlBreakHandler::TermHandlerRoutine, TRUE ) ;
 #else
 	bzero( &_sigAction, sizeof( _sigAction ) );
 	bzero( &_oldSigAction, sizeof( _oldSigAction ) );
-
-	_sigAction.sa_sigaction = sigAction;
-	_sigAction.sa_flags = SA_SIGINFO;
-
-	sigaction( SIGINT, &_sigAction, &_oldSigAction );
 #endif // WIN32
 }
 
-#ifndef WIN32
+#if defined(WIN32)
 void CtrlBreakHandler::registerAction()
 {
-    bzero( &_sigAction, sizeof( _sigAction ) );
-    bzero( &_oldSigAction, sizeof( _oldSigAction ) );
+	SetConsoleCtrlHandler(&CtrlBreakHandler::TermHandlerRoutine, TRUE);
+}
+#else
+void CtrlBreakHandler::registerAction()
+{
+	struct sigaction tempSigAction;
+	bzero( &tempSigAction, sizeof( tempSigAction ) );
 
-	_sigAction.sa_sigaction = sigAction;
-    _sigAction.sa_flags = SA_SIGINFO;
+	sigaction(SIGINT, NULL, &tempSigAction);
+	if (tempSigAction.sa_sigaction != sigAction)
+	{
+		bzero( &_sigAction, sizeof( _sigAction ) );
+		bzero( &_oldSigAction, sizeof( _oldSigAction ) );
 
-    sigaction( SIGINT, &_sigAction, &_oldSigAction );
+		_sigAction.sa_sigaction = sigAction;
+		_sigAction.sa_flags = SA_SIGINFO;
+
+		sigaction( SIGINT, &_sigAction, &_oldSigAction );
+	}
 }
 #endif
 
@@ -56,7 +62,8 @@ CtrlBreakHandler::~CtrlBreakHandler()
 #if defined(WIN32)
 	SetConsoleCtrlHandler( &CtrlBreakHandler::TermHandlerRoutine, FALSE );
 #else
-	sigaction( SIGINT, &_oldSigAction, NULL );
+	if (_oldSigAction.sa_sigaction != NULL)
+		sigaction( SIGINT, &_oldSigAction, NULL );
 #endif
 }
 
@@ -70,7 +77,7 @@ BOOL WINAPI CtrlBreakHandler::TermHandlerRoutine( DWORD dwCtrlType )
 	case CTRL_SHUTDOWN_EVENT:	
 	case CTRL_C_EVENT:
 		m_isTerminated = true;
-		return TRUE;
+		break;
 	}
 	return FALSE;
 }
@@ -79,6 +86,8 @@ extern "C" {
 	void CtrlBreakHandler::sigAction( int sig, siginfo_t* pSiginfo, void* pv ) 
 	{	
 		m_isTerminated = true;
+		if (_oldSigAction.sa_sigaction != NULL)
+			(_oldSigAction.sa_sigaction)(sig, pSiginfo, pv);
 	}
 }
 #endif 
