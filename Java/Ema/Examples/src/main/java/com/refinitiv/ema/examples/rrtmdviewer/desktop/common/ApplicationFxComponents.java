@@ -1,0 +1,32 @@
+package com.refinitiv.ema.examples.rrtmdviewer.desktop.common;
+
+import java.net.URL;
+
+/**
+ * Custom FX component layouts
+ */
+public enum ApplicationFxComponents {
+
+    PASSWORD_EYE_COMPONENT("password_eye_component.fxml"),
+    MARKET_PRICE_COMPONENT("market_price_component.fxml"),
+    MARKET_BY_COMPONENT("market_by_component.fxml"),
+    MARKET_BY_PRICE_COMPONENT("market_by_price_component.fxml"),
+    DICTIONARY_LOADER_COMPONENT("dictionary_loader_component.fxml"),
+    ERROR_DEBUG_AREA_COMPONENT("error_debug_area_component.fxml");
+
+    private static final String ROOT_PATH = "/rrtmdviewer/desktop/layouts/components/";
+
+    private String resourcePath;
+
+    ApplicationFxComponents(String resourcePath) {
+        this.resourcePath = ROOT_PATH + resourcePath;
+    }
+
+    public String getResourcePath() {
+        return resourcePath;
+    }
+
+    public URL getResource() {
+        return getClass().getResource(this.getResourcePath());
+    }
+}

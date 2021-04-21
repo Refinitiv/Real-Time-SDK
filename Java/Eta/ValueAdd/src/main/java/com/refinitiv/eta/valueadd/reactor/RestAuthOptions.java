@@ -32,7 +32,7 @@ class RestAuthOptions {
     private String _newPassword;
     private boolean _takeExclusiveSignOnControl;
     private String _clientId;
-    private String _tokenScope = "trapi";
+    private String _tokenScope = "trapi.streaming.pricing.read";
     private String _clientSecret;
     private String _grantType = RestReactor.AUTH_PASSWORD;
     private HashMap<String,String> _headerAttribute;
@@ -61,7 +61,7 @@ class RestAuthOptions {
 		_newPassword = "";
 		_takeExclusiveSignOnControl = true;
 		_clientId = "";
-		_tokenScope = "trapi";
+		_tokenScope = "trapi.streaming.pricing.read";
 		_clientSecret = "";
 		_grantType = RestReactor.AUTH_PASSWORD;
 		_headerAttribute = null;

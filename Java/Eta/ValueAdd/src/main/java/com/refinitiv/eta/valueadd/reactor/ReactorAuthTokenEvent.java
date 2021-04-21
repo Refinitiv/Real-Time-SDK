@@ -28,6 +28,13 @@ public class ReactorAuthTokenEvent extends ReactorEvent
     public ReactorAuthTokenInfo reactorAuthTokenInfo()
     {
         return _reactorAuthTokenInfo;
-    }  
-
+    }
+    
+    @Override
+    public void returnToPool()
+    {
+    	_reactorAuthTokenInfo = null;
+    	
+    	super.returnToPool();
+    }
 }

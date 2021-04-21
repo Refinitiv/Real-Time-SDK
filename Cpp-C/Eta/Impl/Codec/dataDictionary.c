@@ -90,6 +90,21 @@ static const RsslBuffer RSSL_ENAME_DISPLAYS = {8, (char*)"DISPLAYS"};
 
 static const char 		*c_defaultVersion = "";
 
+static const int		ONE_BYTE_START = 0;
+static const int		ONE_BYTE_START_MASK = 128;
+
+static const int		TWO_BYTE_FIRST_START = 192;
+static const int		TWO_BYTE_FIRST_MASK = 224;
+
+static const int		THREE_BYTE_FIRST_START = 224;
+static const int		THREE_BYTE_FIRST_MASK = 240;
+
+static const int		FOUR_BYTE_FIRST_START = 240;
+static const int		FOUR_BYTE_FIRST_MASK = 248;
+
+static const int		MULTIBYTE_NEXT_START = 128;
+static const int		MULTIBYTE_NEXT_MASK = 192;
+
 /* Version should only have numbers and dots. Remove all else (will strip whitespace too). */
 static void trimInfoVersion(RsslBuffer *infoVersion)
 {
@@ -2516,6 +2531,73 @@ RSSL_API RsslRet rsslDecodeEnumTypeDictionary(
 	return RSSL_RET_SUCCESS;
 }
 
+static RsslDataTypes getStringType(RsslBuffer *buffer) {
+
+	rtrUInt32 i = 0;
+	RsslRet type = RSSL_DT_ASCII_STRING;
+
+	while (i < buffer->length) {
+		if (((buffer->data[i] & 0xFF) & ONE_BYTE_START_MASK) == ONE_BYTE_START) {
+			i++;
+		}
+		else if (((buffer->data[i] & 0xFF) & TWO_BYTE_FIRST_MASK) == TWO_BYTE_FIRST_START) {
+			if ((i + 1 < buffer->length) && ((buffer->data[i + 1] & 0xFF) & MULTIBYTE_NEXT_MASK) == MULTIBYTE_NEXT_START) {
+				type = RSSL_DT_UTF8_STRING;
+			}
+			else {
+				return RSSL_DT_RMTES_STRING;
+			}
+			i += 2;
+		}
+		else if (((buffer->data[i] & 0xFF) & THREE_BYTE_FIRST_MASK) == THREE_BYTE_FIRST_START) {
+			if ((i + 2 < buffer->length) && ((buffer->data[i + 1] & 0xFF) & MULTIBYTE_NEXT_MASK) == MULTIBYTE_NEXT_START
+				&& ((buffer->data[i + 2] & 0xFF) & MULTIBYTE_NEXT_MASK) == MULTIBYTE_NEXT_START) {
+				type = RSSL_DT_UTF8_STRING;
+			}
+			else {
+				return RSSL_DT_RMTES_STRING;
+			}
+			i += 3;
+		}
+		else if (((buffer->data[i] & 0xFF) & FOUR_BYTE_FIRST_MASK) == FOUR_BYTE_FIRST_START) {
+			if ((i + 3 < buffer->length) && ((buffer->data[i + 1] & 0xFF) & MULTIBYTE_NEXT_MASK) == MULTIBYTE_NEXT_START
+				&& ((buffer->data[i + 2] & 0xFF) & MULTIBYTE_NEXT_MASK) == MULTIBYTE_NEXT_START
+				&& ((buffer->data[i + 3] & 0xFF) & MULTIBYTE_NEXT_MASK) == MULTIBYTE_NEXT_START) {
+				type = RSSL_DT_UTF8_STRING;
+			}
+			else {
+				return RSSL_DT_RMTES_STRING;
+			}
+			i += 4;
+		}
+		else {
+			return RSSL_DT_RMTES_STRING;
+		}
+	}
+
+	return type;
+}
+
+static RsslDataTypes getDisplayPrimitiveType(RsslEnumTypeTable *pTable) {
+
+	RsslDataTypes dataType = RSSL_DT_ASCII_STRING;
+	RsslDataTypes currType;
+	int i;
+	for (i = 0; i <= pTable->maxValue; i++) {
+		if (pTable->enumTypes[i] != NULL) {
+			currType = getStringType(&pTable->enumTypes[i]->display);
+			if (currType == RSSL_DT_RMTES_STRING) {
+				return RSSL_DT_RMTES_STRING;
+			}
+			else if (currType == RSSL_DT_UTF8_STRING) {
+				dataType = currType;
+			}
+		}
+	}
+
+	return dataType;
+}
+
 RSSL_API RsslRet rsslEncodeEnumTypeDictionaryAsMultiPart(
 	RsslEncodeIterator	*eIter,
 	RsslDataDictionary	*dictionary,
@@ -2742,7 +2824,7 @@ RSSL_API RsslRet rsslEncodeEnumTypeDictionaryAsMultiPart(
 
 			rsslClearArray(&arr);
 			arr.itemLength = 0;
-			arr.primitiveType = RSSL_DT_ASCII_STRING;
+			arr.primitiveType = getDisplayPrimitiveType(pTable);
 
 			if ((ret = rsslEncodeArrayInit(eIter, &arr)) == RSSL_RET_BUFFER_TOO_SMALL &&
 				curFid > startCount)
@@ -2984,7 +3066,7 @@ RSSL_API RsslRet rsslEncodeEnumTypeDictionary(
 
 			rsslClearArray(&arr);
 			arr.itemLength = 0;
-			arr.primitiveType = RSSL_DT_ASCII_STRING;
+			arr.primitiveType = getDisplayPrimitiveType(pTable);
 			if ((ret = rsslEncodeArrayInit(eIter, &arr)) < 0)
 				return (_setError(errorText, "rsslEncodeArrayInit failed %d",ret), RSSL_RET_FAILURE);
 

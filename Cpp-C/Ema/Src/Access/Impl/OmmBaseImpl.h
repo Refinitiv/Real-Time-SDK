@@ -256,6 +256,7 @@ protected:
 	ErrorClientHandler*			_pErrorClientHandler;
 	EmaList< TimeOut* >			_theTimeOuts;
 	bool						_bApiDispatchThreadStarted;
+	bool						_bUninitializeInvoked;
 
 private:
 

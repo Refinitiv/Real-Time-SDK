@@ -1506,6 +1506,12 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	{
 		userLock().lock();
 		
+		if(_server == null)
+		{
+			userLock().unlock();
+			return;
+		}
+		
 		Error error = TransportFactory.createError();
 		int ret;
 		

@@ -225,27 +225,36 @@ UInt64 OmmIProviderImpl::registerClient(const ReqMsg& reqMsg, OmmProviderClient&
 {
 	_userLock.lock();
 
-	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
+	const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>(reqMsg.getEncoder());
 
-	if ( reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY )
+	if (reqMsgEncoder.getRsslRequestMsg()->msgBase.domainType != ema::rdm::MMT_DICTIONARY)
 	{
 		_userLock.unlock();
-		handleIue( "OMM Interactive provider supports registering DICTIONARY domain type only.", OmmInvalidUsageException::InvalidArgumentEnum );
+		handleIue("OMM Interactive provider supports registering DICTIONARY domain type only.", OmmInvalidUsageException::InvalidArgumentEnum);
 		return 0;
 	}
 
-	if ( getServerChannelHandler().getClientSessionList().size() == 0 )
+	if (getServerChannelHandler().getClientSessionList().size() == 0)
 	{
 		_userLock.unlock();
-		handleIue( "There is no active client session available for registering.", OmmInvalidUsageException::NoActiveChannelEnum );
+		handleIue("There is no active client session available for registering.", OmmInvalidUsageException::NoActiveChannelEnum);
 		return 0;
 	}
 
-	UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient(reqMsg, client, closure, parentHandle) : 0;
+	try
+	{
+		UInt64 handle = _pItemCallbackClient ? _pItemCallbackClient->registerClient(reqMsg, client, closure, parentHandle) : 0;
 
-	_userLock.unlock();
+		_userLock.unlock();
 
-	return handle;
+		return handle;
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
+
 }
 
 void OmmIProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
@@ -261,9 +270,17 @@ void OmmIProviderImpl::reissue(const ReqMsg& reqMsg, UInt64 handle)
 		return;
 	}
 
-	if ( _pItemCallbackClient ) _pItemCallbackClient->reissue(reqMsg, handle);
+	try
+	{
+		if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
 
-	_userLock.unlock();
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmIProviderImpl::submit(const GenericMsg& genericMsg, UInt64 handle)
@@ -1192,11 +1209,19 @@ Int64 OmmIProviderImpl::dispatch(Int64 timeOut)
 
 void OmmIProviderImpl::unregister(UInt64 handle)
 {
-	_userLock.lock();
+	try
+	{
+		_userLock.lock();
 
-	if ( _pItemCallbackClient ) _pItemCallbackClient->unregister( handle );
+		if (_pItemCallbackClient) _pItemCallbackClient->unregister(handle);
 
-	_userLock.unlock();
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmIProviderImpl::submit(const AckMsg& ackMsg, UInt64 handle)
@@ -1613,6 +1638,6 @@ void OmmIProviderImpl::closeChannel(UInt64 clientHandle)
 		EmaString text("Invalid passed in client handle: ");
 		text.append(clientHandle).append(" in the closeChannel() method.");
 
-		throwIueException(text, OmmInvalidUsageException::InvalidOperationEnum);
+		handleIue(text, OmmInvalidUsageException::InvalidOperationEnum);
 	}
 }

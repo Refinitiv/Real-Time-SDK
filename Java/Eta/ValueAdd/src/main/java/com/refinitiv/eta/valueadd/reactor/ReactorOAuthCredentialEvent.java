@@ -51,4 +51,16 @@ public class ReactorOAuthCredentialEvent extends ReactorEvent
     {
         return _userSpecObj;
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	/* Clears user-specified object given when the stream was opened by users.*/
+    	_userSpecObj = null;
+    	
+    	_reactor = null;
+    	_oAuthCredentialRenewal = null;
+    	
+    	super.returnToPool();
+    }
 }

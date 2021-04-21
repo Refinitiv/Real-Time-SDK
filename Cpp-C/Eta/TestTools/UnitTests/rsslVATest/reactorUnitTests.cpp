@@ -2122,7 +2122,7 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_tokenScope_Clie
 	_reactorServiceDiscoveryOpts.clientSecret.length = 5;
 	_reactorServiceDiscoveryOpts.clientSecret.data = const_cast<char*>("ABCDE");
 	_reactorServiceDiscoveryOpts.tokenScope.length = 5;
-	_reactorServiceDiscoveryOpts.tokenScope.data = const_cast<char*>("trapi");
+	_reactorServiceDiscoveryOpts.tokenScope.data = const_cast<char*>("trapi.streaming.pricing.read");
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;

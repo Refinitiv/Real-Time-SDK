@@ -3280,6 +3280,11 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 {
 	OmmBaseImpl& ommBaseImpl = static_cast<OmmBaseImpl&>(_ommCommonImpl);
 
+	if ( ommBaseImpl.isAtExit() )
+	{
+		throwIueException("Application or user initiated exit.", OmmInvalidUsageException::InvalidOperationEnum);
+	}
+
 	if ( !parentHandle )
 	{
 		const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
@@ -3516,6 +3521,11 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmConsumerClie
 
 UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClient& ommProvClient, void* closure, UInt64 parentHandle )
 {
+	if (static_cast<OmmBaseImpl&>(_ommCommonImpl).isAtExit())
+	{
+		throwIueException("Application or user initiated exit.", OmmInvalidUsageException::InvalidOperationEnum);
+	}
+
 	if ( !parentHandle )
 	{
 		const ReqMsgEncoder& reqMsgEncoder = static_cast<const ReqMsgEncoder&>( reqMsg.getEncoder() );
@@ -3602,6 +3612,11 @@ UInt64 ItemCallbackClient::registerClient( const ReqMsg& reqMsg, OmmProviderClie
 
 UInt64 ItemCallbackClient::registerClient( const TunnelStreamRequest& tunnelStreamRequest, OmmConsumerClient& ommConsClient, void* closure )
 {
+	if (static_cast<OmmBaseImpl&>(_ommCommonImpl).isAtExit())
+	{
+		throwIueException("Application or user initiated exit.", OmmInvalidUsageException::InvalidOperationEnum);
+	}
+
 	TunnelItem* pItem = TunnelItem::create( static_cast<OmmBaseImpl&>(_ommCommonImpl), ommConsClient, closure );
 
 	if ( pItem )

@@ -5,13 +5,13 @@ Summary
 application written to the EMA library.
 
 This application demonstrates the basic usage of the EMA library in providing
-of OMM MarketPrice data to the Advanced Distribution Hub with websocket
-connection.
+of OMM MarketPrice data to the Websocket consumer applications.
 
 180_MP_Websocket illustrates how to create and publish a single OMM
 streaming item. This application uses source directory configured in
 the EmaConfig.xml file.
 
+NOTE: Currently ADH does not support Websocket connections.
 
 Detailed Description
 ====================
@@ -23,7 +23,7 @@ Detailed Description
 + Instantiates an OmmProvider object which:
   - listens on the port from the EmaConfig.xml file
   - specifies the websocket connection type and websocket sub protocols from the EmaConfig.xml file
-  - loads source directory from the EmaConfi.xml file
+  - loads source directory from the EmaConfig.xml file
 + Accepts a login request
 + Processes an item request for MarketPrice domain.
  - Creates streaming item (refresh and updates) and publishes them

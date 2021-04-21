@@ -14,7 +14,7 @@
 #include "jsmn.h"
 
 #define POS_EXP_MIN 0
-#define POS_EXP_MAX 10
+#define POS_EXP_MAX 7
 #define NEG_EXP_MIN 1
 #define NEG_EXP_MAX 14
 #define ERROR_TEXT_MAX 250

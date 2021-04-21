@@ -68,7 +68,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_theTimeOuts(),
 	_pRsslServer(0),
 	_pClosure(closure),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
@@ -99,7 +100,8 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_theTimeOuts(),
 	_pRsslServer(0),
 	_pClosure(closure),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	try
 	{
@@ -856,6 +858,11 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
 		}
 
+		if (_atExit)
+		{
+			throwIueException("Application or user initiated exit while running initialize.", OmmInvalidUsageException::InvalidOperationEnum);
+		}
+
 		_userLock.unlock();
 	}
 	catch (const OmmException& ommException)
@@ -915,8 +922,8 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 	bindOptions.sysRecvBufSize = _activeServerConfig.pServerConfig->sysRecvBufSize;
 	bindOptions.sysSendBufSize = _activeServerConfig.pServerConfig->sysSendBufSize;
 	bindOptions.interfaceName = const_cast<char*>(_activeServerConfig.pServerConfig->interfaceName.c_str());
-	bindOptions.pingTimeout = _activeServerConfig.pServerConfig->connectionPingTimeout;
-	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout;
+	bindOptions.pingTimeout = _activeServerConfig.pServerConfig->connectionPingTimeout / 1000;
+	bindOptions.minPingTimeout = _activeServerConfig.pServerConfig->connectionMinPingTimeout / 1000;
 	bindOptions.componentVersion = (char *)componentVersion.c_str();
 	bindOptions.forceCompression = RSSL_TRUE;
 
@@ -1091,6 +1098,13 @@ void OmmServerBaseImpl::cleanUp()
 void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 {
 	OmmBaseImplMap<OmmServerBaseImpl>::remove(this);
+
+	// prevents invoking uninitialize twice
+	if (_bUninitializeInvoked)
+	{
+		return;
+	}
+	_bUninitializeInvoked = true;
 
 	_atExit = true;
 
@@ -1703,9 +1717,17 @@ int OmmServerBaseImpl::runLog(void* pExceptionStructure, const char* file, unsig
 	char reportBuf[EMA_BIG_STR_BUFF_SIZE * 10];
 	if (retrieveExceptionContext(pExceptionStructure, file, line, reportBuf, EMA_BIG_STR_BUFF_SIZE * 10) > 0)
 	{
-		_userLock.lock();
-		if (_pLoggerClient) _pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf);
-		_userLock.unlock();
+		try
+		{
+			_userLock.lock();
+			if (_pLoggerClient) _pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf);
+			_userLock.unlock();
+		}
+		catch (...)
+		{
+			_userLock.unlock();
+			throw;
+		}
 	}
 
 	return 1;
@@ -1982,17 +2004,33 @@ bool OmmServerBaseImpl::UInt64Equal_To::operator()(const UInt64& x, const UInt64
 	return x == y ? true : false;
 }
 
-void OmmServerBaseImpl::addConnectedChannel(RsslReactorChannel* channel) {
-  _userLock.lock();
-  connectedChannels.push_back(channel);
-  _userLock.unlock();
+void OmmServerBaseImpl::addConnectedChannel(RsslReactorChannel* channel)
+{
+	try
+	{
+		_userLock.lock();
+		connectedChannels.push_back(channel);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmServerBaseImpl::removeConnectedChannel(RsslReactorChannel* channel) {
-  _userLock.lock();
-  connectedChannels.removeValue(channel);
-  _userLock.unlock();
-
+	try
+	{
+		_userLock.lock();
+		connectedChannels.removeValue(channel);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmServerBaseImpl::getConnectedClientChannelInfoImpl(EmaVector<ChannelInformation>& ci) {

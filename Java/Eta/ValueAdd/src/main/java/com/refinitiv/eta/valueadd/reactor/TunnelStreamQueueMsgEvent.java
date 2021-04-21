@@ -54,4 +54,13 @@ public class TunnelStreamQueueMsgEvent extends ReactorMsgEvent
         _tunnelStream = null;
         _queueMsg = null;
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	_tunnelStream = null;
+        _queueMsg = null;
+    	
+    	super.returnToPool();
+    }
 }

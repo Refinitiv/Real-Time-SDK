@@ -191,8 +191,9 @@ RTR_C_INLINE void rsslClearRDMLoginRequest(RsslRDMLoginRequest *pRequest)
 RTR_C_INLINE RsslRet rsslInitDefaultRDMLoginRequest(RsslRDMLoginRequest *pRequest, RsslInt32 streamId)
 {
 	RsslUInt32 ipAddress = 0;
-	char tmpHostNameBlock[256];
-	RsslBuffer tmpHostName = { 256, tmpHostNameBlock };
+	/* size = 256 - 4 to avoid -Wformat-truncation GCC warning when snprinf("%s/net") */
+	char tmpHostNameBlock[256 - 4];
+	RsslBuffer tmpHostName = { sizeof(tmpHostNameBlock), tmpHostNameBlock };
 
 	rsslClearRDMLoginRequest(pRequest);
 
@@ -219,7 +220,7 @@ RTR_C_INLINE RsslRet rsslInitDefaultRDMLoginRequest(RsslRDMLoginRequest *pReques
 	pRequest->flags |= RDM_LG_RQF_HAS_POSITION;
 
 	if (gethostname(tmpHostNameBlock, sizeof(tmpHostNameBlock)) != 0)
-		snprintf(tmpHostNameBlock, 256, "localhost");
+		snprintf(tmpHostNameBlock, sizeof(tmpHostNameBlock), "localhost");
 
 	if (rsslHostByName(&tmpHostName, &ipAddress) == RSSL_RET_SUCCESS)
 	{
@@ -230,7 +231,7 @@ RTR_C_INLINE RsslRet rsslInitDefaultRDMLoginRequest(RsslRDMLoginRequest *pReques
 	}
 	else
 	{
-		snprintf(pRequest->defaultPosition, 256, "localhost");
+		snprintf(pRequest->defaultPosition, sizeof(pRequest->defaultPosition), "localhost");
 		pRequest->position.data = pRequest->defaultPosition;
 		pRequest->position.length = (RsslUInt32)strlen(pRequest->defaultPosition);
 	}

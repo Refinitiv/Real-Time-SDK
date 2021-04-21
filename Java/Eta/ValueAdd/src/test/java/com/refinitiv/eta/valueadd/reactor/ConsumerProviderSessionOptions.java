@@ -7,6 +7,8 @@
 
 package com.refinitiv.eta.valueadd.reactor;
 
+import com.refinitiv.eta.transport.CompressionTypes;
+
 public class ConsumerProviderSessionOptions {
 	private int _connectionType;
 	private int _protocolType;
@@ -22,6 +24,7 @@ public class ConsumerProviderSessionOptions {
     private int _consumerChannelInitTimeout = 60;
     private long _openWindow = -1;
     private int numOfGuaranteedBuffers = 50;
+    private int _compressionType = CompressionTypes.NONE;
 	
 	/** Returns the type of connection the session will use. */
 	public int connectionType() { return _connectionType; }
@@ -177,4 +180,12 @@ public class ConsumerProviderSessionOptions {
     public void setNumOfGuaranteedBuffers(int numOfGuaranteedBuffers) {
         this.numOfGuaranteedBuffers = numOfGuaranteedBuffers;
     }
+
+	public int compressionType() {
+		return _compressionType;
+	}
+
+	public void compressionType(int compressionType) {
+		this._compressionType = compressionType;
+	}
 }

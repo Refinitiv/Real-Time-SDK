@@ -74,7 +74,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_hasConsAdminClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
@@ -106,7 +107,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasProvAdminClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 	
@@ -139,7 +141,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasProvAdminClient(true),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 
@@ -173,7 +176,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_hasProvAdminClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
 	try
@@ -214,7 +218,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasProvAdminClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 	try
@@ -253,7 +258,8 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_bEventReceived( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
 	try
@@ -294,7 +300,8 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasProvAdminClient(true),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
-	_bApiDispatchThreadStarted(false)
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
 	try
@@ -1247,7 +1254,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
 			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
-			return;
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		{
@@ -1319,7 +1325,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 				_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
 			throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
-			return;
 		}
 		else if ( OmmLoggerClient::VerboseEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 		{
@@ -1352,7 +1357,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		_pItemCallbackClient = ItemCallbackClient::create( *this );
 		_pItemCallbackClient->initialize();
 
-		if (getImplType() == OmmCommonImpl::ConsumerEnum)
+		if (!_atExit && getImplType() == OmmCommonImpl::ConsumerEnum)
 		{
 			Dictionary* dictionary = getDictionaryCallbackClient().getDefaultDictionary();
 			RsslReactorJsonConverterOptions jsonConverterOptions;
@@ -1377,12 +1382,11 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 				if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
 					_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
 				throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
-				return;
 			}
 		}
 
 		/* Now that all the handlers are setup, initialize the login stream handle, if set */
-		if (_hasConsAdminClient)
+		if (!_atExit && _hasConsAdminClient)
 		{
 			ReqMsg loginRequest;
 			loginRequest.clear().domainType(ema::rdm::MMT_LOGIN);
@@ -1390,15 +1394,18 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		/* Consumer and Provider side should be mutually exclusive */
-		if (_hasProvAdminClient)
+		if (!_atExit && _hasProvAdminClient)
 		{
 			ReqMsg loginRequest;
 			loginRequest.clear().domainType(ema::rdm::MMT_LOGIN);
 			_pItemCallbackClient->registerClient(loginRequest, _provAdminClient, _adminClosure, 0);
 		}
 
-		_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
-		_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getReactorOAuthCredential() );
+		if (!_atExit)
+		{
+			_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
+			_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getReactorOAuthCredential() );
+		}
 
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
 		_eventTimedOut = false;
@@ -1425,13 +1432,11 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 				}
 
 				throwIueException( failureMsg, OmmInvalidUsageException::LoginRequestTimeOutEnum );
-				return;
 			}
 			else if ( _state == RsslChannelUpStreamNotOpenEnum )
 			{
 				if ( timeOutLengthInMicroSeconds != 0 ) loginWatcher->cancel();
 				throwIueException( getLoginCallbackClient().getLoginFailureMessage(), OmmInvalidUsageException::LoginRequestRejectedEnum );
-				return;
 			}
 			else
 			{
@@ -1442,7 +1447,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		else
 		{
 			throwIueException( "Application or user initiated exit while waiting for login response.", OmmInvalidUsageException::InvalidOperationEnum );
-			return;
 		}
 
 		loadDirectory();
@@ -1456,6 +1460,11 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
 		}
 		
+		if (_atExit)
+		{
+			throwIueException("Application or user initiated exit while running initialize.", OmmInvalidUsageException::InvalidOperationEnum);
+		}
+
 		_userLock.unlock();
 	}
 	catch ( const OmmException& ommException )
@@ -1562,6 +1571,13 @@ void OmmBaseImpl::cleanUp()
 void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 {
 	OmmBaseImplMap<OmmBaseImpl>::remove(this);
+
+	// prevents invoking uninitialize twice
+	if ( _bUninitializeInvoked )
+	{
+		return;
+	}
+	_bUninitializeInvoked = true;
 
 	_atExit = true;
 
@@ -2035,38 +2051,62 @@ OmmLoggerClient& OmmBaseImpl::getOmmLoggerClient()
 
 void OmmBaseImpl::reissue( const ReqMsg& reqMsg, UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->reissue( reqMsg, handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->reissue(reqMsg, handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmBaseImpl::unregister( UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->unregister( handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->unregister(handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmBaseImpl::submit( const GenericMsg& genericMsg, UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->submit( genericMsg, handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->submit(genericMsg, handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 void OmmBaseImpl::submit( const PostMsg& postMsg, UInt64 handle )
 {
-	_userLock.lock();
-
-	if ( _pItemCallbackClient ) _pItemCallbackClient->submit( postMsg, handle );
-
-	_userLock.unlock();
+	try
+	{
+		_userLock.lock();
+		if (_pItemCallbackClient) _pItemCallbackClient->submit(postMsg, handle);
+		_userLock.unlock();
+	}
+	catch (...)
+	{
+		_userLock.unlock();
+		throw;
+	}
 }
 
 ActiveConfig& OmmBaseImpl::getActiveConfig()
@@ -2100,9 +2140,17 @@ int OmmBaseImpl::runLog( void* pExceptionStructure, const char* file, unsigned i
 	char reportBuf[EMA_BIG_STR_BUFF_SIZE * 10];
 	if ( retrieveExceptionContext( pExceptionStructure, file, line, reportBuf, EMA_BIG_STR_BUFF_SIZE * 10 ) > 0 )
 	{
-		_userLock.lock();
-		if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf );
-		_userLock.unlock();
+		try
+		{
+			_userLock.lock();
+			if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, reportBuf);
+			_userLock.unlock();
+		}
+		catch (...)
+		{
+			_userLock.unlock();
+			throw;
+		}
 	}
 
 	return 1;

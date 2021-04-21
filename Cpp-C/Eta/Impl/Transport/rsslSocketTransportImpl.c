@@ -5253,10 +5253,13 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 	_DEBUG_TRACE_CONN("Version is ConnVer 0x%x comp <%d>\n", version_number, rsslSocketChannel->outCompression)
 
-	rsslSocketChannel->guarBufPool = rtr_dfltcAllocatePool(
-		rsslSocketChannel->server->maxGuarMsgs, rsslSocketChannel->server->maxGuarMsgs,
-		10, rsslSocketChannel->maxMsgSize, rsslSocketChannel->server->sharedBufPool,
-		(rsslSocketChannel->server->maxNumMsgs - rsslSocketChannel->server->maxGuarMsgs), 0);
+	if (rsslSocketChannel->guarBufPool == 0)
+	{
+		rsslSocketChannel->guarBufPool = rtr_dfltcAllocatePool(
+			rsslSocketChannel->server->maxGuarMsgs, rsslSocketChannel->server->maxGuarMsgs,
+			10, rsslSocketChannel->maxMsgSize, rsslSocketChannel->server->sharedBufPool,
+			(rsslSocketChannel->server->maxNumMsgs - rsslSocketChannel->server->maxGuarMsgs), 0);
+	}
 
 	if (rsslSocketChannel->guarBufPool == 0)
 	{

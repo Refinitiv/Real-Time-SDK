@@ -45,6 +45,7 @@ public:
 
 	static const refinitiv::ema::access::EmaString& getSysTimeStr();
 	static void sleep(refinitiv::ema::access::UInt64 millisecs);
+	static void sleepUI(refinitiv::ema::access::UInt64 millisecs, refinitiv::ema::access::UInt64 millisecsQuantum = 100);
 
 	static refinitiv::ema::access::Int32 getHostAddress(refinitiv::ema::access::UInt32* address);
 

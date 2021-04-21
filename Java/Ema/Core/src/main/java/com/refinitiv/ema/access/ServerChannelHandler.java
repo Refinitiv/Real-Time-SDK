@@ -449,7 +449,8 @@ class ServerChannelHandler implements ReactorChannelEventCallback
         assert (channel != null);
         _errorInfo.clear();
 
-        if (channel.close(_errorInfo) != ReactorReturnCodes.SUCCESS)
+        ClientSession clientSession = (ClientSession)channel.userSpecObj();
+        if (channel.reactor() != null && channel.close(_errorInfo) != ReactorReturnCodes.SUCCESS)
         {
             if (_serverImpl.loggerClient().isErrorEnabled())
             {
@@ -463,15 +464,16 @@ class ServerChannelHandler implements ReactorChannelEventCallback
             }
         }
 
-        removeChannel(channel);
+        removeChannel(clientSession);
     }
 
-    void removeChannel(ReactorChannel channel)
+    void removeChannel(ClientSession clientSession)
     {
-        ClientSession clientSession = (ClientSession)channel.userSpecObj();
-
-        clientSession.closeAllItemInfo();
-        removeClientSession(clientSession);
+        if(clientSession != null)
+        {
+        	clientSession.closeAllItemInfo();
+        	removeClientSession(clientSession);
+        }
     }
     
     HashMap<LongObject, ClientSession> clientSessionMap()

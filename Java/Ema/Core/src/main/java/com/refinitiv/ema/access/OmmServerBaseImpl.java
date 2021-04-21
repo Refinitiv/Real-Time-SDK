@@ -553,6 +553,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		} finally
 		{
 			_userLock.unlock();
+			_rsslReactor = null;
+			_server = null;
 		}
 	}
 	
@@ -1318,8 +1320,6 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		{
 			removeItemGroup(itemInfo);
 		}
-
-		itemInfo.returnToPool();
 		
 		if ( loggerClient().isTraceEnabled( ))
 		{
@@ -1329,6 +1329,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			loggerClient().trace(formatLogMessage(instanceName(), temp.toString(), Severity.TRACE));
 		}
 		
+		itemInfo.returnToPool();
+
 		_userLock.unlock();
 	}
 	

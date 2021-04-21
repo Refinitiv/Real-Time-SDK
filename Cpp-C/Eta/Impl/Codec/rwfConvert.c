@@ -1154,7 +1154,8 @@ RsslRet rwf_storeal64( RsslReal *oReal64, const char *strptr )
 
 RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *endptr )
 {
-	RsslUInt64	value = 0,tempValue = 0;
+	RsslInt64	value = 0;
+	RsslUInt64	tempValue = 0;
 	RsslInt64	trailzerovalue = 0;
 	RsslInt32	trailzerocount = 0;
 	int			isNeg;
@@ -1209,7 +1210,7 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 
 	isNeg = __rtr_checknegative_skipsign(strptr);
 
-	__rwf_atonumber_end_trailzero(strptr,endptr,value,foundDigit,trailzerovalue,trailzerocount,MAX_UINT64DIV10,nextDigit,tempValue);
+	__rwf_atonumber_end_trailzero(strptr,endptr,value,foundDigit,trailzerovalue,trailzerocount,MAX_INT64DIV10,nextDigit,tempValue);
 
 	/* Check for decimal value */
 	if (*strptr == '.')
@@ -1218,7 +1219,17 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 		const char *startdec = ++strptr;
 		RsslUInt8 exponent;
 
-		__rwf_atonumber_end(strptr,endptr,value,foundDigit,MAX_UINT64DIV10,nextDigit,tempValue);
+		__rwf_atonumber_end(strptr,endptr,value,foundDigit,MAX_INT64DIV10,nextDigit,tempValue);
+
+		if (foundDigit && strptr <= endptr)
+		{
+			// We have more digits - if the rest are zeros, it might still fit
+			const char* test = strptr;
+			while (*test == '0' && test <= endptr)
+				test++;
+			if (test <= endptr)
+				return RSSL_RET_INVALID_DATA;
+		}
 
 		exponent = (RsslUInt8)(strptr - startdec);
 

@@ -229,7 +229,7 @@ RSSL_VA_API RsslRet rsslDecodeRDMDictionaryMsg(RsslDecodeIterator *pIter, RsslMs
 			rsslClearRDMDictionaryRefresh(pDictionaryRefresh);
 
 			key = (RsslMsgKey *)rsslGetMsgKey(pMsg);
-			if (!key || !(key->flags && RSSL_MKF_HAS_NAME) || !(key->flags && RSSL_MKF_HAS_FILTER) || !(key->flags && RSSL_MKF_HAS_SERVICE_ID))
+			if (!key || !(key->flags & RSSL_MKF_HAS_NAME) || !(key->flags & RSSL_MKF_HAS_FILTER) || !(key->flags & RSSL_MKF_HAS_SERVICE_ID))
 				return RSSL_RET_FAILURE;
 
 			pDictionaryRefresh->dataBody = pMsg->msgBase.encDataBody;

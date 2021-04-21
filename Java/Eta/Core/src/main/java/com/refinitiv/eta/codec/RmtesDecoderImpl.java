@@ -7,8 +7,6 @@ import com.refinitiv.eta.codec.CharSet.RmtesWorkingSet;
 
 class RmtesDecoderImpl implements RmtesDecoder
 {
-    static int MAPPING_FUNCTION_SEQ_LENGTH = 2;
-
     static char ESC_CHAR = 0x1B;
     static char LBRKT_CHAR = 0x5B;
     static char RHPA_CHAR = 0x60; // Used for partial updates
@@ -1256,8 +1254,9 @@ class RmtesDecoderImpl implements RmtesDecoder
                         state = RMTESParseState.LBRKT;
                     else if (fEntry.data().get(inBufPos) == 0x25)
                     {
-                        if ((fEntry.length() - inBufPos) >= MAPPING_FUNCTION_SEQ_LENGTH
-                            && fEntry.data().get(++inBufPos) == 0x30) {
+                        inBufPos++;
+                        if (inBufPos < (fEntry.length() + fEntry.position()) && fEntry.data().get(inBufPos) == 0x30)
+                        {
                             if (cacheBufferPos + 3 > cacheBuffer.allocatedLength())
                             {
                                 /* Error: Out of space */

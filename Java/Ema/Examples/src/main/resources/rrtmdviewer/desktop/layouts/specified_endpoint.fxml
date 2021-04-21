@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.DictionaryLoaderComponent?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.PasswordEyeComponent?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint.SpecifiedEndpointConnectionTypes?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ErrorDebugAreaComponent?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.DictionaryLoaderComponent?>
+<?import javafx.scene.text.Font?>
+<Pane xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint.SpecifiedEndpointSettingsController">
+    <children>
+        <VBox alignment="CENTER" style="-fx-spacing: 5; -fx-padding: 5;" stylesheets="@../styles/specified-endpoint-style.css">
+            <children>
+                <TabPane styleClass="tabpanel" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab text="Connectivity options">
+                            <content>
+                                <AnchorPane>
+                                    <children>
+                                        <VBox>
+                                            <children>
+                                                <VBox style="-fx-spacing: 5; -fx-padding: 5;" styleClass="boxwithframe">
+                                                <Label text="ConnectionList:" />
+                                                    <children>
+                                                <HBox alignment="CENTER_LEFT" styleClass="boxwithframe">
+                                                    <children>
+                                                        <Label text="Server1" />
+                                                        <VBox styleClass="innerbox">
+                                                            <children>
+                                                                <Label text="Host:" />
+                                                                <TextField fx:id="host" styleClass="inputfield" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox styleClass="innerbox">
+                                                            <children>
+                                                                <Label text="Port:" />
+                                                                <TextField fx:id="port" styleClass="inputfield" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" styleClass="boxwithframe">
+                                                    <children>
+                                                        <Label text="Server2"/>
+                                                        <VBox styleClass="innerbox">
+                                                            <children>
+                                                                <Label text="Host:" />
+                                                                <TextField fx:id="host2" styleClass="inputfield" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox styleClass="innerbox">
+                                                            <children>
+                                                                <Label text="Port:" />
+                                                                <TextField fx:id="port2" styleClass="inputfield" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                                    </children>
+                                                </VBox>
+                                                <HBox alignment="CENTER_LEFT" styleClass="boxwithframe">
+                                                    <children>
+                                                        <VBox styleClass="innerbox">
+                                                            <children>
+                                                                <Label text="Connection type:" />
+                                                                <ComboBox fx:id="connType" onAction="#onConnectionTypeChanged" styleClass="inputfield">
+                                                                    <items>
+                                                                        <FXCollections fx:factory="observableArrayList">
+                                                                            <SpecifiedEndpointConnectionTypes fx:value="SOCKET" />
+                                                                            <SpecifiedEndpointConnectionTypes fx:value="WEBSOCKET" />
+                                                                            <SpecifiedEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET" />
+                                                                            <SpecifiedEndpointConnectionTypes fx:value="ENCRYPTED_WEBSOCKET" />
+                                                                        </FXCollections>
+                                                                    </items>
+                                                                    <value>
+                                                                        <SpecifiedEndpointConnectionTypes fx:value="SOCKET" />
+                                                                    </value>
+                                                                </ComboBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox styleClass="innerbox">
+                                                            <children>
+                                                                <Label fx:id="protocolsLabel" disable="true" text="Supported protocols:" />
+                                                                <HBox alignment="CENTER_LEFT" styleClass="innerbox">
+                                                                    <children>
+                                                                        <CheckBox fx:id="rwfCheckbox" disable="true" mnemonicParsing="false" selected="true" styleClass="customcheckbox" text="RWF" />
+                                                                        <CheckBox fx:id="jsonCheckbox" disable="true" mnemonicParsing="false" onAction="#onJsonSelected" styleClass="customcheckbox" text="JSON" />
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox styleClass="innerbox" visible="true">
+                                                            <children>
+                                                                <Label fx:id="jsonVersions" disable="true" text="Json versions:" visible="true" />
+                                                                <MenuButton fx:id="jsonVersionsMenu" disable="true"  visible="true" prefWidth="100">
+                                                                </MenuButton>
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                                <VBox fx:id="encryptedVBox" alignment="CENTER" styleClass="vboxwithframe" visible="false">
+                                                    <children>
+                                                        <VBox style="-fx-spacing: 3;">
+                                                            <children>
+                                                                <CheckBox fx:id="encrypted" mnemonicParsing="false" onAction="#onEncryptionChanged" text="Set additional encryption parameters" />
+                                                                <HBox styleClass="boxwithoutframe">
+                                                                    <children>
+                                                                        <VBox styleClass="innerbox">
+                                                                            <children>
+                                                                                <Label fx:id="keyFileLabel" disable="true" text="Key File:" />
+                                                                                <HBox styleClass="inputfield">
+                                                                                    <children>
+                                                                                        <TextField fx:id="encrFile" disable="true" styleClass="filechoosertextfield" />
+                                                                                        <Button fx:id="keyfileChooser" disable="true" mnemonicParsing="false" onAction="#onKeyFileChooserBtnClick" styleClass="filechooserbutton" text="..." />
+                                                                                    </children>
+                                                                                </HBox>
+                                                                            </children>
+                                                                        </VBox>
+                                                                        <VBox styleClass="innerbox">
+                                                                            <children>
+                                                                                <Label fx:id="passwLabel" disable="true" text="Key Password:" />
+                                                                                <PasswordEyeComponent fx:id="keyPassword" disable="true">
+                                                                                   <VBox.margin>
+                                                                                      <Insets top="-8.0" />
+                                                                                   </VBox.margin>
+                                                                                </PasswordEyeComponent>
+                                                                            </children>
+                                                                        </VBox>
+                                                                    </children>
+                                                                </HBox>
+                                                            </children>
+                                                        </VBox>
+
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </AnchorPane>
+                            </content>
+                        </Tab>
+                        <Tab text="Application options">
+                            <content>
+                                <AnchorPane>
+                                    <children>
+                                        <VBox style="-fx-spacing: 5; -fx-padding: 5;" stylesheets="@../styles/specified-endpoint-style.css">
+                                            <children>
+                                                <VBox alignment="CENTER_LEFT" styleClass="boxwithframe">
+                                                    <children>
+                                                        <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                                            <children>
+                                                                <Label text="Username:" styleClass="optionslabel">
+                                                                    <font>
+                                                                        <Font size="13.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <TextField fx:id="username" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" styleClass="inputfield"/>
+                                                            </children>
+                                                        </HBox>
+                                                        <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                                            <children>
+                                                                <Label text="Application ID:" styleClass="optionslabel">
+                                                                    <font>
+                                                                        <Font size="13.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <TextField fx:id="appId" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" styleClass="inputfield"/>
+                                                            </children>
+                                                        </HBox>
+                                                        <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                                            <children>
+                                                                <Label text="Position:" styleClass="optionslabel">
+                                                                    <font>
+                                                                        <Font size="13.0" />
+                                                                    </font>
+                                                                </Label>
+                                                                <TextField fx:id="position" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" styleClass="inputfield"/>
+                                                            </children>
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                                <DictionaryLoaderComponent fx:id="dictionaryLoader" />
+                                            </children>
+                                        </VBox>
+                                    </children></AnchorPane>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+                <VBox prefWidth="472.0">
+                    <ErrorDebugAreaComponent fx:id="errorDebugArea"/>
+                    <HBox alignment="CENTER_RIGHT" prefWidth="472.0">
+                        <children>
+                            <Button fx:id="connect" mnemonicParsing="false" onAction="#onSubmitBtnClick"
+                                    text="CONNECT"/>
+                        </children>
+                    </HBox>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</Pane>

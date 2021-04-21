@@ -428,6 +428,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		} finally
 		{
 			_userLock.unlock();
+			_rsslReactor = null;
 		}
 	}
 	
@@ -1715,7 +1716,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			return;
 
 		_rsslErrorInfo.clear();
-		if (rsslReactorChannel.close(_rsslErrorInfo) != ReactorReturnCodes.SUCCESS)
+		ChannelInfo channelInfo = (ChannelInfo) rsslReactorChannel.userSpecObj();
+		if (rsslReactorChannel.reactor() != null && rsslReactorChannel.close(_rsslErrorInfo) != ReactorReturnCodes.SUCCESS)
 		{
 			if (_loggerClient.isErrorEnabled())
 			{
@@ -1736,7 +1738,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			}
 		}
 
-		_channelCallbackClient.removeChannel( (ChannelInfo) rsslReactorChannel.userSpecObj());
+		_channelCallbackClient.removeChannel(channelInfo);
 	}
 	
 	void processChannelEvent( ReactorChannelEvent reactorChannelEvent){}

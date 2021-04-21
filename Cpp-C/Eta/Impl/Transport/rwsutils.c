@@ -879,7 +879,10 @@ rtr_msgb_t *rwsDataBuffer(RsslSocketChannel *rsslSocketChannel, size_t size, Rss
 	rtr_msgb_t			*retBuf = 0;
 	size_t				neededSize = size;
 
-	if (IPC_NULL_PTR(rsslSocketChannel, "", "rsslSocketChannel", error))
+	if (IPC_NULL_PTR(rsslSocketChannel, "rwsDataBuffer", "rsslSocketChannel", error))
+		return 0;
+
+	if (IPC_NULL_PTR(rsslSocketChannel->guarBufPool, "rwsDataBuffer", "rsslSocketChannel->guarBufPool", error))
 		return 0;
 
 	IPC_MUTEX_LOCK(rsslSocketChannel);
@@ -1214,6 +1217,11 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 					/* mark the END of the field-value */
 					pFV->length = pos - start;
 				}
+				else
+				{
+					/* Clears the field value's buffer when there is no field value. */
+					rsslClearBuffer(pFV);
+				}
 			}
 			else
 			{
@@ -1258,6 +1266,11 @@ RsslInt32 rwsReadHttpHeader(char *data, RsslInt32 datalen, RsslInt32 startOffset
 					RWS_GET_ALL_FIELDVALUES(data, pos, endOfLine);
 					/* mark the END of the field-value */
 					pFV->length = pos - start;
+				}
+				else
+				{
+					/* Clears the field value's buffer when there is no field value. */
+					rsslClearBuffer(pFV);
 				}
 			}
 			else
@@ -1330,8 +1343,8 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 		if (hdrLine && 
 			(hdrLine[0].field.length == rwsHdr_GET.length) &&
 			(memcmp(hdrLine[0].field.data, rwsHdr_GET.data, rwsHdr_GET.length)==0) &&
-			(hdrLine[0].value.length >= fv_WebSocketURI.length) && 
-			(memcmp(hdrLine[0].value.data, fv_WebSocketURI.data, fv_WebSocketURI.length)==0))
+			(hdrLine[0].value.length >= fv_WebSocketURI.length) && hdrLine[0].value.data &&
+			_rwsMatchBuffer(hdrLine[0].value.data, fv_WebSocketURI.length, fv_WebSocketURI.data, fv_WebSocketURI.length))
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			_DEBUG_TRACE_PARSE_HTTP("Received GET request '%s' ", hdrLine[0].data)
@@ -1363,7 +1376,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Upgrade: */
-			if (_rwsMatchField(pField, &rwsField_UPGRADE)) {
+			if (_rwsMatchField(pField, &rwsField_UPGRADE) && pValue->data) {
 				//_DBG_HTTP_PROCENTRY(pField->data, pField->length)
 				if (_rwsMatchField(pValue, &fv_Websocket))
 				{
@@ -1374,7 +1387,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Connection: */
-			else if (_rwsMatchField(pField, &rwsField_CONNECTION))
+			else if (_rwsMatchField(pField, &rwsField_CONNECTION) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1393,7 +1406,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Key: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_KEY))
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_KEY) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1431,7 +1444,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Version: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_VERSION))
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_VERSION) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 WS_version = 0;
@@ -1452,7 +1465,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Protocol: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_PROTOCOL)) 
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_PROTOCOL) && pValue->data)
 			{
 				/* If the handshake sent an invalid sub protocol, 0 will be returned
 				 * and will be rejected as an invalid protocol. If no protocol was sent
@@ -1471,7 +1484,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Extensions: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_EXTENSIONS))
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_EXTENSIONS) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1489,7 +1502,12 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 					if(_rwsMatchBuffer(data+start, (pos - start), 
 										fv_PerMsgDeflate.data, fv_PerMsgDeflate.length))
 					{
-						wsSess->deflate = 1;
+						/* Ensure that server supports the ZLIB compression type. */
+						if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB)
+						{
+							wsSess->deflate = 1;
+						}
+
 						deflateEnd = pos - start;
 					}
 
@@ -1500,32 +1518,27 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 					if(_rwsMatchBuffer(data+start, (pos - start), 
 										fv_ClientNoContext.data, fv_ClientNoContext.length))
 						wsSess->comp.flags |= RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT;
-				}
 
-				if ((!wsSess->deflate) || (wsSess->deflate && 
-					!((wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)||
-					(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT))))
-				{
-					/* a field-value entry with a ';' following permessage-deflate ;
-					 * and no context definitions, should generate an error */
-					if (wsSess->deflate)
+					/* Skip remaining whitespace. */
+					for (; pos < endOfLine && (data[pos] == ' ' || data[pos] == '\t'); pos++);
+
+					/* This should be at a semicolon (indicating the next token) or end of line. */
+					if (pos == endOfLine)
+						break;
+					else if (data[pos] != ';')
 					{
-						int st = deflateEnd;
-						RWS_MOVE_TO_CHAR(data, st, endOfLine, ';');
-						if (data[st] != ';')
-							continue;
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Invalid Sec-WebSocket-Extensions parameter list format",
+							__FUNCTION__, __LINE__);
+						return(-1);
 					}
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-								"<%s:%d> Invalid Sec-WebSocket-Extensions parameter list format", 
-								__FUNCTION__,__LINE__);
-					return(-1);
 				}
 			}
 
 			/* Checking for HTTP Header field 
 			 * Host: */
-			else if (_rwsMatchField(pField, &rwsField_HOST)) {
+			else if (_rwsMatchField(pField, &rwsField_HOST) && pValue->data) {
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
 
@@ -1578,7 +1591,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * Origin: */
-			else if (_rwsMatchField(pField, &rwsField_ORIGIN))
+			else if (_rwsMatchField(pField, &rwsField_ORIGIN) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1605,7 +1618,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 			else if ((_rwsMatchField(pField, &rwsField_COOKIE)) &&
 					  (wsSess->server->cookies.authToken.length || 
 					   wsSess->server->cookies.position.length || 
-					   wsSess->server->cookies.applicationId.length))
+					   wsSess->server->cookies.applicationId.length) && pValue->data)
 			{
 				RsslInt32 * cookieLenPtr = 0; 
 				char ** cookieValuePtr = 0;
@@ -1678,7 +1691,7 @@ RsslInt32 rwsReadOpeningHandshake(char *data, RsslInt32 datalen, RsslInt32 start
 
 			/* Checking for HTTP Header field 
 			 * User-Agent: */
-			else if (_rwsMatchField(pField, &rwsField_USER_AGENT)) 
+			else if (_rwsMatchField(pField, &rwsField_USER_AGENT) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1735,7 +1748,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 		// has a URL for /WebSocket
 		// e.g. value = '/WebSocket HTTP/1.1' fv_WebSocketURI = '/WebSocket'
 		if (hdrLine && (hdrLine[0].field.length == rwsHdr_HTTP.length) &&
-			(memcmp(hdrLine[0].field.data, rwsHdr_HTTP.data, rwsHdr_HTTP.length)==0))
+			(memcmp(hdrLine[0].field.data, rwsHdr_HTTP.data, rwsHdr_HTTP.length)==0) && hdrLine[0].value.data)
 		{
 			char *data = 0;
 			RsslInt32 start = 0, pos = 0, endOfLine = 0;
@@ -1788,7 +1801,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 
 			/* Checking for HTTP Header field 
 			 * Upgrade: */
-			if (_rwsMatchField(pField, &rwsField_UPGRADE)) {
+			if (_rwsMatchField(pField, &rwsField_UPGRADE) && pValue->data) {
 				// _DBG_HTTP_PROCENTRY(pField->data, pField->length)
 				if (_rwsMatchField(pValue, &fv_Websocket))
 				{
@@ -1799,7 +1812,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 
 			/* Checking for HTTP Header field 
 			 * Connection: */
-			else if (_rwsMatchField(pField, &rwsField_CONNECTION))
+			else if (_rwsMatchField(pField, &rwsField_CONNECTION) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1818,7 +1831,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Accept: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_ACCEPT))
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_ACCEPT) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1866,7 +1879,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Version: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_VERSION))
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_VERSION) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 WS_version = 0;
@@ -1887,7 +1900,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Protocol: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_PROTOCOL)) 
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_PROTOCOL) && pValue->data)
 			{
 				/* If the handshake Response sent an invalid sub protocol, 0 will be returned
 				 * and will be rejected as an invalid protocol. If no protocol was sent
@@ -1904,7 +1917,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 
 			/* Checking for HTTP Header field 
 			 * Sec-WebSocket-Extensions: */
-			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_EXTENSIONS))
+			else if (_rwsMatchField(pField, &rwsField_SEC_WEBSOCKET_EXTENSIONS) && pValue->data)
 			{
 				char *data = pValue->data;
 				RsslInt32 start = 0, pos = 0, endOfLine = pValue->length;
@@ -1921,36 +1934,37 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 					if(_rwsMatchBuffer(data+start, (pos - start), 
 										fv_PerMsgDeflate.data, fv_PerMsgDeflate.length))
 					{
-						wsSess->deflate = 1;
+
+						/* Ensure that client supports the ZLIB compression type. */
+						if (wsSess->comp.type == RSSL_COMP_ZLIB)
+						{
+							wsSess->deflate = 1;
+						}
+
 						deflateEnd = pos - start;
 					}
 					if(_rwsMatchBuffer(data+start, (pos - start), 
 										fv_ServerNoContext.data, fv_ServerNoContext.length))
-						wsSess->comp.flags |= RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT;
+						wsSess->comp.flags |= RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT;
 
 					if(_rwsMatchBuffer(data+start, (pos - start), 
 										fv_ClientNoContext.data, fv_ClientNoContext.length))
-						wsSess->comp.flags |= RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT;
-				}
+						wsSess->comp.flags |= RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT;
 
-				if ((!wsSess->deflate) || (wsSess->deflate && 
-					!((wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)||
-					(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT))))
-				{
-					/* a field-value entry with a ';' following permessage-deflate ;
-					 * and no context definitions, should generate an error */
-					if (wsSess->deflate)
+					/* Skip remaining whitespace. */
+					for (; pos < endOfLine && (data[pos] == ' ' || data[pos] == '\t'); pos++);
+
+					/* This should be at a semicolon (indicating the next token) or end of line. */
+					if (pos == endOfLine)
+						break;
+					else if (data[pos] != ';')
 					{
-						int st = deflateEnd;
-						RWS_MOVE_TO_CHAR(data, st, endOfLine, ';');
-						if (data[st] != ';')
-							continue;
+						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+						snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+							"<%s:%d> Invalid Sec-WebSocket-Extensions parameter list format",
+							__FUNCTION__, __LINE__);
+						return(-400);
 					}
-					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-								"<%s:%d> Invalid Sec-WebSocket-Extensions parameter list format", 
-								__FUNCTION__,__LINE__);
-					return(-400);
 				}
 			}
 		}
@@ -2600,6 +2614,23 @@ ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *rsslSocketChannel, RsslError 
 		ipcSetSocketChannelProtocolHdrFuncs(rsslSocketChannel, RSSL_CONN_TYPE_WEBSOCKET);
 		rsslSocketChannel->intState = RIPC_INT_ST_READ_HDR;
 
+		rsslSocketChannel->guarBufPool = rtr_dfltcAllocatePool(
+			rsslSocketChannel->server->maxGuarMsgs,
+			rsslSocketChannel->server->maxGuarMsgs, 10,
+			rsslSocketChannel->maxMsgSize,
+			rsslSocketChannel->server->sharedBufPool,
+			(rsslSocketChannel->server->maxNumMsgs - rsslSocketChannel->server->maxGuarMsgs),
+			0);
+		if (rsslSocketChannel->guarBufPool == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text,MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Could not allocate memory for session's output buffer",
+						__FILE__,__LINE__);
+
+			return(RIPC_CONN_ERROR);
+		}
+
 		return (RIPC_CONN_IN_PROGRESS);
 	}
 	else
@@ -3084,7 +3115,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 					compBuf.avail_out = (unsigned long)(wsSess->reassemblyBuffer->maxLength - wsSess->reassemblyBuffer->length);
 
 					if ((retVal = (*(wsSess->comp.inDecompFuncs->decompress)) (wsSess->comp.c_stream_in, &compBuf,
-						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
+						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
 						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -3178,7 +3209,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 					compBuf.avail_out = (unsigned long)(wsSess->reassemblyBuffer->maxLength - wsSess->reassemblyBuffer->length);
 
 					if ((retVal = (*(wsSess->comp.inDecompFuncs->decompress)) (wsSess->comp.c_stream_in, &compBuf,
-						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
+						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
 						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -3277,7 +3308,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 					compBuf.avail_out = (unsigned long)(wsSess->reassemblyBuffer->maxLength - wsSess->reassemblyBuffer->length);
 
 					if ((retVal = (*(wsSess->comp.inDecompFuncs->decompress)) (wsSess->comp.c_stream_in, &compBuf,
-						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
+						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
 						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -3388,7 +3419,7 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 					}
 
 					if ((retVal = (*(wsSess->comp.inDecompFuncs->decompress)) (wsSess->comp.c_stream_in, &compBuf,
-						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
+						(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT)
 						? 1 : 0, error)) < 0)
 					{
 						_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
@@ -3508,6 +3539,17 @@ void handleWebSocketMessages(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 				wsSess->inputReadCursor = 0;
 				wsSess->actualInBuffLen = 0;
 			}
+
+			/* Checks to ensure that the session is enabled for the permessage-deflate option as well. */
+			if (frame->compressed && !wsSess->deflate)
+			{
+				// Packet was compressed but session does not indicate it should be
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Compression settings mismatch, internal error", __FUNCTION__, __LINE__);
+				*readret = RSSL_RET_FAILURE;
+				return;
+			}
 		}
 		else
 		{
@@ -3609,6 +3651,17 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 			{
 				wsSess->inputReadCursor = 0;
 				wsSess->actualInBuffLen = 0;
+			}
+
+			/* Checks to ensure that the session is enabled for the permessage-deflate option as well. */
+			if (frame->compressed && !wsSess->deflate)
+			{
+				// Packet was compressed but session does not indicate it should be
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Compression settings mismatch, internal error", __FUNCTION__, __LINE__);
+				*readret = RSSL_RET_FAILURE;
+				return(0);
 			}
 
 			/* Has more data to process */
@@ -5377,7 +5430,7 @@ void rwsClearSession(rwsSession_t *wsSess)
 	wsSess->connUpgrade = 0;
 	wsSess->deflate = 0;
 	wsSess->compressed = 0;
-	wsSess->protocol = 0;
+	wsSess->protocol = RWS_SP_NONE;
 	wsSess->url = 0;
 	wsSess->host = 0;
 	wsSess->port = 0;

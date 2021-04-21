@@ -15,6 +15,8 @@ class RealImpl implements Real
     static final String zeroDisplayStrings[] = { "0.0E-14", "0.0E-13", "0.0E-12", "0.0E-11", "0.0E-10", "0.0E-9", "0.0E-8", "0.0E-7",
                                                  "0.0E-6", "0.0E-5", "0.0E-4", "0.000", "0.00", "0.0", "0", "0", "0", "0", "0", "0",
                                                  "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
+    
+    static final String decimalStringFormat[] = {"%.14f","%.13f","%.12f", "%.11f", "%.10f", "%.9f", "%.8f", "%.7f", "%.6f", "%.5f", "%.4f", "%.3f", "%.2f", "%.1f"};
 
     boolean     _isBlank;
     int         _hint;
@@ -287,7 +289,15 @@ class RealImpl implements Real
 
             if (_value != 0)
             {
-                return Double.toString(toDouble());
+            	/* Handles number of decimal places according to the hint value. */
+            	if(RealHints.EXPONENT_14 <= _hint && _hint <= RealHints.EXPONENT_1)
+            	{
+            		return String.format(decimalStringFormat[_hint],toDouble());
+            	}
+            	else
+            	{
+            		return Double.toString(toDouble());
+            	}
             }
             else
             {

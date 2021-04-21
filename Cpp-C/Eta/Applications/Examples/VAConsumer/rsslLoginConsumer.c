@@ -137,6 +137,13 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 			printf("	Authn Error Text: %.*s\n", pLoginMsg->status.authenticationErrorText.length, pLoginMsg->status.authenticationErrorText.data);
 		break;
 
+		if (pState->streamState != RSSL_STREAM_OPEN)
+		{
+			printf("\nLogin attempt failed\n");
+			closeConnection(pReactor, pChannel, pCommand);
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
 	case RDM_LG_MT_RTT:
 		printf("Received login RTT message from Provider "SOCKET_PRINT_TYPE".\n", pChannel->socketId);
 		printf("\tTicks: %llu\n", pLoginMsg->RTT.ticks);

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="923.0" stylesheets="@../../styles/item-view-style.css" type="Pane" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <VBox alignment="TOP_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="10.0" minWidth="10.0" style="-fx-background-color: #F0F0F0;">
+            <children>
+            <HBox alignment="CENTER" fillHeight="false" prefHeight="50.0" prefWidth="200.0" spacing="50.0">
+               <children>
+                  <HBox alignment="CENTER" spacing="10.0" styleClass="bordered-area">
+                     <children>
+                        <Label text="Currency: " />
+                        <TextField fx:id="currencyFld" editable="false" focusTraversable="false" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" spacing="10.0" styleClass="bordered-area">
+                     <children>
+                        <Label text="Units: " />
+                        <TextField fx:id="unitsFld" editable="false" focusTraversable="false" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" spacing="10.0" styleClass="bordered-area">
+                     <children>
+                        <Label text="Exch ID: " />
+                        <TextField fx:id="exchIdFld" editable="false" focusTraversable="false" />
+                     </children>
+                  </HBox>
+                   <HBox alignment="CENTER" spacing="10.0" styleClass="bordered-area">
+                       <children>
+                           <Label text="ORDER RANK RULE: " />
+                           <TextField fx:id="rnkRulFld" editable="false" focusTraversable="false" />
+                       </children>
+                   </HBox>
+               </children>
+            </HBox>
+                <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="358.0" style="-fx-background-color: #F8F8F8;">
+                    <children>
+                        <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="329.0" spacing="10.0">
+                            <children>
+                                <TableView fx:id="tableBid" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="329.0" prefWidth="450.0">
+                                    <columns>
+                                        <TableColumn prefWidth="155.0" text="Order ID" userData="id" />
+                                        <TableColumn prefWidth="142.0" text="Priority Time Stamp" userData="quoteTime" />
+                                        <TableColumn prefWidth="103.0" text="BID Size" userData="size" />
+                                        <TableColumn prefWidth="101.0" text="BID Price" userData="price" />
+                                    </columns>
+                                </TableView>
+                                <TableView fx:id="tableAsk" focusTraversable="false" prefHeight="329.0" prefWidth="450.0">
+                                    <columns>
+                                        <TableColumn prefWidth="101.0" text="ASK Price" userData="price" />
+                                        <TableColumn prefWidth="103.0" text="ASK Size" userData="size" />
+                                        <TableColumn prefWidth="142.0" text="Priority Time Stamp" userData="quoteTime" />
+                                        <TableColumn prefWidth="155.0" text="Order ID" userData="id" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                     <VBox.margin>
+                        <Insets left="5.0" />
+                     </VBox.margin>
+                        </HBox>
+                    </children>
+                </VBox>
+                <ListView fx:id="statusLabel" prefHeight="80.0" style="-fx-border-color: lightgray; -fx-background-color: #D8D8D8;;" styleClass="statusLabel" />
+                <Button fx:id="unregisterButton" mnemonicParsing="false" stylesheets="@../../styles/specified-endpoint-style.css" text="UNREGISTER" />
+            </children>
+        </VBox>
+    </children>
+</fx:root>

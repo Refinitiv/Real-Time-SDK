@@ -265,7 +265,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals(inputValue, real.toString()); 
+		 assertEquals("0.00010", real.toString()); 
 	 }
 	 
 	 @Test
@@ -276,7 +276,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals("2.155E-4", real.toString()); 
+		 assertEquals("0.0002155", real.toString()); 
 	 }
 	 
 	 @Test
@@ -342,7 +342,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals("-2.155E-4", real.toString());
+		 assertEquals("-0.0002155", real.toString());
 	 }
 	 
 	 
@@ -387,7 +387,7 @@ public class JsonRealConverterTest {
 		 real.clear();
 		 
 		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
-		 assertEquals(inputValue, real.toString()); 
+		 assertEquals("0.00000000000010", real.toString()); 
 	 }
 	 
 	 @Test
@@ -410,6 +410,50 @@ public class JsonRealConverterTest {
 		 assertEquals(CodecReturnCodes.FAILURE, JsonRealConverter.processReal(inputValue, real));
 	 }
 	 
+	 @Test
+	 public void invalid_outofrange_positiveBig64BitInteger()
+	 {
+		 String inputValue = "1151194421449.10009766";
+		 Real real = CodecFactory.createReal();
+		 real.clear();
+
+		 assertEquals(CodecReturnCodes.INVALID_ARGUMENT, JsonRealConverter.processReal(inputValue, real));
+	 }
+
+	 @Test
+	 public void invalid_outofrange_negativeBig64BitInteger()
+	 {
+		 String inputValue = "-1151194421449.10009766";
+		 Real real = CodecFactory.createReal();
+		 real.clear();
+
+		 assertEquals(CodecReturnCodes.INVALID_ARGUMENT, JsonRealConverter.processReal(inputValue, real));
+	 }
+
+	 @Test
+	 public void invalid_fitinrange_positiveBig64BitInteger()
+	 {
+		 String inputValue = "1151194421449.100097";
+		 Real real = CodecFactory.createReal();
+		 real.clear();
+
+		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
+		 assertEquals(1151194421449100097L, real.toLong());
+		 assertEquals(RealHints.EXPONENT_6, real.hint());
+	 }
+
+	 @Test
+	 public void invalid_fitinrange_negativeBig64BitInteger()
+	 {
+		 String inputValue = "-1151194421449.100097";
+		 Real real = CodecFactory.createReal();
+		 real.clear();
+
+		 assertEquals(CodecReturnCodes.SUCCESS, JsonRealConverter.processReal(inputValue, real));
+		 assertEquals(-1151194421449100097L, real.toLong());
+		 assertEquals(RealHints.EXPONENT_6, real.hint());
+	 }
+
 	 @Test
 	 public void invalid_value()
 	 {
@@ -486,7 +530,7 @@ public class JsonRealConverterTest {
 		 
 		 assertEquals(CodecReturnCodes.INVALID_ARGUMENT, ret);
 	 }
-	 
+
 	 @Test
 	 public void maxNegativeDecimalValueRangeTest()
 	 {

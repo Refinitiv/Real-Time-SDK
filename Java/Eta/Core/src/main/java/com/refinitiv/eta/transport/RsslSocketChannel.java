@@ -2024,13 +2024,13 @@ class RsslSocketChannel extends EtaNode implements Channel
         writeFragment(fragment, writeArgs);
 
         // If there are extra bytes that could not fit in the fragment, write the remainder of the compressed bytes into an extra message.
-        // Extra bytes start at position userBytesForFragment (after data sent in previous message)
+        // Extra bytes start at position maxPayloadSize (after data sent in previous message)
         if (extraBytes > 0)
         {
             // Populate second message
             compFragmentBuffer.data().position(compFragmentBuffer.dataStartPosition());
             compFragmentBuffer.data().limit(compFragmentBuffer.dataStartPosition() + extraBytes);
-            compFragmentBuffer.data().put(compressedBytes, userBytesForFragment, extraBytes);
+            compFragmentBuffer.data().put(compressedBytes, maxPayloadSize, extraBytes);
             compFragmentBuffer.populateRipcHeader(Ripc.Flags.COMPRESSION);
 
             writeFragment(compFragmentBuffer, writeArgs);
@@ -2275,6 +2275,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                     // copy the data from bigBuffer to the first transport buffer
                     TransportBufferImpl transportBuffer = ((BigBuffer)buffer)._firstBuffer;
                     ((BigBuffer)buffer)._firstBuffer = null;
+                    transportBuffer.headerLength(getProtocolFunctions().estimateHeaderLength());
                     transportBuffer._data.position(getProtocolFunctions().estimateHeaderLength());
 
                     buffer._data.limit(buffer._data.position());

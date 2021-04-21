@@ -1044,7 +1044,7 @@ void watchlistDirectoryTest_MultipleRequests(RsslConnectionTypes connectionType)
 	}
 
 	ASSERT_TRUE(stream2ReceivedMsg && stream3ReceivedMsg && stream4ReceivedMsg
-			&& stream5ReceivedMsg && stream6ReceivedMsg && stream7ReceivedMsg & stream8ReceivedMsg);
+			&& stream5ReceivedMsg && stream6ReceivedMsg && stream7ReceivedMsg && stream8ReceivedMsg);
 
 	/* Provider received no messages. */
 	wtfDispatch(WTF_TC_PROVIDER, 100);

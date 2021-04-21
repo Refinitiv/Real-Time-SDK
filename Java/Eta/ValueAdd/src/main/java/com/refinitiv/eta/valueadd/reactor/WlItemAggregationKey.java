@@ -173,4 +173,13 @@ class WlItemAggregationKey extends VaNode
         _qos.clear();
         _qosReference = null;
     }
+    
+    @Override
+    public void returnToPool()
+    {
+    	 _msgKeyReference = null;
+    	 _qosReference = null;
+    	
+    	super.returnToPool();
+    }
 }
