@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<fx:root styleClass="vboxwithframe" stylesheets="@../../styles/components.css" type="VBox"
+         xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <CheckBox fx:id="debugCheckbox" mnemonicParsing="false" styleClass="optionslabel" text="Debug"
+                  onAction="#handleDebugCheckbox"/>
+        <TextArea fx:id="errorDebugAreaInternal" editable="false" focusTraversable="false" prefWidth="400.0">
+            <VBox.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </VBox.margin>
+        </TextArea>
+    </children>
+</fx:root>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointConnectionTypes?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.PasswordEyeComponent?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.DictionaryLoaderComponent?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ErrorDebugAreaComponent?>
+<AnchorPane fx:id="primaryPane" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController">
+   <children>
+      <VBox maxWidth="455">
+         <children>
+            <TabPane fx:id="primaryTabPane" stylesheets="@../styles/discovered-endpoint-style.css" tabClosingPolicy="UNAVAILABLE">
+               <tabs>
+                  <Tab text="Connectivity Parameters">
+                     <content>
+                        <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css" spacing="38">
+                           <children>
+                              <VBox styleClass="grey-area-small-box" spacing="5">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                       <children>
+                                          <Label text="Username:" styleClass="optionslabel">
+                                             <font>
+                                                <Font size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="usernameTextField" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" promptText="username" styleClass="inputfield"/>
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                       <children>
+                                          <Label styleClass="optionslabel" text="Password:">
+                                             <font>
+                                                <Font size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <PasswordEyeComponent fx:id="usernamePasswordComponent" populatedValue="password"/>
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                       <children>
+                                          <Label text="Client ID:" styleClass="optionslabel">
+                                             <font>
+                                                <Font size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <TextField fx:id="clientIdTextField" focusTraversable="false" promptText="client id" styleClass="inputfield" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                 <children>
+                                    <Label text="Connection type:">
+                                       <font>
+                                          <Font size="13.0" />
+                                       </font>
+                                    </Label>
+                                    <ComboBox fx:id="connectionTypesComboBox" focusTraversable="false" onAction="#handleConnectionTypeComboBox" styleClass="inputfield">
+                                       <items>
+                                          <FXCollections fx:factory="observableArrayList">
+                                             <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET" />
+                                             <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_WEBSOCKET" />
+                                          </FXCollections>
+                                       </items>
+                                       <value>
+                                          <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET" />
+                                       </value>
+                                    </ComboBox>
+                                 </children>
+                              </VBox>
+                              <VBox alignment="BOTTOM_LEFT">
+                                 <DictionaryLoaderComponent fx:id="dictionaryLoader" styleClass="area-without-frame"/>
+                              </VBox>
+                           </children>
+                        </VBox>
+                     </content>
+                  </Tab>
+                  <Tab text=" Optional parameters">
+                     <content>
+                        <VBox spacing="5" styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
+                           <children>
+                              <StackPane alignment="TOP_LEFT" maxHeight="80">
+                                 <Pane fx:id="customServiceUrlsPane" disable="true" styleClass="grey-area-small-box">
+                                    <padding>
+                                       <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                    <children>
+                                       <HBox spacing="8" styleClass="innerhbox" alignment="BOTTOM_CENTER">
+                                          <VBox prefWidth="200">
+                                             <Label text="Service Discovery URL" />
+                                             <TextField fx:id="serviceDiscoveryUrl" focusTraversable="false" prefHeight="30.0" minWidth="200.0" text="" />
+                                          </VBox>
+                                          <VBox prefWidth="200">
+                                             <Label text="Token Service URL" />
+                                             <TextField fx:id="tokenServiceUrl" focusTraversable="false" prefHeight="30.0" minWidth="200.0" />
+                                          </VBox>
+                                       </HBox>
+                                    </children>
+                                 </Pane>
+                                 <CheckBox fx:id="customServiceUrlsCheckbox" focusTraversable="false" mnemonicParsing="false" onAction="#handleCustomServiceUrlsCheckbox" prefHeight="17.0"  styleClass="grey-area-label-box" text="Custom Service URLs ">
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </CheckBox>
+                              </StackPane>
+                              <StackPane alignment="TOP_LEFT" maxHeight="80">
+                                 <Pane fx:id="encryptionOptionsPane" disable="true" styleClass="grey-area-small-box">
+                                    <padding>
+                                       <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                    <children>
+                                       <HBox spacing="8" styleClass="innerhbox" alignment="BOTTOM_CENTER">
+                                          <VBox prefWidth="200">
+                                             <Label text="Keystore File:" />
+                                             <HBox>
+                                                <children>
+                                                   <TextField fx:id="keyFileTextFld" editable="false" focusTraversable="false" prefWidth="170"/>
+                                                   <Button ellipsisString=".." focusTraversable="false" mnemonicParsing="false" onAction="#handleKeyFileChooserButton" prefHeight="27.0" prefWidth="30.0" text=".."/>
+                                                </children>
+                                             </HBox>
+                                          </VBox>
+                                          <VBox prefWidth="200">
+                                             <Label text="Keystore Password:" />
+                                             <PasswordEyeComponent fx:id="keyPasswordComponent" />
+                                          </VBox>
+                                       </HBox>
+                                    </children>
+                                 </Pane>
+                                 <CheckBox fx:id="encryptionOptionCheckbox" focusTraversable="false" mnemonicParsing="false" onAction="#handleEncryptionOptionsCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Encrypted configuration ">
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </CheckBox>
+                              </StackPane>
+                              <StackPane alignment="TOP_LEFT" maxHeight="80">
+                                 <Pane fx:id="useProxyPane" disable="true" styleClass="grey-area-small-box">
+                                    <padding>
+                                       <Insets left="10.0" right="10.0" />
+                                    </padding>
+                                    <children>
+                                       <HBox spacing="8" styleClass="innerhbox" alignment="BOTTOM_CENTER">
+                                          <VBox prefWidth="200">
+                                             <Label text="Hostname" />
+                                             <TextField fx:id="proxyHostTextFld" focusTraversable="false" prefHeight="30.0" prefWidth="150.0" />
+                                          </VBox>
+                                          <VBox prefWidth="200">
+                                             <Label text="Port" />
+                                             <TextField fx:id="proxyPortTextFld" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" />
+                                          </VBox>
+                                       </HBox>
+                                    </children>
+                                 </Pane>
+                                 <CheckBox fx:id="useProxyCheckbox" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseProxyCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use proxy server ">
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </CheckBox>
+                              </StackPane>
+                              <StackPane alignment="TOP_LEFT" maxHeight="130" >
+                                 <Pane fx:id="useProxyAuthenticationPane" disable="true" styleClass="grey-area-small-box">
+                                    <children>
+                                       <HBox spacing="8" styleClass="innerhbox" alignment="BOTTOM_CENTER">
+                                          <VBox prefWidth="200">
+                                             <VBox>
+                                                <Label text="Username" />
+                                                <TextField fx:id="proxyAuthLogin" focusTraversable="false" prefHeight="25.0" prefWidth="200.0" />
+                                             </VBox>
+                                             <VBox>
+                                                <Label text="KRB5 Config File" />
+                                                <HBox >
+                                                   <children>
+                                                      <TextField fx:id="krbFileTextFld" editable="false" focusTraversable="false" prefWidth="170" />
+                                                      <Button ellipsisString=".." focusTraversable="false" mnemonicParsing="false" onAction="#handleKrbFileChooserButton" prefHeight="27.0" prefWidth="30.0" text=".."/>
+                                                   </children>
+                                                </HBox>
+                                             </VBox>
+                                          </VBox>
+                                          <VBox prefWidth="200">
+                                             <VBox>
+                                                <Label text="Domain" />
+                                                <TextField fx:id="proxyAuthDomain" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" />
+                                             </VBox>
+                                             <VBox>
+                                                <Label text="Password" />
+                                                <PasswordEyeComponent fx:id="proxyAuthPassword" />
+                                             </VBox>
+                                          </VBox>
+                                       </HBox>
+                                    </children>
+                                 </Pane>
+                                 <CheckBox fx:id="useProxyAuthenticationCheckbox" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseProxyAuthenticationCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use proxy server authentication ">
+                                    <font>
+                                       <Font name="System Bold" size="12.0" />
+                                    </font>
+                                 </CheckBox>
+                              </StackPane>
+                           </children>
+                        </VBox>
+                     </content>
+                  </Tab>
+               </tabs>
+            </TabPane>
+            <VBox spacing="5.0">
+               <children>
+                  <VBox fx:id="serviceEndpointVBox" disable="true">
+                     <children>
+                        <Label text="Select endpoint:">
+                           <font>
+                              <Font size="15.0" />
+                           </font>
+                        </Label>
+                        <ListView fx:id="serviceEndpointChoiceBox" focusTraversable="false" prefWidth="450" maxWidth="450" minHeight="90.0" maxHeight="90.0" />
+                     </children>
+                  </VBox>
+                  <Button fx:id="primaryActionButton" focusTraversable="false" mnemonicParsing="false" onAction="#handleSubmitBtnAction" prefHeight="30.0" prefWidth="450" maxWidth="450" text="Retrieve Service Endpoints">
+                     <font>
+                        <Font name="System Italic" size="12.0" />
+                     </font>
+                  </Button>
+
+                  <ErrorDebugAreaComponent fx:id="errorDebugArea" areaHeight="100.0">
+                     <VBox.margin>
+                        <Insets bottom="2.0" right="2.0" />
+                     </VBox.margin>
+                  </ErrorDebugAreaComponent>
+               </children>
+               <padding>
+                  <Insets left="2.0" />
+               </padding>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
