@@ -125,8 +125,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.0
-- ADH 3.5.0
+- ADS 3.5.1
+- ADH 3.5.1
 - DACS 7.6
 
 # Documentation
@@ -142,7 +142,7 @@ This section shows the required setup needed before you can build any of the Jav
 
 Obtain the source **from this repository** on GitHub. It will contain all of the required source to build RTSDK as detailed below. In addition, this repository depends on a Binary Pack found in the [release assets](https://github.com/Refinitiv/Real-Time-SDK/releases) section that is auto pulled by a build. The BinaryPack contains libraries for the closed source portions of the product, permitting users to build and link all dependent libraries to have a fully functional product. 
 
-Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/refinitiv-real-time-opnsrc/rt-sdk-java/downloads).
+Refinitiv Real-Time SDK package may also be [downloaded from Refinitiv Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/download).
 
 Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html).
 
@@ -198,7 +198,7 @@ This provides SSL/TLS details that can be useful if SSL/TLS handshake failed
 
 # Obtaining the Refinitiv Field Dictionaries
 
-The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Templates Service Pack.
+The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `Java/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Template Service Pack.
 
 # Maven Central
 
@@ -209,40 +209,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.1.1</version>
+		<version>3.6.1.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.1.1</version>
+		<version>3.6.1.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.1.1</version>
+		<version>3.6.1.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.1.1</version>
+		<version>3.6.1.2</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.1.1</version>
+		<version>3.6.1.2</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.1.1'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.1.1'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.1.1'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.1.1'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.1.1'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.1.2'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.1.2'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.1.2'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.1.2'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.1.2'
 
 # Developing 
 

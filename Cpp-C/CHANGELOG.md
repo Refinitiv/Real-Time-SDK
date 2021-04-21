@@ -9,26 +9,65 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.1.L2 aka EMA 3.6.1.L2 and ETA 3.6.1.L2 
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.1.G1 aka EMA 3.6.1.G1 and ETA 3.6.1.G1 
 ----------------------------------------------------------------------------------------
 
-This release removes unused files from GitHub and RRG packages 
+This is a maintenace release with fixes for customer issues 
+
+Customer Issues Resolved
+------------------
+- [Case Number: 09514087] - [RTSDK-4606] - ETA crash when a websocket client does not specify sub protocol and closes the connection 
+- [GitHub #138] - [RTSDK-3884] - EMA C++: Destructor of OmmConsumer occasionally hangs forever in deadlock
+- [GitHub #152] - [RTSDK-4291] - OmmConsumerImpl::registerClient implementation doesn't unlock mutex when exception is thrown
+- [GitHub #161] - [RTSDK-4371] - ETA compilation warning
+- [GitHub #164] - [RTSDK-4589] - In VAConsumer refresh message is received the channel is closed if the streamState is not open
+- [GitHub #168] - [RTSDK-4706] - EMA C++: configuration parameters ConnectionPingTimeout / ConnectionMinPingTimeout are applied as number of seconds, not milliseconds
+- [GitHub #170] - [RTSDK-4941] - Buggy code in rsslRDMDictionaryMsg.c
+- [GitHub #171] - [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml
+- [GitHub #172] - [RTSDK-4951] - EMA C++ Websocket example mismatch between Readme and source code
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK C++/C Release 2.0.1.L2 (March 31, 2021)
+RTSDK C++/C Release 2.0.1.G1 (Apr 21, 2021)
+--------------------------------------------
+
+EMA C++ 3.6.1.G1 Issues Resolved
+--------------------------------
+- [RTSDK-3884] - EMA C++: Destructor of OmmConsumer occasionally hangs forever in deadlock - [GitHub #138]
+- [RTSDK-4291] - OmmConsumerImpl::registerClient implementation doesn't unlock mutex when exception is thrown - [GitHub #152]
+- [RTSDK-4706] - EMA C++: configuration parameters ConnectionPingTimeout / ConnectionMinPingTimeout are applied as number of seconds, not milliseconds - [GitHub #168]
+- [RTSDK-4719] - Support encryption connection type for EMAC consumer performance tool
+- [RTSDK-4951] - EMA C++ Websocket example mismatch between Readme and source code - [GitHub #172]
+- [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml - [GitHub #171]
+- [RTSDK-4954] - Correction to IProvider180 README file
+
+ETA C 3.6.1.G1 Issues Resolved
+--------------------------------
+- [RTSDK-4371] - ETA compilation warning - [GitHub #161]
+- [RTSDK-4382] - Change RDP 'scope' default value to trapi.streaming.pricing.read
+- [RTSDK-4508] - JSON converter library fails to conform to UTF-8 when passing the JSON dictionary message over the network
+- [RTSDK-4606] - TRCERouter Crash in ETA - [Case Number: 09514087]
+- [RTSDK-4713] - ETAC: Websocket Transport should handle Sec-Websocket-Extensions with unsupported parameter: client_max_window_bits
+- [RTSDK-4727] - rsslNumericStringToReal does not return error with an input like 1151194421449.10009766
+- [RTSDK-4589] - In VAConsumer refresh message is received the channel is closed if the streamState is not open - [GitHub #164]
+- [RTSDK-4941] - Buggy code in rsslRDMDictionaryMsg.c - [GitHub #170]
+
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.1.L2 (Mar 31, 2021)
 --------------------------------------------
 
 Both ETA C and EMA C++ 3.6.1.L2 Issues Resolved
----------------------------------------------------
+-----------------------------------------------
 - [RTSDK-4860, RTSDK-4861] - Remove unused EtaJni files 
+
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.1.L1 (Mar 4, 2021)
----------------------------------------------
+--------------------------------------------
 
 EMA C++ 3.6.1.L1 Issues Resolved
 --------------------------------
@@ -59,7 +98,7 @@ Both ETA C and EMA C++ 3.6.1.L1 Issues Resolved
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.0.L1 (Oct 19, 2020)
----------------------------------------------
+--------------------------------------------
 
 New Features Added
 ------------------
