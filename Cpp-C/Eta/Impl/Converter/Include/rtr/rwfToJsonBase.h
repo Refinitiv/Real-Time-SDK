@@ -159,7 +159,7 @@ public:
 	rwfToJsonBase(int bufSize, int maxPrequel, RsslUInt16 convFlags = 0, int numTokens = DEFAULT_NUM_TOKENS, int incSize = DEFAULT_NUM_TOKENS);
 
 	// Destructor
-	~rwfToJsonBase();
+	virtual ~rwfToJsonBase();
 
 	static void initializeIntToStringTable();
 	static void uninitializeIntToStringTable();

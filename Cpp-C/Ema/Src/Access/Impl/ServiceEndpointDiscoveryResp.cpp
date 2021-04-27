@@ -22,7 +22,7 @@ _toString(0,4096)
 	{
 		_pServiceEndpointDiscoveryInfoList = new EmaVector<ServiceEndpointDiscoveryInfo>(16);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		throwMeeException("Failed to allocate memory for EmaVector<ServiceEndpointDiscoveryInfo> in ServiceEndpointDiscoveryResp().");
 	}

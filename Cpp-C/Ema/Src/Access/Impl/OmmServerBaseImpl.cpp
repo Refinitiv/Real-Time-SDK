@@ -435,7 +435,7 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 				{
 					newServerConfig = socketServerConfig = new SocketServerConfig(_activeServerConfig.defaultServiceName());
 				}
-				catch (std::bad_alloc)
+				catch (std::bad_alloc&)
 				{
 					throwMeeException("Failed to allocate memory for SocketServerConfig.");
 					return 0;

@@ -262,13 +262,13 @@ public:
 
 	RJCString& head(unsigned int n); 	
 		// Trim this string to the first n characters.
-		// ENSURE : count() = n \\
+		// ENSURE : count() = n
 		//          head(0) implies isEmpty()
         // _TAG04 Truncate
 
 	RJCString& tail(unsigned int n); 	
 		// Trim the first count() - n characters from this string.
-		// ENSURE : count() = n \\
+		// ENSURE : count() = n
 		//          tail(0) implies isEmpty()
         // _TAG04 Truncate
 
@@ -415,7 +415,7 @@ public:
 
 	RJCString(const char *str, int n);
 		// A string with a copy of the n bytes from null terminated string str.
-		// Compatibility of using "int" rather than "unsigned int" \\
+		// Compatibility of using "int" rather than "unsigned int"
 		// Compatitbility - OBSOLETE
 		// _TAG Constructor
 

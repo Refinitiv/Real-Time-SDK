@@ -335,7 +335,7 @@ const char* EmaBuffer::asRawHexString() const
 		try {
 			_pCastingOperatorContext = new CastingOperatorContext;
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			const char* temp = "Failed to allocate memory in EmaBuffer::operator const char* () const.";
 			throwMeeException(temp);
