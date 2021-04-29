@@ -1235,15 +1235,10 @@ RsslRet rwf_storeal64_size( RsslReal *oReal64, const char *strptr, const char *e
 
 		if (exponent > 14)
 		{
-			RsslInt64 expdiff;
-			powerof(expdiff, 10, (exponent - 14));
-			if (expdiff == 0)
-				value = 0;
-			else
-				value = value / expdiff;
-			exponent = 14;		// truncate the number by eliminate additional exp we can't handle
+			/* Returns invalid data as the number is larger than the maximum hint value. */
+			return RSSL_RET_INVALID_DATA;
 		}
-		//	return RSSL_RET_INVALID_DATA;	// do no return error
+
 		if ((value == 0) && (plusZero == 1))
 		{
 			/* this was +0.00000..... so its blank */

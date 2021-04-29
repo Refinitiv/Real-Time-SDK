@@ -7581,15 +7581,13 @@ TEST(stringConversionTest, stringToDoubleConversionTest)
 	testDouble = 0.00150940715085;
 	testStrBuf.length = sprintf(testString, sVal);
 	testStrBuf.data = testString;
-	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
-	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "0.021509407150852";
 	testDouble = 0.02150940715085;
 	testStrBuf.length = sprintf(testString, sVal);
 	testStrBuf.data = testString;
-	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
-	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "7.02150940715085";
 	testDouble = 7.02150940715085;
@@ -7609,22 +7607,19 @@ TEST(stringConversionTest, stringToDoubleConversionTest)
 	testDouble = 42.00150940715085;
 	testStrBuf.length = sprintf(testString, sVal);
 	testStrBuf.data = testString;
-	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
-	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "529.021509407150852";
 	testDouble = 529.0215094071509;
 	testStrBuf.length = sprintf(testString, sVal);
 	testStrBuf.data = testString;
-	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
-	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "0.00000000000015094";
 	testDouble = 0.00000000000015;
 	testStrBuf.length = sprintf(testString, sVal);
 	testStrBuf.data = testString;
-	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
-	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
+	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 }
 
 bool testDoubleToString(RsslDouble valDouble, const char* valString, char* errorText)
@@ -7723,6 +7718,73 @@ TEST(stringConversionTest, doubleToStringConversionTest)
 #endif
 		EXPECT_TRUE(testDoubleToString(testDouble, testStr, errorText)) << errorText;
 	}
+}
+
+TEST(realTailingZerosTest, realTailingZerosTest)
+{
+	RsslReal real;
+	RsslBuffer testStrInputs[] = {
+
+		{ 5, const_cast<char*>("555.0") },
+		{ 6, const_cast<char*>("-555.0") },
+		{ 6, const_cast<char*>("555.00") },
+		{ 7, const_cast<char*>("-555.00") },
+		{ 7, const_cast<char*>("555.000") },
+		{ 8, const_cast<char*>("-555.000") },
+		{ 8, const_cast<char*>("555.0000") },
+		{ 9, const_cast<char*>("-555.0000") },
+		{ 9, const_cast<char*>("555.00000") },
+		{ 10, const_cast<char*>("-555.00000") },
+		{ 10, const_cast<char*>("555.000000") },
+		{ 11, const_cast<char*>("-555.000000") },
+		{ 11, const_cast<char*>("555.0000000") },
+		{ 12, const_cast<char*>("-555.0000000") },
+		{ 12, const_cast<char*>("555.00000000") },
+		{ 13, const_cast<char*>("-555.00000000") },
+		{ 13, const_cast<char*>("555.000000000") },
+		{ 14, const_cast<char*>("-555.000000000") },
+		{ 14, const_cast<char*>("555.0000000000") },
+		{ 15, const_cast<char*>("-555.0000000000") },
+		{ 15, const_cast<char*>("555.00000000000") },
+		{ 16, const_cast<char*>("-555.00000000000") },
+		{ 16, const_cast<char*>("555.000000000000") },
+		{ 17, const_cast<char*>("-555.000000000000") },
+		{ 17, const_cast<char*>("555.0000000000000") },
+		{ 18, const_cast<char*>("-555.0000000000000") },
+		{ 18, const_cast<char*>("555.00000000000000") },
+		{ 19, const_cast<char*>("-555.00000000000000") },
+
+		/* Out of the maximum hint range(Value raised to the -14 power) */
+		{ 19, const_cast<char*>("555.000000000000000") },
+	};
+	char bytearray[50];
+	RsslBuffer outString;
+
+	int length = sizeof(testStrInputs) / sizeof(RsslBuffer);
+	int index = 0;
+	int result = 0;
+	
+	for (; index < length - 1; ++index)
+	{
+		rsslClearReal(&real);
+		result = rsslNumericStringToReal(&real, &testStrInputs[index]);
+		EXPECT_TRUE(result == RSSL_RET_SUCCESS);
+
+		memset(bytearray, 0, sizeof(bytearray));
+		outString.data = bytearray;
+		outString.length = (RsslUInt32)sizeof(bytearray);
+
+		result = rsslRealToString(&outString, &real);
+		EXPECT_TRUE(result == RSSL_RET_SUCCESS);
+
+		EXPECT_EQ(testStrInputs[index].length, outString.length);
+		EXPECT_TRUE(memcmp(testStrInputs[index].data, outString.data, outString.length) == 0);
+	}
+
+	/* Out of the maximum hint range case */
+	rsslClearReal(&real);
+	result = rsslNumericStringToReal(&real, &testStrInputs[index]);
+	EXPECT_TRUE(result == RSSL_RET_INVALID_DATA);
 }
 
 bool testCompareFloats(const RsslFloat testFloatA, const RsslFloat testFloatB)
