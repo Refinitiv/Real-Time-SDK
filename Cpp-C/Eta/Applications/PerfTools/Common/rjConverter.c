@@ -270,6 +270,9 @@ RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pCh
 	rsslSetDecodeIteratorRWFVersion(&dIter, pChannel->majorVersion, pChannel->minorVersion);
 	rsslSetDecodeIteratorBuffer(&dIter, rwfBuffer);
 
+	/* Clears the previous error code */
+	pError->rsslError.rsslErrorId = 0;
+
 	ret = rsslDecodeMsg(&dIter, &rsslMsg);
 
 	if (ret == RSSL_RET_SUCCESS)
