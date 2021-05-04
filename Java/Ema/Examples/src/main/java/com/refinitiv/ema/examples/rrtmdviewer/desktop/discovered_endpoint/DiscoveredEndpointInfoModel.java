@@ -1,6 +1,7 @@
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 
 import java.util.List;
+import java.util.Objects;
 
 public class DiscoveredEndpointInfoModel {
     private final StringBuilder labelBuilder = new StringBuilder();
@@ -43,6 +44,19 @@ public class DiscoveredEndpointInfoModel {
         }
         labelBuilder.append(locations.get(i));
         label = labelBuilder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DiscoveredEndpointInfoModel)) return false;
+        DiscoveredEndpointInfoModel that = (DiscoveredEndpointInfoModel) o;
+        return label.equals(that.label);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(label);
     }
 
     @Override

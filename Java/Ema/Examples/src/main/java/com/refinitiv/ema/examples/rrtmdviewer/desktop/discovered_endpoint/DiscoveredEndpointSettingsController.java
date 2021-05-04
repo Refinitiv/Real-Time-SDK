@@ -128,6 +128,7 @@ public class DiscoveredEndpointSettingsController {
     private SceneController sceneController;
     private DiscoveredEndpointSettingsService discoveredEndpointSettingsService;
     private DiscoveredEndpointSettingsModel discoveredEndpointSettings;
+    private final ServiceEndpointDataModel serviceEndpointData = new ServiceEndpointDataModel();
 
     private boolean serviceEndpointsRetrieved;
 
@@ -166,7 +167,7 @@ public class DiscoveredEndpointSettingsController {
         } else {
             final FxRunnableTask fxRunnableTask = new FxRunnableTask(
                     () -> discoveredEndpointSettingsService.createOmmConsumer(
-                            discoveredEndpointSettings, getServiceEndpointConfig(), ommViewerError)
+                            discoveredEndpointSettings, serviceEndpointData, ommViewerError)
             );
             fxRunnableTask.setOnSucceeded(e -> {
                 if (!ommViewerError.isFailed()) {
@@ -194,10 +195,13 @@ public class DiscoveredEndpointSettingsController {
 
             ListCell<?> cell = (ListCell<?>) node;
             int index = cell.getIndex();
+            DiscoveredEndpointInfoModel discoveredInfo = serviceEndpointChoiceBox.getItems().get(index);
             if (serviceEndpointChoiceBox.getSelectionModel().isSelected(index)) {
                 serviceEndpointChoiceBox.getSelectionModel().clearSelection(index);
+                serviceEndpointData.getEndpoints().remove(discoveredInfo);
             } else {
                 serviceEndpointChoiceBox.getSelectionModel().select(index);
+                serviceEndpointData.getEndpoints().add(discoveredInfo);
             }
         }
     }
@@ -258,6 +262,7 @@ public class DiscoveredEndpointSettingsController {
         if (Objects.equals(AsyncResponseStatuses.SUCCESS, this.asyncResponseObserver.getResponseStatus())) {
             final ServiceEndpointResponseModel serviceEndpointResponseModel = (ServiceEndpointResponseModel) this.asyncResponseObserver.getResponse();
             final List<DiscoveredEndpointInfoModel> info = serviceEndpointResponseModel.getResponseData();
+            this.serviceEndpointData.setDictionaryData(this.dictionaryLoader.createDictionaryModel());
             serviceEndpointsRetrieved = true;
             Platform.runLater(() -> {
                 if (!info.isEmpty()) {
@@ -363,13 +368,5 @@ public class DiscoveredEndpointSettingsController {
             return true;
         }
         return false;
-    }
-
-    private ServiceEndpointDataModel getServiceEndpointConfig() {
-        DictionaryDataModel dictionaryData = this.dictionaryLoader.createDictionaryModel();
-        List<DiscoveredEndpointInfoModel> endpointInfo = Collections.unmodifiableList(
-                serviceEndpointChoiceBox.getSelectionModel().getSelectedItems()
-        );
-        return new ServiceEndpointDataModel(dictionaryData, endpointInfo);
     }
 }

@@ -2,18 +2,14 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.DictionaryDataModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceEndpointDataModel {
 
     private DictionaryDataModel dictionaryData;
 
-    private List<DiscoveredEndpointInfoModel> endpoints;
-
-    public ServiceEndpointDataModel(DictionaryDataModel dictionaryData, List<DiscoveredEndpointInfoModel> endpoints) {
-        this.dictionaryData = dictionaryData;
-        this.endpoints = endpoints;
-    }
+    private List<DiscoveredEndpointInfoModel> endpoints = new ArrayList<>();
 
     public DictionaryDataModel getDictionaryData() {
         return dictionaryData;
