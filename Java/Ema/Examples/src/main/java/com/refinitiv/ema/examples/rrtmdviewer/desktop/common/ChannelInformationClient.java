@@ -72,11 +72,11 @@ public class ChannelInformationClient implements OmmConsumerClient {
 
         if(protocolType != channelInformation.protocolType())
         {
-            protocolType = channelInformation.encryptedConnectionType();
+       	    protocolType = channelInformation.protocolType();
             hasChanged = true;
         }
 
-        if(hostName.equals(channelInformation.hostname()) == false)
+        if(channelInformation.hostname() != null && hostName.equals(channelInformation.hostname()) == false)
         {
             hostName = channelInformation.hostname();
             hasChanged = true;
