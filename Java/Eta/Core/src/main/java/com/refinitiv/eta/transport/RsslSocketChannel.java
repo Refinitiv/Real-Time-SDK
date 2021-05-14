@@ -518,7 +518,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         }
         else
         {
-            return ConnectionTypes.SOCKET;
+	    return connectionType;
         }
     }
 
