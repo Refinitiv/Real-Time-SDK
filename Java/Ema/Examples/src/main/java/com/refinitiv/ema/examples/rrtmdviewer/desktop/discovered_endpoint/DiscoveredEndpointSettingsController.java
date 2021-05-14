@@ -2,29 +2,32 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.SceneController;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.*;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.DictionaryLoaderComponent;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ErrorDebugAreaComponent;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.PasswordEyeComponent;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.*;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
-public class DiscoveredEndpointSettingsController {
+public class DiscoveredEndpointSettingsController implements StatefulController {
 
-    private static final String BUTTON_CONNECT_TEXT = "CONNECT";
+    private static final String BUTTON_CONNECT_TEXT = "Connect";
+
+    private static final String BUTTON_CONNECT_STYLE = "connect-button";
+
+    private static final String BUTTON_RETRIEVE_ENDPOINTS_TEXT = "Retrieve Service Endpoints";
 
     private static final String DEFAULT_TOKEN_SERVICE_URL = "https://api.refinitiv.com/auth/oauth2/v1/token";
 
@@ -37,6 +40,13 @@ public class DiscoveredEndpointSettingsController {
 
     private static final String EMPTY_VALIDATION_POSTFIX = " is empty.";
 
+    private static final double DEFAULT_PREF_HEIGHT = 900;
+
+    /* This value is set more than the maximum width of VBOX at the top level */
+    private static final double DEFAULT_PREF_WIDTH = 460;
+
+    private static final double DEFAULT_RATIO = 0.93;
+
     @FXML
     private TextField clientIdTextField;
 
@@ -45,6 +55,9 @@ public class DiscoveredEndpointSettingsController {
 
     @FXML
     private PasswordEyeComponent usernamePasswordComponent;
+
+    @FXML
+    private VBox connectionTypeBox;
 
     @FXML
     private ComboBox<DiscoveredEndpointConnectionTypes> connectionTypesComboBox;
@@ -56,7 +69,7 @@ public class DiscoveredEndpointSettingsController {
     private CheckBox encryptionOptionCheckbox;
 
     @FXML
-    private TextField keyFileTextFld;
+    private FilePickerComponent keyFilePicker;
 
     @FXML
     private PasswordEyeComponent keyPasswordComponent;
@@ -101,7 +114,7 @@ public class DiscoveredEndpointSettingsController {
     private TextField proxyAuthDomain;
 
     @FXML
-    private TextField krbFileTextFld;
+    private FilePickerComponent krbFilePicker;
 
     @FXML
     private Button primaryActionButton;
@@ -121,6 +134,12 @@ public class DiscoveredEndpointSettingsController {
     @FXML
     private DictionaryLoaderComponent dictionaryLoader;
 
+    @FXML
+    private EmaConfigComponent emaConfigComponent;
+
+    @FXML
+    private ScrollPane primaryPane;
+
     private final OMMViewerError ommViewerError = new OMMViewerError();
     private AsyncResponseModel asyncResponseObserver;
 
@@ -132,35 +151,62 @@ public class DiscoveredEndpointSettingsController {
 
     private boolean serviceEndpointsRetrieved;
 
+    private boolean actionButtonIsClicked;
+
     @FXML
     public void initialize() {
         sceneController = ApplicationSingletonContainer.getBean(SceneController.class);
         executorService = ApplicationSingletonContainer.getBean(ExecutorService.class);
         tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL);
         serviceDiscoveryUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL);
-        discoveredEndpointSettingsService = ApplicationSingletonContainer.getBean(DiscoveredEndpointSettingsService.class);
+        discoveredEndpointSettingsService = new DiscoveredEndpointSettingsServiceImpl();
+        ApplicationSingletonContainer.addBean(DiscoveredEndpointSettingsService.class, discoveredEndpointSettings);
 
         //Prepare ListView selection
         serviceEndpointChoiceBox.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         serviceEndpointChoiceBox.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleEndpointSelection);
+
+        //Add checkbox handler for config file
+        emaConfigComponent.getEmaConfigCheckbox().addEventHandler(ActionEvent.ACTION, this::handleEmaConfigCheckbox);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+        primaryPane.setPrefHeight(Math.min(screenBounds.getMaxY() * DEFAULT_RATIO, DEFAULT_PREF_HEIGHT));
+        primaryPane.setPrefWidth(DEFAULT_PREF_WIDTH);
+    }
+
+    public void handleBackBtnAction(ActionEvent event) {
+        clear();
+
+        /* Clears the Discovery UI only once */
+        actionButtonIsClicked = false;
     }
 
     @FXML
     public void handleSubmitBtnAction(ActionEvent actionEvent) {
         primaryActionButton.setDisable(true);
         validateFields();
+
+        actionButtonIsClicked = true;
+
         if (ommViewerError.isFailed()) {
             errorDebugArea.writeError(ommViewerError.toString());
             primaryActionButton.setDisable(false);
             return;
         }
-        if (!serviceEndpointsRetrieved) {
-            discoveredEndpointSettings = mapDiscoveredEndpointSettings();
+        if (emaConfigComponent.getEmaConfigCheckbox().isSelected() || !serviceEndpointsRetrieved) {
+            this.discoveredEndpointSettings = mapDiscoveredEndpointSettings();
             primaryTabPane.setDisable(true);
+        }
 
+        if (!serviceEndpointsRetrieved && !emaConfigComponent.getEmaConfigCheckbox().isSelected()) {
             /* Create and register an observer for every requests */
             asyncResponseObserver = new AsyncResponseModel();
             prepareAsyncResponseObserver();
+
+            if(!discoveredEndpointSettingsService.isInitialized())
+            {
+                discoveredEndpointSettingsService.initialize();
+            }
 
             executorService.submit(new FxRunnableTask(() -> discoveredEndpointSettingsService
                     .requestServiceDiscovery(discoveredEndpointSettings, asyncResponseObserver)));
@@ -171,12 +217,13 @@ public class DiscoveredEndpointSettingsController {
             );
             fxRunnableTask.setOnSucceeded(e -> {
                 if (!ommViewerError.isFailed()) {
-                    errorDebugArea.stopDebugStreaming();
-                    sceneController.addScene(ApplicationLayouts.ITEM_VIEW);
                     sceneController.showLayout(ApplicationLayouts.ITEM_VIEW);
                 } else {
                     errorDebugArea.writeError(ommViewerError.toString());
                     primaryActionButton.setDisable(false);
+                    if (emaConfigComponent.getEmaConfigCheckbox().isSelected()) {
+                        primaryTabPane.setDisable(false);
+                    }
                 }
             });
             executorService.submit(fxRunnableTask);
@@ -229,27 +276,26 @@ public class DiscoveredEndpointSettingsController {
     }
 
     @FXML
-    public void handleKeyFileChooserButton(ActionEvent event) {
-        File keyFile = sceneController.showFileChooserWindow();
-        if (keyFile != null) {
-            keyFileTextFld.setText(keyFile.getAbsolutePath());
-        }
-    }
-
-    @FXML
-    public void handleKrbFileChooserButton(ActionEvent event) {
-        File krbFile = sceneController.showFileChooserWindow();
-        if (krbFile != null) {
-            krbFileTextFld.setText(krbFile.getAbsolutePath());
-        }
-    }
-
-    @FXML
     public void handleConnectionTypeComboBox(ActionEvent event) {
         DiscoveredEndpointConnectionTypes connectionType = connectionTypesComboBox.getValue();
         final boolean isWebSocket = Objects.equals(DiscoveredEndpointConnectionTypes.ENCRYPTED_WEBSOCKET, connectionType);
         dictionaryLoader.getDownloadDictCheckbox().setSelected(!isWebSocket);
         dictionaryLoader.onDownloadDictionaryChanged(event);
+    }
+
+    private void handleEmaConfigCheckbox(ActionEvent event) {
+        final boolean isEmaConfigSelected = emaConfigComponent.getEmaConfigCheckbox().isSelected();
+        connectionTypeBox.setDisable(isEmaConfigSelected);
+        dictionaryLoader.setDisable(isEmaConfigSelected);
+        customServiceUrlsPane.setDisable(isEmaConfigSelected);
+        customServiceUrlsCheckbox.setDisable(isEmaConfigSelected);
+        if (isEmaConfigSelected) {
+            primaryActionButton.setText(BUTTON_CONNECT_TEXT);
+            primaryActionButton.getStyleClass().add("connect-button");
+        } else {
+            primaryActionButton.setText(BUTTON_RETRIEVE_ENDPOINTS_TEXT);
+            primaryActionButton.getStyleClass().remove("connect-button");
+        }
     }
 
     private void prepareAsyncResponseObserver() {
@@ -267,7 +313,7 @@ public class DiscoveredEndpointSettingsController {
             Platform.runLater(() -> {
                 if (!info.isEmpty()) {
                     primaryActionButton.setText(BUTTON_CONNECT_TEXT);
-                    primaryActionButton.getStyleClass().add("connect-button");
+                    primaryActionButton.getStyleClass().add(BUTTON_CONNECT_STYLE);
                     serviceEndpointVBox.setDisable(false);
                     serviceEndpointChoiceBox.setItems(FXCollections.observableList(info));
                 }
@@ -276,7 +322,7 @@ public class DiscoveredEndpointSettingsController {
         } else if (Objects.equals(AsyncResponseStatuses.FAILED, this.asyncResponseObserver.getResponseStatus())) {
             final String msg = this.asyncResponseObserver.getResponse().toString();
             Platform.runLater(() -> {
-                errorDebugArea.writeError(msg);
+                errorDebugArea.writeError(msg + System.lineSeparator());
                 primaryTabPane.setDisable(false);
                 primaryActionButton.setDisable(false);
             });
@@ -290,7 +336,7 @@ public class DiscoveredEndpointSettingsController {
         String serviceDiscoveryUrl = DEFAULT_SERVICE_ENDPOINT_URL;
         if (encryptionOptionCheckbox.isSelected()) {
             encryptionDataModel = EncryptionDataModel.builder()
-                    .keyFilePath(keyFileTextFld.getText().trim())
+                    .keyFilePath(keyFilePicker.getFilePickerTextField().getText().trim())
                     .keyPassword(keyPasswordComponent.getPasswordField().getText().trim())
                     .build();
 
@@ -303,7 +349,7 @@ public class DiscoveredEndpointSettingsController {
                         .login(proxyAuthLogin.getText().trim())
                         .password(proxyAuthPassword.getPasswordField().getText().trim())
                         .domain(proxyAuthDomain.getText().trim())
-                        .krbFilePath(krbFileTextFld.getText().trim())
+                        .krbFilePath(krbFilePicker.getFilePickerTextField().getText().trim())
                         .build();
             }
             proxyDataModel = ProxyDataModel.builder()
@@ -313,7 +359,9 @@ public class DiscoveredEndpointSettingsController {
                     .build();
         }
 
-        if (customServiceUrlsCheckbox.isSelected()) {
+        EmaConfigModel emaConfigModel = emaConfigComponent.createEmaConfigModel();
+
+        if (customServiceUrlsCheckbox.isSelected() && !emaConfigModel.isUseEmaConfig()) {
             tokenServiceUrl = this.tokenServiceUrl.getText().trim();
             serviceDiscoveryUrl = this.serviceDiscoveryUrl.getText().trim();
         }
@@ -327,6 +375,7 @@ public class DiscoveredEndpointSettingsController {
                 .useProxy(proxyDataModel)
                 .tokenServiceUrl(tokenServiceUrl)
                 .serviceEndpointUrl(serviceDiscoveryUrl)
+                .useEmaConfig(emaConfigModel)
                 .build();
     }
 
@@ -343,13 +392,8 @@ public class DiscoveredEndpointSettingsController {
                     | hasErrorField("Password", usernamePasswordComponent.getPasswordField())
                     | hasErrorField("Client ID", clientIdTextField);
             if (encryptionOptionCheckbox.isSelected()) {
-                hasError |= hasErrorField("Key File", keyFileTextFld)
+                hasError |= hasErrorField("Key File", keyFilePicker.getFilePickerTextField())
                         | hasErrorField("Key Password", keyPasswordComponent.getPasswordField());
-            }
-
-            if (customServiceUrlsCheckbox.isSelected()) {
-                hasError |= hasErrorField("Service Discovery URL", serviceDiscoveryUrl)
-                        | hasErrorField("Token Service URL", tokenServiceUrl);
             }
 
             if (useProxyCheckbox.isSelected()) {
@@ -357,7 +401,14 @@ public class DiscoveredEndpointSettingsController {
                         | hasErrorField("Proxy port", proxyPortTextFld);
             }
 
-            hasError |= dictionaryLoader.validate(ommViewerError);
+            if (!emaConfigComponent.getEmaConfigCheckbox().isSelected()) {
+                if (customServiceUrlsCheckbox.isSelected()){
+                    hasError |= hasErrorField("Service Discovery URL", serviceDiscoveryUrl)
+                            | hasErrorField("Token Service URL", tokenServiceUrl);
+                }
+                hasError |= dictionaryLoader.validate(ommViewerError);
+            }
+            hasError |= emaConfigComponent.validate(ommViewerError);
             ommViewerError.setFailed(hasError);
         }
     }
@@ -368,5 +419,48 @@ public class DiscoveredEndpointSettingsController {
             return true;
         }
         return false;
+    }
+
+    private ServiceEndpointDataModel getServiceEndpointConfig() {
+        DictionaryDataModel dictionaryData = this.dictionaryLoader.createDictionaryModel();
+        List<DiscoveredEndpointInfoModel> endpointInfo = Collections.unmodifiableList(
+                serviceEndpointChoiceBox.getSelectionModel().getSelectedItems()
+        );
+        return new ServiceEndpointDataModel();
+    }
+
+    @Override
+    public void executeOnShow() {
+        errorDebugArea.processDebug();
+        if (serviceEndpointsRetrieved) {
+            primaryActionButton.setDisable(false);
+        } else {
+            discoveredEndpointSettingsService.initialize();
+        }
+    }
+
+    @Override
+    public void clear() {
+        if(actionButtonIsClicked) {
+            if (serviceEndpointsRetrieved) {
+                //unlock configuration tab and clear service endpoints.
+                primaryTabPane.setDisable(false);
+                primaryActionButton.setDisable(false);
+                serviceEndpointsRetrieved = false;
+                serviceEndpointVBox.setDisable(true);
+                serviceEndpointChoiceBox.getItems().clear();
+                primaryActionButton.getStyleClass().remove(BUTTON_CONNECT_STYLE);
+                primaryActionButton.setText(BUTTON_RETRIEVE_ENDPOINTS_TEXT);
+            } else {
+                discoveredEndpointSettingsService.uninitialize();
+                primaryTabPane.setDisable(false);
+                primaryActionButton.setDisable(false);
+            }
+        }
+        else
+        {
+            errorDebugArea.stopDebugStreaming();
+            sceneController.showLayout(ApplicationLayouts.APPLICATION_SETTINGS);
+        }
     }
 }

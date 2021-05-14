@@ -6,20 +6,18 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.control.ScrollPane?>
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.ItemViewController" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:id="scrollPane">
+
+<?import com.sun.javafx.scene.control.LabeledText?>
+<ScrollPane fx:id="scrollPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.ItemViewController">
    <HBox fx:id="contentHBox">
       <children>
          <VBox fx:id="submitVBox" alignment="TOP_CENTER" styleClass="customvbox" stylesheets="@../styles/specified-endpoint-style.css">
@@ -92,7 +90,7 @@
                                                    <VBox>
                                                       <children>
                                                          <ListView fx:id="availableFields" prefHeight="140.0" prefWidth="130.0" />
-                                                         <TextField fx:id="searchField"  prefWidth="130.0">
+                                                         <TextField fx:id="searchField" prefWidth="130.0">
                                                             <tooltip>
                                                                <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Start typing to filter out available fields." wrapText="true">
                                                                   <font>
@@ -105,7 +103,7 @@
                                                    </VBox>
                                                    <VBox styleClass="button-box">
                                                       <children>
-                                                         <Button fx:id="moveFieldToSelected" mnemonicParsing="false" prefHeight="30" onMouseClicked="#onMoveFieldToSelectedBtnClick" text="&gt;">
+                                                         <Button fx:id="moveFieldToSelected" mnemonicParsing="false" onMouseClicked="#onMoveFieldToSelectedBtnClick" prefHeight="30" text="&gt;">
                                                             <tooltip>
                                                                <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Add selected field to request view." wrapText="true">
                                                                   <font>
@@ -114,7 +112,7 @@
                                                                </Tooltip>
                                                             </tooltip>
                                                          </Button>
-                                                         <Button fx:id="moveFieldToDeselected" mnemonicParsing="false" prefHeight="30" onMouseClicked="#onMoveFieldToDeselectedBtnClick" text="&lt;">
+                                                         <Button fx:id="moveFieldToDeselected" mnemonicParsing="false" onMouseClicked="#onMoveFieldToDeselectedBtnClick" prefHeight="30" text="&lt;">
                                                             <tooltip>
                                                                <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Remove selected field from request view." wrapText="true">
                                                                   <font>
@@ -123,7 +121,7 @@
                                                                </Tooltip>
                                                             </tooltip>
                                                          </Button>
-                                                         <Button fx:id="removeAll" mnemonicParsing="false" prefHeight="30" onMouseClicked="#onRemoveAllFieldsBtnClick" text="X">
+                                                         <Button fx:id="removeAll" mnemonicParsing="false" onMouseClicked="#onRemoveAllFieldsBtnClick" prefHeight="30" text="X">
                                                             <tooltip>
                                                                <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Clear request view." wrapText="true">
                                                                   <font>
@@ -154,14 +152,15 @@
                            <CheckBox fx:id="snapshotCheckbox" mnemonicParsing="false" style="-fx-padding: 5;" text="Snapshot" />
                         </children>
                      </VBox>
-                     <Button fx:id="submitButton" disable="true" mnemonicParsing="false" onAction="#onSubmitBtnPressed" prefHeight="27.0" prefWidth="95.0" text="SUBMIT" />
+                     <Button fx:id="submitButton" disable="true" mnemonicParsing="false" onAction="#onSubmitBtnPressed" prefHeight="27.0" prefWidth="95.0" text="Submit" styleClass="brand-button" />
                   </children>
                </VBox>
-               <HBox styleClass="vboxwithframe" style="-fx-border-width: 2;">
+               <HBox alignment="CENTER_LEFT" style="-fx-border-width: 2;" styleClass="vboxwithframe">
                   <children>
                      <CheckBox fx:id="debugCheckbox" mnemonicParsing="false" onAction="#onDebugChanged" style="-fx-padding: 5;" styleClass="customcheckbox" text="Debug" />
                   </children>
                </HBox>
+               <Button fx:id="backButton" maxWidth="323.0" minWidth="320.0" mnemonicParsing="false" onAction="#onBackBtnPressed" prefHeight="27.0" text="Back" styleClass="brand-button" />
             </children>
             <stylesheets>
                <URL value="@../styles/specified-endpoint-style.css" />
@@ -170,7 +169,12 @@
          </VBox>
          <VBox fx:id="contentVBox">
             <children>
-               <TabPane fx:id="contentPane" style="-fx-border-color: lightgray; -fx-border-width: 2;" tabClosingPolicy="ALL_TABS" />
+               <HBox alignment="CENTER_LEFT" style="-fx-border-width: 1;" styleClass="vboxwithframe" >
+                  <children>
+                     <Label fx:id="connectionStatus" prefHeight="20.0" maxWidth="-Infinity" styleClass="connectStatusActive"/>
+                  </children>
+               </HBox>
+               <TabPane fx:id="contentPane" style="-fx-border-color: lightgray; -fx-border-width: 1;" tabClosingPolicy="ALL_TABS" />
                <TextArea fx:id="debugTextArea" editable="false" style="-fx-border-color: lightgray; -fx-border-width: 0 2 2 2; -fx-background-color: white;" visible="false" />
             </children>
          </VBox>

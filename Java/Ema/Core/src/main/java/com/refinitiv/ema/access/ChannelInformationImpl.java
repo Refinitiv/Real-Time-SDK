@@ -22,7 +22,7 @@ class ChannelInformationImpl implements ChannelInformation
 	}
 
 	public ChannelInformationImpl(String componentInfo, String hostname, String ipAddress, int state,
-			int connectionType, int protocolType, int majorVersion, int minorVersion, int pingTimeout,
+			int connectionType, int protocolType, int encryptedConnectionType, int majorVersion, int minorVersion, int pingTimeout,
 			int maxFragmentSize, int maxOutputBuffers, int guaranteedOutputBuffers, int numInputBuffers,
 			int sysSendBufSize, int sysRecvBufSize, int compressionType, int compressionThreshold) {
 		this._componentInfo = componentInfo;
@@ -31,6 +31,7 @@ class ChannelInformationImpl implements ChannelInformation
 		this._channelState = state;
 		this._connectionType = connectionType;
 		this._protocolType = protocolType;
+		this._encryptedConnectionType = encryptedConnectionType;
 		this._majorVersion = majorVersion;
 		this._minorVersion = minorVersion;
 		this._pingTimeout = pingTimeout;
@@ -64,6 +65,7 @@ class ChannelInformationImpl implements ChannelInformation
 		_sysRecvBufSize = 0;
 		_compressionType = 0;
 		_compressionThreshold = 0;
+		_encryptedConnectionType = -1;
 	}
 
 	public void set(ReactorChannel reactorChannel) {
@@ -115,6 +117,7 @@ class ChannelInformationImpl implements ChannelInformation
 			_minorVersion = reactorChannel.channel().minorVersion();
 			_pingTimeout = reactorChannel.channel().pingTimeout();
 			_channelState = reactorChannel.channel().state();
+			_encryptedConnectionType = reactorChannel.channel().encryptedConnectionType();
 		}
 		else {
 			_connectionType = _protocolType = -1;
@@ -152,10 +155,19 @@ class ChannelInformationImpl implements ChannelInformation
 		else
 			_stringBuilder.append( "\n\tconnection type: " + ConnectionTypes.toString(_connectionType)
 				+ "\n\tprotocol type: ");
-		if (_protocolType == 0)
+			
+		if (_protocolType == ProtocolType.RWF)
 			_stringBuilder.append("Refinitiv wire format");
+		else if (_protocolType == ProtocolType.JSON)
+			_stringBuilder.append("Rssl JSON format");
 		else
 			_stringBuilder.append("unknown wire format");
+		
+		if(_connectionType == ConnectionType.ENCRYPTED)
+		{
+			_stringBuilder.append( "\n\tencrypted connection type: " + ConnectionTypes.toString(_encryptedConnectionType));
+		}
+		
 		_stringBuilder.append("\n\tmajor version: " + _majorVersion + "\n\tminor version: " + _minorVersion
 				+ "\n\tping timeout: " + _pingTimeout);
 		
@@ -315,6 +327,7 @@ class ChannelInformationImpl implements ChannelInformation
 	private int _sysRecvBufSize;
 	private int _compressionType;
 	private int _compressionThreshold;
+	private int _encryptedConnectionType;
 	
 	private StringBuilder _stringBuilder = new StringBuilder();
 	
@@ -396,5 +409,15 @@ class ChannelInformationImpl implements ChannelInformation
 	@Override
 	public void compressionThreshold(int compressionThreshold) {
 		_compressionThreshold = compressionThreshold;
+	}
+
+	@Override
+	public int encryptedConnectionType() {
+		return _encryptedConnectionType;
+	}
+
+	@Override
+	public void encryptedConnectionType(int encryptedConnectionType) {
+		_encryptedConnectionType = encryptedConnectionType;
 	}
 }

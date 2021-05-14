@@ -73,20 +73,6 @@
     -fx-background-insets: 5;
 }
 
-.filechoosertextfield {
-    -fx-max-width: 175px;
-    -fx-min-width: 175px;
-    -fx-max-height: 30px;
-    -fx-min-height: 30px;
-}
-
-.filechooserbutton {
-    -fx-max-width: 30px;
-    -fx-min-width: 30px;
-    -fx-max-height: 30px;
-    -fx-min-height: 30px;
-}
-
 .list-view {
 	-fx-padding: 2;
     -fx-border-insets: 2;
@@ -114,4 +100,35 @@
 
 .root {
     -fx-font-size: 13px;
+}
+
+#connect {
+    -fx-background-color: #001EFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #001EFF;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#connect:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #001EFF;
+}
+
+#backButton {
+    -fx-background-color: #001EFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #001EFF;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#backButton:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #001EFF;
+}
+
+.connect-button {
+    -fx-font-weight: BOLD;
+    -fx-font-size: 15px;
 }

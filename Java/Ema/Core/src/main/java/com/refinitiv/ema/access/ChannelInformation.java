@@ -123,6 +123,11 @@ public interface ChannelInformation
 		 * Refinitiv wire format protocol
 		 */
 		public static final int RWF = 0;
+		
+		/**
+		 * Rssl JSON protocol
+		 */
+		public static final int JSON = 2;
 	}
 	
 	/**
@@ -193,6 +198,13 @@ public interface ChannelInformation
 	 * @return the connection type
 	 */
 	public int connectionType();
+	
+	/**
+	 *  Gets the encrypted connection type from the ConnectionTypes class. This method is used when {@link #connectionType()} is {@link ConnectionType#ENCRYPTED}
+	 *
+	 * @return the connection type
+	 */
+	public int encryptedConnectionType();
 
 	/**
 	 *  Gets the reactor channel state from the ChannelState class.
@@ -324,6 +336,13 @@ public interface ChannelInformation
 	 *
 	 */
 	public void connectionType(int connectionType);
+	
+	/** Sets encrypted connection type
+	 *
+	 * @param encryptedConnectionType is the encrypted connection type associated with the channel
+	 *
+	 */
+	public void encryptedConnectionType(int encryptedConnectionType);
 
 	/** Sets protocol type
 	 *

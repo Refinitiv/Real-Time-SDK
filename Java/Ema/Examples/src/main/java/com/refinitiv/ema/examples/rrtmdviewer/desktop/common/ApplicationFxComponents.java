@@ -12,7 +12,9 @@ public enum ApplicationFxComponents {
     MARKET_BY_COMPONENT("market_by_component.fxml"),
     MARKET_BY_PRICE_COMPONENT("market_by_price_component.fxml"),
     DICTIONARY_LOADER_COMPONENT("dictionary_loader_component.fxml"),
-    ERROR_DEBUG_AREA_COMPONENT("error_debug_area_component.fxml");
+    ERROR_DEBUG_AREA_COMPONENT("error_debug_area_component.fxml"),
+    FILE_PICKER_COMPONENT("file_picker_component.fxml"),
+    EMA_CONFIG_COMPONENT("ema_config_component.fxml");
 
     private static final String ROOT_PATH = "/rrtmdviewer/desktop/layouts/components/";
 

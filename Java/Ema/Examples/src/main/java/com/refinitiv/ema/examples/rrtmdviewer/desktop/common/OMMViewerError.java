@@ -5,9 +5,6 @@ import java.util.stream.Collectors;
 
 public class OMMViewerError {
 
-    private static final String MSG_TEXT = "\nMessage: ";
-    private static final String STACKTRACE_TEXT = "\nStackTrace: ";
-
     private final StringBuilder sb = new StringBuilder();
     private boolean isFailed;
 

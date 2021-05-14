@@ -3,6 +3,7 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.specified_endpoint;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.OMMViewerError;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ConnectionDataModel;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.DictionaryDataModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EmaConfigModel;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EncryptionDataModel;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 
@@ -24,9 +25,11 @@ public class SpecifiedEndpointSettingsModel {
     private String position;
     private String username;
 
+    private EmaConfigModel emaConfigModel;
+
     private SpecifiedEndpointSettingsModel(List<String> port, List<String> host, boolean customEncr, ConnectionDataModel connectionSettings,
                                            EncryptionDataModel encryptionSettings, String appId, String position, String username,
-                                           DictionaryDataModel dictionaryData) {
+                                           DictionaryDataModel dictionaryData, EmaConfigModel emaConfigModel) {
         this.port = port;
         this.host = host;
         this.customEncryptionOptions = customEncr;
@@ -36,6 +39,7 @@ public class SpecifiedEndpointSettingsModel {
         this.position = position;
         this.username = username;
         this.dictionaryData = dictionaryData;
+        this.emaConfigModel = emaConfigModel;
     }
 
     public List<String> getHost() { return host; }
@@ -57,6 +61,10 @@ public class SpecifiedEndpointSettingsModel {
     public String getPosition() { return position; }
 
     public String getUsername() { return username; }
+
+    public EmaConfigModel getEmaConfigModel() {
+        return emaConfigModel;
+    }
 
     public int validate(OMMViewerError error) {
         error.clear();
@@ -94,6 +102,8 @@ public class SpecifiedEndpointSettingsModel {
         private String applicationId;
         private String position;
         private String username;
+
+        private EmaConfigModel emaConfigModel;
 
         public SpecifiedEndpointSettingsModelBuilder addServer(String host, String port) {
             hostList.add(host);
@@ -136,9 +146,14 @@ public class SpecifiedEndpointSettingsModel {
             return this;
         }
 
+        public SpecifiedEndpointSettingsModelBuilder useEmaConfigFile(EmaConfigModel emaConfigModel) {
+            this.emaConfigModel = emaConfigModel;
+            return this;
+        }
+
         public SpecifiedEndpointSettingsModel build() {
             return new SpecifiedEndpointSettingsModel(portList, hostList, hasCustomEncrOptions, connectionSettings, encryptionSettings,
-                    applicationId, position, username, dictionaryData);
+                    applicationId, position, username, dictionaryData, emaConfigModel);
         }
     }
 

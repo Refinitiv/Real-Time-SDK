@@ -1,6 +1,8 @@
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import java.util.concurrent.BlockingQueue;
@@ -17,6 +19,8 @@ public class TabViewModel {
 
     private final IntegerProperty messageCounter = new SimpleIntegerProperty(this, this.getClass().getName());
 
+    private final BooleanProperty connectionProperty = new SimpleBooleanProperty(this, this.getClass().getName());
+
     public BlockingQueue<ItemNotificationModel> getNotificationQueue() {
         return notificationQueue;
     }
@@ -28,6 +32,8 @@ public class TabViewModel {
     public IntegerProperty messageCounterProperty() {
         return messageCounter;
     }
+
+    public BooleanProperty getConnectionProperty() { return connectionProperty;}
 
     public void incrementCounter() {
         this.messageCounter.set(this.messageCounter.get() + 1);

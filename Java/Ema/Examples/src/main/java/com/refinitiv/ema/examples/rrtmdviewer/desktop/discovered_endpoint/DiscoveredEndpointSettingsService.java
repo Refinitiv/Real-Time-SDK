@@ -11,5 +11,9 @@ public interface DiscoveredEndpointSettingsService extends ServiceEndpointDiscov
                            ServiceEndpointDataModel serviceEndpointDataModel,
                            OMMViewerError viewerError);
 
+    void initialize();
+
     void uninitialize();
+
+    public boolean isInitialized();
 }

@@ -5,6 +5,7 @@ import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationLayouts;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.application.GlobalApplicationSettings;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.DebugAreaStream;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsService;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsServiceImpl;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.emalogging.DebugHandler;
@@ -52,21 +53,12 @@ public class RRTMDViewerDesktopMain {
         private void initializeSceneController(Stage primaryStage) {
             final SceneController sceneController = new SceneController(primaryStage);
             ApplicationSingletonContainer.addBean(SceneController.class, sceneController);
-            for (ApplicationLayouts layout : ApplicationLayouts.values()) {
-                if (!layout.isLazyInit()) {
-                    sceneController.addScene(layout);
-                }
-            }
             sceneController.showLayout(ApplicationLayouts.APPLICATION_SETTINGS);
         }
 
         private void createApplicationScopedBeans() {
             ApplicationSingletonContainer.addBean(ExecutorService.class, Executors.newSingleThreadExecutor());
             ApplicationSingletonContainer.addBean(GlobalApplicationSettings.class, new GlobalApplicationSettings());
-            ApplicationSingletonContainer.addBean(SpecifiedEndpointSettingsController.class, new SpecifiedEndpointSettingsController());
-            ApplicationSingletonContainer.addBean(ItemViewController.class, new ItemViewController());
-            ApplicationSingletonContainer.addBean(SpecifiedEndpointSettingsService.class, new SpecifiedEndpointSettingsServiceImpl());
-            ApplicationSingletonContainer.addBean(DiscoveredEndpointSettingsService.class, new DiscoveredEndpointSettingsServiceImpl());
             ApplicationSingletonContainer.addBean(DebugHandler.class, new DebugHandler());
             ApplicationSingletonContainer.addBean(DebugAreaStream.class, new DebugAreaStream());
         }
@@ -85,7 +77,7 @@ public class RRTMDViewerDesktopMain {
                 OmmConsumer consumer = ApplicationSingletonContainer.getBean(OmmConsumer.class);
                 consumer.uninitialize();
             }
-            if (ApplicationSingletonContainer.containsBean(DiscoveredEndpointSettingsService.class)) {
+            if (ApplicationSingletonContainer.containsBean(DiscoveredEndpointSettingsController.class)) {
                 DiscoveredEndpointSettingsService discoveredEndpointService = ApplicationSingletonContainer.getBean(DiscoveredEndpointSettingsService.class);
                 discoveredEndpointService.uninitialize();
             }

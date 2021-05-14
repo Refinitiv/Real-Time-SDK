@@ -88,6 +88,7 @@ public class MarketPriceComponent extends Pane implements ItemFxComponent {
     public void configureButton(String name, Consumer<MouseEvent> func) {
         unregisterButton.setText(name);
         unregisterButton.setOnMouseClicked(func::accept);
+        unregisterButton.getStyleClass().add(BRAND_BUTTON_STYLE);
     }
 
     public void setDisableBtn(boolean value) {

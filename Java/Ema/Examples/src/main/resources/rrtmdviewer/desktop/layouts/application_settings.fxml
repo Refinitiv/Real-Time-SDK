@@ -42,7 +42,7 @@
             </VBox>
             <HBox alignment="CENTER_RIGHT">
                <children>
-                  <Button contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleActionButton" prefHeight="25.0" prefWidth="98.0" text="Next" />
+                  <Button fx:id="primaryActionButton" contentDisplay="CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handleActionButton" prefHeight="25.0" prefWidth="98.0" text="Next" styleClass="next-button" />
                </children>
             </HBox>
          </children>

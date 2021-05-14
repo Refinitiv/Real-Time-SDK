@@ -1,3 +1,21 @@
 .root {
     -fx-font-size: 13px;
 }
+
+#primaryActionButton {
+    -fx-background-color: #001EFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #001EFF;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#primaryActionButton:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #001EFF;
+}
+
+.next-button {
+    -fx-font-weight: BOLD;
+    -fx-font-size: 15px;
+}

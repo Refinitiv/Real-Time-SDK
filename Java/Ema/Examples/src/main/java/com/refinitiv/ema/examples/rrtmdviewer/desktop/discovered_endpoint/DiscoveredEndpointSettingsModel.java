@@ -1,5 +1,6 @@
 package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EmaConfigModel;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.EncryptionDataModel;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyDataModel;
 
@@ -26,9 +27,11 @@ public class DiscoveredEndpointSettingsModel {
 
     private String discoveryEndpointUrl;
 
+    private EmaConfigModel emaConfigModel;
+
     private DiscoveredEndpointSettingsModel(String username, String password, String clientId, DiscoveredEndpointConnectionTypes connectionType,
                                             EncryptionDataModel encryptionData, ProxyDataModel proxyData, String tokenServiceUrl,
-                                            String discoveryEndpointUrl) {
+                                            String discoveryEndpointUrl, EmaConfigModel emaConfigModel) {
         this.username = username;
         this.password = password;
         this.clientId = clientId;
@@ -36,7 +39,8 @@ public class DiscoveredEndpointSettingsModel {
         this.encryptionData = encryptionData;
         this.proxyData = proxyData;
         this.tokenServiceUrl = Optional.ofNullable(tokenServiceUrl).orElse(DEFAULT_TOKEN_SERVICE_URL);
-        this.discoveryEndpointUrl = Optional.ofNullable(discoveryEndpointUrl).orElse(DEFAULT_DISCOVERY_ENDPOINT_URL);;
+        this.discoveryEndpointUrl = Optional.ofNullable(discoveryEndpointUrl).orElse(DEFAULT_DISCOVERY_ENDPOINT_URL);
+        this.emaConfigModel = emaConfigModel;
     }
 
     public String getUsername() {
@@ -84,6 +88,10 @@ public class DiscoveredEndpointSettingsModel {
                 && Objects.equals(discoveryEndpointUrl, DEFAULT_DISCOVERY_ENDPOINT_URL);
     }
 
+    public EmaConfigModel getEmaConfigModel() {
+        return emaConfigModel;
+    }
+
     public static DiscoveredEndpointSettingsModelBuilder builder() {
         return new DiscoveredEndpointSettingsModelBuilder();
     }
@@ -97,6 +105,7 @@ public class DiscoveredEndpointSettingsModel {
         private ProxyDataModel proxyData;
         private String tokenServiceUrl;
         private String serviceEndpointUrl;
+        private EmaConfigModel emaConfigModel;
 
         public DiscoveredEndpointSettingsModelBuilder username(String username) {
             this.username = username;
@@ -138,9 +147,14 @@ public class DiscoveredEndpointSettingsModel {
             return this;
         }
 
+        public DiscoveredEndpointSettingsModelBuilder useEmaConfig(EmaConfigModel emaConfig) {
+            this.emaConfigModel = emaConfig;
+            return this;
+        }
+
         public DiscoveredEndpointSettingsModel build() {
             return new DiscoveredEndpointSettingsModel(username, password, clientId, connectionType, encryptionData, proxyData,
-                    tokenServiceUrl, serviceEndpointUrl);
+                    tokenServiceUrl, serviceEndpointUrl, emaConfigModel);
         }
     }
 }

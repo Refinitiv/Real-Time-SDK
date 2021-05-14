@@ -281,6 +281,7 @@ class RsslSocketChannel extends EtaNode implements Channel
     protected String _host = null;
     protected String _port = null;
     protected int _portIntValue = 0;
+    protected int _encryptionProtocol = -1;
 
     // for http tunneling
     protected boolean _http = false;
@@ -556,6 +557,12 @@ class RsslSocketChannel extends EtaNode implements Channel
         }
         isWebSocketConnection = false;
         _protocolType = Codec.RWF_PROTOCOL_TYPE;
+        
+        /* Clears channel information values. */
+        _host = null;
+        _port = null;
+        _portIntValue = 0;
+        _encryptionProtocol = -1;
     }
 
     /* This method is used for dependency injection of the read lock in unit tests
@@ -2834,6 +2841,11 @@ class RsslSocketChannel extends EtaNode implements Channel
         _host = opts.unifiedNetworkInfo().address();
         _port = opts.unifiedNetworkInfo().serviceName();
         _portIntValue = ((UnifiedNetworkInfoImpl)opts.unifiedNetworkInfo()).port();
+        
+        if(opts.connectionType() == ConnectionTypes.ENCRYPTED) {
+        	_encryptionProtocol = opts.encryptionOptions().connectionType();
+        }
+        
         wSocketOpts = opts.wSocketOpts();
 
         _httpProxy = opts.tunnelingInfo().HTTPproxy();
@@ -3318,6 +3330,12 @@ class RsslSocketChannel extends EtaNode implements Channel
     public int port()
     {
         return _portIntValue;
+    }
+    
+    @Override
+    public int encryptedConnectionType()
+    {
+        return _encryptionProtocol;
     }
 
     @Override @Deprecated

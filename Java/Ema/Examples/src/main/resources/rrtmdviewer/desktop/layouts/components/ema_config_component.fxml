@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.FilePickerComponent?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.text.Font?>
+<fx:root style="-fx-spacing: 5; -fx-padding: 5;" styleClass="boxwithframe" stylesheets="@../../styles/components.css" type="VBox" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <CheckBox fx:id="emaConfigCheckbox" mnemonicParsing="false" onAction="#handleEmaConfigCheckbox" text="Use EMA configuration file.">
+        <tooltip>
+            <Tooltip fx:id="emaConfigTooltip" anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Provide XML file which contains predefined EMA Configuration instead of filling configuration properties manually. If application root path contains 'EMAConfig.xml' file, this file will be taken by default." wrapText="true">
+                <font>
+                    <Font size="11.0" />
+                </font>
+            </Tooltip>
+        </tooltip>
+    </CheckBox>
+   <HBox fx:id="emaConfigWrapBox" spacing="20.0" disable="true">
+      <children>
+          <FilePickerComponent fx:id="emaConfigFilePicker" fillWidth="false" label="Select EMA Configuration file:" styleClass="innerbox" textFieldLength="170" filePickerTooltip="$emaConfigTooltip">
+          </FilePickerComponent>
+          <VBox styleClass="innerbox">
+              <Label text="Consumer name:" />
+              <TextField fx:id="consumerNameTextField" focusTraversable="false" prefWidth="200.0" styleClass="filechoosertextfield">
+                  <tooltip>
+                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Consumer name in provided EMA Configuration file." wrapText="true">
+                          <font>
+                              <Font size="11.0" />
+                          </font>
+                      </Tooltip>
+                  </tooltip>
+              </TextField>
+          </VBox>
+      </children>
+   </HBox>
+</fx:root>

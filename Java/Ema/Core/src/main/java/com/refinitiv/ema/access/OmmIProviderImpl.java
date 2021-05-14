@@ -1473,7 +1473,7 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 
 				ChannelInformation tmp =
 						new ChannelInformationImpl(componentInfo.toString(), etaChannelInfo.clientHostname(), etaChannelInfo.clientIP(),
-								reactorChannel.channel().state(), channel.connectionType(), channel.protocolType(), channel.majorVersion(),
+								reactorChannel.channel().state(), channel.connectionType(), channel.protocolType(), channel.encryptedConnectionType(), channel.majorVersion(),
 								channel.minorVersion(), channel.pingTimeout(), etaChannelInfo.maxFragmentSize(), etaChannelInfo.maxOutputBuffers(),
 								etaChannelInfo.guaranteedOutputBuffers(), etaChannelInfo.numInputBuffers(), etaChannelInfo.sysSendBufSize(),
 								etaChannelInfo.sysRecvBufSize(), etaChannelInfo.compressionType(), etaChannelInfo.compressionThreshold());

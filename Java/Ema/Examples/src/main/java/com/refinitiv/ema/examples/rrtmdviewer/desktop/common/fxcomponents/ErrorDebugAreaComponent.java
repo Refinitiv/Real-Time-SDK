@@ -37,6 +37,10 @@ public class ErrorDebugAreaComponent extends VBox {
 
     @FXML
     public void handleDebugCheckbox(ActionEvent event) {
+        processDebug();
+    }
+
+    public void processDebug() {
         if (debugCheckbox.isSelected()) {
             debugAreaStream.enable(errorDebugAreaInternal);
         } else {
@@ -58,5 +62,6 @@ public class ErrorDebugAreaComponent extends VBox {
 
     public void stopDebugStreaming() {
         debugAreaStream.clear();
+        errorDebugAreaInternal.clear();
     }
 }

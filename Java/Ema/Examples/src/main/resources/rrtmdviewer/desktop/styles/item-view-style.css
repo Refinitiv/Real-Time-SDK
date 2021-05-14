@@ -15,3 +15,24 @@
 .root {
     -fx-font-size: 13px;
 }
+
+.brand-button {
+    -fx-background-color: #001EFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #001EFF;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-font-size: 15px;
+    -fx-font-weight: BOLD;
+}
+
+.brand-button:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #001EFF;
+}
+
+.connectStatusActive {
+    -fx-font-size: 12px;
+    -fx-text-background-color: blue;
+    -fx-font-weight: BOLD;
+}

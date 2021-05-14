@@ -135,6 +135,24 @@
 			<MaxDispatchCountApiThread value="6500"/>
 			<MaxDispatchCountUserThread value="6500"/>
 		</Consumer>
+		<Consumer>
+			<Name value="Consumer_RRTViewer_SE"/>
+			<Channel value="Channel_RRTViewer_SE"/>
+			<Dictionary value="Dictionary_1"/>
+			
+			<!-- 'XmlTraceToStdout == 1' is required for proper working of 'Debug' mode in RRTViewer -->
+			<!-- If XmlTraceToStdout set into '0', 'debug' mode will print only EMA logs. -->
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_RRTViewer_DE"/>
+			<Channel value="Channel_RRTViewer_DE"/>
+			<Dictionary value="Dictionary_1"/>
+			
+			<!-- 'XmlTraceToStdout == 1' is required for proper working of 'Debug' mode in RRTViewer -->
+			<!-- If XmlTraceToStdout set into '0', 'debug' mode will print only EMA logs. -->
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -434,7 +452,27 @@
 			<Port value="14002"/>
 			<WsProtocols value="rssl.rwf"/>
 		</Channel>
-
+		<Channel>
+			<Name value="Channel_RRTViewer_SE"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_RRTViewer_DE"/>
+						<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
+				 when both of them are not set and the session management is enable. -->
+			<Location value="us-east"/>
+			<EnableSessionManagement value="1"/>
+			<ObjectName value=""/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 

@@ -549,6 +549,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
 
         _host = opts.unifiedNetworkInfo().address();
         _port = opts.unifiedNetworkInfo().serviceName();
+        _portIntValue = ((UnifiedNetworkInfoImpl)opts.unifiedNetworkInfo()).port();
+        
+        if(opts.connectionType() == ConnectionTypes.ENCRYPTED) {
+        	_encryptionProtocol = opts.encryptionOptions().connectionType();
+        }
 
         _httpProxy = opts.tunnelingInfo().HTTPproxy();
         if (_httpProxy)

@@ -18,20 +18,13 @@ public enum ApplicationLayouts {
 
     private ApplicationStyles[] styles;
 
-    private boolean lazyInit;
-
     ApplicationLayouts(String resourcePath, ApplicationStyles... styles) {
         this(resourcePath, false, styles);
     }
 
     ApplicationLayouts(String resourcePath, boolean lazyInit, ApplicationStyles... styles) {
         this.resourcePath = ROOT_PATH + resourcePath;
-        this.lazyInit = lazyInit;
         this.styles = styles;
-    }
-
-    public boolean isLazyInit() {
-        return lazyInit;
     }
 
     public String getResourcePath() {

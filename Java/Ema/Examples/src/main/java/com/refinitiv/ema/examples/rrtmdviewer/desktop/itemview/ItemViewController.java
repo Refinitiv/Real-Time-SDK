@@ -2,15 +2,20 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview;
 
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.SceneController;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.application.GlobalApplicationSettings;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ChannelInformationClient;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.DebugAreaStream;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.ItemFxComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByOrderComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByPriceComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketPriceComponent;
+import com.sun.javafx.scene.control.LabeledText;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,7 +38,6 @@ import java.util.stream.Collectors;
 
 
 public class ItemViewController {
-
 
     private static final int DEBUG_LOWER_HEIGHT = 0;
 
@@ -94,9 +98,15 @@ public class ItemViewController {
     private TextField searchField;
 
     @FXML
+    private Label connectionStatus;
+
+    @FXML
     private ScrollPane scrollPane;
 
+    private StringProperty connectionStatusProperty = new SimpleStringProperty(this, this.getClass().getName());
+
     private ExecutorService executorService = ApplicationSingletonContainer.getBean(ExecutorService.class);
+    private ChannelInformationClient channelInformationClient;
 
     private final ItemViewService service = new ItemViewServiceImpl();
 
@@ -151,6 +161,31 @@ public class ItemViewController {
             final ItemNotificationModel itemNotification = Objects.requireNonNull(tabViewModel.getNotificationQueue().poll());
             handleMessage(itemNotification);
         });
+
+        if(channelInformationClient == null) {
+            channelInformationClient = ApplicationSingletonContainer.getBean(ChannelInformationClient.class);
+            connectionStatus.textProperty().bind(connectionStatusProperty);
+
+            connectionStatusProperty.setValue(channelInformationClient.toString());
+        }
+
+        tabViewModel.getConnectionProperty().addListener(observable -> {
+            Platform.runLater(() -> {
+
+                if(channelInformationClient.getChannelState() == ChannelInformation.ChannelState.ACTIVE) {
+                    connectionStatus.setStyle("-fx-font-size: 11px; -fx-text-background-color: blue; -fx-font-weight: BOLD;");
+                }
+                else
+                {
+                    connectionStatus.setStyle("-fx-font-size: 11px; -fx-text-background-color: red; -fx-font-weight: BOLD;");
+                }
+
+                connectionStatusProperty.setValue(channelInformationClient.toString());
+            });
+        });
+
+        channelInformationClient.setTabViewModel(tabViewModel);
+
         service.loadServiceData(serviceInfoResponse);
     }
 
@@ -185,7 +220,6 @@ public class ItemViewController {
     }
 
     private void handleMessage(ItemNotificationModel message) {
-        //TODO use for updating UI. We can store last msg for every tab but update only tab which is selected now through Platform.runLater().
         if ((message.getMsg() instanceof RefreshMsg) && pendingToUnregister.containsKey(message.getRequestHandle())) { /* Check if the message is a response to batch request that was unregistered */
             int count = pendingToUnregister.get(message.getRequestHandle());
             if (count > 1) {
@@ -317,12 +351,12 @@ public class ItemViewController {
     private void setupMarketPriceTab(Tab tab, long handle, ItemRequestModel request) {
         MarketPriceComponent mp = new MarketPriceComponent(tab);
         if (request.getView().isSnapshot()) {
-            mp.configureButton("REFRESH", e -> {
+            mp.configureButton("Refresh", e -> {
                 submitRequestTask(request);
                 mp.clear();
             });
         } else {
-            mp.configureButton("UNREGISTER", e -> {
+            mp.configureButton("Unregister", e -> {
                 Set<Long> currentHandles = mp.getCurrentHandles();
                 if (request.getView().isBatch() && (currentHandles.size() < request.getView().getBatchRICs().size())) {
                     pendingToUnregister.put(handle, (request.getView().isBatch() ? request.getView().getBatchRICs().size() : 1) - currentHandles.size());
@@ -393,6 +427,10 @@ public class ItemViewController {
 
     @FXML
     public void onDebugChanged(ActionEvent event) {
+        processDebug();
+    }
+
+    private void processDebug() {
         final DebugAreaStream das = ApplicationSingletonContainer.getBean(DebugAreaStream.class);
         if (debugCheckbox.isSelected()) {
             debugTextArea.setVisible(true);
@@ -474,6 +512,14 @@ public class ItemViewController {
         selectedFields.getItems().clear();
     }
 
+    @FXML
+    public void onBackBtnPressed(ActionEvent event) {
+        uninitialize();
+        ApplicationSingletonContainer
+                .getBean(SceneController.class)
+                .showLayout(ApplicationSingletonContainer.getBean(GlobalApplicationSettings.class).getApplicationType().getLayout());
+    }
+
     private void handleTabChanging(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
         if (Objects.nonNull(oldTab) && Objects.nonNull(newTab)) {
             //We can also store only columns which are related only to current table and recreate table between tabs. (if it needed)
@@ -496,5 +542,12 @@ public class ItemViewController {
 
     private String getTabName(ItemViewModel settings) {
         return settings.getServiceName() + ", " + settings.getDomain() + ", " + (settings.isBatch() ? (settings.getBatchRICs().get(0) + ",...") : settings.getRIC());
+    }
+
+    public void uninitialize() {
+        ApplicationSingletonContainer.getBean(DebugAreaStream.class).disable();
+        debugTextArea.clear();
+        ApplicationSingletonContainer.getBean(OmmConsumer.class).uninitialize();
+        ApplicationSingletonContainer.deleteBean(OmmConsumer.class);
     }
 }

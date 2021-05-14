@@ -454,4 +454,13 @@ public interface Channel
     default public int port() {
         return 0;
     }
+    
+    /**
+     * Encrypted connection type associated with the {@link Channel}. This method is used when {@link #connectionType()} is {@link ConnectionTypes#ENCRYPTED}
+     * 
+     * @return the encrypted connection type
+     */
+    default public int encryptedConnectionType() {
+    	return -1;
+    }
 }

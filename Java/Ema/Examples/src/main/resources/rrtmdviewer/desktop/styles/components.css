@@ -30,3 +30,15 @@
 #errorDebugAreaInternal {
     -fx-text-fill: red;
 }
+
+.filechoosertextfield {
+    -fx-max-height: 30px;
+    -fx-min-height: 30px;
+}
+
+.filechooserbutton {
+    -fx-max-width: 30px;
+    -fx-min-width: 30px;
+    -fx-max-height: 30px;
+    -fx-min-height: 30px;
+}

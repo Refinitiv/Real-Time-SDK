@@ -49,7 +49,7 @@
 
 .connect-button {
     -fx-font-weight: BOLD;
-    -fx-font-size: 18px;
+    -fx-font-size: 15px;
 }
 
 .inputfield {
@@ -84,6 +84,32 @@
 
 #errorTextArea {
     -fx-text-fill: red;
+}
+
+#primaryActionButton {
+    -fx-background-color: #001EFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #001EFF;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#primaryActionButton:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #001EFF;
+}
+
+#backButton {
+    -fx-background-color: #001EFF;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #001EFF;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}
+
+#backButton:hover {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #001EFF;
 }
 
 .root {

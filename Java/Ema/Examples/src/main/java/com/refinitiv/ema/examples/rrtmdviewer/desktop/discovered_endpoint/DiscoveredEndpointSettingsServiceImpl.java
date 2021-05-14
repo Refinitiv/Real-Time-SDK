@@ -3,11 +3,9 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint;
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.AsyncResponseStatuses;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ChannelInformationClient;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.OMMViewerError;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.AsyncResponseModel;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.DictionaryDataModel;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyAuthenticationDataModel;
-import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.ProxyDataModel;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +19,18 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
     private static final String OMM_CONSUMER_INIT_ERROR_HEADER = "Error during OMM consumer initialization";
 
-    private final ServiceEndpointDiscovery defaultServiceDiscovery;
+    private ServiceEndpointDiscovery defaultServiceDiscovery;
     private ServiceEndpointDiscovery customServiceDiscovery;
+
+    private boolean initialized;
 
     public DiscoveredEndpointSettingsServiceImpl() {
         this.defaultServiceDiscovery = EmaFactory.createServiceEndpointDiscovery();
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return initialized;
     }
 
     @Override
@@ -68,13 +73,21 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                                   ServiceEndpointDataModel serviceEndpointDataModel,
                                   OMMViewerError viewerError) {
         try {
-            final Map ommConsumerConfig = createProgrammaticConfig(serviceEndpointDataModel,
-                    Objects.equals(discoveredEndpointSettingsModel.getConnectionType(), DiscoveredEndpointConnectionTypes.ENCRYPTED_WEBSOCKET));
-            final OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig()
-                    .username(discoveredEndpointSettingsModel.getUsername())
+            final OmmConsumerConfig config;
+            final EmaConfigModel emaConfig = discoveredEndpointSettingsModel.getEmaConfigModel();
+            if (emaConfig.isUseEmaConfig()) {
+                config = EmaFactory.createOmmConsumerConfig(emaConfig.getEmaConfigFilePath())
+                        .consumerName(emaConfig.getConsumerName());
+            } else {
+                final Map ommConsumerConfig = createProgrammaticConfig(serviceEndpointDataModel,
+                        Objects.equals(discoveredEndpointSettingsModel.getConnectionType(), DiscoveredEndpointConnectionTypes.ENCRYPTED_WEBSOCKET));
+                config = EmaFactory.createOmmConsumerConfig()
+                        .config(ommConsumerConfig)
+                        .consumerName("Consumer_1");
+            }
+            config.username(discoveredEndpointSettingsModel.getUsername())
                     .password(discoveredEndpointSettingsModel.getPassword())
-                    .clientId(discoveredEndpointSettingsModel.getClientId())
-                    .config(ommConsumerConfig);
+                    .clientId(discoveredEndpointSettingsModel.getClientId());
 
             if (discoveredEndpointSettingsModel.isEncrypted()) {
                 config.tunnelingKeyStoreFile(discoveredEndpointSettingsModel.getEncryptionData().getKeyFilePath())
@@ -91,7 +104,20 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                 }
             }
 
-            final OmmConsumer consumer = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1"));
+            ChannelInformationClient channelInformationClient;
+
+            if(ApplicationSingletonContainer.containsBean(ChannelInformationClient.class) == false) {
+                channelInformationClient = new ChannelInformationClient();
+                ApplicationSingletonContainer.addBean(ChannelInformationClient.class, channelInformationClient);
+            }
+            else {
+                channelInformationClient = ApplicationSingletonContainer.getBean(ChannelInformationClient.class);
+                channelInformationClient.clear();
+            }
+
+            channelInformationClient.setConfigScenario(ChannelInformationClient.ConfigScenario.DISCOVERY_ENDPOINT);
+
+            final OmmConsumer consumer = EmaFactory.createOmmConsumer(config,channelInformationClient);
             ApplicationSingletonContainer.addBean(OmmConsumer.class, consumer);
         } catch (OmmException e) {
             viewerError.clear();
@@ -99,6 +125,15 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             viewerError.appendErrorText(OMM_CONSUMER_INIT_ERROR_HEADER);
             viewerError.appendErrorText(e.getMessage());
         }
+    }
+
+    @Override
+    public void initialize() {
+        if (Objects.isNull(defaultServiceDiscovery)) {
+            defaultServiceDiscovery = EmaFactory.createServiceEndpointDiscovery();
+        }
+
+        initialized = true;
     }
 
     @Override
@@ -120,9 +155,13 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
     public void uninitialize() {
         if (defaultServiceDiscovery != null)
             defaultServiceDiscovery.uninitialize();
+            defaultServiceDiscovery = null;
         if (customServiceDiscovery != null) {
             customServiceDiscovery.uninitialize();
+            customServiceDiscovery = null;
         }
+
+        initialized = false;
     }
 
     private Map createProgrammaticConfig(ServiceEndpointDataModel sed, boolean isWebSocket) {
@@ -130,7 +169,7 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
         Map elementMap = EmaFactory.createMap();
         ElementList elementList = EmaFactory.createElementList();
         ElementList innerElementList = EmaFactory.createElementList();
-        elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_1" ));
+        elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_1"));
         innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelSet", getChannelSetValue(sed.getEndpoints().size())));
         innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_1"));
 
@@ -171,19 +210,19 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
         /* Dictionary group */
         final DictionaryDataModel dictionaryData = sed.getDictionaryData();
         if (dictionaryData.isDownloadFromNetwork()) {
-            innerElementList.add(EmaFactory.createElementEntry().ascii( "DictionaryType", "DictionaryType::ChannelDictionary"));
+            innerElementList.add(EmaFactory.createElementEntry().ascii("DictionaryType", "DictionaryType::ChannelDictionary"));
         } else {
-            innerElementList.add(EmaFactory.createElementEntry().ascii( "DictionaryType", "DictionaryType::FileDictionary"));
-            innerElementList.add(EmaFactory.createElementEntry().ascii( "RdmFieldDictionaryFileName", dictionaryData.getFieldDictionaryPath()));
-            innerElementList.add(EmaFactory.createElementEntry().ascii( "EnumTypeDefFileName", dictionaryData.getEnumDictionaryPath()));
+            innerElementList.add(EmaFactory.createElementEntry().ascii("DictionaryType", "DictionaryType::FileDictionary"));
+            innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryFileName", dictionaryData.getFieldDictionaryPath()));
+            innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefFileName", dictionaryData.getEnumDictionaryPath()));
         }
-        elementMap.add( EmaFactory.createMapEntry().keyAscii( "Dictionary_1", MapEntry.MapAction.ADD, innerElementList ));
+        elementMap.add(EmaFactory.createMapEntry().keyAscii("Dictionary_1", MapEntry.MapAction.ADD, innerElementList));
         innerElementList.clear();
 
-        elementList.add( EmaFactory.createElementEntry().map( "DictionaryList", elementMap ));
+        elementList.add(EmaFactory.createElementEntry().map("DictionaryList", elementMap));
         elementMap.clear();
 
-        configDb.add( EmaFactory.createMapEntry().keyAscii( "DictionaryGroup", MapEntry.MapAction.ADD, elementList ));
+        configDb.add(EmaFactory.createMapEntry().keyAscii("DictionaryGroup", MapEntry.MapAction.ADD, elementList));
         elementList.clear();
         return configDb;
     }
