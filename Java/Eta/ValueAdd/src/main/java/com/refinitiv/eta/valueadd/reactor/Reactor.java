@@ -5371,6 +5371,7 @@ public class Reactor
 
         _tunnelStreamSubmitOptions.clear();
         _tunnelStreamSubmitOptions.containerType(DataTypes.MSG);
+        tunnelStream.startRequestTimer();
         retval = tunnelStream.submit(msgBuf, _tunnelStreamSubmitOptions, errorInfo);
         if (retval != CodecReturnCodes.SUCCESS)
         {

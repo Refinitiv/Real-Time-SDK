@@ -1488,7 +1488,7 @@ public class TunnelStream
                 return ReactorReturnCodes.INVALID_USAGE;
             }
             
-            if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+            if (isStreamOpen())
             {
                 _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
             }
@@ -1507,6 +1507,11 @@ public class TunnelStream
         }
 
         return ret;
+    }
+    
+    private boolean isStreamOpen()
+    {
+    	return _tunnelStreamState == TunnelStreamState.STREAM_OPEN || _tunnelStreamState == TunnelStreamState.WAITING_AUTHENTICATION;
     }
 	
 	/**
@@ -1913,7 +1918,7 @@ public class TunnelStream
         try
         {
             // tunnel stream must be in open state to submit
-            if (_tunnelStreamState != TunnelStreamState.STREAM_OPEN)
+            if (!isStreamOpen())
             {
                 error.text("TunnelStream is not in the open state");
                 error.errorId(ReactorReturnCodes.FAILURE);
@@ -2037,7 +2042,7 @@ public class TunnelStream
                 error.text("");
                 error.errorId(ReactorReturnCodes.SUCCESS);
     
-                if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN
+                if (isStreamOpen()
                         /* If stream isn't open, expire any messages with immediate timeout. */
                         || _tunnelStreamState == TunnelStreamState.NOT_OPEN && _outboundImmediateList.count() > 0)
                 {
@@ -2120,7 +2125,7 @@ public class TunnelStream
                     error.text("");
                     error.errorId(ReactorReturnCodes.SUCCESS);
     
-                    if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+                    if (isStreamOpen())
                     {
                         _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
                         return 1;
@@ -2139,7 +2144,7 @@ public class TunnelStream
     	                    error.text("");
     	                    error.errorId(ReactorReturnCodes.SUCCESS);
     	    
-    	                    if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+    	                    if (isStreamOpen())
     	                    {
     	                        _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
     	                        ret = 1;
@@ -2301,7 +2306,7 @@ public class TunnelStream
                     error.text("");
                     error.errorId(ReactorReturnCodes.SUCCESS);
     
-                    if (_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+                    if (isStreamOpen())
                     {
                         _reactorChannel.tunnelStreamManager().addTunnelStreamToDispatchList(this);
                     }
@@ -2401,16 +2406,14 @@ public class TunnelStream
     				_tunnelStreamState = TunnelStreamState.WAITING_REFRESH;
     				_reactorChannel.tunnelStreamManager().removeTunnelStreamFromDispatchList(this);
 
-                    /* Start request timer. */
-    				_nextTimeoutNsec = (_responseTimeout * TunnelStreamUtil.NANO_PER_SEC) + System.nanoTime();
-                    _reactorChannel.tunnelStreamManager().addTunnelStreamToTimeoutList(this, _nextTimeoutNsec);                     
+                    startRequestTimer();                     
     				return ReactorReturnCodes.SUCCESS;
     			}
     
     			case WAITING_REFRESH:
     				_reactorChannel.tunnelStreamManager().removeTunnelStreamFromDispatchList(this);
     				return ReactorReturnCodes.SUCCESS;
-    
+    			case WAITING_AUTHENTICATION:    
     			case STREAM_OPEN:
     			{
                     /* Check if we can send stream acknowledgements. */
@@ -2491,7 +2494,10 @@ public class TunnelStream
                     	_reactorChannel.tunnelStreamManager().removeTunnelStreamFromDispatchList(this);
                     }
 
-                    updateTimeout(System.nanoTime());
+                    if(_tunnelStreamState == TunnelStreamState.STREAM_OPEN)
+                    {
+                    	updateTimeout(System.nanoTime());
+                    }
     
                     return ReactorReturnCodes.SUCCESS;
     			}    
@@ -2858,6 +2864,12 @@ public class TunnelStream
             error.text("TunnelStream.dispatch() InternalError: " + e.getLocalizedMessage());
             return ReactorReturnCodes.FAILURE;		    
 		}
+	}
+	
+	public void startRequestTimer()
+	{
+        _nextTimeoutNsec = (_responseTimeout * TunnelStreamUtil.NANO_PER_SEC) + System.nanoTime();
+        _reactorChannel.tunnelStreamManager().addTunnelStreamToTimeoutList(this, _nextTimeoutNsec);
 	}
 
 	
@@ -3269,7 +3281,8 @@ public class TunnelStream
     				}
 
                     _recvLastSeqNumAckSent = _recvLastSeqNum;
-                    _tunnelStreamState = TunnelStreamState.STREAM_OPEN;
+                    _tunnelStreamState = _classOfService.authentication().type() == ClassesOfService.AuthenticationTypes.OMM_LOGIN ?
+                    		TunnelStreamState.WAITING_AUTHENTICATION : TunnelStreamState.STREAM_OPEN;
 
                     /* Remove response timer. */
                     _nextTimeoutNsec = 0;
@@ -3280,6 +3293,7 @@ public class TunnelStream
     				return ReactorReturnCodes.SUCCESS;
     			}
     
+    			case WAITING_AUTHENTICATION:
                 case STREAM_OPEN:
                 case SEND_FIN:
                 case SEND_FIN_ACK:
@@ -3389,6 +3403,7 @@ public class TunnelStream
                                             _loginMsg.clear();
                                             _loginMsg.rdmMsgType(LoginMsgType.REFRESH);
                                             _loginMsg.decode(_decIter, _decSubMsg);
+                                            _tunnelStreamState = TunnelStreamState.STREAM_OPEN;
                                             _reactorChannel.tunnelStreamManager().sendTunnelStreamStatus(this, ((RefreshMsg)_decSubMsg).state(), _decSubMsg, _loginMsg);
                                             
                                             return ReactorReturnCodes.SUCCESS;
@@ -3578,7 +3593,7 @@ public class TunnelStream
 						}
 					}
 				}
-				else if (_tunnelStreamState ==  TunnelStreamState.STREAM_OPEN ||
+				else if (isStreamOpen() ||
 					_tunnelStreamState ==  TunnelStreamState.SEND_REQUEST ||
 							_tunnelStreamState ==  TunnelStreamState.WAITING_REFRESH 
 							|| _tunnelStreamState ==  TunnelStreamState.WAIT_FINAL_FIN_ACK) 				
@@ -3937,6 +3952,18 @@ public class TunnelStream
                 {
                     /* Timed out waiting for provider response. */
                     error.text("Open TunnelStream timeout has occurred");
+                    _reactorChannel.tunnelStreamManager().sendTunnelStreamStatusCloseRecover(this, error);
+                    return ReactorReturnCodes.SUCCESS;
+                }
+                break;
+                
+            case WAITING_AUTHENTICATION:
+                if (System.nanoTime() > _nextTimeoutNsec)
+                {
+                	sendCloseMsg(error);
+                	
+                    /* Timed out waiting for provider response. */
+                    error.text("Timed out waiting for provider authentication response");
                     _reactorChannel.tunnelStreamManager().sendTunnelStreamStatusCloseRecover(this, error);
                     return ReactorReturnCodes.SUCCESS;
                 }

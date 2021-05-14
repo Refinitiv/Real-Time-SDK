@@ -15,6 +15,9 @@ class TunnelStreamStateInfo
 
 		/* Stream is waiting for a response to establish the stream. */
 		WAITING_REFRESH,
+		
+		/* Stream is waiting for its login authentication if any */
+		WAITING_AUTHENTICATION,
 
 		/* Stream is open */
 		STREAM_OPEN,
