@@ -11,7 +11,6 @@ import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByCompon
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByOrderComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByPriceComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketPriceComponent;
-import com.sun.javafx.scene.control.LabeledText;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
