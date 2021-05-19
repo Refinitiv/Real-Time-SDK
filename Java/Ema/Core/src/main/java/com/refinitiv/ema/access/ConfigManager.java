@@ -138,7 +138,7 @@ class ConfigManager
 	public static final int EncryptedProtocolType = 211;
 	public static final int WsProtocols = 212;
 	public static final int WsMaxMsgSize = 213;
-	
+
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap = 300;
 	public static final int ChannelHsmInterface = 301;
@@ -229,7 +229,11 @@ class ConfigManager
 	public static final int ServiceStateFilterStatusDataState = 630;
 	public static final int ServiceStateFilterStatusStatusCode = 631;
 	public static final int ServiceStateFilterStatusStatusText = 632;
-	
+	public static final int ServiceLoadFilter = 633;
+	public static final int ServiceLoadFilterOpenLimit = 634;
+	public static final int ServiceLoadFilterOpenWindow = 635;
+	public static final int ServiceLoadFilterLoadFactor = 636;
+
 	// IProvider
 	public static final int IProviderGroup = 800;
 	public static final int DefaultIProvider = 801;
@@ -257,7 +261,7 @@ class ConfigManager
 	public static final int ServerInitTimeout = 905;
 	public static final int ServerWsProtocols = 906;
 	public static final int ServerMaxFragmentSize = 907;
-	
+
 	// Server: Socket
 	public static final int ServerCompressionThreshold = 1000;
 	public static final int ServerCompressionType = 1001;
@@ -272,7 +276,7 @@ class ConfigManager
 	public static final int ReactorMsgEventPoolLimit = 1103;
 	public static final int TunnelStreamMsgEventPoolLimit = 1104;
 	public static final int TunnelStreamStatusEventPoolLimit = 1105;
-
+	
 	public static final int MAX_UINT16 = 0xFFFF;
 	
 	static
@@ -367,7 +371,7 @@ class ConfigManager
 		ChannelTagDict.add( "EncryptedProtocolType", EncryptedProtocolType);
 		ChannelTagDict.add("WsProtocols", WsProtocols);
 		ChannelTagDict.add("WsMaxMsgSize", WsMaxMsgSize);
-		
+
 		// ConnectionTypes.MCAST
 		ChannelTagDict.add( "DisconnectOnGap",ChannelDisconnectOnGap );
 		ChannelTagDict.add( "HsmInterface",ChannelHsmInterface );
@@ -443,7 +447,7 @@ class ConfigManager
 		NiProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		NiProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		NiProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
-		
+
 		
 		DirectoryTagDict.add( "DirectoryGroup", DirectoryGroup);
 		DirectoryTagDict.add( "DefaultDirectory", DefaultDirectory);
@@ -479,7 +483,11 @@ class ConfigManager
 		ServiceTagDict.add( "DataState", ServiceStateFilterStatusDataState);
 		ServiceTagDict.add( "StatusCode", ServiceStateFilterStatusStatusCode);
 		ServiceTagDict.add( "StatusText", ServiceStateFilterStatusStatusText);
-		
+		ServiceTagDict.add( "LoadFilter", ServiceLoadFilter);
+		ServiceTagDict.add( "OpenLimit", ServiceLoadFilterOpenLimit);
+		ServiceTagDict.add( "OpenWindow", ServiceLoadFilterOpenWindow);
+		ServiceTagDict.add( "LoadFactor", ServiceLoadFilterLoadFactor);
+
 		IProviderTagDict.add("IProviderGroup", IProviderGroup);
 		IProviderTagDict.add("DefaultIProvider", DefaultIProvider);
 		IProviderTagDict.add("IProviderList", IProviderList);
@@ -519,7 +527,7 @@ class ConfigManager
 		IProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		IProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		IProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
-		
+
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
 		ServerTagDict.add( "Server", Server );
@@ -549,7 +557,7 @@ class ConfigManager
 		GlobalConfigDict.add( "ReactorMsgEventPoolLimit",ReactorMsgEventPoolLimit );
 		GlobalConfigDict.add( "TunnelStreamMsgEventPoolLimit", TunnelStreamMsgEventPoolLimit);
 		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
-
+		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
 		CONSUMER_GROUP.complete();
@@ -771,7 +779,10 @@ class ConfigManager
 		"JsonExpandedEnumFields",
 		"CatchUnknownJsonFids",
 		"CatchUnknownJsonKeys",
-		"CloseChannelFromConverterFailure"
+		"CloseChannelFromConverterFailure",
+		"OpenLimit",
+		"OpenWindow",
+		"LoadFactor"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

@@ -22,7 +22,6 @@ import com.refinitiv.ema.access.ConfigManager.ConfigElement;
 import com.refinitiv.ema.access.ConfigReader.XMLnode;
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
-import com.refinitiv.ema.access.IntObject;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
@@ -49,6 +48,8 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceGroup;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceLink;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service.ServiceState;
+
+import static com.refinitiv.ema.access.ProgrammaticConfigure.MAX_UNSIGNED_INT32;
 
 class DirectoryCache
 {
@@ -381,6 +382,12 @@ abstract class DirectoryServiceStore
 							{
 								result = readServiceStateFilter(config, service,stateFilterNode);
 							}
+
+							XMLnode loadFilterNode = childNode.getChild(ConfigManager.ServiceLoadFilter);
+
+							if (result && loadFilterNode != null) {
+								result = readServiceLoadFilter(config, service, loadFilterNode);
+							}
 							
 							if( unspecifiedIdList.size() > 0 )
 							{
@@ -684,7 +691,7 @@ abstract class DirectoryServiceStore
 		
 		return true;
 	}
-	
+
 	void readServiceInfoFilterDictionary(EmaConfigBaseImpl config, Service service, XMLnode node, int nodeId, int entryId,
 			ServiceDictionaryConfig serviceDictionaryConfig)
 	{
@@ -873,7 +880,69 @@ abstract class DirectoryServiceStore
 		
 		return true;
 	}
-    
+
+	boolean readServiceLoadFilter(EmaConfigBaseImpl config, Service service, XMLnode loadFilterNode) {
+		ConfigManager.LongConfigElement longElement;
+		long value = -1L;
+
+		ConfigAttributes loadAttributes = loadFilterNode.attributeList();
+
+		longElement = (ConfigManager.LongConfigElement) loadAttributes.getElement(ConfigManager.ServiceLoadFilterOpenLimit);
+
+		if (longElement != null) {
+			value = longElement.longValue();
+			if (value > MAX_UNSIGNED_INT32) {
+				config.errorTracker().append("service [")
+						.append(service.info().serviceName().toString())
+						.append("] specifies out of range OpenLimit (value of ")
+						.append(longElement.toString()).append("). Will drop from this service.")
+						.create(Severity.WARNING);
+			} else {
+				service.load().applyHasOpenLimit();
+				service.load().openLimit(value);
+				service.applyHasLoad();
+				service.load().action(FilterEntryActions.SET);
+			}
+		}
+
+		longElement = (ConfigManager.LongConfigElement) loadAttributes.getElement(ConfigManager.ServiceLoadFilterOpenWindow);
+
+		if (longElement != null) {
+			value = longElement.longValue();
+			if (value > MAX_UNSIGNED_INT32) {
+				config.errorTracker().append("service [")
+						.append(service.info().serviceName().toString())
+						.append("] specifies out of range OpenWindow (value of ")
+						.append(longElement.toString()).append("). Will drop from this service.")
+						.create(Severity.WARNING);
+			} else {
+				service.load().applyHasOpenWindow();
+				service.load().openWindow(value);
+				service.applyHasLoad();
+				service.load().action(FilterEntryActions.SET);
+			}
+		}
+
+		longElement = (ConfigManager.LongConfigElement) loadAttributes.getElement(ConfigManager.ServiceLoadFilterLoadFactor);
+
+		if (longElement != null) {
+			value = longElement.longValue();
+			if (value > ProgrammaticConfigure.MAX_UNSIGNED_INT16) {
+				config.errorTracker().append("service [")
+						.append(service.info().serviceName().toString())
+						.append("] specifies out of range LoadFactor (value of ")
+						.append(longElement.toString()).append("). Will drop from this service.")
+						.create(Severity.WARNING);
+			} else {
+				service.load().applyHasLoadFactor();
+				service.load().loadFactor(value);
+				service.applyHasLoad();
+				service.load().action(FilterEntryActions.SET);
+			}
+		}
+		return true;
+	}
+
     void useDefaultService(EmaConfigBaseImpl config, DirectoryCache directoryCache)
 	{
     	if ( _providerRole == OmmProviderConfig.ProviderRole.NON_INTERACTIVE)

@@ -208,7 +208,13 @@ public class IProvider
 		innerElementList.add( EmaFactory.createElementEntry().intValue( "ServiceState", 1 ));
 		innerElementList.add( EmaFactory.createElementEntry().intValue( "AcceptingRequests", 1 ));
 		elementList.add( EmaFactory.createElementEntry().elementList( "StateFilter", innerElementList ));
-		innerElementList.clear();		
+		innerElementList.clear();
+
+		innerElementList.add(EmaFactory.createElementEntry().intValue("OpenLimit", 5));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("OpenWindow", 5));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("LoadFactor", 1));
+		elementList.add(EmaFactory.createElementEntry().elementList("LoadFilter", innerElementList));
+		innerElementList.clear();
 		
 		serviceMap.add( EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED", MapEntry.MapAction.ADD, elementList ));
 		elementList.clear();

@@ -596,6 +596,12 @@
 						<StatusText value=""/>
 					</Status>
 				</StateFilter>
+
+				<LoadFilter>
+					<OpenLimit value="1"/>
+					<OpenWindow value="2"/>
+					<LoadFactor value="3"/>
+				</LoadFilter>
 			</Service>
 			
 			<Service>
@@ -684,6 +690,12 @@
 					<ServiceState value="1"/>
 					<AcceptingRequests value="1"/>
 				</StateFilter>
+
+				<LoadFilter>
+					<OpenLimit value="4294967295"/>
+					<OpenWindow value="4294967295"/>
+					<LoadFactor value="65535"/>
+				</LoadFilter>
 			</Service>
 			
 		</Directory>

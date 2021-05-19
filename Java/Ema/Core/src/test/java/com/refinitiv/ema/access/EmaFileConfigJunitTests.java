@@ -17,6 +17,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import static com.refinitiv.ema.access.ProgrammaticConfigure.MAX_UNSIGNED_INT16;
+import static com.refinitiv.ema.access.ProgrammaticConfigure.MAX_UNSIGNED_INT32;
+
 public class EmaFileConfigJunitTests extends TestCase  
 {
 	
@@ -400,7 +403,6 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("Host == usrLocalhost", chanHost.contentEquals("usrLocalhost"));
 		chanPort = JUnitTestConnect.configGetChanPort(testConfig, ConsChannelVal);
 		TestUtilities.checkResult("Port == usr14002", chanPort.contentEquals("usr14002"));
-	
 	}
 
 	public void testLoadCfgFromFileInClasspath()
@@ -3087,6 +3089,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			Map serviceMap = EmaFactory.createMap();
 			ElementList infoElementList = EmaFactory.createElementList();
 			ElementList stateElementList = EmaFactory.createElementList();
+			ElementList loadElementList = EmaFactory.createElementList();
 			OmmArray infoArray = EmaFactory.createOmmArray();
 			Series qosSeries = EmaFactory.createSeries();
 
@@ -3135,11 +3138,17 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().ascii("StatusText", "dacsDown"));
 			stateElementList.add(EmaFactory.createElementEntry().elementList("Status", innerElementList));
 			innerElementList.clear();
-						
+
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenLimit", 1));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenWindow", 2));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("LoadFactor", 3));
+
 			innerElementList.add(EmaFactory.createElementEntry().elementList("InfoFilter", infoElementList));
 			infoElementList.clear();
 			innerElementList.add(EmaFactory.createElementEntry().elementList("StateFilter", stateElementList));
 			stateElementList.clear();
+			innerElementList.add(EmaFactory.createElementEntry().elementList("LoadFilter", loadElementList));
+			loadElementList.clear();
 			
 			serviceMap.add(EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -3169,10 +3178,16 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			stateElementList.add(EmaFactory.createElementEntry().intValue("ServiceState", 1));
 			stateElementList.add(EmaFactory.createElementEntry().intValue("AcceptingRequests", 1));
 
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenLimit", 4294967295L));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenWindow", 4294967295L));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("LoadFactor", 65535L));
+
 			innerElementList.add(EmaFactory.createElementEntry().elementList("InfoFilter", infoElementList));
 			infoElementList.clear();
 			innerElementList.add(EmaFactory.createElementEntry().elementList("StateFilter", stateElementList));
 			stateElementList.clear();
+			innerElementList.add(EmaFactory.createElementEntry().elementList("LoadFilter", loadElementList));
+			loadElementList.clear();
 			
 			serviceMap.add(EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -3400,6 +3415,15 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("state.status().code() == 29", state.status().code() == 29);
 			TestUtilities.checkResult("state.status().text() == dacsDown", state.status().text() != null &&  state.status().text().toString().equals("dacsDown"));
 
+			TestUtilities.checkResult("checkHasLoad() == true", temp.checkHasLoad());
+			Service.ServiceLoad load = temp.load();
+			TestUtilities.checkResult("load.checkHasOpenLimit() == true", load.checkHasOpenLimit());
+			TestUtilities.checkResult("load.openLimit() == 1", load.openLimit() == 1);
+			TestUtilities.checkResult("load.checkHasOpenWindow() == true", load.checkHasOpenWindow());
+			TestUtilities.checkResult("load.openWindow() == 2", load.openWindow() == 2);
+			TestUtilities.checkResult("load.checkHasLoadFactor() == true", load.checkHasLoadFactor());
+			TestUtilities.checkResult("load.loadFactor() == 3", load.loadFactor() == 3);
+
 			/*********retrieve second service *************/
 			System.out.println("\nRetrieving DIRECT_FEED1 service configuration values "); 
 			temp = services.get(1);
@@ -3480,7 +3504,15 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			TestUtilities.checkResult("state.acceptingRequests() == 1", state.acceptingRequests() == 1);
 			TestUtilities.checkResult("state.serviceState() == 1", state.serviceState() == 1);
 			TestUtilities.checkResult("state.checkHasStatus() = false", !state.checkHasStatus());
-			
+
+			TestUtilities.checkResult("checkHasLoad() == true", temp.checkHasLoad());
+			load = temp.load();
+			TestUtilities.checkResult("load.checkHasOpenLimit() == true", load.checkHasOpenLimit());
+			TestUtilities.checkResult("load.openLimit() == 0xFFFFFFFF", load.openLimit() == MAX_UNSIGNED_INT32);
+			TestUtilities.checkResult("load.checkHasOpenWindow() == true", load.checkHasOpenWindow());
+			TestUtilities.checkResult("load.openWindow() == 0xFFFFFFFF", load.openWindow() == MAX_UNSIGNED_INT32);
+			TestUtilities.checkResult("load.checkHasLoadFactor() == true", load.checkHasLoadFactor());
+			TestUtilities.checkResult("load.loadFactor() == 0xFFFF", load.loadFactor() == MAX_UNSIGNED_INT16);
 			prov = null;
 		}
 		catch ( OmmException excp)
@@ -3786,6 +3818,7 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			Map serviceMap = EmaFactory.createMap();
 			ElementList infoElementList = EmaFactory.createElementList();
 			ElementList stateElementList = EmaFactory.createElementList();
+			ElementList loadElementList = EmaFactory.createElementList();
 			OmmArray infoArray = EmaFactory.createOmmArray();
 			Series qosSeries = EmaFactory.createSeries();
 
@@ -3831,11 +3864,17 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			innerElementList.add(EmaFactory.createElementEntry().ascii("StatusText", "dacsDown"));
 			stateElementList.add(EmaFactory.createElementEntry().elementList("Status", innerElementList));
 			innerElementList.clear();
+
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenLimit", 1));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenWindow", 2));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("LoadFactor", 3));
 						
 			innerElementList.add(EmaFactory.createElementEntry().elementList("InfoFilter", infoElementList));
 			infoElementList.clear();
 			innerElementList.add(EmaFactory.createElementEntry().elementList("StateFilter", stateElementList));
 			stateElementList.clear();
+			innerElementList.add(EmaFactory.createElementEntry().elementList("LoadFilter", loadElementList));
+			loadElementList.clear();
 			
 			serviceMap.add(EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -3862,10 +3901,16 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			stateElementList.add(EmaFactory.createElementEntry().intValue("ServiceState", 1));
 			stateElementList.add(EmaFactory.createElementEntry().intValue("AcceptingRequests", 1));
 
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenLimit", 4294967295L));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("OpenWindow", 4294967295L));
+			loadElementList.add(EmaFactory.createElementEntry().intValue("LoadFactor", 65535L));
+
 			innerElementList.add(EmaFactory.createElementEntry().elementList("InfoFilter", infoElementList));
 			infoElementList.clear();
 			innerElementList.add(EmaFactory.createElementEntry().elementList("StateFilter", stateElementList));
 			stateElementList.clear();
+			innerElementList.add(EmaFactory.createElementEntry().elementList("LoadFilter", loadElementList));
+			loadElementList.clear();
 			
 			serviceMap.add(EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -4037,6 +4082,15 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			TestUtilities.checkResult("state.status().code() == 29", state.status().code() == 29);
 			TestUtilities.checkResult("state.status().text() == dacsDown", state.status().text() != null &&  state.status().text().toString().equals("dacsDown"));
 
+			TestUtilities.checkResult("checkHasLoad() == true", temp.checkHasLoad());
+			Service.ServiceLoad load = temp.load();
+			TestUtilities.checkResult("load.checkHasOpenLimit() == true", load.checkHasOpenLimit());
+			TestUtilities.checkResult("load.openLimit() == 1", load.openLimit() == 1);
+			TestUtilities.checkResult("load.checkHasOpenWindow() == true", load.checkHasOpenWindow());
+			TestUtilities.checkResult("load.openWindow() == 2", load.openWindow() == 2);
+			TestUtilities.checkResult("load.checkHasLoadFactor() == true", load.checkHasLoadFactor());
+			TestUtilities.checkResult("load.loadFactor() == 3", load.loadFactor() == 3);
+
 			/*********retrieve second service *************/
 			System.out.println("\nRetrieving DIRECT_FEED1 service configuration values "); 
 			temp = services.get(1);
@@ -4086,6 +4140,15 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			TestUtilities.checkResult("state.acceptingRequests() == 1", state.acceptingRequests() == 1);
 			TestUtilities.checkResult("state.serviceState() == 1", state.serviceState() == 1);
 			TestUtilities.checkResult("state.checkHasStatus() = false", !state.checkHasStatus());
+
+			TestUtilities.checkResult("checkHasLoad() == true", temp.checkHasLoad());
+			load = temp.load();
+			TestUtilities.checkResult("load.checkHasOpenLimit() == true", load.checkHasOpenLimit());
+			TestUtilities.checkResult("load.openLimit() == 0xFFFFFFFF", load.openLimit() == MAX_UNSIGNED_INT32);
+			TestUtilities.checkResult("load.checkHasOpenWindow() == true", load.checkHasOpenWindow());
+			TestUtilities.checkResult("load.openWindow() == 0xFFFFFFFF", load.openWindow() == MAX_UNSIGNED_INT32);
+			TestUtilities.checkResult("load.checkHasLoadFactor() == true", load.checkHasLoadFactor());
+			TestUtilities.checkResult("load.loadFactor() == 0xFFFF", load.loadFactor() == MAX_UNSIGNED_INT16);
 			
 			prov = null;
 		}
@@ -4187,6 +4250,7 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			Map serviceMap = EmaFactory.createMap();
 			ElementList infoElementList = EmaFactory.createElementList();
 			ElementList stateElementList = EmaFactory.createElementList();
+			ElementList loadElementList = EmaFactory.createElementList();
 			OmmArray infoArray = EmaFactory.createOmmArray();
 			Series qosSeries = EmaFactory.createSeries();
 
@@ -4240,6 +4304,16 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			infoElementList.clear();
 			innerElementList.add(EmaFactory.createElementEntry().elementList("StateFilter", stateElementList));
 			stateElementList.clear();
+
+			//Add programmatic only for the first case.
+			if (testCase == 0) {
+				loadElementList.add(EmaFactory.createElementEntry().intValue("OpenLimit", 4294967295L));
+				loadElementList.add(EmaFactory.createElementEntry().intValue("OpenWindow", 4294967295L));
+				loadElementList.add(EmaFactory.createElementEntry().intValue("LoadFactor", 65535L));
+				innerElementList.add(EmaFactory.createElementEntry().elementList("LoadFilter", loadElementList));
+				loadElementList.clear();
+			}
+
 			
 			serviceMap.add(EmaFactory.createMapEntry().keyAscii( "DIRECT_FEED", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -4450,6 +4524,15 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			TestUtilities.checkResult("state.status().dataState() == 2", state.status().dataState() == 2);
 			TestUtilities.checkResult("state.status().code() == 29", state.status().code() == 29);
 			TestUtilities.checkResult("state.status().text() == dacsDown", state.status().text() != null &&  state.status().text().toString().equals("dacsDown"));
+
+			TestUtilities.checkResult("checkHasLoad() == true", temp.checkHasLoad());
+			Service.ServiceLoad load = temp.load();
+			TestUtilities.checkResult("load.checkHasOpenLimit() == true", load.checkHasOpenLimit());
+			TestUtilities.checkResult("load.openLimit() == 0xFFFFFFFF", load.openLimit() == MAX_UNSIGNED_INT32);
+			TestUtilities.checkResult("load.checkHasOpenWindow() == true", load.checkHasOpenWindow());
+			TestUtilities.checkResult("load.openWindow() == 0xFFFFFFFF", load.openWindow() == MAX_UNSIGNED_INT32);
+			TestUtilities.checkResult("load.checkHasLoadFactor() == true", load.checkHasLoadFactor());
+			TestUtilities.checkResult("load.loadFactor() == 0xFFFF", load.loadFactor() == MAX_UNSIGNED_INT16);
 
 			prov = null;
 		}

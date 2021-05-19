@@ -116,6 +116,7 @@ class ProgrammaticConfigure
 	}
 	
 	final static int MAX_UNSIGNED_INT16	= 0xFFFF;
+	final static long MAX_UNSIGNED_INT32 = 0xFFFFFFFFL;
 	
 	String _group;
 	String _list;
@@ -2314,7 +2315,8 @@ class ProgrammaticConfigure
 										for (ElementEntry eachFilterEntry : eachServiceEntry.elementList())
 										{
 											if (eachFilterEntry.loadType() == DataTypes.ELEMENT_LIST &&
-												(eachFilterEntry.name().equals("InfoFilter") || eachFilterEntry.name().equals("StateFilter")))
+												(eachFilterEntry.name().equals("InfoFilter") || eachFilterEntry.name().equals("StateFilter")
+														|| eachFilterEntry.name().equals("LoadFilter")))
 											{
 												if (!retrieveServiceInfo(service, eachFilterEntry.elementList(), directoryCache, serviceDictionaryConfigList))
 												{
@@ -2360,6 +2362,7 @@ class ProgrammaticConfigure
 		long intVal;
 		String stringVal = null;
 		int rate = 0, timeliness = 0, result = 0;
+		long openLimit = 0, openWindow = 0, loadFactor = 0;
 			
 		for (ElementEntry entry : serviceInfo)
 		{
@@ -2584,8 +2587,115 @@ class ProgrammaticConfigure
 						 service.info().applyHasQos();
 						 addQos = true;
 					}
+				} else if (entry.name().equals("OpenLimit")) {
+					intVal = entry.intValue();
+					if (intVal >= 0) {
+						if (intVal > MAX_UNSIGNED_INT32) {
+							_emaConfigErrList.append("service [")
+									.append(service.info().serviceName().toString())
+									.append("] from the programmatically configure specifies service LoadFilter::OpenLimit is greater than allowed maximum. Will use maximum OpenLimit.")
+									.append(" Suspect value is ").append(String.valueOf(openLimit))
+									.create(Severity.ERROR);
+						} else {
+							openLimit = intVal;
+							service.applyHasLoad();
+							service.load().applyHasOpenLimit();
+							service.load().openLimit(openLimit);
+						}
+					}
+				} else if (entry.name().equals("OpenWindow")) {
+					intVal = entry.intValue();
+					if (intVal >= 0) {
+						if (intVal > MAX_UNSIGNED_INT32) {
+							_emaConfigErrList.append("service [")
+									.append(service.info().serviceName().toString())
+									.append("] from the programmatically configure specifies service LoadFilter::OpenWindow is greater than allowed maximum. Will use maximum OpenLimit.")
+									.append(" Suspect value is ").append(String.valueOf(openWindow))
+									.create(Severity.ERROR);
+
+							openWindow = MAX_UNSIGNED_INT32;
+						} else {
+							openWindow = intVal;
+							service.applyHasLoad();
+							service.load().applyHasOpenWindow();
+							service.load().openWindow(openWindow);
+						}
+					}
+				} else if (entry.name().equals("LoadFactor")) {
+					intVal = entry.intValue();
+					if (intVal >= 0) {
+						if (intVal > MAX_UNSIGNED_INT16) {
+							_emaConfigErrList.append("service [")
+									.append(service.info().serviceName().toString())
+									.append("] from the programmatically configure specifies service LoadFilter::LoadFactor is greater than allowed maximum. Will use maximum OpenLimit.")
+									.append(" Suspect value is ").append(String.valueOf(loadFactor))
+									.create(Severity.ERROR);
+
+							loadFactor = MAX_UNSIGNED_INT16;
+						} else {
+							loadFactor = intVal;
+							service.applyHasLoad();
+							service.load().applyHasLoadFactor();
+							service.load().loadFactor(loadFactor);
+						}
+					}
 				}
 	
+				break;
+			case DataTypes.UINT:
+				if (entry.name().equals("OpenLimit")) {
+					intVal = entry.uintValue();
+					if (intVal >= 0) {
+						if (intVal > MAX_UNSIGNED_INT32) {
+							_emaConfigErrList.append("service [")
+									.append(service.info().serviceName().toString())
+									.append("] from the programmatically configure specifies service LoadFilter::OpenLimit is greater than allowed maximum. Will use maximum OpenLimit.")
+									.append(" Suspect value is ").append(String.valueOf(openLimit))
+									.create(Severity.ERROR);
+						} else {
+							openLimit = intVal;
+							service.applyHasLoad();
+							service.load().applyHasOpenLimit();
+							service.load().openLimit(openLimit);
+						}
+					}
+				} else if (entry.name().equals("OpenWindow")) {
+					intVal = entry.uintValue();
+					if (intVal >= 0) {
+						if (intVal > MAX_UNSIGNED_INT32) {
+							_emaConfigErrList.append("service [")
+									.append(service.info().serviceName().toString())
+									.append("] from the programmatically configure specifies service LoadFilter::OpenWindow is greater than allowed maximum. Will use maximum OpenLimit.")
+									.append(" Suspect value is ").append(String.valueOf(openWindow))
+									.create(Severity.ERROR);
+
+							openWindow = MAX_UNSIGNED_INT32;
+						} else {
+							openWindow = intVal;
+							service.applyHasLoad();
+							service.load().applyHasOpenWindow();
+							service.load().openWindow(openWindow);
+						}
+					}
+				} else if (entry.name().equals("LoadFactor")) {
+					intVal = entry.uintValue();
+					if (intVal >= 0) {
+						if (intVal > MAX_UNSIGNED_INT16) {
+							_emaConfigErrList.append("service [")
+									.append(service.info().serviceName().toString())
+									.append("] from the programmatically configure specifies service LoadFilter::LoadFactor is greater than allowed maximum. Will use maximum OpenLimit.")
+									.append(" Suspect value is ").append(String.valueOf(loadFactor))
+									.create(Severity.ERROR);
+
+							loadFactor = MAX_UNSIGNED_INT16;
+						} else {
+							loadFactor = intVal;
+							service.applyHasLoad();
+							service.load().applyHasLoadFactor();
+							service.load().loadFactor(loadFactor);
+						}
+					}
+				}
 				break;
 			case DataTypes.ARRAY: 
 				if (entry.name().equals("DictionariesProvided"))
