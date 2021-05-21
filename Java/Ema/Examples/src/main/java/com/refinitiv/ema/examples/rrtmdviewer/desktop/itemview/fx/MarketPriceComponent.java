@@ -3,6 +3,7 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx;
 import com.refinitiv.ema.access.DataType;
 import com.refinitiv.ema.access.FieldEntry;
 import com.refinitiv.ema.access.Msg;
+import com.refinitiv.ema.access.OmmState;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.ItemNotificationModel;
 import com.refinitiv.eta.codec.*;
 import javafx.application.Platform;
@@ -39,6 +40,9 @@ public class MarketPriceComponent extends Pane implements ItemFxComponent {
 
     @FXML
     private Button unregisterButton;
+
+    private int validRefreshes = 0;
+    private int itemRefreshesReceived = 0;
 
     private Map<Long, MarketPriceTableItem> rows = new HashMap<>();
     private Set<String> fids = new HashSet<>();
@@ -87,7 +91,12 @@ public class MarketPriceComponent extends Pane implements ItemFxComponent {
 
     public void configureButton(String name, Consumer<MouseEvent> func) {
         unregisterButton.setText(name);
-        unregisterButton.setOnMouseClicked(func::accept);
+        unregisterButton.setOnMouseClicked(e -> {
+            if (itemRefreshesReceived == 0) {
+                unregisterButton.setDisable(true);
+                func.accept(e);
+            }
+        });
         unregisterButton.getStyleClass().add(BRAND_BUTTON_STYLE);
     }
 
@@ -134,7 +143,15 @@ public class MarketPriceComponent extends Pane implements ItemFxComponent {
                 mp.setStreaming(notification.getRequest().getView().isSnapshot() || statusHelper.isGoodState(notification));
                 updateMarketPriceItem(mp);
             }
+        }
 
+        if (notification.getMsg() instanceof com.refinitiv.ema.access.StatusMsg && notification.getRequest().getView().isSnapshot()
+                && notification.getRequest().getView().isBatch()) {
+            OmmState state = ((com.refinitiv.ema.access.StatusMsg) notification.getMsg()).state();
+            if (state.streamState() == OmmState.StreamState.CLOSED && state.dataState() == OmmState.DataState.SUSPECT && state.statusCode() == OmmState.StatusCode.NOT_FOUND) {
+                validRefreshes--;
+                checkRefreshButton(notification);
+            }
         }
     }
 
@@ -186,6 +203,14 @@ public class MarketPriceComponent extends Pane implements ItemFxComponent {
                 }
             }
             updateMarketPriceItem(tableItem);
+            if (notification.getRequest().getView().isSnapshot()) {
+                if (notification.getRequest().getView().isBatch()) {
+                    itemRefreshesReceived++;
+                    checkRefreshButton(notification);
+                } else {
+                    unregisterButton.setDisable(false);
+                }
+            }
         }
     }
 
@@ -228,5 +253,17 @@ public class MarketPriceComponent extends Pane implements ItemFxComponent {
                 isStreaming = item.isStreaming();
             }
         }
+    }
+
+    private void checkRefreshButton(ItemNotificationModel notification) {
+        if (validRefreshes == itemRefreshesReceived) {
+            itemRefreshesReceived = 0;
+            validRefreshes = notification.getRequest().getView().getBatchRICs().size();
+            unregisterButton.setDisable(false);
+        }
+    }
+
+    public void setNumOfRefreshes(int num) {
+        validRefreshes = num;
     }
 }

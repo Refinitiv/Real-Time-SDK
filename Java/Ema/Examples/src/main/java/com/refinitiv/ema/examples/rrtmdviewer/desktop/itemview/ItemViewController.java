@@ -350,9 +350,13 @@ public class ItemViewController {
     private void setupMarketPriceTab(Tab tab, long handle, ItemRequestModel request) {
         MarketPriceComponent mp = new MarketPriceComponent(tab);
         if (request.getView().isSnapshot()) {
+            mp.setDisableBtn(true);
+            if (request.getView().isBatch()) {
+                mp.setNumOfRefreshes(request.getView().getBatchRICs().size());
+            }
             mp.configureButton("Refresh", e -> {
-                submitRequestTask(request);
                 mp.clear();
+                submitRequestTask(request);
             });
         } else {
             mp.configureButton("Unregister", e -> {
@@ -379,12 +383,13 @@ public class ItemViewController {
         MarketByComponent mb = itemRequestModel.getView().getDomain() == SupportedItemDomains.MARKET_BY_ORDER ?
                 new MarketByOrderComponent(tab) : new MarketByPriceComponent(tab) ;
         if (itemRequestModel.getView().isSnapshot()) {
-            mb.configureButton("REFRESH", e -> {
+            mb.setDisableBtn(true);
+            mb.configureButton("Refresh", e -> {
                 mb.clear();
                 submitRequestTask(itemRequestModel);
             });
         } else {
-            mb.configureButton("UNREGISTER", e -> {
+            mb.configureButton("Unregister", e -> {
                 mb.setDisableBtn(true);
                 unregister(handle);
             });

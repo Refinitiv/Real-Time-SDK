@@ -125,7 +125,10 @@ public class MarketByPriceComponent extends Pane implements ItemFxComponent, Mar
     @Override
     public void configureButton(String name, Consumer<MouseEvent> func) {
         unregisterButton.setText(name);
-        unregisterButton.setOnMouseClicked(func::accept);
+        unregisterButton.setOnMouseClicked(e -> {
+            unregisterButton.setDisable(true);
+            func.accept(e);
+        });
         unregisterButton.getStyleClass().add(BRAND_BUTTON_STYLE);
     }
 
@@ -222,6 +225,9 @@ public class MarketByPriceComponent extends Pane implements ItemFxComponent, Mar
                     centralMap.remove(key);
                 }
             }
+        }
+        if (notification.getRequest().getView().isSnapshot()) {
+            Platform.runLater(() -> unregisterButton.setDisable(false));
         }
     }
 
