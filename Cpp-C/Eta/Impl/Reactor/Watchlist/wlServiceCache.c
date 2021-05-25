@@ -881,7 +881,7 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 					pCachedService->rdm.flags |= RDM_SVCF_HAS_LOAD;
 
 					if (pUpdatedLoad->flags & RDM_SVC_LDF_HAS_OPEN_LIMIT
-							&& pCachedLoad->openLimit != pUpdatedLoad->openLimit)
+							&& ( !(pCachedLoad->flags & RDM_SVC_LDF_HAS_OPEN_LIMIT) || (pCachedLoad->openLimit != pUpdatedLoad->openLimit) ) )
 					{
 						pCachedService->loadUpdateFlags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
 						pCachedLoad->flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
@@ -889,7 +889,7 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 					}
 
 					if (pUpdatedLoad->flags & RDM_SVC_LDF_HAS_OPEN_WINDOW
-							&& pCachedLoad->openWindow != pUpdatedLoad->openWindow)
+							&& ( !(pCachedLoad->flags & RDM_SVC_LDF_HAS_OPEN_WINDOW) || (pCachedLoad->openWindow != pUpdatedLoad->openWindow) ) )
 					{
 						pCachedService->loadUpdateFlags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
 						pCachedLoad->flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
@@ -897,7 +897,7 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 					}
 
 					if (pUpdatedLoad->flags & RDM_SVC_LDF_HAS_LOAD_FACTOR
-							&& pCachedLoad->loadFactor != pUpdatedLoad->loadFactor)
+							&& ( !(pCachedLoad->flags & RDM_SVC_LDF_HAS_LOAD_FACTOR) || (pCachedLoad->loadFactor != pUpdatedLoad->loadFactor) ) )
 					{
 						pCachedService->loadUpdateFlags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
 						pCachedLoad->flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;

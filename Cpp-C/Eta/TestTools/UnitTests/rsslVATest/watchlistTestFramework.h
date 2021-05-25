@@ -305,6 +305,7 @@ typedef struct
 	RsslUInt32	requestTimeout;					/* Sets watchlist request timeout. */
 	RsslBool	multicastGapRecovery;			/* Provider's login response indicates
 												 * whether watchlist should recover from gaps. */
+	RsslBool    provideDefaultServiceLoad;		/* Provide a default service's load for directory refresh. */
 } WtfSetupConnectionOpts;
 
 /* Initializes commonly used settings of WtfSetupConnectionOpts. */
@@ -326,6 +327,7 @@ static void wtfClearSetupConnectionOpts(WtfSetupConnectionOpts *pOpts)
 	pOpts->postAckTimeout = 15000;
 	pOpts->requestTimeout = 15000;
 	pOpts->multicastGapRecovery = RSSL_TRUE;
+	pOpts->provideDefaultServiceLoad = RSSL_FALSE;
 }
 
 /*** Connections ***/

@@ -1190,6 +1190,17 @@ void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes conne
 
 		wtfSetService1Info(&service);
 
+		if (pOpts->provideDefaultServiceLoad)
+		{
+			service.flags |= RDM_SVCF_HAS_LOAD;
+			service.load.flags |= RDM_SVC_LDF_HAS_OPEN_LIMIT;
+			service.load.openLimit = 0xffffffffffffffffULL;
+			service.load.flags |= RDM_SVC_LDF_HAS_OPEN_WINDOW;
+			service.load.openWindow = 0xffffffffffffffffULL;
+			service.load.flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
+			service.load.loadFactor = 65535;
+		}
+
 		rsslClearReactorSubmitMsgOptions(&submitOpts);
 		submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRefresh;
 		wtfSubmitMsg(&submitOpts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);

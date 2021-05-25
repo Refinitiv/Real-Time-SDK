@@ -163,13 +163,17 @@ void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType)
 	RsslRDMService service1;
 	RsslRDMDirectoryClose	directoryClose;
 	RsslReactorSubmitMsgOptions opts;
+	WtfSetupConnectionOpts connOpts;
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL, connectionType);
+	wtfClearSetupConnectionOpts(&connOpts);
+	connOpts.provideDefaultServiceLoad = RSSL_TRUE;
+	wtfSetupConnection(&connOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	directoryRequest.filter |= RDM_DIRECTORY_SERVICE_LOAD_FILTER;
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
@@ -178,6 +182,7 @@ void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType)
 	/* Consumer requests directory (non-streaming). */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 3);
 	directoryRequest.flags &= ~RDM_DR_RQF_STREAMING;
+	directoryRequest.filter |= RDM_DIRECTORY_SERVICE_LOAD_FILTER;
 	rsslClearReactorSubmitMsgOptions(&opts);
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
 	opts.requestMsgOptions.pUserSpec = (void*)0x77775555;
@@ -194,6 +199,13 @@ void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	ASSERT_TRUE(pDirectoryRefresh->serviceCount == 1);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags == (RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_LOAD));
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.flags == (RDM_SVC_LDF_HAS_OPEN_LIMIT | RDM_SVC_LDF_HAS_OPEN_WINDOW | RDM_SVC_LDF_HAS_LOAD_FACTOR));
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.openLimit == 0xffffffffffffffffULL);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.openWindow == 0xffffffffffffffffULL);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.loadFactor == 65535);
+
 
 	/* Consumer receives directory refresh. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -204,6 +216,12 @@ void watchlistDirectoryTest_OneService(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_NON_STREAMING);
 	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
 	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	ASSERT_TRUE(pDirectoryRefresh->serviceCount == 1);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags == (RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE | RDM_SVCF_HAS_LOAD));
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.flags == (RDM_SVC_LDF_HAS_OPEN_LIMIT | RDM_SVC_LDF_HAS_OPEN_WINDOW | RDM_SVC_LDF_HAS_LOAD_FACTOR));
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.openLimit == 0xffffffffffffffffULL);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.openWindow == 0xffffffffffffffffULL);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].load.loadFactor == 65535);
 	ASSERT_TRUE(!wtfGetEvent());
 
 	/* Provider received no messages. */
