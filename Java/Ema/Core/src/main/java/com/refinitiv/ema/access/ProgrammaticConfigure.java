@@ -2947,7 +2947,7 @@ class ProgrammaticConfigure
 
 			if(enumValue.equals("RSSL_SOCKET") || enumValue.equals("RSSL_WEBSOCKET"))
 				serverType = ConnectionTypes.SOCKET;
-			if(enumValue.equals("RSSL_ENCRYPTED"))
+			else if(enumValue.equals("RSSL_ENCRYPTED"))
 				serverType = ConnectionTypes.ENCRYPTED;
 			else
 			{
