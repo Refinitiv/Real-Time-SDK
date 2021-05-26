@@ -1888,6 +1888,9 @@ public class Reactor
             if (reactorChannel.role().type() == ReactorRoleTypes.CONSUMER) {
                 ((ConsumerRole) (reactorChannel.role())).receivedFieldDictionaryResp(false);
                 ((ConsumerRole) (reactorChannel.role())).receivedEnumDictionaryResp(false);
+            } else if (reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER) {
+                ((NIProviderRole) (reactorChannel.role())).receivedFieldDictionaryResp(false);
+                ((NIProviderRole) (reactorChannel.role())).receivedEnumDictionaryResp(false);
             }
         }
 
@@ -2415,7 +2418,8 @@ public class Reactor
                 callback = ((ProviderRole)reactorChannel.role()).dictionaryMsgCallback();
                 break;
             case ReactorRoleTypes.NIPROVIDER:
-                // no dictionary callback for NIProvider.
+                callback = ((NIProviderRole)reactorChannel.role()).dictionaryMsgCallback();
+                break;
             default:
                 break;
         }
@@ -4765,19 +4769,38 @@ public class Reactor
                     && _loginMsg.rdmMsgType() == LoginMsgType.REFRESH
                     && ((LoginRefresh) _loginMsg).state().streamState() == StreamStates.OPEN
                     && ((LoginRefresh) _loginMsg).state().dataState() == DataStates.OK) {
-
                     DirectoryRefresh directoryRefresh = ((NIProviderRole) reactorRole).rdmDirectoryRefresh();
                     if (directoryRefresh != null) {
                         // a rdmDirectoryRefresh was specified, send it out.
                         encodeAndWriteDirectoryRefresh(directoryRefresh, reactorChannel, errorInfo);
+                        if (((NIProviderRole) reactorRole).dictionaryDownloadMode() == DictionaryDownloadModes.FIRST_AVAILABLE) {
+                            if (((LoginRefresh) _loginMsg).checkHasFeatures()
+                                    && ((LoginRefresh) _loginMsg).features().checkHasSupportProviderDictionaryDownload()
+                                    && ((LoginRefresh) _loginMsg).features().supportProviderDictionaryDownload() == 1) {
+                                int serviceId = ((NIProviderRole) reactorRole).rdmDirectoryRefresh().serviceList().get(0).serviceId();
+                                DictionaryRequest dictionaryRequest;
+
+                                ((NIProviderRole) reactorRole).initDefaultRDMFieldDictionaryRequest();
+                                dictionaryRequest = ((NIProviderRole) reactorRole).rdmFieldDictionaryRequest();
+                                dictionaryRequest.serviceId(serviceId);
+                                encodeAndWriteDictionaryRequest(dictionaryRequest, reactorChannel, errorInfo);
+
+                                ((NIProviderRole) reactorRole).initDefaultRDMEnumDictionaryRequest();
+                                dictionaryRequest = ((NIProviderRole) reactorRole).rdmEnumDictionaryRequest();
+                                dictionaryRequest.serviceId(serviceId);
+                                encodeAndWriteDictionaryRequest(dictionaryRequest, reactorChannel, errorInfo);
+                            }
+                        }
                     }
 
-                    // send CHANNEL_READY
-                    reactorChannel.state(State.READY);
-                    if ((retval = sendAndHandleChannelEventCallback("Reactor.processLoginMessage",
-                            ReactorChannelEventTypes.CHANNEL_READY,
-                            reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS) {
-                        return retval;
+                    // send CHANNEL_READY if dictionary downloading is not needed
+                    if (((NIProviderRole) reactorRole).dictionaryDownloadMode() != DictionaryDownloadModes.FIRST_AVAILABLE) {
+                        reactorChannel.state(State.READY);
+                        if ((retval = sendAndHandleChannelEventCallback("Reactor.processLoginMessage",
+                                ReactorChannelEventTypes.CHANNEL_READY,
+                                reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS) {
+                            return retval;
+                        }
                     }
                 }
             }
@@ -4954,6 +4977,8 @@ public class Reactor
 
         if (retval == ReactorCallbackReturnCodes.SUCCESS)
         {
+            boolean receivedFieldDictResponse = false;
+            boolean receivedEnumTypeResponse = false;
             /*
              * check if this is a reactorChannel's role is CONSUMER, a Dictionary REFRESH,
              * reactorChannel State is UP, and dictionaryDownloadMode is FIRST_AVAILABLE.
@@ -4973,7 +4998,6 @@ public class Reactor
                      * there won't be any further messages on this stream -- the consumer will be
                      * disconnected if the dictionary version is changed. */
                     ((ConsumerRole)reactorRole).receivedFieldDictionaryResp(true);
-
                     encodeAndWriteDictionaryClose(((ConsumerRole)reactorRole).rdmFieldDictionaryClose(), reactorChannel, errorInfo);
                 }
 
@@ -4984,21 +5008,46 @@ public class Reactor
                     /* Close stream so its streamID is free for the user.  When connecting to an ADS,  there won't be any further messages on this stream --
                      * the consumer will be disconnected if the dictionary version is changed. */
                     ((ConsumerRole)reactorRole).receivedEnumDictionaryResp(true);
-
                     encodeAndWriteDictionaryClose(((ConsumerRole)reactorRole).rdmEnumDictionaryClose(), reactorChannel, errorInfo);
                 }
+                receivedFieldDictResponse = ((ConsumerRole)reactorRole).receivedFieldDictionaryResp();
+                receivedEnumTypeResponse = ((ConsumerRole)reactorRole).receivedEnumDictionaryResp();
+            } else if (reactorChannel.state() == State.UP
+                    && reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER
+                    && _dictionaryMsg.rdmMsgType() == DictionaryMsgType.REFRESH
+                    && ((NIProviderRole)reactorRole).dictionaryDownloadMode() == DictionaryDownloadModes.FIRST_AVAILABLE) {
+                // field dictionary
+                if (msg.streamId() == ((NIProviderRole) reactorRole).rdmFieldDictionaryRequest().streamId() &&
+                        dictionaryRefresh != null && dictionaryRefresh.checkRefreshComplete()) {
+                    /* Close stream so its streamID is free for the user. When connecting to an ADS,
+                     * there won't be any further messages on this stream -- the consumer will be
+                     * disconnected if the dictionary version is changed. */
+                    ((NIProviderRole) reactorRole).receivedFieldDictionaryResp(true);
 
-                // if both field and enum type refreshes received, send CHANNEL_READY
-                if (((ConsumerRole)reactorRole).receivedFieldDictionaryResp() &&
-                    ((ConsumerRole)reactorRole).receivedEnumDictionaryResp())
-                {
-                    reactorChannel.state(State.READY);
-                    if ((retval = sendAndHandleChannelEventCallback("Reactor.processDictionaryMessage",
-                            ReactorChannelEventTypes.CHANNEL_READY,
-                            reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS)
-                    {
-                        return retval;
-                    }
+                    encodeAndWriteDictionaryClose(((NIProviderRole) reactorRole).rdmFieldDictionaryClose(), reactorChannel, errorInfo);
+                }
+
+                // enum type dictionary
+                if (msg.streamId() == ((NIProviderRole) reactorRole).rdmEnumDictionaryRequest().streamId() &&
+                        dictionaryRefresh != null && dictionaryRefresh.checkRefreshComplete()) {
+                    /* Close stream so its streamID is free for the user.  When connecting to an ADS,  there won't be any further messages on this stream --
+                     * the consumer will be disconnected if the dictionary version is changed. */
+                    ((NIProviderRole) reactorRole).receivedEnumDictionaryResp(true);
+                    receivedEnumTypeResponse = true;
+                    encodeAndWriteDictionaryClose(((NIProviderRole) reactorRole).rdmEnumDictionaryClose(), reactorChannel, errorInfo);
+                }
+
+                receivedFieldDictResponse = ((NIProviderRole)reactorRole).receivedFieldDictionaryResp();
+                receivedEnumTypeResponse = ((NIProviderRole)reactorRole).receivedEnumDictionaryResp();
+            }
+
+            // if both field and enum type refreshes received, send CHANNEL_READY
+            if (receivedFieldDictResponse && receivedEnumTypeResponse) {
+                reactorChannel.state(State.READY);
+                if ((retval = sendAndHandleChannelEventCallback("Reactor.processDictionaryMessage",
+                        ReactorChannelEventTypes.CHANNEL_READY,
+                        reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS) {
+                    return retval;
                 }
             }
         }

@@ -19,6 +19,8 @@ import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.codec.DataStates;
 import com.refinitiv.eta.codec.Msg;
 import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.examples.common.NIProviderDictionaryHandler;
+import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.transport.ConnectionTypes;
@@ -27,6 +29,8 @@ import com.refinitiv.eta.transport.IoctlCodes;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.valueadd.cache.CacheFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsg;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRefresh;
@@ -35,21 +39,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
 import com.refinitiv.eta.valueadd.examples.common.CacheInfo;
 import com.refinitiv.eta.valueadd.examples.common.ConnectionArg;
 import com.refinitiv.eta.valueadd.examples.common.ItemArg;
-import com.refinitiv.eta.valueadd.reactor.NIProviderCallback;
-import com.refinitiv.eta.valueadd.reactor.RDMLoginMsgEvent;
-import com.refinitiv.eta.valueadd.reactor.Reactor;
-import com.refinitiv.eta.valueadd.reactor.ReactorCallbackReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorChannelEventTypes;
-import com.refinitiv.eta.valueadd.reactor.ReactorConnectInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorDispatchOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
-import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
-import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
-import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
-import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
-import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.reactor.*;
 
 /**
  * <p>This is a main class to run ETA NIProvider application. The purpose of this
@@ -155,7 +145,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
  * </ul>
  * 
  */
-public class NIProvider implements NIProviderCallback 
+public class NIProvider implements NIProviderCallback, RDMDictionaryMsgCallback
 {   
     private Reactor reactor;
     private ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
@@ -198,6 +188,8 @@ public class NIProvider implements NIProviderCallback
 	DateFormat formatter = new SimpleDateFormat("MM:dd:yy:HH:mm:ss");
 	
     private ReactorSubmitOptions submitOptions = ReactorFactory.createReactorSubmitOptions();
+
+    private NIProviderDictionaryHandler dictionaryHandler;
 
     public NIProvider()
     {
@@ -263,7 +255,7 @@ public class NIProvider implements NIProviderCallback
         runtime = System.currentTimeMillis() + commandLineParser.runtime() * 1000;
               
         // load dictionary
-        loadDictionary();
+        int dictionaryDownloadMode = loadDictionary();
         
         // enable Reactor XML tracing if specified
         if (commandLineParser.enableXmlTracing())
@@ -298,6 +290,7 @@ public class NIProvider implements NIProviderCallback
       	// create channel info
        	ChannelInfo chnlInfo = new ChannelInfo();
       	chnlInfo.connectionArg = commandLineParser.connectionList().get(0);
+      	chnlInfo.niproviderRole.dictionaryDownloadMode(dictionaryDownloadMode);
         	
       	// initialize channel info
       	initChannelInfo(chnlInfo);
@@ -309,7 +302,7 @@ public class NIProvider implements NIProviderCallback
 	    	System.out.println("Reactor.connect failed with return code: " + ret + " error = " + errorInfo.error().text());
 	      	System.exit(ReactorReturnCodes.FAILURE);
 	    }
-	        
+
 	    // add to ChannelInfo list
 	    chnlInfoList.add(chnlInfo);
        
@@ -409,7 +402,7 @@ public class NIProvider implements NIProviderCallback
         	{
             	for (ChannelInfo chnlInfo : chnlInfoList)
             	{
-            		if (chnlInfo.reactorChannel != null && chnlInfo.reactorChannel.state() == ReactorChannel.State.READY		
+            		if (chnlInfo.reactorChannel != null && chnlInfo.reactorChannel.state() == ReactorChannel.State.READY
             				&& chnlInfo.loginRefresh.state().streamState() == StreamStates.OPEN &&
             				chnlInfo.loginRefresh.state().dataState() == DataStates.OK )
             		{
@@ -527,6 +520,12 @@ public class NIProvider implements NIProviderCallback
                         key.cancel();
                 }
 
+				if (chnlInfo.niproviderRole.dictionaryDownloadMode() == DictionaryDownloadModes.FIRST_AVAILABLE) {
+					if (dictionary != null) {
+						dictionary.clear();
+					}
+				}
+
                 break;
             }
             case ReactorChannelEventTypes.CHANNEL_DOWN:
@@ -622,6 +621,80 @@ public class NIProvider implements NIProviderCallback
         return ReactorCallbackReturnCodes.SUCCESS;
 	}
 
+	@Override
+	public int rdmDictionaryMsgCallback(RDMDictionaryMsgEvent event) {
+		ChannelInfo chnlInfo = (ChannelInfo) event.reactorChannel().userSpecObj();
+		DictionaryMsgType msgType = event.rdmDictionaryMsg().rdmMsgType();
+
+		switch (msgType) {
+			case REFRESH:
+				DictionaryRefresh dictionaryRefresh = (DictionaryRefresh) event.rdmDictionaryMsg();
+
+				if (dictionaryRefresh.checkHasInfo()) {
+					/* The first part of a dictionary refresh should contain information about its type.
+					 * Save this information and use it as subsequent parts arrive. */
+					switch (dictionaryRefresh.dictionaryType()) {
+						case Dictionary.Types.FIELD_DEFINITIONS:
+							chnlInfo.fieldDictionaryStreamId = dictionaryRefresh.streamId();
+							break;
+						case Dictionary.Types.ENUM_TABLES:
+							chnlInfo.enumDictionaryStreamId = dictionaryRefresh.streamId();
+							break;
+						default:
+							System.out.println("Unknown dictionary type " + dictionaryRefresh.dictionaryType() + " from message on stream " + dictionaryRefresh.streamId());
+							chnlInfo.reactorChannel.close(errorInfo);
+							return ReactorCallbackReturnCodes.SUCCESS;
+					}
+				}
+
+				/* decode dictionary response */
+
+				// clear decode iterator
+				chnlInfo.dIter.clear();
+
+				// set buffer and version info
+				chnlInfo.dIter.setBufferAndRWFVersion(dictionaryRefresh.dataBody(),
+						event.reactorChannel().majorVersion(),
+						event.reactorChannel().minorVersion());
+
+				System.out.println("Received Dictionary Response: " + dictionaryRefresh.dictionaryName());
+
+				if (dictionaryRefresh.streamId() == chnlInfo.fieldDictionaryStreamId) {
+					if (dictionary.decodeFieldDictionary(chnlInfo.dIter, Dictionary.VerbosityValues.VERBOSE, error) == CodecReturnCodes.SUCCESS) {
+						if (dictionaryRefresh.checkRefreshComplete()) {
+							if (chnlInfo.cacheInfo.useCache)
+								initializeCacheDictionary(chnlInfo.cacheInfo, dictionary);
+
+							System.out.println("Field Dictionary complete.");
+						}
+					} else {
+						System.out.println("Decoding Field Dictionary failed: " + error.text());
+						chnlInfo.reactorChannel.close(errorInfo);
+					}
+				} else if (dictionaryRefresh.streamId() == chnlInfo.enumDictionaryStreamId) {
+					if (dictionary.decodeEnumTypeDictionary(chnlInfo.dIter, Dictionary.VerbosityValues.VERBOSE, error) == CodecReturnCodes.SUCCESS) {
+						if (dictionaryRefresh.checkRefreshComplete()) {
+							System.out.println("EnumType Dictionary complete.");
+						}
+					} else {
+						System.out.println("Decoding EnumType Dictionary failed: " + error.text());
+						chnlInfo.reactorChannel.close(errorInfo);
+					}
+				} else {
+					System.out.println("Received unexpected dictionary message on stream " + dictionaryRefresh.streamId());
+				}
+				break;
+			case STATUS:
+				System.out.println("Received Dictionary StatusMsg");
+				break;
+			default:
+				System.out.println("Received Unhandled Dictionary Msg Type: " + msgType);
+				break;
+		}
+
+		return ReactorCallbackReturnCodes.SUCCESS;
+	}
+
     private void sendItemRefreshes(ChannelInfo chnlInfo)
     {
     	if (chnlInfo.marketPriceHandler.sendItemRefreshes(chnlInfo.reactorChannel, chnlInfo.mpItemList, 	
@@ -675,22 +748,20 @@ public class NIProvider implements NIProviderCallback
     }      
     
     /* Load dictionary from file. */
-	void loadDictionary()
-    {
+	int loadDictionary() {
         dictionary.clear();
-        if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) < 0)
-        {
+        if (dictionary.loadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, error) < 0) {
             System.out.println("Unable to load field dictionary.  Will attempt to download from provider.\n\tText: "
                     + error.text());
-            System.exit(ReactorReturnCodes.FAILURE);
+			return DictionaryDownloadModes.FIRST_AVAILABLE;
         }
- 
-        if (dictionary.loadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, error) < 0)
-        {
+
+        if (dictionary.loadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, error) < 0) {
             System.out.println("Unable to load enum dictionary.  Will attempt to download from provider.\n\tText: "
                         + error.text());
-            System.exit(ReactorReturnCodes.FAILURE);
+            return DictionaryDownloadModes.FIRST_AVAILABLE;
         }
+        return DictionaryDownloadModes.NONE;
     }
 
 	private void initChannelInfo(ChannelInfo chnlInfo)
@@ -699,10 +770,11 @@ public class NIProvider implements NIProviderCallback
 		chnlInfo.niproviderRole.channelEventCallback(this);
 		chnlInfo.niproviderRole.loginMsgCallback(this);
 		chnlInfo.niproviderRole.defaultMsgCallback(this);
-		      	
-        chnlInfo.marketPriceHandler = new MarketPriceHandler(chnlInfo.itemWatchList, dictionary);    
-        chnlInfo.marketByOrderHandler = new MarketByOrderHandler(chnlInfo.itemWatchList, dictionary);
-     
+		chnlInfo.niproviderRole.dictionaryMsgCallback(this);
+
+		chnlInfo.marketPriceHandler = new MarketPriceHandler(chnlInfo.itemWatchList, dictionary);
+		chnlInfo.marketByOrderHandler = new MarketByOrderHandler(chnlInfo.itemWatchList, dictionary);
+
         // initialize niprovider role to default
         String serviceName = chnlInfo.connectionArg.service();
         chnlInfo.niproviderRole.initDefaultRDMLoginRequest();

@@ -151,7 +151,7 @@ public class ReactorRolesJunit
 	    public int reactorAuthTokenEventCallback(ReactorAuthTokenEvent event)
 	    {   _authTokenEventCallbackCount++;
 	        return ReactorCallbackReturnCodes.SUCCESS;
-	    }		
+	    }
     }
     
     @Test

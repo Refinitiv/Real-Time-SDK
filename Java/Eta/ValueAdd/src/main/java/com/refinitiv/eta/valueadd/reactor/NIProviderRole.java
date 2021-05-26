@@ -10,9 +10,14 @@ import com.refinitiv.eta.codec.QosRates;
 import com.refinitiv.eta.codec.QosTimeliness;
 import com.refinitiv.eta.codec.StateCodes;
 import com.refinitiv.eta.codec.StreamStates;
+import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.Directory;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryClose;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.dictionary.DictionaryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryClose;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
@@ -33,6 +38,8 @@ public class NIProviderRole extends ReactorRole
 {
     static final int LOGIN_STREAM_ID = 1;
     static final int DIRECTORY_STREAM_ID = -1;
+    static final int FIELD_DICTIONARY_STREAM_ID = -2;
+    static final int ENUM_DICTIONARY_STREAM_ID = -3;
     static final int OPEN_LIMIT = 5;
     static final String VENDOR = "Refinitiv";
     static final String LINK_NAME = "NI_PUB";
@@ -50,6 +57,20 @@ public class NIProviderRole extends ReactorRole
     RDMLoginMsgCallback _loginMsgCallback = null;
 	Buffer _stateText = CodecFactory.createBuffer();
 
+	/**
+     * Dictionary download parameters
+     */
+    RDMDictionaryMsgCallback _dictionaryMsgCallback = null;
+    DictionaryRequest _fieldDictionaryRequest = null;
+    DictionaryClose _fieldDictionaryClose = null;
+    DictionaryRequest _enumDictionaryRequest = null;
+    DictionaryClose _enumDictionaryClose = null;
+    int _dictionaryDownloadMode = DictionaryDownloadModes.NONE;
+    final Buffer _fieldDictionaryName = CodecFactory.createBuffer();
+    final Buffer _enumTypeDictionaryName = CodecFactory.createBuffer();
+    boolean _receivedFieldDictionaryResp = false;
+    boolean _receivedEnumDictionaryResp = false;
+
     private Service _service = DirectoryMsgFactory.createService();
     
     /**
@@ -59,6 +80,8 @@ public class NIProviderRole extends ReactorRole
     {
         _type = ReactorRoleTypes.NIPROVIDER;
         _stateText.data("Source Directory Refresh Completed");
+        _fieldDictionaryName.data("RWFFld");
+        _enumTypeDictionaryName.data("RWFEnum");
     }
     
     /**
@@ -364,7 +387,150 @@ public class NIProviderRole extends ReactorRole
         
         return _directoryClose;
     }
-    
+
+    /**
+     *  A Field Dictionary Request to be sent during the setup of a Consumer-Provider
+     * session. Requires DirectoryRequest to be set.
+     *
+     * @param fieldDictionaryRequest the field dictionary request
+     */
+    void rdmFieldDictionaryRequest(DictionaryRequest fieldDictionaryRequest) {
+        _fieldDictionaryRequest = fieldDictionaryRequest;
+    }
+
+    /**
+     * A Field Dictionary Request to be sent during the setup of a Consumer-Provider
+     * session. Requires DirectoryRequest to be set.
+     *
+     * @return the dictionary request
+     */
+    DictionaryRequest rdmFieldDictionaryRequest() {
+        return _fieldDictionaryRequest;
+    }
+
+    /**
+     * Initializes the RDM Field DictionaryRequest with default information. If the
+     * rdmFieldDictionaryRequest has already been defined, the rdmFieldDictionaryRequest
+     * object will be reused.
+     */
+    void initDefaultRDMFieldDictionaryRequest() {
+        int streamId;
+
+        if (_fieldDictionaryRequest == null) {
+            streamId = FIELD_DICTIONARY_STREAM_ID;
+            _fieldDictionaryRequest = (DictionaryRequest) DictionaryMsgFactory.createMsg();
+        } else {
+            streamId = (_fieldDictionaryRequest.streamId() == 0 ? FIELD_DICTIONARY_STREAM_ID : _fieldDictionaryRequest.streamId());
+            _fieldDictionaryRequest.clear();
+        }
+
+        // make sure stream id isn't already being used
+        while (streamId == _loginRequest.streamId() ||
+                streamId == _directoryRefresh.streamId()) {
+            streamId--;
+        }
+        _fieldDictionaryRequest.rdmMsgType(DictionaryMsgType.REQUEST);
+        _fieldDictionaryRequest.streamId(streamId);
+        _fieldDictionaryRequest.applyStreaming();
+        _fieldDictionaryRequest.verbosity(Dictionary.VerbosityValues.NORMAL);
+        _fieldDictionaryRequest.dictionaryName(_fieldDictionaryName);
+
+        return;
+    }
+
+    /**
+     * The DictionaryClose to be sent to close the Field Dictionary stream.
+     * This corresponds to the Field DictionaryRequest sent during the
+     * connection establishment process.
+     *
+     * @return the dictionary close
+     */
+    DictionaryClose rdmFieldDictionaryClose() {
+        if (_fieldDictionaryRequest == null)
+            return null;
+
+        if (_fieldDictionaryClose == null) {
+            _fieldDictionaryClose = (DictionaryClose) DictionaryMsgFactory.createMsg();
+            _fieldDictionaryClose.rdmMsgType(DictionaryMsgType.CLOSE);
+        }
+
+        _fieldDictionaryClose.streamId(_fieldDictionaryRequest.streamId());
+
+        return _fieldDictionaryClose;
+    }
+
+    /**
+     * A EnumType Dictionary Request to be sent during the setup of a Consumer-Provider
+     * session. Requires Field DictionaryRequest to be set.
+     *
+     * @param enumDictionaryRequest the enum dictionary request
+     */
+    void rdmEnumDictionaryRequest(DictionaryRequest enumDictionaryRequest) {
+        _enumDictionaryRequest = enumDictionaryRequest;
+    }
+
+    /**
+     * A EnumType Dictionary Request to be sent during the setup of a Consumer-Provider
+     * session. Requires Field DictionaryRequest to be set.
+     *
+     * @return the dictionary request
+     */
+    DictionaryRequest rdmEnumDictionaryRequest() {
+        return _enumDictionaryRequest;
+    }
+
+    /**
+     * Initializes the RDM EnumType DictionaryRequest with default information. If the
+     * rdmEnumDictionaryRequest has already been defined, the rdmEnumDictionaryRequest
+     * object will be reused.
+     */
+    void initDefaultRDMEnumDictionaryRequest() {
+        int streamId;
+
+        if (_enumDictionaryRequest == null) {
+            streamId = ENUM_DICTIONARY_STREAM_ID;
+            _enumDictionaryRequest = (DictionaryRequest) DictionaryMsgFactory.createMsg();
+        } else {
+            streamId = (_enumDictionaryRequest.streamId() == 0 ? ENUM_DICTIONARY_STREAM_ID : _enumDictionaryRequest.streamId());
+            _enumDictionaryRequest.clear();
+        }
+
+        // make sure stream id isn't already being used
+        while (streamId == _loginRequest.streamId() ||
+                streamId == _directoryRefresh.streamId() ||
+                streamId == _fieldDictionaryRequest.streamId()) {
+            streamId--;
+        }
+        _enumDictionaryRequest.rdmMsgType(DictionaryMsgType.REQUEST);
+        _enumDictionaryRequest.streamId(streamId);
+        _enumDictionaryRequest.applyStreaming();
+        _enumDictionaryRequest.verbosity(Dictionary.VerbosityValues.NORMAL);
+        _enumDictionaryRequest.dictionaryName(_enumTypeDictionaryName);
+
+        return;
+    }
+
+    /**
+     * The DictionaryClose to be sent to close the EnumType Dictionary stream.
+     * This corresponds to the EnumType DictionaryRequest sent during the
+     * connection establishment process.
+     *
+     * @return the dictionary close
+     */
+    DictionaryClose rdmEnumDictionaryClose() {
+        if (_enumDictionaryRequest == null)
+            return null;
+
+        if (_enumDictionaryClose == null) {
+            _enumDictionaryClose = (DictionaryClose) DictionaryMsgFactory.createMsg();
+            _enumDictionaryClose.rdmMsgType(DictionaryMsgType.CLOSE);
+        }
+
+        _enumDictionaryClose.streamId(_enumDictionaryRequest.streamId());
+
+        return _enumDictionaryClose;
+    }
+
     /**
      *  A callback function for processing RDMLoginMsgEvents received. If not present,
      * the received message will be passed to the defaultMsgCallback.
@@ -387,7 +553,47 @@ public class NIProviderRole extends ReactorRole
     {
         return _loginMsgCallback;
     }
-    
+
+    public void dictionaryMsgCallback(RDMDictionaryMsgCallback dictionaryMsgCallback) {
+        this._dictionaryMsgCallback = dictionaryMsgCallback;
+    }
+
+    public RDMDictionaryMsgCallback dictionaryMsgCallback() {
+        return _dictionaryMsgCallback;
+    }
+
+    public int dictionaryDownloadMode() {
+        return _dictionaryDownloadMode;
+    }
+
+    public void dictionaryDownloadMode(int dictionaryDownloadMode) {
+        _dictionaryDownloadMode = dictionaryDownloadMode;
+    }
+
+    public Buffer fieldDictionaryName() {
+        return _fieldDictionaryName;
+    }
+
+    public Buffer enumTypeDictionaryName() {
+        return _enumTypeDictionaryName;
+    }
+
+    public boolean receivedFieldDictionaryResp() {
+        return _receivedFieldDictionaryResp;
+    }
+
+    public void receivedFieldDictionaryResp(boolean receivedFieldDictionaryResp) {
+        _receivedFieldDictionaryResp = receivedFieldDictionaryResp;
+    }
+
+    public boolean receivedEnumDictionaryResp() {
+        return _receivedEnumDictionaryResp;
+    }
+
+    public void receivedEnumDictionaryResp(boolean receivedEnumDictionaryResp) {
+        _receivedEnumDictionaryResp = receivedEnumDictionaryResp;
+    }
+
     /*
      * Performs a deep copy from a specified NIProviderRole into this NIProviderRole.
      * Only public facing attributes are copied.
@@ -396,8 +602,10 @@ public class NIProviderRole extends ReactorRole
     {
         super.copy(role);
         _loginMsgCallback = role.loginMsgCallback();
+        _dictionaryMsgCallback = role.dictionaryMsgCallback();
         copyLoginRequest(role.rdmLoginRequest());
         copyDirectoryRefresh(role.rdmDirectoryRefresh());
+        _dictionaryDownloadMode = role.dictionaryDownloadMode();
     }
     
     /*
