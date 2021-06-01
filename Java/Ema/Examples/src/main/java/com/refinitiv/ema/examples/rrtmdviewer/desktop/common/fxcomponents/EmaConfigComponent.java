@@ -29,7 +29,7 @@ public class EmaConfigComponent extends VBox {
     private CheckBox emaConfigCheckbox;
 
     @FXML
-    private TextField consumerNameTextField;
+    private ScrollableTextField consumerNameTextField;
 
     @FXML
     private HBox emaConfigWrapBox;
@@ -102,5 +102,9 @@ public class EmaConfigComponent extends VBox {
 
     public double getFilePickerTextLength() {
         return this.emaConfigFilePicker.getTextFieldLength();
+    }
+
+    public void setConsumerNameWidth(double width) {
+        consumerNameTextField.setCustomWidth(width);
     }
 }

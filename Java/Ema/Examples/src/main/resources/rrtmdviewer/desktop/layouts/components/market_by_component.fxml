@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<fx:root maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="923.0" stylesheets="@../../styles/item-view-style.css" type="Pane" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="923.0" stylesheets="@../../styles/item-view-style.css" type="Pane" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <VBox alignment="TOP_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="10.0" minWidth="10.0" style="-fx-background-color: #F0F0F0;">
             <children>
@@ -71,7 +71,7 @@
                     </children>
                 </VBox>
                 <ListView fx:id="statusLabel" prefHeight="80.0" style="-fx-border-color: lightgray; -fx-background-color: #D8D8D8;;" styleClass="statusLabel" />
-                <Button fx:id="unregisterButton" mnemonicParsing="false" stylesheets="@../../styles/specified-endpoint-style.css" text="UNREGISTER" />
+                <Button fx:id="unregisterButton" mnemonicParsing="false" stylesheets="@../../styles/specified-endpoint-style.css" text="UNREGISTER" prefWidth="150"/>
             </children>
         </VBox>
     </children>

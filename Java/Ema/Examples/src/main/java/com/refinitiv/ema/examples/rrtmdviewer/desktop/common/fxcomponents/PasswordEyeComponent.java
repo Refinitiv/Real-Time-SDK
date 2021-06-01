@@ -3,7 +3,7 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -18,7 +18,7 @@ public class PasswordEyeComponent extends Group {
     private PasswordField passwordField;
 
     @FXML
-    private Label eyeLabel;
+    private Button eyeLabel;
 
     @FXML
     private TextField textField;
@@ -58,5 +58,12 @@ public class PasswordEyeComponent extends Group {
 
     public PasswordField getPasswordField() {
         return passwordField;
+    }
+
+    public void setCustomWidth(double width) {
+        textField.setMinWidth(width - 35);
+        textField.setMaxWidth(width - 35);
+        passwordField.setMinWidth(width - 35);
+        passwordField.setMaxWidth(width - 35);
     }
 }

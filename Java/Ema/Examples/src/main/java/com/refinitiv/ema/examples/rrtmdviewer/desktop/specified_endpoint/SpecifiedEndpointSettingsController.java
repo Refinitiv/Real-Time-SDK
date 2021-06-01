@@ -14,6 +14,7 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 
@@ -38,16 +39,16 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
     private final OMMViewerError error = new OMMViewerError();
 
     @FXML
-    private TextField host;
+    private ScrollableTextField host;
 
     @FXML
-    private TextField port;
+    private ScrollableTextField port;
 
     @FXML
-    private TextField host2;
+    private ScrollableTextField host2;
 
     @FXML
-    private TextField port2;
+    private ScrollableTextField port2;
 
     @FXML
     private ComboBox<SpecifiedEndpointConnectionTypes> connType;
@@ -77,13 +78,13 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
     private PasswordEyeComponent keyPassword;
 
     @FXML
-    private TextField appId;
+    private ScrollableTextField appId;
 
     @FXML
-    private TextField position;
+    private ScrollableTextField position;
 
     @FXML
-    private TextField username;
+    private ScrollableTextField username;
 
     @FXML
     private DictionaryLoaderComponent dictionaryLoader;
@@ -109,6 +110,12 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
     @FXML
     private ScrollPane scrollPane;
 
+    @FXML
+    private TabPane tabPane;
+
+    @FXML
+    private HBox controlButtons;
+
     private Tooltip encryptionTooltip;
 
     @FXML
@@ -126,6 +133,35 @@ public class SpecifiedEndpointSettingsController implements StatefulController {
 
         Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         scrollPane.setPrefHeight(Math.min(screenBounds.getMaxY() * DEFAULT_RATIO, DEFAULT_PREF_HEIGHT));
+
+        errorDebugArea.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() - 20);
+        tabPane.setPrefWidth(550);
+        errorDebugArea.setAreaHeight(50);
+
+        sceneController.getPrimaryStage().getScene().getWindow().widthProperty().addListener(e -> {
+            scrollPane.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get());
+            double width = Math.max(200, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() / 2 - 80);
+            host.setCustomWidth(width);
+            appId.setCustomWidth(width);
+            port.setCustomWidth(width);
+            host2.setCustomWidth(width);
+            port2.setCustomWidth(width);
+            position.setCustomWidth(width);
+            username.setCustomWidth(width);
+            keyFilePicker.setFilePickerWidth(width);
+            keyPassword.setCustomWidth(width);
+            tabPane.setPrefWidth(Math.max(550, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get()) - 20);
+            errorDebugArea.setPrefWidth(Math.max(550, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() - 20));
+            dictionaryLoader.setCustomWidth(width);
+
+            emaConfigComponent.setConsumerNameWidth(width - 30);
+            emaConfigComponent.setFilePickerTextLength(width - 30);
+        });
+
+        sceneController.getPrimaryStage().getScene().getWindow().heightProperty().addListener(e ->{
+            errorDebugArea.setAreaHeight(Math.max(50, sceneController.getPrimaryStage().getScene().getWindow().heightProperty().get() -
+                    tabPane.getHeight() - controlButtons.getHeight() - 100));
+        });
     }
 
     @FXML

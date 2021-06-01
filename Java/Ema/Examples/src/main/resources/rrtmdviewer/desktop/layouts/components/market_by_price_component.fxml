@@ -73,7 +73,7 @@
                     </children>
                 </VBox>
                 <ListView fx:id="statusLabel" prefHeight="80.0" style="-fx-border-color: lightgray; -fx-background-color: #D8D8D8;;" styleClass="statusLabel" />
-                <Button fx:id="unregisterButton" mnemonicParsing="false" stylesheets="@../../styles/specified-endpoint-style.css" text="UNREGISTER" />
+                <Button fx:id="unregisterButton" mnemonicParsing="false" stylesheets="@../../styles/specified-endpoint-style.css" text="UNREGISTER" prefWidth="150" />
             </children>
         </VBox>
     </children>

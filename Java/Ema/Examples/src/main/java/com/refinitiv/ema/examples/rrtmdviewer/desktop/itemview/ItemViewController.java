@@ -6,6 +6,7 @@ import com.refinitiv.ema.examples.rrtmdviewer.desktop.application.GlobalApplicat
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ApplicationSingletonContainer;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.ChannelInformationClient;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.DebugAreaStream;
+import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ScrollableTextField;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.ItemFxComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByComponent;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.fx.MarketByOrderComponent;
@@ -70,10 +71,10 @@ public class ItemViewController {
     private TabPane contentPane;
 
     @FXML
-    private TextField ricMarketBy;
+    private ScrollableTextField ricMarketBy;
 
     @FXML
-    private TextField ricMarketPrice;
+    private ScrollableTextField ricMarketPrice;
 
     @FXML
     private ListView<String> availableFields;
@@ -190,8 +191,8 @@ public class ItemViewController {
 
     private void setDebugAreaSize() {
         SceneController sceneController = ApplicationSingletonContainer.getBean(SceneController.class);
-        debugTextArea.setPrefHeight(Math.max(sceneController.getPrimaryStage().getScene().getWindow().getHeight() - contentPane.getHeight() - 50, 0));
-        debugTextArea.setMaxHeight(Math.max(sceneController.getPrimaryStage().getScene().getWindow().getHeight() - contentPane.getHeight() - 50, 0));
+        debugTextArea.setPrefHeight(Math.max(sceneController.getPrimaryStage().getScene().getWindow().getHeight() - contentPane.getHeight() - 80, 0));
+        debugTextArea.setMaxHeight(Math.max(sceneController.getPrimaryStage().getScene().getWindow().getHeight() - contentPane.getHeight() - 80, 0));
     }
 
     private void filterAvailableFields(String value) {

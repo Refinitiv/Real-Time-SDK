@@ -12,6 +12,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -43,15 +44,15 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private static final double DEFAULT_PREF_HEIGHT = 900;
 
     /* This value is set more than the maximum width of VBOX at the top level */
-    private static final double DEFAULT_PREF_WIDTH = 460;
+    private static final double DEFAULT_PREF_WIDTH = 550;
 
     private static final double DEFAULT_RATIO = 0.93;
 
     @FXML
-    private TextField clientIdTextField;
+    private ScrollableTextField clientIdTextField;
 
     @FXML
-    private TextField usernameTextField;
+    private ScrollableTextField usernameTextField;
 
     @FXML
     private PasswordEyeComponent usernamePasswordComponent;
@@ -81,10 +82,10 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private CheckBox customServiceUrlsCheckbox;
 
     @FXML
-    private TextField tokenServiceUrl;
+    private ScrollableTextField tokenServiceUrl;
 
     @FXML
-    private TextField serviceDiscoveryUrl;
+    private ScrollableTextField serviceDiscoveryUrl;
 
     @FXML
     private Pane useProxyPane;
@@ -93,10 +94,10 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private CheckBox useProxyCheckbox;
 
     @FXML
-    private TextField proxyHostTextFld;
+    private ScrollableTextField proxyHostTextFld;
 
     @FXML
-    private TextField proxyPortTextFld;
+    private ScrollableTextField proxyPortTextFld;
 
     @FXML
     private Pane useProxyAuthenticationPane;
@@ -105,13 +106,13 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private CheckBox useProxyAuthenticationCheckbox;
 
     @FXML
-    private TextField proxyAuthLogin;
+    private ScrollableTextField proxyAuthLogin;
 
     @FXML
     private PasswordEyeComponent proxyAuthPassword;
 
     @FXML
-    private TextField proxyAuthDomain;
+    private ScrollableTextField proxyAuthDomain;
 
     @FXML
     private FilePickerComponent krbFilePicker;
@@ -139,6 +140,12 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     @FXML
     private ScrollPane primaryPane;
+
+    @FXML
+    private HBox controlButtons;
+
+    @FXML
+    private Button backButton;
 
     private final OMMViewerError ommViewerError = new OMMViewerError();
     private AsyncResponseModel asyncResponseObserver;
@@ -172,6 +179,43 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         Rectangle2D screenBounds = Screen.getPrimary().getBounds();
         primaryPane.setPrefHeight(Math.min(screenBounds.getMaxY() * DEFAULT_RATIO, DEFAULT_PREF_HEIGHT));
         primaryPane.setPrefWidth(DEFAULT_PREF_WIDTH);
+        primaryActionButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 10);
+        backButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 10);
+        errorDebugArea.setAreaHeight(Math.max(60, sceneController.getPrimaryStage().getScene().getWindow().heightProperty().get() -
+                primaryTabPane.getHeight() - controlButtons.getHeight() - 225));
+
+        sceneController.getPrimaryStage().getScene().getWindow().widthProperty().addListener(e -> {
+            double width = Math.max(200, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() / 2 - 80);
+            usernameTextField.setCustomWidth(width);
+            clientIdTextField.setCustomWidth(width);
+            tokenServiceUrl.setCustomWidth(width);
+            serviceDiscoveryUrl.setCustomWidth(width);
+            krbFilePicker.setFilePickerWidth(width);
+            proxyAuthDomain.setCustomWidth(width);
+            proxyAuthLogin.setCustomWidth(width);
+            proxyAuthPassword.setCustomWidth(width);
+            usernamePasswordComponent.getPasswordField().setPrefWidth(width);
+            clientIdTextField.setCustomWidth(width);
+            keyPasswordComponent.setCustomWidth(width);
+            proxyHostTextFld.setCustomWidth(width);
+            proxyPortTextFld.setCustomWidth(width);
+
+            keyFilePicker.setFilePickerWidth(width);
+            usernamePasswordComponent.setCustomWidth(width);
+            primaryTabPane.setPrefWidth(Math.max(450, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get()) - 30);
+            errorDebugArea.setPrefWidth(Math.max(450, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() - 30));
+            dictionaryLoader.setCustomWidth(width);
+
+            emaConfigComponent.setConsumerNameWidth(width - 30);
+            emaConfigComponent.setFilePickerTextLength(width - 30);
+            primaryActionButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 30);
+            backButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 30);
+        });
+
+        sceneController.getPrimaryStage().getScene().getWindow().heightProperty().addListener(e ->{
+            errorDebugArea.setAreaHeight(Math.max(60, sceneController.getPrimaryStage().getScene().getWindow().heightProperty().get() -
+                    primaryTabPane.getHeight() - controlButtons.getHeight() - 225));
+        });
     }
 
     public void handleBackBtnAction(ActionEvent event) {
@@ -287,8 +331,6 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         final boolean isEmaConfigSelected = emaConfigComponent.getEmaConfigCheckbox().isSelected();
         connectionTypeBox.setDisable(isEmaConfigSelected);
         dictionaryLoader.setDisable(isEmaConfigSelected);
-        customServiceUrlsPane.setDisable(isEmaConfigSelected);
-        customServiceUrlsCheckbox.setDisable(isEmaConfigSelected);
         if (isEmaConfigSelected) {
             primaryActionButton.setText(BUTTON_CONNECT_TEXT);
             primaryActionButton.getStyleClass().add("connect-button");
@@ -388,23 +430,23 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             }
         } else {
             ommViewerError.appendErrorText(CLIENT_DISCOVERED_ENDPOINT_SETTINGS_ERROR);
-            boolean hasError = hasErrorField("Username", usernameTextField)
+            boolean hasError = hasErrorField("Username", usernameTextField.getTextField())
                     | hasErrorField("Password", usernamePasswordComponent.getPasswordField())
-                    | hasErrorField("Client ID", clientIdTextField);
+                    | hasErrorField("Client ID", clientIdTextField.getTextField());
             if (encryptionOptionCheckbox.isSelected()) {
                 hasError |= hasErrorField("Key File", keyFilePicker.getFilePickerTextField())
                         | hasErrorField("Key Password", keyPasswordComponent.getPasswordField());
             }
 
             if (useProxyCheckbox.isSelected()) {
-                hasError |= hasErrorField("Proxy host", proxyPortTextFld)
-                        | hasErrorField("Proxy port", proxyPortTextFld);
+                hasError |= hasErrorField("Proxy host", proxyPortTextFld.getTextField())
+                        | hasErrorField("Proxy port", proxyPortTextFld.getTextField());
             }
 
             if (!emaConfigComponent.getEmaConfigCheckbox().isSelected()) {
                 if (customServiceUrlsCheckbox.isSelected()){
-                    hasError |= hasErrorField("Service Discovery URL", serviceDiscoveryUrl)
-                            | hasErrorField("Token Service URL", tokenServiceUrl);
+                    hasError |= hasErrorField("Service Discovery URL", serviceDiscoveryUrl.getTextField())
+                            | hasErrorField("Token Service URL", tokenServiceUrl.getTextField());
                 }
                 hasError |= dictionaryLoader.validate(ommViewerError);
             }

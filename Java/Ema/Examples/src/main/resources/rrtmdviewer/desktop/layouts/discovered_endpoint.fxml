@@ -14,8 +14,6 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
@@ -24,29 +22,33 @@
 
 <?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.EmaConfigComponent?>
 <?import javafx.scene.control.ScrollPane?>
-<ScrollPane fx:id="primaryPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController">
-      <VBox maxWidth="455">
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ScrollableTextField?>
+<ScrollPane fx:id="primaryPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController">
+      <VBox >
          <children>
             <TabPane fx:id="primaryTabPane" stylesheets="@../styles/discovered-endpoint-style.css" tabClosingPolicy="UNAVAILABLE">
                <tabs>
                   <Tab text="Connectivity Parameters">
                      <content>
-                        <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css" spacing="10">
+                        <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css" spacing="5" >
                            <children>
-                              <EmaConfigComponent fx:id="emaConfigComponent" defaultConsumerName="Consumer_RRTViewer_DE" />
+                              <EmaConfigComponent fx:id="emaConfigComponent" defaultConsumerName="Consumer_RRTViewer_DE"
+                                                  styleClass="grey-area-small-box"/>
                               <VBox spacing="5" styleClass="grey-area-small-box">
                                  <children>
-                                    <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                    <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
                                        <children>
                                           <Label styleClass="optionslabel" text="Username:">
                                              <font>
                                                 <Font size="13.0" />
                                              </font>
                                           </Label>
-                                          <TextField fx:id="usernameTextField" focusTraversable="false" prefHeight="30.0" promptText="username" styleClass="inputfield" />
+                                          <ScrollableTextField fx:id="usernameTextField" focusTraversable="false" prompt="username"/>
                                        </children>
                                     </HBox>
-                                    <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                    <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
                                        <children>
                                           <Label styleClass="optionslabel" text="Password:">
                                              <font>
@@ -56,14 +58,14 @@
                                           <PasswordEyeComponent fx:id="usernamePasswordComponent" populatedValue="password" />
                                        </children>
                                     </HBox>
-                                    <HBox alignment="CENTER_LEFT" styleClass="area-without-frame">
+                                    <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
                                        <children>
                                           <Label styleClass="optionslabel" text="Client ID:">
                                              <font>
                                                 <Font size="13.0" />
                                              </font>
                                           </Label>
-                                          <TextField fx:id="clientIdTextField" focusTraversable="false" promptText="client id" styleClass="inputfield" />
+                                          <ScrollableTextField fx:id="clientIdTextField" focusTraversable="false" prompt="user id"/>
                                        </children>
                                     </HBox>
                                  </children>
@@ -100,20 +102,20 @@
                      <content>
                         <VBox spacing="5" styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
                            <children>
-                              <StackPane alignment="TOP_LEFT" maxHeight="80">
+                              <StackPane alignment="TOP_LEFT" maxHeight="90">
                                  <Pane fx:id="customServiceUrlsPane" disable="true" styleClass="grey-area-small-box">
                                     <padding>
                                        <Insets left="10.0" right="10.0" />
                                     </padding>
                                     <children>
                                        <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <Label text="Service Discovery URL" />
-                                             <TextField fx:id="serviceDiscoveryUrl" focusTraversable="false" minWidth="200.0" prefHeight="30.0" text="" />
+                                             <ScrollableTextField fx:id="serviceDiscoveryUrl" focusTraversable="false" prefWidth="200.0" text="" />
                                           </VBox>
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <Label text="Token Service URL" />
-                                             <TextField fx:id="tokenServiceUrl" focusTraversable="false" minWidth="200.0" prefHeight="30.0" />
+                                             <ScrollableTextField fx:id="tokenServiceUrl" focusTraversable="false" prefWidth="200.0" />
                                           </VBox>
                                        </HBox>
                                     </children>
@@ -124,7 +126,7 @@
                                     </font>
                                  </CheckBox>
                               </StackPane>
-                              <StackPane alignment="TOP_LEFT" maxHeight="80">
+                              <StackPane alignment="TOP_LEFT" maxHeight="90">
                                  <Pane fx:id="encryptionOptionsPane" disable="true" styleClass="grey-area-small-box">
                                     <padding>
                                        <Insets left="10.0" right="10.0" />
@@ -132,7 +134,7 @@
                                     <children>
                                        <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
                                           <FilePickerComponent fx:id="keyFilePicker" label="Keystore File:" />
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <Label text="Keystore Password:" />
                                              <PasswordEyeComponent fx:id="keyPasswordComponent" />
                                           </VBox>
@@ -145,20 +147,20 @@
                                     </font>
                                  </CheckBox>
                               </StackPane>
-                              <StackPane alignment="TOP_LEFT" maxHeight="80">
+                              <StackPane alignment="TOP_LEFT" maxHeight="90">
                                  <Pane fx:id="useProxyPane" disable="true" styleClass="grey-area-small-box">
                                     <padding>
                                        <Insets left="10.0" right="10.0" />
                                     </padding>
                                     <children>
                                        <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <Label text="Hostname" />
-                                             <TextField fx:id="proxyHostTextFld" focusTraversable="false" prefHeight="30.0" prefWidth="150.0" />
+                                             <ScrollableTextField fx:id="proxyHostTextFld" focusTraversable="false" prefWidth="150.0" />
                                           </VBox>
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <Label text="Port" />
-                                             <TextField fx:id="proxyPortTextFld" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" />
+                                             <ScrollableTextField fx:id="proxyPortTextFld" focusTraversable="false" prefWidth="200.0" />
                                           </VBox>
                                        </HBox>
                                     </children>
@@ -169,21 +171,21 @@
                                     </font>
                                  </CheckBox>
                               </StackPane>
-                              <StackPane alignment="TOP_LEFT" maxHeight="130">
+                              <StackPane alignment="TOP_LEFT" maxHeight="160">
                                  <Pane fx:id="useProxyAuthenticationPane" disable="true" styleClass="grey-area-small-box">
                                     <children>
                                        <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <VBox>
                                                 <Label text="Username" />
-                                                <TextField fx:id="proxyAuthLogin" focusTraversable="false" prefHeight="25.0" prefWidth="200.0" />
+                                                <ScrollableTextField fx:id="proxyAuthLogin" focusTraversable="false" prefWidth="200.0" />
                                              </VBox>
                                              <FilePickerComponent fx:id="krbFilePicker" label="KRB5 Config File" />
                                           </VBox>
-                                          <VBox prefWidth="200">
+                                          <VBox>
                                              <VBox>
                                                 <Label text="Domain" />
-                                                <TextField fx:id="proxyAuthDomain" focusTraversable="false" prefHeight="30.0" prefWidth="200.0" />
+                                                <ScrollableTextField fx:id="proxyAuthDomain" focusTraversable="false" prefWidth="200.0" />
                                              </VBox>
                                              <VBox>
                                                 <Label text="Password" />
@@ -214,24 +216,24 @@
                               <Font size="15.0" />
                            </font>
                         </Label>
-                        <ListView fx:id="serviceEndpointChoiceBox" focusTraversable="false" maxHeight="90.0" maxWidth="450" minHeight="90.0" prefWidth="450" />
+                        <ListView fx:id="serviceEndpointChoiceBox" focusTraversable="false" maxHeight="90.0" minHeight="90.0" />
                      </children>
                   </VBox>
-                  <HBox spacing="10.0">
+                  <HBox spacing="10.0" fx:id="controlButtons">
                      <children>
-                        <Button fx:id="backButton" focusTraversable="false" maxWidth="450" mnemonicParsing="false" onAction="#handleBackBtnAction" prefHeight="30.0" prefWidth="450" text="Back" styleClass="connect-button">
+                        <Button fx:id="backButton" focusTraversable="false" mnemonicParsing="false" onAction="#handleBackBtnAction" prefHeight="30.0" text="Back" styleClass="connect-button">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="primaryActionButton" focusTraversable="false" maxWidth="450" mnemonicParsing="false" onAction="#handleSubmitBtnAction" prefHeight="30.0" prefWidth="450" text="Retrieve Service Endpoints" styleClass="connect-button">
+                        <Button fx:id="primaryActionButton" focusTraversable="false" mnemonicParsing="false" onAction="#handleSubmitBtnAction" prefHeight="30.0" text="Retrieve Service Endpoints" styleClass="connect-button">
                            <HBox.margin>
                               <Insets right="10.0" />
                            </HBox.margin>
                         </Button>
                      </children>
                   </HBox>
-                  <ErrorDebugAreaComponent fx:id="errorDebugArea" areaHeight="140.0">
+                  <ErrorDebugAreaComponent fx:id="errorDebugArea" prefHeight="40">
                      <VBox.margin>
                         <Insets bottom="2.0" right="2.0" />
                      </VBox.margin>

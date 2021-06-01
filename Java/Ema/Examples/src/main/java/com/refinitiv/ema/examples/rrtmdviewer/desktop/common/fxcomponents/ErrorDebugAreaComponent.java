@@ -53,7 +53,7 @@ public class ErrorDebugAreaComponent extends VBox {
     }
 
     public void setAreaHeight(double areaHeight) {
-        errorDebugAreaInternal.setPrefHeight(areaHeight);
+        errorDebugAreaInternal.setMinHeight(areaHeight);
     }
 
     public double getAreaHeight() {

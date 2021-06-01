@@ -18,7 +18,7 @@ public class FilePickerComponent extends VBox {
     private Label filePickerLabel;
 
     @FXML
-    private TextField filePickerTextField;
+    private ScrollableTextField filePickerTextField;
 
     public FilePickerComponent() {
         SceneController.loadComponent(FILE_PICKER_COMPONENT, this);
@@ -51,14 +51,18 @@ public class FilePickerComponent extends VBox {
     }
 
     public TextField getFilePickerTextField() {
-        return filePickerTextField;
+        return filePickerTextField.getTextField();
     }
 
     public void setFilePickerTooltip(Tooltip tooltip) {
-        this.filePickerTextField.setTooltip(tooltip);
+        this.filePickerTextField.getTextField().setTooltip(tooltip);
     }
 
     public Tooltip getFilePickerTooltip() {
-        return this.filePickerTextField.getTooltip();
+        return this.filePickerTextField.getTextField().getTooltip();
+    }
+
+    public void setFilePickerWidth(double width) {
+        filePickerTextField.setCustomWidth(width - 30);
     }
 }

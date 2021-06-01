@@ -33,7 +33,7 @@ public class DictionaryLoaderComponent extends VBox {
     private Label fieldDictLabel;
 
     @FXML
-    private TextField fieldDictFile;
+    private ScrollableTextField fieldDictFile;
 
     @FXML
     private Button fieldDictFileBtn;
@@ -42,7 +42,7 @@ public class DictionaryLoaderComponent extends VBox {
     private Label enumDictLabel;
 
     @FXML
-    private TextField enumDictFile;
+    private ScrollableTextField enumDictFile;
 
     @FXML
     private Button enumDictFileBtn;
@@ -142,11 +142,11 @@ public class DictionaryLoaderComponent extends VBox {
     }
 
     public TextField getFieldDictFile() {
-        return fieldDictFile;
+        return fieldDictFile.getTextField();
     }
 
     public TextField getEnumDictFile() {
-        return enumDictFile;
+        return enumDictFile.getTextField();
     }
 
     public void setFieldWidth(double widthInPixels) {
@@ -155,5 +155,10 @@ public class DictionaryLoaderComponent extends VBox {
 
     public double getFieldWidth() {
         return fieldWidth.get();
+    }
+
+    public void setCustomWidth(double width) {
+        fieldDictFile.setCustomWidth(width);
+        enumDictFile.setCustomWidth(width);
     }
 }

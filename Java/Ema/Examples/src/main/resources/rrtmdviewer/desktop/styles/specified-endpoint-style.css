@@ -1,16 +1,5 @@
 /*Specified Endpoint settings CSS*/
 
-.button {
-    -fx-padding: 2;
-    -fx-border-insets: 2;
-    -fx-background-insets: 2;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
-    -fx-pref-height: 40px;
-    -fx-pref-width: 130px;
-    -fx-border-color: #A8A8A8;
-}
-
 .vbox {
     -fx-padding: 2px;
     -fx-border-insets: 2px;
@@ -129,6 +118,14 @@
 }
 
 .connect-button {
+    -fx-padding: 2;
+    -fx-border-insets: 2;
+    -fx-background-insets: 2;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-pref-height: 40px;
+    -fx-pref-width: 130px;
+    -fx-border-color: #A8A8A8;
     -fx-font-weight: BOLD;
     -fx-font-size: 15px;
 }

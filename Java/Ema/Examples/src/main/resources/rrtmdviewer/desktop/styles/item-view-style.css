@@ -24,6 +24,8 @@
     -fx-border-width: 1;
     -fx-font-size: 15px;
     -fx-font-weight: BOLD;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
 }
 
 .brand-button:hover {

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+
+<?import javafx.scene.layout.VBox?>
+<fx:root type="javafx.scene.layout.VBox"
+         xmlns:fx="http://javafx.com/fxml" fx:id="rootBox" prefHeight="37">
+    <TextField fx:id="textField" visible="true" focusTraversable="false" editable="true" prefHeight="30" minHeight="30"/>
+    <ScrollBar fx:id="scrollBar" orientation="HORIZONTAL" visible="false"/>
+</fx:root>

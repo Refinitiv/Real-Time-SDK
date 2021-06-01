@@ -50,6 +50,8 @@
 .connect-button {
     -fx-font-weight: BOLD;
     -fx-font-size: 15px;
+    -fx-border-radius: 3px;
+    -fx-background-radius: 3px;
 }
 
 .inputfield {

@@ -17,6 +17,7 @@
 <?import javafx.scene.text.Font?>
 
 <?import com.sun.javafx.scene.control.LabeledText?>
+<?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ScrollableTextField?>
 <ScrollPane fx:id="scrollPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.ItemViewController">
    <HBox fx:id="contentHBox">
       <children>
@@ -48,15 +49,7 @@
                            <VBox fx:id="marketByContent" styleClass="innerboxwithframe" visible="false">
                               <children>
                                  <Label text="RIC:" />
-                                 <TextField fx:id="ricMarketBy">
-                                    <tooltip>
-                                       <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Specify a single RIC" wrapText="true">
-                                          <font>
-                                             <Font size="11.0" />
-                                          </font>
-                                       </Tooltip>
-                                    </tooltip>
-                                 </TextField>
+                                 <ScrollableTextField fx:id="ricMarketBy" tooltipText="Specify a single RIC"/>
                               </children>
                            </VBox>
                            <VBox fx:id="marketPriceContent" spacing="15" visible="false">
@@ -64,15 +57,7 @@
                                  <VBox>
                                     <Label>RIC(s)</Label>
                                     <VBox styleClass="vbox">
-                                       <TextField fx:id="ricMarketPrice" prefHeight="25.0" prefWidth="300.0">
-                                          <tooltip>
-                                             <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Specify a single RIC for a single item request or multiple RICs separated by commas for a batch request Examples: TRI.N or TRI.N, IBM.N" wrapText="true">
-                                                <font>
-                                                   <Font size="11.0" />
-                                                </font>
-                                             </Tooltip>
-                                          </tooltip>
-                                       </TextField>
+                                       <ScrollableTextField fx:id="ricMarketPrice" prefHeight="25.0" prefWidth="300.0" tooltipText="Specify a single RIC for a single item request or multiple RICs separated by commas for a batch request Examples: TRI.N or TRI.N, IBM.N"/>
                                     </VBox>
                                  </VBox>
                                  <VBox>
@@ -152,7 +137,7 @@
                            <CheckBox fx:id="snapshotCheckbox" mnemonicParsing="false" style="-fx-padding: 5;" text="Snapshot" />
                         </children>
                      </VBox>
-                     <Button fx:id="submitButton" disable="true" mnemonicParsing="false" onAction="#onSubmitBtnPressed" prefHeight="27.0" prefWidth="95.0" text="Submit" styleClass="brand-button" />
+                     <Button fx:id="submitButton" disable="true" mnemonicParsing="false" onAction="#onSubmitBtnPressed" prefHeight="27.0" prefWidth="150.0" text="Submit" styleClass="brand-button" />
                   </children>
                </VBox>
                <HBox alignment="CENTER_LEFT" style="-fx-border-width: 2;" styleClass="vboxwithframe">
