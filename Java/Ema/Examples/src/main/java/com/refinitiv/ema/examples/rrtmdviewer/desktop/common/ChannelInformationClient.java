@@ -2,6 +2,9 @@ package com.refinitiv.ema.examples.rrtmdviewer.desktop.common;
 
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.examples.rrtmdviewer.desktop.itemview.TabViewModel;
+import com.refinitiv.ema.rdm.EmaRdm;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ConnectionTypes;
 
@@ -23,9 +26,11 @@ public class ChannelInformationClient implements OmmConsumerClient {
 
     private boolean hasChanged;
 
-    private StringBuilder stringBuilder = new StringBuilder(100);
+    private StringBuilder stringBuilder = new StringBuilder(150);
 
     private TabViewModel tabViewModel;
+
+    private long lastRttLatency;
 
     public void setTabViewModel(TabViewModel tabViewModel)
     {
@@ -95,6 +100,24 @@ public class ChannelInformationClient implements OmmConsumerClient {
         }
 
         /* Notify the listener */
+        notifyListener();
+    }
+
+    private void applyRtt(GenericMsg genericMsg) {
+        hasChanged = false;
+        if (genericMsg.domainType() == DomainTypes.LOGIN && genericMsg.payload().dataType() == DataTypes.ELEMENT_LIST) {
+            ElementList data = genericMsg.payload().elementList();
+            for ( ElementEntry elem : data) {
+                if (elem.name().equals(EmaRdm.ENAME_LATENCY)) {
+                    hasChanged = true;
+                    this.lastRttLatency = elem.uintValue();
+                }
+            }
+        }
+        notifyListener();
+    }
+
+    private void notifyListener() {
         if(hasChanged)
         {
             if(tabViewModel != null)
@@ -166,6 +189,12 @@ public class ChannelInformationClient implements OmmConsumerClient {
                 break;
         }
 
+        stringBuilder.append(", Last RTT Latency(usec)=");
+        if (lastRttLatency <= 0) {
+            stringBuilder.append("Not calculated");
+        } else {
+            stringBuilder.append(lastRttLatency / 1000);
+        }
         return stringBuilder.toString();
     }
 
@@ -184,7 +213,7 @@ public class ChannelInformationClient implements OmmConsumerClient {
 
     @Override
     public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent) {
-
+        applyRtt(genericMsg);
     }
 
     @Override

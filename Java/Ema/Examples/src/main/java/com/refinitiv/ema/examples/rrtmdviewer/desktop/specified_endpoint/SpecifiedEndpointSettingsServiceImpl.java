@@ -91,6 +91,7 @@ public class SpecifiedEndpointSettingsServiceImpl implements SpecifiedEndpointSe
 
         innerElementList.add(EmaFactory.createElementEntry().ascii("Dictionary", "Dictionary_1"));
         innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+        innerElementList.add(EmaFactory.createElementEntry().uintValue("EnableRtt", 1));
         innerMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_1", MapEntry.MapAction.ADD, innerElementList));
         innerElementList.clear();
 

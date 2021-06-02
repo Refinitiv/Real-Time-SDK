@@ -176,6 +176,9 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
         //For support regular tracing it should be also enabled.
         innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
 
+        //For support RTT monitoring it should be enabled
+        innerElementList.add(EmaFactory.createElementEntry().uintValue("EnableRtt", 1));
+
         elementMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_1", MapEntry.MapAction.ADD, innerElementList));
         innerElementList.clear();
 
