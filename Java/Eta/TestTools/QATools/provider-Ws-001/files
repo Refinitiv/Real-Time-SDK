@@ -1,3 +1,5 @@
 # file,location
 ,Applications/Examples
+,Appilcations/Shared
 Provider.java,Applications/Examples/src/main/java/com/refinitiv/eta/examples/provider
+ProviderSession.java,Applications/Shared/src/main/java/com/refinitiv/eta/shared

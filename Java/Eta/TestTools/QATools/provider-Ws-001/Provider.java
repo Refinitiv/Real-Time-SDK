@@ -134,8 +134,12 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
     /* default run time in seconds */
     private static final String defaultRuntime = "1200"; // seconds
 
+    private boolean showTransportDetails = false;
+
     public static final int CLIENT_SESSION_INIT_TIMEOUT = 30; // seconds
 
+    public int compressionLevel = 3;
+    
     public Provider()
     {
         _providerSession = new ProviderSession();
@@ -195,6 +199,8 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         //APIQA
         System.out.println("compressionType: " + CommandLine.value("compressionType"));
         System.out.println("compressionLevel: " + CommandLine.value("compressionLevel"));
+        System.out.println("testCompressionZlib: " + CommandLine.value("testCompressionZlib"));
+        System.out.println("transportDetails: " + CommandLine.value("td"));
         //END APIQA
 
         if ( ! _dictionaryHandler.loadDictionary(_error) )
@@ -218,7 +224,16 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
 	        	bindOptions.compressionType(CompressionTypes.LZ4);
         }
         if(CommandLine.value("compressionLevel")!= null)
-        	bindOptions.compressionLevel(CommandLine.intValue("compressionLevel"));
+            compressionLevel = CommandLine.intValue("compressionLevel");
+        if(CommandLine.value("testCompressionZlib")!= null)
+        {
+            bindOptions.compressionType(CompressionTypes.ZLIB);
+            bindOptions.compressionLevel(compressionLevel);
+        }
+        if(CommandLine.value("td")!= null)
+        {
+            showTransportDetails = true;
+        }
         //END API QA
         
         if(connectionType != null && connectionType.equals("encrypted"))
@@ -298,6 +313,8 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         //API QA
         CommandLine.addOption("compressionType", "Specify compressionType is either ZLib or LZ4");
         CommandLine.addOption("compressionLevel", "Specify compressionLevel for ZLib, valid range is 0-9");
+        CommandLine.addOption("testCompressionZlib", "Turns on Zlib compression");
+        CommandLine.addOption("td", "Turns on transport details");
         //END API QA
     }
 
@@ -453,6 +470,11 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
                             }
                             System.out.println("read error, text: " + _error.text());
                             continue;
+                        }
+                        if(showTransportDetails)
+                        {
+                            ReadArgs readArgs = _providerSession.getReadArgs();
+                            System.out.println("Compression Stats Bytes In: " + readArgs.bytesRead() + " Uncompressed Bytes In: " + readArgs.uncompressedBytesRead());
                         }
                     }
                     else if (key.isWritable() && ((Channel)key.attachment()).state() == ChannelState.ACTIVE)

@@ -194,6 +194,8 @@ public class Consumer implements ResponseCallback, HttpCallback
     // consumer run-time in seconds
     private static final int defaultRuntime = 600;
 
+    private boolean showTransportDetails = false;
+
     private Error error;    // error information
 
     private DecodeIterator dIter = CodecFactory.createDecodeIterator();
@@ -355,6 +357,15 @@ public class Consumer implements ResponseCallback, HttpCallback
     	        	copts.compressionType(CompressionTypes.ZLIB);
     	        else if (CommandLine.value("compressionType").equalsIgnoreCase("LZ4"))
     	        	copts.compressionType(CompressionTypes.LZ4);
+            }
+            if(CommandLine.value("testCompressionZlib")!= null)
+            {
+                copts.compressionType(CompressionTypes.ZLIB);
+            }
+            if(CommandLine.value("td")!= null)
+            {
+                showTransportDetails = true;
+                channelSession.showTransportDetails = true;
             }
             //END API QA
 
@@ -841,6 +852,14 @@ public class Consumer implements ResponseCallback, HttpCallback
             System.exit(TransportReturnCodes.FAILURE);
         }
 
+        if (showTransportDetails)
+        {
+            ReadArgs readArgs = chnl.getReadArgs();
+            System.out.println("Message Details:");
+            System.out.println("Accumulative bytesRead=" + readArgs.bytesRead());
+            System.out.println("Accumulative uncompressedBytesRead=" + readArgs.uncompressedBytesRead());
+        }
+        
         processResponse(chnl, responseMsg, dIter);
     }
 
@@ -1414,6 +1433,8 @@ public class Consumer implements ResponseCallback, HttpCallback
         CommandLine.addOption("jsonEnumExpand", false, "If specified, expand all enumerated values with a JSON protocol");
         //API QA
         CommandLine.addOption("compressionType", "Specify compressionType either ZLib or LZ4");
+        CommandLine.addOption("testCompressionZlib", "Turns on Zlib compression");
+        CommandLine.addOption("td", "Turns on transport details");
         //END API QA
     }
 
