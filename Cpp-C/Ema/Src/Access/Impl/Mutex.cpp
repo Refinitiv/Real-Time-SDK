@@ -58,4 +58,25 @@ void Mutex::unlock()
 	pthread_mutex_unlock( &m_mutex );
 }
 
+
+ConditionVariable::ConditionVariable()
+{
+	pthread_cond_init(&condition_var, NULL);
+}
+
+void ConditionVariable::wait(Mutex& mutex)
+{
+	pthread_cond_wait(&condition_var, &mutex.m_mutex);
+}
+
+void ConditionVariable::timedwait(Mutex& mutex, timespec* abstime)
+{
+	pthread_cond_timedwait(&condition_var, &mutex.m_mutex, abstime);
+}
+
+void ConditionVariable::notify()
+{
+	pthread_cond_signal(&condition_var);
+}
+
 #endif // WIN32

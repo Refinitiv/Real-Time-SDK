@@ -139,6 +139,10 @@ public:
 		_clearSigHandler = true;
 
 		_listLock.unlock();
+
+#ifndef WIN32
+		notifyMonitorThread();
+#endif
 	}
 
 #ifdef WIN32
@@ -150,6 +154,7 @@ public:
 		case CTRL_BREAK_EVENT:
 		case CTRL_SHUTDOWN_EVENT:
 		case CTRL_C_EVENT:
+			_CtrlC_Activated = true;
 			OmmBaseImplMap<T>::atExit();
 			break;
 		}
@@ -162,11 +167,51 @@ public:
 		exit(-1);
 	}
 
+	static void notifyMonitorThread()
+	{
+		_condVariableMutex.lock();
+		_condVariable.notify();
+		_condVariableMutex.unlock();
+	}
+
 	static void sigAction(int sig, siginfo_t* pSiginfo, void* pv)
 	{
-		pthread_t exitThreadId;
-		pthread_create(&exitThreadId, NULL, OmmBaseImplMap<T>::runExitThread, NULL);
-		assert(exitThreadId != 0);
+		_CtrlC_Activated = true;
+		notifyMonitorThread();
+	}
+
+	static void* monitorThread(void* arg)
+	{
+		_condVariableMutex.lock();
+
+		while (!_CtrlC_Activated && !_clearSigHandler)
+		{
+			_condVariable.wait(_condVariableMutex);
+		}
+
+		_condVariableMutex.unlock();
+
+		if (_CtrlC_Activated)
+			runExitThread(NULL);
+
+		_monitorThreadMutex.lock();
+		_monitorThreadId = 0;
+		_monitorThreadMutex.unlock();
+	}
+
+	static void runMonitorThread()
+	{
+		if (_monitorThreadId == 0)
+		{
+			_monitorThreadMutex.lock();
+			if (_monitorThreadId == 0)
+			{
+				pthread_create(&_monitorThreadId, NULL, OmmBaseImplMap<T>::monitorThread, NULL);
+				assert(_monitorThreadId != 0);
+			}
+			_monitorThreadMutex.unlock();
+		}
+		return;
 	}
 #endif
 
@@ -186,9 +231,12 @@ private:
 
 	static void init()
 	{
+		_clearSigHandler = false;
 #ifdef WIN32
 		SetConsoleCtrlHandler(&OmmBaseImplMap<T>::TermHandlerRoutine, TRUE);
 #else
+		runMonitorThread();
+
 		bzero(&_sigAction, sizeof(_sigAction));
 		bzero(&_oldSigAction, sizeof(_oldSigAction));
 
@@ -197,8 +245,6 @@ private:
 
 		sigaction(SIGINT, &_sigAction, &_oldSigAction);
 #endif
-
-		_clearSigHandler = false;
 	}
 
 	static void atExit()
@@ -241,10 +287,17 @@ private:
 	static EmaVector< T* >				_clientList;
 	static UInt64						_id;
 	static bool							_clearSigHandler;
+	static bool							_CtrlC_Activated;
 
 #ifndef WIN32
-	static struct sigaction _sigAction;
-	static struct sigaction _oldSigAction;
+	static struct sigaction			_sigAction;
+	static struct sigaction			_oldSigAction;
+
+	static ConditionVariable		_condVariable;
+	static Mutex					_condVariableMutex;
+
+	static pthread_t				_monitorThreadId;
+	static Mutex					_monitorThreadMutex;
 #endif
 };
 
@@ -252,10 +305,17 @@ template <class T> EmaVector< T* > OmmBaseImplMap<T>::_clientList;
 template <class T> Mutex OmmBaseImplMap<T>::_listLock;
 template <class T> UInt64 OmmBaseImplMap<T>::_id = 0;
 template <class T> bool OmmBaseImplMap<T>::_clearSigHandler = true;
+template <class T> bool OmmBaseImplMap<T>::_CtrlC_Activated = false;
 
 #ifndef WIN32
 template <class T> struct sigaction OmmBaseImplMap<T>::_sigAction;
 template <class T> struct sigaction OmmBaseImplMap<T>::_oldSigAction;
+
+template <class T> ConditionVariable OmmBaseImplMap<T>::_condVariable;
+template <class T> Mutex OmmBaseImplMap<T>::_condVariableMutex;
+
+template <class T> pthread_t OmmBaseImplMap<T>::_monitorThreadId = 0;
+template <class T> Mutex OmmBaseImplMap<T>::_monitorThreadMutex;
 #endif
 
 }

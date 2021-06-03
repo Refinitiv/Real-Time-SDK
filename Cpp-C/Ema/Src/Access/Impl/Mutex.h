@@ -20,6 +20,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <sys/types.h>
+#include <time.h>
 #endif
 
 namespace refinitiv {
@@ -46,6 +47,8 @@ private :
 	CRITICAL_SECTION		m_cs;
 #else
 	pthread_mutex_t			m_mutex;
+
+	friend class ConditionVariable;
 #endif
 
 private :
@@ -75,6 +78,23 @@ private:
 
 	Mutex & theMutex;
 };
+
+#ifndef WIN32
+
+class ConditionVariable {
+public:
+	ConditionVariable();
+
+	void wait(Mutex& mutex);
+	void timedwait(Mutex& mutex, timespec* abstime);
+	void notify();
+
+private:
+	pthread_cond_t  condition_var;
+
+};  // class ConditionVariable
+
+#endif
 
 }
 
