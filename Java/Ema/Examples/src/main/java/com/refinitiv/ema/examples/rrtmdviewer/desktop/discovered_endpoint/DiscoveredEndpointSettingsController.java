@@ -165,7 +165,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         sceneController = ApplicationSingletonContainer.getBean(SceneController.class);
         executorService = ApplicationSingletonContainer.getBean(ExecutorService.class);
         tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL);
-        serviceDiscoveryUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL);
+        serviceDiscoveryUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_DISCOVERY_ENDPOINT_URL);
         discoveredEndpointSettingsService = new DiscoveredEndpointSettingsServiceImpl();
         ApplicationSingletonContainer.addBean(DiscoveredEndpointSettingsService.class, discoveredEndpointSettings);
 

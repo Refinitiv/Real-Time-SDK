@@ -106,6 +106,9 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
             ChannelInformationClient channelInformationClient;
 
+            config.tokenServiceUrl(discoveredEndpointSettingsModel.getTokenServiceUrl());
+            config.serviceDiscoveryUrl(discoveredEndpointSettingsModel.getDiscoveryEndpointUrl());
+
             if(ApplicationSingletonContainer.containsBean(ChannelInformationClient.class) == false) {
                 channelInformationClient = new ChannelInformationClient();
                 ApplicationSingletonContainer.addBean(ChannelInformationClient.class, channelInformationClient);
