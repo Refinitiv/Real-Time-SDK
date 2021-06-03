@@ -3450,10 +3450,10 @@ public class ReactorWatchlistJunit
             callbackHandler.msgReturnCode(ReactorCallbackReturnCodes.RAISE);
             ReactorJunit.dispatchReactor(selector, reactor);
             // verify that the defaultMsgCallback was called.
-            assertEquals(11, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests
+            assertEquals(10, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests
                                                                       // 2 for Item Refresh due to fanout for 2 TRIs requested
                                                                       // 2 for first TRI item updates
-                                                                      // 2 for second TRI item update, still two updates as the reissue does not change anything on the item, hence no refresh is pending            
+                                                                      // 1 for second TRI item update, there is refresh pending from the reissue.            
             // now have the TestServer send a TRI refresh for the reissue to the Reactor.
             testServer.writeMessageToSocket(replay.read());
             
@@ -3469,8 +3469,8 @@ public class ReactorWatchlistJunit
             assertEquals(11, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests
                                                                       // 2 for Item Refresh due to fanout for 2 TRIs requested
                                                                       // 2 for first TRI item updates
-                                                                      // 2 for second TRI item update
-                                                                      // refresh was not callback to the client since that re-issue is an no-op
+                                                                      // 1 for second TRI item update
+                                                                      // 1 for Item Refresh for the reissue
             msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);
             
@@ -3488,7 +3488,8 @@ public class ReactorWatchlistJunit
             assertEquals(13, callbackHandler.defaultMsgEventCount()); // 1 for login, 1 for directory, 3 for submitted item requests
                                                                       // 2 for Item Refresh due to fanout for 2 TRIs requested
                                                                       // 2 for first TRI item updates
-                                                                      // 2 for second TRI item update
+            														  // 1 for second TRI item update
+            														  // 1 for Item Refresh for the reissue
                                                                       // 2 for last TRI item update
             msgEvent = callbackHandler.lastDefaultMsgEvent();
             assertNotNull(msgEvent);

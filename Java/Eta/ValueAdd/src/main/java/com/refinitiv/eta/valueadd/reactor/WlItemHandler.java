@@ -935,13 +935,8 @@ class WlItemHandler implements WlHandler
                     "Reissue not allowed on an unopen stream.");
             return ret;
         }
-    	wlRequest._reissue_hasChange = false;
+    	wlRequest._reissue_hasChange = (!requestMsg.checkNoRefresh() && !requestMsg.checkPause());
     	wlRequest._reissue_hasViewChange = false;
-    	
-        if (requestMsg.checkNoRefresh())
-        {
-        	wlRequest._reissue_hasChange = false;
-        }
                 
 		if (requestMsg.domainType() == DomainTypes.SYMBOL_LIST)
 		{
