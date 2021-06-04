@@ -3994,7 +3994,7 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 	 * or after parsing a complete WS frame. 
 	 * The flag frame->partial will identify if an attempt was previously made to read the
 	 * WS frame header and validate the bytes received complete the payload */
-	else if ((wsSess->actualInBuffLen - wsSess->inputReadCursor) >= 2 && !frame->partial)
+	else if ((wsSess->actualInBuffLen - wsSess->inputReadCursor) >= 2)
 	{
 
 		/* This means there was not a previous call with a partial read of a WS frame.
@@ -4010,6 +4010,15 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 			{
 				haveData = RSSL_TRUE; /* indicates having the entire payload */
 			}
+		}
+	}
+	else
+	{
+		/* This is the case that the current buffer contains a websocket message and one byte of next websocket message which is not sufficient to parse the websocket header. 
+		 * Therefore, the websocket header must be reset to its initial state for reading additional data then parsing. */
+		if(!frame->partial)
+		{
+			_resetWSFrame(frame, (rsslSocketChannel->inputBuffer->buffer + wsSess->inputReadCursor));		
 		}
 	}
 
