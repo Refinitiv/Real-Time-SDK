@@ -100,6 +100,20 @@ RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, Cons
 {
 	RsslRet ret;
 
+	if (consPerfConfig.latencyIncludeJSONConversion == RSSL_TRUE
+		&& pConsumerThread->rjcSess.jsonConverterInitialized == RSSL_TRUE)
+	{
+		RsslErrorInfo eInfo;
+
+		ret = rjcMsgConvertToJsonEst(&pConsumerThread->rjcSess, pConsumerThread->pChannel->majorVersion, pConsumerThread->pChannel->minorVersion, msg, &eInfo);
+		if (ret < RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+					(char*)"rjcMsgConvertToJsonEst() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+			return ret;
+		}
+	}
+
 	switch(msg->msgBase.domainType)
 	{
 		case RSSL_DMT_MARKET_PRICE:

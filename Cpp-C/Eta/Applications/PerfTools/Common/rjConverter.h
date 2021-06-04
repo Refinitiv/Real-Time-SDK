@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020, 2021 Refinitiv. All rights reserved.
 */
 
 #ifndef __RJCONVERTER_H
@@ -50,7 +50,7 @@ void rjcSessionUninitialize(rjConverterSession *);
 RsslRet rjcSessionInitialize(rjConverterSession *, RsslErrorInfo *);
 RsslBuffer *rjcMsgConvertToJson(rjConverterSession *, RsslChannel *, RsslBuffer *, RsslErrorInfo *);
 RsslRet rjcMsgConvertFromJson(rjConverterSession *, RsslChannel *, RsslBuffer *, RsslBuffer *, RsslErrorInfo *);
-
+RsslRet rjcMsgConvertToJsonEst(rjConverterSession*, RsslUInt8, RsslUInt8, RsslMsg*, RsslErrorInfo*);
 
 #ifdef __cplusplus
 };

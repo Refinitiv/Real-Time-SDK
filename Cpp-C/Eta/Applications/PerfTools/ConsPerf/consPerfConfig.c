@@ -34,6 +34,7 @@ static void clearConsPerfConfig()
 	consPerfConfig.writeStatsInterval = 5;
 	consPerfConfig.displayStats = RSSL_TRUE;
 	consPerfConfig.logLatencyToFile = RSSL_FALSE;
+	consPerfConfig.latencyIncludeJSONConversion = RSSL_FALSE;
 
 	consPerfConfig.sendBufSize = 0;
 	consPerfConfig.recvBufSize = 0;
@@ -365,6 +366,10 @@ void initConsPerfConfig(int argc, char **argv)
 		{
 			++iargs; consPerfConfig.tunnelStreamBufsUsed = RSSL_TRUE;
 		}
+		else if (strcmp("-calcRWFJSONConversionLatency", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.latencyIncludeJSONConversion = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -471,6 +476,20 @@ void initConsPerfConfig(int argc, char **argv)
 		exitConfigError(argv);
 	}
 
+	if (consPerfConfig.latencyIncludeJSONConversion == RSSL_TRUE && (consPerfConfig.useReactor == RSSL_TRUE || consPerfConfig.useWatchlist == RSSL_TRUE))
+	{
+		printf("\nConfig error: Should not combine -calcRWFJSONConversionLatency and -reactor or -watchlist.\n");
+		exitConfigError(argv);
+	}
+
+	if (consPerfConfig.latencyIncludeJSONConversion == RSSL_TRUE
+		&& !(consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET
+			|| consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+	{
+		printf("\nConfig error: -calcRWFJSONConversionLatency enables for WebSocket connection only.\n");
+		exitConfigError(argv);
+	}
+
 	consPerfConfig._requestsPerTick = consPerfConfig.itemRequestsPerSec 
 		/ consPerfConfig.ticksPerSec;
 
@@ -566,6 +585,7 @@ void printConsPerfConfig(FILE *file)
 		"            Summary File: %s\n"
 		"              Stats File: %s\n"
 		"        Latency Log File: %s\n"
+		"  Latency Show JSON Conv: %s\n"
 		"               Tick Rate: %u\n"
 		" Reactor/Watchlist Usage: %s\n"
 		"       CA store location: %s\n"
@@ -601,6 +621,7 @@ void printConsPerfConfig(FILE *file)
 		consPerfConfig.summaryFilename,
 		consPerfConfig.statsFilename,
 		consPerfConfig.logLatencyToFile ? consPerfConfig.latencyLogFilename : "(none)",
+		(consPerfConfig.latencyIncludeJSONConversion ? "Yes" : "No"),
 		consPerfConfig.ticksPerSec,
 		reactorWatchlistUsageString,
 		consPerfConfig.caStore,
@@ -648,6 +669,7 @@ void exitWithUsage()
 			"  -postingLatencyRate <posts/sec>      Rate at which to send latency post messages.\n"
 			"  -genericMsgRate <genMsgs/sec>        Rate at which to send generic messages.\n"
 			"  -genericMsgLatencyRate <genMsgs/sec> Rate at which to send latency generic messages.\n"
+			"  -calcRWFJSONConversionLatency        Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF.\n"
 			"\n"
 			"  -uname <name>                        Username to use in login request\n"
 			"  -serviceName <name>                  Service Name\n"

@@ -324,6 +324,57 @@ RsslBuffer *rjcMsgConvertToJson(rjConverterSession *rjcSession, RsslChannel *pCh
 	return pMsgBuffer;
 }
 
+RsslRet rjcMsgConvertToJsonEst(rjConverterSession* rjcSession, RsslUInt8 rwfMajorVersion, RsslUInt8 rwfMinorVersion, RsslMsg* msg, RsslErrorInfo* pError)
+{
+	RsslDecodeIterator dIter;
+	RsslRet ret;
+	RsslBuffer jsonBuffer = RSSL_INIT_BUFFER;
+
+	rsslClearDecodeIterator(&dIter);
+	rsslSetDecodeIteratorRWFVersion(&dIter, rwfMajorVersion, rwfMinorVersion);
+	rsslSetDecodeIteratorBuffer(&dIter, &msg->msgBase.encMsgBuffer);
+
+	/* Clears the previous error code */
+	pError->rsslError.rsslErrorId = 0;
+
+	ret = rsslDecodeMsg(&dIter, msg);
+	if (ret == RSSL_RET_SUCCESS)
+	{
+		RsslConvertRsslMsgToJsonOptions rjcOptions;
+		RsslGetJsonMsgOptions getJsonMsgOptions;
+		RsslJsonConverterError rjcError;
+
+		rsslClearConvertRsslMsgToJsonOptions(&rjcOptions);
+		rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+		if ((rsslConvertRsslMsgToJson(rjcSession->pJsonConverter, &rjcOptions, msg, &rjcError)) != RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+			return RSSL_RET_FAILURE;
+		}
+
+		rsslClearGetJsonMsgOptions(&getJsonMsgOptions);
+		getJsonMsgOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
+		getJsonMsgOptions.streamId = msg->msgBase.streamId;
+		getJsonMsgOptions.isCloseMsg = (msg->msgBase.msgClass == RSSL_MC_CLOSE) ? RSSL_TRUE : RSSL_FALSE;
+
+		if ((ret = rsslGetConverterJsonMsg(rjcSession->pJsonConverter, &getJsonMsgOptions,
+			&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to get converted JSON message. Error text: %s", rjcError.text);
+			return RSSL_RET_FAILURE;
+		}
+	}
+	else
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE,
+			__FILE__, __LINE__, "rsslDecodeMsg() failed: %d", ret);
+	}
+
+	return ret;
+}
+
 RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChannel,
 								RsslBuffer *decodedMsg, RsslBuffer *pJsonBuffer, RsslErrorInfo *pError)
 {

@@ -41,6 +41,7 @@ typedef struct
 	char		statsFilename[128];					/* Name of the statistics log file. See -statsFile. */
 	RsslUInt32	writeStatsInterval;					/* Controls how often statistics are written. */
 	RsslBool	displayStats;						/* Controls whether stats appear on the screen. */
+	RsslBool	latencyIncludeJSONConversion;		/* All the latencies calculation should(true) or should not(false) include the time of Rwf to JSON conversion. */
 
 	RsslInt32 itemRequestsPerSec;					/* Rate at which the consumer will send out item requests. See -rqps. */
 
