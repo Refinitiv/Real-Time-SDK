@@ -42,6 +42,11 @@ static const RsslInt32 WTF_DEFAULT_CONSUMER_LOGIN_STREAM_ID  = 1;
 static const void* WTF_DEFAULT_LOGIN_USER_SPEC_PTR = (void*)0x55557777;
 static const RsslUInt WTF_MCAST_UPDATE_BUFFER_LIMIT = 10;
 
+extern RsslUInt32 service1DictionariesProvidedCount;
+extern RsslBuffer* service1DictionariesProvidedList;
+extern RsslUInt32 service1DictionariesUsedCount;
+extern RsslBuffer* service1DictionariesUsedList;
+
 RsslRDMMsg *rdmMsgCreateCopy(RsslRDMMsg *pRdmMsg);
 
 /* Test framework for the watchlist.  Provides many convenience functions for connecting, logging
@@ -306,6 +311,7 @@ typedef struct
 	RsslBool	multicastGapRecovery;			/* Provider's login response indicates
 												 * whether watchlist should recover from gaps. */
 	RsslBool    provideDefaultServiceLoad;		/* Provide a default service's load for directory refresh. */
+	RsslBool    provideDictionaryUsedAndProvided; /* Provides dictionary used and provided list */
 } WtfSetupConnectionOpts;
 
 /* Initializes commonly used settings of WtfSetupConnectionOpts. */
@@ -328,6 +334,7 @@ static void wtfClearSetupConnectionOpts(WtfSetupConnectionOpts *pOpts)
 	pOpts->requestTimeout = 15000;
 	pOpts->multicastGapRecovery = RSSL_TRUE;
 	pOpts->provideDefaultServiceLoad = RSSL_FALSE;
+	pOpts->provideDictionaryUsedAndProvided = RSSL_FALSE;
 }
 
 /*** Connections ***/

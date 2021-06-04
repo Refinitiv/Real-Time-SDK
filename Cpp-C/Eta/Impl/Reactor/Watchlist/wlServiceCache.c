@@ -617,7 +617,6 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 						/* Set filter as updated. */
 						pCachedService->infoUpdateFlags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
 						pCachedInfo->flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
-						pCachedInfo->dictionariesProvidedCount = pUpdatedInfo->dictionariesProvidedCount;
 
 						/* Clear current memory. */
 						if (pCachedInfo->dictionariesProvidedList)
@@ -627,6 +626,7 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 							free(pCachedInfo->dictionariesProvidedList);
 						}
 
+						pCachedInfo->dictionariesProvidedCount = pUpdatedInfo->dictionariesProvidedCount;
 						pCachedInfo->flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
 
 						/* Copy dictionary list. */
@@ -652,8 +652,7 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 						/* Set filter as updated. */
 						pCachedService->infoUpdateFlags |= RDM_SVC_IFF_HAS_DICTS_USED;
 						pCachedInfo->flags |= RDM_SVC_IFF_HAS_DICTS_USED;
-						pCachedInfo->dictionariesUsedCount = pUpdatedInfo->dictionariesUsedCount;
-
+						
 						/* Clear current memory. */
 						if (pCachedInfo->dictionariesUsedList)
 						{
@@ -662,6 +661,7 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 							free(pCachedInfo->dictionariesUsedList);
 						}
 
+						pCachedInfo->dictionariesUsedCount = pUpdatedInfo->dictionariesUsedCount;
 
 						/* Copy dictionary list. */
 						pCachedInfo->dictionariesUsedList = (RsslBuffer*)malloc(

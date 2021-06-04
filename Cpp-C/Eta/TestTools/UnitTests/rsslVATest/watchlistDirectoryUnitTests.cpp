@@ -297,6 +297,7 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 	RsslUInt32 newCapabilitiesCount = 2;
 
 	RsslRDMServiceLink newLink, *pLink;
+	WtfSetupConnectionOpts connOpts;
 
 	rsslClearRDMServiceLink(&newLink);
 	newLink.flags = RDM_SVC_LKF_NONE;
@@ -305,7 +306,9 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 
 	ASSERT_TRUE(wtfStartTest());
 
-	wtfSetupConnection(NULL, connectionType);
+	wtfClearSetupConnectionOpts(&connOpts);
+	connOpts.provideDictionaryUsedAndProvided = RSSL_TRUE;
+	wtfSetupConnection(&connOpts, connectionType);
 
 	/* Consumer requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
@@ -324,6 +327,11 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == 2);
 	ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags & RDM_SVCF_HAS_INFO);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.flags & RDM_SVC_IFF_HAS_DICTS_PROVIDED);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.dictionariesProvidedCount = 2);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.flags & RDM_SVC_IFF_HAS_DICTS_USED);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.dictionariesUsedCount = 2);
 
 	/* Provider received no messages. */
 	wtfDispatch(WTF_TC_PROVIDER, 100);
@@ -343,6 +351,15 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 	service1.info.serviceName = service1Name;
 	service1.info.capabilitiesList = newCapabilitiesList;
 	service1.info.capabilitiesCount = newCapabilitiesCount;
+
+	/* Send the entire dictionary provided and used with directory update */
+	service1.info.flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
+	service1.info.dictionariesProvidedCount = service1DictionariesProvidedCount;
+	service1.info.dictionariesProvidedList = service1DictionariesProvidedList;
+
+	service1.info.flags |= RDM_SVC_IFF_HAS_DICTS_USED;
+	service1.info.dictionariesUsedCount = service1DictionariesUsedCount;
+	service1.info.dictionariesUsedList = service1DictionariesUsedList;
 
 	/* Change state filter's service state. */
 	service1.flags |= RDM_SVCF_HAS_STATE; 
@@ -380,7 +397,11 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].info.capabilitiesList[0]
 			== newCapabilitiesList[0]);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].info.capabilitiesList[1]
-			== newCapabilitiesList[1]);
+			== newCapabilitiesList[1]); 
+	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].info.flags & RDM_SVC_IFF_HAS_DICTS_PROVIDED);
+	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].info.dictionariesProvidedCount = 4);
+	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].info.flags& RDM_SVC_IFF_HAS_DICTS_USED);
+	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].info.dictionariesUsedCount = 4);
 
 	/* Check state update. */
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].flags & RDM_SVCF_HAS_STATE);
@@ -429,6 +450,10 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 			== newCapabilitiesList[0]);
 	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.capabilitiesList[1]
 			== newCapabilitiesList[1]);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.flags& RDM_SVC_IFF_HAS_DICTS_PROVIDED);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.dictionariesProvidedCount = 4);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.flags& RDM_SVC_IFF_HAS_DICTS_USED);
+	ASSERT_TRUE(pDirectoryRefresh->serviceList[0].info.dictionariesUsedCount = 4);
 
 	/* Check state refresh. */
 	ASSERT_TRUE(pDirectoryRefresh->serviceCount == 1);
@@ -452,6 +477,12 @@ void watchlistDirectoryTest_ServiceUpdate(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(pLink->flags == RDM_SVC_LKF_NONE);
 	ASSERT_TRUE(rsslBufferIsEqual(&pLink->name, &newLinkName));
 	ASSERT_TRUE(pLink->linkState == 1);
+
+	free(service1DictionariesProvidedList);
+	service1DictionariesProvidedList = 0;
+
+	free(service1DictionariesUsedList);
+	service1DictionariesUsedList = 0;
 
 	wtfFinishTest();
 }

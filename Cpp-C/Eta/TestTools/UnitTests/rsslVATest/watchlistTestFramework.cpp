@@ -114,6 +114,12 @@ static RsslQos service1QosList[] = {{RSSL_QOS_TIME_DELAYED, RSSL_QOS_RATE_JIT_CO
 	{RSSL_QOS_TIME_REALTIME, RSSL_QOS_RATE_TICK_BY_TICK, 0, 0, 0}};
 static RsslUInt32 service1QosCount = 2;
 
+RsslUInt32 service1DictionariesProvidedCount = 4;
+RsslBuffer* service1DictionariesProvidedList = 0;
+
+RsslUInt32 service1DictionariesUsedCount = 4;
+RsslBuffer* service1DictionariesUsedList = 0;
+
 /* Unicast ports for multicast channels.
  * These are incrmented during each connection, to workaround occasional cases where the Reactor 
  * didn't close the channel before the next test started. */
@@ -1199,6 +1205,40 @@ void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes conne
 			service.load.openWindow = 0xffffffffffffffffULL;
 			service.load.flags |= RDM_SVC_LDF_HAS_LOAD_FACTOR;
 			service.load.loadFactor = 65535;
+		}
+
+		if (pOpts->provideDictionaryUsedAndProvided)
+		{
+			service.info.flags |= RDM_SVC_IFF_HAS_DICTS_PROVIDED;
+
+			// Send only two elements in the refresh message and all element in the update message. 
+			service1DictionariesProvidedList = (RsslBuffer*)malloc(sizeof(RsslBuffer) * service1DictionariesProvidedCount);
+			service.info.dictionariesProvidedList = service1DictionariesProvidedList;
+
+			service.info.dictionariesProvidedCount = service1DictionariesProvidedCount - 2;
+			service.info.dictionariesProvidedList[0].length = 6;
+			service.info.dictionariesProvidedList[0].data = const_cast<char*>("RWFFld");
+			service.info.dictionariesProvidedList[1].length = 7;
+			service.info.dictionariesProvidedList[1].data = const_cast<char*>("RWFEnum");
+			service.info.dictionariesProvidedList[2].length = 7;
+			service.info.dictionariesProvidedList[2].data = const_cast<char*>("RWFFld2");
+			service.info.dictionariesProvidedList[3].length = 8;
+			service.info.dictionariesProvidedList[3].data = const_cast<char*>("RWFEnum2");
+
+			service.info.flags |= RDM_SVC_IFF_HAS_DICTS_USED;
+			// Send only two elements in the refresh message and all element in the update message. 
+			service1DictionariesUsedList = (RsslBuffer*)malloc(sizeof(RsslBuffer) * service1DictionariesUsedCount);
+
+			service.info.dictionariesUsedList = service1DictionariesUsedList;
+			service.info.dictionariesUsedCount = service1DictionariesUsedCount - 2;
+			service.info.dictionariesUsedList[0].length = 6;
+			service.info.dictionariesUsedList[0].data = const_cast<char*>("RWFFld");
+			service.info.dictionariesUsedList[1].length = 7;
+			service.info.dictionariesUsedList[1].data = const_cast<char*>("RWFEnum");
+			service.info.dictionariesUsedList[2].length = 7;
+			service.info.dictionariesUsedList[2].data = const_cast<char*>("RWFFld2");
+			service.info.dictionariesUsedList[3].length = 8;
+			service.info.dictionariesUsedList[3].data = const_cast<char*>("RWFEnum2");
 		}
 
 		rsslClearReactorSubmitMsgOptions(&submitOpts);
