@@ -67,6 +67,7 @@ public class ConsPerfConfig
 	private int _encryptedConnType = ConnectionTypes.SOCKET; /* Encrypted connection type */
 	private String _keyfile = null;			/* Keyfile for encrypted connection */
 	private String _keypasswd = null;		/* password for encrypted keyfile */
+	private boolean _calcRWFJSONConversionLatency; /* If set, the application will caluclate time spent on rwf-to-json conversion for WebSocket RWF protocol */
 
     {
         CommandLine.programName("ConsPerf");
@@ -113,6 +114,7 @@ public class ConsPerfConfig
         CommandLine.addOption("keyfile", "", "Keystore file location and name");
         CommandLine.addOption("keypasswd", "", "Keystore password");        
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
+     	CommandLine.addOption("calcRWFJSONConversionLatency", false, "Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF");
     }
 	
     /**
@@ -218,6 +220,8 @@ public class ConsPerfConfig
         	_latencyPostsPerSec = CommandLine.intValue("postingLatencyRate");
         	_genMsgsPerSec = CommandLine.intValue("genericMsgRate");
         	_latencyGenMsgsPerSec = CommandLine.intValue("genericMsgLatencyRate");
+        	_calcRWFJSONConversionLatency = (_connectionType == ConnectionTypes.WEBSOCKET || _encryptedConnType == ConnectionTypes.WEBSOCKET)
+					&& CommandLine.booleanValue("calcRWFJSONConversionLatency");
         }
         catch (NumberFormatException ile)
         {
@@ -888,5 +892,13 @@ public class ConsPerfConfig
 	public String protocolList()
 	{
 		return _protocolList;
+	}
+
+	/**
+	 * If set, the application will calculate time spent on rwf-to-json conversion for WebSocket RWF protocol
+	 * @return the flag for calculation the rwf-json conversion time.
+	 */
+	public boolean calcRWFJSONConversionLatency() {
+		return _calcRWFJSONConversionLatency;
 	}
 }

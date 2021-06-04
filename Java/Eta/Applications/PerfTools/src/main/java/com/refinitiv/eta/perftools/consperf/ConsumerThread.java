@@ -475,6 +475,9 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             if (!_consThreadInfo.shutdown())
             {
             	_consThreadInfo.channel(_channel);
+            	if (_consPerfConfig.calcRWFJSONConversionLatency() && _channel.protocolType() == Codec.RWF_PROTOCOL_TYPE) {
+                    _consThreadInfo.conversionTimeHandled(true);
+                }
                 System.out.println("Connected ");
         
                 // set the high water mark if configured
@@ -594,17 +597,10 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     
                 // Check if the test is configured for the correct buffer size to fit generic messages
                 printEstimatedGenMsgSizes(_channel);
-                
-                // Initializes the JSON converter library.
-                _jsonConverterSession.jsonConverterOptions().datadictionary(_dictionaryHandler.dictionary());
-                _jsonConverterSession.jsonConverterOptions().userClosure(this);
-                _jsonConverterSession.jsonConverterOptions().defaultServiceId(1);
-                _jsonConverterSession.jsonConverterOptions().serviceNameToIdCallback(this);
-                
-                if(_jsonConverterSession.initialize(_error) != CodecReturnCodes.SUCCESS)
-                {
-                	closeChannelAndShutDown("RWF/JSON Converter failed: " + _error.text());
-                	return;
+
+                if (initializeJsonSession() != CodecReturnCodes.SUCCESS) {
+                    closeChannelAndShutDown("RWF/JSON Converter failed: " + _error.text());
+                    return;
                 }
     
                 // set service name in directory handler
@@ -760,6 +756,16 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         }
         System.out.println("\nConsumerThread " + _consThreadInfo.threadId() + " exiting...");
 	}
+
+	private int initializeJsonSession() {
+        // Initializes the JSON converter library.
+        _jsonConverterSession.jsonConverterOptions().datadictionary(_dictionaryHandler.dictionary());
+        _jsonConverterSession.jsonConverterOptions().userClosure(this);
+        _jsonConverterSession.jsonConverterOptions().defaultServiceId(1);
+        _jsonConverterSession.jsonConverterOptions().serviceNameToIdCallback(this);
+
+        return _jsonConverterSession.initialize(_error);
+    }
 
 	/* Reads from a channel. */
 	private void selectorReadAndWrite(long selectTime)
@@ -1170,33 +1176,34 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 	            return;
 	        }
 
-        ret = _responseMsg.decode(_dIter);
-        if (ret != CodecReturnCodes.SUCCESS)
-        {
-        	closeChannelAndShutDown("DecodeMsg(): Error " + ret);
-    		return;
-        }
+            ret = _responseMsg.decode(_dIter);
+
+            if (ret != CodecReturnCodes.SUCCESS)
+            {
+                closeChannelAndShutDown("DecodeMsg(): Error " + ret);
+                return;
+            }
+
+            switch (_responseMsg.domainType())
+            {
+                case DomainTypes.LOGIN:
+                    processLoginResp();
+                    break;
+                case DomainTypes.SOURCE:
+                    processSourceDirectoryResp();
+                    break;
+                case DomainTypes.DICTIONARY:
+                    processDictionaryResp(_responseMsg, _dIter);
+                    break;
+                case DomainTypes.MARKET_PRICE:
+                    processMarketPriceResp(_responseMsg, _dIter);
+                    break;
+                default:
+                    System.out.println("Unhandled Domain Type: " + _responseMsg.domainType());
+                    break;
+            }
         
-        switch (_responseMsg.domainType())
-        {
-            case DomainTypes.LOGIN:
-                processLoginResp();
-                break;
-            case DomainTypes.SOURCE:
-                processSourceDirectoryResp();
-                break;
-            case DomainTypes.DICTIONARY:
-                processDictionaryResp(_responseMsg, _dIter);
-                break;
-            case DomainTypes.MARKET_PRICE:
-                processMarketPriceResp(_responseMsg, _dIter);
-                break;
-            default:
-                System.out.println("Unhandled Domain Type: " + _responseMsg.domainType());
-                break;
-        }
-        
-        }while(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && cRet != CodecReturnCodes.END_OF_CONTAINER);
+        } while(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && cRet != CodecReturnCodes.END_OF_CONTAINER);
     }
     
     /* Process login response. */
@@ -1374,6 +1381,26 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     {
     	int ret = CodecReturnCodes.SUCCESS;
     	int msgClass = responseMsg.msgClass();
+
+        if (_consThreadInfo.conversionTimeHandled()) {
+            do {
+                TransportBuffer buffer = _jsonConverterSession.convertToJsonMsg(_channel, _responseMsg.encodedMsgBuffer(), _error);
+                if (buffer == null) {
+                    if (_error.errorId() == TransportReturnCodes.NO_BUFFERS) {
+                        if ((ret = _channel.flush(_error)) < TransportReturnCodes.SUCCESS) {
+                            closeChannelAndShutDown("rsslFlush() failed with return code " + ret + "<" + _error.text() + ">");
+                            return;
+                        }
+                    } else {
+                        closeChannelAndShutDown("convertToJsonMsg(): Failed to convert RWF > JSON with error text: " + _error.text());
+                        return;
+                    }
+
+                } else {
+                    _channel.releaseBuffer(buffer, _error);
+                }
+            } while (_error.errorId() == TransportReturnCodes.NO_BUFFERS);
+        }
     	
     	switch (msgClass)
     	{

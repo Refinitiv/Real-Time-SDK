@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.PostUserInfo;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
@@ -724,7 +725,7 @@ public class ConsPerf implements ShutdownCallback
 
 			/* Gather latency records for generic msgs. */
 			collectGenMsgStats(_consumerThreadsInfo[i]);
-			
+
 			if (_consumerThreadsInfo[i].latencyLogFile() != null)
 				_consumerThreadsInfo[i].latencyLogFileWriter().flush();
 
@@ -784,8 +785,8 @@ public class ConsPerf implements ShutdownCallback
 						((_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().maxValue() : 0.0),
 						((_consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().count() > 0) ? _consumerThreadsInfo[i].stats().intervalGenMsgLatencyStats().minValue() : 0.0),
 						processCpuLoad,
-						memoryUsage);
-				_consumerThreadsInfo[i].statsFileWriter().flush();
+						memoryUsage
+						);
 			}
 
 			if (displayStats)
@@ -835,7 +836,7 @@ public class ConsPerf implements ShutdownCallback
 					_consumerThreadsInfo[i].stats().tunnelStreamBufUsageStats().print("  TunnelStreamBufferUsed", "Samples", false);
 					_consumerThreadsInfo[i].stats().tunnelStreamBufUsageStats().clear();
 				}
-				
+
 				if (statusCount > 0)
 					System.out.printf("  - Received %d status messages.\n", statusCount);
 			}

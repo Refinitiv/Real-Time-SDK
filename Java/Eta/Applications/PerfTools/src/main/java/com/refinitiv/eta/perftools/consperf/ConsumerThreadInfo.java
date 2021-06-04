@@ -31,6 +31,7 @@ public class ConsumerThreadInfo
 	private PrintWriter			_latencyLogFileWriter;		/* File writer for logging latency for this connection. */
 	private volatile boolean	_shutdown;					/* Signals thread to shutdown. */
 	private volatile boolean	_shutdownAck;				/* Acknowledges thread is shutdown. */
+	private boolean				_conversionTimeHandled;		/* Show that current thread is proceeding rwf-to-json conversion */
 	
 	{
 		_latencyRecords = new TimeRecordQueue();
@@ -108,7 +109,7 @@ public class ConsumerThreadInfo
 	{
 		return _genMsgLatencyRecords;
 	}
-	
+
 	/**
 	 *  Index into the item list at which item 
 	 * requests unique to this consumer start.
@@ -328,7 +329,15 @@ public class ConsumerThreadInfo
 	{
 		_shutdownAck = value;
 	}
-	
+
+	public boolean conversionTimeHandled() {
+		return _conversionTimeHandled;
+	}
+
+	public void conversionTimeHandled(boolean conversionTimeHandled) {
+		_conversionTimeHandled = conversionTimeHandled;
+	}
+
 	/**
 	 *  Clean up pools and files.
 	 */

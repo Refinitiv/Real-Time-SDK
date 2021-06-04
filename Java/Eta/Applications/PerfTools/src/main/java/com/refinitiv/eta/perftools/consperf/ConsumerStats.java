@@ -559,7 +559,7 @@ public class ConsumerStats
 	{
 		_genMsgLatencyStats = genMsgLatencyStats;
 	}
-	
+
 	/**
 	 *  Stats thread sets this once it has recorded/printed
 	 * this consumer's image retrieval time.
