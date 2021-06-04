@@ -8,6 +8,7 @@ public class ConsumerStats
 {
 	private long			_imageRetrievalStartTime;	/* Time at which first item request was made. */
 	private long			_imageRetrievalEndTime;		/* Time at which last item refresh was received. */
+	private long			_steadyStateLatencyTime;		/* Time at which steady-state latency started to calculate. */
 	private long 			_firstUpdateTime;			/* Time at which first item update was received. */
 
 	private CountStat		_refreshCount;				/* Number of item refreshes received. */
@@ -99,6 +100,26 @@ public class ConsumerStats
 		_imageRetrievalEndTime = imageRetrievalEndTime;
 	}
 
+	/**
+	 *  Time at which steady-state latency started to calculate.
+	 *
+	 * @param steadyStateLatencyTime the latency calculation start time
+	 */
+	public void steadyStateLatencyTime(long steadyStateLatencyTime)
+	{
+		_steadyStateLatencyTime = steadyStateLatencyTime;
+	}
+
+	/**
+	 *  Time at which steady-state latency started to calculate.
+	 *
+	 * @return the long
+	 */
+	public long steadyStateLatencyTime()
+	{
+		return _steadyStateLatencyTime;
+	}
+	
 	/**
 	 *  Time at which first item update was received.
 	 *

@@ -25,6 +25,7 @@ static void clearConsPerfConfig()
 {
 	/* Prepare defaults. */
 	consPerfConfig.steadyStateTime = 300;
+	consPerfConfig.delaySteadyStateCalc = 0;
 	consPerfConfig.threadCount = defaultThreadCount;
 	consPerfConfig.threadBindList = defaultThreadBindList;
 
@@ -273,6 +274,11 @@ void initConsPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			consPerfConfig.steadyStateTime = atoi(argv[iargs++]);
 		}
+		else if (strcmp("-delaySteadyStateCalc", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			consPerfConfig.delaySteadyStateCalc = atoi(argv[iargs++]);
+		}
 		else if(strcmp("-requestRate", argv[iargs]) == 0)
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
@@ -453,6 +459,18 @@ void initConsPerfConfig(int argc, char **argv)
 		exitConfigError(argv);
 	}
 
+	if (consPerfConfig.delaySteadyStateCalc < 0 || consPerfConfig.delaySteadyStateCalc > 30000)
+	{
+		printf("\nConfig error: Time before the latency is calculated should not be less than 0 or greater than 30000.\n");
+		exitConfigError(argv);
+	}
+
+	if ((consPerfConfig.delaySteadyStateCalc / 1000) > consPerfConfig.steadyStateTime)
+	{
+		printf("\nConfig Error: Time before the latency is calculated should be less than Steady State Time.\n");
+		exitConfigError(argv);
+	}
+
 	consPerfConfig._requestsPerTick = consPerfConfig.itemRequestsPerSec 
 		/ consPerfConfig.ticksPerSec;
 
@@ -516,8 +534,10 @@ void printConsPerfConfig(FILE *file)
 
 	fprintf(file,
 		"       Steady State Time: %u\n"
+		" Delay Steady State Time: %u\n"
 		"         Connection Type: %s\n",
 		consPerfConfig.steadyStateTime,
+		consPerfConfig.delaySteadyStateCalc,
 		connectionTypeToString(consPerfConfig.connectionType));
 
 	fprintf(file,
@@ -642,6 +662,7 @@ void exitWithUsage()
 			"\n"
 			"  -steadyStateTime <seconds>           Time consumer will run the steady-state portion of the test.\n"
 			"                                         Also used as a timeout during the startup-state portion.\n"
+			"  -delaySteadyStateCalc <mili sec>     Time consumer will wait before calculate the latency.\n"
 			"  -threads <thread list>               list of threads(which create 1 connection each),\n"
 			"                                         by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                         (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"

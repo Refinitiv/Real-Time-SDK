@@ -182,9 +182,9 @@ RsslRet decodeMPUpdate(RsslDecodeIterator *pIter, RsslMsg *msg, ConsumerThread* 
 	
 	if (timeTracker)
 		updateLatencyStats(pConsumerThread, timeTracker, RSSL_MC_UPDATE);
-	if(postTimeTracker && checkPostUserInfo(msg))
+	if (postTimeTracker && checkPostUserInfo(msg))
 		updateLatencyStats(pConsumerThread, postTimeTracker, RSSL_MC_POST);
-	if(genMsgTimeTracker)
+	if (genMsgTimeTracker)
 		updateLatencyStats(pConsumerThread, genMsgTimeTracker, RSSL_MC_GENERIC);
 
 	return RSSL_RET_SUCCESS;

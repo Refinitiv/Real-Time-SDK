@@ -27,6 +27,7 @@ extern "C" {
 typedef struct 
 {
 	RsslUInt32	steadyStateTime;					/* Time application runs befor exiting.  See -steadyStateTime */
+	RsslUInt32	delaySteadyStateCalc;				/* Time before the latency is calculated. See -delaySteadyStateCalc */
 	RsslInt32	ticksPerSec;						/* Main loop ticks per second.  See -tps */
 	RsslInt32	threadCount;						/* Number of threads that handle connections.  See -threads */
 	RsslInt32	*threadBindList;					/* CPU ID list for threads that handle connections.  See -threads */

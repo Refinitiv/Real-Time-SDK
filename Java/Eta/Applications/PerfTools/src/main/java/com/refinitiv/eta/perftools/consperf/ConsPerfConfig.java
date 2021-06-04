@@ -13,6 +13,7 @@ public class ConsPerfConfig
 
 	/* APPLICATION configuration */
 	private int	_steadyStateTime;			/* Time application runs before exiting. */
+	private int	_delaySteadyStateCalc;			/* Time before the latency is calculated. */
 	private int	_ticksPerSec;				/* Main loop ticks per second */
 	private int	_threadCount;				/* Number of threads that handle connections. */
 
@@ -70,6 +71,7 @@ public class ConsPerfConfig
     {
         CommandLine.programName("ConsPerf");
         CommandLine.addOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
+        CommandLine.addOption("delaySteadyStateCalc", 0, "Time consumer will wait before calculate the latency (milliseconds)");
         CommandLine.addOption("tickRate", 1000, "Ticks per second");
         CommandLine.addOption("threads", DEFAULT_THREAD_COUNT, "Number of threads that handle connections");
         CommandLine.addOption("itemFile", "350k.xml", "Name of the file to get item names from");
@@ -161,6 +163,7 @@ public class ConsPerfConfig
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
+        	_delaySteadyStateCalc = CommandLine.intValue("delaySteadyStateCalc");
         	_ticksPerSec = CommandLine.intValue("tickRate");
         	_threadCount = CommandLine.intValue("threads");
         	_writeStatsInterval = CommandLine.intValue("writeStatsInterval");
@@ -330,6 +333,20 @@ public class ConsPerfConfig
 			System.exit(-1);
 		}
 
+		if (_delaySteadyStateCalc < 0 || _delaySteadyStateCalc > 30000)
+		{
+			System.err.println("Config error: Time before the latency is calculated should not be less than 0 or greater than 30000.\n");
+			System.out.println(CommandLine.optionHelpString());
+			System.exit(-1);
+		}
+
+		if ((_delaySteadyStateCalc / 1000) > _steadyStateTime)
+		{
+			System.err.println("Config Error: Time before the latency is calculated should be less than Steady State Time.\n");
+			System.out.println(CommandLine.optionHelpString());
+			System.exit(-1);
+		}
+
 		_requestsPerTick = _itemRequestsPerSec / _ticksPerSec;
 
 		_requestsPerTickRemainder = _itemRequestsPerSec % _ticksPerSec;
@@ -357,6 +374,7 @@ public class ConsPerfConfig
 
 		_configString = "--- TEST INPUTS ---\n\n" +
             "          Steady State Time: " + _steadyStateTime + " sec\n" + 
+            "    Delay Steady State Time: " + _delaySteadyStateCalc + " msec\n" + 
             "            Connection Type: " + ConnectionTypes.toString(_connectionType) + "\n" +
             ((_connectionType == ConnectionTypes.ENCRYPTED) ? "" : 
             " Encrypted Connection Type: " + ConnectionTypes.toString(_encryptedConnType) + "\n" + 
@@ -406,6 +424,16 @@ public class ConsPerfConfig
 	public int	steadyStateTime()
 	{
 		return _steadyStateTime;
+	}
+	
+    /**
+	 *  Time before the latency is calculated.
+	 *
+	 * @return the int
+	 */
+	public int	delaySteadyStateCalc()
+	{
+		return _delaySteadyStateCalc;
 	}
 	
 	/**

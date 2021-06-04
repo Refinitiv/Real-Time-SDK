@@ -872,6 +872,7 @@ public class ConsPerf implements ShutdownCallback
 			{
 				_totalStats.imageRetrievalStartTime(_consumerThreadsInfo[0].stats().imageRetrievalStartTime());
 				_totalStats.imageRetrievalEndTime(_consumerThreadsInfo[0].stats().imageRetrievalEndTime());
+				_totalStats.steadyStateLatencyTime(_totalStats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
 			}
 		}
 	}
@@ -896,7 +897,10 @@ public class ConsPerf implements ShutdownCallback
 			consumerThread.stats().overallLatencyStats().update(latency);
 			if (latencyIsSteadyStateForClient)
 			{
-				consumerThread.stats().steadyStateLatencyStats().update(latency);
+				if (recordEndTimeNsec > consumerThread.stats().steadyStateLatencyTime())
+				{
+					consumerThread.stats().steadyStateLatencyStats().update(latency);
+				}
 			}
 			else
 			{
@@ -912,7 +916,10 @@ public class ConsPerf implements ShutdownCallback
 
 				if (latencyIsSteadyStateOverall)
 				{
-					_totalStats.steadyStateLatencyStats().update(latency);
+					if (recordEndTimeNsec > _totalStats.steadyStateLatencyTime())
+					{
+						_totalStats.steadyStateLatencyStats().update(latency);
+					}
 				}
 				else
 				{

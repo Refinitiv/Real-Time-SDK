@@ -7,7 +7,7 @@
 
 #include "ConsPerfConfig.h"
 
-ConsPerfConfig::ConsPerfConfig() : PerfConfig ( (char *) "ConsSummary.out" ), steadyStateTime(300), 
+ConsPerfConfig::ConsPerfConfig() : PerfConfig ( (char *) "ConsSummary.out" ), steadyStateTime(300), delaySteadyStateCalc(0),
 statsFilename("ConsStats"), writeStatsInterval(5), displayStats(true), logLatencyToFile(false), 
 itemRequestCount(100000), commonItemCount(0), itemRequestsPerSec(35000), requestSnapshots(false),
 serviceName("DIRECT_FEED"), useServiceId(false), useUserDispatch( false ), itemFilename("350k.xml"),
@@ -21,6 +21,7 @@ consumerName(""), websocketProtocol(NoWebSocketEnum)
 void ConsPerfConfig::clearPerfConfig()
 {
 	steadyStateTime = 300; 
+	delaySteadyStateCalc = 0;
 	threadCount = 1;
 	if(threadBindList)
 		delete [] threadBindList;

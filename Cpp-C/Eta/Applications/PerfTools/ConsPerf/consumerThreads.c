@@ -2156,6 +2156,7 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 							if (rsslQueueGetElementCount(&pConsumerThread->refreshCompleteQueue) == pConsumerThread->itemListCount)
 							{
 								pConsumerThread->stats.imageRetrievalEndTime = rsslGetTimeNano();
+								pConsumerThread->stats.steadyStateLatencyTime = pConsumerThread->stats.imageRetrievalEndTime + (RsslUInt64)consPerfConfig.delaySteadyStateCalc * 1000000ULL;
 							}
 						}
 					}

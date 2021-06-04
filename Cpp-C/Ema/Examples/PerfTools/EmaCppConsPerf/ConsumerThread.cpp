@@ -732,8 +732,11 @@ void MarketPriceClient::onRefreshMsg( const refinitiv::ema::access::RefreshMsg& 
 				}
 			}
 
-			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
+			if (pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount)
+			{
 				pConsumerThread->stats.imageRetrievalEndTime = perftool::common::GetTime::getTimeNano();
+				pConsumerThread->stats.steadyStateLatencyTime = pConsumerThread->stats.imageRetrievalEndTime + pConsumerThread->pConsPerfCfg->delaySteadyStateCalc * 1000000ULL;
+			}
 		}
 	}
 }
@@ -822,7 +825,6 @@ bool MarketByOrderClient::decodeMBOUpdate(const refinitiv::ema::access::Map& mbo
 			pConsumerThread->updateLatencyStats(postTimeTracker, NULL /*pConsumerThread->pWriteListPostPtr*/);
 	else if( genMsgTimeTracker )
 		pConsumerThread->updateLatencyStats(genMsgTimeTracker, NULL /*pConsumerThread->pWriteListGenMsgPtr*/);
-
 
 	return true;
 }
@@ -999,8 +1001,11 @@ void MarketByOrderClient::onRefreshMsg( const refinitiv::ema::access::RefreshMsg
 				}
 			}
 		
-			if( pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount )
+			if (pConsumerThread->refreshCompleteCount == pConsumerThread->itemListCount)
+			{
 				pConsumerThread->stats.imageRetrievalEndTime = perftool::common::GetTime::getTimeNano();
+				pConsumerThread->stats.steadyStateLatencyTime = pConsumerThread->stats.imageRetrievalEndTime + pConsumerThread->pConsPerfCfg->delaySteadyStateCalc * 1000000ULL;
+			}
 		}
 	}
 }

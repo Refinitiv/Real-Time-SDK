@@ -865,6 +865,7 @@ public class emajConsPerf implements ShutdownCallback
 			{
 				_totalStats.imageRetrievalStartTime(_consumerThreadsInfo[0].stats().imageRetrievalStartTime());
 				_totalStats.imageRetrievalEndTime(_consumerThreadsInfo[0].stats().imageRetrievalEndTime());
+				_totalStats.steadyStateLatencyTime(_totalStats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
 			}
 		}
 	}
@@ -889,7 +890,10 @@ public class emajConsPerf implements ShutdownCallback
 			consumerThread.stats().overallLatencyStats().update(latency);
 			if (latencyIsSteadyStateForClient)
 			{
-				consumerThread.stats().steadyStateLatencyStats().update(latency);
+				if (recordEndTimeNsec > consumerThread.stats().steadyStateLatencyTime())
+				{
+					consumerThread.stats().steadyStateLatencyStats().update(latency);
+				}
 			}
 			else
 			{
@@ -905,7 +909,10 @@ public class emajConsPerf implements ShutdownCallback
 
 				if (latencyIsSteadyStateOverall)
 				{
-					_totalStats.steadyStateLatencyStats().update(latency);
+					if (recordEndTimeNsec > _totalStats.steadyStateLatencyTime())
+					{
+						_totalStats.steadyStateLatencyStats().update(latency);
+					}
 				}
 				else
 				{
@@ -984,7 +991,10 @@ public class emajConsPerf implements ShutdownCallback
 					_totalStats.imageRetrievalStartTime(imageRetrievalStartTime);
 				if (_totalStats.imageRetrievalEndTime() == 0 || 
 						imageRetrievalEndTime > _totalStats.imageRetrievalEndTime())
+				{
 					_totalStats.imageRetrievalEndTime(imageRetrievalEndTime); 
+					_totalStats.steadyStateLatencyTime(imageRetrievalEndTime + _consPerfConfig.delaySteadyStateCalc() * 1000000); 
+				}
 			}
 			/* Ignore connections that don't request anything. */
 			else if (consumerThread.itemListCount() > 0)

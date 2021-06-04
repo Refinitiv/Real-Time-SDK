@@ -97,6 +97,7 @@ typedef struct {
 	ValueStatistics	intervalPostLatencyStats;	/* Post latency statistics (recorded by stats thread). */
 	ValueStatistics	intervalGenMsgLatencyStats;	/* Gen Msg latency statistics (recorded by stats thread). */
 
+	RsslTimeValue	steadyStateLatencyTime;		/* Time at which steady-state latency started to calculate. */
 	ValueStatistics startupLatencyStats;		/* Statup latency statistics. */
 	ValueStatistics steadyStateLatencyStats;	/* Steady-state latency statistics. */
 	ValueStatistics overallLatencyStats;		/* Overall latency statistics. */

@@ -22,6 +22,7 @@ public:
 	void clearPerfConfig();		// Use Defaults.
 
 	UInt32			steadyStateTime;	// Time application runs befor exiting.  See -steadyStateTime 
+	UInt32			delaySteadyStateCalc;	// Time before the latency is calculated. See -delaySteadyStateCalc
 
 	EmaString		itemFilename;	// File of names to use when requesting items. See -itemFile. 
 	EmaString		msgFilename;	// File of data to use for message payloads. See -msgFile. 

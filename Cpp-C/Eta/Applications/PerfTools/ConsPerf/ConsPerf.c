@@ -169,8 +169,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-
-
 	printf("Starting connections(%d total)...\n\n", consPerfConfig.threadCount);
 
 	/* Spawn consumer threads */
@@ -318,10 +316,15 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 
 			updateValueStatistics(&consumerThreads[i].stats.intervalLatencyStats, latency);
 			updateValueStatistics(&consumerThreads[i].stats.overallLatencyStats, latency);
-			updateValueStatistics( latencyIsSteadyStateForClient ? 
-					&consumerThreads[i].stats.steadyStateLatencyStats
-					: &consumerThreads[i].stats.startupLatencyStats,
-					latency);
+			if (latencyIsSteadyStateForClient)
+			{
+				if (recordEndTimeNsec > (double)consumerThreads[i].stats.steadyStateLatencyTime)
+					updateValueStatistics(&consumerThreads[i].stats.steadyStateLatencyStats, latency);
+			}
+			else
+			{
+				updateValueStatistics(&consumerThreads[i].stats.startupLatencyStats, latency);
+			}
 
 			if (consPerfConfig.threadCount > 1)
 			{
@@ -330,10 +333,15 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 					totalStats.imageRetrievalEndTime != 0
 					&& recordEndTimeNsec > (double)totalStats.imageRetrievalEndTime;
 
-				updateValueStatistics( latencyIsSteadyStateOverall ? 
-						&totalStats.steadyStateLatencyStats
-						: &totalStats.startupLatencyStats,
-						latency);
+				if (latencyIsSteadyStateOverall)
+				{
+					if (recordEndTimeNsec > (double)totalStats.steadyStateLatencyTime)
+						updateValueStatistics(&totalStats.steadyStateLatencyStats, latency);
+				}
+				else
+				{
+					updateValueStatistics(&totalStats.startupLatencyStats, latency);
+				}
 				updateValueStatistics(&totalStats.overallLatencyStats, latency);
 			}
 
@@ -526,9 +534,12 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 				if (!totalStats.imageRetrievalStartTime 
 						|| imageRetrievalStartTime < totalStats.imageRetrievalStartTime)
 					totalStats.imageRetrievalStartTime = imageRetrievalStartTime;
-				if (!totalStats.imageRetrievalEndTime || 
-						imageRetrievalEndTime > totalStats.imageRetrievalEndTime)
-					totalStats.imageRetrievalEndTime = imageRetrievalEndTime; 
+				if (!totalStats.imageRetrievalEndTime ||
+					imageRetrievalEndTime > totalStats.imageRetrievalEndTime)
+				{
+					totalStats.imageRetrievalEndTime = imageRetrievalEndTime;
+					totalStats.steadyStateLatencyTime = totalStats.imageRetrievalEndTime + (RsslUInt64)consPerfConfig.delaySteadyStateCalc * 1000000ULL;
+				}
 
 			}
 			/* Ignore connections that don't request anything. */
@@ -586,6 +597,7 @@ void collectStats(RsslBool writeStats, RsslBool displayStats, RsslUInt32 current
 		{
 			totalStats.imageRetrievalStartTime = consumerThreads[0].stats.imageRetrievalStartTime;
 			totalStats.imageRetrievalEndTime = consumerThreads[0].stats.imageRetrievalEndTime;
+			totalStats.steadyStateLatencyTime = totalStats.imageRetrievalEndTime + (RsslUInt64)consPerfConfig.delaySteadyStateCalc * 1000000ULL;
 		}
 	}
 }

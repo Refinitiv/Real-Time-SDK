@@ -301,7 +301,6 @@ RsslRet decodeMBOUpdate(RsslDecodeIterator* pIter, RsslMsg* msg, ConsumerThread*
 	}
 	
 	
-
 	if (timeTracker)
 		updateLatencyStats(pConsumerThread, timeTracker, RSSL_MC_UPDATE);
 	if(postTimeTracker && checkPostUserInfo(msg))

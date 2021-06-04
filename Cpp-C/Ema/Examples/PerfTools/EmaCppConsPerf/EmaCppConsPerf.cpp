@@ -294,6 +294,16 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			}
 			consPerfConfig.steadyStateTime = atoi(argv[iargs++]);
 		}
+		else if (strcmp("-delaySteadyStateCalc", argv[iargs]) == 0)
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			consPerfConfig.delaySteadyStateCalc = atoi(argv[iargs++]);
+		}
 		else if(strcmp("-requestRate", argv[iargs]) == 0)
 		{
 			++iargs; 
@@ -505,6 +515,20 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 		exitConfigError(argv); return false;
 	}
 
+	if (consPerfConfig.delaySteadyStateCalc < 0 || consPerfConfig.delaySteadyStateCalc > 30000)
+	{
+		logText = "Config Error: Time before the latency is calculated should not be less than 0 or greater than 30000.";
+		AppUtil::logError(logText);
+		exitConfigError(argv); return false;
+	}
+
+	if ((consPerfConfig.delaySteadyStateCalc / 1000) > consPerfConfig.steadyStateTime)
+	{
+		logText = "Config Error: Time before the latency is calculated should be less than Steady State Time.";
+		AppUtil::logError(logText);
+		exitConfigError(argv); return false;
+	}
+
 	consPerfConfig._requestsPerTick = consPerfConfig.itemRequestsPerSec / consPerfConfig.ticksPerSec;
 
 	consPerfConfig._requestsPerTickRemainder = consPerfConfig.itemRequestsPerSec % consPerfConfig.ticksPerSec;
@@ -557,6 +581,7 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -latencyFile <filename>              Base name of file for logging latency.\n\n";
 	logText += "   -steadyStateTime <seconds>           Time consumer will run the steady-state portion of the test.\n";
 	logText += "                                          Also used as a timeout during the startup-state portion.\n\n";
+	logText += "   -delaySteadyStateCalc <mili sec>     Time consumer will wait before calculate the latency.\n";
 	logText += "   -apiThreads <thread list>            List of Api threads in ApiDispatch mode (which create 1 connection each),\n";
 	logText += "                                          by their bound CPU. Comma-separated list. -1 means do not bind.\n";
 	logText += "                                          Must match the count of listed in -threads option.\n";
@@ -598,8 +623,10 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 
 	fprintf(file, "--- TEST INPUTS ---\n\n");
 	fprintf(file,
-	"       Steady State Time: %u\n",
-	consPerfConfig.steadyStateTime);
+		"       Steady State Time: %u\n"
+		" Delay Steady State Time: %u\n",
+		consPerfConfig.steadyStateTime,
+		consPerfConfig.delaySteadyStateCalc);
 	fprintf(file,
 		"                 Service: %s\n"
 		"         useUserDispatch: %s\n"
@@ -1367,7 +1394,10 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 			consumerThreads[i]->stats.intervalLatencyStats.updateValueStatistics( latency);
 			consumerThreads[i]->stats.overallLatencyStats.updateValueStatistics( latency);
 			if( latencyIsSteadyStateForClient )
-				consumerThreads[i]->stats.steadyStateLatencyStats.updateValueStatistics( latency );
+			{
+				if( recordEndTimeNsec > (double)consumerThreads[i]->stats.steadyStateLatencyTime )
+					consumerThreads[i]->stats.steadyStateLatencyStats.updateValueStatistics( latency );
+			}
 			else
 				consumerThreads[i]->stats.startupLatencyStats.updateValueStatistics( latency );
 	
@@ -1379,7 +1409,10 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 					&& recordEndTimeNsec > (double)totalStats.imageRetrievalEndTime;
 
 				if( latencyIsSteadyStateOverall ) 
-					totalStats.steadyStateLatencyStats.updateValueStatistics( latency );
+				{
+					if ( recordEndTimeNsec > (double)totalStats.steadyStateLatencyTime )
+						totalStats.steadyStateLatencyStats.updateValueStatistics( latency );
+				}
 				else
 					totalStats.startupLatencyStats.updateValueStatistics( latency );
 				totalStats.overallLatencyStats.updateValueStatistics( latency);
@@ -1512,8 +1545,10 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 					totalStats.imageRetrievalStartTime = imageRetrievalStartTime;
 				if (!totalStats.imageRetrievalEndTime || 
 						imageRetrievalEndTime > totalStats.imageRetrievalEndTime)
+				{
 					totalStats.imageRetrievalEndTime = imageRetrievalEndTime; 
-
+					totalStats.steadyStateLatencyTime = totalStats.imageRetrievalEndTime + consPerfConfig.delaySteadyStateCalc * 1000000ULL;
+				}
 			}
 			// Ignore connections that don't request anything. 
 			else if (consumerThreads[i]->itemListCount > 0)
@@ -1568,6 +1603,7 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 		{
 			totalStats.imageRetrievalStartTime = consumerThreads[0]->stats.imageRetrievalStartTime;
 			totalStats.imageRetrievalEndTime = consumerThreads[0]->stats.imageRetrievalEndTime;
+			totalStats.steadyStateLatencyTime = totalStats.imageRetrievalEndTime + consPerfConfig.delaySteadyStateCalc * 1000000ULL;
 		}
 	}
 }
