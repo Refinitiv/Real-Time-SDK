@@ -68,6 +68,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 	private EncodeIterator 			_encIter = CodecFactory.createEncodeIterator();
 	private Buffer					_tempBuffer = CodecFactory.createBuffer();
     private ByteBuffer 				_tempByteBuffer;
+	private ByteBuffer 				_tempUserNameByteBuffer;
     private Msg						_tempMsg = CodecFactory.createMsg();
 	private LoginRequest			_tempLoginReq = (LoginRequest) LoginMsgFactory.createMsg();
 	private OmmBaseImpl<T>			_ommBaseImpl;
@@ -100,6 +101,7 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
 		
 		_tempByteBuffer = ByteBuffer.allocate(8192);
 		_tempBuffer.data(_tempByteBuffer);
+		_tempUserNameByteBuffer = ByteBuffer.allocate(8192);
 	}
 	
 	
@@ -732,7 +734,16 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
         // encode Codec message into buffer
         _encIter.clear();
         _encIter.setBufferAndRWFVersion(_tempBuffer, Codec.majorVersion(), Codec.minorVersion());
-        if ((ret = request.encode(_encIter)) >= CodecReturnCodes.SUCCESS)
+
+        while ((ret = request.encode(_encIter)) == CodecReturnCodes.BUFFER_TOO_SMALL) {
+        	_tempByteBuffer = ByteBuffer.allocate(_tempByteBuffer.capacity() * 2);
+			_tempBuffer.clear();
+			_tempBuffer.data(_tempByteBuffer);
+			_encIter.clear();
+			_encIter.setBufferAndRWFVersion(_tempBuffer, Codec.majorVersion(), Codec.minorVersion());
+		}
+
+        if (ret >= CodecReturnCodes.SUCCESS)
         {
             // decode encoded Codec message into RDM message
             _decIter.clear();
@@ -764,7 +775,12 @@ class LoginCallbackClient<T> extends CallbackClient<T> implements RDMLoginMsgCal
         
         if(!_tempLoginReq.userName().isBlank() && !_tempLoginReq.userName().equals(rsslLoginRequest().userName()))
         {
-        	rsslLoginRequest().userName(_tempLoginReq.userName());
+			_tempUserNameByteBuffer.clear();
+			if (_tempLoginReq.userName().copy(_tempUserNameByteBuffer) < CodecReturnCodes.SUCCESS) {
+				_tempUserNameByteBuffer = ByteBuffer.allocate(_tempLoginReq.userName().length() * 2);
+				_tempLoginReq.userName().copy(_tempUserNameByteBuffer);
+			}
+			rsslLoginRequest().userName().data(_tempUserNameByteBuffer, 0, _tempLoginReq.userName().length());
         }
         
         if(_tempLoginReq.checkHasAttrib())
