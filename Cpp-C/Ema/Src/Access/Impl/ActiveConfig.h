@@ -107,7 +107,7 @@
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
 #define DEFAULT_WS_MAXMSGSIZE						  61440
-#define DEFAULT_WS_PROTOCLOS						  EmaString( "rssl.json.v2, rssl.rwf, tr_json2" )
+#define DEFAULT_WS_PROTOCLOS						  EmaString( "tr_json2, rssl.rwf, rssl.json.v2" )
 #define DEFAULT_MAX_FRAGMENT_SIZE					  6144
 #define DEFAULT_CATCH_UNKNOWN_JSON_FIDS				  true
 #define DEFAULT_CATCH_UNKNOWN_JSON_KEYS				  false

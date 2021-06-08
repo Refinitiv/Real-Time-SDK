@@ -195,7 +195,7 @@ typedef enum {
 } rwsCompFlags_t;
 
 #define RWS_DEFAULT_SUBPROTOCOL			"tr_json2"
-#define RWS_DEFAULT_SUBPROTOCOL_LIST	"rssl.json.v2, rssl.rwf, tr_json2"
+#define RWS_DEFAULT_SUBPROTOCOL_LIST	"tr_json2, rssl.rwf, rssl.json.v2" /* This is the default protocol list used by Provider side only.*/
 
 typedef enum {
 	RWS_SP_NONE   = -1,
@@ -401,7 +401,7 @@ typedef struct
 
 rwsSubProtocol_t rwsValidateSubProtocolResponse(rwsSession_t *, RsslBuffer *, RsslBool, RsslError *);
 rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * , const char* , RsslBuffer *, RsslBool , RsslError *error);
-char * rwsSetSubProtocols(const char *, RsslBool , RsslError *);
+char * rwsSetSubProtocols(const char *, RsslBool , RsslBool, RsslError *);
 rtr_msgb_t *rwsDataBuffer(RsslSocketChannel *, size_t, RsslError *);
 rtr_msgb_t *rwsGetPoolBuffer(rtr_bufferpool_t *, size_t );
 rtr_msgb_t *rwsGetSimpleBuffer(size_t );

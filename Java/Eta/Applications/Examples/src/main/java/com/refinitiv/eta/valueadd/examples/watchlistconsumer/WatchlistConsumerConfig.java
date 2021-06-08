@@ -39,7 +39,7 @@ public class WatchlistConsumerConfig
 	private static final String defaultItemName = "TRI.N";
 
 
-	private String protocolList = "rssl.rwf, rssl.json.v2, tr_json2";
+	private String protocolList = "rssl.rwf, tr_json2, rssl.json.v2";
 
 	private static final int defaultRuntime = 600;
 
@@ -653,7 +653,7 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("s", defaultServiceName, "Service name");
 		CommandLine.addOption("u", "Login user name. Default is system user name.");
 		CommandLine.addOption("passwd", "Password for the user name.");
-		CommandLine.addOption("pl", "protocol list (defaults to rssl.rwf, rssl.json.v2, tr_json2)");
+		CommandLine.addOption("pl", "protocol list (defaults to rssl.rwf, tr_json2, rssl.json.v2)");
 		CommandLine.addOption("c", "Socket", "Specifies the connection type that the connection should use. Possible values are: 'socket', 'http', 'websocket', 'encrypted'");
 		CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer, if the 'encrypted' type is selected.  Possible values are 'socket', 'websocket' or 'http'");
 

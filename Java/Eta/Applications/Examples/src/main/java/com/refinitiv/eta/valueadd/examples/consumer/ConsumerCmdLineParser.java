@@ -48,7 +48,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String applicationId;
 	private boolean enableRtt;
 	private boolean takeExclusiveSignOnControl = true;
-	private String protocolList = "rssl.rwf, rssl.json.v2, tr_json2";
+	private String protocolList = "rssl.rwf, tr_json2, rssl.json.v2";
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -530,7 +530,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n     -tsAuth (optional) causes consumer to request authentication when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
 						   "\n     -tsDomain (optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
 						   "\n -bc specifies a backup connection that is attempted if the primary connection fails\n" +
-						   "\n -pl protocol list (defaults to rssl.rwf, rssl.json.v2, tr_json2)\n" +
+						   "\n -pl protocol list (defaults to rssl.rwf, tr_json2, rssl.json.v2)\n" +
 						   "\n -uname changes the username used when logging into the provider\n" +
 						   "\n -passwd changes the password used when logging into the provider\n" +
 						   "\n -clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.\n" +

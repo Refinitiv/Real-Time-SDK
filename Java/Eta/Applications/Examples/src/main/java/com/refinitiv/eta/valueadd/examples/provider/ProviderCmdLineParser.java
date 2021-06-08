@@ -16,7 +16,7 @@ class ProviderCmdLineParser implements CommandLineParser
 	private String keyfile = null;
 	private String keypasswd = null;
 	private int connType = ConnectionTypes.SOCKET;
-	private String protocolList = "rssl.rwf, rssl.json.v2, tr_json2";
+	private String protocolList = "rssl.rwf, tr_json2, rssl.json.v2";
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -116,7 +116,7 @@ class ProviderCmdLineParser implements CommandLineParser
 						   "\n -id service id (defaults to 1)\n" +
 						   "\n -x provides an XML trace of messages\n" +
 						   "\n -cache turn on the cache feature of the application\n" +
-						   "\n -pl protocol list (defaults to rssl.rwf, rssl.json.v2, tr_json2)\n" +
+						   "\n -pl protocol list (defaults to rssl.rwf, tr_json2, rssl.json.v2)\n" +
 						   "\n -runtime application runtime in seconds (default is 1200)" +
 						   "\n -rtt application (provider) supports calculation of Round Trip Latency" +
 						   "\n -c Provider connection type.  Either \"socket\" or \"encrypted\"" +

@@ -177,7 +177,8 @@ class ServerImpl extends EtaNode implements Server
         ((BindOptionsImpl)options).copyTo(_bindOpts);
 
         // validate specified WS protocols
-        final String wsProtocolCheckStr = WebSocketSupportedProtocols.validateProtocolList(_bindOpts.wSocketOpts().protocols());
+        final String protocols = _bindOpts.wSocketOpts().protocols();
+        final String wsProtocolCheckStr = WebSocketSupportedProtocols.validateProtocolList(protocols);
         if (Objects.nonNull(wsProtocolCheckStr)) {
             error.channel(null);
             error.errorId(TransportReturnCodes.FAILURE);
@@ -185,7 +186,9 @@ class ServerImpl extends EtaNode implements Server
             error.text("Invalid protocol found in protocol list. protocol: " + wsProtocolCheckStr);
             return TransportReturnCodes.FAILURE;
         }
-
+        
+       _bindOpts.wSocketOpts().protocols(WebSocketHandlerImpl.constructProtocolList(protocols, true));
+                
         _portNumber = _bindOpts.port();
         _connType = _bindOpts.connectionType();
         try

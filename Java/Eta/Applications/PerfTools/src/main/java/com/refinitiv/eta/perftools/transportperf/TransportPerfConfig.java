@@ -129,9 +129,8 @@ public class TransportPerfConfig
         CommandLine.addOption("pl",  "",
                 "WebSocket sub-protocol list for requesting a protocol or listing only supported protocols respectively\n" +
                 "for client and server 'appType'. White-space or comma delinated list in order of preference\n" +
-                "(\"rssl.rwf, rssl.json.v2, tr_json2\")\n" +
-                "NOTE: 'tr_json2' is deprecated and replaced by rssl.json.v2\n");
-        
+                "(\"rssl.rwf, tr_json2, rssl.json.v2\")\n" +
+                "NOTE: 'rssl.json.v2' is deprecated and replaced by tr_json2\n");
         // TransportThreadConfig
         CommandLine.addOption("tickRate", 1000, "Ticks per second");
         CommandLine.addOption("pack", 1, "Number of messages packed in a buffer(when count > 1, Channel.packBuffer() is used)");

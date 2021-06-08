@@ -72,7 +72,7 @@ static const char *defaultPortNo = "14002";
 /* default service name */
 static const char *defaultServiceName = "DIRECT_FEED";
 /* default sub-protocol list */
-static const char *defaultProtocols = "rssl.rwf, rssl.json.v2, tr_json2";
+static const char *defaultProtocols = "rssl.rwf, tr_json2, rssl.json.v2";
 
 void exitWithUsage()
 {

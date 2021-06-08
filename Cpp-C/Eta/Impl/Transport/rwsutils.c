@@ -343,7 +343,7 @@ static RsslBuffer fv_Upgrade				= {  7, (char*)"upgrade" };
 
 static rwsSubProtocolList_t rwsSubProtocols[] = {
 { RWS_SP_RWF,		{ 6, (char *)"tr_rwf" },	{  8, (char *)"rssl.rwf" } },
-{ RWS_SP_JSON2,	{ 8, (char *)"tr_json2" },		{ 12, (char *)"rssl.json.v2" } },
+{ RWS_SP_JSON2,	{ 12, (char *)"rssl.json.v2" },		{ 8, (char *)"tr_json2" } },
 { 0,					RSSL_INIT_BUFFER,			RSSL_INIT_BUFFER }
 };
 
@@ -819,13 +819,15 @@ rwsSubProtocol_t rwsValidateSubProtocolRequest(rwsSession_t * wsSess, const char
 
 /* Parse requested list of sub-protocols, validate each one, and create a list of 
  * preferred protocols */
-char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslError *error)
+char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslBool isServer, RsslError *error)
 {
 	char	*pProtName = 0, *pProtList = 0, *pStr = 0;
 	char	*savEnd = 0;
 	const char *delim = ", \t";
 	size_t	pLen = strlen(protocols);
 	rwsSubProtocol_t prot = 0;
+	RsslBool addedJSON2 = 0;
+	RsslBool addedRSSL_RWF = 0;
 
 	if (protocols)
 		pStr = (char*)strdup(protocols);
@@ -836,14 +838,17 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslError *
 		return 0;
 	}
 
-	pProtList = (char*)_rsslMalloc((sizeof(char)*pLen) + 1);
+	pProtList = (char*)_rsslMalloc((sizeof(char)*pLen) + rwsSubProtocols[1].oldProtocolName.length + 20);
 	if (pProtList == 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Failed to allocate memory for protocolList.",
 			__FUNCTION__, __LINE__);
+		return 0;
 	}
+
+	memset(pProtList, 0, pLen + rwsSubProtocols[1].oldProtocolName.length + 20);
 
 	for (pProtName = strtok_r(pStr, delim, &savEnd); 
 		 pProtName != NULL;pProtName = strtok_r(NULL, delim, &savEnd))
@@ -860,10 +865,73 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslError *
 					__FUNCTION__, __LINE__, prot);
 			return 0;
 		}
-	}
 
-	memcpy(pProtList, protocols, pLen); 
-	pProtList[pLen] = '\0';
+		/* rwsSubProtocols[1].oldProtocolName.data is rssl.json.v2 while rwsSubProtocols[1].protocolName.data is tr_json2
+		   Replaces the rssl.json.v2 with tr_json2 sub-protocol name before sending to the wire for backward compatibility */
+		if (strncmp(pProtName, rwsSubProtocols[1].oldProtocolName.data, rwsSubProtocols[1].oldProtocolName.length) == 0)
+		{
+			if (!addedJSON2)
+			{
+				if (addedRSSL_RWF)
+				{
+					strncat(pProtList, ", ", 2);
+				}
+
+				strncat(pProtList, rwsSubProtocols[1].protocolName.data, rwsSubProtocols[1].protocolName.length);
+
+				/* Added support for both tr_json2 and rssl.json.v2 on the server side to accept either one of them. */
+				if (isServer)
+				{
+					strncat(pProtList, ", ", 2);
+					strncat(pProtList, rwsSubProtocols[1].oldProtocolName.data, rwsSubProtocols[1].oldProtocolName.length);
+				}
+
+				addedJSON2 = 1;
+			}
+		}
+		else
+		{
+			switch (prot)
+			{
+				case RWS_SP_RWF:
+				{
+					if (!addedRSSL_RWF)
+					{
+						if (addedJSON2)
+						{
+							strncat(pProtList, ", ", 2);
+						}
+
+						strncat(pProtList, rwsSubProtocols[0].protocolName.data, rwsSubProtocols[0].protocolName.length);
+						addedRSSL_RWF = 1;
+					}
+					break;
+				}
+				case RWS_SP_JSON2:
+				{
+					if (!addedJSON2)
+					{
+						if (addedRSSL_RWF)
+						{
+							strncat(pProtList, ", ", 2);
+						}
+
+						strncat(pProtList, rwsSubProtocols[1].protocolName.data, rwsSubProtocols[1].protocolName.length);
+
+						/* Added support for both tr_json2 and rssl.json.v2 on the server side to accept either one of them. */
+						if (isServer)
+						{
+							strncat(pProtList, ", ", 2);
+							strncat(pProtList, rwsSubProtocols[1].oldProtocolName.data, rwsSubProtocols[1].oldProtocolName.length);
+						}
+
+						addedJSON2 = 1;
+					}
+					break;
+				}
+			}
+		}
+	}
 
 	if (pStr)
 	{
@@ -5657,7 +5725,7 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 		wsSess->protocolList = rwsSetSubProtocols((const char*)(wsOpts->protocols ?
 																wsOpts->protocols :
 																RWS_DEFAULT_SUBPROTOCOL), 
-													depracateOldProtocols, error);
+													depracateOldProtocols, 0, error);
 
 		_DEBUG_TRACE_INIT(" wsOpts->protocols : '%s'\nwsSess->protocolList : '%s'\n", wsOpts->protocols, wsSess->protocolList)
 		if (wsSess->protocolList == 0)
@@ -5700,7 +5768,7 @@ RsslRet rwsInitServerOptions(RsslServerSocketChannel *rsslServerSocketChannel, R
 		wsServer->protocolList = rwsSetSubProtocols((const char*)(wsOpts->protocols ?
 																  wsOpts->protocols :
 																  RWS_DEFAULT_SUBPROTOCOL_LIST), 
-													depracateOldProtocols, error);
+													depracateOldProtocols, 1, error);
 		if (wsServer->protocolList == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);

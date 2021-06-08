@@ -77,7 +77,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static String DEFAULT_CONS_NAME						= "EmaConsumer";
 	final static String DEFAULT_IPROV_NAME						= "EmaIProvider";
 	final static String DEFAULT_NIPROV_NAME						= "EmaNiProvider";
-	final static String DEFAULT_WS_PROTOCOLS					= "rssl.json.v2, rssl.rwf, tr_json2";
+	final static String DEFAULT_WS_PROTOCOLS					= "tr_json2, rssl.rwf, rssl.json.v2";
 	final static int DEFAULT_WS_MAX_MSG_SIZE					= 61440;
 	final static int DEFAULT_MAX_FRAGMENT_SIZE 					= 6144;
 	

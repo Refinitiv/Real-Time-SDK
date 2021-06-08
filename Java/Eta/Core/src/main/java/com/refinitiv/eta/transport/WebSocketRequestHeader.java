@@ -151,7 +151,11 @@ enum WebSocketRequestHeader {
             if (protocols.isEmpty()) {
                 return populateError(error, TransportReturnCodes.FAILURE, "Protocols wasn't passed.");
             }
-            httpHeaders.addHeader(headerName, HttpHeaderLineInfo.valueOf(protocols));
+            
+            /* Sets to the protocol list in order to accept from the response later. */
+            session.getWebSocketOpts().protocols(WebSocketHandlerImpl.constructProtocolList(protocols, false));
+            
+            httpHeaders.addHeader(headerName, HttpHeaderLineInfo.valueOf(session.getWebSocketOpts().protocols()));
             return TransportReturnCodes.SUCCESS;
         }
     }

@@ -34,6 +34,10 @@ class WebSocketHandlerImpl implements WebSocketHandler {
     private static final String SIMPLE_SCHEME = "ws";
     private static final String ENCRYPTED_SCHEME = "wss";
     private static final String WS_URI_SPECIFIC_PART = "websocket";
+    
+    static final String RSSL_JSON_V2 = "rssl.json.v2";
+    static final String TR_JSON2 = "tr_json2";
+    static final String RSSL_RWF = "rssl.rwf";
 
     private WebSocketSession wsSession;
 
@@ -309,5 +313,82 @@ class WebSocketHandlerImpl implements WebSocketHandler {
             wSocketOpts.protocols("");
         }
         wsSession.setWebSocketOpts(wSocketOpts);
+    }
+    
+    public static String constructProtocolList(String protocols, boolean isServer)
+    {
+    	final String[] protocolList = protocols.split("[\\s,]+");
+    	StringBuilder protocolBuilder = new StringBuilder();
+    	boolean addedJSON2 = false, addedRSSL_RWF = false;
+    	for(String protName : protocolList)
+    	{
+    		protName = protName.trim();
+
+    		if(!addedJSON2 && !addedRSSL_RWF)
+    		{
+    			if (protName.equalsIgnoreCase(TR_JSON2))
+    			{
+    				addedJSON2 = true;
+    				protocolBuilder.append(protName);
+
+    				/* Added support for both tr_json2 and rssl.json.v2 on the server side to accept either one of them. */
+    				if(isServer)
+    				{
+    					protocolBuilder.append(", " + RSSL_JSON_V2);
+    				}
+    			}
+    			else if(protName.equalsIgnoreCase(RSSL_JSON_V2))
+    			{
+    				protName = TR_JSON2;
+    				addedJSON2 = true;
+    				protocolBuilder.append(protName);
+
+    				if(isServer)
+    				{
+    					protocolBuilder.append(", " + RSSL_JSON_V2);
+    				}
+    			}
+    			else if(protName.equalsIgnoreCase(RSSL_RWF))
+    			{
+    				addedRSSL_RWF = true;
+    				protocolBuilder.append(protName);
+    			}
+    		}
+    		else
+    		{
+    			if(!addedJSON2)
+    			{
+    				if (protName.equalsIgnoreCase(TR_JSON2))
+    				{
+    					addedJSON2 = true;
+    					protocolBuilder.append(", " + protName);
+
+    					if(isServer)
+    					{
+    						protocolBuilder.append(", " + RSSL_JSON_V2);
+    					}
+    				}
+    				else if(protName.equalsIgnoreCase(RSSL_JSON_V2))
+    				{
+    					protName = TR_JSON2;
+    					addedJSON2 = true;
+
+    					protocolBuilder.append(", " + protName);
+
+    					if(isServer)
+    					{
+    						protocolBuilder.append(", " + RSSL_JSON_V2);
+    					}
+    				}
+    			}
+    			else if(!addedRSSL_RWF && protName.equalsIgnoreCase(RSSL_RWF))
+    			{
+    				addedRSSL_RWF = true;
+    				protocolBuilder.append(", " + protName);
+    			}
+    		}
+    	}
+
+    	return protocolBuilder.toString();
     }
 }
