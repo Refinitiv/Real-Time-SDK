@@ -874,16 +874,16 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslBool is
 			{
 				if (addedRSSL_RWF)
 				{
-					strncat(pProtList, ", ", 2);
+					strcat(pProtList, ", ");
 				}
 
-				strncat(pProtList, rwsSubProtocols[1].protocolName.data, rwsSubProtocols[1].protocolName.length);
+				strcat(pProtList, rwsSubProtocols[1].protocolName.data);
 
 				/* Added support for both tr_json2 and rssl.json.v2 on the server side to accept either one of them. */
 				if (isServer)
 				{
-					strncat(pProtList, ", ", 2);
-					strncat(pProtList, rwsSubProtocols[1].oldProtocolName.data, rwsSubProtocols[1].oldProtocolName.length);
+					strcat(pProtList, ", ");
+					strcat(pProtList, rwsSubProtocols[1].oldProtocolName.data);
 				}
 
 				addedJSON2 = 1;
@@ -899,10 +899,10 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslBool is
 					{
 						if (addedJSON2)
 						{
-							strncat(pProtList, ", ", 2);
+							strcat(pProtList, ", ");
 						}
 
-						strncat(pProtList, rwsSubProtocols[0].protocolName.data, rwsSubProtocols[0].protocolName.length);
+						strcat(pProtList, rwsSubProtocols[0].protocolName.data);
 						addedRSSL_RWF = 1;
 					}
 					break;
@@ -913,16 +913,16 @@ char * rwsSetSubProtocols(const char *protocols, RsslBool deprecate, RsslBool is
 					{
 						if (addedRSSL_RWF)
 						{
-							strncat(pProtList, ", ", 2);
+							strcat(pProtList, ", ");
 						}
 
-						strncat(pProtList, rwsSubProtocols[1].protocolName.data, rwsSubProtocols[1].protocolName.length);
+						strcat(pProtList, rwsSubProtocols[1].protocolName.data);
 
 						/* Added support for both tr_json2 and rssl.json.v2 on the server side to accept either one of them. */
 						if (isServer)
 						{
-							strncat(pProtList, ", ", 2);
-							strncat(pProtList, rwsSubProtocols[1].oldProtocolName.data, rwsSubProtocols[1].oldProtocolName.length);
+							strcat(pProtList, ", ");
+							strcat(pProtList, rwsSubProtocols[1].oldProtocolName.data);
 						}
 
 						addedJSON2 = 1;

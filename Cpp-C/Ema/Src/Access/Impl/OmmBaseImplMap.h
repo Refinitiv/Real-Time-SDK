@@ -197,6 +197,8 @@ public:
 		_monitorThreadMutex.lock();
 		_monitorThreadId = 0;
 		_monitorThreadMutex.unlock();
+
+		return (void*)NULL;
 	}
 
 	static void runMonitorThread()
