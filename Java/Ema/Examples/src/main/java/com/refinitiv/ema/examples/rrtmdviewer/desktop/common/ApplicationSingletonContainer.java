@@ -21,8 +21,8 @@ public class ApplicationSingletonContainer {
 
     /**
      * Add new bean to the singleton container.
-     * @param type - type is interface or parent class to which could be casted {@param impl}
-     * @param impl - instance of {@param type} or any another which extended from {@param type}.
+     * @param type interface or parent class to which {@code impl} could be cast
+     * @param impl instance of {@code type} class or any of its subtypes.
      */
     public static void addBean(Class<?> type, Object impl) {
         if (!BEAN_CONTAINER.containsKey(type.getName())) {
