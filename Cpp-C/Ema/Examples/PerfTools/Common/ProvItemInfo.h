@@ -46,6 +46,8 @@ public:
 		name = itemInfo.name;
 		isPost = itemInfo.isPost;
 		isGeneric = itemInfo.isGeneric;
+
+		return *this;
 	}
 
 	bool operator==(ProvItemInfo const& itemInfo) const {
