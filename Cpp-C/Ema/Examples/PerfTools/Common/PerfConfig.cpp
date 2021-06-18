@@ -7,21 +7,17 @@
 
 #include "PerfConfig.h"
 
-PerfConfig::PerfConfig( char* summaryFilename ) : 
+PerfConfig::PerfConfig( const EmaString& summaryFilename ) :
 	threadCount(1), 
-	threadBindList(0), 
 	ticksPerSec(1000),
 	mainThreadCpu(-1),
 	emaThreadCpu(-1),
 	summaryFilename (summaryFilename),
 	useUserDispatch(false)
 {
-	threadBindList = new long[1];
 	threadBindList[0] = -1;	
 }
 
 PerfConfig::~PerfConfig()
 {
-	if( threadBindList )
-		delete [] threadBindList;
 }

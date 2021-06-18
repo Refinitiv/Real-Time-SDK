@@ -57,9 +57,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			char *pToken;
 			Int32 consThreadCount = ( consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount  : 0;
 			consPerfConfig.threadCount = 0;
-			if(consPerfConfig.threadBindList)
-				delete [] consPerfConfig.threadBindList;
-			consPerfConfig.threadBindList = new long[MAX_CONS_THREADS];
 
 			pToken = strtok(argv[iargs++], ",");
 			while(pToken)
@@ -68,11 +65,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				{
 					logText = "Config Error: Too many threads specified.";
 					AppUtil::logError(logText);
-					if( consPerfConfig.threadBindList )
-					{
-						delete [] consPerfConfig.threadBindList;
-						consPerfConfig.threadBindList = NULL;
-					}
 					return false;
 				}
 				sscanf(pToken, "%ld", &consPerfConfig.threadBindList[consPerfConfig.threadCount-1]);
@@ -82,16 +74,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			{
 				logText = "Config Error: thread count not equal to api thread count.";
 				AppUtil::logError(logText);
-				if( consPerfConfig.threadBindList )
-				{
-					delete [] consPerfConfig.threadBindList;
-					consPerfConfig.threadBindList = NULL;
-				}
-			if( consPerfConfig.apiThreadBindList )
-				{
-					delete [] consPerfConfig.apiThreadBindList;
-					consPerfConfig.apiThreadBindList = NULL;
-				}
 				return false;
 			}
 			if( consPerfConfig.threadCount < MAX_CONS_THREADS )
@@ -111,9 +93,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			char *pToken;
 			Int32 consThreadCount = ( consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount  : 0;
 			consPerfConfig.threadCount = 0;
-			if(consPerfConfig.apiThreadBindList)
-				delete [] consPerfConfig.apiThreadBindList;
-			consPerfConfig.apiThreadBindList = new long[MAX_CONS_THREADS];
 
 			pToken = strtok(argv[iargs++], ",");
 			while(pToken)
@@ -122,11 +101,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				{
 					logText = "Config Error: Too many api threads specified.";
 					AppUtil::logError(logText);
-					if( consPerfConfig.apiThreadBindList )
-					{
-						delete [] consPerfConfig.apiThreadBindList;
-						consPerfConfig.apiThreadBindList = NULL;
-					}
 					return false;
 				}
 	
@@ -137,16 +111,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			{
 				logText = "Config Error: thread count not equal to api thread count.";
 				AppUtil::logError(logText);
-				if( consPerfConfig.threadBindList )
-				{
-					delete [] consPerfConfig.threadBindList;
-					consPerfConfig.threadBindList = NULL;
-				}
-			if( consPerfConfig.apiThreadBindList )
-				{
-					delete [] consPerfConfig.apiThreadBindList;
-					consPerfConfig.apiThreadBindList = NULL;
-				}
 				return false;
 			}
 			if( consPerfConfig.threadCount < MAX_CONS_THREADS )
@@ -617,7 +581,7 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 	{
 		tmpStringPos += snprintf(tmpString + tmpStringPos, 128 - tmpStringPos, ",%ld", consPerfConfig.threadBindList[i]);
 		if( !consPerfConfig.useUserDispatch )
-			tmpApiThreadListStringPos += snprintf(tmpApiThreadListString + tmpApiThreadListStringPos, 128 - tmpStringPos, ",%ld", consPerfConfig.apiThreadBindList[i]);
+			tmpApiThreadListStringPos += snprintf(tmpApiThreadListString + tmpApiThreadListStringPos, 128 - tmpApiThreadListStringPos, ",%ld", consPerfConfig.apiThreadBindList[i]);
 
 	}
 

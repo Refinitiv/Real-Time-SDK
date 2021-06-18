@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|         Copyright (C) 2019-2021 Refinitiv. All rights reserved.           --
 ///*|-----------------------------------------------------------------------------
 
 #ifndef __PERFTOOL__COMMON__APPUTIL__H__
@@ -12,6 +12,7 @@
 
 #include "Ema.h"
 #include "Mutex.h"
+#include "rtr/rsslTransport.h"
 #include <time.h>
 
 #include <stdio.h>
@@ -58,6 +59,8 @@ public:
 	static void formatNameValue(refinitiv::ema::access::EmaString& str, const refinitiv::ema::access::EmaString& name, refinitiv::ema::access::Int32 max, refinitiv::ema::access::Int64 value);
 
 	static void printCurrentTimeUTC(FILE *file);
+
+	static const char* connectionTypeToString(const RsslConnectionTypes connType);
 
 private:
 	static void setExitError(bool val) {_exitError = val;}

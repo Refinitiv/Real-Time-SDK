@@ -201,7 +201,11 @@ OmmNiProviderImpl::~OmmNiProviderImpl()
 
 	removeItems();
 
+	OmmBaseImplMap<OmmBaseImpl>::acquireCleanupLock();
+
 	OmmBaseImpl::uninitialize( false, false );
+
+	OmmBaseImplMap<OmmBaseImpl>::releaseCleanupLock();
 }
 
 void OmmNiProviderImpl::removeItems()

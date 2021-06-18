@@ -8,29 +8,31 @@
 #ifndef _PERF_CONFIG_H
 #define _PERF_CONFIG_H
 
+#include <cstddef>
 #include "Ema.h"
 
-#define MAX_CONS_THREADS 8
+const size_t MAX_THREADS = 8;
+
 using namespace refinitiv::ema::access;
 // Provides common configuration options. 
 class PerfConfig
 {
 public:
-	PerfConfig( char* summaryFileName );
+	PerfConfig( const EmaString& summaryFileName );
 
 	virtual ~PerfConfig();
 	virtual void clearPerfConfig() = 0;		// Use Defaults.
 
 	Int32			ticksPerSec;		// Main loop ticks per second.  See -tps 
 	Int32			threadCount;		// Number of threads that handle connections.  See -threads 
-	long			*threadBindList;	// CPU ID list for threads that handle connections.  See -threads 
+	long			threadBindList[MAX_THREADS];	// CPU ID list for threads that handle connections.  See -threads 
 
 	EmaString		summaryFilename;	// Name of the summary log file. See -summaryFile. 
 
 	long			mainThreadCpu;
 	long			emaThreadCpu;
-	bool			useUserDispatch;
-
+	bool			useUserDispatch;		/* Configures that the application is responsible for calling dispatch method to dispatch all received messages
+											* otherwise (false/ApiDispatch) EMA creates a second internal thread over which to dispatch received messages */
 };
 
 #endif // _PERF_CONFIG_H

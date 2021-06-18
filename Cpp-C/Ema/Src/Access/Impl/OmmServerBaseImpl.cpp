@@ -867,14 +867,26 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 	}
 	catch (const OmmException& ommException)
 	{
-		uninitialize(false, true);
+		if (OmmBaseImplMap<OmmServerBaseImpl>::has(this))
+		{
+			uninitialize(false, true);
+		}
 
 		_userLock.unlock();
 
+		/* Acquire the cleanup lock to ensure that the interrupted thread can cleanup this object properly */
+		OmmBaseImplMap<OmmServerBaseImpl>::acquireCleanupLock();
+
 		if (hasErrorClientHandler())
+		{
+			OmmBaseImplMap<OmmServerBaseImpl>::releaseCleanupLock();
 			notifErrorClientHandler(ommException, getErrorClientHandler());
+		}
 		else
+		{
+			OmmBaseImplMap<OmmServerBaseImpl>::releaseCleanupLock();
 			throw;
+		}
 	}
 }
 

@@ -145,6 +145,29 @@ public:
 #endif
 	}
 
+	static bool has(T* impl)
+	{
+		bool hasObject = false;
+
+		_listLock.lock();
+
+		hasObject = _clientList.getPositionOf(impl) != -1 ? true : false;
+
+		_listLock.unlock();
+
+		return hasObject;
+	}
+
+	static void acquireCleanupLock()
+	{
+		_cleanupLock.lock();
+	}
+
+	static void releaseCleanupLock()
+	{
+		_cleanupLock.unlock();
+	}
+
 #ifdef WIN32
 	static BOOL WINAPI TermHandlerRoutine(DWORD dwCtrlType)
 	{
@@ -252,6 +275,7 @@ private:
 	static void atExit()
 	{
 		_listLock.lock();
+		_cleanupLock.lock();
 
 		UInt32 size = _clientList.size();
 		EmaVector< T* > copyClientList(size);
@@ -270,6 +294,7 @@ private:
 
 			copyClientList.push_back(pTemp);
 		}
+
 		_listLock.unlock();
 
 		OmmBaseImplMap<T>::sleep(500);
@@ -281,11 +306,14 @@ private:
 			pTemp->uninitialize(false, false);
 		}
 
+		_cleanupLock.unlock();
+
 		OmmBaseImplMap<T>::sleep(100);
 		return;
 	}
 
 	static Mutex						_listLock;
+	static Mutex						_cleanupLock;
 	static EmaVector< T* >				_clientList;
 	static UInt64						_id;
 	static bool							_clearSigHandler;
@@ -305,6 +333,7 @@ private:
 
 template <class T> EmaVector< T* > OmmBaseImplMap<T>::_clientList;
 template <class T> Mutex OmmBaseImplMap<T>::_listLock;
+template <class T> Mutex OmmBaseImplMap<T>::_cleanupLock;
 template <class T> UInt64 OmmBaseImplMap<T>::_id = 0;
 template <class T> bool OmmBaseImplMap<T>::_clearSigHandler = true;
 template <class T> bool OmmBaseImplMap<T>::_CtrlC_Activated = false;

@@ -74,7 +74,7 @@ BOOL WINAPI CtrlBreakHandler::TermHandlerRoutine( DWORD dwCtrlType )
 	{
 	case CTRL_CLOSE_EVENT:
 	case CTRL_BREAK_EVENT:
-	case CTRL_SHUTDOWN_EVENT:	
+	case CTRL_SHUTDOWN_EVENT:
 	case CTRL_C_EVENT:
 		m_isTerminated = true;
 		break;
@@ -83,14 +83,14 @@ BOOL WINAPI CtrlBreakHandler::TermHandlerRoutine( DWORD dwCtrlType )
 }
 #else
 extern "C" {
-	void CtrlBreakHandler::sigAction( int sig, siginfo_t* pSiginfo, void* pv ) 
-	{	
+	void CtrlBreakHandler::sigAction( int sig, siginfo_t* pSiginfo, void* pv )
+	{
 		m_isTerminated = true;
 		if (_oldSigAction.sa_sigaction != NULL)
 			(_oldSigAction.sa_sigaction)(sig, pSiginfo, pv);
 	}
 }
-#endif 
+#endif
 
 void CtrlBreakHandler::forceExit()
 {

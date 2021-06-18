@@ -190,6 +190,16 @@
 			<Logger value="Logger_1"/>
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
+		<NiProvider>
+			<Name value="Perf_NIProvider_1"/>
+			<Channel value="Perf_NIP_Channel_1"/>
+			<Directory value="Perf_Directory_1"/>
+			<Logger value="Logger_1"/>
+			<XmlTraceToStdout value="0"/>
+			<ItemCountHint value="100000"/>
+			<MaxDispatchCountApiThread value="500"/>
+			<MaxDispatchCountUserThread value="500"/>
+		</NiProvider>
 	</NiProviderList>
 </NiProviderGroup>
 
@@ -292,6 +302,18 @@
 
 			<RefreshFirstRequired value="1" />
 
+		</IProvider>
+		<IProvider>
+			<Name value="Perf_Provider_1"/>
+			<Server value="Perf_Server_1"/>
+			<Directory value="Directory_2"/>
+			<Logger value="Logger_1"/>
+			<ItemCountHint value="100000"/>
+			<ServiceCountHint value="10000"/>
+			<CatchUnhandledException value="0"/>
+			<MaxDispatchCountApiThread value="500"/>
+			<MaxDispatchCountUserThread value="500"/>
+			<RefreshFirstRequired value="1"/>
 		</IProvider>
 	</IProviderList>
 </IProviderGroup>
@@ -464,6 +486,20 @@
 			<Host value="localhost"/>
 			<Port value="14003"/>
 		</Channel>
+		<Channel>
+			<Name value="Perf_NIP_Channel_1"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<GuaranteedOutputBuffers value="100000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="0"/>
+			<Host value="localhost"/>
+			<Port value="14003"/>
+			<InterfaceName value=""/>
+			<HighWaterMark value="6144"/>
+			<NumInputBuffers value="10000"/>
+			<SysRecvBufSize value="0"/>
+			<SysSendBufSize value="0"/>
+		</Channel>
 	</ChannelList>
 </ChannelGroup>
 
@@ -493,6 +529,21 @@
 			<Port value="15000"/>
 			<MaxFragmentSize value="6144"/>
 			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
+		</Server>
+		<Server>
+			<Name value="Perf_Server_1"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="50000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="1"/>
+			<Port value="14002"/>
+			<HighWaterMark value="6144"/>
+			<InterfaceName value=""/>
+			<MaxFragmentSize value="6144"/>
+			<NumInputBuffers value="10000"/>
+			<SysRecvBufSize value="65535"/>
+			<SysSendBufSize value="65535"/>
 		</Server>
 	</ServerList>
 </ServerGroup>
@@ -757,6 +808,53 @@
 				</StateFilter>
 			</Service>
 
+		</Directory>
+		<Directory>
+			<Name value="Perf_Directory_1"/>
+			<Service>
+				<Name value="NI_PUB"/>
+				<InfoFilter>
+					<ServiceId value="1"/>
+					<DictionariesProvided>
+						<DictionariesProvidedEntry value="Dictionary_3"/>
+					</DictionariesProvided>
+
+					<DictionariesUsed>
+						<DictionariesUsedEntry value="Dictionary_3"/>
+					</DictionariesUsed>
+
+					<Vendor value="RefinitivDevTestLab"/>
+					<IsSource value="0"/>
+					<Capabilities>
+						<CapabilitiesEntry value="MMT_DICTIONARY"/>
+						<CapabilitiesEntry value="MMT_MARKET_PRICE"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+						<CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+						<CapabilitiesEntry value="200"/>
+					</Capabilities>
+
+					<QoS>
+						<QoSEntry>
+							<Timeliness value="Timeliness::RealTime"/>
+							<Rate value="Rate::TickByTick"/>
+						</QoSEntry>
+						<QoSEntry>
+							<Timeliness value="100"/>
+							<Rate value="100"/>
+						</QoSEntry>
+					</QoS>
+
+					<SupportsQoSRange value="0"/>
+					<ItemList value="#.itemlist"/>
+					<AcceptingConsumerStatus value="0"/>
+					<SupportsOutOfBandSnapshots value="0"/>
+				</InfoFilter>
+
+				<StateFilter>
+					<ServiceState value="1"/>
+					<AcceptingRequests value="1"/>
+				</StateFilter>
+			</Service>
 		</Directory>
 
 	</DirectoryList>

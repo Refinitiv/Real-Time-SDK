@@ -63,14 +63,15 @@ struct ResourceUsageStats {
 
 struct ValueStatistics
 {
-	UInt64	count;//number of values
-	double				mean; //mean value
-	double				minValue;  //minumum value
-	double				maxValue;  //maximum value
-	double				variance;  //variance (the standard deviation is the square root of the variance)
-	double				sum;  //running sum of values (used to compute variance)
-	double				sumOfSquares;  //running sum of squared values (used to compute variance)
-	 ValueStatistics() : count(0), mean(0.0), maxValue(-DBL_MAX), minValue(DBL_MAX), variance(0.0), sum(0.0), sumOfSquares(0.0) {}
+	UInt64			count;		//number of values
+	double			mean;		//mean value
+	double			minValue;	//minumum value
+	double			maxValue;	//maximum value
+	double			variance;	//variance (the standard deviation is the square root of the variance)
+	double			sum;		//running sum of values (used to compute variance)
+	double			sumOfSquares;	//running sum of squared values (used to compute variance)
+
+	ValueStatistics() : count(0), mean(0.0), maxValue(-DBL_MAX), minValue(DBL_MAX), variance(0.0), sum(0.0), sumOfSquares(0.0) {}
 	void clearValueStatistics();
 	void updateValueStatistics(double newValue);
 	void printValueStatistics(FILE *file, const char *valueStatsName, const char *countUnitName, bool displayThousandths);
