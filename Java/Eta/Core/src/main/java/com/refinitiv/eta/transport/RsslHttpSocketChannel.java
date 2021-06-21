@@ -864,7 +864,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     {
         assert (readArgs != null) : "readArgs cannot be null";
         assert (error != null) : "error cannot be null";
-
+        
         TransportBuffer data = null; // the data returned to the user
         int returnValue;
 
@@ -1075,6 +1075,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 // note *replace* the call to read() below with a call to readAndPrintForReplay() to collect network replay data (for debugging) only!
 
                 // read all remaining data from _oldCrypto or _oldScktChannel until it's closed
+            	
                 int bytesRead = 0;
                 if (_httpReconnectState)
                 {
@@ -1143,15 +1144,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 // not httpReconnectState
                 {
                     bytesRead = read(_readIoBuffer.buffer());
-                    if (bytesRead == -1)
-                    {
-                        System.out.println("-1 bytes read");
-                    }
                 }
 
-//                //bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above read lines with this one
-
+                //bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above read lines with this one
                 _readBufStateMachine.advanceOnSocketChannelRead(bytesRead, readArgs, error);
+               
                 break;
             default:
                 assert (false); // code should not reach here

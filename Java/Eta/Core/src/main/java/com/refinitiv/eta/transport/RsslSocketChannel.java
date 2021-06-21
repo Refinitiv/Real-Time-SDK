@@ -1457,7 +1457,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             // failed to obtain the lock
             returnValue = TransportReturnCodes.READ_IN_PROGRESS;
         }
-
+        
         ((ReadArgsImpl)readArgs).readRetVal(returnValue);
         return data;
     }

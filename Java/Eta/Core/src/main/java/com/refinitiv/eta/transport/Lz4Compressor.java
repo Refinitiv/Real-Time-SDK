@@ -2,8 +2,10 @@ package com.refinitiv.eta.transport;
 
 import java.nio.ByteBuffer;
 
-import com.refinitiv.eta.transport.LZ4JavaSafeCompressor;
-import com.refinitiv.eta.transport.LZ4JavaSafeUnknownSizeDecompressor;
+import net.jpountz.lz4.LZ4Compressor;
+import net.jpountz.lz4.LZ4Exception;
+import net.jpountz.lz4.LZ4Factory;
+import net.jpountz.lz4.LZ4SafeDecompressor;
 
 class Lz4Compressor extends Compressor
 {
@@ -13,13 +15,12 @@ class Lz4Compressor extends Compressor
     private byte[] _bytesToDecompress;
     private byte[] _decompressedBytes;
     private int _maxCompressionInLen;
-    private LZ4JavaSafeCompressor _lz4Compressor;
-    private LZ4JavaSafeUnknownSizeDecompressor _lz4Decompressor;
+    private LZ4Compressor _lz4Compressor;
+    private LZ4SafeDecompressor _lz4Decompressor;
 
     {
-        _lz4Compressor = new LZ4JavaSafeCompressor();
-        _lz4Decompressor = new LZ4JavaSafeUnknownSizeDecompressor();
-
+    	_lz4Compressor = LZ4Factory.safeInstance().fastCompressor();
+    	_lz4Decompressor =  LZ4Factory.safeInstance().safeDecompressor();
         _maxCompressionInLen = 6144;
 
         _compressedBytes = null;
@@ -66,10 +67,17 @@ class Lz4Compressor extends Compressor
         {
             bytesToCompress = bufferToCompress.data().array();
         }
-        _compressedBytesLen = _lz4Compressor.compress(bytesToCompress, dataStartPos, lenToCompress,
+        
+        try
+        {
+        	_compressedBytesLen = _lz4Compressor.compress(bytesToCompress, dataStartPos, lenToCompress,
                                                       _compressedBytes, 0, _compressedBytes.length);
+        } catch(LZ4Exception e)
+        {
+        	throw new CompressorException("LZ4 compress(TransportBufImpl, int, int) exception: " + e.getMessage());
+        }
 
-        // System.out.println("[LZ4 Cv2] in=" + lenToCompress + " compressed=" + _compressedBytesLen);
+        //System.out.println("[LZ4 Cv2] in=" + lenToCompress + " compressed=" + _compressedBytesLen);
         return _compressedBytesLen;
     }
 
@@ -111,10 +119,17 @@ class Lz4Compressor extends Compressor
         {
             bytesToCompress = bufferToCompress.array();
         }
-        _compressedBytesLen = _lz4Compressor.compress(bytesToCompress, dataStartPos, lenToCompress,
+        
+        try
+        {
+        	_compressedBytesLen = _lz4Compressor.compress(bytesToCompress, dataStartPos, lenToCompress,
                                                       _compressedBytes, 0, _compressedBytes.length);
-
-        // System.out.println("[LZ4 Cv3] in=" + lenToCompress + " compressed=" + _compressedBytesLen);
+        } catch(LZ4Exception e)
+        {
+        	throw new CompressorException("LZ4 compress(ByteBuffer, int, int) exception: " + e.getMessage());
+        }
+        
+        //System.out.println("[LZ4 Cv3] in=" + lenToCompress + " compressed=" + _compressedBytesLen);
         return _compressedBytesLen;
     }
 
@@ -133,7 +148,8 @@ class Lz4Compressor extends Compressor
     @Override
     int decompress(TransportBufferImpl bufferToDecompress, TransportBufferImpl decompressedBuffer, int lenToDecompress)
     {
-        // System.out.println("[LZ4-decompress-TransportBufferImpl] Start decompressing " + lenToDecompress);
+    	
+        //System.out.println("[LZ4-decompress-TransportBufferImpl] Start decompressing " + lenToDecompress);
         int uncompressedBytesLen = 0;
         byte[] bytesToDecompress;
 
@@ -157,9 +173,15 @@ class Lz4Compressor extends Compressor
         {
             bytesToDecompress = bufferToDecompress.data().array();
         }
-
-        uncompressedBytesLen = _lz4Decompressor.decompress(bytesToDecompress, 0, // src offset
+        
+        try
+        {
+        	uncompressedBytesLen = _lz4Decompressor.decompress(bytesToDecompress, 0, // src offset
                                                            lenToDecompress, _decompressedBytes, 0); // dst offset
+        } catch(LZ4Exception e)
+        {
+        	throw new CompressorException("LZ4 decompress(TransportBufImpl, TransportBufImpl, int) exception: " + e.getMessage());
+        }
 
         decompressedBuffer.data().clear();
         decompressedBuffer.data().put(_decompressedBytes, 0, uncompressedBytesLen);
@@ -173,7 +195,7 @@ class Lz4Compressor extends Compressor
     @Override
     int decompress(ByteBufferPair bufferToDecompress, ByteBufferPair decompressedBuffer, int dataStartPos, int lenToDecompress)
     {
-        // System.out.println("[LZ4-decompress-ByteBufferPair] Start decompressing " + lenToDecompress);
+    	//System.out.println("[LZ4-decompress-ByteBufferPair] Start decompressing " + lenToDecompress);
         int uncompressedBytesLen = 0;
         byte[] bytesToDecompress;
 
@@ -198,14 +220,21 @@ class Lz4Compressor extends Compressor
             bytesToDecompress = bufferToDecompress.buffer().array();
         }
 
-        uncompressedBytesLen = _lz4Decompressor.decompress(bytesToDecompress, 0, // src offset
+        try
+        {
+        	uncompressedBytesLen = _lz4Decompressor.decompress(bytesToDecompress, 0, // src offset
                                                            lenToDecompress, _decompressedBytes, 0); // dst offset
+        } catch(LZ4Exception e)
+        {
+        	throw new CompressorException("LZ4 decompress(ByteBufferPair, ByteBufferPair, int, int) exception: " + e.getMessage());
+        }
+        
         decompressedBuffer.buffer().clear();
         decompressedBuffer.buffer().put(_decompressedBytes, 0, uncompressedBytesLen);
         decompressedBuffer.buffer().limit(decompressedBuffer.buffer().position());
         decompressedBuffer.buffer().position(0);
 
-        // System.out.println("[LZ4] in=" + lenToDecompress + " decompressed=" + uncompressedBytesLen);
+        //System.out.println("[LZ4] in=" + lenToDecompress + " decompressed=" + uncompressedBytesLen);
         return uncompressedBytesLen;
     }
 
