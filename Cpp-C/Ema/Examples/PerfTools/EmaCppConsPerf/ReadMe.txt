@@ -43,7 +43,6 @@ The following files are required:
 - RDMFieldDictionary and enumtype.def in Cpp-C/etc/
 - 350k.xml in PerfTools/Common
 - EmaConfig.xml in Cpp-C/Ema/ 
-- MsgData.xml in PerfTools/Common (only required if posting). Currently posting is not supported.
 - EmaCppConsPerf includes the EMA library. For shared builds, the location of that
   library must be included in the LD_LIBRARY_PATH. The library (libema.so) will be found in
   Ema/Libs/<env>/Optimized/Shared or Ema/Libs/<env>/Debug/Shared
@@ -96,14 +95,16 @@ EmaCppConsPerf
     <Channel>
     <Name value="Perf_Channel_Encr_1"/>
     <ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-    <EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
+    <EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
     <CompressionType value="CompressionType::None"/>
     <GuaranteedOutputBuffers value="5000"/>
     <NumInputBuffers value="2048"/>
     <ConnectionPingTimeout value="30000"/>
     <TcpNodelay value="1"/>
+    <WsMaxMsgSize value="61440"/>
+    <WsProtocols value="rssl.json.v2"/>
     <Host value="localhost"/>
-    <Port value="14002"/>
+    <Port value="15000"/>
     <OpenSSLCAStore value="./RootCA.crt"/>
     </Channel>
 

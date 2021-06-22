@@ -14,6 +14,7 @@ Copyright (C) 2018-2021 Refinitiv. All rights reserved.
 - API_ConceptsGuide
 - ConfigGuide
 - EMACPP_Examples
+- PerfToolsGuide
 
 In addition, HTML documentation is available in Cpp-C/Ema/Docs. For addtional documentation, please refer to top level README.MD files.
 
@@ -97,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.6.1.G1
+    libema.lib                ema3.6.2.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.6.1.G1
-    libema.dll                ema3.6.1.G1
+    libema.lib                ema3.6.2.L1
+    libema.dll                ema3.6.2.L1
 
 #### Linux
     
@@ -124,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.6.1.G1
+    libema.a                    ema3.6.2.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.6.1.G1          libema.so.12          ema3.6.1.G1
+    libema.so.3.6.2.L1          libema.so.12          ema3.6.2.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -141,6 +142,8 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 - ESDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
 
+- RTSDK-5119 EMACPP NIProvPerf has a limitation of 50000 watchlist size. RFA CPP used message packing to push the typical watchlist size of 100000 to ADH. Message packing is unavailable with EMA CPP.
+
 - ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up, the dictionary will not be downloaded properly.
 
 - EMA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
@@ -149,24 +152,25 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 - The ServerSharedSocket feature which permits multiple provider applications to reuse a port for load balancing is available only with certain patch levels on Linux 6. So, applications that intend to use this feature on Linux 6 must rebuild the RTSDK library (librssl) natively on a Linux 6 platform with the appropriate patch level that supports this feature. 
 
+
 # Reference Information
 
     I-COS Questionnaire: 6032
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.6.1
-    Load Number: 2
-    Windows Load ID: ema3.6.1.L2.win
-        Supersedes: ema3.6.1.L1.win
-    Linux Load ID: ema3.6.1.L2.linux
-        Supersedes: ema3.6.1.L1.linux
+    Release Number: 3.6.2
+    Load Number: 1
+    Windows Load ID: ema3.6.2.L1.win
+        Supersedes: ema3.6.1.L2.win
+    Linux Load ID: ema3.6.2.L1.linux
+        Supersedes: ema3.6.1.L2.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.46_RealTimeDistributionSystem_21.21 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.48_RealTimeDistributionSystem_21.51 for RWF and Marketfeed Record Templates
 
 # Security
 

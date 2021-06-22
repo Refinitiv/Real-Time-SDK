@@ -32,6 +32,7 @@ External modules used by this version of RTSDK Java:
 	httpcore		4.4.13
 	httpcore-nio		4.4.12
 	httpmime		4.5.13
+        lz4-java                1.7.1
 	mockito-all		1.9.0
 	slf4j-api		1.7.12
 	slf4j-jdk14		1.7.12
@@ -48,6 +49,8 @@ External modules used by this version of RTSDK Java:
 #### Supported Java Version 
 The Refinitiv Real-Time-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11.
 
+NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11 and must be explicitly downloaded if using open/JDK 1.8. 
+
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
 Refinitiv will extend support to other platforms based on the following criteria:
@@ -63,8 +66,6 @@ Platforms:
 
 	Windows Server 2012 Enterprise Edition or later 64-bit
 	Windows Server 2016 Enterprise Edition or later 64-bit
-	Microsoft Windows 7 Professional or later 64-bit
-	Microsoft Windows 8 Professional or later 64-bit
 	Microsoft Windows 8.1 Professional or later 64-bit
 	Microsoft Windows 10 Professional 64-bit
 
@@ -73,7 +74,8 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 11.0 (2012) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 12.0 (2013) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
-	Microsoft Visual Studio 15.0 (2017) 64-bit (JNI Libraries)
+	Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
+	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
 
 ##### Linux
 
@@ -81,7 +83,7 @@ Platforms:
 
 	Red Hat Enterprise Linux 6.X Release 64bit, GCC 4.4.4 (JNI Libraries)
 	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
-        Red Hat Enterprise Server 8.X Release 64-bit (JNI Libraries)
+        Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1 (JNI Libraries)
         CentOS 7.X Release 64-bit Qualification 
         CentOS 8.X Release 64-bit Qualification
 
@@ -209,40 +211,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.1.2</version>
+		<version>3.6.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.1.2</version>
+		<version>3.6.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.1.2</version>
+		<version>3.6.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.1.2</version>
+		<version>3.6.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.1.2</version>
+		<version>3.6.2.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.1.2'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.1.2'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.1.2'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.1.2'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.1.2'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.2.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.2.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.2.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.2.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.2.0'
 
 # Developing 
 

@@ -38,8 +38,7 @@ The following files are required:
 - RDMFieldDictionary and enumtype.def in Java/etc/
 - 350k.xml in Java/Ema/PerfTools/ 
 - EmaConfig.xml in Java/Ema/ 
-- MsgData.xml, located in PerfTools/Common (only required if posting). Currently posting is not supported.
-- EMA libray must be included in CLASSPATH
+- EMA library must be included in CLASSPATH
 - XML parser library xpp3-<version>.jar in RTSDK-BinaryPack/Java/Eta/Libs/
 
 -----------------
@@ -87,14 +86,16 @@ emajConsPerf
     <Channel>
     <Name value="Perf_Channel_Encr_1"/>
     <ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-    <EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
+    <EncryptedProtocolType value="EncryptedProtocolType::RSSL_WESOCKET"/>
     <CompressionType value="CompressionType::None"/>
     <GuaranteedOutputBuffers value="5000"/>
     <NumInputBuffers value="2048"/>
     <ConnectionPingTimeout value="30000"/>
     <TcpNodelay value="1"/>
+    <WsMaxMsgSize value="61440"/>
+    <WsProtocols value="rssl.json.v2"/>
     <Host value="localhost"/>
-    <Port value="14002"/>
+    <Port value="15000"/>
     </Channel>
 
 - Run emajConsPerf using java or gradlew

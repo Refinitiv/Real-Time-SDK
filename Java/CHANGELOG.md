@@ -9,22 +9,71 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.1.G1 aka EMA 3.6.1.G1 and ETA 3.6.1.G1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.2.L1 aka EMA 3.6.2.L1 and ETA 3.6.2.L1
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is a maintenace release which also introduces the Refinitiv Real-Time Market Data Viewer (RRTViewer), an OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an OMM Provider.
+This is a maintenace release consisting of fixes to customer issues, fixes for the Refinitiv Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 09614140] - [RTSDK-4728] - Memory cleanup upon uninitialization
-- [Case Number: 09700273] - [RTSDK-4810] - OMMInvalidUsageException with RMTES Field when requesting 0005.HK MarketPrice instrument
-- [GitHub #171] - [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml
+- [Case Number: 09919129] - [RTSDK-5106] - EMA incomplete login refresh issue when doing RTO token renewal via application 
+- [Case Number: 09958339] - [RTSDK-5191] - HTTP parse issue with HTTP Chunk Footer resulting in ChannelDown with EMA Error: Error Id 0
+- [Case Number: 09958326] - [RTSDK-5192] - HTTP read issue resulting in EMA Error text CompressorException: Malformed input at 3
+- [GitHub #143] - [RTSDK-3984] - reissue() with initialImage attribute doesn't trigger a new RefreshMsg in Java EMA
+- [GitHub #173] - [RTSDK-4972] - OmmConsumerConfig.clientId() not mentioned in EMA ConfigGuide
+- [GitHub #177] - [RTSDK-5081] - EMA IProv421 prints Error about EMA Config param is not correct
+
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.2.L1 (Jun 22, 2021)
+--------------------------------------------
+
+New Features Added
+------------------
+This is a maintenace release consisting of fixes to customer issues, fixes for the Refinitiv Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
+
+EMA Java 3.6.2.L1 Issues Resolved
+---------------------------------
+- [RTSDK-4399] - EMAJ Enhancement Request: Support additional Source Directory attributes via EMAConfig
+- [RTSDK-4750] - EMAJ RRTViewer: Ability to resize fields, Support ChannelSet for RDP connection, etc. 
+- [RTSDK-4871] - RRTViewer: Implement "Back" button to return back to Connect UI
+- [RTSDK-4974] - RRTViewer: Load from specified EmaConfig.xml file
+- [RTSDK-4975] - RRTViewer: On 'Request UI', specify choices made by user: 'Specify Config', ConnectionType, Host, Port
+- [RTSDK-4976] - RRTViewer: Label changes and optional parameter indicators
+- [RTSDK-4984] - RRTViewer: Expand input fields to show content
+- [RTSDK-5002] - RRTViewer: Fix such that Order of endpoint selection for discovered endpoint determines failover order
+- [RTSDK-5041] - Updated EMA ConsPerf Readme.txt file with build instructions, configuration and sample command lines
+- [RTSDK-5054] - RRTViewer - Multiple clicks on Refresh button results in multiple instances of snapshot data getting displayed
+- [RTSDK-5072] - Added Round-Trip Time (RTT) stats in RRTViewer
+- [RTSDK-5081] - EMA IProv421 prints Error about EMA Config param is not correct [GitHub #177]
+- [RTSDK-5106] - EMA incomplete login refresh issue when doing RTO token renewal via application [Case Number: 09919129]
+- [RTSDK-5121] - RRTViewer doesn't use the specified custom token service URL when making a connection with the selected endpoint(s)
+
+
+ETA Java 3.6.2.L1 Issues Resolved
+---------------------------------
+- [RTSDK-4074] - ETAJ Tunnel stream must notify application when login timeout occurs for authenticating a tunnel stream
+
+
+Both ETA Java and EMA Java 3.6.2.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-3984] - reissue() with initialImage attribute doesn't trigger a new RefreshMsg in Java EMA [GitHub #143]
+- [RTSDK-4812] - Add jackson parser jar into BinaryPack
+- [RTSDK-4942] - Update to DACS RHEL8 libraries 
+- [RTSDK-4972] - OmmConsumerConfig.clientId() not mentioned in EMA ConfigGuide [GitHub #173]
+- [RTSDK-5043] - PerfTools: Skewed steadystate latency calculations due to processing refreshes before updates
+- [RTSDK-5055] - Modify ConsPerf application to calculate overhead of conversion from RWF to JSON on Websocket Transport (ETA Transport layer only)
+- [RTSDK-5084] - Documentation: Change wording about DictionariesProvided vs. DictionariesUsed
+- [RTSDK-5186] - Send tr_json2 on the wire but accept both rssl.json.v2 and tr_json2 on the wire
+- [RTSDK-5191] - HTTP parse issue with HTTP Chunk Footer resulting in ChannelDown with EMA Error: Error Id 0 [Case Number: 09958339]
+- [RTSDK-5192] - HTTP read issue resulting in EMA Error text CompressorException: Malformed input at 3 [Case Number: 09958326]
+
 
 --------------------------------------------
 RTSDK Java Release 2.0.1.G1 (April 21, 2021)
@@ -74,7 +123,7 @@ EMA Java 3.6.1.L1 Issues Resolved
 ETA Java 3.6.1.L1 Issues Resolved
 ---------------------------------
 - [RTSDK-2707] - Java, UPA: IndexOutOfBoundsException thrown when applying RMTES to cache [Github # 96]
-- [RTSDK-4175] -  NPE in Server.accept if connection is not available [GitHub # 148]
+- [RTSDK-4175] - NPE in Server.accept if connection is not available [GitHub # 148]
 - [RTSDK-4383] - ETAJ issue with xml dumping blank data
 - [RTSDK-4707] - ETAJ RMTES Unit Test does not build on Java 9 or above
 
@@ -94,7 +143,7 @@ Both ETA Java and EMA Java 3.6.1.L1 Issues Resolved
 - [RTSDK-4145] - ESDKJ RWF/JSON Conversion: ESDK simple data RWF-JSON converters
 - [RTSDK-4146] - ESDKJ RWF/JSON Conversion: ESDK messages RWF->JSON converters
 - [RTSDK-4147] - ESDKJ RWF/JSON Conversion: ESDK containers RWF->JSON converters
-- [RTSDK-4187] -  Unable to reset view to get all fields [GitHub # 149]
+- [RTSDK-4187] - Unable to reset view to get all fields [GitHub # 149]
 - [RTSDK-4190] - Websocket Transport: Implement proxy and encryption support for WebSocket connection type.
 - [RTSDK-4289] - Unable to resume a stream that was opened in a paused state [GitHub # 151]
 - [RTSDK-4312] - Implement server side encryption support for WebSocket connection type.
