@@ -350,6 +350,13 @@ public class ConsPerfConfig
 			System.out.println(CommandLine.optionHelpString());
 			System.exit(-1);
 		}
+		
+		if(_calcRWFJSONConversionLatency && (_useReactor || _useWatchlist))
+		{
+			System.err.println("Config Error: Should not combine -calcRWFJSONConversionLatency and -reactor or -watchlist.\n");
+			System.out.println(CommandLine.optionHelpString());
+			System.exit(-1);
+		}
 
 		_requestsPerTick = _itemRequestsPerSec / _ticksPerSec;
 
@@ -408,6 +415,7 @@ public class ConsPerfConfig
             "               Summary File: " + _summaryFilename + "\n" +
             "                 Stats File: " + _statsFilename + "\n" +
             "           Latency Log File: " + (_latencyLogFilename.length() > 0 ? _latencyLogFilename : "(none)") + "\n" +
+            "     Latency Show JSON Conv: " + (_calcRWFJSONConversionLatency ? "Yes" : "No") + "\n" +
             "                  Tick Rate: " + _ticksPerSec + "\n" +
 	        "                  Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
             "    Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
