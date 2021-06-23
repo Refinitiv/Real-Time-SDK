@@ -1,5 +1,7 @@
 
 add_subdirectory( EmaCppConsPerf )
+add_subdirectory( EmaCppIProvPerf )
+add_subdirectory( EmaCppNIProvPerf )
 
 if ( CMAKE_HOST_UNIX )
 	set(_output_files	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/350k.xml

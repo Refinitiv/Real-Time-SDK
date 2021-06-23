@@ -618,8 +618,13 @@ class ReadBufferStateMachine
         // calculatedEndPos is the end of the RIPC or JSON message
         // (if we have http, then calculatedEndPos is at the position of /r/n at the end of the http chunk)
         final int calculatedEndPos = (_currentMsgStartPos + HTTP_HEADER6 + _protocolFunctions.messageLength());
+        
+        // The above calculation intentionally ignores the /r/n at the end of an HTTP chunk.  That also means that for overflow checks, we need to add 
+        // CHUNKEND_SIZE so we make sure we've received the full message's data.
+        final int httpEnd = calculatedEndPos + CHUNKEND_SIZE;
 
-        if (calculatedEndPos <= _readIoBuffer.buffer().position())
+        // httpEnd will always be greater than or equal to calculatedEndPos, so we can use that for the remaining message processing
+        if (httpEnd <= _readIoBuffer.buffer().position())
         {
             _state = ReadBufferState.KNOWN_COMPLETE;
 
@@ -741,7 +746,7 @@ class ReadBufferStateMachine
         		}
             }
         }
-        else if (calculatedEndPos <= _readIoBuffer.buffer().limit())
+        else if (httpEnd <= _readIoBuffer.buffer().limit())
         {
             _state = ReadBufferState.KNOWN_INCOMPLETE;
         }

@@ -59,8 +59,6 @@ Platforms:
 
 	Microsoft Windows Server 2012 Enterprise Edition or later 64-bit
 	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
-	Microsoft Windows 7 Professional or later 64-bit
-	Microsoft Windows 8 Professional or later 64-bit
 	Microsoft Windows 8.1 Professional or later 64-bit
 	Microsoft Windows 10 Professional 64-bit 
 

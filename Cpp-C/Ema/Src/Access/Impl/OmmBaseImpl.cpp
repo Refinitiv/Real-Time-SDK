@@ -1469,14 +1469,26 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 	}
 	catch ( const OmmException& ommException )
 	{
-		uninitialize( false, true );
+		if (OmmBaseImplMap<OmmBaseImpl>::has(this))
+		{
+			uninitialize(false, true);
+		}
 
 		_userLock.unlock();
 
-		if ( hasErrorClientHandler() )
-			notifErrorClientHandler( ommException, getErrorClientHandler() );
+		/* Acquire the cleanup lock to ensure that the interrupted thread can cleanup this object properly */
+		OmmBaseImplMap<OmmBaseImpl>::acquireCleanupLock();
+
+		if (hasErrorClientHandler())
+		{
+			OmmBaseImplMap<OmmBaseImpl>::releaseCleanupLock();
+			notifErrorClientHandler(ommException, getErrorClientHandler());
+		}
 		else
+		{
+			OmmBaseImplMap<OmmBaseImpl>::releaseCleanupLock();
 			throw;
+		}
 	}
 }
 

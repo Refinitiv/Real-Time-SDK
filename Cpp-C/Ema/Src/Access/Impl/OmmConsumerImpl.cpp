@@ -66,7 +66,11 @@ OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, bool unitTest)
 
 OmmConsumerImpl::~OmmConsumerImpl()
 {
+	OmmBaseImplMap<OmmBaseImpl>::acquireCleanupLock();
+
 	uninitialize( false, false );
+
+	OmmBaseImplMap<OmmBaseImpl>::releaseCleanupLock();
 }
 
 void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )

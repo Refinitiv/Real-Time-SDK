@@ -269,7 +269,7 @@ public class Consumer
 		elementList.clear();
 		
 		innerElementList.add(EmaFactory.createElementEntry().ascii("ChannelType", "ChannelType::RSSL_ENCRYPTED"));
-		
+
 		if(connectWebSocket)
 		{
 			innerElementList.add(EmaFactory.createElementEntry().ascii("EncryptedProtocolType", "EncryptedProtocolType::RSSL_WEBSOCKET"));

@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.47
-!tag Build_RDMD  4.20.47
-!tag DT_Version  21.31
-!tag Date        22-Mar-2021
+!tag RT_Version  4.20.48
+!tag Build_RDMD  4.20.48
+!tag DT_Version  21.51
+!tag Date        7-Jun-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -2646,6 +2646,10 @@ MKT_ST_IND   133
 ! -------    ---
 !
 HIGHTP_1     196
+HIGHTP_2   13099
+HIGHTP_3   13100
+HIGHTP_4   13101
+HIGHTP_5   13102
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -2675,6 +2679,10 @@ HIGHTP_1     196
 ! -------    ---
 !
 LOWTP_1      197
+LOWTP_2    13103
+LOWTP_3    13104
+LOWTP_4    13105
+LOWTP_5    13106
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -4098,6 +4106,7 @@ CAN_COND    6585
    1017        "017"   Not allocated (was Official close)
    1018        "018"   Not allocated (was Put through trade)
    1019        "019"   Not allocated (was Trade on Dark Book)
+   1020        "CLP"   Client Liquidity Improvement Process (Eurex)
    1065        "ODS"   Regular + ISO +Odd Lot Trade
    1265        "SWT"   Regular + ISO + Form T
    1325        "ODI"   Regular + ISO + Form T +Odd Lot
@@ -4232,6 +4241,7 @@ INDTNOV_SC  5231
 BLKVOL_SC   6314
 BLKTNOV_SC  6315
 ISS_VAL_SC  8931
+STRK_PR_SC 13096
 QTE_SZ_SC  13430
 !
 ! VALUE      DISPLAY   MEANING
@@ -4249,6 +4259,8 @@ QTE_SZ_SC  13430
      10      "x100K"   multiply by one hundred thousand
      11      "x0.1 "   multiply by one tenth
      12      "x0.01"   multiply by one hundredth
+     13      "x10-3"   Multiply by one thousandth
+     14      "x10-4"   Multiply by one ten-thousandth
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8747,6 +8759,24 @@ DRK_EXID   13610
    1644        "GXI"   General Index
    1645        "MCB"   MALAYSIAN COCOA BOARD
    1646        "IAG"   AUSTRALIAN GOVT (DEP OF INDUSTRY, SCI, NRG & RES)
+   1647        "GTA"   GOLD TRADERS ASSOCIATION
+   1648        "ATR"   Atria Brokers, Ukraine
+   1649        "BCA"   Bank of Canada
+   1650        "CTC"   CHINA CREDIT BGC MONEY BROKING COMPANY LIMITED
+   1651        "BRC"   Secretariat of Agriculture, Livestock, Irrigation, Fisheries and Aquaculture
+   1652        "LTI"   Lingtong Metal Information Co. Ltd
+   1653        "GDN"   GUANGDONG NANCHU E-COMMERCE
+   1654        "MGB"   MGB - MGB Mines &Geo sciences Bureau
+   1655        "SMT"   Steel Mint
+   1656        "EBX"   Electronic Broking Services
+   1657        "HBE"   China Hubei Emission Exchange
+   1658        "TCX"   Tianjin Climate Exchange
+   1659        "CER"   China Emissions Exchange(Shenzen)
+   1660        "BGX"   China Beijing Environment Exchange
+   1661        "SAX"   Shanghai Environment and Energy Exchange
+   1662        "CQE"   China Chongqing Emission Exchange
+   1663        "HXE"   Haixia Equity Exchange-Environment and Energy Exchange (Fujian)
+   1664        "WSA"   World Steel Association
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11486,6 +11516,7 @@ PR_FREQ     4236
      10     "H-Year"   Half Yearly Updates
      11     "Annual"   Annual Updates
      12     "Irregu"   Erratic / Irregular Updates
+     13     "TwWkly"   Twice Weekly Updates
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12576,6 +12607,7 @@ EXP_TYPE    6564
       0         "  "   Undefined
       1         "SC"   Expires at Trading Session Close
       2         "SD"   Expires at Specified Date
+      3         "OE"   Open Ended
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13305,6 +13337,15 @@ REFPRC_TP4 13491
      45   "NFA     "   Financial Market Pricing Center defined fair market price.
      46   "PRD_SPRD"   The price spread between the two grades of products.
      47   "OCR NZ  "   Official Cash Rate announced by the Reserve Bank of New Zealand (RBNZ)
+     48   "LOAD PRC"   Load Price. The price of the product in loading area.
+     49   "LAND PRC"   Landed Price. The landed price is calculated by adding freight to loading price.
+     50   "DOM FRGT"   Domestic freight rates.
+     51   "EUR/SWU "   Euros per Separative Work Unit
+     52   "JPY/SWU "   Japanese yen per Separative Work Unit
+     53   "EUR/LB  "   Euros per Pound
+     54   "JPY/LB  "   Japanese yen per Pound
+     55   "EUR/KG  "   Euros per Kilogram
+     56   "JPY/KG  "   Japanese yen per Kilogram
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15897,6 +15938,12 @@ INST_SESS  12824
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0        "   "   Undefined
+      1        "NOR"   Normal Trading Session
+      2        "NPE"   Normal Trading Session with Pre-Market Trading
+      3        "NPO"   Normal Trading Session with Post-Market Trading
+      4        "NPP"   Normal Trading Session with Pre & Post-Market Trading
+      5        "NE "   Normal & Extended Trading Sessions
+      6        "NEV"   Normal & Evening Trading Sessions
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16877,6 +16924,7 @@ EXP_UP_FRQ 12962
      12   "IRG_Day "   Daily Updates - Irregular Snapshot
      13   "IRG_Week"   Weekly Updates - Irregular day in the week
      14   "IRG_Mth "   Monthly Updates - Irregular month in the year
+     15   "Wed, Fri"   Every Wednesday and Friday
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17994,10 +18042,12 @@ FIXING_ST  13081
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   Undefined
-      1   "PUBED   "   Published
+      1   "PUBED   "   Published(DO NOT USE)
       2   "REFIXING"   Refixing in progress
       3   "REFIXED "   Refixed
       4   "NOTSTART"   Not started
+      5   "PUBLISH "   Published
+      6   "HOLIDAY "   Holiday
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18091,18 +18141,50 @@ PADD       13091
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET395 13096
-PRE_1ET396 13097
-PRE_1ET397 13098
-PRE_1ET398 13099
-PRE_1ET399 13100
-PRE_1ET400 13101
-PRE_1ET401 13102
-PRE_1ET402 13103
-PRE_1ET403 13104
-PRE_1ET404 13105
-PRE_1ET405 13106
-PRE_1ET406 13107
+PROPQT_ELG 13097
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0        "   "   Undefined
+      1        "N  "   Not Eligible
+      2        "Y  "   Eligible
+!
+! ACRONYM    FID
+! -------    ---
+!
+FV_FLG     13098
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "s       "   FV calculated with input source data
+      2   "m       "   FV calculated without input source data (modelled)
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORTS_SC    13107
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+      1   "0.000001"   multiply by one millionth
+      2   "0.00001 "   multiply by hundred thousandth
+      3   "0.0001  "   multiply by ten thousandth
+      4   "0.001   "   multiply by one thousandth
+      5   "0.01    "   multiply by one hundredth
+      6   "0.1     "   multiply by one tenth
+      7   "1       "   scaling multiple 1, i.e. true size
+      8   "10      "   multiply by ten
+      9   "100     "   multiply by one hundred
+     10   "1000    "   multiply by one thousand
+     11   "10000   "   multiply by ten thousand
+     12   "100000  "   multiply by hundred thousand
+     13   "1000000 "   multiply by one million
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET407 13108
 PRE_1ET408 13109
 PRE_1ET409 13110
@@ -19221,6 +19303,8 @@ CNTR_SZ_UT 13611
     421      "LKG  "   Liquid Kilogram
     422      "LMT  "   Liquid Metric Tonnes
     423      "ENVOF"   Environmental Offset
+    424      "SWU  "   Separative Work unit
+    425      "CRT  "   Carat
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20475,6 +20559,7 @@ ASMNT_TMSP 13567
      15   "HOU MidD"   Houston Midday
      16   "HOU13:30"   Houston 13:30
      17   "HOU14:30"   Houston 14:30
+     18   "HOU10:30"   Houston 10:30
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21194,6 +21279,37 @@ ORGN_PORT  13579
     655   "GA ADO  "   Adolo
     656   "FR DKK  "   Dunkerque
     657   "DE FRA  "   Frankfurt am Main
+    658   "US  AA2 "   Alabama Pt.
+    659   "CO  PUC "   Puerto Colombia
+    660   "US  YFA "   Florida City
+    661   "US  VGA "   Virginia
+    662   "US  ALB "   Albany
+    663   "US  AMA "   Amarillo
+    664   "US  ATL "   Atlanta
+    665   "US  CMI "   Champaign
+    666   "US  CHI "   Chicago
+    667   "US  CBK "   Colby
+    668   "US  CBF "   Council Bluffs
+    669   "US  DVN "   Davenport
+    670   "US  DSM "   Des Moines
+    671   "US  DLH "   Duluth
+    672   "US  FAR "   Fargo
+    673   "US  GFK "   Grand Forks
+    674   "US  GRI "   Grand Island
+    675   "US  GTF "   Great Falls
+    676   "US  HSV "   Huntsville
+    677   "US  IND "   Indianapolis
+    678   "US  TYS "   Knoxville
+    679   "US  LNK "   Lincoln
+    680   "US  LIT "   Little Rock
+    681   "US  MES "   Minneapolis
+    682   "US  PDX "   Portland
+    683   "US  RAG "   Raleigh
+    684   "US  FSD "   Sioux Falls
+    685   "US  STL "   St. Louis
+    686   "US  SCK "   Stockton
+    687   "US  TOL "   Toledo
+    688   "US  ICT "   Wichita
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21560,6 +21676,15 @@ LOAD_ZONE  13578
    2005   "EUF     "   EU-15
    2006   "WOL     "   World
    2007   "NOR AMR "   North America
+   2008   "DDN     "   Dardanelles North
+   2009   "DDS     "   Dardanelles South
+   2010   "BSN     "   Bosphorus North
+   2011   "BSS     "   Bosphorus South
+   2012   "DMG     "   Demurrag
+   2013   "TKS     "   Turkish Strait
+   2014   "BTS     "   Baltic Sea
+   2015   "MMK     "   Murmansk
+   2016   "ASI     "   ASIA
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22069,6 +22194,7 @@ DELIV_METH 13606
      13   "Pl-Rl-Tk"   Pipeline, Rail and Truck
      14   "Rl-Tk-Wb"   Rail, Truck and Waterborne
      15   "Trk-Wtrb"   Truck and Waterborne
+     16   "ParCargo"   Partial Cargo
 !
 ! ACRONYM    FID
 ! -------    ---

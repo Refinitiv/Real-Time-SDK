@@ -11,7 +11,8 @@
 #include "Ema.h"
 #include "../Common/PerfConfig.h"
 
-#define MAX_CONS_THREADS 8
+const size_t MAX_CONS_THREADS = (MAX_THREADS);
+
 using namespace refinitiv::ema::access;
 // Provides configuration options for the consumer. 
 class ConsPerfConfig : public PerfConfig
@@ -53,7 +54,7 @@ public:
 
 	Int32			_requestsPerTick;
 	Int32			_requestsPerTickRemainder;
-	long			*apiThreadBindList;	// CPU ID list for threads that handle connections.  See -threads 
+	long			apiThreadBindList[MAX_CONS_THREADS];	// CPU ID list for threads that handle connections.  See -apiThreads 
 
 	EmaString		consumerName;				// Name of the Consumer component in EmaConfig.xml. See -consumerName.
 

@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|          Copyright (C) 2019-2021 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 #include "AppUtil.h"
@@ -311,4 +311,23 @@ void AppUtil::printCurrentTimeUTC(FILE *file)
 	fprintf(file, "%d-%02d-%02d %02d:%02d:%02d",
 			pStatsTimeTm->tm_year + 1900, pStatsTimeTm->tm_mon + 1, pStatsTimeTm->tm_mday,
 			pStatsTimeTm->tm_hour, pStatsTimeTm->tm_min, pStatsTimeTm->tm_sec);
+}
+
+const char* AppUtil::connectionTypeToString(const RsslConnectionTypes connType)
+{
+	switch (connType)
+	{
+	case RSSL_CONN_TYPE_SOCKET:
+		return "socket";
+	case RSSL_CONN_TYPE_HTTP:
+		return "http";
+	case RSSL_CONN_TYPE_ENCRYPTED:
+		return "encrypted";
+	case RSSL_CONN_TYPE_WEBSOCKET:
+		return "websocket";
+	case RSSL_CONN_TYPE_RELIABLE_MCAST:
+		return "reliableMCast";
+	default:
+		return "unknown";
+	}
 }

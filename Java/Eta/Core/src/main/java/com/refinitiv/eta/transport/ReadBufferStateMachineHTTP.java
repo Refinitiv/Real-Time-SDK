@@ -30,7 +30,7 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
         final int calculatedEndPos = (_currentMsgStartPos + _currentMsgRipcLen) + _httpOverhead;
 
         assert (calculatedEndPos <= _readIoBuffer.buffer().position());
-
+        
         switch (_subState)
         {
             case NORMAL:
@@ -175,16 +175,12 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
             return;
         }
 
+        // Check to see if a PING can fit: 3 byte HTTP header + 3 byte RIPC header + 2 byte chunk end
+        // This is 0 indexed, so we're looking for index _currentMsgStartPos+7 for the overflow.
         if ((_currentMsgStartPos + HTTP_HEADER3 + Ripc.Offsets.MSG_FLAG + CHUNKEND_SIZE) < _readIoBuffer.buffer().position())
-        {
-            // check for all other messages
-            if (readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER6_CRLF_OFFSET) == CRLF)
-            {// case 2 (messages with 6-byte http header)
-                decodeRipcHeader();
-                _httpOverhead = HTTP_HEADER6 + CHUNKEND_SIZE;
-                updateStateCurrentLenKnown(readArgs, null);
-            }
-            else if ((readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER3_CRLF_OFFSET) == CRLF)
+        { 
+        	
+            if ((readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER3_CRLF_OFFSET) == CRLF)
                     & readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER3) == Ripc.Lengths.HEADER)
             {// case 1 (ping)
                 _currentMsgRipcLen = 3;
@@ -192,15 +188,35 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
                 _httpOverhead = HTTP_HEADER3 + CHUNKEND_SIZE;
                 updateStateCurrentLenKnownPossiblePing();
             }
+            // For a non-ping message, the minimum number of bytes is 9:
+            // HTTP_HEADER6 + 3 byte RIPC header, again 0 index so looking for index 8.
+            else if((_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG) < _readIoBuffer.buffer().position())
+            {
+            	// check for all other messages
+                if (readUShort(_readIoBuffer.buffer(), _currentMsgStartPos + HTTP_HEADER6_CRLF_OFFSET) == CRLF)
+                {// case 2 (messages with 6-byte http header)
+                    decodeRipcHeader();
+                    _httpOverhead = HTTP_HEADER6 + CHUNKEND_SIZE;
+                    updateStateCurrentLenKnown(readArgs, null);
+                }
+                else
+                {
+                    System.out.println("Invalid HTTP data chunk");
+                    // should never get here
+                }
+            }
+            else if (_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().limit())
+            {
+                _state = ReadBufferState.UNKNOWN_INCOMPLETE;
+            }
             else
             {
-                System.out.println("Invalid HTTP data chunk");
-                // should never get here
+                _state = ReadBufferState.UNKNOWN_INSUFFICIENT;
             }
         }
         else if (_currentMsgStartPos + HTTP_HEADER6 + Ripc.Offsets.MSG_FLAG < _readIoBuffer.buffer().limit())
         {
-            _state = ReadBufferState.UNKNOWN_INCOMPLETE;
+        	_state = ReadBufferState.UNKNOWN_INCOMPLETE;
         }
         else
         {

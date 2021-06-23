@@ -118,7 +118,11 @@ OmmIProviderImpl::~OmmIProviderImpl()
 {
 	free(_rsslDirectoryMsgBuffer.data);
 
+	OmmBaseImplMap<OmmServerBaseImpl>::acquireCleanupLock();
+
 	OmmServerBaseImpl::uninitialize(false, false);
+
+	OmmBaseImplMap<OmmServerBaseImpl>::releaseCleanupLock();
 }
 
 bool OmmIProviderImpl::isApiDispatching() const

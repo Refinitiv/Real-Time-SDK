@@ -114,3 +114,4 @@ CMakeCache.txt
 *rsslVersion.h
 *rsslEtaJNIVersion.h
 *LinuxSoLink
+/.gradle/

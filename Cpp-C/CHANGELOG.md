@@ -9,26 +9,59 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.1.G1 aka EMA 3.6.1.G1 and ETA 3.6.1.G1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.L1 aka EMA 3.6.2.L1 and ETA 3.6.2.L1 
 ----------------------------------------------------------------------------------------
 
-This is a maintenace release with fixes for customer issues 
+This is a maintenace release consisting of fixes to customer issues, support for EMA C++ Interactive ProvPerf and EMA C++ NIProvPerf tools and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics.
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 09514087] - [RTSDK-4606] - ETA crash when a websocket client does not specify sub protocol and closes the connection 
-- [GitHub #138] - [RTSDK-3884] - EMA C++: Destructor of OmmConsumer occasionally hangs forever in deadlock
-- [GitHub #152] - [RTSDK-4291] - OmmConsumerImpl::registerClient implementation doesn't unlock mutex when exception is thrown
-- [GitHub #161] - [RTSDK-4371] - ETA compilation warning
-- [GitHub #164] - [RTSDK-4589] - In VAConsumer refresh message is received the channel is closed if the streamState is not open
-- [GitHub #168] - [RTSDK-4706] - EMA C++: configuration parameters ConnectionPingTimeout / ConnectionMinPingTimeout are applied as number of seconds, not milliseconds
-- [GitHub #170] - [RTSDK-4941] - Buggy code in rsslRDMDictionaryMsg.c
-- [GitHub #171] - [RTSDK-4957] - EMA WebSocket example default port in EmaConfig.xml
-- [GitHub #172] - [RTSDK-4951] - EMA C++ Websocket example mismatch between Readme and source code
+- [Case Number: 09850212] - [RTSDK-5050] - Source Directory update with additional entries in DictionariesProvided or DictionariesUsed causes crash
+- [GitHub Pull Request #158] - [RTSDK-4586] - Catch polymorphic type by reference, not by value
+- [GitHub Pull Request #159] - [RTSDK-4585] - Turning multi-line comments into single line comments
+- [GitHub Pull Request #160] - [RTSDK-4584] - Make destructor virtual because of polymorphic class object deletion
+- [GitHub #173] - [RTSDK-4972] - Documenation: OmmConsumerConfig.clientId() not mentioned in EMA ConfigGuide Section 4.4.1
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.2.L1 (Jun 23, 2021)
+--------------------------------------------
+
+This is a maintenace release consisting of fixes to customer issues, support for EMA C++ Interactive ProvPerf and EMA C++ NIProvPerf tools and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics.
+
+EMA C++ 3.6.2.L1 Issues Resolved
+--------------------------------
+- [RTSDK-1343] - EMA C++ ProvPerf Tool: Implementation Part I
+- [RTSDK-4608] - Create a EMA Performance Tools Guide
+- [RTSDK-4824] - EMA C++: Destructor of OmmConsumer freezes when interrupt is sent as soon as Consumer connects
+- [RTSDK-4827] - EMA C++ ProvPerf Tool: Testing Story
+- [RTSDK-4839] - EMA C++ NIProvPerf Tool: Implementation Part II
+- [RTSDK-4972] - Documentation: OmmConsumerConfig.clientId() not mentioned in EMA ConfigGuide [GitHub #173]
+- [RTSDK-5041] - Updated EMA ConsPerf Readme.txt file with build instructions, configuration and sample command lines
+- [RTSDK-5075] - EMA ConfigGuide has incorrect default value of Server Group's SysRecvBufSize and SysSendBufSize
+
+ETA C 3.6.2.L1 Issues Resolved
+--------------------------------
+- [RTSDK-4585] - Turning multi-line comments into single line comments [GitHub Pull Request #159]
+- [RTSDK-4617] - Replace XERCES with Libxml2
+- [RTSDK-4768] - Documentation: Clarify error scenarios for conversion utilities for RsslReal type
+- [RTSDK-4843] - Unit tests added for handling of trailing zeros
+- [RTSDK-5030] - Fix to ETAC ProvPerf to reset the error code upon failure to get output buffers for Webscoket Transport with JSON wireformat
+- [RTSDK-5100] - Fix to Websocket message parsing to handle edge case of buffer containing one message and one byte of next message
+
+Both ETA C and EMA C++ 3.6.2.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-4584] - Make destructor virtual because of polymorphic class object deletion [GitHub Pull Request #160]
+- [RTSDK-4586] - Catch polymorphic type by reference, not by value [GitHub Pull Request #158]
+- [RTSDK-4942] - Update to DACS RHEL8 libraries
+- [RTSDK-5043] - PerfTools: Skewed steadystate latency calculations due to processing refreshes before updates
+- [RTSDK-5050] - Source Directory update with additional entries in DictionariesProvided or DictionariesUsed causes crash [Case Number: 09850212]
+- [RTSDK-5051] - Modify ConsPerf application to calculate overhead of conversion from RWF to JSON on Websocket Transport (ETA Transport layer only)
+- [RTSDK-5084] - Documentation: Fix to definitions of DictionariesProvided vs. DictionariesUsed in RDM Usage Guide
+- [RTSDK-5186] - Send tr_json2 on the wire but accept both rssl.json.v2 and tr_json2 from the wire
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.1.G1 (Apr 21, 2021)
@@ -63,7 +96,6 @@ RTSDK C++/C Release 2.0.1.L2 (Mar 31, 2021)
 Both ETA C and EMA C++ 3.6.1.L2 Issues Resolved
 -----------------------------------------------
 - [RTSDK-4860, RTSDK-4861] - Remove unused EtaJni files 
-
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.1.L1 (Mar 4, 2021)
