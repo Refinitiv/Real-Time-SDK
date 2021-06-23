@@ -27,7 +27,7 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK C++/C Release 2.0.2.L1 (Jun 22, 2021)
+RTSDK C++/C Release 2.0.2.L1 (Jun 23, 2021)
 --------------------------------------------
 
 This is a maintenace release consisting of fixes to customer issues, support for EMA C++ Interactive ProvPerf and EMA C++ NIProvPerf tools and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics.
