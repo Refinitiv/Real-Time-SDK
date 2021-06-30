@@ -1706,7 +1706,9 @@ class Decoders
                         break;
                     default:
                         int length = iter._levelInfo[iter._decodingLevel + 1]._endBufPos - iter._curBufPos - 1;
-                        value.value(iter._reader.readLong64ls(length), ((byte)(hint & 0x1F)));
+                        if (length > 8 || value.value(iter._reader.readLong64ls(length), ((byte)(hint & 0x1F))) != CodecReturnCodes.SUCCESS) {
+                            return CodecReturnCodes.INVALID_ARGUMENT;
+                        };
                 }
                 iter._reader.position(savePosition);
             }

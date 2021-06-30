@@ -825,4 +825,74 @@ public class RealJunit
 		val = java.lang.Math.nextAfter(val, -1e30);
 		assertEquals(testNextReal.value(val, hint), CodecReturnCodes.INVALID_ARGUMENT);
 	}
+
+	@Test
+	public void testDateDecodedAsRealNoCrash() {
+
+		FieldEntry entry = CodecFactory.createFieldEntry();
+		FieldList fieldList = CodecFactory.createFieldList();
+		Real real = CodecFactory.createReal();
+		Date date = CodecFactory.createDate();
+
+		EncodeIterator encIter = CodecFactory.createEncodeIterator();
+		DecodeIterator decIter = CodecFactory.createDecodeIterator();
+
+		Buffer _buffer = CodecFactory.createBuffer();
+
+		for (int year = 1900; year <= 2100; year++) {
+			for (int month = 1; month <= 12; month++) {
+				for (int day = 1; day <= 31; day++) {
+
+					fieldList.clear();
+					entry.clear();
+					real.clear();
+					date.clear();
+
+					encIter.clear();
+					decIter.clear();
+
+					date.day(day);
+					date.month(month);
+					date.year(year);
+
+					_buffer.clear();
+					_buffer.data(ByteBuffer.allocate(100));
+
+					fieldList.clear();
+					fieldList.flags(FieldListFlags.HAS_STANDARD_DATA);
+					encIter.clear();
+					encIter.setBufferAndRWFVersion(_buffer, Codec.majorVersion(), Codec.minorVersion());
+
+					assertEquals(CodecReturnCodes.SUCCESS, Encoders.encodeFieldListInit(encIter, fieldList, null, 0));
+					entry.clear();
+					entry.fieldId(6);
+					entry.dataType(DataTypes.DATE);
+					entry.encode(encIter, date);
+					assertEquals(CodecReturnCodes.SUCCESS, Encoders.encodeFieldListComplete(encIter, true));
+
+					fieldList.clear();
+					entry.clear();
+					decIter.clear();
+					decIter.setBufferAndRWFVersion(_buffer, Codec.majorVersion(), Codec.minorVersion());
+					assertEquals(CodecReturnCodes.SUCCESS, fieldList.decode(decIter, null));
+					assertEquals(CodecReturnCodes.SUCCESS, entry.decode(decIter));
+
+					boolean notCrashed = true;
+
+					try {
+						real.clear();
+						int ret = real.decode(decIter);
+						if (day == 31) {
+							assertEquals(ret, CodecReturnCodes.INVALID_ARGUMENT);
+						}
+					} catch (Exception ex) {
+						notCrashed = false;
+					}
+
+					assertEquals(notCrashed, true);
+				}
+			}
+		}
+	}
+
 }
