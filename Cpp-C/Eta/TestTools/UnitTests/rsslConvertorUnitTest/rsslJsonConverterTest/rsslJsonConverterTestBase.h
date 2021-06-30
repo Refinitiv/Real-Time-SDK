@@ -161,7 +161,7 @@ class MsgConversionTestBase : public ::testing::Test
 
 		/** Convert the RWF in _rsslEncodeBuffer to JSON, point the _jsonBuffer to the JSON content,
 		 * and parse it into _jsonDocument. */
-		void convertRsslToJson(RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2, bool json1Solicited = true);
+		void convertRsslToJson(RsslJsonProtocolType protocolType = RSSL_JSON_JPT_JSON2, bool json1Solicited = true, RsslRet ret = RSSL_RET_SUCCESS);
 
 		/** Set a JSON buffer for converting to RWF. */
 		void setJsonBufferToString(const char *jsonBuffer);

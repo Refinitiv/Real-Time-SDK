@@ -42,7 +42,10 @@ class MapEntryActionsTestParams
 	{
 		out << "MapEntryAction array contains";
 		for (int i = 0; i < params.actionArrayCount; i++)
-			out << " " << rsslMapEntryActionToOmmString(params.actionArray[i]);
+			if (params.actionArray[i] != 0)
+				out << " " << rsslMapEntryActionToOmmString(params.actionArray[i]);
+			else
+				out << "";
 		return out;
 	}
 };
@@ -530,6 +533,7 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 	RsslMsg rsslMsg;
 	RsslMap map;
 	RsslMapEntry mapEntry;
+	RsslBool foundUnknownAction = false;
 
 	const RsslUInt MAP_ENTRY_KEYS[5] = {6,7,8,9,10};
 	rsslClearUpdateMsg(&updateMsg);
@@ -559,6 +563,10 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 	{
 		/* Encode an entry with the action. */
 		rsslClearMapEntry(&mapEntry);
+
+		if(params.actionArray[i] == 0)
+			foundUnknownAction = true;
+
 		mapEntry.action = params.actionArray[i];
 		if (mapEntry.action == RSSL_MPEA_DELETE_ENTRY)
 			ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMapEntry(&_eIter, &mapEntry, &MAP_ENTRY_KEYS[i]));
@@ -574,7 +582,13 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMsgComplete(&_eIter, RSSL_TRUE));
 
-	ASSERT_NO_FATAL_FAILURE(convertRsslToJson());
+	if (foundUnknownAction)
+	{
+		convertRsslToJson(RSSL_JSON_JPT_JSON2, true, RSSL_RET_FAILURE);
+		return;
+	}
+	else
+		ASSERT_NO_FATAL_FAILURE(convertRsslToJson());
 
 	/* Check message. */
 	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
@@ -651,6 +665,7 @@ TEST_P(MapEntryActionsTestFixture, MapEntryActionsTest)
 }
 
 INSTANTIATE_TEST_CASE_P(MapTests, MapEntryActionsTestFixture, ::testing::Values(
+	MapEntryActionsTestParams(2, 0, 0),
 	MapEntryActionsTestParams(3, RSSL_MPEA_ADD_ENTRY, RSSL_MPEA_UPDATE_ENTRY, RSSL_MPEA_DELETE_ENTRY),
 	MapEntryActionsTestParams(3, RSSL_MPEA_DELETE_ENTRY, RSSL_MPEA_UPDATE_ENTRY, RSSL_MPEA_ADD_ENTRY),
 	MapEntryActionsTestParams(2, RSSL_MPEA_DELETE_ENTRY, RSSL_MPEA_DELETE_ENTRY)

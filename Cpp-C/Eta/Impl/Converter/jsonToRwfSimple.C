@@ -5500,6 +5500,9 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 
 		for (i = 0; i < dataTok->size; i++)
 		  {
+			bool hasEntriesId = false;
+			bool hasEntriesAction = false;
+
 		  	if (tmpTok->type != JSMN_OBJECT)
 			{
 				unexpectedTokenType(JSMN_OBJECT, tmpTok, __LINE__, __FILE__, &JSON_FILTERLIST);
@@ -5530,6 +5533,7 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 						if (compareStrings(tmpTok, JSON_ID))
 						{
 							foundValidToken = true;
+							hasEntriesId = true;
 							tmpTok++;
 							if (tmpTok->type != JSMN_PRIMITIVE)
 							{
@@ -5547,6 +5551,7 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 						if (compareStrings(tmpTok, JSON_ACTION)) //
 						{
 							foundValidToken = true;
+							hasEntriesAction = true;
 							tmpTok++;
 							switch (tmpTok->type)
 							{
@@ -5623,6 +5628,16 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 						skipObject(tokPtr);
 						continue;
 					}
+				}
+
+				if (!hasEntriesId) {
+					missingKey(JSON_ID, __LINE__, __FILE__, &JSON_ENTRIES);
+					return false;
+				}
+
+				if (!hasEntriesAction) {
+					missingKey(JSON_ACTION, __LINE__, __FILE__, &JSON_ENTRIES);
+					return false;
 				}
 
 				tmpTok++;
@@ -5861,6 +5876,9 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 		tmpTok++;
 		for (i = 0; i < dataTok->size; i++)
 		{
+			bool hasEntriesAction = false;
+			bool hasEntriesIndex = false;
+
 			if (tmpTok->type != JSMN_OBJECT)
 			{
 				unexpectedTokenType(JSMN_OBJECT, tmpTok, __LINE__, __FILE__);
@@ -5903,6 +5921,7 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 
 							tmpTok++;
 							foundValidToken = true;
+							hasEntriesAction = true;
 						}
 						break;
 					}
@@ -5921,6 +5940,7 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 															  &_jsonMsg[tmpTok->end]);
 							tmpTok++;
 							foundValidToken = true;
+							hasEntriesIndex = true;
 						}
 						break;
 					}
@@ -5985,6 +6005,16 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 				{
 					//All vector entries are not in the same data type
 					error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
+					return false;
+				}
+
+				if (!hasEntriesIndex) {
+					missingKey(JSON_INDEX, __LINE__, __FILE__, &JSON_ENTRIES);
+					return false;
+				}
+
+				if (!hasEntriesAction) {
+					missingKey(JSON_ACTION, __LINE__, __FILE__, &JSON_ENTRIES);
 					return false;
 				}
 

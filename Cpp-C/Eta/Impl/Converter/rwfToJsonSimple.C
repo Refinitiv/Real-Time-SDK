@@ -1569,6 +1569,10 @@ int rwfToJsonSimple::processVector(RsslDecodeIterator *iterPtr, const RsslBuffer
 
 		writeOb();  // Begin of Vector Entry
 
+		/* Checks to ensure that the action is valid */
+		if (!vectorEntry.action)
+			return 0;
+
 		writeBufVar(&JSON_INDEX, false);
 		uInt32ToString(vectorEntry.index);
 

@@ -697,3 +697,24 @@ INSTANTIATE_TEST_CASE_P(FilterListTests, FilterListContainerTypesTestFixture, ::
 	RsslDataTypeParam(RSSL_DT_MAP)
 ));
 
+TEST_F(FilterListTests, InvalidVectorTests)
+{
+	/* Action missing from FilterEntry. */
+	setJsonBufferToString("{\"Type\": \"Generic\", \"ID\" : 2, \"Domain\" : 128, \"SeqNumber\" : 3,\"FilterList\" : {\"CountHint\": 2,\"Entries\" : [ { \"ID\":1, \"Fields\": {\"BID\": 55.55,\"BIDSIZE\" : 28,\"ASK\" : 55.57,\"ASKSIZE\" : 29}},{ \"ID\":2, \"Fields\": {\"BID\": 66.66,\"BIDSIZE\" : 30,\"ASK\" : 66.57,\"ASKSIZE\" : 56}}]}}");
+	ASSERT_NO_FATAL_FAILURE(getJsonToRsslError());
+
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
+	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Missing required key 'Action' for 'Entries'"));
+
+	/* Index missing from FilterEntry. */
+	setJsonBufferToString("{\"Type\": \"Generic\", \"ID\" : 2, \"Domain\" : 128, \"SeqNumber\" : 3,\"FilterList\" : {\"CountHint\": 2,\"Entries\" : [ {\"Action\":\"Set\", \"Fields\": {\"BID\": 55.55,\"BIDSIZE\" : 28,\"ASK\" : 55.57,\"ASKSIZE\" : 29}},{ \"ID\":2, \"Action\":\"Set\",\"Fields\": {\"BID\": 66.66,\"BIDSIZE\" : 30,\"ASK\" : 66.57,\"ASKSIZE\" : 56}}]}}");
+	ASSERT_NO_FATAL_FAILURE(getJsonToRsslError());
+
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
+	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Missing required key 'ID' for 'Entries'"));
+}
+
