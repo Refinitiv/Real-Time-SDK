@@ -7787,6 +7787,57 @@ TEST(realTailingZerosTest, realTailingZerosTest)
 	EXPECT_TRUE(result == RSSL_RET_INVALID_DATA);
 }
 
+TEST(invalidRealValueTest, invalidRealValueFromDateTest)
+{
+	RsslEncodeIterator encodeIter;
+	RsslDecodeIterator decodeIter;
+	RsslFieldList fieldList = RSSL_INIT_FIELD_LIST;
+	RsslFieldEntry fEntry;
+	RsslDate rsslDate;
+	RsslReal rsslReal;
+
+	char buffer[1042];
+	RsslBuffer rsslBuffer;
+
+	rsslBuffer.data = &buffer[0];
+	rsslBuffer.length = 1024;
+
+	rsslClearEncodeIterator(&encodeIter);
+	rsslSetEncodeIteratorBuffer(&encodeIter, &rsslBuffer);
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+	fieldList.flags = RSSL_FLF_HAS_STANDARD_DATA;
+	EXPECT_TRUE(rsslEncodeFieldListInit(&encodeIter, &fieldList, 0, 0) >= RSSL_RET_SUCCESS);
+
+	rsslClearFieldEntry(&fEntry);
+
+	fEntry.fieldId = 6;
+	fEntry.dataType = RSSL_DT_DATE;
+	rsslClearDate(&rsslDate);
+	
+	rsslDate.year = 2014;
+	rsslDate.month = 10;
+	rsslDate.day = 31; /* Set the invalid hint value*/
+
+	EXPECT_TRUE(rsslEncodeFieldEntry(&encodeIter, &fEntry, (void*)&rsslDate) >= RSSL_RET_SUCCESS);
+	EXPECT_TRUE(rsslEncodeFieldListComplete(&encodeIter, RSSL_TRUE) >= RSSL_RET_SUCCESS);
+	
+	rsslClearDecodeIterator(&decodeIter);
+
+	rsslSetDecodeIteratorBuffer(&decodeIter, &rsslBuffer);
+	rsslSetDecodeIteratorRWFVersion(&decodeIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+
+	rsslClearFieldList(&fieldList);
+	rsslClearFieldEntry(&fEntry);
+	rsslClearReal(&rsslReal);
+
+	EXPECT_TRUE(rsslDecodeFieldList(&decodeIter, &fieldList, 0) >= RSSL_RET_SUCCESS);
+
+	EXPECT_TRUE(rsslDecodeFieldEntry(&decodeIter, &fEntry) >= RSSL_RET_SUCCESS);
+
+	EXPECT_EQ(rsslDecodeReal(&decodeIter, &rsslReal),RSSL_RET_INVALID_DATA);
+}
+
 bool testCompareFloats(const RsslFloat testFloatA, const RsslFloat testFloatB)
 {
 	RsslFloat diff = testFloatB - testFloatA;

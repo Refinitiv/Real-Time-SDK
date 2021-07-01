@@ -1029,6 +1029,12 @@ RSSL_API RsslRet rsslDecodeReal(RsslDecodeIterator *pIter, RsslReal *value)
 						value->hint = format & 0x1F;
 					break;
 				}
+
+				if (!(value->hint >= RSSL_RH_EXPONENT_14 && value->hint <= RSSL_RH_NOT_A_NUMBER && value->hint != 31 && value->hint != 32))
+				{
+					return RSSL_RET_INVALID_DATA;
+				}
+
 				return RSSL_RET_SUCCESS;
 			}
 			return RSSL_RET_INVALID_DATA;
