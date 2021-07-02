@@ -48,7 +48,7 @@
 			<Name value="Consumer_4"/>
 
 			<Channel value="Channel_4"/>
-			
+
 			<Dictionary value="Dictionary_1"/>
 
 			<MaxDispatchCountApiThread value="6500"/>
@@ -139,7 +139,7 @@
 			<Name value="Consumer_RRTViewer_SE"/>
 			<Channel value="Channel_RRTViewer_SE"/>
 			<Dictionary value="Dictionary_1"/>
-			
+
 			<!-- 'XmlTraceToStdout == 1' is required for proper working of 'Debug' mode in RRTViewer -->
 			<!-- If XmlTraceToStdout set into '0', 'debug' mode will print only EMA logs. -->
 			<XmlTraceToStdout value="1"/>
@@ -148,7 +148,7 @@
 			<Name value="Consumer_RRTViewer_DE"/>
 			<Channel value="Channel_RRTViewer_DE"/>
 			<Dictionary value="Dictionary_1"/>
-			
+
 			<!-- 'XmlTraceToStdout == 1' is required for proper working of 'Debug' mode in RRTViewer -->
 			<!-- If XmlTraceToStdout set into '0', 'debug' mode will print only EMA logs. -->
 			<XmlTraceToStdout value="1"/>
@@ -211,7 +211,16 @@
 			<Directory value="Directory_1"/>
 
 			<XmlTraceToStdout value="0"/>
-		</NiProvider>		
+		</NiProvider>
+        <NiProvider>
+            <Name value="Perf_NIProvider_1"/>
+            <Channel value="Perf_NIP_Channel_1"/>
+            <Directory value="Perf_Directory_1"/>
+            <XmlTraceToStdout value="0"/>
+            <ItemCountHint value="100000"/>
+            <MaxDispatchCountApiThread value="500"/>
+            <MaxDispatchCountUserThread value="500"/>
+        </NiProvider>
 	</NiProviderList>
 </NiProviderGroup>
 
@@ -302,6 +311,18 @@
 
 			<RefreshFirstRequired value="1" />
 		</IProvider>
+		<IProvider>
+			<Name value="Perf_Provider_1"/>
+			<Server value="Perf_Server_1"/>
+			<Directory value="Directory_2"/>
+			<ItemCountHint value="100000"/>
+			<ServiceCountHint value="10000"/>
+			<DispatchTimeoutApiThread value="500" />
+			<MaxDispatchCountApiThread value="100"/>
+			<MaxDispatchCountUserThread value="6500"/>
+			<RefreshFirstRequired value="1"/>
+			<XmlTraceToStdout value="0"/>
+		</IProvider>
     </IProviderList>
 </IProviderGroup>
 
@@ -365,7 +386,7 @@
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
 			<CompressionType value="CompressionType::None"/>
 			<GuaranteedOutputBuffers value="5000"/>
-			<!-- EMA discovers a host and a port from RDP service discovery for the specified location 
+			<!-- EMA discovers a host and a port from RDP service discovery for the specified location
 			    when both of them are not set and the session management is enable. -->
 			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
@@ -414,7 +435,7 @@
 			<!-- ObjectName is optional: defaulted to ""												-->
 			<ObjectName value=""/>
 		</Channel>
-		
+
 		<!--Performance Tools Channels -->
 		<Channel>
 			<Name value="Perf_Channel_1"/>
@@ -473,6 +494,20 @@
 			<EnableSessionManagement value="1"/>
 			<ObjectName value=""/>
 		</Channel>
+        <Channel>
+            <Name value="Perf_NIP_Channel_1"/>
+            <ChannelType value="ChannelType::RSSL_SOCKET"/>
+            <GuaranteedOutputBuffers value="100000"/>
+            <ConnectionPingTimeout value="30000"/>
+            <TcpNodelay value="0"/>
+            <Host value="localhost"/>
+            <Port value="14003"/>
+            <InterfaceName value=""/>
+            <HighWaterMark value="6144"/>
+            <NumInputBuffers value="10000"/>
+            <SysRecvBufSize value="0"/>
+            <SysSendBufSize value="0"/>
+        </Channel>
 	</ChannelList>
 </ChannelGroup>
 
@@ -506,19 +541,35 @@
 			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
 		</Server>
 	    <Server>
-            	<Name value="EncryptedServer"/>
-            	<ServerType value="ServerType::RSSL_ENCRYPTED"/>
-            	<!-- CompressionType is optional: defaulted to None -->
-            	<!-- possible values: None, ZLib, LZ4 -->
-            	<CompressionType value="CompressionType::None"/>
-            	<GuaranteedOutputBuffers value="5000"/>
-            	<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
-            	<ConnectionPingTimeout value="30000"/>
-            	<!-- TcpNodelay is optional: defaulted to 1 -->
-            	<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
-            	<TcpNodelay value="1"/>
-            	<Port value="14002"/>
-            </Server>
+			<Name value="EncryptedServer"/>
+			<ServerType value="ServerType::RSSL_ENCRYPTED"/>
+			<!-- CompressionType is optional: defaulted to None -->
+			<!-- possible values: None, ZLib, LZ4 -->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+			<ConnectionPingTimeout value="30000"/>
+			<!-- TcpNodelay is optional: defaulted to 1 -->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+			<TcpNodelay value="1"/>
+			<Port value="14002"/>
+		</Server>
+		<Server>
+			<Name value="Perf_Server_1"/>
+			<ServerType value="ServerType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<ConnectionPingTimeout value="30000"/>
+			<TcpNodelay value="0"/>
+			<Port value="14002"/>
+			<HighWaterMark value="0"/>
+			<InterfaceName value=""/>
+			<DirectWrite value="1" />
+			<MaxFragmentSize value="6144"/>
+			<NumInputBuffers value="10000"/>
+			<SysRecvBufSize value="65535"/>
+			<SysSendBufSize value="65535"/>
+		</Server>
     </ServerList>
 </ServerGroup>
 
@@ -714,7 +765,7 @@
 			</Service>
 
 		</Directory>
-		
+
 		<Directory>
 			<Name value="Directory_3"/>
 
@@ -734,7 +785,7 @@
 					</Capabilities>
 
 					<DictionariesProvided>
-													   
+
 						<DictionariesProvidedEntry value="Dictionary_3"/>
 						<DictionariesProvidedEntry value="Dictionary_4"/>
 					</DictionariesProvided>
@@ -781,7 +832,7 @@
 			<Service>
 				<Name value="NI_PUB"/>
 				<InfoFilter>
-							 
+
 					<DictionariesProvided>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
 					</DictionariesProvided>
@@ -828,12 +879,12 @@
 					<ServiceId value="1"/>
 					<DictionariesProvided>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
-													   
+
 					</DictionariesProvided>
 
 					<DictionariesUsed>
 						<DictionariesUsedEntry value="Dictionary_3"/>
-												   
+
 					</DictionariesUsed>
 
 					<Vendor value="company name"/>
@@ -870,6 +921,54 @@
 			</Service>
 
 		</Directory>
+
+        <Directory>
+            <Name value="Perf_Directory_1"/>
+            <Service>
+                <Name value="NI_PUB"/>
+                <InfoFilter>
+                    <ServiceId value="1"/>
+                    <DictionariesProvided>
+                        <DictionariesProvidedEntry value="Dictionary_3"/>
+                    </DictionariesProvided>
+
+                    <DictionariesUsed>
+                        <DictionariesUsedEntry value="Dictionary_3"/>
+                    </DictionariesUsed>
+
+                    <Vendor value="RefinitivDevTestLab"/>
+                    <IsSource value="0"/>
+                    <Capabilities>
+                        <CapabilitiesEntry value="MMT_DICTIONARY"/>
+                        <CapabilitiesEntry value="MMT_MARKET_PRICE"/>
+                        <CapabilitiesEntry value="MMT_MARKET_BY_ORDER"/>
+                        <CapabilitiesEntry value="MMT_MARKET_BY_PRICE"/>
+                        <CapabilitiesEntry value="200"/>
+                    </Capabilities>
+
+                    <QoS>
+                        <QoSEntry>
+                            <Timeliness value="Timeliness::RealTime"/>
+                            <Rate value="Rate::TickByTick"/>
+                        </QoSEntry>
+                        <QoSEntry>
+                            <Timeliness value="100"/>
+                            <Rate value="100"/>
+                        </QoSEntry>
+                    </QoS>
+
+                    <SupportsQoSRange value="0"/>
+                    <ItemList value="#.itemlist"/>
+                    <AcceptingConsumerStatus value="0"/>
+                    <SupportsOutOfBandSnapshots value="0"/>
+                </InfoFilter>
+
+                <StateFilter>
+                    <ServiceState value="1"/>
+                    <AcceptingRequests value="1"/>
+                </StateFilter>
+            </Service>
+        </Directory>
 
 	</DirectoryList>
 

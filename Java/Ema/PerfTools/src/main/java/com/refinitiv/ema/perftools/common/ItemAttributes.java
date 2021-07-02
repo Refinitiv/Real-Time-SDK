@@ -8,7 +8,7 @@ public class ItemAttributes
 	private int _serviceId;
 	private int _nameType;
 	private String _name;
-	
+
 	/**
 	 * Clear.
 	 */
@@ -17,6 +17,8 @@ public class ItemAttributes
 		_domainType = 0;
 		_serviceId = 0;
 		_nameType = 0;
+		_serviceName = null;
+		_name = null;
 	}
 	
     /**
