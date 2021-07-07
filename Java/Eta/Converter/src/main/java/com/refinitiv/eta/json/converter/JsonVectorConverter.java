@@ -277,8 +277,7 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
                 }
             }
 
-            if (summary == null && vector.containerType() == DataTypes.UNKNOWN) {
-                vector.containerType(DataTypes.NO_DATA);
+            if (summary == null && vector.containerType() == DataTypes.NO_DATA) {
                 ret = vector.encodeInit(iter, 0, 0);
                 if (ret < CodecReturnCodes.SUCCESS) {
                     error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Vector, code: " + ret, stringKey);

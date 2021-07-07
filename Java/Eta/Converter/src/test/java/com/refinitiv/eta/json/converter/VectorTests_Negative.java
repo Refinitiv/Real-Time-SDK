@@ -253,4 +253,18 @@ public class VectorTests_Negative {
         assertEquals(JsonConverterErrorCodes.JSON_ERROR_DECODING_FAILED, convError.getCode());
     }
 
+    @Test
+    public void testVector_encodeRWF_nullVector_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.VECTOR).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
+
 }
