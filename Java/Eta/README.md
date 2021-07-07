@@ -168,6 +168,8 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - ETA Java ValueAdd cache code which uses JNI is not compatible with the following JDK versions on Windows: Open JDK 1.11, JDK 1.11, Open JDK 1.8, JDK 1.8 update 261 or higher. Please note that this is not an issue on Linux.
 
+- ETA PerfTools applications print out final statistics when interrupted using Ctrl+C only if launched manually, Gradle environment doesn't support this behavior.  
+
 
 
 # Reference Information

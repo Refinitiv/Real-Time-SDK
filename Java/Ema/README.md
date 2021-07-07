@@ -90,6 +90,8 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
+- EMA PerfTools applications print out final statistics when interrupted using Ctrl+C only if launched manually, Gradle environment doesn't support this behavior.  
+
 # Reference Information
 
     I-COS Questionnaire: 6313

@@ -6,8 +6,10 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.codec.PostUserInfo;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
@@ -108,18 +110,22 @@ public class ConsPerf implements ShutdownCallback
 	// Logs summary information, such as application inputs and final statistics. 
 	private File _summaryFile = null;
 	private PrintWriter _summaryFileWriter;
-	
-	// stdio writer 
-	private PrintWriter _stdOutWriter = new PrintWriter(System.out);  
-	
-	// indicates whether or not application should be shutdown 
-	private volatile boolean _shutdownApp = false; 
-	
+
+	// stdio writer
+	private PrintWriter _stdOutWriter = new PrintWriter(System.out);
+
+	// indicates whether or not application should be shutdown
+	private volatile boolean _shutdownApp = false;
+	private CountDownLatch _loopExited = new CountDownLatch(1);
+	private CountDownLatch _stopped = new CountDownLatch(1);
+
 	/** Shutdown ConsPerf */
 	public void shutdown()
 	{
 		_shutdownApp = true;
 	}
+
+	private AtomicBoolean stop = new AtomicBoolean(true);
 	
 	/** Run ConsPerf */
 	public void run()
@@ -173,26 +179,39 @@ public class ConsPerf implements ShutdownCallback
 				break;
 			}
 		}
-		
-		stopConsumerThreads();
-		
-		// print summary
-		// If there was only one consumer thread, we didn't bother
-		// gathering cross-thread stats, so copy them from the
-		// lone consumer.
-		if (_consPerfConfig.threadCount() == 1)
-			_totalStats = _consumerThreadsInfo[0].stats();
 
-		printSummaryStatistics(_stdOutWriter);
-		_stdOutWriter.flush();
-		printSummaryStatistics(_summaryFileWriter);
-		_summaryFileWriter.close();
-		
-		for(int i = 0; i < _consPerfConfig.threadCount(); i++)
-		{
-			_consumerThreadsInfo[i].cleanup();
+		_loopExited.countDown();
+		if (stop.getAndSet(false)) {
+			stop();
+			_stopped.countDown();
 		}
     }
+
+	private void stop() {
+
+		try {
+			stopConsumerThreads();
+
+			// print summary
+			// If there was only one consumer thread, we didn't bother
+			// gathering cross-thread stats, so copy them from the
+			// lone consumer.
+			if (_consPerfConfig.threadCount() == 1)
+				_totalStats = _consumerThreadsInfo[0].stats();
+
+			printSummaryStatistics(_stdOutWriter);
+			_stdOutWriter.flush();
+			printSummaryStatistics(_summaryFileWriter);
+			_summaryFileWriter.close();
+
+			for(int i = 0; i < _consPerfConfig.threadCount(); i++)
+			{
+				_consumerThreadsInfo[i].cleanup();
+			}
+		} finally {
+			_stopped.countDown();
+		}
+	}
 	
 	/* Initializes ConsPerf application. */
 	private void initialize(String[] args)
@@ -1040,17 +1059,18 @@ public class ConsPerf implements ShutdownCallback
 
 		for(int i = 0; i < _consPerfConfig.threadCount(); i++)
 		{
+			int shutDownCount = 0;
 			// wait for consumer thread cleanup or timeout
-			while (!_consumerThreadsInfo[i].shutdownAck())
+			while (!_consumerThreadsInfo[i].shutdownAck() && shutDownCount < 3)
 			{
 				try
 				{
 					Thread.sleep(1000);
+					shutDownCount++;
 				}
 				catch (InterruptedException e)
 				{
 					System.out.printf("Thread.sleep(1000) failed\n");
-					System.exit(-1);
 				}
 			}
 		}
@@ -1065,10 +1085,27 @@ public class ConsPerf implements ShutdownCallback
 				rightNow.get(Calendar.HOUR_OF_DAY), rightNow.get(Calendar.MINUTE), rightNow.get(Calendar.SECOND));
 	}
 
+	private void registerShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				if (stop.getAndSet(false)) {
+					shutdown();
+					_loopExited.await(1000, TimeUnit.MILLISECONDS);
+					stop();
+				} else {
+					_stopped.await(_consPerfConfig.threadCount() * 5000, TimeUnit.MILLISECONDS);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}));
+	}
+
 	public static void main(String[] args)
 	{
 		ConsPerf consumerperf = new ConsPerf();
 		consumerperf.initialize(args);
+		consumerperf.registerShutdownHook();
 		consumerperf.run();
 		System.exit(0);
 	}

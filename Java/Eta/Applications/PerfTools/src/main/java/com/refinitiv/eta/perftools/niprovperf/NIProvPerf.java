@@ -12,6 +12,8 @@ import com.refinitiv.eta.transport.Transport;
 import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * <p>
  * The main NIProvPerf application. Implements a Non-Interactive Provider.
@@ -80,6 +82,8 @@ public class NIProvPerf
     
     private Error _error; /* error information */
     private InitArgs _initArgs; /* arguments for initializing transport */
+
+	private AtomicBoolean stop = new AtomicBoolean(true);
 	
 	{
         _provider = new Provider();		
@@ -126,17 +130,21 @@ public class NIProvPerf
 				break;
 			}
 		}
-		
-		stopProviderThreads();
-		
-		if(!_shutdownApp)
-		{
-			//collect and print summary statistics
-			_provider.collectStats(false, false, 0, 0);
-			_provider.printFinalStats();
-		}
 
-		cleanUpAndExit();
+		stop();
+	}
+
+	private void stop() {
+		if (stop.getAndSet(false)) {
+			stopProviderThreads();
+			if(!_shutdownApp)
+			{
+				//collect and print summary statistics
+				_provider.collectStats(false, false, 0, 0);
+				_provider.printFinalStats();
+			}
+			cleanUpAndExit();
+		}
 	}
 	
 	/* Initializes NIProvPerf application. */
@@ -211,10 +219,17 @@ public class NIProvPerf
 		System.out.printf("Exiting.\n");
 	}
 
+	private void registerShutdownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			stop();
+		}));
+	}
+
 	public static void main(String[] args)
 	{
 		NIProvPerf niprovperf = new NIProvPerf();
 		niprovperf.initialize(args);
+		niprovperf.registerShutdownHook();
 		niprovperf.run();
 		System.exit(0);
 	}

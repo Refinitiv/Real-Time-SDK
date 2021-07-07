@@ -5,6 +5,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -102,6 +105,12 @@ public class ProvPerf
     private volatile boolean _shutdownApp;       // Indicates whether or not
                                                  // application should be
                                                  // shutdown
+
+    private AtomicBoolean _stop = new AtomicBoolean(true);
+    private volatile boolean _exitApp;
+
+    private CountDownLatch _loopExited = new CountDownLatch(1);
+    private CountDownLatch _stopped = new CountDownLatch(1);
 
     public ProvPerf()
     {
@@ -224,7 +233,7 @@ public class ProvPerf
         ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 
         // this is the main loop
-        while (!_shutdownApp)
+        while (!_shutdownApp && !_exitApp)
         {
         	int selectRetVal = 0;
         	Set<SelectionKey> keySet = null;
@@ -306,12 +315,24 @@ public class ProvPerf
 
         }
 
-        stopProviderThreads();
+        _loopExited.countDown();
+        if (_stop.getAndSet(false)) {
+            stop();
+            _stopped.countDown();
+        }
+    }
 
-        // only print summary on normal exit
-        if (!_shutdownApp)
-        {
-            _provider.printFinalStats();
+    private void stop() {
+        try {
+            stopProviderThreads();
+            // only print summary on normal exit
+            if (!_shutdownApp)
+            {
+                _provider.printFinalStats();
+            }
+            cleanup();
+        } finally {
+            _stopped.countDown();
         }
     }
 
@@ -337,7 +358,6 @@ public class ProvPerf
                 catch (InterruptedException e)
                 {
                     System.err.printf("Thread.sleep(1000) failed\n");
-                    System.exit(-1);
                 }
             }
         }
@@ -406,12 +426,28 @@ public class ProvPerf
         Transport.uninitialize();
     }
 
+    private void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                if (_stop.getAndSet(false)) {
+                    _exitApp = true;
+                    _loopExited.await(1000, TimeUnit.MILLISECONDS);
+                    stop();
+                } else {
+                    _stopped.await(ProviderPerfConfig.threadCount() * 5000, TimeUnit.MILLISECONDS);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
+    }
+
     public static void main(String[] args)
     {
         ProvPerf provperf = new ProvPerf();
         provperf.init(args);
+        provperf.registerShutdownHook();
         provperf.run();
-        provperf.cleanup();
         System.exit(0);
     }
 }
