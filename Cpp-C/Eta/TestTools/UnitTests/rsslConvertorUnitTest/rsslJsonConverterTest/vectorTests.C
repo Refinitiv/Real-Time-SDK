@@ -78,7 +78,10 @@ public:
 	{
 		out << "VectorEntryAction array contains";
 		for (int i = 0; i < params.actionArrayCount; i++)
-			out << " " << rsslVectorEntryActionToOmmString(params.actionArray[i]);
+			if (params.actionArray[i] != 0)
+				out << " " << rsslVectorEntryActionToOmmString(params.actionArray[i]);
+			else
+				out << " ";
 		return out;
 	}
 };
@@ -890,6 +893,7 @@ TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
 	RsslMsg rsslMsg;
 	RsslVector vector;
 	RsslVectorEntry vectorEntry;
+	RsslBool foundUnknownAction = false;
 
 	rsslClearUpdateMsg(&updateMsg);
 	updateMsg.msgBase.streamId = 5;
@@ -917,6 +921,10 @@ TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
 	{
 		/* Encode an entry with the action. */
 		rsslClearVectorEntry(&vectorEntry);
+
+		if (params.actionArray[i] == 0)
+			foundUnknownAction = true;
+
 		vectorEntry.action = params.actionArray[i];
 		vectorEntry.index = i + 1;
 		if (vectorEntry.action == RSSL_VTEA_DELETE_ENTRY || vectorEntry.action == RSSL_VTEA_CLEAR_ENTRY)
@@ -933,7 +941,13 @@ TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
 
 	ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeMsgComplete(&_eIter, RSSL_TRUE));
 
-	ASSERT_NO_FATAL_FAILURE(convertRsslToJson());
+	if (foundUnknownAction)
+	{
+		convertRsslToJson(RSSL_JSON_JPT_JSON2, true, RSSL_RET_FAILURE);
+		return;
+	}
+	else
+		ASSERT_NO_FATAL_FAILURE(convertRsslToJson());
 
 	/* Check message. */
 	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
@@ -1003,9 +1017,31 @@ TEST_P(VectorEntryActionsTestFixture, VectorEntryActionsTest)
 }
 
 INSTANTIATE_TEST_CASE_P(VectorTests, VectorEntryActionsTestFixture, ::testing::Values(
+	VectorEntryActionsTestParams(2, 0, 0),
 	VectorEntryActionsTestParams(3, RSSL_VTEA_INSERT_ENTRY, RSSL_VTEA_UPDATE_ENTRY, RSSL_VTEA_DELETE_ENTRY),
 	VectorEntryActionsTestParams(3, RSSL_VTEA_DELETE_ENTRY, RSSL_VTEA_UPDATE_ENTRY, RSSL_VTEA_SET_ENTRY),
 	VectorEntryActionsTestParams(2, RSSL_VTEA_DELETE_ENTRY, RSSL_VTEA_DELETE_ENTRY),
 	VectorEntryActionsTestParams(3, RSSL_VTEA_CLEAR_ENTRY, RSSL_VTEA_SET_ENTRY, RSSL_VTEA_UPDATE_ENTRY),
 	VectorEntryActionsTestParams(2, RSSL_VTEA_CLEAR_ENTRY, RSSL_VTEA_CLEAR_ENTRY)
 ));
+
+TEST_F(VectorTests, InvalidVectorTests)
+{
+	/* Action missing from VectorEntry. */
+	setJsonBufferToString("{\"Type\": \"Generic\", \"ID\" : 2, \"Domain\" : 128, \"SeqNumber\" : 3,\"Vector\" : {\"Summary\": {\"Fields\": {\"BID\": 45.01,\"BIDSIZE\" : 18}},\"CountHint\": 2,\"Entries\" : [ { \"Index\":1, \"Fields\": {\"BID\": 55.55,\"BIDSIZE\" : 28,\"ASK\" : 55.57,\"ASKSIZE\" : 29}},{ \"Index\":2, \"Fields\": {\"BID\": 66.66,\"BIDSIZE\" : 30,\"ASK\" : 66.57,\"ASKSIZE\" : 56}}]}}");
+	ASSERT_NO_FATAL_FAILURE(getJsonToRsslError());
+
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
+	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Missing required key 'Action' for 'Entries'"));
+
+	/* Index missing from VectorEntry. */
+	setJsonBufferToString("{\"Type\": \"Generic\", \"ID\" : 2, \"Domain\" : 128, \"SeqNumber\" : 3,\"Vector\" : {\"Summary\": {\"Fields\": {\"BID\": 45.01,\"BIDSIZE\" : 18}},\"CountHint\": 2,\"Entries\" : [ {\"Action\":\"Update\",\"Fields\": {\"BID\": 55.55,\"BIDSIZE\" : 28,\"ASK\" : 55.57,\"ASKSIZE\" : 29}},{ \"Index\":2, \"Action\":\"Update\",\"Fields\": {\"BID\": 66.66,\"BIDSIZE\" : 30,\"ASK\" : 66.57,\"ASKSIZE\" : 56}}]}}");
+	ASSERT_NO_FATAL_FAILURE(getJsonToRsslError());
+
+	ASSERT_TRUE(_jsonDocument.HasMember("Type"));
+	ASSERT_TRUE(_jsonDocument["Type"].IsString());
+	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
+	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Missing required key 'Index' for 'Entries'"));
+}

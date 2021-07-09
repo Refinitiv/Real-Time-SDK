@@ -396,7 +396,8 @@ inline void rwfToJsonBase::writeEmptyObject()
 
 inline void rwfToJsonBase::writeString(const char* value)
 {
-	size_t len = strlen(value);
+	size_t len = value != NULL ? strlen(value) : 0;
+
 	if (value)
 	{
 		if (verifyJsonMessageSize((int)len + 2) == 0) return;

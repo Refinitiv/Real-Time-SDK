@@ -473,7 +473,7 @@ void MsgConversionTestBase::TearDown()
 	delete[] _jsonInputBuffer.data;
 }
 
-void MsgConversionTestBase::convertRsslToJson(RsslJsonProtocolType protocolType, bool json1Solicited)
+void MsgConversionTestBase::convertRsslToJson(RsslJsonProtocolType protocolType, bool json1Solicited, RsslRet ret)
 {
 	RsslConvertRsslMsgToJsonOptions rsslToJsonOptions;
 	RsslGetJsonMsgOptions getJsonMsgOptions;
@@ -500,12 +500,15 @@ void MsgConversionTestBase::convertRsslToJson(RsslJsonProtocolType protocolType,
 	rsslClearConvertRsslMsgToJsonOptions(&rsslToJsonOptions);
 	rsslToJsonOptions.jsonProtocolType = protocolType;
 #ifdef _RSSLJC_SHARED_LIBRARY
-	ASSERT_EQ(RSSL_RET_SUCCESS, rsslJsonConverterFunctions.rsslConvertRsslMsgToJson(_rsslJsonConverter, &rsslToJsonOptions, &rsslMsg, &converterError))
+	ASSERT_EQ(ret, rsslJsonConverterFunctions.rsslConvertRsslMsgToJson(_rsslJsonConverter, &rsslToJsonOptions, &rsslMsg, &converterError))
 		<< "rsslConvertRsslMsgToJson failed: " << converterError.text;
 #else
-	ASSERT_EQ(RSSL_RET_SUCCESS, rsslConvertRsslMsgToJson(_rsslJsonConverter, &rsslToJsonOptions, &rsslMsg, &converterError))
+	ASSERT_EQ(ret, rsslConvertRsslMsgToJson(_rsslJsonConverter, &rsslToJsonOptions, &rsslMsg, &converterError))
 		<< "rsslConvertRsslMsgToJson failed: " << converterError.text;
 #endif
+
+	if (ret != RSSL_RET_SUCCESS)
+		return;
 
 	rsslClearGetJsonMsgOptions(&getJsonMsgOptions);
 	getJsonMsgOptions.streamId = rsslMsg.msgBase.streamId;
