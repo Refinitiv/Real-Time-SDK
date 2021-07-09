@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Objects;
 
+import static com.refinitiv.eta.json.converter.ConstCharArrays.JSON_MAP;
+
 class JsonMapConverter extends AbstractContainerTypeConverter {
 
     JsonMapConverter(JsonAbstractConverter converter) {
@@ -410,7 +412,10 @@ class JsonMapConverter extends AbstractContainerTypeConverter {
 
             return;
 
-        } finally {
+        } catch (Exception ex) {
+            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Map, exception: " + ex.getMessage(), JSON_MAP);
+            return;
+        }finally {
             JsonFactory.releaseMap(map);
             JsonFactory.releaseMapEntry(mapEntry);
             JsonFactory.releaseBuffer(buf);

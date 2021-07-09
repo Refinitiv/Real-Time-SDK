@@ -383,4 +383,47 @@ public class MapTests_Negative {
         assertTrue(convError.isFailed());
         assertEquals(JsonConverterErrorCodes.JSON_ERROR_DECODING_FAILED, convError.getCode());
     }
+
+    @Test
+    public void testMap_encodeRWFEmptyEntryContainer_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{\"KeyType\":\"UInt\",\"CountHint\":3,\"Entries\":" +
+                "[{\"Action\":\"Add\",\"Key\":13,\"Fields\":{}}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.MAP).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
+
+    @Test
+    public void testMap_encodeRWFBlankContainer_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{\"KeyType\":\"UInt\",\"CountHint\":3,\"Entries\":[{\"Action\":\"Add\",\"Key\":13}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.MAP).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
+
+    @Test
+    public void testMap_encodeRWFEmptyEntries_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{\"KeyType\":\"UInt\",\"CountHint\":3,\"Entries\":[]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.MAP).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
 }

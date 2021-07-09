@@ -177,55 +177,65 @@ class JsonSeriesConverter extends AbstractContainerTypeConverter {
                         return;
                     }
                     seriesEntry.clear();
-                    String name = seriesEntryNode.fieldNames().next(); //must contain only one item
-                    entryContainerType = converter.getContainerType(name);
-                    if (entryContainerType == DataTypes.NO_DATA) {
-                        if (converter.catchUnexpectedKeys()) {
-                            error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_KEY, "Unexpected key: " + name, JSON_SERIES + ".entry[" + i + "]");
+                    if (seriesEntryNode.isEmpty() || seriesEntryNode.isNull()) {
+                        ret = seriesEntry.encode(iter);
+                        if (ret != CodecReturnCodes.SUCCESS) {
+                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed to encode SeriesEntry entry[" + i + "]");
                             return;
-                        } else
+                        } else {
                             continue;
-                    }
-
-                    if (summary != null) {
-                        if (entryContainerType != summaryType) {
-                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed to encode Series: container types mismatch, found "
-                                    + entryContainerType + " and " + summaryType, JSON_SERIES + ".entry[" + i + "]");
-                            return;
-                        }
-                    } else if (series.containerType() == DataTypes.NO_DATA) {
-                        series.containerType(entryContainerType);
-                        ret = series.encodeInit(iter, 0, 0);
-                        if (ret < CodecReturnCodes.SUCCESS) {
-                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series, code: " + ret, JSON_SERIES);
-                            return;
-                        }
-                    } else if (series.containerType() != entryContainerType) {
-                        error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series: container types mismatch", JSON_SERIES + ".entry[" + i + "]");
-                        return;
-                    }
-
-                    //process the actual container
-                    entryData = seriesEntryNode.get(name);
-                    if (entryData != null) {
-                        ret = seriesEntry.encodeInit(iter, 0);
-                        if (ret < CodecReturnCodes.SUCCESS) {
-                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding SeriesEntry, code: " + ret, JSON_SERIES + ".entry[" + i + "]");
-                            return;
-                        }
-                        converter.getContainerHandler(series.containerType()).encodeRWF(entryData, JSON_SERIES + ".entry[" + i + "]", iter, error);
-                        if (error.isFailed())
-                            return;
-                        ret = seriesEntry.encodeComplete(iter, true);
-                        if (ret < CodecReturnCodes.SUCCESS) {
-                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series entry, code: " + ret, JSON_SERIES + ".entry[" + i + "]");
-                            return;
                         }
                     } else {
-                        ret = seriesEntry.encode(iter);
-                        if (ret < CodecReturnCodes.SUCCESS) {
-                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series entry, code: " + ret, JSON_SERIES + ".entry[" + i + "]");
+                        String name = seriesEntryNode.fieldNames().next(); //must contain only one item
+                        entryContainerType = converter.getContainerType(name);
+                        if (entryContainerType == DataTypes.NO_DATA) {
+                            if (converter.catchUnexpectedKeys()) {
+                                error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_KEY, "Unexpected key: " + name, JSON_SERIES + ".entry[" + i + "]");
+                                return;
+                            } else
+                                continue;
+                        }
+
+                        if (summary != null) {
+                            if (entryContainerType != summaryType) {
+                                error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed to encode Series: container types mismatch, found "
+                                        + entryContainerType + " and " + summaryType, JSON_SERIES + ".entry[" + i + "]");
+                                return;
+                            }
+                        } else if (series.containerType() == DataTypes.NO_DATA) {
+                            series.containerType(entryContainerType);
+                            ret = series.encodeInit(iter, 0, 0);
+                            if (ret < CodecReturnCodes.SUCCESS) {
+                                error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series, code: " + ret, JSON_SERIES);
+                                return;
+                            }
+                        } else if (series.containerType() != entryContainerType) {
+                            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series: container types mismatch", JSON_SERIES + ".entry[" + i + "]");
                             return;
+                        }
+
+                        //process the actual container
+                        entryData = seriesEntryNode.get(name);
+                        if (entryData != null) {
+                            ret = seriesEntry.encodeInit(iter, 0);
+                            if (ret < CodecReturnCodes.SUCCESS) {
+                                error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding SeriesEntry, code: " + ret, JSON_SERIES + ".entry[" + i + "]");
+                                return;
+                            }
+                            converter.getContainerHandler(series.containerType()).encodeRWF(entryData, JSON_SERIES + ".entry[" + i + "]", iter, error);
+                            if (error.isFailed())
+                                return;
+                            ret = seriesEntry.encodeComplete(iter, true);
+                            if (ret < CodecReturnCodes.SUCCESS) {
+                                error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series entry, code: " + ret, JSON_SERIES + ".entry[" + i + "]");
+                                return;
+                            }
+                        } else {
+                            ret = seriesEntry.encode(iter);
+                            if (ret < CodecReturnCodes.SUCCESS) {
+                                error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series entry, code: " + ret, JSON_SERIES + ".entry[" + i + "]");
+                                return;
+                            }
                         }
                     }
                 }
@@ -245,6 +255,9 @@ class JsonSeriesConverter extends AbstractContainerTypeConverter {
                 return;
             }
 
+            return;
+        } catch (Exception ex) {
+            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Series, exception: " + ex.getMessage(), JSON_SERIES);
             return;
         } finally {
             JsonFactory.releaseSeries(series);

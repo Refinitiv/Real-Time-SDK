@@ -6,6 +6,7 @@ import com.refinitiv.eta.json.util.JsonFactory;
 
 import java.util.Iterator;
 
+import static com.refinitiv.eta.json.converter.ConstCharArrays.JSON_VECTOR;
 import static com.refinitiv.eta.json.converter.ConstCharArrays.JSON_SUMMARY;
 
 class JsonVectorConverter extends AbstractContainerTypeConverter {
@@ -291,6 +292,9 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
                 return;
             }
 
+            return;
+        } catch (Exception ex) {
+            error.setError(JsonConverterErrorCodes.JSON_ERROR_RSSL_ENCODE_ERROR, "Failed encoding Vector, exception: " + ex.getMessage(), JSON_VECTOR);
             return;
         } finally {
             JsonFactory.releaseVector(vector);

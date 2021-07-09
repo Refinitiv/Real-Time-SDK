@@ -134,4 +134,18 @@ public class SeriesTests_Negative {
         assertEquals(JsonConverterErrorCodes.JSON_ERROR_DECODING_FAILED, convError.getCode());
     }
 
+    @Test
+    public void testSeries_encodeRWFEmptyEntries_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{\"CountHint\": 2,\"Summary\": {\"Fields\": {\"BID\": 45.01,\"BIDSIZE\": 18}},\"Entries\": [{}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.SERIES).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
+
 }

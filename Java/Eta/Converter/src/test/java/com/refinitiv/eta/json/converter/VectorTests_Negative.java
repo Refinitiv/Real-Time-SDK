@@ -267,4 +267,32 @@ public class VectorTests_Negative {
         assertTrue(convError.isSuccessful());
     }
 
+    @Test
+    public void testVector_encodeRWFEmptyEntries_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{\"CountHint\": 2,\"Summary\": {\"Fields\": {\"BID\": 45.01,\"BIDSIZE\": 18}},\"Entries\": [{}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.VECTOR).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
+
+    @Test
+    public void testVector_encodeRWFEmptyEntries_NoSummary_shouldNotCrash() throws JsonProcessingException {
+
+        String wrongJson = "{\"CountHint\": 2,\"Entries\": [{}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.VECTOR).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+    }
+
 }
