@@ -867,6 +867,21 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 			ackMsg.seqNum = pRecord->seqNum;
 		}
 
+		if ((pRecord->msgkeyflags & RSSL_MKF_HAS_NAME) && pRecord->name.length > 0)
+		{
+			rsslHeapBufferCopy(&ackMsg.msgBase.msgKey.name, &pRecord->name,
+				&ackMsg.msgBase.msgKey.name);
+			ackMsg.flags |= RSSL_AKMF_HAS_MSG_KEY;
+			ackMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_NAME;
+		}
+		if (pRecord->msgkeyflags & RSSL_MKF_HAS_SERVICE_ID)
+		{
+			ackMsg.msgBase.msgKey.serviceId = pRecord->serviceId;
+			ackMsg.flags |= RSSL_AKMF_HAS_MSG_KEY;
+			ackMsg.msgBase.msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+		}
+
+
 		rsslQueueRemoveLink(&pRequest->base.openPosts, &pRecord->qlUser);
 		wlPostTableRemoveRecord(&pWatchlistImpl->base.postTable, pRecord);
 

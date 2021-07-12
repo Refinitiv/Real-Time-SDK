@@ -41,6 +41,9 @@ typedef struct
 									 * an AckMsg, rather than checking PostMsg duplicate. */
 	RsslInt64		expireTime;		/* Time at which this post is assumed to have been lost.  */
 	RsslUInt8		domainType;		/* Domain type of the post message. */
+	RsslUInt16		msgkeyflags;	/* Flag values use indicate optional member presence. The available options are defined by values present in \ref RsslMsgKeyFlags. */
+	RsslBuffer		name;			/* Name associated with the contents of the item stream. */
+	RsslUInt16		serviceId;		/* The serviceId is a two-byte unsigned integer used to identify a specific service. */
 } WlPostRecord;
 
 typedef struct

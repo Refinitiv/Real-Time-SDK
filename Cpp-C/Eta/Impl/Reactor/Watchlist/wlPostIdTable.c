@@ -86,6 +86,7 @@ RsslRet wlPostTableInit(WlPostTable *pTable, RsslUInt32 maxPoolSize,
 			wlPostTableCleanup(pTable);
 			return RSSL_RET_FAILURE;
 		}
+		rsslClearBuffer(&pRecord->name);
 		rsslQueueAddLinkToBack(&pTable->pool, &pRecord->qlUser);
 	}
 
@@ -100,6 +101,7 @@ void wlPostTableCleanup(WlPostTable *pTable)
 	while(pLink = rsslQueueRemoveFirstLink(&pTable->pool))
 	{
 		WlPostRecord *pRecord = RSSL_QUEUE_LINK_TO_OBJECT(WlPostRecord, qlUser, pLink);
+		rsslHeapBufferCleanup(&pRecord->name);
 		free (pRecord);
 	}
 
@@ -180,6 +182,19 @@ WlPostRecord *wlPostTableAddRecord(struct WlBase *pBase, WlPostTable *pTable,
 	pRecord->streamId = pPostMsg->msgBase.streamId;
 	pRecord->fromAckMsg = RSSL_FALSE;
 	pRecord->domainType = pPostMsg->msgBase.domainType;
+
+	pRecord->msgkeyflags = RSSL_MKF_NONE;
+	rsslClearBuffer(&pRecord->name);
+	if ((pPostMsg->flags & RSSL_PSMF_HAS_MSG_KEY) && (pPostMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_NAME))
+	{
+		rsslHeapBufferCopy(&pRecord->name, &pPostMsg->msgBase.msgKey.name, &pRecord->name);
+		pRecord->msgkeyflags |= RSSL_MKF_HAS_NAME;
+	}
+	if ((pPostMsg->flags & RSSL_PSMF_HAS_MSG_KEY) && (pPostMsg->msgBase.msgKey.flags & RSSL_MKF_HAS_SERVICE_ID))
+	{
+		pRecord->serviceId = pPostMsg->msgBase.msgKey.serviceId;
+		pRecord->msgkeyflags |= RSSL_MKF_HAS_SERVICE_ID;
+	}
 
 	/* Check for a completed post with the same post ID. */
 	pRecord->flags = (pPostMsg->flags & ~RSSL_PSMF_HAS_SEQ_NUM) | RSSL_PSMF_POST_COMPLETE;
