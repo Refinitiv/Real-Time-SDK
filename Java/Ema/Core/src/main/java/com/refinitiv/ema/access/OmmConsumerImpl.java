@@ -16,6 +16,7 @@ import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
 import com.refinitiv.ema.access.ConfigManager.ConfigElement;
 import com.refinitiv.ema.access.OmmException.ExceptionType;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
+import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.transport.WritePriorities;
@@ -573,15 +574,15 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			channelInformation.hostname(reactorChannel.hostname());
 			channelInformation.ipAddress("not available for OmmConsumer connections");
 			channelInformation.port(reactorChannel.port());
-
-			if (reactorChannel.channel() == null ) {
+			
+			ReactorChannelInfo rci = ReactorFactory.createReactorChannelInfo();
+			ReactorErrorInfo ei = ReactorFactory.createReactorErrorInfo();
+			if( reactorChannel.info(rci, ei) != ReactorReturnCodes.SUCCESS)
+			{
 				channelInformation.componentInfo("unavailable");
 			}
-			else {
-				ReactorChannelInfo rci = ReactorFactory.createReactorChannelInfo();
-				ReactorErrorInfo ei = ReactorFactory.createReactorErrorInfo();
-				reactorChannel.info(rci, ei);
-
+			else
+			{
 				if (rci.channelInfo() == null ||
 					rci.channelInfo().componentInfo() == null ||
 					rci.channelInfo().componentInfo().isEmpty())
@@ -590,13 +591,16 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 					channelInformation.componentInfo(rci.channelInfo().componentInfo().get(0).componentVersion().toString());
 				}
 			}
-			if (reactorChannel.channel() != null) {
-				channelInformation.channelState(reactorChannel.channel().state());
-				channelInformation.connectionType(reactorChannel.channel().connectionType());
-				channelInformation.protocolType(reactorChannel.channel().protocolType());
-				channelInformation.majorVersion(reactorChannel.channel().majorVersion());
-				channelInformation.minorVersion(reactorChannel.channel().minorVersion());
-				channelInformation.pingTimeout(reactorChannel.channel().pingTimeout());
+			
+			Channel channel = reactorChannel.channel();
+			
+			if (channel != null) {
+				channelInformation.channelState(channel.state());
+				channelInformation.connectionType(channel.connectionType());
+				channelInformation.protocolType(channel.protocolType());
+				channelInformation.majorVersion(channel.majorVersion());
+				channelInformation.minorVersion(channel.minorVersion());
+				channelInformation.pingTimeout(channel.pingTimeout());
 			}
 			else {
 				channelInformation.channelState(ChannelState.INACTIVE);

@@ -1053,7 +1053,15 @@ public class ReactorChannel extends VaNode
      */
     public int info(ReactorChannelInfo info, ReactorErrorInfo errorInfo)
     {
-        return channel().info(info.channelInfo(), errorInfo.error());
+    	Channel channel = channel();
+    	
+    	if(channel == null)
+    	{
+    		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    "ReactorChannel.info", "The channel is no longer available.");
+    	}
+    	
+        return channel.info(info.channelInfo(), errorInfo.error());
     }
 
     /**
@@ -1066,7 +1074,15 @@ public class ReactorChannel extends VaNode
      */
     public int bufferUsage(ReactorErrorInfo errorInfo)
     {
-        return channel().bufferUsage(errorInfo.error());
+    	Channel channel = channel();
+    	
+    	if(channel == null)
+    	{
+    		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    "ReactorChannel.bufferUsage", "The channel is no longer available.");
+    	}
+    	
+        return channel.bufferUsage(errorInfo.error());
     }
 
     /**
@@ -1082,7 +1098,15 @@ public class ReactorChannel extends VaNode
      */
     public int ioctl(int code, int value, ReactorErrorInfo errorInfo)
     {
-        return channel().ioctl(code, value, errorInfo.error());
+    	Channel channel = channel();
+    	
+    	if(channel == null)
+    	{
+    		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    "ReactorChannel.ioctl", "The channel is no longer available.");
+    	}
+    	
+        return channel.ioctl(code, value, errorInfo.error());
     }
 
     /**
