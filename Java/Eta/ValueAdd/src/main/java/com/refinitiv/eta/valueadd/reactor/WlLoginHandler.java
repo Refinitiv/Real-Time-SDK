@@ -980,8 +980,6 @@ class WlLoginHandler implements WlHandler
 		 if (_stream != null && _hasPendingRequest) 
 		 {
 	        _hasPendingRequest = false;
-	    	_tempMsg.clear();
-	    	_watchlist.convertRDMToCodecMsg(_loginRequest, _tempMsg);
 			return _stream.sendMsg(_stream._requestMsg, _submitOptions, errorInfo);
 		 }
 		 
@@ -1199,6 +1197,8 @@ class WlLoginHandler implements WlHandler
 				_stream.streamId(_loginRequestForEDP.streamId());
 				_stream.domainType(_loginRequestForEDP.domainType());
 			}
+
+			_loginRequest = _loginRequestForEDP;
 		}
 		else
 		{
