@@ -106,7 +106,6 @@ public class SimpleDataConvertersTest {
         for (int i = 0; i < correct.length(); i++) {
             assertEquals(correct.charAt(i), (char)buffer.data[i + 5]);
         }
-        System.out.println();
     }
 
     @Test

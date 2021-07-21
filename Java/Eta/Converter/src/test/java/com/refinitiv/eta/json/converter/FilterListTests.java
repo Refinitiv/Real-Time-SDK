@@ -80,9 +80,6 @@ public class FilterListTests {
         outBuffer.data = new byte[20000];
         assertEquals(true, converter.getContainerHandler(DataTypes.FILTER_LIST).encodeJson(decIter, outBuffer, false, null, convError));
 
-        for(int i = 0; i < outBuffer.position; i++)
-            System.out.print((char)outBuffer.data[i]);
-
         JsonNode root = mapper.readTree(outBuffer.data);
         checkJsonNode(root);
 

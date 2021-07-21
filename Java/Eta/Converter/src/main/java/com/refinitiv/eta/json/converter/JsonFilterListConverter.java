@@ -99,6 +99,8 @@ class JsonFilterListConverter extends AbstractContainerTypeConverter {
                     filterEntry.applyHasContainerType();
                     filterEntry.containerType(filterList.containerType());
                     Iterator<String> entryIter = entry.fieldNames();
+                    boolean hasAction = false;
+                    boolean hasId = false;
                     while (entryIter.hasNext()) { //Process the internals of the current entry: ID, ACTION, PERMDATA and find Data token
                         key = entryIter.next();
                         JsonNode entryToken = entry.get(key);
@@ -106,6 +108,7 @@ class JsonFilterListConverter extends AbstractContainerTypeConverter {
                         switch (key) {
                             case ConstCharArrays.JSON_ID:
                                 foundValidToken = true;
+                                hasId = true;
                                 if (!entryToken.isInt()) {
                                     error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "Expected integer type, found type " + entryToken.getNodeType().toString(),
                                             "entry[" + i + "]." + key);
@@ -115,6 +118,7 @@ class JsonFilterListConverter extends AbstractContainerTypeConverter {
                                 break;
                             case ConstCharArrays.JSON_ACTION:
                                 foundValidToken = true;
+                                hasAction = true;
                                 if (!(entryToken.isInt() || entryToken.isTextual())) {
                                     error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, "Unexpected Action type: " + entryToken.getNodeType().toString(),
                                             "entry[" + i + "]." + key);
@@ -168,6 +172,14 @@ class JsonFilterListConverter extends AbstractContainerTypeConverter {
                         entryData  = entryToken;
                     } // end While for entry
 
+                    if (!hasAction) {
+                        error.setError(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, "Missing entry Action", "entry[" + i + "]");
+                        return;
+                    }
+                    if (!hasId) {
+                        error.setError(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, "Missing entry Id", "entry[" + i + "]");
+                        return;
+                    }
                     //encode FilterEntry
                     if (entryData != null && filterEntry.action() != FilterEntryActions.CLEAR) {
                         ret = filterEntry.encodeInit(iter, 0);

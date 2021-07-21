@@ -84,8 +84,6 @@ public class ContainersConverterTest {
 
         assertTrue(new JsonElementListConverter(converter).encodeJson(decIter, output, true, null, convError));
         String correct = "\"Elements\":{\"real\":{\"Type\":\"Real\",\"Data\":123.4567},\"time\":{\"Type\":\"Time\",\"Data\":\"05:10:12.123004005\"}}";
-        for (int i = 0; i < output.data.length; i++)
-            System.out.print((char)output.data[i]);
         for (int i = 0; i < correct.length(); i++)
             assertEquals(correct.charAt(i), output.data[i + 1]);
     }
@@ -128,8 +126,6 @@ public class ContainersConverterTest {
 
         assertTrue(new JsonFilterListConverter(converter).encodeJson(decIter, output, true, null, convError));
         String correct = "\"FilterList\":{\"CountHint\":10,\"Entries\":[{\"ID\":1,\"Action\":\"Update\",\"PermData\":\"cGVybWlzc2lvbkRhdGE=\"},{\"ID\":2,\"Action\":\"Set\",\"PermData\":\"cGVybWlzc2lvbkRhdGE=\"},{\"ID\":3,\"Action\":\"Clear\",\"PermData\":\"cGVybWlzc2lvbkRhdGE=\"}]}";
-        for (int i = 0; i < output.data.length; i++)
-            System.out.print((char)output.data[i]);
         for (int i = 0; i < correct.length(); i++)
             assertEquals(correct.charAt(i), output.data[i]);
     }

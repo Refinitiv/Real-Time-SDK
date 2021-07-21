@@ -199,6 +199,7 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
 
             if (entries != null) {
                 for (int i = 0; i < entries.size(); i++) {
+                    boolean[] foundEntryElements = new boolean[2];
                     vectorEntry.clear();
                     JsonNode curr = entries.get(i);
                     if (!curr.isObject()) {
@@ -209,7 +210,7 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
                     for (Iterator<String> it = curr.fieldNames(); it.hasNext(); ) {
                         String name = it.next();
                         JsonNode child = curr.get(name);
-                        foundValidToken = findValidVectorEntryToken(name, child, vectorEntry, error, i);
+                        foundValidToken = findValidVectorEntryToken(name, child, vectorEntry, error, i, foundEntryElements);
 
                         if (foundValidToken)
                             continue;
@@ -245,6 +246,14 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
                         }
 
                         entryData = child;
+                    }
+                    if (!foundEntryElements[0]) {
+                        error.setError(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, "Failed encoding VectorEntry, entry action not found", "Vector entry[" + i + "]");
+                        return;
+                    }
+                    if (!foundEntryElements[1]) {
+                        error.setError(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, "Failed encoding VectorEntry, entry Index not found", "Vector entry[" + i + "]");
+                        return;
                     }
                     if (entryData != null) {
                         ret = vectorEntry.encodeInit(iter, 0);
@@ -322,7 +331,7 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
         }
     }
 
-    private boolean findValidVectorEntryToken(String name, JsonNode child, VectorEntry vectorEntry, JsonConverterError error, int position) {
+    private boolean findValidVectorEntryToken(String name, JsonNode child, VectorEntry vectorEntry, JsonConverterError error, int position, boolean[] foundElements) {
         switch (name) {
             case ConstCharArrays.JSON_ACTION:
                 if (!child.isTextual()) {
@@ -335,6 +344,7 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
                     return false;
                 }
                 vectorEntry.action(action);
+                foundElements[0] = true;
                 return true;
             case ConstCharArrays.JSON_INDEX:
                 if (!child.isInt() && !child.isLong()) {
@@ -342,6 +352,7 @@ class JsonVectorConverter extends AbstractContainerTypeConverter {
                     return false;
                 }
                 vectorEntry.index(child.asLong());
+                foundElements[1] = true;
                 return true;
             case ConstCharArrays.JSON_PERMDATA:
                 if (!child.isTextual()) {

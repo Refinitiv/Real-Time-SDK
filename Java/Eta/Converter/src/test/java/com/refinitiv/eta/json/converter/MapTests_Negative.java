@@ -385,6 +385,27 @@ public class MapTests_Negative {
     }
 
     @Test
+    public void testMap_noEntryAction() throws JsonProcessingException {
+
+        String wrongJson = "{\"KeyType\":\"Time\"," +
+                "\"Summary\":{\"Elements\":{\"int\":{\"Type\":\"Int\",\"Data\":13},\"real\":{\"Type\":\"Real\",\"Data\":0.000000012345},\"datetime\":{\"Type\":\"DateTime\",\"Data\":\"2020-11-02T13:55:18.015001003\"},\"array\":{\"Type\":\"Array\",\"Data\":{\"Type\":\"Qos\",\"Data\":[{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0}]}}}}," +
+                "\"CountHint\":3,\"KeyFieldID\":1," +
+                "\"Entries\":[{\"Key\":\"00:00:02.0000025\",\"PermData\":\"cGVybWlzc2lvbiBkYXRhIHN0cmluZw==\"}," +
+                "{\"Action\":\"Add\",\"Key\":\"00:00:02.0000025\"," +
+                "\"Elements\":{\"int\":{\"Type\":\"Int\",\"Data\":13},\"real\":{\"Type\":\"Real\",\"Data\":0.000000012345},\"datetime\":{\"Type\":\"DateTime\",\"Data\":\"2020-11-02T13:55:18.015001003\"},\"array\":{\"Type\":\"Array\",\"Data\":{\"Type\":\"Qos\",\"Data\":[{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0}]}}}}," +
+                "{\"Action\":\"Update\",\"Key\":\"00:00:02.0000025\",\"PermData\":\"cGVybWlzc2lvbiBkYXRhIHN0cmluZw==\",\"Elements\":{\"int\":{\"Type\":\"Int\",\"Data\":13},\"real\":{\"Type\":\"Real\",\"Data\":0.000000012345},\"datetime\":{\"Type\":\"DateTime\",\"Data\":\"2020-11-02T13:55:18.015001003\"},\"array\":{\"Type\":\"Array\",\"Data\":{\"Type\":\"Qos\",\"Data\":[{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0},{\"Timeliness\":\"Delayed\",\"Rate\":\"TimeConflated\",\"TimeInfo\":0,\"RateInfo\":0}]}}}}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.MAP).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isFailed());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, convError.getCode());
+    }
+
+    @Test
     public void testMap_encodeRWFEmptyEntryContainer_shouldNotCrash() throws JsonProcessingException {
 
         String wrongJson = "{\"KeyType\":\"UInt\",\"CountHint\":3,\"Entries\":" +

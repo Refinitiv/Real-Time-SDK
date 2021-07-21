@@ -365,7 +365,6 @@ public class BasicPrimitiveConverterTest {
         String string;
         com.refinitiv.eta.codec.Double dv = CodecFactory.createDouble();
 
-        System.out.println("Testing with 1.7897777777773334 ...");
         dv.value(1.7897777777773334);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         for (int j = 0; j < Double.toString(1.7897777777773334).length(); j++) {
@@ -374,7 +373,6 @@ public class BasicPrimitiveConverterTest {
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with -1.7897777777773334 ...");
         dv.value(-1.7897777777773334);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         for (int j = 0; j < Double.toString(-1.7897777777773334).length(); j++) {
@@ -383,7 +381,6 @@ public class BasicPrimitiveConverterTest {
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with 254254.7897777777 ...");
         dv.value(254254.7897777777);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         string = Double.toString(254254.7897777777);
@@ -393,7 +390,6 @@ public class BasicPrimitiveConverterTest {
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with -1.125 ...");
         dv.value(-1.125);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         for (int j = 0; j < 6; j++) {
@@ -403,7 +399,6 @@ public class BasicPrimitiveConverterTest {
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with -1.789 ...");
         dv.value(-1.789);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         for (int j = 0; j < Double.toString(-1.789).length(); j++) {
@@ -413,7 +408,6 @@ public class BasicPrimitiveConverterTest {
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with -0.000125 ...");
         dv.value(-0.000125);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         for (int j = 0; j < Double.toString(-0.000125).length(); j++) {
@@ -433,14 +427,12 @@ public class BasicPrimitiveConverterTest {
         dv.value(Double.MIN_VALUE);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         string = Double.toString(Double.MIN_VALUE);
-        System.out.println("Testing with 4.9406564584124654e-324 ...");
         for (int j = 0; j < string.length(); j++) {
             assertEquals(string.charAt(j), (char)jb.data[j]);
         }
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with 1.7976931348623157e+308 ...");
         dv.value(Double.MAX_VALUE);
         string = Double.toString(Double.MAX_VALUE);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
@@ -450,7 +442,6 @@ public class BasicPrimitiveConverterTest {
 
         jb.data = new byte[50];
         jb.position = 0;
-        System.out.println("Testing with 0 ...");
         dv.value(0);
         BasicPrimitiveConverter.writeDouble(dv, jb, false, error);
         string = Double.toString(0);
@@ -463,28 +454,24 @@ public class BasicPrimitiveConverterTest {
     public void testWriteDouble0() {
 
         byte[] buf = new byte[50];
-        System.out.println("Testing with 1.7897777777773334566 ...");
         BasicPrimitiveConverter.writeDouble0(1.7897777777773334566, 0, buf);
         for (int j = 0; j < 16; j++) {
             assertEquals("1.7897777777773334566".charAt(j), (char)buf[j]);
         }
 
         buf = new byte[50];
-        System.out.println("Testing with -1.7897777777773334566 ...");
         BasicPrimitiveConverter.writeDouble0(-1.7897777777773334566, 0, buf);
         for (int j = 0; j < 17; j++) {
             assertEquals("-1.7897777777773334566".charAt(j), (char)buf[j]);
         }
 
         buf = new byte[50];
-        System.out.println("Testing with 254254.7897777777 ...");
         BasicPrimitiveConverter.writeDouble0(254254.7897777777, 0, buf);
         for (int j = 0; j < 16; j++) {
             assertEquals("254254.7897777777".charAt(j), (char)buf[j]);
         }
 
         buf = new byte[50];
-        System.out.println("Testing with -1.125 ...");
         BasicPrimitiveConverter.writeDouble0(-1.125, 0, buf);
         for (int j = 0; j < 6; j++) {
             assertEquals("-1.125".charAt(j), (char)buf[j]);
@@ -492,7 +479,6 @@ public class BasicPrimitiveConverterTest {
         assertEquals(0, buf[6]);
 
         buf = new byte[50];
-        System.out.println("Testing with -1.789 ...");
         BasicPrimitiveConverter.writeDouble0(-1.789, 0, buf);
         for (int j = 0; j < 6; j++) {
             assertEquals("-1.789".charAt(j), (char)buf[j]);
@@ -500,7 +486,6 @@ public class BasicPrimitiveConverterTest {
         assertEquals(0, buf[6]);
 
         buf = new byte[50];
-        System.out.println("Testing with -0.000125 ...");
         BasicPrimitiveConverter.writeDouble0(-0.000125, 0, buf);
         for (int j = 0; j < 8; j++) {
             assertEquals("-1.25e-4".charAt(j), (char)buf[j]);
@@ -522,7 +507,6 @@ public class BasicPrimitiveConverterTest {
 
         buf = new byte[50];
         BasicPrimitiveConverter.writeDouble0(Double.MIN_VALUE, 0, buf);
-        System.out.println("Testing with 4.9406564584124654e-324 ...");
         for (int j = 0; j < 4; j++) {
             assertEquals("4.94".charAt(j), (char)buf[j]);
         }
@@ -538,7 +522,6 @@ public class BasicPrimitiveConverterTest {
         }
 
         buf = new byte[50];
-        System.out.println("Testing with 1.7976931348623157e+308 ...");
         BasicPrimitiveConverter.writeDouble0(Double.MAX_VALUE, 0, buf);
         for (int j = 0; j < 16; j++) {
             assertEquals("1.79769313486231".charAt(j), (char)buf[j]);
@@ -554,41 +537,35 @@ public class BasicPrimitiveConverterTest {
         }
 
         buf = new byte[50];
-        System.out.println("Testing with 0 ...");
         BasicPrimitiveConverter.writeDouble0(0, 0, buf);
         assertEquals('0', (char)buf[0]);
         for (int j = 1; j < 50; j++) {
             assertEquals(buf[j], 0);
         }
-        System.out.println();
     }
 
     @Test
     public void testWriteFloat0() {
 
         byte[] buf = new byte[50];
-        System.out.println("Testing with 1.789 ...");
         BasicPrimitiveConverter.writeFloat0(1.789f, 0, buf);
         for (int j = 0; j < 5; j++) {
             assertEquals("1.789".charAt(j), (char)buf[j]);
         }
 
         buf = new byte[50];
-        System.out.println("Testing with -1.78977 ...");
         BasicPrimitiveConverter.writeFloat0(-1.78977f, 0, buf);
         for (int j = 0; j < 6; j++) {
             assertEquals("-1.78977".charAt(j), (char)buf[j]);
         }
 
         buf = new byte[50];
-        System.out.println("Testing with 254254.78 ...");
         BasicPrimitiveConverter.writeFloat0(254254.78f, 0, buf);
         for (int j = 0; j < 7; j++) {
             assertEquals("254254.78".charAt(j), (char)buf[j]);
         }
 
         buf = new byte[50];
-        System.out.println("Testing with -1.125 ...");
         BasicPrimitiveConverter.writeFloat0(-1.125f, 0, buf);
         for (int j = 0; j < 6; j++) {
             assertEquals("-1.125".charAt(j), (char)buf[j]);
@@ -596,7 +573,6 @@ public class BasicPrimitiveConverterTest {
         assertEquals(0, buf[6]);
 
         buf = new byte[50];
-        System.out.println("Testing with -1.789 ...");
         BasicPrimitiveConverter.writeFloat0(-1.789f, 0, buf);
         for (int j = 0; j < 6; j++) {
             assertEquals("-1.789".charAt(j), (char)buf[j]);
@@ -604,7 +580,6 @@ public class BasicPrimitiveConverterTest {
         assertEquals(0, buf[6]);
 
        buf = new byte[50];
-        System.out.println("Testing with -0.000125 ...");
         BasicPrimitiveConverter.writeFloat0(-0.000125f, 0, buf);
         for (int j = 0; j < 8; j++) {
             assertEquals("-1.25e-4".charAt(j), (char)buf[j]);
@@ -625,7 +600,6 @@ public class BasicPrimitiveConverterTest {
 
         buf = new byte[50];
         BasicPrimitiveConverter.writeFloat0(Float.MIN_VALUE, 0, buf);
-        System.out.println("Testing with 1.4e-45 ...");
         for (int j = 0; j < 3; j++) {
             assertEquals("1.4".charAt(j), (char)buf[j]);
         }
@@ -640,13 +614,11 @@ public class BasicPrimitiveConverterTest {
         }
 
         buf = new byte[50];
-        System.out.println("Testing with 0 ...");
         BasicPrimitiveConverter.writeFloat0(0, 0, buf);
         assertEquals('0', (char)buf[0]);
         for (int j = 1; j < 50; j++) {
             assertEquals(buf[j], 0);
         }
-        System.out.println();
     }
 
     @Test
@@ -867,9 +839,6 @@ public class BasicPrimitiveConverterTest {
         dateTime.month(11);
         dateTime.day(2);
         res = BasicPrimitiveConverter.writeDateTime(dateTime, jb, error);
-        for (int i = 0; i < 14; i++) {
-            System.out.print((char)jb.data[i]);
-        }
         assertEquals(12, jb.position);
         for (int i = 0; i < 12; i++) {
             assertEquals("\"2020-11-02\"".charAt(i), (char)jb.data[i]);

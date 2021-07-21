@@ -254,6 +254,38 @@ public class VectorTests_Negative {
     }
 
     @Test
+    public void testVector_testWithoutVectorEntryAction() throws JsonProcessingException {
+
+        String wrongJson = "{\"Summary\": {\"Fields\":{\"BID\":45.01,\"BIDSIZE\":18}},\"CountHint\":2,\"Entries\": " +
+                "[{\"Fields\":{\"BID\":55.55,\"BIDSIZE\":28,\"ASK\":55.57,\"ASKSIZE\":29}},{\"Fields\": {\"BID\":55.55,\"BIDSIZE\":28,\"ASK\":55.57,\"ASKSIZE\":29}}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.VECTOR).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isFailed());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, convError.getCode());
+    }
+
+    @Test
+    public void testVector_testWithoutVectorEntryIndex() throws JsonProcessingException {
+
+        String wrongJson = "{\"Summary\": {\"Fields\":{\"BID\":45.01,\"BIDSIZE\":18}},\"CountHint\":2,\"Entries\": " +
+                "[{\"Action\":\"Update\",\"Fields\":{\"BID\":55.55,\"BIDSIZE\":28,\"ASK\":55.57,\"ASKSIZE\":29}},{\"Fields\": {\"BID\":55.55,\"BIDSIZE\":28,\"ASK\":55.57,\"ASKSIZE\":29}}]}";
+
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        converter.getContainerHandler(DataTypes.VECTOR).encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isFailed());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, convError.getCode());
+    }
+
+    @Test
     public void testVector_encodeRWF_nullVector_shouldNotCrash() throws JsonProcessingException {
 
         String wrongJson = "{}";

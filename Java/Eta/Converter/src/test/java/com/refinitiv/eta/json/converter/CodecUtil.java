@@ -998,8 +998,6 @@ public class CodecUtil {
             case DataTypes.ASCII_STRING:
                 Buffer asciival = CodecFactory.createBuffer();
                 assertEquals(SUCCESS, asciival.decode(decIter));
-                System.out.println(asciival.toString());
-                System.out.println(ascii.toString());
                 assertTrue(asciival.toString().equals(ascii.toString()));
                 break;
             default:

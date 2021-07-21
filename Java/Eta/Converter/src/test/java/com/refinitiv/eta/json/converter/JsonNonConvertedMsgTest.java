@@ -99,9 +99,6 @@ public class JsonNonConvertedMsgTest {
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.wrap(new byte[4096]));
         converter.getJsonBuffer(buf, getJsonMsgOptions, convError);
-        for (int i = 0; i < buf.length(); i++) {
-            System.out.print((char)buf.data().get(buf.position() + i));
-        }
     }
 
 
