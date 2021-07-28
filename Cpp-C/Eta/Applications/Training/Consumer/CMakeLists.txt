@@ -19,7 +19,7 @@ list(APPEND path_LIST "" )
 # to the example type list, without the file name.  The remove
 # the duplicate paths
 foreach (_path IN LISTS _dirList)
-    string (REGEX MATCH "(Module_.+)(/.*)$" _matchOut ${_path})
+    string (REGEX MATCH "(Module_.+)(/.*)$" _matchOut "${_path}")
     list(APPEND path_LIST ${CMAKE_MATCH_1})
 endforeach()
 
@@ -32,7 +32,7 @@ foreach(_path IN LISTS path_LIST)
     string( REGEX MATCH
             # Module_1a_Connect/
             "Module_([0-9]+[a-zA-Z]*)_([0-9a-zA-Z]+)$"
-            _matchOut ${_path}
+            _matchOut "${_path}"
             )
     if (_matchOut)
         set(modNumber ${CMAKE_MATCH_1})

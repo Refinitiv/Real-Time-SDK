@@ -433,7 +433,7 @@ if (UNIX)
 	endif()
 
 	string(TOUPPER "${RCDEV_HOST_SYSTEM_FLAVOR}" RCDEV_HOST_SYSTEM_FLAVOR_U)
-	string(REGEX MATCH "^([0-9]+)[.]*" _matchout ${_relnum})
+	string(REGEX MATCH "^([0-9]+)[.]*" _matchout "${_relnum}")
 	set(RCDEV_HOST_SYSTEM_FLAVOR_REL ${CMAKE_MATCH_1})
 
 	DEBUG_PRINT(RCDEV_HOST_SYSTEM_FLAVOR)
@@ -455,7 +455,7 @@ if (UNIX)
 	DEBUG_PRINT(CMAKE_HOST_SYSTEM_PROCESSOR)
 	string(REGEX MATCH
 		"([0-9]+).([0-9]+).([0-9]+)-([0-9]+).([A-Za-z]+)([0-9]+).(${CMAKE_HOST_SYSTEM_PROCESSOR})"
-	_matchout ${CMAKE_HOST_SYSTEM_VERSION})
+	_matchout "${CMAKE_HOST_SYSTEM_VERSION}")
 	# Need better id for compiler type and version
 	# For now this is just a patch to build the OUTPUT path
 	# Also, the version is hard coded and should consider using
@@ -507,7 +507,7 @@ if (UNIX)
 			set(_comp "${CMAKE_C_COMPILER_VERSION}")
 		endif()
 
-		string(REGEX MATCH "^([0-9]+).([0-9]+)[.]*([0-9]*).*" _matchout ${_comp})
+		string(REGEX MATCH "^([0-9]+).([0-9]+)[.]*([0-9]*).*" _matchout "${_comp}")
 		set(_compilerVer "${CMAKE_MATCH_1}${CMAKE_MATCH_2}${CMAKE_MATCH_3}")
 		unset(_comp)
 	endif()

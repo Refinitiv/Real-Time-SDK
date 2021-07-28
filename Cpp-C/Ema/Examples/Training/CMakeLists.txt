@@ -34,7 +34,7 @@ foreach (_item IN LISTS COMP_LIST)
     # to the example type list, without the file name.  Then remove
     # the duplicate paths
     foreach (_path IN LISTS _dirList)
-        string (REGEX MATCH "(.+)(/.*)$" _matchOut ${_path})
+        string (REGEX MATCH "(.+)(/.*)$" _matchOut "${_path}")
         list(APPEND ${_item}_LIST ${CMAKE_MATCH_1})
     endforeach()
 
@@ -47,7 +47,7 @@ foreach (_item IN LISTS COMP_LIST)
         string( REGEX MATCH
                 # NiProvider/100_Series/100_MP_Streaming
                 "([a-zA-Z]+)/([0-9]+[_]+[a-zA-Z]+)/([0-9]+)[^a-zA-Z]+([a-zA-Z]+).+$"
-                _matchOut ${_path}
+                _matchOut "${_path}"
                 )
         if (_matchOut)
             set(domainPrefix ${${CMAKE_MATCH_1}Prefix})

@@ -34,7 +34,7 @@ macro(rcdev_map_init_build_types _lang)
 								${CMAKE_${_lang}_FLAGS_${_cm_bld_typ}_INIT} CACHE INTERNAL "")
 			else()
 				string(APPEND CMAKE_${_lang}_FLAGS_${_rc_bld_typ}_INIT 
-								${CMAKE_${_lang}_FLAGS_${_cm_bld_typ}_INIT})
+								"${CMAKE_${_lang}_FLAGS_${_cm_bld_typ}_INIT}")
 			endif()
 		endif()
 	endforeach()

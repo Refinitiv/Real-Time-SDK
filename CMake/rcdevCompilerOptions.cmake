@@ -41,8 +41,8 @@ function(rcdev_add_if_not_set _outstring _flags _xtra_flags)
 	endif()
 
 	# create two lists for current flags and xtra flags to be added
-	string(REPLACE " ${_delChar}" ";${_delChar}" _flList ${_flags})
-	string(REPLACE " ${_delChar}" ";${_delChar}" _xflList ${_xtra_flags})
+	string(REPLACE " ${_delChar}" ";${_delChar}" _flList "${_flags}")
+	string(REPLACE " ${_delChar}" ";${_delChar}" _xflList "${_xtra_flags}")
 
 	unset(_append)
 	foreach( _xflg ${_xflList})
