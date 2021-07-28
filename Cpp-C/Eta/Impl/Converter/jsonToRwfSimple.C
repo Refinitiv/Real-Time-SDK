@@ -6311,7 +6311,6 @@ bool jsonToRwfSimple::processMap(jsmntok_t ** const tokPtr, void* setDb)
 			entryDataTok = 0;
 			rsslClearMapEntry(&mapEntry);
 			encKeyPtr = 0;
-			bufPtr = &buffer;
 			entryTok = tmpTok;
 			tmpTok++;
 
@@ -6401,6 +6400,7 @@ bool jsonToRwfSimple::processMap(jsmntok_t ** const tokPtr, void* setDb)
 							hasEntriesKey = true;
 							foundValidToken = true;
 							tmpTok++;
+							bufPtr = &buffer;
 							if (processPrimitive(map.keyPrimitiveType, &tmpTok,
 												 &bufPtr, &encKeyPtr) == false)
 								return false;

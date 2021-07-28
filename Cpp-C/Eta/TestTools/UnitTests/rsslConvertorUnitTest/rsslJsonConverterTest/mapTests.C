@@ -1016,3 +1016,355 @@ TEST_F(MapTests, MapEmptyDataTest)
 	ASSERT_EQ(RSSL_DT_NO_DATA, map.containerType);
 	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry,NULL));
 }
+
+TEST_F(MapTests, MapPostOrderBufferKeyPermDataTest)
+{
+	RsslPostMsg postMsg = RSSL_INIT_POST_MSG;
+	RsslMsg rsslMsg;
+	RsslMap map;
+	RsslMapEntry mapEntry;
+
+	const RsslBuffer ENTRY_KEY_1234 = { 4, (char*)"1234" };
+	const RsslBuffer ENTRY_KEY_1235 = { 4, (char*)"1235" };
+
+	//////////////////////////
+	/* Convert back to RWF. */
+	//////////////////////////
+
+	setJsonBufferToString(
+		"{\"Type\":\"Post\",\"Message\":{\"Solicited\":false,\"Type\":\"Refresh\",\"State\":{\"Stream\":\"Open\",\"Data\":\"Ok\",\"Text\":\"Post Refresh OK\",\"Code\":\"None\"},\"Domain\":\"MarketPrice\",\"ID\":2,\
+		\"Map\":{\"KeyFieldID\":3426,\"KeyType\":\"Buffer\",\"CountHint\":2,\"Entries\":[{\"Action\":\"Add\",\"Fields\":{\"ORDER_SIZE\":1000,\"ORDER_PRC\":66.66,\"ORDER_SIDE\":6,\"QUOTIM_MS\":666},\
+		\"PermData\":\"UGVyTWlzc2lvbg==\",\"Key\":\"MTIzNA==\"},\
+		{\"Action\":\"Add\",\"Fields\":{\"ORDER_SIZE\":1000,\"ORDER_PRC\":66.66,\"ORDER_SIDE\":6,\"QUOTIM_MS\":666},\"Key\":\"MTIzNQ==\",\"PermData\":\"UGVyTWlzc2lvbg==\"}]},\"Key\":{\"Service\":60000,\"Name\":\"TRI.N\"}},\
+		\"PermData\":\"AwO9ZWLA\",\"Ack\":true,\"PostUserInfo\":{\"Address\":806749471,\"UserID\":1},\"ID\":1,\"Domain\":\"MarketPrice\",\"Key\":{\"Service\":259,\"Name\":\"TRI.N\"},\"PostID\":1}");
+
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslPostMsg is correct. */
+	EXPECT_EQ(RSSL_MC_POST, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+
+	RsslMsg rsslRefreshMsg;
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslRefreshMsg));
+
+	EXPECT_EQ(RSSL_MC_REFRESH, rsslRefreshMsg.msgBase.msgClass);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslRefreshMsg.msgBase.domainType);
+
+	/* Check Map. */
+	rsslClearMap(&map);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMap(&_dIter, &map));
+	ASSERT_EQ(RSSL_DT_FIELD_LIST, map.containerType);
+
+	ASSERT_EQ(RSSL_DT_BUFFER, map.keyPrimitiveType);
+
+	EXPECT_FALSE(rsslMapCheckHasSummaryData(&map));
+	EXPECT_TRUE(rsslMapCheckHasTotalCountHint(&map));
+	EXPECT_TRUE(rsslMapCheckHasKeyFieldId(&map));
+	EXPECT_TRUE(rsslMapCheckHasPerEntryPermData(&map));
+
+	EXPECT_EQ(3426, map.keyFieldId);
+	EXPECT_EQ(2, map.totalCountHint);
+
+	/* Check 0-th MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	RsslBuffer mapBufferKey;
+	rsslClearBuffer(&mapBufferKey);
+
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapBufferKey));
+
+	EXPECT_TRUE(rsslBufferIsEqual(&ENTRY_KEY_1234, &mapBufferKey)) << "mapBufferKey: " << mapBufferKey.data;
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	/* Check 1-st MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	rsslClearBuffer(&mapBufferKey);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapBufferKey));
+	EXPECT_TRUE(rsslBufferIsEqual(&ENTRY_KEY_1235, &mapBufferKey)) << "mapBufferKey: " << mapBufferKey.data;
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, NULL));
+}
+
+TEST_F(MapTests, OrderKeyBufferPermDataMapTest)
+{
+	RsslPostMsg postMsg = RSSL_INIT_POST_MSG;
+	RsslMsg rsslMsg;
+	RsslMap map;
+	RsslMapEntry mapEntry;
+	RsslBuffer mapEntryKey;
+
+	const RsslBuffer ENTRY_KEY_1234 = { 4, (char*)"1234" };
+	const RsslBuffer ENTRY_KEY_1235 = { 4, (char*)"1235" };
+	const RsslBuffer ENTRY_KEY_1234567 = { 7, (char*)"1234567" };
+
+
+	setJsonBufferToString(
+		"{\"ID\":5,\"Type\":\"Post\",\"Key\":{\"Service\":\"DUCK_FEED\",\"Name\":\"TINY\"},\"Complete\":false,\
+		\"Map\":{\"KeyType\":\"Buffer\",\"Entries\":[\
+		{\"Action\":\"Add\",\"PermData\":\"UGVyTWlzc2lvbg==\",\"Key\":\"MTIzNDU2Nw==\",\"Fields\":{\"BID\":118.734375}},\
+		{\"Action\":\"Delete\",\"Key\":\"MTIzNQ==\",\"PermData\":\"UGVyTWlzc2lvbg==\",\"Fields\":{\"BID\":118.734375}},\
+		{\"PermData\":\"UGVyTWlzc2lvbg==\",\"Action\":\"Update\",\"Key\":\"MTIzNA==\",\"Fields\":{\"BID\":118.734375}}\
+		]}}");
+
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslPostMsg is correct. */
+	EXPECT_EQ(RSSL_MC_POST, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(5, rsslMsg.msgBase.streamId);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_EQ(RSSL_DT_MAP, rsslMsg.msgBase.containerType);
+
+	/* Check Map. */
+	rsslClearMap(&map);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMap(&_dIter, &map));
+	ASSERT_EQ(RSSL_DT_FIELD_LIST, map.containerType);
+
+	ASSERT_EQ(RSSL_DT_BUFFER, map.keyPrimitiveType);
+
+	EXPECT_FALSE(rsslMapCheckHasSummaryData(&map));
+	EXPECT_FALSE(rsslMapCheckHasTotalCountHint(&map));
+	EXPECT_FALSE(rsslMapCheckHasKeyFieldId(&map));
+
+	EXPECT_TRUE(rsslMapCheckHasPerEntryPermData(&map));
+
+	/* Check MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	rsslClearBuffer(&mapEntryKey);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_TRUE(rsslBufferIsEqual(&ENTRY_KEY_1234567, &mapEntryKey));
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData));
+
+	ASSERT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	/* Check 1-st MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	rsslClearBuffer(&mapEntryKey);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_TRUE(rsslBufferIsEqual(&ENTRY_KEY_1235, &mapEntryKey));
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_DELETE_ENTRY, mapEntry.action);
+
+
+	/* Check 2-nd MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	rsslClearBuffer(&mapEntryKey);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_TRUE(rsslBufferIsEqual(&ENTRY_KEY_1234, &mapEntryKey));
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_UPDATE_ENTRY, mapEntry.action);
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, NULL));
+}
+
+TEST_F(MapTests, OrderKeyUIntPermDataMapTest)
+{
+	RsslPostMsg postMsg = RSSL_INIT_POST_MSG;
+	RsslMsg rsslMsg;
+	RsslMap map;
+	RsslMapEntry mapEntry;
+	RsslUInt mapEntryKey;
+
+	const RsslUInt UIENTRY_KEY1 = 75932212;
+	const RsslUInt UIENTRY_KEY2 = 3388123;
+	const RsslUInt UIENTRY_KEY3 = 904183;
+
+
+	setJsonBufferToString(
+		"{\"ID\":5,\"Type\":\"Post\",\"Key\":{\"Service\":\"DUCK_FEED\",\"Name\":\"TINY\"},\"Complete\":false,\
+		\"Map\":{\"KeyType\":\"UInt\",\"Entries\":[\
+		{\"Action\":\"Add\",\"PermData\":\"UGVyTWlzc2lvbg==\",\"Key\":75932212,\"Fields\":{\"BID\":118.734375}},\
+		{\"Action\":\"Add\",\"Key\":3388123,\"PermData\":\"UGVyTWlzc2lvbg==\",\"Fields\":{\"BID\":118.734375}},\
+		{\"PermData\":\"UGVyTWlzc2lvbg==\",\"Action\":\"Add\",\"Key\":904183,\"Fields\":{\"BID\":118.734375}}\
+		]}}");
+
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslPostMsg is correct. */
+	EXPECT_EQ(RSSL_MC_POST, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(5, rsslMsg.msgBase.streamId);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_EQ(RSSL_DT_MAP, rsslMsg.msgBase.containerType);
+
+	/* Check Map. */
+	rsslClearMap(&map);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMap(&_dIter, &map));
+	ASSERT_EQ(RSSL_DT_FIELD_LIST, map.containerType);
+
+	ASSERT_EQ(RSSL_DT_UINT, map.keyPrimitiveType);
+
+	EXPECT_FALSE(rsslMapCheckHasSummaryData(&map));
+	EXPECT_FALSE(rsslMapCheckHasTotalCountHint(&map));
+	EXPECT_FALSE(rsslMapCheckHasKeyFieldId(&map));
+
+	EXPECT_TRUE(rsslMapCheckHasPerEntryPermData(&map));
+
+	/* Check MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	mapEntryKey = 0;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_EQ(UIENTRY_KEY1, mapEntryKey);
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData));
+
+	ASSERT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	/* Check 1-st MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	mapEntryKey = 0;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_EQ(UIENTRY_KEY2, mapEntryKey);
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+
+	/* Check 2-nd MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	mapEntryKey = 0;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_EQ(UIENTRY_KEY3, mapEntryKey);
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, NULL));
+}
+
+TEST_F(MapTests, OrderKeyDoublePermDataMapTest)
+{
+	RsslPostMsg postMsg = RSSL_INIT_POST_MSG;
+	RsslMsg rsslMsg;
+	RsslMap map;
+	RsslMapEntry mapEntry;
+	RsslDouble mapEntryKey;
+
+	const RsslDouble DENTRY_KEY1 = 3627864.567;
+	const RsslDouble DENTRY_KEY2 = -643864386.0053;
+	const RsslDouble DENTRY_KEY3 = 9731249.2;
+
+
+	setJsonBufferToString(
+		"{\"ID\":5,\"Type\":\"Post\",\"Key\":{\"Service\":\"DUCK_FEED\",\"Name\":\"TINY\"},\"Complete\":false,\
+		\"Map\":{\"KeyType\":\"Double\",\"Entries\":[\
+		{\"Action\":\"Add\",\"PermData\":\"UGVyTWlzc2lvbg==\",\"Key\":3627864.567,\"Fields\":{\"BID\":118.734375}},\
+		{\"Action\":\"Add\",\"Key\":-643864386.0053,\"PermData\":\"UGVyTWlzc2lvbg==\",\"Fields\":{\"BID\":118.734375}},\
+		{\"PermData\":\"UGVyTWlzc2lvbg==\",\"Action\":\"Add\",\"Key\":9731249.2,\"Fields\":{\"BID\":118.734375}}\
+		]}}");
+
+	ASSERT_NO_FATAL_FAILURE(convertJsonToRssl());
+
+	/* Decode the message. */
+	rsslClearDecodeIterator(&_dIter);
+	rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+	rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+	/* Verify that RsslPostMsg is correct. */
+	EXPECT_EQ(RSSL_MC_POST, rsslMsg.msgBase.msgClass);
+	EXPECT_EQ(5, rsslMsg.msgBase.streamId);
+	EXPECT_EQ(RSSL_DMT_MARKET_PRICE, rsslMsg.msgBase.domainType);
+	EXPECT_EQ(RSSL_DT_MAP, rsslMsg.msgBase.containerType);
+
+	/* Check Map. */
+	rsslClearMap(&map);
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMap(&_dIter, &map));
+	ASSERT_EQ(RSSL_DT_FIELD_LIST, map.containerType);
+
+	ASSERT_EQ(RSSL_DT_DOUBLE, map.keyPrimitiveType);
+
+	EXPECT_FALSE(rsslMapCheckHasSummaryData(&map));
+	EXPECT_FALSE(rsslMapCheckHasTotalCountHint(&map));
+	EXPECT_FALSE(rsslMapCheckHasKeyFieldId(&map));
+
+	EXPECT_TRUE(rsslMapCheckHasPerEntryPermData(&map));
+
+	/* Check MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	mapEntryKey = 0.;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_EQ(DENTRY_KEY1, mapEntryKey);
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData));
+
+	ASSERT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	/* Check 1-st MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	mapEntryKey = 0.;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_EQ(DENTRY_KEY2, mapEntryKey);
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+
+	/* Check 2-nd MapEntry. */
+	rsslClearMapEntry(&mapEntry);
+	mapEntryKey = 0.;
+
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMapEntry(&_dIter, &mapEntry, &mapEntryKey));
+	EXPECT_EQ(DENTRY_KEY3, mapEntryKey);
+
+	ASSERT_TRUE(rsslMapEntryCheckHasPermData(&mapEntry));
+	EXPECT_TRUE(rsslBufferIsEqual(&PERM_DATA, &mapEntry.permData)) << "permData: " << mapEntry.permData.data;
+
+	EXPECT_EQ(RSSL_MPEA_ADD_ENTRY, mapEntry.action);
+
+	ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeMapEntry(&_dIter, &mapEntry, NULL));
+}
