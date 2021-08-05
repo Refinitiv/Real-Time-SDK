@@ -11,8 +11,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.48
 !tag Build_RDMD  4.20.48
-!tag DT_Version  21.51
-!tag Date        7-Jun-2021
+!tag DT_Version  21.61
+!tag Date        12-Jul-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -662,6 +662,7 @@ INS_P_CCY  13612
    2043        "AEf"   UAE Fils
    2044        "ZZ9"   Cryptocurrency
    2045        "USp"   US Points (1/100th of a US cent)
+   2046        "USM"   Millions of US Dollars
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8777,6 +8778,10 @@ DRK_EXID   13610
    1662        "CQE"   China Chongqing Emission Exchange
    1663        "HXE"   Haixia Equity Exchange-Environment and Energy Exchange (Fujian)
    1664        "WSA"   World Steel Association
+   1665        "SHU"   Sichuan United Environment Exchange
+   1666        "REL"   Regelleistung.net
+   1667        "PXP"   PEXAPARK
+   1668        "FRX"   FairX
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11517,6 +11522,7 @@ PR_FREQ     4236
      11     "Annual"   Annual Updates
      12     "Irregu"   Erratic / Irregular Updates
      13     "TwWkly"   Twice Weekly Updates
+     14     "TwMtly"   Twice Monthly
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13346,6 +13352,9 @@ REFPRC_TP4 13491
      54   "JPY/LB  "   Japanese yen per Pound
      55   "EUR/KG  "   Euros per Kilogram
      56   "JPY/KG  "   Japanese yen per Kilogram
+     57   "IHR     "   Implied Heat Rate
+     58   "USD/Bu  "   US Dollar per Bushel
+     59   "FIX3    "   Fixing 3
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16901,6 +16910,16 @@ DLVY_TERMS 12959
      32      "ITT  "   in tank transfer (ITT)
      33      "PPL  "   Pipeline
      34      "BARGE"   Barge
+     35      "DAM  "   Delivered at mill
+     36      "STP  "   Stumpage price
+     37      "FCADU"   Free Carrier duty unpaid
+     38      "IWDUP"   In Warehouse duty unpaid
+     39      "CIFDU"   Cost, insurance and freight duty unpaid
+     40      "CIFDP"   Cost, insurance and freight duty paid
+     41      "FCADP"   Free Carrier duty paid
+     42      "EXWA "   Ex-Warehouse
+     43      "SGE  "   in SGE vault
+     44      "IWDP "   In Warehouse duty paid
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17183,6 +17202,7 @@ ROUTE_INDX 12977
      99   "STC     "   Supramax Time Charter Average
     100   "MR PB   "   MR Pacific Basket (Uses: TC12 TCE & TC11 TCE)
     101   "TC18    "   US Gulf to Brazil
+    102   "TD23    "   ME Gulf- Medi(Crude)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17400,6 +17420,10 @@ BLK_HR_TYP 13014
      39   "LATE MNG"   Late Morning
      40   "ELY AFTN"   Early Afternoon
      41   "SUNPEAK "   Sunpeak
+     42   "5Min    "   5 Mins Price Update
+     43   "5Min BLK"   Average of 5mins Price Update
+     44   "Hour    "   Hour
+     45   "15MinBLK"   Average of 15mins Price Update
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17463,6 +17487,7 @@ DELIV_PRD  13015
      52   "SOY_MTH "   Soybean contract month (1=Jan; 2=Feb; 3=Mar; 4=Apr; 5=Apr-May; 6=May; 7=Jun; 8=Jun-Jul; 9=Jul; 10=Aug; 11=Sep; 12=Oct; 13=Nov; 14=Dec)
      53   "USPCYCLE"   US pipeline scheduled cycle (1 - 74 or 1 - 36, depending on pipeline operator schedule)
      54   "1/3MTH  "   A third of a month (1 = 1-10 Jan; 2= 11-20 Jan; 3=21-31 Jan; etc)
+     55   "RT      "   Realtime
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20601,7 +20626,7 @@ ASMNT_TYPE 13568
      30   "Margin  "   Margin
      31   "Open    "   Open
      32   "Settle  "   Settlement
-     33   "Avearge "   Average
+     33   "Average "   Average
      34   "Netback "   Netback
      35   "SysBid  "   System Bid
      36   "SysAsk  "   System Ask
@@ -20611,6 +20636,10 @@ ASMNT_TYPE 13568
      40   "DiffIndx"   Diff Index
      41   "NbkMrgn "   Netback Margin
      42   "TrnspCst"   Transport Costs
+     43   "VIU     "   Value-in-use
+     44   "Prem/Dis"   Premium/Discount
+     45   "Coeffic "   Coefficient
+     46   "Trend   "   Trend
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21310,6 +21339,7 @@ ORGN_PORT  13579
     686   "US  SCK "   Stockton
     687   "US  TOL "   Toledo
     688   "US  ICT "   Wichita
+    689   "IL AKL  "   Ashkelon
 !
 ! ACRONYM    FID
 ! -------    ---
