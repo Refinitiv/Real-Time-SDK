@@ -76,6 +76,7 @@ static void clearConsPerfConfig()
 	consPerfConfig.tunnelDomainType = RSSL_DMT_SYSTEM;
 	consPerfConfig.guaranteedOutputTunnelBuffers = 15000;
 	consPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
+	consPerfConfig.compressionType = 0;
 }
 
 void exitConfigError(char **argv)
@@ -370,6 +371,11 @@ void initConsPerfConfig(int argc, char **argv)
 		{
 			++iargs; consPerfConfig.latencyIncludeJSONConversion = RSSL_TRUE;
 		}
+		else if (strcmp("-compressionType", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			consPerfConfig.compressionType = atoi(argv[iargs++]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -595,6 +601,7 @@ void printConsPerfConfig(FILE *file)
 		"   Tunnel Authentication: %s\n"
 		"   Output Tunnel Buffers: %u\n"
 		" Print Usage Tunnel Bufs: %s\n"
+		"        Compression type: %u\n"
 		,
 		consPerfConfig.hostName,
 		consPerfConfig.portNo,
@@ -630,7 +637,8 @@ void printConsPerfConfig(FILE *file)
 		(consPerfConfig.tunnelMessagingEnabled ? "Yes" : "No"),
 		(consPerfConfig.tunnelUseAuthentication ? "Yes" : "No"),
 		consPerfConfig.guaranteedOutputTunnelBuffers,
-		(consPerfConfig.tunnelStreamBufsUsed ? "Yes" : "No")
+		(consPerfConfig.tunnelStreamBufsUsed ? "Yes" : "No"),
+		consPerfConfig.compressionType
 	  );
 
 	fprintf(file,
@@ -701,6 +709,7 @@ void exitWithUsage()
 			"  -tunnelAuth                          Causes the consumer to enable authentication when opening tunnel streams.\n"
 			"  -tunnelStreamOutputBufs <count>      Number of output tunnel buffers (configures guaranteedOutputBuffers in RsslTunnelStreamOpenOptions).\n"
 			"  -tunnelStreamBuffersUsed             Print stats of buffers used by tunnel stream. This setting is disabled by default.\n"
+			"  -compressionType <compression type>  Specify a compression type (configures compressionType in RsslConnectOptions).\n"
 			"\n"
 	);
 #ifdef _WIN32

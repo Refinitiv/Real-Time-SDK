@@ -669,6 +669,8 @@ int main(int argc, char **argv)
 	sopts.connectionType = RSSL_CONN_TYPE_SOCKET;
 	sopts.maxFragmentSize = provPerfConfig.maxFragmentSize;
 	sopts.wsOpts.protocols = provPerfConfig.protocolList;
+	sopts.compressionType = provPerfConfig.compressionType;
+	sopts.compressionLevel = provPerfConfig.compressionLevel;
 
 	sopts.connectionType = provPerfConfig.connType;
 

@@ -2351,8 +2351,20 @@ RSSL_API RsslRet rsslReleaseBuffer(RsslBuffer *buffer, RsslError *error)
 	/* first check if I allocated the data portion of the buffer */
 	if (rsslBufImpl->owner == 1)
 	{
+		/* Checks for the websocket case */
+		if (rsslBufImpl->memoryAllocationOffset != 0)
+		{
+			rsslBufImpl->buffer.data -= rsslBufImpl->memoryAllocationOffset;
+			rsslBufImpl->memoryAllocationOffset = 0;
+		}
+
 		/* I allocated it - now free it */
 		_rsslFree(buffer->data);
+
+		if (rsslBufImpl->compressedBuffer.data)
+		{
+			_rsslFree(rsslBufImpl->compressedBuffer.data);
+		}
 	}
 
 	(*(rsslChnlImpl->channelFuncs->channelReleaseBuffer))(rsslChnlImpl, rsslBufImpl, error);

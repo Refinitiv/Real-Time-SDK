@@ -47,6 +47,8 @@ static void clearProvPerfConfig()
 	snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), "");
 	provPerfConfig.guaranteedOutputTunnelBuffers = 15000;
 	provPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
+	provPerfConfig.compressionType = 0;
+	provPerfConfig.compressionLevel = 0;
 }
 
 void exitConfigError(char **argv)
@@ -310,6 +312,16 @@ void initProvPerfConfig(int argc, char **argv)
 		{
 			provPerfConfig.tunnelStreamBufsUsed = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-compressionType", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			sscanf(argv[iargs], "%u", &provPerfConfig.compressionType);
+		}
+		else if (0 == strcmp("-compressionLevel", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			sscanf(argv[iargs], "%u", &provPerfConfig.compressionLevel);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -381,7 +393,9 @@ void printProvPerfConfig(FILE *file)
 			"        WS Protocol List: %s\n"
 			"   Output Tunnel Buffers: %u\n"
 			" Print Usage Tunnel Bufs: %s\n"
-			,
+			"        Compression type: %u\n"
+			"       Compression level: %u\n"
+		    ,
 			provPerfConfig.runTime,
 			provPerfConfig.connType,
 			provPerfConfig.portNo,
@@ -406,7 +420,9 @@ void printProvPerfConfig(FILE *file)
 			provPerfConfig.cipherSuite,
 			provPerfConfig.protocolList,
 			provPerfConfig.guaranteedOutputTunnelBuffers,
-			(provPerfConfig.tunnelStreamBufsUsed ? "Yes" : "No")
+			(provPerfConfig.tunnelStreamBufsUsed ? "Yes" : "No"),
+			provPerfConfig.compressionType,
+			provPerfConfig.compressionLevel
 		  );
 
 	fprintf(file,
@@ -514,6 +530,8 @@ void exitWithUsage()
 			"\n"
 			"  -tunnelStreamOutputBufs <count>      Number of output tunnel buffers(configures guaranteedOutputBuffers in RsslReactorAcceptTunnelStreamOptions).\n"
 			"  -tunnelStreamBuffersUsed             Print stats of buffers used by tunnel stream. This setting is disabled by default.\n"
+			"  -compressionType <compression type>  Specify a compression type (configures compressionType in RsslBindOptions).\n"
+			"  -compressionLevel <compression level> Specify a compression level (configures compressionLevel in RsslBindOptions).\n"
 			"\n"
 			);
 #ifdef _WIN32
