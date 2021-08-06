@@ -7409,10 +7409,32 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 	}
 
 	/* added for infra group */
-	if ((opts->maxFragmentSize >= RSSL_MIN_FRAG_SIZE) && (opts->maxFragmentSize <= 0xFFFF))
-		rsslServerSocketChannel->maxMsgSize = opts->maxFragmentSize;
+	if ( (opts->maxFragmentSize >= RSSL_MIN_FRAG_SIZE))
+	{
+		if (opts->maxFragmentSize <= 0xFFFF)
+		{
+			rsslServerSocketChannel->maxMsgSize = opts->maxFragmentSize;
+		}
+		else
+		{
+			rsslServerSocketChannel->maxMsgSize = RSSL_MAX_MSG_SIZE;
+		}
+
+		/* To support JSON message over websocket connection which can be larger(6M) than maximum RIPC message size(0xFFFF) */
+		if (opts->maxFragmentSize <= RSSL_MAX_JSON_FRAGMENT_SIZE)
+		{
+			rsslServerSocketChannel->maxCommonMsgSize = opts->maxFragmentSize;
+		}
+		else
+		{
+			rsslServerSocketChannel->maxCommonMsgSize = RSSL_MAX_JSON_FRAGMENT_SIZE;
+		}
+	}
 	else
+	{
 		rsslServerSocketChannel->maxMsgSize = RSSL_MAX_MSG_SIZE;
+		rsslServerSocketChannel->maxCommonMsgSize = RSSL_MAX_MSG_SIZE;
+	}
 
 	rsslServerSocketChannel->interfaceName = opts->interfaceName;
 
@@ -7669,6 +7691,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 
 	rsslServerSocketChannel->maxUserMsgSize = rsslServerSocketChannel->maxMsgSize;
 	rsslServerSocketChannel->maxMsgSize = V10_MIN_HDR + rsslServerSocketChannel->maxMsgSize + 8 + RWS_MAX_HEADER_SIZE; // the 8 is for the maximum http overhead if we are tunneling
+	rsslServerSocketChannel->maxCommonMsgSize = V10_MIN_HDR + rsslServerSocketChannel->maxCommonMsgSize + 8 + RWS_MAX_HEADER_SIZE; // the 8 is for the maximum http overhead if we are tunneling
 
 	if (opts->serverToClientPings)
 		rsslServerSocketChannel->rsslFlags |= 0x2;
@@ -7681,7 +7704,7 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 		rtrBufferPoolAddRef(rsslServerSocketChannel->sharedBufPool);
 		if (rsslServerSocketChannel->sharedBufPool->initialized == 0)
 		{
-			if (rtrBufferPoolFinishInit(rsslServerSocketChannel->sharedBufPool, rsslServerSocketChannel->maxMsgSize) < 0)
+			if (rtrBufferPoolFinishInit(rsslServerSocketChannel->sharedBufPool, rsslServerSocketChannel->maxCommonMsgSize) < 0)
 			{
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 1001 Failed to initialize shared buffer pool.\n",
@@ -8628,6 +8651,7 @@ static RsslSocketChannel *ipcClientChannel(rsslServerImpl* serverImpl, RsslError
 	rsslSocketChannel->tcp_nodelay = (rsslServerSocketChannel->tcp_nodelay ? 1 : 0);
 	rsslSocketChannel->maxMsgSize = rsslServerSocketChannel->maxMsgSize;
 	rsslSocketChannel->maxUserMsgSize = rsslServerSocketChannel->maxUserMsgSize;
+	rsslSocketChannel->maxCommonMsgSize = rsslServerSocketChannel->maxCommonMsgSize;
 	rsslSocketChannel->srvrcomp = rsslServerSocketChannel->compressionSupported;
 	rsslSocketChannel->forcecomp = rsslServerSocketChannel->forcecomp ? 1 : 0;
 	rsslSocketChannel->upperCompressionThreshold = rsslServerSocketChannel->maxUserMsgSize;
@@ -8638,9 +8662,10 @@ static RsslSocketChannel *ipcClientChannel(rsslServerImpl* serverImpl, RsslError
 	rsslSocketChannel->protocolType = rsslServerSocketChannel->protocolType;
 	rsslSocketChannel->minorVersion = rsslServerSocketChannel->minorVersion;
 	rsslSocketChannel->majorVersion = rsslServerSocketChannel->majorVersion;
+	rsslSocketChannel->numInputBufs = rsslServerSocketChannel->numInputBufs;
 
 	/* Take care of input buffer */
-	rsslSocketChannel->inputBuffer = rtr_smplcAllocMsg(gblInputBufs, (rsslSocketChannel->maxMsgSize * rsslServerSocketChannel->numInputBufs));
+	rsslSocketChannel->inputBuffer = rtr_smplcAllocMsg(gblInputBufs, ((size_t)rsslSocketChannel->maxCommonMsgSize * (size_t)rsslServerSocketChannel->numInputBufs));
 
 	/*do not need this as we do it later when processing connect msgs */
 	/*rsslSocketChannel->curInputBuf = rtr_smplcDupMsg(gblInputBufs,rsslSocketChannel->inputBuffer);  */
@@ -8663,7 +8688,7 @@ static RsslSocketChannel *ipcClientChannel(rsslServerImpl* serverImpl, RsslError
 	rsslSocketChannel->compressFuncs = &(compressFuncs[0]);
 
 	/* this should let us read all but one buffers worth of data */
-	rsslSocketChannel->readSize = (RsslInt32)(rsslSocketChannel->inputBuffer->maxLength - rsslSocketChannel->maxMsgSize);
+	rsslSocketChannel->readSize = (RsslInt32)(rsslSocketChannel->inputBuffer->maxLength - rsslSocketChannel->maxCommonMsgSize);
 
 	/* Don't allocate guarBufPool until we know the session is a real session */
 
@@ -9956,6 +9981,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslSocketGetBuffer(rsslChannelImpl 
 		}
 		/* set me as owner */
 		rsslBufImpl->owner = 1;
+		rsslBufImpl->memoryAllocationOffset = 0;
 	}
 	else
 	{

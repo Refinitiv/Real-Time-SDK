@@ -42,6 +42,8 @@ typedef struct
 	char				protocolList[255];			/* List of supported WebSocket sub-protocols */
 	RsslUInt32			guaranteedOutputTunnelBuffers;	/* Guaranteed Output Tunnel Buffers. See -tunnelStreamOutputBufs */
 	RsslBool			tunnelStreamBufsUsed;		/* Control whether to print tunnel Stream buffers usage. See -tunnelStreamBuffersUsed */
+	RsslUInt32			compressionType;			/* Compression types supported by the server. */
+	RsslUInt32			compressionLevel;			/* Level of compression to use, 1: More speed - 9: More compression. */
 } ProvPerfConfig;
 
 /* Contains the global application configuration */

@@ -9,26 +9,30 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.2.L1 aka EMA 3.6.2.L1 and ETA 3.6.2.L1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.2.G1 aka EMA 3.6.2.G1 and ETA 3.6.2.G1
 ----------------------------------------------------------------------------------------
 
-New Features Added
-------------------
-This is a maintenace release consisting of fixes to customer issues, fixes for the Refinitiv Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
+This is a maintenace release consisting of a fix to customer issue.
 
 Customer Issues Resolved
-------------------
-- [Case Number: 09919129] - [RTSDK-5106] - EMA incomplete login refresh issue when doing RTO token renewal via application 
-- [Case Number: 09958339] - [RTSDK-5191] - HTTP parse issue with HTTP Chunk Footer resulting in ChannelDown with EMA Error: Error Id 0
-- [Case Number: 09958326] - [RTSDK-5192] - HTTP read issue resulting in EMA Error text CompressorException: Malformed input at 3
-- [GitHub #143] - [RTSDK-3984] - reissue() with initialImage attribute doesn't trigger a new RefreshMsg in Java EMA
-- [GitHub #173] - [RTSDK-4972] - OmmConsumerConfig.clientId() not mentioned in EMA ConfigGuide
-- [GitHub #177] - [RTSDK-5081] - EMA IProv421 prints Error about EMA Config param is not correct
+------------------------
+- [Case Number: 10057447] - [RTSDK-5292] - NullPointerException in EMA library due to improper login request initialization upon re-submit (submit fails under load) with session mgmt enabled 
 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.2.G1 (Aug 6, 2021)
+--------------------------------------------
+
+This is a maintenace release consisting of fixes.
+
+Both ETA Java and EMA Java 3.6.2.G1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-5292] - NullPointerException in EMA library due to improper login request initialization upon re-submit (submit fails under load) with session mgmt enabled [Case Number: 10057447]
+- [RTSDK-5337] - NullPointerException occurs in rare race condition upon lost connection and ChannelInfo request
 
 --------------------------------------------
 RTSDK Java Release 2.0.2.L1 (Jun 23, 2021)

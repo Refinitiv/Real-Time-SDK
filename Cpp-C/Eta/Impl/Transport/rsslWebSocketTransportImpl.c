@@ -274,6 +274,28 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslC
 	return NULL;
 }
 
+char* increaseSizeAndRealloc(char* pOldDataBuffer, RsslUInt32 originalBufferLength, size_t newSize, RsslError* error)
+{
+	char* ptempBuffer = NULL;
+	if (newSize > 0)
+	{
+		ptempBuffer = (char*)malloc(newSize);
+	}
+
+	if (ptempBuffer == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Could not allocate memory for WS compression buffer.",
+			__FILE__, __LINE__);
+		return(0);
+	}
+
+	memcpy(ptempBuffer, pOldDataBuffer, originalBufferLength);
+	_rsslFree(pOldDataBuffer);
+	return ptempBuffer;
+}
+
 /* rssl Socket Write */
 RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnlImpl, rsslBufferImpl *rsslBufImpl, RsslWriteInArgs *writeInArgs,
 	RsslWriteOutArgs *writeOutArgs, RsslError *error)
@@ -287,8 +309,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 	rtr_msgb_t	*ripcBuffer = (rtr_msgb_t*)(rsslBufImpl->bufferInfo);
 
 	RsslSocketChannel *rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
+	rwsSession_t* wsSess = 0;
 
 	if (IPC_NULL_PTR(rsslSocketChannel, "rsslWebSocketWrite", "rsslSocketChannel", error))
+		return RSSL_RET_FAILURE;
+
+	wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+
+	if (IPC_NULL_PTR(wsSess, "rsslWebSocketWrite", "wsSess", error))
 		return RSSL_RET_FAILURE;
 
 	_DEBUG_TRACE_WS_WRITE("fd "SOCKET_PRINT_TYPE" bImp len %d pOfset %d totLn %u\n",
@@ -345,12 +373,132 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 		RsslUInt32 copyUserMsgSize = 0;
 		RsslBool firstFragment = rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER ? 1 : 0;
 		char* pBuffer = 0;
+		char* pDataBuffer = 0;
 
 		/* chained message - this means that I allocated the memory.
 		   I have to break it into its respective ripc messages,
 		   set the sizes accordingly, and then free the memory on a successful write */
 
-		tempSize = rsslBufImpl->buffer.length - rsslBufImpl->writeCursor;
+		/* Compressed the entire message when writting the first fragementation message. */
+		if (wsSess->comp.outCompression == RSSL_COMP_ZLIB && wsSess->deflate)
+		{
+			if (firstFragment && (rsslBufImpl->memoryAllocationOffset != 0))
+			{
+				ripcCompBuffer	compBuf;
+				int compressedBufferLength = rsslBufImpl->buffer.length + 256; /* Added additional bytes to avoid unnessary memory reallocation.*/
+				int retVal;
+				int compressedBytesOut = 0;
+				rsslBufImpl->compressedBuffer.data = (char*)_rsslMalloc(compressedBufferLength);
+
+				if (rsslBufImpl->compressedBuffer.data == NULL)
+				{
+					_rsslSetError(error, &rsslChnlImpl->Channel, RSSL_RET_BUFFER_NO_BUFFERS, 0);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Error: 0016 rsslWebSocketWrite() Cannot allocate memory of size %d for compressed buffer.\n", __FILE__, __LINE__, compressedBufferLength);
+					return RSSL_RET_FAILURE;
+				}
+
+				rsslBufImpl->compressedBuffer.length = (RsslUInt32)compressedBufferLength;
+
+				rsslBufImpl->buffer.data[rsslBufImpl->buffer.length] = ']'; /* To account for ']' at the end */
+				rsslBufImpl->buffer.length += 2;
+
+				rsslBufImpl->buffer.data -= rsslBufImpl->memoryAllocationOffset;
+				rsslBufImpl->memoryAllocationOffset = 0;
+
+				compBuf.next_in = rsslBufImpl->buffer.data;
+				compBuf.avail_in = (RsslUInt32)rsslBufImpl->buffer.length;
+				compBuf.next_out = rsslBufImpl->compressedBuffer.data;
+				compBuf.avail_out = (unsigned long)(rsslBufImpl->compressedBuffer.length);
+
+				if ((retVal = (*(wsSess->comp.outCompFuncs->compress)) (wsSess->comp.c_stream_out, &compBuf,
+					(wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT) ? 1 : 0,
+					error)) < 0)
+				{
+					_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+					snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+						"<%s:%d> Compression failed for outbound WS payload",
+						__FUNCTION__, __LINE__);
+
+					_rsslFree(rsslBufImpl->compressedBuffer.data);
+					rsslBufImpl->compressedBuffer.data = 0;
+
+					return RSSL_RET_FAILURE;
+				}
+
+				totalUncompOutBytes = compBuf.bytes_in_used;
+				compressedBytesOut += compBuf.bytes_out_used;
+
+				if (retVal > 0 && compBuf.avail_out == 0)
+				{
+					char* pTempBuffer = NULL;
+					RsslUInt32 newSize = 0;
+					RsslUInt32 previousSize = rsslBufImpl->compressedBuffer.length;
+					do
+					{
+						newSize = rsslBufImpl->compressedBuffer.length * 2;
+						if ((pTempBuffer = increaseSizeAndRealloc(rsslBufImpl->compressedBuffer.data, rsslBufImpl->compressedBuffer.length,
+							(size_t)newSize, error)) == 0)
+						{
+							_rsslFree(rsslBufImpl->compressedBuffer.data);
+							rsslBufImpl->compressedBuffer.data = 0;
+
+							return RSSL_RET_FAILURE;
+						}
+						else
+						{
+							rsslBufImpl->compressedBuffer.data = pTempBuffer;
+							rsslBufImpl->compressedBuffer.length = newSize;
+						}
+
+						compBuf.next_out = rsslBufImpl->compressedBuffer.data + previousSize;
+						compBuf.avail_out = (unsigned long)(newSize - previousSize);
+
+						if ((*(wsSess->comp.outCompFuncs->compress)) (wsSess->comp.c_stream_out, &compBuf,
+							0, /* This buffer is for holding the remainder of the compressed message. Don't reset context. */
+							error) < 0 ||
+							compBuf.avail_out == 0)
+						{
+							_rsslFree(rsslBufImpl->compressedBuffer.data);
+							rsslBufImpl->compressedBuffer.data = 0;
+
+							_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+							snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+								"<%s:%d> Compression failed for outbound WS payload", __FUNCTION__, __LINE__);
+							return RSSL_RET_FAILURE;
+						}
+					} while (retVal > 0 && compBuf.avail_out == 0);
+
+					totalUncompOutBytes += compBuf.bytes_in_used;
+					compressedBytesOut += compBuf.bytes_out_used;
+				}
+
+				rsslBufImpl->compressedBuffer.length = compressedBytesOut;
+				rsslBufImpl->compressedBuffer.length -= 4;
+			}
+			else
+			{
+				/* Sets to the orignal buffer length for the WRITE_CALL_AGAIN case. */
+				totalUncompOutBytes = rsslBufImpl->buffer.length;
+			}
+
+			tempSize = rsslBufImpl->compressedBuffer.length - rsslBufImpl->writeCursor;
+			pDataBuffer = rsslBufImpl->compressedBuffer.data;
+		}
+		else
+		{
+			if (firstFragment && (rsslBufImpl->memoryAllocationOffset != 0))
+			{
+				rsslBufImpl->buffer.data[rsslBufImpl->buffer.length] = ']'; /* To account for ']' at the end */
+				rsslBufImpl->buffer.length += 2;
+
+				rsslBufImpl->buffer.data -= rsslBufImpl->memoryAllocationOffset;
+				rsslBufImpl->memoryAllocationOffset = 0;
+			}
+
+			tempSize = rsslBufImpl->buffer.length - rsslBufImpl->writeCursor;
+			pDataBuffer = rsslBufImpl->buffer.data;
+		}
 
 		/* This while loop support the WRITE_CALL_AGAIN case as well*/
 		while (tempSize > 0)
@@ -360,23 +508,21 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 				if (firstFragment)
 				{
 					firstFragment = 0;
-					ripcBuffer->buffer[0] = '[';
-					pBuffer = ripcBuffer->buffer + 1;
-					ripcBuffer->length = 1;
-					copyUserMsgSize = rsslChnlImpl->maxMsgSize - 1; /* To account for '[' at the beginning */
+					pBuffer = ripcBuffer->buffer;
+					copyUserMsgSize = rsslChnlImpl->maxMsgSize;
 				}
 				else
 				{
 					pBuffer = ripcBuffer->buffer;
 					rsslBufImpl->fragmentationFlag = BUFFER_IMPL_SUBSEQ_FRAG_HEADER;
-					copyUserMsgSize = rsslChnlImpl->maxMsgSize - 1; /* To account for ']' at the end */
+					copyUserMsgSize = rsslChnlImpl->maxMsgSize;
 				}
 
 				if ( tempSize >= copyUserMsgSize)
 				{
 					/* use rsslChnlImpl->maxMsgSize here - because of tunneling, server side ripcBuffer->maxLen can have
 						some additional bytes available there that we shouldnt be using */
-					MemCopyByInt(pBuffer, rsslBufImpl->buffer.data + rsslBufImpl->writeCursor, copyUserMsgSize);
+					MemCopyByInt(pBuffer, pDataBuffer + rsslBufImpl->writeCursor, copyUserMsgSize);
 					tempSize -= copyUserMsgSize;
 					rsslBufImpl->writeCursor += copyUserMsgSize;
 					ripcBuffer->length += copyUserMsgSize;
@@ -385,25 +531,30 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 					if (tempSize == 0)
 					{
 						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
-						pBuffer[copyUserMsgSize] = ']';
-						ripcBuffer->length += 1;
 					}
 				}
 				else
 				{
-					copyUserMsgSize = tempSize;
+					/* If this the first fragmented message then split it into two WS frames. */
+					if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
+					{
+						copyUserMsgSize = tempSize/2;
+					}
+					else
+					{
+						copyUserMsgSize = tempSize;
+					}
+
 					/* this will all actually fit in one message */
-					MemCopyByInt(pBuffer, rsslBufImpl->buffer.data + rsslBufImpl->writeCursor, tempSize);
-					rsslBufImpl->writeCursor += tempSize;
-					ripcBuffer->length = tempSize;
+					MemCopyByInt(pBuffer, pDataBuffer + rsslBufImpl->writeCursor, copyUserMsgSize);
+					rsslBufImpl->writeCursor += copyUserMsgSize;
+					ripcBuffer->length = copyUserMsgSize;
 					ripcBuffer->priority = rsslBufImpl->priority;
-					tempSize -= tempSize;
+					tempSize -= copyUserMsgSize;
 						
 					if (tempSize == 0)
 					{
 						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
-						pBuffer[copyUserMsgSize] = ']';
-						ripcBuffer->length += 1;
 					}
 				}
 
@@ -411,6 +562,12 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 					(*(rsslWebSocketDumpOutFunc))(__FUNCTION__, ripcBuffer->buffer, (RsslUInt32)ripcBuffer->length, rsslChnlImpl->Channel.socketId);
 
 				retVal = rwsWriteWebSocket(rsslSocketChannel, rsslBufImpl, writeFlags, (RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
+
+				/* Ensure to move on to next message after writing the first message. */
+				if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
+				{
+					rsslBufImpl->fragmentationFlag = BUFFER_IMPL_SUBSEQ_FRAG_HEADER;
+				}
 
 				totalOutBytes += outBytes;
 				outBytes = 0;
@@ -424,13 +581,13 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 			copyUserMsgSize = rsslChnlImpl->maxMsgSize;
 
 			/* Created an individual subsequent fragmented buffer */
-			ripcBuffer = (void*)rwsDataBuffer(rsslSocketChannel, tempSize >= copyUserMsgSize ? copyUserMsgSize : (tempSize + 1) , error);
+			ripcBuffer = (void*)rwsDataBuffer(rsslSocketChannel, tempSize >= copyUserMsgSize ? copyUserMsgSize : tempSize , error);
 			if (ripcBuffer == NULL)
 			{
 				/* call flush and try again, then return error */
 				rsslFlush(&rsslChnlImpl->Channel, error);
 
-				ripcBuffer = (void*)rwsDataBuffer(rsslSocketChannel, tempSize >= copyUserMsgSize ? copyUserMsgSize : (tempSize + 1), error);
+				ripcBuffer = (void*)rwsDataBuffer(rsslSocketChannel, tempSize >= copyUserMsgSize ? copyUserMsgSize : tempSize, error);
 				if (ripcBuffer == NULL)
 				{
 					/* return error here */
@@ -505,8 +662,15 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 			rsslBufImpl->writeCursor = 0;
 			rsslBufImpl->fragId = 0;
 			rsslBufImpl->owner = 0;
+			if (rsslBufImpl->memoryAllocationOffset != 0)
+			{
+				rsslBufImpl->buffer.data -= rsslBufImpl->memoryAllocationOffset;
+				rsslBufImpl->memoryAllocationOffset = 0;
+			}
 			_rsslFree(rsslBufImpl->buffer.data);
 			rsslBufImpl->buffer.length = 0;
+			_rsslFree(rsslBufImpl->compressedBuffer.data);
+			rsslBufImpl->compressedBuffer.length = 0;
 			ripcBuffer->priority = rsslBufImpl->priority;
 		}
 
@@ -545,8 +709,13 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 	RsslInt32 maxOutputMsgs;
 	RsslCompTypes compression;
 	RsslUInt8	fragmentation = 0;
-
 	RsslSocketChannel*	rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
+	rwsSession_t* wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+
+	wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
+
+	if (IPC_NULL_PTR(wsSess, "rsslWebSocketGetBuffer", "wsSess", error))
+		return NULL;
 
 	_DEBUG_TRACE_BUFFER("size %d packedBuf %s max %u\n", size, (packedBuffer?"true":"false"), rsslChnlImpl->maxMsgSize)
 
@@ -638,7 +807,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 		   data into the ripcBuffer */
 		rsslBufImpl->bufferInfo = ipcBuf;
 
-		rsslBufImpl->buffer.data = (char*)_rsslMalloc(size + 7);
+		rsslBufImpl->buffer.data = (char*)_rsslMalloc(size + 9);
 
 		if (rsslBufImpl->buffer.data == NULL)
 		{
@@ -650,6 +819,11 @@ RSSL_RSSL_SOCKET_IMPL_FAST(rsslBufferImpl*) rsslWebSocketGetBuffer(rsslChannelIm
 
 			return NULL;
 		}
+
+		rsslBufImpl->buffer.data[0] = '[';
+		rsslBufImpl->memoryAllocationOffset = 1;
+		rsslBufImpl->buffer.data += rsslBufImpl->memoryAllocationOffset;
+
 		/* set me as owner */
 		rsslBufImpl->owner = 1;
 		rsslBufImpl->buffer.length = size;

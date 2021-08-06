@@ -54,6 +54,14 @@ extern unsigned char memoryDebug;
 /* number of pool buffers */
 #define RSSL_POOL_SIZE 1048576  
 
+/* Maximum WS session payload size(3G)*/
+#define RSSL_MAX_JSON_PAYLOAD 0xC0000000
+
+/* Maximum WS session payload size(500M)*/
+#define RSSL_MIN_JSON_PAYLOAD 0x1F400000
+
+/* Maximum WS message size (6M) */
+#define RSSL_MAX_JSON_FRAGMENT_SIZE 0x600000
 
 /* rssl flag settings */
 #define CLIENT_TO_SERVER 0x1
@@ -181,6 +189,8 @@ typedef struct {
 	int	priority;					/* which priority queue to write to */
 	void			*bufferInfo;		/* The new type to abstract the underlying transport's buffer type*/	
 	RsslUInt8		fragmentationFlag; /* indicate whether the buffer is used for fragmentation*/
+	RsslBuffer  compressedBuffer; /* This buffer is used to compress the entire message before spliting into multiple fragmented messages. */
+	int			memoryAllocationOffset;  /* This is memory offset from the orignal memory allocation. */
 } rsslBufferImpl;
 
 /**
@@ -324,6 +334,9 @@ RTR_C_ALWAYS_INLINE void _rsslCleanBuffer(rsslBufferImpl *buffer)
 	buffer->priority = -1;
 
 	buffer->fragmentationFlag = BUFFER_IMPL_NONE;
+	buffer->compressedBuffer.data = 0;
+	buffer->compressedBuffer.length = 0;
+	buffer->memoryAllocationOffset = 0;
 }
 
 /* does memory allocation and initialization of buffer */

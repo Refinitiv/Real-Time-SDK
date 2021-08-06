@@ -8,11 +8,13 @@
 package com.refinitiv.ema.access;
 
 import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannelInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
 
 class ChannelInformationImpl implements ChannelInformation
 {
@@ -74,21 +76,21 @@ class ChannelInformationImpl implements ChannelInformation
 		if (reactorChannel == null)
 			return;
 
-		if (reactorChannel.channel() == null ) {
+		ReactorChannelInfo rci = ReactorFactory.createReactorChannelInfo();
+		ReactorErrorInfo ei = ReactorFactory.createReactorErrorInfo();
+		if( reactorChannel.info(rci, ei) != ReactorReturnCodes.SUCCESS)
+		{
 			_componentInfo = "unavailable";
 		}
-		else {
-			ReactorChannelInfo rci = ReactorFactory.createReactorChannelInfo();
-			ReactorErrorInfo ei = ReactorFactory.createReactorErrorInfo();
-			reactorChannel.info(rci, ei);
-
+		else
+		{
 			if (rci.channelInfo() == null ||
 				rci.channelInfo().componentInfo() == null ||
 				rci.channelInfo().componentInfo().isEmpty())
 				_componentInfo = "unavailable";
 			else {
 				_componentInfo = rci.channelInfo().componentInfo().get(0).componentVersion().toString();
-
+	
 				// the clientHostname and clientIP methods will return non-null values only for IProvider clients
 				_hostname = rci.channelInfo().clientHostname();
 				_ipAddress = rci.channelInfo().clientIP();
@@ -110,14 +112,16 @@ class ChannelInformationImpl implements ChannelInformation
 
 		_port = reactorChannel.port();
 
-		if (reactorChannel.channel() != null) {
-			_connectionType = reactorChannel.channel().connectionType();
-			_protocolType = reactorChannel.channel().protocolType();
-			_majorVersion = reactorChannel.channel().majorVersion();
-			_minorVersion = reactorChannel.channel().minorVersion();
-			_pingTimeout = reactorChannel.channel().pingTimeout();
-			_channelState = reactorChannel.channel().state();
-			_encryptedConnectionType = reactorChannel.channel().encryptedConnectionType();
+		Channel channel = reactorChannel.channel();
+		
+		if (channel != null) {
+			_connectionType = channel.connectionType();
+			_protocolType = channel.protocolType();
+			_majorVersion = channel.majorVersion();
+			_minorVersion = channel.minorVersion();
+			_pingTimeout = channel.pingTimeout();
+			_channelState = channel.state();
+			_encryptedConnectionType = channel.encryptedConnectionType();
 		}
 		else {
 			_connectionType = _protocolType = -1;

@@ -321,6 +321,7 @@ typedef struct {
 	char*			serverPrivateKey;
 	RsslHttpCallback *httpCallback;
 	RsslUserCookies	cookies;
+	RsslUInt32		maxCommonMsgSize; /* The maximum message size is accounted for JSON message over websocket which can be more than RIPC max message size(65535). */
 } RsslServerSocketChannel;
 
 #define RSSL_INIT_SERVER_SOCKET_Bind { 0, 0, 0, 0, 0, 0, 0, RSSL_COMP_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, RSSL_ENC_TLSV1_2, 0, 0 };
@@ -537,6 +538,9 @@ typedef struct
 	RsslBool socketRowSet;
 	MIB_TCPROW socketRow;
 #endif
+
+	RsslUInt32		maxCommonMsgSize; /* The maximum message size is accounted for JSON message over websocket which can be more than RIPC max message size(65535). */
+
 } RsslSocketChannel;
 
 
@@ -681,6 +685,8 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 #if (defined(_WINDOWS) || defined(_WIN32))
 	rsslSocketChannel->socketRowSet = RSSL_FALSE;
 #endif
+
+	rsslSocketChannel->maxCommonMsgSize = 0;
 }
 
 

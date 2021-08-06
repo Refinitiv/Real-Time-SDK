@@ -1207,6 +1207,7 @@ static RsslRet connectChannel(ConsumerThread* pConsumerThread)
 
 	copts.connectionInfo.unified.address = consPerfConfig.hostName;
 	copts.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+	copts.compressionType = consPerfConfig.compressionType;
 
 	do
 	{

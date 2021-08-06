@@ -89,6 +89,7 @@ typedef struct
 	RsslUInt8			tunnelDomainType;			/* DomainType to use when opening the tunnel stream. */
 	RsslUInt32			guaranteedOutputTunnelBuffers;	/* Guaranteed Output Tunnel Buffers. See -tunnelStreamOutputBufs */
 	RsslBool			tunnelStreamBufsUsed;		/* Control whether to print tunnel Stream buffers usage. See -tunnelStreamBuffersUsed */
+	RsslUInt32			compressionType;			/* Compression types for the client. */
 } ConsPerfConfig;
 
 /* Contains the global application configuration */

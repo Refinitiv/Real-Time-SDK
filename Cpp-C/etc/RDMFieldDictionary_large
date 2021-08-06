@@ -4,8 +4,8 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.48_RealTimeDistributionSystem_21.51		06/07/2021
-!	* Modified 06/07/2021 at Oak Brook:
+!   Version	 4.20.48_RealTimeDistributionSystem_21.61		07/13/2021
+!	* Modified 07/13/2021 at Oak Brook:
 !     - This file is a based on RWF.DAT from RDMD V4.20.48.
 !
 !   RDM Field Dictionary
@@ -30,8 +30,8 @@
 !tag Desc      RDF-D RWF field set
 !tag Type      1
 !tag Version   4.20.48
-!tag Build     001
-!tag Date      24-May-2021
+!tag Build     2
+!tag Date      30-Jun-2021
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN

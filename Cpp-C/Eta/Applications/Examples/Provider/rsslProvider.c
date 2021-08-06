@@ -1162,6 +1162,12 @@ void cleanUpAndExit()
 		{
 			removeChannel(clientSessions[i].clientChannel);
 		}
+
+		/* cleanup the JSON converter per client session */
+		if (clientSessions[i].jsonSession.jsonSessionInitialized)
+		{
+			rsslJsonSessionUninitialize(&clientSessions[i].jsonSession);
+		}
 	}
 
 	/* clean up server */

@@ -375,6 +375,7 @@ typedef struct rwsSession {
 	rwsComp_t		comp;
 	RsslUInt32		maxPayload;
 	rtr_msgb_t		*reassemblyBuffer;
+	rtr_msgb_t		*fragmentedDecompressedBuffer;
 	RsslBool		reassemblyUnfinished;
 	RsslBool		reassemblyCompressed;
 	RsslBool		recvGetReq;
