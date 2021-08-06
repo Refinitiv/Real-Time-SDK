@@ -9,22 +9,31 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.L1 aka EMA 3.6.2.L1 and ETA 3.6.2.L1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.G1 aka EMA 3.6.2.G1 and ETA 3.6.2.G1 
 ----------------------------------------------------------------------------------------
 
-This is a maintenace release consisting of fixes to customer issues, support for EMA C++ Interactive ProvPerf and EMA C++ NIProvPerf tools and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics.
+This is a maintenace release consisting of a fix to customer issue.
 
 Customer Issues Resolved
 ------------------
-- [Case Number: 09850212] - [RTSDK-5050] - Source Directory update with additional entries in DictionariesProvided or DictionariesUsed causes crash
-- [GitHub Pull Request #158] - [RTSDK-4586] - Catch polymorphic type by reference, not by value
-- [GitHub Pull Request #159] - [RTSDK-4585] - Turning multi-line comments into single line comments
-- [GitHub Pull Request #160] - [RTSDK-4584] - Make destructor virtual because of polymorphic class object deletion
-- [GitHub #173] - [RTSDK-4972] - Documenation: OmmConsumerConfig.clientId() not mentioned in EMA ConfigGuide Section 4.4.1
+- [RTSDK-5350] - Websocket Transport: Fix to transport to compress message and then fragment to address "Invalid Frame Header" error 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.2.G1 (Aug 6, 2021)
+--------------------------------------------
+
+ETA C 3.6.2.G1 Issues Resolved
+--------------------------------
+- [RTSDK-5370] - Added -compressionType and -compressionLevel to ProvPerf and -compressionType to ConsPerf
+- [RTSDK-5404] - Memory leak with Provider application when providing dictionary over Websocket transport 
+
+Both ETA C and EMA C++ 3.6.2.G1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-5350] - Websocket Transport: Fix to transport to compress message and then fragment to address "Invalid Frame Header" error 
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.2.L1 (Jun 23, 2021)
