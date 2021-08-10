@@ -326,7 +326,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName);
 		TestUtilities.checkResult("ObjectName == EncrpyptedObjectName2", strValue.contentEquals("EncrpyptedObjectName2"));
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Location);
-		TestUtilities.checkResult("Location == us-east", strValue.contentEquals("us-east"));
+		TestUtilities.checkResult("Location == us-east-1", strValue.contentEquals("us-east-1"));
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EnableSessionMgnt);
 		TestUtilities.checkResult("EnableSessionManagement == 1", boolValue == true);
 
@@ -694,7 +694,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName);
 		TestUtilities.checkResult("ObjectName == EncrpyptedObjectName2", strValue.contentEquals("EncrpyptedObjectName2"));
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.Location);
-		TestUtilities.checkResult("Location == us-east", strValue.contentEquals("us-east"));
+		TestUtilities.checkResult("Location == us-east-1", strValue.contentEquals("us-east-1"));
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.EnableSessionMgnt);
 		TestUtilities.checkResult("EnableSessionManagement == 1", boolValue == true);
 

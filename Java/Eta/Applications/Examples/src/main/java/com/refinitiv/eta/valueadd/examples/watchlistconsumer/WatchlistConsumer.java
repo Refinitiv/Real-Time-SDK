@@ -174,7 +174,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-ax Specifies the Authentication Extended information.
  * <li>-aid Specifies the Application ID.
  * <li>-sessionMgnt (optional) Enable Session Management in the reactor.
- * <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.
+ * <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.
  * <li>-query (optional) Queries RDP service discovery to get an endpoint according to a specified connection type and location.
  * <li>-clientId Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
  * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.

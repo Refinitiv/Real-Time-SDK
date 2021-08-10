@@ -28,8 +28,7 @@ including:
  You can generate and manage client Ids by using the Eikon App Key Generator.
  This is found by visiting my.Refinitiv.com, launching Eikon, and
  searching for "App Key Generator". Eikon login is required to generate clientID.
-- location location to get an endpoint from RDP service discovery. Now, it is either
-"us-east" by default or "eu-west" (optional).
+- location location to get an endpoint from RDP service discovery. Default is "us-east-1" 
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 -websocket Use the WebSocket transport protocol (optional).
 -tokenURL URL to perform authentication to get access and refresh tokens (optional).

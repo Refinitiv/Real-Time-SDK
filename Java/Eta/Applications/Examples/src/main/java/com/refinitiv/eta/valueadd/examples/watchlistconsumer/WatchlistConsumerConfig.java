@@ -680,7 +680,7 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("aid", "", "Specifies the Application ID.");
 
 		CommandLine.addOption("sessionMgnt", "(optional) Enable Session Management in the reactor.");
-		CommandLine.addOption("l", "(optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.");
+		CommandLine.addOption("l", "(optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.");
 		CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
 		CommandLine.addOption("clientId", "Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.");
 		CommandLine.addOption("rtt", false, "(optional) Enable RTT support in the WatchList");

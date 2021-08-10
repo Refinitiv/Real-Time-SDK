@@ -389,7 +389,7 @@
 			<Host value="122.1.1.200"/>
 			<Port value="14010"/>
 			<ObjectName value="EncrpyptedObjectName2"/>
-			<Location value="us-east"/>
+			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
 		</Channel>
 		<Channel>

@@ -16,7 +16,7 @@ EmaString password;
 EmaString clientId;
 EmaString host;
 EmaString port;
-EmaString location("us-east");
+EmaString location("us-east-1");
 EmaString proxyHostName;
 EmaString proxyPort;
 EmaString proxyUserName;
@@ -145,7 +145,7 @@ void printHelp()
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
-		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east\"" << endl
+		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east-1\"" << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
 		<< " -tokenURL URL to perform authentication to get access and refresh tokens (optional)." << endl
 		<< " -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional)." << endl

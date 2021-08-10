@@ -21,7 +21,7 @@ public class ReactorConnectInfo
     {
         _connectOptions = TransportFactory.createConnectOptions();
         _enableSessionManagement = false;
-        _location = "us-east";
+        _location = "us-east-1";
         _reactorAuthTokenEventCallback = null;        
     }
 
@@ -79,7 +79,7 @@ public class ReactorConnectInfo
     {
         _connectOptions.clear();
         _enableSessionManagement = false;
-        _location = "us-east";
+        _location = "us-east-1";
         _reactorAuthTokenEventCallback = null;
         _initTimeout = DEFAULT_TIMEOUT;
     }
@@ -164,7 +164,7 @@ public class ReactorConnectInfo
     
      /**
      * Specifies the location to get a service endpoint to establish a connection with service provider.
-     * Defaults to "us-east if not specified. The Reactor always uses the endpoint which provides
+     * Defaults to "us-east-1 if not specified. The Reactor always uses the endpoint which provides
      * two available zones for the location.
      * 
      * @param location specifies the location endpoint
@@ -176,7 +176,7 @@ public class ReactorConnectInfo
 
     /**
      * Specifies the location to get a service endpoint to establish a connection with service provider.
-     * Defaults to "us-east if not specified. The Reactor always uses the endpoint which provides
+     * Defaults to "us-east-1 if not specified. The Reactor always uses the endpoint which provides
      * two available zones for the location.
      * 
      * @return the location of the endpoint

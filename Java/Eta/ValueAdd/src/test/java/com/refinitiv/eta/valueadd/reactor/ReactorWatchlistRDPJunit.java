@@ -2199,7 +2199,7 @@ public class ReactorWatchlistRDPJunit
 					
 					for (ReactorServiceEndpointInfo info : event.serviceEndpointInfo())
 					{
-						if( info.locationList().toString().contains("us-east") )
+						if( info.locationList().toString().contains("us-east-1") )
 						{
 							host = info.endPoint();
 							port = info.port();

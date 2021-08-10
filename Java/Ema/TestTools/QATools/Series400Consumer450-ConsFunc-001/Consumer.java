@@ -91,7 +91,7 @@ public class Consumer
 	static String proxyKrb5Configfile;
 	public static String host;
 	public static String port;
-	public static String location = "us-east";
+	public static String location = "us-east-1";
 	// API QA
 	static double tokenReissueRatio;
 	static int restRequestTimeout;
@@ -107,7 +107,7 @@ public class Consumer
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -location location to get an endpoint from RDP-RT service \r\n"
-	    		+ "\tdiscovery. Defaults to \"us-east\" (optional).\n"
+	    		+ "\tdiscovery. Defaults to \"us-east-1\" (optional).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n" 
 	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption.\n"

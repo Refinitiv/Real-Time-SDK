@@ -93,7 +93,7 @@ public class Consumer
 	static boolean connectWebSocket = false;
 	public static String host;
 	public static String port;
-	public static String location = "us-east";
+	public static String location = "us-east-1";
 
 	public static String itemName = "IBM.N";
 
@@ -108,7 +108,7 @@ public class Consumer
 	    		+ "  -password password to perform authorization with the token \r\n"
 	    		+ "\tservice (mandatory).\n"
 	    		+ "  -location location to get an endpoint from RDP service \r\n"
-	    		+ "\tdiscovery. Defaults to \"us-east\" (optional).\n"
+	    		+ "\tdiscovery. Defaults to \"us-east-1\" (optional).\n"
 	    		+ "  -clientId client ID for application making the request to \r\n"
 	    		+ "  -websocket Use the WebSocket transport protocol (optional) \r\n"
 	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"

@@ -165,7 +165,7 @@ or
 VAConsumer -encryptedSocket <service name> mp:TRI.N -uname <machine ID> -passwd <password> -clientId <Client ID> -sessionMgnt
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
-using the default "us-east" region and enable session management to login and subscribe TRI.N from
+using the default "us-east-1" region and enable session management to login and subscribe TRI.N from
 Refinitiv Real-Time - Optimized.
 
 - VAConsumer -? displays command line options.  

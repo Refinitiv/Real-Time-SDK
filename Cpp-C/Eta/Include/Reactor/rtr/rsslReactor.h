@@ -429,7 +429,7 @@ typedef struct
 												  * and port are not specified by users. The watchlist must be enable for the Reactor to send and reissue the token via the login
 												  * request to keep the connection alive on behalf of users.*/
 	RsslBuffer          location;                /*!< Specifies a location to get a service endpoint to establish a connection with service provider. 
-												  * Defaults to "us-east" if not specified. The Reactor always uses a endpoint which provides two availability zones 
+												  * Defaults to "us-east-1" if not specified. The Reactor always uses a endpoint which provides two availability zones 
 												  * for the location. */
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback; /*!< Callback function that receives RsslReactorAuthTokenEvents. The token is requested 
 	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
@@ -442,8 +442,8 @@ RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 	rsslClearConnectOpts(&pInfo->rsslConnectOptions);
 	pInfo->initializationTimeout = 60;
 	pInfo->enableSessionManagement = RSSL_FALSE;
-	pInfo->location.data = (char *)"us-east";
-	pInfo->location.length = 7;
+	pInfo->location.data = (char *)"us-east-1";
+	pInfo->location.length = 9;
 	pInfo->pAuthTokenEventCallback = NULL;
 }
 
