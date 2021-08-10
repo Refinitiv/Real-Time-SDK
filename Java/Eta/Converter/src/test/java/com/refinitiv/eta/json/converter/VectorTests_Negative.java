@@ -302,7 +302,7 @@ public class VectorTests_Negative {
     @Test
     public void testVector_encodeRWFEmptyEntries_shouldNotCrash() throws JsonProcessingException {
 
-        String wrongJson = "{\"CountHint\": 2,\"Summary\": {\"Fields\": {\"BID\": 45.01,\"BIDSIZE\": 18}},\"Entries\": [{}]}";
+        String wrongJson = "{\"CountHint\": 2,\"Summary\": {\"Fields\": {\"BID\": 45.01,\"BIDSIZE\": 18}},\"Entries\": []}";
 
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(200));
@@ -316,7 +316,7 @@ public class VectorTests_Negative {
     @Test
     public void testVector_encodeRWFEmptyEntries_NoSummary_shouldNotCrash() throws JsonProcessingException {
 
-        String wrongJson = "{\"CountHint\": 2,\"Entries\": [{}]}";
+        String wrongJson = "{\"CountHint\": 2,\"Entries\": []}";
 
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(200));
