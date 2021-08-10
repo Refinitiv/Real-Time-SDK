@@ -638,6 +638,86 @@ void partialUpdateTest()
 	ASSERT_TRUE(memcmp(outBuf, cacheBuffer.data, cacheBuffer.length) == 0); //String compare	
 }
 
+void partialUpdateConversionTest()
+{
+	RsslBuffer outBuffer;
+	RsslRmtesCacheBuffer cacheBuffer;
+	int ret;
+
+	printf("Partial update caching tests:\n\n");
+
+	sprintf(charBuf1, "abcdefghijkl");
+
+	cacheBuffer.data = charBuf1;
+	cacheBuffer.length = 12;
+	cacheBuffer.allocatedLength = 100;
+
+
+	outBuffer.data = charBuf2;
+	outBuffer.length = 100;
+
+	ASSERT_TRUE((ret = rsslRMTESToUTF8(&cacheBuffer, &outBuffer)) == RSSL_RET_SUCCESS); //UTF8
+
+	ASSERT_TRUE(outBuffer.length == 12); //buffer length is correct
+	ASSERT_TRUE(memcmp(outBuffer.data, cacheBuffer.data, cacheBuffer.length) == 0); //String compare
+
+	memcpy(charBuf1, inBuf1, 16 * sizeof(char));
+
+	cacheBuffer.data = charBuf1;
+	cacheBuffer.length = 16;
+	cacheBuffer.allocatedLength = 100;
+
+	outBuffer.data = charBuf2;
+	outBuffer.length = 100;
+
+	ASSERT_TRUE((ret = rsslRMTESToUTF8(&cacheBuffer, &outBuffer)) == RSSL_RET_SUCCESS); //UTF8
+
+	ASSERT_TRUE(outBuffer.length == 16); //buffer length is correct
+	ASSERT_TRUE(memcmp(outBuffer.data, cacheBuffer.data, cacheBuffer.length) == 0); //String compare
+
+	memcpy(charBuf1, inBuf2, 11 * sizeof(char));
+
+	cacheBuffer.data = charBuf1;
+	cacheBuffer.length = 11;
+	cacheBuffer.allocatedLength = 100;
+
+	outBuffer.data = charBuf2;
+	outBuffer.length = 100;
+
+	ASSERT_TRUE((ret = rsslRMTESToUTF8(&cacheBuffer, &outBuffer)) == RSSL_RET_SUCCESS); //UTF8
+
+	ASSERT_TRUE(outBuffer.length == 11); //buffer length is correct
+	ASSERT_TRUE(memcmp(outBuffer.data, cacheBuffer.data, cacheBuffer.length) == 0); //String compare
+
+	memcpy(charBuf1, inBuf3, 8 * sizeof(char));
+
+	cacheBuffer.data = charBuf1;
+	cacheBuffer.length = 8;
+	cacheBuffer.allocatedLength = 100;
+
+	outBuffer.data = charBuf2;
+	outBuffer.length = 100;
+
+	ASSERT_TRUE((ret = rsslRMTESToUTF8(&cacheBuffer, &outBuffer)) == RSSL_RET_SUCCESS); //UTF8
+
+	ASSERT_TRUE(outBuffer.length == 8); //buffer length is correct
+	ASSERT_TRUE(memcmp(outBuffer.data, cacheBuffer.data, cacheBuffer.length) == 0); //String compare
+
+	memcpy(charBuf1, inBuf4, 13 * sizeof(char));
+
+	cacheBuffer.data = charBuf1;
+	cacheBuffer.length = 13;
+	cacheBuffer.allocatedLength = 100;
+
+	outBuffer.data = charBuf2;
+	outBuffer.length = 100;
+
+	ASSERT_TRUE((ret = rsslRMTESToUTF8(&cacheBuffer, &outBuffer)) == RSSL_RET_SUCCESS); //UTF8
+
+	ASSERT_TRUE(outBuffer.length == 13); //buffer length is correct
+	ASSERT_TRUE(memcmp(outBuffer.data, cacheBuffer.data, cacheBuffer.length) == 0); //String compare
+}
+
 void controlParseTest()
 {
 	RsslRmtesWorkingSet testSet;
@@ -11896,6 +11976,11 @@ TEST(dateTimeStringToDateTimeTest, dateTimeStringValueRejected)
 TEST(partialUpdateTest, partialUpdateTest)
 {
 	partialUpdateTest();
+}
+
+TEST(partialUpdateConversionTest, partialUpdateConversionTest)
+{
+	partialUpdateConversionTest();
 }
 
 TEST(controlParseTest, controlParseTest)

@@ -181,11 +181,13 @@ class RmtesStringTestParams
 
 	RsslBuffer rmtesBuffer; /* RMTES buffer. */
 	RsslBuffer utf8Buffer; /* Corresponding UTF8 buffer (utf8Buffer.data will be NULL if the converted value in JSON should be null) */
+	RsslBuffer convertedUtf8Buffer; /* Corresponding UTF8 buffer after json->rwf conversion (utf8Buffer.data will be NULL if the converted value in JSON should be null) */
 
-	RmtesStringTestParams(RsslBuffer rmtesBuffer, RsslBuffer utf8Buffer)
+	RmtesStringTestParams(RsslBuffer rmtesBuffer, RsslBuffer utf8Buffer, RsslBuffer convertedUtf8Buffer)
 	{
 		this->rmtesBuffer = rmtesBuffer;
 		this->utf8Buffer = utf8Buffer;
+		this->convertedUtf8Buffer = convertedUtf8Buffer;
 	}
 
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
@@ -303,41 +305,59 @@ TEST_P(RmtesStringTestFixture, RmtesStringTest)
 	{
 		EXPECT_EQ(RSSL_RET_SUCCESS, rsslDecodeBuffer(&_dIter, &decodeBuffer));
 		/* Conversion from UTF8 to RMTES not available, so we should see the UTF8 string again. */
-		EXPECT_TRUE(rsslBufferIsEqual(&params.utf8Buffer, &decodeBuffer));
+		EXPECT_TRUE(rsslBufferIsEqual(&params.convertedUtf8Buffer, &decodeBuffer));
 	}
 }
 
-const RsslBuffer rmtesStringBuffers[][2] =
+const unsigned char partialUpdate1[] = { 0x1B, 0x5B, '1', '0', 0x60, 'm', 'n', 'o', '\0'};
+const unsigned char partialUpdate2[] = { 'a', 'b', 'c', 0x1B, 0x5B, '2', 0x60, 'd', 'e', 0x1B, 0x5B, '3', 0x62, '\0' };
+
+const unsigned char specialChar[] = { '0', '\\', '\b', '\f', '\n', '\r', '\t', 0x1B, 0x5B, '2', 0x60, '/', '\0' };
+
+
+
+const RsslBuffer rmtesStringBuffers[][3] =
 {
 	/* First buffer is the Rmtes string, second is the corresponding Utf8 string */
 
 	/* Value is Ascii-only. UTF8 string should be identical */
-	{{ 4, (char*)"TEST" }, {4, (char*)"TEST"}},
+	{{ 4, (char*)"TEST" }, {4, (char*)"TEST"}, {4, (char*)"TEST"} },
 
 	/* RmtesString is blank. Utf8 result should be null*/
-	{{ 0, (char*)"" }, {0, (char*)NULL}},
+	{{ 0, (char*)"" }, {0, (char*)NULL}, {0, (char*)NULL}},
 
 	/* RmtesString contains only null bytes. Those will be discarded, so Utf8 result should be null. */
-	{{ 4, (char*)"\0\0\0\0" }, {0, (char*)NULL}},
+	{{ 4, (char*)"\0\0\0\0" }, {0, (char*)NULL}, {0, (char*)NULL}},
 
 	/* Value contains null bytes. UTF8 should drop them. */
-	{{ 8, (char*)"TEST\0\0\0\0" }, {4, (char*)"TEST"}},
+	{{ 8, (char*)"TEST\0\0\0\0" }, {4, (char*)"TEST"}, {4, (char*)"TEST"}},
 
 	/* Value contains null bytes. UTF8 should drop them. */
-	{{ 12, (char*)"TEST\0\0\0\0TEST" }, {8, (char*)"TESTTEST"}},
+	{{ 12, (char*)"TEST\0\0\0\0TEST" }, {8, (char*)"TESTTEST"},  {8, (char*)"TESTTEST"}},
 
 	/* Value contains null bytes. UTF8 should drop them. */
-	{{ 8, (char*)"\0\0\0\0TEST" }, {4, (char*)"TEST"}}
+	{{ 8, (char*)"\0\0\0\0TEST" }, {4, (char*)"TEST"}, {4, (char*)"TEST"}},
+
+	/* Value contains a partial update. UTF8 should convert it to \u001b. */
+	{ { 8, (char*)partialUpdate1 }, {8, (char*)partialUpdate1}, { 8, (char*)partialUpdate1 }},
+
+	/* Value contains a partial update. UTF8 should convert it to \u001b. */
+	{ { 13, (char*)partialUpdate2 }, {13, (char*)partialUpdate2}, { 13, (char*)partialUpdate2 }},
+	/* Value contains special characters */
+	{ { 12, (char*)specialChar }, {12, (char*)specialChar}, { 12, (char*)specialChar }}
 };
 
 /* Test cases for Rmtes strings. */
 INSTANTIATE_TEST_CASE_P(PrimitiveTests, RmtesStringTestFixture, ::testing::Values(
-	RmtesStringTestParams(rmtesStringBuffers[0][0], rmtesStringBuffers[0][1]),
-	RmtesStringTestParams(rmtesStringBuffers[1][0], rmtesStringBuffers[1][1]),
-	RmtesStringTestParams(rmtesStringBuffers[2][0], rmtesStringBuffers[2][1]),
-	RmtesStringTestParams(rmtesStringBuffers[3][0], rmtesStringBuffers[3][1]),
-	RmtesStringTestParams(rmtesStringBuffers[4][0], rmtesStringBuffers[4][1]),
-	RmtesStringTestParams(rmtesStringBuffers[5][0], rmtesStringBuffers[5][1])
+	RmtesStringTestParams(rmtesStringBuffers[0][0], rmtesStringBuffers[0][1], rmtesStringBuffers[0][2]),
+	RmtesStringTestParams(rmtesStringBuffers[1][0], rmtesStringBuffers[1][1], rmtesStringBuffers[1][2]),
+	RmtesStringTestParams(rmtesStringBuffers[2][0], rmtesStringBuffers[2][1], rmtesStringBuffers[2][2]),
+	RmtesStringTestParams(rmtesStringBuffers[3][0], rmtesStringBuffers[3][1], rmtesStringBuffers[3][2]),
+	RmtesStringTestParams(rmtesStringBuffers[4][0], rmtesStringBuffers[4][1], rmtesStringBuffers[4][2]),
+	RmtesStringTestParams(rmtesStringBuffers[5][0], rmtesStringBuffers[5][1], rmtesStringBuffers[5][2]),
+	RmtesStringTestParams(rmtesStringBuffers[6][0], rmtesStringBuffers[6][1], rmtesStringBuffers[6][2]),
+	RmtesStringTestParams(rmtesStringBuffers[7][0], rmtesStringBuffers[7][1], rmtesStringBuffers[7][2]),
+	RmtesStringTestParams(rmtesStringBuffers[8][0], rmtesStringBuffers[8][1], rmtesStringBuffers[8][2])
 ));
 
 class FloatTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<float>
