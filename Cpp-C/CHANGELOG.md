@@ -1,6 +1,6 @@
 This is the change log of the Refinitiv Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK. 
+Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elektron SDK or ESDK. 
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
@@ -9,22 +9,39 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.G1 aka EMA 3.6.2.G1 and ETA 3.6.2.G1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.G2 aka EMA 3.6.2.G2 and ETA 3.6.2.G2 
 ----------------------------------------------------------------------------------------
 
-This is a maintenace release consisting of a fix to customer issue.
-
-Customer Issues Resolved
-------------------
-- [RTSDK-5350] - Websocket Transport: Fix to transport to compress message and then fragment to address "Invalid Frame Header" error 
+This is a maintenance release consisting of fixes. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.0.2.G2 (Aug 11, 2021)
+--------------------------------------------
+
+This is a maintenance release consisting of a fix to customer issue.
+
+ETA C 3.6.2.G2 Issues Resolved
+--------------------------------
+- [RTSDK-5431] - Permitted RMTES partial updates to be sent without buffering 
+
+EMA C++ 3.6.2.G2 Issues Resolved
+--------------------------------
+- [RTSDK-5450] - Altered EMA RDP applications (113 & 450) to take URL overrides for token URL and service discovery URL 
+
+Both ETA C and EMA C++ 3.6.2.G2 Issues Resolved
+-----------------------------------------------
+- [RTSDK-5411] - Change to default location for RTO from us-east to us-east-1 due to addition of us-east-2
+- [RTSDK-5440] - Update to documentation to change default location for RTO from us-east to us-east-1 due to addition of us-east-2
+
+--------------------------------------------
 RTSDK C++/C Release 2.0.2.G1 (Aug 6, 2021)
 --------------------------------------------
+
+This is a maintenance release consisting of a fix to customer issue.
 
 ETA C 3.6.2.G1 Issues Resolved
 --------------------------------
@@ -39,7 +56,7 @@ Both ETA C and EMA C++ 3.6.2.G1 Issues Resolved
 RTSDK C++/C Release 2.0.2.L1 (Jun 23, 2021)
 --------------------------------------------
 
-This is a maintenace release consisting of fixes to customer issues, support for EMA C++ Interactive ProvPerf and EMA C++ NIProvPerf tools and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics.
+This is a maintenance release consisting of fixes to customer issues, support for EMA C++ Interactive ProvPerf and EMA C++ NIProvPerf tools and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics.
 
 EMA C++ 3.6.2.L1 Issues Resolved
 --------------------------------
@@ -236,14 +253,14 @@ EMA C++ 3.5.0.G1 Issues Resolved
 - [RTSDK-3843] Support SO_REUSEADDR to permit server side socket to be reused for loadbalancing
 - [RTSDK-3907] Ema Cons113 Example does NOT work with EncryptedProtocolType::RSSL_WEBSOCKET
 - [RTSDK-3908] Support EMA RDP Websocket encrypted connection example 
-- [RTSDK-3933] Suppport Round Trip Latency Monitoring
+- [RTSDK-3933] Support Round Trip Latency Monitoring
 - [RTSDK-3988] Change EMA RDP example to take RIC as an input
 
 ETA C 3.5.0.G1 Issues Resolved
 --------------------------------
 - [RTSDK-1650] rsslDoubleToReal conversion UPA C API lib function doesn't work as we expected [Case Number: 06708565]
 - [RTSDK-3441] ETA Reactor API persistently retains memory and is not released until shutdown [Case Number: 07823520]
-- [RTSDK-3819] Suppport Round Trip Latency Monitoring
+- [RTSDK-3819] Support Round Trip Latency Monitoring
 - [RTSDK-3850] VS110 and VS120 json conversion test issues
 - [RTSDK-3897] Access Violation Closing Reactor Tunnel (over SSL) [Github #139]
 - [RTSDK-3963] Add ability to catch WSAEWOULDBLOCK  error
@@ -262,7 +279,7 @@ RTSDK C++/C Release 1.5.0.L1 (Mar 31, 2020)
 
 New Features Added
 ------------------
-This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library.
+This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS transport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library.
 
 EMA C++ 3.5.0.L1 Issues Resolved
 --------------------------------

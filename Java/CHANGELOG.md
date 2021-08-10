@@ -1,6 +1,6 @@
 This is the change log of the Refinitiv Real-Time SDK (RTSDK) for Java. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
-Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elekton SDK or ESDK.
+Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elektron SDK or ESDK.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number.
 
@@ -9,25 +9,35 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.2.G1 aka EMA 3.6.2.G1 and ETA 3.6.2.G1
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.2.G2 aka EMA 3.6.2.G2 and ETA 3.6.2.G2
 ----------------------------------------------------------------------------------------
 
-This is a maintenace release consisting of a fix to customer issue.
-
-Customer Issues Resolved
-------------------------
-- [Case Number: 10057447] - [RTSDK-5292] - NullPointerException in EMA library due to improper login request initialization upon re-submit (submit fails under load) with session mgmt enabled 
-
+This is a maintenance release consisting of fixes.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.0.2.G2 (Aug 11, 2021)
+--------------------------------------------
+
+This is a maintenance release consisting of fixes.
+
+EMA Java 3.6.2.G2 Issues Resolved
+---------------------------------
+- [RTSDK-5450] - Altered EMA RDP applications (113 & 450) to take URL overrides for token URL and service discovery URL 
+
+Both ETA Java and EMA Java 3.6.2.G2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-5411] - Change to default location for RTO from us-east to us-east-1 due to addition of us-east-2
+- [RTSDK-5440] - Update to documentation to change default location for RTO from us-east to us-east-1 due to addition of us-east-2
+
+--------------------------------------------
 RTSDK Java Release 2.0.2.G1 (Aug 6, 2021)
 --------------------------------------------
 
-This is a maintenace release consisting of fixes.
+This is a maintenance release consisting of a fix to customer issue.
 
 Both ETA Java and EMA Java 3.6.2.G1 Issues Resolved
 ---------------------------------------------------
@@ -40,7 +50,7 @@ RTSDK Java Release 2.0.2.L1 (Jun 23, 2021)
 
 New Features Added
 ------------------
-This is a maintenace release consisting of fixes to customer issues, fixes for the Refinitiv Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
+This is a maintenance release consisting of fixes to customer issues, fixes for the Refinitiv Real-Time Market Data Viewer (RRTViewer) and changes to ConsPerf tool to provide overhead of RWF to JSON conversion in application and to improve statistics. 
 
 EMA Java 3.6.2.L1 Issues Resolved
 ---------------------------------
@@ -85,7 +95,7 @@ RTSDK Java Release 2.0.1.G1 (April 21, 2021)
 
 New Features Added
 ------------------
-This is a maintenace release which also introduces the Refinitiv Real-Time Market Data Viewer (RRTViewer), a OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an OMM Provider.
+This is a maintenance release which also introduces the Refinitiv Real-Time Market Data Viewer (RRTViewer), a OMM Consumer application with support for several connection types and connectivity to Advanced Distribution Server, Refinitiv Real-Time - Optimized (RRTO) or an OMM Provider.
 
 EMA Java 3.6.1.G1 Issues Resolved
 ---------------------------------
@@ -114,7 +124,7 @@ RTSDK Java Release 2.0.1.L1 (March 4, 2021)
 
 New Features Added
 ------------------
-This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS tranport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library. This release adds Server Side Encryption support in EMA and ETA.
+This release introduces support for Websocket Transport in RTSDK with capabilities like compression, fragmentation and packing. With WS transport, user can choose either JSON (rssl.json.v2 aka tr_json2; tr_json2 will be deprecated) or RWF (rssl_rwf) data formats to send over the wire. Application layer will continue to receive data in RWF data format. In addition, conversion from RWF to JSON and vice versa is also available as part of librssl and as a separate shared library. This release adds Server Side Encryption support in EMA and ETA.
 
 EMA Java 3.6.1.L1 Issues Resolved
 ---------------------------------
@@ -288,7 +298,7 @@ ETA Java 3.5.0.G1 Issues Resolved
 - [RTSDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance [Case Number: 07697024 and GitHub # 141]
 - [RTSDK-3823] Support release of memory used by reactor events by adding maxEventsInPool
 - [RTSDK-3847] ETA Build warnings using JDK1.11
-- [RTSDK-3918] ETAJ+Reactor: Suppport Round Trip Latency Monitoring
+- [RTSDK-3918] ETAJ+Reactor: Support Round Trip Latency Monitoring
 
 Both ETA Java and EMA Java 3.5.0.G1 Issues Resolved
 ---------------------------------------------------
