@@ -35,6 +35,8 @@ void printHelp()
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
+		<< " -tokenURL URL to perform authentication to get access and refresh tokens (optional)." << endl
+		<< " -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional)." << endl
 		<< " -itemName Request item name (optional)." << endl
 		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
@@ -101,6 +103,20 @@ int main( int argc, char* argv[] )
 					{
 						config.takeExclusiveSignOnControl( false );
 					}
+				}
+			}
+			else if (strcmp(argv[i], "-tokenURL") == 0)
+			{
+				if ( i < (argc - 1) )
+				{
+					config.tokenServiceUrl( argv[++i] );
+				}
+			}
+			else if (strcmp(argv[i], "-serviceDiscoveryURL") == 0)
+			{
+				if ( i < (argc - 1) )
+				{
+					config.serviceDiscoveryUrl( argv[++i] );
 				}
 			}
 			else if (strcmp(argv[i], "-itemName") == 0)

@@ -97,6 +97,9 @@ public class Consumer
 
 	public static String itemName = "IBM.N";
 
+	public static String tokenUrl = "https://api.refinitiv.com/auth/oauth2/v1/token";
+	public static String serviceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/";
+
 	static void printHelp()
 	{
 	    System.out.println("\nOptions:\n" + "  -?\tShows this usage\n"
@@ -112,6 +115,8 @@ public class Consumer
 	    		+ "  -keyfile keystore file for encryption.\n"
 	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keypasswd keystore password for encryption.\n"
+				+ "  -tokenURL URL to perform authentication to get access and refresh tokens (optional).\n"
+				+ "  -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 	    		+ "  -itemName Request item name (optional).\n"
 	    		+ "  -ph Proxy host name (optional).\n"
@@ -222,6 +227,22 @@ public class Consumer
     				connectWebSocket = true;
     				++argsCount;
     			}
+				else if ("-tokenURL".equals(args[argsCount]))
+				{
+					if ( argsCount < (args.length-1) ) {
+						tokenUrl = args[++argsCount];
+						config.tokenServiceUrl( tokenUrl );
+					}
+					++argsCount;
+				}
+				else if ("-serviceDiscoveryURL".equals(args[argsCount]))
+				{
+					if ( argsCount < (args.length-1) ) {
+						serviceDiscoveryUrl = args[++argsCount];
+						config.serviceDiscoveryUrl( serviceDiscoveryUrl );
+					}
+					++argsCount;
+				}
     			else // unrecognized command line argument
     			{
     				printHelp();
@@ -312,12 +333,13 @@ public class Consumer
 		try
 		{
 			AppClient appClient = new AppClient();
-			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery();
 			OmmConsumerConfig config = EmaFactory.createOmmConsumerConfig();
 			Map configDb = EmaFactory.createMap();
 			
 			if (!readCommandlineArgs(args, config)) return;
-			
+
+			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery(tokenUrl, serviceDiscoveryUrl);
+
 			serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().username(userName)
 					.password(password).clientId(clientId)
 					.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)

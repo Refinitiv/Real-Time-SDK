@@ -35,6 +35,8 @@ including:
 -keyfile keystore file for creating an encrypted connection.
 -keypasswd keystore password for creating an encrypted connection.
 Note: please refer to README.md of RTSDK Java for generating a keystore file.
+-tokenURL URL to perform authentication to get access and refresh tokens (optional).
+-serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.
