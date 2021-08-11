@@ -73,7 +73,7 @@ or
 WatchlistConsumer -c encrypted -ec socket -s <service name> -u <machine ID> -passwd <password> -clientId <client ID> -sessionMgnt
 
 The above example command line is used to create an encrypted connection with the socket encrypted protocol type
-using the default "us-east" region and enable session management to login and subscribe data from Refinitiv Real-Time - Optimized. 
+using the default "us-east-1" region and enable session management to login and subscribe data from Refinitiv Real-Time - Optimized. 
 
 or
 
@@ -119,7 +119,7 @@ Specifying the -takeExclusiveSignOnControl <true/false> option will set exclusiv
 for the same credentials when enabling the session management. Defaults to true.
 
 The -l option specifies a location name that is used to get an endpoint from the
-RDP service discovery information. Defaults to "us-east".
+RDP service discovery information. Defaults to "us-east-1".
 
 Specifying the -query option to query the RDP service discovery to get an endpoint
 according to the specified connection type and location name.

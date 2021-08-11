@@ -246,7 +246,7 @@ int UTF8ToUCS2(unsigned char *UTF_char, RsslUInt16* iter, unsigned char* endChar
 }
 
 /*	Parses the characters for a control group sequence for conversion ( first character is between 0x00 and 0x1F(CL) or between 0x70 and 0x8F(CR) ) 
-	If error returned, this means that the sequence is either invalid, or contains a partial update/repeat character sequence (these should be removed from the buffer with the applyToCache function)
+	If error returned, this means that the sequence is invalid.
 	Otherwise, returns codes for success if a working set change is correctly appiled, or that the next character is a shift value.
 */
 int controlParse(unsigned char* curPtr, unsigned char* endPtr, RsslRmtesWorkingSet* currentSet, ESCReturnCode *retCode)
@@ -540,27 +540,41 @@ int controlParse(unsigned char* curPtr, unsigned char* endPtr, RsslRmtesWorkingS
 					return 0;
 				}
 				break;
-			case ERROR:
-			case NORMAL:
 			case LBRKT:
-			case RHPA:
-			case RREP:
+				while (*iIter >= '0' && *iIter <= '9')
+				{
+					++iIter;
+					++length;
+				}
+
+				if (*iIter == RHPA_CHAR)
+				{
+					*retCode = RHPA_CMD;
+					return length;
+				}
+				else if (*iIter == RREP_CHAR)
+				{
+					*retCode = RREP_CMD;
+					return length;
+				}
+				else
+				{
+					*retCode = ESC_ERROR;
+					return 0;
+				}
+				break;
+			case ERROR:
+				*retCode = ESC_ERROR;
+				return 0;
+			case NORMAL:
 			  break;
 		}
 		state = newState;
 		
 	} while(iIter <= endPtr && newState != NORMAL);
 	
-	if(state == NORMAL)
-	{
-		*retCode = ESC_SUCCESS;
-		return length;
-	}
-	else
-	{
-		*retCode = ESC_ERROR;
-		return 0;
-	}
+	*retCode = ESC_SUCCESS;
+	return length;
 }
 	
 /* Assumptions: all updates have already been applied to the RMTES buffer... there should be no repeat or cursor move commands */
@@ -575,6 +589,7 @@ RSSL_API RsslRet rsslRMTESToUTF8(RsslRmtesCacheBuffer *pRmtesBuffer, RsslBuffer 
 	unsigned char* endInput;
 	char* endOutput;
 	EncodeType encType = TYPE_RMTES;
+	int i;
 
 	unsigned char* tempChar;
 	unsigned short tempShort;
@@ -609,8 +624,7 @@ RSSL_API RsslRet rsslRMTESToUTF8(RsslRmtesCacheBuffer *pRmtesBuffer, RsslBuffer 
 			{
 				if(shiftGL != NULL)
 					return RSSL_RET_FAILURE;
-				else
-				if((ret = controlParse(inIter, endInput, &curWorkingSet, &retCode)) == 0)
+				else if((ret = controlParse(inIter, endInput, &curWorkingSet, &retCode)) == 0)
 				{
 					if(retCode == ESC_ERROR)
 						return RSSL_RET_FAILURE;
@@ -632,9 +646,28 @@ RSSL_API RsslRet rsslRMTESToUTF8(RsslRmtesCacheBuffer *pRmtesBuffer, RsslBuffer 
 				}
 				else
 				{
-					inIter += ret;
-					if(retCode == UTF_ENC)
-						encType = TYPE_UTF8;
+					if (retCode == RREP_CMD || retCode == RHPA_CMD)
+					{
+						for (i = 0; i < ret; ++i)
+						{
+							if (outIter >= endOutput)
+							{
+								return RSSL_RET_BUFFER_TOO_SMALL;
+							}
+							else
+							{
+								*outIter = *inIter;
+								outIter++;
+								inIter++;
+							}
+						}
+					}
+					else
+					{
+						inIter += ret;
+						if (retCode == UTF_ENC)
+							encType = TYPE_UTF8;
+					}
 				}
 			}
 			else if ((*curWorkingSet.GL)->_shape == SHAPE_94 && *inIter == 0x20)
@@ -810,7 +843,28 @@ RSSL_API RsslRet rsslRMTESToUTF8(RsslRmtesCacheBuffer *pRmtesBuffer, RsslBuffer 
 					return RSSL_RET_FAILURE;
 				}
 				else
-					inIter += ret;
+				{
+					if (retCode == RREP_CMD || retCode == RHPA_CMD)
+					{
+						for (i = 0; i < ret; ++i)
+						{
+							if (outIter >= endOutput)
+							{
+								return RSSL_RET_BUFFER_TOO_SMALL;
+							}
+							else
+							{
+								*outIter = *inIter;
+								outIter++;
+								inIter++;
+							}
+						}
+					}
+					else
+					{
+						inIter += ret;
+					}
+				}
 			}
 			else /* Just copy the data, since it's already encoded in UTF8 */
 			{
@@ -837,6 +891,7 @@ RSSL_API RsslRet rsslRMTESToUCS2(RsslRmtesCacheBuffer *pRmtesBuffer, RsslU16Buff
 	unsigned char* endInput;
 	unsigned short* endOutput;
 	EncodeType encType = TYPE_RMTES;
+	int i;
 
 	unsigned char* tempChar;
 	unsigned short tempShort;
@@ -891,9 +946,28 @@ RSSL_API RsslRet rsslRMTESToUCS2(RsslRmtesCacheBuffer *pRmtesBuffer, RsslU16Buff
 				}
 				else
 				{
-					inIter += ret;
-					if(retCode == UTF_ENC)
-						encType = TYPE_UTF8;
+					if (retCode == RREP_CMD || retCode == RHPA_CMD)
+					{
+						for (i = 0; i < ret; ++i)
+						{
+							if (outIter >= endOutput)
+							{
+								return RSSL_RET_BUFFER_TOO_SMALL;
+							}
+							else
+							{
+								*outIter = (unsigned short)*inIter;
+								outIter++;
+								inIter++;
+							}
+						}
+					}
+					else
+					{
+						inIter += ret;
+						if (retCode == UTF_ENC)
+							encType = TYPE_UTF8;
+					}
 				}
 			}
 			else if((*curWorkingSet.GL)->_shape == SHAPE_94 && *inIter == 0x20) /* Space character, if 94 character set */
@@ -1041,16 +1115,32 @@ RSSL_API RsslRet rsslRMTESToUCS2(RsslRmtesCacheBuffer *pRmtesBuffer, RsslU16Buff
 		{
 			if(*inIter == 0x1B) /* Escape control character */
 			{
-				if((ret = controlParse(inIter, endInput, &curWorkingSet, &retCode)) < 0)
+				if((ret = controlParse(inIter, endInput, &curWorkingSet, &retCode)) == 0)
 				{
 					return RSSL_RET_FAILURE;
 				}
 				else
 				{
-					if(ret == 0)
-						inIter++;
+					if (retCode == RREP_CMD || retCode == RHPA_CMD)
+					{
+						for (i = 0; i < ret; ++i)
+						{
+							if (outIter >= endOutput)
+							{
+								return RSSL_RET_BUFFER_TOO_SMALL;
+							}
+							else
+							{
+								*outIter = (unsigned short)*inIter;
+								outIter++;
+								inIter++;
+							}
+						}
+					}
 					else
+					{
 						inIter += ret;
+					}
 				}
 			}
 			else /* Just copy the data, since it's already encoded in UTF8 */

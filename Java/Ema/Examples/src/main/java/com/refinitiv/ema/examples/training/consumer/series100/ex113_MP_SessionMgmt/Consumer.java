@@ -64,6 +64,8 @@ public class Consumer {
 						   + "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 						   + "  -keyfile keystore file for encryption (mandatory).\n"
 						   + "  -keypasswd keystore password for encryption (mandatory).\n"
+						   + "  -tokenURL URL to perform authentication to get access and refresh tokens (optional).\n"
+						   + "  -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).\n"
 						   + "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 						   + "  -itemName Request item name (optional).\n"
 						   + "  -ph Proxy host name (optional).\n"
@@ -168,6 +170,22 @@ public class Consumer {
 				else if ("-websocket".equals(args[argsCount]))
 				{
 					connectWebSocket = true;
+					++argsCount;
+				}
+				else if ("-tokenURL".equals(args[argsCount]))
+				{
+					if ( argsCount < (args.length-1) )
+					{
+						config.tokenServiceUrl( args[++argsCount] );
+					}
+					++argsCount;
+				}
+				else if ("-serviceDiscoveryURL".equals(args[argsCount]))
+				{
+					if ( argsCount < (args.length-1) )
+					{
+						config.serviceDiscoveryUrl( args[++argsCount] );
+					}
 					++argsCount;
 				}
 				else // unrecognized command line argument

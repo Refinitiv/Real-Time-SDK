@@ -61,7 +61,7 @@ void printUsageAndExit(int argc, char **argv)
 			" -if      Specifies the address of a specific network interface to use.\n"
 			" -clientId    Specifies an unique ID for application making the request to RDP token service (mandatory).\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
-			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
+			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.\n"
 			" -query       Quries RDP service discovery to get an endpoint according the specified connection type and location.\n"
 			" -mp      For each occurance, requests item using Market Price domain.\n"
 			" -mbo     For each occurance, requests item on the Market By Order domain.\n"

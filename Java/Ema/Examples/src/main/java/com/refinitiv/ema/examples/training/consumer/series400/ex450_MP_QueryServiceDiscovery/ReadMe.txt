@@ -30,11 +30,12 @@ including:
  searching for "App Key Generator". Eikon login is required to generate clientID.
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
 -websocket Use the WebSocket transport protocol (optional).
--location location to get an endpoint from Refinitiv Data Platform service discovery. Now, it is either
- "us-east" by default or "eu-west" (optional).
+-location location to get an endpoint from Refinitiv Data Platform service discovery. Default is "us-east-1" 
 -keyfile keystore file for creating an encrypted connection.
 -keypasswd keystore password for creating an encrypted connection.
 Note: please refer to README.md of RTSDK Java for generating a keystore file.
+-tokenURL URL to perform authentication to get access and refresh tokens (optional).
+-serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.

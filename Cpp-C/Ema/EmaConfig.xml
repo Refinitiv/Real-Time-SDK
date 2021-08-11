@@ -369,7 +369,7 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<!-- EMA discovers a host and a port from RDP service discovery for the specified location 
 			    when both of them are not set and the session management is enable. -->
-			<Location value="us-east"/>
+			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
 			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
 			<!-- ObjectName is optional: defaulted to ""												-->
@@ -383,7 +383,7 @@
 			<ConnectionPingTimeout value="30000"/>
 			<TcpNodelay value="1"/>
 			<WsMaxMsgSize value="61440"/>
-			<Location value="us-east"/>
+			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
 			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
 			<WsProtocols value="tr_json2"/>
@@ -446,7 +446,7 @@
 			<GuaranteedOutputBuffers value="5000"/>
 			<!-- EMA discovers a host and a port from RDP service discovery for the specified location 
 			    when both of them are not set and the session management is enable. -->
-			<Location value="us-east"/>
+			<Location value="us-east-1"/>
 			<EnableSessionManagement value="1"/>
 			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
 			<WsMaxMsgSize value="61440"/>

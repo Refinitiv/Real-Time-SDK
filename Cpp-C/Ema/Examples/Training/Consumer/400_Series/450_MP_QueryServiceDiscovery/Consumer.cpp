@@ -16,7 +16,7 @@ EmaString password;
 EmaString clientId;
 EmaString host;
 EmaString port;
-EmaString location("us-east");
+EmaString location("us-east-1");
 EmaString proxyHostName;
 EmaString proxyPort;
 EmaString proxyUserName;
@@ -24,6 +24,8 @@ EmaString proxyPasswd;
 EmaString proxyDomain;
 bool takeExclusiveSignOnControl = true;
 bool connectWebSocket = false;
+EmaString tokenUrl("https://api.refinitiv.com/auth/oauth2/v1/token");
+EmaString serviceDiscoveryUrl("https://api.refinitiv.com/streaming/pricing/v1/");
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -143,8 +145,10 @@ void printHelp()
 		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
 		<< " -password password to perform authorization with the token service (mandatory)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
-		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east\"" << endl
+		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east-1\"" << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
+		<< " -tokenURL URL to perform authentication to get access and refresh tokens (optional)." << endl
+		<< " -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional)." << endl
 		<< " -itemName Request item name (optional)." << endl
 		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
@@ -161,7 +165,6 @@ int main( int argc, char* argv[] )
 		AppClient client;
 		Map configDb;
 		OmmConsumerConfig config;
-		ServiceEndpointDiscovery serviceDiscovery;
 
 		EmaString itemName = "IBM.N";
 
@@ -202,6 +205,22 @@ int main( int argc, char* argv[] )
 					{
 						takeExclusiveSignOnControl = false;
 					}
+				}
+			}
+			else if (strcmp(argv[i], "-tokenURL") == 0)
+			{
+				if ( i < (argc - 1) )
+				{
+					tokenUrl.set( argv[++i] );
+					config.tokenServiceUrl( tokenUrl );
+				}
+			}
+			else if (strcmp(argv[i], "-serviceDiscoveryURL") == 0)
+			{
+				if ( i < (argc - 1) )
+				{
+					serviceDiscoveryUrl.set( argv[++i] );
+					config.serviceDiscoveryUrl( serviceDiscoveryUrl );
 				}
 			}
 			else if (strcmp(argv[i], "-itemName") == 0)
@@ -248,6 +267,7 @@ int main( int argc, char* argv[] )
 		}
 
 		// Query endpoints from RDP service discovery for the TCP protocol
+		ServiceEndpointDiscovery serviceDiscovery(tokenUrl, serviceDiscoveryUrl);
 		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
 			.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
 			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
@@ -261,7 +281,7 @@ int main( int argc, char* argv[] )
 
 		createProgramaticConfig( configDb );
 
-		OmmConsumer consumer( OmmConsumerConfig().consumerName( "Consumer_1" ).username( userName ).password( password )
+		OmmConsumer consumer( config.consumerName( "Consumer_1" ).username( userName ).password( password )
 			.clientId( clientId ).config( configDb ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
 			.tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
 			.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain ) );

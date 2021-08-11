@@ -29,6 +29,8 @@ including:
  searching for "App Key Generator". Eikon login is required to generate clientID.
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
 -websocket Use the WebSocket transport protocol (optional).
+-tokenURL URL to perform authentication to get access and refresh tokens (optional).
+-serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
 
 Optional RIC item name parameters.
 -itemName Request item name (optional). The default item name is IBM.N.

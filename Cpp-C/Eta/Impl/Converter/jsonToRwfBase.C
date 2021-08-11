@@ -1082,10 +1082,77 @@ bool jsonToRwfBase::processAsciiString(jsmntok_t ** const tokPtr, RsslBuffer ** 
 	{
 		if ( *fromAddr == '\\' )
 		{
-			fromAddr++;
-			i++;
+			if (fromAddr + 1 >= &_jsonMsg[(*tokPtr)->end])
+			{
+				unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+				_errorToken = *tokPtr;
+				return false;
+			}
+			++fromAddr;
+			++i;
+
+			switch (*fromAddr)
+			{
+				case '\\':
+				case '"':
+				case '/':
+					*toAddr = *fromAddr;
+					break;
+				case 'b':
+					*toAddr = '\b';
+					break;
+				case 'f':
+					*toAddr = '\f';
+					break;
+				case 'n':
+					*toAddr = '\n';
+					break;
+				case 'r':
+					*toAddr = '\r';
+					break;
+				case 't':
+					*toAddr = '\t';
+					break;
+				case 'u':
+				{
+					if (fromAddr + 4 >= &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+						_errorToken = *tokPtr;
+						return false;
+					}
+
+					unsigned int tmpInt;
+					if (sscanf(fromAddr, "u%04x", &tmpInt) != 1)
+					{
+						unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+						_errorToken = *tokPtr;
+						return false;
+					}
+					fromAddr += 4;
+					i += 4;
+
+					if ((tmpInt >= 0x00) && (tmpInt <= 0x7F))
+					{
+						*toAddr = tmpInt;
+						break;
+					}
+
+					unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+					_errorToken = *tokPtr;
+					return false;
+				}
+				default:
+				{
+					unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+					_errorToken = *tokPtr;
+					return false;
+				}
+
+			}
 		}
-		*toAddr = *fromAddr;
+		else
+			*toAddr = *fromAddr;
 	}
 
 	(*ptrBufPtr)->length = (rtrUInt32)(toAddr - &_jsonMsg[(*tokPtr)->start]);

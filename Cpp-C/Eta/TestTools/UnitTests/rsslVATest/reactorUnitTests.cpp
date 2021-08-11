@@ -1711,12 +1711,10 @@ struct ReactorServiceDiscoveryEndpointResult
 	RsslUInt32 NumServiceEndpointInfo;
 	RsslUInt32 Num_rwf_DataFormat;
 	RsslUInt32 Num_tr_json2_DataFormat;
-	RsslUInt32 Num_apac_endpoints;
-	RsslUInt32 Num_emea_endpoints;
-	RsslUInt32 Num_amer_endpoints;
-	RsslUInt32 Num_us_east_locations;
-	RsslUInt32 Num_eu_west_locations;
-	RsslUInt32 Num_ap_se_locations;
+	RsslUInt32 Num_ohio_endpoints;
+	RsslUInt32 Num_use1_locations;
+	RsslUInt32 Num_euw1_locations;
+	RsslUInt32 Num_apse1_locations;
 	RsslUInt32 Num_14002_port;
 	RsslUInt32 Num_443_port;
 	RsslUInt32 Num_aws_provider;
@@ -1762,26 +1760,20 @@ RsslBool validateServiceDiscoveryEndpoints(RsslReactorServiceEndpointEvent *even
 			}
 		}
 
-		if (strncmp("amer-", pReactorServiceEndpointInfo->endPoint.data, 5) == 0) {
-			actualResult.Num_amer_endpoints++;
-		}
-		else if (strncmp("emea-", pReactorServiceEndpointInfo->endPoint.data, 5) == 0) {
-			actualResult.Num_emea_endpoints++;
-		}
-		else if (strncmp("apac-", pReactorServiceEndpointInfo->endPoint.data, 5) == 0) {
-			actualResult.Num_apac_endpoints++;
+		if (strncmp("us-east-2-", pReactorServiceEndpointInfo->endPoint.data, 10) == 0) {
+			actualResult.Num_ohio_endpoints++;
 		}
 
 		for (locationIndex = 0; locationIndex < pReactorServiceEndpointInfo->locationCount; locationIndex++)
 		{
-			if (strncmp("us-east", pReactorServiceEndpointInfo->locationList[locationIndex].data, 7) == 0) {
-				actualResult.Num_us_east_locations++;
+			if (strncmp("us-east-1", pReactorServiceEndpointInfo->locationList[locationIndex].data, 9) == 0) {
+				actualResult.Num_use1_locations++;
 			}
-			else if (strncmp("eu-west", pReactorServiceEndpointInfo->locationList[locationIndex].data, 7) == 0) {
-				actualResult.Num_eu_west_locations++;
+			else if (strncmp("eu-west-1", pReactorServiceEndpointInfo->locationList[locationIndex].data, 9) == 0) {
+				actualResult.Num_euw1_locations++;
 			}
-			else if (strncmp("ap-southeast", pReactorServiceEndpointInfo->locationList[locationIndex].data, 12) == 0) {
-				actualResult.Num_ap_se_locations++;
+			else if (strncmp("ap-southeast-1", pReactorServiceEndpointInfo->locationList[locationIndex].data, 14) == 0) {
+				actualResult.Num_apse1_locations++;
 			}
 
 		}
@@ -1814,22 +1806,7 @@ RsslBool validateServiceDiscoveryEndpoints(RsslReactorServiceEndpointEvent *even
         if (expectedResult->Num_443_port > actualResult.Num_443_port)
 		return RSSL_FALSE;
 
-	if(expectedResult->Num_amer_endpoints > actualResult.Num_amer_endpoints)
-		return RSSL_FALSE;
-
-	if(expectedResult->Num_emea_endpoints > actualResult.Num_emea_endpoints)
-		return RSSL_FALSE;
- 
 	if(expectedResult->Num_aws_provider > actualResult.Num_aws_provider)
-		return RSSL_FALSE;
-
-        if (expectedResult->Num_eu_west_locations > actualResult.Num_eu_west_locations)
-		return RSSL_FALSE;
-
-        if (expectedResult->Num_us_east_locations > actualResult.Num_us_east_locations)
-		return RSSL_FALSE;
-
-        if (expectedResult->Num_rwf_DataFormat > actualResult.Num_rwf_DataFormat)
 		return RSSL_FALSE;
 
         if (expectedResult->Num_tr_json2_DataFormat > actualResult.Num_tr_json2_DataFormat)
@@ -1840,6 +1817,21 @@ RsslBool validateServiceDiscoveryEndpoints(RsslReactorServiceEndpointEvent *even
  
         if (expectedResult->Num_websocket_transport > actualResult.Num_websocket_transport)
 		return RSSL_FALSE; 
+
+        if (expectedResult->Num_rwf_DataFormat > actualResult.Num_rwf_DataFormat)
+		return RSSL_FALSE;
+
+        if (expectedResult->Num_ohio_endpoints != actualResult.Num_ohio_endpoints) 
+		return RSSL_FALSE;
+
+        if (expectedResult->Num_use1_locations != actualResult.Num_use1_locations)
+		return RSSL_FALSE;
+
+        if (expectedResult->Num_euw1_locations != actualResult.Num_euw1_locations)
+		return RSSL_FALSE;
+
+        if (expectedResult->Num_apse1_locations != actualResult.Num_apse1_locations)
+		return RSSL_FALSE;
 
 	return RSSL_TRUE;
 }
@@ -1922,20 +1914,18 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 14;
-	expectedResult.Num_14002_port = 7;
-	expectedResult.Num_443_port = 7;
-	expectedResult.Num_apac_endpoints = 6;
-	expectedResult.Num_amer_endpoints = 6;
-	expectedResult.Num_emea_endpoints = 2;
-	expectedResult.Num_aws_provider = 14;
-	expectedResult.Num_eu_west_locations = 4;
-	expectedResult.Num_us_east_locations = 8;
-	expectedResult.Num_ap_se_locations = 8;
-	expectedResult.Num_rwf_DataFormat = 7;
-	expectedResult.Num_tr_json2_DataFormat = 7;
-	expectedResult.Num_tcp_transport = 7;
-	expectedResult.Num_websocket_transport = 7;
+	expectedResult.NumServiceEndpointInfo = 24;
+	expectedResult.Num_14002_port = 12;
+	expectedResult.Num_443_port = 12;
+	expectedResult.Num_ohio_endpoints = 6;
+	expectedResult.Num_aws_provider = 24;
+	expectedResult.Num_euw1_locations = 8;
+	expectedResult.Num_use1_locations = 8;
+	expectedResult.Num_apse1_locations = 8;
+	expectedResult.Num_rwf_DataFormat = 12;
+	expectedResult.Num_tr_json2_DataFormat = 12;
+	expectedResult.Num_tcp_transport = 12;
+	expectedResult.Num_websocket_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
@@ -1959,17 +1949,15 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 7;
-	expectedResult.Num_14002_port = 7;
-	expectedResult.Num_apac_endpoints = 3;
-	expectedResult.Num_amer_endpoints = 3;
-	expectedResult.Num_emea_endpoints = 1;
-	expectedResult.Num_aws_provider = 7;
-	expectedResult.Num_eu_west_locations = 2;
-	expectedResult.Num_us_east_locations = 4;
-	expectedResult.Num_ap_se_locations = 4;
-	expectedResult.Num_rwf_DataFormat = 7;
-	expectedResult.Num_tcp_transport = 7;
+	expectedResult.NumServiceEndpointInfo = 12;
+	expectedResult.Num_14002_port = 12;
+	expectedResult.Num_ohio_endpoints = 3;
+	expectedResult.Num_aws_provider = 12;
+	expectedResult.Num_euw1_locations = 4;
+	expectedResult.Num_use1_locations = 4;
+	expectedResult.Num_apse1_locations = 4;
+	expectedResult.Num_rwf_DataFormat = 12;
+	expectedResult.Num_tcp_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
@@ -1994,17 +1982,15 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_RwfDataformat)
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 7;
-	expectedResult.Num_14002_port = 7;
-	expectedResult.Num_apac_endpoints = 3;
-	expectedResult.Num_amer_endpoints = 3;
-	expectedResult.Num_emea_endpoints = 1;
-	expectedResult.Num_aws_provider = 7;
-	expectedResult.Num_eu_west_locations = 2;
-	expectedResult.Num_us_east_locations = 4;
-	expectedResult.Num_ap_se_locations = 4;
-	expectedResult.Num_rwf_DataFormat = 7;
-	expectedResult.Num_tcp_transport = 7;
+	expectedResult.NumServiceEndpointInfo = 12;
+	expectedResult.Num_14002_port = 12;
+	expectedResult.Num_ohio_endpoints = 3;
+	expectedResult.Num_aws_provider = 12;
+	expectedResult.Num_euw1_locations = 4;
+	expectedResult.Num_use1_locations = 4;
+	expectedResult.Num_apse1_locations = 4;
+	expectedResult.Num_rwf_DataFormat = 12;
+	expectedResult.Num_tcp_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
@@ -2029,17 +2015,15 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_WebsocketTranspo
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 7;
-	expectedResult.Num_443_port = 7;
-	expectedResult.Num_apac_endpoints = 3;
-	expectedResult.Num_amer_endpoints = 3;
-	expectedResult.Num_emea_endpoints = 1;
-	expectedResult.Num_aws_provider = 7;
-	expectedResult.Num_eu_west_locations = 2;
-	expectedResult.Num_us_east_locations = 4;
-	expectedResult.Num_ap_se_locations = 4;
-	expectedResult.Num_tr_json2_DataFormat = 7;
-	expectedResult.Num_websocket_transport = 7;
+	expectedResult.NumServiceEndpointInfo = 12;
+	expectedResult.Num_443_port = 12;
+	expectedResult.Num_ohio_endpoints = 3;
+	expectedResult.Num_aws_provider = 12;
+	expectedResult.Num_euw1_locations = 4;
+	expectedResult.Num_use1_locations = 4;
+	expectedResult.Num_apse1_locations = 4;
+	expectedResult.Num_tr_json2_DataFormat = 12;
+	expectedResult.Num_websocket_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
@@ -2064,17 +2048,15 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_Tr_json2Dataform
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 7;
-	expectedResult.Num_443_port = 7;
-	expectedResult.Num_apac_endpoints = 3;
-	expectedResult.Num_amer_endpoints = 3;
-	expectedResult.Num_emea_endpoints = 1;
-	expectedResult.Num_aws_provider = 7;
-	expectedResult.Num_eu_west_locations = 2;
-	expectedResult.Num_us_east_locations = 4;
-	expectedResult.Num_ap_se_locations = 4;
-	expectedResult.Num_tr_json2_DataFormat = 7;
-	expectedResult.Num_websocket_transport = 7; 
+	expectedResult.NumServiceEndpointInfo = 12;
+	expectedResult.Num_443_port = 12;
+	expectedResult.Num_ohio_endpoints = 3;
+	expectedResult.Num_aws_provider = 12;
+	expectedResult.Num_euw1_locations = 4;
+	expectedResult.Num_use1_locations = 4;
+	expectedResult.Num_apse1_locations = 4;
+	expectedResult.Num_tr_json2_DataFormat = 12;
+	expectedResult.Num_websocket_transport = 12; 
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
@@ -2099,17 +2081,15 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_tokenScope_Clie
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 7;
-	expectedResult.Num_443_port = 7;
-	expectedResult.Num_apac_endpoints = 3;
-	expectedResult.Num_amer_endpoints = 3;
-	expectedResult.Num_emea_endpoints = 1;
-	expectedResult.Num_aws_provider = 7;
-	expectedResult.Num_eu_west_locations = 2;
-	expectedResult.Num_us_east_locations = 4;
-	expectedResult.Num_ap_se_locations = 4;
-	expectedResult.Num_tr_json2_DataFormat = 7;
-	expectedResult.Num_websocket_transport = 7;
+	expectedResult.NumServiceEndpointInfo = 12;
+	expectedResult.Num_443_port = 12;
+	expectedResult.Num_ohio_endpoints = 3;
+	expectedResult.Num_aws_provider = 12;
+	expectedResult.Num_euw1_locations = 4;
+	expectedResult.Num_use1_locations = 4;
+	expectedResult.Num_apse1_locations = 4;
+	expectedResult.Num_tr_json2_DataFormat = 12;
+	expectedResult.Num_websocket_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
@@ -2137,17 +2117,15 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_empty_tokenscop
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
 
-	expectedResult.NumServiceEndpointInfo = 7;
-	expectedResult.Num_443_port = 7;
-	expectedResult.Num_apac_endpoints = 3;
-	expectedResult.Num_amer_endpoints = 3;
-	expectedResult.Num_emea_endpoints = 1;
-	expectedResult.Num_aws_provider = 7;
-	expectedResult.Num_eu_west_locations = 2;
-	expectedResult.Num_us_east_locations = 4;
-	expectedResult.Num_ap_se_locations = 4;
-	expectedResult.Num_tr_json2_DataFormat = 7;
-	expectedResult.Num_websocket_transport = 7;
+	expectedResult.NumServiceEndpointInfo = 12;
+	expectedResult.Num_443_port = 12;
+	expectedResult.Num_ohio_endpoints = 3;
+	expectedResult.Num_aws_provider = 12;
+	expectedResult.Num_euw1_locations = 4;
+	expectedResult.Num_use1_locations = 4;
+	expectedResult.Num_apse1_locations = 4;
+	expectedResult.Num_tr_json2_DataFormat = 12;
+	expectedResult.Num_websocket_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
 	mOpts.userSpecPtr = &expectedResult;
