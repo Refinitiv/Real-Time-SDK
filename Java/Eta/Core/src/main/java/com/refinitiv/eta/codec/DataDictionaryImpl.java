@@ -2285,7 +2285,7 @@ class DataDictionaryImpl implements DataDictionary
         int i = buffer.position();
         int type = DataTypes.ASCII_STRING;
 
-        while (i < buffer.length()) {
+        while (i < buffer.length() + buffer.position()) {
             if (((buffer.data().get(i) & 0xFF) & one_byte_start_mask) == one_byte_start) {
                 i++;
             } else if (((buffer.data().get(i) & 0xFF) & two_byte_first_mask) == two_byte_first_start) {
@@ -2560,13 +2560,13 @@ class DataDictionaryImpl implements DataDictionary
                                 return CodecReturnCodes.FAILURE;
                             }
 
-                            ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).data(arrEntry.encodedData().toString());
+                            ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).data(arrEntry.encodedData().data(), arrEntry.encodedData().position(), arrEntry.encodedData().length());
                         }
                         else
                         {
                             _enumTypeArray[enumDisplayCount] = new EnumTypeImpl();
 
-                            ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).data(arrEntry.encodedData().toString());
+                            ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).data(arrEntry.encodedData().data(), arrEntry.encodedData().position(), arrEntry.encodedData().length());
                         }
                     }
 

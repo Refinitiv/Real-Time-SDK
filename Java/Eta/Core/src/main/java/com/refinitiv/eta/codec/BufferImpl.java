@@ -377,8 +377,8 @@ class BufferImpl implements Buffer
     {
         return _isBlank;
     }
-    
-    private byte[] dataBytes()
+
+    protected byte[] dataBytes()
     {
         byte[] bufferBytes = new byte[_length];
 
@@ -647,4 +647,16 @@ class BufferImpl implements Buffer
             return _data.limit() - _position;
         return _length;
     }
+
+    protected ByteBuffer get_data() {
+        return _data;
+    }
+
+    protected String get_dataString() {
+        return _dataString;
+    }
+
+    protected int get_length() { return _length; }
+
+    protected int get_position() { return _position; }
 }

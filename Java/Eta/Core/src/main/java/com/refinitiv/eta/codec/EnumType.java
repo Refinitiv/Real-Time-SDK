@@ -17,6 +17,12 @@ public interface EnumType
     /**
      * A brief string representation describing what the type means (For example,
      * this may be an abbreviation of a currency to be displayed to a user).
+     *
+     * Note: toString() method called on the display buffer
+     * will return String object obtained from the underlying bytes using ISO-8859-1 encoding regardless of the
+     * encoding set for JVM in order to avoid data corruption in case the bytes represent an RMTES string incompatible
+     * with, e.g., UTF-8 encoding
+     *
      * 
      * @return the display
      */

@@ -610,4 +610,14 @@ public class BufferJunit
         backingByteBuffer.limit(6);
         assertEquals(buf1.capacity(), 6);
     }
+
+    @Test
+    public void testEquals() {
+
+        Buffer buf = new  DisplayBufferImpl();
+
+        buf.data(ByteBuffer.wrap(new byte[]{-34}));
+        String s = buf.toString();
+        assertEquals((byte)s.charAt(0), -34);
+    }
 }

@@ -7,7 +7,7 @@ import com.refinitiv.eta.codec.EnumType;
 class EnumTypeImpl implements EnumType
 {
     int             _value;
-    final Buffer    _display = CodecFactory.createBuffer();
+    final Buffer    _display = new DisplayBufferImpl();
     final Buffer    _meaning = CodecFactory.createBuffer();
 
     @Override

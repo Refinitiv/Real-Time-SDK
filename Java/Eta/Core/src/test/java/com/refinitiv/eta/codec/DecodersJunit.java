@@ -21,64 +21,6 @@ import java.lang.Double;
 
 import org.junit.Test;
 
-import com.refinitiv.eta.codec.ArrayEntry;
-import com.refinitiv.eta.codec.BufferReader;
-import com.refinitiv.eta.codec.DataBufferReaderWireFormatV1;
-import com.refinitiv.eta.codec.Array;
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.BufferImpl;
-import com.refinitiv.eta.codec.CloseMsgFlags;
-import com.refinitiv.eta.codec.CloseMsg;
-import com.refinitiv.eta.codec.Codec;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.CodecReturnCodes;
-import com.refinitiv.eta.codec.DataStates;
-import com.refinitiv.eta.codec.DataTypes;
-import com.refinitiv.eta.codec.Date;
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.DecodeIteratorImpl;
-import com.refinitiv.eta.codec.ElementEntry;
-import com.refinitiv.eta.codec.ElementList;
-import com.refinitiv.eta.codec.ElementListFlags;
-import com.refinitiv.eta.codec.EncodeIterator;
-import com.refinitiv.eta.codec.Enum;
-import com.refinitiv.eta.codec.FieldEntry;
-import com.refinitiv.eta.codec.FieldList;
-import com.refinitiv.eta.codec.FieldListFlags;
-import com.refinitiv.eta.codec.FilterEntry;
-import com.refinitiv.eta.codec.FilterEntryActions;
-import com.refinitiv.eta.codec.FilterEntryFlags;
-import com.refinitiv.eta.codec.FilterList;
-import com.refinitiv.eta.codec.FilterListFlags;
-import com.refinitiv.eta.codec.Int;
-import com.refinitiv.eta.codec.Map;
-import com.refinitiv.eta.codec.MapEntry;
-import com.refinitiv.eta.codec.MapEntryActions;
-import com.refinitiv.eta.codec.MapFlags;
-import com.refinitiv.eta.codec.Msg;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.MsgKey;
-import com.refinitiv.eta.codec.PostUserInfo;
-import com.refinitiv.eta.codec.QosRates;
-import com.refinitiv.eta.codec.QosTimeliness;
-import com.refinitiv.eta.codec.Real;
-import com.refinitiv.eta.codec.RealHints;
-import com.refinitiv.eta.codec.RefreshMsg;
-import com.refinitiv.eta.codec.RequestMsgFlags;
-import com.refinitiv.eta.codec.RequestMsg;
-import com.refinitiv.eta.codec.Series;
-import com.refinitiv.eta.codec.SeriesEntry;
-import com.refinitiv.eta.codec.SeriesFlags;
-import com.refinitiv.eta.codec.StateCodes;
-import com.refinitiv.eta.codec.StatusMsg;
-import com.refinitiv.eta.codec.StreamStates;
-import com.refinitiv.eta.codec.Time;
-import com.refinitiv.eta.codec.UInt;
-import com.refinitiv.eta.codec.UpdateMsg;
-import com.refinitiv.eta.codec.Vector;
-import com.refinitiv.eta.codec.VectorEntry;
-import com.refinitiv.eta.codec.VectorEntryActions;
-import com.refinitiv.eta.codec.VectorFlags;
 import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.ElementNames;
@@ -4479,14 +4421,14 @@ public class DecodersJunit
         
         // verify tags
         assertEquals(0, decodedDictionary.infoDictionaryId());
-        assertArrayEquals("4.10.11".getBytes(), convertToByteArray(decodedDictionary.infoFieldVersion().data()));
+        assertArrayEquals("4.10.11".getBytes(), convertToByteArray(decodedDictionary.infoFieldVersion().data(), decodedDictionary.infoFieldVersion().length(), decodedDictionary.infoFieldVersion().position()));
         
         // verify contents
         // FID 1
         DictionaryEntry entry = decodedDictionary.entry(1);
         assertNotNull(entry);
-        assertArrayEquals("PROD_PERM".getBytes(), convertToByteArray(entry.acronym().data()));
-        assertArrayEquals("PERMISSION".getBytes(), convertToByteArray(entry.ddeAcronym().data()));
+        assertArrayEquals("PROD_PERM".getBytes(), convertToByteArray(entry.acronym().data(), entry.acronym().length(), entry.acronym().position()));
+        assertArrayEquals("PERMISSION".getBytes(), convertToByteArray(entry.ddeAcronym().data(), entry.ddeAcronym().length(), entry.ddeAcronym().position()));
         assertEquals(1, entry.fid());
         assertEquals(0, entry.rippleToField());
         assertEquals(MfFieldTypes.INTEGER, entry.fieldType());
@@ -4498,8 +4440,8 @@ public class DecodersJunit
         // FID 32767
         entry = decodedDictionary.entry(32767);
         assertNotNull(entry);
-        assertArrayEquals("MAX_FID".getBytes(), convertToByteArray(entry.acronym().data()));
-        assertArrayEquals("MAX_FID".getBytes(), convertToByteArray(entry.ddeAcronym().data()));
+        assertArrayEquals("MAX_FID".getBytes(), convertToByteArray(entry.acronym().data(), entry.acronym().length(), entry.acronym().position()));
+        assertArrayEquals("MAX_FID".getBytes(), convertToByteArray(entry.ddeAcronym().data(), entry.ddeAcronym().length(), entry.ddeAcronym().position()));
         assertEquals(32767, entry.fid());
         assertEquals(0, entry.rippleToField());
         assertEquals(MfFieldTypes.ENUMERATED, entry.fieldType());
@@ -4511,8 +4453,8 @@ public class DecodersJunit
         // FID -32768
         entry = decodedDictionary.entry(-32768);
         assertNotNull(entry);
-        assertArrayEquals("MIN_FID".getBytes(), convertToByteArray(entry.acronym().data()));
-        assertArrayEquals("MIN_FID".getBytes(), convertToByteArray(entry.ddeAcronym().data()));
+        assertArrayEquals("MIN_FID".getBytes(), convertToByteArray(entry.acronym().data(), entry.acronym().length(), entry.acronym().position()));
+        assertArrayEquals("MIN_FID".getBytes(), convertToByteArray(entry.ddeAcronym().data(), entry.ddeAcronym().length(), entry.ddeAcronym().position()));
         assertEquals(-32768, entry.fid());
         assertEquals(0, entry.rippleToField());
         assertEquals(MfFieldTypes.ENUMERATED, entry.fieldType());
@@ -4524,8 +4466,8 @@ public class DecodersJunit
         // FID 6
         entry = decodedDictionary.entry(6);
         assertNotNull(entry);
-        assertArrayEquals("TRDPRC_1".getBytes(), convertToByteArray(entry.acronym().data()));
-        assertArrayEquals("LAST".getBytes(), convertToByteArray(entry.ddeAcronym().data()));
+        assertArrayEquals("TRDPRC_1".getBytes(), convertToByteArray(entry.acronym().data(), entry.acronym().length(), entry.acronym().position()));
+        assertArrayEquals("LAST".getBytes(), convertToByteArray(entry.ddeAcronym().data(), entry.ddeAcronym().length(), entry.ddeAcronym().position()));
         assertEquals(6, entry.fid());
         assertEquals(7, entry.rippleToField());
         assertEquals(MfFieldTypes.PRICE, entry.fieldType());
@@ -4609,8 +4551,8 @@ public class DecodersJunit
         
         // verify tags
         assertEquals(0, decodedDictionary.infoDictionaryId());
-        assertArrayEquals("4.10.11".getBytes(), convertToByteArray(decodedDictionary.infoEnumRTVersion().data()));
-        assertArrayEquals("13.11".getBytes(), convertToByteArray(decodedDictionary.infoEnumDTVersion().data()));
+        assertArrayEquals("4.10.11".getBytes(), convertToByteArray(decodedDictionary.infoEnumRTVersion().data(), decodedDictionary.infoEnumRTVersion().length(), decodedDictionary.infoEnumRTVersion().position()));
+        assertArrayEquals("13.11".getBytes(), convertToByteArray(decodedDictionary.infoEnumDTVersion().data(), decodedDictionary.infoEnumDTVersion().length(), decodedDictionary.infoEnumDTVersion().position()));
         
         // verify contents
         EnumTypeTable[] enumTypeTable = decodedDictionary.enumTables();
@@ -4625,11 +4567,11 @@ public class DecodersJunit
         EnumType[] enumTypes = enumTypeTableEntry.enumTypes();
         assertEquals(3, enumTypes.length);
         assertEquals(0, enumTypes[0].value());
-        assertArrayEquals("   ".getBytes(), convertToByteArray(enumTypes[0].display().data()));
+        assertArrayEquals("   ".getBytes(), convertToByteArray(enumTypes[0].display().data(), enumTypes[0].display().length(), enumTypes[0].display().position()));
         assertEquals(1, enumTypes[1].value());
-        assertArrayEquals("MAX".getBytes(), convertToByteArray(enumTypes[1].display().data()));
+        assertArrayEquals("MAX".getBytes(), convertToByteArray(enumTypes[1].display().data(), enumTypes[1].display().length(), enumTypes[1].display().position()));
         assertEquals(2, enumTypes[2].value());
-        assertArrayEquals("MIN".getBytes(), convertToByteArray(enumTypes[2].display().data()));
+        assertArrayEquals("MIN".getBytes(), convertToByteArray(enumTypes[2].display().data(), enumTypes[2].display().length(), enumTypes[2].display().position()));
     }
     
     /**
@@ -4776,17 +4718,17 @@ public class DecodersJunit
         enumType = decodedDictionary.entryEnumType(entry, tempEnum);
         assertNotNull(enumType);
         assertEquals(0, enumType.value());
-        assertArrayEquals("   ".getBytes(), convertToByteArray(enumType.display().data()));
+        assertArrayEquals("   ".getBytes(), convertToByteArray(enumType.display().data(), enumType.display().length(), enumType.display().position()));
         tempEnum.value(1);
         enumType = decodedDictionary.entryEnumType(entry, tempEnum);
         assertNotNull(enumType);
         assertEquals(1, enumType.value());
-        assertArrayEquals("MAX".getBytes(), convertToByteArray(enumType.display().data()));
+        assertArrayEquals("MAX".getBytes(), convertToByteArray(enumType.display().data(), enumType.display().length(), enumType.display().position()));
         tempEnum.value(2);
         enumType = decodedDictionary.entryEnumType(entry, tempEnum);
         assertNotNull(enumType);
         assertEquals(2, enumType.value());
-        assertArrayEquals("MIN".getBytes(), convertToByteArray(enumType.display().data()));
+        assertArrayEquals("MIN".getBytes(), convertToByteArray(enumType.display().data(), enumType.display().length(), enumType.display().position()));
 
         // FID -32768
         entry = decodedDictionary.entry(-32768);
@@ -4794,24 +4736,26 @@ public class DecodersJunit
         enumType = decodedDictionary.entryEnumType(entry, tempEnum);
         assertNotNull(enumType);
         assertEquals(0, enumType.value());
-        assertArrayEquals("   ".getBytes(), convertToByteArray(enumType.display().data()));
+        assertArrayEquals("   ".getBytes(), convertToByteArray(enumType.display().data(), enumType.display().length(), enumType.display().position()));
         tempEnum.value(1);
         enumType = decodedDictionary.entryEnumType(entry, tempEnum);
         assertNotNull(enumType);
         assertEquals(1, enumType.value());
-        assertArrayEquals("MAX".getBytes(), convertToByteArray(enumType.display().data()));
+        assertArrayEquals("MAX".getBytes(), convertToByteArray(enumType.display().data(), enumType.display().length(), enumType.display().position()));
         tempEnum.value(2);
         enumType = decodedDictionary.entryEnumType(entry, tempEnum);
         assertNotNull(enumType);
         assertEquals(2, enumType.value());
-        assertArrayEquals("MIN".getBytes(), convertToByteArray(enumType.display().data()));
+        assertArrayEquals("MIN".getBytes(), convertToByteArray(enumType.display().data(), enumType.display().length(), enumType.display().position()));
     }
     
     // copy decoded data into byte[]
-    private byte[] convertToByteArray(ByteBuffer bb)
+    private byte[] convertToByteArray(ByteBuffer bb, int len, int position)
     {
-        byte[] ba = new byte[bb.limit()];
-        bb.get(ba);
+        byte[] ba = new byte[len];
+        for (int i = 0; i < len; i++) {
+        	ba[i] = bb.get(i + position);
+		}
         return ba;
     }
     
