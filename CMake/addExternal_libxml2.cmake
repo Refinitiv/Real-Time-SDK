@@ -76,13 +76,13 @@ endmacro()
 
 
 if(NOT libxml2_url)
-	set(libxml2_url "ftp://xmlsoft.org/libxml2/libxml2-2.9.9.tar.gz")
+	set(libxml2_url "ftp://xmlsoft.org/libxml2/libxml2-2.9.12.tar.gz")
 endif()
 if(NOT libxml2_hash)
-	set(libxml2_hash "MD5=c04a5a0a042eaa157e8e8c9eabe76bd6")
+	set(libxml2_hash "MD5=f433a39be087a9f0b197eb2307ad9f75")
 endif()
 if(NOT libxml2_version)
-	set(libxml2_version "2.9.9")
+	set(libxml2_version "2.9.12")
 endif()
 
 # If the option for using the system installed 

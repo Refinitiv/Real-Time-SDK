@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2021 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
 if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-7_63_0/curl-7.63.0.tar.xz")
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-7_78_0/curl-7.78.0.tar.xz")
 endif()
 if(NOT curl_hash)
-	set(curl_hash "MD5=f43d618cc49c1820d3a2fed31e451d4c")
+	set(curl_hash "MD5=419c2461366cf404160a820f7a902b7e")
 endif()
 if(NOT curl_version)
-	set(curl_version "7.63.0")
+	set(curl_version "7.78.0")
 endif()
 
 # If the option for using the system installed 
@@ -89,7 +89,8 @@ if((NOT curl_USE_INSTALLED) AND
 	unset(_cfg_type)
 	if(WIN32)
 		set(_config_options "${_config_options}"
-						"-DCMAKE_USE_WINSSL:BOOL=ON")
+						"-DCMAKE_USE_SCHANNEL:BOOL=ON")
+#						"-DCMAKE_USE_WINSSL:BOOL=ON")
 	else()
 		set(_config_options "${_config_options}" 
 							"-DCMAKE_USE_OPENSSL:BOOL=ON")
