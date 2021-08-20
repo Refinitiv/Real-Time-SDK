@@ -71,8 +71,6 @@ Platforms:
 
 Compilers (only on OSs supported by Microsoft):
 
-	Microsoft Visual Studio 11.0 (2012) 64-bit (JNI Libraries)
-	Microsoft Visual Studio 12.0 (2013) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)

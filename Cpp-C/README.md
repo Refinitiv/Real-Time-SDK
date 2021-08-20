@@ -64,8 +64,6 @@ Platforms:
 
 Compilers (only on OSs supported by Microsoft): 
 
-	Microsoft Visual Studio 11.0 (2012) 64-bit
-	Microsoft Visual Studio 12.0 (2013) 64-bit
 	Microsoft Visual Studio 14.0 (2015) 64-bit
 	Microsoft Visual Studio 14.1 (2017) 64-bit 
 	Microsoft Visual Studio 14.2 (2019) 64-bit 
@@ -204,8 +202,6 @@ At the same directory level as the resulting RTSDK directory, issue the followin
 		# "Visual Studio 16 2019" -A x64 
 		# "Visual Studio 15 2017 Win64"
 		# "Visual Studio 14 2015 Win64" 
-		# "Visual Studio 12 2013 Win64"
-		# "Visual Studio 11 2012 Win64"
 	# Note: A list of visual studio versions can be obtained by typing "cmake -help". 
 
 The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the build output is sent to the RTSDK directory (i.e., not the buildDir directory).
@@ -221,7 +217,7 @@ Linux: Add "-DBUILD\_32\_BIT\_ETA=ON" to the cmake build
 Windows: Do not add "Win64" or "-A x64" to the "VisualStudioVersion".  Example, When specifying, "Visual Studio 14 2015", for a 64-bit build it would be "Visual Studio 14 2015 Win64". For a 32-bit build, it would be "Visual Studio 14 2015" 
 
 NOTE: Starting with SDK version 1.3.1, DACS libraries are available for 32-bits in the BinaryPack.
-NOTE: DACS libraries provided in BinaryPack for VS 2017 and VS2019 are copied from VS 2015 as these builds are not currently available.
+NOTE: DACS libraries provided in BinaryPack for VS2019 is copied from VS 2017 as these build is not currently available.
 
 # Obtaining the Refinitiv Field Dictionaries
 
