@@ -8,10 +8,9 @@ eclipse {
 
 dependencies {
         // version 1.1.3_8 not available on mavencentral
-        compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
-	compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+    compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
 
-	compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.12'
+	compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
 
 	compile project(':Ema:Core')
 }

@@ -145,7 +145,7 @@ public class EmaFileConfigJunitTests extends TestCase
 
 		ConsChannelVal =  JUnitTestConnect.configGetChannelName(testConfig, "Consumer_4");
 		TestUtilities.checkResult("ChannelSet value != null", ConsChannelVal != null);
-		TestUtilities.checkResult("ChannelSet value == Channel_4, Channel_5", ConsChannelVal.contentEquals("Channel_4,Channel_5") );
+		TestUtilities.checkResult("ChannelSet value == Channel_4, Channel_5", ConsChannelVal.contentEquals("Channel_4, Channel_5") );
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_4");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
@@ -350,7 +350,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("WsMaxMsgSize == 100500", intLongValue == 100500);
 		//XML contains "rssl.json.v2, rssl.rwf" but space will be removed after XML parsing.
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.WsProtocols);
-		TestUtilities.checkResult("WsProtocols == rssl.json.v2,rssl.rwf", "rssl.json.v2,rssl.rwf".contentEquals(strValue));
+		TestUtilities.checkResult("WsProtocols == rssl.json.v2,rssl.rwf", "rssl.json.v2, rssl.rwf".contentEquals(strValue));
 
 		// Checks ChannelType == RSSL_CONN_TYPE_ENCRYPTED and EncryptedProtocolType == RSSL_WEBSOCKET values from Channel_12
 		ConsChannelVal = "Channel_12";
@@ -374,7 +374,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerMaxFragmentSize);
 		TestUtilities.checkResult("MaxFragmentSize == 100500", intLongValue == 100500);
 		strValue = JUnitTestConnect.configGetStringValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeServer, JUnitTestConnect.ServerWsProtocols);
-		TestUtilities.checkResult("ServerWsProtocols = rssl.json.v2,rssl.rwf", strValue.contentEquals("rssl.json.v2,rssl.rwf"));
+		TestUtilities.checkResult("ServerWsProtocols = rssl.json.v2,rssl.rwf", strValue.contentEquals("rssl.json.v2, rssl.rwf"));
 
 		// Check Dictionary_1 configuration.
 		ConsDictionary = "Dictionary_1";
@@ -515,7 +515,7 @@ public class EmaFileConfigJunitTests extends TestCase
 
 		ConsChannelVal =  JUnitTestConnect.configGetChannelName(testConfig, "Consumer_4");
 		TestUtilities.checkResult("ChannelSet value != null", ConsChannelVal != null);
-		TestUtilities.checkResult("ChannelSet value == Channel_4, Channel_5", ConsChannelVal.contentEquals("Channel_4,Channel_5") );
+		TestUtilities.checkResult("ChannelSet value == Channel_4, Channel_5", ConsChannelVal.contentEquals("Channel_4, Channel_5") );
 		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_4");
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
@@ -769,7 +769,7 @@ public class EmaFileConfigJunitTests extends TestCase
 		
 		consumerName = "Consumer_4";
 		String cons4Channel = JUnitTestConnect.configGetChannelName(testConfig, consumerName);
-		TestUtilities.checkResult("ChannelSet value=Channel_4, Channel_5", cons4Channel.contentEquals("Channel_4,Channel_5"));
+		TestUtilities.checkResult("ChannelSet value=Channel_4, Channel_5", cons4Channel.contentEquals("Channel_4, Channel_5"));
 		
 		// Test Individual Channel attributes and Common attributes.
 		String tempTestName = "channelConnType == ChannelType::RSSL_SOCKET ";

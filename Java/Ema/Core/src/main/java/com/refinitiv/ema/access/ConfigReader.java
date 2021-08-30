@@ -16,9 +16,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.io.File;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.XMLConfiguration;
 
 import com.refinitiv.ema.access.ConfigManager.Branch;
 import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
@@ -27,6 +26,9 @@ import com.refinitiv.ema.access.ConfigManager.TagDictionary;
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.eta.transport.CompressionTypes;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import org.apache.commons.configuration2.io.FileHandler;
+import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.apache.commons.configuration2.tree.NodeHandler;
 
 class ConfigReader 
 {
@@ -178,7 +180,7 @@ class ConfigReader
 
 				// debugging
 				//System.out.println("Child Name = "+child._name);
-				if( child._tagId==nodeId )
+				if( child._tagId == nodeId )
 				{
 					return child;
 				}
@@ -735,36 +737,17 @@ class ConfigReader
 			return null;
 		}
 
-		private ConfigElement handleConfigEntry(ConfigurationNode nodePtr,XMLnode theNode, int tagId) 
+		private ConfigElement handleConfigEntry(ImmutableNode nodePtr, XMLnode theNode, int tagId)
 		{
-			List<ConfigurationNode> attributeList = nodePtr.getAttributes();
+			Map<String, Object> attributeList = nodePtr.getAttributes();
 
 			String attributeValue = null;
-			StringBuilder tmpAttribValue = new StringBuilder();
-			int size = attributeList.size();
-			boolean multipleValues = tagId == ConfigManager.ChannelSet
-					|| tagId == ConfigManager.WsProtocols
-					|| tagId == ConfigManager.ServerWsProtocols;
 
-			for (int i = 0; i < size; i++)
+			for (String attributeName : attributeList.keySet())
 			{
-				ConfigurationNode attribute = attributeList.get(i);
-
-				String attributeName = attribute.getName();
 				if(attributeName.equalsIgnoreCase("value") )
 				{
-					if(multipleValues)
-					{
-						String tmpValue = (String) attribute.getValue();
-						if(tmpValue != null && !tmpValue.isEmpty() )
-							tmpAttribValue.append(tmpValue);
-						if( (i < size -1) )
-						{
-							tmpAttribValue.append(",");
-						}
-					}
-					else
-						attributeValue = (String) attribute.getValue();	
+					attributeValue = (String) attributeList.get(attributeName);
 				}
 				else
 				{
@@ -772,49 +755,47 @@ class ConfigReader
 				}
 			}
 
-			if( multipleValues )
-				attributeValue = tmpAttribValue.toString();
-			ConfigElement e = makeConfigEntry(theNode.parent(),nodePtr.getName(),attributeValue,tagId);
+			ConfigElement e = makeConfigEntry(theNode.parent(), nodePtr.getNodeName(), attributeValue, tagId);
 			return e;
 		}
 
-		private void processNode(XMLnode theNode, ConfigurationNode nodePtr, TagDictionary tagDict)
+		private void processNode(XMLnode theNode, ImmutableNode nodePtr, TagDictionary tagDict)
 		{
-			List<ConfigurationNode> children = nodePtr.getChildren();
-			if(nodePtr.getChildrenCount() == 0 )
+			List<ImmutableNode> children = nodePtr.getChildren();
+			if(children == null || children.size() == 0 )
 			{
-				errorTracker().append("No children for ").append(nodePtr.getName()).create(Severity.ERROR);
+				errorTracker().append("No children for ").append(nodePtr.getNodeName()).create(Severity.ERROR);
 				return;
 			}
 
 			for (int i = 0; i < children.size(); i++)
 			{
-				ConfigurationNode configNodeChild = children.get(i); 
+				ImmutableNode configNodeChild = children.get(i);
 
-				if( configNodeChild.getAttributeCount() > 0 )
+				if( configNodeChild.getAttributes() != null && configNodeChild.getAttributes().size() > 0 )
 				{
-					Integer tagId = tagDict.get(configNodeChild.getName());
+					Integer tagId = tagDict.get(configNodeChild.getNodeName());
 					if( tagId == null ) 
 					{
-						if( configNodeChild.getName().equalsIgnoreCase("pipeport"))
+						if( configNodeChild.getNodeName().equalsIgnoreCase("pipeport"))
 						{
 							// unsupported in emaj; ignore 
 						}
 						else
 						{
 							errorTracker().append("Unable to find tagId for ")
-							.append(configNodeChild.getName())
+							.append(configNodeChild.getNodeName())
 							.create(Severity.ERROR);
 						}
 					}
 					else
 					{
-						if(_debugDump) debugDump(padLeft(String.format("attribute Count: %d",configNodeChild.getAttributeCount()),level+4));
+						if(_debugDump) debugDump(padLeft(String.format("attribute Count: %d", configNodeChild.getAttributes() != null ? configNodeChild.getAttributes().size() : 0),level+4));
 						ConfigElement ce = handleConfigEntry(configNodeChild,theNode,tagId); 
 
 						if( ce != null )
 						{
-							if(_debugDump) debugDump(padLeft(String.format("add attribute: %s to %s; [tagId: %s - %d",ce._name,theNode.name(),ce._name,tagId),level+6));
+							if(_debugDump) debugDump(padLeft(String.format("add attribute: %s to %s; [tagId: %s - %d", ce._name, theNode.name(), ce._name,tagId),level + 6));
 							theNode.addAttribute(ce);
 						}
 					}
@@ -824,45 +805,45 @@ class ConfigReader
 				{
 					level++;
 
-					if(_debugDump) debugDump(padLeft(String.format("Create XML Node: %s - level: %d",configNodeChild.getName(),level),level));
+					if(_debugDump) debugDump(padLeft(String.format("Create XML Node: %s - level: %d",configNodeChild.getNodeName(),level),level));
 
 					if( level == 2)
 					{
-						if( configNodeChild.getName().equals("ConsumerGroup"))
+						if( configNodeChild.getNodeName().equals("ConsumerGroup"))
 						{
 							tagDict = ConfigManager.ConsumerTagDict;
 						}
-						else if( configNodeChild.getName().equals("IProviderGroup"))
+						else if( configNodeChild.getNodeName().equals("IProviderGroup"))
 						{
 							tagDict = ConfigManager.IProviderTagDict;
 						}
-						else if ( configNodeChild.getName().equals("NiProviderGroup") )
+						else if ( configNodeChild.getNodeName().equals("NiProviderGroup") )
 						{
 							tagDict = ConfigManager.NiProviderTagDict;
 						}
-						else if( configNodeChild.getName().equals("ChannelGroup"))
+						else if( configNodeChild.getNodeName().equals("ChannelGroup"))
 						{
 							tagDict = ConfigManager.ChannelTagDict;
 						}
-						else if( configNodeChild.getName().equals("ServerGroup"))
+						else if( configNodeChild.getNodeName().equals("ServerGroup"))
 						{
 							tagDict = ConfigManager.ServerTagDict;
 						}
-						else if( configNodeChild.getName().equals("LoggerGroup"))
+						else if( configNodeChild.getNodeName().equals("LoggerGroup"))
 						{
 							skipNode(configNodeChild);
 							level--;
 							continue;
 						}
-						else if( configNodeChild.getName().equals("DirectoryGroup"))
+						else if( configNodeChild.getNodeName().equals("DirectoryGroup"))
 						{
 							tagDict = ConfigManager.DirectoryTagDict;
 						}
-						else if( configNodeChild.getName().equals("DictionaryGroup"))
+						else if( configNodeChild.getNodeName().equals("DictionaryGroup"))
 						{
 							tagDict = ConfigManager.DictionaryTagDict;
 						}
-						else if( configNodeChild.getName().equals("GlobalConfig"))
+						else if( configNodeChild.getNodeName().equals("GlobalConfig"))
 						{
 							tagDict = ConfigManager.GlobalConfigDict;
 						}
@@ -870,7 +851,7 @@ class ConfigReader
 					
 					if ( level == 5 )
 					{
-						if( configNodeChild.getName().equals("Service"))
+						if( configNodeChild.getNodeName().equals("Service"))
 						{
 							tagDict = ConfigManager.ServiceTagDict;
 						}
@@ -878,28 +859,28 @@ class ConfigReader
 
 					if( tagDict == null )
 					{
-						errorTracker().append("Tag dict null for ").append(configNodeChild.getName()).create(Severity.ERROR);
+						errorTracker().append("Tag dict null for ").append(configNodeChild.getNodeName()).create(Severity.ERROR);
 					}
 
 					if( tagDict.isEmpty() )
 					{
-						errorTracker().append("Tag dict is EMPTY for ").append(configNodeChild.getName()).create(Severity.ERROR);
+						errorTracker().append("Tag dict is EMPTY for ").append(configNodeChild.getNodeName()).create(Severity.ERROR);
 					}
 
-					Integer tagKey = tagDict.get(configNodeChild.getName());
+					Integer tagKey = tagDict.get(configNodeChild.getNodeName());
 					if( tagKey == null )
 					{
-						errorTracker().append("Unable to find tagId for ").append(configNodeChild.getName()).create(Severity.ERROR);
+						errorTracker().append("Unable to find tagId for ").append(configNodeChild.getNodeName()).create(Severity.ERROR);
 					}
 					else
 					{
 						int tagId = tagKey.intValue();
 
-						if(_debugDump) debugDump(padLeft(String.format("Tag %s - %d", configNodeChild.getName(),tagId),level+2));
+						if(_debugDump) debugDump(padLeft(String.format("Tag %s - %d", configNodeChild.getNodeName(),tagId),level+2));
 
-						XMLnode xmlChild = new XMLnode(configNodeChild.getName(), level, theNode,tagId); 
+						XMLnode xmlChild = new XMLnode(configNodeChild.getNodeName(), level, theNode,tagId);
 						processNode(xmlChild,configNodeChild,tagDict);
-						if (configNodeChild.getAttributeCount() == 0  && configNodeChild.getChildrenCount() > 0)
+						if ((configNodeChild.getAttributes() == null || configNodeChild.getAttributes().size() == 0)  && configNodeChild.getChildren() != null && configNodeChild.getChildren().size() > 0)
 						{
 							theNode.addChild(xmlChild);
 						}
@@ -910,14 +891,14 @@ class ConfigReader
 			}
 		}
 
-		private void skipNode(ConfigurationNode nodePtr)
+		private void skipNode(ImmutableNode nodePtr)
 		{
-			List<ConfigurationNode> children = nodePtr.getChildren();
+			List<ImmutableNode> children = nodePtr.getChildren();
 			for (int i = 0; i < children.size(); i++)
 			{
-				ConfigurationNode configNodeChild = children.get(i); 
+				ImmutableNode configNodeChild = children.get(i);
 
-				if( configNodeChild.getAttributeCount() > 0 )
+				if( configNodeChild.getAttributes() != null && configNodeChild.getAttributes().size() > 0 )
 				{
 					continue;
 				}
@@ -988,22 +969,25 @@ class ConfigReader
 						.append( System.getProperty("user.dir") ).append( "]" ).create(Severity.TRACE);
 			}
 
-			XMLConfiguration config = null;
+			XMLConfiguration config = new XMLConfiguration();
+
 			try 
 			{
+				FileHandler fh = new FileHandler(config);
 				if (path == null || path.isEmpty()) {
 					InputStream in = ClassLoader.class.getResourceAsStream("/".concat(defaultFileName));
 					if (in == null) {
-						config = new XMLConfiguration(defaultFileName);
+						fh.setFileName(defaultFileName);
+						fh.load();
 					} else {
-						config = new XMLConfiguration();
-						config.load(in);
+						fh.load(in);
 					}
 				} else {
-					config = new XMLConfiguration(fileName);
+					fh.setFileName(fileName);
+					fh.load();
 				}
 			} 
-			catch (ConfigurationException e) 
+			catch (ConfigurationException e)
 			{
 				if (path == null || path.isEmpty()) {
 					errorTracker().append(e.getMessage()).create(Severity.TRACE);
@@ -1015,6 +999,8 @@ class ConfigReader
 								  fileName, System.getProperty("user.dir"));
 				throw _parent.oommICExcept().message(errorMsg);
 			}
+
+			NodeHandler<ImmutableNode> nh = config.getNodeModel().getNodeHandler();
 
 			configkeyTypePair = new Hashtable<String, Integer>();
 
@@ -1033,7 +1019,7 @@ class ConfigReader
 			for( int i = 0; i < ConfigManager.DoubleValues.length; i++ )
 				configkeyTypePair.put(ConfigManager.DoubleValues[i], ConfigElement.Type.Double);
 
-			ConfigurationNode doc =  config.getRootNode();
+
 			level = 1;
 
 			xmlRoot = new XMLnode("root",level,null,ConfigManager.ROOT);
@@ -1041,7 +1027,7 @@ class ConfigReader
 
 			if(_debugDump) debugDump("=== Start: XMLConfig file read dump ========================");
 
-			processNode(xmlRoot,doc,ConfigManager.ConsumerTagDict);
+			processNode(xmlRoot, nh.getRootNode(), ConfigManager.ConsumerTagDict);
 			
 			if(_debugDump) debugDump("=== End ====================================================");
 
@@ -1315,12 +1301,12 @@ class ConfigReader
 		
 		Object getIProviderAttributeValue( String forIProviderName, int findAttributeKey )
 		{
-			return(getAttributeValue(ConfigManager.IPROVIDER_LIST,ConfigManager.IProviderName,forIProviderName,findAttributeKey));
+			return(getAttributeValue(ConfigManager.IPROVIDER_LIST, ConfigManager.IProviderName, forIProviderName, findAttributeKey));
 		}
 
 		Object getDictionaryAttributeValue( String consumerName, int attributeKey )
 		{
-			return(getAttributeValue(ConfigManager.DICTIONARY_LIST,ConfigManager.DictionaryName,consumerName,attributeKey));
+			return(getAttributeValue(ConfigManager.DICTIONARY_LIST,ConfigManager.DictionaryName, consumerName, attributeKey));
 		}
 
 		Object getAttributeValue( Branch searchNode, int forNodeKey, String findNodeName, int findAttributeKey )
