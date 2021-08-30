@@ -135,3 +135,21 @@ task runrrtviewerdesktop ( type: JavaExec ) {
 	classpath = sourceSets.main.runtimeClasspath
 }
 
+task createRRTViewerFatJar (type: Jar) {
+
+	group 'Run EMA RRTMDViewer desktop'
+	description 'This task builds fat jar for RRTViewer'
+
+	manifest {
+		attributes(
+				'Main-Class' : 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+		)
+	}
+
+	baseName('RRTMDViewer')
+
+	from {
+		configurations.compileClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+	} with jar
+}
+
