@@ -32,7 +32,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     private static final String DEFAULT_TOKEN_SERVICE_URL = "https://api.refinitiv.com/auth/oauth2/v1/token";
 
-    private static final String DEFAULT_SERVICE_ENDPOINT_URL = "https://api.refinitiv.com/streaming/pricing/v1";
+    private static final String DEFAULT_SERVICE_ENDPOINT_URL = "https://api.refinitiv.com/streaming/pricing/v1/";
 
     private static final String CLIENT_DISCOVERED_ENDPOINT_SETTINGS_ERROR = "Discovered Endpoint Settings - Validation Failure:";
 
