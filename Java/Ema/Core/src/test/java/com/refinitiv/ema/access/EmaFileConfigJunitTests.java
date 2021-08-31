@@ -3048,6 +3048,7 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("HighWaterMark", 5000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 100));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("ServerSharedSocket", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Server_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 
@@ -3325,6 +3326,9 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			List<Service> services = JUnitTestConnect.activeConfigGetService(prov, true);
 			TestUtilities.checkResult("services.size() == 2", services.size() == 2);
 			
+			boolValue = prov._activeServerConfig.serverConfig.serverSharedSocket;
+			TestUtilities.checkResult("ServerSharedSocket == 1", boolValue == true);
+
 			/*********retrieve first service *************/
 			System.out.println("\nRetrieving DIRECT_FEED service configuration values "); 
 			Service temp = services.get(0);

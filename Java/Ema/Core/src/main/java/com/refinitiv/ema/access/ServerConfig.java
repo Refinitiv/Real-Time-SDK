@@ -32,6 +32,7 @@ class ServerConfig
 	String 				securityProvider;
 	String 				keyManagerAlgorithm;
 	String 				trustManagerAlgorithm;
+	boolean				serverSharedSocket;
 	
 	ServerConfig()
 	{
@@ -53,6 +54,7 @@ class ServerConfig
 		connectionPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_PINGTIMEOUT;
 		connectionMinPingTimeout = ActiveServerConfig.DEFAULT_CONNECTION_MINPINGTIMEOUT;
 		initializationTimeout = ActiveConfig.DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
+		serverSharedSocket = ActiveServerConfig.DEFAULT_SERVER_SHARED_SOCKET;
 		wsProtocols = ActiveConfig.DEFAULT_WS_PROTOCOLS;
 		maxFragmentSize = ActiveConfig.DEFAULT_MAX_FRAGMENT_SIZE;
 		compressionThresholdSet = false;

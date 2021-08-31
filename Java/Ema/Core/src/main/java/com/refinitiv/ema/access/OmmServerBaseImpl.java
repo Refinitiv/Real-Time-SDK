@@ -208,6 +208,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			ReactorFactory.setTunnelStreamMsgEventPoolLimit(activeConfig.globalConfig.tunnelStreamMsgEventPoolLimit);
 			ReactorFactory.setTunnelStreamStatusEventPoolLimit(activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit);
 			
+			checkServerSharedSocketProperty();
+
 			try
 			{
 				_pipe = Pipe.open();
@@ -325,6 +327,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysRecvBufSize);
 			_bindOptions.sysRecvBufSize(_activeServerConfig.serverConfig.sysSendBufSize);
 			_bindOptions.compressionType(_activeServerConfig.serverConfig.compressionType);
+			_bindOptions.serverSharedSocket(_activeServerConfig.serverConfig.serverSharedSocket);
 			_bindOptions.maxFragmentSize(_activeServerConfig.serverConfig.maxFragmentSize);
 			_bindOptions.wSocketOpts().protocols(_activeServerConfig.serverConfig.wsProtocols);
 			_bindOptions.encryptionOptions().keystoreFile(_activeServerConfig.serverConfig.keystoreFile);
@@ -423,6 +426,26 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	    }
 	}
 	
+	private void checkServerSharedSocketProperty()
+	{
+		if (_activeServerConfig.serverConfig.serverSharedSocket && 
+					System.getProperty("os.name").toLowerCase().contains("windows") && 
+					Boolean.parseBoolean(System.getProperty("sun.net.useExclusiveBind", "true")))
+		{
+			String errorText = "Failed to initialize OmmServerBaseImpl. " +
+									   "serverSharedSocket option is set to true, but system property " +
+									   "sun.net.useExclusiveBind is not set to false on Windows platform." +
+									   "sun.net.useExclusiveBind property must be set to false " +
+									   "when serverSharedSocket option is enabled.";
+
+			if (_loggerClient.isErrorEnabled())
+				_loggerClient.error(formatLogMessage(_activeServerConfig.instanceName, errorText, Severity.ERROR));
+
+			throw (ommIUExcept().message(errorText, OmmInvalidUsageException.ErrorCode.INVALID_OPERATION));
+		}
+
+	}
+
 	//intenal use, only for junit test
 	void initializeForTest(ActiveServerConfig activeConfig,EmaConfigServerImpl config)
 	{
@@ -881,6 +904,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
             if ((ce = attributes.getPrimitiveValue(ConfigManager.ServerWsProtocols)) != null) {
             	newServerConfig.wsProtocols = ce.asciiValue();
 			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ServerSharedSocket)) != null)
+				newServerConfig.serverSharedSocket = ce.intLongValue() == 1 ? true : ActiveServerConfig.DEFAULT_SERVER_SHARED_SOCKET;
 		}
 		
 		return newServerConfig;

@@ -154,6 +154,7 @@ artifacts {
 }
 
 test {
+    systemProperty "sun.net.useExclusiveBind", "false"
 	// set to true to see the junit stdoutput
         testLogging.showStandardStreams = false
 	maxParallelForks = Runtime.runtime.availableProcessors()

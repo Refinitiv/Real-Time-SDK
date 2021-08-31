@@ -29,6 +29,7 @@ class BindOptionsImpl implements BindOptions
     private int _numInputBuffers;
     int _sharedPoolSize;
     private boolean _sharedPoolLock;
+    private boolean _serverSharedSocket;
     private int _majorVersion;
     private int _minorVersion;
     private int _protocolType;
@@ -76,6 +77,7 @@ class BindOptionsImpl implements BindOptions
         copyTo._numInputBuffers = _numInputBuffers;
         copyTo._sharedPoolSize = _sharedPoolSize;
         copyTo._sharedPoolLock = _sharedPoolLock;
+        copyTo._serverSharedSocket = _serverSharedSocket;
         copyTo._majorVersion = _majorVersion;
         copyTo._minorVersion = _minorVersion;
         copyTo._protocolType = _protocolType;
@@ -110,6 +112,7 @@ class BindOptionsImpl implements BindOptions
         _numInputBuffers = 10;
         _sharedPoolSize = 0;
         _sharedPoolLock = false;
+        _serverSharedSocket = false;
         _majorVersion = 0;
         _minorVersion = 0;
         _protocolType = 0;
@@ -147,6 +150,7 @@ class BindOptionsImpl implements BindOptions
                "\tnumInputBuffers: " + _numInputBuffers + "\n" +
                "\tsharedPoolSize: " + _sharedPoolSize + "\n" +
                "\tsharedPoolLock: " + _sharedPoolLock + "\n" +
+               "\tserverSharedSocket: " + _serverSharedSocket + "\n" +        
                "\tsysRecvBufSize: " + _sysRecvBufSize + "\n" +
                "\tmajorVersion: " + _majorVersion + "\n" +
                "\tminorVersion: " + _minorVersion + "\n" +
@@ -556,5 +560,17 @@ class BindOptionsImpl implements BindOptions
     public ServerEncryptionOptions encryptionOptions()
     {
         return _encryptionOptions;
+    }
+
+    @Override
+    public boolean serverSharedSocket()
+    {
+        return _serverSharedSocket;
+    }
+
+    @Override
+    public void serverSharedSocket(boolean serverSharedSocket)
+    {
+        _serverSharedSocket = serverSharedSocket;
     }
 }

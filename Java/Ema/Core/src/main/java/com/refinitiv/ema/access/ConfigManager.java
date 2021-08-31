@@ -261,6 +261,7 @@ class ConfigManager
 	public static final int ServerInitTimeout = 905;
 	public static final int ServerWsProtocols = 906;
 	public static final int ServerMaxFragmentSize = 907;
+	public static final int ServerSharedSocket = 908;
 
 	// Server: Socket
 	public static final int ServerCompressionThreshold = 1000;
@@ -550,6 +551,7 @@ class ConfigManager
 		ServerTagDict.add( "InitializationTimeout", ServerInitTimeout );
 		ServerTagDict.add("WsProtocols", ServerWsProtocols);
 		ServerTagDict.add("MaxFragmentSize", ServerMaxFragmentSize);
+		ServerTagDict.add( "ServerSharedSocket", ServerSharedSocket);
 
 		GlobalConfigDict.add( "GlobalConfig", GlobalConfig );
 		GlobalConfigDict.add( "WorkerEventPoolLimit", WorkerEventPoolLimit );
@@ -748,6 +750,7 @@ class ConfigManager
 		"RemoveItemsOnDisconnect",
 		"RequestTimeout",
 		"RestRequestTimeOut",
+		"ServerSharedSocket",
 		"ServiceCountHint",
 		"ServiceId",
 		"ServiceState",

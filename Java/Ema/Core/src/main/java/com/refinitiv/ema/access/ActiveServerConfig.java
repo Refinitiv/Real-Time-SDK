@@ -20,6 +20,7 @@ abstract class ActiveServerConfig extends BaseConfig
 	final static boolean DEFAULT_ACCEPT_MSG_THAT_CHANGES_SERVICE    = false;
 	final static boolean DEFAULT_ACCEPT_MSG_WITHOUT_QOS_IN_RANGE          = false;
 	final static boolean DEFAULT_ENFORCE_ACK_ID_VALIDATION          = false;
+	final static boolean DEFAULT_SERVER_SHARED_SOCKET          = false;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				  = 60000;
 	final static int DEFAULT_CONNECTION_MINPINGTIMEOUT            = 20000;
 	final static int DEFAULT_SERVER_SYS_SEND_BUFFER_SIZE		  = 65535;

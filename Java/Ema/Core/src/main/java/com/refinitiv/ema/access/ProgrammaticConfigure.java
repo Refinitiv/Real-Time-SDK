@@ -93,6 +93,7 @@ class ProgrammaticConfigure
 		final static int SECURITY_PROVIDER_FLAG =			0x100000;
 		final static int KEY_MANAGER_ALGO_FLAG =			0x200000;
 		final static int TRUST_MANAGER_ALGO_FLAG =			0x400000;
+		final static int SERVER_SHARED_SOCKET =				0x800000;
 	}
 
 	/** @class TunnelingEntryFlag
@@ -1861,6 +1862,7 @@ class ProgrammaticConfigure
 		long tcpNodelay = 0;
 		long directWrite = 0;
 		long initializationTimeout = 0;
+		long serverSharedSocket = 0;
 		long maxFragmentSize = 0;
 		String keystoreFile = null;
 		String keystorePasswd = null;
@@ -2016,9 +2018,16 @@ class ProgrammaticConfigure
 				{
 					initializationTimeout = serverEntry.intValue();
 					flags |= ServerEntryFlag.INIT_TIMEOUT_FLAG;
-				} else if (serverEntry.name().equals("MaxFragmentSize")) {
+				}
+				else if (serverEntry.name().equals("MaxFragmentSize"))
+				{
 					maxFragmentSize = serverEntry.intValue();
 					flags |= ServerEntryFlag.MAX_FRAGMENT_SIZE_FLAG;
+				}
+				else if (serverEntry.name().equals("ServerSharedSocket"))
+				{
+					serverSharedSocket = serverEntry.intValue();
+					flags |= ServerEntryFlag.SERVER_SHARED_SOCKET;
 				}
 				break;
 			default:
@@ -2109,6 +2118,11 @@ class ProgrammaticConfigure
 				currentServerConfig.initializationTimeout = convertToInt(initializationTimeout);
 			else if ( fileCfg != null )
 				currentServerConfig.initializationTimeout = fileCfg.initializationTimeout;
+
+			if ((flags & ServerEntryFlag.SERVER_SHARED_SOCKET) != 0)
+				currentServerConfig.serverSharedSocket = serverSharedSocket != 0;
+			else if ( fileCfg != null )
+				currentServerConfig.serverSharedSocket = fileCfg.serverSharedSocket;
 
 			if ((flags & ServerEntryFlag.MAX_FRAGMENT_SIZE_FLAG) != 0 && maxFragmentSize >= 0) {
 				currentServerConfig.maxFragmentSize = convertToInt(maxFragmentSize);

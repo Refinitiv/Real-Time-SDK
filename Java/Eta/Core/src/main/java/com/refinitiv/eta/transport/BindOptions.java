@@ -614,6 +614,21 @@ public interface BindOptions
     public String groupAddress();
 
     /**
+     * If set to true multiple servers will be able to bind on the same port.
+     * The implementation of this flag is OS dependent.
+     * 
+     * @param serverSharedSocket value
+     */
+    public void serverSharedSocket(boolean  serverSharedSocket);
+
+    /**
+     * Returns true if multiple servers can bind on the same port 
+     *
+     * @return serverSharedSocket value
+     */
+    public boolean serverSharedSocket();
+
+    /**
      * Encrypted configuration options. This is only active if the connection type is set to {@link ConnectionTypes#ENCRYPTED}.
      * @return the Server Encryption Options
      */

@@ -1,9 +1,12 @@
 package com.refinitiv.eta.transport;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.SocketOption;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.ServerSocketChannel;
@@ -11,6 +14,10 @@ import java.util.Objects;
 
 class ServerImpl extends EtaNode implements Server
 {
+
+    public static final String OS_NAME = System.getProperty("os.name");
+    public static final String JAVA_VERSION = System.getProperty("java.version");
+
     class SharedPool extends Pool
     {
         SharedPool(Object o)
@@ -187,8 +194,12 @@ class ServerImpl extends EtaNode implements Server
             return TransportReturnCodes.FAILURE;
         }
         
-       _bindOpts.wSocketOpts().protocols(WebSocketHandlerImpl.constructProtocolList(protocols, true));
+        _bindOpts.wSocketOpts().protocols(WebSocketHandlerImpl.constructProtocolList(protocols, true));
                 
+        if (!checkServerSharedSocketProperty(options, error)){
+            return TransportReturnCodes.FAILURE;
+        }
+
         _portNumber = _bindOpts.port();
         _connType = _bindOpts.connectionType();
         try
@@ -220,6 +231,10 @@ class ServerImpl extends EtaNode implements Server
 
             // create ServerSocketChannel
             _srvrScktChannel = ServerSocketChannel.open();
+            if(options.serverSharedSocket())
+            {
+                enableServerSharedSocket();
+            }
             _srvrScktChannel.configureBlocking(options.serverBlocking());
 
             // sendBufSize will be set in accept via AcceptOptions
@@ -284,6 +299,60 @@ class ServerImpl extends EtaNode implements Server
         }
 
         return ret;
+    }
+
+    private boolean checkServerSharedSocketProperty(BindOptions options, Error error)
+    {
+        if (options.serverSharedSocket() && System.getProperty("os.name").toLowerCase().contains("windows") && 
+                    Boolean.parseBoolean(System.getProperty("sun.net.useExclusiveBind", "true")))
+        {
+            String errorText = "Failed to initialize Server. " +
+                                       "serverSharedSocket option is set to true, but system property " +
+                                       "sun.net.useExclusiveBind is not set to false on Windows platform. " +
+                                       "sun.net.useExclusiveBind property must be set to false " +
+                                       "when serverSharedSocket option is enabled.";
+            error.channel(null);
+            error.errorId(TransportReturnCodes.FAILURE);
+            error.sysError(0);
+            error.text(errorText);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void enableServerSharedSocket() throws SocketException
+    {
+        if (OS_NAME.toLowerCase().contains("windows"))
+        {
+            enableServerSharedSocketWindows();
+        }
+        else if (OS_NAME.toLowerCase().contains("linux"))
+        {
+            enableServerSharedSocketLinux();
+        }
+    }
+
+    private void enableServerSharedSocketLinux() throws SocketException
+    {
+        try
+        {
+            Class<?> optionsClass = Class.forName("java.net.StandardSocketOptions");
+            Field field = optionsClass.getDeclaredField("SO_REUSEPORT");
+            @SuppressWarnings("unchecked")
+            SocketOption<Boolean> optionValue = (SocketOption<Boolean>) field.get(null);
+            _srvrScktChannel.setOption(optionValue, true);
+        }
+        catch (ClassCastException | NoSuchFieldException | ClassNotFoundException | IllegalAccessException | IOException e)
+        {
+            throw new SocketException("Error occurred when trying to set SO_REUSEPORT: " + e + "."
+            	+ " Flag serverSharedSocket is not supported by OS " + OS_NAME + " with java version " + JAVA_VERSION);
+        }
+    }
+
+    private void enableServerSharedSocketWindows() throws SocketException
+    {
+        _srvrScktChannel.socket().setReuseAddress(true);
     }
 
     @Override
