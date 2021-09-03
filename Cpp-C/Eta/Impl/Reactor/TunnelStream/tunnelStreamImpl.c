@@ -2412,6 +2412,7 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 				case TSS_WAIT_ACK_OF_FIN:
 				case TSS_SEND_ACK_OF_FIN:
 				case TSS_WAIT_CLOSE:
+				case TSS_SEND_REFRESH:
 
 					if (pAuthInfo)
 					{
