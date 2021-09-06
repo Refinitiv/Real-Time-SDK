@@ -14,13 +14,27 @@ import java.nio.ByteBuffer;
 import java.nio.channels.NotYetConnectedException;
 
 
-import org.junit.Assume;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.test.network.replay.NetworkReplay;
 import com.refinitiv.eta.test.network.replay.NetworkReplayFactory;
+import com.refinitiv.eta.transport.BindOptions;
+import com.refinitiv.eta.transport.BindOptionsImpl;
+import com.refinitiv.eta.transport.Channel;
+import com.refinitiv.eta.transport.ChannelInfo;
+import com.refinitiv.eta.transport.ChannelState;
+import com.refinitiv.eta.transport.ConnectOptions;
+import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.Error;
+import com.refinitiv.eta.transport.InitArgs;
+import com.refinitiv.eta.transport.Server;
+import com.refinitiv.eta.transport.RsslSocketChannel;
 import com.refinitiv.eta.transport.SocketProtocol.TrackingPool;
+import com.refinitiv.eta.transport.Transport;
+import com.refinitiv.eta.transport.TransportFactory;
+import com.refinitiv.eta.transport.TransportReturnCodes;
+import com.refinitiv.eta.transport.UnifiedNetworkInfoImpl;
 
 public class TransportJunit
 {
@@ -341,31 +355,6 @@ public class TransportJunit
             assertEquals(TransportReturnCodes.SUCCESS,
                          Transport.initialize(initArgs, error));
 
-        }
-        finally
-        {
-            closeServer(server, error);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }
-    }
-
-    @Test
-    public void bindSecondServerOnSamePortTest()
-    {
-        Assume.assumeTrue(isServerSharedSocketSupported());
-        final Error error = TransportFactory.createError();
-        Server server = null;
-        Server server2  = null;
-        BindOptions bindOpts = getDefaultBindOptions();
-        bindOpts.serverSharedSocket(true);
-        try
-        {
-
-            InitArgs initArgs = TransportFactory.createInitArgs();
-            initArgs.globalLocking(false);
-            assertEquals(TransportReturnCodes.SUCCESS,
-                    Transport.initialize(initArgs, error));
-
             server = Transport.bind(bindOpts, error);
             assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
                     + error.sysError(), server);
@@ -378,13 +367,6 @@ public class TransportJunit
         }
     }
     
-    private boolean isServerSharedSockerSupported()
-    {
-        return !(System.getProperty("os.name").toLowerCase().contains("linux") &&
-                                  System.getProperty("java.version").startsWith("1.8"));
-    }
-
-
     /**
      * GIVEN default bind options
      * WHEN {@link Transport#bind(BindOptions, Error) bind} is invoked
@@ -413,7 +395,8 @@ public class TransportJunit
         }
         finally
         {
-            closeServer(server, error);
+            if (server != null)
+                server.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
     }
@@ -821,100 +804,6 @@ public class TransportJunit
         }
     }
     
-    @Test
-    public void failBindSecondServerOnSamePortTest()
-    {
-        final Error error = TransportFactory.createError();
-        Server server = null;
-        Server server2  = null;
-        BindOptions bindOpts = getDefaultBindOptions();
-        bindOpts.serverSharedSocket(false);
-        try
-        {
-            InitArgs initArgs = TransportFactory.createInitArgs();
-            initArgs.globalLocking(false);
-            assertEquals(TransportReturnCodes.SUCCESS,
-                    Transport.initialize(initArgs, error));
-
-            server = Transport.bind(bindOpts, error);
-            server2 = Transport.bind(bindOpts, error);
-            assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
-                    + error.sysError(), server);
-            assertNull("Expected second server to fail binding on the same port", server2);
-            assertTrue(error.text().contains("Address already in use"));
-
-        }
-        finally
-        {
-            closeServer(server, error);
-            closeServer(server2, error);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }
-    }
-
-    @Test
-    public void failToBindSecondServerOnLinuxWithJava8()
-    {
-        Assume.assumeFalse(isServerSharedSocketSupported());
-        final Error error = TransportFactory.createError();
-        Server server = null;
-        Server server2  = null;
-        BindOptions bindOpts = getDefaultBindOptions();
-        bindOpts.serverSharedSocket(true);
-        try
-        {
-            InitArgs initArgs = TransportFactory.createInitArgs();
-            initArgs.globalLocking(false);
-            assertEquals(TransportReturnCodes.SUCCESS,
-                    Transport.initialize(initArgs, error));
-
-            server = Transport.bind(bindOpts, error);
-            server2 = Transport.bind(bindOpts, error);
-
-            assertNotNull(error.text() + " errorId=" + error.errorId() + " sysErrorId="
-                                  + error.sysError(), server);
-            assertNull("Expected second server to fail binding on the same port", server2);
-            assertTrue(error.text().contains("Address already in use"));
-
-        }
-        finally
-        {
-            closeServer(server, error);
-            closeServer(server2, error);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-        }
-    }
-
-    @Test
-    public void failToInitializeServerOnWindowsWhenExclusiveBindPropertyIsNotSet()
-    {
-        Assume.assumeTrue(System.getProperty("os.name").toLowerCase().contains("windows"));
-        System.clearProperty("sun.net.useExclusiveBind");
-        final Error error = TransportFactory.createError();
-        Server server = null;
-        BindOptions bindOpts = getDefaultBindOptions();
-        bindOpts.serverSharedSocket(true);
-        try
-        {
-            InitArgs initArgs = TransportFactory.createInitArgs();
-            initArgs.globalLocking(false);
-            assertEquals(TransportReturnCodes.SUCCESS,
-                    Transport.initialize(initArgs, error));
-
-            server = Transport.bind(bindOpts, error);
-
-            assertNull("Expected server to fail initializing when " +
-                                  "sun.net.useExclusiveBind property is not set on Windows.", server);
-
-        }
-        finally
-        {
-            closeServer(server, error);
-            assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
-            System.setProperty("sun.net.useExclusiveBind", "false");
-        }
-    }
-
     /**
      * GIVEN default bind options
      * WHEN {@link Transport#bind(BindOptions, Error) bind} is invoked
@@ -988,7 +877,8 @@ public class TransportJunit
         }
         finally
         {
-            closeServer(server, error);
+            if (server != null)
+                server.close(error);
             assertEquals(TransportReturnCodes.SUCCESS, Transport.uninitialize());
         }
         
@@ -1276,15 +1166,4 @@ public class TransportJunit
 
     }
     
-    private void closeServer(Server server, Error error)
-    {
-        if (server != null)
-            server.close(error);
-    }
-
-    private boolean isServerSharedSocketSupported()
-    {
-        return !(System.getProperty("os.name").toLowerCase().contains("linux") &&
-                System.getProperty("java.version").startsWith("1.8"));
-    }
 }

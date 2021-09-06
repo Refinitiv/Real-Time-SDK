@@ -905,6 +905,23 @@ public class TransportMessageJunit
         return bindOptions;
     }
 
+    public BindOptions encryptedBindOptions(String portNumber)
+    {
+        BindOptions bindOptions = TransportFactory.createBindOptions();
+        bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
+        bindOptions.encryptionOptions().keystoreFile(CryptoHelperTest.VALID_CERTIFICATE);
+        bindOptions.encryptionOptions().keystorePasswd(CryptoHelperTest.KEYSTORE_PASSWORD);
+        bindOptions.encryptionOptions().keystoreType("JKS");
+        bindOptions.encryptionOptions().trustManagerAlgorithm("");
+        bindOptions.encryptionOptions().keyManagerAlgorithm("SunX509");
+        bindOptions.encryptionOptions().securityProtocol("TLS");
+        bindOptions.encryptionOptions().securityProvider("SunJSSE");
+        bindOptions.serviceName(portNumber);
+        bindOptions.sysRecvBufSize(64 * 1024);
+
+        return bindOptions;
+    }
+
     public AcceptOptions defaultAcceptOptions()
     {
         AcceptOptions acceptOptions = TransportFactory.createAcceptOptions();
@@ -923,6 +940,29 @@ public class TransportMessageJunit
         return connectOptions;
     }
 
+    public ConnectOptions encryptedConnectOptions(String portNumber)
+    {
+        ConnectOptions connectOptions = TransportFactory.createConnectOptions();
+
+        connectOptions.connectionType(ConnectionTypes.ENCRYPTED);
+        connectOptions.encryptionOptions().connectionType(ConnectionTypes.SOCKET);
+        connectOptions.encryptionOptions().KeystoreFile(CryptoHelperTest.VALID_CERTIFICATE);
+        connectOptions.encryptionOptions().KeystorePasswd(CryptoHelperTest.KEYSTORE_PASSWORD);
+        connectOptions.encryptionOptions().KeystoreType("JKS");
+        connectOptions.encryptionOptions().TrustManagerAlgorithm("");
+        connectOptions.encryptionOptions().KeyManagerAlgorithm("SunX509");
+        connectOptions.encryptionOptions().SecurityProtocol("TLS");
+        connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
+        connectOptions.tunnelingInfo().tunnelingType("None");
+        connectOptions.unifiedNetworkInfo().address("localhost");
+        connectOptions.unifiedNetworkInfo().serviceName(portNumber);
+        connectOptions.majorVersion(Codec.majorVersion());
+        connectOptions.minorVersion(Codec.minorVersion());
+        connectOptions.protocolType(Codec.protocolType());
+
+        return connectOptions;
+    }
+
 
     /**
      * Start and initialize the client channels.
@@ -932,12 +972,12 @@ public class TransportMessageJunit
      * @return
      */
     public Channel startClientChannel(int guaranteedOutputBuffers, 
-            boolean blocking, boolean writeLocking, int compressionType, String portNumber)
+            boolean blocking, boolean writeLocking, int compressionType, String portNumber, boolean encrypted)
     {
         System.out.println("startClientChannel(): entered");
 
         Channel channel;
-        ConnectOptions connectOptions = defaultConnectOptions(portNumber);
+        ConnectOptions connectOptions = encrypted ? encryptedConnectOptions(portNumber) : defaultConnectOptions(portNumber);
         connectOptions.blocking(blocking);
         connectOptions.compressionType(compressionType);
         connectOptions.channelWriteLocking(writeLocking);
@@ -1292,6 +1332,7 @@ public class TransportMessageJunit
         boolean debug = false;
         int expectedTotalBytes = -1;
         int expectedUncompressedBytes = -1;
+        boolean encrypted = false;
 
 	private static int portNumber = 15200;
 	String PORT_NUMBER;
@@ -1891,6 +1932,454 @@ public class TransportMessageJunit
         testRunnerPacked("ptest3: packing with random data and no compression ", args);
     }
 
+    @Test
+    public void test0_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = false;
+        args.writeLocking = true;
+        args.blocking = true;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 6;
+
+        int[] sizes = { 6140};
+        args.messageSizes = sizes;
+        args.printReceivedData = true;
+        args.debug = true;
+        args.messageContent = MessageContentType.RANDOM;
+        args.encrypted = true;
+
+        testRunner("test0_encrypted: debugging", args);
+    }
+
+    @Test
+    public void test1_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 0;
+
+        int[] sizes = { 6142 };
+        args.messageSizes = sizes;
+        args.printReceivedData = true;
+        args.messageContent = MessageContentType.UNIFORM;
+        args.encrypted = true;
+
+        testRunner("test1_encrypted: basic", args);
+    }
+
+    // No compression: message sizes from no-frag to fragmentation
+    @Test
+    public void test2_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.encrypted = true;
+
+        args.compressionType = CompressionTypes.NONE;
+        args.compressionLevel = 0;
+
+        int[] sizes = { 6140, 6141, 6142, 6143, 6144, 6145, 6146, 6147, 6148, 6149 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.UNIFORM;
+
+        testRunner("test2_encrypted: no compression fragmentation boundary", args);
+    }
+
+    // lz4 compression growth: messages sizes from no-frag to fragmentation
+    @Test
+    public void test3_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = false;
+        args.writeLocking = true;
+        args.blocking = true;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 6100, 6101, 6102, 6103, 6104, 6105, 6106, 6107, 6108, 6109, 6110};
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        testRunner("test3_encrypted: lz4 fragmentation boundary test poor compression", args);
+    }
+
+    // zlib compression growth: message sizes from no-frag to fragmentation
+    @Test
+    public void test4_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 6123, 6124, 6125, 6126, 6127, 6128, 6129, 6130, 6131, 6132, 6133, 6134, 6135, 6136, 6137, 6138, 6139, 6140 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        testRunner("test4_encrypted: zlib fragmentation boundary test poor compression", args);
+    }
+
+    // Alternate fragments with Random and Uniform data.
+    // Starting with Random forces compression fragmentation on the first fragment
+    @Test
+    public void test5_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 50000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.MIXED_RANDOM_START;
+
+        testRunner("test5_encrypted: mixed data random start", args);
+    }
+
+    @Test
+    public void test5z_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 50000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.MIXED_RANDOM_START;
+
+        testRunner("test5_encrypted: mixed data random start", args);
+    }
+
+    // Alternate fragments with Random and Uniform data.
+    // Starting with Uniform forces compression fragmentation on the second fragment
+    @Test
+    public void test6_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 50000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.MIXED_UNIFORM_START;
+
+        testRunner("test6_encrypted: mised data uniform start", args);
+    }
+
+    @Test
+    public void test6z_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 50000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.MIXED_UNIFORM_START;
+
+        testRunner("test6z_encrypted: mixed data uniform start", args);
+    }
+
+    // Alternate fragments with Random and Uniform data.
+    // Starting with Uniform forces compression fragmentation on the second fragment
+    @Test
+    public void test7_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 6;
+        args.encrypted = true;
+
+        int[] sizes = { 500000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.MIXED_UNIFORM_START;
+
+        testRunner("test7_encrypted: mixed data large message", args);
+    }
+
+    @Test
+    public void test8_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.NONE;
+        args.compressionLevel = 0;
+        args.encrypted = true;
+
+        int[] sizes = { 7000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        // frag 1: 6147
+        // frag 2:  869
+        args.expectedTotalBytes = 7016;
+
+        testRunner("test8_encrypted: ", args);
+    }
+
+    // fragment + compressed frag testing writeArgs bytes written
+    @Test
+    public void test8lz4_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 0;
+        args.encrypted = true;
+
+        int[] sizes = { 7000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        // frag 1: 6147
+        // frag 1b: 29
+        // frag 2: 874
+        args.expectedTotalBytes = 7050;
+
+        // frag 1: 10
+        // frag 1b: 3
+        // frag 2: 6
+        // data: 7000
+        args.expectedUncompressedBytes = 7019;
+
+        testRunner("test8lz4_encrypted: fragment with compFragment testing write args bytes written", args);
+    }
+
+    // fragment + compressed frag testing writeArgs bytes written
+    @Test
+    public void test8z_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 0;
+        args.debug = true;
+        args.encrypted = true;
+
+        int[] sizes = { 7000 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        // frag 1: 6147
+        // frag 1b: 15
+        // frag 2: 879
+        args.expectedTotalBytes = 7041;
+
+        // frag 1: 10
+        // frag 1b: 3
+        // frag 2: 6
+        // data: 7000
+        args.expectedUncompressedBytes = 7019;
+
+        testRunner("test8z_encrypted: zlib fragment with compFragment testing write args bytes written", args);
+    }
+
+    // compressed frag normal: testing writeArgs bytes written
+    @Test
+    public void test9lz4_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 0;
+
+        int[] sizes = { 6140 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+        args.encrypted = true;
+
+        // 1: 6147
+        // 1b: 25
+        args.expectedTotalBytes = 6172;
+
+        // 1: 3
+        // 1b: 3
+        // data: 6140
+        args.expectedUncompressedBytes = 6146;
+
+        testRunner("test9lz4_encrypted: compFragment normal testing write args bytes written", args);
+    }
+
+    @Test
+    public void test10_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.NONE;
+        args.compressionLevel = 0;
+        args.encrypted = true;
+
+        int[] sizes = { 12300 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        testRunner("test10_encrypted: ", args);
+    }
+
+    // Designed so that the last fragment size is below the compression threshold
+    @Test
+    public void test10lz4_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.LZ4;
+        args.compressionLevel = 0;
+        args.encrypted = true;
+
+        int[] sizes = { 12300 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        testRunner("test10lz4_encrypted: last fragment not compressed", args);
+    }
+
+    // Designed so that the last fragment size is below the compression threshold
+    @Test
+    public void test10z_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 0;
+        args.encrypted = true;
+
+        int[] sizes = { 12300 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        testRunner("test10z_encrypted: last fragment not compressed", args);
+    }
+
+    @Test
+    public void test11z_encrypted()
+    {
+        TestArgs args = TestArgs.getInstance();
+
+        args.runTime = 30;
+        args.guaranteedOutputBuffers = 700;
+        args.globalLocking = true;
+        args.writeLocking = true;
+        args.blocking = false;
+        args.compressionType = CompressionTypes.ZLIB;
+        args.compressionLevel = 0;
+        args.encrypted = true;
+
+        int[] sizes = { 6128, 6129 };
+        args.messageSizes = sizes;
+        args.printReceivedData = false;
+        args.messageContent = MessageContentType.RANDOM;
+
+        testRunner("test11z_encrypted: ", args);
+    }
+
     public void testRunner(String testName, TestArgs args)
     {
         System.out.println("--------------------------------------------------------------------------------");
@@ -1902,7 +2391,7 @@ public class TransportMessageJunit
         assertTrue("Cannot have client blocking and globalLocking=true with server using same JVM, globalLocking will deadlock.", (args.blocking && args.globalLocking) == false);
 
         // BindOptions
-        BindOptions bindOptions = defaultBindOptions(args.PORT_NUMBER);
+        BindOptions bindOptions = args.encrypted ? encryptedBindOptions(args.PORT_NUMBER) : defaultBindOptions(args.PORT_NUMBER);
         bindOptions.compressionType(args.compressionType);
         if (args.compressionType > CompressionTypes.NONE)
             bindOptions.compressionLevel(args.compressionLevel);
@@ -1922,12 +2411,13 @@ public class TransportMessageJunit
         }
         else
         {
+            System.out.println("Server bound");
             // start the channels that represent client session
             Channel clientChannel = startClientChannel(args.guaranteedOutputBuffers,
                                                        args.blocking,
                                                        args.writeLocking,
                                                        args.compressionType,
-							args.PORT_NUMBER);
+							args.PORT_NUMBER, args.encrypted);
             assertNotNull("startClientChannel failed, check output", clientChannel);
 
             EtajClient etajClient = new EtajClient(1, // etajClientCount
@@ -2053,7 +2543,7 @@ public class TransportMessageJunit
                                                        args.blocking,
                                                        args.writeLocking,
                                                        args.compressionType,
-							args.PORT_NUMBER);
+							args.PORT_NUMBER, false);
             assertNotNull("startClientChannel failed, check output", clientChannel);
 
             EtajClient etajClient = new EtajClient(1, // etajClientCount

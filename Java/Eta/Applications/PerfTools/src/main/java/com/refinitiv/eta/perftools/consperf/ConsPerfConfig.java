@@ -68,6 +68,7 @@ public class ConsPerfConfig
 	private String _keyfile = null;			/* Keyfile for encrypted connection */
 	private String _keypasswd = null;		/* password for encrypted keyfile */
 	private boolean _calcRWFJSONConversionLatency; /* If set, the application will caluclate time spent on rwf-to-json conversion for WebSocket RWF protocol */
+	private int _netRecvBufSize; /* The size of the Net Receive buffer in the CryptoHelper */
 
     {
         CommandLine.programName("ConsPerf");
@@ -115,6 +116,7 @@ public class ConsPerfConfig
         CommandLine.addOption("keypasswd", "", "Keystore password");        
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
      	CommandLine.addOption("calcRWFJSONConversionLatency", false, "Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF");
+		CommandLine.addOption("netRecvBufSize", 64000, "Size of net receive buffer under encrypted connection");
     }
 	
     /**
@@ -162,6 +164,7 @@ public class ConsPerfConfig
         _busyRead = CommandLine.booleanValue("busyRead");
         _tunnelStreamOutputBuffers = CommandLine.intValue("tunnelStreamOutputBufs");
         _tunnelStreamBufsUsed = CommandLine.booleanValue("tunnelStreamBuffersUsed");
+        _netRecvBufSize = CommandLine.intValue("netRecvBufSize");
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -908,5 +911,14 @@ public class ConsPerfConfig
 	 */
 	public boolean calcRWFJSONConversionLatency() {
 		return _calcRWFJSONConversionLatency;
+	}
+
+	/**
+	 * In case of encrypted connection provides the expected size of the _netRecvBuffer inside CryptoHelper
+	 * that is used to read data from the network
+	 * @return the expected size of the _netRecvBuffer
+	 */
+	public int getNetRecvBufSize() {
+		return _netRecvBufSize;
 	}
 }

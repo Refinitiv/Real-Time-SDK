@@ -1514,6 +1514,14 @@ class RsslSocketChannel extends EtaNode implements Channel
                 // read from the channel: note *replace* the call to read()
                 // below with a call to readAndPrintForReplay() to collect network replay data (for debugging) only!
                 int bytesRead = read(_readIoBuffer.buffer());
+                if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW)
+                {
+                    _readIoBuffer.buffer().limit(_readIoBuffer.buffer().position());
+                    _readIoBuffer.buffer().position(_readBufStateMachine.currentMessagePosition());
+                    _readIoBuffer.buffer().compact();
+                    _readBufStateMachine.advanceOnCompactOnBufferOverflow();
+                    bytesRead = read(_readIoBuffer.buffer());
+                }
                 _readBufStateMachine.advanceOnSocketChannelRead(bytesRead, readArgs, error);
 //                int bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above line with this one
                 break;
@@ -3242,7 +3250,7 @@ class RsslSocketChannel extends EtaNode implements Channel
 
     private void createReadBuffers(int numReadBuffers)
     {
-        final int readBufferCapacity;
+        int readBufferCapacity;
 
         // note: only the unit test framework overrides the read buffer capacity
         if (_overrideReadBufferCapacity == null)
@@ -3601,7 +3609,6 @@ class RsslSocketChannel extends EtaNode implements Channel
 
                 /* create read/write buffer pools */
                 createReadBuffers(_channelInfo._numInputBuffers);
-
                 if (getWsSession().isDeflate() && (_cachedConnectOptions.compressionType() == Ripc.CompressionTypes.ZLIB)) {
                     _sessionOutCompression = _cachedConnectOptions.compressionType();
                     _sessionInDecompress = _sessionOutCompression;

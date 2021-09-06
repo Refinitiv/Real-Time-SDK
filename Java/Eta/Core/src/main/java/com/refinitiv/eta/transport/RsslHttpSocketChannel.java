@@ -1088,6 +1088,14 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                             {
                                 // read from _oldCrypto
                                 bytesRead = _oldCrypto.read(_readIoBuffer.buffer());
+                                if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW) { //readIoBuffer overflow happened
+                                    _readIoBuffer.buffer().limit(_readIoBuffer.buffer().position());
+                                    _readIoBuffer.buffer().position(_readBufStateMachine.currentMessagePosition());
+                                    _readIoBuffer.buffer().compact();
+                                    _readBufStateMachine.advanceOnCompactOnBufferOverflow();
+
+                                    bytesRead = _oldCrypto.read(_readIoBuffer.buffer());
+                                }
                                 saveOldScktChannelBytesRead = saveOldScktChannelBytesRead + bytesRead;
                             }
                             catch (IOException e)

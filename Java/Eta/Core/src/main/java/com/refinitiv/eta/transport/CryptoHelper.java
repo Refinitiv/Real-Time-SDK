@@ -108,6 +108,7 @@ class CryptoHelper
         String keyManagerAlgorithm;
         
         EncryptionOptionsImpl encOpts = (EncryptionOptionsImpl)options.encryptionOptions();
+        _netRecvBufSize = encOpts.getNetRecvBufSize();
 
     	if(options.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
     	{
@@ -275,10 +276,10 @@ class CryptoHelper
 
         // allocate the buffers used for Java SSLEngine
         // (doubling the receive size for cases where the application data size is very large (e.g. data dictionary)
-        _netRecvBuffer = ByteBuffer.allocateDirect(4 * sslBufferSize); // receive buffers
-        _appRecvBuffer = ByteBuffer.allocateDirect(4 * appBufferSize);
-        _appSendBuffer = ByteBuffer.allocateDirect(2 * appBufferSize); // send buffers
-        _netSendBuffer = ByteBuffer.allocateDirect(2 * sslBufferSize);
+        _netRecvBuffer = ByteBuffer.allocate(Math.max(sslBufferSize, _netRecvBufSize)); // receive buffers
+        _appRecvBuffer = ByteBuffer.allocate(4 * appBufferSize);
+        _appSendBuffer = ByteBuffer.allocate(2 * appBufferSize); // send buffers
+        _netSendBuffer = ByteBuffer.allocate(2 * sslBufferSize);
     }
 
     private KeyStore initializeClientKeystore(char[] clientKeystorePassword, String keystoreFile, String keystoreType) throws IOException
@@ -322,83 +323,77 @@ class CryptoHelper
     final int read(final ByteBuffer dst) throws IOException
     {
         checkEngine();
-        decryptNetworkData(true);
+        readCount = 0;
 
+        if (_appRecvBuffer.position() > 0) //any data received during handshake renegotiation? should be a rare case
+        {
+            _appRecvBuffer.flip();
+            while (_appRecvBuffer.hasRemaining() && dst.hasRemaining()) {
+                dst.put(_appRecvBuffer.get());
+                readCount++;
+            }
+            _appRecvBuffer.compact();
+        }
+
+        int decryptCount = 0;
+        if (dst.hasRemaining()) {
+            decryptCount = decryptNetworkData(dst);
+            if (decryptCount != Integer.MIN_VALUE)
+                readCount += decryptCount;
+        }
         // this checks whether the server side initiated key renegotiation and thus new handshake started
         if ((_engine.getHandshakeStatus() != HandshakeStatus.FINISHED) && (_engine.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING))
         {
             performHandshake();
         }
 
-        readCount = 0;
-        // if _appRecvBuffer has data, then empty it into destination buffers dst
-        if (_appRecvBuffer.position() > 0)
-        {
-            // make _appRecvBuffer readable
-            _appRecvBuffer.flip();
-
-            // empty _appRecvBuffer into the destination buffer dst
-            {
-                // first empty _appRecvBuffer into dst
-                byteTransfer(_appRecvBuffer, dst);
-            }
-
-            // setup _appRecvBuffer back to writable (with any 'un-got' data at beginning of _appRecvBuffer)
-            _appRecvBuffer.compact();
-        }
-
-        return readCount;
-    }
-
-    // Transfer bytes remaining in ByteBuffer src to ByteBuffer dst (until dst.remaining()==0)
-    private void byteTransfer(ByteBuffer src, ByteBuffer dst)
-    {
-        while (dst.hasRemaining() && src.hasRemaining())
-        {
-            dst.put(src.get());
-            readCount++;
-        }
+        return decryptCount != Integer.MIN_VALUE ? readCount : decryptCount;
     }
 
     // Implementation of SocketChannel::write(ByteBuffer src)
     // (src should be immediately readable)
     final int write(final ByteBuffer src) throws IOException
     {
-        checkEngine();
-        // clear _appSendBuffer before using it
-        _appSendBuffer.clear();
-
-        // mark the src buffer so we can reset (src.reset()) if we want to indicate that nothing was read
-        src.mark();
-
-        // empty the source buffer src into _appSendBuffer
+        boolean canWrite = true;
         int writeCount = 0;
-        while (src.hasRemaining() && _appSendBuffer.hasRemaining())
+
+        checkEngine();
+
+        while (src.hasRemaining() && canWrite)
         {
-            _appSendBuffer.put(src.get());
-            writeCount++;
-        }
+            SSLEngineResult result = _engine.wrap(src, _netSendBuffer);
+            if (result.getStatus() == Status.OK)
+            {
+                writeCount += result.bytesConsumed();
+            }
+            /*else if (result.getStatus() == Status.BUFFER_OVERFLOW) {
+                will try to flush the _netSendBuffer to network in what follows, no data was consumed from src.
+            } else if (result.getStatus() == Status.BUFFER_UNDERFLOW) {
+                not enough data in src - this should never be the case due to the enclosing while loop condition
+            } */
 
-        // make _appSendBuffer readable
-        _appSendBuffer.flip();
+            _netSendBuffer.flip();
+            try
+            {
+                while (_netSendBuffer.hasRemaining())
+                {
+                    if (_socketChannel.write(_netSendBuffer) <= 0)
+                    {
+                        canWrite = false;
+                        break;
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                _netSendBuffer.clear();
+            }
+            _netSendBuffer.compact();
 
-        // encrypt (wrap) the application plaintext (currently in _appSendBuffer)
-        SSLEngineResult result = encryptApplicationData();
-
-        // this checks whether the server side initiated key renegotiation and thus new handshake started
-        if ((_engine.getHandshakeStatus() != HandshakeStatus.FINISHED) && (_engine.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING))
-        {
-            performHandshake();
-        }
-
-        // check how many bytes we've just used from the src buffer
-        if (result.bytesConsumed() == 0)
-        {
-            // if we didn't consume any bytes, clear _appSendBuffer and reset src
-            _appSendBuffer.clear();
-            src.reset();
-
-            return 0;
+            if ((_engine.getHandshakeStatus() != HandshakeStatus.FINISHED) && (_engine.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING))
+            {
+                performHandshake();
+            }
         }
 
         // return the number of bytes that we used from the src buffer.
@@ -409,7 +404,7 @@ class CryptoHelper
     final long write(final ByteBuffer[] srcs, final int offset, final int length) throws IOException
     {
         long writeCount = 0;
-        for (int i = offset; i < length; i++)
+        for (int i = offset; i < offset + length; i++)
         {
             writeCount += write(srcs[i]);
             if (srcs[i].hasRemaining())
@@ -456,7 +451,20 @@ class CryptoHelper
                     }
                     break;
                 case NEED_UNWRAP:
-                    decryptNetworkData(false);
+                    if (readFromChannel() == -1)
+                        throw new IOException("Tunnel Channel disconnected");
+
+                    _netRecvBuffer.flip();
+                    SSLEngineResult unwrap_result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
+
+                    if (unwrap_result.getStatus() == Status.BUFFER_OVERFLOW) {
+                        ByteBuffer temp = ByteBuffer.allocate(_appRecvBuffer.capacity() * 2);
+                        _appRecvBuffer.flip();
+                        temp.put(_appRecvBuffer);
+                        _appRecvBuffer = temp;
+                    }
+
+                    _netRecvBuffer.compact();
                     try
                     {
                         Thread.sleep(100);
@@ -466,7 +474,16 @@ class CryptoHelper
                     }
                     break;
                 case NEED_WRAP:
-                    encryptApplicationData();
+                    SSLEngineResult wrap_result = _engine.wrap(_appSendBuffer, _netSendBuffer);
+
+                    if (wrap_result.bytesProduced() != 0)
+                    {
+                        _netSendBuffer.flip();
+                        while (_netSendBuffer.hasRemaining()) {
+                            _socketChannel.write(_netSendBuffer);
+                        }
+                        _netSendBuffer.compact();
+                    }
                     try
                     {
                         Thread.sleep(100);
@@ -505,7 +522,7 @@ class CryptoHelper
             }
             catch (SSLPeerUnverifiedException e)
             {
-            	 throw new IOException("Missing certificate:   " + e.getMessage());
+                throw new IOException("Missing certificate:   " + e.getMessage());
             }
         }
     }
@@ -520,55 +537,15 @@ class CryptoHelper
         }
     }
 
-    // Encrypt (wrap) the application plaintext into network encrypted data or encrypt (wrap) any handshake information.
-    private SSLEngineResult encryptApplicationData() throws IOException
+    private int decryptNetworkData(ByteBuffer dest) throws IOException
     {
-        // encrypt (wrap) the application data or the handshake information
-        SSLEngineResult result = _engine.wrap(_appSendBuffer, _netSendBuffer);
+        long bytesReadFromChannel = 0;
+        int count = 0;
+        SSLEngineResult result;
 
-        // setup the application buffer for writing more to it
-        _appSendBuffer.compact();
+        checkEngine();
 
-        // handle exceptional circumstances
-        if (result.getStatus() == Status.BUFFER_OVERFLOW)
-        {
-            // SSLEngine thinks there is insufficient room for the encrypted application data.
-            // Since we empty the buffer (_netSendBuffer) into the channel after every wrap(),
-            // there is nothing we can do to fix this issue.
-            throw new BufferOverflowException();
-        }
-
-        // only write if the last wrap operation produced anything
-        if (result.bytesProduced() != 0)
-        {
-            // make _netSendBuffer readable
-            _netSendBuffer.flip();
-
-            // empty _netSendBuffer into the channel
-            try
-            {
-                // empty _netSendBuffer
-                while (_netSendBuffer.hasRemaining())
-                    _socketChannel.write(_netSendBuffer);
-            }
-            catch (IOException e)
-            {
-                // disconnect will be caught earlier in etaj connection
-                _netSendBuffer.clear();
-                return result;
-            }
-            // setup _netSendBuffer back to writable
-            _netSendBuffer.compact();
-        }
-
-        return result;
-    }
-
-    // Decrypt (unwrap) the network encrypted data into application plaintext.
-    private void decryptNetworkData(boolean keepReading) throws IOException
-    {
-        int bytesReadFromChannel = readFromChannel();
-        // System.out.println("CryptoHelper   bytesReadFromChannel=="+bytesReadFromChannel);
+        bytesReadFromChannel = readFromChannel();
 
         if (bytesReadFromChannel == -1)
             throw new IOException("Tunnel Channel disconnected");
@@ -576,29 +553,22 @@ class CryptoHelper
         // make _netRecvBuffer readable
         _netRecvBuffer.flip();
 
-        // decrypt (unwrap) the encrypted data into plaintext first decryption
-        SSLEngineResult result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
-
-        // check the result of this decryption
-        checkUnwrapEngineResultStatus(result);
-
-        // move all decrypted data (that is in _netRecvBuffer) into _appRecvBuffer
-        // i.e. keep decrypting (unwrap) until _netRecvBuffer is empty
-        // or until we get a BUFFER_UNDERFLOW on the last decryption
-        // (we need to later read more encrypted data from the channel into _netRecvBuffer)
-        if (keepReading)
-        {
-            while ((_netRecvBuffer.remaining() != 0) && (result.getStatus() != Status.BUFFER_UNDERFLOW)
-                   && (result.getStatus() != Status.BUFFER_OVERFLOW))
-            {
-                result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
-                // check the result of this decryption
-                checkUnwrapEngineResultStatus(result);
-            }
-        }
+        do {
+            result = _engine.unwrap(_netRecvBuffer, dest);
+            checkUnwrapEngineResultStatus(result);
+            count += result.bytesProduced();
+        }  while (_netRecvBuffer.hasRemaining() && (result.getStatus() != Status.BUFFER_UNDERFLOW)
+                && (result.getStatus() != Status.BUFFER_OVERFLOW));
 
         // setup _netRecvBuffer back to writable
         _netRecvBuffer.compact();
+
+        if (result.getStatus() == Status.BUFFER_OVERFLOW)
+        {
+            return count > 0 ? count : Integer.MIN_VALUE;
+        }
+
+        return count;
     }
 
     private void checkUnwrapEngineResultStatus(SSLEngineResult result) throws IOException
@@ -625,7 +595,6 @@ class CryptoHelper
     // Attempt to fill _netRecvBuffer from the channel and return the number of bytes filled
     private int readFromChannel() throws IOException
     {
-        // fill the _netRecvBuffer
         return _socketChannel.read(_netRecvBuffer);
     }
 
@@ -642,6 +611,26 @@ class CryptoHelper
         if(_engine == null){
             throw new IllegalStateException("SSL engine is not initialized");
         }
+    }
+
+    public void setNetRecvBufSize(int size) {
+        _netRecvBufSize = size;
+    }
+
+    ByteBuffer getNetRecvBuffer() {
+        return _netRecvBuffer;
+    }
+
+    ByteBuffer getNetSendBuffer() {
+        return _netSendBuffer;
+    }
+
+    ByteBuffer getAppSendBuffer() {
+        return _appSendBuffer;
+    }
+
+    ByteBuffer getAppRecvBuffer() {
+        return _appRecvBuffer;
     }
 
     private String _connectionKeyManagerAlgorithm;
@@ -669,4 +658,6 @@ class CryptoHelper
     // and emptied by writing it to SocketChannel
 
     private int readCount; // number of bytes read after each read(ByteBuffer[], offset, length) call
+
+    private int _netRecvBufSize;
 }
