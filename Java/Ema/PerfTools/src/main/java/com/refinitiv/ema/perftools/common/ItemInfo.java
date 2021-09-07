@@ -13,6 +13,7 @@ public class ItemInfo {
     private long _clientHandle;
     private long _itemHandle;    // Handle value of this item
     private boolean _active;        // True if not closed
+    private MarketPriceItem _mpItem;
 
     /**
      * Instantiates a new item info.
@@ -33,6 +34,7 @@ public class ItemInfo {
         _clientHandle = 0;
         _itemHandle = 0;
         _active = false;
+        _mpItem = null;
     }
 
     /**
@@ -135,5 +137,13 @@ public class ItemInfo {
 
     public void active(boolean active) {
         this._active = active;
+    }
+
+    public MarketPriceItem marketPriceItem() {
+        return _mpItem;
+    }
+
+    public void marketPriceItem(MarketPriceItem item) {
+        _mpItem = item;
     }
 }

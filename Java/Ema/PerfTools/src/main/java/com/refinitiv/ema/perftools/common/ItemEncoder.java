@@ -1,20 +1,37 @@
 package com.refinitiv.ema.perftools.common;
 
-import com.refinitiv.ema.access.DataType;
-import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.access.FieldEntry;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.Date;
-import com.refinitiv.eta.codec.DateTime;
-import com.refinitiv.eta.codec.Time;
+import com.refinitiv.ema.access.FieldList;
+import com.refinitiv.ema.access.GenericMsg;
+import com.refinitiv.ema.access.PostMsg;
+import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.rdm.DomainTypes;
 
+import java.lang.Double;
+import java.lang.Float;
 import java.nio.ByteBuffer;
 
 public class ItemEncoder {
 
+    private final int TIM_TRK_1_FID = 3902; // Field TIM_TRK_1 is used to send update latency.
+    private final int TIM_TRK_2_FID = 3903; // Field TIM_TRK_2 is used to send post latency.
+    private final int TIM_TRK_3_FID = 3904; // Field TIM_TRK_3 is used to send generic msg latency.
+
     private final Date dateTmp = CodecFactory.createDate();
     private final Time timeTmp = CodecFactory.createTime();
     private final DateTime dateTimeTmp = CodecFactory.createDateTime();
+
+    private FieldEntry _fieldEntry = EmaFactory.createFieldEntry();
+
+    private XmlMsgData _xmlMsgData;
+
+    public ItemEncoder() {}
+
+    public ItemEncoder(XmlMsgData xmlMsgData) {
+        _xmlMsgData = xmlMsgData;
+    }
 
     /* Creates field entry data from file data. */
     public FieldEntry loadPrimitive(MarketField field) {
@@ -144,5 +161,83 @@ public class ItemEncoder {
                 break;
         }
         return fieldEntry;
+    }
+
+    private FieldList createPayload(MarketPriceMsg mpMsg, long encodeStartTime, int timeFieldId) {
+        FieldList fieldList = EmaFactory.createFieldList();
+        for (int i = 0; i < mpMsg.fieldEntryCount(); i++) {
+            FieldEntry fieldEntry = loadPrimitive(mpMsg.fieldEntries()[i]);
+            fieldList.add(fieldEntry);
+        }
+
+        if (timeFieldId == 0) {
+            fieldList.add(EmaFactory.createFieldEntry().uintValue(TIM_TRK_1_FID, 0L));
+            fieldList.add(EmaFactory.createFieldEntry().uintValue(TIM_TRK_2_FID, 0L));
+            fieldList.add(EmaFactory.createFieldEntry().uintValue(TIM_TRK_3_FID, 0L));
+        } else if (encodeStartTime > 0) {
+            fieldList.add(EmaFactory.createFieldEntry().uintValue(timeFieldId, encodeStartTime));
+        }
+
+        return fieldList;
+    }
+
+    public MarketPriceMsg nextGenMsg(MarketPriceItem mpItem)
+    {
+        int mpItemIndex = mpItem.iMsg();
+        MarketPriceMsg mpMsg = _xmlMsgData.marketPriceGenMsgs()[mpItemIndex++];
+
+        if (mpItemIndex == _xmlMsgData.marketPriceGenMsgCount())
+            mpItemIndex = 0;
+
+        mpItem.iMsg(mpItemIndex);
+
+        return mpMsg;
+    }
+
+    public MarketPriceMsg nextPostMsg(MarketPriceItem mpItem)
+    {
+        int mpItemIndex = mpItem.iMsg();
+        MarketPriceMsg mpMsg = _xmlMsgData.marketPricePostMsgs()[mpItemIndex++];
+
+        if (mpItemIndex == _xmlMsgData.marketPricePostMsgCount())
+            mpItemIndex = 0;
+
+        mpItem.iMsg(mpItemIndex);
+
+        return mpMsg;
+    }
+
+    public int populateGenericMsg(GenericMsg genMsg, ItemInfo itemInfo, long encodeStartTime) {
+
+        genMsg.streamId(itemInfo.itemId());
+        genMsg.domainType(itemInfo.attributes().domainType());
+        switch(itemInfo.attributes().domainType())
+        {
+            case DomainTypes.MARKET_PRICE:
+                genMsg.payload(createPayload(nextGenMsg(itemInfo.marketPriceItem()), encodeStartTime, TIM_TRK_3_FID));
+                break;
+            default:
+                return CodecReturnCodes.FAILURE;
+        }
+
+        return CodecReturnCodes.SUCCESS;
+    }
+
+    public int populatePostMsg(PostMsg postMsg, ItemInfo itemInfo, PostUserInfo postUserInfo, long encodeStartTime) {
+
+        postMsg.streamId(itemInfo.itemId());
+        switch(itemInfo.attributes().domainType())
+        {
+            case DomainTypes.MARKET_PRICE:
+                UpdateMsg nestedUpdateMsg = EmaFactory.createUpdateMsg();
+                nestedUpdateMsg.payload(createPayload(nextPostMsg(itemInfo.marketPriceItem()), encodeStartTime, TIM_TRK_2_FID))
+                        .publisherId(postUserInfo.userId, postUserInfo.userAddr);
+                postMsg.publisherId(postUserInfo.userId, postUserInfo.userAddr).payload(nestedUpdateMsg).complete(true);
+                break;
+            default:
+                return CodecReturnCodes.FAILURE;
+        }
+
+        return CodecReturnCodes.SUCCESS;
     }
 }

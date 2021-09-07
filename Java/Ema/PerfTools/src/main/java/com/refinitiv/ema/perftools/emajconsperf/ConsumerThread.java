@@ -4,26 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import com.refinitiv.ema.access.AckMsg;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.GenericMsg;
-import com.refinitiv.ema.access.OmmConsumer;
-import com.refinitiv.ema.access.OmmConsumerClient;
-import com.refinitiv.ema.access.OmmConsumerConfig;
-import com.refinitiv.ema.access.OmmConsumerEvent;
-import com.refinitiv.ema.access.OmmState;
-import com.refinitiv.ema.access.ReqMsg;
-import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.access.OmmConsumerConfig.OperationModel;
-import com.refinitiv.ema.perftools.common.DirectoryHandler;
-import com.refinitiv.ema.perftools.common.ItemFlags;
-import com.refinitiv.ema.perftools.common.ItemInfo;
-import com.refinitiv.ema.perftools.common.LatencyRandomArray;
-import com.refinitiv.ema.perftools.common.LatencyRandomArrayOptions;
-import com.refinitiv.ema.perftools.common.PerfToolsReturnCodes;
-import com.refinitiv.ema.perftools.common.PostUserInfo;
-import com.refinitiv.ema.perftools.common.ShutdownCallback;
-import com.refinitiv.ema.perftools.common.XmlItemInfoList;
+import com.refinitiv.ema.perftools.common.*;
+import com.refinitiv.eta.rdm.DomainTypes;
 
 /** Provides the logic that consumer connections use in emajConsPerf for
   * connecting to a provider, requesting items, and processing the received
@@ -35,17 +19,21 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
     private static final String DEFAULT_PERF_CONSUMER_CONFIG_NAME = "Perf_Consumer_1";
     private static final String DEFAULT_PERF_CONSUMER_NAME_WSJSON = "Perf_Consumer_WSJSON_1";
     private static final String DEFAULT_PERF_CONSUMER_NAME_WSRWF = "Perf_Consumer_WSRWF_1";
-    
+
     protected ConsumerThreadInfo _consThreadInfo; /* thread information */
     protected ConsPerfConfig _consPerfConfig; /* configuration information */
     private MarketPriceDecoder _marketPriceDecoder; /* market price decoder */
     protected Error _error; /* error structure */
-    private DirectoryHandler _srcDirHandler; /* source directory handler */ 
+    private DirectoryHandler _srcDirHandler; /* source directory handler */
     private XmlItemInfoList _itemInfoList; /* item information list from XML file */
-    private ItemRequest[] _itemRequestList; /* item request list */
+	private XmlMsgData _xmlMsgData;
+	private ItemEncoder _itemEncoder;
+	private ItemRequest[] _itemRequestList; /* item request list */
     private int _postItemCount; /* number of items in _itemRequestList that are posting items */
     private int _genMsgItemCount; /* number of items in _itemRequestList that are for sending generic msgs on items */
     private ReqMsg _requestMsg; /* request message */
+	private GenericMsg _genMsg; /* request message */
+	private PostMsg _postMsg;
     protected PostUserInfo _postUserInfo; /* post user information */
     protected boolean _requestsSent; /* indicates if requested service is up */
     protected long _nsecPerTick; /* nanoseconds per tick */
@@ -63,22 +51,34 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
     private OmmConsumer _consumer;
     private OmmConsumerConfig _ommConfig;
     private long _itemHandle;
+	private int _genMsgItemIndex;
+	private boolean _haveMarketPricePostItems; /* indicates there are post items in the item list */
+	private boolean _haveMarketPriceGenMsgItems; /* indicates there are generic msg items in the item list */
+	private int _postMsgItemIndex;
 
-    {
+	{
     	_srcDirHandler = new DirectoryHandler();
         _requestMsg = EmaFactory.createReqMsg();
+		_genMsg = EmaFactory.createGenericMsg();
+		_postMsg = EmaFactory.createPostMsg();
         _randomArrayOpts = new LatencyRandomArrayOptions();
         _postLatencyRandomArray = new LatencyRandomArray();
         _genMsgLatencyRandomArray = new LatencyRandomArray();
     }
 
-	public ConsumerThread(ConsumerThreadInfo consInfo, ConsPerfConfig consConfig, XmlItemInfoList itemList, PostUserInfo postUserInfo, ShutdownCallback shutdownCallback) 
+	public ConsumerThread(ConsumerThreadInfo consInfo,
+						  ConsPerfConfig consConfig,
+						  XmlItemInfoList itemList,
+						  XmlMsgData xmlMsgData,
+						  PostUserInfo postUserInfo,
+						  ShutdownCallback shutdownCallback)
 	{
 		_consThreadInfo = consInfo;
 		_consPerfConfig = consConfig;
 		_shutdownCallback = shutdownCallback;
 		_requestListSize = _consThreadInfo.itemListCount();
         _itemInfoList = itemList;
+        _xmlMsgData = xmlMsgData;
 		_itemRequestList = new ItemRequest[_requestListSize];
 		_postUserInfo = postUserInfo;
     	for(int i = 0; i < _requestListSize; ++i)
@@ -87,6 +87,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 		}
 		_requestListIndex = 0;
 		_marketPriceDecoder = new MarketPriceDecoder(_postUserInfo);
+		_itemEncoder = new ItemEncoder(_xmlMsgData);
 	}
 
 	/* Initializes consumer thread. */
@@ -369,15 +370,117 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
     //sends a burst of post messages. 
 	protected boolean sendPostBurst(int itemBurstCount)
 	{
-		//TODO
+		long encodeStartTime;
+		int latencyUpdateNumber;
+
+		latencyUpdateNumber = (_consPerfConfig.latencyPostsPerSec() > 0) ?
+				_postLatencyRandomArray.next() : -1;
+
+		for (int i = 0; i < itemBurstCount; i++) {
+			ItemRequest postItem = nextPostItem();
+
+			if ((postItem.itemInfo().itemFlags() & ItemFlags.IS_STREAMING_REQ) != 0) {
+				if (latencyUpdateNumber == i)
+					encodeStartTime = System.nanoTime()/1000;
+				else
+					encodeStartTime = 0;
+
+				_postMsg.clear();
+				_postMsg.name(postItem.itemName());
+
+				_itemEncoder.populatePostMsg(_postMsg, postItem.itemInfo(), _postUserInfo, encodeStartTime);
+
+				try {
+					if (postItem.itemInfo().clientHandle() >= 0) {
+						_consumer.submit(_postMsg, postItem.itemInfo().clientHandle());
+						_postMsgItemIndex++;
+						_consThreadInfo.stats().postSentCount().increment();
+					}
+				} catch (OmmException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+		}
 		return true;
 	}
 
 	// sends a burst of generic messages.
 	protected boolean sendGenMsgBurst(int itemBurstCount) 
 	{
-		//TODO
+		ItemRequest itemRequest;
+
+		long encodeStartTime;
+		int latencyGenMsgNumber;
+
+		latencyGenMsgNumber = (_consPerfConfig.latencyGenMsgsPerSec() > 0) ? _genMsgLatencyRandomArray.next() : -1;
+
+		for(int i = 0; i < itemBurstCount; ++i)
+		{
+			if (_genMsgItemIndex == _requestListSize)
+				return true;
+
+			itemRequest = nextGenMsgItem();
+			if ((itemRequest.itemInfo().itemFlags() & ItemFlags.IS_STREAMING_REQ) != 0) {
+				if (latencyGenMsgNumber == i)
+				{
+					_consThreadInfo.stats().latencyGenMsgSentCount().increment();
+					encodeStartTime = System.nanoTime() / 1000;
+				}
+				else
+					encodeStartTime = 0;
+
+				_genMsg.clear();
+				_genMsg.name(itemRequest.itemName());
+
+				_itemEncoder.populateGenericMsg(_genMsg, itemRequest.itemInfo(), encodeStartTime);
+
+				try {
+					if (itemRequest.itemInfo().clientHandle() >= 0) {
+						_consumer.submit(_genMsg, itemRequest.itemInfo().clientHandle());
+						_genMsgItemIndex++;
+						_consThreadInfo.stats().genMsgSentCount().increment();
+					}
+				} catch (OmmException e) {
+					System.out.println(e.getMessage());
+				}
+			}
+		}
+
 		return true;
+	}
+
+	private ItemRequest nextGenMsgItem() {
+		ItemRequest itemRequest = null;
+
+		do {
+			if (_genMsgItemIndex == _requestListSize)
+				_genMsgItemIndex = 0;
+
+			if ((_itemRequestList[_genMsgItemIndex].itemInfo().itemFlags() & ItemFlags.IS_GEN_MSG) > 0) {
+				itemRequest = _itemRequestList[_genMsgItemIndex];
+			}
+
+			_genMsgItemIndex++;
+		} while (itemRequest == null);
+
+		return itemRequest;
+	}
+
+	private ItemRequest nextPostItem() {
+		ItemRequest itemRequest = null;
+
+		do {
+			if (_postMsgItemIndex == _requestListSize)
+				_postMsgItemIndex = 0;
+
+			if ((_itemRequestList[_postMsgItemIndex].itemInfo().itemFlags() & ItemFlags.IS_POST) > 0) {
+				itemRequest = _itemRequestList[_postMsgItemIndex];
+			}
+
+			_postMsgItemIndex++;
+		} while (itemRequest == null);
+
+		return itemRequest;
 	}
 
     //print estimated post message sizes.
@@ -420,22 +523,77 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 
     		if (_itemInfoList.itemInfoList()[itemListIndex].isPost() && _consPerfConfig.postsPerSec() > 0)
     		{
-    			//TODO
+				MarketPriceItem itemData = null;
+
+				++_postItemCount;
+
+				int flags = _itemRequestList[itemId].itemInfo().itemFlags() | ItemFlags.IS_POST;
+				_itemRequestList[itemId].itemInfo().itemFlags(flags);
+
+				switch(_itemRequestList[itemId].itemInfo().attributes().domainType())
+				{
+					case DomainTypes.MARKET_PRICE:
+						itemData = new MarketPriceItem();
+						_haveMarketPricePostItems = true;
+						break;
+					default:
+						itemData = null;
+						break;
+				}
+
+				if (itemData == null)
+				{
+					System.out.printf("\nFailed to get storage for ItemInfo data.\n");
+					System.exit(-1);
+				}
+
+				_itemRequestList[itemId].itemInfo().marketPriceItem(itemData);
 			}
 
 			if (_consPerfConfig.postsPerSec() > 0)
 			{
-				//TODO
+				if (_haveMarketPricePostItems && _itemInfoList.postItemCount() == 0)
+				{
+					System.out.printf(
+							"Error: No MarketPrice posting data in file: %s\n",
+							_consPerfConfig.msgFilename());
+					System.exit(-1);
+				}
 			}
 
-			if (_itemInfoList.itemInfoList()[itemListIndex].isGenMsg() && _consPerfConfig.genMsgsPerSec() > 0) 
-			{
-				//TODO
+			if (_itemInfoList.itemInfoList()[itemListIndex].isGenMsg() && _consPerfConfig.genMsgsPerSec() > 0) {
+				MarketPriceItem itemData = null;
+
+				++_genMsgItemCount;
+
+				int flags = _itemRequestList[itemId].itemInfo().itemFlags() | ItemFlags.IS_GEN_MSG;
+				_itemRequestList[itemId].itemInfo().itemFlags(flags);
+
+				switch (_itemRequestList[itemId].itemInfo().attributes().domainType()) {
+					case DomainTypes.MARKET_PRICE:
+						itemData = new MarketPriceItem();
+						_haveMarketPriceGenMsgItems = true;
+						break;
+					default:
+						itemData = null;
+						break;
+				}
+
+				if (itemData == null) {
+					System.out.printf("\nFailed to get storage for ItemInfo data.\n");
+					System.exit(-1);
+				}
+
+				_itemRequestList[itemId].itemInfo().marketPriceItem(itemData);
 			}
 
 			if (_consPerfConfig.genMsgsPerSec() > 0)
 			{
-				//TODO
+				if (_haveMarketPriceGenMsgItems && _itemInfoList.genMsgItemCount() == 0)
+				{
+					System.out.printf("Error: No MarketPrice generic msg data in file: %s\n", _consPerfConfig.msgFilename());
+					System.exit(-1);
+				}
 			}
 
 			++itemListIndex;
@@ -473,13 +631,18 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 		}
 
 		// send bursts of posts and or generic msgs
-		if (_consThreadInfo.stats().imageRetrievalEndTime() > 0) 
+		if (_consThreadInfo._stats.imageRetrievalEndTime() > 0)
 		{
-			if (_consPerfConfig.postsPerSec() > 0 && _postItemCount > 0) 
-				return sendPostBurst((int) (_postsPerTick + ((currentTicks < _postsPerTickRemainder) ? 1 : 0)));
+			if (_consPerfConfig.postsPerSec() > 0 && _postItemCount > 0) {
+				if (!sendPostBurst((int) (_postsPerTick + ((currentTicks < _postsPerTickRemainder) ? 1 : 0))))
+					return false;
+			}
 
-			if (_consPerfConfig.genMsgsPerSec() > 0 && _genMsgItemCount > 0) 
-				return sendGenMsgBurst((int) (_genMsgsPerTick + ((currentTicks < _genMsgsPerTickRemainder) ? 1 : 0))); 
+			if (_consPerfConfig.genMsgsPerSec() > 0 && _genMsgItemCount > 0)  {
+				if (!sendGenMsgBurst((int) (_genMsgsPerTick + ((currentTicks < _genMsgsPerTickRemainder) ? 1 : 0))))
+					return false;
+			}
+
 		}
 
 		return true;
@@ -520,6 +683,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 				{
     				if (!_consPerfConfig.primeJVM())
     				{
+						((ItemInfo)consumerEvent.closure()).clientHandle(consumerEvent.handle());
     	                if (refreshMsg.state().dataState() == OmmState.DataState.OK)
     	                {
                             _itemRequestList[((ItemInfo)consumerEvent.closure()).itemId()].requestState(ItemRequestState.HAS_REFRESH);
@@ -551,6 +715,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
                         }
                         else // the streaming image responses after priming
                         {
+							((ItemInfo)consumerEvent.closure()).clientHandle(consumerEvent.handle());
                             if (refreshMsg.state().dataState() == OmmState.DataState.OK)
                             {
                                 _itemRequestList[((ItemInfo)consumerEvent.closure()).itemId()].requestState(ItemRequestState.HAS_REFRESH);
@@ -559,7 +724,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
                                 {
                                     _consThreadInfo._stats.imageRetrievalEndTime(System.nanoTime());
                                     _consThreadInfo._stats.steadyStateLatencyTime(_consThreadInfo._stats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
-                                }    
+                                }
                             }
                         }
     				}
@@ -588,10 +753,13 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	}
 	
 	@Override
-	public void onStatusMsg(com.refinitiv.ema.access.StatusMsg statusMsg, OmmConsumerEvent consumerEvent)
+	public void onStatusMsg(StatusMsg statusMsg, OmmConsumerEvent consumerEvent)
 	{
 		_consThreadInfo._stats.statusCount().increment();
-		
+
+		if (statusMsg.state().dataState() == OmmState.DataState.SUSPECT) {
+			((ItemInfo)consumerEvent.closure()).clientHandle(-1);
+		}
 		if (statusMsg.hasState() && (statusMsg.state().streamState() == OmmState.StreamState.CLOSED 
 				|| statusMsg.state().streamState() == OmmState.StreamState.CLOSED_RECOVER
 				|| statusMsg.state().streamState() == OmmState.StreamState.CLOSED_REDIRECTED))
@@ -603,9 +771,16 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
 	}
 
 	@Override
-	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent) {}
+	public void onGenericMsg(GenericMsg genericMsg, OmmConsumerEvent consumerEvent) {
+		if(!_marketPriceDecoder.decodeResponse(genericMsg, genericMsg.payload().fieldList(), _consThreadInfo, _consPerfConfig.downcastDecoding()))
+		{
+			shutdownConsumer("Decoding failure");
+			return;
+		}
+	}
+
 	@Override
 	public void onAckMsg(AckMsg ackMsg, OmmConsumerEvent consumerEvent) {}
 	@Override
-	public void onAllMsg(com.refinitiv.ema.access.Msg msg, OmmConsumerEvent consumerEvent) {}
+	public void onAllMsg(Msg msg, OmmConsumerEvent consumerEvent) {}
 }

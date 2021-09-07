@@ -10,14 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.refinitiv.ema.perftools.common.PerfToolsReturnCodes;
-import com.refinitiv.ema.perftools.common.PostUserInfo;
-import com.refinitiv.ema.perftools.common.ResourceUsageStats;
-import com.refinitiv.ema.perftools.common.ShutdownCallback;
-import com.refinitiv.ema.perftools.common.TimeRecord;
-import com.refinitiv.ema.perftools.common.TimeRecordQueue;
-import com.refinitiv.ema.perftools.common.ValueStatistics;
-import com.refinitiv.ema.perftools.common.XmlItemInfoList;
+import com.refinitiv.ema.perftools.common.*;
 
 /**
  * The emajConsPerf application. Implements a consumer, which requests items from a
@@ -88,7 +81,8 @@ public class emajConsPerf implements ShutdownCallback
 	
 	 // item information list from XML file
 	private XmlItemInfoList _xmlItemInfoList;
-	
+	private XmlMsgData _xmlMsgData;
+
 	// Total statistics collected from all consumer threads. 
 	// This is only used when there are multiple consumer threads. 
 	private ConsumerStats _totalStats = new ConsumerStats();
@@ -300,7 +294,7 @@ public class emajConsPerf implements ShutdownCallback
 		for(int i = 0; i < _consPerfConfig.threadCount(); ++i)
 		{
 			_consumerThreadsInfo[i].threadId(i + 1);
-			new Thread(new ConsumerThread(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _postUserInfo, this)).start();
+			new Thread(new ConsumerThread(_consumerThreadsInfo[i], _consPerfConfig, _xmlItemInfoList, _xmlMsgData, _postUserInfo, this)).start();
 		}
 
 		// set application end time
@@ -327,6 +321,7 @@ public class emajConsPerf implements ShutdownCallback
 	private void parseXmlFiles()
 	{
 		_xmlItemInfoList = new XmlItemInfoList(_consPerfConfig.itemRequestCount());
+		_xmlMsgData = new XmlMsgData();
         if (_xmlItemInfoList.parseFile(_consPerfConfig.itemFilename()) == PerfToolsReturnCodes.FAILURE)
         {
         	System.out.printf("Failed to load item list from file '%s'.\n", _consPerfConfig.itemFilename());
@@ -334,6 +329,11 @@ public class emajConsPerf implements ShutdownCallback
 		}
 		if (_consPerfConfig.postsPerSec() > 0 || _consPerfConfig.genMsgsPerSec() > 0)
 		{
+			if (_xmlMsgData.parseFile(_consPerfConfig.msgFilename()) == PerfToolsReturnCodes.FAILURE)
+			{
+				System.out.printf("Failed to load message data from file '%s'.\n", _consPerfConfig.msgFilename());
+				System.exit(-1);
+			}
 		}
 	}
 

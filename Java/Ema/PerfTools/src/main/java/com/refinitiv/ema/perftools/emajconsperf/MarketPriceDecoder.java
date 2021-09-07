@@ -258,9 +258,9 @@ public class MarketPriceDecoder
 			_consThreadInfo.timeRecordSubmit(_consThreadInfo.latencyRecords(), timeTracker, System.nanoTime()/1000, 1);
 		
 		if(postTimeTracker > 0 && checkPostUserInfo(msg))
-			_consThreadInfo.timeRecordSubmit(_consThreadInfo.genMsgLatencyRecords(), postTimeTracker, System.nanoTime()/1000, 1);
+			_consThreadInfo.timeRecordSubmit(_consThreadInfo.postLatencyRecords(), postTimeTracker, System.nanoTime()/1000, 1);
         if(genMsgTimeTracker > 0)
-            _consThreadInfo.timeRecordSubmit(_consThreadInfo.postLatencyRecords(), genMsgTimeTracker, System.nanoTime()/1000, 1);
+            _consThreadInfo.timeRecordSubmit(_consThreadInfo.genMsgLatencyRecords(), genMsgTimeTracker, System.nanoTime()/1000, 1);
 
 		return true;
 	}
