@@ -300,6 +300,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE( debugResult && loggerType == OmmLoggerClient::FileEnum) << "extracting LoggerType from EmaConfig.xml";
 	debugResult = config.get<EmaString>( "LoggerGroup|LoggerList|Logger.Logger_1|FileName", retrievedValue );
 	EXPECT_TRUE( debugResult && retrievedValue == "emaLog" ) << "extracting FileName from EmaConfig.xml";
+	debugResult = config.get<UInt64>("LoggerGroup|LoggerList|Logger.Logger_1|NumberOfLogFiles", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 42) << "extracting NumberOfLogFiles from EmaConfig.xml";
+	debugResult = config.get<UInt64>("LoggerGroup|LoggerList|Logger.Logger_1|MaxLogFileSize", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 84000) << "extracting MaxLogFileSize from EmaConfig.xml";
 	debugResult = config.get<OmmLoggerClient::Severity>( "LoggerGroup|LoggerList|Logger.Logger_1|LoggerSeverity", loggerSeverity );
 	EXPECT_TRUE( debugResult && loggerSeverity == OmmLoggerClient::VerboseEnum) << "extracting LoggerSeverity from EmaConfig.xml";
 
@@ -457,6 +461,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -531,6 +537,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+		EXPECT_TRUE( activeConfig.loggerConfig.maxFileSize == 84000 ) << "maxFileSize = 84000";
+		EXPECT_TRUE( activeConfig.loggerConfig.maxFileNumber == 42 ) << "maxFileNumber = 42";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest ) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
 		EXPECT_TRUE( activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest ) << "enumtypeDefFileName , " << enumTableFileNameTest;
@@ -630,6 +638,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -713,6 +723,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def") << "enumtypeDefFileName , \"./enumtype.def\"";
@@ -812,6 +824,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -896,6 +910,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./RDMFieldDictionary") << "rdmfieldDictionaryFileName , \"./RDMFieldDictionary\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == "./enumtype.def") << "enumtypeDefFileName , \"./enumtype.def\"";
@@ -997,6 +1013,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -1075,6 +1093,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile" ) << "loggerFileName = \"logFile\"";
 		EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest ) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
 		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest ) << "enumtypeDefFileName , " << enumTableFileNameTest;
@@ -1211,6 +1231,8 @@ TEST_F(EmaConfigTest, testOverridingFromInterface)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -1328,6 +1350,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "ConfigDB2_logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 4).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap).complete();
@@ -1411,6 +1435,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile" ) << "loggerFileName = \"ConfigDB2_logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+		EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryType == Dictionary::ChannelDictionaryEnum) << "dictionaryType , Dictionary::ChannelDictionaryEnum";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == "./ConfigDB3_RDMFieldDictionary" ) << "rdmfieldDictionaryFileName , \"./ConfigDB3_RDMFieldDictionary\"";
 		EXPECT_TRUE( activeConfig.dictionaryConfig.enumtypeDefFileName == "./ConfigDB3_enumtype.def" ) << "enumtypeDefFileName , \"./ConfigDB3_enumtype.def\"";
@@ -1505,6 +1531,8 @@ TEST_F(EmaConfigTest, testProgCfgChannelAfterChannelSet)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -1622,6 +1650,8 @@ TEST_F(EmaConfigTest, testProgCfgChannelSetAfterChannel)
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -1777,6 +1807,8 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 				ElementList()
 				.addEnum("LoggerType", 0)
 				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 3).complete()).complete();
 
 			elementList.addMap("LoggerList", innerMap);
@@ -1966,6 +1998,8 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				ElementList()
 				.addEnum("LoggerType", 0)
 				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 3).complete()).complete();
 
 			elementList.addMap("LoggerList", innerMap);
@@ -2091,6 +2125,8 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 			ElementList()
 			.addEnum("LoggerType", 0)
 			.addAscii("FileName", "logFile")
+			.addUInt("NumberOfLogFiles", 42)
+			.addUInt("MaxLogFileSize", 84000)
 			.addEnum("LoggerSeverity", 3).complete()).complete();
 
 		elementList.addMap("LoggerList", innerMap);
@@ -2262,11 +2298,15 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 				ElementList()
 				.addEnum("LoggerType", 1)
 				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 3).complete())
 				.addKeyAscii("Logger_1", MapEntry::AddEnum,
 					ElementList()
 					.addEnum("LoggerType", 0)
 					.addAscii("FileName", "logFile")
+					.addUInt("NumberOfLogFiles", 42)
+					.addUInt("MaxLogFileSize", 84000)
 					.addEnum("LoggerSeverity", 3).complete()).complete();
 
 			elementList.addMap("LoggerList", innerMap);
@@ -2480,6 +2520,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 
 			//retrieve directory
 			const DirectoryCache& dirCache = ommIProviderImpl.getDirectoryServiceStore().getDirectoryCache();
@@ -2763,10 +2805,14 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 				ElementList()
 				.addEnum("LoggerType", 1)
 				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 3).complete())
 				.addKeyAscii("Logger_1", MapEntry::AddEnum,
 					ElementList()
 					.addEnum("LoggerType", 0)
+					.addUInt("NumberOfLogFiles", 42)
+					.addUInt("MaxLogFileSize", 84000)
 					.addAscii("FileName", "logFile")
 					.addEnum("LoggerSeverity", 3).complete()).complete();
 
@@ -2937,6 +2983,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "logFile") << "loggerFileName = \"logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::ErrorEnum) << "minLoggerSeverity = OmmLoggerClient::ErrorEnum";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 
 			//retrieve directory
 			const DirectoryCache& dirCache = (static_cast<OmmNiProviderDirectoryStore&>(ommNiProviderImpl.getDirectoryServiceStore())).getApiControlDirectory();
@@ -3140,6 +3188,8 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 				ElementList()
 				.addEnum("LoggerType", 0)
 				.addAscii("FileName", "ConfigDB2_logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 4).complete())
 				.complete();
 
@@ -3295,6 +3345,8 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile") << "loggerFileName = \"ConfigDB2_logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
 
 			//retrieve directory
 			const DirectoryCache& dirCache = ommIProviderImpl.getDirectoryServiceStore().getDirectoryCache();
@@ -3479,6 +3531,8 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 				ElementList()
 				.addEnum("LoggerType", 0)
 				.addAscii("FileName", "ConfigDB2_logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 4).complete())
 				.complete();
 
@@ -3604,7 +3658,9 @@ TEST_F(EmaConfigTest, testMergingCfgBetweenFileAndProgrammaticConfigNiProv)
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile") << "loggerFileName = \"ConfigDB2_logFile\"";
 			EXPECT_TRUE(activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";
-			
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileNumber == 42) << "maxFileNumber = 42";
+			EXPECT_TRUE(activeConfig.loggerConfig.maxFileSize == 84000) << "maxFileSize = 84000";
+
 			//retrieve directory
 			const DirectoryCache& dirCache = (static_cast<OmmNiProviderDirectoryStore&>(ommNiProviderImpl.getDirectoryServiceStore())).getApiControlDirectory();
 			EXPECT_TRUE(dirCache.directoryName == "Directory_2") << "directoryName = \"Directory_2\"";
@@ -4235,10 +4291,14 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 				ElementList()
 				.addEnum("LoggerType", 1)
 				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 3).complete())
 				.addKeyAscii("Logger_1", MapEntry::AddEnum,
 					ElementList()
 					.addEnum("LoggerType", 0)
+					.addUInt("NumberOfLogFiles", 42)
+					.addUInt("MaxLogFileSize", 84000)
 					.addAscii("FileName", "logFile")
 					.addEnum("LoggerSeverity", 3).complete()).complete();
 
@@ -4368,11 +4428,15 @@ TEST_F(EmaConfigTest, testLoadFilterValueOverflowProgrammaticConfigForIProv)
 				ElementList()
 				.addEnum("LoggerType", 1)
 				.addAscii("FileName", "logFile")
+				.addUInt("NumberOfLogFiles", 42)
+				.addUInt("MaxLogFileSize", 84000)
 				.addEnum("LoggerSeverity", 3).complete())
 				.addKeyAscii("Logger_1", MapEntry::AddEnum,
 					ElementList()
 					.addEnum("LoggerType", 0)
 					.addAscii("FileName", "logFile")
+					.addUInt("NumberOfLogFiles", 42)
+					.addUInt("MaxLogFileSize", 84000)
 					.addEnum("LoggerSeverity", 3).complete()).complete();
 
 			elementList.addMap("LoggerList", innerMap);

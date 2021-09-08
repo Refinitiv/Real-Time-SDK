@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019-2021 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -25,6 +25,9 @@ struct LoggerFile {
 	int			clientCount;
 	FILE*		ptr;
 	EmaString	*fileName;
+	UInt32			fileNumber;
+	UInt32			maxFileSize;
+	UInt32			maxFileNumber;
 };
 
 struct LoggerClientFiles {
@@ -50,7 +53,7 @@ public :
 		StdoutEnum
 	};
 
-	static OmmLoggerClient* create( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName );
+	static OmmLoggerClient* create( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName, UInt32 maxFileSize, UInt32 maxFileNumber );
 
 	static void destroy( OmmLoggerClient*& );
 
@@ -64,19 +67,19 @@ public :
 
 private :
 
-	OmmLoggerClient( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName );
+	OmmLoggerClient( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName, UInt32 maxFileSize, UInt32 maxFileNumber );
 
 	virtual ~OmmLoggerClient();
 
-	void openLogFile( const EmaString& );
+	void openLogFile( const EmaString&, UInt32 maxFileSize, UInt32 maxFileNumber );
 
 	void closeLogFile();
 
 	static Mutex			_printLock;
 
-	FILE*					_pFile;
-
 	FILE*					_pOutput;
+
+	int						_clientFileIndex;
 
 	EmaString				_logLine;
 
@@ -89,6 +92,8 @@ private :
 	OmmLoggerClient& operator=( const OmmLoggerClient& );
 
 	static LoggerClientFiles clientFiles;
+
+	void addLogLine( const EmaString& callbackClientName, Severity severity, const char* text );
 };
 
 }

@@ -63,6 +63,8 @@
 #define DEFAULT_LOGIN_REQUEST_TIMEOUT                   45000
 #define DEFAULT_MAX_DISPATCH_COUNT_API_THREAD		    100
 #define DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD		    100
+#define DEFAULT_MAX_FILE_SIZE                           0
+#define DEFAULT_MAX_FILE_NUMBER                         0
 #define DEFAULT_MAX_OUTSTANDING_POSTS				    100000
 #define DEFAULT_MSGKEYINUPDATES						    true
 #define DEFAULT_OBEY_OPEN_WINDOW					    1
@@ -405,6 +407,9 @@ struct LoggerConfig
 	OmmLoggerClient::Severity		minLoggerSeverity;
 	OmmLoggerClient::LoggerType		loggerType;
 	bool							includeDateInLoggerOutput;
+
+	UInt32	maxFileSize;
+	UInt32	maxFileNumber;
 };
 
 class BaseConfig

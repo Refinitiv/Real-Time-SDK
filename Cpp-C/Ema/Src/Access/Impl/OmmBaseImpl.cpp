@@ -512,6 +512,8 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	_activeConfig.loggerConfig.loggerFileName = "emaLog";
 	_activeConfig.loggerConfig.loggerType = OmmLoggerClient::FileEnum;
 	_activeConfig.loggerConfig.includeDateInLoggerOutput = false;
+	_activeConfig.loggerConfig.maxFileSize = 0;
+	_activeConfig.loggerConfig.maxFileNumber = 0;
 
 	if ( _activeConfig.loggerConfig.loggerName.length() )
 	{
@@ -536,6 +538,12 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		UInt64 idilo( 0 );
 		if ( pConfigImpl->get< UInt64 >( loggerNodeName + "IncludeDateInLoggerOutput", idilo ) )
 			_activeConfig.loggerConfig.includeDateInLoggerOutput = idilo == 1 ? true : false ;
+
+		if (pConfigImpl->get< UInt64 >(loggerNodeName + "MaxLogFileSize", tmp))
+			_activeConfig.loggerConfig.maxFileSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
+
+		if (pConfigImpl->get< UInt64 >(loggerNodeName + "NumberOfLogFiles", tmp))
+			_activeConfig.loggerConfig.maxFileNumber = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
 	}
 	else
 		_activeConfig.loggerConfig.loggerName.set( "Logger" );
@@ -1201,8 +1209,13 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		readConfig( configImpl );
 
-		_pLoggerClient = OmmLoggerClient::create( _activeConfig.loggerConfig.loggerType, _activeConfig.loggerConfig.includeDateInLoggerOutput,
-			_activeConfig.loggerConfig.minLoggerSeverity, _activeConfig.loggerConfig.loggerFileName );
+		_pLoggerClient = OmmLoggerClient::create(
+			_activeConfig.loggerConfig.loggerType,
+			_activeConfig.loggerConfig.includeDateInLoggerOutput,
+			_activeConfig.loggerConfig.minLoggerSeverity,
+			_activeConfig.loggerConfig.loggerFileName,
+			_activeConfig.loggerConfig.maxFileSize,
+			_activeConfig.loggerConfig.maxFileNumber );
 
 		readCustomConfig(configImpl);
 
@@ -1501,8 +1514,13 @@ void OmmBaseImpl::initializeForTest(EmaConfigImpl* configImpl)
 
 		readConfig(configImpl);
 
-		_pLoggerClient = OmmLoggerClient::create(_activeConfig.loggerConfig.loggerType, _activeConfig.loggerConfig.includeDateInLoggerOutput,
-			_activeConfig.loggerConfig.minLoggerSeverity, _activeConfig.loggerConfig.loggerFileName);
+		_pLoggerClient = OmmLoggerClient::create(
+			_activeConfig.loggerConfig.loggerType,
+			_activeConfig.loggerConfig.includeDateInLoggerOutput,
+			_activeConfig.loggerConfig.minLoggerSeverity,
+			_activeConfig.loggerConfig.loggerFileName,
+			_activeConfig.loggerConfig.maxFileSize,
+			_activeConfig.loggerConfig.maxFileNumber );
 
 		readCustomConfig(configImpl);
 

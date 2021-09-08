@@ -245,6 +245,8 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	_activeServerConfig.loggerConfig.loggerFileName = "emaLog";
 	_activeServerConfig.loggerConfig.loggerType = OmmLoggerClient::FileEnum;
 	_activeServerConfig.loggerConfig.includeDateInLoggerOutput = false;
+	_activeServerConfig.loggerConfig.maxFileSize = 0;
+	_activeServerConfig.loggerConfig.maxFileNumber = 0;
 
 	if (_activeServerConfig.loggerConfig.loggerName.length())
 	{
@@ -269,6 +271,12 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		UInt64 idilo(0);
 		if (pConfigServerImpl->get< UInt64 >(loggerNodeName + "IncludeDateInLoggerOutput", idilo))
 			_activeServerConfig.loggerConfig.includeDateInLoggerOutput = idilo == 1 ? true : false;
+
+		if (pConfigServerImpl->get< UInt64 >(loggerNodeName + "MaxLogFileSize", tmp))
+			_activeServerConfig.loggerConfig.maxFileSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
+
+		if (pConfigServerImpl->get< UInt64 >(loggerNodeName + "NumberOfLogFiles", tmp))
+			_activeServerConfig.loggerConfig.maxFileNumber = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
 	}
 	else
 		_activeServerConfig.loggerConfig.loggerName.set("Logger");
@@ -639,8 +647,13 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		readConfig(serverConfigImpl);
 
-		_pLoggerClient = OmmLoggerClient::create(_activeServerConfig.loggerConfig.loggerType, _activeServerConfig.loggerConfig.includeDateInLoggerOutput,
-			_activeServerConfig.loggerConfig.minLoggerSeverity, _activeServerConfig.loggerConfig.loggerFileName);
+		_pLoggerClient = OmmLoggerClient::create(
+			_activeServerConfig.loggerConfig.loggerType,
+			_activeServerConfig.loggerConfig.includeDateInLoggerOutput,
+			_activeServerConfig.loggerConfig.minLoggerSeverity,
+			_activeServerConfig.loggerConfig.loggerFileName,
+			_activeServerConfig.loggerConfig.maxFileSize,
+			_activeServerConfig.loggerConfig.maxFileNumber );
 
 		serverConfigImpl->configErrors().log(_pLoggerClient, _activeServerConfig.loggerConfig.minLoggerSeverity);
 
@@ -899,8 +912,13 @@ void OmmServerBaseImpl::initializeForTest(EmaConfigServerImpl* serverConfigImpl)
 
 		readConfig(serverConfigImpl);
 
-		_pLoggerClient = OmmLoggerClient::create(_activeServerConfig.loggerConfig.loggerType, _activeServerConfig.loggerConfig.includeDateInLoggerOutput,
-			_activeServerConfig.loggerConfig.minLoggerSeverity, _activeServerConfig.loggerConfig.loggerFileName);
+		_pLoggerClient = OmmLoggerClient::create(
+			_activeServerConfig.loggerConfig.loggerType,
+			_activeServerConfig.loggerConfig.includeDateInLoggerOutput,
+			_activeServerConfig.loggerConfig.minLoggerSeverity,
+			_activeServerConfig.loggerConfig.loggerFileName,
+			_activeServerConfig.loggerConfig.maxFileSize,
+			_activeServerConfig.loggerConfig.maxFileNumber );
 
 		serverConfigImpl->configErrors().log(_pLoggerClient, _activeServerConfig.loggerConfig.minLoggerSeverity);
 

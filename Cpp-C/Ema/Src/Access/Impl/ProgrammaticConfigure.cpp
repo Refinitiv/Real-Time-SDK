@@ -2729,6 +2729,19 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 
 											switch ( entry.getLoadType() )
 											{
+											case DataType::UIntEnum:
+												if ( entry.getName() == "NumberOfLogFiles" )
+												{
+													UInt64 tmp = entry.getUInt();
+													activeConfig.loggerConfig.maxFileNumber = tmp <= MAX_UNSIGNED_INT32 ? (UInt32)tmp : MAX_UNSIGNED_INT32;
+												}
+												else if ( entry.getName() == "MaxLogFileSize" )
+												{
+													UInt64 tmp = entry.getUInt();
+													activeConfig.loggerConfig.maxFileSize = tmp <= MAX_UNSIGNED_INT32 ? (UInt32)tmp : MAX_UNSIGNED_INT32;
+												}
+												break;
+
 											case DataType::AsciiEnum:
 												if ( entry.getName() == "FileName" )
 												{

@@ -768,6 +768,11 @@
 			<!-- loggerSeverity is optional: defaulted to "Success" -->
 			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
 			<LoggerSeverity dataType="Enum" value="LoggerSeverity::Verbose"/>
+
+			<!-- numberOfLogFiles is optional: defaulted to 0 -->
+			<NumberOfLogFiles value="42"/>
+			<!-- maxLogFileSize is optional: defaulted to 0 -->
+			<MaxLogFileSize value="84000"/>
 		</Logger>
 		<Logger>
 			<Name value="Logger_2"/>

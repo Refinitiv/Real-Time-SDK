@@ -123,7 +123,9 @@ LoggerConfig::LoggerConfig() :
 	loggerFileName(),
 	minLoggerSeverity( DEFAULT_LOGGER_SEVERITY ),
 	loggerType( OmmLoggerClient::FileEnum),
-	includeDateInLoggerOutput( DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT )
+	includeDateInLoggerOutput( DEFAULT_INCLUDE_DATE_IN_LOGGER_OUTPUT ),
+	maxFileSize( DEFAULT_MAX_FILE_SIZE ),
+	maxFileNumber( DEFAULT_MAX_FILE_NUMBER )
 {
 }
 
