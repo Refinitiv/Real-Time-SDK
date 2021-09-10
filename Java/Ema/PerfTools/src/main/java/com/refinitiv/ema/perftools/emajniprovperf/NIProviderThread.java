@@ -27,7 +27,9 @@ public class NIProviderThread extends ProviderThread {
     protected void initializeOmmProvider() {
         this.client = new NIProviderPerfClient();
         final OmmNiProviderConfig providerConfig = EmaFactory.createOmmNiProviderConfig()
-                .providerName(providerConfigName);
+                .providerName(providerConfigName)
+                .tunnelingKeyStoreFile(this.config.keyFile())
+                .tunnelingKeyStorePasswd(this.config.keyPassw());
         if (this.baseConfig.useUserDispatch()) {
             providerConfig.operationModel(OmmIProviderConfig.OperationModel.USER_DISPATCH);
         }
@@ -36,7 +38,6 @@ public class NIProviderThread extends ProviderThread {
 
         while (!client.isConnectionUp()) {
             try {
-                System.out.printf("NIProviderThread_%d run. Waiting initilization... \n", this.providerIndex);
                 Thread.sleep(200);
             } catch (InterruptedException e) {
                 shutdown(true);

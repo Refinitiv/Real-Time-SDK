@@ -317,8 +317,8 @@
 			<Directory value="Directory_2"/>
 			<ItemCountHint value="100000"/>
 			<ServiceCountHint value="10000"/>
-			<DispatchTimeoutApiThread value="500" />
-			<MaxDispatchCountApiThread value="100"/>
+			<DispatchTimeoutApiThread value="5000" />
+			<MaxDispatchCountApiThread value="10"/>
 			<MaxDispatchCountUserThread value="6500"/>
 			<RefreshFirstRequired value="1"/>
 			<XmlTraceToStdout value="0"/>

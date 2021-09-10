@@ -8,6 +8,9 @@ import com.refinitiv.ema.perftools.emajprovperf.IProviderThread;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ProviderStats {
     private final ProviderThreadStats totalStats;
@@ -18,6 +21,11 @@ public class ProviderStats {
     private BaseProviderPerfConfig config;
     private ProviderThread[] providerThreads;
     private LogFileInfo summaryFile;
+
+    private AtomicBoolean _stop = new AtomicBoolean(true);
+    private volatile boolean _exitApp;
+    private CountDownLatch _loopExited = new CountDownLatch(1);
+    private CountDownLatch _stopped = new CountDownLatch(1);
 
     public ProviderStats() {
         this.totalStats = new ProviderThreadStats();
@@ -51,6 +59,7 @@ public class ProviderStats {
     }
 
     public void run() {
+        registerShutdownHook();
         startThreads();
         long nextTime = System.currentTimeMillis() + 1000L;
         int intervalSeconds = 0;
@@ -80,13 +89,14 @@ public class ProviderStats {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } while (currentRuntimeSec < runTime);
+        } while (currentRuntimeSec < runTime && !_exitApp);
         System.out.printf("\nRun time of %d seconds has expired.\n\n", runTime);
 
-
-        stopThreads();
-        printFinalStats();
-        clear();
+        _loopExited.countDown();
+        if (_stop.getAndSet(false)) {
+            stop();
+            _stopped.countDown();
+        }
     }
 
     public void startThreads() {
@@ -480,6 +490,32 @@ public class ProviderStats {
         printWriter.flush();
         printSummaryStats(summaryFile.writer());
         summaryFile.writer().close();
+    }
+
+    private void stop() {
+        try {
+            stopThreads();
+            printFinalStats();
+            clear();
+        } finally {
+            _stopped.countDown();
+        }
+    }
+
+    private void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                if (_stop.getAndSet(false)) {
+                    _exitApp = true;
+                    _loopExited.await(1000, TimeUnit.MILLISECONDS);
+                    stop();
+                } else {
+                    _stopped.await(providerThreads.length * 5000, TimeUnit.MILLISECONDS);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
     }
 
     public ProviderThread[] providerThreads() {

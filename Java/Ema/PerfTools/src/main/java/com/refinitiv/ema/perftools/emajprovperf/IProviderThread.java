@@ -75,7 +75,9 @@ public class IProviderThread extends ProviderThread {
     protected void initializeOmmProvider() {
         this.client = new ProviderPerfClient(this.config, this.clientLock);
         final OmmIProviderConfig providerConfig = EmaFactory.createOmmIProviderConfig()
-                .providerName(providerConfigName);
+                .providerName(providerConfigName)
+                .keystoreFile(this.config.keyFile())
+                .keystorePasswd(this.config.keyPassw());
         if (this.config.useUserDispatch()) {
             providerConfig.operationModel(OmmIProviderConfig.OperationModel.USER_DISPATCH);
         }
@@ -95,7 +97,6 @@ public class IProviderThread extends ProviderThread {
                 clientLock.lock();
                 while (!connected) {
                     try {
-                        System.out.printf("ProviderThread_%d run. Waiting initilization... \n", this.providerIndex);
                         connectionCondition.await(1, TimeUnit.SECONDS);
                     } catch (InterruptedException e) {
                         shutdown = true;

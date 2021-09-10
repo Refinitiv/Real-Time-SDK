@@ -29,6 +29,9 @@ public abstract class BaseProviderPerfConfig {
     protected String summaryFilename;          // Summary file
     protected String statsFilename;            // Stats file
 
+    protected String keyFile;
+    protected String keyPassw;
+
     {
         CommandLine.programName("emajProvPerf");
         CommandLine.addOption("providerName", defaultProviderName(), "Base name of provider configuration in EMAConfig.xml");
@@ -46,6 +49,9 @@ public abstract class BaseProviderPerfConfig {
 
         CommandLine.addOption("summaryFile", defaultSummaryFileName(), "Name for logging summary info");
         CommandLine.addOption("statsFile", defaultStatsFileName(), "Base name of file for logging periodic statistics");
+
+        CommandLine.addOption("keyfile", "", "Keystore file location and name");
+        CommandLine.addOption("keypasswd", "", "Keystore password");
     }
 
     /**
@@ -74,6 +80,8 @@ public abstract class BaseProviderPerfConfig {
         summaryFilename = CommandLine.value("summaryFile");
         statsFilename = CommandLine.value("statsFile");
         displayStats = !CommandLine.booleanValue("noDisplayStats");
+        keyFile = CommandLine.value("keyfile");
+        keyPassw = CommandLine.value("keypasswd");
 
         // Perf Test configuration
         msgFilename = CommandLine.value("msgFile");
@@ -396,6 +404,21 @@ public abstract class BaseProviderPerfConfig {
 
     protected abstract String defaultStatsFileName();
 
+    public String keyFile() {
+        return keyFile;
+    }
+
+    public void keyFile(String keyFile) {
+        this.keyFile = keyFile;
+    }
+
+    public String keyPassw() {
+        return keyPassw;
+    }
+
+    public void keyPassw(String keyPassw) {
+        this.keyPassw = keyPassw;
+    }
     /**
      * Converts configuration parameters to a string with effective bindOptions values.
      *
