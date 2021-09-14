@@ -118,7 +118,9 @@ public class ProviderSession
             return TransportReturnCodes.FAILURE;
 
         // set bind options
-        _bindOptions.guaranteedOutputBuffers(500);
+	// API QA
+        _bindOptions.guaranteedOutputBuffers(50000);
+	// END API QA
         _bindOptions.majorVersion(Codec.majorVersion());
         _bindOptions.minorVersion(Codec.minorVersion());
         _bindOptions.protocolType(Codec.protocolType());

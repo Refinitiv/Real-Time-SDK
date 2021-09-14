@@ -51,6 +51,13 @@ provider-Ws-001:      Alters Provider to test compression, user can pass option 
 provider-Ws-002:      Alters Provider to test sending a big one dictionary message without multi-part it into many parts, 
 					  And option to test compression Zlib, identify compressionLevel and maxMsgSize for websocket connection, user can pass option -testCompressionZlib, -compressionLevel to 0-9, -maxFragmentSize (i.e 65536).
 					  This app also shows bytesRead and bytesWritten for compressed and uncompressed stats.
+provider-Ws-003:      Alters Provider to test sending multi-part dictionary, 
+					  And option to test compression Zlib, identify compressionLevel and maxMsgSize for websocket connection, user can pass option -testCompressionZlib, -compressionLevel to 0-9, -maxFragmentSize (i.e 65536).
+					  This app also shows bytesRead and bytesWritten for compressed and uncompressed stats.
+provider-Ws-004:      Alters Provider to test sending a big one dictionary message without multi-part it into many parts, 
+					  And option to test compression Zlib, identify compressionLevel and maxMsgSize for websocket connection, user can pass option -testCompressionZlib, -compressionLevel to 0-9, -maxFragmentSize (i.e 65536).
+					  This app also shows bytesRead and bytesWritten for compressed and uncompressed stats.
+					  This app modified ProviderSession to expand guaranteedOutpuBuffer.
 
 Module:  Value Add Consumer 
 ---------------------------
