@@ -2,6 +2,7 @@ package com.refinitiv.eta.transport;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
@@ -66,6 +67,14 @@ class ZlibCompressor extends Compressor
             _deflater.reset();
         }
         
+        if(lenToCompress > _maxCompressionLen)
+        {
+        	_maxCompressionLen = lenToCompress;
+        	_compressedBytesOutputStream = null;;
+        	 _compressByteArray = null;
+        	 _deflaterOutputStream = null;
+        }
+        
         if(_compressnocontexttakeover) {
         	
         	_deflater.end();
@@ -124,7 +133,16 @@ class ZlibCompressor extends Compressor
     int compress(ByteBuffer bufferToCompress, int dataStartPos, int lenToCompress)
     {
         if (_appendTrailing) {
+        	
             _deflater.reset();
+        }
+        
+        if(lenToCompress > _maxCompressionLen)
+        {
+        	_maxCompressionLen = lenToCompress;
+        	_compressedBytesOutputStream = null;;
+        	 _compressByteArray = null;
+        	 _deflaterOutputStream = null;
         }
         
         if(_compressnocontexttakeover) {
@@ -318,4 +336,85 @@ class ZlibCompressor extends Compressor
     {
     	_compressnocontexttakeover = true;
     }
+
+    @Override
+	int preDecompress(ByteBufferPair bufferToDecompress, int dataStartPos, int lenToDecompress) {
+		
+		// lazily initialize _decompressedBytes buffer since we don't know size up front
+    	int estimatedBytes = lenToDecompress * 4;
+    	
+    	if(_decompressedBytes != null)
+    	{
+    		if(estimatedBytes >_decompressedBytes.length)
+    		{
+    			_decompressedBytes = new byte[estimatedBytes];
+    		}
+    	}
+    	else
+    	{
+    		if(estimatedBytes > _maxCompressionLen)
+        	{
+        		_decompressedBytes = new byte[estimatedBytes];
+        	}
+        	else
+        	{
+        		_decompressedBytes = new byte[_maxCompressionLen];
+        	}
+    	}
+    	
+        // copy bufferToDecompress contents to byte array
+        byte[] byteArray = new byte[lenToDecompress + 4];
+        int i = 0;
+        for (; i < lenToDecompress; i++)
+        {
+            byteArray[i] = bufferToDecompress.buffer().get(dataStartPos + i);
+        }
+
+        if(_appendTrailing)
+        {
+            lenToDecompress += 4;
+            for(int j = 0; j < 4; j++)
+            {
+                byteArray[i + j] = EndingTrailing[j];
+            }
+        }
+
+        try
+        {
+            _inflater.setInput(byteArray, 0, lenToDecompress);
+        	
+            _numBytesAfterDecompress = _inflater.inflate(_decompressedBytes);
+            
+            while(!_inflater.finished() && _inflater.getRemaining() > 0)
+            {
+            	byte[] decompressedBytesTemp = Arrays.copyOf(_decompressedBytes, _decompressedBytes.length * 2);
+            	
+            	_numBytesAfterDecompress += _inflater.inflate(decompressedBytesTemp, _numBytesAfterDecompress, decompressedBytesTemp.length - _decompressedBytes.length);
+            	
+            	_decompressedBytes = decompressedBytesTemp;
+            	
+            }
+            
+        	if(_inflater.finished())
+        	{
+        		_inflater.reset();
+        	}
+            	
+        }
+        catch (DataFormatException e)
+        {
+            throw new CompressorException(e.getLocalizedMessage());
+        }
+
+        return _numBytesAfterDecompress;
+	}
+
+	@Override
+	void writeDecompressBuffer(ByteBufferPair decompressedBuffer) {
+		
+	    decompressedBuffer.buffer().clear();
+        decompressedBuffer.buffer().put(_decompressedBytes, 0, _numBytesAfterDecompress);
+        decompressedBuffer.buffer().limit(decompressedBuffer.buffer().position());
+        decompressedBuffer.buffer().position(0);
+	}
 }

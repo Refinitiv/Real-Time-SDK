@@ -1210,6 +1210,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             // close socket
             try
             {
+            	
                 _scktChannel.close();
             }
             catch (IOException e)
@@ -2095,7 +2096,17 @@ class RsslSocketChannel extends EtaNode implements Channel
             {
                 retVal = getProtocolFunctions().writeFragmentCompressed(buffer, buffer._firstBuffer, writeArgs, true /* first fragment */, error);
                 if (retVal > TransportReturnCodes.SUCCESS)
+                {
+                	int totalLength = getProtocolFunctions().totalPayloadSize();
+                	
+                	/* Checks whether the payload size is changed from compression. */
+                	if(totalLength != 0)
+                	{
+                		bytesLeft = totalLength;
+                	}
+                	
                     bytesLeft = bytesLeft - retVal;
+                }
                 else
                     return retVal;
             }
@@ -2105,7 +2116,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         else
         {
             // When resuming a paused write, initialize bytes remaining in big buffer
-            bytesLeft = buffer._data.limit() - buffer._data.position();
+            bytesLeft = getProtocolFunctions().remaingBytesAfterPausing(buffer);
         }
 
         // get buffers for the rest of the data and copy the data to the buffers
@@ -3608,7 +3619,9 @@ class RsslSocketChannel extends EtaNode implements Channel
             }
             else
             {
-                _internalMaxFragmentSize = _server.bindOptions().maxFragmentSize() + RIPC_HDR_SIZE + _WS_MAX_HEADER_LEN;
+            	BindOptionsImpl bindOptionsImpl = (BindOptionsImpl)_server.bindOptions();
+            	
+                _internalMaxFragmentSize = bindOptionsImpl.jsonMaxFragmentSize() + RIPC_HDR_SIZE + _WS_MAX_HEADER_LEN;
 
                 _appReadBuffer = new TransportBufferImpl(_internalMaxFragmentSize);
 
@@ -3617,7 +3630,7 @@ class RsslSocketChannel extends EtaNode implements Channel
 
                 /* allocate buffers to this channel */
                 growGuaranteedOutputBuffers(_server.bindOptions().guaranteedOutputBuffers());
-                _channelInfo._maxFragmentSize = _server.bindOptions().maxFragmentSize() - RIPC_PACKED_HDR_SIZE;
+                _channelInfo._maxFragmentSize = bindOptionsImpl.jsonMaxFragmentSize() - RIPC_PACKED_HDR_SIZE;
 
                 /* create read/write buffer pools */
                 createReadBuffers(_channelInfo._numInputBuffers);
@@ -3776,7 +3789,7 @@ class RsslSocketChannel extends EtaNode implements Channel
              * the user and is RIPC MAX_USER_MSG_SIZE - RIPC PACKED_HDR_SIZE.
              */
             IpcProtocolOptions protocolOptions = _ipcProtocol.protocolOptions();
-            _internalMaxFragmentSize = protocolOptions._maxUserMsgSize + RIPC_HDR_SIZE;
+            _internalMaxFragmentSize = protocolOptions._maxUserMsgSize + RIPC_HDR_SIZE > 63335 ? 65535 : protocolOptions._maxUserMsgSize + RIPC_HDR_SIZE;
             
             if (isWebSocketConnection) {
            	 _internalMaxFragmentSize += _WS_MAX_HEADER_LEN;
@@ -4060,7 +4073,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             return retval;
 
         IpcProtocolOptions protocolOptions = _ipcProtocol.protocolOptions();
-        _internalMaxFragmentSize = protocolOptions._maxUserMsgSize + RIPC_HDR_SIZE;
+        _internalMaxFragmentSize = protocolOptions._maxUserMsgSize + RIPC_HDR_SIZE > 63335 ? 65535 : protocolOptions._maxUserMsgSize + RIPC_HDR_SIZE;
         
         if (isWebSocketConnection) {
         	 _internalMaxFragmentSize += _WS_MAX_HEADER_LEN;

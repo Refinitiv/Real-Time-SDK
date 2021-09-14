@@ -67,6 +67,11 @@ class WebSocketSession {
     ByteBufferPair	reassemblyBuffer; /* This is use to assemble fragmented messages. */
     int reassemblyBufferLength;
     int reassemblyBufferDataLength;
+    
+    int compressedLargeBufSize;
+    int posCompressedLargeBuf;
+    byte[] compressedLargeBuf; /* This is the compressed byte array for splitting fragmented messages. */
+    int totalFragmentedHeaders;
 
     private boolean handshakeFinished;
 
@@ -114,6 +119,10 @@ class WebSocketSession {
         handshakeFinished = false;
         completeHostName = null;
         port = 0;
+        compressedLargeBufSize = 0;
+        posCompressedLargeBuf = 0;
+        compressedLargeBuf = null;
+        totalFragmentedHeaders = 0;
     }
 
     public void setProtocolVersion(String protocolName) {

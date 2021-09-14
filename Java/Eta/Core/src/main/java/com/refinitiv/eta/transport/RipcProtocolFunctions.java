@@ -221,4 +221,14 @@ class RipcProtocolFunctions implements ProtocolFunctions
 	{
 		return ((buffer._data.position() + estimateHeaderLength()) > rsslSocketChannel._internalMaxFragmentSize);
 	}
+
+	@Override
+	public int totalPayloadSize() {
+		return 0;
+	}
+
+	@Override
+	public int remaingBytesAfterPausing(BigBuffer bigBuffer) {
+		return bigBuffer._data.limit() - bigBuffer._data.position();
+	}
 }

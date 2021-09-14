@@ -98,4 +98,11 @@ interface ProtocolFunctions
 	boolean isRWFProtocol();
 	
 	boolean writeAsFragmentedMessage(TransportBufferImpl buffer);
+	
+	/* Gets the actual payload size for big buffer with compression over JSON2 protocol. 
+	 * Returns non-zero if the payload size is changed.
+	 * */
+	int totalPayloadSize();
+	
+	int remaingBytesAfterPausing(BigBuffer bigBuffer);
 }

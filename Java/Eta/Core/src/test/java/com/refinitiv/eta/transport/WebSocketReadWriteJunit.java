@@ -2479,6 +2479,18 @@ public class WebSocketReadWriteJunit
 		channel.getWsSession().isClient = !client;
 		retValue = channel.write(writeBuffer, writeArgs, error);
 		
+		if(!client)
+		{
+			assertEquals(compressed ? 117 : 166, writeArgs.bytesWritten());
+			assertEquals(compressed ? 154 : 166, writeArgs.uncompressedBytesWritten());
+		}
+		else
+		{
+			assertEquals(compressed ? 105 : 146, writeArgs.bytesWritten());
+			assertEquals(compressed ? 142 : 146, writeArgs.uncompressedBytesWritten());
+		}
+		
+		
 		assertEquals(0, retValue); 
 		
 		channel.getWsSession().isClient = client;
@@ -2490,15 +2502,15 @@ public class WebSocketReadWriteJunit
 		
 		if(!client)
 		{
-			assertEquals(compressed ? 121 : 127, readArgs.readRetVal());  // Has more data to read
-			assertEquals(compressed ? 161 : 166, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
+			assertEquals(compressed ? 70 : 127, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 117 : 166, readArgs.bytesRead());
+			assertEquals(compressed ? 0 : 39, readArgs.uncompressedBytesRead());
 		}
 		else
 		{
-			assertEquals(compressed ? 105 : 111, readArgs.readRetVal());  // Has more data to read
-			assertEquals(compressed ? 141 : 146, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
+			assertEquals(compressed ? 58 : 111, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 105 : 146, readArgs.bytesRead());
+			assertEquals(compressed ? 0 : 35, readArgs.uncompressedBytesRead());
 		}
 		
 		readBuffer = channel.read(readArgs, error);
@@ -2506,52 +2518,65 @@ public class WebSocketReadWriteJunit
 		
 		if(!client)
 		{
-			assertEquals(compressed ? 85 : 88, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 31 : 88, readArgs.readRetVal());  // Has more data to read
 			assertEquals(0, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
+			assertEquals(compressed ? 0 : 39, readArgs.uncompressedBytesRead());
 		}
 		else
 		{
-			assertEquals(compressed ? 73 : 76, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 23 : 76, readArgs.readRetVal());  // Has more data to read
 			assertEquals(0, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
+			assertEquals(compressed ? 0 : 35, readArgs.uncompressedBytesRead());
 		}
 		
 		readBuffer = channel.read(readArgs, error);
-		assertNull(readBuffer);
 		
-		if(!client)
+		if(!compressed)
 		{
-			assertEquals(compressed ? 46 : 49, readArgs.readRetVal());  // Has more data to read
-			assertEquals(0, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
+			assertNull(readBuffer);
+			
+			if(!client)
+			{
+				assertEquals(49, readArgs.readRetVal());  // Has more data to read
+				assertEquals(0, readArgs.bytesRead());
+				assertEquals(39, readArgs.uncompressedBytesRead());
+			}
+			else
+			{
+				assertEquals(41, readArgs.readRetVal());  // Has more data to read
+				assertEquals(0, readArgs.bytesRead());
+				assertEquals(35, readArgs.uncompressedBytesRead());
+			}	
+			
+			readBuffer = channel.read(readArgs, error);
+			assertNull(readBuffer);
+			
+			if(!client)
+			{
+				assertEquals(10, readArgs.readRetVal());  // Has more data to read
+				assertEquals(0, readArgs.bytesRead());
+				assertEquals(39, readArgs.uncompressedBytesRead());
+			}
+			else
+			{
+				assertEquals(6, readArgs.readRetVal());  // Has more data to read
+				assertEquals(0, readArgs.bytesRead());
+				assertEquals(35, readArgs.uncompressedBytesRead());
+			}
+			
+			readBuffer = channel.read(readArgs, error);
+			assertNotNull(readBuffer);
+			
 		}
 		else
 		{
-			assertEquals(compressed ? 38 : 41, readArgs.readRetVal());  // Has more data to read
+			assertNotNull(readBuffer);
 			assertEquals(0, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
-		}	
-		
-		readBuffer = channel.read(readArgs, error);
-		assertNull(readBuffer);
-		
-		if(!client)
-		{
-			assertEquals(compressed ? 12 : 10, readArgs.readRetVal());  // Has more data to read
-			assertEquals(0, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
+			assertEquals(client ? 142 : 154, readArgs.uncompressedBytesRead());
 		}
-		else
-		{
-			assertEquals(compressed ? 8: 6, readArgs.readRetVal());  // Has more data to read
-			assertEquals(0, readArgs.bytesRead());
-			assertEquals(33, readArgs.uncompressedBytesRead());
-		}
-		
-		readBuffer = channel.read(readArgs, error);
-		assertNotNull(readBuffer);
+			
 		assertEquals(0, readArgs.readRetVal());  // No more data to read
+		
 		assertEquals(JSON_MSG_1_READ.length(), readBuffer.length());
 		assertEquals(0, readBuffer.dataStartPosition());
 		

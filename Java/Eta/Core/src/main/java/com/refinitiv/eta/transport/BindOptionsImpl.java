@@ -8,6 +8,8 @@ class BindOptionsImpl implements BindOptions
 {
     // This class field will be used to bypass asserts when running junits.
     static boolean _runningInJunits = false;
+    
+    static final int _MAX_JSON_FRAGMENT_SIZE = 0x600000; 
 
     private String _componentVersion;
     private String _serviceName;
@@ -24,6 +26,7 @@ class BindOptionsImpl implements BindOptions
     private int _pingTimeout;
     private int _minPingTimeout;
     private int _maxFragmentSize;
+    private int _jsonMaxFragmentSize;
     private int _maxOutputBuffers;
     private int _guaranteedOutputBuffers;
     private int _numInputBuffers;
@@ -49,6 +52,7 @@ class BindOptionsImpl implements BindOptions
         _pingTimeout = 60;
         _minPingTimeout = 20;
         _maxFragmentSize = 6144;
+        _jsonMaxFragmentSize = 0xFFFF;
         _maxOutputBuffers = 50;
         _guaranteedOutputBuffers = 50;
         _numInputBuffers = 10;
@@ -72,6 +76,7 @@ class BindOptionsImpl implements BindOptions
         copyTo._pingTimeout = _pingTimeout;
         copyTo._minPingTimeout = _minPingTimeout;
         copyTo._maxFragmentSize = _maxFragmentSize;
+        copyTo._jsonMaxFragmentSize = _jsonMaxFragmentSize;
         copyTo._maxOutputBuffers = _maxOutputBuffers;
         copyTo._guaranteedOutputBuffers = _guaranteedOutputBuffers;
         copyTo._numInputBuffers = _numInputBuffers;
@@ -107,6 +112,7 @@ class BindOptionsImpl implements BindOptions
         _pingTimeout = 60;
         _minPingTimeout = 20;
         _maxFragmentSize = 6144;
+        _jsonMaxFragmentSize = 0xFFFF;
         _maxOutputBuffers = 50;
         _guaranteedOutputBuffers = 50;
         _numInputBuffers = 10;
@@ -145,6 +151,7 @@ class BindOptionsImpl implements BindOptions
                "\tpingTimeout: " + _pingTimeout + "\n" +
                "\tminPingTimeout: " + _minPingTimeout + "\n" +
                "\tmaxFragmentSize: " + _maxFragmentSize + "\n" +
+               "\tjsonMaxFragmentSize: " + _jsonMaxFragmentSize + "\n" +
                "\tmaxOutputBuffers: " + _maxOutputBuffers + "\n" +
                "\tguaranteedOutputBuffers: " + _guaranteedOutputBuffers + "\n" +
                "\tnumInputBuffers: " + _numInputBuffers + "\n" +
@@ -363,18 +370,37 @@ class BindOptionsImpl implements BindOptions
     @Override
     public void maxFragmentSize(int maxFragmentSize)
     {
-        // Follow range rule coded in ETAC
-        assert (maxFragmentSize >= 20 && maxFragmentSize <= 0xFFFF) : "maxFragmentSize is out of range (20-65535)";
+        // The JSON message size can be larger than the maximum RIPC message size(0xFFFF).
 
         // If assertions disabled, ignore out-of-range value and keep existing value
-        if (maxFragmentSize >= 20 && maxFragmentSize <= 0xFFFF)
-            _maxFragmentSize = maxFragmentSize;
+        if (maxFragmentSize >= 20 )
+        {
+        	if( maxFragmentSize <= 0xFFFF)
+        	{
+        		_maxFragmentSize = maxFragmentSize;
+        	}
+        	
+        	
+        	if( maxFragmentSize < _MAX_JSON_FRAGMENT_SIZE)
+        	{
+        		_jsonMaxFragmentSize = maxFragmentSize;
+        	}
+        	else
+        	{
+        		_jsonMaxFragmentSize = _MAX_JSON_FRAGMENT_SIZE;
+        	}
+        }
     }
 
     @Override
     public int maxFragmentSize()
     {
         return _maxFragmentSize;
+    }
+    
+    int jsonMaxFragmentSize()
+    {
+    	return _jsonMaxFragmentSize;
     }
 
     @Override

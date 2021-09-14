@@ -20,6 +20,9 @@ consumer-Item-001: Alters consumer to decode Date/Time/DateTime and print using 
 consumer-HttpReconnect-001:  Alters consumer which calls chnl.channel().reconnectClient(error) when receive login response.
 
 consumer-Ws-001: Alters Consumer to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4'.
+consumer-Ws-002: Alters Consumer to test compression Zlib -testCompressionZlib.
+					  This app also shows bytesRead and bytesWritten for compressed and uncompressed stats
+
 
 Module:  Value Add Provider 
 ---------------------------
@@ -38,12 +41,16 @@ vaprovider-ProvFunc-001: Adds command line arguments to turn set open window to 
 vaprovider-ProvFunc-002: Market price refresh/updates were altered to send out negative FIDs 
 
 vaprovider-Ws-001: Alters VAProvider to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4' and option -compressionLevel to 0-9.
+vaprovider-Ws-002: Alters VAProvider to test sending a big one dictionary message without multi-part it into many parts, user can pass option -testCompressionZlib, -compressionLevel to 0-9, , -maxFragmentSize (i.e 65536).
 
 Module:  Provider 
 ---------------------------
 
 provider-Item-001:    Alters Provider which send TEMPORARY_REJECT on every 5th item request from consumer. Expand OPEN_LIMIT to 50000.
 provider-Ws-001:      Alters Provider to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4' and option -compressionLevel to 0-9.
+provider-Ws-002:      Alters Provider to test sending a big one dictionary message without multi-part it into many parts, 
+					  And option to test compression Zlib, identify compressionLevel and maxMsgSize for websocket connection, user can pass option -testCompressionZlib, -compressionLevel to 0-9, -maxFragmentSize (i.e 65536).
+					  This app also shows bytesRead and bytesWritten for compressed and uncompressed stats.
 
 Module:  Value Add Consumer 
 ---------------------------

@@ -4,6 +4,7 @@ import com.refinitiv.eta.codec.Codec;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -115,6 +116,15 @@ class WSProtocolFunctions implements ProtocolFunctions {
 				{
 					if (_readBufferStateMachine._currentMsgStartPos + messageLength() > _readIoBuffer.limit())
 					{
+						int currentDataSize = _readIoBuffer.position() - _readBufferStateMachine._currentMsgStartPos;
+						int remaingSpace = _readIoBuffer.limit() - currentDataSize;
+						if(messageLength() > (remaingSpace) )
+						{
+							setError(error, TransportReturnCodes.FAILURE, "Invalid Message Size. Message size is: " + messageLength() + ". Max Message size is: " + 
+									remaingSpace + ".");
+							throw new IllegalArgumentException(error.text());
+						}
+						
 						_webSocketSession.wsFrameHdr.reset();
 						_readBufferStateMachine._state = ReadBufferState.KNOWN_INSUFFICENT; /* Insufficient space to read more data*/
 					}
@@ -856,6 +866,7 @@ class WSProtocolFunctions implements ProtocolFunctions {
         int MAX_BYTES_FOR_BUFFER = _rsslSocketChannel._internalMaxFragmentSize - estimateHeaderLength();
         TransportBufferImpl compFragmentBuffer = null;
         int wsHeaderLength = 0;
+        WebSocketSession webSocketSession = _rsslSocketChannel.getWsSession();
 		
 		if(_rsslSocketChannel.protocolType() == Codec.RWF_PROTOCOL_TYPE)
 		{
@@ -1013,10 +1024,24 @@ class WSProtocolFunctions implements ProtocolFunctions {
 	        {
 	            compFragmentBuffer.returnToPool();
 	        }
+	        
+	        // Adjust big buffer for next call
+	        // -- set the limit to end of big buffer user data
+	        bigBuffer.data().limit(limit);
+	        // -- new position will be set just after the data inserted in this
+	        // fragment
+	        bigBuffer.data().position(bigBuffer.data().position() + userBytesForFragment);
+	        
+	        // Actual bytes on wire is total length of first fragment, plus total length on wire of extra bytes (if sent)
+	        ((WriteArgsImpl)writeArgs).bytesWritten(writeArgs.bytesWritten() + fragment._length + extraTotalLength);
+	        
+	        // Uncompressed bytes is the number of bytes taken from the big buffer before
+	        // compression, plus overhead for the one message sent on wire
+	        ((WriteArgsImpl)writeArgs).uncompressedBytesWritten(writeArgs.uncompressedBytesWritten() +
+	                                                            userBytesForFragment + headerLength + extraHeaderLength);
 		}
 		else
 		{
-			int remainingSpace = 0;
 			boolean finBit = false;
 			int opCode = WebSocketFrameParser._WS_OPC_CONT;
 			maxPayloadSize = fragment.data().capacity();
@@ -1028,19 +1053,39 @@ class WSProtocolFunctions implements ProtocolFunctions {
 	        	limit = position;
 	            totalLength = position;
 	            bigBuffer._data.position(0); // start at the beginning
-	            userBytesForFragment = maxPayloadSize - estimateHeaderLength();
-	            wsHeaderLength = WebSocketFrameParser.calculateHeaderLength(userBytesForFragment, _webSocketSession.isClient);
-	            remainingSpace = WebSocketFrameParser._WS_MAX_HEADER_LEN - wsHeaderLength;
 	            
-	            bigBuffer._data.limit(userBytesForFragment);
+	            /* Compress the entire payload before splitting it into fragmented messages. */ 
+	            compressedLen = _rsslSocketChannel._compressor.compress(bigBuffer.data(),
+                        bigBuffer.data().position(), // big buffer position points at data to be sent
+                        totalLength); // number of bytes to compress
+	            
+	            // Strip off the trailing 0x00 0x00 0xFF 0xFF as per PMCE spec 
+	            compressedLen -= 4;
+	            
+	            webSocketSession.compressedLargeBufSize = compressedLen;
+	            webSocketSession.posCompressedLargeBuf = 0;
+	            webSocketSession.compressedLargeBuf = _rsslSocketChannel._compressor.compressedData();
+	            
+	            userBytesForFragment = maxPayloadSize - estimateHeaderLength();
 	            opCode = WebSocketFrameParser._WS_OPC_NONE;
+	            
+	            /* If this the first fragmented message then split it into two WS frames. */
+	            if(webSocketSession.compressedLargeBufSize < userBytesForFragment)
+	            {
+	            	userBytesForFragment = webSocketSession.compressedLargeBufSize;
+	            	
+	            	userBytesForFragment /= 2;
+	            }
+	            
+	            // Uncompressed bytes is the number of bytes taken from the big buffer before
+	            // compression, plus overhead for the one message sent on wire
+	            ((WriteArgsImpl)writeArgs).uncompressedBytesWritten(writeArgs.uncompressedBytesWritten() + totalLength);
 			}
 			else
 			{
                  headerLength = estimateHeaderLength();
-                 userBytesForFragment = maxPayloadSize - headerLength;
 
-                 int bytesRemaining = limit - position; // bytes remaining in big buffer
+                 int bytesRemaining = webSocketSession.compressedLargeBufSize - webSocketSession.posCompressedLargeBuf; // bytes remaining in big buffer
                  if (maxPayloadSize <= (bytesRemaining + headerLength))
                  {
                         userBytesForFragment = maxPayloadSize - headerLength;
@@ -1050,47 +1095,19 @@ class WSProtocolFunctions implements ProtocolFunctions {
                         userBytesForFragment = bytesRemaining;
                         finBit = true;
                 }
-                 
-                wsHeaderLength = WebSocketFrameParser.calculateHeaderLength(userBytesForFragment, _webSocketSession.isClient);
- 	            remainingSpace = WebSocketFrameParser._WS_MAX_HEADER_LEN - wsHeaderLength;
-            }
-
-            // Compress the selected number of bytes (userBytesForFragment) for the fragment
-            compressedLen = _rsslSocketChannel._compressor.compress(bigBuffer.data(),
-                                                 bigBuffer.data().position(), // big buffer position points at data to be sent
-                                                 userBytesForFragment); // number of bytes to compress
-            
-            // Strip off the trailing 0x00 0x00 0xFF 0xFF as per PMCE spec 
-            compressedLen -= 4;
-            
-            int availableSpace = userBytesForFragment + remainingSpace;
-            if(compressedLen > availableSpace )
-            {
-            	/* Reduced the user data if the required compressed length is larger than the available space */
-            	userBytesForFragment -= (compressedLen - availableSpace);
-            	bigBuffer._data.limit(userBytesForFragment);
-            	
-            	compressedLen = _rsslSocketChannel._compressor.compress(bigBuffer.data(),
-                        bigBuffer.data().position(), // big buffer position points at data to be sent
-                        userBytesForFragment); // number of bytes to compress
-            	
-            	// Strip off the trailing 0x00 0x00 0xFF 0xFF as per PMCE spec 
-                compressedLen -= 4;
             }
             
-            compressedBytes = _rsslSocketChannel._compressor.compressedData();
+            wsHeaderLength = WebSocketFrameParser.calculateHeaderLength(userBytesForFragment, _webSocketSession.isClient);
             
-            wsHeaderLength = WebSocketFrameParser.calculateHeaderLength(compressedLen, _webSocketSession.isClient);
-            
-            fragment._startWsHeader = fragment._startPosition + (maxPayloadSize - (wsHeaderLength + compressedLen));
+            fragment._startWsHeader = fragment._startPosition + (maxPayloadSize - (wsHeaderLength + userBytesForFragment));
             
             fragment._data.position(fragment._startWsHeader + wsHeaderLength);
             
-            fragment._data.put(compressedBytes, 0, compressedLen);
-			
+            fragment._data.put(webSocketSession.compressedLargeBuf, webSocketSession.posCompressedLargeBuf, userBytesForFragment);
+
 			/* Set the WebSocket frame header */
-			WebSocketFrameParser.encode(fragment._data, fragment._startWsHeader, compressedLen, _rsslSocketChannel.protocolType(),
-					_webSocketSession.isClient, finBit, true, opCode);
+			WebSocketFrameParser.encode(fragment._data, fragment._startWsHeader, userBytesForFragment, _rsslSocketChannel.protocolType(),
+					_webSocketSession.isClient, finBit, firstFragment ? true : false, opCode);
             
             int lastPosition = fragment._data.position();
             fragment._length = lastPosition - fragment._startWsHeader;
@@ -1105,23 +1122,16 @@ class WSProtocolFunctions implements ProtocolFunctions {
             _rsslSocketChannel.writeFragment(fragment, writeArgs);
             
             headerLength = wsHeaderLength;
+            
+            webSocketSession.posCompressedLargeBuf += userBytesForFragment;
+            
+            // Actual bytes on wire is total length of first fragment, plus total length on wire of extra bytes (if sent)
+            ((WriteArgsImpl)writeArgs).bytesWritten(writeArgs.bytesWritten() + fragment._length);
+            
+            // Plus additional websocket headers
+            ((WriteArgsImpl)writeArgs).uncompressedBytesWritten(writeArgs.uncompressedBytesWritten() + headerLength);
 		}
         
-        // Actual bytes on wire is total length of first fragment, plus total length on wire of extra bytes (if sent)
-        ((WriteArgsImpl)writeArgs).bytesWritten(writeArgs.bytesWritten() + fragment._length + extraTotalLength);
-        
-        // Uncompressed bytes is the number of bytes taken from the big buffer before
-        // compression, plus overhead for the one message sent on wire
-        ((WriteArgsImpl)writeArgs).uncompressedBytesWritten(writeArgs.uncompressedBytesWritten() +
-                                                            userBytesForFragment + headerLength + extraHeaderLength);
-
-        // Adjust big buffer for next call
-        // -- set the limit to end of big buffer user data
-        bigBuffer.data().limit(limit);
-        // -- new position will be set just after the data inserted in this
-        // fragment
-        bigBuffer.data().position(bigBuffer.data().position() + userBytesForFragment);
-	
 		// Tell the caller how many payload bytes were put in this fragment (uncompressed)
         return userBytesForFragment;
 	}
@@ -1261,7 +1271,7 @@ class WSProtocolFunctions implements ProtocolFunctions {
     public int sendWsFrameClose(WebSocketCloseStatus closeStatus, Error error) {
     	
     	/* Checks whether the websocket connection is not initiated successfully */
-    	if(Objects.isNull(wsFrameBuffer))
+    	if(Objects.isNull(wsFrameBuffer) || _webSocketSession.sendClose)
     	{
     		return TransportReturnCodes.SUCCESS;
     	}
@@ -1321,6 +1331,47 @@ class WSProtocolFunctions implements ProtocolFunctions {
 		{
 			/* Plus 1 to include ']' at the end of buffer */
 			return ((buffer._data.position() + estimateHeaderLength() + 1) > _rsslSocketChannel._internalMaxFragmentSize);
+		}
+	}
+
+	@Override
+	public int totalPayloadSize() {
+		
+		if(_rsslSocketChannel.protocolType() == Codec.RWF_PROTOCOL_TYPE)
+		{
+			return 0;
+		}
+		else
+		{
+			if (_rsslSocketChannel._sessionOutCompression == Ripc.CompressionTypes.ZLIB)
+			{
+				return _webSocketSession.compressedLargeBufSize;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+	}
+
+
+	@Override
+	public int remaingBytesAfterPausing(BigBuffer bigBuffer) {
+		if(_rsslSocketChannel.protocolType() == Codec.RWF_PROTOCOL_TYPE)
+		{
+			return bigBuffer._data.limit() - bigBuffer._data.position();
+		}
+		else
+		{
+			if (_rsslSocketChannel._sessionOutCompression == Ripc.CompressionTypes.ZLIB)
+			{
+				WebSocketSession webSocketSession = _rsslSocketChannel.getWsSession();
+				return webSocketSession.compressedLargeBufSize - webSocketSession.posCompressedLargeBuf;
+			}
+			else
+			{
+				return bigBuffer._data.limit() - bigBuffer._data.position();
+			}
 		}
 	}
 }

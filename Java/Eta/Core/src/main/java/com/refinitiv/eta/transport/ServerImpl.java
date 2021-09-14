@@ -12,6 +12,8 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Objects;
 
+import static com.refinitiv.eta.transport.WebSocketFrameParser._WS_MAX_HEADER_LEN;
+
 class ServerImpl extends EtaNode implements Server
 {
 
@@ -709,11 +711,11 @@ class ServerImpl extends EtaNode implements Server
     int bufferSize()
     {
         /* This buffer size is used internal and represents the size of the buffers that are used internally.
-         * The size will be the RIPC MAX_USER_MSG_SIZE + RIPC_HDR_SIZE.
+         * The size will be the RIPC MAX_USER_MSG_SIZE + RIPC_HDR_SIZE + _WS_MAX_HEADER_LEN.
          * The RIPC MAX_USER_MSG_SIZE is the bindOps.maxFragmentSize().
          * Note that this value is different from _channelInfo._maxFragmentSize,
-         * which is returned to the user and is RIPC MAX_USER_MSG_SIZE - RIPC PACKED_HDR_SIZE. */
-        return _bindOpts.maxFragmentSize() + RsslSocketChannel.RIPC_HDR_SIZE;
+         * which is returned to the user and is RIPC MAX_USER_MSG_SIZE - RIPC PACKED_HDR_SIZE - _WS_MAX_HEADER_LEN. */
+        return _bindOpts.jsonMaxFragmentSize() + RsslSocketChannel.RIPC_HDR_SIZE + _WS_MAX_HEADER_LEN;
     }
 
     SocketBuffer getBufferFromServerPool()

@@ -1,0 +1,6 @@
+# file,location
+,Applications/Examples
+,Appilcations/Shared
+Provider.java,Applications/Examples/src/main/java/com/refinitiv/eta/examples/provider
+ProviderDictionaryHandler.java,Applications/Examples/src/main/java/com/refinitiv/eta/examples/common
+ProviderSession.java,Applications/Shared/src/main/java/com/refinitiv/eta/shared

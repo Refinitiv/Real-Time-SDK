@@ -264,4 +264,14 @@ class Lz4Compressor extends Compressor
     void close()
     {
     }
+
+	@Override
+	int preDecompress(ByteBufferPair bufferToDecompress, int dataStartPos, int lenToDecompress) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	void writeDecompressBuffer(ByteBufferPair decompressedBuffer) {
+		throw new UnsupportedOperationException();
+	}
 }

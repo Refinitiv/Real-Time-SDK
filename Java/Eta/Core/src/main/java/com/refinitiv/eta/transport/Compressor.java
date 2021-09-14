@@ -58,6 +58,24 @@ abstract class Compressor
      * Returns the number of uncompressed bytes written to the decompressedBuffer.
      */
     abstract int decompress(ByteBufferPair bufferToDecompress, ByteBufferPair decompressedBuffer, int dataStartPos, int lenToDecompress);
+    
+    /* Pre-decompression of data using ByteBufferPair object. This is used to decompress data into the internal buffer
+    *
+    * bufferToDecompress contains the compressed data
+    * dataStartPos is the start position of compressed data for bufferToDecompress
+    * lenToDecompress is the number of bytes to decompress from bufferToDecompress
+    *
+    * Returns the number of uncompressed bytes.
+    */
+    abstract int preDecompress(ByteBufferPair bufferToDecompress, int dataStartPos, int lenToDecompress);
+   
+    /* Write the internal buffer into the decompressed buffer. This function must be called after the preDecompress() method.
+    *
+    * decompressedBuffer is the decompressed data will be written into this buffer
+    *
+    * Returns the number of uncompressed bytes written to the decompressedBuffer.
+    */
+    abstract void writeDecompressBuffer(ByteBufferPair decompressedBuffer);
 
     /* Sets the compression level for this compression implementation.
      *

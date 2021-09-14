@@ -221,6 +221,12 @@ class WebSocketFrameParser {
 				if(frame.extHdrLen == _WS_2BYTE_EXT_PAYLOAD)
 				{
 					frame.payloadLen = buffer.getShort(frame.extHdrIndex);
+					
+					if(frame.payloadLen < 0)
+					{
+						frame.payloadLen += 0x10000;
+					}
+					
 					frame.extHdrIndex += 2;
 				}
 				else

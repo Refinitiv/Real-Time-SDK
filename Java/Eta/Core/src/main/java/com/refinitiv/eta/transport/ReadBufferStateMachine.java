@@ -474,11 +474,26 @@ class ReadBufferStateMachine
         /* Checks whether this function needs to handle WS fragmented messages */
         if (websocketSession.wsFrameHdr.fragment || websocketSession.wsFrameHdr.opcode == WebSocketFrameParser._WS_OPC_CONT)
         {
-            readArgs._uncompressedBytesRead = length;
+        	boolean firstFragment = (websocketSession.wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT);
+        	
+        	if(!_SocketChannelCallBack.getWsSession().wsFrameHdr.compressed)
+        	{
+        		readArgs._uncompressedBytesRead = length + _protocolFunctions.additionalHdrLength();
+        	}
+        	else
+        	{
+        		if(firstFragment)
+        		{
+        			websocketSession.totalFragmentedHeaders = 0;
+        		}
+        		
+        		/* Keeps track of all WS headers for compression message */
+        		websocketSession.totalFragmentedHeaders += _protocolFunctions.additionalHdrLength();
+        	}
 
             if(websocketSession.wsFrameHdr.fragment)
             {
-                if(websocketSession.wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT) /* This is the first fragmented message */
+                if(firstFragment) /* This is the first fragmented message */
                 {
                     /* preallocates buffer to assemble fragmented messages and resizes if needed. */
                     websocketSession.reassemblyBufferLength = length * 10;
@@ -514,11 +529,45 @@ class ReadBufferStateMachine
                 {
                     resizeReassemblyBuffer(websocketSession, bufferPair, position, length);
                 }
-
+                
                 _dataBuffer = websocketSession.reassemblyBuffer;
                 _dataBuffer.buffer().limit(_dataBuffer.buffer().position());
                 _dataLength = _dataBuffer.buffer().limit();
                 _dataPosition = 0;
+                
+                /* Uncompress the entire payload */
+                if(_SocketChannelCallBack.getWsSession().wsFrameHdr.compressed)
+                {	
+	                int uncompressedLength = _SocketChannelCallBack._compressor.preDecompress(_dataBuffer, _dataPosition, _dataLength );
+	                
+	                if(_decompressBuffer != null)
+	                {
+	                	if(uncompressedLength > _decompressBuffer.buffer().capacity())
+	                	{
+	                		_decompressBuffer.returnToPool();
+	                		_decompressBuffer = _SocketChannelCallBack.acquirePair(uncompressedLength);
+	                	}
+	                }
+	                else
+	                {
+	                	_decompressBuffer = _SocketChannelCallBack.acquirePair(uncompressedLength);
+	                }
+	                
+	                _SocketChannelCallBack._compressor.writeDecompressBuffer(_decompressBuffer);
+	
+	                _dataLength = uncompressedLength;
+	
+	                _dataBuffer = _decompressBuffer;
+	
+	                _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
+	
+	                readArgs._uncompressedBytesRead = websocketSession.totalFragmentedHeaders + uncompressedLength;
+                }
+                else
+                {
+                	readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + _dataLength;
+                }
+                
                 _subState = ReadBufferSubState.PROCESSING_COMPLETE_FRAGMENTED_JSON_MESSAGE;
             }
         }
@@ -580,28 +629,48 @@ class ReadBufferStateMachine
             /* Checks whether the payload is compressed */
             if(_SocketChannelCallBack.getWsSession().wsFrameHdr.compressed)
             {
-                if (_decompressBuffer == null)
+            	if (!_SocketChannelCallBack.getWsSession().wsFrameHdr.fragment && _SocketChannelCallBack.getWsSession().wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT)
                 {
-                    _decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
+                    int uncompressedLength = _SocketChannelCallBack._compressor.preDecompress(_dataBuffer, _dataPosition, _dataLength );
+	                
+	                if(_decompressBuffer != null)
+	                {
+	                	if(uncompressedLength > _decompressBuffer.buffer().capacity())
+	                	{
+	                		_decompressBuffer.returnToPool();
+	                		_decompressBuffer = _SocketChannelCallBack.acquirePair(uncompressedLength);
+	                	}
+	                }
+	                else
+	                {
+	                	_decompressBuffer = _SocketChannelCallBack.acquirePair(uncompressedLength);
+	                }
+	                
+	                _SocketChannelCallBack._compressor.writeDecompressBuffer(_decompressBuffer);
+	
+	                _dataLength = uncompressedLength;
+	
+	                _dataBuffer = _decompressBuffer;
+	
+	                _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
+	
+	                readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
                 }
-
-                int uncompressedLength = _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer, _dataPosition, _dataLength );
-
-                _dataLength = uncompressedLength;
-
-                _dataBuffer = _decompressBuffer;
-
-                _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
-
-                readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
-
-                handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _decompressBuffer, _dataPosition, _dataLength);
+            	else
+            	{
+            		handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+            	}
             }
             else
             {
-                readArgs._uncompressedBytesRead = readArgs._bytesRead;
-
-                handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+            	if (!_SocketChannelCallBack.getWsSession().wsFrameHdr.fragment && _SocketChannelCallBack.getWsSession().wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT)
+                {
+            		readArgs._uncompressedBytesRead = readArgs._bytesRead;
+                }
+            	else
+            	{
+            		handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+            	}
             }
         }
     }
@@ -720,30 +789,50 @@ class ReadBufferStateMachine
 
         		/* Checks whether the payload is compressed */
         		if(_SocketChannelCallBack.getWsSession().wsFrameHdr.compressed)
-        		{
-        			if (_decompressBuffer == null)
-        			{
-        				_decompressBuffer = _SocketChannelCallBack.acquirePair(maxFragmentSize());
-        			}
-        			
-        			int uncompressedLength = _SocketChannelCallBack._compressor.decompress(_readIoBuffer, _decompressBuffer, _dataPosition, _dataLength );
-        			
-                    _dataLength = uncompressedLength;
-                    
-                    _dataBuffer = _decompressBuffer;
-                    
-                    _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
-
-                    readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
-                    
-                    handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _decompressBuffer, _dataPosition, _dataLength);
-        		}
-        		else
-        		{
-        			readArgs._uncompressedBytesRead = readArgs._bytesRead;
-        			
-        			handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
-        		}
+                {
+                	if (!_SocketChannelCallBack.getWsSession().wsFrameHdr.fragment && _SocketChannelCallBack.getWsSession().wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT)
+                    {
+                        int uncompressedLength = _SocketChannelCallBack._compressor.preDecompress(_dataBuffer, _dataPosition, _dataLength );
+    	                
+    	                if(_decompressBuffer != null)
+    	                {
+    	                	if(uncompressedLength > _decompressBuffer.buffer().capacity())
+    	                	{
+    	                		_decompressBuffer.returnToPool();
+    	                		_decompressBuffer = _SocketChannelCallBack.acquirePair(uncompressedLength);
+    	                	}
+    	                }
+    	                else
+    	                {
+    	                	_decompressBuffer = _SocketChannelCallBack.acquirePair(uncompressedLength);
+    	                }
+    	                
+    	                _SocketChannelCallBack._compressor.writeDecompressBuffer(_decompressBuffer);
+    	
+    	                _dataLength = uncompressedLength;
+    	
+    	                _dataBuffer = _decompressBuffer;
+    	
+    	                _dataPosition = 0; /* Set position at the beginning of the decoded compress buffer */
+    	
+    	                readArgs._uncompressedBytesRead = _protocolFunctions.additionalHdrLength() + uncompressedLength;
+                    }
+                	else
+                	{
+                		handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+                	}
+                }
+                else
+                {
+                	if (!_SocketChannelCallBack.getWsSession().wsFrameHdr.fragment && _SocketChannelCallBack.getWsSession().wsFrameHdr.opcode != WebSocketFrameParser._WS_OPC_CONT)
+                    {
+                		readArgs._uncompressedBytesRead = readArgs._bytesRead;
+                    }
+                	else
+                	{
+                		handleFragmentedJSONMessages(readArgs, _SocketChannelCallBack.getWsSession(), _readIoBuffer, _dataPosition, _dataLength);
+                	}
+                }
             }
         }
         else if (httpEnd <= _readIoBuffer.buffer().limit())
