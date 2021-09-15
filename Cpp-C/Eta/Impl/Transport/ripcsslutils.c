@@ -1654,6 +1654,8 @@ RsslInt32 ripcCloseSSLSocket(void *session)
 	return 1;
 }
 
+/* This is used to call socket shutdown instead of sock_close.  Shutdown will gracefully close the channel, allowing any in-flight messages 
+   to be read by the other side prior to closing the connection. */
 RsslInt32 ripcShutdownSSLSocket(void *session)
 {
 	ripcSSLSession *sess = (ripcSSLSession*)session;

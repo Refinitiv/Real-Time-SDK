@@ -47,6 +47,12 @@
 
 static rtr_atomic_val rtr_SocketInits = 0;
 
+#if defined(_WIN32)
+static RsslUInt32			shutdownFlag = SD_SEND;
+#else
+static RsslUInt32			shutdownFlag = SHUT_WR;
+#endif
+
 curl_socket_t rsslCurlOpenSocketCallback(void *clientp,
 	curlsocktype purpose,
 	struct curl_sockaddr *address)
@@ -750,14 +756,40 @@ int ipcConnected(RsslSocket fd)
 void *ipcNewSrvrConn(void *srvr, RsslSocket fd,
 								int *initComplete, void* userSpecPtr, RsslError *error)
 {
+	ripcSocketSession* sess = (ripcSocketSession*)malloc(sizeof(ripcSocketSession));
+
+	if (sess == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1001 Could not initialize memory for ripc socket session.\n",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
 	*initComplete = 1;
-	return((void*)(intptr_t)fd);
+
+	sess->fd = fd;
+	return((void*)sess);
 }
 
 void *ipcNewClientConn(RsslSocket fd, int *initComplete, void* userSpecPtr, RsslError* error )
 {
+	ripcSocketSession* sess = (ripcSocketSession*)malloc(sizeof(ripcSocketSession));
+
+	if (sess == NULL)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1001 Could not initialize memory for ripc socket session.\n",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
 	*initComplete = 1;
-	return((void*)(intptr_t)fd);
+
+	sess->fd = fd;
+	return((void*)sess);
 }
 
 int ipcInitTrans(void *transport, ripcSessInProg *inPr, RsslError *error)
@@ -782,13 +814,15 @@ int ipcRead( void *transport, char *buf, int max_len, ripcRWFlags flags, RsslErr
 	int totalBytes = 0;
 #endif
 
+	RsslSocket socket = ((ripcSocketSession*)transport)->fd;
+
 	while((int)totalBytes < max_len)
 	{
 #ifdef _WIN32WSA
 		wsabuf.buf = buf + totalBytes;
 		wsabuf.len = max_len - totalBytes;
 
-		retval = WSARecv((RsslSocket)transport,&wsabuf,1,&numBytes,&dflags,NULL,NULL);
+		retval = WSARecv(socket,&wsabuf,1,&numBytes,&dflags,NULL,NULL);
 
 		if (retval == SOCKET_ERROR)
 		{
@@ -821,7 +855,7 @@ int ipcRead( void *transport, char *buf, int max_len, ripcRWFlags flags, RsslErr
 		else
 			totalBytes += numBytes;
 #else
-		numBytes = SOCK_RECV((RsslSocket)(intptr_t)transport, (buf + totalBytes), (size_t)(max_len - totalBytes), 0);
+		numBytes = SOCK_RECV(socket, (buf + totalBytes), (size_t)(max_len - totalBytes), 0);
 
 		if (numBytes > 0)
 			totalBytes += numBytes;
@@ -866,6 +900,8 @@ int ipcWriteV( void *transport, ripcIovType *iov, int iovcnt, int outLen, ripcRW
 	int numBytes = 0;
 	int totOut = 0;
 
+	RsslSocket socket = ((ripcSocketSession*)transport)->fd;
+
 ripcwritevagain:
 
 /* Debugging
@@ -881,11 +917,11 @@ ripcwritevagain:
 	*/
 
 #ifdef _WIN32
-	retval = WSASend((RsslSocket)transport, iov, iovcnt, &((DWORD)numBytes), 0, 0, 0);
+	retval = WSASend(socket, iov, iovcnt, &((DWORD)numBytes), 0, 0, 0);
 	if (retval < 0)
 		numBytes = retval;
 #else
-	numBytes = writev((RsslSocket)(intptr_t)transport,iov,iovcnt);
+	numBytes = writev(socket,iov,iovcnt);
 #endif
 
 /* Debugging
@@ -932,6 +968,7 @@ int ipcWrite( void *transport, char *buf, int outLen, ripcRWFlags flags, RsslErr
 	int numBytes;
 	int totOut = 0;
 #endif
+	RsslSocket socket = ((ripcSocketSession*)transport)->fd;
 
 	while((int)totOut < outLen)
 	{
@@ -939,7 +976,7 @@ int ipcWrite( void *transport, char *buf, int outLen, ripcRWFlags flags, RsslErr
 		wsabuf.buf = buf + totOut;
 		wsabuf.len = outLen - totOut;
 
-		retval = WSASend((RsslSocket)transport,&wsabuf,1,&numBytes,0,0,0);
+		retval = WSASend(socket,&wsabuf,1,&numBytes,0,0,0);
 
 		if (retval == SOCKET_ERROR)
 		{
@@ -964,7 +1001,7 @@ int ipcWrite( void *transport, char *buf, int outLen, ripcRWFlags flags, RsslErr
 
 #else
 
-		numBytes = SOCK_SEND((RsslSocket)(intptr_t)transport, (buf + totOut), (outLen - totOut), 0);
+		numBytes = SOCK_SEND(socket, (buf + totOut), (outLen - totOut), 0);
 
 		if (numBytes > 0)
 			totOut += numBytes;
@@ -999,10 +1036,30 @@ int ipcWrite( void *transport, char *buf, int outLen, ripcRWFlags flags, RsslErr
 	return(totOut);
 }
 
-int ipcShutdownSckt(void *transport)
+/* This is used to call socket shutdown instead of sock_close.  Shutdown will gracefully close the channel, allowing any in-flight messages
+   to be read by the other side prior to closing the connection. */
+int ipcShutdownSckt(void* transport)
 {
-	if((RsslSocket)(intptr_t)transport != RIPC_INVALID_SOCKET)
-		sock_close((RsslSocket)(intptr_t)transport);
+	/* If the socket is invalid, it already has been closed by curl */
+	if (((ripcSocketSession*)transport)->fd != RIPC_INVALID_SOCKET)
+		shutdown(((ripcSocketSession*)transport)->fd, shutdownFlag);
+
+	((ripcSocketSession*)transport)->fd = RIPC_INVALID_SOCKET;
+
+	free(transport);
+	return(1);
+}
+
+
+int ipcCloseSckt(void *transport)
+{
+	/* If the socket is invalid, it already has been closed by curl */
+	if(((ripcSocketSession*)transport)->fd != RIPC_INVALID_SOCKET)
+		sock_close(((ripcSocketSession*)transport)->fd);
+
+	((ripcSocketSession*)transport)->fd = RIPC_INVALID_SOCKET;
+
+	free(transport);
 	return(1);
 }
 
@@ -1625,7 +1682,7 @@ int ipcSetSockFuncs()
 	func.connectSocket = ipcConnectSocket;
 	func.newClientConnection = ipcNewClientConn;
 	func.initializeTransport = ipcInitTrans;
-	func.shutdownTransport = ipcShutdownSckt;
+	func.shutdownTransport = ipcCloseSckt;
 	func.readTransport = ipcRead;
 	func.writeTransport = ipcWrite;
 	func.writeVTransport = ipcWriteV;
