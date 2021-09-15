@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.6.2.G2
+    libema.lib                ema3.6.2.E1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.6.2.G2
-    libema.dll                ema3.6.2.G2
+    libema.lib                ema3.6.2.E1
+    libema.dll                ema3.6.2.E1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.6.2.G2
+    libema.a                    ema3.6.2.E1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.6.2.G2          libema.so.12          ema3.6.2.G2
+    libema.so.3.6.2.E1          libema.so.12          ema3.6.2.E1
     
   
 # EMA C++ Issues and Workarounds
@@ -160,10 +160,10 @@ This will create all necessary soft links for example makefiles to link. It is s
     Product Name: Enterprise Message API - C++ Edition
     Release Number: 3.6.2
     Load Number: 1
-    Windows Load ID: ema3.6.2.L1.win
-        Supersedes: ema3.6.1.L2.win
-    Linux Load ID: ema3.6.2.L1.linux
-        Supersedes: ema3.6.1.L2.linux
+    Windows Load ID: ema3.6.2.E1.win
+        Supersedes: ema3.6.2.L1.win
+    Linux Load ID: ema3.6.2.E1.linux
+        Supersedes: ema3.6.2.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
