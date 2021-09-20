@@ -102,7 +102,7 @@ The following list is a sample of Refinitiv product name changes which are refer
 |ADS|Refinitiv Real-Time Advanced Distribution Server|
 |ADH|Refinitiv Real-Time Advanced Data Hub|
 |ATS|Refinitiv Real-Time Advanced Transformation Server|
-|ADSPOP|Refinitiv Real-Time Advanced Distribution Broker|
+|ADSPOP|Real-Time Connector (RTC)|
 |DACS|Refinitiv Data Access Control System|
 |EDP|Refinitiv Data Platform (RDP)|
 |Elektron|Refinitiv Real-Time|
