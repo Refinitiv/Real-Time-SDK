@@ -12,9 +12,9 @@ unset(rtsdk_DEPENDS_LIST)
 #[====================================================================]
 set(rtsdk_INTERNAL_API_VERSION_MAJOR 3)
 set(rtsdk_INTERNAL_API_VERSION_MINOR 6)
-set(rtsdk_INTERNAL_API_VERSION_PATCH 2)
-set(rtsdk_INTERNAL_API_VERSION_TWEAK 2)
-set(rtsdk_INTERNAL_RELEASE_TWEAK G2)
+set(rtsdk_INTERNAL_API_VERSION_PATCH 3)
+set(rtsdk_INTERNAL_API_VERSION_TWEAK 0)
+set(rtsdk_INTERNAL_RELEASE_TWEAK L1)
 set(rtsdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 14 )
