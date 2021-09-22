@@ -2101,6 +2101,8 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 	rwsSession_t *wsSess = 0;
 	RsslUInt32 keyLen = 0;
 	char *newKey = 0;
+	int retryCount = 0;
+	RsslRet			retval;
 
 	_DEBUG_TRACE_WS_CONN("fd "SOCKET_PRINT_TYPE" \n", rsslSocketChannel->stream)
 
@@ -2108,6 +2110,25 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 
 	RIPC_ASSERT(rsslSocketChannel->intState == RIPC_INT_ST_WS_SEND_OPENING_HANDSHAKE);
 
+	retval = (*(rsslSocketChannel->transportFuncs->connected))(rsslSocketChannel->stream,
+		rsslSocketChannel->transportInfo);
+
+	if (retval != 1)
+	{
+		if (retval != 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1002 rwsSendOpeningHandshake() client connect() failed.  System errno: (%d)\n",
+				__FILE__, __LINE__, errno);
+
+			return(RIPC_CONN_ERROR);
+		}
+		else
+		{
+			return(RIPC_CONN_IN_PROGRESS);
+		}
+	}
 	//Create a Client RWS_Handle and populate the struct.
 	//         The number of ws related info is large and growing
 	if (rsslSocketChannel->rwsSession == 0)
@@ -2207,7 +2228,13 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
-	cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, hsBuffer, hsLen ,rwflags, error);		
+	for (; retryCount < 15; retryCount++)
+	{
+		cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, hsBuffer, hsLen, rwflags, error);
+
+		if (cc > 0)
+			break;
+	}
 
 	IPC_MUTEX_LOCK(rsslSocketChannel);
 
@@ -2224,7 +2251,7 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 		return(RIPC_CONN_ERROR);
 	}
 
-	if (cc < 0)
+	 if (cc < 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
