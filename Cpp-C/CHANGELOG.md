@@ -19,12 +19,13 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK C++/C Release 2.0.2.E1 (Sep 9, 2021)
+RTSDK C++/C Release 2.0.2.E1 (Sep 23, 2021)
 --------------------------------------------
 
 ETA C 3.6.2.E1 Issues Resolved
 --------------------------------
 - [RTSDK-5539] - Race condition from closed tunnelstream resulting in unhandled state in tunnelstream provider 
+- [RTSDK-5599] - pReactorChannelImpl->tunnelDispatchEventQueued is not unset resulting in tunnel events not being dispatched 
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.2.G2 (Aug 11, 2021)
