@@ -140,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.6.2.E1
-    librsslVA.lib             eta3.6.2.E1
-    librsslVACache.lib        eta3.6.2.E1
-    libansi.lib               eta3.6.2.E1
-    libdacs.lib               eta3.6.2.E1
+    librssl.lib*              eta3.6.2.G3
+    librsslVA.lib             eta3.6.2.G3
+    librsslVACache.lib        eta3.6.2.G3
+    libansi.lib               eta3.6.2.G3
+    libdacs.lib               eta3.6.2.G3
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +152,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.6.2.E1
-    librssl.lib               eta3.6.2.E1
-    librssl.pdb               eta3.6.2.E1
-    librsslVA.dll             eta3.6.2.E1
-    librsslVA.lib             eta3.6.2.E1
-    librsslVA.pdb             eta3.6.2.E1
-    librsslVACache.dll        eta3.6.2.E1
-    librsslVACache.lib        eta3.6.2.E1
-    librsslVACache.pdb        eta3.6.2.E1
-    librsslJsonConverter.dll  eta3.6.2.E1
-    librsslJsonConverter.lib  eta3.6.2.E1
-    librsslJsonConverter.pdb  eta3.6.2.E1
+    librssl.dll               eta3.6.2.G3
+    librssl.lib               eta3.6.2.G3
+    librssl.pdb               eta3.6.2.G3
+    librsslVA.dll             eta3.6.2.G3
+    librsslVA.lib             eta3.6.2.G3
+    librsslVA.pdb             eta3.6.2.G3
+    librsslVACache.dll        eta3.6.2.G3
+    librsslVACache.lib        eta3.6.2.G3
+    librsslVACache.pdb        eta3.6.2.G3
+    librsslJsonConverter.dll  eta3.6.2.G3
+    librsslJsonConverter.lib  eta3.6.2.G3
+    librsslJsonConverter.pdb  eta3.6.2.G3
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -181,22 +181,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.6.2.E1
-    librsslVA.a                        eta3.6.2.E1
-    librsslVACache.a                   eta3.6.2.E1
-    libansi.lib                        eta3.6.2.E1
-    libdacs.lib                        eta3.6.2.E1
+    librssl.a                          eta3.6.2.G3
+    librsslVA.a                        eta3.6.2.G3
+    librsslVACache.a                   eta3.6.2.G3
+    libansi.lib                        eta3.6.2.G3
+    libdacs.lib                        eta3.6.2.G3
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.6.2.3                 librssl.so.14                   eta3.6.2.E1
-    librsslVA.so.3.6.2.3               librsslVA.so.16                 eta3.6.2.E1
-    librsslJsonConverter.so.3.6.2.3    librsslJsonConverter.so.2       eta3.6.2.E1
+    librssl.so.3.6.2.4                 librssl.so.14                   eta3.6.2.G3
+    librsslVA.so.3.6.2.4               librsslVA.so.16                 eta3.6.2.G3
+    librsslJsonConverter.so.3.6.2.4    librsslJsonConverter.so.2       eta3.6.2.G3
 
-    librsslVACache.so.3.6.2.3          librsslVACache.so.3             eta3.6.2.E1
-    librsslRelMcast.so.3.6.2.3         librsslRelMcast.so.2            eta3.6.2.E1
+    librsslVACache.so.3.6.2.4          librsslVACache.so.3             eta3.6.2.G3
+    librsslRelMcast.so.3.6.2.4         librsslRelMcast.so.2            eta3.6.2.G3
 
 
 # ETA C-Edition Issues and Workarounds
