@@ -1040,26 +1040,34 @@ int ipcWrite( void *transport, char *buf, int outLen, ripcRWFlags flags, RsslErr
    to be read by the other side prior to closing the connection. */
 int ipcShutdownSckt(void* transport)
 {
-	/* If the socket is invalid, it already has been closed by curl */
-	if (((ripcSocketSession*)transport)->fd != RIPC_INVALID_SOCKET)
-		shutdown(((ripcSocketSession*)transport)->fd, shutdownFlag);
+	if (transport != NULL)
+	{
+		/* If the socket is invalid, it already has been closed by curl */
+		if (((ripcSocketSession*)transport)->fd != RIPC_INVALID_SOCKET)
+			shutdown(((ripcSocketSession*)transport)->fd, shutdownFlag);
 
-	((ripcSocketSession*)transport)->fd = RIPC_INVALID_SOCKET;
+		((ripcSocketSession*)transport)->fd = RIPC_INVALID_SOCKET;
 
-	free(transport);
+		free(transport);
+	}
+
 	return(1);
 }
 
 
 int ipcCloseSckt(void *transport)
 {
-	/* If the socket is invalid, it already has been closed by curl */
-	if(((ripcSocketSession*)transport)->fd != RIPC_INVALID_SOCKET)
-		sock_close(((ripcSocketSession*)transport)->fd);
+	if (transport != NULL)
+	{
+		/* If the socket is invalid, it already has been closed by curl */
+		if (((ripcSocketSession*)transport)->fd != RIPC_INVALID_SOCKET)
+			sock_close(((ripcSocketSession*)transport)->fd);
 
-	((ripcSocketSession*)transport)->fd = RIPC_INVALID_SOCKET;
+		((ripcSocketSession*)transport)->fd = RIPC_INVALID_SOCKET;
 
-	free(transport);
+		free(transport);
+	}
+
 	return(1);
 }
 
