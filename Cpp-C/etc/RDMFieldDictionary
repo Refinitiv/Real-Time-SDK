@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.48_RealTimeDistributionSystem_21.61		07/13/2021
-!	* Modified 07/13/2021 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.48.
+!   Version	 4.20.49_RealTimeDistributionSystem_21.71		08/17/2021
+!	* Modified 08/17/2021 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.49.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.48_RealTimeDistributionSystem
+!   Version: 4.20.49_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.48
-!tag Build     2
-!tag Date      30-Jun-2021
+!tag Version   4.20.49
+!tag Build     1
+!tag Date      28-Jul-2021
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -7871,7 +7871,8 @@ ASIA_LW_TM "TIME OF ASIA LOW"    3274  NULL        TIME                5  TIME  
 !
 ASIA_NETCH "ASIA NET CHG"        3275  NULL        PRICE              17  REAL64           7
 !
-! FX and Money net change for the Tokyo trading session
+! For 24-hour or geographically diverse markets, the net change value at the end of 
+! the Asia trading day.
 !
 ASIA_OP_TM "TIME AT ASIA MO"     3276  NULL        TIME                5  TIME             5
 !
@@ -7908,7 +7909,8 @@ EURO_LW_TM "TIME OF EURO LOW"    3283  NULL        TIME                5  TIME  
 !
 EURO_NETCH "EURO NET CHG"        3284  NULL        PRICE              17  REAL64           7
 !
-! FX and Money net change for the London trading session
+! For 24-hour or geographically diverse markets, the net change value at the end of 
+! the Europe trading day.
 !
 EURO_OP_TM "TIME AT EURO MO"     3285  NULL        TIME                5  TIME             5
 !
@@ -7945,7 +7947,8 @@ US_LW_TM   "TIME OF US LOW"      3292  NULL        TIME                5  TIME  
 !
 US_NETCH   "US NET CHG"          3293  NULL        PRICE              17  REAL64           7
 !
-! FX and Money net change for the New York trading session
+! For 24-hour or geographically diverse markets, the net change value at the end of 
+! the Americas trading day.
 !
 US_OP_TM   "TIME AT US MO"       3294  NULL        TIME                5  TIME             5
 !
@@ -26793,12 +26796,30 @@ MTH_BLO_DT "MTHLY BID LOW DT"    9387  NULL        DATE               11  DATE  
 !
 ! Bid monthly low date.
 !
-PRE_DT277  "PRED DATE 277"       9388  NULL        DATE               11  DATE             4
-PRE_DT278  "PRED DATE 278"       9389  NULL        DATE               11  DATE             4
-PRE_DT279  "PRED DATE 279"       9390  NULL        DATE               11  DATE             4
-PRE_DT280  "PRED DATE 280"       9391  NULL        DATE               11  DATE             4
-PRE_DT281  "PRED DATE 281"       9392  NULL        DATE               11  DATE             4
-PRE_DT282  "PRED DATE 282"       9393  NULL        DATE               11  DATE             4
+OPN_ASKDAT "OPEN ASK DATE"       9388  NULL        DATE               11  DATE             4
+!
+! Date of the opening ask price in OPEN_ASK FID 59.
+!
+OPN_BIDDAT "OPEN BID DATE"       9389  NULL        DATE               11  DATE             4
+!
+! Date of the opening bid price in OPEN_BID FID 57.
+!
+HIGH_DATE  "TODAYS HIGH DATE"    9390  NULL        DATE               11  DATE             4
+!
+! Date of the highest trade price of the day in HIGH_1 FID 12.
+!
+LOW_DATE   "TODAYS LOW DATE"     9391  NULL        DATE               11  DATE             4
+!
+! Date of the lowest trade price of the day in LOW_1 FID 13.
+!
+SC_HIGH_DT "SEC HIGH DATE"       9392  NULL        DATE               11  DATE             4
+!
+! Date of the secondary highest trade price of the day in SEC_HIGH FID 957.
+!
+SC_LOW_DT  "SEC LOW DATE"        9393  NULL        DATE               11  DATE             4
+!
+! Date of the secondary lowest trade price of the day in SEC_LOW FID 959.
+!
 PRE_DT283  "PRED DATE 283"       9394  NULL        DATE               11  DATE             4
 PRE_DT284  "PRED DATE 284"       9395  NULL        DATE               11  DATE             4
 PRE_DT285  "PRED DATE 285"       9396  NULL        DATE               11  DATE             4
@@ -31425,8 +31446,14 @@ BAS_SPD_L  "BAS SPRD LOW"       10982  NULL        PRICE              17  REAL64
 !
 ! Secondary low value - Americas markets.
 !
-PRERL1992  "PRED REAL 1992"     10983  NULL        PRICE              17  REAL64           7
-PRERL1993  "PRED REAL 1993"     10984  NULL        PRICE              17  REAL64           7
+ALT_BIDCLS "ALT CLOSE BID"      10983  NULL        PRICE              17  REAL64           7
+!
+! Alternative Bid Close.
+!
+ALT_ASKCLS "ALT CLOSE ASK"      10984  NULL        PRICE              17  REAL64           7
+!
+! Alternative Ask Close.
+!
 PRERL1994  "PRED REAL 1994"     10985  NULL        PRICE              17  REAL64           7
 PRERL1995  "PRED REAL 1995"     10986  NULL        PRICE              17  REAL64           7
 PRERL1996  "PRED REAL 1996"     10987  NULL        PRICE              17  REAL64           7
@@ -33259,7 +33286,7 @@ MRN_SRC    "MRN SOURCE"         12215  NULL        ALPHANUMERIC       40  RMTES_
 !
 U_PROVSYMB "UNDLY PROV SYMB"    12216  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
-! Official code for the underlying instrument
+! Primary trading code/symbol for the underlying instrument.
 !
 TRD_RID    "TRADE REFERENCE ID" 12217  NULL        ALPHANUMERIC       40  RMTES_STRING    40
 !
@@ -36129,7 +36156,7 @@ MN_IIN_CCY "MN INIT INV PR CCY" 13596  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! Minimum initial investment currency.
 !
-FIXING_TYP "FIXING TYPE"        13597  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+FIXING_TYP "FIXING TYPE"        13597  FIXING_TP2  ENUMERATED    5 ( 8 )  ENUM             2
 !
 ! Fixing type.
 !
@@ -36194,10 +36221,13 @@ INS_P_CCY  "INS PRC CURRENCY"   13612  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 ! Currency associated with INSPRC.
 !
-PRE_2ET292 "PRED 2 ET 292"      13613  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET293 "PRED 2 ET 293"      13614  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET294 "PRED 2 ET 294"      13615  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET295 "PRED 2 ET 295"      13616  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+FIXING_TP2 "FIXING TYPE 2"      13613  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+FIXING_TP3 "FIXING TYPE 3"      13614  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+FIXING_TP4 "FIXING TYPE 4"      13615  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+FIXING_TP5 "FIXING TYPE 5"      13616  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Fixing type.
+!
 PRE_2ET296 "PRED 2 ET 296"      13617  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET297 "PRED 2 ET 297"      13618  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET298 "PRED 2 ET 298"      13619  NULL        ENUMERATED    5 ( 8 )  ENUM             2

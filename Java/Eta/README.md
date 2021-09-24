@@ -187,7 +187,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.48_RealTimeDistributionSystem_21.51 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.49_RealTimeDistributionSystem_21.71 for RWF and Marketfeed Record Templates
 
 # Security
 

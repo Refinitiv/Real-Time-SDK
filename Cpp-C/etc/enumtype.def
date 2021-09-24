@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.48
-!tag Build_RDMD  4.20.48
-!tag DT_Version  21.61
-!tag Date        12-Jul-2021
+!tag RT_Version  4.20.49
+!tag Build_RDMD  4.20.49
+!tag DT_Version  21.71
+!tag Date        16-Aug-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -5732,6 +5732,7 @@ YRHI_IND    1075
       4   "Yr.High "   rolling 52 week high
       5   "Bid.Yr.H"   year bid high
       6   "Lf.High "   life of contract high
+      7   "Yr.Hi.CA"   rolling 52 week high with corporate adjustments
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5747,6 +5748,7 @@ YRLO_IND    1076
       4   "Yr.Low  "   rolling 52 week low
       5   "Bid.Yr.L"   year bid low
       6   "Lf.Low  "   life of contract low
+      7   "Yr.Lo.CA"   rolling 52 week low with corporate adjustments
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8391,7 +8393,7 @@ DRK_EXID   13610
    1275        "CX2"   CHI-X CANADA - CX2 - 2ND LIT MARKET
    1276        "CXX"   Nasdaq CX2
    1277        "NZX"   New Zealand Stock Exchange (DO NOT USE)
-   1278        "ODE"   Osaka Dojima Commodities Exchange
+   1278        "ODE"   Osaka Dojima Exchange
    1279        "CS1"   CHI-X CANADA - TSX VENTURE L1
    1280        "CS2"   CHI-X CANADA ATS TSX VENTURE L1 AND L2
    1281        "HS1"   HONG KONG STOCK EXCHANGE-LEVEL 1
@@ -8782,6 +8784,13 @@ DRK_EXID   13610
    1666        "REL"   Regelleistung.net
    1667        "PXP"   PEXAPARK
    1668        "FRX"   FairX
+   1669        "NAL"   National Aluminium Company Limited (NALCO)
+   1670        "AHD"   AHD-AGRICULTURE & HORTICULTURE DEVELOPMENT BOARD
+   1671        "PME"   Ministry of Energy and Mines, Peru.
+   1672        "RAT"   Rubber Authority of Thailand
+   1673        "CAD"   CHINA MINISTRY OF AGRICULTURE (CASDE)
+   1674        "RPA"   Refinitiv-Research Price Assessment
+   1675        "IPX"   IPSX
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16920,6 +16929,13 @@ DLVY_TERMS 12959
      42      "EXWA "   Ex-Warehouse
      43      "SGE  "   in SGE vault
      44      "IWDP "   In Warehouse duty paid
+     45      "EXMN "   Ex-Mines
+     46      "EXY  "   Ex-Yard
+     47      "EXS  "   Ex-Stockyard
+     48      "EXR  "   Ex-Refinery
+     49      "EXT  "   Delivered Ex-Tank
+     50      "EXP  "   Delivered Ex-Plant
+     51      "EXPI "   Delivered Ex-Pipe
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17488,6 +17504,22 @@ DELIV_PRD  13015
      53   "USPCYCLE"   US pipeline scheduled cycle (1 - 74 or 1 - 36, depending on pipeline operator schedule)
      54   "1/3MTH  "   A third of a month (1 = 1-10 Jan; 2= 11-20 Jan; 3=21-31 Jan; etc)
      55   "RT      "   Realtime
+     56   "IMDT    "   Immediate
+     57   "3-5 D   "   Within 3-5 days
+     58   "0-10 D  "   Within 10 Days
+     59   "10-15 D "   10-15 days
+     60   "0-25 D  "   Within 25 Days
+     61   "0-30 D  "   Within 30 days
+     62   "0-35 D  "   Within 35 Days
+     63   "0-40 D  "   Within 40 days
+     64   "DO+45 D "   45 days from issue of DO
+     65   "0-45 D  "   Within 45 Days
+     66   "0-60 D  "   Within 60 days
+     67   "0-65 D  "   Within 65 days
+     68   "0-6 W   "   Upto 6 weeks
+     69   "2-8 W   "   Within 2-8 weeks from publication date
+     70   "6-12 W  "   6-12 weeks
+     71   "8-12 W  "   Within 8-12 weeks
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19461,6 +19493,18 @@ SETT_RUL   13438
       9      "DF_SL"   Deferred fee - shorts pay longs
      10      "DF_LS"   Deferred fee - longs pay shorts
      11      "DF_FL"   Deferred fee - flat, no payment required
+     12      "ADV  "   Advance Payment
+     13      "AFD  "   After Delivery
+     14      "ID1.5"   Immediate After Delivery (1.5% CD)
+     15      "7-10D"   Regular (7 -10 days)
+     16      "PRT  "   Prompt
+     17      "1WK  "   Regular (within 1 week)
+     18      "AD1.5"   Advance (CD 1.5%)
+     19      "LC   "   Letter of Credit
+     20      "90D  "   Credit up to 90 days
+     21      "70LC "   30% prepayment, 70% L/C
+     22      "SWLC "   SWIFT or LC
+     23      "UPDLV"   Upon Delivery
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19493,6 +19537,9 @@ TRD_MD_ELG 13440
       5   "COP     "   Central Limit Orderbook + Off Book + Periodic Auction Book
       6   "CODP    "   Central Limit Orderbook + Off Book + Dark Book + Periodic Auction Book
       7   "CMOC    "   CLOB + MOC
+      8   "D       "   Dark Book
+      9   "P       "   Periodic Auction
+     10   "DP      "   Dark Book + Periodic Auction
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22028,6 +22075,7 @@ LMT_TYPE4  13600
       4   "Auction "   Auction tunnel
       5   "Reject  "   Rejection tunnel
       6   "IPO Auc "   IPO/Relisting auction price limits
+      7   "Re-val  "   Re-evaluated
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22140,6 +22188,10 @@ MIFD_SUBCL 13589
 ! -------    ---
 !
 FIXING_TYP 13597
+FIXING_TP2 13613
+FIXING_TP3 13614
+FIXING_TP4 13615
+FIXING_TP5 13616
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -22265,10 +22317,6 @@ UNIT_STAT  13609
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET292 13613
-PRE_2ET293 13614
-PRE_2ET294 13615
-PRE_2ET295 13616
 PRE_2ET296 13617
 PRE_2ET297 13618
 PRE_2ET298 13619

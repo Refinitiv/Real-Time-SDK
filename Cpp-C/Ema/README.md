@@ -170,7 +170,7 @@ This will create all necessary soft links for example makefiles to link. It is s
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.48_RealTimeDistributionSystem_21.61 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.49_RealTimeDistributionSystem_21.71 for RWF and Marketfeed Record Templates
 
 # Security
 
