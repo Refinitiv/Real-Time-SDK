@@ -96,6 +96,10 @@ typedef struct {
 	} options;
 } ripcSocketOption;
 
+typedef struct {
+	RsslSocket fd;
+} ripcSocketSession;
+
 
 extern int ipcValidServerName(char *name, int nlen);
 extern int ipcGetServByName(char *serv_name);
@@ -136,6 +140,8 @@ extern int ipcWrite(void *transport, char *buf, int outLen, ripcRWFlags flags, R
 extern int ipcScktReconnectClient(void *transport, RsslError *error);
 
 extern RsslSocket ipcSrvrAccept(rsslServerImpl *srvr, void** userSpecPtr, RsslError *error);
+
+extern int ipcCloseSckt(void* transport);
 
 extern int ipcShutdownSckt(void *transport);
 

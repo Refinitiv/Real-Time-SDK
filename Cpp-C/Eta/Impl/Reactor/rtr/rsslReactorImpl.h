@@ -417,6 +417,9 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->lastReconnectAttemptMs = 0;
 	pReactorChannel->reconnectAttemptCount = 0;
 
+	/* Always resets the flag to clear the tunnel stream event queued indication. */
+	pReactorChannel->tunnelDispatchEventQueued = RSSL_FALSE;
+
 	pReactorChannel->connectionListCount = 0;
 	pReactorChannel->connectionListIter = 0;
 	pReactorChannel->connectionOptList = NULL;

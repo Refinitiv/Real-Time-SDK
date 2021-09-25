@@ -7,14 +7,34 @@
  */
 
 #include "TunnelStreamProvider.h"
+#include <time.h>
 
 using namespace std;
 
 RsslInt TunnelStreamProvider::_maxMsgSize = DEFAULT_MAX_MSG_SIZE;
 RsslInt TunnelStreamProvider::_maxFragmentSize = DEFAULT_MAX_FRAG_SIZE;
 
-TunnelStreamProvider::TunnelStreamProvider(TestReactor* pTestReactor) : Provider(pTestReactor)
+RsslBool TunnelStreamProvider::_delayAfterAccepting = RSSL_FALSE;
+
+
+void time_sleep(int millisec)
 {
+#ifdef WIN32
+	Sleep(millisec);
+#else
+	if (millisec)
+	{
+		struct timespec ts;
+		ts.tv_sec = millisec / 1000;
+		ts.tv_nsec = (millisec % 1000) * 1000000;
+		nanosleep(&ts, NULL);
+	}
+#endif
+}
+
+TunnelStreamProvider::TunnelStreamProvider(TestReactor* pTestReactor, RsslBool acceptingDelay) : Provider(pTestReactor)
+{
+	_delayAfterAccepting = acceptingDelay;
 }
 
 RsslReactorCallbackRet TunnelStreamProvider::tunnelStreamListenerCallback(RsslTunnelStreamRequestEvent *pEvent, RsslErrorInfo *pErrorInfo)
@@ -39,6 +59,11 @@ RsslReactorCallbackRet TunnelStreamProvider::tunnelStreamListenerCallback(RsslTu
 	if (rsslReactorAcceptTunnelStream(pEvent, &acceptOpts, &errorInfo) < RSSL_RET_SUCCESS)
 	{
 		cout << "rsslReactorAcceptTunnelStream() failed with return code " << errorInfo.rsslError.rsslErrorId << " and error text " << errorInfo.rsslError.text << endl;
+	}
+
+	if (_delayAfterAccepting)
+	{
+		time_sleep(3000);
 	}
 		
 	return RSSL_RC_CRET_SUCCESS;

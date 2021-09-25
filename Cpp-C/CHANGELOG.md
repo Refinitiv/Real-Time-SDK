@@ -9,14 +9,32 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.G2 aka EMA 3.6.2.G2 and ETA 3.6.2.G2 
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.G3 aka EMA/ETA 3.6.2.G3 aka 3.6.2.4
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release consisting of fixes. 
+This is a emergency release with fixes for RTSDK.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.2.G3 (Sep 24, 2021)
+--------------------------------------------
+
+ETA C 3.6.2.G3 Issues Resolved
+--------------------------------
+- [RTSDK-5562] - Rssl socket transport fixes to handle FD value of 0
+- [RTSDK-5569] - Websocket transport fix that waits to send open handshake till socket is ready for write in non blocking mode
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.2.E1 (Sep 23, 2021)
+--------------------------------------------
+
+ETA C 3.6.2.E1 Issues Resolved
+--------------------------------
+- [RTSDK-5539] - Race condition from closed tunnelstream resulting in unhandled state in tunnelstream provider 
+- [RTSDK-5599] - pReactorChannelImpl->tunnelDispatchEventQueued is not unset resulting in tunnel events not being dispatched 
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.2.G2 (Aug 11, 2021)

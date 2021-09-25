@@ -26,6 +26,7 @@ void tunnelStreamOpenWhileDisconnectedTest(bool enableWatchlist);
 void tunnelStreamLongNameTest(bool enableWatchlist);
 void tunnelStreamMaxMsgSizeTest(bool enableWatchlist);
 void tunnelStreamBufferUsedTest(bool enableWatchlist);
+void tunnelStreamClientClosedTest();
 
 int main(int argc, char *argv[])
 {
@@ -91,6 +92,11 @@ TEST(TunnelStream, tunnelStreamBufferUsedTest_NoWatchlist)
 TEST(TunnelStream, tunnelStreamBufferUsedTest_Watchlist)
 {
 	tunnelStreamBufferUsedTest(true);
+}
+
+TEST(TunnelStream, tunnelStreamClientClosedTest_NoWatchlist)
+{
+	tunnelStreamClientClosedTest();
 }
 
 TEST(TunnelStream, tunnelStreamGetInfo_ErrorInfoArgTest)
@@ -442,6 +448,138 @@ void tunnelStreamOpenWhileDisconnectedTest(bool enableWatchlist)
 	delete pEvent;
 
 	consumer.close();
+	providerReactor.close();
+	consumerReactor.close();
+}
+
+void tunnelStreamClientClosedTest()
+{
+	TestReactorEvent* pEvent;
+	RsslTunnelStreamStatusEvent* pTsStatusEvent;
+	RsslErrorInfo errorInfo;
+
+	/* Create reactors. */
+	TestReactor consumerReactor = TestReactor();
+	TestReactor providerReactor = TestReactor();
+
+	/* Create consumer. */
+	Consumer consumer = Consumer(&consumerReactor);
+	RsslReactorOMMConsumerRole* pConsumerRole = &consumer.reactorRole()->ommConsumerRole;
+	RsslRDMLoginRequest loginRequest;
+	rsslInitDefaultRDMLoginRequest(&loginRequest, 1);
+	RsslRDMDirectoryRequest directoryRequest;
+	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
+	pConsumerRole->pLoginRequest = &loginRequest;
+	pConsumerRole->pDirectoryRequest = &directoryRequest;
+	pConsumerRole->base.channelEventCallback = consumer.channelEventCallback;
+	pConsumerRole->loginMsgCallback = consumer.loginMsgCallback;
+	pConsumerRole->directoryMsgCallback = consumer.directoryMsgCallback;
+	pConsumerRole->dictionaryMsgCallback = consumer.dictionaryMsgCallback;
+	pConsumerRole->base.defaultMsgCallback = consumer.defaultMsgCallback;
+
+	/* Create provider. */
+	TunnelStreamProvider provider = TunnelStreamProvider(&providerReactor, RSSL_TRUE);
+	RsslReactorOMMProviderRole* pProviderRole = &provider.reactorRole()->ommProviderRole;
+	pProviderRole->base.channelEventCallback = provider.channelEventCallback;
+	pProviderRole->loginMsgCallback = provider.loginMsgCallback;
+	pProviderRole->directoryMsgCallback = provider.directoryMsgCallback;
+	pProviderRole->dictionaryMsgCallback = provider.dictionaryMsgCallback;
+	pProviderRole->base.defaultMsgCallback = provider.defaultMsgCallback;
+	pProviderRole->tunnelStreamListenerCallback = provider.tunnelStreamListenerCallback;
+
+	/* Connect the consumer and provider. Setup login & directory streams automatically. */
+	ConsumerProviderSessionOptions opts = ConsumerProviderSessionOptions();
+	opts.setupDefaultLoginStream(true);
+	opts.setupDefaultDirectoryStream(true);
+	opts.reconnectAttemptLimit(-1);
+	provider.bind(&opts);
+	TestReactor::openSession(&consumer, &provider, &opts);
+
+	/* Open a TunnelStream. */
+	RsslTunnelStreamOpenOptions tsOpenOpts;
+	rsslClearTunnelStreamOpenOptions(&tsOpenOpts);
+	char name[] = "Tunnel1";
+	tsOpenOpts.name = name;
+	tsOpenOpts.statusEventCallback = consumer.tunnelStreamStatusEventCallback;
+	tsOpenOpts.defaultMsgCallback = consumer.tunnelStreamDefaultMsgCallback;
+	tsOpenOpts.classOfService.dataIntegrity.type = RDM_COS_DI_RELIABLE;
+	tsOpenOpts.streamId = 5;
+	tsOpenOpts.serviceId = (RsslUInt16)defaultService()->serviceId;
+	tsOpenOpts.domainType = RSSL_DMT_SYSTEM;
+	tsOpenOpts.userSpecPtr = &consumer;
+	tsOpenOpts.responseTimeout = 1;
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslReactorOpenTunnelStream(consumer.reactorChannel(), &tsOpenOpts, &errorInfo));
+	consumer.testReactor()->dispatch(2);
+
+	/* Consumer should receive tunnel stream status event */
+	pEvent = consumer.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_STATUS, pEvent->type());
+	pTsStatusEvent = (RsslTunnelStreamStatusEvent*)pEvent->reactorEvent();
+	delete pEvent;
+
+	pEvent = consumer.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_STATUS, pEvent->type());
+	pTsStatusEvent = (RsslTunnelStreamStatusEvent*)pEvent->reactorEvent();
+	delete pEvent;
+
+	provider.testReactor()->dispatch(2);
+
+	pEvent = provider.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_REQUEST, pEvent->type());
+	delete pEvent;
+
+	pEvent = provider.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_STATUS, pEvent->type());
+	pTsStatusEvent = (RsslTunnelStreamStatusEvent*)pEvent->reactorEvent();
+	ASSERT_EQ(RSSL_STREAM_CLOSED, pTsStatusEvent->pState->streamState);
+	ASSERT_EQ(RSSL_DATA_SUSPECT, pTsStatusEvent->pState->dataState);
+	ASSERT_STREQ("Received a close message from the remote end.", pTsStatusEvent->pState->text.data);
+	delete pEvent;
+
+
+	/* Open another TunnelStream. */
+	rsslClearTunnelStreamOpenOptions(&tsOpenOpts);
+	tsOpenOpts.name = name;
+	tsOpenOpts.statusEventCallback = consumer.tunnelStreamStatusEventCallback;
+	tsOpenOpts.defaultMsgCallback = consumer.tunnelStreamDefaultMsgCallback;
+	tsOpenOpts.classOfService.dataIntegrity.type = RDM_COS_DI_RELIABLE;
+	tsOpenOpts.streamId = 6;
+	tsOpenOpts.serviceId = (RsslUInt16)defaultService()->serviceId;
+	tsOpenOpts.domainType = RSSL_DMT_SYSTEM;
+	tsOpenOpts.userSpecPtr = &consumer;
+	tsOpenOpts.responseTimeout = 1;
+	ASSERT_EQ(RSSL_RET_SUCCESS, rsslReactorOpenTunnelStream(consumer.reactorChannel(), &tsOpenOpts, &errorInfo));
+
+	consumer.testReactor()->dispatch(2);
+
+	/* Consumer should receive tunnel stream status event that open failed. */
+	pEvent = consumer.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_STATUS, pEvent->type());
+	pTsStatusEvent = (RsslTunnelStreamStatusEvent*)pEvent->reactorEvent();
+	delete pEvent;
+
+	pEvent = consumer.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_STATUS, pEvent->type());
+	pTsStatusEvent = (RsslTunnelStreamStatusEvent*)pEvent->reactorEvent();
+	delete pEvent;
+
+	provider.testReactor()->dispatch(2);
+
+	pEvent = provider.testReactor()->pollEvent();
+	ASSERT_EQ(TUNNEL_STREAM_REQUEST, pEvent->type());
+	delete pEvent;
+
+	pEvent = provider.testReactor()->pollEvent();
+
+	ASSERT_EQ(TUNNEL_STREAM_STATUS, pEvent->type());
+	pTsStatusEvent = (RsslTunnelStreamStatusEvent*)pEvent->reactorEvent();
+	ASSERT_EQ(RSSL_STREAM_CLOSED, pTsStatusEvent->pState->streamState);
+	ASSERT_EQ(RSSL_DATA_SUSPECT, pTsStatusEvent->pState->dataState);
+	ASSERT_STREQ("Received a close message from the remote end.", pTsStatusEvent->pState->text.data);
+	delete pEvent;
+
+	consumer.close();
+	provider.close();
 	providerReactor.close();
 	consumerReactor.close();
 }

@@ -30,8 +30,9 @@ class TunnelStreamProvider : public Provider
 public:
 	static RsslInt _maxMsgSize;
 	static RsslInt _maxFragmentSize;
+	static RsslBool _delayAfterAccepting;
 
-	TunnelStreamProvider(TestReactor* pTestReactor);
+	TunnelStreamProvider(TestReactor* pTestReactor, RsslBool acceptingDelay = RSSL_FALSE);
 
 	static void maxMsgSize(RsslInt maxMsgSize);
 
