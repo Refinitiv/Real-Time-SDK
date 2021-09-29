@@ -9,14 +9,53 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.2.G2 aka EMA 3.6.2.G2 and ETA 3.6.2.G2
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.3.L1 aka EMA/ETA 3.6.3.L1 aka 3.6.3.0 
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release consisting of fixes.
+This is a maintenance release with fixes for customer issues and bugs
+
+Customer Issues Resolved
+--------------------------------
+- [Case Number: 07311614, 10089325] - [RTSDK-2661, RTSDK-5320] - Enhance ETA to not depend on the OS Character encoding for displaying non-ascii enum values
+- [GitHub #178] - [RTSDK-5342] - Desktop Viewer fails if using the EMA Configuration file
+- [GitHub #179] - [RTSDK-5412] - Documentation error in EMA Java Config guide
+- [RTSDK-4780] - Programmatic config should set ChannelType by default
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+This is a maintenance release with fixes for customer issues and bugs
+
+--------------------------------------------
+RTSDK Java Release 2.0.3.L1 (Sep 30, 2021)
+--------------------------------------------
+
+EMA Java 3.6.3.L1 Issues Resolved
+---------------------------------
+- [RTSDK-4780] - Programmatic config should set ChannelType by default
+- [RTSDK-5188] - Provide a jar for the RTViewer tool as part of the build
+- [RTSDK-5342] - Desktop Viewer fails if using the EMA Configuration file [ GitHub #178] 
+- [RTSDK-5412] - Documentation error in EMA Java Config guide [GitHub #179] 
+
+ETA Java 3.6.3.L1 Issues Resolved
+---------------------------------
+- [RTSDK-4374] - Consumer crashes when decoding using wrong field type
+- [RTSDK-4781] - ETAJ ValueAddCache JNI EXCEPTION_ACCESS_VIOLATION (0xc0000005) on Windows with JDK 1.8 version newer than 251
+- [RTSDK-5026] - WSA:Posting Series with empty entries Entries:[{}] results in misleading error
+- [RTSDK-5036] - Error Handling does NOT detect when sending Vector : null
+- [RTSDK-5205] - ETAJ Json to Rwf converts unset Action of Vector entry to Unknown.
+
+Both ETA Java and EMA Java 3.6.3.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-2661, RTSDK-5320] - Enhance ETA to not depend on the OS Character encoding for displaying non-ascii enum values [Case Number: 07311614, 10089325] 
+- [RTSDK-3966] - Support SO_REUSEADDR to permit server side socket to be reused for loadbalancing
+- [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, Refinitiv Real-Time Connector
+- [RTSDK-5065] - Modify Java Perftools to print summary output if stopped before completing runtime
+- [RTSDK-5216] - Update Java open source components versions
+- [RTSDK-5253] - ETAJ Reference Manuals: Missing sections and link to converter
+- [RTSDK-5351] - Websocket Transport: Compression implementation (with fragmentation) not compliant with Websocket RFC
+- [RTSDK-5464] - Remove Support for VS2012 and VS2013
 
 --------------------------------------------
 RTSDK Java Release 2.0.2.G2 (Aug 11, 2021)

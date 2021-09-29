@@ -20,9 +20,9 @@ External modules used by this version of RTSDK C/C++:
 	openSSL 		1.0.1e
 	openSSL			1.1.1a
 	cJSON			v1.7.10
-	curl			7.63.0
+	curl			7.78.0
 	googletest		release-1.8.1
-	libxml2			2.9.9
+	libxml2			2.9.12
 	lz4			1.8.3
 	zlib			1.2.11
 
@@ -68,7 +68,9 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.1 (2017) 64-bit 
 	Microsoft Visual Studio 14.2 (2019) 64-bit 
 
-NOTE: User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
+Notes: 
+- User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
+- CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) to build these deprecated Visual Studio versions at your own risk as changes to BinaryPacks will not be available for deprecated compilers. 
 
 ##### Linux
 
@@ -140,8 +142,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.1
-- ADH 3.5.1
+- ADS 3.5.2
+- ADH 3.5.2
 - DACS 7.6
 
 # Documentation
@@ -203,6 +205,7 @@ At the same directory level as the resulting RTSDK directory, issue the followin
 		# "Visual Studio 15 2017 Win64"
 		# "Visual Studio 14 2015 Win64" 
 	# Note: A list of visual studio versions can be obtained by typing "cmake -help". 
+	# Note: CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
 The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the build output is sent to the RTSDK directory (i.e., not the buildDir directory).
 

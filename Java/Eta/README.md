@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.6.2.2.jar               eta3.6.2.G2       The ETA - Java Edition library.  Includes
+    eta-3.6.3.0.jar               eta3.6.3.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.6.2.2.jar       eta3.6.2.G2       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.6.3.0.jar       eta3.6.3.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.6.2.2.jar  eta3.6.2.G2       The Value Add payload cache library for ETA
+    etaValueAddCache-3.6.3.0.jar  eta3.6.3.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.6.2.2.jar     eta3.6.2.G2       The RWF/JSON Converter library.
+    etajConverter-3.6.3.0.jar     eta3.6.3.L1       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.7           The ETA Java DACS library.
 
-    ansipage-3.6.2.2.jar          eta3.6.2.G2       The ANSI decoders and encoders.
+    ansipage-3.6.3.0.jar          eta3.6.3.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.6.2.G2       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.6.3.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -170,6 +170,8 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - ETA PerfTools applications print out final statistics when interrupted using Ctrl+C only if launched manually, Gradle environment doesn't support this behavior.  
 
+- Customers must choose and set characterSet, such as UTF-8, that supports non-ascii characters in order to display them correctly. For example, it is recommended to run with -Dfile.encoding=UTF-8, where UTF-8, is replaced with characterSet that supports non-ascii characters.
+
 
 
 # Reference Information
@@ -177,10 +179,10 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.6.2
+    Release Number: 3.6.3
     Load Number: 1
-    Load ID: etaj3.6.2.L1.all
-        Supersedes: etaj3.6.1.L2.all.rrg
+    Load ID: etaj3.6.3.L1.all
+        Supersedes: etaj3.6.2.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

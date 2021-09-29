@@ -18,24 +18,24 @@ External modules used by this version of RTSDK Java:
 	Dependency		Version
 	----------		-------
 	commons-codec 		1.11
-	commons-collections 	3.2.2
-	commons-configuration	1.10
+	commons-configuration2  2.7	
+	commons-collections4    4.4	
 	commons-lang		2.6
 	commons-logging		1.2
 	jackson-annotations     2.11.0  
-	jackson-core            2.11.0  
-	jackson-databind        2.11.0  
+	jackson-core            2.12.4  
+	jackson-databind        2.12.4  
 	junit			4.12
-	json			20180130
+	json			20210307
 	httpclient		4.5.13
 	httpclient-cache	4.5.13
 	httpcore		4.4.13
-	httpcore-nio		4.4.12
+	httpcore-nio		4.4.13
 	httpmime		4.5.13
-        lz4-java                1.7.1
+        lz4-java                1.8.0
 	mockito-all		1.9.0
-	slf4j-api		1.7.12
-	slf4j-jdk14		1.7.12
+	slf4j-api		1.7.32
+	slf4j-jdk14		1.7.32
 	xpp3			1.1.4c
 
 
@@ -75,6 +75,8 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
 
+NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
+
 ##### Linux
 
 Platforms:
@@ -91,8 +93,8 @@ This release has been tested with the following:
 
 	Oracle Java SE 8 (JDK1.8)
 	Oracle Java SE 11 (JDK1.11)
-	Open JDK (1.8)
-	Open JDK (1.11)
+	Oracle Open JDK (1.8) -- Linux-only
+	Oracle Open JDK (1.11)
 
 #### Proxy Authentication Support
 
@@ -125,8 +127,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.1
-- ADH 3.5.1
+- ADS 3.5.2
+- ADH 3.5.2
 - DACS 7.6
 
 # Documentation
@@ -209,40 +211,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.2.2</version>
+		<version>3.6.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.2.2</version>
+		<version>3.6.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.2.2</version>
+		<version>3.6.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.2.2</version>
+		<version>3.6.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.2.2</version>
+		<version>3.6.3.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.2.2'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.2.2'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.2.2'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.2.2'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.2.2'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.3.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.3.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.3.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.3.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.3.0'
 
 # Developing 
 

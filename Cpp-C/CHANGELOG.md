@@ -9,18 +9,59 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.2.G3 aka EMA/ETA 3.6.2.G3 aka 3.6.2.4
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.3.L1 aka EMA/ETA 3.6.3.L1 aka 3.6.3.0
 ----------------------------------------------------------------------------------------
 
-This is a emergency release with fixes for RTSDK.
+This is a maintenance release with fixes for customer issues and bugs
+
+Customer Issues Resolved
+--------------------------------
+- [Case Number: 09915927] - [RTSDK-5219] - Item name is missing in a NACK message for a post upon acknowledgement timeout
+- [ GitHub #121] - [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.
+- [ GitHub #162] - [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set
+- [ GitHub #151] - [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source
+- [ GitHub #179] - [RTSDK-5412] - Documentation error in EMA Java Config guide
+- [ GitHub #181] - [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
+This is a maintenance release with fixes for customer issues and bugs
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.3.L1 (Sep 30, 2021)
+--------------------------------------------
+
+EMA C++ 3.6.3.L1 Issues Resolved
+--------------------------------
+- [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.  [ GitHub #121]
+- [RTSDK-5219] - Item name is missing in a NACK message for a post upon acknowledgement timeout [Case Number: 09915927] 
+- [RTSDK-5412] - Documentation error in EMA Java Config guide [ GitHub #179] 
+
+ETA C 3.6.3.L1 Issues Resolved
+--------------------------------
+- [RTSDK-4464] - rsslVACacheTest core dumped Debug only
+- [RTSDK-5031] - Json to Rwf converts unset Action of Vector entry to Unknown.
+- [RTSDK-5109] - Error with Perm Data being overwritten when order is changed in MapEntry
+- [RTSDK-5278] - ETAC rsslDecodeReal should handle INVALID_DATA to be compatible with ETAJ
+- [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect [ GitHub #181] 
+
+Both ETA C and EMA C++ 3.6.3.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set [ GitHub #162] 
+- [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, Refinitiv Real-Time Connector
+- [RTSDK-4862] - Update doxygen version used to generate documenation
+- [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source [ GitHub #151] 
+- [RTSDK-5103] - Vulnerability in curl 7.63.0, CVE-2021-22890 -- upgrade to latest
+- [RTSDK-5104] - Vulnerability in libxml2 2.9.9 -- upgrade to latest
+- [RTSDK-5464] - Remove Support for VS2012 and VS2013
+
 --------------------------------------------
 RTSDK C++/C Release 2.0.2.G3 (Sep 24, 2021)
 --------------------------------------------
+
+This is a maintenance release with fixes
 
 ETA C 3.6.2.G3 Issues Resolved
 --------------------------------
@@ -30,6 +71,8 @@ ETA C 3.6.2.G3 Issues Resolved
 --------------------------------------------
 RTSDK C++/C Release 2.0.2.E1 (Sep 23, 2021)
 --------------------------------------------
+
+This is an emergency release with fixes
 
 ETA C 3.6.2.E1 Issues Resolved
 --------------------------------
@@ -213,7 +256,7 @@ RTSDK C++/C Release 1.5.1.L1 (Sept 4, 2020)
 
 New Features Added
 ------------------
-This is a maintenance release which resolves customer issus, bugs and adds support for the following: ability to measure tunnel stream performance, VS2019 builds and RedHat 8.X builds. Included in this release are rebranding changes.
+This is a maintenance release which resolves customer issues, bugs and adds support for the following: ability to measure tunnel stream performance, VS2019 builds and RedHat 8.X builds. Included in this release are rebranding changes.
 
 EMA C++ 3.5.1.L1 Issues Resolved
 --------------------------------
