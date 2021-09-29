@@ -40,7 +40,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 
 public class ReactorWatchlistRDPJunit
 {
-	final int AUTH_TOKEN_EXPIRATION = 300;
+	final int AUTH_TOKEN_EXPIRATION = 600;
 	ReactorAuthTokenInfo _tokenInfo = null;	
 	private static final Buffer proxyHost = CodecFactory.createBuffer();
 	private static final Buffer proxyPort = CodecFactory.createBuffer();
@@ -1240,8 +1240,6 @@ public class ReactorWatchlistRDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
-
-			verifyAuthTokenEvent(consumerReactor, 240, true, true);
 			
 			assertTrue("Expected Service Discovery request going out", chnlEvent._reactorChannel.reactorServiceEndpointInfoList().size() > 0);			
 
@@ -1625,10 +1623,7 @@ public class ReactorWatchlistRDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_READY, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_READY, chnlEvent.eventType());	        
 
 			// Checks for the first login reissue response from the worker thread
-			verifyAuthTokenEvent(consumerReactor, 240, true, true);
-			
-			// Checks for the second login reissue response from the worker thread
-			verifyAuthTokenEvent(consumerReactor, 240, true, true);	
+			verifyAuthTokenEvent(consumerReactor, 480, true, true);
 
 		}
 		finally
@@ -4783,7 +4778,7 @@ public class ReactorWatchlistRDPJunit
 			}
 			
 			/* This test must receives 2 login request and 4 login reissues*/
-			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 6);
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 4);
 			
 			assertTrue("Expected SUCCESS", consumer.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
 			
@@ -4868,7 +4863,7 @@ public class ReactorWatchlistRDPJunit
 			}
 			
 			/* This test must receives 2 login request and 4 login reissues*/
-			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 6);
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 4);
 			
 			assertTrue("Expected SUCCESS", consumer.reactorChannel().close(errorInfo) == ReactorReturnCodes.SUCCESS);
 			
@@ -5147,8 +5142,8 @@ public class ReactorWatchlistRDPJunit
 				consumerReactor.dispatch(-1, 1000);
 			}
 			
-			/* 3 success and 1 fails */
-			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 4);
+			/* 2 success and 1 fails */
+			assertTrue("Checks the number of AuthTokenEvent", consumerReactor._countAuthTokenEventCallbackCalls == 3);
 
 		}
 		finally
