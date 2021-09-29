@@ -2561,12 +2561,14 @@ class DataDictionaryImpl implements DataDictionary
                             }
 
                             ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).data(arrEntry.encodedData().data(), arrEntry.encodedData().position(), arrEntry.encodedData().length());
+                            ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).toString(); /* Unreferenced to the original buffer position and keeps its display value as String object. */
                         }
                         else
                         {
                             _enumTypeArray[enumDisplayCount] = new EnumTypeImpl();
 
                             ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).data(arrEntry.encodedData().data(), arrEntry.encodedData().position(), arrEntry.encodedData().length());
+                            ((BufferImpl)_enumTypeArray[enumDisplayCount].display()).toString(); /* Unreferenced to the original buffer position and keeps its display value as String object. */
                         }
                     }
 
