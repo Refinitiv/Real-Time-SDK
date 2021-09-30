@@ -7217,6 +7217,7 @@ public class SocketChannelJunitTest
             bindOpts.maxOutputBuffers(10);
             bindOpts.sharedPoolSize(100);
             bindOpts.guaranteedOutputBuffers(5);
+            bindOpts.maxFragmentSize(6144);
 
             // bind server
             assertTrue((server = Transport.bind(bindOpts, error)) != null);
