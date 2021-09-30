@@ -52,7 +52,7 @@ class BindOptionsImpl implements BindOptions
         _pingTimeout = 60;
         _minPingTimeout = 20;
         _maxFragmentSize = 6144;
-        _jsonMaxFragmentSize = 0xFFFF;
+        _jsonMaxFragmentSize = 6144;
         _maxOutputBuffers = 50;
         _guaranteedOutputBuffers = 50;
         _numInputBuffers = 10;
@@ -112,7 +112,7 @@ class BindOptionsImpl implements BindOptions
         _pingTimeout = 60;
         _minPingTimeout = 20;
         _maxFragmentSize = 6144;
-        _jsonMaxFragmentSize = 0xFFFF;
+        _jsonMaxFragmentSize = 6144;
         _maxOutputBuffers = 50;
         _guaranteedOutputBuffers = 50;
         _numInputBuffers = 10;
