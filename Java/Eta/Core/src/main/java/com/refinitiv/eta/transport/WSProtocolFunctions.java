@@ -1086,7 +1086,7 @@ class WSProtocolFunctions implements ProtocolFunctions {
                  headerLength = estimateHeaderLength();
 
                  int bytesRemaining = webSocketSession.compressedLargeBufSize - webSocketSession.posCompressedLargeBuf; // bytes remaining in big buffer
-                 if (maxPayloadSize <= (bytesRemaining + headerLength))
+                 if (maxPayloadSize < (bytesRemaining + headerLength))
                  {
                         userBytesForFragment = maxPayloadSize - headerLength;
                  }

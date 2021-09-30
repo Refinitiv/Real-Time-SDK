@@ -2502,13 +2502,13 @@ public class WebSocketReadWriteJunit
 		
 		if(!client)
 		{
-			assertEquals(compressed ? 70 : 127, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 78 : 127, readArgs.readRetVal());  // Has more data to read
 			assertEquals(compressed ? 117 : 166, readArgs.bytesRead());
 			assertEquals(compressed ? 0 : 39, readArgs.uncompressedBytesRead());
 		}
 		else
 		{
-			assertEquals(compressed ? 58 : 111, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 70 : 111, readArgs.readRetVal());  // Has more data to read
 			assertEquals(compressed ? 105 : 146, readArgs.bytesRead());
 			assertEquals(compressed ? 0 : 35, readArgs.uncompressedBytesRead());
 		}
@@ -2518,13 +2518,13 @@ public class WebSocketReadWriteJunit
 		
 		if(!client)
 		{
-			assertEquals(compressed ? 31 : 88, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 39 : 88, readArgs.readRetVal());  // Has more data to read
 			assertEquals(0, readArgs.bytesRead());
 			assertEquals(compressed ? 0 : 39, readArgs.uncompressedBytesRead());
 		}
 		else
 		{
-			assertEquals(compressed ? 23 : 76, readArgs.readRetVal());  // Has more data to read
+			assertEquals(compressed ? 35 : 76, readArgs.readRetVal());  // Has more data to read
 			assertEquals(0, readArgs.bytesRead());
 			assertEquals(compressed ? 0 : 35, readArgs.uncompressedBytesRead());
 		}
