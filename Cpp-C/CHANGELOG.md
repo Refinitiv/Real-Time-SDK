@@ -17,11 +17,11 @@ This is a maintenance release with fixes for customer issues and bugs
 Customer Issues Resolved
 --------------------------------
 - [Case Number: 09915927] - [RTSDK-5219] - Item name is missing in a NACK message for a post upon acknowledgement timeout
-- [ GitHub #121] - [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.
-- [ GitHub #162] - [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set
-- [ GitHub #151] - [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source
-- [ GitHub #179] - [RTSDK-5412] - Documentation error in EMA Java Config guide
-- [ GitHub #181] - [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect
+- [GitHub #115] - [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source
+- [GitHub #121] - [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.
+- [GitHub #162] - [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set
+- [GitHub #179] - [RTSDK-5412] - Documentation error in EMA Java Config guide
+- [GitHub #181] - [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -35,9 +35,9 @@ RTSDK C++/C Release 2.0.3.L1 (Sep 30, 2021)
 
 EMA C++ 3.6.3.L1 Issues Resolved
 --------------------------------
-- [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.  [ GitHub #121]
+- [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.  [GitHub #121]
 - [RTSDK-5219] - Item name is missing in a NACK message for a post upon acknowledgement timeout [Case Number: 09915927] 
-- [RTSDK-5412] - Documentation error in EMA Java Config guide [ GitHub #179] 
+- [RTSDK-5412] - Documentation error in EMA Java Config guide [GitHub #179] 
 
 ETA C 3.6.3.L1 Issues Resolved
 --------------------------------
@@ -45,14 +45,14 @@ ETA C 3.6.3.L1 Issues Resolved
 - [RTSDK-5031] - Json to Rwf converts unset Action of Vector entry to Unknown.
 - [RTSDK-5109] - Error with Perm Data being overwritten when order is changed in MapEntry
 - [RTSDK-5278] - ETAC rsslDecodeReal should handle INVALID_DATA to be compatible with ETAJ
-- [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect [ GitHub #181] 
+- [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect [GitHub #181] 
 
 Both ETA C and EMA C++ 3.6.3.L1 Issues Resolved
 -----------------------------------------------
-- [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set [ GitHub #162] 
+- [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set [GitHub #162] 
 - [RTSDK-4615] - Rebrand Change: ADSPOP is now RTC, Refinitiv Real-Time Connector
 - [RTSDK-4862] - Update doxygen version used to generate documenation
-- [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source [ GitHub #151] 
+- [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source [GitHub #115] 
 - [RTSDK-5103] - Vulnerability in curl 7.63.0, CVE-2021-22890 -- upgrade to latest
 - [RTSDK-5104] - Vulnerability in libxml2 2.9.9 -- upgrade to latest
 - [RTSDK-5464] - Remove Support for VS2012 and VS2013
