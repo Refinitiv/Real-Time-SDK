@@ -34,8 +34,8 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_GUARANTEED_OUTPUT_BUFFERS			= 100;
 	final static String DEFAULT_REGION_LOCATION					= "us-east-1";
 	final static int DEFAULT_NUM_INPUT_BUFFERS					= 10;
-	final static int DEFAULT_SYS_SEND_BUFFER_SIZE				= 0;
-	final static int DEFAULT_SYS_RECEIVE_BUFFER_SIZE			= 0;
+	final static int DEFAULT_SYS_SEND_BUFFER_SIZE				= 65535;
+	final static int DEFAULT_SYS_RECEIVE_BUFFER_SIZE			= 65535;
 	final static int DEFAULT_HIGH_WATER_MARK					= 0;
 	final static boolean DEFAULT_HANDLE_EXCEPTION				= true;
 	final static String DEFAULT_HOST_NAME						= "localhost";

@@ -42,6 +42,21 @@ public final class IOCtlCode
 	 * Used to set the upper buffer usage threshold.
 	 */
 	public static final int HIGH_WATER_MARK = 3;
+
+	/**
+	 * Allows to change the TCP receive buffer size
+	 * associated with the connection. Value is an int.
+	 * <br>
+	 * Please note that if the value is larger than 64K, the value needs to
+	 * be specified before the socket is connected to the remote peer.
+	 */
+	public static final int SYSTEM_READ_BUFFERS = 4;
+
+	/**
+	 * Allows to change the TCP send buffer size associated
+	 * with the connection. Value is an int.
+	 */
+	public static final int SYSTEM_WRITE_BUFFERS = 5;
 	
 	/**
 	 * Used to increase or decrease the number of server shared pool buffers. This option is used for IProvider applications only. 

@@ -227,9 +227,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
     			}
     	       
     	        setRsslReactorChannel(event.reactorChannel(), reactorChannelInfo, rsslReactorErrorInfo);
-    	        
-    	        int sendBufSize = 65535;
-    	        if (rsslReactorChannel.ioctl(com.refinitiv.eta.transport.IoctlCodes.SYSTEM_WRITE_BUFFERS, sendBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+
+    	        if (rsslReactorChannel.ioctl(com.refinitiv.eta.transport.IoctlCodes.SYSTEM_WRITE_BUFFERS, channelConfig.sysSendBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
                 {
     	        	if (_baseImpl.loggerClient().isErrorEnabled())
     	        	{
@@ -255,9 +254,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
     	        	
                     return ReactorCallbackReturnCodes.SUCCESS;
                 }
-
-    	    	int rcvBufSize = 65535;
-                if (rsslReactorChannel.ioctl(com.refinitiv.eta.transport.IoctlCodes.SYSTEM_READ_BUFFERS, rcvBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
+    	        
+                if (rsslReactorChannel.ioctl(com.refinitiv.eta.transport.IoctlCodes.SYSTEM_READ_BUFFERS, channelConfig.sysRecvBufSize, rsslReactorErrorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                 	if (_baseImpl.loggerClient().isErrorEnabled())
     	        	{
