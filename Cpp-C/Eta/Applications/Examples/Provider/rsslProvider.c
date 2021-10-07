@@ -59,6 +59,7 @@ static RsslBool supportRTT = RSSL_FALSE;
 static RsslBool httpHdrEnable = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
 static RsslBool loginWithCookies = RSSL_FALSE;
+static RsslBool serverSharedSocket = RSSL_FALSE;
 
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
@@ -99,6 +100,7 @@ void exitWithUsage()
 	printf(" -httpHdr If specified, http header will be accesible on the provider side\n");
 	printf(" -httpCookie with ';' delineated list of cookies data\n");
 	printf(" -rtt if specified, support the round trip latency measurement\n");
+	printf(" -serverSharedSocket if specified, turn on server shared socket\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -234,6 +236,10 @@ int main(int argc, char **argv)
 			snprintf(cookiesData, 4096, "%s", argv[iargs]);
 			cookieBuff.data = cookiesData;
 			cookieBuff.length = (rtrUInt32)strlen(cookiesData);
+		}
+		else if (strcmp("-serverSharedSocket", argv[iargs]) == 0)
+		{
+			serverSharedSocket = RSSL_TRUE;
 		}
 		else
 		{
@@ -679,7 +685,8 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 	sopts.guaranteedOutputBuffers = 500;
 	sopts.serviceName = portno;
 	sopts.wsOpts.protocols = protocolList;
-	
+	sopts.serverSharedSocket = serverSharedSocket;
+
 	if (httpHdrEnable)
 	{
 		sopts.wsOpts.httpCallback = HttpCallbackFunction;

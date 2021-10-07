@@ -192,6 +192,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         System.out.println("protocolList: " + CommandLine.value("pl"));
         System.out.println("httpHdrEnabled: " + CommandLine.value("httpHdr"));
         System.out.println("jsonEnumExpand: " + CommandLine.value("jsonEnumExpand"));
+        System.out.println("serverSharedSocket: " + CommandLine.value("serverSharedSocket"));
 
         if ( ! _dictionaryHandler.loadDictionary(_error) )
         {
@@ -215,6 +216,16 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
 
         if (CommandLine.booleanValue("httpHdr")) {
             bindOptions.wSocketOpts().httpCallback();
+        }
+
+        if (CommandLine.booleanValue("serverSharedSocket")) {
+            bindOptions.serverSharedSocket(true);
+            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                if (Boolean.parseBoolean(System.getProperty("sun.net.useExclusiveBind", "true"))) {
+                    System.setProperty("sun.net.useExclusiveBind", "false");
+                }
+                System.out.println("sun.net.useExclusiveBind: " + System.getProperty("sun.net.useExclusiveBind"));
+            }
         }
 
         final JsonConverterInitOptions converterInitOptions = new JsonConverterInitOptions(
@@ -278,6 +289,7 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         CommandLine.addOption("pl", DEFAULT_WS_PROTOCOL, "commas (',') delineated list of supported sub-protocols for asserting WebSocket connection");
         CommandLine.addOption("jsonEnumExpand", false, "if specified, expand all enumerated values with a JSON protocol");
         CommandLine.addOption("httpHdr", false, "if specified, http header will be accessible on the provider side through callback function");
+        CommandLine.addOption("serverSharedSocket", false, "if specified, turn on server shared socket");
     }
 
     /*
