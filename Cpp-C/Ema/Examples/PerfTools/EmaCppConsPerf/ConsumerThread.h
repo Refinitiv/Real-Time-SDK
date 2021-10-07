@@ -46,6 +46,9 @@
 #include "../Common/Mutex.h"
 #include "../Common/AppUtil.h"
 #include "../Common/ThreadBinding.h"
+#include "LatencyCollection.h"
+#include "LatencyRandomArray.h"
+#include "PerfMessageData.h"
 
 #define		BASECONSUMER_NAME "Perf_Consumer_"
 #define		CONSUMER_NAME_WSJSON "Perf_Consumer_WSJSON_"
@@ -57,6 +60,64 @@ class ItemRequest;
 typedef perftool::common::AppVector<ItemRequest*> ItemRequestList;
 typedef perftool::common::AppVector<ItemRequest*> PostGenMsgItemList;
 typedef perftool::common::AppVector< TimeRecord > LatencyRecords;
+
+class ConsumerThreadState {
+public:
+	ConsumerThreadState(const ConsPerfConfig&);
+	void reset() {
+		currentPostItemIndex = 0;
+		currentGenericsItemIndex = 0;
+	}
+
+	UInt32 getCurrentTick() const { return currentTick; }
+	void incrementCurrentTick() {
+		if (++currentTick >= (UInt32)consConfig.ticksPerSec)
+			currentTick = 0;
+	}
+
+	UInt32 getRequestPerTick() const { return requestsPerTick; }
+	UInt32 getRequestPerTickRemainder() const { return requestsPerTickRemainder; }
+
+	UInt32 getPostPerTick() const { return postsPerTick; }
+	UInt32 getPostPerTickRemainder() const { return postsPerTickRemainder; }
+	UInt32 getCurrentPostItemIndex() const { return currentPostItemIndex; }
+	void setCurrentPostItemIndex(UInt32 index) { currentPostItemIndex = index; }
+
+	UInt32 getGenericsPerTick() const { return genericsPerTick; }
+	UInt32 getGenericsPerTickRemainder() const { return genericsPerTickRemainder; }
+	UInt32 getCurrentGenericsItemIndex() const { return currentGenericsItemIndex; }
+	void setCurrentGenericsItemIndex(UInt32 index) { currentGenericsItemIndex = index; }
+
+private:
+	const ConsPerfConfig& consConfig;
+
+	UInt32	currentTick;					/* Current tick out of ticks per second. */
+
+	// Sending Requests
+	UInt32	requestsPerTick;				/* Requests per tick */
+	UInt32	requestsPerTickRemainder;		/* Requests per tick (remainder) */
+
+	// Sending PostMsg-es
+	UInt32	postsPerTick;					/* Posts per tick */
+	UInt32	postsPerTickRemainder;			/* Posts per tick (remainder) */
+	UInt32	currentPostItemIndex;			/* Index of the current item in Posts rotating list */
+
+	// Sending GenericMsg-es
+	UInt32	genericsPerTick;				/* Number of Generic per tick */
+	UInt32	genericsPerTickRemainder;		/* Generics per tick (remainder) */
+	UInt32	currentGenericsItemIndex;		/* Index of the current item in Generics rotating list */
+};  // class ConsumerThreadState
+
+// Specifies PublisherId
+class PublisherUserInfo
+{
+public:
+	PublisherUserInfo();
+
+	UInt32 userId;			// specifies publisher's user id
+	UInt32 userAddress;		// specifies publisher's user address
+};  // class PublisherUserInfo
+
 class ConsumerStats
 {
 public:
@@ -205,10 +266,9 @@ typedef enum {
 class ItemInfo
 {
 public:
-	ItemInfo() : handle(0), StreamId(0), domain( refinitiv::ema::rdm::MMT_MARKET_PRICE ), 
-				itemFlags ( ITEM_IS_SOLICITED ),itemData( NULL), pAppClient(NULL) {}; 
+	ItemInfo() : handle(0), domain( refinitiv::ema::rdm::MMT_MARKET_PRICE ), 
+				pAppClient(NULL), itemFlags ( ITEM_IS_SOLICITED ), itemData( NULL) {};
 	UInt64		handle;
-	Int32		StreamId; 
 	UInt16		domain;
 	OmmConsumerClient	*pAppClient;
 	UInt8		itemFlags;	// See ItemFlags struct 
@@ -218,7 +278,7 @@ public:
 class ItemRequest
 {
 public:
-	ItemRequest(): requestState( ITEM_NOT_REQUESTED ), pEmaConsumer( NULL ) {};
+	ItemRequest(): position(0), requestState( ITEM_NOT_REQUESTED ), pEmaConsumer( NULL ) {};
 	UInt64		position; // Link for item list.
 	ItemRequestState requestState;	// Item state. 
 	EmaString	itemName;
@@ -250,7 +310,7 @@ public:
 
 	void setStopThread() { stopThread = true; }
 
-	bool sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 &postsPerTickRemainder, Int32 &genMsgsPerTick, Int32 &genMsgsPerTickRemainder );
+	bool sendBursts();
 
 	bool sendItemRequestBurst(UInt32 itemBurstCount);
 
@@ -258,17 +318,12 @@ public:
 
 	bool sendGenMsgBurst(UInt32 genMsgItemBurstCount);
 
-	void updateLatencyStats( PerfTimeValue timeTracker, LatencyRecords* pLrec );
-
-	void getLatencyTimeRecords(LatencyRecords **pUpdateList, LatencyRecords *pPostList = NULL );
-
-	void clearReadLatTimeRecords(LatencyRecords *pReadList ) { pReadList->clear(); };
-
 protected:
 	
 	const ConsPerfConfig*   pConsPerfCfg;
 	Int32				consumerThreadIndex;
 	OmmConsumer			*pEmaOmmConsumer;
+	ConsumerThreadState	consThreadState;
 
 	DirectoryClient		srcClient;
 	ServiceInfo			desiredService;
@@ -279,7 +334,7 @@ protected:
 	MarketByOrderClient mByOrderClient;
 
 	Int32				itemListUniqueIndex;		// Index into the item list at which item 
-												// requests unique to this consumer start.
+													// requests unique to this consumer start.
 	Int32				itemListCount;				// Number of item requests to make.
 	ConsumerStats		stats;				// Other stats, collected periodically by the main thread. */
 	FILE				*statsFile;			// File for logging stats for this connection. */
@@ -296,15 +351,18 @@ protected:
 	Int32				itemsRequestedCount;
 	Int32				refreshCompleteCount;
 
-	perftool::common::Mutex	statsMutex;
-	// collection of update latency numbers
-	LatencyRecords			updateLatList1;
-	LatencyRecords			updateLatList2;
-	LatencyRecords*			pWriteListPtr;
-	LatencyRecords*			pReadListPtr;
+	// collection of latency timestamps
+	LatencyCollection		updatesLatency;
+	LatencyCollection		postsLatency;
+	LatencyCollection		genericsLatency;
+
+	LatencyRandomArray*		latencyPostRandomArray;		// Determines when to send latency in PostMsg
+	LatencyRandomArray*		latencyGenericRandomArray;	// Determines when to send latency in GenericMsg
 
 	bool					testPassed;
 	EmaString				failureLocation;
+
+	static PublisherUserInfo	publisherUserInfo;
 
 #if defined(WIN32)
 	static unsigned __stdcall ThreadFunc( void* pArguments );
@@ -318,6 +376,18 @@ protected:
 #endif
 private:
 	void dumpConsumerItemList();
+
+	// Post Message. Fill up payload for MarketPrice.
+	void preparePostMessageMarketPrice(PostMsg& postMsg, const ItemInfo& itemInfo, PerfTimeValue latencyStartTime = 0);
+
+	// Post Message. Fill up payload for MarketByOrder.
+	void preparePostMessageMarketByOrder(PostMsg& postMsg, const ItemInfo& itemInfo, PerfTimeValue latencyStartTime = 0);
+
+	// Generic Message. Fill up payload for MarketPrice.
+	void prepareGenericMessageMarketPrice(GenericMsg& genericMsg, PerfTimeValue latencyStartTime = 0);
+
+	// Generic Message. Fill up payload for MarketByOrder.
+	void prepareGenericMessageMarketByOrder(GenericMsg& genericMsg, PerfTimeValue latencyStartTime = 0);
 
 	void clean();
 };
@@ -336,4 +406,42 @@ inline void DirectoryClient::init( ConsumerThread *pConsThr )
 {
 	pConsThread = pConsThr;
 }
+
+
+class RotateAppVectorUtil {
+public:
+	RotateAppVectorUtil(PostGenMsgItemList& vec, refinitiv::ema::access::UInt32 startInd)
+		: startIndex(startInd), currentIndex(startInd), data(vec)
+	{
+		if (startIndex >= data.size())
+		{
+			if (!data.empty())
+				currentIndex = startIndex % data.size();
+			else
+				currentIndex = 0;
+		}
+	}
+
+	refinitiv::ema::access::UInt32 getCurrentIndex() { return currentIndex; }
+
+	const ItemRequest* getNext() {
+		refinitiv::ema::access::UInt32 index = currentIndex;
+		if (++currentIndex >= data.size())
+		{
+			currentIndex = 0;
+		}
+		return data[index];
+	}
+
+	const ItemRequest* operator[](refinitiv::ema::access::UInt32 index) const {
+		return data[index];
+	}
+
+private:
+	refinitiv::ema::access::UInt32 startIndex;
+	refinitiv::ema::access::UInt32 currentIndex;
+
+	PostGenMsgItemList& data;
+};  // class RotateAppVectorUtil
+
 #endif // _CONSUMER_THREADS_H
