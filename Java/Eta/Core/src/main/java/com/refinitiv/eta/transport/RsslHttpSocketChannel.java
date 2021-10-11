@@ -1089,11 +1089,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                                 // read from _oldCrypto
                                 bytesRead = _oldCrypto.read(_readIoBuffer.buffer());
                                 if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW) { //readIoBuffer overflow happened
-                                    _readIoBuffer.buffer().limit(_readIoBuffer.buffer().position());
-                                    _readIoBuffer.buffer().position(_readBufStateMachine.currentMessagePosition());
-                                    _readIoBuffer.buffer().compact();
-                                    _readBufStateMachine.advanceOnCompactOnBufferOverflow();
-
+                                    compactOnBufferOverflow();
                                     bytesRead = _oldCrypto.read(_readIoBuffer.buffer());
                                 }
                                 saveOldScktChannelBytesRead = saveOldScktChannelBytesRead + bytesRead;
@@ -1113,6 +1109,10 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                         {
                             // read from oldScktChannel
                             bytesRead = _oldScktChannel.read(_readIoBuffer.buffer());
+                            if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW) { //readIoBuffer overflow happened
+                                compactOnBufferOverflow();
+                                bytesRead = _oldScktChannel.read(_readIoBuffer.buffer());
+                            }
                             if (bytesRead > 0)
                             {
                                 if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
@@ -1151,7 +1151,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 else
                 // not httpReconnectState
                 {
-                    bytesRead = read(_readIoBuffer.buffer());
+                    bytesRead = readToIoBuffer();
                 }
 
                 //bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above read lines with this one
@@ -1176,7 +1176,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         int posBeforeRead = _readIoBuffer.buffer().position();
 
         // read from the network
-        int bytesRead = read(_readIoBuffer.buffer());
+        int bytesRead = readToIoBuffer();
         _totalBytesRead += bytesRead;
 
         if (_debugOutput == null)

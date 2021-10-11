@@ -87,7 +87,7 @@ public class EncryptionTest {
         }
     }
 
-    boolean establishConnection(ClientConnection cc, ServerConnection sc) {
+    boolean establishConnection(ClientConnection cc, ServerConnection sc, int connType) {
 
         boolean success = false;
 
@@ -95,7 +95,7 @@ public class EncryptionTest {
             ExecutorService executor = Executors.newFixedThreadPool(2);
 
             sc.bind();
-            cc.connect();
+            cc.connect(connType);
             sc.accept();
 
             Future<Integer> serverLogic = executor.submit(() -> Common.executeHandshake(sc.serverSelector, sc.serverChannel, sc.error, sc.inProg));
@@ -110,7 +110,7 @@ public class EncryptionTest {
         return success;
     }
 
-    void readMsg(RsslSocketChannel channel, Selector selector, CountDownLatch latch) {
+    void readMsg(Channel channel, Selector selector, CountDownLatch latch) {
         try {
 
             ReadArgs readArgs = TransportFactory.createReadArgs();
@@ -156,7 +156,7 @@ public class EncryptionTest {
             ClientConnection cc = new ClientConnection();
             ServerConnection sc = new ServerConnection();
 
-            assertTrue(establishConnection(cc, sc));
+            assertTrue(establishConnection(cc, sc, ConnectionTypes.SOCKET));
 
             reachNoWrite(cc.clientChannel);
             reachNoWrite(sc.serverChannel);
@@ -189,7 +189,7 @@ public class EncryptionTest {
             ClientConnection cc = new ClientConnection();
             ServerConnection sc = new ServerConnection();
 
-            assertTrue(establishConnection(cc, sc));
+            assertTrue(establishConnection(cc, sc, ConnectionTypes.SOCKET));
 
             reachNoWrite(cc.clientChannel);
 
@@ -226,7 +226,41 @@ public class EncryptionTest {
             ClientConnection cc = new ClientConnection();
             ServerConnection sc = new ServerConnection();
 
-            assertTrue(establishConnection(cc, sc));
+            assertTrue(establishConnection(cc, sc, ConnectionTypes.SOCKET));
+
+            cc.clientChannel._readIoBuffer.buffer().position(cc.clientChannel._readIoBuffer.buffer().capacity() - ( sc.getMsgLen() / 2 ));
+            cc.clientChannel._readBufStateMachine._lastReadPosition = cc.clientChannel._readIoBuffer.buffer().position();
+            cc.clientChannel._readBufStateMachine._currentMsgStartPos = cc.clientChannel._readIoBuffer.buffer().position();
+
+            CountDownLatch latch = new CountDownLatch(1);
+            sc.writeMsg();
+            executor.submit(() -> readMsg(cc.clientChannel, cc.clientSelector, latch));
+
+            latch.await(10, TimeUnit.SECONDS);
+
+            assertEquals(latch.getCount(), 0);
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void testHandleBufferOverflowHttpConnection() {
+        try {
+            Error error = TransportFactory.createError();
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+
+            InitArgs initArgs = TransportFactory.createInitArgs();
+            if (Transport.initialize(initArgs, error) != TransportReturnCodes.SUCCESS)
+            {
+                throw new IOException("RsslTransport.initialize() failed: " + error.text());
+            }
+
+            ClientConnection cc = new ClientConnection();
+            ServerConnection sc = new ServerConnection();
+
+            assertTrue(establishConnection(cc, sc, ConnectionTypes.HTTP));
 
             cc.clientChannel._readIoBuffer.buffer().position(cc.clientChannel._readIoBuffer.buffer().capacity() - ( sc.getMsgLen() / 2 ));
             cc.clientChannel._readBufStateMachine._lastReadPosition = cc.clientChannel._readIoBuffer.buffer().position();
@@ -253,10 +287,10 @@ public class EncryptionTest {
         ConnectOptions connectOptions = TransportFactory.createConnectOptions();
         Selector clientSelector = null;
 
-        void connect() throws Exception {
+        void connect(int connType) throws Exception {
 
             connectOptions.connectionType(ConnectionTypes.ENCRYPTED);
-            connectOptions.encryptionOptions().connectionType(ConnectionTypes.SOCKET);
+            connectOptions.encryptionOptions().connectionType(connType);
             connectOptions.encryptionOptions().KeystoreFile(CryptoHelperTest.VALID_CERTIFICATE);
             connectOptions.encryptionOptions().KeystorePasswd(CryptoHelperTest.KEYSTORE_PASSWORD);
             connectOptions.encryptionOptions().KeystoreType("JKS");
