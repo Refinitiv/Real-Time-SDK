@@ -29,6 +29,8 @@ public:
 	void fillMarketPriceFieldListRefreshMsg(refinitiv::ema::access::FieldList& fieldList);
 	// Update message. Fills up the fieldList by template pMessageData.
 	void fillMarketPriceFieldListUpdateMsg(refinitiv::ema::access::FieldList& fieldList, PerfTimeValue latencyStartTime = 0);
+	// Post message. Fills up the fieldList by template pMessageData.
+	void fillMarketPriceFieldListPostMsg(refinitiv::ema::access::FieldList& fieldList, PerfTimeValue latencyStartTime = 0);
 	// Generic message. Fills up the fieldList by template pMessageData.
 	void fillMarketPriceFieldListGenericMsg(refinitiv::ema::access::FieldList& fieldList, PerfTimeValue latencyStartTime = 0);
 
@@ -37,6 +39,8 @@ public:
 	void fillMarketByOrderMapRefreshMsg(refinitiv::ema::access::Map& mapOrders);
 	// Update message. Fills up the map of orders by template pMessageData.
 	void fillMarketByOrderMapUpdateMsg(refinitiv::ema::access::Map& mapOrders, PerfTimeValue latencyStartTime = 0);
+	// Post message. Fills up the map of orders by template pMessageData.
+	void fillMarketByOrderMapPostMsg(refinitiv::ema::access::Map& mapOrders, PerfTimeValue latencyStartTime = 0);
 	// Generic message. Fills up the map of orders by template pMessageData.
 	void fillMarketByOrderMapGenericMsg(refinitiv::ema::access::Map& mapOrders, PerfTimeValue latencyStartTime = 0);
 
@@ -45,7 +49,7 @@ public:
 		TimeTrack& timeTrack, refinitiv::ema::access::EmaString& errText);
 
 private:
-	MessageDataUtil() : updateMsgMPIdx(0), updateMsgMBOIdx(0), genericMsgMPIdx(0), genericMsgMBOIdx(0), pMessageData(NULL) {}
+	MessageDataUtil() : updateMsgMPIdx(0), updateMsgMBOIdx(0), postMsgMPIdx(0), postMsgMBOIdx(0), genericMsgMPIdx(0), genericMsgMBOIdx(0), pMessageData(NULL) {}
 	~MessageDataUtil() {}
 	MessageDataUtil(MessageDataUtil const&);
 	MessageDataUtil& operator=(MessageDataUtil const&);
@@ -60,14 +64,17 @@ private:
 
 	void addRefereshLatency(refinitiv::ema::access::FieldList& fieldList);
 	void addUpdateLatency(refinitiv::ema::access::FieldList& fieldList, PerfTimeValue latencyStartTime);
+	void addPostLatency(refinitiv::ema::access::FieldList& fieldList, PerfTimeValue latencyStartTime);
 	void addGenericLatency(refinitiv::ema::access::FieldList& fieldList, PerfTimeValue latencyStartTime);
 
 	refinitiv::ema::access::Int32 updateMsgMPIdx;	// Index of current template for Update message (Market Price) payload to send.
 	refinitiv::ema::access::Int32 updateMsgMBOIdx;	// Index of current template for Update message (Market By Order) payload to send.
 
+	refinitiv::ema::access::Int32 postMsgMPIdx;		// Index of current template for Post message (Market Price) payload to send.
+	refinitiv::ema::access::Int32 postMsgMBOIdx;	// Index of current template for Post message (Market By Order) payload to send.
+
 	refinitiv::ema::access::Int32 genericMsgMPIdx;	// Index of current template for Generic message (Market Price) payload to send.
 	refinitiv::ema::access::Int32 genericMsgMBOIdx;	// Index of current template for Generic message (Market By Order) payload to send.
-
 };  // class MessageDataUtil
 
 

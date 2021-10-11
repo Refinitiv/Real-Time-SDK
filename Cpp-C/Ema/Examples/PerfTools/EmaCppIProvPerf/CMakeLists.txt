@@ -13,6 +13,7 @@ set(_IProvPerfSrcFiles
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppUtil.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/CtrlBreakHandler.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/GetTime.cpp
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyCollection.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyRandomArray.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/MessageDataUtil.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Mutex.cpp
@@ -29,6 +30,7 @@ set(_IProvPerfSrcFiles
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppVector.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/CtrlBreakHandler.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/GetTime.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyCollection.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyRandomArray.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/MessageDataUtil.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Mutex.h

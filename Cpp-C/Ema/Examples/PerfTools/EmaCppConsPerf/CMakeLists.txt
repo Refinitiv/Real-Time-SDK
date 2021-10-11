@@ -6,24 +6,38 @@ set(_ConsPerfSrcFiles
         EmaCppConsPerf.h
         ConsPerfConfig.h
         ConsumerThread.h
+
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppUtil.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/CtrlBreakHandler.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/GetTime.cpp
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyCollection.cpp
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyRandomArray.cpp
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/MessageDataUtil.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Mutex.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/PerfConfig.cpp
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/PerfMessageData.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Statistics.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/ThreadAffinity.cpp
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/XmlItemParser.cpp
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/xmlMsgDataParser.c
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/xmlPerfMsgDataParser.cpp
+
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppUtil.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/AppVector.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/CtrlBreakHandler.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/GetTime.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyCollection.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/LatencyRandomArray.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/MessageDataUtil.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Mutex.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/PerfConfig.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/PerfMessageData.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/Statistics.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/ThreadAffinity.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/ThreadBinding.h
         ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/XmlItemParser.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/xmlMsgDataParser.h
+        ${Ema_SOURCE_DIR}/Examples/PerfTools/Common/xmlPerfMsgDataParser.h
     )
 
 add_executable( EmaCppConsPerf ${_ConsPerfSrcFiles})

@@ -8,47 +8,55 @@
 #include "ConsumerThread.h"
 
 #include "../Common/XmlItemParser.h"
+#include "MessageDataUtil.h"
 
 #define TIM_TRK_1_FID 3902
 #define TIM_TRK_2_FID 3903
 #define TIM_TRK_3_FID 3904
 
-#define UPDATE_CAPACITY 10000
-//#define POST_CAPACITY 100000
-
-
 using namespace::refinitiv::ema::rdm;
 using namespace::refinitiv::ema::access;
 using namespace::std;
 using namespace::perftool::common;
+
+// static member
+PublisherUserInfo ConsumerThread::publisherUserInfo;
+
 ConsumerStats::ConsumerStats() : imageTimeRecorded (false),
 imageRetrievalStartTime( 0 ),
 imageRetrievalEndTime(0),
 firstUpdateTime(0),
 firstGenMsgSentTime(0),
-firstGenMsgRecvTime(0)
+firstGenMsgRecvTime(0),
+steadyStateLatencyTime(0)
 {}
 ConsumerStats::~ConsumerStats() {}
 
 ConsumerThread::ConsumerThread( ConsPerfConfig& consPerfCfg) : 
-pConsPerfCfg( &consPerfCfg ), consumerThreadIndex( 0 ), itemListUniqueIndex(0), 
-itemListCount(0),
-cpuId(-1),
-apiThreadCpuId(-1),
-running(false),
-stopThread(false),
-statsFile( NULL ),
-latencyLogFile( NULL ),
-desiredServiceHandle(0),
-isDesiredServiceUp(false),
-itemsRequestedCount(0),
-refreshCompleteCount(0),
-updateLatList1(UPDATE_CAPACITY),
-updateLatList2(UPDATE_CAPACITY),
- pWriteListPtr( &updateLatList1 ),
- pReadListPtr( &updateLatList2 ),
- testPassed(true),
-pEmaOmmConsumer( NULL )
+	pConsPerfCfg( &consPerfCfg ),
+	consumerThreadIndex( 0 ),
+	itemListUniqueIndex(0),
+	itemListCount(0),
+	cpuId(-1),
+	apiThreadCpuId(-1),
+	running(false),
+	stopThread(false),
+	statsFile( NULL ),
+	latencyLogFile( NULL ),
+	desiredServiceHandle(0),
+	isDesiredServiceUp(false),
+	itemsRequestedCount(0),
+	refreshCompleteCount(0),
+	latencyPostRandomArray(NULL),
+	latencyGenericRandomArray(NULL),
+	consThreadState(consPerfCfg),
+	testPassed(true),
+	pEmaOmmConsumer( NULL ),
+#if defined(WIN32)
+	_handle(NULL), _threadId(0)
+#else
+	_threadId(0)
+#endif
 {
 }
 ConsumerThread::~ConsumerThread()
@@ -65,6 +73,15 @@ void  ConsumerThread::clean()
 		fclose( latencyLogFile );
 	if( statsFile )
 		fclose( statsFile );
+
+	if (latencyPostRandomArray != NULL)
+		delete latencyPostRandomArray;
+	latencyPostRandomArray = NULL;
+
+	if (latencyGenericRandomArray != NULL)
+		delete latencyGenericRandomArray;
+	latencyGenericRandomArray = NULL;
+
 	UInt64 itReqListSize = itemRequestList.size();
 	UInt64 i = 0;
 	if(itReqListSize > 0)
@@ -181,6 +198,30 @@ bool ConsumerThread::initialize()
 		++xmlItemListIndex;
 	}
 
+	/* Determine latency ticks number when sending PostMsg */
+	if (pConsPerfCfg->postsPerSec != 0 && pConsPerfCfg->latencyPostsPerSec > 0)
+	{
+		LatencyRandomArrayOptions randomArrayOpts;
+		randomArrayOpts.totalMsgsPerSec = pConsPerfCfg->postsPerSec;
+		randomArrayOpts.latencyMsgsPerSec = pConsPerfCfg->latencyPostsPerSec;
+		randomArrayOpts.ticksPerSec = pConsPerfCfg->ticksPerSec;
+		randomArrayOpts.arrayCount = LATENCY_RANDOM_ARRAY_SET_COUNT;
+
+		latencyPostRandomArray = new LatencyRandomArray(randomArrayOpts);
+	}
+
+	/* Determine latency ticks number when sending GenericMsg */
+	if (pConsPerfCfg->genMsgsPerSec != 0 && pConsPerfCfg->latencyGenMsgsPerSec > 0)
+	{
+		LatencyRandomArrayOptions randomArrayOpts;
+		randomArrayOpts.totalMsgsPerSec = pConsPerfCfg->genMsgsPerSec;
+		randomArrayOpts.latencyMsgsPerSec = pConsPerfCfg->latencyGenMsgsPerSec;
+		randomArrayOpts.ticksPerSec = pConsPerfCfg->ticksPerSec;
+		randomArrayOpts.arrayCount = LATENCY_RANDOM_ARRAY_SET_COUNT;
+
+		latencyGenericRandomArray = new LatencyRandomArray(randomArrayOpts);
+	}
+
 	return true;
 }
 
@@ -197,10 +238,9 @@ void ConsumerThread::dumpConsumerItemList()
 					itemListCount, itemRequestList.size());
 	for(int i = 0; i < itemRequestList.size(); ++i)
 	{
-		fprintf(fp,"\n itemname: %s, Position: %llu, StreamId: %d, Domain: %u, Handle: %llu, itemFlags: %u, streaming: %s, post: %s",
+		fprintf(fp,"\n itemname: %s, Position: %llu, Domain: %u, Handle: %llu, itemFlags: %u, streaming: %s, post: %s",
 			itemRequestList[i]->itemName.c_str(),
 			itemRequestList[i]->position,
-			itemRequestList[i]->itemInfo.StreamId,
 			itemRequestList[i]->itemInfo.domain,
 			itemRequestList[i]->itemInfo.handle,
 			itemRequestList[i]->itemInfo.itemFlags,
@@ -256,16 +296,8 @@ void ConsumerThread::run()
 	// Calculations
 	Int64 microSecPerTick = 0;
 	PerfTimeValue currentTime = 0, nextTickTime = 0;
-	Int32 postsPerTick = 0, postsPerTickRemainder = 0;
-	Int32 genMsgsPerTick = 0, genMsgsPerTickRemainder = 0;
-	Int32 currentTicks = 0;
 
 	microSecPerTick = 1000000 / pConsPerfCfg->ticksPerSec;
-
-	postsPerTick = pConsPerfCfg->postsPerSec / pConsPerfCfg->ticksPerSec;
-	postsPerTickRemainder = pConsPerfCfg->postsPerSec % pConsPerfCfg->ticksPerSec;
-	genMsgsPerTick = pConsPerfCfg->genMsgsPerSec / pConsPerfCfg->ticksPerSec;
-	genMsgsPerTickRemainder = pConsPerfCfg->genMsgsPerSec % pConsPerfCfg->ticksPerSec;
 
 	// Create OmmConsumer & login Routine
 	EmaString consumerName;
@@ -367,52 +399,48 @@ void ConsumerThread::run()
 		nextTickTime = currentTime + microSecPerTick;
 		itemsRequestedCount = 0;
 
-		if( !pConsPerfCfg->useUserDispatch )
-		{ // ApiDispatch
-			while( running && !stopThread )
-			{
+		while (running && !stopThread)
+		{
+			if (!pConsPerfCfg->useUserDispatch)
+			{ // ApiDispatch
 				currentTime = perftool::common::GetTime::getTimeMicro();
 				// read until no more to read and then write leftover from previous burst
-				if( currentTime >= nextTickTime)
+				if (currentTime >= nextTickTime)
 				{
 					nextTickTime += microSecPerTick;
 					// only send bursts on tick boundary
 					// send item request and post bursts
-					if (sendBursts(currentTicks, postsPerTick, postsPerTickRemainder, genMsgsPerTick, genMsgsPerTickRemainder) == false)
+					if (sendBursts() == false)
 					{
 						testPassed = false;
 						failureLocation = "ConsumerThread::run() - sendBursts at ApiDispatch";
 						break;
 					}
-
-					if (++currentTicks == pConsPerfCfg->ticksPerSec)
-						currentTicks = 0;
 				}
-				else			
+				else
+				{
 					AppUtil::sleep( (nextTickTime - currentTime) / 1000 );
+				}
 			}
-		}
-		else { // UserDispatch
-			while( running && !stopThread )
-			{
-				if( sendBursts(currentTicks, postsPerTick, postsPerTickRemainder, genMsgsPerTick, genMsgsPerTickRemainder) == false)
+			else
+			{ // UserDispatch
+				if (sendBursts() == false)
 				{
 					testPassed = false;
 					failureLocation = "ConsumerThread::run() - sendBursts failed at UserDispatch";
 					break;
 				}
 				currentTime = perftool::common::GetTime::getTimeMicro();
-				if( currentTime < nextTickTime )			
+				if( currentTime < nextTickTime )
 					pEmaOmmConsumer->dispatch( (nextTickTime - currentTime) ); // Dispatch either sleeps or works (dispatching msgs) till next tick time;
 				else
 				{
 					pEmaOmmConsumer->dispatch( OmmConsumer::NoWaitEnum ); // Dispatch few messages		
 					nextTickTime += microSecPerTick;
 				}
-		
-				if (++currentTicks == pConsPerfCfg->ticksPerSec)
-						currentTicks = 0;
 			}
+
+			consThreadState.incrementCurrentTick();
 		}
 	}
 	catch (const OmmException& excp) {
@@ -430,40 +458,45 @@ void ConsumerThread::run()
 	return;
 }
 
-bool ConsumerThread::sendBursts(Int32 &currentTicks, Int32 &postsPerTick, Int32 &postsPerTickRemainder, Int32 &genMsgsPerTick, Int32 &genMsgsPerTickRemainder)
+bool ConsumerThread::sendBursts()
 {
 	// Send some item requests(assuming dictionaries are ready).
 	if( itemsRequestedCount < itemListCount )
 	{
-		Int32 requestBurstCount;
-		requestBurstCount = pConsPerfCfg->_requestsPerTick;
-		if (currentTicks > pConsPerfCfg->_requestsPerTickRemainder)
+		UInt32 requestBurstCount = consThreadState.getRequestPerTick();
+		if (consThreadState.getCurrentTick() > consThreadState.getRequestPerTickRemainder())
 				++requestBurstCount;
 		if( !stats.imageRetrievalStartTime )
 			stats.imageRetrievalStartTime = perftool::common::GetTime::getTimeNano();
 			
-			if(sendItemRequestBurst(requestBurstCount) == false)
-			{
-				testPassed = false;
-				failureLocation = "ConsumerThread::sendBursts() - sendItemRequestBurst failed";
-				return false;
-			}
+		if( sendItemRequestBurst( requestBurstCount ) == false )
+		{
+			testPassed = false;
+			failureLocation = "ConsumerThread::sendBursts() - sendItemRequestBurst failed";
+			return false;
+		}
 	}
 
 	if( stats.imageRetrievalEndTime )
 	{
 		if( postItemList.size() )
 		{
-			if( sendPostBurst( postsPerTick  + ((currentTicks < postsPerTickRemainder ) ? 1 : 0)) == false)
+			UInt32 postItemBurstCount = consThreadState.getPostPerTick();
+			if (consThreadState.getCurrentTick() < consThreadState.getPostPerTickRemainder())
+				++postItemBurstCount;
+			if( sendPostBurst( postItemBurstCount ) == false )
 			{
 				testPassed = false;
 				failureLocation = "ConsumerThread::sendBursts() - sendPostBurst failed";
 				return false;
 			}
 		}
-		if( postItemList.size() )
+		if( genMsgItemList.size() )
 		{
-			if( sendGenMsgBurst( genMsgsPerTick  + ((currentTicks < genMsgsPerTickRemainder ) ? 1 : 0)) == false)
+			UInt32 genMsgItemBurstCount = consThreadState.getGenericsPerTick();
+			if (consThreadState.getCurrentTick() < consThreadState.getGenericsPerTickRemainder())
+				++genMsgItemBurstCount;
+			if( sendGenMsgBurst( genMsgItemBurstCount ) == false )
 			{
 				testPassed = false;
 				failureLocation = "ConsumerThread::sendBursts() - sendGenMsgBurst failed";
@@ -507,47 +540,182 @@ bool ConsumerThread::sendItemRequestBurst(UInt32 itemBurstCount)
 	return true;
 }
 
+void ConsumerThread::preparePostMessageMarketPrice(PostMsg& postMsg, const ItemInfo& itemInfo, PerfTimeValue latencyStartTime)
+{
+	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
+
+	UpdateMsg updateMsg;
+	FieldList fieldList;
+
+	postMsg.publisherId(publisherUserInfo.userId, publisherUserInfo.userAddress);
+	postMsg.domainType(itemInfo.domain);
+	postMsg.complete();
+
+	updateMsg.publisherId(publisherUserInfo.userId, publisherUserInfo.userAddress);
+	updateMsg.domainType(itemInfo.domain);
+
+	msgDataUtil->fillMarketPriceFieldListPostMsg(fieldList, latencyStartTime);
+	updateMsg.payload(fieldList);
+
+	postMsg.payload(updateMsg);
+}
+
+void ConsumerThread::preparePostMessageMarketByOrder(PostMsg& postMsg, const ItemInfo& itemInfo, PerfTimeValue latencyStartTime)
+{
+	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
+
+	UpdateMsg updateMsg;
+	Map mapOrders;
+
+	postMsg.publisherId(publisherUserInfo.userId, publisherUserInfo.userAddress);
+	postMsg.domainType(itemInfo.domain);
+	postMsg.complete();
+
+	updateMsg.publisherId(publisherUserInfo.userId, publisherUserInfo.userAddress);
+	updateMsg.domainType(itemInfo.domain);
+
+	msgDataUtil->fillMarketByOrderMapPostMsg(mapOrders, latencyStartTime);
+	updateMsg.payload(mapOrders);
+
+	postMsg.payload(updateMsg);
+}
+
 bool ConsumerThread::sendPostBurst(UInt32 postItemBurstCount)
 {
-	fprintf(stdout,"%s\n","sendPostBurst(UInt32 postItemBurstCount) function Not Ready");
+	// templates for messages (from MsgData.xml)
+	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
+
+	Int32 latencyPostNumber = (pConsPerfCfg->latencyPostsPerSec > 0) ? latencyPostRandomArray->getNext() : -1;
+	PerfTimeValue latencyStartTime;
+
+	RotateAppVectorUtil postRotateList(postItemList, consThreadState.getCurrentPostItemIndex());
+
+	const ItemRequest* itemReq = NULL;
+	PostMsg postMsg;
+
+	for (UInt32 i = 0; i < postItemBurstCount && !stopThread; i++)
+	{
+		itemReq = postRotateList.getNext();
+		if (itemReq == NULL)
+			break;
+
+		postMsg.clear();
+
+		/* When appropriate, provide a latency timestamp for the post msg. */
+		bool addLatency = (pConsPerfCfg->latencyPostsPerSec == ALWAYS_SEND_LATENCY_POSTMSG || latencyPostNumber == i);
+
+		// when we add latency to the post message then use non pre-encoded field list
+		if (addLatency)
+			latencyStartTime = perftool::common::GetTime::getTimeMicro();
+		else
+			latencyStartTime = 0;
+
+		// prepares the post message now
+		switch (itemReq->itemInfo.domain)
+		{
+		case RSSL_DMT_MARKET_PRICE:
+			preparePostMessageMarketPrice(postMsg, itemReq->itemInfo, latencyStartTime);
+			break;
+		case RSSL_DMT_MARKET_BY_ORDER:
+			preparePostMessageMarketByOrder(postMsg, itemReq->itemInfo, latencyStartTime);
+			break;
+		}
+
+		pEmaOmmConsumer->submit(postMsg, itemReq->itemInfo.handle);
+
+		stats.postSentCount.countStatIncr();
+	}
+
+	// save the index of current item in rotate list
+	consThreadState.setCurrentPostItemIndex(postRotateList.getCurrentIndex());
+
 	return true;
+}
+
+void ConsumerThread::prepareGenericMessageMarketPrice(GenericMsg& genericMsg, PerfTimeValue latencyStartTime)
+{
+	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
+
+	FieldList fieldList;
+
+	msgDataUtil->fillMarketPriceFieldListGenericMsg(fieldList, latencyStartTime);
+
+	genericMsg.payload(fieldList);
+}
+
+void ConsumerThread::prepareGenericMessageMarketByOrder(GenericMsg& genericMsg, PerfTimeValue latencyStartTime)
+{
+	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
+
+	Map mapOrders;
+
+	msgDataUtil->fillMarketByOrderMapGenericMsg(mapOrders, latencyStartTime);
+
+	genericMsg.payload(mapOrders);
 }
 
 bool ConsumerThread::sendGenMsgBurst(UInt32 genMsgItemBurstCount)
 {
-	fprintf(stdout,"%s\n","sendGenMsgBurst(UInt32 postItemBurstCount) function Not Ready");
+	// templates for messages (from MsgData.xml)
+	MessageDataUtil* msgDataUtil = MessageDataUtil::getInstance();
+
+	Int32 latencyGenericNumber = (pConsPerfCfg->latencyGenMsgsPerSec > 0) ? latencyGenericRandomArray->getNext() : -1;
+	PerfTimeValue latencyStartTime;
+
+	RotateAppVectorUtil genericRotateList(genMsgItemList, consThreadState.getCurrentGenericsItemIndex());
+
+	const ItemRequest* itemReq = NULL;
+	GenericMsg genericMsg;
+
+	for (UInt32 i = 0; i < genMsgItemBurstCount && !stopThread; i++)
+	{
+		itemReq = genericRotateList.getNext();
+		if (itemReq == NULL)
+			break;
+
+		genericMsg.clear();
+
+		/* When appropriate, provide a latency timestamp for the generic msg. */
+		bool addLatency = (pConsPerfCfg->latencyGenMsgsPerSec == ALWAYS_SEND_LATENCY_GENMSG || latencyGenericNumber == i);
+
+		// when we add latency to the generic message then use non pre-encoded field list
+		if (addLatency)
+			latencyStartTime = perftool::common::GetTime::getTimeMicro();
+		else
+			latencyStartTime = 0;
+
+		// prepares the generic message now
+		genericMsg.domainType(itemReq->itemInfo.domain);
+
+		switch (itemReq->itemInfo.domain)
+		{
+		case RSSL_DMT_MARKET_PRICE:
+			prepareGenericMessageMarketPrice(genericMsg, latencyStartTime);
+			break;
+		case RSSL_DMT_MARKET_BY_ORDER:
+			prepareGenericMessageMarketByOrder(genericMsg, latencyStartTime);
+			break;
+		}
+
+		pEmaOmmConsumer->submit(genericMsg, itemReq->itemInfo.handle);
+
+		stats.genMsgSentCount.countStatIncr();
+		if (addLatency)
+			stats.latencyGenMsgSentCount.countStatIncr();
+		if (!stats.firstGenMsgSentTime)
+			stats.firstGenMsgSentTime = perftool::common::GetTime::getTimeNano();
+	}
+
+	// save the index of current item in rotate list
+	consThreadState.setCurrentGenericsItemIndex(genericRotateList.getCurrentIndex());
+
 	return true;
-}
-
-void ConsumerThread::updateLatencyStats( PerfTimeValue timeTracker, LatencyRecords* pLrec )
-{
-	TimeRecord ldata;
-
-	ldata.startTime = timeTracker;
-	ldata.endTime = perftool::common::GetTime::getTimeMicro();
-	ldata.ticks = 1;
-
-	statsMutex.lock();
-	pLrec->push_back(ldata); // Submit Time record.
-	statsMutex.unlock();
-}
-void ConsumerThread::getLatencyTimeRecords(LatencyRecords **pUpdateLatList, LatencyRecords *pPostLatList )
-{
-	statsMutex.lock();
-
-	// pass the current write list pointer so the data can be read
-	// and swap read and write pointers
-	*pUpdateLatList = pWriteListPtr;
-	pWriteListPtr = pReadListPtr;
-	pReadListPtr = *pUpdateLatList;
-	
-	statsMutex.unlock();
 }
 
 bool MarketPriceClient::decodeMPUpdate(const refinitiv::ema::access::FieldList& fldList, UInt16 msgtype )
 {
 	Int64		intType;
-	UInt64		uintType;
+	UInt64		uintType = 0;
 	float		floatType;
 	double		doubleType;
 	UInt16		enumType;
@@ -655,14 +823,21 @@ bool MarketPriceClient::decodeMPUpdate(const refinitiv::ema::access::FieldList& 
 
 	if( timeTracker )
 	{
-		pConsumerThread->updateLatencyStats(timeTracker, pConsumerThread->pWriteListPtr);
-		if( postTimeTracker && checkPostUserInfo() )
-			pConsumerThread->updateLatencyStats(postTimeTracker, NULL /*pConsumerThread->pWriteListPostPtr*/);
+		PerfTimeValue curTime = perftool::common::GetTime::getTimeMicro();
+		pConsumerThread->updatesLatency.updateLatencyStats(timeTracker, curTime, 1);
+		if ( postTimeTracker && checkPostUserInfo() )
+			pConsumerThread->postsLatency.updateLatencyStats(postTimeTracker, curTime, 1);
 	}
 	else if( postTimeTracker && checkPostUserInfo() )
-			pConsumerThread->updateLatencyStats(postTimeTracker, NULL /*pConsumerThread->pWriteListPostPtr*/);
+	{
+		PerfTimeValue curTime = perftool::common::GetTime::getTimeMicro();
+		pConsumerThread->postsLatency.updateLatencyStats(postTimeTracker, curTime, 1);
+	}
 	else if( genMsgTimeTracker )
-		pConsumerThread->updateLatencyStats(genMsgTimeTracker, NULL /*pConsumerThread->pWriteListGenMsgPtr*/);
+	{
+		PerfTimeValue curTime = perftool::common::GetTime::getTimeMicro();
+		pConsumerThread->genericsLatency.updateLatencyStats(genMsgTimeTracker, curTime, 1);
+	}
 
 	return true;
 }
@@ -764,7 +939,17 @@ void MarketPriceClient::onStatusMsg( const refinitiv::ema::access::StatusMsg& st
 }
 void MarketPriceClient::onGenericMsg( const GenericMsg& genericMsg, const OmmConsumerEvent& consumerEvent )
 {
-	AppUtil::log(" Received GenericMsg on Domain %u Processing not ready \n", (UInt32) genericMsg.getDomainType());
+	pConsumerThread->stats.genMsgRecvCount.countStatIncr();
+	if ( !pConsumerThread->stats.firstGenMsgRecvTime )
+		pConsumerThread->stats.firstGenMsgRecvTime = perftool::common::GetTime::getTimeNano();
+
+	if ( !decodeMPUpdate(genericMsg.getPayload().getFieldList(), DataType::GenericMsgEnum) )
+	{
+		pConsumerThread->stopThread = true;
+		pConsumerThread->testPassed = false;
+		pConsumerThread->failureLocation = "MarketPriceClient::onGenericMsg() - decodeMPUpdate failed.";
+		return;
+	}
 }
 void MarketPriceClient::onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& consumerEvent ) 
 {
@@ -815,16 +1000,23 @@ bool MarketByOrderClient::decodeMBOUpdate(const refinitiv::ema::access::Map& mbo
 
 	}
 
-	if( timeTracker )
+	if ( timeTracker )
 	{
-		pConsumerThread->updateLatencyStats(timeTracker, pConsumerThread->pWriteListPtr);
-		if( postTimeTracker && checkPostUserInfo() )
-			pConsumerThread->updateLatencyStats(postTimeTracker, NULL /*pConsumerThread->pWriteListPostPtr*/);
+		PerfTimeValue curTime = perftool::common::GetTime::getTimeMicro();
+		pConsumerThread->updatesLatency.updateLatencyStats(timeTracker, curTime, 1);
+		if ( postTimeTracker && checkPostUserInfo() )
+			pConsumerThread->postsLatency.updateLatencyStats(postTimeTracker, curTime, 1);
 	}
-	else if( postTimeTracker && checkPostUserInfo() )
-			pConsumerThread->updateLatencyStats(postTimeTracker, NULL /*pConsumerThread->pWriteListPostPtr*/);
-	else if( genMsgTimeTracker )
-		pConsumerThread->updateLatencyStats(genMsgTimeTracker, NULL /*pConsumerThread->pWriteListGenMsgPtr*/);
+	else if ( postTimeTracker && checkPostUserInfo() )
+	{
+		PerfTimeValue curTime = perftool::common::GetTime::getTimeMicro();
+		pConsumerThread->postsLatency.updateLatencyStats(postTimeTracker, curTime, 1);
+	}
+	else if ( genMsgTimeTracker )
+	{
+		PerfTimeValue curTime = perftool::common::GetTime::getTimeMicro();
+		pConsumerThread->genericsLatency.updateLatencyStats(genMsgTimeTracker, curTime, 1);
+	}
 
 	return true;
 }
@@ -832,7 +1024,7 @@ bool MarketByOrderClient::decodeMBOUpdate(const refinitiv::ema::access::Map& mbo
 bool MarketByOrderClient::decodeFldList( const FieldList& fldList, UInt16 msgtype, UInt64 &timeTracker, UInt64 &postTimeTracker,	UInt64 &genMsgTimeTracker, bool summData )
 {
 	Int64		intType;
-	UInt64		uintType;
+	UInt64		uintType = 0;
 	float		floatType;
 	double		doubleType;
 	UInt16		enumType;
@@ -1033,7 +1225,17 @@ void MarketByOrderClient::onStatusMsg( const refinitiv::ema::access::StatusMsg& 
 }
 void MarketByOrderClient::onGenericMsg( const GenericMsg& genericMsg, const OmmConsumerEvent& consumerEvent )
 {
-	AppUtil::log(" Received GenericMsg on Domain %u Processing not ready \n", (UInt32) genericMsg.getDomainType());
+	pConsumerThread->stats.genMsgRecvCount.countStatIncr();
+	if ( !pConsumerThread->stats.firstGenMsgRecvTime )
+		pConsumerThread->stats.firstGenMsgRecvTime = perftool::common::GetTime::getTimeNano();
+
+	if ( !decodeMBOUpdate(genericMsg.getPayload().getMap(), DataType::GenericMsgEnum) )
+	{
+		pConsumerThread->stopThread = true;
+		pConsumerThread->testPassed = false;
+		pConsumerThread->failureLocation = "MarketByOrderClient::onGenericMsg() - decodeMBOUpdate failed.";
+		return;
+	}
 }
 void MarketByOrderClient::onAckMsg( const AckMsg& ackMsg, const OmmConsumerEvent& consumerEvent ) 
 {
@@ -1132,4 +1334,31 @@ void DirectoryClient::onUpdateMsg( const refinitiv::ema::access::UpdateMsg& updM
 void DirectoryClient::onStatusMsg( const refinitiv::ema::access::StatusMsg& stMsg, const refinitiv::ema::access::OmmConsumerEvent& ommConsEvent)
 {
 	AppUtil::log("%s%d Received Directory Status %s\n", BASECONSUMER_NAME, pConsThread->consumerThreadIndex, stMsg.toString().c_str());
+}
+
+ConsumerThreadState::ConsumerThreadState(const ConsPerfConfig& config)
+	: consConfig(config), currentTick(0)
+{
+	/* Determine request rates on per-tick basis */
+	requestsPerTick = config.itemRequestsPerSec / config.ticksPerSec;
+	requestsPerTickRemainder = config.itemRequestsPerSec % config.ticksPerSec;
+
+	/* Determine post rates on per-tick basis */
+	postsPerTick = consConfig.postsPerSec / consConfig.ticksPerSec;
+	postsPerTickRemainder = consConfig.postsPerSec % consConfig.ticksPerSec;
+
+	/* Determine generic rates on per-tick basis */
+	genericsPerTick = consConfig.genMsgsPerSec / consConfig.ticksPerSec;
+	genericsPerTickRemainder = consConfig.genMsgsPerSec % consConfig.ticksPerSec;
+
+	/* Reset current pointers to lists of post/generic items */
+	reset();
+}
+
+PublisherUserInfo::PublisherUserInfo()
+{
+	userId = AppUtil::getProcessId();
+
+	if (AppUtil::getHostAddress(&userAddress) != 0)
+		userAddress = 0;
 }

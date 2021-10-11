@@ -13,6 +13,10 @@
 
 const size_t MAX_CONS_THREADS = (MAX_THREADS);
 
+const refinitiv::ema::access::UInt32	LATENCY_RANDOM_ARRAY_SET_COUNT = 20;
+const refinitiv::ema::access::Int32		ALWAYS_SEND_LATENCY_POSTMSG = (-1);
+const refinitiv::ema::access::Int32		ALWAYS_SEND_LATENCY_GENMSG = (-1);
+
 using namespace refinitiv::ema::access;
 // Provides configuration options for the consumer. 
 class ConsPerfConfig : public PerfConfig
@@ -22,39 +26,36 @@ public:
 	~ConsPerfConfig();
 	void clearPerfConfig();		// Use Defaults.
 
-	UInt32			steadyStateTime;	// Time application runs befor exiting.  See -steadyStateTime 
-	UInt32			delaySteadyStateCalc;	// Time before the latency is calculated. See -delaySteadyStateCalc
+	UInt32			steadyStateTime;		// Time application runs befor exiting.  See -steadyStateTime.
+	UInt32			delaySteadyStateCalc;	// Time before the latency is calculated. See -delaySteadyStateCalc.
 
-	EmaString		itemFilename;	// File of names to use when requesting items. See -itemFile. 
-	EmaString		msgFilename;	// File of data to use for message payloads. See -msgFile. 
+	EmaString		itemFilename;		// File of names to use when requesting items. See -itemFile.
+	EmaString		msgFilename;		// File of data to use for message payloads. See -msgFile.
 
-	bool			logLatencyToFile;	// Whether to log update latency information to a file. See -latencyFile. 
-	EmaString		latencyLogFilename;	// Name of the latency log file. See -latencyFile. 
+	bool			logLatencyToFile;	// Whether to log update latency information to a file. See -latencyFile.
+	EmaString		latencyLogFilename;	// Name of the latency log file. See -latencyFile.
 
-	EmaString		statsFilename;	// Name of the statistics log file. See -statsFile. 
-	UInt32			writeStatsInterval;	// Controls how often statistics are written. 
-	bool			displayStats;	// Controls whether stats appear on the screen. 
+	EmaString		statsFilename;		// Name of the statistics log file. See -statsFile.
+	UInt32			writeStatsInterval;	// Controls how often statistics are written. See -writeStatsInterval.
+	bool			displayStats;		// Controls whether stats appear on the screen. See -noDisplayStats.
 
-	Int32			itemRequestsPerSec;		// Rate at which the consumer will send out item requests. See -rqps. 
-	bool			requestSnapshots;			// Whether to request all items as snapshots. See -snapshot 
+	Int32			itemRequestsPerSec;			// Rate at which the consumer will send out item requests. See -requestRate.
+	bool			requestSnapshots;			// Whether to request all items as snapshots. See -snapshot.
 
-	EmaString		username;				// Username used when logging in. 
-	EmaString		serviceName;			// Name of service to request items from. See -s. 
+	EmaString		username;				// Username used when logging in. See -uname.
+	EmaString		serviceName;			// Name of service to request items from. See -serviceName.
 	bool			useServiceId;
-	Int32			itemRequestCount;			// Number of items to request. See -itemCount. 
+	Int32			itemRequestCount;			// Number of items to request. See -itemCount.
 	Int32			commonItemCount;			// Number of items common to all connections, if
-												// using multiple connections. See -commonItemCount. 
+												// using multiple connections. See -commonItemCount.
 
-	bool			useUserDispatch;
-	Int32			postsPerSec;				// Number of posts to send per second. See -postingRate. 
-	Int32			latencyPostsPerSec;			// Number of latency posts to send per second. See -latPostingRate. 
+	Int32			postsPerSec;				// Number of posts to send per second. See -postingRate.
+	Int32			latencyPostsPerSec;			// Number of latency posts to send per second. See -postingLatencyRate.
 
-	Int32			genMsgsPerSec;				// Number of generic messages to send per second. See -genMsgRate. 
-	Int32			latencyGenMsgsPerSec;		// Number of latency generic messages to send per second. See -latGenMsgRate. 
+	Int32			genMsgsPerSec;				// Number of generic messages to send per second. See -genericMsgRate.
+	Int32			latencyGenMsgsPerSec;		// Number of latency generic messages to send per second. See -genericMsgLatencyRate.
 
-	Int32			_requestsPerTick;
-	Int32			_requestsPerTickRemainder;
-	long			apiThreadBindList[MAX_CONS_THREADS];	// CPU ID list for threads that handle connections.  See -apiThreads 
+	long			apiThreadBindList[MAX_CONS_THREADS];	// CPU ID list for threads that handle connections.  See -apiThreads.
 
 	EmaString		consumerName;				// Name of the Consumer component in EmaConfig.xml. See -consumerName.
 

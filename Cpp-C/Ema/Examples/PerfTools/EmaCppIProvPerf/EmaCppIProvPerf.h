@@ -29,6 +29,7 @@
 class EmaCppIProvPerf
 {
 public:
+	EmaCppIProvPerf() : perfMessageData(NULL), summaryFile(NULL) {};
 
 	bool inititailizeAndRun(int argc, char* argv[]);
 
