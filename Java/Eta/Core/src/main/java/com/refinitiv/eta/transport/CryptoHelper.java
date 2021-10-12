@@ -328,26 +328,38 @@ class CryptoHelper
         if (_appRecvBuffer.position() > 0) //any data received during handshake renegotiation? should be a rare case
         {
             _appRecvBuffer.flip();
-            while (_appRecvBuffer.hasRemaining() && dst.hasRemaining()) {
-                dst.put(_appRecvBuffer.get());
-                readCount++;
-            }
-            _appRecvBuffer.compact();
+            readCount += copyBytes(_appRecvBuffer, dst);
         }
 
         int decryptCount = 0;
         if (dst.hasRemaining()) {
-            decryptCount = decryptNetworkData(dst);
-            if (decryptCount != Integer.MIN_VALUE)
-                readCount += decryptCount;
+            if (dst.capacity() >= _engine.getSession().getApplicationBufferSize()) {
+                decryptCount = decryptNetworkData(dst, true);
+                if (decryptCount != Integer.MIN_VALUE)
+                    readCount += decryptCount;
+            } else { //if the destination buffer is small for the engine to unwrap data, use the intermediate buffer
+                decryptNetworkData(_appRecvBuffer, false);
+                _appRecvBuffer.flip();
+                readCount += copyBytes(_appRecvBuffer, dst);
+            }
         }
-        // this checks whether the server side initiated key renegotiation and thus new handshake started
+
         if ((_engine.getHandshakeStatus() != HandshakeStatus.FINISHED) && (_engine.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING))
         {
             performHandshake();
         }
 
         return decryptCount != Integer.MIN_VALUE ? readCount : decryptCount;
+    }
+
+    private int copyBytes(ByteBuffer source, ByteBuffer dest) {
+        int count = 0;
+        while (source.hasRemaining() && dest.hasRemaining()) {
+            dest.put(source.get());
+            count++;
+        }
+        source.compact();
+        return count;
     }
 
     // Implementation of SocketChannel::write(ByteBuffer src)
@@ -537,7 +549,7 @@ class CryptoHelper
         }
     }
 
-    private int decryptNetworkData(ByteBuffer dest) throws IOException
+    private int decryptNetworkData(ByteBuffer dest, boolean checkBufferOverflow) throws IOException
     {
         long bytesReadFromChannel = 0;
         int count = 0;
@@ -563,7 +575,7 @@ class CryptoHelper
         // setup _netRecvBuffer back to writable
         _netRecvBuffer.compact();
 
-        if (result.getStatus() == Status.BUFFER_OVERFLOW)
+        if (checkBufferOverflow && result.getStatus() == Status.BUFFER_OVERFLOW)
         {
             return count > 0 ? count : Integer.MIN_VALUE;
         }
