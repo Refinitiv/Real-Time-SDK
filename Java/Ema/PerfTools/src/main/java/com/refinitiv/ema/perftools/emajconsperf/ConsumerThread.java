@@ -691,7 +691,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
                             if (_consThreadInfo._stats.refreshCompleteCount().getTotal() == _requestListSize)
                             {
                                 _consThreadInfo._stats.imageRetrievalEndTime(System.nanoTime());
-                                _consThreadInfo._stats.steadyStateLatencyTime(_consThreadInfo._stats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
+                                _consThreadInfo._stats.steadyStateLatencyTime(_consThreadInfo._stats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
                             }
     	                }
     				}
@@ -723,7 +723,7 @@ public class ConsumerThread implements Runnable, OmmConsumerClient
                                 if (_consThreadInfo._stats.refreshCompleteCount().getTotal() == _requestListSize)
                                 {
                                     _consThreadInfo._stats.imageRetrievalEndTime(System.nanoTime());
-                                    _consThreadInfo._stats.steadyStateLatencyTime(_consThreadInfo._stats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
+                                    _consThreadInfo._stats.steadyStateLatencyTime(_consThreadInfo._stats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
                                 }
                             }
                         }

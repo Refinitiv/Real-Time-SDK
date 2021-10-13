@@ -1435,7 +1435,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                             if (_consThreadInfo.stats().refreshCompleteCount().getTotal() == (_requestListSize - ITEM_STREAM_ID_START))
                             {
                                 _consThreadInfo.stats().imageRetrievalEndTime(System.nanoTime());
-                                _consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
+                                _consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
                             }
     	                }
     				}
@@ -1466,8 +1466,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                                 if (_consThreadInfo.stats().refreshCompleteCount().getTotal() == (_requestListSize - ITEM_STREAM_ID_START))
                                 {
                                     _consThreadInfo.stats().imageRetrievalEndTime(System.nanoTime());
-                                    _consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
-                                }    
+                                    _consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
+                                }
                             }
                         }
     				}

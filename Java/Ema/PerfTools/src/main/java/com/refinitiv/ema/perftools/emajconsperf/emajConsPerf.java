@@ -883,7 +883,7 @@ public class emajConsPerf implements ShutdownCallback
 			{
 				_totalStats.imageRetrievalStartTime(_consumerThreadsInfo[0].stats().imageRetrievalStartTime());
 				_totalStats.imageRetrievalEndTime(_consumerThreadsInfo[0].stats().imageRetrievalEndTime());
-				_totalStats.steadyStateLatencyTime(_totalStats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
+				_totalStats.steadyStateLatencyTime(_totalStats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
 			}
 		}
 	}
@@ -1011,7 +1011,7 @@ public class emajConsPerf implements ShutdownCallback
 						imageRetrievalEndTime > _totalStats.imageRetrievalEndTime())
 				{
 					_totalStats.imageRetrievalEndTime(imageRetrievalEndTime); 
-					_totalStats.steadyStateLatencyTime(imageRetrievalEndTime + _consPerfConfig.delaySteadyStateCalc() * 1000000); 
+					_totalStats.steadyStateLatencyTime(imageRetrievalEndTime + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
 				}
 			}
 			/* Ignore connections that don't request anything. */
