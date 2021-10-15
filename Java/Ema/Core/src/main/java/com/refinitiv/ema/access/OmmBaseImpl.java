@@ -1287,7 +1287,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.sysRecvBufSize = maxInt;
 				else
-					currentChannelConfig.sysRecvBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
+					currentChannelConfig.sysRecvBufSize = ce.intLongValue() <= 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysSendBufSize)) != null)
@@ -1295,7 +1295,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				if ( ce.intLongValue()  > maxInt )
 					currentChannelConfig.sysSendBufSize = maxInt;
 				else
-					currentChannelConfig.sysSendBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
+					currentChannelConfig.sysSendBufSize = ce.intLongValue() <= 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.HighWaterMark)) != null)
