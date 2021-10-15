@@ -892,7 +892,7 @@ public class ConsPerf implements ShutdownCallback
 			{
 				_totalStats.imageRetrievalStartTime(_consumerThreadsInfo[0].stats().imageRetrievalStartTime());
 				_totalStats.imageRetrievalEndTime(_consumerThreadsInfo[0].stats().imageRetrievalEndTime());
-				_totalStats.steadyStateLatencyTime(_totalStats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000);
+				_totalStats.steadyStateLatencyTime(_totalStats.imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
 			}
 		}
 	}
