@@ -851,7 +851,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if ( ce.intLongValue()  > maxInt )
 					newServerConfig.sysRecvBufSize = maxInt;
 				else
-					newServerConfig.sysRecvBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
+					newServerConfig.sysRecvBufSize = ce.intLongValue() <= 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysSendBufSize)) != null)
@@ -859,7 +859,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if ( ce.intLongValue()  > maxInt )
 					newServerConfig.sysSendBufSize = maxInt;
 				else
-					newServerConfig.sysSendBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
+					newServerConfig.sysSendBufSize = ce.intLongValue() <= 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.HighWaterMark)) != null)
