@@ -78,15 +78,6 @@ public class NIProviderThread extends ProviderThread {
     }
 
     @Override
-    protected void prepareUpdateMsg(ItemInfo itemInfo) {
-        super.prepareUpdateMsg(itemInfo);
-        if (this.config.useServiceId()) {
-            this.updateMsg.serviceId(itemInfo.attributes().serviceId());
-        }
-        this.updateMsg.serviceName(itemInfo.attributes().serviceName());
-    }
-
-    @Override
     protected boolean sendMsg(Msg msg, ItemInfo itemInfo) {
         try {
             submitMsg(msg, itemInfo.itemHandle());
