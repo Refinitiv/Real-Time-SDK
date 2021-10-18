@@ -56,7 +56,7 @@ public class NIProviderPerfConfig extends BaseProviderPerfConfig {
                 "       Item common count: " + commonItemCount + "\n" +
                 "               Data File: " + msgFilename + "\n" +
                 "               Item File: " + itemFilename + "\n" +
-                "              Service Id: " + (useServiceId ? "<not used>" : serviceId) + "\n" +
+                "              Service Id: " + (!useServiceId ? "<not used>" : serviceId) + "\n" +
                 "            Service Name: " + serviceName;
     }
 
