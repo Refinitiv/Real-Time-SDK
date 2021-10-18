@@ -18,6 +18,7 @@ public class NIProviderPerfConfig extends BaseProviderPerfConfig {
     private String itemFilename;
 
     {
+        CommandLine.addOption("latencyUpdateRate", 10, "Latency update rate per second (can specify \"all\" to send latency in every update");
         CommandLine.addOption("itemCount", 100000, "Number of items to publish non-interactively");
         CommandLine.addOption("commonItemCount", 0, "Number of items common to all providers, if using multiple connections");
         CommandLine.addOption("serviceName", "NI_PUB", "Name of the provided service");
