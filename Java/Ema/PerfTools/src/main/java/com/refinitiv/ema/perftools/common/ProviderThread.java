@@ -197,7 +197,10 @@ public abstract class ProviderThread extends Thread {
     protected void prepareRefreshMsg(ItemInfo itemInfo) {
         if (itemInfo.attributes().name() != null) {
             refreshMsg.name(itemInfo.attributes().name());
-            refreshMsg.nameType(itemInfo.attributes().nameType());
+            if(itemInfo.attributes().hasNameType())
+            {
+            	refreshMsg.nameType(itemInfo.attributes().nameType());
+            }
         }
         refreshMsg.domainType(itemInfo.attributes().domainType());
         refreshMsg.solicited((itemInfo.itemFlags() & ItemFlags.IS_SOLICITED) != 0);
