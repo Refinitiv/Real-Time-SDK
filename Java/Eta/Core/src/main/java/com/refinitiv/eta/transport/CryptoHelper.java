@@ -276,10 +276,10 @@ class CryptoHelper
 
         // allocate the buffers used for Java SSLEngine
         // (doubling the receive size for cases where the application data size is very large (e.g. data dictionary)
-        _netRecvBuffer = ByteBuffer.allocate(Math.max(sslBufferSize, _netRecvBufSize)); // receive buffers
-        _appRecvBuffer = ByteBuffer.allocate(4 * appBufferSize);
-        _appSendBuffer = ByteBuffer.allocate(2 * appBufferSize); // send buffers
-        _netSendBuffer = ByteBuffer.allocate(2 * sslBufferSize);
+        _netRecvBuffer = ByteBuffer.allocateDirect(Math.max(sslBufferSize, _netRecvBufSize)); // receive buffers
+        _appRecvBuffer = ByteBuffer.allocateDirect(4 * appBufferSize);
+        _appSendBuffer = ByteBuffer.allocateDirect(2 * appBufferSize); // send buffers
+        _netSendBuffer = ByteBuffer.allocateDirect(2 * sslBufferSize);
     }
 
     private KeyStore initializeClientKeystore(char[] clientKeystorePassword, String keystoreFile, String keystoreType) throws IOException
@@ -470,7 +470,7 @@ class CryptoHelper
                     SSLEngineResult unwrap_result = _engine.unwrap(_netRecvBuffer, _appRecvBuffer);
 
                     if (unwrap_result.getStatus() == Status.BUFFER_OVERFLOW) {
-                        ByteBuffer temp = ByteBuffer.allocate(_appRecvBuffer.capacity() * 2);
+                        ByteBuffer temp = ByteBuffer.allocateDirect(_appRecvBuffer.capacity() * 2);
                         _appRecvBuffer.flip();
                         temp.put(_appRecvBuffer);
                         _appRecvBuffer = temp;
