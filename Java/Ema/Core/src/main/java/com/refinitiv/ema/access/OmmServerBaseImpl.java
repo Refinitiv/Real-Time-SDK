@@ -340,6 +340,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				_bindOptions.encryptionOptions().securityProvider(_activeServerConfig.serverConfig.securityProvider);
 			if(_activeServerConfig.serverConfig.trustManagerAlgorithm != null)
 				_bindOptions.encryptionOptions().trustManagerAlgorithm(_activeServerConfig.serverConfig.trustManagerAlgorithm);
+			_bindOptions.tcpOpts().tcpNoDelay(_activeServerConfig.serverConfig.tcpNoDelay);
 
 			String productVersion = OmmServerBaseImpl.class.getPackage().getImplementationVersion();
 			if ( productVersion == null)
@@ -428,8 +429,8 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 	
 	private void checkServerSharedSocketProperty()
 	{
-		if (_activeServerConfig.serverConfig.serverSharedSocket && 
-					System.getProperty("os.name").toLowerCase().contains("windows") && 
+		if (_activeServerConfig.serverConfig.serverSharedSocket &&
+					System.getProperty("os.name").toLowerCase().contains("windows") &&
 					Boolean.parseBoolean(System.getProperty("sun.net.useExclusiveBind", "true")))
 		{
 			String errorText = "Failed to initialize OmmServerBaseImpl. " +
@@ -850,7 +851,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if ( ce.intLongValue()  > maxInt )
 					newServerConfig.sysRecvBufSize = maxInt;
 				else
-					newServerConfig.sysRecvBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
+					newServerConfig.sysRecvBufSize = ce.intLongValue() <= 0 ? ActiveConfig.DEFAULT_SYS_RECEIVE_BUFFER_SIZE : ce.intLongValue();
 			}
 	
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.SysSendBufSize)) != null)
@@ -858,7 +859,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				if ( ce.intLongValue()  > maxInt )
 					newServerConfig.sysSendBufSize = maxInt;
 				else
-					newServerConfig.sysSendBufSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
+					newServerConfig.sysSendBufSize = ce.intLongValue() <= 0 ? ActiveConfig.DEFAULT_SYS_SEND_BUFFER_SIZE : ce.intLongValue();
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.HighWaterMark)) != null)
@@ -907,6 +908,10 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ServerSharedSocket)) != null)
 				newServerConfig.serverSharedSocket = ce.intLongValue() == 1 ? true : ActiveServerConfig.DEFAULT_SERVER_SHARED_SOCKET;
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServerTcpNodelay)) != null)
+			{
+				newServerConfig.tcpNoDelay = ce.intLongValue() != 0;
+			}
 		}
 		
 		return newServerConfig;
@@ -1115,8 +1120,9 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		int loopCount = 0;
 		long startTime = System.nanoTime();
 		long endTime = 0;
-		
-		timeOut = timeOut*1000;
+
+		boolean noWait = timeOut == OmmConsumer.DispatchTimeout.NO_WAIT;
+		timeOut = timeOut * 1000;
 		long userTimeout = TimeoutEvent.userTimeOutExist(_timeoutEventQueue);
 		boolean userTimeoutExist = false;
 		if (userTimeout >= 0)
@@ -1153,8 +1159,17 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			{
 				startTime = endTime;
 			
-				int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT); 
-				int selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
+				int selectTimeout = (int)(timeOut/MIN_TIME_FOR_SELECT);
+				int selectCount = 0;
+				if (noWait)
+				{
+					selectCount = _selector.selectNow();
+				}
+				else
+				{
+					selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
+				}
+
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
 					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();

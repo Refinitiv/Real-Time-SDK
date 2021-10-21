@@ -909,4 +909,5 @@ public class ConsPerfConfig
 	public boolean calcRWFJSONConversionLatency() {
 		return _calcRWFJSONConversionLatency;
 	}
+
 }

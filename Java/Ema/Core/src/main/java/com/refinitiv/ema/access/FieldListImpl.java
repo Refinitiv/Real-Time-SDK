@@ -134,13 +134,13 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 				GlobalPool.lock();
 				for (int index = 0; index < collectionSize; ++index)
 				{
-					fieldEntryImpl = (FieldEntryImpl)_fieldListCollection.get(index);
+					fieldEntryImpl = (FieldEntryImpl)_fieldListCollection.poll();
 					GlobalPool.returnPool(fieldEntryImpl._previousEncodingType, fieldEntryImpl._entryData);
 					fieldEntryImpl._previousEncodingType = com.refinitiv.eta.codec.DataTypes.UNKNOWN;
 				}
 				GlobalPool.unlock();
 		
-				_fieldListCollection.clear();
+//				_fieldListCollection.clear();
 			}
 		}
 		else
@@ -559,10 +559,8 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 		{
 			for (int index = 0; index < collectionSize; ++index)
 			{
-				((FieldEntryImpl)_fieldListCollection.get(index)).returnToPool();
+				((FieldEntryImpl)_fieldListCollection.poll()).returnToPool();
 			}
-	
-			_fieldListCollection.clear();
 		}
 	}
 }

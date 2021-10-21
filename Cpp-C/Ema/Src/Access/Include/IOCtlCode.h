@@ -50,6 +50,10 @@ public:
 
 		HighWaterMarkEnum = 3,         /*!< Used to set the upper buffer usage threshold. */
 
+		SystemReadBuffers = 4,		   /*!< Used to change the TCP received buffer size. */
+
+		SystemWriteBuffers = 5,		   /*!< Used to change the TCP send buffer size. */
+
 		ServerNumPoolBuffersEnum = 8,  /*!< Used to increase or decrease the number of server shared pool buffers. This option is used for Interactive Provider applications only. */
 
 		CompressionThresholdEnum = 9,  /*!< When compression is on, this value is the smallest size packet that will be compressed. */

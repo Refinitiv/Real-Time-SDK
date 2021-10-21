@@ -18,8 +18,6 @@ using namespace refinitiv::ema::rdm;
 
 using namespace perftool::common;
 
-const UInt32 UPDATE_CAPACITY = 10000;
-
 
 ProviderThreadState::ProviderThreadState(const IProvPerfConfig& config) :
 	provConfig(config), currentTick(0)
@@ -752,41 +750,6 @@ void ProviderThread::addClosedClientHandle(UInt64 clientHandle)
 	listClosedClientHandlesMutex.lock();
 	listClosedClientHandles.push_back(clientHandle);
 	listClosedClientHandlesMutex.unlock();
-}
-
-
-LatencyCollection::LatencyCollection() :
-	updateLatencyList1(UPDATE_CAPACITY),
-	updateLatencyList2(UPDATE_CAPACITY),
-	pWriteListPtr(&updateLatencyList1),
-	pReadListPtr(&updateLatencyList2)
-{
-}
-
-void LatencyCollection::updateLatencyStats(PerfTimeValue startTime, PerfTimeValue endTime, PerfTimeValue tick)
-{
-	TimeRecord ldata;
-
-	ldata.startTime = startTime;
-	ldata.endTime = endTime;
-	ldata.ticks = tick;
-
-	statsLatencyMutex.lock();
-	pWriteListPtr->push_back(ldata); // Submit Time record.
-	statsLatencyMutex.unlock();
-}
-
-void LatencyCollection::getLatencyTimeRecords(LatencyRecords** pUpdateLatencyList)
-{
-	statsLatencyMutex.lock();
-
-	// pass the current write list pointer so the data can be read
-	// and swap read and write pointers
-	*pUpdateLatencyList = pWriteListPtr;
-	pWriteListPtr = pReadListPtr;
-	pReadListPtr = *pUpdateLatencyList;
-
-	statsLatencyMutex.unlock();
 }
 
 

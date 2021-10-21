@@ -25,7 +25,7 @@ class EmaCppConsPerf {
 
 public:
 
-	EmaCppConsPerf() : currentTime(0), startTime(0), endTime(0) {};
+	EmaCppConsPerf() : currentTime(0), startTime(0), endTime(0), nextTime(0), perfMessageData(NULL) {};
 	~EmaCppConsPerf();
 	bool initConsPerfConfig(int argc, char *argv[]);
 
@@ -53,6 +53,8 @@ protected:
 	PerfTimeValue	startTime;
 	PerfTimeValue	endTime;
 	PerfTimeValue	nextTime;
+
+	PerfMessageData* perfMessageData;
 
 	perftool::common::AppVector<ConsumerThread*>	consumerThreads;
 

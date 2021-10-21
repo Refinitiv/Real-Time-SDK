@@ -141,5 +141,5 @@ public interface EncryptionOptions
      * @return the TrustManagerAlgorithm
      */
     public String TrustManagerAlgorithm();
-    
+
 }

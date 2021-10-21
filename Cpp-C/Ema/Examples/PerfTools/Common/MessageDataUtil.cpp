@@ -26,6 +26,8 @@ MessageDataUtil::MessageDataUtil(MessageDataUtil const& msgDataUtil)
 	pMessageData = msgDataUtil.pMessageData;
 	updateMsgMPIdx = msgDataUtil.updateMsgMPIdx;
 	updateMsgMBOIdx = msgDataUtil.updateMsgMBOIdx;
+	postMsgMPIdx = msgDataUtil.postMsgMPIdx;
+	postMsgMBOIdx = msgDataUtil.postMsgMBOIdx;
 	genericMsgMPIdx = msgDataUtil.genericMsgMPIdx;
 	genericMsgMBOIdx = msgDataUtil.genericMsgMBOIdx;
 }
@@ -35,6 +37,8 @@ MessageDataUtil& MessageDataUtil::operator=(MessageDataUtil const& msgDataUtil)
 	pMessageData = msgDataUtil.pMessageData;
 	updateMsgMPIdx = msgDataUtil.updateMsgMPIdx;
 	updateMsgMBOIdx = msgDataUtil.updateMsgMBOIdx;
+	postMsgMPIdx = msgDataUtil.postMsgMPIdx;
+	postMsgMBOIdx = msgDataUtil.postMsgMBOIdx;
 	genericMsgMPIdx = msgDataUtil.genericMsgMPIdx;
 	genericMsgMBOIdx = msgDataUtil.genericMsgMBOIdx;
 
@@ -61,6 +65,10 @@ void MessageDataUtil::fillMarketByOrderMap(Map& mapOrders, MarketByOrderMsg& mbo
 	case DataType::UpdateMsgEnum:
 		if (latencyStartTime > 0)
 			addUpdateLatency(fieldListSummary, latencyStartTime);
+		break;
+	case DataType::PostMsgEnum:
+		if (latencyStartTime > 0)
+			addPostLatency(fieldListSummary, latencyStartTime);
 		break;
 	case DataType::GenericMsgEnum:
 		if (latencyStartTime > 0)
@@ -255,6 +263,11 @@ void MessageDataUtil::addUpdateLatency(FieldList& fieldList, PerfTimeValue laten
 	fieldList.addUInt(TIM_TRK_1_FID, latencyStartTime);
 }
 
+void MessageDataUtil::addPostLatency(FieldList& fieldList, PerfTimeValue latencyStartTime)
+{
+	fieldList.addUInt(TIM_TRK_2_FID, latencyStartTime);
+}
+
 void MessageDataUtil::addGenericLatency(FieldList& fieldList, PerfTimeValue latencyStartTime)
 {
 	fieldList.addUInt(TIM_TRK_3_FID, latencyStartTime);
@@ -279,6 +292,29 @@ void MessageDataUtil::fillMarketPriceFieldListUpdateMsg(FieldList& fieldList, Pe
 		// add the latency time fields into the fieldlist
 		if (latencyStartTime > 0)
 			addUpdateLatency(fieldList, latencyStartTime);
+	}  // if (XmlMsgDataHasMarketPrice)
+	fieldList.complete();
+}
+
+void MessageDataUtil::fillMarketPriceFieldListPostMsg(FieldList& fieldList, PerfTimeValue latencyStartTime)
+{
+	fieldList.clear();
+	if (pMessageData->getXmlMsgDataHasMarketPrice())
+	{
+		MarketPriceMsgList& mpMsgList = pMessageData->getMarketPriceMsgList();
+
+		// template for the current post-message
+		MarketPriceMsg& mpMsg = mpMsgList.postMsgs[postMsgMPIdx];
+
+		// prepare next post-message's index
+		if (++postMsgMPIdx >= mpMsgList.postMsgCount)
+			postMsgMPIdx = 0;
+
+		fillMarketPriceFieldList(fieldList, mpMsg);
+
+		// add the latency time fields into the fieldlist
+		if (latencyStartTime > 0)
+			addPostLatency(fieldList, latencyStartTime);
 	}  // if (XmlMsgDataHasMarketPrice)
 	fieldList.complete();
 }
@@ -321,6 +357,25 @@ void MessageDataUtil::fillMarketByOrderMapUpdateMsg(Map& mapOrders, PerfTimeValu
 			updateMsgMBOIdx = 0;
 
 		fillMarketByOrderMap(mapOrders, mboMsg, DataType::UpdateMsgEnum, latencyStartTime);
+	}  // if (XmlMsgDataHasMarketByOrder)
+	mapOrders.complete();
+}
+
+void MessageDataUtil::fillMarketByOrderMapPostMsg(Map& mapOrders, PerfTimeValue latencyStartTime)
+{
+	mapOrders.clear();
+	if (pMessageData->getXmlMsgDataHasMarketByOrder())
+	{
+		MarketByOrderMsgList& mboMsgList = pMessageData->getMarketByOrderMsgList();
+
+		// template for the current post-message
+		MarketByOrderMsg& mboMsg = mboMsgList.postMsgs[postMsgMBOIdx];
+
+		// prepare next post-message's index
+		if (++postMsgMBOIdx >= mboMsgList.postMsgCount)
+			postMsgMBOIdx = 0;
+
+		fillMarketByOrderMap(mapOrders, mboMsg, DataType::PostMsgEnum, latencyStartTime);
 	}  // if (XmlMsgDataHasMarketByOrder)
 	mapOrders.complete();
 }

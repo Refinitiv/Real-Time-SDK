@@ -51,7 +51,6 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     {
     	destEncOpts._connectionType = _connectionType;
 
-
         if (_KeystoreType != null)
         	destEncOpts._KeystoreType = new String(_KeystoreType);
         else

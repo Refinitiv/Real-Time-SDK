@@ -757,7 +757,7 @@ bool EmaCppIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 cu
 				if (latencyLogFile)
 					fprintf(latencyLogFile, "Gen, %llu, %llu, %llu\n", pRecord->startTime, pRecord->endTime, (pRecord->endTime - pRecord->startTime));
 			}
-			stats.genMsgLatencyRecords.clearReadLatTimeRecords(latencyRecords);
+			stats.genMsgLatencyRecords.clearReadLatTimeRecords();
 
 			if (latencyLogFile)
 				fflush(latencyLogFile);
@@ -791,7 +791,7 @@ bool EmaCppIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 cu
 				stats.intervalMsgEncodingStats.updateValueStatistics(encodingTime);
 			}
 
-			stats.messageEncodeTimeRecords.clearReadLatTimeRecords(pUpdateEncodedMeasurements);
+			stats.messageEncodeTimeRecords.clearReadLatTimeRecords();
 		}
 
 		/* Add the new counts to the provider's total. */

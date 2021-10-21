@@ -746,7 +746,7 @@ bool EmaCppNIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 c
 				stats.intervalMsgEncodingStats.updateValueStatistics(encodingTime);
 			}
 
-			stats.messageEncodeTimeRecords.clearReadLatTimeRecords(pUpdateEncodedMeasurements);
+			stats.messageEncodeTimeRecords.clearReadLatTimeRecords();
 		}
 
 		/* Add the new counts to the provider's total. */

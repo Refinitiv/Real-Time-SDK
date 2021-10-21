@@ -33,7 +33,8 @@ class ServerConfig
 	String 				keyManagerAlgorithm;
 	String 				trustManagerAlgorithm;
 	boolean				serverSharedSocket;
-	
+	boolean				tcpNoDelay;
+
 	ServerConfig()
 	{
 		clear();
@@ -65,6 +66,7 @@ class ServerConfig
 		securityProvider = null;
 		keyManagerAlgorithm = null;
 		trustManagerAlgorithm = null;
+		tcpNoDelay = ActiveConfig.DEFAULT_TCP_NODELAY;
 	}
 	
 	void guaranteedOutputBuffers(long value) 

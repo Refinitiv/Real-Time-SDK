@@ -1513,7 +1513,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             case UNKNOWN_INCOMPLETE: // fall through
                 // read from the channel: note *replace* the call to read()
                 // below with a call to readAndPrintForReplay() to collect network replay data (for debugging) only!
-                int bytesRead = read(_readIoBuffer.buffer());
+                int bytesRead = readToIoBuffer();
                 _readBufStateMachine.advanceOnSocketChannelRead(bytesRead, readArgs, error);
 //                int bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above line with this one
                 break;
@@ -1535,7 +1535,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         int posBeforeRead = _readIoBuffer.buffer().position();
 
         // read from the network
-        int bytesRead = read(_readIoBuffer.buffer());
+        int bytesRead = readToIoBuffer();
         _totalBytesRead += bytesRead;
 
         if (_debugOutput == null)
@@ -3242,7 +3242,7 @@ class RsslSocketChannel extends EtaNode implements Channel
 
     private void createReadBuffers(int numReadBuffers)
     {
-        final int readBufferCapacity;
+        int readBufferCapacity;
 
         // note: only the unit test framework overrides the read buffer capacity
         if (_overrideReadBufferCapacity == null)
@@ -3601,7 +3601,6 @@ class RsslSocketChannel extends EtaNode implements Channel
 
                 /* create read/write buffer pools */
                 createReadBuffers(_channelInfo._numInputBuffers);
-
                 if (getWsSession().isDeflate() && (_cachedConnectOptions.compressionType() == Ripc.CompressionTypes.ZLIB)) {
                     _sessionOutCompression = _cachedConnectOptions.compressionType();
                     _sessionInDecompress = _sessionOutCompression;
@@ -4778,5 +4777,24 @@ class RsslSocketChannel extends EtaNode implements Channel
 
     protected WebSocketSession getWsSession() {
         return webSocketHandler.getWsSession();
+    }
+
+    protected void compactOnBufferOverflow() {
+
+        _readIoBuffer.buffer().limit(_readIoBuffer.buffer().position());
+        _readIoBuffer.buffer().position(_readBufStateMachine.currentMessagePosition());
+        _readIoBuffer.buffer().compact();
+        _readBufStateMachine.advanceOnCompactOnBufferOverflow();
+    }
+
+    protected int readToIoBuffer() throws IOException {
+        int bytesRead = read(_readIoBuffer.buffer());
+        if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW)
+        {
+            compactOnBufferOverflow();
+            bytesRead = read(_readIoBuffer.buffer());
+        }
+
+        return bytesRead;
     }
 }

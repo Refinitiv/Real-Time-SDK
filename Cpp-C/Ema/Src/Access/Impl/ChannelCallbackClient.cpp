@@ -801,9 +801,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 
 		_pReconnectingReactorChannel = NULL;
 #ifdef WIN32
-		int sendBfrSize = 65535;
-
-		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_SYSTEM_WRITE_BUFFERS, &sendBfrSize, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_SYSTEM_WRITE_BUFFERS, &pChannelConfig->sysSendBufSize, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
@@ -825,8 +823,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			return RSSL_RC_CRET_SUCCESS;
 		}
 
-		int rcvBfrSize = 65535;
-		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_SYSTEM_READ_BUFFERS, &rcvBfrSize, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
+		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_SYSTEM_READ_BUFFERS, &pChannelConfig->sysRecvBufSize, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{

@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Iterator;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.*;
 
 import static com.refinitiv.eta.transport.SocketChannelJunitTest.*;
@@ -71,8 +69,8 @@ public class WebSocketConnectionJunit {
             // initChannel should send connectReq to our server.
             final RsslSocketChannel rsslClientChannel = clientChannel;
             final RsslSocketChannel rsslServerChannel = serverChannel;
-            Future<Integer> clientLogic = executor.submit(() -> executeApplicationLogic(clientSelector, rsslClientChannel, error, inProg));;
-            Future<Integer> serverLogic = executor.submit(() -> executeApplicationLogic(serverSelector, rsslServerChannel, error, inProg));
+            Future<Integer> clientLogic = executor.submit(() -> Common.executeHandshake(clientSelector, rsslClientChannel, error, inProg));
+            Future<Integer> serverLogic = executor.submit(() -> Common.executeHandshake(serverSelector, rsslServerChannel, error, inProg));
 
             // accept that client verify response handshake from server.
             int channelState = serverLogic.get(60, TimeUnit.SECONDS);
@@ -230,47 +228,6 @@ public class WebSocketConnectionJunit {
         bindOptions.compressionType(compressionType);
         bindOptions.compressionLevel(5);
         bindOptions.wSocketOpts().protocols(serverProtocols);
-    }
-
-    private int executeApplicationLogic(Selector selector, RsslSocketChannel channel, Error error, InProgInfo inProgInfo)
-            throws InterruptedException {
-        final int MAX_ATTEMPTS = 10;
-        boolean client = channel._initChnlState != RsslSocketChannel.InitChnlState.READ_HDR;
-        if (client) {
-            initChannel(channel, error, inProgInfo);
-        }
-        for (int i = 0; i < MAX_ATTEMPTS; i++) {
-            Set<SelectionKey> keySet = null;
-            try {
-                if (selector.select(1000) > 0) {
-                    keySet = selector.selectedKeys();
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-                throw new InterruptedException();
-            }
-            if (keySet != null) {
-                Iterator<SelectionKey> iter = keySet.iterator();
-
-                while (iter.hasNext()) {
-                    SelectionKey key = iter.next();
-                    iter.remove();
-                    if (!key.isValid()) {
-                        key.cancel();
-                        continue;
-                    }
-                    if (key.isReadable()) {
-                        i = 0;
-                        int state = initChannel(channel, error, inProgInfo);
-                        if (state != ChannelState.INITIALIZING) {
-                            return state;
-                        }
-                    }
-                }
-                Thread.sleep(500);
-            }
-        }
-        return ChannelState.INACTIVE;
     }
 
     private boolean useProxy(ConnectOptions connectOptions, BindOptions bindOptions) {

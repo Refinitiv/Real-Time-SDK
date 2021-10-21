@@ -1807,12 +1807,12 @@ class ProgrammaticConfigure
 			else if (useFileCfg)
 				currentChannelConfig.numInputBuffers = fileCfg.numInputBuffers;
 
-			if ((flags & ChannelEntryFlag.SYS_RECV_BUFSIZE_FLAG) != 0 && sysRecvBufSize >= 0)
+			if ((flags & ChannelEntryFlag.SYS_RECV_BUFSIZE_FLAG) != 0 && sysRecvBufSize > 0)
 				currentChannelConfig.sysRecvBufSize = convertToInt(sysRecvBufSize);
 			else if (useFileCfg)
 				currentChannelConfig.sysRecvBufSize = fileCfg.sysRecvBufSize;
 
-			if ((flags & ChannelEntryFlag.SYS_SEND_BUFSIZE_FLAG) != 0 && sysSendBufSize >= 0)
+			if ((flags & ChannelEntryFlag.SYS_SEND_BUFSIZE_FLAG) != 0 && sysSendBufSize > 0)
 				currentChannelConfig.sysSendBufSize = convertToInt(sysSendBufSize);
 			else if (useFileCfg)
 				currentChannelConfig.sysSendBufSize = fileCfg.sysSendBufSize;
@@ -2094,12 +2094,12 @@ class ProgrammaticConfigure
 			else if ( fileCfg != null )
 				currentServerConfig.numInputBuffers = fileCfg.numInputBuffers;
 
-			if ((flags & ServerEntryFlag.SYS_RECV_BUFSIZE_FLAG) != 0 && sysRecvBufSize >= 0)
+			if ((flags & ServerEntryFlag.SYS_RECV_BUFSIZE_FLAG) != 0 && sysRecvBufSize > 0)
 				currentServerConfig.sysRecvBufSize = convertToInt(sysRecvBufSize);
 			else if ( fileCfg != null )
 				currentServerConfig.sysRecvBufSize = fileCfg.sysRecvBufSize;
 
-			if ((flags & ServerEntryFlag.SYS_SEND_BUFSIZE_FLAG) != 0 && sysSendBufSize >= 0)
+			if ((flags & ServerEntryFlag.SYS_SEND_BUFSIZE_FLAG) != 0 && sysSendBufSize > 0)
 				currentServerConfig.sysSendBufSize = convertToInt(sysSendBufSize);
 			else if ( fileCfg != null )
 				currentServerConfig.sysSendBufSize = fileCfg.sysSendBufSize;

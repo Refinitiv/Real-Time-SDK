@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 
 public class EncryptedSocketHelper extends SocketHelper
 {
-    private CryptoHelper _crypto;
+    CryptoHelper _crypto;
     private boolean _completedHandshake = false;
 
     @Override
@@ -97,4 +97,5 @@ public class EncryptedSocketHelper extends SocketHelper
         if (_crypto == null)
             throw new IOException("Encryption engine is not set up, check configuration.");
     }
+
 }

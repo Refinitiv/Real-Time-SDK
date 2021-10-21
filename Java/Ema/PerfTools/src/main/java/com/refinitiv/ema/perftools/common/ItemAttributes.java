@@ -8,7 +8,8 @@ public class ItemAttributes
 	private int _serviceId;
 	private int _nameType;
 	private String _name;
-	
+	private boolean _nameTypeSet;
+
 	/**
 	 * Clear.
 	 */
@@ -16,7 +17,10 @@ public class ItemAttributes
 	{
 		_domainType = 0;
 		_serviceId = 0;
-		_nameType = 0;
+		_nameType = 1;
+		_serviceName = null;
+		_name = null;
+		_nameTypeSet = false;
 	}
 	
     /**
@@ -57,6 +61,16 @@ public class ItemAttributes
 	public void nameType(int nameType)
 	{
 		_nameType = nameType;
+		_nameTypeSet = true;
+	}
+	
+	/**
+	 *  Checks whether the name type is set for this item.
+	 * @return True if the name type is set; otherwise false
+	 */
+	public boolean hasNameType()
+	{
+		return _nameTypeSet;
 	}
 	 
  	/**

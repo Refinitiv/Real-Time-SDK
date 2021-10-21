@@ -59,6 +59,8 @@ class ReadBufferStateMachine
 
         /* The last invocation of java.nio.channels.SocketChannel::read(ByteBuffer[]) indicated we reached the end of the data stream */
         static final int END_OF_STREAM = -1;
+
+        static final int BUFFER_OVERFLOW = Integer.MIN_VALUE;
     }
 
     /* The minimum capacity of the buffer associated with this state machine */
@@ -254,7 +256,7 @@ class ReadBufferStateMachine
         if (readReturnCode != ReadReturnCodes.END_OF_STREAM)
         {
             // update ReadArgs.bytesRead here
-            readArgs._bytesRead = readReturnCode;
+            readArgs._bytesRead = readReturnCode != ReadReturnCodes.BUFFER_OVERFLOW ? readReturnCode : 0;
 
             // first, some housekeeping: if the previous state was KNOWN_INCOMPLETE or UNKNOWN_INCOMPLETE,
             // we ASSUME compact() was called on the read buffer before java.nio.channels.SocketChannel() read() was called,
@@ -309,6 +311,14 @@ class ReadBufferStateMachine
                 assert (false); // code should never reach here
                 break;
         }
+
+        return _state;
+    }
+
+    ReadBufferState advanceOnCompactOnBufferOverflow()
+    {
+        _lastReadPosition = _readIoBuffer.buffer().position();
+        _currentMsgStartPos = 0;
 
         return _state;
     }

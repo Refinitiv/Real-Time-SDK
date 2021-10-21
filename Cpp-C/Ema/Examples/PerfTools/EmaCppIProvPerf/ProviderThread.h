@@ -52,14 +52,13 @@
 #include "AppUtil.h"
 #include "AppVector.h"
 #include "GetTime.h"
+#include "LatencyCollection.h"
 #include "LatencyRandomArray.h"
 #include "Mutex.h"
 #include "ThreadBinding.h"
 #include "Statistics.h"
 
 class ProviderPerfClient;
-
-typedef perftool::common::AppVector< TimeRecord > LatencyRecords;
 
 const EmaString providerThreadNameBase = "Perf_Provider_";
 
@@ -103,24 +102,6 @@ private:
 	ProvItemInfo* currentGenericsItem;		/* Current item in Generics rotating list */
 
 };  // class ProviderThreadState
-
-// collections of update latency numbers
-class LatencyCollection {
-public:
-	LatencyCollection();
-
-	void updateLatencyStats(PerfTimeValue startTime, PerfTimeValue endTime, PerfTimeValue tick);
-	void getLatencyTimeRecords(LatencyRecords** pUpdateLatList);
-	void clearReadLatTimeRecords(LatencyRecords* pReadList) { pReadList->clear(); }
-
-private:
-	perftool::common::Mutex	statsLatencyMutex;
-	LatencyRecords			updateLatencyList1;
-	LatencyRecords			updateLatencyList2;
-	LatencyRecords*			pWriteListPtr;
-	LatencyRecords*			pReadListPtr;
-};
-
 
 class ProviderStats {
 public:

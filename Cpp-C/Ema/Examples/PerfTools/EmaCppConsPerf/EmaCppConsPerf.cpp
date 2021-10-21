@@ -6,8 +6,8 @@
 ///*|-----------------------------------------------------------------------------
 
 #include "EmaCppConsPerf.h"
-#include "../Common/AppUtil.h"
-#include "../Common/CtrlBreakHandler.h"
+#include "AppUtil.h"
+#include "CtrlBreakHandler.h"
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
@@ -29,6 +29,7 @@ EmaCppConsPerf::~EmaCppConsPerf()
 bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 {
 	int iargs = 1;
+	Int32 consThreadCount = 0;
 	while(iargs < argc)
 	{
 		if (0 == strcmp("-?", argv[iargs]))
@@ -55,7 +56,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				return false;
 			}
 			char *pToken;
-			Int32 consThreadCount = ( consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount  : 0;
 			consPerfConfig.threadCount = 0;
 
 			pToken = strtok(argv[iargs++], ",");
@@ -81,6 +81,7 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				for( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
 					consPerfConfig.threadBindList[i] = -1;
 			}
+			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
 		}
 		else if(strcmp("-apiThreads", argv[iargs]) == 0)
 		{
@@ -91,7 +92,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				return false;
 			}
 			char *pToken;
-			Int32 consThreadCount = ( consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount  : 0;
 			consPerfConfig.threadCount = 0;
 
 			pToken = strtok(argv[iargs++], ",");
@@ -116,8 +116,9 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			if( consPerfConfig.threadCount < MAX_CONS_THREADS )
 			{
 				for( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
-					consPerfConfig.threadBindList[i] = -1;
+					consPerfConfig.apiThreadBindList[i] = -1;
 			}
+			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
 		}
 		else if(strcmp("-mainThread", argv[iargs]) == 0)
 		{
@@ -301,7 +302,11 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
-			consPerfConfig.latencyPostsPerSec = atoi(argv[iargs++]);
+			if (0 == strcmp("all", argv[iargs]))
+				consPerfConfig.latencyPostsPerSec = ALWAYS_SEND_LATENCY_POSTMSG;
+			else
+				consPerfConfig.latencyPostsPerSec = atoi(argv[iargs]);
+			++iargs;
 		}
 		else if(strcmp("-genericMsgRate", argv[iargs]) == 0)
 		{
@@ -321,7 +326,11 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
-			consPerfConfig.latencyGenMsgsPerSec = atoi(argv[iargs++]);
+			if (0 == strcmp("all", argv[iargs]))
+				consPerfConfig.latencyGenMsgsPerSec = ALWAYS_SEND_LATENCY_GENMSG;
+			else
+				consPerfConfig.latencyGenMsgsPerSec = atoi(argv[iargs]);
+			++iargs;
 		}
 		else if(strcmp("-tickRate", argv[iargs]) == 0)
 		{
@@ -492,10 +501,6 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 		AppUtil::logError(logText);
 		exitConfigError(argv); return false;
 	}
-
-	consPerfConfig._requestsPerTick = consPerfConfig.itemRequestsPerSec / consPerfConfig.ticksPerSec;
-
-	consPerfConfig._requestsPerTickRemainder = consPerfConfig.itemRequestsPerSec % consPerfConfig.ticksPerSec;
 	
 	return true;
 }
@@ -1170,6 +1175,10 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 		printAllThreadBinding();
 	}	
 
+	// Initializes helpers to access to template messages file.
+	// EmaConsumer perf tool doesn't use pre-encoded messages data.
+	perfMessageData = new PerfMessageData(consPerfConfig.msgFilename, false);
+
 	// If there are multiple connections, determine which items are
 	 // to be opened on each connection. 
 	 // If any items are common to all connections, they are taken from the first
@@ -1311,7 +1320,8 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 	Int32 i;
 	bool allRefreshesRetrieved = false;
 	LatencyRecords *pUpdateLateList = NULL;
-	// LatencyRecords	*pPostLateList = NULL;
+	LatencyRecords *pPostLateList = NULL;
+	LatencyRecords* pGenericLateList = NULL;
 
 	if (timePassedSec)
 	{
@@ -1342,7 +1352,7 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 
 		// Gather latency records from each thread and update statistics.
 
-		consumerThreads[i]->getLatencyTimeRecords(&pUpdateLateList);
+		consumerThreads[i]->updatesLatency.getLatencyTimeRecords(&pUpdateLateList);
 		UInt64 updateLateListSize = (pUpdateLateList == NULL ) ? 0 : pUpdateLateList->size();
 		for (UInt64 l = 0; l  < updateLateListSize; ++l)
 		{
@@ -1385,8 +1395,47 @@ void EmaCppConsPerf::collectStats(bool writeStats, bool displayStats, UInt32 cur
 			if (consumerThreads[i]->latencyLogFile)
 				fprintf(consumerThreads[i]->latencyLogFile, "Upd, %llu, %llu, %llu\n", pRecord->startTime, pRecord->endTime, (pRecord->endTime - pRecord->startTime));
 		}
-		if (pUpdateLateList )
-			consumerThreads[i]->clearReadLatTimeRecords( pUpdateLateList );
+		consumerThreads[i]->updatesLatency.clearReadLatTimeRecords();
+
+		// Gather post-latency records from each thread.
+		consumerThreads[i]->postsLatency.getLatencyTimeRecords(&pPostLateList);
+		UInt64 postLateListSize = (pPostLateList == NULL) ? 0 : pPostLateList->size();
+		for (UInt64 l = 0; l < postLateListSize; ++l)
+		{
+			TimeRecord* pRecord = &(*pPostLateList)[l];
+			double latency = (double)(pRecord->endTime - pRecord->startTime) / (double)pRecord->ticks;
+
+			consumerThreads[i]->stats.intervalPostLatencyStats.updateValueStatistics(latency);
+			consumerThreads[i]->stats.postLatencyStats.updateValueStatistics(latency);
+			if (consPerfConfig.threadCount > 1)
+			{
+				totalStats.postLatencyStats.updateValueStatistics(latency);
+			}
+
+			if (consumerThreads[i]->latencyLogFile)
+				fprintf(consumerThreads[i]->latencyLogFile, "Pst, %llu, %llu, %llu\n", pRecord->startTime, pRecord->endTime, (pRecord->endTime - pRecord->startTime));
+		}
+		consumerThreads[i]->postsLatency.clearReadLatTimeRecords();
+
+		// Gather generic-latency records from each thread.
+		consumerThreads[i]->genericsLatency.getLatencyTimeRecords(&pGenericLateList);
+		UInt64 genericLateListSize = (pGenericLateList == NULL) ? 0 : pGenericLateList->size();
+		for (UInt64 l = 0; l < genericLateListSize; ++l)
+		{
+			TimeRecord* pRecord = &(*pGenericLateList)[l];
+			double latency = (double)(pRecord->endTime - pRecord->startTime) / (double)pRecord->ticks;
+
+			consumerThreads[i]->stats.intervalGenMsgLatencyStats.updateValueStatistics(latency);
+			consumerThreads[i]->stats.genMsgLatencyStats.updateValueStatistics(latency);
+			if (consPerfConfig.threadCount > 1)
+			{
+				totalStats.genMsgLatencyStats.updateValueStatistics(latency);
+			}
+
+			if (consumerThreads[i]->latencyLogFile)
+				fprintf(consumerThreads[i]->latencyLogFile, "Gen, %llu, %llu, %llu\n", pRecord->startTime, pRecord->endTime, (pRecord->endTime - pRecord->startTime));
+		}
+		consumerThreads[i]->genericsLatency.clearReadLatTimeRecords();
 
 		if (consumerThreads[i]->latencyLogFile)
 			fflush(consumerThreads[i]->latencyLogFile);

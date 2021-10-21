@@ -15,8 +15,6 @@ dependencies {
 	compile project(':Ema:Core')
 }
 
-mainClassName = 'com.refinitiv.ema.perftools.emajconsperf.emajConsPerf'
-
 def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms3048m -Xmx3048m"
 def APP_ARGS
 
@@ -52,6 +50,42 @@ task runEMAPerfConsumer(type: JavaExec) {
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
     main = 'com.refinitiv.ema.perftools.emajconsperf.emajConsPerf'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task runEMAPerfProvider(type: JavaExec) {
+    dependsOn 'copyDictionary', 'copyEmaConfig'
+    group 'Run EMA Performance Tools Examples'
+    description "Run EMAJ OMM Provider performance application"
+
+    if (JVM_OPTIONS)
+        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+
+    APP_ARGS = "-msgFile MsgData.xml"
+
+    if (APP_ARGS)
+        args Eval.me ( buildArgsList ( APP_ARGS ) )
+
+    main = 'com.refinitiv.ema.perftools.emajprovperf.EmajProvPerf'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task runEMAPerfNIProvider(type: JavaExec) {
+    dependsOn 'copyDictionary', 'copyEmaConfig'
+    group 'Run EMA Performance Tools Examples'
+    description "Run EMAJ OMM Provider performance application"
+    if (JVM_OPTIONS)
+        jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
+
+    // command line options
+    //.............................
+    // - uncomment and add to APP_ARGS to specify the command line options
+    APP_ARGS = "-msgFile MsgData.xml -itemFile 350k.xml"
+
+    if (APP_ARGS)
+        args Eval.me ( buildArgsList ( APP_ARGS ) )
+
+    main = 'com.refinitiv.ema.perftools.emajniprovperf.EmajNIProvPerf'
     classpath = sourceSets.main.runtimeClasspath
 }
 
