@@ -98,7 +98,4 @@ public class EncryptedSocketHelper extends SocketHelper
             throw new IOException("Encryption engine is not set up, check configuration.");
     }
 
-    public void setNetRecvBufSize(int size) {
-        _crypto.setNetRecvBufSize(size);
-    }
 }

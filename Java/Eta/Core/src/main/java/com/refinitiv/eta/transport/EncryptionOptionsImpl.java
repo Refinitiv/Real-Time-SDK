@@ -9,7 +9,6 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     private String _SecurityProvider;
     private String _KeyManagerAlgorithm;
     private String _TrustManagerAlgorithm;
-    private int _netRecvBufSize;
     
     // default values
 
@@ -51,7 +50,6 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     void copy(EncryptionOptionsImpl destEncOpts)
     {
     	destEncOpts._connectionType = _connectionType;
-    	destEncOpts._netRecvBufSize = _netRecvBufSize;
 
         if (_KeystoreType != null)
         	destEncOpts._KeystoreType = new String(_KeystoreType);
@@ -100,8 +98,7 @@ class EncryptionOptionsImpl implements EncryptionOptions {
                "\t\t\tSecurityProtocol: " + _SecurityProtocol + "\n" + 
                "\t\t\tSecurityProvider: " + _SecurityProvider + "\n" + 
                "\t\t\tKeyManagerAlgorithm: " + _KeyManagerAlgorithm + "\n" + 
-               "\t\t\tTrustManagerAlgorithm: " + _TrustManagerAlgorithm + "\n" +
-               "\t\t\tNetRecvBufSize: " + _netRecvBufSize + "\n";
+               "\t\t\tTrustManagerAlgorithm: " + _TrustManagerAlgorithm + "\n";
     }
     
     @Override
@@ -210,16 +207,6 @@ class EncryptionOptionsImpl implements EncryptionOptions {
     public String TrustManagerAlgorithm()
     {
         return _TrustManagerAlgorithm;
-    }
-
-    @Override
-    public int getNetRecvBufSize() {
-        return _netRecvBufSize;
-    }
-
-    @Override
-    public void setNetRecvBufSize(int size) {
-        _netRecvBufSize = size;
     }
 
 }

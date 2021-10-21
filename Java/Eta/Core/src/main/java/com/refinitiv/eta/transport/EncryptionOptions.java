@@ -142,15 +142,4 @@ public interface EncryptionOptions
      */
     public String TrustManagerAlgorithm();
 
-    /**
-     * Gets the size that is going to be set to the _netRecvBuffer used inside the CryptoHelper for reading network data
-     * @return the size of _netRecvBuffer
-     */
-    public int getNetRecvBufSize();
-
-    /**
-     * Sets the number of bytes that are going to be allocated for the _netRecvBuffer used inside the CryptoHelper for reading network data
-     * @param size the expected size (will be ignored in case it is smaller than the size of the packet returned by SSLEngine)
-     */
-    public void setNetRecvBufSize(int size);
 }

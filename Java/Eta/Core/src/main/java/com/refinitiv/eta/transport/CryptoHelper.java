@@ -108,7 +108,6 @@ class CryptoHelper
         String keyManagerAlgorithm;
         
         EncryptionOptionsImpl encOpts = (EncryptionOptionsImpl)options.encryptionOptions();
-        _netRecvBufSize = encOpts.getNetRecvBufSize();
 
     	if(options.tunnelingInfo().tunnelingType().equalsIgnoreCase("None"))
     	{
@@ -276,7 +275,7 @@ class CryptoHelper
 
         // allocate the buffers used for Java SSLEngine
         // (doubling the receive size for cases where the application data size is very large (e.g. data dictionary)
-        _netRecvBuffer = ByteBuffer.allocateDirect(Math.max(sslBufferSize, _netRecvBufSize)); // receive buffers
+        _netRecvBuffer = ByteBuffer.allocateDirect(4 * sslBufferSize); // receive buffers
         _appRecvBuffer = ByteBuffer.allocateDirect(4 * appBufferSize);
         _appSendBuffer = ByteBuffer.allocateDirect(2 * appBufferSize); // send buffers
         _netSendBuffer = ByteBuffer.allocateDirect(2 * sslBufferSize);
@@ -625,10 +624,6 @@ class CryptoHelper
         }
     }
 
-    public void setNetRecvBufSize(int size) {
-        _netRecvBufSize = size;
-    }
-
     ByteBuffer getNetRecvBuffer() {
         return _netRecvBuffer;
     }
@@ -671,5 +666,4 @@ class CryptoHelper
 
     private int readCount; // number of bytes read after each read(ByteBuffer[], offset, length) call
 
-    private int _netRecvBufSize;
 }
