@@ -800,7 +800,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		}
 
 		_pReconnectingReactorChannel = NULL;
-
+#ifdef WIN32
 		if ( rsslReactorChannelIoctl( pRsslReactorChannel, RSSL_SYSTEM_WRITE_BUFFERS, &pChannelConfig->sysSendBufSize, &rsslErrorInfo ) != RSSL_RET_SUCCESS )
 		{
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -844,7 +844,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 
 			return RSSL_RC_CRET_SUCCESS;
 		}
-
+#endif
 		/* Set the compression threshold parameter if it is specified explicitly by users */
 		if (pChannelConfig->compressionThresholdSet)
 		{
