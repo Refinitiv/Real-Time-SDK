@@ -76,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.6.3.0.jar         ema3.6.3.L1
+    ema-3.6.3.1.jar         ema3.6.3.L2
 
 # EMA Java Issues and Workarounds
  
@@ -98,16 +98,16 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
     Release Number: 3.6.3
-    Load Number: 1
-    Load ID: ema3.6.3.L1.java
-        Supersedes: ema3.6.2.L1.java
+    Load Number: 2
+    Load ID: ema3.6.3.L2.java
+        Supersedes: ema3.6.3.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.49_RealTimeDistributionSystem_21.71 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.49_RealTimeDistributionSystem_21.81 for RWF and Marketfeed Record Templates
 
 # Security
 

@@ -9,29 +9,39 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.3.L1 aka EMA/ETA 3.6.3.L1 aka 3.6.3.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.3.L2 aka EMA/ETA 3.6.3.L2 aka 3.6.3.1
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes for customer issues and bugs
-
-Customer Issues Resolved
---------------------------------
-- [Case Number: 09915927] - [RTSDK-5219] - Item name is missing in a NACK message for a post upon acknowledgement timeout
-- [GitHub #115] - [RTSDK-5014] - CMake string(REPLACE ...) must always use quoted source
-- [GitHub #121] - [RTSDK-3540] - Change EMA log files from \_pid.log to a rolling log file.
-- [GitHub #162] - [RTSDK-4417] - ETAC and EMAC++: Xml trace functionality is not stopping at file size limit when RSSL_TRACE_TO_MULTIPLE_FILES is not set
-- [GitHub #179] - [RTSDK-5412] - Documentation error in EMA Java Config guide
-- [GitHub #181] - [RTSDK-5522] - The information in TransportAPIC_RDMUsageGuide.pdf for Dictionary Refresh is incorrect
+This is a maintenance release with fixes to performance tools, an updated 130-byte update size used for performance testing, and added ability to set system send and receive buffers dyamically in EMA. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes for customer issues and bugs
+--------------------------------------------
+RTSDK C++/C Release 2.0.3.L2 (Oct 25, 2021)
+--------------------------------------------
+
+This is a maintenance release with fixes to performance tools, an updated 130-byte update size used for performance testing, and added ability to set system send and receive buffers dyamically in EMA. 
+
+EMA C++ 3.6.3.L2 Issues Resolved
+--------------------------------
+- [RTSDK-5195] - EMA ConsPerf: Support post and generic messages
+- [RTSDK-5619] - EMAC++ - Extend IOCTL to include SysSendBufSize/SysRecvBufferSize
+
+ETA C 3.6.3.L2 Issues Resolved
+--------------------------------
+- [RTSDK-5596] - As a follow up to RTSDK-3843, made -serverSharedSocket available as a command line parameter for RSSL Provider example 
+
+Both ETA C and EMA C++ 3.6.3.L2 Issues Resolved
+-----------------------------------------------
+- [RTSDK-5667] - Altered update message size to 130 Bytes for performance tools
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.3.L1 (Sep 30, 2021)
 --------------------------------------------
+
+This is a maintenance release with fixes for customer issues and bugs
 
 EMA C++ 3.6.3.L1 Issues Resolved
 --------------------------------

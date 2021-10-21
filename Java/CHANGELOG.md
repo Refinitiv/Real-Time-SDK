@@ -9,27 +9,45 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.3.L1 aka EMA/ETA 3.6.3.L1 aka 3.6.3.0 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.3.L2 aka EMA/ETA 3.6.3.L2 aka 3.6.3.1 
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes for customer issues and bugs
-
-Customer Issues Resolved
---------------------------------
-- [Case Number: 07311614, 10089325] - [RTSDK-2661, RTSDK-5320] - Enhance ETA to not depend on the OS Character encoding for displaying non-ascii enum values
-- [GitHub #178] - [RTSDK-5342] - Desktop Viewer fails if using the EMA Configuration file
-- [GitHub #179] - [RTSDK-5412] - Documentation error in EMA Java Config guide
-- [RTSDK-4780] - Programmatic config should set ChannelType by default
+This is a maintenance release with addition of EMA Java provider performance tools, optimizations to Java encryption, an updated 130-byte update size used for performance testing, and added ability to set system send and receive buffers dyamically in EMA. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes for customer issues and bugs
+--------------------------------------------
+RTSDK Java Release 2.0.3.L2 (Oct 25, 2021)
+--------------------------------------------
+
+This is a maintenance release with addition of EMA Java provider performance tools, optimizations to Java encryption, an updated 130-byte update size used for performance testing, and added ability to set system send and receive buffers dyamically in EMA. 
+
+EMA Java 3.6.3.L2 Issues Resolved
+---------------------------------
+- [RTSDK-527] - Addition of EMA Java Non-Interactive Provider Performance Tool
+- [RTSDK-3986] - Fix to SysSendBufSize/SysRecvBufferSize being overwritten to 64K value
+- [RTSDK-4938] - EMA Performance Tools Guide updates 
+- [RTSDK-5214] - EMAJ ConsPerf: Support post and generic messages
+- [RTSDK-5277] - Addition of EMA Java Interactive Provider Performance Tool
+
+ETA Java 3.6.3.L2 Issues Resolved
+---------------------------------
+- [RTSDK-5596] - As a follow up to RTSDK-3966, made -serverSharedSocket available as a command line parameter for RSSL Provider example 
+
+Both ETA Java and EMA Java 3.6.3.L2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-5368] - Optimization to EMA/ETA Java encrypted connections 
+- [RTSDK-5477] - Remove additional copying to \_appRecvBuffer during decryption
+- [RTSDK-5545] - Fix to delaySteadyStateCalc in Java ConsPerf tools
+- [RTSDK-5667] - Altered update message size to 130 Bytes for performance tools
 
 --------------------------------------------
 RTSDK Java Release 2.0.3.L1 (Sep 30, 2021)
 --------------------------------------------
+
+This is a maintenance release with fixes for customer issues and bugs
 
 EMA Java 3.6.3.L1 Issues Resolved
 ---------------------------------

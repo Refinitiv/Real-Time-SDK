@@ -11,8 +11,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.49
 !tag Build_RDMD  4.20.49
-!tag DT_Version  21.71
-!tag Date        16-Aug-2021
+!tag DT_Version  21.81
+!tag Date        21-Sep-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -384,7 +384,7 @@ INS_P_CCY  13612
      68        "BOB"   Bolivian boliviano
      70        "BAD"   Bosnia and Herzegovina Dinar
      72        "BWP"   Botswanian pula
-     76        "BRL"   Brazilian real
+     76        "BRL"   Brazilian Cruzeiro (deprecated)
      84        "BZD"   Belize dollar
      90        "SBD"   Solomon Islands dollar
      96        "BND"   Brunei dollar
@@ -405,7 +405,7 @@ INS_P_CCY  13612
     191        "HRK"   Croatian Kuna
     192        "CUP"   Cuban peso
     196        "CYP"   Cyprus pound
-    200        "200"   Not allocated
+    200        "CSK"   Czech Koruna (deprecated)
     203        "CZK"   Czech koruna
     208        "DKK"   Danish krone
     214        "DOP"   Dominican peso
@@ -422,7 +422,7 @@ INS_P_CCY  13612
     262        "DJF"   Djibouti franc
     270        "GMD"   Gambian dalasi
     276        "DEM"   Deutsche Mark
-    280        "DEM"   Deutsche mark
+    280        "DEM"   Deutsche Mark (deprecated)
     288        "GHC"   Ghanaian cedi
     292        "GIP"   Gibraltar pound
     300        "GRD"   Greek drachma
@@ -461,7 +461,7 @@ INS_P_CCY  13612
     440        "LTL"   Lithuanian litas
     442        "LUF"   Luxembourg franc
     446        "MOP"   Macau pataca
-    450        "450"   Not allocated (was Malagasy franc)
+    450        "MGF"   Malagasy Franc (deprecated)
     454        "MWK"   Malawi kwacha
     458        "MYR"   Malaysian ringgit
     459        "MYc"   Malaysian cent (deprecated)
@@ -512,7 +512,7 @@ INS_P_CCY  13612
     706        "SOS"   Somali shilling
     710        "ZAR"   South African rand
     716        "ZWD"   Zimbabwe dollar
-    720        "720"   Not allocated
+    720        "YDD"   Yemeni Dinar (deprecated)
     724        "ESP"   Spanish peseta
     728        "SSP"   South Sudanese Pound
     736        "SDD"   Sudanese dinar
@@ -531,7 +531,7 @@ INS_P_CCY  13612
     800        "UGX"   Uganda shilling
     804        "UAK"   Ukrainian karbovanet
     807        "MKD"   North Macedonian Denar
-    810        "RUB"   Russian ruble
+    810        "RUB"   Russian Ruble (deprecated)
     818        "EGP"   Egyptian pound
     826        "GBP"   UK pound sterling
     827        "GBp"   UK pence sterling (deprecated)
@@ -543,10 +543,10 @@ INS_P_CCY  13612
     862        "VEB"   Old Venezuelan bolivar
     882        "WST"   Samoan tala
     886        "YER"   Yemeni rial
-    890        "890"   Not allocated
+    890        "YUN"   Yugoslavian Dinar (deprecated)
     891        "CSD"   Serbian Dinar
     894        "ZMK"   Zambian kwacha
-    900        "ROb"   Romanian bani
+    900        "ROb"   Romanian Bani (deprecated)
     901        "TWD"   New Taiwan dollar
     902        "BHf"   Bahraini Fils (deprecated)
     903        "KWf"   Kuwaiti Fils (deprecated)
@@ -632,7 +632,7 @@ INS_P_CCY  13612
    2013        "NAc"   Namibian cent
    2014        "ILa"   Israeli Agora
    2015        "RUB"   Russian Rouble
-   2016        "HRL"   Croatian Lipa (was Croatian Kuna)
+   2016        "HRl"   Croatian Lipa
    2017        "BWt"   Botswana Thebe
    2018        "ZZZ"   Multi-Currency
    2019        "TRk"   New Turkish Kurus
@@ -8791,6 +8791,11 @@ DRK_EXID   13610
    1673        "CAD"   CHINA MINISTRY OF AGRICULTURE (CASDE)
    1674        "RPA"   Refinitiv-Research Price Assessment
    1675        "IPX"   IPSX
+   1676        "CDE"   Cboe Europe Derivatives - CEDX
+   1677        "CRA"   Commodity Futures Trading Regulatory Agency
+   1678        "SDX"   SIX DIGITAL EXCHANGE
+   1679        "SBX"   SPB Exchange
+   1680        "AGR"   Agriniser
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13364,6 +13369,7 @@ REFPRC_TP4 13491
      57   "IHR     "   Implied Heat Rate
      58   "USD/Bu  "   US Dollar per Bushel
      59   "FIX3    "   Fixing 3
+     60   " BRL/mT "   Brazilian Real per metric tonne
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17219,6 +17225,7 @@ ROUTE_INDX 12977
     100   "MR PB   "   MR Pacific Basket (Uses: TC12 TCE & TC11 TCE)
     101   "TC18    "   US Gulf to Brazil
     102   "TD23    "   ME Gulf- Medi(Crude)
+    103   " P6_82  "   Panamax Singapore round voyage via Atlantic
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19362,6 +19369,7 @@ CNTR_SZ_UT 13611
     423      "ENVOF"   Environmental Offset
     424      "SWU  "   Separative Work unit
     425      "CRT  "   Carat
+    426      "RBALE"   Running Bale
 !
 ! ACRONYM    FID
 ! -------    ---
