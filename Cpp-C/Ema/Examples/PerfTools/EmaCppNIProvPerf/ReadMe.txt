@@ -6,7 +6,7 @@ Summary:
 --------
  
 The purpose of this application is to measure performance of the EMA,
-in consuming Level I Market Price through a Refinitiv Real-Time
+by providing Level I Market Price content through a Refinitiv Real-Time
 Distribution System. 
 
 The non-interactive provider creates two types of threads:
@@ -15,10 +15,10 @@ The non-interactive provider creates two types of threads:
 provide refreshes and updates of market data.
 
 To measure latency, a timestamp is randomly placed in each burst of updates by 
-the provider.  The consumer then decodes the timestamp from the update to
+the provider. A performance consumer can, then, decode the timestamp from the update to
 determine the end-to-end latency.  
 
-This application also measures memory and CPU usage.  The memory usage measured 
+This application also measures memory and CPU usage. The memory usage measured 
 is the 'resident set,' or the memory currently in physical use by the 
 application.  The CPU usage is the total time using the CPU divided by the 
 total system time (The CPU time is the total across all threads, and as such 
@@ -47,6 +47,14 @@ The following configuration files are required:
   where <env> is your build directory (i.e., OL7_64_GCC482).
 - EmaConfig.xml, located in the Ema directory.
 
+-----------------
+Compiling Source:
+-----------------
+
+Windows: Run CMake to generate solution files and build.
+Linux: Run CMake to build.
+See installation guide for instructions on how to build using CMake
+
 -------------------
 Command line usage:
 -------------------  
@@ -60,13 +68,35 @@ EmaCppNIProvPerf
 
 - Pressing the CTRL+C buttons terminates the program.  
 
------------------
-Compiling Source:
------------------
+- Default Configuration file, EmaConfig.xml, contains several sections for 
+  running this performance tool in EmaConfig.xml
 
-Development Tool: 
+- Additional Note: Command line also takes "-providerName".   
+      Sample Command "-providerName" Explanation: The value of -providerName is 
+      used to specify the NIProvider to use from EmaConfig.xml
 
-open one of the included solution files with visual studio and build.
+  Following is sample encrypted connection channel config to specify in EmaConfig.xml. 
+  See EmaConfig.xml for additional examples of configuration:
+  Note: Encrypted Websocket is not currently supported
+     
+    Encrypted Socket:
+    <Channel>
+        <Name value="Perf_NIP_Channel_Encr"/>
+        <ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+        <EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
+        <CompressionType value="CompressionType::None"/>
+        <GuaranteedOutputBuffers value="50000"/>
+        <NumInputBuffers value="10000"/>
+        <ConnectionPingTimeout value="30000"/>
+        <TcpNodelay value="1"/>
+        <SysRecvBufSize value="65535"/>
+        <SysSendBufSize value="65535"/>
+        <Host value="adh-host"/>
+        <Port value="adh-rssl-server-port"/>
+        <OpenSSLCAStore value="myCA.pem"/>
+    </Channel>
+
+    Sample OpenSSLCAStore values: "/local/myCA.pem" or "C:\myCA.pem"
 
 ----------------
 Example Content:

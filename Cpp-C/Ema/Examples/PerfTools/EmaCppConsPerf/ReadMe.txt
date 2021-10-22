@@ -53,7 +53,7 @@ Compiling Source:
 -----------------
 
 Windows: Run CMake to generate solution files and build.
-Linux: Run CMake to generate solution files and build.
+Linux: Run CMake to build. 
 See installation guide for instructions on how to build using CMake
 
 -------------------

@@ -190,6 +190,7 @@
 			<Logger value="Logger_1"/>
 			<XmlTraceToStdout value="0"/>
 		</NiProvider>
+		<!-- Performance tools niprovider -->
 		<NiProvider>
 			<Name value="Perf_NIProvider_1"/>
 			<Channel value="Perf_NIP_Channel_1"/>
@@ -303,6 +304,7 @@
 			<RefreshFirstRequired value="1" />
 
 		</IProvider>
+		<!-- Performance tools provider -->
 		<IProvider>
 			<Name value="Perf_Provider_1"/>
 			<Server value="Perf_Server_1"/>
@@ -438,7 +440,7 @@
 		</Channel>
 
 
-		<!--Performance Tools Channels -->
+		<!--Performance tools channels -->
 		<Channel>
 			<Name value="Perf_Channel_WSJSON_1"/>
 			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
@@ -530,6 +532,7 @@
 			<MaxFragmentSize value="6144"/>
 			<WsProtocols value="rssl.json.v2, rssl.rwf, tr_json2"/>
 		</Server>
+		<!--Performance tools server -->
 		<Server>
 			<Name value="Perf_Server_1"/>
 			<ServerType value="ServerType::RSSL_SOCKET"/>

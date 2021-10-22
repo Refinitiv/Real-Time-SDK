@@ -86,7 +86,7 @@ emajConsPerf
     <Channel>
     <Name value="Perf_Channel_Encr_1"/>
     <ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
-    <EncryptedProtocolType value="EncryptedProtocolType::RSSL_WESOCKET"/>
+    <EncryptedProtocolType value="EncryptedProtocolType::RSSL_WEBSOCKET"/>
     <CompressionType value="CompressionType::None"/>
     <GuaranteedOutputBuffers value="5000"/>
     <NumInputBuffers value="2048"/>
