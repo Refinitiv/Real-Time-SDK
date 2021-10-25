@@ -76,7 +76,7 @@ public class CryptoHelperTest
 		assertEquals("TLSv1.2", protocolFuture.get());
 	}
 
-	@Test(expected = SSLHandshakeException.class)
+	@Test(expected = IOException.class)
 	public void shouldFailHandshakeIfServerDoesntSupportTLS1_2() throws IOException, ExecutionException, InterruptedException
 	{
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
