@@ -143,6 +143,10 @@ public class EncryptionTest {
 
     @Test
     public void testEncryption_NoDeadlock() {
+
+        ClientConnection cc = new ClientConnection("14002");
+        ServerConnection sc = new ServerConnection("14002");
+
         try {
             Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -152,9 +156,6 @@ public class EncryptionTest {
             {
                 throw new IOException("RsslTransport.initialize() failed: " + error.text());
             }
-
-            ClientConnection cc = new ClientConnection();
-            ServerConnection sc = new ServerConnection();
 
             assertTrue(establishConnection(cc, sc, ConnectionTypes.SOCKET));
 
@@ -171,11 +172,18 @@ public class EncryptionTest {
 
         } catch (Exception e) {
             assert(false);
+        } finally {
+            cc.terminate();
+            sc.terminate();
         }
     }
 
     @Test
     public void testHandshakeRenegotiation() {
+
+        ClientConnection cc = new ClientConnection("14003");
+        ServerConnection sc = new ServerConnection("14003");
+
         try {
             Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -185,9 +193,6 @@ public class EncryptionTest {
             {
                 throw new IOException("RsslTransport.initialize() failed: " + error.text());
             }
-
-            ClientConnection cc = new ClientConnection();
-            ServerConnection sc = new ServerConnection();
 
             assertTrue(establishConnection(cc, sc, ConnectionTypes.SOCKET));
 
@@ -208,11 +213,19 @@ public class EncryptionTest {
             assertTrue(latch.getCount() == 0);
 
         } catch (Exception e) {
+            assert(false);
+        } finally {
+            cc.terminate();
+            sc.terminate();
         }
     }
 
     @Test
     public void testHandleBufferOverflow() {
+
+        ClientConnection cc = new ClientConnection("14004");
+        ServerConnection sc = new ServerConnection("14004");
+
         try {
             Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -222,9 +235,6 @@ public class EncryptionTest {
             {
                 throw new IOException("RsslTransport.initialize() failed: " + error.text());
             }
-
-            ClientConnection cc = new ClientConnection();
-            ServerConnection sc = new ServerConnection();
 
             assertTrue(establishConnection(cc, sc, ConnectionTypes.SOCKET));
 
@@ -241,12 +251,19 @@ public class EncryptionTest {
             assertEquals(latch.getCount(), 0);
 
         } catch (Exception e) {
-
+            assert(false);
+        } finally {
+            cc.terminate();
+            sc.terminate();
         }
     }
 
     @Test
     public void testHandleBufferOverflowHttpConnection() {
+
+        ClientConnection cc = new ClientConnection("14005");
+        ServerConnection sc = new ServerConnection("14005");
+
         try {
             Error error = TransportFactory.createError();
             ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -256,9 +273,6 @@ public class EncryptionTest {
             {
                 throw new IOException("RsslTransport.initialize() failed: " + error.text());
             }
-
-            ClientConnection cc = new ClientConnection();
-            ServerConnection sc = new ServerConnection();
 
             assertTrue(establishConnection(cc, sc, ConnectionTypes.HTTP));
 
@@ -275,7 +289,10 @@ public class EncryptionTest {
             assertEquals(latch.getCount(), 0);
 
         } catch (Exception e) {
-
+            assert(false);
+        } finally {
+            cc.terminate();
+            sc.terminate();
         }
     }
 
@@ -286,6 +303,13 @@ public class EncryptionTest {
         InProgInfo inProg = TransportFactory.createInProgInfo();
         ConnectOptions connectOptions = TransportFactory.createConnectOptions();
         Selector clientSelector = null;
+        String port = "14002";
+
+        ClientConnection(String port) {
+            if (port != null && !port.equals("")) {
+                this.port = port;
+            }
+        }
 
         void connect(int connType) throws Exception {
 
@@ -300,7 +324,7 @@ public class EncryptionTest {
             connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
             connectOptions.tunnelingInfo().tunnelingType("None");
             connectOptions.unifiedNetworkInfo().address("localhost");
-            connectOptions.unifiedNetworkInfo().serviceName("14002");
+            connectOptions.unifiedNetworkInfo().serviceName(port);
             connectOptions.guaranteedOutputBuffers(2);
             connectOptions.majorVersion(Codec.majorVersion());
             connectOptions.minorVersion(Codec.minorVersion());
@@ -310,6 +334,19 @@ public class EncryptionTest {
 
             clientChannel = (RsslSocketChannel)Transport.connect(connectOptions, error);
             clientChannel.selectableChannel().register(clientSelector, SelectionKey.OP_READ | SelectionKey.OP_CONNECT | SelectionKey.OP_WRITE, clientChannel);
+        }
+
+        void terminate() {
+            if (clientSelector != null && clientSelector.isOpen()) {
+                for (SelectionKey key : clientSelector.keys())
+                    if (key.isValid()) {
+                        key.cancel();
+                    }
+
+            }
+            if (clientChannel != null) {
+                assertEquals(clientChannel.close(error), TransportReturnCodes.SUCCESS);
+            }
         }
     }
 
@@ -321,6 +358,14 @@ public class EncryptionTest {
         Selector serverSelector = null;
         BindOptions bindOptions = TransportFactory.createBindOptions();
         AcceptOptions acceptOptions = TransportFactory.createAcceptOptions();
+        String port = "14002";
+        Server server;
+
+        ServerConnection(String port) {
+            if (port != null && !port.equals("")) {
+                this.port = port;
+            }
+        }
 
         void bind() throws Exception {
             serverSelector = Selector.open();
@@ -333,10 +378,9 @@ public class EncryptionTest {
             bindOptions.encryptionOptions().keyManagerAlgorithm("SunX509");
             bindOptions.encryptionOptions().securityProtocol("TLS");
             bindOptions.encryptionOptions().securityProvider("SunJSSE");
-            bindOptions.serviceName("14002");
-            bindOptions.sysRecvBufSize(64 * 1024);
+            bindOptions.serviceName(port);
 
-            Common.serverBind(serverSelector, bindOptions, 60, 30, Ripc.CompressionTypes.NONE, 0,
+            server = Common.serverBind(serverSelector, bindOptions, 60, 30, Ripc.CompressionTypes.NONE, 0,
                     Codec.protocolType(), Codec.majorVersion(), Codec.minorVersion(), false, error);
         }
 
@@ -451,6 +495,22 @@ public class EncryptionTest {
             for (int i = 0; i < 10; i++) {
                 assertTrue(serverChannel.write(buf, writeArgs, error) >= CodecReturnCodes.SUCCESS);
                 buf = getMessage();
+            }
+        }
+
+        void terminate() {
+            if (serverSelector != null && serverSelector.isOpen()) {
+                for (SelectionKey key : serverSelector.keys())
+                    if (key.isValid()) {
+                        key.cancel();
+                    }
+
+            }
+            if (serverChannel != null) {
+                assertEquals(serverChannel.close(error), TransportReturnCodes.SUCCESS);
+            }
+            if (server != null) {
+                assertEquals(server.close(error), TransportReturnCodes.SUCCESS);
             }
         }
     }
