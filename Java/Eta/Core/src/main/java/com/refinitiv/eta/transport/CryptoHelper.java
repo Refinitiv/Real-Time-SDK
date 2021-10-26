@@ -376,6 +376,8 @@ class CryptoHelper
             if (result.getStatus() == Status.OK)
             {
                 writeCount += result.bytesConsumed();
+            } else if (result.getStatus() == Status.CLOSED) {
+                break;
             }
             /*else if (result.getStatus() == Status.BUFFER_OVERFLOW) {
                 will try to flush the _netSendBuffer to network in what follows, no data was consumed from src.
@@ -490,9 +492,14 @@ class CryptoHelper
                     if (wrap_result.bytesProduced() != 0)
                     {
                         _netSendBuffer.flip();
-                        while (_netSendBuffer.hasRemaining()) {
-                            _socketChannel.write(_netSendBuffer);
+                        try {
+                            while (_netSendBuffer.hasRemaining()) {
+                                _socketChannel.write(_netSendBuffer);
+                            }
+                        } catch (IOException e) {
+                            _netSendBuffer.clear();
                         }
+
                         _netSendBuffer.compact();
                     }
                     try
