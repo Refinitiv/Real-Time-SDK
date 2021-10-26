@@ -191,12 +191,12 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.6.3.0                 librssl.so.14                   eta3.6.3.L2
-    librsslVA.so.3.6.3.0               librsslVA.so.16                 eta3.6.3.L2
-    librsslJsonConverter.so.3.6.3.0    librsslJsonConverter.so.2       eta3.6.3.L2
+    librssl.so.3.6.3.1                 librssl.so.14                   eta3.6.3.L2
+    librsslVA.so.3.6.3.1               librsslVA.so.16                 eta3.6.3.L2
+    librsslJsonConverter.so.3.6.3.1    librsslJsonConverter.so.2       eta3.6.3.L2
 
-    librsslVACache.so.3.6.3.0          librsslVACache.so.3             eta3.6.3.L2
-    librsslRelMcast.so.3.6.3.0         librsslRelMcast.so.2            eta3.6.3.L2
+    librsslVACache.so.3.6.3.1          librsslVACache.so.3             eta3.6.3.L2
+    librsslRelMcast.so.3.6.3.1         librsslRelMcast.so.2            eta3.6.3.L2
 
 
 # ETA C-Edition Issues and Workarounds
