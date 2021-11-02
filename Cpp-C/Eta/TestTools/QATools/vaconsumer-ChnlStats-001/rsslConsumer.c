@@ -54,6 +54,7 @@
 #include "rtr/rsslReactor.h"
 
 static RsslInt32 timeToRun = 300;
+static RsslInt32 maxEventsInPool = 500;
 static time_t rsslConsumerRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static time_t cacheTime = 0;
@@ -62,7 +63,9 @@ static time_t statisticInterval = 0;
 static RsslBool onPostEnabled = RSSL_FALSE, offPostEnabled = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool enableSessionMgnt = RSSL_FALSE;
+static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
+static RsslBool restEnableLog = RSSL_FALSE;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -70,6 +73,7 @@ static int channelCommandCount = 0;
 
 fd_set readFds, exceptFds;
 static RsslReactor *pReactor = NULL;
+static FILE *restLogFileName = NULL;
 
 char userNameBlock[128];
 char passwordBlock[128];
@@ -160,6 +164,7 @@ void printUsageAndExit(char *appName)
 			"\n -tsAuth causes the consumer to enable authentication when opening tunnel streams.\n"
 			"\n -tsServiceName specifies the name of the service to use for tunnel streams (if not specified, the service name specified in -c/-tcp is used)\n"
 			"\n -x provides an XML trace of messages\n"
+			"\n -rtt all connections support the RTT feature in login\n"
 			"\n"
 			" Options for establishing connection(s) and sending requests through a proxy server:\n"
 			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
@@ -168,6 +173,9 @@ void printUsageAndExit(char *appName)
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
 			"\n -runtime adjusts the running time of the application.\n"
+			"\n -maxEventsInPool size of event pool\n"
+			"\n -restEnableLog enable REST logging message\n"
+			"\n -restLogFileName set REST logging output stream\n"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -328,6 +336,16 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				snprintf(protocolList, 128, "%s", argv[i-1]);
 			}
+			else if (strcmp("-restLogFileName", argv[i]) == 0)
+			{
+				i += 2;
+				restLogFileName = fopen(argv[i - 1], "w");
+				if (!restLogFileName)
+				{
+					printf("Error: Unable to open the specified file name : %s \n", argv[i - 1]);
+					printUsageAndExit(argv[0]);
+				}
+			}
 			else if (strcmp("-cache", argv[i]) == 0)
 			{
 				i++;
@@ -342,6 +360,16 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				statisticInterval = atoi(argv[i - 1]);
+			}
+				else if (strcmp("-rtt", argv[i]) == 0)
+			{
+				i++;
+				RTTSupport = RSSL_TRUE;
+			}
+			else if (strcmp("-restEnableLog", argv[i]) == 0)
+			{
+				i++;
+				restEnableLog = RSSL_TRUE;
 			}
 			//APIQA
 			else if (strcmp("-statisticFilter", argv[i]) == 0)
@@ -1099,6 +1127,11 @@ void parseCommandLine(int argc, char **argv)
 				if (timeToRun == 0)
 					timeToRun = 5;
 			}
+			else if (strcmp("-maxEventsInPool", argv[i]) == 0)
+			{
+				i += 2;
+				maxEventsInPool = atoi(argv[i - 1]);
+			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
 			{
 				if (pCommand == NULL)
@@ -1684,8 +1717,11 @@ int main(int argc, char **argv)
 		loginRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
 		loginRequest.applicationId = appId;
 	}
+		if (RTTSupport == RSSL_TRUE)
+	{
+		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
 		
-
 	/* Initialize the default directory request(Use 2 as the Directory Stream Id) */
 	if (rsslInitDefaultRDMDirectoryRequest(&dirRequest, 2) != RSSL_RET_SUCCESS)
 	{
@@ -1841,6 +1877,13 @@ int main(int argc, char **argv)
 	/* Create an RsslReactor which will manage our channels. */
 
 	rsslClearCreateReactorOptions(&reactorOpts);
+	reactorOpts.maxEventsInPool = maxEventsInPool;
+
+	reactorOpts.restEnableLog = restEnableLog;
+
+	if (restLogFileName)
+		reactorOpts.restLogOutputStream = restLogFileName;
+	
 	// API QA
 	if (tokenServiceUrl.length > 0)
 	{
@@ -2206,7 +2249,8 @@ void cleanUpAndExit(int code)
 		printf("Error cleaning up reactor: %s\n", rsslErrorInfo.rsslError.text);
 		exitApp(-1);
 	}
-
+	if (restLogFileName)
+		fclose(restLogFileName);
 	for (i = 0; i < channelCommandCount; ++i)
 	{
 		if (chanCommands[i].cacheInfo.useCache)
