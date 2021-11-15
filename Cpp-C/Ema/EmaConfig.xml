@@ -808,12 +808,10 @@
 				<InfoFilter>
 					<DictionariesProvided>
 						<DictionariesProvidedEntry value="Dictionary_3"/>
-						<DictionariesProvidedEntry value="Dictionary_4"/>
 					</DictionariesProvided>
 
 					<DictionariesUsed>
 						<DictionariesUsedEntry value="Dictionary_3"/>
-						<DictionariesUsedEntry value="Dictionary_4"/>
 					</DictionariesUsed>
 
 					<Vendor value="company name"/>
@@ -935,15 +933,6 @@
 			and "RWFEnum" for the enumtype.def -->
 			<RdmFieldDictionaryItemName value="RWFFld"/>
 			<EnumTypeDefItemName value="RWFEnum"/>
-		</Dictionary>
-
-		<Dictionary>
-			<Name value="Dictionary_4"/>
-			<DictionaryType value="DictionaryType::FileDictionary"/>
-			<RdmFieldDictionaryFileName value="./RDMFieldDictionary_ID4"/>
-			<EnumTypeDefFileName value="./enumtype_ID4.def"/>
-			<RdmFieldDictionaryItemName value="RWFFld_ID4"/>
-			<EnumTypeDefItemName value="RWFEnum_ID4"/>
 		</Dictionary>
 
 	</DictionaryList>
