@@ -3884,10 +3884,17 @@ bool jsonToRwfConverter::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPt
 					unexpectedTokenType(JSMN_STRING, *tokPtr, __LINE__, __FILE__);
 					return false;
 				}
-				keyPtr->name.length =  (*tokPtr)->end - (*tokPtr)->start;
-				keyPtr->name.data = &_jsonMsg[(*tokPtr)->start];
+
+				RsslBuffer keyNameBuffer = RSSL_INIT_BUFFER;
+				RsslBuffer *keyNameBufPtr = &keyNameBuffer;
+
+				if (!processAsciiString(tokPtr, &keyNameBufPtr, 0))
+					return false;
+
+				keyPtr->name.data = keyNameBufPtr->data;
+				keyPtr->name.length = keyNameBufPtr->length;
+
 				flags |=  RSSL_MKF_HAS_NAME;
-				(*tokPtr)++;
 				break;
 			}
 		case 't':	// Name Type

@@ -33,6 +33,7 @@ extern bool cmdlPrintRsslBuffer;	/** Print RWF buffers after conversion from JSO
 
 /* Sample Data commonly used by tests, and their generally-expected use case. */
 extern const RsslBuffer			MSG_KEY_NAME;			/** Msg.Key.Name */
+extern const RsslBuffer			MSG_KEY_NAME_ESC_CHAR;	/** Msg.Key.Name */
 extern const RsslBuffer			REQ_MSG_KEY_NAME;		/** Req.MsgKey.Name */
 extern const RsslBuffer			STATE_TEXT;				/** State.Text */
 extern const RsslBuffer			EXTENDED_HEADER;		/** Msg.ExtHdr */

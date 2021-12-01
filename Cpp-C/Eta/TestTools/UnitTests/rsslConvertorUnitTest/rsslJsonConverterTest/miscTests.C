@@ -187,7 +187,8 @@ TEST_F(MiscTests, PackedMessages)
 #endif
 
 	/* One message */
-	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}}]";
+	char oneMsg[] = "[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}}]";
+	_jsonBuffer.data = oneMsg;
 	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
@@ -215,7 +216,8 @@ TEST_F(MiscTests, PackedMessages)
 #endif
 
 	/* Two messages */
-	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"ID\":5,\"Type\":\"Close\"}]";
+	char twoMsg[] = "[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"ID\":5,\"Type\":\"Close\"}]";
+	_jsonBuffer.data = twoMsg;
 	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
@@ -255,7 +257,8 @@ TEST_F(MiscTests, PackedMessages)
 #endif
 
 	/* Three messages */
-	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"ID\":5,\"Type\":\"Close\"}],{\"ID\":6,\"Key\":{\"Name\":\"TINY\"}}";
+	char threeMsg[] = "[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"ID\":5,\"Type\":\"Close\"}],{\"ID\":6,\"Key\":{\"Name\":\"TINY\"}}";
+	_jsonBuffer.data = threeMsg;
 	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
@@ -308,7 +311,8 @@ TEST_F(MiscTests, PackedMessages)
 #endif
 
 	/* Message and Ping */
-	_jsonBuffer.data = (char*)"[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"Type\":\"Ping\"}]";
+	char pingMsg[] = "[{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}},{\"Type\":\"Ping\"}]";
+	_jsonBuffer.data = pingMsg;
 	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY
@@ -346,7 +350,8 @@ TEST_F(MiscTests, PackedMessages)
 #endif
 
 	/* Pong and Message */
-	_jsonBuffer.data = (char*)"[{\"Type\":\"Pong\"},{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}}]";
+	char pongMsg[] = "[{\"Type\":\"Pong\"},{\"ID\":5,\"Key\":{\"Name\":\"ROLL\"}}]";
+	_jsonBuffer.data = pongMsg;
 	_jsonBuffer.length = (RsslUInt32)strlen(_jsonBuffer.data);
 
 #ifdef _RSSLJC_SHARED_LIBRARY

@@ -33,6 +33,7 @@ const char UTF8_UPTICK[] = { (const char)0xe2, (const char)0x87, (const char)0xa
 
 /* Sample content */
 const RsslBuffer		MSG_KEY_NAME			= {4, (char*)"TINY"};
+const RsslBuffer		MSG_KEY_NAME_ESC_CHAR   = {7, (char*)"\\GOOG.O"};
 const RsslBuffer		REQ_MSG_KEY_NAME		= {4, (char*)"ROLL"};
 const RsslBuffer		STATE_TEXT				= {11, (char*)"All is well"};
 const RsslBuffer		EXTENDED_HEADER			= {14, (char*)"ExtendedHeader"};

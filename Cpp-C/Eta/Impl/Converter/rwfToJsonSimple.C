@@ -1012,7 +1012,7 @@ int rwfToJsonSimple::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterator 
 			if (keyPtr->name.length == 0 ||	(keyPtr->name.length == 1 && *keyPtr->name.data == 0))
 				writeNull();
 			else
-				writeString(keyPtr->name.data, keyPtr->name.length);
+				writeSafeString(keyPtr->name.data, keyPtr->name.length);
 			if (!comma)
 				comma = true;
 		}

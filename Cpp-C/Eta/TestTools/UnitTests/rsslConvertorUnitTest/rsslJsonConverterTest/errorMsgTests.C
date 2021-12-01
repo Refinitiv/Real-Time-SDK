@@ -20,40 +20,44 @@ class ErrorMsgTestParams
 
 	/* Boolean parameters for testing optional members. */
 	jsonToRwfBase::errorCodes	errorCode;
-	char * customJsonMessage;
+	char customJsonMessage[256];
 	jsmntype_t firstTokenType;
 	jsmntype_t secondTokenType;
 	const RsslBuffer *errorParentKey;
 	char * unexpectedString;
 	const RsslBuffer *missingKey;
 	int expectedId;
+	bool setJson;
 
-	ErrorMsgTestParams(jsonToRwfBase::errorCodes errorCode, jsmntype_t firstTokenType, jsmntype_t secondTokenType, int expectedId, char *customJsonMessage, const RsslBuffer *errorParentKey = 0)
+	ErrorMsgTestParams(jsonToRwfBase::errorCodes errorCode, jsmntype_t firstTokenType, jsmntype_t secondTokenType, int expectedId, char *customJsonMessage, const RsslBuffer *errorParentKey = 0, bool setJson = false)
 	{
 		this->errorCode = errorCode;
 		this->expectedId = expectedId;
-		this->customJsonMessage = customJsonMessage;
+		(void)strcpy(this->customJsonMessage, customJsonMessage);
 		this->firstTokenType = firstTokenType;
 		this->secondTokenType = secondTokenType;
 		this->errorParentKey = errorParentKey;
+		this->setJson = 0 < strlen(customJsonMessage) ? true : false;
 	}
 
-	ErrorMsgTestParams(jsonToRwfBase::errorCodes errorCode, char * unexpectedString, int expectedId, char *customJsonMessage, const RsslBuffer *errorParentKey = 0)
+	ErrorMsgTestParams(jsonToRwfBase::errorCodes errorCode, char * unexpectedString, int expectedId, char *customJsonMessage, const RsslBuffer *errorParentKey = 0, bool setJson = false)
 	{
 		this->errorCode = errorCode;
 		this->unexpectedString = unexpectedString;
 		this->expectedId = expectedId;
-		this->customJsonMessage = customJsonMessage;
+		(void)strcpy(this->customJsonMessage, customJsonMessage);
 		this->errorParentKey = errorParentKey;
+		this->setJson = 0 < strlen(customJsonMessage) ? true : false;
 	}
 
-	ErrorMsgTestParams(jsonToRwfBase::errorCodes errorCode, const RsslBuffer *missingKey, int expectedId, char *customJsonMessage, const RsslBuffer *errorParentKey = 0)
+	ErrorMsgTestParams(jsonToRwfBase::errorCodes errorCode, const RsslBuffer *missingKey, int expectedId, char *customJsonMessage, const RsslBuffer *errorParentKey = 0, bool setJson = false)
 	{
 		this->errorCode = errorCode;
 		this->missingKey = missingKey;
 		this->expectedId = expectedId;
-		this->customJsonMessage = customJsonMessage;
+		(void)strcpy(this->customJsonMessage, customJsonMessage);
 		this->errorParentKey = errorParentKey;
+		this->setJson = 0 < strlen(customJsonMessage) ? true : false;
 	}
 
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
@@ -84,9 +88,9 @@ TEST_P(ErrorMsgParamFixture, ErrorMsgParamTest)
 
 	_jsonDocument.SetObject();
 
-	if(params.customJsonMessage)
+	if(params.setJson)
 	{
-		_jsonBuffer.data = params.customJsonMessage;
+		_jsonBuffer.data = (char*)params.customJsonMessage;
 		_jsonBuffer.length = (rtrUInt32)strlen(params.customJsonMessage);
 	}
 

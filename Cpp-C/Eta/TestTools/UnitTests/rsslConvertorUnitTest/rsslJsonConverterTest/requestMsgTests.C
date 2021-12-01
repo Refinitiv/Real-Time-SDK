@@ -38,10 +38,11 @@ class RequestMsgMembersTestParams
 	bool view;
 	bool qualified;
     bool keyIdentifier;
+	bool keyNameEscChar;
 
 	RequestMsgMembersTestParams(RsslJsonProtocolType protocolType, bool extendedHeader, bool priority, bool streaming, bool keyInUpdates, bool confInfoInUpdates,
 			bool noRefresh, bool qos, bool worstQos, bool privateStream, bool pause, bool batch, bool view, 
-			bool qualified, bool keyIdentifier)
+			bool qualified, bool keyIdentifier, bool keyNameEscChar = false)
 	{
 		this->protocolType = protocolType;
 		this->extendedHeader = extendedHeader;
@@ -58,6 +59,7 @@ class RequestMsgMembersTestParams
 		this->view = view;
 		this->qualified = qualified;
         this->keyIdentifier = keyIdentifier;
+		this->keyNameEscChar = keyNameEscChar;
 	}
 
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
@@ -78,7 +80,8 @@ class RequestMsgMembersTestParams
 			"batch:" << (params.batch ? "true" : "false") << ","
 			"view:" << (params.view ? "true" : "false") << ","
 			"qualified:" << (params.qualified ? "true" : "false") << "," 
-			"keyIdentifier:" << (params.keyIdentifier ? "true" : "false") 
+			"keyIdentifier:" << (params.keyIdentifier ? "true" : "false") << ","
+			"keyNameEscChar:" << (params.keyNameEscChar ? "true" : "false")
 			<< "]";
 		return out;
 	}
@@ -175,7 +178,10 @@ TEST_P(RequestMsgMembersTestFixture, RequestMsgMembersTest)
 	{
 		/* Use a single item name. */
 		rsslMsgKeyApplyHasName(&requestMsg.msgBase.msgKey);
-		requestMsg.msgBase.msgKey.name = MSG_KEY_NAME;
+		if (params.keyNameEscChar)
+			requestMsg.msgBase.msgKey.name = MSG_KEY_NAME_ESC_CHAR;
+		else
+			requestMsg.msgBase.msgKey.name = MSG_KEY_NAME;
 	}
 
 	if (params.view)
@@ -422,7 +428,10 @@ TEST_P(RequestMsgMembersTestFixture, RequestMsgMembersTest)
 			{
 				/* If not a batch request, Name element should be a single string. */
 				ASSERT_TRUE(_jsonDocument["Key"]["Name"].IsString());
-				EXPECT_STREQ(MSG_KEY_NAME.data, _jsonDocument["Key"]["Name"].GetString());
+				if (params.keyNameEscChar)
+					EXPECT_STREQ(MSG_KEY_NAME_ESC_CHAR.data, _jsonDocument["Key"]["Name"].GetString());
+				else
+					EXPECT_STREQ(MSG_KEY_NAME.data, _jsonDocument["Key"]["Name"].GetString());
 			}
 
 			/* Check View. */
@@ -632,7 +641,10 @@ TEST_P(RequestMsgMembersTestFixture, RequestMsgMembersTest)
 			{
 				ASSERT_TRUE(_jsonDocument["k"].HasMember("n"));
 				ASSERT_TRUE(_jsonDocument["k"]["n"].IsString());
-				EXPECT_STREQ(MSG_KEY_NAME.data, _jsonDocument["k"]["n"].GetString());
+				if (params.keyNameEscChar)
+					EXPECT_STREQ(MSG_KEY_NAME_ESC_CHAR.data, _jsonDocument["k"]["n"].GetString());
+				else
+					EXPECT_STREQ(MSG_KEY_NAME.data, _jsonDocument["k"]["n"].GetString());
 			}
 
 			ASSERT_TRUE(_jsonDocument["k"].HasMember("s"));
@@ -1001,7 +1013,11 @@ INSTANTIATE_TEST_CASE_P(RequestMsgTests, RequestMsgMembersTestFixture, ::testing
 	
     /* KeyIdentifier */
 	RequestMsgMembersTestParams(RSSL_JSON_JPT_JSON, false, false, true, true, false, false, false, false, false, false, false, false, false, true),
-	RequestMsgMembersTestParams(RSSL_JSON_JPT_JSON2, false, false, true, true, false, false, false, false, false, false, false, false, false, true)
+	RequestMsgMembersTestParams(RSSL_JSON_JPT_JSON2, false, false, true, true, false, false, false, false, false, false, false, false, false, true),
+
+	/* KeyNameEscChars*/
+	RequestMsgMembersTestParams(RSSL_JSON_JPT_JSON, false, false, true, true, false, false, false, false, false, false, false, false, false, false, true),
+	RequestMsgMembersTestParams(RSSL_JSON_JPT_JSON2, false, false, true, true, false, false, false, false, false, false, false, false, false, false, true)
 ));
 
 #define BATCH_ITEM_COUNT 2000

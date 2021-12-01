@@ -790,7 +790,7 @@ int rwfToJsonConverter::processMsgKey(const RsslMsgKey *keyPtr, RsslDecodeIterat
 		      *keyPtr->name.data == 0x0))
 		{
 			writeVar('n', comma);
-			writeString(keyPtr->name.data, keyPtr->name.length);
+			writeSafeString(keyPtr->name.data, keyPtr->name.length);
 			if (!comma)
 				comma = true;
 		}
