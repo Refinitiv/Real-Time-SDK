@@ -429,6 +429,13 @@ public class TunnelStream
      */
     public TransportBuffer getBuffer(int size, ReactorErrorInfo errorInfo)
     {
+        if (_reactor.isShutdown()) {
+            _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "TunnelStream.getBuffer",
+                    "Reactor is shutdown, getBuffer aborted");
+            return null;
+        }
+
         _reactor._reactorLock.lock();
         
         try
@@ -485,6 +492,12 @@ public class TunnelStream
      */
     public int releaseBuffer(TransportBuffer buffer, ReactorErrorInfo errorInfo)
     {
+        if (_reactor.isShutdown()) {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "TunnelStream.releaseBuffer",
+                    "Reactor is shutdown, releaseBuffer aborted");
+        }
+
         _reactor._reactorLock.lock();
         
         try
@@ -511,6 +524,12 @@ public class TunnelStream
                     ReactorReturnCodes.INVALID_USAGE,
                     "TunnelStream.info",
                     "tunnelStreamInfo cannot be null");
+        }
+
+        if (_reactor.isShutdown()) {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "TunnelStream.info",
+                    "Reactor is shutdown, info aborted");
         }
 
         if (!(tunnelStreamInfo instanceof TunnelStreamInfoImpl)) {
@@ -550,7 +569,7 @@ public class TunnelStream
                                                "TunnelStream.submit",
                                                "options cannot be null.");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                                               "TunnelStream.submit",
                                               "Reactor is shutdown, submit aborted.");
 
@@ -576,7 +595,7 @@ public class TunnelStream
                                                "TunnelStream.submit",
                                                "rdmMsg cannot be null.");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                                               "TunnelStream.submit",
                                               "Reactor is shutdown, submit aborted.");
 
@@ -605,7 +624,7 @@ public class TunnelStream
     private int handleRDMSubmit(ReactorChannel reactorChannel, MsgBase rdmMsg, ReactorErrorInfo errorInfo)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-        
+
         _reactor._reactorLock.lock();
         
         try
@@ -824,7 +843,7 @@ public class TunnelStream
                                                "TunnelStream.submit",
                                                "msg cannot be null.");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                                               "TunnelStream.submit",
                                               "Reactor is shutdown, submit aborted.");
         
@@ -1005,7 +1024,11 @@ public class TunnelStream
      * @return {@link ReactorReturnCodes} indicating success or failure
      */
     public int close(boolean finalStatusEvent, ReactorErrorInfo errorInfo)
-    {   	
+    {
+        if (_reactor.isShutdown())
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                                               "TunnelStream.close",
+                                               "Reactor is shutdown, close aborted.");
         _state.streamState(StreamStates.OPEN);
         _state.dataState(DataStates.SUSPECT);
         _state.code(StateCodes.NONE);

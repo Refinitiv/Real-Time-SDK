@@ -448,7 +448,7 @@ public class Reactor
 
             if (!_reactorActive)
             {
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "Reactor.accept", "Reactor is not active, aborting.");
             }
             else if (reactorAcceptOptions == null)
@@ -569,7 +569,7 @@ public class Reactor
 
             if (!_reactorActive)
             {
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "Reactor.connect", "Reactor is not active, aborting.");
             }
             else if (reactorConnectOptions == null)
@@ -1258,7 +1258,7 @@ public class Reactor
 
             if (!_reactorActive)
             {
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "Reactor.queryServiceDiscovery", "Reactor is not active, aborting.");
             }
 
@@ -1418,7 +1418,7 @@ public class Reactor
 
             if (!_reactorActive)
             {
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "Reactor.submitOAuthCredentialRenewal", "Reactor is not active, aborting.");
             }
 
@@ -2835,6 +2835,11 @@ public class Reactor
 
         try
         {
+            if (!_reactorActive)
+            {
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                        "Reactor.submitChannel", "Reactor is not active, aborting.");
+            }
             if (!isReactorChannelReady(reactorChannel))
             {
                 ret = ReactorReturnCodes.FAILURE;
@@ -5033,7 +5038,7 @@ public class Reactor
         {
             if (!_reactorActive)
             {
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "Reactor.dispatchAll", "Reactor is not active, aborting.");
             }
 
@@ -5201,7 +5206,7 @@ public class Reactor
         {
             if (!_reactorActive)
             {
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "Reactor.initJsonConverter", "Reactor is not active, aborting.");
             }
 
@@ -5270,7 +5275,7 @@ public class Reactor
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.closeChannel",
                         "reactorChannel cannot be null");
             else if (_reactorActive == false)
-                return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.closeChannel",
+                return populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN, "Reactor.closeChannel",
                         "Reactor is shutdown, closeChannel ignored");
             else if (reactorChannel.state() == State.CLOSED)
                 return ReactorReturnCodes.SUCCESS;

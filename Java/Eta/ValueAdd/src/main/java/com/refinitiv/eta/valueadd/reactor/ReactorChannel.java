@@ -594,7 +594,7 @@ public class ReactorChannel extends VaNode
                     "ReactorChannel.dispatch",
                     "dispatchOptions cannot be null.");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                     "ReactorChannel.dispatch",
                     "Reactor is shutdown, dispatch aborted.");
 
@@ -631,7 +631,7 @@ public class ReactorChannel extends VaNode
                         "Cannot submit buffer when watchlist is enabled.");
 
             if (_reactor.isShutdown())
-                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "ReactorChannel.submit",
                         "Reactor is shutdown, submit aborted.");
             else if (_state == State.CLOSED)
@@ -673,7 +673,7 @@ public class ReactorChannel extends VaNode
         try
         {
             if (_reactor.isShutdown())
-                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "ReactorChannel.submit",
                         "Reactor is shutdown, submit aborted.");
             else if (_state == State.CLOSED)
@@ -722,7 +722,7 @@ public class ReactorChannel extends VaNode
         try
         {
             if (_reactor.isShutdown())
-                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "ReactorChannel.submit",
                         "Reactor is shutdown, submit aborted.");
             else if (_state == State.CLOSED)
@@ -765,7 +765,7 @@ public class ReactorChannel extends VaNode
 
         try {
             if (_reactor.isShutdown())
-                retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                         "ReactorChannel.close",
                         "Reactor is shutdown, close aborted.");
             if (state() != State.CLOSED)
@@ -815,7 +815,7 @@ public class ReactorChannel extends VaNode
             {
                 if (_reactor.isShutdown())
                 {
-                    _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                             "ReactorChannel.getBuffer",
                             "Reactor is shutdown, getBuffer aborted.");
                     return null;
@@ -877,7 +877,7 @@ public class ReactorChannel extends VaNode
             {
                 if (_reactor.isShutdown())
                 {
-                    return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+                    return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                             "ReactorChannel.releaseBuffer",
                             "Reactor is shutdown, releaseBuffer aborted.");
                 }
@@ -926,6 +926,12 @@ public class ReactorChannel extends VaNode
                     "TransportBuffer is null.");
         }
 
+        if (_reactor.isShutdown()) {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "ReactorChannel.packBuffer",
+                    "Reactor is shutdown, packBuffer aborted.");
+        }
+
         if(channel().protocolType() ==  Codec.JSON_PROTOCOL_TYPE)
         {
             int ret = ReactorReturnCodes.SUCCESS;
@@ -934,7 +940,6 @@ public class ReactorChannel extends VaNode
 
             try
             {
-
                 ReactorPackedBuffer packedBufferImpl = _reactor.packedBufferHashMap.get(buffer);
 
                 if (Objects.isNull(packedBufferImpl))
@@ -1053,8 +1058,15 @@ public class ReactorChannel extends VaNode
      */
     public int info(ReactorChannelInfo info, ReactorErrorInfo errorInfo)
     {
+        if (errorInfo == null || _reactor == null)
+            return ReactorReturnCodes.FAILURE;
+        if (_reactor.isShutdown()) {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "ReactorChannel.info",
+                    "Reactor is shutdown, info aborted.");
+        }
+
     	Channel channel = channel();
-    	
     	if(channel == null)
     	{
     		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1074,8 +1086,15 @@ public class ReactorChannel extends VaNode
      */
     public int bufferUsage(ReactorErrorInfo errorInfo)
     {
+        if (errorInfo == null || _reactor == null)
+            return ReactorReturnCodes.FAILURE;
+        if (_reactor.isShutdown()) {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "ReactorChannel.bufferUsage",
+                    "Reactor is shutdown, bufferUsage aborted.");
+        }
+
     	Channel channel = channel();
-    	
     	if(channel == null)
     	{
     		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1098,8 +1117,15 @@ public class ReactorChannel extends VaNode
      */
     public int ioctl(int code, int value, ReactorErrorInfo errorInfo)
     {
+        if (errorInfo == null || _reactor == null)
+            return ReactorReturnCodes.FAILURE;
+        if (_reactor.isShutdown()) {
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
+                    "ReactorChannel.ioctl",
+                    "Reactor is shutdown, ioctl aborted.");
+        }
+
     	Channel channel = channel();
-    	
     	if(channel == null)
     	{
     		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
@@ -1214,7 +1240,7 @@ public class ReactorChannel extends VaNode
                     "ReactorChannel.openTunnelStream",
                     "TunnelStream defaultMsgCallback must be specified");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                     "ReactorChannel.openTunnelStream",
                     "Reactor is shutdown, openTunnelStream aborted");
 
@@ -1324,7 +1350,7 @@ public class ReactorChannel extends VaNode
                     "ReactorChannel.acceptTunnelStream",
                     "TunnelStream defaultMsgCallback must be specified");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                     "ReactorChannel.acceptTunnelStream",
                     "Reactor is shutdown, acceptTunnelStream aborted");
 
@@ -1500,7 +1526,7 @@ public class ReactorChannel extends VaNode
                     "ReactorChannel.rejectTunnelStream",
                     "options cannot be null");
         else if (_reactor.isShutdown())
-            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
+            return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                     "ReactorChannel.rejectTunnelStream",
                     "Reactor is shutdown, rejectTunnelStream aborted");
 
@@ -1817,7 +1843,10 @@ public class ReactorChannel extends VaNode
     {
     	if(stats == null || _reactor == null)
     		return;
-    	
+
+        if (_reactor.isShutdown())
+            return;
+
         _reactor._reactorLock.lock();
 
         try {

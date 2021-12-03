@@ -210,7 +210,7 @@ class RestReactor
     	if (!_reactorActive)
     	{
     		 return populateErrorInfo(errorInfo,
-                     ReactorReturnCodes.FAILURE,
+                     ReactorReturnCodes.SHUTDOWN,
                      "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
     	}
 
@@ -342,8 +342,8 @@ class RestReactor
     	if (!_reactorActive)
     	{
     		 return populateErrorInfo(errorInfo,
-                     ReactorReturnCodes.FAILURE,
-                     "RestReactor.submitRequest", "RestReactor is not active, aborting");
+                     ReactorReturnCodes.SHUTDOWN,
+                     "RestReactor.submitRequestForServiceDiscovery", "RestReactor is not active, aborting");
     	}
     	 		
     	URIBuilder uriBuilder = null;
@@ -447,7 +447,7 @@ class RestReactor
     	if (!_reactorActive)
     	{
     		 return populateErrorInfo(errorInfo,
-                     ReactorReturnCodes.FAILURE,
+                     ReactorReturnCodes.SHUTDOWN,
                      "RestReactor.dispatch", "RestReactor is not active, aborting");
     	}
     	
@@ -508,8 +508,8 @@ class RestReactor
     	if (!_reactorActive)
     	{
     		 return populateErrorInfo(errorInfo,
-                     ReactorReturnCodes.FAILURE,
-                     "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
+                     ReactorReturnCodes.SHUTDOWN,
+                     "RestReactor.submitAuthRequestBlocking", "RestReactor is not active, aborting");
     	}
     	
     	if (_sslconSocketFactory == null)
@@ -710,7 +710,7 @@ class RestReactor
     	if (!_reactorActive)
     	{
     		 return populateErrorInfo(errorInfo,
-                     ReactorReturnCodes.FAILURE,
+                     ReactorReturnCodes.SHUTDOWN,
                      "RestReactor.submitServiceDiscoveryRequestBlocking", "RestReactor is not active, aborting");
     	}
     	

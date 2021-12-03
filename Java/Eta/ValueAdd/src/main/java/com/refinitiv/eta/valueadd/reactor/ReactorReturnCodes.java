@@ -76,6 +76,11 @@ public class ReactorReturnCodes
     public static final int PERSISTENCE_FULL = -9;
 
     /**
+     * Failure. Reactor is shutdown.
+     */
+    public static final int SHUTDOWN = -10;
+
+    /**
      * Returns a String representation of the specified ReactorReturnCodes type.
      *
      * @param type the type
@@ -105,6 +110,8 @@ public class ReactorReturnCodes
                 return "ReactorReturnCodes.INVALID_ENCODING";
             case -9:
                 return "ReactorReturnCodes.PERSISTENCE_FULL";
+            case -10:
+                return "ReactorReturnCodes.SHUTDOWN";
             default:
                 return "ReactorReturnCodes " + type + " - undefined.";
         }
