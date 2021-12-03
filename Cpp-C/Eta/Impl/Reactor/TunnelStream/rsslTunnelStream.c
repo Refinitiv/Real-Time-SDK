@@ -40,6 +40,12 @@ RSSL_VA_API RsslBuffer *rsslTunnelStreamGetBuffer(RsslTunnelStream *pTunnel,
 	if (reactorLockInterface(pReactorImpl, RSSL_TRUE, pErrorInfo) != RSSL_RET_SUCCESS)
 		return NULL;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), NULL);
+	}
+
 	pBufferImpl = tunnelStreamGetBuffer(pTunnelImpl, pRsslTunnelStreamGetBufferOptions->size, RSSL_TRUE, RSSL_FALSE, pErrorInfo);
 	return (reactorUnlockInterface(pReactorImpl), (RsslBuffer*)pBufferImpl);
 }
@@ -66,6 +72,12 @@ RSSL_VA_API RsslRet rsslTunnelStreamReleaseBuffer(RsslBuffer *pBuffer, RsslError
 
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
 
 	tunnelStreamReleaseBuffer(pTunnelImpl, pBufferImpl);
 
@@ -98,6 +110,12 @@ RSSL_VA_API RsslRet rsslTunnelStreamGetInfo(RsslTunnelStream *pTunnel, RsslTunne
 
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pErrorInfo, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
 
 	rsslClearTunnelStreamInfo(pInfo);
 	ret = tunnelStreamGetInfo(pTunnelImpl, pInfo, pErrorInfo);

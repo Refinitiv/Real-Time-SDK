@@ -386,6 +386,12 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
 	if (pReactorImpl->jsonConverterInitialized == RSSL_TRUE)
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
@@ -1135,8 +1141,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 	if (pRsslReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
-		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 	}
 
 	if (!pOpts)
@@ -1512,7 +1518,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		goto reactorConnectFail;
 	}
 
@@ -1821,7 +1827,7 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
 	}
 
@@ -1902,6 +1908,12 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_FALSE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_FAILURE, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
 
 	/* Record current time. */
 	pReactorImpl->lastRecordedTimeMs = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
@@ -2160,7 +2172,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 	}
 	else
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Reactor is shutting down.");
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_FAILURE, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 }
@@ -2185,7 +2197,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
 	}
 
@@ -2468,7 +2480,7 @@ RSSL_VA_API RsslRet rsslReactorSubmitMsg(RsslReactor *pReactor, RsslReactorChann
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		return (reactorUnlockInterface((RsslReactorImpl*)pReactor), RSSL_RET_FAILURE);
 	}
 
@@ -2876,6 +2888,12 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Invalid argument");
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT );
+	}
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 
 	if (pReactorChannel->reactorParentQueue == &pReactorImpl->closingChannels)
@@ -4935,6 +4953,12 @@ RSSL_VA_API RsslRet rsslReactorOpenTunnelStream(RsslReactorChannel *pReactorChan
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
 	if ((pTunnelStream = tunnelManagerOpenStream(pReactorChannelImpl->pTunnelManager, pOptions, RSSL_FALSE, NULL, COS_CURRENT_STREAM_VERSION, pError)) == NULL)
 		return (reactorUnlockInterface(pReactorImpl), pError->rsslError.rsslErrorId);
 
@@ -4966,6 +4990,12 @@ RSSL_VA_API RsslRet rsslReactorCloseTunnelStream(RsslTunnelStream *pTunnelStream
 	
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
 
 	if ((ret = tunnelManagerCloseStream(pReactorChannelImpl->pTunnelManager, pTunnelStream, pOptions, pError)) != RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface(pReactorImpl), ret);
@@ -5013,6 +5043,12 @@ RSSL_VA_API RsslRet rsslTunnelStreamSubmit(RsslTunnelStream *pTunnelStream, Rssl
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
 	if ((ret = tunnelManagerSubmitBuffer((TunnelManager *)pTunnelManagerImpl, pTunnelStream, pBuffer, pRsslTunnelStreamSubmitOptions, pError))
 				!= RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface(pReactorChannelImpl->pParentReactor), ret);
@@ -5050,6 +5086,11 @@ RSSL_VA_API RsslRet rsslReactorAcceptTunnelStream(RsslTunnelStreamRequestEvent *
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
 
 	if ((ret = tunnelManagerAcceptStream(pReactorChannelImpl->pTunnelManager, pEvent, pOptions, pError)) != RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface(pReactorImpl), ret);
@@ -5097,6 +5138,12 @@ RSSL_VA_API RsslRet rsslReactorRejectTunnelStream(RsslTunnelStreamRequestEvent *
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
 	ret = tunnelManagerRejectStream(pReactorChannelImpl->pTunnelManager, pEvent, pOptions, pError);
 
 	return (reactorUnlockInterface(pReactorImpl), ret);
@@ -5133,6 +5180,12 @@ RSSL_VA_API RsslRet rsslTunnelStreamSubmitMsg(RsslTunnelStream *pTunnelStream, R
 	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 		return ret;
 
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
 	if ((ret = tunnelManagerSubmit((TunnelManager *)pTunnelManagerImpl, pTunnelStream, pRsslTunnelStreamSubmitMsgOptions, pError)) != RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface(pReactorChannelImpl->pParentReactor), RSSL_RET_FAILURE);
 
@@ -5165,7 +5218,7 @@ RSSL_VA_API RsslRet rsslReactorSubmitOAuthCredentialRenewal(RsslReactor *pReacto
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 		goto submitFailed;
 	}
 
@@ -5285,8 +5338,8 @@ RSSL_VA_API RsslRet rsslReactorRetrieveChannelStatistic(RsslReactor *pReactor, R
 
 	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 	{
-		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
-		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+		rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 
 	if (!pReactorChannel)
@@ -5329,6 +5382,113 @@ RsslBool packedBufferHashU64Compare(void *element1, void *element2)
 	return (element1 == element2);
 }
 
+RSSL_VA_API RsslRet rsslReactorGetChannelInfo(RsslReactorChannel* pReactorChannel, RsslReactorChannelInfo* pInfo, RsslErrorInfo* pError)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	if (!pError)
+		return RSSL_RET_INVALID_ARGUMENT;
+	if (!pReactorChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if (!pReactorChannel->pRsslChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+	else
+	{
+		RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+		RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
+
+		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	ret = rsslGetChannelInfo(pReactorChannel->pRsslChannel, &pInfo->rsslChannelInfo, &pError->rsslError);
+	if (ret != RSSL_RET_SUCCESS)
+		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	return ret;
+}
+
+RSSL_VA_API RsslRet rsslReactorGetChannelStats(RsslReactorChannel* pReactorChannel, RsslReactorChannelStats* pInfo, RsslErrorInfo* pError)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	if (!pError)
+		return RSSL_RET_INVALID_ARGUMENT;
+	if (!pReactorChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+	if (!pInfo)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannelStats is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if (!pReactorChannel->pRsslChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+	else
+	{
+		RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+		RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
+
+		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	ret = rsslGetChannelStats(pReactorChannel->pRsslChannel, &pInfo->rsslChannelStats, &pError->rsslError);
+	if (ret != RSSL_RET_SUCCESS)
+		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	return ret;
+}
+
+RSSL_VA_API RsslInt32 rsslReactorChannelBufferUsage(RsslReactorChannel* pReactorChannel, RsslErrorInfo* pError)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	if (!pError)
+		return RSSL_RET_INVALID_ARGUMENT;
+	if (!pReactorChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if (!pReactorChannel->pRsslChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+	else
+	{
+		RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+		RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
+
+		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	ret = rsslBufferUsage(pReactorChannel->pRsslChannel, &pError->rsslError);
+	if (ret < RSSL_RET_SUCCESS)
+		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	return ret;
+}
+
 RSSL_VA_API RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *channel, RsslUInt32 size, RsslBool packedBuffer, RsslErrorInfo *pError)
 {
 	RsslRet ret;
@@ -5347,6 +5507,11 @@ RSSL_VA_API RsslBuffer* rsslReactorGetBuffer(RsslReactorChannel *channel, RsslUI
 		if (!pReactorChannel || !rsslReactorChannelIsValid(pReactorImpl, pReactorChannel, pError))
 			return (reactorUnlockInterface(pReactorImpl), pBuffer);
 
+		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			return (reactorUnlockInterface(pReactorImpl), pBuffer);
+		}
 
 		if (pReactorChannel->packedBufferHashTable.queueList == NULL)
 		{
@@ -5407,6 +5572,12 @@ RSSL_VA_API RsslRet rsslReactorReleaseBuffer(RsslReactorChannel *channel, RsslBu
 		if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
 			return ret;
 
+		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+		}
+
 		if( pReactorChannel->packedBufferHashTable.elementCount != 0 )
 		{
 			pHashLink = rsslHashTableFind(&pReactorChannel->packedBufferHashTable, pBuffer, NULL);
@@ -5460,7 +5631,7 @@ RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pChannel, Rssl
 
 		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
 		{
-			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
 			return (reactorUnlockInterface(pReactorImpl), pNewBuffer);
 		}
 
@@ -5570,6 +5741,40 @@ RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pChannel, Rssl
 
 		return pNewBuffer;
 	}
+}
+
+RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel* pReactorChannel, int code, void* value, RsslErrorInfo* pError)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	if (!pError)
+		return RSSL_RET_INVALID_ARGUMENT;
+	if (!pReactorChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if (!pReactorChannel->pRsslChannel)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslChannel is not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+	else
+	{
+		RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+		RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
+
+		if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_SHUTDOWN, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	ret = rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
+	if (ret != RSSL_RET_SUCCESS)
+		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+	return ret;
 }
 
 RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl)

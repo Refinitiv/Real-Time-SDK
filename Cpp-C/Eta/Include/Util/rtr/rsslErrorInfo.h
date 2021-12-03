@@ -28,7 +28,8 @@ extern "C" {
 typedef enum
 {
 	RSSL_EIC_SUCCESS		= 0,	/*!< Success */
-	RSSL_EIC_FAILURE		= -1	/*!< General failure */
+	RSSL_EIC_FAILURE		= -1,	/*!< General failure */
+	RSSL_EIC_SHUTDOWN		= -2	/*!< Failure. RsslReactor was shut down */
 } RsslErrorInfoCode;
 
 #define RSSL_ERROR_INFO_LOCATION_LENGTH (1024)

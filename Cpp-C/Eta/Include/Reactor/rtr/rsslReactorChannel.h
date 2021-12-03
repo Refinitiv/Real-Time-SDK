@@ -51,7 +51,7 @@ typedef struct
 } RsslReactorChannelInfo;
 
 /**
- * @brief Returns information about the RsslReactorChannel
+ * @brief Returns information about the RsslReactorChannel.
  * @param pReactorChannel The channel to get information from.
  * @param pInfo RsslReactorChannelInfo structure to be populated with information.
  * @param pError Error structure to be populated in the event of failure.
@@ -59,13 +59,7 @@ typedef struct
  * @return RsslRet failure codes, if an error occurred.
  * @see RsslReactor, RsslReactorChannel, RsslReactorChannelInfo, RsslErrorInfo
  */
-RTR_C_INLINE RsslRet rsslReactorGetChannelInfo(RsslReactorChannel *pReactorChannel, RsslReactorChannelInfo *pInfo, RsslErrorInfo *pError)
-{
-	RsslRet ret = rsslGetChannelInfo(pReactorChannel->pRsslChannel, &pInfo->rsslChannelInfo, &pError->rsslError);
-	if (ret != RSSL_RET_SUCCESS)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return ret;
-}
+RSSL_VA_API RsslRet rsslReactorGetChannelInfo(RsslReactorChannel* pReactorChannel, RsslReactorChannelInfo* pInfo, RsslErrorInfo* pError);
 
 /**
  * @brief Statistics returned by the rsslReactorGetChannelStats() call.
@@ -77,7 +71,7 @@ typedef struct
 } RsslReactorChannelStats;
 
 /**
- * @brief Returns statisitcal information about the RsslReactorChannel
+ * @brief Returns statistical information about the RsslReactorChannel.
  * @param pReactorChannel The channel to get information from.
  * @param pInfo RsslReactorChannelStats structure to be populated with information.
  * @param pError Error structure to be populated in the event of failure.
@@ -85,15 +79,7 @@ typedef struct
  * @return RsslRet failure codes, if an error occurred.
  * @see RsslReactor, RsslReactorChannel, RsslReactorChannelInfo, RsslErrorInfo
  */
-RTR_C_INLINE RsslRet rsslReactorGetChannelStats(RsslReactorChannel *pReactorChannel, RsslReactorChannelStats *pInfo, RsslErrorInfo *pError)
-{
-	RsslRet ret = rsslGetChannelStats(pReactorChannel->pRsslChannel, &pInfo->rsslChannelStats, &pError->rsslError);
-	if (ret != RSSL_RET_SUCCESS)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return ret;
-}
-
-
+RSSL_VA_API RsslRet rsslReactorGetChannelStats(RsslReactorChannel* pReactorChannel, RsslReactorChannelStats* pInfo, RsslErrorInfo* pError);
 
 /**
  * @brief Retrieve the total number of used buffers for an RsslReactorChannel.
@@ -103,13 +89,7 @@ RTR_C_INLINE RsslRet rsslReactorGetChannelStats(RsslReactorChannel *pReactorChan
  * @return If the value is negative, it is an RsslRet failure code.
  * @see RsslReactor, RsslReactorChannel, RsslIoctlCodes, RsslErrorInfo
  */
-RTR_C_INLINE RsslInt32 rsslReactorChannelBufferUsage(RsslReactorChannel *pReactorChannel, RsslErrorInfo *pError)
-{
-	RsslInt32 ret = rsslBufferUsage(pReactorChannel->pRsslChannel, &pError->rsslError);
-	if (ret < RSSL_RET_SUCCESS)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return ret;
-}
+RSSL_VA_API RsslInt32 rsslReactorChannelBufferUsage(RsslReactorChannel* pReactorChannel, RsslErrorInfo* pError);
 
 /**
  *	@addtogroup VAReactorChnlOps
@@ -158,13 +138,7 @@ RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pReactorChanne
  * @return RsslRet return codes
  * @see RsslReactor, RsslReactorChannel, RsslIoctlCodes, RsslErrorInfo
  */
-RTR_C_INLINE RsslRet rsslReactorChannelIoctl(RsslReactorChannel *pReactorChannel, int code, void *value, RsslErrorInfo *pError)
-{
-	RsslRet ret = rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
-	if (ret != RSSL_RET_SUCCESS)
-		rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-	return ret;
-}
+RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel* pReactorChannel, int code, void* value, RsslErrorInfo* pError);
 
 /**
  *	@}
