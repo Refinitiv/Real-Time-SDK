@@ -14,6 +14,12 @@ public class MarketField {
 
     /**
      * Instantiates a new market field.
+     *
+     * @param fieldId the market field id
+     * @param loadType the market field load type
+     * @param value the market field init value
+     * @param qosWrapper QosWrapper helper object
+     * @param stateWrapper StateWrapper helper object
      */
     public MarketField(int fieldId, int loadType, String value, QosWrapper qosWrapper, StateWrapper stateWrapper) {
         this.fieldId = fieldId;
