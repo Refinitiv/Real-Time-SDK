@@ -12,13 +12,13 @@ unset(rtsdk_DEPENDS_LIST)
 #[====================================================================]
 set(rtsdk_INTERNAL_API_VERSION_MAJOR 3)
 set(rtsdk_INTERNAL_API_VERSION_MINOR 6)
-set(rtsdk_INTERNAL_API_VERSION_PATCH 3)
-set(rtsdk_INTERNAL_API_VERSION_TWEAK 1)
-set(rtsdk_INTERNAL_RELEASE_TWEAK L2)
+set(rtsdk_INTERNAL_API_VERSION_PATCH 4)
+set(rtsdk_INTERNAL_API_VERSION_TWEAK 0)
+set(rtsdk_INTERNAL_RELEASE_TWEAK L1)
 set(rtsdk_RELEASE_TYPE rrg)
 
 set( librssl_SO_VERSION 14 )
-set( librsslVA_SO_VERSION 16 )
+set( librsslVA_SO_VERSION 17 )
 set( libema_SO_VERSION 12 )
 set( librsslJsonConverter_SO_VERSION 2 )
 
