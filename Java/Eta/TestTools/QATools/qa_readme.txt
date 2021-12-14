@@ -163,3 +163,18 @@ wlconsumer-ConnRec-001: Alters WLConsumer to be able configure multiple provider
     "-minDelay"  input that permits user to specify ReconnectMinDelay
     "-maxDelay"  input that permits user to specify ReconnectMaxDelay
 Sample usage: -h2 localhost -p2 14025 -h3 localhost -p3 14026 -attempLimit -1 -numConnections 3 -minDelay 5000 -maxDelay 30000
+
+etajconsperf-Rto-001
+    Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
+    Alters ConsPerfConfig.java, ConsumerThread.java to connect to RTO, requires CLI credentials.
+    Run etajConsPerf. Sample Cmd:
+
+    # ETA session management with reactor socket no proxy 
+    ./gradlew runETAPerfConsumer --args="-serviceName ELEKTRON_DD \
+         -uname <username> -password <password> -clientId <clientId> \
+         -steadyStateTime 300 -sendBufSize 65000 -recvBufSize 65000 -inputBufs 2048 \
+         -itemFile 350k.xml -outputBufs 5000  \
+         -threads 1 -connType encrypted -encryptedConnectionType socket \
+         -sessionMgnt -reactor"
+
+    If -sessionMgnt is enabled should set -reactor or -watchlist
