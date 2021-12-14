@@ -2981,14 +2981,16 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups(RsslConnectionTypes connec
 	wtfDispatch(WTF_TC_PROVIDER, 100);
 	ASSERT_TRUE(!wtfGetEvent());
 
-	/* Consumer receives directory update on different stream. */
+	/* Dispatch consumer. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
+
+	/* Consumer receives directory update. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
-	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 5);
-	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775556);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
 
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	pService = &pDirectoryUpdate->serviceList[0];
@@ -3009,13 +3011,13 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups(RsslConnectionTypes connec
 	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[1].group, &group1));
 	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[1].mergedToGroup, &group0));
 
-	/* Consumer receives directory update. */
+	/* Consumer receives directory update on different stream. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
-	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 2);
-	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775555);
+	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == 5);
+	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x77775556);
 	ASSERT_TRUE(!wtfGetEvent());
 
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
@@ -3036,6 +3038,8 @@ void watchlistDirectoryDataTestGroupFilterOnly_Groups(RsslConnectionTypes connec
 	ASSERT_TRUE(pService->groupStateList[1].action == RSSL_FTEA_SET_ENTRY);
 	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[1].group, &group1));
 	ASSERT_TRUE(rsslBufferIsEqual(&pService->groupStateList[1].mergedToGroup, &group0));
+
+
 
 	/* Consumer re-requests directory. */
 	rsslInitDefaultRDMDirectoryRequest(&directoryRequest, 2);
