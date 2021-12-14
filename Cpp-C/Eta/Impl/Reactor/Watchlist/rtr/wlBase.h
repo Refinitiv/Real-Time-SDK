@@ -113,6 +113,7 @@ typedef struct
 {
 	RsslUInt					supportOptimizedPauseResume;	/* Login refresh parameter, SupportOptimizedPauseResume. */
 	RsslUInt					supportViewRequests;			/* Login refresh parameter, SupportViewRequests. */
+	RsslUInt					supportStandby;					/* Login refresh parameter, SupportStandby */
 	RsslUInt					singleOpen;						/* Login request parameter, SingleOpen. */
 	RsslUInt					allowSuspectData;				/* Login request parameter, AllowSuspectData. */
 	RsslWatchlistMsgCallback	*msgCallback;					/* Callback the watchlist should use to forward messages. */
@@ -167,6 +168,7 @@ typedef struct WlBase
 	WlPostTable			postTable;				/* Table of posts waiting for acknowledgement. */
 	RsslUInt32 			maxOutstandingPosts;	/* Acknowledgement pool limit. */
 	RsslUInt32 			postAckTimeout;			/* Timeout for acks of posts. */
+	RsslBool			enableWarmStandBy;		/* Enables the warm standby feature. */
 } WlBase;
 
 /* Options for initializing the base structure. */
@@ -174,6 +176,9 @@ typedef struct
 {
 	RsslWatchlistMsgCallback		*msgCallback;			/* Callback the watchlist should use to forward messsages. */
 	WlServiceCacheUpdateCallback	*updateCallback;		/* Callback for service cache updates. */
+	RDMCachedServiceStateChangeCallback *serviceStateChangeCallback; /* Callback for a service state changes. */
+	WlServiceCacheUpdateCallback    *serviceCacheInitCallback; /* Callbck for service cache initialization. */
+	WlServiceCacheUpdateCallback    *serviceCacheUpdateCallback; /* Callbck for service cache updates. */
 	int								requestPoolBlockSize;	/* Size of the WlRequest structure. */
 	int								requestPoolCount;		/* Size of WlRequest pool. */
 	int								streamPoolBlockSize;	/* Size of the WlStream structure. */
@@ -183,6 +188,7 @@ typedef struct
 	RsslInt64						ticksPerMsec;			/* Ticks per millisecond. Used when getting current time (windows only) */
 	RsslUInt32						maxOutstandingPosts;	/* Acknowledgement pool limit. */
 	RsslUInt32						postAckTimeout;			/* Timeout for acks of onstream posts. */
+	RsslBool						enableWarmStandBy;		/* Enables the warm standby feature. */
 } WlBaseInitOptions;
 
 /* Initializes a WlBase structure. */

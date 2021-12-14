@@ -2664,6 +2664,10 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 	rsslStatusMsg.msgBase.msgKey.serviceId = pRsslTunnelStream->serviceId;
 
 	Channel* channel = static_cast<Channel*>(pTunnelStreamStatusEvent->pReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	StaticDecoder::setRsslData(&_statusMsg, (RsslMsg*)&rsslStatusMsg,
 		pTunnelStreamStatusEvent->pReactorChannel->majorVersion,
@@ -2851,6 +2855,10 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslTunnelStream* pR
 RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	StaticDecoder::setRsslData( &_ackMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
@@ -2868,6 +2876,10 @@ RsslReactorCallbackRet ItemCallbackClient::processAckMsg( RsslTunnelStream* pRss
 RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	StaticDecoder::setRsslData( &_genericMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
@@ -2885,6 +2897,10 @@ RsslReactorCallbackRet ItemCallbackClient::processGenericMsg( RsslTunnelStream* 
 RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	StaticDecoder::setRsslData( &_refreshMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
@@ -2912,6 +2928,10 @@ RsslReactorCallbackRet ItemCallbackClient::processRefreshMsg( RsslTunnelStream* 
 RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	StaticDecoder::setRsslData( &_updateMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
@@ -2929,6 +2949,10 @@ RsslReactorCallbackRet ItemCallbackClient::processUpdateMsg( RsslTunnelStream* p
 RsslReactorCallbackRet ItemCallbackClient::processStatusMsg( RsslTunnelStream* pRsslTunnelStream, RsslTunnelStreamMsgEvent* pTunnelStreamMsgEvent, Item* item )
 {
 	Channel* channel = static_cast<Channel*>(pTunnelStreamMsgEvent->pReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	StaticDecoder::setRsslData( &_statusMsg, pTunnelStreamMsgEvent->pRsslMsg,
 		pTunnelStreamMsgEvent->pReactorChannel->majorVersion,
@@ -2975,6 +2999,10 @@ RsslReactorCallbackRet ItemCallbackClient::processCallback( RsslReactor* pRsslRe
 	}
 
 	Channel* channel = static_cast<Channel*>(pRsslReactorChannel->userSpecPtr);
+	if (channel->getParentChannel())
+	{
+		channel = channel->getParentChannel();
+	}
 
 	const RsslDataDictionary* pRsslDataDictionary = channel->getDictionary() ? channel->getDictionary()->getRsslDictionary() : 0;
 

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
 */
 
 /* consPerfConfig.h
@@ -90,6 +90,12 @@ typedef struct
 	RsslUInt32			guaranteedOutputTunnelBuffers;	/* Guaranteed Output Tunnel Buffers. See -tunnelStreamOutputBufs */
 	RsslBool			tunnelStreamBufsUsed;		/* Control whether to print tunnel Stream buffers usage. See -tunnelStreamBuffersUsed */
 	RsslUInt32			compressionType;			/* Compression types for the client. */
+	/* Warm standby configuration settings. */
+	char				startingHostName[255];		/* Specify a starting server hostname for warm standby feature. See -startingHostName.*/
+	char				startingPort[255];			/* Specify a starting server port for warm standby feature. See -startingPort.*/
+	char				standbyHostName[255];		/* Specify a standby server hostname for warm standby feature. See -standbyHostName.*/
+	char				standbyPort[255];			/* Specify a standby server port for warm standby feature. See -standbyPort.*/
+	RsslReactorWarmStandbyMode	warmStandbyMode;	/* Specify a warm standby mode. See -warmStandbyMode. */
 } ConsPerfConfig;
 
 /* Contains the global application configuration */

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2021 Refinitiv. All rights reserved.
 */
 
 /*
@@ -56,6 +56,8 @@ static PostServiceInfo serviceInfo;
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
+RsslSocket socketIdList[2] = { 0, 0 };
+RsslUInt32 socketIdListCount = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -87,6 +89,8 @@ int main(int argc, char **argv)
 	RsslBool							postWithMsg = RSSL_TRUE;
 
 	RsslInitializeExOpts		initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslReactorWarmStandbyGroup			reactorWarmStandbyGroup;
+	RsslReactorWarmStandbyServerInfo	standbyServerInfo;
 
 	watchlistConsumerConfigInit(argc, argv);
 
@@ -317,6 +321,59 @@ int main(int argc, char **argv)
 		{
 			reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
 		}
+
+		if (watchlistConsumerConfig.warmStandbyMode != RSSL_RWSB_MODE_NONE)
+		{
+			rsslClearReactorWarmStandbyGroup(&reactorWarmStandbyGroup);
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionType = watchlistConsumerConfig.connectionType;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && watchlistConsumerConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+				reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = watchlistConsumerConfig.encryptedConnectionType;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = watchlistConsumerConfig.startingHostName;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = watchlistConsumerConfig.startingPort;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyHostName = watchlistConsumerConfig.proxyHost;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPort = watchlistConsumerConfig.proxyPort;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyUserName = watchlistConsumerConfig.proxyUserName;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPasswd = watchlistConsumerConfig.proxyPasswd;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyDomain = watchlistConsumerConfig.proxyDomain;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.location = watchlistConsumerConfig.location;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+			}
+
+			rsslClearReactorWarmStandbyServerInfo(&standbyServerInfo);
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionType = watchlistConsumerConfig.connectionType;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && watchlistConsumerConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+				standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = watchlistConsumerConfig.encryptedConnectionType;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = watchlistConsumerConfig.standbyHostName;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = watchlistConsumerConfig.standbyPort;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.tcp_nodelay = RSSL_TRUE;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyHostName = watchlistConsumerConfig.proxyHost;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPort = watchlistConsumerConfig.proxyPort;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyUserName = watchlistConsumerConfig.proxyUserName;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPasswd = watchlistConsumerConfig.proxyPasswd;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyDomain = watchlistConsumerConfig.proxyDomain;
+			standbyServerInfo.reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
+			standbyServerInfo.reactorConnectInfo.location = watchlistConsumerConfig.location;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				standbyServerInfo.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+			}
+
+			reactorWarmStandbyGroup.standbyServerCount = 1;
+			reactorWarmStandbyGroup.standbyServerList = &standbyServerInfo;
+			reactorWarmStandbyGroup.warmStandbyMode = watchlistConsumerConfig.warmStandbyMode;
+			reactorConnectOpts.warmStandbyGroupCount = 1;
+			reactorConnectOpts.reactorWarmStandbyGroupList = &reactorWarmStandbyGroup;
+		}
 	}
 	else
 	{
@@ -381,16 +438,31 @@ int main(int argc, char **argv)
 		fd_set						readFds;
 		fd_set						exceptFds;
 		RsslReactorDispatchOptions	dispatchOpts;
+		RsslUInt32					index;
 
 		FD_ZERO(&readFds);
 		FD_ZERO(&exceptFds);
 		FD_SET(pReactor->eventFd, &readFds);
 		FD_SET(pReactor->eventFd, &exceptFds);
 
-		if (pConsumerChannel && pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+		if (pConsumerChannel)
 		{
-			FD_SET(pConsumerChannel->socketId, &readFds);
-			FD_SET(pConsumerChannel->socketId, &exceptFds);
+			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+				{
+					FD_SET(pConsumerChannel->socketId, &readFds);
+					FD_SET(pConsumerChannel->socketId, &exceptFds);
+				}
+			}
+			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				for (index = 0; index < socketIdListCount; index++)
+				{
+					FD_SET(socketIdList[index], &readFds);
+					FD_SET(socketIdList[index], &exceptFds);
+				}
+			}
 		}
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
@@ -1323,6 +1395,18 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* Save the channel on our info structure. */
 			pConsumerChannel = pReactorChannel;
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				RsslUInt32 index;
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+				}
+
+				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+			}
+
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
 			if (isXmlTracingEnabled() == RSSL_TRUE) 
 			{
@@ -1343,8 +1427,19 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_READY:
-		case RSSL_RC_CET_FD_CHANGE:
 			return RSSL_RC_CRET_SUCCESS;
+		case RSSL_RC_CET_FD_CHANGE:
+		{
+			RsslUInt32 index;
+			for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+			{
+				socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+			}
+
+			socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
 		case RSSL_RC_CET_CHANNEL_DOWN:
 		{
 			RsslErrorInfo rsslErrorInfo;
@@ -1366,14 +1461,25 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
+			RsslChannel *pRsslChannel = pReactorChannel->pRsslChannel;
+			char hostName[512];
+
+			memset(hostName, 0, 512);
+
+			if (pRsslChannel != NULL && pRsslChannel->hostname != NULL)
+			{
+				memcpy(hostName, pRsslChannel->hostname, strlen(pRsslChannel->hostname));
+			}
+
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
-				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting\n", pReactorChannel->socketId);
+				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting hostname %s\n", pReactorChannel->socketId, hostName);
 			else
-				printf("Channel down. Reconnecting\n");
+				printf("Channel down. Reconnecting hostname %s\n",  hostName);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
+			socketIdListCount = 0;
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}

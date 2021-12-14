@@ -289,6 +289,11 @@ void ProgrammaticConfigure::retrieveDependencyNames( const Map& map, const EmaSt
 													_directoryName = instanceEntry.getAscii();
 													_nameflags |= DirectoryFlagEnum;
 												}
+												else if (instanceEntry.getName() == "WarmStandbyChannelSet")
+												{
+													_warmStandbyChannelSetName = instanceEntry.getAscii();
+													_nameflags |= WarmStandbyChannelSetFlagEnum;
+												}
 												break;
 											}
 										}
@@ -329,6 +334,25 @@ bool ProgrammaticConfigure::getActiveChannelName( const EmaString& instanceName,
 	if ( _nameflags & ChannelFlagEnum )
 	{
 		channelName = _channelName;
+		return true;
+	}
+	else
+		return false;
+}
+
+bool ProgrammaticConfigure::getActiveWSBChannelSetName(const EmaString& instanceName, EmaString& wsbChannelName)
+{
+	if (!_dependencyNamesLoaded)
+	{
+		for (UInt32 i = 0; i < _configList.size(); i++)
+			retrieveDependencyNames(*_configList[i], instanceName);
+
+		_dependencyNamesLoaded = true;
+	}
+
+	if (_nameflags & WarmStandbyChannelSetFlagEnum)
+	{
+		wsbChannelName = _warmStandbyChannelSetName;
 		return true;
 	}
 	else
@@ -714,6 +738,21 @@ void  ProgrammaticConfigure::retrieveChannelConfig( const EmaString& channelName
 {
 	for ( UInt32 i = 0 ; i < _configList.size() ; i++ )
 		retrieveChannel( *_configList[i], channelName, _emaConfigErrList, activeConfig, hostFnCalled, fileCfg);
+}
+
+void ProgrammaticConfigure::retrieveWSBChannelConfig(const EmaString& wsbChannelName, ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileCfg)
+{
+	WarmStandbyChannelConfig* currentWarmStandbyChannelConfig = NULL;
+
+	for (UInt32 i = 0; i < _configList.size(); i++)
+		retrieveWSBChannel(*_configList[i], wsbChannelName, _emaConfigErrList, activeConfig, fileCfg);
+}
+
+void ProgrammaticConfigure::retrieveWSBServerInfoConfig(const EmaString& wsbServerInfoName, ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentCfg,
+	WarmStandbyServerInfoConfig* fileCfg)
+{
+	for (UInt32 i = 0; i < _configList.size(); i++)
+		retrieveWSBServer(*_configList[i], wsbServerInfoName, _emaConfigErrList, activeConfig, currentCfg, fileCfg);
 }
 
 void  ProgrammaticConfigure::retrieveServerConfig(const EmaString& serverName, ActiveServerConfig& activeServerConfig, int portFnCalled, ServerConfig* fileCfg)
@@ -1656,6 +1695,94 @@ void ProgrammaticConfigure::retrieveChannel( const Map& map, const EmaString& ch
 	}
 }
 
+void ProgrammaticConfigure::retrieveWSBChannel(const Map& map, const EmaString& wsbChannelName, EmaConfigErrorList& emaConfigErrList,
+	ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileCfg )
+{
+	map.reset();
+	while (map.forth())
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if (mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "WarmStandbyGroup")
+		{
+			if (mapEntry.getLoadType() == DataType::ElementListEnum)
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while (elementList.forth())
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if (elementEntry.getLoadType() == DataType::MapEnum)
+					{
+						if (elementEntry.getName() == "WarmStandbyList")
+						{
+							const Map& map = elementEntry.getMap();
+
+							while (map.forth())
+							{
+								const MapEntry& mapEntry = map.getEntry();
+
+								if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == wsbChannelName))
+								{
+									if (mapEntry.getLoadType() == DataType::ElementListEnum)
+									{
+										retrieveWSBChannelInfo(mapEntry, wsbChannelName, emaConfigErrList, activeConfig, fileCfg);
+
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void ProgrammaticConfigure::retrieveWSBServer(const Map& map, const EmaString& wsbServerInfoName, EmaConfigErrorList& emaConfigErrList,
+	ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentConfig, WarmStandbyServerInfoConfig* fileCfg)
+{
+	map.reset();
+	while (map.forth())
+	{
+		const MapEntry& mapEntry = map.getEntry();
+
+		if (mapEntry.getKey().getDataType() == DataType::AsciiEnum && mapEntry.getKey().getAscii() == "WarmStandbyServerInfoGroup")
+		{
+			if (mapEntry.getLoadType() == DataType::ElementListEnum)
+			{
+				const ElementList& elementList = mapEntry.getElementList();
+
+				while (elementList.forth())
+				{
+					const ElementEntry& elementEntry = elementList.getEntry();
+
+					if (elementEntry.getLoadType() == DataType::MapEnum)
+					{
+						if (elementEntry.getName() == "WarmStandbyServerInfoList")
+						{
+							const Map& map = elementEntry.getMap();
+
+							while (map.forth())
+							{
+								const MapEntry& mapEntry = map.getEntry();
+
+								if ((mapEntry.getKey().getDataType() == DataType::AsciiEnum) && (mapEntry.getKey().getAscii() == wsbServerInfoName))
+								{
+									if (mapEntry.getLoadType() == DataType::ElementListEnum)
+										retrieveWSBServerInfo(mapEntry, wsbServerInfoName, emaConfigErrList, activeConfig, currentConfig, fileCfg);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void ProgrammaticConfigure::retrieveServer(const Map& map, const EmaString& serverName, EmaConfigErrorList& emaConfigErrList,
 	ActiveServerConfig& activeServerConfig, int portFnCalled, ServerConfig* fileCfg)
 {
@@ -2228,6 +2355,311 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 	}
 }
 
+void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, const EmaString& serverInfoName, EmaConfigErrorList& emaConfigErrList,
+	ActiveConfig& activeConfig, WarmStandbyServerInfoConfig* currentCfg, WarmStandbyServerInfoConfig* fileConfig)
+{
+	const ElementList& elementListServerInfo = mapEntry.getElementList();
+
+	EmaString channelName, PerServiceNameSet;
+
+	UInt64 flags = 0;
+	WarmStandbyServerInfoConfig* warmStandbyInfoConfig = NULL;
+	unsigned int pos;
+	ChannelConfig *fileChannelConfig = NULL;
+
+	while (elementListServerInfo.forth())
+	{
+		const ElementEntry& channelEntry = elementListServerInfo.getEntry();
+
+		switch (channelEntry.getLoadType())
+		{
+		case DataType::AsciiEnum:
+			if (channelEntry.getName() == "Channel")
+			{
+				channelName = channelEntry.getAscii();
+				flags |= 0x01;
+			}
+			else if (channelEntry.getName() == "PerServiceNameSet")
+			{
+				PerServiceNameSet = channelEntry.getAscii();
+				flags |= 0x02;
+			}
+		}
+	}
+
+	if (flags != 0)
+	{
+		EmaString queryName;
+		if (flags & 0x01)
+		{
+			queryName = channelName;
+		}
+		else if (fileConfig && fileConfig->channelConfig)
+		{
+			queryName = fileConfig->channelConfig->name;
+		}
+
+		if (!queryName.empty())
+		{
+			/* Find the channel name from the file config to merge */
+			if (activeConfig.findChannelConfig(activeConfig.configChannelSetForWSB, queryName, pos))
+			{
+				fileChannelConfig = activeConfig.configChannelSetForWSB[pos];
+			}
+
+			UInt32 orgSize = activeConfig.configChannelSet.size();
+
+			/* Get channel config from programmatic configuration instead */
+			retrieveChannelConfig(queryName, activeConfig, false, fileChannelConfig);
+
+			currentCfg->channelConfig = activeConfig.configChannelSet[orgSize];
+
+			activeConfig.configChannelSetForWSB.push_back(currentCfg->channelConfig);
+
+			activeConfig.configChannelSet.removePosition(orgSize);
+		}
+
+		if (flags & 0x02)
+		{
+			char* pToken = NULL;
+			char* pNextToken = NULL;
+			EmaString *pServiceName; 
+			EmaString serviceName;
+			pToken = strtok(const_cast<char*>(PerServiceNameSet.c_str()), ",");
+			do
+			{
+				if (pToken)
+				{
+					serviceName = pToken;
+					pNextToken = strtok(NULL, ",");
+					pServiceName = new EmaString(serviceName.trimWhitespace());
+					currentCfg->perServiceNameSet.push_back(pServiceName);
+				}
+
+				pToken = pNextToken;
+			} while (pToken != NULL);
+		}
+		else if (fileConfig && fileConfig->perServiceNameSet.size() > 0)
+		{
+			for (UInt32 index = 0; index < fileConfig->perServiceNameSet.size(); index)
+			{
+				currentCfg->perServiceNameSet.push_back(new EmaString(*fileConfig->perServiceNameSet[index]));
+			}
+		}
+	}
+	else
+	{
+		if (fileConfig)
+		{
+			if (fileConfig->channelConfig)
+			{
+				EmaString queryName = fileConfig->channelConfig->name;
+
+				if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
+				{
+					currentCfg->channelConfig = activeConfig.configChannelSet[pos];
+				}
+				else
+				{
+					/* Get channel config from programmatic configuration instead */
+					retrieveChannelConfig(queryName, activeConfig, false);
+
+					if (activeConfig.findChannelConfig(activeConfig.configChannelSet, queryName, pos))
+					{
+						currentCfg->channelConfig = activeConfig.configChannelSet[pos];
+					}
+				}
+			}
+
+			if (fileConfig->perServiceNameSet.size() > 0)
+			{
+				for (UInt32 index = 0; index < fileConfig->perServiceNameSet.size(); index)
+				{
+					currentCfg->perServiceNameSet.push_back(new EmaString(*fileConfig->perServiceNameSet[index]));
+				}
+			}
+		}
+	}
+}
+
+void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, const EmaString& wsbChannelName, EmaConfigErrorList& emaConfigErrList,
+	ActiveConfig& activeConfig, WarmStandbyChannelConfig* fileConfig)
+{
+	const ElementList& elementListWSBChannel = mapEntry.getElementList();
+
+	EmaString startingActiveServer, standbyServerSet;
+	RsslUInt downloadConnectionConfig = 0, warmStandbyMode = 0;
+	UInt64 flags = 0;
+
+	WarmStandbyChannelConfig* wsbChannelConfig = NULL;
+	WarmStandbyServerInfoConfig *wsbCurrentServerInfoConfig = NULL;
+	WarmStandbyServerInfoConfig *fileWsbServerInfoConfig = NULL;
+	UInt32 index = 0;
+	bool readFromFileConfig = false;
+
+	while (elementListWSBChannel.forth())
+	{
+		const ElementEntry& channelEntry = elementListWSBChannel.getEntry();
+
+		switch (channelEntry.getLoadType())
+		{
+		case DataType::AsciiEnum:
+			if (channelEntry.getName() == "StartingActiveServer")
+			{
+				startingActiveServer = channelEntry.getAscii();
+				flags |= 0x01;
+			}
+			else if (channelEntry.getName() == "StandbyServerSet")
+			{
+				standbyServerSet = channelEntry.getAscii();
+				flags |= 0x02;
+			}
+			break;
+		case DataType::UIntEnum:
+			if (channelEntry.getName() == "DownloadConnectionConfig")
+			{
+				downloadConnectionConfig = channelEntry.getUInt();
+				//flags |= 0x04;
+			}
+			break;
+		case DataType::EnumEnum:
+			if (channelEntry.getName() == "WarmStandbyMode")
+			{
+				warmStandbyMode = channelEntry.getEnum();
+
+				switch (warmStandbyMode)
+				{
+				case RSSL_RWSB_MODE_LOGIN_BASED:
+				case RSSL_RWSB_MODE_SERVICE_BASED:
+					flags |= 0x08;
+					break;
+				default:
+					EmaString text("Invalid WarmStandbyMode [");
+					text.append(warmStandbyMode);
+					text.append("] in Programmatic Configuration. Use default WarmStandbyMode [");
+					text.append(DEFAULT_WSB_MODE);
+					text.append("]");
+					EmaConfigError* mce(new EmaConfigError(text, OmmLoggerClient::ErrorEnum));
+					emaConfigErrList.add(mce);
+					break;
+				}
+			}
+			break;
+		}
+
+	}
+
+	wsbChannelConfig = new WarmStandbyChannelConfig(wsbChannelName);
+
+	if (flags != 0)
+	{
+		if (flags & 0x01)
+		{
+			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(startingActiveServer);
+			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
+
+			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, NULL);
+		}
+		else if(fileConfig)
+		{
+			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileConfig->startingActiveServer->name);
+			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
+
+			retrieveWSBServerInfoConfig(fileConfig->startingActiveServer->name, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer);
+		}
+
+		if (flags & 0x02)
+		{
+			char* pToken = NULL;
+			char* pNextToken = NULL;
+			EmaString wsbServerInfoName;
+			EmaVector<EmaString*> standbyServerList;
+			UInt32 index = 0;
+			EmaString *pEmaString;
+			pToken = strtok(const_cast<char*>(standbyServerSet.c_str()), ",");
+
+			do
+			{
+				if (pToken)
+				{
+					wsbServerInfoName = pToken;
+					standbyServerList.push_back(new EmaString(wsbServerInfoName.trimWhitespace()));
+					pNextToken = strtok(NULL, ",");
+				}
+
+				pToken = pNextToken;
+
+			} while (pToken != NULL);
+
+			for (index = 0; index < standbyServerList.size(); index++)
+			{
+				pEmaString = standbyServerList[index];
+				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(*pEmaString);
+				retrieveWSBServerInfoConfig(*pEmaString, activeConfig, wsbCurrentServerInfoConfig, NULL);
+
+				wsbChannelConfig->standbyServerSet.push_back(wsbCurrentServerInfoConfig);
+
+				delete pEmaString;
+			}
+
+		}
+		else if (fileConfig)
+		{
+			for (index = 0; index < fileConfig->standbyServerSet.size(); index++)
+			{
+				fileWsbServerInfoConfig = fileConfig->standbyServerSet[index];
+				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileWsbServerInfoConfig->name);
+
+				retrieveWSBServerInfoConfig(fileWsbServerInfoConfig->name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoConfig);
+
+				wsbChannelConfig->standbyServerSet.push_back(wsbCurrentServerInfoConfig);
+			}
+		}
+
+		if (flags & 0x04)
+		{
+			wsbChannelConfig->downloadConnectionConfig = downloadConnectionConfig;
+		}
+		else if(fileConfig)
+		{
+			wsbChannelConfig->downloadConnectionConfig = fileConfig->downloadConnectionConfig;
+		}
+
+		if (flags & 0x08)
+		{
+			wsbChannelConfig->warmStandbyMode = (WarmStandbyChannelConfig::WarmStandbyMode)warmStandbyMode;
+		}
+		else if (fileConfig)
+		{
+			wsbChannelConfig->warmStandbyMode = fileConfig->warmStandbyMode;
+		}
+	}
+	else
+	{
+		if (fileConfig)
+		{
+			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileConfig->startingActiveServer->name);
+			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
+
+			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer);
+
+			for (index = 0; index < fileConfig->standbyServerSet.size(); index++)
+			{
+				fileWsbServerInfoConfig = fileConfig->standbyServerSet[index];
+				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileWsbServerInfoConfig->name);
+
+				retrieveWSBServerInfoConfig(fileWsbServerInfoConfig->name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoConfig);
+
+				wsbChannelConfig->standbyServerSet.push_back(wsbCurrentServerInfoConfig);
+			}
+
+			wsbChannelConfig->downloadConnectionConfig = fileConfig->downloadConnectionConfig;
+			wsbChannelConfig->warmStandbyMode = fileConfig->warmStandbyMode;
+		}
+	}
+
+	activeConfig.configWarmStandbySet.push_back(wsbChannelConfig);
+}
 
 void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const EmaString& serverName, EmaConfigErrorList& emaConfigErrList,
 	ActiveServerConfig& activeServerConfig, int setByFnCalled, ServerConfig* fileCfg)

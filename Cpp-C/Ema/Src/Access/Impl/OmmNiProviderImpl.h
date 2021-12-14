@@ -49,6 +49,8 @@ public :
 
 	void removeSocket( RsslSocket );
 
+	void removeAllSocket();
+
 	void setRsslReactorChannelRole( RsslReactorChannelRole&, RsslReactorOAuthCredential* );
 
 	void reissue(const ReqMsg&, UInt64);

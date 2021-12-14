@@ -58,6 +58,8 @@ public:
 
 	void removeSocket( RsslSocket );
 
+	void removeAllSocket();
+
 	void loadDictionary();
 
 	void reLoadDirectory();

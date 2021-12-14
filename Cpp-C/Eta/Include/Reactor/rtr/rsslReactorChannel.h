@@ -25,9 +25,34 @@ extern "C" {
  *	@{
  */
 
+/**
+ * @brief Represents the Reactor warm standby channel information.
+ * @see RsslReactorChannel
+ */
+typedef struct
+{
+	RsslSocket* socketIdList;          /*!< A list of Socket ID of the Reactor warm standby channel. Used for notification of available data for this channel.  */
+	RsslUInt32  socketIdCount;         /*!< The number of Socket ID in socketIdList. */
+
+	RsslSocket* oldSocketIdList;       /*!< A list of Previous Socket ID of the Reactor warm standby channel. if an FD_CHANGE event has occurred.  */
+	RsslUInt32  oldSocketIdCount;      /*!< The number of Socket ID in oldSocketIdList. */
+
+} RsslReatorWarmStandbyChannelInfo;
+
+ /**
+  * @brief RSSL Reactor Channel types
+  */
+typedef enum
+{
+	RSSL_REACTOR_CHANNEL_TYPE_NORMAL = 0,		/*!< Represents a normal Reactor channel which handles an individual Rssl channel. */
+
+	RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY = 1  /*!< Represents a Reactor warm standby channel which handles a list of Rssl channels. */
+
+} RsslReactorChannelType;
+
  /**
  * @brief Channel representing a connection handled by an RsslReactor.
- * @see RsslReactor, RsslChannel, RsslServer, RsslSocket, rsslReactorConnect, rsslReactorAccept, rsslReactorCloseChannel
+ * @see RsslReactor, RsslChannel, RsslServer, RsslSocket, RsslReatorWarmStandbyChInfo, rsslReactorConnect, rsslReactorAccept, rsslReactorCloseChannel
  */
 typedef struct
 {
@@ -39,6 +64,9 @@ typedef struct
 	RsslUInt32	minorVersion;	/*!< The minior version that should be set on iterators when encoding and decoding messages for this channel. */
 	RsslUInt32	protocolType;	/*!< The protocol type of the encoder & decoder that should be used. */
 	void	*userSpecPtr;		/*!< A user specified pointer associated with this RsslReactorChannel. */
+	RsslReactorChannelType reactorChannelType; /*!< The Reactor channel type that this channel represents. */
+	RsslReatorWarmStandbyChannelInfo *pWarmStandbyChInfo; /*!< This member is only available for the Reactor warm standby channel to get a list of Socket ID.
+										Used for notification of available data for this channel. */
 } RsslReactorChannel;
 
 /**

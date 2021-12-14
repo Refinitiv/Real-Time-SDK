@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.49
-!tag Build_RDMD  4.20.49
-!tag DT_Version  21.81
-!tag Date        21-Sep-2021
+!tag RT_Version  4.20.50
+!tag Build_RDMD  4.20.50
+!tag DT_Version  21.91
+!tag Date        1-Nov-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -554,6 +554,7 @@ INS_P_CCY  13612
     905        "SAh"   Saudi Arabian Halalah (deprecated)
     906        "QAd"   Qatari Dirham (deprecated)
     907        "AEf"   UAE Fils (deprecated)
+    926        "VED"   New Venezuelan Bolivar Soberano
     927        "UYW"   Uruguayan Unidad Previsional
     928        "VES"   Venezuelan Bolivar Soberano
     929        "MRU"   Mauritanian Ouguiya
@@ -8654,7 +8655,7 @@ DRK_EXID   13610
    1536        "GTX"   GETTEX
    1537        "UEE"   Ukrainian Energy Exchange
    1538        "MTY"   MTS CYPRUS
-   1539        "4AX"   4 AFRICA EXCHANGE
+   1539        "4AX"   Cape Town Stock Exchange
    1540        "TQE"   Turquoise (EU)
    1541        "BSB"   Cboe Europe BXE (EU) (DO NOT USE)
    1542        "XCE"   Cboe Europe CXE (EU) (DO NOT USE)
@@ -8796,6 +8797,16 @@ DRK_EXID   13610
    1678        "SDX"   SIX DIGITAL EXCHANGE
    1679        "SBX"   SPB Exchange
    1680        "AGR"   Agriniser
+   1681        "TBF"   TAKASBANK FUNDS
+   1682        "JPM"   Mitsubishi Materials
+   1683        "JPK"   Mitsui Kinzoku
+   1684        "JPJ"   JX Nippon Mining and Metals
+   1685        "JPS"   Sumitomo Metal Mining
+   1686        "JPT"   Tanaka Precious Metals
+   1687        "UIG"   Guggenheim Unit Investment Trusts
+   1688        "AMI"   National Agriculture Market
+   1689        "RMA"   Russian Ministry of Agriculture
+   1690        "FLC"   FrieslandCampina(Royal FrieslandCampina N.V.)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11169,6 +11180,7 @@ OR_RNK_RUL  3425
 !
 ORDER_SIDE  3428
 IRG_ORDSID  5522
+PI_QSIDE   13108
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -13198,6 +13210,8 @@ INDEX_TYPE  8939
      14   "Prc ExR "   Excess Price Return Index
      15   "Ccy Perf"   Currency Performance Index
      16   "Hdg Dly "   Hedged Index (Daily hedged)
+     17   "Prc Cln "   Clean Price Return Index
+     18   "Prc Grs "   Gross Price Return Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13370,6 +13384,11 @@ REFPRC_TP4 13491
      58   "USD/Bu  "   US Dollar per Bushel
      59   "FIX3    "   Fixing 3
      60   " BRL/mT "   Brazilian Real per metric tonne
+     61   "IDIndex "   Weighted average price of all continuous trades executed during full trading session of a contract
+     62   "ID3     "   Weighted average price of all continuous trades executed within last 3 trading hours of a contract
+     63   "ID1     "   Weighted average price of all continuous trades executed within last trading hour of a contract
+     64   "CNY/L   "   Chinese Yuan/Litre conversion
+     65   "CNY/mT  "   Chinese Yuan/Tonnes conversion
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16966,6 +16985,7 @@ EXP_UP_FRQ 12962
      13   "IRG_Week"   Weekly Updates - Irregular day in the week
      14   "IRG_Mth "   Monthly Updates - Irregular month in the year
      15   "Wed, Fri"   Every Wednesday and Friday
+     16   "DBidWk  "   Daily Bid Week - the five business days immediately preceding the first of the month
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17260,6 +17280,9 @@ VESSEL_TYP 12978
      23   "Handy   "   Handy are small-sized cargo ships with a size less than 40,000 DWT
      24   "LargRng1"   Large Range 1 tankers are those which carries Clean Products with a dead weight tonnage (DWT) between 55,000 and 79,999
      25   "LargRng2"   Large Range 2 tankers are those which carries Clean Products with a dead weight tonnage (DWT) between 80,000 and 1,20,000
+     26   "Kamsmax "   Kamsarmax
+     27   "Post-Pan"   Post Panamax
+     28   "Ultramax"   Ultramax
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17527,6 +17550,9 @@ DELIV_PRD  13015
      69   "2-8 W   "   Within 2-8 weeks from publication date
      70   "6-12 W  "   6-12 weeks
      71   "8-12 W  "   Within 8-12 weeks
+     72   "HLF HOUR"   Half hour
+     73   "QTR AHD "   Quarter ahead
+     74   "SSN AHD "   Season ahead
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18249,7 +18275,6 @@ ORTS_SC    13107
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET407 13108
 PRE_1ET408 13109
 PRE_1ET409 13110
 PRE_1ET410 13111
@@ -19370,6 +19395,13 @@ CNTR_SZ_UT 13611
     424      "SWU  "   Separative Work unit
     425      "CRT  "   Carat
     426      "RBALE"   Running Bale
+    427      "GJ/m3"   Gigajoules per cubic metre
+    428      "CD/be"   Kg CO2 equivalent/boe
+    429      "CD/bb"   Kg CO2 equivalent/bbl
+    430      "MPC  "   Methane Performance Cert
+    431      "UG/kg"   US gallon per kilogram
+    432      "kWhkg"   Kilowatt hours per kilogram
+    433      "kg/d "   Kilogram per day
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20640,6 +20672,30 @@ ASMNT_TMSP 13567
      16   "HOU13:30"   Houston 13:30
      17   "HOU14:30"   Houston 14:30
      18   "HOU10:30"   Houston 10:30
+     19   "UK10:30 "   10:30 UK
+     20   "UK11:00 "   11:00 UK
+     21   "UK12:00 "   12:00 UK
+     22   "UK13:30 "   13:30 UK
+     23   "UK14:30 "   14:30 UK
+     24   "UK16:30 "   16:30 UK
+     25   "UK17:00 "   17:00 UK
+     26   "ET11:00 "   11:00 US Eastern
+     27   "ET11:30 "   11:30 US Eastern
+     28   "ET13:00 "   13:00 US Eastern
+     29   "ET14:30 "   14:30 US Eastern
+     30   "ET15:15 "   15:15 US Eastern
+     31   "ET15:30 "   15:30 US Eastern
+     32   "ET16:00 "   16:00 US Eastern
+     33   "ET16:30 "   16:30 US Eastern
+     34   "CT16:00 "   16:00 US Central
+     35   "CT16:30 "   16:30 US Central
+     36   "SG16:30 "   16:30 Singapore
+     37   "SG17:30 "   17:30 Singapore
+     38   "SG18:00 "   18:00 Singapore
+     39   "SG21:30 "   21:30 Singapore
+     40   "BR16:30 "   16:30 Brasilia
+     41   "BR17:30 "   17:30 Brasilia
+     42   "MW16:30 "   16:30 Moscow Standard
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20695,6 +20751,14 @@ ASMNT_TYPE 13568
      44   "Prem/Dis"   Premium/Discount
      45   "Coeffic "   Coefficient
      46   "Trend   "   Trend
+     47   "Abs Prc "   Absolute Price
+     48   "lhcw    "   Low/high/close/previous-day volume
+     49   "lhcuw   "   Low/high/close/index/previous-day volume
+     50   "lhcwo   "   Low/high/close/previous-day volume/open
+     51   "Posted  "   Posted Price
+     52   "Spreads "   Spreads
+     53   "Contract"   Contract Price
+     54   "FwdCurve"   Forward Curve
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21395,12 +21459,16 @@ ORGN_PORT  13579
     687   "US  TOL "   Toledo
     688   "US  ICT "   Wichita
     689   "IL AKL  "   Ashkelon
+    690   "EG ALY  "   Alexandria (El Iskandariya)
+    691   "YE ADE  "   Aden
+    692   "AU GET  "   Geraldton
 !
 ! ACRONYM    FID
 ! -------    ---
 !
 DSCG_ZONE  13576
 LOAD_ZONE  13578
+INPUT_ZONE 13617
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -22064,6 +22132,15 @@ CNV_PAR_UT 13582
    2027        "BTC"   bitcoin
    2028        "UYR"   Unidades Reajustables
    2029        "BYk"   Belarusian Kapeyka
+   2030        "GAL"   US gallon
+   2031        "LBS"   Pounds
+   2032        "MT "   Metric Tonne
+   2033        "m3 "   Cubic metres
+   2034        "BBL"   barrel
+   2035        "thm"   Therm
+   2036        "GJ "   Gigajoule
+   2037        "MBB"   millions of barrels
+   2038        "kg "   Kilogram
    4000        "%  "   percentage
 !
 ! ACRONYM    FID
@@ -22285,6 +22362,9 @@ DELIV_METH 13606
      14   "Rl-Tk-Wb"   Rail, Truck and Waterborne
      15   "Trk-Wtrb"   Truck and Waterborne
      16   "ParCargo"   Partial Cargo
+     17   "DB Carr "   Dry bulk carrier
+     18   "Cln Tnk "   Clean tanker
+     19   "Dty Tnk "   Dirty tanker
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22325,8 +22405,15 @@ UNIT_STAT  13609
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET296 13617
-PRE_2ET297 13618
+CMD_TYPE   13618
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET298 13619
 PRE_2ET299 13620
 PRE_2ET300 13621

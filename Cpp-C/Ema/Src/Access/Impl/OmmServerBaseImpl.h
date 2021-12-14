@@ -85,6 +85,8 @@ public:
 
 	virtual void removeSocket(RsslSocket);
 
+	void removeAllSocket();
+
 	void setState(ServerImplState state);
 
 	ServerImplState getState();

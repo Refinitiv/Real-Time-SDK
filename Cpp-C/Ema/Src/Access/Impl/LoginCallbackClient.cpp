@@ -979,6 +979,12 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 {
 	RsslRDMLoginMsg* pLoginMsg = pEvent->pRDMLoginMsg;
 
+	Channel* pChannel = ((Channel*)pRsslReactorChannel->userSpecPtr);
+	if (pChannel->getParentChannel() != NULL)
+	{
+		pChannel = pChannel->getParentChannel();
+	}
+
 	if ( !pLoginMsg )
 	{
 		_ommBaseImpl.closeChannel( pRsslReactorChannel );
@@ -1004,7 +1010,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 	{
 	case RDM_LG_MT_REFRESH:
 	{
-		Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+		Login* pLogin = _loginList.getLogin(pChannel);
 		if ( !pLogin )
 		{
 			_loginList.removeLogin(pRsslReactorChannel);
@@ -1013,8 +1019,8 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			_loginList.addLogin( pLogin );
 		}
 
-		pLogin->set( &pLoginMsg->refresh ).setChannel( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
-		static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->setLogin( pLogin );
+		pLogin->set( &pLoginMsg->refresh ).setChannel(pChannel);
+		pChannel->setLogin( pLogin );
 
 		RsslBuffer tempLRB;
 
@@ -1058,7 +1064,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			{
 				EmaString temp( "RDMLogin stream was closed with refresh message" );
 				temp.append( CR );
-				Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+				Login* pLogin = _loginList.getLogin(pChannel);
 				if ( pLogin )
 					temp.append( pLogin->toString() ).append( CR );
 				temp.append( "State: " ).append( _loginFailureMsg );
@@ -1074,7 +1080,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 				EmaString temp( "RDMLogin stream state was changed to suspect with refresh message" );
 				temp.append( CR );
-				Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+				Login* pLogin = _loginList.getLogin(pChannel);
 				if ( pLogin )
 					temp.append( pLogin->toString() ).append( CR );
 				temp.append( "State: " ).append( tempState );
@@ -1087,7 +1093,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 		{
 			_ommBaseImpl.setState( OmmBaseImpl::LoginStreamOpenOkEnum );
 
-			_ommBaseImpl.setActiveRsslReactorChannel( (Channel*)(pRsslReactorChannel->userSpecPtr) );
+			_ommBaseImpl.setActiveRsslReactorChannel(pChannel);
 			_ommBaseImpl.reLoadDirectory();
 
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -1114,7 +1120,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		if (closeChannel)
 		{
-			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+			_ommBaseImpl.unsetActiveRsslReactorChannel(pChannel);
 			_ommBaseImpl.closeChannel(pRsslReactorChannel);
 		}
 		break;
@@ -1137,7 +1143,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 				{
 					EmaString temp( "RDMLogin stream was closed with status message" );
 					temp.append( CR );
-					Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+					Login* pLogin = _loginList.getLogin(pChannel);
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
 					temp.append( "State: " ).append( _loginFailureMsg );
@@ -1153,7 +1159,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 					EmaString temp( "RDMLogin stream state was changed to suspect with status message" );
 					temp.append( CR );
-					Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+					Login* pLogin = _loginList.getLogin(pChannel);
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
 					temp.append( "State: " ).append( tempState );
@@ -1164,7 +1170,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			}
 			else
 			{
-				_ommBaseImpl.setActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+				_ommBaseImpl.setActiveRsslReactorChannel(pChannel);
 				_ommBaseImpl.reLoadDirectory();
 
 				if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -1174,7 +1180,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 					EmaString temp( "RDMLogin stream was open with status message" );
 					temp.append( CR );
-					Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+					Login* pLogin = _loginList.getLogin(pChannel);
 					if ( pLogin )
 						temp.append( pLogin->toString() ).append( CR );
 					temp.append( "State: " ).append( tempState );
@@ -1189,7 +1195,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 			if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Received RDMLogin status message without the state" );
-				Login* pLogin = _loginList.getLogin( ( Channel* )( pRsslReactorChannel->userSpecPtr ) );
+				Login* pLogin = _loginList.getLogin(pChannel);
 				if ( pLogin )
 					temp.append( CR ).append( pLogin->toString() );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp );
@@ -1205,7 +1211,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		if (closeChannel)
 		{
-			_ommBaseImpl.unsetActiveRsslReactorChannel((Channel*)(pRsslReactorChannel->userSpecPtr));
+			_ommBaseImpl.unsetActiveRsslReactorChannel(pChannel);
 			_ommBaseImpl.closeChannel(pRsslReactorChannel);
 		}
 

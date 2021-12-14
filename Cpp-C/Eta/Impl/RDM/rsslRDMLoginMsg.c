@@ -545,6 +545,14 @@ RSSL_VA_API RsslRet rsslEncodeRDMLoginMsg(RsslEncodeIterator *pEncodeIter, RsslR
 				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &tmp)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 			}
 
+			/* SupportStandbyMode */
+			if (pLoginRefresh->flags & RDM_LG_RFF_HAS_SUPPORT_STANDBY_MODE)
+			{
+				elementEntry.dataType = RSSL_DT_UINT;
+				elementEntry.name = RSSL_ENAME_SUPPORT_STANDBY_MODE;
+				if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pLoginRefresh->supportStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+			}
+
 			if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
 			/* complete encode key */
@@ -1016,6 +1024,13 @@ RSSL_VA_API RsslRet rsslDecodeRDMLoginMsg(RsslDecodeIterator *pIter, RsslMsg *pM
 							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &RTTType)) == RSSL_RET_SUCCESS, ret, pError)) return RSSL_RET_FAILURE;
 							if (!RSSL_ERROR_INFO_CHECK((RTTType == RDM_LOGIN_RTT_ELEMENT), ret, pError)) return RSSL_RET_FAILURE;
 							pLoginRefresh->flags |= RDM_LG_RFF_RTT_SUPPORT;
+						}
+						/* SupportStandbyMode */
+						else if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_SUPPORT_STANDBY_MODE))
+						{
+							if (!RSSL_ERROR_INFO_CHECK(element.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							pLoginRefresh->flags |= RDM_LG_RFF_HAS_SUPPORT_STANDBY_MODE;
+							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pLoginRefresh->supportStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 						}
 					}
 				}

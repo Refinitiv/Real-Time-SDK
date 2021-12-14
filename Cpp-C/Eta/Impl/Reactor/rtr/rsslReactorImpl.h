@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2021 Refinitiv. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_IMPL_H
@@ -25,6 +25,7 @@
 #include "rtr/rsslReactorTokenMgntImpl.h"
 #include "rtr/rsslJsonConverter.h"
 #include "rtr/rsslHashTable.h"
+#include "rtr/wlItem.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -33,12 +34,17 @@
 #endif
 
 #define RSSL_REACTOR_DEFAULT_URL_LENGHT 2084;
+#define RSSL_REACTOR_RDM_SERVICE_INFO_INIT_BUFFER_SIZE 9216
+#define RSSL_REACTOR_WSB_STARTING_SERVER_INDEX -1 /* indicates the RsslReactorWarmStandbyGroup.startingActiveServer */
+#define RSSL_REACTOR_WORKER_ERROR_INFO_MAX_POOL_SIZE 16
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct _RsslReactorImpl RsslReactorImpl;
+
+typedef struct _RsslReactorWarmStandByHandlerImpl RsslReactorWarmStandByHandlerImpl;
 
 typedef enum
 {
@@ -102,6 +108,257 @@ RTR_C_INLINE void rsslClearReactorConnectInfoImpl(RsslReactorConnectInfoImpl* pR
 {
 	memset(pReactorConnectInfoImpl, 0, sizeof(RsslReactorConnectInfoImpl));
 	rsslClearReactorConnectInfo(&pReactorConnectInfoImpl->base);
+}
+
+typedef enum
+{
+	RSSL_RWSB_STATE_INIT                              = 0x00,
+	RSSL_RWSB_STATE_RECEIVED_PRIMARY_LOGIN_RESP       = 0x01,
+	RSSL_RWSB_STATE_RECEIVED_PRIMARY_DIRECTORY_RESP   = 0x02,
+	RSSL_RWSB_STATE_RECEIVED_SECONDARY_DIRECTORY_RESP = 0x04,
+	RSSL_RWSB_STATE_CONNECTING_TO_A_STARTING_SERVER   = 0x08,
+	RSSL_RWSB_STATE_MOVE_TO_CHANNEL_LIST              = 0x10,
+	RSSL_RWSB_STATE_CLOSING_STANDBY_CHANNELS          = 0x20,
+	RSSL_RWSB_STATE_MOVE_TO_NEXT_WSB_GROUP            = 0x40,
+	RSSL_RWSB_STATE_RECEIVED_PRIMARY_FIELD_DICT_RESP  = 0x80,
+	RSSL_RWSB_STATE_RECEIVED_PRIMARY_ENUM_DICT_RESP   = 0x100,
+	RSSL_RWSB_STATE_CLOSING                           = 0x200,
+	RSSL_RWSB_STATE_INACTIVE                          = 0x400
+
+}RsslReactorWarmStandByHandlerState;
+
+typedef enum
+{
+	RSSL_RWSB_STATE_CHANNEL_INIT = 0,
+	RSSL_RWSB_STATE_CHANNEL_DOWN = 1,
+	RSSL_RWSB_STATE_CHANNEL_DOWN_RECONNECTING = 2,
+	RSSL_RWSB_STATE_CHANNEL_UP = 3,
+	RSSL_RWSB_STATE_CHANNEL_READY = 4,
+}RsslReactorWarmStandByHandlerChannelState;
+
+/* RsslReactorWSRecoveryMsgInfo
+- This is used to generate status message when a channel is active
+*/
+typedef struct
+{
+	RsslQueueLink		queueLink;
+
+	/* For populating RsslStatusMsg */
+	RsslUInt8			domainType;
+	RsslContainerType	containerType;
+	RsslInt32			streamId;
+	RsslMsgKey			msgKey;
+	RsslState			rsslState;
+	RsslUInt16			flags;
+
+	/* From the RsslStreamInfo structure. */
+	void* pUserSpec;
+	RsslBuffer serviceName;
+
+} RsslReactorWSRecoveryMsgInfo;
+
+RTR_C_INLINE void rsslClearReactorWSRecoveryMsgInfo(RsslReactorWSRecoveryMsgInfo* pWSRecoveryMsgInfo)
+{
+	memset(pWSRecoveryMsgInfo, 0, sizeof(RsslReactorWSRecoveryMsgInfo));
+}
+
+/* RsslReactorDictionaryVersion
+* - Represents Refinitiv Data Dictionary version
+*/
+typedef struct
+{
+	RsslUInt32 major;
+	RsslUInt32 minor;
+
+} RsslReactorDictionaryVersion;
+
+RTR_C_INLINE void rsslClearReactorDictionaryVersion(RsslReactorDictionaryVersion* pDictionaryVersion)
+{
+	memset(pDictionaryVersion, 0, sizeof(RsslReactorDictionaryVersion));
+}
+
+/* RsslReactorSubmitMsgOptionsImpl
+ * - Represents submit messages to fanout later across all connetions. */
+typedef struct
+{
+	RsslReactorSubmitMsgOptions base;
+	RsslQueueLink			    submitMsgLink; /* Keeps in the RsslQueue of RsslWarmStandByHandlerImpl */
+	RsslInt64					submitTimeStamp; /* This is used to check whether this message has been submited. */
+	char						*pMemoryLocation; /* Keeps memory location to free up later */
+	RsslUInt32					allocationLength; /* Keeps the allocated buffer length. */
+	char						*pReqMsgExtendedHeaders; /* Keeps memory location for RequestMsg.extendedHeader */
+	RsslBool					copyFromMsgCopy;
+
+}RsslReactorSubmitMsgOptionsImpl;
+
+RTR_C_INLINE void rsslClearReactorSubmitMsgOptionsImpl(RsslReactorSubmitMsgOptionsImpl* pReactorSubmitMsgOptionsImpl)
+{
+	rsslClearReactorSubmitMsgOptions(&pReactorSubmitMsgOptionsImpl->base);
+	memset(&pReactorSubmitMsgOptionsImpl->submitMsgLink, 0, sizeof(RsslQueueLink));
+	pReactorSubmitMsgOptionsImpl->submitTimeStamp = 0;
+	pReactorSubmitMsgOptionsImpl->pMemoryLocation = NULL;
+	pReactorSubmitMsgOptionsImpl->allocationLength = 0;
+	pReactorSubmitMsgOptionsImpl->pReqMsgExtendedHeaders = NULL;
+	pReactorSubmitMsgOptionsImpl->copyFromMsgCopy = RSSL_FALSE;
+}
+
+RTR_C_INLINE void _reactorFreeSubmitMsgOptions(RsslReactorSubmitMsgOptionsImpl* pSubmitMsgOptionImpl)
+{
+	if (pSubmitMsgOptionImpl)
+	{
+		RsslReactorSubmitMsgOptions* pSubmitMsgOptions = (RsslReactorSubmitMsgOptions*)pSubmitMsgOptionImpl;
+
+		if (pSubmitMsgOptions->pServiceName && pSubmitMsgOptions->pServiceName->data)
+		{
+			free(pSubmitMsgOptions->pServiceName->data);
+			free(pSubmitMsgOptions->pServiceName);
+		}
+
+		if (pSubmitMsgOptionImpl->pMemoryLocation)
+		{
+			free(pSubmitMsgOptionImpl->pMemoryLocation);
+		}
+
+		if (pSubmitMsgOptionImpl->pReqMsgExtendedHeaders)
+		{
+			free(pSubmitMsgOptionImpl->pReqMsgExtendedHeaders);
+		}
+
+		if (pSubmitMsgOptions->pRsslMsg)
+		{
+			if (pSubmitMsgOptionImpl->copyFromMsgCopy)
+			{
+				rsslReleaseCopiedMsg(pSubmitMsgOptions->pRsslMsg);
+			}
+			else
+			{
+				free(pSubmitMsgOptions->pRsslMsg);
+			}
+		}
+
+		free(pSubmitMsgOptionImpl);
+	}
+}
+
+typedef struct
+{
+	RsslReatorWarmStandbyChannelInfo base;
+	RsslUInt32  maxNumberOfSocket;     /*!< Keeps track memory allocation size of socketIdList and oldSocketIdList */
+} RsslReatorWarmStandbyChInfoImpl;
+
+RTR_C_INLINE void rsslClearReactorWarmStandbyChInfoImpl(RsslReatorWarmStandbyChInfoImpl* pReactorWarmStandbyChInfoImpl)
+{
+	memset(pReactorWarmStandbyChInfoImpl, 0, sizeof(RsslReatorWarmStandbyChInfoImpl));
+}
+
+typedef struct
+{
+	RsslReactorConnectInfoImpl			reactorConnectInfoImpl;
+	RsslReactorPerServiceBasedOptions  perServiceBasedOptions;
+	RsslBool							isActiveChannelConfig;
+
+} RsslReactorWarmStandbyServerInfoImpl;
+
+RTR_C_INLINE void rsslClearReactorWarmStandbyServerInfoImpl(RsslReactorWarmStandbyServerInfoImpl* pReactorWarmStandbyServerInfoImpl)
+{
+	memset(&pReactorWarmStandbyServerInfoImpl->reactorConnectInfoImpl, 0, sizeof(RsslReactorWarmStandbyServerInfoImpl));
+	rsslClearReactorConnectInfo(&pReactorWarmStandbyServerInfoImpl->reactorConnectInfoImpl.base);
+	pReactorWarmStandbyServerInfoImpl->isActiveChannelConfig = RSSL_TRUE;
+}
+
+typedef struct
+{
+	RsslHashLink					  hashLink;		 /* Link for RsslReactorWarmStandByGroupImpl.pActiveServiceConfig by service name. */
+	RsslQueueLink					  queueLink;	/* Queue link for RsslReactorWarmStandByGroupImpl.pActiveServiceConfigList */
+	RsslBool						  isStartingServerConfig; /* This is used to indicate that this service config belongs to the starting server configuration. */
+	RsslUInt32						  standByServerListIndex; /* Keeps the index of the standby server list in a RsslReactorWarmStandByGroup. */
+} RsslReactorWSBServiceConfigImpl;
+
+RTR_C_INLINE void rsslClearReactorWSByServiceConfigImpl(RsslReactorWSBServiceConfigImpl* pReactorWarmStandbyServiceConfigImpl)
+{
+	rsslHashLinkInit(&pReactorWarmStandbyServiceConfigImpl->hashLink);
+	rsslInitQueueLink(&pReactorWarmStandbyServiceConfigImpl->queueLink);
+	pReactorWarmStandbyServiceConfigImpl->isStartingServerConfig = RSSL_FALSE;
+	pReactorWarmStandbyServiceConfigImpl->standByServerListIndex = 0;
+}
+
+typedef struct
+{
+	RsslQueueLink					  queueLink; /* For _serviceList */
+	RsslQueueLink					  updateQLink; /* For _updateServiceList */
+	RsslHashLink					  hashLink;		 /* Link for RsslReactorWarmStandByGroupImpl _perServiceById. */
+	RsslReactorChannel				  *pReactorChannel;		 /* Keeps the channel that provides this service as the active mode. */
+	RsslUInt						  serviceID;
+	RsslRDMServiceInfo				  rdmServiceInfo;
+	RsslRDMServiceState				  rdmServiceState;
+	char							  *pMemoryLocation; /* Keeps memory location to free up later */
+	RsslUInt32						  allocationLength; /* Keeps the allocated buffer length. */
+	RsslBuffer						  directoryMemBuffer; /* Keeps track to the current location of memory */
+	RsslUInt32						  updateServiceFilter; /* This is used as indication to create source directory response for a service using the RsslRDMServiceFlags flags. */
+	RsslUInt32						  serviceAction; /* Uses RsslMapEntryActions to indicate an action for this service. */
+
+} RsslReactorWarmStandbyServiceImpl;
+
+RTR_C_INLINE void rsslClearReactorWarmStandbyServiceImpl(RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl)
+{
+	rsslInitQueueLink(&pReactorWarmStandbyServiceImpl->queueLink);
+	rsslInitQueueLink(&pReactorWarmStandbyServiceImpl->updateQLink);
+	rsslHashLinkInit(&pReactorWarmStandbyServiceImpl->hashLink);
+	pReactorWarmStandbyServiceImpl->pReactorChannel = NULL;
+	pReactorWarmStandbyServiceImpl->serviceID = 0;
+	rsslClearRDMServiceInfo(&pReactorWarmStandbyServiceImpl->rdmServiceInfo);
+	rsslClearRDMServiceState(&pReactorWarmStandbyServiceImpl->rdmServiceState);
+	pReactorWarmStandbyServiceImpl->pMemoryLocation = NULL;
+	pReactorWarmStandbyServiceImpl->allocationLength = 0;
+	rsslClearBuffer(&pReactorWarmStandbyServiceImpl->directoryMemBuffer);
+	pReactorWarmStandbyServiceImpl->updateServiceFilter = 0;
+	pReactorWarmStandbyServiceImpl->serviceAction = 0;
+}
+
+typedef struct
+{
+	/* From RsslReactorWarmStandbyGroup*/
+	RsslReactorWarmStandbyServerInfoImpl      startingActiveServer; /*!< The active server to which client should to connect.
+														   Reactor chooses a server from the standByServerList instead if this parameter is not configured.*/
+	RsslReactorWarmStandbyServerInfoImpl*     standbyServerList;    /*!< A list of standby servers. */
+	RsslUInt32                            standbyServerCount;   /*!< The number of standby servers. */
+	RsslBool                              downloadConnectionConfig;  /* Specifies whether to download connection configurations from a provider by
+														   setting the DownloadConnectionConfig element with the login request. */
+	RsslReactorWarmStandbyMode        warmStandbyMode; /*!< Specifies a warm standby mode. */
+	/* End */
+
+	RsslHashTable               _perServiceById; /* This hash table provides mapping between service ID and ReactorChannel. */
+	RsslQueue	                _serviceList; /* Keeps a list of full services which belong to this group. */
+	RsslQueue	                _updateServiceList; /* Keeps a list of update service list which belong to this group.  */
+	RsslHashTable               *pActiveServiceConfig; /* This is used to select an active service from a server. */
+	RsslQueue	                *pActiveServiceConfigList; /* Keeps a list of active service configuration which belongs to this group. */
+	RsslBool                  sendQueueReqForAll; /* Keeps track whether all reactor channels have been created for this warmstandby group. */
+	RsslUInt32                sendReqQueueCount; /* Keeps track the number of channels that the requests has been sent. */
+	RsslInt32                 currentStartingServerIndex; /* Keeps track of the current starting server index. RSSL_REACTOR_WSB_STARTING_SERVER_INDEX for RsslReactorWarmStandbyGroup.startingActiveServer 
+												  and non-negative values represent an index of RsslReactorWarmStandbyGroup.standbyServerList */
+	RsslUInt32                numOfClosingStandbyServers; /* Keeps track of number of standby servers being closed. */
+	RsslInt32				  downloadConfigActiveServer; /* Select an active server from downloadConnectionConfig */
+	RsslInt32				  streamId; /* Stream ID for the source directory. */
+}RsslReactorWarmStandbyGroupImpl;
+
+RTR_C_INLINE void rsslClearReactorWarmStandByGroupImpl(RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl)
+{
+	rsslClearReactorWarmStandbyServerInfoImpl(&pReactorWarmStandByGroupImpl->startingActiveServer);
+	pReactorWarmStandByGroupImpl->standbyServerList = NULL;
+	pReactorWarmStandByGroupImpl->standbyServerCount = 0;
+	pReactorWarmStandByGroupImpl->downloadConnectionConfig = RSSL_FALSE;
+	pReactorWarmStandByGroupImpl->warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+	memset(&pReactorWarmStandByGroupImpl->_perServiceById, 0, sizeof(RsslHashTable));
+	rsslInitQueue(&pReactorWarmStandByGroupImpl->_serviceList);
+	rsslInitQueue(&pReactorWarmStandByGroupImpl->_updateServiceList);
+	pReactorWarmStandByGroupImpl->pActiveServiceConfig = NULL;
+	pReactorWarmStandByGroupImpl->pActiveServiceConfigList = NULL;
+	pReactorWarmStandByGroupImpl->sendQueueReqForAll = RSSL_FALSE;
+	pReactorWarmStandByGroupImpl->sendReqQueueCount = 0;
+	pReactorWarmStandByGroupImpl->currentStartingServerIndex = RSSL_REACTOR_WSB_STARTING_SERVER_INDEX;
+	pReactorWarmStandByGroupImpl->downloadConfigActiveServer = RSSL_REACTOR_WSB_STARTING_SERVER_INDEX;
+	pReactorWarmStandByGroupImpl->numOfClosingStandbyServers = 0;
+	pReactorWarmStandByGroupImpl->streamId = 0;
 }
 
 /* RsslReactorChannelImpl 
@@ -190,6 +447,15 @@ typedef struct
 	RsslBool						sendWSPingMessage; /* This is used to force sending ping message even though some messages is flushed to network. */
 	RsslHashTable					packedBufferHashTable; /* The hash table to keep track of packed buffers */
 
+	/* For Warm Standby by feature */
+	RsslReactorWarmStandByHandlerImpl *pWarmStandByHandlerImpl; /* Keeps a list of RsslChannel(s) for connected server(s). */
+	RsslQueueLink					  warmstandbyChannelLink; /* Keeps in the RsslQueue of RsslWarmStandByHandlerImpl */
+	RsslBool                          isActiveServer; /* This indicates whether this channel is used to connect with the active server. */
+	RsslUInt32						  standByServerListIndex; /* Keeps the index of the standby server list in a RsslReactorWarmStandByGroup. */
+	RsslBool						  isStartingServerConfig; /* This is used to indicate that this channel uses the starting server configuration. */
+	RsslInt64						  lastSubmitOptionsTime; /* Keeps the timestamp when handling the last submit options. */
+	RsslQueue						  *pWSRecoveryMsgList; /* Keeps a list of recovery status messages to notify application when this channel becomes active. */
+
 } RsslReactorChannelImpl;
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
@@ -198,6 +464,74 @@ RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, Rss
 	pInfo->pParentReactor = pReactorImpl;
 	pInfo->nextExpireTime = RCIMPL_TIMER_UNSET;
 	pInfo->lastRequestedExpireTime = RCIMPL_TIMER_UNSET;
+}
+
+typedef enum
+{
+	RSSL_REACTOR_WS_MAX_NUM_BUFFERS = 0x01,
+	RSSL_REACTOR_WS_NUM_GUARANTEED_BUFFERS = 0x02,
+	RSSL_REACTOR_WS_HIGH_WATER_MARK = 0x04,
+	RSSL_REACTOR_WS_SYSTEM_READ_BUFFERS = 0x08,
+	RSSL_REACTOR_WS_SYSTEM_WRITE_BUFFERS = 0x10,
+	RSSL_REACTOR_WS_PRIORITY_FLUSH_ORDER = 0x20,
+	RSSL_REACTOR_WS_COMPRESSION_THRESHOLD = 0x40,
+	RSSL_REACTOR_WS_TRACE = 0x80
+} RsslReactorWSIoctlCodes;
+
+/* RsslWarmStandByHandlerImpl
+ * - Handles a list of RsslChannels that is used to handle multiple connections for the warm stand by feature. */
+struct _RsslReactorWarmStandByHandlerImpl
+{
+	RsslQueueLink reactorQueueLink;
+	RsslQueue rsslChannelQueue; /* Keeps a list of reactor channel */
+	RsslQueue submitMsgQueue;
+	RsslQueue freeSubmitMsgQueue;
+	RsslReactorChannelImpl* pActiveReactorChannel; /* Returns the active server channel for the login based */
+	RsslReactorChannelImpl* pNextActiveReactorChannel; /* Keeps the next active channel for the login based */
+	RsslReactorChannelImpl mainReactorChannelImpl; /* The customer facing ReactorChannel to represent the warm standby feature. */
+	RsslReactorChannelImpl *pStartingReactorChannel; /* The starting reactor channel from rsslReactorConnect() */
+	RsslUInt32 mainChannelState; /* The state is defined in RsslReactorWarmStandByHandlerChannelState */
+	RsslReactorWarmStandbyGroupImpl *warmStandbyGroupList;
+	RsslUInt32 warmStandbyGroupCount;
+	RsslUInt32 currentWSyGroupIndex; /* Represents the current warm standby group index. */
+	RsslUInt32 warmStandByHandlerState; /* The state is defined in RsslReactorWarmStandByHandlerState */
+	RsslReactorImpl			*pReactorImpl; /* The reactor component for this handler. */
+	RsslRDMLoginRefresh		rdmLoginRefresh; /* Keeps login response of the first active server. */
+	RsslState				rdmLoginState;			/*!< The current state of the login stream. */
+	RsslBool		 hasConnectionList; /* This is used to indicate if a connection list is specified. */
+	RsslReatorWarmStandbyChInfoImpl  wsbChannelInfoImpl; /* Provider warm standby channel info. */
+	RsslMutex					warmStandByHandlerMutex;
+	RsslReactorDictionaryVersion	rdmFieldVersion; /* keeps RDM dictionary version of primary sever */
+	RsslReactorDictionaryVersion	rdmEnumTypeVersion; /* keeps RDM enumerated type version of primary sever */
+	RsslReactorChannelImpl			*pReadMsgChannel; /* keeps track which channel reads the current processing message. */
+	RsslBool						queuedRecoveryMessage; /* This is used to indicate for queing recovery message when moving to another WSB group. */
+	RsslBool						enableSessionMgnt; /* This is used to indicate whether this warm standby channel enables session management. */
+
+	/* For applying ioctl */
+	RsslUInt32				ioCtlCodes; /* Keeps ioctl codes for all channels. Defined in RsslReactorWSIoctlCodes */
+	RsslTraceOptions traceOptions; /* Keeps the trace options. */
+	RsslUInt32		 traceFileNameLength; /* Keeps track of allocated buffer length for the trace file name. */
+	RsslUInt32		maxNumBuffers;
+	RsslUInt32		numGuaranteedBuffers;
+	RsslUInt32		highWaterMark;
+	RsslUInt32		systemReadBuffers;
+	RsslUInt32		systemWriteBuffers;
+	RsslUInt32		priorityFlushOrder;
+	RsslUInt32		compressionThresHold;
+};
+
+RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
+{
+	memset(pReactorWarmStandByHandlerImpl, 0, sizeof(RsslReactorWarmStandByHandlerImpl));
+	rsslInitQueueLink(&pReactorWarmStandByHandlerImpl->reactorQueueLink);
+	rsslInitQueue(&pReactorWarmStandByHandlerImpl->rsslChannelQueue);
+	rsslInitQueue(&pReactorWarmStandByHandlerImpl->submitMsgQueue);
+	rsslInitQueue(&pReactorWarmStandByHandlerImpl->freeSubmitMsgQueue);
+	pReactorWarmStandByHandlerImpl->mainChannelState = RSSL_RWSB_STATE_CHANNEL_INIT;
+	pReactorWarmStandByHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_INIT;
+	rsslClearRDMLoginRefresh(&pReactorWarmStandByHandlerImpl->rdmLoginRefresh);
+	rsslClearReactorWarmStandbyChInfoImpl(&pReactorWarmStandByHandlerImpl->wsbChannelInfoImpl);
+	RSSL_MUTEX_INIT(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
 }
 
 RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pReactorChannel, RsslReactorConnectOptions *pOpts, 
@@ -259,7 +593,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 					return RSSL_RET_FAILURE;
 				}
 
-				memset(pReactorChannel->connectionOptList[i].base.location.data, 0, pReactorChannel->connectionOptList[i].base.location.length + 1);
+				memset(pReactorChannel->connectionOptList[i].base.location.data, 0, pReactorChannel->connectionOptList[i].base.location.length + (size_t)1);
 				strncpy(pReactorChannel->connectionOptList[i].base.location.data, pOpts->reactorConnectionList[i].location.data, 
 							pReactorChannel->connectionOptList[i].base.location.length);
 			}
@@ -332,6 +666,787 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 	}
 
 	return RSSL_RET_SUCCESS;
+}
+
+RTR_C_INLINE void _rsslFreeReactorWSBServiceConfigImpl(RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl)
+{
+	RsslQueueLink* pLink;
+	RsslReactorWSBServiceConfigImpl *pServiceConfigImpl = NULL;
+
+	if (pReactorWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+	{
+		while ((pLink = rsslQueueRemoveFirstLink(pReactorWarmStandByGroupImpl->pActiveServiceConfigList)))
+		{
+			pServiceConfigImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWSBServiceConfigImpl, queueLink, pLink);
+
+			free(pServiceConfigImpl);
+		}
+	}
+}
+
+RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl *pWarmStandByHandler, RsslUInt32 count, RsslBool freeWarmStandbyHandler)
+{
+	RsslUInt32 i, o, m;
+	RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl = NULL;
+	RsslQueueLink* pLink = NULL;
+	RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl = NULL;
+	RsslReactorSubmitMsgOptionsImpl* pSubmitMsgOptionsImpl;
+	
+	for (i = 0; i < count; i++)
+	{
+		pReactorWarmStandByGroupImpl = &(pWarmStandByHandler)->warmStandbyGroupList[i];
+
+		for (o = 0; o < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; o++)
+		{
+			free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o].data);
+		}
+		free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+		free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+		rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+		for (m = 0; m < pReactorWarmStandByGroupImpl->standbyServerCount; m++)
+		{
+			for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[m].perServiceBasedOptions.serviceNameCount; o++)
+			{
+				free(pReactorWarmStandByGroupImpl->standbyServerList[m].perServiceBasedOptions.serviceNameList[o].data);
+			}
+			free(pReactorWarmStandByGroupImpl->standbyServerList[m].perServiceBasedOptions.serviceNameList);
+
+			free(pReactorWarmStandByGroupImpl->standbyServerList[m].reactorConnectInfoImpl.base.location.data);
+			rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[m].reactorConnectInfoImpl.base.rsslConnectOptions);
+		}
+
+		free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+		/* Cleanup the service list */
+		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWarmStandByGroupImpl->_serviceList)))
+		{
+			pReactorWarmStandbyServiceImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandbyServiceImpl, queueLink, pLink);
+			
+			free(pReactorWarmStandbyServiceImpl->pMemoryLocation);
+			free(pReactorWarmStandbyServiceImpl);
+		}
+
+		rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+
+		if (pReactorWarmStandByGroupImpl->pActiveServiceConfigList)
+		{
+			_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+			free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+		}
+
+		if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+		{
+			rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+			free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+		}
+	}
+
+	/* Free memory from RDMLoginRefresh */
+	if (pWarmStandByHandler->rdmLoginRefresh.userName.data)
+	{
+		free(pWarmStandByHandler->rdmLoginRefresh.userName.data);
+	}
+
+	if (pWarmStandByHandler->rdmLoginRefresh.applicationId.data)
+	{
+		free(pWarmStandByHandler->rdmLoginRefresh.applicationId.data);
+	}
+
+	if (pWarmStandByHandler->rdmLoginRefresh.applicationName.data)
+	{
+		free(pWarmStandByHandler->rdmLoginRefresh.applicationName.data);
+	}
+
+	if (pWarmStandByHandler->rdmLoginRefresh.position.data)
+	{
+		free(pWarmStandByHandler->rdmLoginRefresh.position.data);
+	}
+
+	/* Free trace buffer name if any */
+	if (pWarmStandByHandler->traceOptions.traceMsgFileName)
+	{
+		free(pWarmStandByHandler->traceOptions.traceMsgFileName);
+		pWarmStandByHandler->traceOptions.traceMsgFileName = NULL;
+		pWarmStandByHandler->traceFileNameLength = 0;
+	}
+
+	pWarmStandByHandler->ioCtlCodes = 0;
+
+	/* Cleanup the message queues if any*/
+	while ((pLink = rsslQueueRemoveFirstLink(&pWarmStandByHandler->submitMsgQueue)))
+	{
+		pSubmitMsgOptionsImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorSubmitMsgOptionsImpl, submitMsgLink, pLink);
+		_reactorFreeSubmitMsgOptions(pSubmitMsgOptionsImpl);
+	}
+
+	free(pWarmStandByHandler->wsbChannelInfoImpl.base.socketIdList);
+	free(pWarmStandByHandler->wsbChannelInfoImpl.base.oldSocketIdList);
+	free(pWarmStandByHandler->warmStandbyGroupList);
+
+	if (freeWarmStandbyHandler)
+	{
+		RSSL_MUTEX_DESTROY(&pWarmStandByHandler->warmStandByHandlerMutex);
+		free(pWarmStandByHandler);
+	}
+}
+
+RTR_C_INLINE RsslReactorWarmStandByHandlerImpl* _reactorTakeWSBChannelHandler(RsslReactorImpl *pReactorImpl,RsslQueue* pWarmstandbyChannelPool)
+{
+	RsslQueueLink* pLink = rsslQueueRemoveFirstLink(pWarmstandbyChannelPool);
+	RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandler;
+
+	if (!pLink)
+	{
+		pReactorWarmStandByHandler = (RsslReactorWarmStandByHandlerImpl*)malloc(sizeof(RsslReactorWarmStandByHandlerImpl));
+
+		if (!pReactorWarmStandByHandler)
+		{
+			return NULL;
+		}
+
+		rsslClearReactorWarmStandByHandlerImpl(pReactorWarmStandByHandler);
+		pReactorWarmStandByHandler->pReactorImpl = pReactorImpl;
+	}
+	else
+	{
+		pReactorWarmStandByHandler = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandByHandlerImpl, reactorQueueLink, pLink);
+
+		rsslClearReactorWarmStandByHandlerImpl(pReactorWarmStandByHandler);
+		pReactorWarmStandByHandler->pReactorImpl = pReactorImpl;
+	}
+
+	return pReactorWarmStandByHandler;
+}
+
+RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReactorImpl, RsslQueue *pWSChannelPool, RsslReactorConnectOptions* pOpts, RsslReactorWarmStandByHandlerImpl** pWarmStandByHandler, RsslBool* enableSessionMgnt)
+{
+	RsslUInt32 wsGroupIndex = 0, j = 0, k = 0, l = 0, m = 0, o = 0;
+	RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl = NULL;
+	RsslConnectOptions* destOpts, * sourceOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslHashLink *pHashLink = NULL;
+	RsslUInt32 numberOfServers = 0;
+
+	(*pWarmStandByHandler) = NULL;
+	
+	if (pOpts->warmStandbyGroupCount != 0 && pOpts->reactorWarmStandbyGroupList != NULL)
+	{
+		/* Checks to ensure the user specified warm standby mode is valid for all groups.*/
+		for (wsGroupIndex = 0; wsGroupIndex < pOpts->warmStandbyGroupCount; wsGroupIndex++)
+		{
+			switch (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].warmStandbyMode)
+			{
+				case RSSL_RWSB_MODE_SERVICE_BASED:
+				{
+					break;
+				}
+				case RSSL_RWSB_MODE_LOGIN_BASED:
+				{
+					break;
+				}
+				default: /* Invalid warm standby mode. */
+				{
+					return RSSL_RET_INVALID_ARGUMENT;
+				}
+			}
+		}
+
+		wsGroupIndex = 0;
+
+		(*pWarmStandByHandler) = _reactorTakeWSBChannelHandler(pReactorImpl, pWSChannelPool);
+
+		if ((*pWarmStandByHandler) != NULL)
+		{
+			(*pWarmStandByHandler)->warmStandbyGroupList = (RsslReactorWarmStandbyGroupImpl*)malloc(pOpts->warmStandbyGroupCount*sizeof(RsslReactorWarmStandbyGroupImpl));
+
+			if ((*pWarmStandByHandler)->warmStandbyGroupList == NULL)
+			{
+				free((*pWarmStandByHandler));
+				(*pWarmStandByHandler) = NULL;
+				return RSSL_RET_FAILURE;
+			}
+
+			for (wsGroupIndex = 0; wsGroupIndex < pOpts->warmStandbyGroupCount; wsGroupIndex++)
+			{
+				pReactorWarmStandByGroupImpl = &(*pWarmStandByHandler)->warmStandbyGroupList[wsGroupIndex];
+				rsslClearReactorWarmStandByGroupImpl(pReactorWarmStandByGroupImpl);
+
+				if (rsslHashTableInit(&pReactorWarmStandByGroupImpl->_perServiceById, 256, rsslHashU64Sum, rsslHashU64Compare,
+					RSSL_TRUE, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+				{
+					/* Free previous warmstandby group if any */
+					goto cleanUpPreviousWarmStandGroup;
+				}
+
+				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+				{
+					pReactorWarmStandByGroupImpl->pActiveServiceConfig = (RsslHashTable*)malloc(sizeof(RsslHashTable));
+
+					if (pReactorWarmStandByGroupImpl->pActiveServiceConfig != NULL)
+					{
+						if (rsslHashTableInit(pReactorWarmStandByGroupImpl->pActiveServiceConfig, 256, rsslHashBufferSum, rsslHashBufferCompare,
+							RSSL_TRUE, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+						{
+							rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+
+							/* Free previous warmstandby group if any */
+							goto cleanUpPreviousWarmStandGroup;
+						}
+					}
+					else
+					{
+						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+						/* Free previous warmstandby group if any */
+						goto cleanUpPreviousWarmStandGroup;
+					}
+
+					pReactorWarmStandByGroupImpl->pActiveServiceConfigList = (RsslQueue*)malloc(sizeof(RsslQueue));
+
+					if (pReactorWarmStandByGroupImpl->pActiveServiceConfigList == NULL)
+					{
+						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+
+						/* Free previous warmstandby group if any */
+						goto cleanUpPreviousWarmStandGroup;
+					}
+
+					rsslInitQueue(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+				}
+
+				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+				{
+					RsslReactorWSBServiceConfigImpl *pServiceConfigImpl = NULL;
+					
+					/* Copies per service based options for the active server info */
+					if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameCount != 0 && pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameList)
+					{
+						pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList = (RsslBuffer*)malloc(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameCount * sizeof(RsslBuffer));
+
+						if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList == NULL)
+						{
+							rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+							rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+							/* Free previous warmstandby group if any */
+							goto cleanUpPreviousWarmStandGroup;
+						}
+
+						for (o = 0; o < pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameCount; o++)
+						{
+							RsslBuffer *pServiceName = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameList[o];
+							RsslUInt32 hashCode = rsslHashBufferSum(pServiceName);
+							pHashLink = rsslHashTableFind(pReactorWarmStandByGroupImpl->pActiveServiceConfig, pServiceName, &hashCode);
+
+							if (pHashLink == NULL) /* Not found this service name */
+							{
+								pServiceConfigImpl = (RsslReactorWSBServiceConfigImpl*)malloc(sizeof(RsslReactorWSBServiceConfigImpl));
+
+								if (pServiceConfigImpl == NULL)
+								{
+									for (m = 0; m < o; m++)
+									{
+										free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+									}
+
+									free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+									rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+									rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+									free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+
+									_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+									free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+									/* Free previous warmstandby group if any */
+									goto cleanUpPreviousWarmStandGroup;
+								}
+
+								rsslClearReactorWSByServiceConfigImpl(pServiceConfigImpl);
+							}
+
+							pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o].data = (char*)malloc(pServiceName->length);
+							if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o].data == NULL)
+							{
+								for (m = 0; m < o; m++)
+								{
+									free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+								}
+
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+								rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+								rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+
+								_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+								/* Free previous warmstandby group if any */
+								goto cleanUpPreviousWarmStandGroup;
+							}
+
+							memcpy(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o].data, pServiceName->data, pServiceName->length);
+							pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o].length = pServiceName->length;
+
+							if (pHashLink == NULL)
+							{
+								/* Add service config to queue link and hash table. */
+								rsslQueueAddLinkToBack(pReactorWarmStandByGroupImpl->pActiveServiceConfigList, &pServiceConfigImpl->queueLink);
+								rsslHashTableInsertLink(pReactorWarmStandByGroupImpl->pActiveServiceConfig, &pServiceConfigImpl->hashLink, 
+									&pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o], &hashCode);
+								pServiceConfigImpl->isStartingServerConfig = RSSL_TRUE;
+							}
+						}
+
+						pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameCount;
+					}
+				}
+
+				/* Copies the location field for the active server. */
+				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.enableSessionManagement)
+				{
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length = (RsslUInt32)strlen(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.location.data);
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data = (char*)malloc((size_t)pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length + (size_t)1);
+
+					if (pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data == NULL)
+					{
+						for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+						{
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+						}
+
+						free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+
+						if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+						{
+							rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+						}
+
+						_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+						/* Free previous warmstandby group if any */
+						goto cleanUpPreviousWarmStandGroup;
+					}
+
+					memset(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data, 0, (size_t)pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length + (size_t)1);
+					strncpy(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data, pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.location.data,
+						(size_t)(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length));
+				}
+				else
+				{
+					rsslClearBuffer(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location);
+				}
+
+				destOpts = &pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions;
+				sourceOpts = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.rsslConnectOptions;
+
+				if (rsslDeepCopyConnectOpts(destOpts, sourceOpts) != RSSL_RET_SUCCESS)
+				{
+					if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount != 0)
+					{
+						for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+						{
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+						}
+
+						free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+					}
+
+					free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+
+					rsslFreeConnectOpts(destOpts);
+
+					rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+					if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+					{
+						rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+					}
+					_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+					free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+					/* Free previous warmstandby group if any */
+					goto cleanUpPreviousWarmStandGroup;
+				}
+
+				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.enableSessionManagement = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.enableSessionManagement;
+				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.initializationTimeout = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.initializationTimeout;
+				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.pAuthTokenEventCallback = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.pAuthTokenEventCallback;
+
+				if (!(*enableSessionMgnt))
+				{
+					(*enableSessionMgnt) = pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.enableSessionManagement;
+				}
+
+				++numberOfServers;
+
+				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerCount != 0 && pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList != NULL)
+				{
+					pReactorWarmStandByGroupImpl->standbyServerList = (RsslReactorWarmStandbyServerInfoImpl*)malloc(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerCount * sizeof(RsslReactorWarmStandbyServerInfoImpl));
+
+					if (pReactorWarmStandByGroupImpl->standbyServerList == NULL)
+					{
+						if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount != 0)
+						{
+							for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+							{
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+							}
+
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+						}
+
+						free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+
+						rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+						if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+						{
+							rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+						}
+						_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+						/* Free previous warmstandby group if any */
+						goto cleanUpPreviousWarmStandGroup;
+					}
+					
+					/* Copies the standby server list */
+					for (j = 0; j < pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerCount; j++)
+					{
+						rsslClearReactorWarmStandbyServerInfoImpl(&pReactorWarmStandByGroupImpl->standbyServerList[j]);
+
+						if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+						{
+							RsslReactorWSBServiceConfigImpl *pServiceConfigImpl = NULL;
+
+							/* Copies per service based options for the standby server info */
+							if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].perServiceBasedOptions.serviceNameCount != 0 && pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].perServiceBasedOptions.serviceNameList)
+							{
+								pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList = (RsslBuffer*)malloc(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].perServiceBasedOptions.serviceNameCount * sizeof(RsslBuffer));
+
+								if (pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList == NULL)
+								{
+									if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount != 0)
+									{
+										for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+										{
+											free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+										}
+
+										free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+									}
+
+									free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+									rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+									for (k = 0; k < j; k++)
+									{
+										for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+										{
+											free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+										}
+										free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+										free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+										rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+									}
+
+									free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+									rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+									if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+									{
+										rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+										free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+									}
+									_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+									free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+									/* Free previous warmstandby group if any */
+									goto cleanUpPreviousWarmStandGroup;
+								}
+
+								for (o = 0; o < pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].perServiceBasedOptions.serviceNameCount; o++)
+								{
+									RsslBuffer *pServiceName = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].perServiceBasedOptions.serviceNameList[o];
+									RsslUInt32 hashCode = rsslHashBufferSum(pServiceName);
+									pHashLink = rsslHashTableFind(pReactorWarmStandByGroupImpl->pActiveServiceConfig, pServiceName, &hashCode);
+
+									if (pHashLink == NULL) /* Not found this service name */
+									{
+										pServiceConfigImpl = (RsslReactorWSBServiceConfigImpl*)malloc(sizeof(RsslReactorWSBServiceConfigImpl));
+
+										if (pServiceConfigImpl == NULL)
+										{
+											for (m = 0; m < o; m++)
+											{
+												free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[m].data);
+											}
+											free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList);
+
+											if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount != 0)
+											{
+												for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+												{
+													free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+												}
+
+												free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+											}
+
+											free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+											rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+											for (k = 0; k < j; k++)
+											{
+												for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+												{
+													free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+												}
+												free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+												free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+												rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+											}
+
+											free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+											rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+											if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+											{
+												rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+												free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+											}
+											_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+											free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+											/* Free previous warmstandby group if any */
+											goto cleanUpPreviousWarmStandGroup;
+										}
+
+										rsslClearReactorWSByServiceConfigImpl(pServiceConfigImpl);
+									}
+
+									pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data = (char*)malloc(pServiceName->length);
+									if (pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data == NULL)
+									{
+										for (m = 0; m < o; m++)
+										{
+											free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[m].data);
+										}
+										free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList);
+
+										if (pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount != 0)
+										{
+											for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+											{
+												free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+											}
+
+											free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+										}
+
+										free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+										rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+										for (k = 0; k < j; k++)
+										{
+											for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+											{
+												free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+											}
+											free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+											free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+											rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+										}
+
+										free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+										rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+										if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+										{
+											rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+											free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+										}
+										_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+										free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+										/* Free previous warmstandby group if any */
+										goto cleanUpPreviousWarmStandGroup;
+									}
+
+									memcpy(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data, pServiceName->data, pServiceName->length);
+									pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].length = pServiceName->length;
+
+									if (pHashLink == NULL)
+									{
+										/* Add service config to queue link and hash table. */
+										rsslQueueAddLinkToBack(pReactorWarmStandByGroupImpl->pActiveServiceConfigList, &pServiceConfigImpl->queueLink);
+										rsslHashTableInsertLink(pReactorWarmStandByGroupImpl->pActiveServiceConfig, &pServiceConfigImpl->hashLink, 
+											&pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o], &hashCode);
+
+										pServiceConfigImpl->isStartingServerConfig = RSSL_FALSE;
+										pServiceConfigImpl->standByServerListIndex = j;
+									}
+								}
+
+								pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameCount = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].perServiceBasedOptions.serviceNameCount;
+							}
+						}
+
+						if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.enableSessionManagement)
+						{
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length = (RsslUInt32)strlen(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.location.data);
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data = (char*)malloc((size_t)pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length + (size_t)1);
+
+							if (pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data == NULL)
+							{
+								for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+								{
+									free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+								}
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+								rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+								for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameCount; o++)
+								{
+									free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data);
+								}
+								free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList);
+
+								for (k = 0; k < j; k++)
+								{
+									for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+									{
+										free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+									}
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+									rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+								}
+
+								free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+								rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+								if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+								{
+									rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+									free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+								}
+								_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+								/* Free previous warmstandby group if any */
+								goto cleanUpPreviousWarmStandGroup;
+							}
+
+							memset(pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data, 0, (size_t)pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length + (size_t)1);
+							strncpy(pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data, pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.location.data,
+								(size_t)(pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length));
+						}
+						else
+						{
+							rsslClearBuffer(&pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location);
+						}
+
+						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.initializationTimeout = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.initializationTimeout;
+						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.enableSessionManagement = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.enableSessionManagement;
+						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.pAuthTokenEventCallback = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.pAuthTokenEventCallback;
+
+						++numberOfServers;
+
+						if (!(*enableSessionMgnt))
+						{
+							(*enableSessionMgnt) = pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.enableSessionManagement;
+						}
+
+						destOpts = &pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.rsslConnectOptions;
+						sourceOpts = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.rsslConnectOptions;
+
+						if (rsslDeepCopyConnectOpts(destOpts, sourceOpts) != RSSL_RET_SUCCESS)
+						{
+							for (k = 0; k <= j; k++)
+							{
+								for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+								{
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+								}
+								free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+								free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+
+								rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+							}
+
+							free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+							for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+							{
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+							}
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+							rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+							rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+							if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+							{
+								rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							}
+							_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+							/* Free previous warmstandby group if any */
+							goto cleanUpPreviousWarmStandGroup;
+						}
+					}
+				}
+
+				pReactorWarmStandByGroupImpl->standbyServerCount = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerCount;
+				pReactorWarmStandByGroupImpl->warmStandbyMode = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].warmStandbyMode;
+
+				if (numberOfServers > (*pWarmStandByHandler)->wsbChannelInfoImpl.maxNumberOfSocket)
+				{
+					/* Keeps with maximum number of sockets across all groups */
+					(*pWarmStandByHandler)->wsbChannelInfoImpl.maxNumberOfSocket = numberOfServers;
+				}
+			}
+
+			(*pWarmStandByHandler)->warmStandbyGroupCount = pOpts->warmStandbyGroupCount;
+		}
+		else
+		{
+			return RSSL_RET_FAILURE;
+		}
+	}
+
+	return RSSL_RET_SUCCESS;
+
+cleanUpPreviousWarmStandGroup:
+
+	/* Free previous warmstandby group if any */
+	_rsslFreeWarmStandbyHandler(*pWarmStandByHandler, wsGroupIndex, RSSL_TRUE);
+
+	return RSSL_RET_FAILURE;
 }
 
 RTR_C_INLINE void _rsslCleanUpPackedBufferHashTable(RsslReactorChannelImpl *pReactorChannel)
@@ -448,6 +1563,15 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	rsslResetReactorChannelState(pReactorImpl, pReactorChannel);
 
 	memset(&pReactorChannel->packedBufferHashTable, 0, sizeof(RsslHashTable));
+
+	/* The warm stand by feature */
+	pReactorChannel->pWarmStandByHandlerImpl = NULL;
+	rsslInitQueueLink(&pReactorChannel->warmstandbyChannelLink);
+	pReactorChannel->isActiveServer = RSSL_FALSE;
+	pReactorChannel->standByServerListIndex = 0;
+	pReactorChannel->isStartingServerConfig = RSSL_FALSE;
+	pReactorChannel->lastSubmitOptionsTime = 0;
+	pReactorChannel->pWSRecoveryMsgList = NULL;
 }
 
 /* Verify that the given RsslReactorChannel is valid for this RsslReactor */
@@ -595,6 +1719,8 @@ struct _RsslReactorImpl
 	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
 	RsslBool			restEnableLog;	/* Enable REST interaction debug messages */
 	FILE				*restLogOutputStream;	/* Set output stream for REST debug message (by default is stdout) */
+	RsslQueue warmstandbyChannelPool;	/* Pool of available RsslReactorWarmStandByHandlerImpl structures */
+	RsslQueue closingWarmstandbyChannel;    /* Keeps a list RsslReactorWarmStandByHandlerImpl being closed. */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
@@ -614,13 +1740,30 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 
 RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReactorChannelImpl, RsslBool *queryConnectInfo, RsslErrorInfo* pError);
 
+RsslRet _reactorGetAccessToken(RsslReactorChannelImpl* pReactorChannelImpl, RsslReactorConnectInfoImpl* pReactorConnectInfoImpl, RsslErrorInfo* pError);
+
 RsslBuffer* getHeaderValue(RsslQueue *pHeaders, RsslBuffer* pHeaderName);
 
 void _cumulativeValue(RsslUInt* destination, RsslUInt32 value);
 
+/* Checks whether the ReactorChannel handles the warm standby feature at its current state */
+RsslBool _reactorHandlesWarmStandby(RsslReactorChannelImpl *pReactorChannelImpl);
+
 RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pReactorWoker);
 
 void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfo, RsslReactorWorker *pReactorWoker);
+
+RsslBool _reactorHandlesWarmStandby(RsslReactorChannelImpl *pReactorChannelImpl);
+
+RsslBool _isActiveServiceForWSBChannelByID(RsslReactorWarmStandbyGroupImpl *pWarmStandByGroupImpl, RsslReactorChannelImpl *pReactorChannel, RsslUInt serviceId);
+
+RsslBool _isActiveServiceForWSBChannelByName(RsslReactorWarmStandbyGroupImpl *pWarmStandByGroupImpl, RsslReactorChannelImpl *pReactorChannel, const RsslBuffer* pServiceName);
+
+RsslBool isRsslChannelActive(RsslReactorChannelImpl *pReactorChannelImpl);
+
+RsslRet copyWlItemRequest(RsslReactorImpl *pReactorImpl, RsslReactorSubmitMsgOptionsImpl* pDestinationImpl, WlItemRequest *pItemRequest);
+
+RsslReactorConnectInfoImpl* _reactorGetCurrentReactorConnectInfoImpl(RsslReactorChannelImpl* pReactorChannel);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError);

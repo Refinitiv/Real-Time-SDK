@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
 */
 
 /* This provides handling for command-line configuration of ConsPerf. */
@@ -77,6 +77,12 @@ static void clearConsPerfConfig()
 	consPerfConfig.guaranteedOutputTunnelBuffers = 15000;
 	consPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
 	consPerfConfig.compressionType = 0;
+
+	snprintf(consPerfConfig.startingHostName, sizeof(consPerfConfig.startingHostName), "");
+	snprintf(consPerfConfig.startingPort, sizeof(consPerfConfig.startingPort), "");
+	snprintf(consPerfConfig.standbyHostName, sizeof(consPerfConfig.standbyHostName), "");
+	snprintf(consPerfConfig.standbyPort, sizeof(consPerfConfig.standbyPort), "");
+	consPerfConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
 }
 
 void exitConfigError(char **argv)
@@ -376,6 +382,42 @@ void initConsPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 			consPerfConfig.compressionType = atoi(argv[iargs++]);
 		}
+		else if (strcmp("-startingHostName", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(consPerfConfig.startingHostName, 255, "%s", argv[iargs++]);
+		}
+		else if (strcmp("-startingPort", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(consPerfConfig.startingPort, 255, "%s", argv[iargs++]);
+		}
+		else if (strcmp("-standbyHostName", argv[iargs]) == 0)
+		{
+		++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+		snprintf(consPerfConfig.standbyHostName, 255, "%s", argv[iargs++]);
+		}
+		else if (strcmp("-standbyPort", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(consPerfConfig.standbyPort, 255, "%s", argv[iargs++]);
+		}
+		else if (strcmp("-warmStandbyMode", argv[iargs]) == 0)
+		{
+			char warmStandbyModeStr[255];
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(warmStandbyModeStr, 255, "%s", argv[iargs++]);
+
+			if (0 == strcmp(&warmStandbyModeStr[0], "login"))
+				consPerfConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+			else if (0 == strcmp(&warmStandbyModeStr[0], "service"))
+				consPerfConfig.warmStandbyMode = RSSL_RWSB_MODE_SERVICE_BASED;
+			else
+			{
+				printf("Unknown warm standby mode specified: %s\n", warmStandbyModeStr);
+				exitConfigError(argv);
+			}
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -496,6 +538,20 @@ void initConsPerfConfig(int argc, char **argv)
 		exitConfigError(argv);
 	}
 
+	/* Checks whether the warm standby feature is enabled. */
+	if (consPerfConfig.startingHostName[0] != '\0' && consPerfConfig.startingPort[0] != '\0' && consPerfConfig.standbyHostName[0] != '\0' && consPerfConfig.standbyPort[0] != '\0')
+	{
+		if (consPerfConfig.useWatchlist == RSSL_FALSE)
+		{
+			printf("\nConfig error: -watchlist must be specified in order to use the warm standby feature.\n");
+			exitConfigError(argv);
+		}
+	}
+	else
+	{
+		consPerfConfig.warmStandbyMode = RSSL_RWSB_MODE_NONE;
+	}
+
 	consPerfConfig._requestsPerTick = consPerfConfig.itemRequestsPerSec 
 		/ consPerfConfig.ticksPerSec;
 
@@ -536,6 +592,7 @@ void printConsPerfConfig(FILE *file)
 	int tmpStringPos = 0;
 	char tmpString[128];
 	char reactorWatchlistUsageString[32];
+	char warmStandbyModeStr[32];
 
 	if (consPerfConfig.useWatchlist)
 	{
@@ -548,6 +605,19 @@ void printConsPerfConfig(FILE *file)
 	else
 	{
 		strcpy(reactorWatchlistUsageString, "None");
+	}
+
+	if (consPerfConfig.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+	{
+		strcpy(warmStandbyModeStr, "Login");
+	}
+	else if (consPerfConfig.warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
+	{
+		strcpy(warmStandbyModeStr, "Service");
+	}
+	else
+	{
+		strcpy(warmStandbyModeStr, "None");
 	}
 
 	/* Build thread list */
@@ -568,6 +638,12 @@ void printConsPerfConfig(FILE *file)
 	fprintf(file,
 		"                Hostname: %s\n"
 		"                    Port: %s\n"
+		"     Enable warm standby: %s\n"
+		"       Warm standby mode: %s\n"
+		"Starting server HostName: %s\n"
+		"    Starting server Port: %s\n"
+		" Standby server HostName: %s\n"
+		"     Standby server Port: %s\n"
 		"                 Service: %s\n"
 		"             Thread List: %s\n"
 		"          Output Buffers: %u\n"
@@ -605,6 +681,12 @@ void printConsPerfConfig(FILE *file)
 		,
 		consPerfConfig.hostName,
 		consPerfConfig.portNo,
+		consPerfConfig.warmStandbyMode == RSSL_RWSB_MODE_NONE ? "No" : "Yes",
+		warmStandbyModeStr,
+		consPerfConfig.startingHostName,
+		consPerfConfig.startingPort,
+		consPerfConfig.standbyHostName,
+		consPerfConfig.standbyPort,
 		consPerfConfig.serviceName,
 		tmpString,
 		consPerfConfig.guaranteedOutputBuffers,
@@ -653,63 +735,69 @@ void exitWithUsage()
 {
 
 	printf(	"Options:\n"
-			"  -?                                   Shows this usage\n"
+			"  -?                                    Shows this usage\n"
 			"\n"
-			"  -connType <type>                     Type of connection(\"socket\", \"websocket\", \"http\", \"encrypted\")\n"
-			"  -encryptedConnType <type>            Encrypted connection protocol. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"websocket\", \"http\")\n"
-			"  -h <hostname>                        Name of host to connect to\n"
-			"  -p <port number>                     Port number to connect to\n"
-			"  -if <interface name>                 Name of network interface to use\n"
+			"  -connType <type>                      Type of connection(\"socket\", \"websocket\", \"http\", \"encrypted\")\n"
+			"  -encryptedConnType <type>             Encrypted connection protocol. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"websocket\", \"http\")\n"
+			"  -h <hostname>                         Name of host to connect to\n"
+			"  -p <port number>                      Port number to connect to\n"
+			"  -if <interface name>                  Name of network interface to use\n"
 			"  -pl \"<list>\"                         List of desired WS sub-protocols in order of preference(',' | white space delineated)\n"
 			"\n"
-			"  -outputBufs <count>                  Number of output buffers(configures guaranteedOutputBuffers in RsslConnectOptions)\n"
-			"  -inputBufs <count>                   Number of input buffers(configures numInputBufs in RsslConnectOptions)\n"
-			"  -tcpDelay                            Turns off tcp_nodelay in RsslConnectOptions, enabling Nagle's\n"
-			"  -sendBufSize <size>                  System Send Buffer Size(configures sysSendBufSize in RsslConnectOptions)\n"
-			"  -recvBufSize <size>                  System Receive Buffer Size(configures sysRecvBufSize in RsslConnectOptions)\n"
+			"  -outputBufs <count>                   Number of output buffers(configures guaranteedOutputBuffers in RsslConnectOptions)\n"
+			"  -inputBufs <count>                    Number of input buffers(configures numInputBufs in RsslConnectOptions)\n"
+			"  -tcpDelay                             Turns off tcp_nodelay in RsslConnectOptions, enabling Nagle's\n"
+			"  -sendBufSize <size>                   System Send Buffer Size(configures sysSendBufSize in RsslConnectOptions)\n"
+			"  -recvBufSize <size>                   System Receive Buffer Size(configures sysRecvBufSize in RsslConnectOptions)\n"
 			"\n"
-			"  -tickRate <ticks per second>         Ticks per second\n"
-			"  -itemCount <count>                   Number of items to request\n"
-			"  -commonItemCount <count>             Number of items common to all consumers, if using multiple connections.\n"
-			"  -requestRate <items/sec>             Rate at which to request items\n"
-			"  -snapshot                            Snapshot test; request all items as non-streaming\n"
-			"  -postingRate <posts/sec>             Rate at which to send post messages.\n"
-			"  -postingLatencyRate <posts/sec>      Rate at which to send latency post messages.\n"
-			"  -genericMsgRate <genMsgs/sec>        Rate at which to send generic messages.\n"
-			"  -genericMsgLatencyRate <genMsgs/sec> Rate at which to send latency generic messages.\n"
-			"  -calcRWFJSONConversionLatency        Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF.\n"
+			"  -tickRate <ticks per second>          Ticks per second\n"
+			"  -itemCount <count>                    Number of items to request\n"
+			"  -commonItemCount <count>              Number of items common to all consumers, if using multiple connections.\n"
+			"  -requestRate <items/sec>              Rate at which to request items\n"
+			"  -snapshot                             Snapshot test; request all items as non-streaming\n"
+			"  -postingRate <posts/sec>              Rate at which to send post messages.\n"
+			"  -postingLatencyRate <posts/sec>       Rate at which to send latency post messages.\n"
+			"  -genericMsgRate <genMsgs/sec>         Rate at which to send generic messages.\n"
+			"  -genericMsgLatencyRate <genMsgs/sec>  Rate at which to send latency generic messages.\n"
+			"  -calcRWFJSONConversionLatency         Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF.\n"
 			"\n"
-			"  -uname <name>                        Username to use in login request\n"
-			"  -serviceName <name>                  Service Name\n"
+			"  -uname <name>                         Username to use in login request\n"
+			"  -serviceName <name>                   Service Name\n"
 			"\n"
-			"  -itemFile <file name>                Name of the file to get item names from\n"
-			"  -msgFile <file name>                 Name of the file that specifies the data content in messages\n"
-			"  -summaryFile <filename>              Name of file for logging summary info.\n"
-			"  -statsFile <filename>                Base name of file for logging periodic statistics.\n"
-			"  -writeStatsInterval <sec>            Controls how often stats are written to the file.\n"
-			"  -noDisplayStats                      Stop printout of stats to screen.\n"
-			"  -latencyFile <filename>              Base name of file for logging latency.\n"
+			"  -itemFile <file name>                 Name of the file to get item names from\n"
+			"  -msgFile <file name>                  Name of the file that specifies the data content in messages\n"
+			"  -summaryFile <filename>               Name of file for logging summary info.\n"
+			"  -statsFile <filename>                 Base name of file for logging periodic statistics.\n"
+			"  -writeStatsInterval <sec>             Controls how often stats are written to the file.\n"
+			"  -noDisplayStats                       Stop printout of stats to screen.\n"
+			"  -latencyFile <filename>               Base name of file for logging latency.\n"
 			"\n"
-			"  -steadyStateTime <seconds>           Time consumer will run the steady-state portion of the test.\n"
+			"  -steadyStateTime <seconds>            Time consumer will run the steady-state portion of the test.\n"
 			"                                         Also used as a timeout during the startup-state portion.\n"
-			"  -delaySteadyStateCalc <mili sec>     Time consumer will wait before calculate the latency.\n"
-			"  -threads <thread list>               list of threads(which create 1 connection each),\n"
-			"                                         by their bound CPU. Comma-separated list. -1 means do not bind.\n"
+			"  -delaySteadyStateCalc <mili sec>      Time consumer will wait before calculate the latency.\n"
+			"  -threads <thread list>                list of threads(which create 1 connection each),\n"
+			"                                        by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                         (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
-			"  -reactor                             Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
-			"  -watchlist                           Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving.\n"
+			"  -reactor                              Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
+			"  -watchlist                            Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving.\n"
 			"\n"
-			"  -nanoTime                            Assume latency has nanosecond precision instead of microsecond.\n"
-			"  -measureDecode                       Measure decode time of updates.\n"
+			"  -nanoTime                             Assume latency has nanosecond precision instead of microsecond.\n"
+			"  -measureDecode                        Measure decode time of updates.\n"
 			"\n"
-			"  -castore                             File location of the certificate authority store.\n"
-			"  -spTLSv1.2                           Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			"  -castore                              File location of the certificate authority store.\n"
+			"  -spTLSv1.2                            Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
 			"\n"
-			"  -tunnel                              Causes the consumer to open a tunnel stream that exchanges basic messages. Require using -reactor or -watchlist.\n"
-			"  -tunnelAuth                          Causes the consumer to enable authentication when opening tunnel streams.\n"
-			"  -tunnelStreamOutputBufs <count>      Number of output tunnel buffers (configures guaranteedOutputBuffers in RsslTunnelStreamOpenOptions).\n"
-			"  -tunnelStreamBuffersUsed             Print stats of buffers used by tunnel stream. This setting is disabled by default.\n"
-			"  -compressionType <compression type>  Specify a compression type (configures compressionType in RsslConnectOptions).\n"
+			"  -tunnel                               Causes the consumer to open a tunnel stream that exchanges basic messages. Require using -reactor or -watchlist.\n"
+			"  -tunnelAuth                           Causes the consumer to enable authentication when opening tunnel streams.\n"
+			"  -tunnelStreamOutputBufs <count>       Number of output tunnel buffers (configures guaranteedOutputBuffers in RsslTunnelStreamOpenOptions).\n"
+			"  -tunnelStreamBuffersUsed              Print stats of buffers used by tunnel stream. This setting is disabled by default.\n"
+			"  -compressionType <compression type>   Specify a compression type (configures compressionType in RsslConnectOptions).\n"
+			"\n"
+			"  -startingHostName <Starting hostname> Specify a starting server hostname for enabling warm standby feature.\n"
+			"  -startingPort <Starting port>         Specify a starting server port for enabling warm standby feature.\n"
+			"  -standbyHostName <Standby hostname>   Specify a standby server hostname for enabling warm standby feature.\n"
+			"  -standbyPort <Standby port>           Specify a standby server port for enabling warm standby feature.\n"
+			"  -warmStandbyMode <login/service>      Specify a warm standby mode. Defaults to login based.\n"
 			"\n"
 	);
 #ifdef _WIN32

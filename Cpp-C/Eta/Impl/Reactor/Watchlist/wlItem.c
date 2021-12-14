@@ -1543,6 +1543,18 @@ RsslRet wlItemRequestSendMsgEvent(WlBase *pBase,
 
 	wlStreamInfoClear(&streamInfo);
 	pEvent->pStreamInfo = &streamInfo;
+	if ((pItemRequest->flags & WL_IRQF_PRIVATE) != 0)
+	{
+		if (pEvent->pRsslMsg && pEvent->pRsslMsg->msgBase.msgClass == RSSL_MC_STATUS)
+		{
+			if (pEvent->pRsslMsg->statusMsg.state.streamState == RSSL_STREAM_CLOSED_RECOVER &&
+				pEvent->pRsslMsg->statusMsg.state.dataState == RSSL_DATA_SUSPECT)
+			{
+				pEvent->_flags |= WL_MEF_NOTIFY_STATUS;
+			}
+		}
+	}
+
 	streamInfo.pUserSpec = pItemRequest->base.pUserSpec;
 
 	if (pItemRequest->pRequestedService->flags & WL_RSVC_HAS_NAME)

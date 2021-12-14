@@ -83,6 +83,16 @@ RTR_C_INLINE void rsslClearRDMServerInfo(RsslRDMServerInfo *pServerInfo)
 	pServerInfo->serverType = RDM_LOGIN_SERVER_TYPE_STANDBY;
 }
 
+/**
+ * @brief The RDM Login Warm Standby modes.
+ * @see RsslRDMLoginRefresh
+ */
+typedef enum {
+	RDM_LG_WSBM_NONE = 0x00,			/*!< (0x00) No modes set */
+	RDM_LG_WSBM_LOGIN_BASED = 0x01,		/*!< (0x01) Indicates whether provider supports login based warm standby. */
+	RDM_LG_WSBM_SERVICE_BASED = 0x02	/*!< (0x02) Indicates whether provider supports service based warm standby. */
+} RsslRDMLoginWarmStandbyModes;
+
 /** 
  * @brief The types of RDM Login Messages.  When the rdmMsgBase's domainType is RSSL_DMT_LOGIN, 
  * the rdmMsgType member may be set to one of these to indicate the specific RsslRDMLoginMsg class.
@@ -273,7 +283,8 @@ typedef enum
 	RDM_LG_RFF_HAS_AUTHN_EXTENDED_RESP			= 0x01000000,	/*!< (0x01000000) Indicates presence of the authentication extended response buffer */
 	RDM_LG_RFF_HAS_AUTHN_ERROR_CODE				= 0x02000000,	/*!< (0x02000000) Indicates presence of the authenication error code */
 	RDM_LG_RFF_HAS_AUTHN_ERROR_TEXT				= 0x04000000,	/*!< (0x04000000) Indicates presence of the authentication error text member */
-	RDM_LG_RFF_RTT_SUPPORT						= 0x08000000	/*!< (0x04000000) Indicates RTT feature support. */
+	RDM_LG_RFF_RTT_SUPPORT						= 0x08000000,	/*!< (0x04000000) Indicates RTT feature support. */
+	RDM_LG_RFF_HAS_SUPPORT_STANDBY_MODE			= 0x10000000	/*!< (0x10000000) Indicates presence of the supportStandbyMode member. */
 } RsslRDMLoginRefreshFlags;
 
 /**
@@ -312,6 +323,7 @@ typedef struct {
 	RsslBuffer					authenticationExtendedResp;		/*!< For UserAuthn Authentication, this is extra data that may need to be used by the client application from the token generator */
 	RsslUInt					authenticationErrorCode;		/*!< For UserAuthn Authentication, this is any error information from the token generator */
 	RsslBuffer					authenticationErrorText;		/*!< For UserAuthn Authentication, this is the text associated with the authentication error code */
+	RsslUInt					supportStandbyMode;				/*!< Indicates whether the Warm Standby modes supported by Provider. Populated by RsslRDMLoginWarmStandbyModes. */
 } RsslRDMLoginRefresh;
 
 /**
@@ -355,6 +367,7 @@ RTR_C_INLINE void rsslClearRDMLoginRefresh(RsslRDMLoginRefresh *pRefresh)
 	pRefresh->sequenceRetryInterval = 5;
 	pRefresh->updateBufferLimit = 100;
 	pRefresh->sequenceNumberRecovery = 1;
+	pRefresh->supportStandbyMode = 0;
 }
 
 /**

@@ -56,7 +56,7 @@ extern RsslBuffer rssl_rest_location_header_text;
 #define RSSL_REST_INIT_TOKEN_BUFFER_SIZE 8192
 #define RSSL_REST_INIT_SVC_DIS_BUF_SIZE 9216
 #define RSSL_REST_ADDITIONAL_REQ_AUTH_LENGTH 95 /* Support for both password and refresh_token grant types*/
-#define RSSL_REST_STORE_HOST_AND_PORT_BUF_SIZE 128 /* Enough size to store max domain name(63) and port(5)*/
+#define RSSL_REST_STORE_HOST_AND_PORT_BUF_SIZE 256 /* Enough size to store max domain name(63) and port(5)*/
     
 #ifdef __cplusplus
 extern "C" {

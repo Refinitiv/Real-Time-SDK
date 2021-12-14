@@ -809,6 +809,16 @@ void OmmNiProviderImpl::removeSocket( RsslSocket fd )
 #endif
 }
 
+void OmmNiProviderImpl::removeAllSocket()
+{
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#else
+	removeAllFd();
+#endif
+}
+
 Int64 OmmNiProviderImpl::dispatch( Int64 timeOut )
 {
 	if ( _activeConfig.operationModel == OmmNiProviderConfig::UserDispatchEnum && !_atExit )

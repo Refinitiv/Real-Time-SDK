@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2021 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -43,6 +43,7 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"Name",
 	"ObjectName",
 	"OpenSSLCAStore",
+	"PerServiceNameSet",
 	"Port",
 	"ProxyHost",
 	"ProxyPort",
@@ -56,6 +57,8 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"Server",
 	"ServerCert",
 	"ServerPrivateKey",
+	"StandbyServerSet",
+	"StartingActiveServer",
 	"StatusText",
 	"tcpControlPort",
 	"Timeliness",
@@ -64,6 +67,7 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"XmlTraceFileName",
 	"WsProtocols",
 	"RestLogFileName",
+	"WarmStandbyChannelSet"
 };
 
 refinitiv::ema::access::EmaString EnumeratedValues[] = {
@@ -77,6 +81,7 @@ refinitiv::ema::access::EmaString EnumeratedValues[] = {
 	"ServerType",
 	"StatusCode",
 	"StreamState",
+	"WarmStandbyMode"
 };
 
 refinitiv::ema::access::EmaString Int64Values[] = {

@@ -92,6 +92,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	RsslReactorWorker *pReactorWorker = &pReactorImpl->reactorWorker;
 	int eventQueueFd;
 	int i;
+	int initErrorPoolSize = (int)(RSSL_REACTOR_WORKER_ERROR_INFO_MAX_POOL_SIZE * 0.5);
 
 	if (_reactorWorkerBuildName(pReactorWorker, reactorIndex, pError) != RSSL_RET_SUCCESS)
 	{
@@ -123,7 +124,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	RSSL_MUTEX_INIT(&pReactorImpl->reactorWorker.errorInfoPoolLock);
 
 	/* Initialize error information pool */
-	for (i = 0; i < 5; ++i)
+	for (i = 0; i < initErrorPoolSize ; ++i)
 	{
 		RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = (RsslReactorErrorInfoImpl*)malloc(sizeof(RsslReactorErrorInfoImpl));
 
@@ -286,6 +287,18 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
 		free(pReactorChannel);
 	}
+	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->closingWarmstandbyChannel)))
+	{
+		RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandByHandlerImpl, reactorQueueLink, pLink);
+		RSSL_MUTEX_DESTROY(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
+		free(pReactorWarmStandByHandlerImpl);
+	}
+	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->warmstandbyChannelPool)))
+	{
+		RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWarmStandByHandlerImpl, reactorQueueLink, pLink);
+		RSSL_MUTEX_DESTROY(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
+		free(pReactorWarmStandByHandlerImpl);
+	}
 
 	if (pReactorImpl->pNotifier)
 		rsslDestroyNotifier(pReactorImpl->pNotifier);
@@ -412,7 +425,7 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 	/* Notify the current token information from the token session */
 	if (pReactorChannel->pTokenSessionImpl)
 	{
-		RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+		RsslReactorConnectInfoImpl* pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
 		if (pReactorConnectInfoImpl->base.enableSessionManagement)
 		{
@@ -704,6 +717,40 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													}
 												}
 
+												if (pReactorChannel->pWarmStandByHandlerImpl)
+												{
+													RSSL_MUTEX_LOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+													if (pReactorChannel->warmstandbyChannelLink.next != NULL && pReactorChannel->warmstandbyChannelLink.prev != NULL)
+													{
+														rsslQueueRemoveLink(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, &pReactorChannel->warmstandbyChannelLink);
+													}
+													RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+
+													/* Clenaup recovery message*/
+													if(pReactorChannel->pWSRecoveryMsgList != NULL)
+													{
+														RsslReactorWSRecoveryMsgInfo* pWSRecoveryMsgInfo = NULL;
+
+														while ((pLink = rsslQueueRemoveFirstLink(pReactorChannel->pWSRecoveryMsgList)))
+														{
+															pWSRecoveryMsgInfo = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWSRecoveryMsgInfo, queueLink, pLink);
+
+															if (pWSRecoveryMsgInfo->msgKey.name.data)
+																free(pWSRecoveryMsgInfo->msgKey.name.data);
+
+															if (pWSRecoveryMsgInfo->serviceName.data)
+																free(pWSRecoveryMsgInfo->serviceName.data);
+
+															if (pWSRecoveryMsgInfo->rsslState.text.data)
+																free(pWSRecoveryMsgInfo->rsslState.text.data);
+
+															free(pWSRecoveryMsgInfo);
+														}
+
+														pReactorChannel->pWSRecoveryMsgList = NULL;
+													}
+												}
+
 												/* Unregister the channel for the token session */
 												if (pReactorChannel->pTokenSessionImpl)
 												{
@@ -719,7 +766,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													/* This is the case when the channel hasn't been added of the list of token session yet */
 													if(pReactorChannel->addedToTokenSessionList == RSSL_FALSE)
 														RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
-													
+
 													pReactorChannel->pTokenSessionImpl = NULL;
 
 													/* Ensure that all channels has been removed and there is no others channel is waiting to add to the list of token session */
@@ -739,9 +786,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 															}
 														}
 
-														if(pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
+														if (pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
 															rsslQueueRemoveLink(&pReactorWorker->reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
-														
+
 														rsslHashTableRemoveLink(&pReactorWorker->reactorTokenManagement.sessionByNameAndClientIdHt, &pTokenSessionImpl->hashLinkNameAndClientId);
 														rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
 													}
@@ -780,6 +827,27 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 											}
 											break;
+										case RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL:
+											{
+												RsslReactorWarmStandByHandlerImpl* pReactorWarmStandbyHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
+
+												if (pReactorWarmStandbyHandlerImpl)
+												{
+													_rsslFreeWarmStandbyHandler(pReactorWarmStandbyHandlerImpl, pReactorWarmStandbyHandlerImpl->warmStandbyGroupCount, RSSL_FALSE);
+													pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_INACTIVE;
+
+													RsslReactorWarmStanbyEvent* pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+													rsslClearReactorWarmStanbyEvent(pEvent);
+
+													pEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL;
+													pEvent->pReactorWarmStandByHandlerImpl = (void*)pReactorWarmStandbyHandlerImpl;
+
+													if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+												}
+
+												break;
+											}
 										default:
 											rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, 
 													"Unknown channel event type %d", pConnEvent->channelEvent.channelEventType);
@@ -1138,7 +1206,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 									break;
 								}
-
 							default:
 								{
 									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown event type %d", pEvent->base.eventType);
@@ -1406,7 +1473,72 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
 				RsslBool submitOriginalCredential = RSSL_FALSE;
 
-				if ((pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
+				/* Checks whether this channel belongs to the warmstandby feature. */
+				if (_reactorHandlesWarmStandby(pReactorChannel))
+				{
+					RsslReactorWarmStandbyGroupImpl* pWarmStandByGroupImpl = &pReactorChannel->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannel->pWarmStandByHandlerImpl->currentWSyGroupIndex];
+					RsslReactorWarmStandbyServerInfoImpl *pWarmStandbyServerInfoImpl;
+
+					if (pReactorChannel->isStartingServerConfig)
+					{
+						pWarmStandbyServerInfoImpl = &pWarmStandByGroupImpl->startingActiveServer;
+
+						pReactorConnectInfoImpl = (&pWarmStandbyServerInfoImpl->reactorConnectInfoImpl);
+
+						/* Updates with from the reactor connect info */
+						pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
+
+						if ( (pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerState & RSSL_RWSB_STATE_CLOSING_STANDBY_CHANNELS) != 0)
+						{
+							continue; /* Do nothing while waiting for standby channels to close. */
+						}
+					}
+					else
+					{
+						pWarmStandbyServerInfoImpl = &pWarmStandByGroupImpl->standbyServerList[pReactorChannel->standByServerListIndex];
+						pReactorConnectInfoImpl = (&pWarmStandbyServerInfoImpl->reactorConnectInfoImpl);
+
+						/* Updates with from the reactor connect info */
+						pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
+					}
+
+					if (!pWarmStandbyServerInfoImpl->isActiveChannelConfig)
+					{
+						rsslQueueRemoveLink(pReactorChannel->workerParentList, &pReactorChannel->workerLink);
+						rsslInitQueueLink(&pReactorChannel->workerLink);
+						continue; /* Do nothing as this channel config is no longer active */
+					}
+
+					if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect(&(pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
+					{
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+					}
+					else
+					{
+						/* Reset channel statistics as the new connection is established */
+						if (pReactorChannel->pChannelStatistic)
+						{
+							rsslClearReactorChannelStatistic(pReactorChannel->pChannelStatistic);
+						}
+
+						/* Set debug callback usage here. */
+						if (pReactorChannel->connectionDebugFlags != 0 && rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &pReactorChannel->channelWorkerCerr.rsslError) != RSSL_RET_SUCCESS)
+						{
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+							continue;
+						}
+
+						pReactorChannel->channelSetupState = RSSL_RC_CHST_INIT;
+						pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerProcessNewChannel(pReactorImpl, pReactorChannel) == RSSL_RET_SUCCESS, ret, &pReactorWorker->workerCerr))
+							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+					}
+
+					continue;
+				}
+				else if ((pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN) ||
 					(pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY))
 				{
 					continue; /* Still waiting for response from the token service or service discovery before switching to another RsslReactorConnectInfoImpl */
@@ -2367,7 +2499,8 @@ static void handlingAuthRequestFailure(RsslReactorTokenSessionImpl* pReactorToke
 	RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 	{
 		pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
-		pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+		pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
 		/* Gets RsslReactorErrorInfoImpl for a channel from the pool. */
 		pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
@@ -2476,10 +2609,12 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 {
 	RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)event->closure;
 	RsslError rsslError;
-	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+	RsslReactorConnectInfoImpl* pReactorConnectInfoImpl = NULL;
 	RsslReactorWorker *pReactorWorker = &pReactorChannel->pParentReactor->reactorWorker;
 	RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
 	RsslReactorTokenSessionImpl *pTokenSessionImpl = pReactorChannel->pTokenSessionImpl;
+
+	pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
 	if (pReactorImpl->restEnableLog)
 		(void)rsslRestResponseDump(pReactorImpl->restLogOutputStream, restresponse, &rsslError);
@@ -2812,8 +2947,10 @@ static void rsslRestErrorCallback(RsslError* rsslError, RsslRestResponseEvent* e
 {
 	RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)event->closure;
 	RsslReactorWorker *pReactorWorker = &pReactorChannel->pParentReactor->reactorWorker;
-	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = NULL;
 	RsslReactorImpl *pReactorImpl = pReactorChannel->pParentReactor;
+
+	pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
 	if (pReactorImpl->restEnableLog)
 		(void)restResponseErrDump(pReactorImpl->restLogOutputStream, rsslError);
@@ -2957,7 +3094,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 			{
 				pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
 
-				pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+				pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
+
 				pReactorConnectInfoImpl->lastTokenUpdatedTime = pReactorTokenSession->lastTokenUpdatedTime;
 
 				pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
@@ -3231,7 +3369,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 							{
 								pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
-								pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+								pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
+
 								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 							}
 
@@ -3273,7 +3413,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 					{
 						pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
-						pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+						pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
+
 						pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 					}
 
@@ -3333,7 +3475,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 							{
 								pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
-								pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+								pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
+
 								pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 							}
 
@@ -3393,7 +3537,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 					{
 						pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
-						pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+						pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
+
 						pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_REQ_AUTH_TOKEN;
 					}
 
@@ -3496,7 +3642,8 @@ static void rsslRestAuthTokenErrorCallback(RsslError* rsslError, RsslRestRespons
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
 		{
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, tokenSessionLink, pLink);
-			pReactorConnectInfoImpl = &pReactorChannel->connectionOptList[pReactorChannel->connectionListIter];
+
+			pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
 			/* Notify error back to the application via the channel event */
 			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))

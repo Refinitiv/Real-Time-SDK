@@ -556,6 +556,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	EmaString channelOrChannelSet;
 	EmaString channelName;
 	bool setDefaultChannelName = false;
+	EmaString warmStandbyChannelSet;
+	EmaString warmStandbyChannelName;
+	bool foundWSBProgrammaticConfig;
+
+	pConfigImpl->getWarmStandbyChannelName(_activeConfig.configuredName, warmStandbyChannelSet, foundWSBProgrammaticConfig);
 
 	pConfigImpl->getChannelName( _activeConfig.configuredName, channelOrChannelSet);
 	if (channelOrChannelSet.trimWhitespace().length() > 0 )
@@ -578,7 +583,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		}
 		while ( pToken != NULL );
 	}
-	else
+	else if(warmStandbyChannelSet.trimWhitespace().length() == 0) /* Create a default channel where there is no both Channel and warm standby channel */
 	{
 		useDefaultConfigValues( EmaString( "Channel" ), pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort().userSpecifiedValue );
 	}
@@ -663,8 +668,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if ( _activeConfig.configChannelSet.size() == 0 )
 	{
-		EmaString channelName( "Channel" );
-		useDefaultConfigValues( channelName, pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort().userSpecifiedValue );
+		if (warmStandbyChannelSet.trimWhitespace().length() == 0)
+		{
+			EmaString channelName("Channel");
+			useDefaultConfigValues(channelName, pConfigImpl->getUserSpecifiedHostname(), pConfigImpl->getUserSpecifiedPort().userSpecifiedValue);
+		}
 	}
 	else
 	{
@@ -685,6 +693,77 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 					if (pSocketChannelConfig->serviceName.length() == 0)
 						pSocketChannelConfig->serviceName = _activeConfig.defaultServiceName();
 				}
+			}
+		}
+	}
+
+	if (warmStandbyChannelSet.trimWhitespace().length() > 0 && !foundWSBProgrammaticConfig)
+	{
+		char* pToken = NULL;
+		char* pNextToken = NULL;
+		EmaVector<EmaString*> warmStandbyNameList;
+		pToken = strtok(const_cast<char*>(warmStandbyChannelSet.c_str()), ",");
+
+		while (pToken != NULL)
+		{
+			warmStandbyChannelName = pToken;
+			warmStandbyNameList.push_back(new EmaString(warmStandbyChannelName.trimWhitespace()));
+			pNextToken = strtok(NULL, ",");
+
+			pToken = pNextToken;
+		}
+
+		EmaString* wsbChannelName;
+
+		for (UInt32 index = 0; index < warmStandbyNameList.size(); index++)
+		{
+			wsbChannelName = warmStandbyNameList[index];
+			WarmStandbyChannelConfig* newWSBChannelConfig = readWSBChannelConfig(pConfigImpl, *wsbChannelName, (pNextToken == NULL ? true : false));
+			_activeConfig.configWarmStandbySet.push_back(newWSBChannelConfig);
+
+			delete wsbChannelName;
+		}
+	}
+	else if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
+	{
+		ppc->retrieveCommonConfig(_activeConfig.configuredName, _activeConfig);
+		bool isProgramatiCfgChannelset = ppc->getActiveWSBChannelSetName(_activeConfig.configuredName, warmStandbyChannelSet.trimWhitespace());
+		unsigned int posInProgCfg = 0;
+
+		if (isProgramatiCfgChannelset)
+		{
+			char* pToken = NULL;
+			char* pNextToken = NULL;
+			EmaVector<EmaString*> warmStandbyNameList;
+			pToken = strtok(const_cast<char*>(warmStandbyChannelSet.c_str()), ",");
+
+			while (pToken != NULL)
+			{
+				warmStandbyChannelName = pToken;
+				warmStandbyNameList.push_back(new EmaString(warmStandbyChannelName.trimWhitespace()));
+				pNextToken = strtok(NULL, ",");
+
+				pToken = pNextToken;
+			}
+
+			EmaString* wsbChannelName;
+
+			for (UInt32 index = 0; index < warmStandbyNameList.size(); index++)
+			{
+				wsbChannelName = warmStandbyNameList[index];
+				WarmStandbyChannelConfig* fileWsbChannelConfig = readWSBChannelConfig(pConfigImpl, *wsbChannelName, (pNextToken == NULL ? true : false));
+
+				ppc->retrieveWSBChannelConfig(*wsbChannelName, _activeConfig, fileWsbChannelConfig);
+
+				if (!(ActiveConfig::findWsbChannelConfig(_activeConfig.configWarmStandbySet, *wsbChannelName, posInProgCfg)))
+					_activeConfig.configWarmStandbySet.push_back(fileWsbChannelConfig);
+				else
+				{
+					if (fileWsbChannelConfig)
+						delete fileWsbChannelConfig;
+				}
+
+				delete wsbChannelName;
 			}
 		}
 	}
@@ -715,6 +794,172 @@ void OmmBaseImpl::useDefaultConfigValues( const EmaString& channelName, const Em
 		throwMeeException( temp );
 		return;
 	}
+}
+
+WarmStandbyServerInfoConfig* OmmBaseImpl::readWarmStandbyServerInfoConfig(EmaConfigImpl* pConfigImpl, const EmaString& wsbServerInfoName)
+{
+	WarmStandbyServerInfoConfig* wsbServerInfoConfig = NULL;
+	EmaString wsbServerInfoNodeName("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.");
+	wsbServerInfoNodeName.append(wsbServerInfoName).append("|");
+	EmaString channelName;
+	EmaString PerServiceNameSet;
+
+	wsbServerInfoConfig = new WarmStandbyServerInfoConfig(wsbServerInfoName);
+
+	if (pConfigImpl->get<EmaString>(wsbServerInfoNodeName + "Channel", channelName))
+	{
+		/* Don't reuse the existing config with the same name as a channel name can be used by multiple server info. */
+		wsbServerInfoConfig->channelConfig = readChannelConfig(pConfigImpl, channelName, true);
+		_activeConfig.configChannelSetForWSB.push_back(wsbServerInfoConfig->channelConfig);
+	}
+
+	if (pConfigImpl->get<EmaString>(wsbServerInfoNodeName + "PerServiceNameSet", PerServiceNameSet))
+	{
+		char* pToken = NULL;
+		char* pNextToken = NULL;
+		EmaString *pServiceName;
+		EmaString serviceName;
+		pToken = strtok(const_cast<char*>(PerServiceNameSet.c_str()), ",");
+		do
+		{
+			if (pToken)
+			{
+				serviceName = pToken;
+				pNextToken = strtok(NULL, ",");
+				pServiceName = new EmaString(serviceName.trimWhitespace());
+				wsbServerInfoConfig->perServiceNameSet.push_back(pServiceName);
+			}
+
+			pToken = pNextToken;
+		} while (pToken != NULL);
+	}
+
+	return wsbServerInfoConfig;
+}
+
+void OmmBaseImpl::readChannelConfigForWSBChannel(EmaConfigImpl* pConfigImpl, const EmaString& wsbChannelName)
+{
+	EmaString wsbChannelNodeName("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.");
+	wsbChannelNodeName.append(wsbChannelName).append("|");
+	UInt64 tempUInt = 0;
+	EmaString wsbServerInfoName, standbyServerSet;
+	EmaString wsbServerInfoNodeName("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.");
+	EmaString channelName;
+	EmaString xmlPath;
+	EmaString channelNodeName("ChannelGroup|ChannelList|Channel.");
+	ChannelConfig *pChannelConfig;
+
+	if (pConfigImpl->get<EmaString>(wsbChannelNodeName + "StartingActiveServer", wsbServerInfoName))
+	{
+		xmlPath.set(wsbServerInfoNodeName).append(wsbServerInfoName).append("|");
+		if (pConfigImpl->get<EmaString>(xmlPath + "Channel", channelName))
+		{
+			xmlPath.set(channelNodeName).append(channelName);
+			
+			/* Ensure that this channel name exists */
+			if (pConfigImpl->getNode(xmlPath) != NULL)
+			{
+				pChannelConfig = readChannelConfig(pConfigImpl, channelName, true);
+				_activeConfig.configChannelSetForWSB.push_back(pChannelConfig);
+			}
+		}
+	}
+
+	if (pConfigImpl->get<EmaString>(wsbChannelNodeName + "StandbyServerSet", standbyServerSet))
+	{
+		char* pToken = NULL;
+		char* pNextToken = NULL;
+
+		EmaString standbyServerInfoName;
+		pToken = strtok(const_cast<char*>(standbyServerSet.c_str()), ",");
+		while (pToken)
+		{
+			standbyServerInfoName = pToken;
+			pNextToken = strtok(NULL, ",");
+			wsbServerInfoName = standbyServerInfoName.trimWhitespace();
+			xmlPath.set(wsbServerInfoNodeName).append(wsbServerInfoName).append("|");
+			if (pConfigImpl->get<EmaString>(xmlPath + "Channel", channelName))
+			{
+				xmlPath.set(channelNodeName).append(channelName);
+				/* Ensure that this channel name exists */
+				if (pConfigImpl->getNode(xmlPath) != NULL)
+				{
+					pChannelConfig = readChannelConfig(pConfigImpl, channelName, true);
+					_activeConfig.configChannelSetForWSB.push_back(pChannelConfig);
+				}
+			}
+
+			pToken = pNextToken;
+		}
+	}
+}
+
+WarmStandbyChannelConfig* OmmBaseImpl::readWSBChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString& wsbChannelName, bool readLastChannel)
+{
+	WarmStandbyChannelConfig* newWSBChannelConfig = NULL;
+	EmaString wsbChannelNodeName("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.");
+	wsbChannelNodeName.append(wsbChannelName).append("|");
+	UInt64 tempUInt = 0;
+	EmaString startingActiveServerName, standbyServerSet;
+	RsslReactorWarmStandbyMode warmStandbyMode;
+	WarmStandbyServerInfoConfig *warmStandbyServerInfoConfig;
+
+	try
+	{
+		newWSBChannelConfig = new WarmStandbyChannelConfig(wsbChannelName);
+
+		if (pConfigImpl->get<EmaString>(wsbChannelNodeName + "StartingActiveServer", startingActiveServerName))
+		{
+			newWSBChannelConfig->startingActiveServer = readWarmStandbyServerInfoConfig(pConfigImpl, startingActiveServerName);
+		}
+
+		if (pConfigImpl->get<EmaString>(wsbChannelNodeName + "StandbyServerSet", standbyServerSet))
+		{
+			char* pToken = NULL;
+			char* pNextToken = NULL;
+
+			EmaString standbyServerInfoName;
+			EmaVector< EmaString*> standbyServerInfoList;
+			pToken = strtok(const_cast<char*>(standbyServerSet.c_str()), ",");
+			do
+			{
+				if (pToken)
+				{
+					standbyServerInfoName = pToken;
+					pNextToken = strtok(NULL, ",");
+					standbyServerInfoList.push_back(new EmaString(standbyServerInfoName.trimWhitespace()));
+				}
+
+				pToken = pNextToken;
+			} while (pToken != NULL);
+
+			for (UInt32 index = 0; index < standbyServerInfoList.size(); index++)
+			{
+				warmStandbyServerInfoConfig = readWarmStandbyServerInfoConfig(pConfigImpl, *standbyServerInfoList[index]);
+			    newWSBChannelConfig->standbyServerSet.push_back(warmStandbyServerInfoConfig);
+
+				delete standbyServerInfoList[index];
+			}
+		}
+
+		//if (pConfigImpl->get<UInt64>(wsbChannelNodeName + "DownloadConnectionConfig", tempUInt))
+		//{
+		//	newWSBChannelConfig->downloadConnectionConfig = tempUInt > 0 ? true : false;
+		//}
+
+		if (pConfigImpl->get<RsslReactorWarmStandbyMode>(wsbChannelNodeName + "WarmStandbyMode", warmStandbyMode))
+		{
+			newWSBChannelConfig->warmStandbyMode = (WarmStandbyChannelConfig::WarmStandbyMode)warmStandbyMode;
+		}
+	}
+	catch (std::bad_alloc&)
+	{
+		const char* temp("Failed to allocate memory for WarmStandbyChannelConfig.");
+		throwMeeException(temp);
+		return NULL;
+	}
+
+	return newWSBChannelConfig;
 }
 
 ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const EmaString&  channelName, bool readLastChannel)
@@ -1430,18 +1675,23 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 	    if ( !_atExit )
 		{
-			ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
-			if (!pChannelcfg)
-				pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size()-1];
-
-			if ( _eventTimedOut )
+			if (_eventTimedOut)
 			{
+				Channel *pChannel = _pLoginCallbackClient->getActiveChannel();
+				ChannelConfig* pChannelcfg = NULL;
+				if (pChannel != NULL && pChannel->getReactorChannelType() == Channel::NORMAL)
+				{
+					pChannelcfg = _activeConfig.findChannelConfig(pChannel);
+					if (!pChannelcfg && _activeConfig.configChannelSet.size() > 0)
+						pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size() - 1];
+				}
+
 				EmaString failureMsg( "login failed (timed out after waiting " );
-				failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds) for " );
-				if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
+				failureMsg.append( _activeConfig.loginRequestTimeOut ).append( " milliseconds)" );
+				if (pChannelcfg != NULL && pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 				{
 					SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-					failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+					failureMsg.append(" for ").append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
 				}
 
 				throwIueException( failureMsg, OmmInvalidUsageException::LoginRequestTimeOutEnum );
@@ -1719,6 +1969,20 @@ void OmmBaseImpl::setAtExit()
 bool OmmBaseImpl::isAtExit()
 {
 	return _atExit;
+}
+
+/* Add these common FDs after clearing all sockets */
+void OmmBaseImpl::addCommonSocket()
+{
+#ifdef USING_SELECT
+	FD_SET(_pipe.readFD(), &_readFds);
+	FD_SET(_pipe.readFD(), &_exceptFds);
+	FD_SET(_pRsslReactor->eventFd, &_readFds);
+	FD_SET(_pRsslReactor->eventFd, &_exceptFds);
+#else
+	_pipeReadEventFdsIdx = addFd(_pipe.readFD());
+	addFd(_pRsslReactor->eventFd);
+#endif
 }
 
 Int64 OmmBaseImpl::rsslReactorDispatchLoop( Int64 timeOut, UInt32 count, bool& bMsgDispRcvd )

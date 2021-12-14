@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2021 Refinitiv. All rights reserved.
 */
 
 /*
@@ -56,15 +56,21 @@ static PostServiceInfo serviceInfo;
 static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
+RsslSocket socketIdList[2] = { 0, 0 };
+RsslUInt32 socketIdListCount = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
 
+extern RsslDataDictionary dictionary;
+
 //APIQA
 int e1Counter = 0;
 int e2Counter = 0;
 int e3Counter = 0;
+int e4Counter = 0;
+int e5Counter = 0;
 //END APIQA
 
 int main(int argc, char **argv)
@@ -77,10 +83,12 @@ int main(int argc, char **argv)
 	RsslReactorConnectInfo				reactorConnectInfo;
 	RsslErrorInfo						rsslErrorInfo;
 	RsslReactorServiceDiscoveryOptions	serviceDiscoveryOpts;
+	RsslReactorJsonConverterOptions		jsonConverterOptions;
 
 	RsslReactorOMMConsumerRole			consumerRole;
 	RsslRDMLoginRequest					loginRequest;
 	RsslRDMDirectoryRequest				dirRequest;
+	RsslReactorOAuthCredential			oauthCredential;
 
 	time_t								stopTime;
 	time_t								currentTime;
@@ -89,6 +97,8 @@ int main(int argc, char **argv)
 	RsslBool							postWithMsg = RSSL_TRUE;
 
 	RsslInitializeExOpts		initOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslReactorWarmStandbyGroup			reactorWarmStandbyGroup;
+	RsslReactorWarmStandbyServerInfo	standbyServerInfo;
 
 	watchlistConsumerConfigInit(argc, argv);
     //APIQA
@@ -175,6 +185,10 @@ int main(int argc, char **argv)
 		loginRequest.applicationId = watchlistConsumerConfig.appId;
 	}
 
+	if (watchlistConsumerConfig.RTTSupport == RSSL_TRUE)
+	{
+		loginRequest.flags |= RDM_LG_RQF_RTT_SUPPORT;
+	}
 
 	//APIQA:add singleOpen and allow suspect data
 	loginRequest.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
@@ -214,11 +228,21 @@ int main(int argc, char **argv)
 
 	if (watchlistConsumerConfig.clientId.data)
 	{
-		consumerRole.clientId = watchlistConsumerConfig.clientId;
+		rsslClearReactorOAuthCredential(&oauthCredential);
+		oauthCredential.clientId = watchlistConsumerConfig.clientId;
+		oauthCredential.takeExclusiveSignOnControl = watchlistConsumerConfig.takeExclusiveSignOnControl;
+		consumerRole.pOAuthCredential = &oauthCredential;
 	}
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	if (watchlistConsumerConfig.restEnableLog)
+	{
+		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
+		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
+	}
+
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -227,6 +251,7 @@ int main(int argc, char **argv)
 
 	rsslClearReactorConnectOptions(&reactorConnectOpts);
 	rsslClearReactorConnectInfo(&reactorConnectInfo);
+	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 
 	if(watchlistConsumerConfig.location.length == 0) // Use the default location from the Reactor if not specified
 	{
@@ -242,7 +267,19 @@ int main(int argc, char **argv)
 
 		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 		{
-			serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+			if (watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_SOCKET)
+			{
+				serviceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
+			}
+			else if (watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				serviceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
+			}
+			else
+			{
+				printf("Error: Invalid encrypted connection type %d for querying RDP service discovery", watchlistConsumerConfig.encryptedConnectionType);
+				exit(-1);
+			}
 		}
 		else
 		{
@@ -306,6 +343,63 @@ int main(int argc, char **argv)
 		reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
 		reactorConnectInfo.location = watchlistConsumerConfig.location;
 		reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+		{
+			reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+		}
+
+		if (watchlistConsumerConfig.warmStandbyMode != RSSL_RWSB_MODE_NONE)
+		{
+			rsslClearReactorWarmStandbyGroup(&reactorWarmStandbyGroup);
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionType = watchlistConsumerConfig.connectionType;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && watchlistConsumerConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+				reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = watchlistConsumerConfig.encryptedConnectionType;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = watchlistConsumerConfig.startingHostName;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = watchlistConsumerConfig.startingPort;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyHostName = watchlistConsumerConfig.proxyHost;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPort = watchlistConsumerConfig.proxyPort;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyUserName = watchlistConsumerConfig.proxyUserName;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPasswd = watchlistConsumerConfig.proxyPasswd;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyDomain = watchlistConsumerConfig.proxyDomain;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.location = watchlistConsumerConfig.location;
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+			}
+
+			rsslClearReactorWarmStandbyServerInfo(&standbyServerInfo);
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionType = watchlistConsumerConfig.connectionType;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && watchlistConsumerConfig.encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+				standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = watchlistConsumerConfig.encryptedConnectionType;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = watchlistConsumerConfig.standbyHostName;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = watchlistConsumerConfig.standbyPort;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.tcp_nodelay = RSSL_TRUE;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyHostName = watchlistConsumerConfig.proxyHost;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPort = watchlistConsumerConfig.proxyPort;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyUserName = watchlistConsumerConfig.proxyUserName;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyPasswd = watchlistConsumerConfig.proxyPasswd;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.proxyOpts.proxyDomain = watchlistConsumerConfig.proxyDomain;
+			standbyServerInfo.reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
+			standbyServerInfo.reactorConnectInfo.location = watchlistConsumerConfig.location;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+			if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				standbyServerInfo.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
+			}
+
+			reactorWarmStandbyGroup.standbyServerCount = 1;
+			reactorWarmStandbyGroup.standbyServerList = &standbyServerInfo;
+			reactorWarmStandbyGroup.warmStandbyMode = watchlistConsumerConfig.warmStandbyMode;
+			reactorConnectOpts.warmStandbyGroupCount = 1;
+			reactorConnectOpts.reactorWarmStandbyGroupList = &reactorWarmStandbyGroup;
+		}
 	}
 	else
 	{
@@ -353,6 +447,16 @@ int main(int argc, char **argv)
 		exit(-1);
 	}
 
+	jsonConverterOptions.pDictionary = &dictionary;
+	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
+	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+	{
+		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
+		exit(-1);
+	}
+
 	/* Dispatch until application stops. */
 	do
 	{
@@ -360,16 +464,31 @@ int main(int argc, char **argv)
 		fd_set						readFds;
 		fd_set						exceptFds;
 		RsslReactorDispatchOptions	dispatchOpts;
+		RsslUInt32					index;
 
 		FD_ZERO(&readFds);
 		FD_ZERO(&exceptFds);
 		FD_SET(pReactor->eventFd, &readFds);
 		FD_SET(pReactor->eventFd, &exceptFds);
 
-		if (pConsumerChannel && pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+		if (pConsumerChannel)
 		{
-			FD_SET(pConsumerChannel->socketId, &readFds);
-			FD_SET(pConsumerChannel->socketId, &exceptFds);
+			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+				{
+					FD_SET(pConsumerChannel->socketId, &readFds);
+					FD_SET(pConsumerChannel->socketId, &exceptFds);
+				}
+			}
+			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				for (index = 0; index < socketIdListCount; index++)
+				{
+					FD_SET(socketIdList[index], &readFds);
+					FD_SET(socketIdList[index], &exceptFds);
+				}
+			}
 		}
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
@@ -496,6 +615,9 @@ int main(int argc, char **argv)
 		printf("rsslReactorCloseChannel() failed: %d(%s)\n", ret, rsslErrorInfo.rsslError.text);
 		exit(-1);
 	}
+
+	if (reactorOpts.restLogOutputStream)
+		fclose(reactorOpts.restLogOutputStream);
 
 	rsslUninitialize();
 
@@ -804,6 +926,12 @@ RsslRet requestNewItem(RsslReactor *pReactor, RsslReactorChannel *pReactorChanne
 	requestMsg.msgBase.streamId = watchlistConsumerConfig.itemList[index].streamId;
 	printf("\n -------APIQA: New item with streamId: %d and name:  %.*s has been requested.\n",watchlistConsumerConfig.itemList[index].streamId,watchlistConsumerConfig.itemList[index].name.length, watchlistConsumerConfig.itemList[index].name.data);
 
+	if (watchlistConsumerConfig.itemList[index].isMsgKeyInUpdates)
+	{
+		printf("\n-----APIQA: Now MsgKeyInUpdates is applied\n");
+		requestMsg.flags |= RSSL_RQMF_MSG_KEY_IN_UPDATES;
+	}
+
 	if ((ret = rsslReactorSubmitMsg(pReactor, pReactorChannel, &submitMsgOpts,
 	                        &rsslErrorInfo)) != RSSL_RET_SUCCESS)
 	{
@@ -812,7 +940,171 @@ RsslRet requestNewItem(RsslReactor *pReactor, RsslReactorChannel *pReactorChanne
 		return ret;
 	}
 
+	return RSSL_RET_SUCCESS;
 }
+
+// APIQA: Reissue item
+RsslRet reissueItem(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, int reissueType, int reissueViewId, int index)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslErrorInfo rsslErrorInfo;
+
+	RsslRequestMsg requestMsg;
+	RsslReactorSubmitMsgOptions submitMsgOpts;
+
+	char dataBodyBuf[512];
+	RsslBuffer dataBody = { 512, dataBodyBuf };
+
+	watchlistConsumerConfig.itemList[index].name;
+
+	rsslClearRequestMsg(&requestMsg);
+	requestMsg.msgBase.domainType = watchlistConsumerConfig.itemList[index].domainType;
+	requestMsg.msgBase.msgKey.name = watchlistConsumerConfig.itemList[index].name;
+	requestMsg.msgBase.streamId = watchlistConsumerConfig.itemList[index].streamId;
+	requestMsg.msgBase.msgKey.flags = RSSL_MKF_HAS_NAME;
+	requestMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+
+	//selectively enable streaming
+	if (!watchlistConsumerConfig.itemList[index].isSnapshot)
+	{
+		requestMsg.flags |= RSSL_RQMF_STREAMING;
+	}
+
+	rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
+	submitMsgOpts.pRsslMsg = (RsslMsg*)&requestMsg;
+	submitMsgOpts.pServiceName = &watchlistConsumerConfig.serviceName;
+
+	if (reissueType == 1)
+	{
+		printf("\n\n-----------------APIQA: Reissue item %.*s streamid %d, View Reissue Type: %d, reissueViewId: %d\n", watchlistConsumerConfig.itemList[index].name.length, watchlistConsumerConfig.itemList[index].name.data, requestMsg.msgBase.streamId, reissueType, reissueViewId);
+		requestMsg.flags |= RSSL_RQMF_HAS_VIEW;
+		requestMsg.msgBase.containerType = RSSL_DT_ELEMENT_LIST;
+
+		if (reissueViewId == 0)
+		{
+			RsslInt fieldIdList[] = { 2, 4, 38 };
+			RsslUInt32 fieldIdCount = 3;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 0 [FIDS: 2, 4, 38]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 1)
+		{
+			RsslInt fieldIdList[] = { 6, 22 };
+			RsslUInt32 fieldIdCount = 2;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 1 [FIDS: 6, 22]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 2)
+		{
+			RsslInt fieldIdList[] = { 25, 32 };
+			RsslUInt32 fieldIdCount = 2;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 2 [FIDS: 25, 32]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 3)
+		{
+			RsslInt fieldIdList[] = { 25, 32, 267 };
+			RsslUInt32 fieldIdCount = 3;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 3 [FIDS: 25, 32, 267]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 4)
+		{
+			RsslInt fieldIdList[] = { 11, 38, 267 };
+			RsslUInt32 fieldIdCount = 3;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 4 [FIDS: 11, 38, 267]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 5)
+		{
+			RsslInt fieldIdList[] = { 2, 32 };
+			RsslUInt32 fieldIdCount = 2;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 5 [FIDS: 2, 32]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 6)
+		{
+			RsslInt fieldIdList[] = { 4, 7, 8 };
+			RsslUInt32 fieldIdCount = 3;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 6 [FIDS: 4, 7, 8]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+		else if (reissueViewId == 7)
+		{
+			RsslInt fieldIdList[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+									21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+									41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+									61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+									81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 };
+			RsslUInt32 fieldIdCount = 99;
+			printf("------------------APIQA: reissue StreamID: %d Setting VIEW 7 [FIDS 0-99]\n", requestMsg.msgBase.streamId);
+			if (encodeViewPayload(&dataBody, fieldIdList, fieldIdCount) != RSSL_RET_SUCCESS)
+			{
+				printf("encodeViewPayload() failed.");
+				exit(-1);
+			}
+		}
+
+		requestMsg.msgBase.encDataBody = dataBody;
+	}
+	else if (reissueType == 2)
+	{
+		// Pause
+		printf("-----------------APIQA: reissue for item %.*s streamid %d, Reissue Type: %d, Setting PAUSE flags\n", watchlistConsumerConfig.itemList[index].name.length, watchlistConsumerConfig.itemList[index].name.data, requestMsg.msgBase.streamId, reissueType);
+		requestMsg.flags |= RSSL_RQMF_PAUSE;
+	}
+	else if (reissueType == 3)
+	{
+		// Resume
+		printf("-----------------APIQA: reissue for item %.*s streamid %d, Reissue Type: %d, Setting Resume/Streamin\n", watchlistConsumerConfig.itemList[index].name.length, watchlistConsumerConfig.itemList[index].name.data, requestMsg.msgBase.streamId, reissueType);
+		printf("-----------------APIQA: Setting RESUME/Streaming flags on item reissue for user streamid %d\n", requestMsg.msgBase.streamId);
+		requestMsg.flags |= RSSL_RQMF_STREAMING;
+	}
+	else
+	{
+		printf("\n\n-----------------APIQA: Item %.*s <UNSUPPORTED/INVALID> Reissue Type: %d, reissueViewId: %d", watchlistConsumerConfig.itemList[index].name.length, watchlistConsumerConfig.itemList[index].name.data, reissueType, reissueViewId);
+		return RSSL_RET_FAILURE;
+	}
+
+	if ((ret = rsslReactorSubmitMsg(pReactor, pReactorChannel, &submitMsgOpts,
+		&rsslErrorInfo)) != RSSL_RET_SUCCESS)
+	{
+		printf("rsslReactorSubmitMsg() failed: %d(%s)\n",
+			ret, rsslErrorInfo.rsslError.text);
+		return ret;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+//END APIQA: Reissue item
 //END APIQA
 
 /* Requests the desired items.  */
@@ -1160,6 +1452,16 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReacto
 
 			break;
 		}
+		case RDM_LG_MT_RTT:
+			printf("\nReceived Login RTT Msg\n");
+			printf("	Ticks: %llu\n", pLoginMsg->RTT.ticks);
+			if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_LATENCY)
+				printf("	Last Latency: %llu\n", pLoginMsg->RTT.lastLatency);
+			if (pLoginMsg->RTT.flags & RDM_LG_RTT_HAS_TCP_RETRANS)
+				printf("	TCP Retransmissions: %llu\n", pLoginMsg->RTT.tcpRetrans);
+			if (pMsgEvent->flags & RSSL_RDM_LG_LME_RTT_RESPONSE_SENT)
+				printf("RTT Response sent to provider.\n");
+			break;
 
 		default:
 			printf("\n  Received Unhandled Login Msg Type: %d\n", pLoginMsg->rdmMsgBase.rdmMsgType);
@@ -1233,7 +1535,7 @@ static RsslReactorCallbackRet directoryMsgCallback(RsslReactor *pReactor, RsslRe
 			e1Counter++;
 			if(watchlistConsumerConfig.eventCtrSize > 0)
 			{
-				int i;
+				unsigned int i;
 				//scan through any "eventCounters" so see if any are for e1 with appropriate delay
 				for(i=0; i<watchlistConsumerConfig.eventCtrSize; ++i)
 				{
@@ -1459,6 +1761,8 @@ static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChan
 					pItem = addProvidedItemInfo(pRsslMsg->msgBase.streamId,
 							&pRsslMsg->msgBase.msgKey, pRsslMsg->msgBase.domainType);
 
+				//APIQA
+				printf("\n------------APIQA: DefaultMsgCallback RefreshMsg --  ItemName from MsgKey: \n"); // printf("\n -------APIQA: New item with streamId: %d and name:  %.*s has been requested.\n",watchlistConsumerConfig.itemList[index].streamId,watchlistConsumerConfig.itemList[index].name.length, watchlistConsumerConfig.itemList[index].name.data);
 			}
 			else if (pItem)
 				pItemName = &pItem->name;
@@ -1472,6 +1776,31 @@ static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChan
 
 			/* Decode data body according to its domain. */
 			decodeDataBody(pChannel, pRsslMsg);
+			//APIQA
+			e5Counter++;
+			if (watchlistConsumerConfig.eventCtrSize > 0)
+			{
+				unsigned int i;
+				for (i = 0; i < watchlistConsumerConfig.eventCtrSize; ++i)
+				{
+					if (watchlistConsumerConfig.eventCounters[i].eventType == 5 && watchlistConsumerConfig.eventCounters[i].delay == e5Counter)
+					{
+						int startIdx = watchlistConsumerConfig.eventCounters[i].startIdx;
+						int endIdx = watchlistConsumerConfig.eventCounters[i].endIdx;
+						int index;
+						for (index = startIdx; index < endIdx; ++index)
+						{
+							watchlistConsumerConfig.itemList[index].isSnapshot;
+							watchlistConsumerConfig.itemList[index].isView;
+							watchlistConsumerConfig.itemList[index].isPrivateStream;
+							watchlistConsumerConfig.itemList[index].isMsgKeyInUpdates;
+							requestNewItem(pReactor, pChannel, index);
+						}
+						break;
+					}
+				}
+			}
+			//END APIQA
 			break;
 
 
@@ -1494,9 +1823,10 @@ static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChan
 			
 			//APIQA
 			e2Counter++;
+			e4Counter++; // For reissue
 			if(watchlistConsumerConfig.eventCtrSize > 0)
 			{
-				int i;
+				unsigned int i;
 				for(i=0; i<watchlistConsumerConfig.eventCtrSize; ++i)
 				{
 					if(watchlistConsumerConfig.eventCounters[i].eventType == 2 && watchlistConsumerConfig.eventCounters[i].delay==e2Counter)
@@ -1507,6 +1837,21 @@ static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChan
 						for(index=startIdx; index < endIdx ; ++index)
 						{
 							requestNewItem(pReactor, pChannel, index);
+						}
+						break;
+					}
+
+					// Check for reissue
+					if (watchlistConsumerConfig.eventCounters[i].eventType == 4 && watchlistConsumerConfig.eventCounters[i].delay == e4Counter)
+					{
+						int startIdx = watchlistConsumerConfig.eventCounters[i].startIdx;
+						int endIdx = watchlistConsumerConfig.eventCounters[i].endIdx;
+						int reissueType = watchlistConsumerConfig.eventCounters[i].reissueType;
+						int reissueViewId = watchlistConsumerConfig.eventCounters[i].reissueViewId;
+						int index;
+						for (index = startIdx; index < endIdx; ++index)
+						{
+							reissueItem(pReactor, pChannel, reissueType, reissueViewId, index);
 						}
 						break;
 					}
@@ -1615,6 +1960,18 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* Save the channel on our info structure. */
 			pConsumerChannel = pReactorChannel;
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				RsslUInt32 index;
+
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+				}
+
+				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+			}
+
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
 			if (isXmlTracingEnabled() == RSSL_TRUE) 
 			{
@@ -1625,7 +1982,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				rsslClearTraceOptions(&traceOptions);
 				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer\0");
 				traceOptions.traceMsgFileName = traceOutputFile;
-				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ;
+				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
 
 				rsslReactorChannelIoctl(pReactorChannel, (RsslIoctlCodes)RSSL_TRACE, (void *)&traceOptions, &rsslErrorInfo);
@@ -1635,8 +1992,19 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_READY:
-		case RSSL_RC_CET_FD_CHANGE:
 			return RSSL_RC_CRET_SUCCESS;
+		case RSSL_RC_CET_FD_CHANGE:
+		{
+			RsslUInt32 index;
+			for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+			{
+				socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+			}
+
+			socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
 		case RSSL_RC_CET_CHANNEL_DOWN:
 		{
 			RsslErrorInfo rsslErrorInfo;
@@ -1658,10 +2026,20 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING:
 		{
+			RsslChannel *pRsslChannel = pReactorChannel->pRsslChannel;
+			char hostName[512];
+
+			memset(hostName, 0, 512);
+
+			if (pRsslChannel != NULL && pRsslChannel->hostname != NULL)
+			{
+				memcpy(hostName, pRsslChannel->hostname, strlen(pRsslChannel->hostname));
+			}
+
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
-				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting\n", pReactorChannel->socketId);
+				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting hostname %s\n", pReactorChannel->socketId, hostName);
 			else
-				printf("Channel down. Reconnecting\n");
+				printf("Channel down. Reconnecting hostname %s\n",  hostName);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
@@ -1670,7 +2048,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			e3Counter++;
 			if(watchlistConsumerConfig.eventCtrSize > 0)
 			{
-				int i;
+				unsigned int i;
 				for( i=0; i<watchlistConsumerConfig.eventCtrSize; ++i)
 				{
 					if(watchlistConsumerConfig.eventCounters[i].eventType == 3 && watchlistConsumerConfig.eventCounters[i].delay==e3Counter)
@@ -1687,6 +2065,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				}
 			}
 			//END APIQA
+			socketIdListCount = 0;
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -1778,4 +2157,25 @@ void processPostServiceUpdate(PostServiceInfo *serviceInfo, RsslBuffer *pMatchSe
 			clearPostServiceInfo(serviceInfo);
 		}
 	}
+}
+
+RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent)
+{
+	if (pEvent->pError)
+	{
+		printf("Error Id: %d, Text: %s\n", pEvent->pError->rsslError.rsslErrorId, pEvent->pError->rsslError.text);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent)
+{
+	if (serviceInfo.isServiceFound && rsslBufferIsEqual(&watchlistConsumerConfig.serviceName, pServiceName))
+	{
+		*pServiceId = (RsslUInt16)serviceInfo.serviceId;
+		return RSSL_RET_SUCCESS;
+	}
+
+	return RSSL_RET_FAILURE;
 }

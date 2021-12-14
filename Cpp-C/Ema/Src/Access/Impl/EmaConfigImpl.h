@@ -45,6 +45,7 @@ namespace access {
 class XMLnode;
 class ProgrammaticConfigure;
 class EmaConfigBaseImpl;
+class WarmStandbyChannelConfig;
 
 static struct MsgTypeConverter
 {
@@ -155,7 +156,15 @@ static struct StatusCodeConverter
 	{ "DacsUserAccessToAppDenied", OmmState::DacsUserAccessToAppDeniedEnum }
 };
 
-
+static struct WarmStandbyModeConverter
+{
+	const char* configInput;
+	RsslReactorWarmStandbyMode convertedValue;
+} warmStandbyModeConverter[] =
+{
+	{ "LOGIN_BASED", RSSL_RWSB_MODE_LOGIN_BASED },
+	{ "SERVICE_BASED", RSSL_RWSB_MODE_SERVICE_BASED }
+};
 
 class ConfigElement
 {
@@ -1221,6 +1230,9 @@ public:
 	void addAdminMsg( const RefreshMsg& );
 
 	void getChannelName( const EmaString&, EmaString& ) const;
+
+	void getWarmStandbyChannelName( const EmaString&, EmaString&, bool& foundProgrammaticCfg ) const;
+
 	void getServerName(const EmaString&, EmaString&) const;
 
 	bool getDictionaryName( const EmaString&, EmaString& ) const;

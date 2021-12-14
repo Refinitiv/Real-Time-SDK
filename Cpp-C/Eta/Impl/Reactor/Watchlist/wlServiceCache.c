@@ -59,6 +59,9 @@ WlServiceCache* wlServiceCacheCreate(WlServiceCacheCreateOptions *pOptions,
 			
 	rsslInitQueue(&pServiceCache->_serviceList);
 	pServiceCache->_serviceUpdateCallback = pOptions->serviceUpdateCallback;
+	pServiceCache->_serviceStateChangeCallback = pOptions->serviceStateChangeCallback;
+	pServiceCache->_serviceCacheInitCallback = pOptions->serviceCacheInitCallback;
+	pServiceCache->_serviceCacheUpdateCallback = pOptions->serviceCacheUpdateCallback;
 
 	return pServiceCache;
 }
@@ -127,6 +130,7 @@ RsslRet wlServiceCacheProcessDirectoryMsg(WlServiceCache *pServiceCache,
 	RsslQueue deletedServiceList;
 	RsslRet ret;
 	RsslBool clearCache = RSSL_FALSE;
+	RsslBool initDirectory = RSSL_FALSE;
 
 	rscClearUpdateEvent(&updateEvent);
 
@@ -139,11 +143,23 @@ RsslRet wlServiceCacheProcessDirectoryMsg(WlServiceCache *pServiceCache,
 			serviceList = pDirectoryMsg->refresh.serviceList;
 			serviceCount = pDirectoryMsg->refresh.serviceCount;
 			pMsgState = &pDirectoryMsg->refresh.state;
+
+			if (pServiceCache->_serviceList.count == 0)
+			{
+				initDirectory = RSSL_TRUE;
+			}
+
 			break;
 
 		case RDM_DR_MT_UPDATE:
 			serviceList = pDirectoryMsg->update.serviceList;
 			serviceCount = pDirectoryMsg->update.serviceCount;
+
+			if (pServiceCache->_serviceList.count == 0)
+			{
+				initDirectory = RSSL_TRUE;
+			}
+
 			break;
 
 		case RDM_DR_MT_STATUS:
@@ -171,8 +187,12 @@ RsslRet wlServiceCacheProcessDirectoryMsg(WlServiceCache *pServiceCache,
 	}
 
 	if (clearCache)
+	{
 		if ((ret = wlServiceCacheClear(pServiceCache, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)
 			return ret;
+
+		initDirectory = RSSL_TRUE;
+	}
 
 	rsslInitQueue(&deletedServiceList);
 
@@ -228,6 +248,25 @@ RsslRet wlServiceCacheProcessDirectoryMsg(WlServiceCache *pServiceCache,
 			return ret;
 		}
 
+	}
+
+	/* Addtional handling for warm standby feature. */
+	if (updateEvent.updatedServiceList.count > 0)
+	{
+		if (initDirectory)
+		{
+			if (pServiceCache->_serviceCacheInitCallback)
+			{
+				pServiceCache->_serviceCacheInitCallback(pServiceCache, &updateEvent, pErrorInfo);
+			}
+		}
+		else
+		{
+			if (pServiceCache->_serviceCacheUpdateCallback)
+			{
+				pServiceCache->_serviceCacheUpdateCallback(pServiceCache, &updateEvent, pErrorInfo);
+			}
+		}
 	}
 
 	wlscSendUpdatedServiceList(pServiceCache, &updateEvent, pErrorInfo);
@@ -796,6 +835,11 @@ RsslRet rscUpdateService(WlServiceCache *pServiceCache, RDMCachedService *pCache
 					if (pCachedState->serviceState != pUpdatedState->serviceState)
 					{
 						pCachedState->serviceState = pUpdatedState->serviceState;
+
+						if (pServiceCache->_serviceStateChangeCallback != NULL)
+						{
+							pServiceCache->_serviceStateChangeCallback(pServiceCache, pCachedService, pErrorInfo);
+						}
 					}
 
 					if (pCachedState->acceptingRequests != pUpdatedState->acceptingRequests)

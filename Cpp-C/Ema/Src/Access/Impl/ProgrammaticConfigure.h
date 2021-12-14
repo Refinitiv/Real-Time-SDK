@@ -31,7 +31,9 @@ class ServiceDictionaryConfig;
 class Service;
 class BaseConfig;
 class DictionaryConfig;
-
+class WarmStandbyChannelConfig;
+class WarmStandbyServerInfoConfig;
+class EmaConfigImpl;
 
 class ProgrammaticConfigure
 {
@@ -41,12 +43,13 @@ public:
 	*/
 	enum InstanceEntryFlagEnum
 	{
-		ChannelFlagEnum =		0x001,
-		LoggerFlagEnum =		0x002,
-		DictionaryFlagEnum =	0x004,
-		ChannelSetFlagEnum =	0x008,
-		DirectoryFlagEnum =		0x010,
-		ServerFlagEnum =		0x020
+		ChannelFlagEnum			=		0x001,
+		LoggerFlagEnum			=		0x002,
+		DictionaryFlagEnum		=		0x004,
+		ChannelSetFlagEnum		=		0x008,
+		DirectoryFlagEnum		=		0x010,
+		ServerFlagEnum			=		0x020,
+		WarmStandbyChannelSetFlagEnum = 0x040
 	};
 
 	/** @enum ServerEntryFlagEnum
@@ -100,6 +103,8 @@ public:
 
 	bool getActiveChannelName( const EmaString&, EmaString& );
 
+	bool getActiveWSBChannelSetName(const EmaString&, EmaString&);
+
 	bool getActiveServerName(const EmaString&, EmaString&);
 
 	bool getActiveChannelSet( const EmaString&, EmaString& );
@@ -119,6 +124,10 @@ public:
 	int retrieveChannelTypeConfig(const EmaString&);
 
 	void retrieveChannelConfig( const EmaString&, ActiveConfig&, int, ChannelConfig* fileCfg = 0 );
+
+	void retrieveWSBChannelConfig(const EmaString&, ActiveConfig&, WarmStandbyChannelConfig* fileCfg = 0);
+
+	void retrieveWSBServerInfoConfig(const EmaString&, ActiveConfig&, WarmStandbyServerInfoConfig* currentCfg, WarmStandbyServerInfoConfig* fileCfg = 0);
 
 	void retrieveServerConfig( const EmaString&, ActiveServerConfig&, int, ServerConfig* fileCfg );
 
@@ -152,9 +161,17 @@ private:
 
 	void retrieveChannel( const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*);
 	
+	void retrieveWSBChannel(const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, WarmStandbyChannelConfig*);
+
+	void retrieveWSBServer(const Map&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, WarmStandbyServerInfoConfig*, WarmStandbyServerInfoConfig*);
+
 	void retrieveServer(const Map&, const EmaString&, EmaConfigErrorList&, ActiveServerConfig&, int, ServerConfig*);
 	
 	void retrieveChannelInfo( const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, int, ChannelConfig*);
+
+	void retrieveWSBChannelInfo(const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, WarmStandbyChannelConfig*);
+
+	void retrieveWSBServerInfo(const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveConfig&, WarmStandbyServerInfoConfig*, WarmStandbyServerInfoConfig*);
 
 	void retrieveServerInfo(const MapEntry&, const EmaString&, EmaConfigErrorList&, ActiveServerConfig&, int, ServerConfig*);
 
@@ -197,6 +214,7 @@ private:
 	EmaString	_dictionaryName;
 	EmaString	_directoryName;
 	EmaString	_channelSet;
+	EmaString	_warmStandbyChannelSetName;
 
 	bool		_overrideConsName;
 	bool		_overrideNiProvName;

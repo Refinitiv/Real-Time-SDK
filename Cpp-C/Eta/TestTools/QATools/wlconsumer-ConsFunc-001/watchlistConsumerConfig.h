@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -12,6 +12,7 @@
 #include "rtr/rsslTypes.h"
 #include "rtr/rsslRDM.h"
 #include "rtr/rsslMsgKey.h"
+#include "rtr/rsslDataUtils.h"
 #include "tunnelStreamHandler.h"
 
 #ifdef __cplusplus
@@ -48,6 +49,7 @@ typedef struct
 	RsslBool	isSnapshot;
 	RsslBool    isPrivateStream;
 	RsslInt32	viewId;
+	RsslBool    isMsgKeyInUpdates;
 	//END APIQA
 
 } ItemInfo;
@@ -59,9 +61,18 @@ typedef struct
 	int delay;
 	//eventType specified which type of reques, ex. e2 is eventType 2 which means update messages
 	int eventType;
+	// reissueType and reissueViewId are applicable only to reissue even "-e4", the reissue types are:
+	// 1 View
+	// 2 Pause
+	// 3 Resume
+	// (For example the command line argument: -e4 6::1:1,V3 
+	// the reissue type is View internally stored as 1, and the reissueViewId is 3.)
+	// For event types other than -e4, the value is 0 for reissueType.
+	int reissueType;
+	int reissueViewId;
 	//startIdx and endIdx specify which indexes in list of mp arguments are to be requested 
-	int startIdx;
-	int endIdx;
+	unsigned int startIdx;
+	unsigned int endIdx;
 } EventCounter;
 //END APIQA
 
@@ -75,6 +86,18 @@ typedef struct
 	/* Socket configuration settings, when using a socket connection. */
 	char				hostName[255];					/* Host to connect to. */
 	char				port[255];						/* Port to connect to. */
+
+	/* Warm standby configuration settings. */
+	char				startingHostName[255];
+	char				startingPort[255];
+
+	char				standbyHostName[255];
+	char				standbyPort[255];
+	RsslReactorWarmStandbyMode		warmStandbyMode;
+
+
+	/* WebSocket configuration settings, when using a websocket connection. */
+	char				protocolList[255];				/* List of supported WebSocket sub-protocols */
 
 	/* Multicast configuration settings, when using a multicast connection. */
 	char				sendAddress[255];				/* Send address. */
@@ -108,6 +131,7 @@ typedef struct
 	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
 	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
 	RsslBuffer			appId;					/* Application ID */
+	RsslBool			RTTSupport;						/* Enable the RTT feature on this reactor channel */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
 														 * May occur when requesting symbol list with
@@ -118,6 +142,27 @@ typedef struct
 	RsslBool			post;							/* Whether to send on-stream posts. */
 	RsslBool			offPost;						/* Whether to send off-stream posts. */
 	RsslUInt32			runTime;						/* Running time of the application. */
+
+	//APIQA
+	RsslBool			enablePostMultipart;
+	RsslBool			testOnlyLoginClose;
+	RsslBool			reqItemBeforeLogin;
+	RsslBool			loginCloseAfterLoginStatus;
+	RsslBool			loginPauseAndResume;
+	RsslBool			reissueDirEvery5Updates;
+	RsslUInt32			reissueDirWithSID;
+	RsslUInt32			reqDirWithSID;
+	RsslBool			hasReqQos;
+	RsslBool			qosDynamic;
+	RsslUInt32			qosRate;
+	RsslUInt32			qosRateInfo;
+	RsslUInt32			qosTimeliness;
+	RsslUInt32			qosTimeInfo;
+	RsslUInt32			worstQosRate;
+	RsslUInt32			worstQosRateInfo;
+	RsslUInt32			worstQosTimeliness;
+	RsslUInt32			worstQosTimeInfo;
+	//END APIQA
 
 	RsslBool			isTunnelStreamMessagingEnabled;	/* Whether to open a tunnel stream for
 														 * exchanging some basic messages. */
@@ -130,6 +175,10 @@ typedef struct
 	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service */  
 	RsslBuffer			location;						/* Location to get an endpoint from RDP Service discovery */
 	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */	
+	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
+
+	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
+	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
 
 	//APIQA
 	EventCounter		eventCounters[MAX_ITEMS];
@@ -154,9 +203,6 @@ extern WatchlistConsumerConfig watchlistConsumerConfig;
 
 /* Initializes the configuration, parsing command-line options. */
 void watchlistConsumerConfigInit(int argc, char **argv);
-
-/* Cleans up resources associated with the configuration. */
-void watchlistConsumerConfigCleanup();
 
 /* Gets item information based on the stream ID. */
 ItemInfo *getItemInfo(RsslInt32 streamId);
@@ -189,6 +235,10 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
  static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChannel *pChannel, RsslMsgEvent* pMsgEvent);
 
  static RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pEndPointEvent); 
+
+ static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
+
+ static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 #ifdef __cplusplus
 }
 #endif

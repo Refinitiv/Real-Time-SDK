@@ -175,13 +175,21 @@ void OmmConsumerImpl::loadDictionary()
 
 		if (_eventTimedOut)
 		{
+			Channel *pChannel = _pLoginCallbackClient->getActiveChannel();
+			ChannelConfig* pChannelcfg = NULL;
+			if (pChannel != NULL && pChannel->getReactorChannelType() == Channel::NORMAL)
+			{
+				pChannelcfg = _activeConfig.findChannelConfig(pChannel);
+				if (!pChannelcfg && _activeConfig.configChannelSet.size() > 0)
+					pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size() - 1];
+			}
+
 			EmaString failureMsg("dictionary retrieval failed (timed out after waiting ");
-			failureMsg.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds) for ");
-			ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
-			if (pChannelcfg->getType() == ChannelConfig::SocketChannelEnum)
+			failureMsg.append(_activeConfig.dictionaryRequestTimeOut).append(" milliseconds)");
+			if (pChannelcfg != NULL &&  pChannelcfg->getType() == ChannelConfig::SocketChannelEnum)
 			{
 				SocketChannelConfig* channelConfig(reinterpret_cast<SocketChannelConfig*>(pChannelcfg));
-				failureMsg.append(channelConfig->hostName).append(":").append(channelConfig->serviceName).append(")");
+				failureMsg.append(" for ").append(channelConfig->hostName).append(":").append(channelConfig->serviceName).append(")");
 			}
 			if (OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity)
 				_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg);
@@ -220,13 +228,21 @@ void OmmConsumerImpl::loadDirectory()
 
 	if ( _eventTimedOut )
 	{
+		Channel *pChannel = _pLoginCallbackClient->getActiveChannel();
+		ChannelConfig* pChannelcfg = NULL;
+		if (pChannel != NULL && pChannel->getReactorChannelType() == Channel::NORMAL)
+		{
+			pChannelcfg = _activeConfig.findChannelConfig(pChannel);
+			if (!pChannelcfg && _activeConfig.configChannelSet.size() > 0)
+				pChannelcfg = _activeConfig.configChannelSet[_activeConfig.configChannelSet.size() - 1];
+		}
+
 		EmaString failureMsg( "directory retrieval failed (timed out after waiting " );
-		failureMsg.append( _activeConfig.directoryRequestTimeOut ).append( " milliseconds) for " );
-		ChannelConfig* pChannelcfg = _activeConfig.findChannelConfig(_pLoginCallbackClient->getActiveChannel());
-		if ( pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
+		failureMsg.append( _activeConfig.directoryRequestTimeOut ).append( " milliseconds)" );
+		if (pChannelcfg != NULL && pChannelcfg->getType() == ChannelConfig::SocketChannelEnum )
 		{
 			SocketChannelConfig* channelConfig( reinterpret_cast< SocketChannelConfig* >( pChannelcfg ) );
-			failureMsg.append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
+			failureMsg.append(" for ").append( channelConfig->hostName ).append( ":" ).append( channelConfig->serviceName ).append( ")" );
 		}
 		if ( OmmLoggerClient::ErrorEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
 			_pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, failureMsg );
@@ -298,6 +314,16 @@ void OmmConsumerImpl::removeSocket( RsslSocket fd )
 	FD_CLR( fd, &_exceptFds );
 #else
 	removeFd( fd );
+#endif
+}
+
+void OmmConsumerImpl::removeAllSocket()
+{
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#else
+	removeAllFd();
 #endif
 }
 

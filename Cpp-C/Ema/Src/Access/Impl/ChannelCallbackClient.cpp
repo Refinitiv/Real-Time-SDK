@@ -19,15 +19,17 @@
 
 #include <new>
 
+#define EMA_INIT_NUMBER_OF_SOCKET 5
+
 using namespace refinitiv::ema::access;
 
 const EmaString ChannelCallbackClient::_clientName( "ChannelCallbackClient" );
 
-Channel* Channel::create( OmmBaseImpl& ommBaseImpl, const EmaString& name , RsslReactor* pRsslReactor )
+Channel* Channel::create( OmmBaseImpl& ommBaseImpl, const EmaString& name , RsslReactor* pRsslReactor, ReactorChannelType reactorChannelType)
 {
 	try
 	{
-		return new Channel( name, pRsslReactor );
+		return new Channel( name, pRsslReactor, reactorChannelType);
 	}
 	catch ( std::bad_alloc& )
 	{
@@ -50,22 +52,28 @@ void Channel::destroy( Channel*& pChannel )
 	}
 }
 
-Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor ) :
+Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor, ReactorChannelType reactorChannelType) :
 	_name( name ),
 	_pRsslReactor( pRsslReactor ),
 	_toString(),
-	_rsslSocket( 0 ),
 	_pRsslChannel( 0 ),
 	_state( ChannelDownEnum ),
 	_pLogin( 0 ),
 	_pDictionary( 0 ),
 	_directoryList(),
-	_toStringSet( false )
+	_toStringSet( false ),
+	_reactorChannelType( reactorChannelType ),
+	_pParentChannel( NULL )
 {
+	_pRsslSocketList = new EmaVector< RsslSocket >(EMA_INIT_NUMBER_OF_SOCKET);
 }
 
 Channel::~Channel()
 {
+	if (_pRsslSocketList)
+	{
+		delete _pRsslSocketList;
+	}
 }
 
 Channel& Channel::setRsslChannel( RsslReactorChannel* pRsslChannel )
@@ -74,10 +82,16 @@ Channel& Channel::setRsslChannel( RsslReactorChannel* pRsslChannel )
 	return *this;
 }
 
-Channel& Channel::setRsslSocket( RsslSocket rsslSocket )
+Channel& Channel::clearRsslSocket()
+{
+	_pRsslSocketList->clear();
+	return *this;
+}
+
+Channel& Channel::addRsslSocket( RsslSocket rsslSocket )
 {
 	_toStringSet = false;
-	_rsslSocket = rsslSocket;
+	_pRsslSocketList->push_back(rsslSocket);
 	return *this;
 }
 
@@ -93,9 +107,9 @@ Channel::ChannelState Channel::getChannelState() const
 	return _state;
 }
 
-RsslSocket Channel::getRsslSocket() const
+EmaVector<RsslSocket>& Channel::getRsslSocket() const
 {
-	return _rsslSocket;
+	return *_pRsslSocketList;
 }
 
 RsslReactorChannel* Channel::getRsslChannel() const
@@ -149,6 +163,21 @@ Channel& Channel::setDictionary( Dictionary* pDictionary )
 	return *this;
 }
 
+Channel::ReactorChannelType Channel::getReactorChannelType() const
+{
+	return _reactorChannelType;
+}
+
+void Channel::setParentChannel(Channel* channel)
+{
+	_pParentChannel = channel;
+}
+
+Channel* Channel::getParentChannel() const
+{
+	return _pParentChannel;
+}
+
 const EmaString& Channel::toString() const
 {
 	if ( !_toStringSet )
@@ -156,8 +185,20 @@ const EmaString& Channel::toString() const
 		_toStringSet = true;
 		_toString.set( "\tRsslReactorChannel name " ).append( _name ).append( CR )
 		.append( "\tRsslReactor " ).append( ptrToStringAsHex( _pRsslReactor ) ).append( CR )
-		.append( "\tRsslReactorChannel " ).append( ptrToStringAsHex( _pRsslChannel ) ).append( CR )
-		.append( "\tRsslSocket " ).append( ( UInt64 )_rsslSocket );
+		.append( "\tRsslReactorChannel " ).append( ptrToStringAsHex( _pRsslChannel ) ).append( CR );
+
+		if (_pRsslSocketList->size() == 1)
+		{
+			_toString.append("\tRsslSocket ").append((UInt64)getRsslSocket()[0]);
+		}
+		else
+		{
+			_toString.append("\tList of RsslSockets ");
+			for (UInt32 index = 0; index < _pRsslSocketList->size(); index++)
+			{
+				_toString.append((UInt64)getRsslSocket()[index]).append(" ");
+			}
+		}
 
 		if ( ! _directoryList.empty() )
 		{
@@ -178,7 +219,7 @@ bool Channel::operator==( const Channel& other )
 
 	if ( _pRsslChannel != other._pRsslChannel ) return false;
 
-	if ( _rsslSocket != other._rsslSocket ) return false;
+	if ( (getRsslSocket() == other.getRsslSocket()) == false) return false;
 
 	if ( _pRsslReactor != other._pRsslReactor ) return false;
 
@@ -199,6 +240,13 @@ ChannelList::~ChannelList()
 		Channel::destroy( channel );
 		channel = _list.pop_back();
 	}
+
+	channel = _deleteList.pop_back();
+	while (channel)
+	{
+		Channel::destroy(channel);
+		channel = _deleteList.pop_back();
+	}
 }
 
 void ChannelList::addChannel( Channel* pChannel )
@@ -209,7 +257,22 @@ void ChannelList::addChannel( Channel* pChannel )
 void ChannelList::removeChannel( Channel* pChannel )
 {
 	_list.remove( pChannel );
-    Channel::destroy( pChannel );
+	_deleteList.push_back(pChannel);
+}
+
+void ChannelList::removeAllChannel()
+{
+	Channel* pChannel;
+
+	while ((pChannel = _list.pop_front()) != NULL)
+	{
+		Channel::destroy(pChannel);
+	}
+
+	while ((pChannel = _deleteList.pop_front()) != NULL)
+	{
+		Channel::destroy(pChannel);
+	}
 }
 
 UInt32 ChannelList::size() const
@@ -224,14 +287,22 @@ RsslReactorChannel* ChannelList::operator[]( UInt32 idx )
 
 	while ( channel )
 	{
-		if ( index == idx )
+		if (channel->getParentChannel() == NULL)
 		{
-			return channel->getRsslChannel();
+			if (index == idx)
+			{
+				return channel->getRsslChannel();
+			}
+			else
+			{
+				index++;
+				channel = channel->next();
+			}
 		}
 		else
 		{
-			index++;
-			channel = channel->next();
+			/* Warm standby channel get only one RsslReactorChannel and returns*/
+			return channel->getParentChannel()->getRsslChannel();
 		}
 	}
 
@@ -270,22 +341,6 @@ Channel* ChannelList::getChannel( const RsslReactorChannel* pRsslChannel ) const
 	return 0;
 }
 
-Channel* ChannelList::getChannel( RsslSocket rsslsocket ) const
-{
-	Channel* channel = _list.front();
-	while ( channel )
-	{
-		if ( channel->getRsslSocket() == rsslsocket )
-		{
-			return channel;
-		}
-		else
-			channel = channel->next();
-	}
-
-	return 0;
-}
-
 Channel* ChannelList::front() const
 {
 	return _list.front();
@@ -294,18 +349,34 @@ Channel* ChannelList::front() const
 void ChannelCallbackClient::closeChannels()
 {
 	UInt32 size = _channelList.size();
+	EmaVector<RsslReactorChannel*> tempRemoveChannelList(size);
+	RsslBool foundWSBChannel = RSSL_FALSE;
 
 	for ( UInt32 idx = 0; idx < size; ++idx )
 	{
 		RsslReactorChannel* pReactorChannel = _channelList[idx];
 
-		_ommBaseImpl.closeChannel( pReactorChannel );
+		if (tempRemoveChannelList.getPositionOf(pReactorChannel) == -1)
+		{
+			_ommBaseImpl.closeChannel(pReactorChannel);
+			tempRemoveChannelList.push_back(pReactorChannel);
+		}
+		else
+		{
+			/* Found same RsslReactorChannel due to warm standby feature. */
+			foundWSBChannel = RSSL_TRUE;
+		}
 	}
 
 	/* EMA closes the reconnecting channel(if any) as well when the login timeout occurs. */
-	if( _pReconnectingReactorChannel )
+	if( _pReconnectingReactorChannel)
 	{
 		_ommBaseImpl.closeChannel( _pReconnectingReactorChannel );
+	}
+
+	if (foundWSBChannel)
+	{
+		_channelList.removeAllChannel();
 	}
 }
 
@@ -494,6 +565,121 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 	}
 }
 
+Channel* ChannelCallbackClient::channelConfigToReactorConnectInfo(ChannelConfig* activeChannelConfig, RsslReactorConnectInfo* reactorConnectInfo, 
+	EmaString& componentVersionInfo)
+{
+	rsslClearReactorConnectInfo(reactorConnectInfo);
+
+	if (activeChannelConfig->connectionType == RSSL_CONN_TYPE_SOCKET ||
+		activeChannelConfig->connectionType == RSSL_CONN_TYPE_HTTP ||
+		activeChannelConfig->connectionType == RSSL_CONN_TYPE_ENCRYPTED ||
+		activeChannelConfig->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST ||
+		activeChannelConfig->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		Channel* pChannel =  Channel::create(_ommBaseImpl, activeChannelConfig->name, _pRsslReactor);
+
+		reactorConnectInfo->rsslConnectOptions.userSpecPtr = (void*)pChannel;
+		activeChannelConfig->pChannel = pChannel;
+
+		reactorConnectInfo->rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		reactorConnectInfo->rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+		reactorConnectInfo->rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+		reactorConnectInfo->rsslConnectOptions.connectionType = activeChannelConfig->connectionType;
+		reactorConnectInfo->rsslConnectOptions.pingTimeout = activeChannelConfig->connectionPingTimeout / 1000;
+		reactorConnectInfo->rsslConnectOptions.guaranteedOutputBuffers = activeChannelConfig->guaranteedOutputBuffers;
+		reactorConnectInfo->rsslConnectOptions.sysRecvBufSize = activeChannelConfig->sysRecvBufSize;
+		reactorConnectInfo->rsslConnectOptions.sysSendBufSize = activeChannelConfig->sysSendBufSize;
+		reactorConnectInfo->rsslConnectOptions.numInputBuffers = activeChannelConfig->numInputBuffers;
+		reactorConnectInfo->rsslConnectOptions.componentVersion = (char*)componentVersionInfo.c_str();
+		reactorConnectInfo->initializationTimeout = activeChannelConfig->initializationTimeout;
+
+		switch (reactorConnectInfo->rsslConnectOptions.connectionType)
+		{
+		case RSSL_CONN_TYPE_ENCRYPTED:
+		{
+			if (static_cast<SocketChannelConfig*>(activeChannelConfig)->encryptedConnectionType != RSSL_CONN_TYPE_INIT)
+				reactorConnectInfo->rsslConnectOptions.encryptionOpts.encryptedProtocol = static_cast<SocketChannelConfig*>(activeChannelConfig)->encryptedConnectionType;
+
+			if (RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo->rsslConnectOptions.encryptionOpts.encryptedProtocol)
+			{
+				reactorConnectInfo->rsslConnectOptions.wsOpts.maxMsgSize = static_cast<SocketChannelConfig*>(activeChannelConfig)->wsMaxMsgSize;
+				reactorConnectInfo->rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->wsProtocols.c_str());
+			}
+
+			reactorConnectInfo->rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<SocketChannelConfig*>(activeChannelConfig)->securityProtocol;
+			reactorConnectInfo->rsslConnectOptions.encryptionOpts.openSSLCAStore = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->sslCAStore.c_str());
+			reactorConnectInfo->enableSessionManagement = static_cast<SocketChannelConfig*>(activeChannelConfig)->enableSessionMgnt;
+			reactorConnectInfo->location.length = static_cast<SocketChannelConfig*>(activeChannelConfig)->location.length();
+			reactorConnectInfo->location.data = (char*)static_cast<SocketChannelConfig*>(activeChannelConfig)->location.c_str();
+			// Fall through to HTTP connection options
+		}
+		case RSSL_CONN_TYPE_SOCKET:
+		case RSSL_CONN_TYPE_HTTP:
+		case RSSL_CONN_TYPE_WEBSOCKET:
+		{
+			reactorConnectInfo->rsslConnectOptions.compressionType = activeChannelConfig->compressionType;
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.unified.address = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->hostName.c_str());
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.unified.serviceName = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->serviceName.c_str());
+			reactorConnectInfo->rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<SocketChannelConfig*>(activeChannelConfig)->tcpNodelay;
+			reactorConnectInfo->rsslConnectOptions.objectName = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->objectName.c_str());
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.unified.interfaceName = (char*)(activeChannelConfig->interfaceName.c_str());
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.unified.unicastServiceName = (char*) "";
+			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyHostName = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyHostName.c_str());
+			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyPort = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyPort.c_str());
+			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyUserName = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyUserName.c_str());
+			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyPasswd = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyPasswd.c_str());
+			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyDomain = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyDomain.c_str());
+
+			if (RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo->rsslConnectOptions.connectionType)
+			{
+				reactorConnectInfo->rsslConnectOptions.wsOpts.maxMsgSize = static_cast<SocketChannelConfig*>(activeChannelConfig)->wsMaxMsgSize;
+				reactorConnectInfo->rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->wsProtocols.c_str());
+			}
+
+			break;
+		}
+		case RSSL_CONN_TYPE_RELIABLE_MCAST:
+		{
+			ReliableMcastChannelConfig* relMcastCfg = static_cast<ReliableMcastChannelConfig*>(activeChannelConfig);
+			if (activeChannelConfig->interfaceName.empty())
+				reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.interfaceName = 0;
+			else
+				reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.interfaceName = (char*)activeChannelConfig->interfaceName.c_str();
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.recvAddress = (char*)relMcastCfg->recvAddress.c_str();
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.recvServiceName = (char*)relMcastCfg->recvServiceName.c_str();
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.unicastServiceName = (char*)relMcastCfg->unicastServiceName.c_str();
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.sendAddress = (char*)relMcastCfg->sendAddress.c_str();
+			reactorConnectInfo->rsslConnectOptions.connectionInfo.segmented.sendServiceName = (char*)relMcastCfg->sendServiceName.c_str();
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.disconnectOnGaps = relMcastCfg->disconnectOnGap;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.hsmInterface = (char*)relMcastCfg->hsmInterface.c_str();
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.hsmMultAddress = (char*)relMcastCfg->hsmMultAddress.c_str();
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.hsmPort = (char*)relMcastCfg->hsmPort.c_str();
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.hsmInterval = relMcastCfg->hsmInterval;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.packetTTL = relMcastCfg->packetTTL;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.tcpControlPort = (char*)relMcastCfg->tcpControlPort.c_str();
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.ndata = relMcastCfg->ndata;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.nmissing = relMcastCfg->nmissing;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.nrreq = relMcastCfg->nrreq;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.tdata = relMcastCfg->tdata;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.trreq = relMcastCfg->trreq;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.twait = relMcastCfg->twait;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.tpphold = relMcastCfg->tpphold;
+			reactorConnectInfo->rsslConnectOptions.multicastOpts.tbchold = relMcastCfg->tbchold;
+			break;
+		}
+		default:
+			break;
+		}
+
+		pChannel->setChannelState(Channel::ChannelDownEnum);
+		return pChannel;
+	}
+	else
+	{
+		return NULL; /* Indicate invalid channel type. */
+	}
+}
+
 void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslRDMDirectoryRequest* dirRequest, RsslReactorOAuthCredential* pOAuthCredential)
 {
 	RsslReactorChannelRole role;
@@ -513,18 +699,41 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 	RsslReactorConnectInfo* reactorConnectInfo = 0;
 
-	try
+	if (activeConfigChannelSet.size() > 0)
 	{
-		reactorConnectInfo = new RsslReactorConnectInfo[activeConfigChannelSet.size()];
-	}
-	catch ( std::bad_alloc& )
-	{
-		const char* temp = "Failed to allocate memory in ChannelCallbackClient::initialize()";
-		if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
-			_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+		try
+		{
+			reactorConnectInfo = new RsslReactorConnectInfo[activeConfigChannelSet.size()];
+		}
+		catch (std::bad_alloc&)
+		{
+			const char* temp = "Failed to allocate memory in ChannelCallbackClient::initialize()";
+			if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
 
-		throwMeeException(temp);
-		return;
+			throwMeeException(temp);
+			return;
+		}
+	}
+
+	EmaVector<WarmStandbyChannelConfig*>& warmStandbyChannelSet = activeConfig.configWarmStandbySet;
+	RsslReactorWarmStandbyGroup *warmStandbyChannelGroup = NULL;
+
+	if (warmStandbyChannelSet.size() > 0)
+	{
+		try
+		{
+			warmStandbyChannelGroup = new RsslReactorWarmStandbyGroup[warmStandbyChannelSet.size()];
+		}
+		catch (std::bad_alloc&)
+		{
+			const char* temp = "Failed to allocate memory in ChannelCallbackClient::initialize() for warm standby group";
+			if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+
+			throwMeeException(temp);
+			return;
+		}
 	}
 
 	RsslReactorConnectOptions connectOpt;
@@ -535,6 +744,12 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	connectOpt.reconnectMinDelay = activeConfig.reconnectMinDelay;
 	connectOpt.reconnectMaxDelay = activeConfig.reconnectMaxDelay;
 
+	if (warmStandbyChannelGroup)
+	{
+		connectOpt.warmStandbyGroupCount = warmStandbyChannelSet.size();
+		connectOpt.reactorWarmStandbyGroupList = warmStandbyChannelGroup;
+	}
+
 	EmaString channelParams;
 	EmaString temp( "Attempt to connect using " );
 	if ( connectOpt.connectionCount > 1 )
@@ -543,116 +758,16 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	EmaString errorStrUnsupportedConnectionType( "Unknown connection type. Passed in type is" );
 
 	EmaString channelNames;
+	Channel* pChannel = NULL;
 
 	for ( UInt32 i = 0; i < connectOpt.connectionCount; ++i )
 	{
-		rsslClearReactorConnectInfo( &reactorConnectInfo[i] );
+		pChannel = channelConfigToReactorConnectInfo(activeConfigChannelSet[i], &reactorConnectInfo[i], componentVersionInfo);
 
-		if ( activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_SOCKET   ||
-		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_HTTP ||
-		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_ENCRYPTED ||
-		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_RELIABLE_MCAST ||
-		     activeConfigChannelSet[i]->connectionType == RSSL_CONN_TYPE_WEBSOCKET )
+		if(pChannel)
 		{
-			Channel* pChannel = Channel::create( _ommBaseImpl, activeConfigChannelSet[i]->name, _pRsslReactor );
-
-			reactorConnectInfo[i].rsslConnectOptions.userSpecPtr = ( void* )pChannel;
-			activeConfigChannelSet[i]->pChannel = pChannel;
-
-			reactorConnectInfo[i].rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
-			reactorConnectInfo[i].rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
-			reactorConnectInfo[i].rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
-			reactorConnectInfo[i].rsslConnectOptions.connectionType = activeConfigChannelSet[i]->connectionType;
-			reactorConnectInfo[i].rsslConnectOptions.pingTimeout = activeConfigChannelSet[i]->connectionPingTimeout / 1000;
-			reactorConnectInfo[i].rsslConnectOptions.guaranteedOutputBuffers = activeConfigChannelSet[i]->guaranteedOutputBuffers;
-			reactorConnectInfo[i].rsslConnectOptions.sysRecvBufSize = activeConfigChannelSet[i]->sysRecvBufSize;
-			reactorConnectInfo[i].rsslConnectOptions.sysSendBufSize = activeConfigChannelSet[i]->sysSendBufSize;
-			reactorConnectInfo[i].rsslConnectOptions.numInputBuffers = activeConfigChannelSet[i]->numInputBuffers;
-			reactorConnectInfo[i].rsslConnectOptions.componentVersion = ( char* ) componentVersionInfo.c_str();
-			reactorConnectInfo[i].initializationTimeout = activeConfigChannelSet[i]->initializationTimeout;
-
-			switch ( reactorConnectInfo[i].rsslConnectOptions.connectionType )
-			{
-			case RSSL_CONN_TYPE_ENCRYPTED:
-			{
-				if (static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->encryptedConnectionType != RSSL_CONN_TYPE_INIT)
-					reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptedProtocol = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->encryptedConnectionType;
-
-				if (RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptedProtocol)
-				{
-					reactorConnectInfo[i].rsslConnectOptions.wsOpts.maxMsgSize = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsMaxMsgSize;
-					reactorConnectInfo[i].rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsProtocols.c_str());
-				}
-
-				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->securityProtocol;
-				reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.openSSLCAStore = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->sslCAStore.c_str());
-				reactorConnectInfo[i].enableSessionManagement = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->enableSessionMgnt;
-				reactorConnectInfo[i].location.length = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.length();
-				reactorConnectInfo[i].location.data = (char*)static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->location.c_str();
-				// Fall through to HTTP connection options
-			}
-			case RSSL_CONN_TYPE_SOCKET:
-			case RSSL_CONN_TYPE_HTTP:
-			case RSSL_CONN_TYPE_WEBSOCKET:
-			{
-				reactorConnectInfo[i].rsslConnectOptions.compressionType = activeConfigChannelSet[i]->compressionType;
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.address = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->hostName.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.serviceName = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->serviceName.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.tcpOpts.tcp_nodelay = static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->tcpNodelay;
-				reactorConnectInfo[i].rsslConnectOptions.objectName = ( char* ) (static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->objectName.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.interfaceName = ( char* )(activeConfigChannelSet[i]->interfaceName.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.unified.unicastServiceName = ( char* ) "";
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyHostName = ( char* )(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->proxyHostName.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPort = (char*)(static_cast<SocketChannelConfig*>( activeConfigChannelSet[i] )->proxyPort.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyUserName = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyUserName.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyPasswd = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyPasswd.c_str());
-				reactorConnectInfo[i].rsslConnectOptions.proxyOpts.proxyDomain = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->proxyDomain.c_str());
-
-				if ( RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo[i].rsslConnectOptions.connectionType )
-				{
-					reactorConnectInfo[i].rsslConnectOptions.wsOpts.maxMsgSize = static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsMaxMsgSize;
-					reactorConnectInfo[i].rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeConfigChannelSet[i])->wsProtocols.c_str());
-				}
-
-				break;
-			}
-			case RSSL_CONN_TYPE_RELIABLE_MCAST:
-			{
-				ReliableMcastChannelConfig* relMcastCfg = static_cast<ReliableMcastChannelConfig*>( activeConfigChannelSet[i] );
-				if ( activeConfigChannelSet[i]->interfaceName.empty() )
-					reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.interfaceName = 0;
-				else
-					reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.interfaceName = ( char* )activeConfigChannelSet[i]->interfaceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.recvAddress = ( char* ) relMcastCfg->recvAddress.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.recvServiceName = ( char* ) relMcastCfg->recvServiceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.unicastServiceName = ( char* ) relMcastCfg->unicastServiceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.sendAddress = ( char* ) relMcastCfg->sendAddress.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.connectionInfo.segmented.sendServiceName = ( char* ) relMcastCfg->sendServiceName.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.disconnectOnGaps = relMcastCfg->disconnectOnGap;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.hsmInterface = ( char* ) relMcastCfg->hsmInterface.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.hsmMultAddress = ( char* ) relMcastCfg->hsmMultAddress.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.hsmPort = ( char* ) relMcastCfg->hsmPort.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.hsmInterval =  relMcastCfg->hsmInterval;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.packetTTL =  relMcastCfg->packetTTL;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.tcpControlPort = ( char* ) relMcastCfg->tcpControlPort.c_str();
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.ndata =  relMcastCfg->ndata;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.nmissing =  relMcastCfg->nmissing;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.nrreq =  relMcastCfg->nrreq;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.tdata =  relMcastCfg->tdata;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.trreq =  relMcastCfg->trreq;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.twait =  relMcastCfg->twait;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.tpphold =  relMcastCfg->tpphold;
-				reactorConnectInfo[i].rsslConnectOptions.multicastOpts.tbchold =  relMcastCfg->tbchold;
-				break;
-			}
-			default :
-				break;
-			}
-
-			pChannel->setChannelState( Channel::ChannelDownEnum );
-			_channelList.addChannel( pChannel );
+			_channelList.addChannel(pChannel);
 			supportedConnectionTypeChannelCount++;
-
 			channelNames += pChannel->getName();
 
 			if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
@@ -675,9 +790,142 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		}
 	}
 
+	WarmStandbyChannelConfig* pWarmStandbyChannelConfig = NULL;
+	Channel* pWarmStandbyChannel = NULL;
+	EmaVector<RsslBuffer*> freeServiceList(10);
+
+	for (UInt32 j = 0; j < connectOpt.warmStandbyGroupCount; ++j)
+	{
+		rsslClearReactorWarmStandbyGroup(&warmStandbyChannelGroup[j]);
+
+		pWarmStandbyChannelConfig = warmStandbyChannelSet[j];
+
+		if (pWarmStandbyChannelConfig->startingActiveServer)
+		{
+			if (pWarmStandbyChannel == NULL)
+			{
+				pWarmStandbyChannel = Channel::create(_ommBaseImpl, pWarmStandbyChannelConfig->startingActiveServer->channelConfig->name,
+					_pRsslReactor, Channel::WARM_STANDBY);
+				_channelList.addChannel(pWarmStandbyChannel);
+			}
+
+			pChannel = channelConfigToReactorConnectInfo(pWarmStandbyChannelConfig->startingActiveServer->channelConfig,
+				&warmStandbyChannelGroup[j].startingActiveServer.reactorConnectInfo, componentVersionInfo);
+
+			if (pChannel)
+			{
+				pChannel->setParentChannel(pWarmStandbyChannel);
+				
+				_channelList.addChannel(pChannel);
+				supportedConnectionTypeChannelCount++;
+				channelNames += pChannel->getName();
+			}
+			else
+			{
+				warmStandbyChannelGroup[j].startingActiveServer.reactorConnectInfo.rsslConnectOptions.userSpecPtr = 0;
+				errorStrUnsupportedConnectionType.append(pWarmStandbyChannelConfig->startingActiveServer->channelConfig->connectionType)
+					.append(" for ")
+					.append(pWarmStandbyChannelConfig->startingActiveServer->channelConfig->name);
+					errorStrUnsupportedConnectionType.append(", ");
+			}
+
+			if (pWarmStandbyChannelConfig->startingActiveServer->perServiceNameSet.size() > 0)
+			{
+				warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameCount = pWarmStandbyChannelConfig->startingActiveServer->perServiceNameSet.size();
+
+				warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameList = (RsslBuffer*)malloc(sizeof(RsslBuffer) * warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameCount);
+
+				if (warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameList)
+				{
+					freeServiceList.push_back(warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+					for (RsslUInt32 index = 0; index < warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameCount; index++)
+					{
+						warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameList[index].data = const_cast<char*>(pWarmStandbyChannelConfig->startingActiveServer->perServiceNameSet[index]->c_str());
+						warmStandbyChannelGroup[j].startingActiveServer.perServiceBasedOptions.serviceNameList[index].length = pWarmStandbyChannelConfig->startingActiveServer->perServiceNameSet[index]->length();
+					}
+				}
+			}
+		}
+
+		try
+		{
+			if (pWarmStandbyChannelConfig->standbyServerSet.size() > 0)
+			{
+				warmStandbyChannelGroup[j].standbyServerList = new RsslReactorWarmStandbyServerInfo[pWarmStandbyChannelConfig->standbyServerSet.size()];
+				warmStandbyChannelGroup[j].standbyServerCount = pWarmStandbyChannelConfig->standbyServerSet.size();
+			}
+		}
+		catch (std::bad_alloc&)
+		{
+			const char* temp = "Failed to allocate memory in ChannelCallbackClient::initialize() for warm standby group";
+			if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+				_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp);
+
+			throwMeeException(temp);
+			return;
+		}
+
+		RsslReactorWarmStandbyServerInfo* warmStandbyServerInfo = NULL;
+
+		for (UInt32 k = 0; k < warmStandbyChannelGroup[j].standbyServerCount; ++k)
+		{
+			warmStandbyServerInfo = &warmStandbyChannelGroup[j].standbyServerList[k];
+			rsslClearReactorWarmStandbyServerInfo(warmStandbyServerInfo);
+
+			if (pWarmStandbyChannel == NULL)
+			{
+				pWarmStandbyChannel = Channel::create(_ommBaseImpl, pWarmStandbyChannelConfig->standbyServerSet[k]->channelConfig->name,
+					_pRsslReactor, Channel::WARM_STANDBY);
+				_channelList.addChannel(pWarmStandbyChannel);
+			}
+
+			pChannel = channelConfigToReactorConnectInfo(pWarmStandbyChannelConfig->standbyServerSet[k]->channelConfig,
+				&warmStandbyServerInfo->reactorConnectInfo, componentVersionInfo);
+
+			if (pChannel)
+			{
+				pChannel->setParentChannel(pWarmStandbyChannel);
+
+				_channelList.addChannel(pChannel);
+				supportedConnectionTypeChannelCount++;
+				channelNames += pChannel->getName();
+			}
+			else
+			{
+				warmStandbyServerInfo->reactorConnectInfo.rsslConnectOptions.userSpecPtr = 0;
+				errorStrUnsupportedConnectionType.append(pWarmStandbyChannelConfig->standbyServerSet[k]->channelConfig->connectionType)
+					.append(" for ")
+					.append(pWarmStandbyChannelConfig->standbyServerSet[k]->channelConfig->name);
+				errorStrUnsupportedConnectionType.append(", ");
+			}
+
+			if (pWarmStandbyChannelConfig->standbyServerSet[k]->perServiceNameSet.size() > 0)
+			{
+				warmStandbyServerInfo->perServiceBasedOptions.serviceNameCount = pWarmStandbyChannelConfig->standbyServerSet[k]->perServiceNameSet.size();
+
+				warmStandbyServerInfo->perServiceBasedOptions.serviceNameList = (RsslBuffer*)malloc(sizeof(RsslBuffer) * warmStandbyServerInfo->perServiceBasedOptions.serviceNameCount);
+
+				if (warmStandbyServerInfo->perServiceBasedOptions.serviceNameList)
+				{
+					freeServiceList.push_back(warmStandbyServerInfo->perServiceBasedOptions.serviceNameList);
+
+					for (RsslUInt32 index = 0; index < warmStandbyServerInfo->perServiceBasedOptions.serviceNameCount; index++)
+					{
+						warmStandbyServerInfo->perServiceBasedOptions.serviceNameList[index].data = const_cast<char*>(pWarmStandbyChannelConfig->standbyServerSet[k]->perServiceNameSet[index]->c_str());
+						warmStandbyServerInfo->perServiceBasedOptions.serviceNameList[index].length = pWarmStandbyChannelConfig->standbyServerSet[k]->perServiceNameSet[index]->length();
+					}
+				}
+			}
+		}
+
+		warmStandbyChannelGroup[j].warmStandbyMode = (RsslReactorWarmStandbyMode)pWarmStandbyChannelConfig->warmStandbyMode;
+	}
+
 	if ( supportedConnectionTypeChannelCount > 0 )
 	{
-		connectOpt.rsslConnectOptions.userSpecPtr = ( void* ) activeConfigChannelSet[0]->pChannel;
+		if(warmStandbyChannelGroup == NULL)
+			connectOpt.rsslConnectOptions.userSpecPtr = ( void* ) activeConfigChannelSet[0]->pChannel;
 
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo( &rsslErrorInfo );
@@ -708,7 +956,26 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 				}
 			}
 
+			_channelList.removeAllChannel();
+
+			for (RsslUInt32 index = 0; index < freeServiceList.size(); index++)
+			{
+				free(freeServiceList[index]);
+			}
+
+			freeServiceList.clear();
+
 			delete [] reactorConnectInfo;
+
+			for (UInt32 j = 0; j < connectOpt.warmStandbyGroupCount; ++j)
+			{
+				if (warmStandbyChannelGroup[j].standbyServerCount > 0)
+				{
+					delete[] warmStandbyChannelGroup[j].standbyServerList;
+				}
+			}
+
+			delete [] warmStandbyChannelGroup;
 			throwIueException( temp, rsslErrorInfo.rsslError.rsslErrorId );
 
 			return;
@@ -730,10 +997,47 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 	}
 	else
 	{
+		for (RsslUInt32 index = 0; index < freeServiceList.size(); index++)
+		{
+			free(freeServiceList[index]);
+		}
+
+		freeServiceList.clear();
+
 		delete [] reactorConnectInfo;
+
+		for (UInt32 j = 0; j < connectOpt.warmStandbyGroupCount; ++j)
+		{
+			if (warmStandbyChannelGroup[j].standbyServerCount > 0)
+			{
+				delete[] warmStandbyChannelGroup[j].standbyServerList;
+			}
+		}
+
+		delete [] warmStandbyChannelGroup;
 		throwIueException( errorStrUnsupportedConnectionType, OmmInvalidUsageException::InvalidOperationEnum );
+
+		return;
 	}
+
+	for (RsslUInt32 index = 0; index < freeServiceList.size(); index++)
+	{
+		free(freeServiceList[index]);
+	}
+
+	freeServiceList.clear();
+
 	delete [] reactorConnectInfo;
+
+	for (UInt32 j = 0; j < connectOpt.warmStandbyGroupCount; ++j)
+	{
+		if (warmStandbyChannelGroup[j].standbyServerCount > 0)
+		{
+			delete[] warmStandbyChannelGroup[j].standbyServerList;
+		}
+	}
+
+	delete [] warmStandbyChannelGroup;
 }
 
 void ChannelCallbackClient::removeChannel( RsslReactorChannel* pRsslReactorChannel )
@@ -754,11 +1058,15 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 {
 	Channel* pChannel = ( Channel* )( pEvent->pReactorChannel->userSpecPtr );
 	ChannelConfig* pChannelConfig = _ommBaseImpl.getActiveConfig().findChannelConfig( pChannel );
+	if (pChannel->getParentChannel())
+	{
+		pChannel = pChannel->getParentChannel();
+	}
 
 	if ( !pChannelConfig )
 	{
 		EmaString temp( "Failed to find channel config for channel " );
-		temp.append( pChannel->getName() )
+		temp.append( pChannelConfig->name )
 		.append( " that received event type: " )
 		.append( pEvent->channelEventType ).append( CR )
 		.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
@@ -777,7 +1085,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelOpened on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append( pChannelConfig->name ).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() );
 
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
@@ -806,7 +1114,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Failed to set send buffer size on channel " );
-				temp.append( pChannel->getName() ).append( CR )
+				temp.append( pChannelConfig->name ).append( CR )
 				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -828,7 +1136,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Failed to set recv buffer size on channel " );
-				temp.append( pChannel->getName() ).append( CR )
+				temp.append( pChannelConfig->name ).append( CR )
 				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 				.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 				.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -853,7 +1161,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
 				{
 					EmaString temp("Failed to set compression threshold on channel ");
-					temp.append(pChannel->getName()).append(CR)
+					temp.append(pChannelConfig->name).append(CR)
 						.append("Consumer Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
 						.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
 						.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
@@ -871,13 +1179,10 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			}
 		}
 
-		pChannel->setRsslChannel( pRsslReactorChannel )
-		.setRsslSocket( pRsslReactorChannel->socketId )
-		.setChannelState( Channel::ChannelUpEnum );
 		if ( OmmLoggerClient::SuccessEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelUp event on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append(pChannelConfig->name).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() );
 			if ( channelInfo.rsslChannelInfo.componentInfoCount > 0 )
 				temp.append( CR ).append( componentInfo );
@@ -893,7 +1198,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
 					EmaString temp( "Failed to set the high water mark on channel " );
-					temp.append( pChannel->getName() ).append( CR )
+					temp.append(pChannelConfig->name).append( CR )
 						.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 						.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 						.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -907,7 +1212,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			else if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "high water mark set on channel " );
-				temp.append( pChannel->getName() ).append( CR )
+				temp.append(pChannelConfig->name).append( CR )
 					.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 			}
@@ -955,7 +1260,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 				if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 				{
 					EmaString temp( "Failed to enable Xml Tracing on channel " );
-					temp.append( pChannel->getName() ).append( CR )
+					temp.append(pChannelConfig->name).append( CR )
 					.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 					.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 					.append( "RsslChannel " ).append( ptrToStringAsHex( rsslErrorInfo.rsslError.channel ) ).append( CR )
@@ -969,14 +1274,43 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			else if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 			{
 				EmaString temp( "Xml Tracing enabled on channel " );
-				temp.append( pChannel->getName() ).append( CR )
+				temp.append(pChannelConfig->name).append( CR )
 				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 			}
 		}
 
-		_ommBaseImpl.addSocket( pRsslReactorChannel->socketId );
-		_ommBaseImpl.setState( OmmBaseImpl::RsslChannelUpEnum );
+		if (pRsslReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+		{
+			pChannel->setRsslChannel(pRsslReactorChannel).clearRsslSocket()
+				.addRsslSocket(pRsslReactorChannel->socketId)
+				.setChannelState(Channel::ChannelUpEnum);
+
+			_ommBaseImpl.removeAllSocket();
+			_ommBaseImpl.addCommonSocket();
+			_ommBaseImpl.addSocket(pRsslReactorChannel->socketId);
+		}
+		else if (pRsslReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+		{
+			pChannel->setRsslChannel(pRsslReactorChannel).clearRsslSocket().setChannelState(Channel::ChannelUpEnum);
+			_ommBaseImpl.removeAllSocket();
+			_ommBaseImpl.addCommonSocket();
+
+			if (pRsslReactorChannel->pWarmStandbyChInfo)
+			{
+				RsslUInt32 index;
+				for (index = 0; index < pRsslReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					pChannel->addRsslSocket(pRsslReactorChannel->pWarmStandbyChInfo->socketIdList[index]);
+					_ommBaseImpl.addSocket(pRsslReactorChannel->pWarmStandbyChInfo->socketIdList[index]);
+				}
+			}
+			else
+			{
+				pChannel->addRsslSocket(pRsslReactorChannel->socketId);
+				_ommBaseImpl.addSocket(pRsslReactorChannel->socketId);
+			}
+		}
 
 		return RSSL_RC_CRET_SUCCESS;
 	}
@@ -985,7 +1319,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelReady event on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append(pChannelConfig->name).append( CR )
 				.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() );
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 		}
@@ -1008,16 +1342,45 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received FD Change event on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append(pChannelConfig->name).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() );
 			_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 		}
 
-		pChannel->setRsslChannel( pRsslReactorChannel )
-		.setRsslSocket( pRsslReactorChannel->socketId );
+		if (pRsslReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+		{
+			pChannel->setRsslChannel(pRsslReactorChannel).clearRsslSocket()
+				.addRsslSocket(pRsslReactorChannel->socketId);
 
-		_ommBaseImpl.removeSocket( pRsslReactorChannel->oldSocketId );
-		_ommBaseImpl.addSocket( pRsslReactorChannel->socketId );
+			_ommBaseImpl.removeAllSocket();
+			_ommBaseImpl.addCommonSocket();
+			_ommBaseImpl.addSocket(pRsslReactorChannel->socketId);
+		}
+		else if (pRsslReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+		{
+			pChannel->setRsslChannel(pRsslReactorChannel).clearRsslSocket();
+
+			_ommBaseImpl.removeAllSocket();
+			_ommBaseImpl.addCommonSocket();
+
+			if (pRsslReactorChannel->pWarmStandbyChInfo)
+			{
+				RsslUInt32 index;
+				for (index = 0; index < pRsslReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					pChannel->addRsslSocket(pRsslReactorChannel->pWarmStandbyChInfo->socketIdList[index]);
+					_ommBaseImpl.addSocket(pRsslReactorChannel->pWarmStandbyChInfo->socketIdList[index]);
+				}
+			}
+			else
+			{
+				pChannel->setRsslChannel(pRsslReactorChannel).clearRsslSocket()
+					.addRsslSocket(pRsslReactorChannel->socketId);
+
+				_ommBaseImpl.addSocket(pRsslReactorChannel->socketId);
+			}
+		}
+
 		return RSSL_RC_CRET_SUCCESS;
 	}
 	case RSSL_RC_CET_CHANNEL_DOWN:
@@ -1027,7 +1390,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelDown event on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append(pChannelConfig->name).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 			.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
@@ -1056,7 +1419,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelDownReconnecting event on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append(pChannelConfig->name).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 			.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
@@ -1071,7 +1434,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( pRsslReactorChannel->socketId != REACTOR_INVALID_SOCKET )
 			_ommBaseImpl.removeSocket( pRsslReactorChannel->socketId );
 
-		pChannel->setRsslSocket( 0 )
+		pChannel->clearRsslSocket()
 		.setChannelState( Channel::ChannelDownReconnectingEnum );
 
 		_ommBaseImpl.processChannelEvent( pEvent );
@@ -1087,7 +1450,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		if ( OmmLoggerClient::WarningEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received Channel warning event on channel " );
-			temp.append( pChannel->getName() ).append( CR )
+			temp.append(pChannelConfig->name).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 			.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )
@@ -1106,7 +1469,7 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 		{
 			EmaString temp( "Received unknown channel event type " );
 			temp.append( pEvent->channelEventType ).append( CR )
-			.append( "channel " ).append( pChannel->getName() ).append( CR )
+			.append( "channel " ).append(pChannelConfig->name).append( CR )
 			.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 			.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( pEvent->pError->rsslError.channel ) ).append( CR )

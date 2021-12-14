@@ -92,15 +92,27 @@ RSSL_VA_API RsslRet rsslEncodeRDMDirectoryMsg(RsslEncodeIterator *pEncodeIter, R
 				{
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeMapEntryInit(pEncodeIter, &mapEntry, &pServiceStatus->serviceId, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-					/* Encode one element indicating the WarmStandbyMode*/
 					rsslClearElementList(&elementList);
 					elementList.flags = RSSL_ELF_HAS_STANDARD_DATA;
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListInit(pEncodeIter, &elementList, 0, 0)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
-					rsslClearElementEntry(&elementEntry);
-					elementEntry.name = RSSL_ENAME_SOURCE_MIRROR_MODE;
-					elementEntry.dataType = RSSL_DT_UINT;
-					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pConsumerStatus->consumerServiceStatusList[i].sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+					/* Encode one element indicating the SourceMirroringMode if specified. */
+					if (pServiceStatus->flags & RDM_DR_CSSF_HAS_WARM_SOURCE_MIRRORING_MODE)
+					{
+						rsslClearElementEntry(&elementEntry);
+						elementEntry.name = RSSL_ENAME_SOURCE_MIRROR_MODE;
+						elementEntry.dataType = RSSL_DT_UINT;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pConsumerStatus->consumerServiceStatusList[i].sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+					}
+
+					/* Encode one element indicating the WarmStandbyMode if specified. */
+					if (pServiceStatus->flags & RDM_DR_CSSF_HAS_WARM_STANDBY_MODE)
+					{
+						rsslClearElementEntry(&elementEntry);
+						elementEntry.name = RSSL_ENAME_WARMSTANDBY_MODE;
+						elementEntry.dataType = RSSL_DT_UINT;
+						if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementEntry(pEncodeIter, &elementEntry, &pConsumerStatus->consumerServiceStatusList[i].warmStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+					}
 
 					if (!RSSL_ERROR_INFO_CHECK((ret = rsslEncodeElementListComplete(pEncodeIter, RSSL_TRUE)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
@@ -1735,12 +1747,14 @@ RSSL_VA_API RsslRet rsslDecodeRDMDirectoryMsg(RsslDecodeIterator *pIter, RsslMsg
 						if (!RSSL_ERROR_INFO_CHECK(pServiceStatus = (RsslRDMConsumerStatusService*)rsslReserveBufferMemory(pMemoryBuffer, 1, sizeof(RsslRDMConsumerStatusService)), RSSL_RET_BUFFER_TOO_SMALL, pError)) return RSSL_RET_BUFFER_TOO_SMALL;
 
 						rsslClearRDMConsumerStatusService(pServiceStatus);
+						pServiceStatus->flags = 0;
 						pServiceStatus->serviceId = mapKey;
 						pServiceStatus->action = (RsslMapEntryActions)mapEntry.action;
 
 						if (mapEntry.action != RSSL_MPEA_DELETE_ENTRY)
 						{
 							RsslBool foundSourceMirroringMode = RSSL_FALSE;
+							RsslBool foundWarmStandbyMode = RSSL_FALSE;
 
 							if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeElementList(pIter, &elementList, NULL)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 
@@ -1753,10 +1767,18 @@ RSSL_VA_API RsslRet rsslDecodeRDMDirectoryMsg(RsslDecodeIterator *pIter, RsslMsg
 									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pServiceStatus->sourceMirroringMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
 									foundSourceMirroringMode = RSSL_TRUE;
+									pServiceStatus->flags |= RDM_DR_CSSF_HAS_WARM_SOURCE_MIRRORING_MODE;
+								}
+								else if (rsslBufferIsEqual(&elementEntry.name, &RSSL_ENAME_WARMSTANDBY_MODE))
+								{
+									if (!RSSL_ERROR_INFO_CHECK(elementEntry.dataType == RSSL_DT_UINT, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+									if (!RSSL_ERROR_INFO_CHECK((ret = rsslDecodeUInt(pIter, &pServiceStatus->warmStandbyMode)) == RSSL_RET_SUCCESS, ret, pError)) return ret;
+									foundWarmStandbyMode = RSSL_TRUE;
+									pServiceStatus->flags |= RDM_DR_CSSF_HAS_WARM_STANDBY_MODE;
 								}
 							}
 
-							if (!RSSL_ERROR_INFO_CHECK(foundSourceMirroringMode, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
+							if (!RSSL_ERROR_INFO_CHECK( (foundSourceMirroringMode && foundWarmStandbyMode) == RSSL_FALSE, RSSL_RET_FAILURE, pError)) return RSSL_RET_FAILURE;
 
 						}
 						++pConsumerStatus->consumerServiceStatusCount;

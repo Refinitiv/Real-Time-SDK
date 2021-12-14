@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019 Refinitiv. All rights reserved.
+ * Copyright (C) 2021 Refinitiv. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_EVENTS_INT_H
@@ -27,7 +27,8 @@ typedef enum
 	RSSL_RCIMPL_ET_TOKEN_MGNT = -4,	/* Token management event on Login stream */
 	RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL = -5, /* OAuth credential renewal event */
 	RSSL_RCIMPL_ET_PING = -6, /* Ping event for channel statistics */
-	RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT = -7	/* For handling token session */
+	RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT = -7,	/* For handling token session */
+	RSSL_RCIMPL_ET_WARM_STANDBY = -8 /* For handling warm standby feature */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -42,7 +43,8 @@ typedef enum
 	RSSL_RCIMPL_CET_CLOSE_CHANNEL = -2,
 	RSSL_RCIMPL_CET_CLOSE_CHANNEL_ACK = -3,
 	RSSL_RCIMPL_CET_DISPATCH_WL = -4,
-	RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM = -5
+	RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM = -5,
+	RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL = -6,
 } RsslReactorChannelEventImplType;
 
 typedef enum
@@ -206,6 +208,39 @@ RTR_C_INLINE void rsslClearReactorTokenSessionEvent(RsslReactorTokenSessionEvent
 {
 	memset(pEvent, 0, sizeof(RsslReactorTokenSessionEvent));
 	pEvent->base.eventType = RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT;
+}
+
+typedef enum
+{
+	RSSL_RCIMPL_WSBET_INIT = 0,
+	RSSL_RCIMPL_WSBET_CONNECT_SECONDARY_SERVER = 0x01,
+	RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVER = 0x02,
+	RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_PER_SERVICE = 0x04,
+	RSSL_RCIMPL_WSBET_NOTIFY_STANDBY_SERVICE = 0x08,
+	RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVICE_CHANNEL_DOWN = 0x10,
+	RSSL_RCIMPL_WSBET_CHANGE_STANDBY_TO_ACTIVE_PER_SERVICE = 0x20,
+	RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP = 0x40,
+	RSSL_RCIMPL_WSBET_CONNECT_TO_NEXT_STARTING_SERVER = 0x80,
+	RSSL_RCIMPL_WSBET_ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP = 0x100,
+	RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL = 0x200
+} RsslReactorWarmStandByEventType;
+
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorWarmStandByEventType reactorWarmStandByEventType;
+	RsslReactorChannel* pReactorChannel;
+	RsslUInt serviceID; /* This is used for per service based warm standby. */
+	RsslInt32 streamID; /* This is used for per service based warm standby. */
+	RsslHashLink *pHashLink; /* This is used for per service based warm standby. */
+	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl; /* This is used to covey error message if any*/
+	void* pReactorWarmStandByHandlerImpl; /* Keeps the RsslReactorWarmStandByHandlerImpl for returing it back to the pool */
+} RsslReactorWarmStanbyEvent;
+
+RTR_C_INLINE void rsslClearReactorWarmStanbyEvent(RsslReactorWarmStanbyEvent* pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorWarmStanbyEvent));
+	pEvent->base.eventType = RSSL_RCIMPL_ET_WARM_STANDBY;
 }
 
 typedef union 

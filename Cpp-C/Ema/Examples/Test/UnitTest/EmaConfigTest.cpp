@@ -104,6 +104,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	OmmLoggerClient::LoggerType loggerType;
 	OmmLoggerClient::Severity loggerSeverity;
 	Dictionary::DictionaryType dictionaryType;
+	RsslReactorWarmStandbyMode warmStandbyMode;
 
 	config.configErrors().clear();
 
@@ -206,6 +207,44 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting JsonExpandedEnumFields from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|OutputBufferSize", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 99999) << "extracting OutputBufferSize from EmaConfig.xml";
+
+	// Checks all values from Consumer_8
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_8|WarmStandbyChannelSet", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "WarmStandbyChannel_1, WarmStandbyChannel_2") << "extracting WarmStandbyChannelSet name from EmaConfigTest.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_8|Logger", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Logger_1") << "extracting Logger name from EmaConfigTest.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_8|Dictionary", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Dictionary_2") << "extracting Dictionary name from EmaConfigTest.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_8|XmlTraceToStdout", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting XmlTraceToStdout name from EmaConfigTest.xml";
+
+	// Checks all values from WarmStandbyChannel_1
+	debugResult = config.get<EmaString>("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.WarmStandbyChannel_1|StartingActiveServer", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Server_Info_1") << "extracting StartingActiveServer name from EmaConfigTest.xml";
+	debugResult = config.get<EmaString>("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.WarmStandbyChannel_1|StandbyServerSet", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Server_Info_2") << "extracting StandbyServerSet name from EmaConfigTest.xml";
+	debugResult = config.get<RsslReactorWarmStandbyMode>("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.WarmStandbyChannel_1|WarmStandbyMode", warmStandbyMode);
+	EXPECT_TRUE(debugResult && warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED) << "extracting WarmStandbyMode name from EmaConfigTest.xml";
+
+	// Checks all values from WarmStandbyChannel_2
+	debugResult = config.get<EmaString>("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.WarmStandbyChannel_2|StartingActiveServer", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Server_Info_2") << "extracting StartingActiveServer name from EmaConfigTest.xml";
+	debugResult = config.get<EmaString>("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.WarmStandbyChannel_2|StandbyServerSet", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Server_Info_1") << "extracting StandbyServerSet name from EmaConfigTest.xml";
+	debugResult = config.get<RsslReactorWarmStandbyMode>("WarmStandbyGroup|WarmStandbyList|WarmStandbyChannel.WarmStandbyChannel_2|WarmStandbyMode", warmStandbyMode);
+	EXPECT_TRUE(debugResult && warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED) << "extracting WarmStandbyMode name from EmaConfigTest.xml";
+
+	// Checks all values from Server_Info_1
+	debugResult = config.get<EmaString>("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.Server_Info_1|Channel", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Channel_1") << "extracting Channel name from EmaConfigTest.xml";
+	debugResult = config.get<EmaString>("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.Server_Info_1|PerServiceNameSet", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "DIRECT_FEED") << "extracting PerServiceNameSet name from EmaConfigTest.xml";
+
+	// Checks all values from Server_Info_2
+	debugResult = config.get<EmaString>("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.Server_Info_2|Channel", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "Channel_4") << "extracting Channel name from EmaConfigTest.xml";
+	debugResult = config.get<EmaString>("WarmStandbyServerInfoGroup|WarmStandbyServerInfoList|WarmStandbyServerInfo.Server_Info_2|PerServiceNameSet", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "DIRECT_FEED2, DIRECT_FEED3") << "extracting PerServiceNameSet name from EmaConfigTest.xml";
 
 	// Checks all values from Channel_1
 	debugResult = config.get<EmaString>( "ChannelGroup|ChannelList|Channel|Name", retrievedValue );
@@ -1183,6 +1222,170 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 	{
 		std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
 		EXPECT_TRUE(false) << "Unexpected exception in testLoadingConfigurationFromProgrammaticConfig()";
+	}
+}
+
+TEST_F(EmaConfigTest, testLoadingProgrammaticConfigForWarmStandby)
+{
+	Map outermostMap, innerMap;
+	ElementList elementList;
+	try
+	{
+		elementList.addAscii("DefaultConsumer", "Consumer_8");
+
+		innerMap.addKeyAscii("Consumer_8", MapEntry::AddEnum, ElementList()
+			.addAscii("WarmStandbyChannelSet", "WarmStandbyChannel_1, WarmStandbyChannel_2")
+			.addAscii("Logger", "Logger_1")
+			.addUInt("XmlTraceToStdout", 0)
+			.addAscii("Dictionary", "Dictionary_2").complete())
+			.complete();
+
+		elementList.addMap("ConsumerList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("ConsumerGroup", MapEntry::AddEnum, elementList);
+
+		innerMap.addKeyAscii("Channel_1", MapEntry::AddEnum, ElementList()
+			.addEnum("ChannelType", 0)
+			.addAscii("Host", "localhost")
+			.addAscii("Port", "14002").complete());
+
+		innerMap.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
+			.addEnum("ChannelType", 0)
+			.addAscii("Host", "localhost")
+			.addAscii("Port", "15008").complete());
+
+		innerMap.addKeyAscii("Channel_3", MapEntry::AddEnum, ElementList()
+			.addEnum("ChannelType", 0)
+			.addAscii("Host", "localhost")
+			.addAscii("Port", "14008").complete());
+
+		innerMap.complete();
+
+		elementList.clear();
+		elementList.addMap("ChannelList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("ChannelGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("Server_Info_1", MapEntry::AddEnum, ElementList()
+			.addAscii("Channel", "Channel_1")
+			.addAscii("PerServiceNameSet", "Service_A, Service_B").complete());
+
+		innerMap.addKeyAscii("Server_Info_2", MapEntry::AddEnum, ElementList()
+			.addAscii("Channel", "Channel_2")
+			.addAscii("PerServiceNameSet", "Service_C, Service_D").complete());
+
+		innerMap.addKeyAscii("Server_Info_3", MapEntry::AddEnum, ElementList()
+			.addAscii("Channel", "Channel_3")
+			.addAscii("PerServiceNameSet", "Service_E, Service_F").complete());
+
+		innerMap.complete();
+			
+		elementList.addMap("WarmStandbyServerInfoList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("WarmStandbyServerInfoGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("WarmStandbyChannel_1", MapEntry::AddEnum, ElementList()
+			.addAscii("StartingActiveServer", "Server_Info_1")
+			.addAscii("StandbyServerSet", "Server_Info_2, Server_Info_3")
+			.addEnum("WarmStandbyMode", 1)
+			.complete());
+
+		innerMap.addKeyAscii("WarmStandbyChannel_2", MapEntry::AddEnum, ElementList()
+			.addAscii("StartingActiveServer", "Server_Info_2")
+			.addAscii("StandbyServerSet", "Server_Info_1, Server_Info_3")
+			.addEnum("WarmStandbyMode", 2)
+			.complete());
+
+		innerMap.complete();
+
+		elementList.addMap("WarmStandbyList", innerMap);
+
+		elementList.complete();
+		innerMap.clear();
+
+		outermostMap.addKeyAscii("WarmStandbyGroup", MapEntry::AddEnum, elementList);
+
+		elementList.clear();
+
+		innerMap.addKeyAscii("Dictionary_2", MapEntry::AddEnum,
+			ElementList()
+			.addEnum("DictionaryType", 0)
+			.addAscii("RdmFieldDictionaryFileName", fieldDictionaryFileNameTest)
+			.addAscii("EnumTypeDefFileName", enumTableFileNameTest).complete()).complete();
+
+		elementList.addMap("DictionaryList", innerMap);
+
+		elementList.complete();
+
+		outermostMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
+
+		outermostMap.complete();
+
+		SCOPED_TRACE("Must load data dictionary files from current working location\n");
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap));
+
+		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
+		bool found = ommConsumerImpl.getInstanceName().find("Consumer_8") >= 0 ? true : false;
+		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_8_1\"";
+		EXPECT_TRUE(activeConfig.configChannelSet.size() == 0) << "Connection list size , \"0\"";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet.size() == 2) << "Warm standby Channel size, 2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->name == "WarmStandbyChannel_1") << "Warm standby Channel name, WarmStandbyChannel_1";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->startingActiveServer->name == "Server_Info_1") << "StartingActiveServer name, Server_Info_1";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->startingActiveServer->channelConfig->name == "Channel_1") << "Channel config name, Channel_1";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->startingActiveServer->perServiceNameSet.size() == 2) << "Per service name list size, 2";	
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[0]->startingActiveServer->perServiceNameSet[0] == "Service_A") << "The first per service name, Service_A";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[0]->startingActiveServer->perServiceNameSet[1] == "Service_B") << "The second per service name, Service_B";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->warmStandbyMode == 1) << "Warm standby mode, 1";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->standbyServerSet.size() == 2) << "Standby server list size, 2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->standbyServerSet[0]->name == "Server_Info_2") << "First standby server name, Server_Info_2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->standbyServerSet[0]->channelConfig->name == "Channel_2") << "Channel config name, Channel_2";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[0]->standbyServerSet[0]->perServiceNameSet[0] == "Service_C") << "The first per service name, Service_C";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[0]->standbyServerSet[0]->perServiceNameSet[1] == "Service_D") << "The second per service name, Service_D";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->standbyServerSet[1]->name == "Server_Info_3") << "Second standby server name, Server_Info_3";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[0]->standbyServerSet[1]->channelConfig->name == "Channel_3") << "Channel config name, Channel_3";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[0]->standbyServerSet[1]->perServiceNameSet[0] == "Service_E") << "The first per service name, Service_E";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[0]->standbyServerSet[1]->perServiceNameSet[1] == "Service_F") << "The second per service name, Service_F";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->name == "WarmStandbyChannel_2") << "Warm standby Channel name, WarmStandbyChannel_2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->startingActiveServer->name == "Server_Info_2") << "StartingActiveServer name, Server_Info_2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->startingActiveServer->perServiceNameSet.size() == 2) << "Per service name list size, 2";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[1]->startingActiveServer->perServiceNameSet[0] == "Service_C") << "The first per service name, Service_C";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[1]->startingActiveServer->perServiceNameSet[1] == "Service_D") << "The second per service name, Service_D";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->warmStandbyMode == 2) << "Warm standby mode, 2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->standbyServerSet.size() == 2) << "Standby server list size, 2";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->standbyServerSet[0]->name == "Server_Info_1") << "First standby server name, Server_Info_1";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->standbyServerSet[0]->channelConfig->name == "Channel_1") << "Channel config name, Channel_1";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[1]->standbyServerSet[0]->perServiceNameSet[0] == "Service_A") << "The first per service name, Service_A";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[1]->standbyServerSet[0]->perServiceNameSet[1] == "Service_B") << "The second per service name, Service_B";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->standbyServerSet[1]->name == "Server_Info_3") << "Second standby server name, Server_Info_3";
+		EXPECT_TRUE(activeConfig.configWarmStandbySet[1]->standbyServerSet[1]->channelConfig->name == "Channel_3") << "Channel config name, Channel_3";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[1]->standbyServerSet[1]->perServiceNameSet[0] == "Service_E") << "The first per service name, Service_E";
+		EXPECT_TRUE(*activeConfig.configWarmStandbySet[1]->standbyServerSet[1]->perServiceNameSet[1] == "Service_F") << "The second per service name, Service_F";
+		EXPECT_TRUE(activeConfig.configChannelSetForWSB.size() == 6) << "Connection list size for warm standby, 6";
+		EXPECT_TRUE(activeConfig.configChannelSetForWSB[0]->name == "Channel_1") << "Channe name, Channel_1";
+		EXPECT_TRUE(activeConfig.configChannelSetForWSB[1]->name == "Channel_2") << "Channe name, Channel_2";
+		EXPECT_TRUE(activeConfig.configChannelSetForWSB[2]->name == "Channel_3") << "Channe name, Channel_3";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_2") << "dictionaryName , \"Dictionary_2\"";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
+		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
+		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest) << "enumtypeDefFileName , " << enumTableFileNameTest;
+	}
+	catch (const OmmException& excp)
+	{
+		std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
+		EXPECT_TRUE(false) << "Unexpected exception in testLoadingProgrammaticConfigForWarmStandby()";
 	}
 }
 

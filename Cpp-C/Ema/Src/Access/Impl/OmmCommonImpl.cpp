@@ -47,5 +47,11 @@ void OmmCommonImpl::removeFd( int fd )
   for (; i < _eventFdsCount; ++i)
 	_eventFds[i] = _eventFds[i+1];
 }
+
+void OmmCommonImpl::removeAllFd()
+{
+	_pipeReadEventFdsIdx = -1;
+	_eventFdsCount = 0;
+}
 #endif
 

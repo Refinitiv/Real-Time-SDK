@@ -636,6 +636,12 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 {
 	RsslRDMDirectoryMsg* pDirectoryMsg = pEvent->pRDMDirectoryMsg;
 
+	Channel* pChannel = ((Channel*)pRsslReactorChannel->userSpecPtr);
+	if (pChannel->getParentChannel() != NULL)
+	{
+		pChannel = pChannel->getParentChannel();
+	}
+
 	if ( !pDirectoryMsg )
 	{
 		_ommBaseImpl.closeChannel( pRsslReactorChannel );
@@ -687,7 +693,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 					_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp );
 				}
 	
-				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
+				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pChannel);
 	
 				break;
 			}
@@ -705,7 +711,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 	
 				_ommBaseImpl.setState( OmmBaseImpl::DirectoryStreamOpenSuspectEnum );
 	
-				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
+				processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pChannel);
 				break;
 			}
 	
@@ -721,7 +727,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, temp );
 			}
 	
-			processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pRsslReactorChannel->userSpecPtr );
+			processDirectoryPayload( pDirectoryMsg->refresh.serviceCount, pDirectoryMsg->refresh.serviceList, pChannel);
 			break;
 		}
 		case RDM_DR_MT_STATUS:
@@ -789,7 +795,7 @@ RsslReactorCallbackRet DirectoryCallbackClient::processCallback( RsslReactor* pR
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::VerboseEnum, "Received RDMDirectory update message" );
 			}
 	
-			processDirectoryPayload( pDirectoryMsg->update.serviceCount, pDirectoryMsg->update.serviceList, pRsslReactorChannel->userSpecPtr );
+			processDirectoryPayload( pDirectoryMsg->update.serviceCount, pDirectoryMsg->update.serviceList, pChannel);
 			break;
 		}
 		default:

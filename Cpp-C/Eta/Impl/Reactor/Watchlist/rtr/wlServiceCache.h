@@ -21,13 +21,17 @@ typedef struct WlServiceCache WlServiceCache;
 
 typedef struct WlServiceCacheUpdateEvent WlServiceCacheUpdateEvent;
 
+typedef struct RDMCachedService RDMCachedService;
+
 typedef RsslRet WlServiceCacheUpdateCallback(WlServiceCache*, WlServiceCacheUpdateEvent*,
 		RsslErrorInfo *pErrorInfo);
+
+typedef RsslRet RDMCachedServiceStateChangeCallback(WlServiceCache*, RDMCachedService*, RsslErrorInfo *pErrorInfo);
 
 typedef struct RDMCachedLink RDMCachedLink;
 
 /* A service stored in the cache. */
-typedef struct 
+struct RDMCachedService
 {
 	RsslUInt16			updateFlags;			
 	RsslRDMService		rdm;
@@ -49,7 +53,7 @@ typedef struct
 	RsslHashTable		linkTable;				/* Table of sources for the Link filter. */
 	RsslBuffer			tempLinkArrayBuffer;
 
-} RDMCachedService;
+};
 
 struct RDMCachedLink
 {
@@ -85,6 +89,10 @@ struct WlServiceCache
 	RsslInt32						*_pRsslChannel;				/* Associated RsslChannel. */
 	WlServiceCacheUpdateCallback	*_serviceUpdateCallback;	/* User-specified service update 
 																   event callback. */
+
+	RDMCachedServiceStateChangeCallback *_serviceStateChangeCallback; /* User-specified for a service state changes callback. */
+	WlServiceCacheUpdateCallback		*_serviceCacheInitCallback; /* User-specified for initial service cache callback. */
+	WlServiceCacheUpdateCallback		*_serviceCacheUpdateCallback; /* User-specified for update service cache callback. */
 	RsslBuffer						tempMemBuffer;
 };
 
@@ -92,6 +100,9 @@ typedef struct
 {
 	void *pUserSpec;
 	WlServiceCacheUpdateCallback	*serviceUpdateCallback;
+	RDMCachedServiceStateChangeCallback *serviceStateChangeCallback;
+	WlServiceCacheUpdateCallback	*serviceCacheInitCallback;
+	WlServiceCacheUpdateCallback	*serviceCacheUpdateCallback;
 } WlServiceCacheCreateOptions;
 
 RTR_C_INLINE void wlServiceCacheClearCreateOptions(WlServiceCacheCreateOptions *pOptions)

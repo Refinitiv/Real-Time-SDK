@@ -272,6 +272,7 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 						= pLoginRefresh->supportOptimizedPauseResume;
 					pBase->config.supportViewRequests
 						= pLoginRefresh->supportViewRequests;
+					pBase->config.supportStandby = pLoginRefresh->supportStandby;
 					pBase->gapRecovery = pLoginRefresh->sequenceNumberRecovery;
 					pBase->gapTimeout = pLoginRefresh->sequenceRetryInterval * 1000;
 					pBase->maxBufferedBroadcastMsgs = pLoginRefresh->updateBufferLimit;

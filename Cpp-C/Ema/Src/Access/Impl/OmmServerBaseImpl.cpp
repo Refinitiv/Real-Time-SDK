@@ -1567,6 +1567,16 @@ void OmmServerBaseImpl::removeSocket(RsslSocket fd)
 #endif
 }
 
+void OmmServerBaseImpl::removeAllSocket()
+{
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#else
+	removeAllFd();
+#endif
+}
+
 void OmmServerBaseImpl::handleIue(const EmaString& text, Int32 errorCode)
 {
 	if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)

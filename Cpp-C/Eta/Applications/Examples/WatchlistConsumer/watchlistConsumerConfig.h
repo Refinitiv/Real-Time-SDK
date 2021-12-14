@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -56,6 +56,15 @@ typedef struct
 	/* Socket configuration settings, when using a socket connection. */
 	char				hostName[255];					/* Host to connect to. */
 	char				port[255];						/* Port to connect to. */
+
+	/* Warm standby configuration settings. */
+	char				startingHostName[255];
+	char				startingPort[255];
+
+	char				standbyHostName[255];
+	char				standbyPort[255];
+	RsslReactorWarmStandbyMode		warmStandbyMode;
+
 
 	/* WebSocket configuration settings, when using a websocket connection. */
 	char				protocolList[255];				/* List of supported WebSocket sub-protocols */

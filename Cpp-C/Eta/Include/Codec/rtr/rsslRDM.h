@@ -256,6 +256,12 @@ typedef enum {
 	RDM_LOGIN_SERVER_TYPE_STANDBY	= 1		/*!< (1) Standby Server */
 } RDMLoginServerTypes;
 
+typedef enum {
+    RDM_DIRECTORY_SERVICE_TYPE_ACTIVE = 0,	/*!< (0) Active Directory Service */
+    RDM_DIRECTORY_SERVICE_TYPE_STANDBY = 1		/*!< (1) Standby Directory Service */
+} RDMDirectoryServiceTypes;
+
+
 /** 
  * @brief General OMM strings associated with the different server types.
  * @see RDMLoginServerTypes, rsslRDMLoginServerTypeToOmmString
@@ -882,6 +888,7 @@ static const RsslBuffer RSSL_ENAME_SUPPORT_STANDBY = { 14 , (char*)"SupportStand
 static const RsslBuffer RSSL_ENAME_WARMSTANDBY_INFO = { 15 , (char*)"WarmStandbyInfo" };
 static const RsslBuffer RSSL_ENAME_WARMSTANDBY_MODE = { 15 , (char*)"WarmStandbyMode" };
 static const RsslBuffer RSSL_ENAME_CONS_CONN_STATUS = { 24 , (char*)"ConsumerConnectionStatus" };
+static const RsslBuffer RSSL_ENAME_SUPPORT_STANDBY_MODE = { 18 , (char*)"SupportStandbyMode" };
 
 //Connection Load Balancing - Well known Element Names
 static const RsslBuffer RSSL_ENAME_DOWNLOAD_CON_CONFIG = { 24 , (char*)"DownloadConnectionConfig" };

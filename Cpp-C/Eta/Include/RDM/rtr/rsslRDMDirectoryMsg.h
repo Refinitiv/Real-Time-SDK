@@ -19,6 +19,14 @@ extern "C" {
  *	@{
  */
 
+typedef enum
+{
+	RDM_DR_CSSF_NONE = 0x00,						    /*!< (0x00) No flags set. */
+	RDM_DR_CSSF_HAS_WARM_SOURCE_MIRRORING_MODE = 0x01,	/*!< (0x01) Indicates presence of the source mirroring mode member. */
+	RDM_DR_CSSF_HAS_WARM_STANDBY_MODE = 0x02,			/*!< (0x02) Indicates presence of warm standby mode member. */
+}
+RsslRDMDirectoryConsumerStatusFlags;
+
 /**
  * @brief Information about how a Consumer is using a particular service with regard to Source Mirroring.
  * @see RsslRDMConsumerStatusServiceFlags, RsslRDMDirectoryConsumerStatus, rsslClearRDMConsumerStatusService
@@ -26,7 +34,9 @@ extern "C" {
 typedef struct {
 	RsslUInt serviceId;							/*!< ID of the service this status concerns. */
 	RsslMapEntryActions action;					/*!< Action associated with this status. */
+	RsslUInt32			flags;					/*!< */
 	RsslUInt sourceMirroringMode;				/*!< The Source Mirroring Mode for this service.  Populated by RDMDirectorySourceMirroringMode. */
+	RsslUInt warmStandbyMode;					/*!< The desired Warm Standby Mode for this service. */
 } RsslRDMConsumerStatusService;
 
 /**
@@ -37,7 +47,9 @@ RTR_C_INLINE void rsslClearRDMConsumerStatusService(RsslRDMConsumerStatusService
 {
 	pStatus->action = RSSL_MPEA_ADD_ENTRY;
 	pStatus->serviceId = 0;
+	pStatus->flags = RDM_DR_CSSF_HAS_WARM_SOURCE_MIRRORING_MODE;
 	pStatus->sourceMirroringMode = RDM_DIRECTORY_SOURCE_MIRROR_MODE_ACTIVE_NO_STANDBY;
+	pStatus->warmStandbyMode = RDM_DIRECTORY_SERVICE_TYPE_ACTIVE;
 }
 
 /**

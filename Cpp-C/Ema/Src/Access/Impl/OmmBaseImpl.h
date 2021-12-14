@@ -84,6 +84,8 @@ public :
 
 	virtual void removeSocket( RsslSocket ) = 0;
 
+	virtual void removeAllSocket() = 0;
+
 	void closeChannel( RsslReactorChannel* );
 
 	enum ImplState
@@ -167,6 +169,8 @@ public :
 
 	bool isAtExit();
 
+	void addCommonSocket();
+
 protected:
 
 	friend class OmmBaseImplMap<OmmBaseImpl>;
@@ -191,6 +195,12 @@ protected:
 	virtual void readCustomConfig( EmaConfigImpl* ) = 0;
 
 	ChannelConfig* readChannelConfig( EmaConfigImpl*, const EmaString& , bool);
+
+	WarmStandbyChannelConfig* readWSBChannelConfig(EmaConfigImpl*, const EmaString&, bool);
+
+	WarmStandbyServerInfoConfig* readWarmStandbyServerInfoConfig(EmaConfigImpl*, const EmaString&);
+
+	void readChannelConfigForWSBChannel(EmaConfigImpl*, const EmaString&);
 
 	bool readReliableMcastConfig( EmaConfigImpl*, const EmaString&, ReliableMcastChannelConfig*, EmaString& );
 

@@ -41,6 +41,15 @@ struct RsslWatchlistImpl
 static RsslRet wlServiceUpdateCallback(WlServiceCache *pServiceCache,
 		WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo);
 
+static RsslRet wlServiceStateChangeCallback(WlServiceCache *pServiceCache, 
+	RDMCachedService *pCachedService, RsslErrorInfo *pErrorInfo);
+
+static RsslRet wlServiceCacheInitCallback(WlServiceCache *pServiceCache,
+	WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo);
+
+static RsslRet wlServiceCacheUpdateCallback(WlServiceCache *pServiceCache,
+	WlServiceCacheUpdateEvent *pEvent, RsslErrorInfo *pErrorInfo);
+
 /* Reads a message from the provider. */
 static RsslRet wlProcessProviderMsg(RsslWatchlistImpl *pWatchlistImpl, 
 		RsslWatchlistProcessMsgOptions *pOptions, RsslErrorInfo *pErrorInfo);
@@ -73,7 +82,7 @@ static RsslRet wlFanoutItemMsgEvent(RsslWatchlistImpl *pWatchlistImpl, WlItemStr
 
 /* Constructs and sends a request message for a stream. */
 static RsslRet wlStreamSubmitMsg(RsslWatchlistImpl *pWatchlistImpl,
-		WlStream *pStream, RsslErrorInfo *pError);
+		WlStream *pStream, RsslUInt32 *pendingWaitCount, RsslErrorInfo *pError);
 
 static RsslRet wlProcessRemovedService(RsslWatchlistImpl *pWatchlistImpl,
 		WlService *pWlService, RsslErrorInfo *pErrorInfo);

@@ -8,6 +8,7 @@
 
 #include "ActiveConfig.h"
 #include "EmaConfigImpl.h"
+#include "ChannelCallbackClient.h"
 
 using namespace refinitiv::ema::access;
 
@@ -352,6 +353,8 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 ActiveConfig::~ActiveConfig()
 {
 	clearChannelSet();
+	clearWSBChannelSet();
+	clearChannelSetForWSB();
 }
 
 EmaString ActiveConfig::configTrace()
@@ -388,6 +391,38 @@ void ActiveConfig::clearChannelSet()
 	}
 
 	configChannelSet.clear();
+}
+
+void ActiveConfig::clearWSBChannelSet()
+{
+	if (configWarmStandbySet.size() == 0)
+		return;
+	for (unsigned int i = 0; i < configWarmStandbySet.size(); ++i)
+	{
+		if (configWarmStandbySet[i] != NULL)
+		{
+			delete configWarmStandbySet[i];
+			configWarmStandbySet[i] = NULL;
+		}
+	}
+
+	configWarmStandbySet.clear();
+}
+
+void ActiveConfig::clearChannelSetForWSB()
+{
+	if (configChannelSetForWSB.size() == 0)
+		return;
+	for (unsigned int i = 0; i < configChannelSetForWSB.size(); ++i)
+	{
+		if (configChannelSetForWSB[i] != NULL)
+		{
+			delete configChannelSetForWSB[i];
+			configChannelSetForWSB[i] = NULL;
+		}
+	}
+
+	configChannelSetForWSB.clear();
 }
 
 void ActiveConfig::clear()
@@ -504,14 +539,30 @@ void ActiveConfig::setRestRequestTimeOut(UInt64 value)
 ChannelConfig* ActiveConfig::findChannelConfig( const Channel* pChannel )
 {
 	ChannelConfig* retChannelCfg = 0;
-	for ( unsigned int i = 0; i < configChannelSet.size(); ++i )
+	
+	if (pChannel->getParentChannel() == NULL)
 	{
-		if ( configChannelSet[i]->pChannel ==  pChannel )
+		for (unsigned int i = 0; i < configChannelSet.size(); ++i)
 		{
-			retChannelCfg = configChannelSet[i];
-			break;
+			if (configChannelSet[i]->pChannel == pChannel)
+			{
+				retChannelCfg = configChannelSet[i];
+				break;
+			}
 		}
 	}
+	else
+	{
+		for (unsigned int i = 0; i < configChannelSetForWSB.size(); ++i)
+		{
+			if (configChannelSetForWSB[i]->pChannel == pChannel)
+			{
+				retChannelCfg = configChannelSetForWSB[i];
+				break;
+			}
+		}
+	}
+
 	return retChannelCfg;
 }
 
@@ -530,6 +581,23 @@ bool ActiveConfig::findChannelConfig( EmaVector< ChannelConfig* >& cfgChannelSet
 		}
 	}
 	return channelFound;
+}
+
+bool ActiveConfig::findWsbChannelConfig(EmaVector< WarmStandbyChannelConfig* >& cfgWsbChannelSet, const EmaString& wsbChannelName, unsigned int& pos)
+{
+	bool wsbChannelFound = false;
+	if (cfgWsbChannelSet.size() > 0)
+	{
+		for (pos = 0; pos < cfgWsbChannelSet.size(); ++pos)
+		{
+			if (cfgWsbChannelSet[pos]->name == wsbChannelName)
+			{
+				wsbChannelFound = true;
+				break;
+			}
+		}
+	}
+	return wsbChannelFound;
 }
 
 ActiveServerConfig::ActiveServerConfig(const EmaString& defaultServiceName) :
@@ -1029,4 +1097,53 @@ void ReliableMcastChannelConfig::clear()
 ChannelConfig::ChannelType ReliableMcastChannelConfig::getType() const
 {
 	return ChannelConfig::ReliableMcastChannelEnum;
+}
+
+WarmStandbyServerInfoConfig::WarmStandbyServerInfoConfig(const EmaString& name)
+{
+	clear();
+
+	this->name = name;
+}
+
+WarmStandbyServerInfoConfig::~WarmStandbyServerInfoConfig()
+{
+	for (UInt32 index = 0; index < perServiceNameSet.size(); index++)
+	{
+		delete perServiceNameSet[index];
+	}
+}
+
+void WarmStandbyServerInfoConfig::clear()
+{
+	channelConfig = NULL;
+	perServiceNameSet.clear();
+}
+
+WarmStandbyChannelConfig::WarmStandbyChannelConfig(const EmaString& name)
+{
+	clear();
+
+	this->name = name;
+}
+
+WarmStandbyChannelConfig::~WarmStandbyChannelConfig()
+{
+	if (startingActiveServer != NULL)
+	{
+		delete startingActiveServer;
+	}
+
+	for (UInt32 index = 0; index < standbyServerSet.size(); index++)
+	{
+		delete standbyServerSet[index];
+	}
+}
+
+void WarmStandbyChannelConfig::clear()
+{
+	startingActiveServer = NULL;
+	standbyServerSet.clear();
+	downloadConnectionConfig = DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG;
+	warmStandbyMode = (WarmStandbyMode)RSSL_RWSB_MODE_LOGIN_BASED;
 }

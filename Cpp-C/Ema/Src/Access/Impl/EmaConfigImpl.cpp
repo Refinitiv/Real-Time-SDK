@@ -711,6 +711,12 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 			if (!strcmp(statusCodeConverter[i].configInput, enumValue))
 				return new XMLConfigElement<OmmState::StatusCode>(name, parent, ConfigElement::ConfigElementTypeEnum, statusCodeConverter[i].convertedValue);
 	}
+	else if (!strcmp(enumType, "WarmStandbyMode"))
+	{
+		for (int i = 0; i < sizeof warmStandbyModeConverter / sizeof warmStandbyModeConverter[0]; i++)
+			if (!strcmp(warmStandbyModeConverter[i].configInput, enumValue))
+				return new XMLConfigElement<RsslReactorWarmStandbyMode>(name, parent, ConfigElement::ConfigElementTypeEnum, warmStandbyModeConverter[i].convertedValue);
+	}
 	else
 	{
 		errorMsg.append("no implementation in convertEnum for enumType [").append(enumType.c_str()).append("]");
@@ -1029,6 +1035,23 @@ void EmaConfigImpl::getChannelName( const EmaString& instanceName, EmaString& re
 
 		get<EmaString>( nodeName, retVal );
 	}
+}
+
+void EmaConfigImpl::getWarmStandbyChannelName(const EmaString& instanceName, EmaString& retVal, bool& foundProgrammaticCfg) const
+{
+	if (_pProgrammaticConfigure && _pProgrammaticConfigure->getActiveWSBChannelSetName(instanceName, retVal))
+	{
+		foundProgrammaticCfg = true;
+		return;
+	}
+
+	EmaString nodeName(_instanceNodeName);
+	nodeName.append(instanceName);
+	nodeName.append("|WarmStandbyChannelSet");
+
+	get<EmaString>(nodeName, retVal);
+
+	foundProgrammaticCfg = false;
 }
 
 bool EmaConfigImpl::getDictionaryName(const EmaString& instanceName, EmaString& retVal) const
@@ -1857,6 +1880,15 @@ void XMLConfigElement<OmmState::DataState>::print() const
 
 template<>
 void XMLConfigElement<OmmState::StatusCode>::print() const
+{
+	printf("%s (parent %p)", _name.c_str(), _parent);
+	printf(": %d", _values[0]);
+	for (unsigned int i = 1; i < _values.size(); ++i)
+		printf(", %d", _values[i]);
+}
+
+template<>
+void XMLConfigElement<RsslReactorWarmStandbyMode>::print() const
 {
 	printf("%s (parent %p)", _name.c_str(), _parent);
 	printf(": %d", _values[0]);

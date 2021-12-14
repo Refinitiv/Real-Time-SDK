@@ -37,8 +37,10 @@ RTR_C_INLINE void wlStreamInfoClear(RsslWatchlistStreamInfo *pStreamInfo)
 typedef enum
 {
 	WL_MEF_NONE			= 0x00,
-	WL_MEF_SEND_CLOSE	= 0x01 /* Message in event was internally generated and may require
+	WL_MEF_SEND_CLOSE	= 0x01, /* Message in event was internally generated and may require
 								* us to send a close to the provider. */
+	WL_MEF_NOTIFY_STATUS = 0x02, /* This is used to notify users when the active channel is switched to standby for private streams. */
+	WL_MEF_SEND_CLOSED_RECOVER = 0x04 /* This is used to indicate whether to recover an item stream.*/
 } WlMsgEventFlags;
 
 /* A message event from the watchlist. */
@@ -102,6 +104,7 @@ typedef struct
 	RsslUInt32					postAckTimeout;
 	RsslInt64					ticksPerMsec;
 	RsslInt32					loginRequestCount;
+	RsslBool					enableWarmStandby;
 } RsslWatchlistCreateOptions;
 
 /* Reactor-facing watchlist structure. */
@@ -157,9 +160,20 @@ RTR_C_INLINE void rsslWatchlistClearProcessMsgOptions(RsslWatchlistProcessMsgOpt
 	memset(pOptions, 0, sizeof(RsslWatchlistProcessMsgOptions));
 }
 
+typedef struct
+{
+	void *pStream; /* {Out} Get a watchlist stream after calling the _reactorReadWatchlistMsg() method. */
+
+} ReactorWSProcessMsgOptions;
+
+RTR_C_INLINE void rsslWatchlistClearWSProcessMsgOptions(ReactorWSProcessMsgOptions *pOptions)
+{
+	memset(pOptions, 0, sizeof(ReactorWSProcessMsgOptions));
+}
+
 /* Reads a message from the provider. */
 RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist, 
-		RsslWatchlistProcessMsgOptions *pOptions, RsslInt64 currentTime, RsslErrorInfo *pErrorInfo);
+		RsslWatchlistProcessMsgOptions *pOptions, ReactorWSProcessMsgOptions* pWsOption, RsslInt64 currentTime, RsslErrorInfo *pErrorInfo);
 
 
 /* Reads a buffer from the consumer. */

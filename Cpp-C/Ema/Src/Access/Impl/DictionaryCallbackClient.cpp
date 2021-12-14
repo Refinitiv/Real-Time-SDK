@@ -247,6 +247,12 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor*,
 {
 	RsslRDMDictionaryMsg* pDictionaryMsg = pEvent->pRDMDictionaryMsg;
 
+	Channel* pChannel = ((Channel*)pRsslReactorChannel->userSpecPtr);
+	if (pChannel->getParentChannel() != NULL)
+	{
+		pChannel = pChannel->getParentChannel();
+	}
+
 	if ( !pDictionaryMsg )
 	{
 		_ommBaseImpl.closeChannel( pRsslReactorChannel );
@@ -257,7 +263,7 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor*,
 
 			EmaString temp( "Received event without RDMDictionary message" );
 			temp.append( CR ).append( "Channel " ).append( CR )
-			.append( static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->toString() ).append( CR )
+			.append( pChannel->toString() ).append( CR )
 			.append( "RsslChannel " ).append( ptrToStringAsHex( pError->rsslError.channel ) ).append( CR )
 			.append( "Error Id " ).append( pError->rsslError.rsslErrorId ).append( CR )
 			.append( "Internal sysError " ).append( pError->rsslError.sysError ).append( CR )
@@ -287,7 +293,7 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor*,
 				EmaString temp( "RDMDictionary stream was closed with refresh message" );
 				temp.append( CR )
 				.append( "Channel " ).append( CR )
-				.append( static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->toString() ).append( CR )
+				.append( pChannel->toString() ).append( CR )
 				.append( "Reason " ).append( tempState );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace() );
 			}
@@ -302,7 +308,7 @@ RsslReactorCallbackRet ChannelDictionary::processCallback( RsslReactor*,
 
 				EmaString temp( "RDMDictionary stream state was changed to suspect with refresh message" );
 				temp.append( CR ).append( "Channel " ).append( CR )
-				.append( static_cast<Channel*>( pRsslReactorChannel->userSpecPtr )->toString() ).append( CR )
+				.append( pChannel->toString() ).append( CR )
 				.append( "Reason " ).append( tempState );
 				_ommBaseImpl.getOmmLoggerClient().log( _clientName, OmmLoggerClient::WarningEnum, temp.trimWhitespace() );
 			}

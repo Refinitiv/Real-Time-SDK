@@ -33,6 +33,12 @@ class Channel : public ListLinks< Channel >
 {
 public :
 
+	enum ReactorChannelType
+	{
+		NORMAL,
+		WARM_STANDBY,
+	};
+
 	enum ChannelState
 	{
 		ChannelDownEnum = 0,
@@ -41,7 +47,7 @@ public :
 		ChannelReadyEnum
 	};
 
-	static Channel* create( OmmBaseImpl&, const EmaString&, RsslReactor* );
+	static Channel* create( OmmBaseImpl&, const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL);
 	static void destroy( Channel*& );
 
 	const EmaString& getName() const;
@@ -51,8 +57,9 @@ public :
 	RsslReactorChannel* getRsslChannel() const;
 	Channel& setRsslChannel( RsslReactorChannel* );
 
-	RsslSocket getRsslSocket() const;
-	Channel& setRsslSocket( RsslSocket );
+	Channel& clearRsslSocket();
+	EmaVector< RsslSocket >& getRsslSocket() const;
+	Channel& addRsslSocket( RsslSocket );
 
 	ChannelState getChannelState() const;
 	Channel& setChannelState( ChannelState );
@@ -70,11 +77,16 @@ public :
 
 	bool operator==( const Channel& );
 
+	ReactorChannelType getReactorChannelType() const;
+
+	void setParentChannel(Channel* channel);
+
+	Channel* getParentChannel() const;
+
 private :
 
 	EmaString				_name;
 	mutable EmaString		_toString;
-	RsslSocket				_rsslSocket;
 	RsslReactor*			_pRsslReactor;
 	RsslReactorChannel*		_pRsslChannel;
 	ChannelState			_state;
@@ -82,8 +94,11 @@ private :
 	Dictionary*				_pDictionary;
 	EmaVector< Directory* >	_directoryList;
 	mutable bool			_toStringSet;
+	EmaVector< RsslSocket >* _pRsslSocketList;
+	ReactorChannelType		_reactorChannelType;
+	Channel*				_pParentChannel;
 		
-	Channel( const EmaString&, RsslReactor* );
+	Channel( const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL);
 	virtual ~Channel();
 
 	Channel();
@@ -106,17 +121,18 @@ public :
 
 	Channel* getChannel( const RsslReactorChannel* ) const;
 
-	Channel* getChannel( RsslSocket ) const;
-
 	UInt32 size() const;
 
 	RsslReactorChannel* operator[]( UInt32 );
 
 	Channel* front() const;
 
+	void removeAllChannel();
+
 private :
 
 	EmaList< Channel* >			_list;
+	EmaList< Channel* >			_deleteList;
 
 	ChannelList( const ChannelList& );
 	ChannelList& operator=( const ChannelList& );
@@ -133,6 +149,8 @@ public :
 	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
 	void initialize( RsslRDMLoginRequest*, RsslRDMDirectoryRequest*, RsslReactorOAuthCredential* );
+
+	Channel* channelConfigToReactorConnectInfo( ChannelConfig* , RsslReactorConnectInfo*, EmaString&);
 
 	void removeChannel( RsslReactorChannel* );
 

@@ -14,7 +14,7 @@ using namespace refinitiv::ema::rdm;
 void AppClient::processLoginRequest(const ReqMsg& reqMsg, const OmmProviderEvent& event)
 {
 	event.getProvider().submit(RefreshMsg().domainType(MMT_LOGIN).name(reqMsg.getName()).nameType(USER_NAME).complete().
-		attrib(ElementList().complete()).solicited(true).state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Login accepted"),
+		attrib(ElementList().addUInt("SupportStandby", 1).complete()).solicited(true).state(OmmState::OpenEnum, OmmState::OkEnum, OmmState::NoneEnum, "Login accepted"),
 		event.getHandle());
 }
 

@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.49_RealTimeDistributionSystem_21.81		09/23/2021
-!	* Modified 09/23/2021 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.49.
+!   Version	 4.20.50_RealTimeDistributionSystem_21.91		11/02/2021
+!	* Modified 11/02/2021 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.50.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.49_RealTimeDistributionSystem
+!   Version: 4.20.50_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.49
-!tag Build     1
-!tag Date      28-Jul-2021
+!tag Version   4.20.50
+!tag Build     9
+!tag Date      21-Oct-2021
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -19937,8 +19937,14 @@ TRD_SES_ID "TRD SESSION ID"      7166  NULL        INTEGER            15  INT64 
 !
 ! Session ID field for the last eligible trades.
 !
-PRE_INT288 "PRED INTEGER 288"    7167  NULL        INTEGER            15  INT64            6
-PRE_INT289 "PRED INTEGER 289"    7168  NULL        INTEGER            15  INT64            6
+BIN_TRDVOL "BUYIN TRD VOL"       7167  NULL        INTEGER            15  INT64            6
+!
+! Volume of the last buy-in trade
+!
+BIN_NUMMOV "BUYIN NUM MOVES"     7168  NULL        INTEGER            15  INT64            6
+!
+! Number of buy-in trades
+!
 PRE_INT290 "PRED INTEGER 290"    7169  NULL        INTEGER            15  INT64            6
 PRE_INT291 "PRED INTEGER 291"    7170  NULL        INTEGER            15  INT64            6
 PRE_INT292 "PRED INTEGER 292"    7171  NULL        INTEGER            15  INT64            6
@@ -22227,7 +22233,7 @@ PCTS_SISA  "PCT SAL SINST SAGY"  7901  NULL        PRICE              17  REAL64
 !
 HST_AVGPRC "HST AVE PRC"         7902  NULL        PRICE              17  REAL64           7
 !
-! Previous Day's average price, AVERG_PRC.
+! Previous Day's average price.
 !
 PCTCHG_9M  "PCT CHNG 9 MON"      7903  NULL        PRICE              17  REAL64           7
 !
@@ -24512,7 +24518,10 @@ OBSV_DT_N  "NATIVE OBSV DT CD"   8607  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Native observation date code.
 !
-PRE_16T041 "PRED 16 TXT 041"     8608  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+RFQ_COND_N "RFQ COND NATIVE"     8608  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Native Condition code associated with the most recent RFQ update.
+!
 PRE_16T042 "PRED 16 TXT 042"     8609  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T043 "PRED 16 TXT 043"     8610  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T044 "PRED 16 TXT 044"     8611  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -26767,7 +26776,7 @@ OBSV_DATE  "OBSERVATION DATE"    9378  NULL        DATE               11  DATE  
 ! Observation Date.
 !
 FIX_DATE2  "FIXING DATE 2"       9379  FIX_DATE3   DATE               11  DATE             4
-FIX_DATE3  "FIXING DATE 3"       9380  NULL        DATE               11  DATE             4
+FIX_DATE3  "FIXING DATE 3"       9380  FIX_DATE4   DATE               11  DATE             4
 !
 ! The date fixing value is valid for.
 !
@@ -26820,10 +26829,19 @@ SC_LOW_DT  "SEC LOW DATE"        9393  NULL        DATE               11  DATE  
 !
 ! Date of the secondary lowest trade price of the day in SEC_LOW FID 959.
 !
-PRE_DT283  "PRED DATE 283"       9394  NULL        DATE               11  DATE             4
-PRE_DT284  "PRED DATE 284"       9395  NULL        DATE               11  DATE             4
-PRE_DT285  "PRED DATE 285"       9396  NULL        DATE               11  DATE             4
-PRE_DT286  "PRED DATE 286"       9397  NULL        DATE               11  DATE             4
+RFQ_DATE   "RFQ DATE"            9394  NULL        DATE               11  DATE             4
+!
+! Date associated with the last Request for Quote (RFQ) request/response.
+!
+FIX_DATE4  "FIXING DATE 4"       9395  FIX_DATE5   DATE               11  DATE             4
+FIX_DATE5  "FIXING DATE 5"       9396  NULL        DATE               11  DATE             4
+!
+! The date fixing value is valid for.
+!
+BUYIN_DATE "BUYIN TRD DT"        9397  NULL        DATE               11  DATE             4
+!
+! Date of the last buy-in trade
+!
 PRE_DT287  "PRED DATE 287"       9398  NULL        DATE               11  DATE             4
 PRE_DT288  "PRED DATE 288"       9399  NULL        DATE               11  DATE             4
 PRE_DT289  "PRED DATE 289"       9400  NULL        DATE               11  DATE             4
@@ -27906,7 +27924,7 @@ OPEN_BYLD  "OPEN BID YIELD"     10004  NULL        PRICE              17  REAL64
 !
 ! The opening bid yield of the day
 !
-FIXING_3   "FIXING 3"           10005  NULL        PRICE              17  REAL64           7
+FIXING_3   "FIXING 3"           10005  FIXING_4    PRICE              17  REAL64           7
 !
 ! Fixing Price
 !
@@ -31454,27 +31472,87 @@ ALT_ASKCLS "ALT CLOSE ASK"      10984  NULL        PRICE              17  REAL64
 !
 ! Alternative Ask Close.
 !
-PRERL1994  "PRED REAL 1994"     10985  NULL        PRICE              17  REAL64           7
-PRERL1995  "PRED REAL 1995"     10986  NULL        PRICE              17  REAL64           7
-PRERL1996  "PRED REAL 1996"     10987  NULL        PRICE              17  REAL64           7
-PRERL1997  "PRED REAL 1997"     10988  NULL        PRICE              17  REAL64           7
-PRERL1998  "PRED REAL 1998"     10989  NULL        PRICE              17  REAL64           7
-PRERL1999  "PRED REAL 1999"     10990  NULL        PRICE              17  REAL64           7
-PRERL2000  "PRED REAL 2000"     10991  NULL        PRICE              17  REAL64           7
-PRERL2001  "PRED REAL 2001"     10992  NULL        PRICE              17  REAL64           7
-PRERL2002  "PRED REAL 2002"     10993  NULL        PRICE              17  REAL64           7
-PRERL2003  "PRED REAL 2003"     10994  NULL        PRICE              17  REAL64           7
-PRERL2004  "PRED REAL 2004"     10995  NULL        PRICE              17  REAL64           7
-PRERL2005  "PRED REAL 2005"     10996  NULL        PRICE              17  REAL64           7
-PRERL2006  "PRED REAL 2006"     10997  NULL        PRICE              17  REAL64           7
-PRERL2007  "PRED REAL 2007"     10998  NULL        PRICE              17  REAL64           7
-PRERL2008  "PRED REAL 2008"     10999  NULL        PRICE              17  REAL64           7
-PRERL2009  "PRED REAL 2009"     11000  NULL        PRICE              17  REAL64           7
-PRERL2010  "PRED REAL 2010"     11001  NULL        PRICE              17  REAL64           7
-PRERL2011  "PRED REAL 2011"     11002  NULL        PRICE              17  REAL64           7
-PRERL2012  "PRED REAL 2012"     11003  NULL        PRICE              17  REAL64           7
-PRERL2013  "PRED REAL 2013"     11004  NULL        PRICE              17  REAL64           7
-PRERL2014  "PRED REAL 2014"     11005  NULL        PRICE              17  REAL64           7
+RE_AUC_RFP "RE AUC REF PRC"     10985  NULL        PRICE              17  REAL64           7
+!
+! Random-end auction reference price.
+!
+IND_AUC_HI "IND AUC PRC HIGH"   10986  NULL        PRICE              17  REAL64           7
+!
+! Highest indicative auction price during an auction session.
+!
+IND_AUC_LO "IND AUC PRC LOW"    10987  NULL        PRICE              17  REAL64           7
+!
+! Lowest indicative auction price during an auction session.
+!
+IND_AUC_DR "IND AUC DS RTO"     10988  NULL        PRICE              17  REAL64           7
+!
+! Indicative auction price disparate ratio.
+!
+IND_AH_DR  "IND AUC HI DS RTO"  10989  NULL        PRICE              17  REAL64           7
+!
+! Indicative auction high disparate ratio.
+!
+IND_AL_DR  "IND AUC LO DS RTO"  10990  NULL        PRICE              17  REAL64           7
+!
+! Indicative auction low disparate ratio.
+!
+IV_RANK    "MID IV RANK"        10991  NULL        PRICE              17  REAL64           7
+!
+! Implied Volatility Rank.
+!
+IV_PCTILE  "MID IV PCTILE"      10992  NULL        PRICE              17  REAL64           7
+!
+! Implied Volatility Percentile.
+!
+CONCESSION "CONCESSION"         10993  NULL        PRICE              17  REAL64           7
+!
+! Selling concession.
+!
+COMMISSION "COMMISSION"         10994  NULL        PRICE              17  REAL64           7
+!
+! Buying commission.
+!
+ACVOL_RTO  "ACVOL RATIO"        10995  NULL        PRICE              17  REAL64           7
+!
+! Accumulated Volume Ratio.
+!
+OPINT_RTO  "OPN INT RATIO"      10996  NULL        PRICE              17  REAL64           7
+!
+! Open Interest Ratio.
+!
+RBD_CNTR_P "REBASED CNTR PRC"   10997  NULL        PRICE              17  REAL64           7
+!
+! Rebased Contract Price.
+!
+FIXING_4   "FIXING 4"           10998  FIXING_5    PRICE              17  REAL64           7
+FIXING_5   "FIXING 5"           10999  NULL        PRICE              17  REAL64           7
+!
+! Fixing Price
+!
+BIN_TRDPRC "BUYIN TRD PRC"      11000  NULL        PRICE              17  REAL64           7
+!
+! Last buy-in trade price
+!
+BUYIN_BID  "BUYIN BID"          11001  NULL        PRICE              17  REAL64           7
+!
+! Buy-in bid
+!
+BUYIN_ASK  "BUYIN ASK"          11002  NULL        PRICE              17  REAL64           7
+!
+! Buy-in ask
+!
+BUYIN_BSIZ "BUYIN BID SIZE"     11003  NULL        PRICE              17  REAL64           7
+!
+! Buy-in bid size
+!
+BUYIN_ASIZ "BUYIN ASK SIZE"     11004  NULL        PRICE              17  REAL64           7
+!
+! Buy-in ask size
+!
+OA_YLD     "OPT ADJ YIELD"      11005  NULL        PRICE              17  REAL64           7
+!
+! Option Adjusted Yield.
+!
 PRERL2015  "PRED REAL 2015"     11006  NULL        PRICE              17  REAL64           7
 PRERL2016  "PRED REAL 2016"     11007  NULL        PRICE              17  REAL64           7
 PRERL2017  "PRED REAL 2017"     11008  NULL        PRICE              17  REAL64           7
@@ -32237,7 +32315,10 @@ ODD_B_TN   "ODD BID TONE"       11664  NULL        ALPHANUMERIC        4  RMTES_
 !
 ! Odd Lot bid price qualifier.
 !
-PRE_4TX108 "PRED 4 TXT 108"     11665  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+BINSALCOND "BUYIN SALE COND"    11665  NULL        ALPHANUMERIC        4  RMTES_STRING     4
+!
+! Native trade condition code of the last buy-in trade
+!
 PRE_4TX109 "PRED 4 TXT 109"     11666  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX110 "PRED 4 TXT 110"     11667  NULL        ALPHANUMERIC        4  RMTES_STRING     4
 PRE_4TX111 "PRED 4 TXT 111"     11668  NULL        ALPHANUMERIC        4  RMTES_STRING     4
@@ -35119,7 +35200,10 @@ ORTS_SC    "OUTRIGHT PRC SCALE" 13107  NULL        ENUMERATED    3 ( 8 )  ENUM  
 !
 ! Scaling factor associated with the instrument outright price(s).
 !
-PRE_1ET407 "PRED 1 ET 407"      13108  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+PI_QSIDE   "PRC IMP QTE SIDE"   13108  NULL        ENUMERATED    3 ( 3 )  ENUM             1
+!
+! Price Improvement Quote Side
+!
 PRE_1ET408 "PRED 1 ET 408"      13109  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET409 "PRED 1 ET 409"      13110  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET410 "PRED 1 ET 410"      13111  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -36228,8 +36312,15 @@ FIXING_TP5 "FIXING TYPE 5"      13616  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Fixing type.
 !
-PRE_2ET296 "PRED 2 ET 296"      13617  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET297 "PRED 2 ET 297"      13618  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+INPUT_ZONE "INPUT ZONE"         13617  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! The geographic zone, an area/country/region, from where the raw material input 
+! originates.
+!
+CMD_TYPE   "COMMOD TYPE"        13618  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Describes the type of commodity.
+!
 PRE_2ET298 "PRED 2 ET 298"      13619  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET299 "PRED 2 ET 299"      13620  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET300 "PRED 2 ET 300"      13621  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -38417,7 +38508,7 @@ BASEPRC_NS "BASE PRC TM NS"     14685  NULL        INTEGER            15  TIME  
 ! The time of the last update to the field, BASE_PRC1.
 !
 FIX_TM2_NS "FIXING TM2 NS"      14686  FIX_TM3_NS  INTEGER            15  TIME             8
-FIX_TM3_NS "FIXING TM3 NS"      14687  NULL        INTEGER            15  TIME             8
+FIX_TM3_NS "FIXING TM3 NS"      14687  FIX_TM4_NS  INTEGER            15  TIME             8
 !
 ! The time fixing value is valid for.
 !
@@ -38442,12 +38533,27 @@ SC_LOW_NS  "SEC LOW NS"         14693  NULL        INTEGER            15  TIME  
 !
 ! Secondary low time.
 !
-PRE_264_NS "PRED TIME NS 264"   14694  NULL        INTEGER            15  TIME             8
-PRE_265_NS "PRED TIME NS 265"   14695  NULL        INTEGER            15  TIME             8
-PRE_266_NS "PRED TIME NS 266"   14696  NULL        INTEGER            15  TIME             8
-PRE_267_NS "PRED TIME NS 267"   14697  NULL        INTEGER            15  TIME             8
-PRE_268_NS "PRED TIME NS 268"   14698  NULL        INTEGER            15  TIME             8
-PRE_269_NS "PRED TIME NS 269"   14699  NULL        INTEGER            15  TIME             8
+RFQ_RSP_NS "RFQ RSP NS"         14694  NULL        INTEGER            15  TIME             8
+!
+! RFQ response cut-off time, aka. Sharp Time.
+!
+RFQ_ACP_NS "RFQ ACP NS"         14695  NULL        INTEGER            15  TIME             8
+!
+! RFQ acceptance cut-off time, aka. Firm Time.
+!
+FIX_TM4_NS "FIXING TM4 NS"      14696  FIX_TM5_NS  INTEGER            15  TIME             8
+FIX_TM5_NS "FIXING TM5 NS"      14697  NULL        INTEGER            15  TIME             8
+!
+! The time fixing value is valid for.
+!
+BINTIM_NS  "BUYIN TIM NS"       14698  NULL        INTEGER            15  TIME             8
+!
+! Time of the last buy-in trade
+!
+BIQTIM_NS  "BUYIN QUOTIM NS"    14699  NULL        INTEGER            15  TIME             8
+!
+! Buy-in quote time
+!
 PRE_270_NS "PRED TIME NS 270"   14700  NULL        INTEGER            15  TIME             8
 PRE_271_NS "PRED TIME NS 271"   14701  NULL        INTEGER            15  TIME             8
 PRE_272_NS "PRED TIME NS 272"   14702  NULL        INTEGER            15  TIME             8
@@ -39078,8 +39184,14 @@ SES1_VLDEC "SESS 1 VOL DEC"     15223  NULL        PRICE              17  REAL64
 !
 ! Accumulated volume for the first trading session.  With decimals.
 !
-PRE_LRL155 "PRED LRG REAL 155"  15224  NULL        PRICE              17  REAL64           8
-PRE_LRL156 "PRED LRG REAL 156"  15225  NULL        PRICE              17  REAL64           8
+BIN_TNOV   "BUYIN TRD TNOV"     15224  NULL        PRICE              17  REAL64           8
+!
+! Total buy-in turnover
+!
+ACBAMT_SUK "ACP BID AMT SUK"    15225  NULL        PRICE              17  REAL64           8
+!
+! Total Accepted Bid Amount for Sukuk.
+!
 PRE_LRL157 "PRED LRG REAL 157"  15226  NULL        PRICE              17  REAL64           8
 PRE_LRL158 "PRED LRG REAL 158"  15227  NULL        PRICE              17  REAL64           8
 PRE_LRL159 "PRED LRG REAL 159"  15228  NULL        PRICE              17  REAL64           8
@@ -39111,7 +39223,10 @@ OUTAGE_ID  "OUTAGE ID"          15250  NULL        INTEGER            15  UINT64
 !
 ! The outage ID of a refinery unit
 !
-PR_UINT082 "PRED UNS INT 082"   15251  NULL        INTEGER            15  UINT64           8
+BIN_ACVOL  "BUYIN TRD ACVOL"    15251  NULL        INTEGER            15  UINT64           8
+!
+! Accumulated buy-in trade volume
+!
 PR_UINT083 "PRED UNS INT 083"   15252  NULL        INTEGER            15  UINT64           8
 PR_UINT084 "PRED UNS INT 084"   15253  NULL        INTEGER            15  UINT64           8
 PR_UINT085 "PRED UNS INT 085"   15254  NULL        INTEGER            15  UINT64           8

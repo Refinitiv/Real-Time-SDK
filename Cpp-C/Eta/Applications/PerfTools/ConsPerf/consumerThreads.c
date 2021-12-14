@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
 */
 
 #include "consumerThreads.h"
@@ -1299,11 +1299,15 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	RsslErrorInfo rsslErrorInfo;
 	RsslRet ret = 0;
 	RsslReactorJsonConverterOptions jsonConverterOptions;
+	RsslReactorWarmStandbyGroup			reactorWarmStandbyGroup;
+	RsslReactorWarmStandbyServerInfo	standbyServerInfo;
 
 	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 	rsslClearCreateReactorOptions(&reactorOpts);
 	rsslClearReactorConnectOptions(&cOpts);
 	rsslClearReactorConnectInfo(&cInfo);
+	rsslClearReactorWarmStandbyGroup(&reactorWarmStandbyGroup);
+	rsslClearReactorWarmStandbyServerInfo(&standbyServerInfo);
 
 	/* Create an RsslReactor which will manage our channels. */
 	if (!(pConsumerThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
@@ -1327,38 +1331,113 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
 	FD_SET(pConsumerThread->pReactor->eventFd, &(pConsumerThread->readfds));
 	
-	/* Connect to RSSL server */
-	if(strlen(consPerfConfig.interfaceName)) cInfo.rsslConnectOptions.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
-
-	cInfo.rsslConnectOptions.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
-	cInfo.rsslConnectOptions.numInputBuffers = consPerfConfig.numInputBuffers;
-	cInfo.rsslConnectOptions.sysSendBufSize = consPerfConfig.sendBufSize;
-	cInfo.rsslConnectOptions.sysRecvBufSize = consPerfConfig.recvBufSize;
-	cInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
-	cInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
-	cInfo.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
-	cInfo.rsslConnectOptions.connectionType = consPerfConfig.connectionType;
-
-	if(consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET || consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	if (consPerfConfig.warmStandbyMode == RSSL_RWSB_MODE_NONE)
 	{
-		cInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
+		/* Connect to RSSL server */
+		if (strlen(consPerfConfig.interfaceName)) cInfo.rsslConnectOptions.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
+
+		cInfo.rsslConnectOptions.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
+		cInfo.rsslConnectOptions.numInputBuffers = consPerfConfig.numInputBuffers;
+		cInfo.rsslConnectOptions.sysSendBufSize = consPerfConfig.sendBufSize;
+		cInfo.rsslConnectOptions.sysRecvBufSize = consPerfConfig.recvBufSize;
+		cInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		cInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+		cInfo.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+		cInfo.rsslConnectOptions.connectionType = consPerfConfig.connectionType;
+
+		if (consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET || consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+		{
+			cInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
+		}
+
+		if (consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET ||
+			(consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED &&
+				consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+			cInfo.rsslConnectOptions.wsOpts.protocols = consPerfConfig.protocolList;
+
+		if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+		{
+			cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+			if (consPerfConfig.tlsProtocolFlags != 0)
+				cInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = consPerfConfig.tlsProtocolFlags;
+			cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = consPerfConfig.caStore;
+		}
+
+		cInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.hostName;
+		cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+
+		cInfo.rsslConnectOptions.userSpecPtr = pConsumerThread;
+		cOpts.reactorConnectionList = &cInfo;
+		cOpts.connectionCount = 1;
 	}
-
-	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || 
-		(consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && 
-		 consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET) )
-		cInfo.rsslConnectOptions.wsOpts.protocols = consPerfConfig.protocolList;
-
-	if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+	else
 	{
-		cInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
-		if (consPerfConfig.tlsProtocolFlags != 0)
-			cInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = consPerfConfig.tlsProtocolFlags;
-		cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = consPerfConfig.caStore;
-	}
+		/* Enable warm standby feature to connect to starting and standby servers */
+		if (strlen(consPerfConfig.interfaceName))
+		{
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.interfaceName = consPerfConfig.interfaceName;
+		}
 
-	cInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.hostName;
-	cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.portNo;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.numInputBuffers = consPerfConfig.numInputBuffers;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.sysSendBufSize = consPerfConfig.sendBufSize;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.sysRecvBufSize = consPerfConfig.recvBufSize;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionType = consPerfConfig.connectionType;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.startingHostName;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.startingPort;
+		reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.userSpecPtr = pConsumerThread;
+
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.guaranteedOutputBuffers = consPerfConfig.guaranteedOutputBuffers;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.numInputBuffers = consPerfConfig.numInputBuffers;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.sysSendBufSize = consPerfConfig.sendBufSize;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.sysRecvBufSize = consPerfConfig.recvBufSize;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionType = consPerfConfig.connectionType;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.address = consPerfConfig.standbyHostName;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.connectionInfo.unified.serviceName = consPerfConfig.standbyPort;
+		standbyServerInfo.reactorConnectInfo.rsslConnectOptions.userSpecPtr = pConsumerThread;
+
+		if (consPerfConfig.connectionType == RSSL_CONN_TYPE_SOCKET || consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+		{
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = consPerfConfig.tcpNoDelay;
+		}
+
+		if (consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET ||
+			(consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED &&
+				consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+		{
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = consPerfConfig.protocolList;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = consPerfConfig.protocolList;
+		}
+
+		if (consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+		{
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = consPerfConfig.encryptedConnectionType;
+
+			if (consPerfConfig.tlsProtocolFlags != 0)
+			{
+				reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = consPerfConfig.tlsProtocolFlags;
+				standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = consPerfConfig.tlsProtocolFlags;
+			}
+
+			reactorWarmStandbyGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = consPerfConfig.caStore;
+			standbyServerInfo.reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = consPerfConfig.caStore;
+		}
+
+		reactorWarmStandbyGroup.standbyServerCount = 1;
+		reactorWarmStandbyGroup.standbyServerList = &standbyServerInfo;
+		reactorWarmStandbyGroup.warmStandbyMode = consPerfConfig.warmStandbyMode;
+		cOpts.warmStandbyGroupCount = 1;
+		cOpts.reactorWarmStandbyGroupList = &reactorWarmStandbyGroup;
+	}
 
 	// set consumer role information
 	rsslClearOMMConsumerRole(&pConsumerThread->consumerRole);
@@ -1402,9 +1481,6 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	cOpts.reconnectAttemptLimit = -1;
 	cOpts.reconnectMaxDelay = 5000;
 	cOpts.reconnectMinDelay = 1000;
-	cInfo.rsslConnectOptions.userSpecPtr = pConsumerThread;
-	cOpts.reactorConnectionList = &cInfo;
-	cOpts.connectionCount = 1;
 
     if ((ret = rsslReactorConnect(pConsumerThread->pReactor, &cOpts, (RsslReactorChannelRole *)&pConsumerThread->consumerRole, &rsslErrorInfo)) < RSSL_RET_SUCCESS)
     {
@@ -2934,6 +3010,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactorChannelInfo reactorChannelInfo;
 	RsslUInt32 count;
+	RsslUInt32 index;
 
 	switch(pConnEvent->channelEventType)
 	{
@@ -2960,9 +3037,26 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
                 }
             }
 
-			/* Set file descriptor. */
-			FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
-			FD_SET(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				/* Set file descriptor. */
+				FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
+				FD_SET(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+			}
+			else
+			{
+				/* Set file descriptors for warm standby channel. */
+				FD_ZERO(&pConsumerThread->readfds);
+				FD_ZERO(&pConsumerThread->exceptfds);
+				FD_SET(pReactor->eventFd, &pConsumerThread->readfds);
+				FD_SET(pReactor->eventFd, &pConsumerThread->exceptfds);
+
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &pConsumerThread->readfds);
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &pConsumerThread->exceptfds);
+				}
+			}
 
 			if (rsslReactorGetChannelInfo(pReactorChannel, &reactorChannelInfo, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{
@@ -3024,13 +3118,31 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		}
 		case RSSL_RC_CET_FD_CHANGE:
 		{
-			/* The file descriptor representing the RsslReactorChannel has been changed.
-			 * Update our file descriptor sets. */
-			printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
-			FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->readfds));
-			FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->exceptfds));
-			FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
-			FD_SET(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				/* The file descriptor representing the RsslReactorChannel has been changed.
+				 * Update our file descriptor sets. */
+				printf("Fd change: "SOCKET_PRINT_TYPE" to "SOCKET_PRINT_TYPE"\n", pReactorChannel->oldSocketId, pReactorChannel->socketId);
+				FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->readfds));
+				FD_CLR(pReactorChannel->oldSocketId, &(pConsumerThread->exceptfds));
+				FD_SET(pReactorChannel->socketId, &(pConsumerThread->readfds));
+				FD_SET(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+			}
+			else
+			{
+				/* Set file descriptors for warm standby channel. */
+				FD_ZERO(&pConsumerThread->readfds);
+				FD_ZERO(&pConsumerThread->exceptfds);
+				FD_SET(pReactor->eventFd, &pConsumerThread->readfds);
+				FD_SET(pReactor->eventFd, &pConsumerThread->exceptfds);
+
+				for (index = 0; index < pReactorChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &pConsumerThread->readfds);
+					FD_SET(pReactorChannel->pWarmStandbyChInfo->socketIdList[index], &pConsumerThread->exceptfds);
+				}
+			}
+
 			return RSSL_RC_CRET_SUCCESS;
 		}
 		case RSSL_RC_CET_CHANNEL_DOWN:
@@ -3054,12 +3166,22 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
 			{
-				FD_CLR(pReactorChannel->socketId, &(pConsumerThread->readfds));
-				FD_CLR(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+				if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+				{
+					FD_CLR(pReactorChannel->socketId, &(pConsumerThread->readfds));
+					FD_CLR(pReactorChannel->socketId, &(pConsumerThread->exceptfds));
+				}
+				else
+				{
+					FD_ZERO(&pConsumerThread->readfds);
+					FD_ZERO(&pConsumerThread->exceptfds);
+					FD_SET(pReactor->eventFd, &pConsumerThread->readfds);
+					FD_SET(pReactor->eventFd, &pConsumerThread->exceptfds);
+				}
 			}
 
 			// only allow one connect
-			if (pConsumerThread->pDesiredService)
+			if (pConsumerThread && pConsumerThread->pDesiredService)
             {
                 shutdownThreads = RSSL_TRUE;
             }

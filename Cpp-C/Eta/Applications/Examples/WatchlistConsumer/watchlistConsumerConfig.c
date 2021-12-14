@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
 */
 
 /*
@@ -81,6 +81,8 @@ void printUsageAndExit(int argc, char **argv)
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
+			" Options for specifying starting and standby providers for Warm standby feature:\n"
+			"   [ -startingHostName <Starting Server Hostname> ] [ -startingPort <Starting Server Port> ] [ -standbyHostName <Standby Server Hostname> ] [ -standbyPort <Standby Server Port> ] [ -warmStandbyMode <login/service> ]\n"
 			"\n"
 			" Connection options for the reliable multicast connection type; all must be specified:\n"
 			"   [ -sa <Send Address> ] [ -ra <Receive Address> ] [ -sp <Send Port> ] [ -rp <Receive Port> ] [ -up <Unicast Port> ]\n"
@@ -136,7 +138,14 @@ typedef enum
 	/* Socket transport options. */
 	CFG_HAS_HOSTNAME			= 0x0200,
 	CFG_HAS_PORT				= 0x0400,
-	CFG_ALL_SOCKET_OPTS			= (CFG_HAS_HOSTNAME | CFG_HAS_PORT)
+	CFG_ALL_SOCKET_OPTS			= (CFG_HAS_HOSTNAME | CFG_HAS_PORT),
+
+	/* Warm standby options. */
+	CFG_HAS_STARTING_HOSTNAME	= 0x0800,
+	CFG_HAS_STARTING_PORT		= 0x1000,
+	CFG_HAS_STANDBY_HOSTNAME	= 0x2000,
+	CFG_HAS_STANDBY_PORT		= 0x4000,
+	CFG_ALL_WMSTANDBY_OPTS		= (CFG_HAS_STARTING_HOSTNAME | CFG_HAS_STARTING_PORT | CFG_HAS_STANDBY_HOSTNAME | CFG_HAS_STANDBY_PORT)
 
 } ConfigConnOptions;
 
@@ -144,6 +153,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 {
 	int i;
 	int configFlags = 0;
+	int wsConfigFlags = 0;
+	char warmStandbyMode[255];
 
 	memset(&watchlistConsumerConfig, 0, sizeof(WatchlistConsumerConfig));
 
@@ -186,6 +197,11 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
+
+	snprintf(warmStandbyMode, 255, "login");
+
+	/* Set login based warm standby as default. */
+	watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
 
 	for(i = 1; i < argc; ++i)
 	{
@@ -262,6 +278,45 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.port, 255, "%s", argv[i]);
 			configFlags |= CFG_HAS_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-startingHostName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.startingHostName, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STARTING_HOSTNAME;
+		}
+		else if (0 == strcmp(argv[i], "-startingPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.startingPort, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STARTING_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-standbyHostName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.standbyHostName, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STANDBY_HOSTNAME;
+		}
+		else if (0 == strcmp(argv[i], "-standbyPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.standbyPort, 255, "%s", argv[i]);
+			wsConfigFlags |= CFG_HAS_STANDBY_PORT;
+		}
+		else if (0 == strcmp(argv[i], "-warmStandbyMode"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(warmStandbyMode, 255, "%s", argv[i]);
+
+			if (0 == strcmp(argv[i], "login"))
+				watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+			else if (0 == strcmp(argv[i], "service"))
+				watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_SERVICE_BASED;
+			else
+			{
+				printf("Unknown warm standby mode specified: %s\n", argv[i]);
+				printUsageAndExit(argc, argv);
+			}
 		}
 		else if (0 == strcmp(argv[i], "-ph"))
 		{
@@ -524,6 +579,12 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 	}
 
+	/* Checks whether warm standby options are specified. */
+	if (wsConfigFlags != CFG_ALL_WMSTANDBY_OPTS)
+	{
+		watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_NONE;
+	}
+
 	if (!watchlistConsumerConfig.enableSessionMgnt)
 	{
 		if (strlen(watchlistConsumerConfig.hostName) == 0)
@@ -601,11 +662,28 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			printUsageAndExit(argc, argv);
 		}
 
-		printf( "Config:\n"
+		if (watchlistConsumerConfig.warmStandbyMode == RSSL_RWSB_MODE_NONE)
+		{
+			printf("Config:\n"
 				"  Hostname: %s\n"
 				"  Port: %s\n",
 				watchlistConsumerConfig.hostName,
 				watchlistConsumerConfig.port);
+		}
+		else
+		{
+			printf("Config:\n"
+				"  Warm standby mode: %s\n"
+				"  Starting Hostname: %s\n"
+				"  Starting Port: %s\n"
+				"  Standby Hostname: %s\n"
+				"  Standby Port: %s\n",
+				warmStandbyMode,
+				watchlistConsumerConfig.startingHostName,
+				watchlistConsumerConfig.startingPort,
+				watchlistConsumerConfig.standbyHostName,
+				watchlistConsumerConfig.standbyPort);
+		}
 	}
 
 	if (watchlistConsumerConfig.itemCount == 0 && !watchlistConsumerConfig.isTunnelStreamMessagingEnabled)

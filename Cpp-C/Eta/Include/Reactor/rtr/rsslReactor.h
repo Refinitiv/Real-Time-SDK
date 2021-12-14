@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2021 Refinitiv. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_H
@@ -460,6 +460,79 @@ typedef enum
 } RsslReactorChannelStatisticFlags;
 
 /**
+ * @brief Configuration options for selecting a list of services to support the per service based warm standby feature.
+ * @see RsslReactorWarmStandbyServerInfo
+ */
+typedef struct
+{
+    RsslUInt32                  serviceNameCount;   /*!< Number of service names to provide active services for a warm standby server. */
+    RsslBuffer*                 serviceNameList;    /*!< Array of service names to provide active services for a warm standby server. */
+
+}RsslReactorPerServiceBasedOptions;
+
+/**
+ * @brief Clears an RsslReactorPerServiceBasedOptions object.
+ * @see RsslReactorPerServiceBasedOptions
+ */
+RTR_C_INLINE void rsslClearReactorPerServiceBasedOptions(RsslReactorPerServiceBasedOptions* pPerServiceBasedOptions)
+{
+    memset(pPerServiceBasedOptions, 0, sizeof(RsslReactorPerServiceBasedOptions));
+}
+
+/**
+ * @brief Enumerated types indicating warm standby modes
+ * @see RsslReactorWarmStandbyGroup
+ */
+typedef enum
+{
+	RSSL_RWSB_MODE_NONE = 0,	/*!< Unknown warm standby mode. */
+	RSSL_RWSB_MODE_LOGIN_BASED = 1, /*!< Per login based warm standby mode. */
+	RSSL_RWSB_MODE_SERVICE_BASED = 2,  /*!< Per service based warm standby mode. */
+}
+RsslReactorWarmStandbyMode;
+
+/**
+ * @brief Configuration options for creating a Warm Standby server information.
+ * @see RsslReactorWarmStandbyGroup
+ */
+typedef struct
+{
+	RsslReactorConnectInfo			reactorConnectInfo;
+
+	RsslReactorPerServiceBasedOptions  perServiceBasedOptions; /*!< Per service based option for selecting a list of active services for this server.
+															   The first connected server provides active services if this option is not configued in
+															   and servers. */
+} RsslReactorWarmStandbyServerInfo;
+
+RTR_C_INLINE void rsslClearReactorWarmStandbyServerInfo(RsslReactorWarmStandbyServerInfo *pWarmStandByServerInfo)
+{
+	rsslClearReactorConnectInfo(&pWarmStandByServerInfo->reactorConnectInfo);
+	rsslClearReactorPerServiceBasedOptions(&pWarmStandByServerInfo->perServiceBasedOptions);
+}
+
+/**
+ * @brief Configuration options for creating a Warm Standby group.
+ * @see rsslReactorConnect
+ */
+typedef struct
+{
+	RsslReactorWarmStandbyServerInfo      startingActiveServer; /*!< The active server to which client should to connect.
+                                                           Reactor chooses a server from the standByServerList instead if this parameter is not configured.*/
+	RsslReactorWarmStandbyServerInfo*     standbyServerList;    /*!< A list of standby servers. */
+    RsslUInt32                            standbyServerCount;   /*!< The number of standby servers. */
+	RsslReactorWarmStandbyMode        warmStandbyMode; /*!< Specifies a warm standby mode. */
+
+}RsslReactorWarmStandbyGroup;
+
+RTR_C_INLINE void rsslClearReactorWarmStandbyGroup(RsslReactorWarmStandbyGroup *pWarmStandByGroup)
+{
+	rsslClearReactorWarmStandbyServerInfo(&pWarmStandByGroup->startingActiveServer);
+    pWarmStandByGroup->standbyServerList = NULL;
+    pWarmStandByGroup->standbyServerCount = 0;
+    pWarmStandByGroup->warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+}
+
+/**
  * @brief Configuration options for creating an RsslReactor client-side connection.
  * @see rsslReactorConnect
  */
@@ -474,7 +547,12 @@ typedef struct
 	RsslInt32				reconnectMaxDelay;		/*!< The maximum time the RsslReactor will wait before attempting to reconnect, in milliseconds. */
 
 	RsslReactorConnectInfo	*reactorConnectionList;	/*!< A list of connections.  Each connection in the list will be tried with each reconnection attempt. */
+ 
 	RsslUInt32				connectionCount;		/*!< The number of connections in reactorConnectionList. */
+
+	RsslReactorWarmStandbyGroup *reactorWarmStandbyGroupList; /*!< A list of warmstandby group for the warmstandby feature.
+                                                                   Reactor always uses this list if specified and then moves next to the reactorConnectionList option. */
+    RsslUInt32				warmStandbyGroupCount;  /*!< The number of warmstandby groups in reactorWarmStandByGroupList. */
 
 	RsslUInt32				connectionDebugFlags;	/*!< Set of RsslDebugFlags for calling the user-set debug callbacks.  These callbacks should be set with rsslSetDebugFunctions.  If set to 0, the debug callbacks will not be used. */
 
@@ -495,6 +573,8 @@ RTR_C_INLINE void rsslClearReactorConnectOptions(RsslReactorConnectOptions *pOpt
 	pOpts->reconnectAttemptLimit = 0;
 	pOpts->reactorConnectionList = NULL;
 	pOpts->connectionCount = 0;
+    pOpts->reactorWarmStandbyGroupList = NULL;
+    pOpts->warmStandbyGroupCount = 0;
 	pOpts->connectionDebugFlags = 0;
 	pOpts->statisticFlags = RSSL_RC_ST_NONE;
 }

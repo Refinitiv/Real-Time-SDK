@@ -139,6 +139,13 @@
 			<Channel value="C3"/>
 			<ChannelSet value="CS2"/>
 		</Consumer>
+		<Consumer>
+			<Name value="Consumer_8"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+			<Logger value="Logger_1"/>
+			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="1"/>
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -754,6 +761,38 @@
 	
 </DirectoryGroup>
 
+<WarmStandbyServerInfoGroup>
+	<WarmStandbyServerInfoList>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_1"/>
+			<Channel value="Channel_1"/>
+			<PerServiceNameSet value="DIRECT_FEED"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_2"/>
+			<Channel value="Channel_4"/>
+			<PerServiceNameSet value="DIRECT_FEED2, DIRECT_FEED3"/>
+		</WarmStandbyServerInfo>
+	</WarmStandbyServerInfoList>
+</WarmStandbyServerInfoGroup>
+
+<WarmStandbyGroup>
+	<WarmStandbyList>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_1"/>
+			<StartingActiveServer value="Server_Info_1"/>
+			<StandbyServerSet value="Server_Info_2"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_2"/>
+			<StartingActiveServer value="Server_Info_2"/>
+			<StandbyServerSet value="Server_Info_1"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+	</WarmStandbyList>
+</WarmStandbyGroup>
+
 <LoggerGroup>
 	<LoggerList>
 		<Logger>
@@ -767,11 +806,8 @@
 
 			<!-- loggerSeverity is optional: defaulted to "Success" -->
 			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg -->
-			<LoggerSeverity dataType="Enum" value="LoggerSeverity::Verbose"/>
-
-			<!-- numberOfLogFiles is optional: defaulted to 0 -->
+			<LoggerSeverity value="LoggerSeverity::Verbose"/>
 			<NumberOfLogFiles value="42"/>
-			<!-- maxLogFileSize is optional: defaulted to 0 -->
 			<MaxLogFileSize value="84000"/>
 		</Logger>
 		<Logger>

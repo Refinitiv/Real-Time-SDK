@@ -16,7 +16,7 @@
 
 #include "rtr/rsslTransport.h"
 #include "rtr/rwfNet.h"
-
+#include "rtr/rsslReactor.h"
 
 #define DEFAULT_ACCEPT_DIR_MSG_WITHOUT_MIN_FILTERS      false
 #define DEFAULT_ACCEPT_MSG_SAMEKEY_BUT_DIFF_STREAM      false
@@ -124,7 +124,8 @@
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  (RWF_MAX_16)
 #define DEFAULT_ENABLE_RTT							  false
 #define DEFAULT_REST_ENABLE_LOG						  false
-
+#define DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG		  false;
+#define DEFAULT_WSB_MODE							  RSSL_RWSB_MODE_LOGIN_BASED
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -142,6 +143,7 @@ namespace ema {
 namespace access {
 
 class Channel;
+class WarmStandbyChannelConfig;
 
 class ChannelConfig
 {
@@ -503,7 +505,10 @@ public:
 
 	ChannelConfig* findChannelConfig( const Channel* pChannel );
 	static bool findChannelConfig( EmaVector< ChannelConfig* >&, const EmaString&, unsigned int& );
+	static bool findWsbChannelConfig(EmaVector< WarmStandbyChannelConfig* >& cfgWsbChannelSet, const EmaString& wsbChannelName, unsigned int& pos);
 	void clearChannelSet();
+	void clearWSBChannelSet();
+	void clearChannelSetForWSB();
 	const EmaString& defaultServiceName() { return _defaultServiceName; }
 	EmaString configTrace();
 
@@ -525,6 +530,8 @@ public:
 	DictionaryConfig		dictionaryConfig;
 
 	EmaVector< ChannelConfig* >		configChannelSet;
+	EmaVector< WarmStandbyChannelConfig* >  configWarmStandbySet;
+	EmaVector< ChannelConfig* >		configChannelSetForWSB;
 
 	RsslRDMLoginRequest*	pRsslRDMLoginReq;
 	RsslRequestMsg*			pRsslDirectoryRequestMsg;
@@ -600,6 +607,48 @@ protected:
 
 	ServiceDictionaryConfigHash			_serviceDictionaryConfigHash;
 	EmaList<ServiceDictionaryConfig*>	_serviceDictionaryConfigList;
+};
+
+class WarmStandbyServerInfoConfig
+{
+public:
+
+	EmaString						name;
+	ChannelConfig*					channelConfig;
+	EmaVector< EmaString* >		perServiceNameSet;
+
+	WarmStandbyServerInfoConfig(const EmaString& name);
+	virtual ~WarmStandbyServerInfoConfig();
+
+	void clear();
+
+private:
+
+	WarmStandbyServerInfoConfig();
+};
+
+class WarmStandbyChannelConfig
+{
+public:
+
+	enum WarmStandbyMode
+	{
+		LoginBasedEnum = RSSL_RWSB_MODE_LOGIN_BASED,
+		ServiceBasedEnum = RSSL_RWSB_MODE_SERVICE_BASED
+	};
+
+	WarmStandbyChannelConfig(const EmaString& name);
+	virtual ~WarmStandbyChannelConfig();
+
+	void clear();
+
+	EmaString										name;
+	WarmStandbyServerInfoConfig*					startingActiveServer;
+	EmaVector<WarmStandbyServerInfoConfig*>		standbyServerSet;
+	bool									downloadConnectionConfig;
+	WarmStandbyMode							warmStandbyMode;
+private:
+	WarmStandbyChannelConfig();
 };
 
 }

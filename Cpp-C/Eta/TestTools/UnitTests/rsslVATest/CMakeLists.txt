@@ -13,6 +13,7 @@ set(rsslVATestSrcFiles
 	watchlistMiscUnitTests.cpp
 	watchlistRecoveryUnitTests.cpp
 	watchlistSymbolListUnitTests.cpp
+	watchlistWarmStandbyUnitTests.cpp
 	watchlistTestFramework.cpp
 	
 	#headers

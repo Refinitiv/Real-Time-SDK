@@ -83,6 +83,7 @@ public:
 #ifdef USING_POLL
   void removeFd( int );
   int addFd( int, short events = POLLIN );
+  void removeAllFd();
 #endif
 
 protected:
