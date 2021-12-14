@@ -883,3 +883,22 @@ delete service after sending 9 updates.
 ====
 Series100Consumer102-Mix-001: Alters Series100Example102__MarketPrice__Snapshot. Requests two
 different services with use of one OmmConsumer. Two market data sets hould be returned.
+
+Module:  Emajconsperf-Rto
+----------------------------------
+emajconsperf-Rto-001
+    Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
+    Alters ConsPerfConfig.java, ConsumerThread.java to connect to RTO, requires CLI credentials.
+    Run emajConsPerf. Sample Cmd:
+
+    # encrypted
+    ./gradlew runEMAPerfConsumer --args="-serviceName ELEKTRON_DD \
+           -uname <username> -password <password> -clientId <clientId> \
+             -tickRate 1000 -steadyStateTime 300 \
+             -itemFile 350k.xml -consumerName Perf_Consumer_1"
+
+    # encrypted websocket json rssl.json.v2
+    ./gradlew runEMAPerfConsumer --args="-serviceName ELEKTRON_DD \
+           -uname <username> -password <password> -clientId <clientId> \
+             -tickRate 1000 -steadyStateTime 300 \
+             -itemFile 350k.xml -consumerName Perf_Consumer_WSJSON_1"
