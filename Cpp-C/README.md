@@ -27,7 +27,8 @@ External modules used by this version of RTSDK C/C++:
 	zlib			1.2.11
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
-- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build OpenSSL, and we recommend that all deployed versions of OpenSSL are patched to the latest version available. 
+- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build OpenSSL, and we recommend that all installed versions of OpenSSL are patched to the latest version available. 
+- Check installation guide for details regarding including external dependencies for build 
    
 
 ### Supported Platforms, OSs, Compilers
@@ -142,8 +143,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.2
-- ADH 3.5.2
+- ADS 3.5.3
+- ADH 3.5.3
 - DACS 7.6
 
 # Documentation
@@ -167,7 +168,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.14 or greater.
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.14 or greater. Please note that gtest version included for unit testing is not compatible with later versions of CMake such as 3.21.4; this will be addressed in a future release.
 
 Refer to the RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
 

@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.6.3.L2
+    libema.lib                ema3.6.4.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.6.3.L2
-    libema.dll                ema3.6.3.L2
+    libema.lib                ema3.6.4.L1
+    libema.dll                ema3.6.4.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.6.3.L2
+    libema.a                    ema3.6.4.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.6.3.L2          libema.so.12          ema3.6.3.L2
+    libema.so.3.6.4.L1          libema.so.12          ema3.6.4.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -146,7 +146,7 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 - ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up, the dictionary will not be downloaded properly.
 
-- EMA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr_json2/rssl_json protocol. This is a limitation of the simplied JSON protocol.
+- EMA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr_json2/rssl.json.v2 protocol. This is a limitation of the simplied JSON protocol.
 
 - The RWF/JSON Converter library does not support groupID property of RWF message when using Websocket Transport with JSON data format.
 
@@ -158,19 +158,19 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6032
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.6.3
-    Load Number: 2
-    Windows Load ID: ema3.6.3.L2.win
-        Supersedes: ema3.6.3.L1.win
-    Linux Load ID: ema3.6.3.L2.linux
-        Supersedes: ema3.6.3.L1.linux
+    Release Number: 3.6.4
+    Load Number: 1
+    Windows Load ID: ema3.6.4.L1.win
+        Supersedes: ema3.6.3.L2.win
+    Linux Load ID: ema3.6.4.L1.linux
+        Supersedes: ema3.6.3.L2.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.49_RealTimeDistributionSystem_21.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.50_RealTimeDistributionSystem_22.01 for RWF and Marketfeed Record Templates
 
 # Security
 
