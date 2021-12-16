@@ -1066,8 +1066,8 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 	if ( !pChannelConfig )
 	{
 		EmaString temp( "Failed to find channel config for channel " );
-		temp.append( pChannelConfig->name )
-		.append( " that received event type: " )
+
+		temp.append( "that received event type: " )
 		.append( pEvent->channelEventType ).append( CR )
 		.append( "Instance Name " ).append( _ommBaseImpl.getInstanceName() ).append( CR )
 		.append( "RsslReactor " ).append( ptrToStringAsHex( pRsslReactor ) ).append( CR );
