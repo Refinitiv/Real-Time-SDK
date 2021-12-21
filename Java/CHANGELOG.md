@@ -9,14 +9,31 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.3.L2 aka EMA/ETA 3.6.3.L2 aka 3.6.3.1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.4.L1 aka EMA/ETA 3.6.4.L1 aka 3.6.4.0 
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with addition of EMA Java provider performance tools, optimizations to Java encryption, an updated 130-byte update size used for performance testing, and added ability to set system send and receive buffers dyamically in EMA. 
+This is a maintenance release with fixes. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.4.L1 (Dec 17, 2021)
+--------------------------------------------
+
+EMA Java 3.6.4.L1 Issues Resolved
+---------------------------------
+- [RTSDK-5698] - Documentation: EMAJ and EMACPP Config Guides provide Server & Channel settings for socket/websocket encrypted/unencrypted connections
+
+ETA Java 3.6.4.L1 Issues Resolved
+---------------------------------
+- [RTSDK-5401] - ETAJ - If reactor is shutting down, provide a return code/error to indicate this
+
+Both ETA Java and EMA Java 3.6.4.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-5220] - Add support for RTO connectivity in consumer perf applications published as QATools
+- [RTSDK-5697] - Documentation: Fix content in PerfTools Guide related to Generic Messages and Posting for ETAC/ETAJ/EMAC++/EMAJ
 
 --------------------------------------------
 RTSDK Java Release 2.0.3.L2 (Oct 25, 2021)

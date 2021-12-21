@@ -11,8 +11,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.50
 !tag Build_RDMD  4.20.50
-!tag DT_Version  21.91
-!tag Date        1-Nov-2021
+!tag DT_Version  22.01
+!tag Date        6-Dec-2021
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8807,6 +8807,7 @@ DRK_EXID   13610
    1688        "AMI"   National Agriculture Market
    1689        "RMA"   Russian Ministry of Agriculture
    1690        "FLC"   FrieslandCampina(Royal FrieslandCampina N.V.)
+   1691        "CVS"   Cherwell Valley Silos
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11174,6 +11175,7 @@ OR_RNK_RUL  3425
       9       "PTR "   Price, Time, Rank
      10       "T   "   Time
      11       "  11"   Not allocated (was Price, Visibility, Time)
+     12       "POT "   Price, Order Type, Time
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17553,6 +17555,7 @@ DELIV_PRD  13015
      72   "HLF HOUR"   Half hour
      73   "QTR AHD "   Quarter ahead
      74   "SSN AHD "   Season ahead
+     75   "BOM     "   Balance of Month
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18053,6 +18056,18 @@ LEG1_SET_M 13087
      22   "Oct/Nov "   Oct/Nov
      23   "Nov/Dec "   Nov/Dec
      24   "Dec/Jan "   Dec/Jan
+     25   "J/F/M   "   Jan/Feb/Mar
+     26   "F/M/A   "   Feb/Mar/Apr
+     27   "M/A/M   "   Mar/Apr/May
+     28   "A/M/J   "   Apr/May/Jun
+     29   "M/J/J   "   May/Jun/Jul
+     30   "J/J/A   "   Jun/Jul/Aug
+     31   "J/A/S   "   Jul/Aug/Sep
+     32   "A/S/O   "   Aug/Sep/Oct
+     33   "S/O/N   "   Sep/Oct/Nov
+     34   "O/N/D   "   Oct/Nov/Dec
+     35   "N/D/J   "   Nov/Dec/Jan
+     36   "D/J/F   "   Dec/Jan/Feb
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19561,6 +19576,8 @@ ORDER_TN   13439
       5   "S       "   Short Sell
       6   "I       "   Implied Order
       7   "IL      "   Implied and Limit Orders
+      8   "MOO     "   Market-on-Open
+      9   "MOC     "   Market-on-Close
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21462,6 +21479,7 @@ ORGN_PORT  13579
     690   "EG ALY  "   Alexandria (El Iskandariya)
     691   "YE ADE  "   Aden
     692   "AU GET  "   Geraldton
+    693   "MZ BEW  "   Beira
 !
 ! ACRONYM    FID
 ! -------    ---

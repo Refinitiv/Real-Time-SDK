@@ -9,14 +9,43 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.3.L2 aka EMA/ETA 3.6.3.L2 aka 3.6.3.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.4.L1 aka EMA/ETA 3.6.4.Ll aka 3.6.4.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes to performance tools, an updated 130-byte update size used for performance testing, and added ability to set system send and receive buffers dyamically in EMA. 
+New Features Added
+------------------
+This release introduces Warm Standby consumer feature in ETA-Reactor and EMA along with fixes.
+
+Customer Issue Resoved 
+-----------------------
+- [GitHub # 184] - [RTSDK-5688] - Invalid comparison at Ema/Src/Access/Impl/DirectoryServiceStore.cpp:149
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.4.L1 (Dec 17, 2021)
+--------------------------------------------
+
+This release introduces Warm Standby consumer feature in ETA-Reactor and EMA along with fixes.
+
+EMA C++ 3.6.4.L1 Issues Resolved
+--------------------------------
+- [RTSDK-5698] - Documentation: EMAJ and EMACPP Config Guides provide Server & Channel settings for socket/websocket encrypted/unencrypted connections
+- [RTSDK-5713] - Implement the Warm Standby feature in EMA
+
+ETA C 3.6.4.L1 Issues Resolved
+--------------------------------
+- [RTSDK-5626] - Error in conversion of a double-backslash or escaped backslash in JSON message key
+
+Both ETA C and EMA C++ 3.6.4.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-3830] - Design Warm StandBy feature 
+- [RTSDK-5364] - If reactor is shutting down, provide a return code/error to indicate this
+- [RTSDK-5469] - Implement the Warm Standby feature in the Reactor component
+- [RTSDK-5697] - Documentation: Fix content in PerfTools Guide related to Generic Messages and Posting for ETAC/ETAJ/EMAC++/EMAJ
+- [RTSDK-5761] - Documentation for Warm Standby feature
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.3.L2 (Oct 25, 2021)

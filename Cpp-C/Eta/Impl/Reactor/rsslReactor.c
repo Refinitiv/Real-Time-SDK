@@ -1603,7 +1603,7 @@ memoryAllocationFailed:
 }
 
 
-static RsslRet applyConnectionOptions(RsslReactorChannelImpl* pReactorChannel, RsslReactorConnectOptions* pOpts, RsslInt32 channelInfoIndex, RsslErrorInfo* pError)
+static RsslRet applyConnectionOptions(RsslReactorChannelImpl* pReactorChannel, RsslReactorConnectOptions* pOpts, RsslErrorInfo* pError)
 {
 	pReactorChannel->connectionListIter = 0;
 	pReactorChannel->initializationTimeout = pReactorChannel->connectionOptList[0].base.initializationTimeout;
@@ -1638,9 +1638,6 @@ static RsslRet applyConnectionOptions(RsslReactorChannelImpl* pReactorChannel, R
 
 	pReactorChannel->reconnectAttemptCount = 0;
 	pReactorChannel->lastReconnectAttemptMs = 0;
-
-	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen((RsslReactor*)pReactorChannel->pParentReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
-		return RSSL_RET_FAILURE;
 
 	return RSSL_RET_SUCCESS;
 }
@@ -1733,7 +1730,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		}
 	}
 
-	if (applyConnectionOptions(pReactorChannel, pOpts, 0, pError) != RSSL_RET_SUCCESS)
+	if (applyConnectionOptions(pReactorChannel, pOpts, pError) != RSSL_RET_SUCCESS)
 	{
 		goto reactorConnectFail;
 	}
@@ -1788,6 +1785,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 			{
 				pReactorChannel->isStartingServerConfig = RSSL_TRUE;
 				pReactorConnectInfoImpl = &pWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl;
+				pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
 				pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
 			}
 			else
@@ -1797,6 +1795,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 					/* Able to get an endpoint from the service discovery later. */
 					pReactorChannel->isStartingServerConfig = RSSL_TRUE;
 					pReactorConnectInfoImpl = &pWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl;
+					pReactorChannel->initializationTimeout = pReactorConnectInfoImpl->base.initializationTimeout;
 					pReactorChannel->reactorChannel.userSpecPtr = pReactorConnectInfoImpl->base.rsslConnectOptions.userSpecPtr;
 				}
 				else
@@ -1900,6 +1899,9 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		pReactorChannel->userNameType = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType;
 	}
 
+	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen((RsslReactor*)pReactorChannel->pParentReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
+		return RSSL_RET_FAILURE;
+
 	if (pWatchlist)
 	{
 		RsslWatchlistProcessMsgOptions processOpts;
@@ -1986,8 +1988,6 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		}
 		else
 			goto reactorConnectFail;
-
-		++pReactorImpl->channelCount;
 	}
 	else
 	{
@@ -6534,9 +6534,9 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 									pState = (directoryResponse.status.flags & RDM_DR_STF_HAS_STATE) ? &directoryResponse.status.state : NULL;
 									break;
 								default: 
+									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Received an invalid directory message response.");
 									pServiceList = NULL;
-									pState = NULL; 
-									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Received directory msg with stream state %s while setting up channel", rsslStreamStateToString(pState->streamState));
+									pState = NULL;
 									if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
 										return RSSL_RET_FAILURE;
 									return RSSL_RET_SUCCESS;
