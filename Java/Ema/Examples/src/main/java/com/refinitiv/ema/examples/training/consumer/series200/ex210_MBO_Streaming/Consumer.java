@@ -80,8 +80,8 @@ class AppClient implements OmmConsumerClient
 
 		for (MapEntry mapEntry : map)
 		{
-			if (DataTypes.BUFFER == mapEntry.key().dataType())
-				System.out.println("Action: " + mapEntry.mapActionAsString() + " key value: " + EmaUtility.asHexString(mapEntry.key().buffer().buffer()));
+			if (DataTypes.ASCII == mapEntry.key().dataType())
+				System.out.println("Action: " + mapEntry.mapActionAsString() + " key value: " + EmaUtility.asHexString(mapEntry.key().ascii().asHex()));
 
 			if (DataTypes.FIELD_LIST == mapEntry.loadType())
 			{

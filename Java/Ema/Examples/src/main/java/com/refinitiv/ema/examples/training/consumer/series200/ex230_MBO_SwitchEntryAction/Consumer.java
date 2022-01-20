@@ -82,7 +82,7 @@ class AppClient implements OmmConsumerClient
 
 		for (MapEntry mapEntry : map)
 		{
-			if (DataTypes.BUFFER != mapEntry.key().dataType())
+			if (DataTypes.ASCII != mapEntry.key().dataType())
 				return;
 			
 			int dType = mapEntry.loadType();

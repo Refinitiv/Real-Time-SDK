@@ -50,10 +50,10 @@ void AppClient::decode( const Map& map )
 
 	while ( map.forth() )
 	{
-		if ( map.getEntry().getKey().getDataType() != DataType::BufferEnum )
+		if ( map.getEntry().getKey().getDataType() != DataType::AsciiEnum )
 			return;
 
-		const EmaBuffer& key = map.getEntry().getKey().getBuffer();
+		const EmaString& key = map.getEntry().getKey().getAscii();
 
 		DataType::DataTypeEnum dType = map.getEntry().getLoadType();
 
