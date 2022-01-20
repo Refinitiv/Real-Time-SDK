@@ -26,6 +26,7 @@ import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.codec.Map;
 import com.refinitiv.eta.transport.CompressionTypes;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -62,21 +63,27 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginStatus;
 
 public class ReactorWatchlistJUnitNew
 {
-    DataDictionary dictionary = CodecFactory.createDataDictionary();
-    
-    private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
-
-    @Before
-    public void init() {
-
-        final String dictionaryFileName1 = "../../../Java/etc/RDMFieldDictionary";
-        final String enumTypeFile = "../../../Java/etc/enumtype.def";
-        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
-        dictionary.clear();
-
-        dictionary.loadFieldDictionary(dictionaryFileName1, error);
-        dictionary.loadEnumTypeDictionary(enumTypeFile, error);
-    }
+   DataDictionary dictionary;
+   
+   private static final int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 12800;
+   
+   @Before
+   public void init() {
+	  dictionary = CodecFactory.createDataDictionary();
+	  final String dictionaryFileName1 = "../../../Java/etc/RDMFieldDictionary";
+	  final String enumTypeFile = "../../../Java/etc/enumtype.def";
+	  com.refinitiv.eta.transport.Error error = TransportFactory.createError();
+	  dictionary.clear();
+	  
+	  dictionary.loadFieldDictionary(dictionaryFileName1, error);
+	  dictionary.loadEnumTypeDictionary(enumTypeFile, error);
+   }
+   
+   @After
+   public void tearDown() {
+	  dictionary.clear();
+	  dictionary = null;
+   }
 
     private void setupWebsocket(boolean isWebsocket, String protocolList, Consumer consumer, Provider provider, ConsumerProviderSessionOptions opts) {
 
