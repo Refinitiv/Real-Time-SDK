@@ -44,8 +44,8 @@ public class JsonNonConvertedMsgTest {
         decodeJsonMsgOptions.setJsonProtocolType(JsonProtocol.JSON_JPT_JSON2);
         jsonBuffer = CodecFactory.createBuffer();
         jsonBuffer.data(ByteBuffer.allocate(TEST_MSG_BUFFER_SIZE));
-        final String dictionaryFileName1 = "src/test/resources/RDMFieldDictionary";
-        final String enumTypeFile = "src/test/resources/enumtype.def";
+        final String dictionaryFileName1 = "../../etc/RDMFieldDictionary";
+        final String enumTypeFile = "../../etc/enumtype.def";
         com.refinitiv.eta.transport.Error error = TransportFactory.createError();
         dictionary.clear();
 

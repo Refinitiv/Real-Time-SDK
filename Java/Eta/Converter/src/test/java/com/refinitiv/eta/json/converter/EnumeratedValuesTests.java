@@ -33,8 +33,8 @@ public class EnumeratedValuesTests
 	
 	@Before
     public void init() {
-        final String fieldDictionaryFile = "src/test/resources/RDMFieldDictionary";
-        final String enumTypeFile = "src/test/resources/enumtype.def";
+        final String fieldDictionaryFile = "../../etc/RDMFieldDictionary";
+        final String enumTypeFile = "../../etc/enumtype.def";
         
         com.refinitiv.eta.transport.Error error = TransportFactory.createError();
         dictionary.clear();

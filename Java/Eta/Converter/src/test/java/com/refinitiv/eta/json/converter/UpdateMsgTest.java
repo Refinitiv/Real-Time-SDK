@@ -207,7 +207,7 @@ public class UpdateMsgTest {
     {
         jsonMsg.clear();
         DataDictionary dictionary = CodecFactory.createDataDictionary();
-        final String dictionaryFileName1 = "src/test/resources/RDMFieldDictionary";
+        final String dictionaryFileName1 = "../../etc/RDMFieldDictionary";
         com.refinitiv.eta.transport.Error error = TransportFactory.createError();
         dictionary.clear();
         dictionary.loadFieldDictionary(dictionaryFileName1, error);

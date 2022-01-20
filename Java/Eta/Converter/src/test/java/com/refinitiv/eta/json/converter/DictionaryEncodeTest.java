@@ -24,8 +24,8 @@ public class DictionaryEncodeTest {
 
     JsonConverterError convError;
     JsonAbstractConverter converter;
-    final String fieldDictionaryFile = "src/test/resources/RDMFieldDictionary";
-    final String enumTypeFile = "src/test/resources/enumtype.def";
+    final String fieldDictionaryFile = "../../etc/RDMFieldDictionary";
+    final String enumTypeFile = "../../etc/enumtype.def";
 
     @Before
     public void init() {
