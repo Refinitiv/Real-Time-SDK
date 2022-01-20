@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 buildscript {
         repositories {
                 mavenCentral()
@@ -151,6 +153,27 @@ allprojects {
 
 		minHeapSize = "1024m"
 		maxHeapSize = "2048m"
+
+		testLogging {
+			// set options for log level LIFECYCLE
+			events TestLogEvent.FAILED,
+					TestLogEvent.PASSED,
+					TestLogEvent.SKIPPED,
+					TestLogEvent.STANDARD_OUT
+			exceptionFormat TestExceptionFormat.FULL
+			showExceptions true
+			showCauses true
+			showStackTraces true
+			// print tests summary
+			afterSuite { desc, result ->
+				if (!desc.parent) { // will match the outermost suite
+					def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} passed, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+					def startItem = '|  ', endItem = '  |'
+					def repeatLength = startItem.length() + output.length() + endItem.length()
+					println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+				}
+			}
+		}
 	}
 }
 

@@ -273,6 +273,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(statusMsg.state().text().toString().equals("Request timeout"));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -519,6 +520,7 @@ public class ReactorWatchlistJUnitNew
         assertFalse(directoryRefresh.serviceList().get(0).checkHasLoad());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -717,6 +719,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(0, consumerReactor._componentList.get(0).reactorChannel().watchlist().directoryHandler().service(1).streamList().size());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -1034,6 +1037,7 @@ public class ReactorWatchlistJUnitNew
         event = consumerReactor.pollEvent();
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -1538,6 +1542,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(0, consumerReactor._componentList.get(0).reactorChannel().watchlist().directoryHandler().service(1).streamList().size());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     /* Used by privateStreamOpenCallbackSubmitTest and privateStreamOpenCallbackSubmitReSubmitTest. */
@@ -1669,8 +1674,9 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -2015,6 +2021,7 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -2211,9 +2218,10 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedUpdateMsg.containerType());
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
-        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));        
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
 	    TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -2355,6 +2363,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -2507,6 +2516,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -2740,6 +2750,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -2873,6 +2884,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedRequestMsg.encodedDataBody().toString().equals("ENCODED DATA BODY"));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -3003,6 +3015,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedRequestMsg.encodedDataBody().toString().equals("ENCODED DATA BODY"));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -3193,6 +3206,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -3396,8 +3410,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -3681,8 +3696,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -3973,8 +3989,9 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -4275,8 +4292,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -4426,8 +4444,9 @@ public class ReactorWatchlistJUnitNew
         
         assertTrue(consumer.reactorChannel().submit(requestMsg, submitOptions, errorInfo) == ReactorReturnCodes.FAILURE);
         assertEquals("Item in batch has same ID as existing stream.", errorInfo.error().text());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -4514,8 +4533,9 @@ public class ReactorWatchlistJUnitNew
         
         assertTrue(consumer.reactorChannel().submit(requestMsg, submitOptions, errorInfo) == ReactorReturnCodes.INVALID_USAGE);
         assertEquals("Cannot submit request with both service name and service id specified.", errorInfo.error().text());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -4604,8 +4624,9 @@ public class ReactorWatchlistJUnitNew
         
         assertTrue(consumer.reactorChannel().submit(requestMsg, submitOptions, errorInfo) == ReactorReturnCodes.FAILURE);
         assertEquals("Requested batch has name in message key.", errorInfo.error().text());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -4811,8 +4832,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -5020,8 +5042,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataTypes.NO_DATA, receivedRefreshMsg.containerType());
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -5246,8 +5269,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
         if (protocolList == null || !protocolList.contains("json"))
             assertTrue(receivedRefreshMsg.encodedDataBody().equals(refreshMsg.encodedDataBody())); //transformation to json alters the hint and value of the real number (without altering the real number)
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
 	private void encodeBatchWithView(ReactorChannel rc, RequestMsg msg, List<Integer> fieldIdList) {
@@ -5808,6 +5832,7 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }    
 
     @Test
@@ -6256,10 +6281,10 @@ public class ReactorWatchlistJUnitNew
 
        /* Provider receives nothing else (no recovery). */
        providerReactor.dispatch(0);
-
+        
        TestReactorComponent.closeSession(consumer, provider);
-
-   }    
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+   }
 
     @Test
     public void symbolListDataStreamTest_Reconnect_Socket() {
@@ -6781,6 +6806,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(consAAPLStreamId, receivedRefreshMsg.streamId());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }    
 
     @Test
@@ -7386,6 +7412,7 @@ public class ReactorWatchlistJUnitNew
         providerReactor.dispatch(0);
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }    
 
     @Test
@@ -7752,8 +7779,9 @@ public class ReactorWatchlistJUnitNew
                 assertTrue(receivedRequestMsg.msgKey().name().toString().equals("AAPL.O"));
                 assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());        
             }
-                
+            
             TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }    
 
@@ -8076,9 +8104,10 @@ public class ReactorWatchlistJUnitNew
        assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
        assertNotNull(msgEvent.streamInfo());
        assertTrue(receivedRefreshMsg.streamId() < 0);
-
+       
        TestReactorComponent.closeSession(consumer, provider);
-   }    
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+   }
 
     @Test
     public void singleOpenZeroOpenCallbackSubmitRecoverTest_Socket() {
@@ -8149,6 +8178,7 @@ public class ReactorWatchlistJUnitNew
        assertEquals(event, null);
        
        TestReactorComponent.closeSession(consumer, provider);
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
    }
    
    @Test
@@ -8387,9 +8417,10 @@ public class ReactorWatchlistJUnitNew
        // NO PAUSE now
        assertFalse(receivedRequestMsg.checkPause()); 
        providerStreamId = receivedRequestMsg.streamId();
-        
+       
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
     
     @Test
     public void loginPauseResumeTest_Socket() {
@@ -8581,7 +8612,9 @@ public class ReactorWatchlistJUnitNew
        assertEquals(1, itemCount);
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+
+    }
 
 	@Test
 	public void loginPauseOnFirstRequestResumeTest()
@@ -8735,9 +8768,10 @@ public class ReactorWatchlistJUnitNew
 
 		assertEquals(0, pausedCount);
 		assertEquals(1, itemCount);
-
+        
 		TestReactorComponent.closeSession(consumer, provider);
-	}
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
  
     @Test
     public void loginPauseResumeTokenTest_Socket() {
@@ -8962,7 +8996,8 @@ public class ReactorWatchlistJUnitNew
        assertEquals(1, itemCount);
        
        TestReactorComponent.closeSession(consumer, provider);
-   }   
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
  
     @Test
     public void itemDoubleCloseTest_Socket() {
@@ -9119,7 +9154,9 @@ public class ReactorWatchlistJUnitNew
        submitOptions.clear();
        submitOptions.serviceName(Provider.defaultService().info().serviceName().toString());
        assertTrue(consumer.submitAndDispatch(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
-   }
+
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
    
     /* Used by serviceDownCloseItemRecoverTest. */
     class CloseUserRequestFromDirectoryCallbackConsumer extends Consumer
@@ -9645,7 +9682,8 @@ public class ReactorWatchlistJUnitNew
        assertEquals(1, receivedRequestMsg.priority().count());
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
 
     @Test
     public void serviceDownOpenItemRecoverTest_Socket() {
@@ -10252,7 +10290,8 @@ public class ReactorWatchlistJUnitNew
        assertEquals(1, receivedRequestMsg.priority().count());
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
 
     @Test
     public void closeConsumerChannelTest_Socket() {
@@ -10401,9 +10440,7 @@ public class ReactorWatchlistJUnitNew
        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN, channelEvent.eventType());
 
-       provider.close();
-       consumerReactor.close();
-       providerReactor.close();
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
    }
    
    /* Used by submitPostOnItemRefeshTest. */
@@ -10592,7 +10629,8 @@ public class ReactorWatchlistJUnitNew
        event = providerReactor.pollEvent();
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
 
     /* Used by submitOffstreamPostOnItemRefeshTest. */
     class OffPostFromDefaultMsgCallbackConsumer extends Consumer
@@ -10862,7 +10900,8 @@ public class ReactorWatchlistJUnitNew
        consumerReactor.dispatch(0);
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
 
     @Test
     public void snapshotOnStreamingAggregationTest_Socket()
@@ -11189,6 +11228,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -11431,6 +11471,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -11609,6 +11650,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -11786,6 +11828,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -12020,6 +12063,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
    
     @Test
@@ -12331,8 +12375,9 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         assertNotNull(msgEvent.streamInfo().userSpecObject());
         assertEquals(testUserSpecObj, msgEvent.streamInfo().userSpecObject());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -12569,8 +12614,9 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedRequestMsg.msgKey().checkHasName());
         assertTrue(receivedRequestMsg.msgKey().name().toString().equals("TRI2"));
         assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -12801,6 +12847,7 @@ public class ReactorWatchlistJUnitNew
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -13357,10 +13404,9 @@ public class ReactorWatchlistJUnitNew
            recvLoginRequest = (LoginRequest)loginMsgEvent.rdmLoginMsg();
            provLoginStreamId = recvLoginRequest.streamId(); 
        }
-              
+       
        TestReactorComponent.closeSession(consumer, provider);
-       consumerReactor.close();
-       providerReactor.close();
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
    }
 
     /* Used by submitOffstreamPostOnItemRefeshTest. */
@@ -13598,7 +13644,9 @@ public class ReactorWatchlistJUnitNew
        consumerReactor.dispatch(0);
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+
+    }
 
     /* Used by snapshotAggregationBeforeChannelReadyTestd Test. */
     class sendMultipleSnapshotsBeforeChannelReady extends Consumer
@@ -14066,9 +14114,11 @@ public class ReactorWatchlistJUnitNew
        assertNotNull(msgEvent.streamInfo());
        assertNotNull(msgEvent.streamInfo().serviceName());
        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+       
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+
+    }
 
     /* Used by itemCloseAndReopenTest.
     * Closes TRI on stream 5 and reopens it. */
@@ -14435,7 +14485,8 @@ public class ReactorWatchlistJUnitNew
        consumerReactor.dispatch(0);
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
 
     /* Used by closeFromCallbackTest. */
     class CloseFromCallbackConsumer extends Consumer
@@ -14729,7 +14780,8 @@ public class ReactorWatchlistJUnitNew
        }
        
        TestReactorComponent.closeSession(consumer, provider);
-   }
+       tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+    }
 
     @Test
     public void itemCloseFromCallbackTestOpen_Socket() {
@@ -15021,8 +15073,9 @@ public class ReactorWatchlistJUnitNew
                }
            }
        }
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     /* Used by closeFromCallbackTest. */
@@ -15187,8 +15240,9 @@ public class ReactorWatchlistJUnitNew
            loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
            assertEquals(LoginMsgType.CLOSE, loginMsgEvent.rdmLoginMsg().rdmMsgType());
            assertEquals(provLoginStreamId, loginMsgEvent.rdmLoginMsg().streamId());
-
+           
            TestReactorComponent.closeSession(consumer, provider);
+           tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
        }
    }
 
@@ -15404,8 +15458,9 @@ public class ReactorWatchlistJUnitNew
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
             assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+            
             TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
 
@@ -15990,8 +16045,9 @@ public class ReactorWatchlistJUnitNew
                 assertTrue(receivedRequestMsg.msgKey().checkHasName());
                 assertTrue(receivedRequestMsg.msgKey().name().toString().equals("IBM.N"));
                 assertEquals(DomainTypes.MARKET_PRICE, receivedRequestMsg.domainType());
-
+                
                 TestReactorComponent.closeSession(consumer, provider);
+                tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
             }
         }
     }
@@ -16318,8 +16374,9 @@ public class ReactorWatchlistJUnitNew
         // NO PAUSE now
         assertFalse(receivedRequestMsg.checkPause()); 
         providerStreamId = receivedRequestMsg.streamId();
-         
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }   
     
     
@@ -16500,8 +16557,9 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-         
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }   
     
  	private void encodeViewFieldIdList(ReactorChannel rc, List<Integer> fieldIdList, RequestMsg msg)
@@ -16762,6 +16820,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(Directory.ServiceFilterFlags.INFO | Directory.ServiceFilterFlags.STATE, receivedUpdateMsg.filter());
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -17352,6 +17411,9 @@ public class ReactorWatchlistJUnitNew
             else
                 assertEquals(consRefresh[1].userName().toString(), userNames[1]);
             System.out.println(test + " 9) Consumer validated login refresh[1]");
+            
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
         System.out.println(test + " Done\n");
     }
@@ -18109,8 +18171,9 @@ public class ReactorWatchlistJUnitNew
           assertNotNull(msgEvent.streamInfo());
           assertNotNull(msgEvent.streamInfo().serviceName());
           assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+            
           TestReactorComponent.closeSession(consumer, provider);
+          tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
       }
 
     class SendItemsFromDefaultMsgCallbackConsumer1 extends Consumer
@@ -18380,8 +18443,9 @@ public class ReactorWatchlistJUnitNew
           assertNotNull(msgEvent.streamInfo());
           assertNotNull(msgEvent.streamInfo().serviceName());
           assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+          
           TestReactorComponent.closeSession(consumer, provider);
+          tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
       }
     
     @Test
@@ -18677,9 +18741,10 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
-        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));        
-
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -18991,9 +19056,10 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
-        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));     
+        assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
         
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     private boolean checkHasCorrectView( Provider provider, RequestMsg requestMsg, List<Integer> viewFieldList)
@@ -19515,8 +19581,9 @@ public class ReactorWatchlistJUnitNew
         assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasLink());
         assertFalse(receivedUpdateMsg.serviceList().get(0).checkHasLoad());
         assertTrue(receivedUpdateMsg.serviceList().get(0).groupStateList().size() == 1);
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     /* Used by StreamReopenTest. 
@@ -19757,9 +19824,9 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -20131,9 +20198,10 @@ public class ReactorWatchlistJUnitNew
             assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
             assertNotNull(msgEvent.streamInfo());
             assertNotNull(msgEvent.streamInfo().serviceName());
-            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString())); 
-
+            assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+            
             TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
     }
 
@@ -20537,8 +20605,9 @@ public class ReactorWatchlistJUnitNew
             /* Provider receives nothing (no items recovered). */
             providerReactor.dispatch(0);
         }
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -20753,9 +20822,10 @@ public class ReactorWatchlistJUnitNew
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
         directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-        assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
-
+        assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -20969,8 +21039,9 @@ public class ReactorWatchlistJUnitNew
 
         /* Provider receives nothing. */
         providerReactor.dispatch(0);
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     /* Consumer that reissues TRI on stream 5 with priority to 1,2 (this priority will be used
@@ -21231,8 +21302,9 @@ public class ReactorWatchlistJUnitNew
         assertTrue(receivedRequestMsg.checkHasPriority());
         assertEquals(1, receivedRequestMsg.priority().priorityClass());
         assertEquals(2, receivedRequestMsg.priority().count());
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }    
 
     @Test
@@ -21478,8 +21550,9 @@ public class ReactorWatchlistJUnitNew
 
         /* Provider receives nothing (dictionary not recovered). */
         providerReactor.dispatch(0);
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -21634,8 +21707,9 @@ public class ReactorWatchlistJUnitNew
         providerReactor.dispatch(0);
         
         checkDictionaryResponseMessages(consumerReactor, numOfMessages, 5, "RWFEnum");
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     private void checkDictionaryResponseMessages(TestReactor consumerReactor, int numOfMessages, int streamId, String itemName)
@@ -21872,8 +21946,8 @@ public class ReactorWatchlistJUnitNew
         assertEquals(StreamStates.OPEN, receivedRefreshMsg.state().streamState());
         assertEquals(DataStates.OK, receivedRefreshMsg.state().dataState());
         
-        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
     
     @Test
@@ -22234,8 +22308,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
         assertEquals(Directory.ServiceFilterFlags.STATE | Directory.ServiceFilterFlags.LOAD, receivedUpdateMsg.msgKey().filter()); // make sure filter is STATE and LOAD
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -22339,8 +22414,9 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DomainTypes.SOURCE, receivedUpdateMsg.domainType());
         assertEquals(DataTypes.MAP, receivedUpdateMsg.containerType());
         assertEquals(1, receivedUpdateMsg.msgKey().filter()); // make sure filter is 1 since only INFO and STATE filter received
-
+        
         TestReactorComponent.closeSession(consumer, provider);
+        tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
     }
 
     @Test
@@ -22480,9 +22556,10 @@ public class ReactorWatchlistJUnitNew
     			submitOptions.serviceName(td.serviceName());
     			assertTrue(consumer.submitAndDispatch(closeMsg, submitOptions) >= ReactorReturnCodes.SUCCESS);
     		}
-
+            
     		TestReactorComponent.closeSession(consumer, provider);
-    	}
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
+        }
     }
     
     class AppClient
@@ -23033,6 +23110,7 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
 		
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+        consumer = null;
     }
     
     @Test
@@ -23043,6 +23121,7 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
     
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+        consumer = null;
     }
     
     @Test
@@ -23065,6 +23144,7 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, viewFieldList, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
 		
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+        consumer = null;
     }
     
     @Test
@@ -23087,6 +23167,9 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, viewFieldList, 30, false, new MultithreadedUnsubAndSubTheSameItemListTest());
 		
 		assertTrue(consumer.getNumRefreshMessage() == consumer.getNumRefreshCompleteMessage());
+        consumer = null;
+        viewFieldList.clear();
+        viewFieldList = null;
     }
     
     class MultithreadedSubTheSameItemListTest implements TestWithMultithreadedOmmConsumer
@@ -23108,6 +23191,7 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(true, stockList, null, 30, false, new MultithreadedSubTheSameItemListTest());
 		
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30 ) );
+        consumer = null;
     }
     
     @Test
@@ -23120,6 +23204,7 @@ public class ReactorWatchlistJUnitNew
 		assertTrue(consumer.getNumRefreshCompleteMessage() == (stockList.split(",").length * 30 ) );
 		
 		assertTrue(consumer.getNumRefreshMessage() == (consumer.getNumRefreshCompleteMessage() * 2) );
+        consumer = null;
     }
     
     @Test
@@ -23130,6 +23215,7 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, null, 30, false, new MultithreadedSubTheSameItemListTest());
 		
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
+        consumer = null;
     }
     
     @Test
@@ -23141,6 +23227,7 @@ public class ReactorWatchlistJUnitNew
 		
 		assertTrue(consumer.getNumRefreshCompleteMessage() == (stockList.split(",").length * 30));
 		assertTrue(consumer.getNumRefreshMessage() == (consumer.getNumRefreshCompleteMessage() * 2));
+        consumer = null;
     }
     
     @Test
@@ -23164,6 +23251,7 @@ public class ReactorWatchlistJUnitNew
 		
 		assertTrue(consumer.getNumRefreshMessage() == ( stockList.split(",").length + (stockList.split(",").length * 2) + (stockList.split(",").length *3)
 				+ (stockList.split(",").length *4)));
+        consumer = null;
     }
     
     @Test
@@ -23186,6 +23274,7 @@ public class ReactorWatchlistJUnitNew
 		MultithreadedOmmConsumer consumer = multithreadedSubscriptionTest(false, stockList, viewFieldList, 30, false, new MultithreadedSubTheSameItemListTest());
 		
 		assertTrue(consumer.getNumRefreshMessage() == (stockList.split(",").length * 30));
+        consumer = null;
     }
 
     @Test
@@ -23410,8 +23499,12 @@ public class ReactorWatchlistJUnitNew
             else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json"))) /* JSON converter doesn't write name when nameType is COOKIE */
                 assertEquals(consRefresh[1].userName().toString(), userNames[0]);
             System.out.println(test + " 9) Consumer validated login refresh[0]");
+            
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
         System.out.println(test + " Done\n");
+
     }
 
     @Test
@@ -23671,6 +23764,9 @@ public class ReactorWatchlistJUnitNew
             else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(consRefresh[1].userName().toString(), userNames[0]);
             System.out.println(test + " 9) Consumer validated login refresh[1]");
+            
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
         System.out.println(test + " Done\n");
     }
@@ -23966,9 +24062,19 @@ public class ReactorWatchlistJUnitNew
             else if (userNameType != Login.UserIdTypes.COOKIE && (protocolList != null && protocolList.contains("json")))
                 assertEquals(consRefresh[1].userName().toString(), userNames[0]);
             System.out.println(test + " 11) Consumer validated login refresh[1]");
+            
+            TestReactorComponent.closeSession(consumer, provider);
+            tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
         }
         System.out.println(test + " Done\n");
     }
 
-
+    private void tearDownConsumerAndProvider(TestReactor consumerReactor, TestReactor providerReactor, Consumer consumer, Provider provider) {
+        consumerReactor.close();
+        providerReactor.close();
+        consumerReactor = null;
+        providerReactor = null;
+        consumer = null;
+        provider = null;
+    }
 }
