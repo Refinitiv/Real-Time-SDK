@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.50
-!tag Build_RDMD  4.20.50
-!tag DT_Version  22.01
-!tag Date        6-Dec-2021
+!tag RT_Version  4.20.51
+!tag Build_RDMD  4.20.51
+!tag DT_Version  22.11
+!tag Date        10-Jan-2022
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -7971,7 +7971,7 @@ DRK_EXID   13610
     852        "FCS"   Russian Ferrous Metals
     853        "SHT"   Shanghai Metal Stocks
     854        "BUR"   Burgundy
-    855        "MCD"   MCX Stock Exchange Ltd
+    855        "MCD"   Metropolitan Stock Exchange of India Ltd
     856        "ICG"   International Copper Study Group
     857        "CPP"   CPR OR
     858        "DRM"   DRAM EXCHANGE
@@ -8808,6 +8808,7 @@ DRK_EXID   13610
    1689        "RMA"   Russian Ministry of Agriculture
    1690        "FLC"   FrieslandCampina(Royal FrieslandCampina N.V.)
    1691        "CVS"   Cherwell Valley Silos
+   1692        "CHL"   Chemlinks Shanghai Limited
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17248,6 +17249,7 @@ ROUTE_INDX 12977
     101   "TC18    "   US Gulf to Brazil
     102   "TD23    "   ME Gulf- Medi(Crude)
     103   " P6_82  "   Panamax Singapore round voyage via Atlantic
+    104   "HTC     "   Handysize Time Charter Average
 !
 ! ACRONYM    FID
 ! -------    ---
