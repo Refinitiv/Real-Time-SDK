@@ -7,6 +7,7 @@
 
 package com.refinitiv.eta.codec;
 
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 
 import org.junit.Test;
@@ -65,6 +66,28 @@ public class RealJunit
 		real.value(val, hint);
 		double tst = real.toDouble();
 		assertTrue(val == tst);		
+	}
+
+	private void testRealToBigDecimal(String val)
+	{
+		Real real = CodecFactory.createReal();
+		real.value(val);
+		BigDecimal tst = new BigDecimal(real.toBigDecimal().toString());
+		assertEquals(tst, real.toBigDecimal());
+	}
+
+	private void testRealToBigDecimalWhenEmptyValue() {
+		Real real = CodecFactory.createReal();
+		real.value("");
+		BigDecimal tst = real.toBigDecimal();
+		assertNull(tst);
+	}
+
+	private void testRealToBigDecimalWhenBadValue(double val, int hint) {
+		Real real = CodecFactory.createReal();
+		real.value(val, hint);
+		BigDecimal tst = real.toBigDecimal();
+		assertNull(tst);
 	}
 	
 	private void testDoubleRealCompare(double dblVal, long val, int hint)
@@ -325,7 +348,7 @@ public class RealJunit
 		testRealToDouble("12.12345678");
 		testRealToDouble("1.123456789");
 		testRealToDouble("-12.123456789");			
-		testRealToDouble("12.123456789");				
+		testRealToDouble("12.123456789");
 		testRealToDouble("12.000000");
 		testRealToDouble("0.000000");
 		testRealToDouble("0.000001");
@@ -351,6 +374,64 @@ public class RealJunit
 		testRealToDouble("-12 2/256");
 		testRealToDouble("-12 0/2");
 		testRealToDouble("12.1234");
+
+		testRealToBigDecimal("-12");
+		testRealToBigDecimal("-12.");
+		testRealToBigDecimal("-12.0");
+		testRealToBigDecimal("-12.1");
+		testRealToBigDecimal("-12.12");
+		testRealToBigDecimal("-12.123");
+		testRealToBigDecimal("-12.1234");
+		testRealToBigDecimal("-12.12345");
+		testRealToBigDecimal("-12.123456");
+		testRealToBigDecimal("-12.1234567");
+		testRealToBigDecimal("-12.12345678901234567890123");
+		testRealToBigDecimal("-1.12345678901234567890123");
+		testRealToBigDecimal("12");
+		testRealToBigDecimal("12.");
+		testRealToBigDecimal("12.0");
+		testRealToBigDecimal("12.1");
+		testRealToBigDecimal("12.12");
+		testRealToBigDecimal("12.123");
+		testRealToBigDecimal("12.1234");
+		testRealToBigDecimal("12.12345");
+		testRealToBigDecimal("12.123456");
+		testRealToBigDecimal("12.1234567");
+		testRealToBigDecimal("12.12345678901234567890123");
+		testRealToBigDecimal("1.12345678901234567890123");
+		testRealToBigDecimal("12.000000");
+		testRealToBigDecimal("0.000000");
+		testRealToBigDecimal("0.000001");
+		testRealToBigDecimal("-0.000001");
+		testRealToBigDecimal("-12.000000");
+		testRealToBigDecimal(".1");
+		testRealToBigDecimal("0");
+		testRealToBigDecimal("12 1/2");
+		testRealToBigDecimal("12 1/4");
+		testRealToBigDecimal("12 2/8");
+		testRealToBigDecimal("12 2/16");
+		testRealToBigDecimal("12 2/32");
+		testRealToBigDecimal("12 2/64");
+		testRealToBigDecimal("12 2/128");
+		testRealToBigDecimal("12 2/256");
+		testRealToBigDecimal("12 2/512");
+		testRealToBigDecimal("12 2/1024");
+		testRealToBigDecimal("-12 1/2");
+		testRealToBigDecimal("-12 1/4");
+		testRealToBigDecimal("-12 2/8");
+		testRealToBigDecimal("-12 2/16");
+		testRealToBigDecimal("-12 2/32");
+		testRealToBigDecimal("-12 2/64");
+		testRealToBigDecimal("-12 2/128");
+		testRealToBigDecimal("-12 2/256");
+		testRealToBigDecimal("-12 2/512");
+		testRealToBigDecimal("-12 2/1024");
+		testRealToBigDecimal("-12 0/2");
+		testRealToBigDecimal("12.1234");
+		testRealToBigDecimalWhenEmptyValue();
+		testRealToBigDecimalWhenBadValue(java.lang.Double.NaN, RealHints.EXPONENT1);
+		testRealToBigDecimalWhenBadValue(java.lang.Double.POSITIVE_INFINITY, RealHints.EXPONENT2);
+		testRealToBigDecimalWhenBadValue(java.lang.Double.NEGATIVE_INFINITY, RealHints.EXPONENT3);
 		
 		testDoubleToReal((double)20/4, RealHints.FRACTION_4);
 		testDoubleToReal((double)100/256, RealHints.FRACTION_256);

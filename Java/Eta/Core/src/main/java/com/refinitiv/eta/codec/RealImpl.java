@@ -1,10 +1,7 @@
 package com.refinitiv.eta.codec;
 
-import com.refinitiv.eta.codec.DecodeIterator;
-import com.refinitiv.eta.codec.EncodeIterator;
-import com.refinitiv.eta.codec.Real;
-import com.refinitiv.eta.codec.RealHints;
 import java.lang.Double;
+import java.math.BigDecimal;
 
 class RealImpl implements Real
 {
@@ -207,6 +204,22 @@ class RealImpl implements Real
                 return java.lang.Double.NEGATIVE_INFINITY;
             default:
                 return _value / powHintsExp[_hint];
+        }
+    }
+
+    @Override
+    public BigDecimal toBigDecimal()
+    {
+        if(_isBlank)
+            return null;
+        switch (_hint)
+        {
+            case RealHints.NOT_A_NUMBER:
+            case RealHints.INFINITY:
+            case RealHints.NEG_INFINITY:
+                return null;
+            default:
+                return BigDecimal.valueOf(_value).divide(BigDecimal.valueOf(powHintsExp[_hint]));
         }
     }
 

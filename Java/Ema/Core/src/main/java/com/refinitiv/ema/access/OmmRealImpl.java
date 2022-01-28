@@ -8,6 +8,8 @@
 package com.refinitiv.ema.access;
 
 
+import java.math.BigDecimal;
+
 class OmmRealImpl extends DataImpl implements OmmReal
 {
 	private final static String EXPONENTNEG14_STRING 	= "Power of -14. Stringeration value is 0";
@@ -148,6 +150,12 @@ class OmmRealImpl extends DataImpl implements OmmReal
 	public double asDouble()
 	{
 		return _rsslReal.toDouble();
+	}
+
+	@Override
+	public BigDecimal asBigDecimal()
+	{
+		return _rsslReal.toBigDecimal();
 	}
 
 	@Override

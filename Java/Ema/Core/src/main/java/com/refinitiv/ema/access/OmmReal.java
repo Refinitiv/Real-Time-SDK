@@ -7,6 +7,8 @@
 
 package com.refinitiv.ema.access;
 
+import java.math.BigDecimal;
+
 /**
  * OmmReal represents Real number in Omm.
  * <p>OmmReal encapsulates magnitude type and mantissa information.</p>
@@ -153,4 +155,15 @@ public interface OmmReal extends Data
 	 * @return value of Real as double
 	 */
 	public double asDouble();
+
+	/**
+	 * Returns AsBigDecimal.
+	 *
+	 * @return value of Real as BigDecimal.
+	 * If the MagnitudeType is INFINITY, NEG_INFINITY, or
+	 * NOT_A_NUMBER the returned value will be null.
+	 * If the dataCode equals to DataCode.BLANK
+	 * the returned value will be null.
+	 */
+	public BigDecimal asBigDecimal();
 }

@@ -1,5 +1,7 @@
 package com.refinitiv.eta.codec;
 
+import java.math.BigDecimal;
+
 /**
  * This type allows the user to represent fractional or decimal values, with
  * minimal conversion overhead, by using a number and a format hint.
@@ -94,6 +96,16 @@ public interface Real
      * @return the double representation of this {@link Real}
      */
     public double toDouble();
+
+    /**
+     * Convert Real to a BigDecimal.
+     *
+     * @return the BigDecimal representation of this {@link Real}.
+     * If hint is {@link RealHints#NOT_A_NUMBER}, {@link RealHints#INFINITY} or {@link RealHints#NEG_INFINITY}
+     * the returned value will be null.
+     * If {@link Real} is blank the returned value will be null.
+     */
+    public BigDecimal toBigDecimal();
 
     /**
      * Convert Real to a numeric string.
