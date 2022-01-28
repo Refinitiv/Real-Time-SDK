@@ -169,8 +169,6 @@ void initNIProvPerfConfig(int argc, char **argv)
 				printf("Config Error: Unknown encrypted connection type \"%s\"\n", argv[iargs]);
 				exitConfigError(argv);
 			}
-
-			iargs++;
 		}
 		else if (0 == strcmp("-outputBufs", argv[iargs]))
 		{
@@ -333,6 +331,11 @@ void initNIProvPerfConfig(int argc, char **argv)
 		{
 			niProvPerfConfig.useReactor = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-castore", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			snprintf(niProvPerfConfig.caStore, sizeof(niProvPerfConfig.caStore), argv[iargs]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -380,6 +383,8 @@ static const char *connectionTypeToString(RsslConnectionTypes connType)
 			return "socket";
 		case RSSL_CONN_TYPE_RELIABLE_MCAST:
 			return "reliableMCast";
+		case RSSL_CONN_TYPE_ENCRYPTED:
+			return "encrypted";
 		default:
 			return "unknown";
 	}
@@ -509,7 +514,8 @@ void exitWithUsage()
 {
 	printf(	"Options:\n"
 			"  -?                               Shows this usage\n"
-			"  -connType <type>                 Type of connection(\"socket\", \"reliableMCast\")\n"
+			"  -connType <type>                 Type of connection(\"socket\", \"reliableMCast\", \"encrypted\")\n"
+			"  -encryptedConnType <type>        Encrypted connection protocol. Only used if the \"encrypted\" connection type is selected. \"http\" type is only supported on Windows. (\"socket\", \"websocket\", \"http\")\n"
 			"\n"
 			"Connection options(for socket-based connections):\n"
 			"  -h <hostname>                    Name of host to connect to\n"
@@ -556,6 +562,8 @@ void exitWithUsage()
 
 			"  -reactor                         Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
 			" \n"
+			"  -castore                         File location of the certificate authority store.\n"
+			"\n"
 			"  -nanoTime                        Use nanosecond precision for latency information instead of microsecond.\n"
 			"  -preEnc                          Use Pre-Encoded updates\n"
 			"  -takeMCastStats                  Take Multicast Statistics(Warning: This enables the per-channel lock).\n"

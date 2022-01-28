@@ -21,36 +21,36 @@ extern "C" {
 /* Provides configuration options for the provider. */
 typedef struct 
 {
-	RsslUInt32	runTime;							/* Time application runs befor exiting(-runTime).*/
+	RsslUInt32	runTime;						/* Time application runs befor exiting(-runTime).*/
 
-	RsslConnectionTypes	connectionType;				/* Type of connection(-connType).*/
-	RsslConnectionTypes	encryptedConnectionType;	/* Protocol used with an encrypted connection. (-encryptedConnType).*/
-	char 				portNo[32];					/* Port number(-p).*/
+	RsslConnectionTypes	connectionType;				        /* Type of connection(-connType).*/
+	RsslConnectionTypes	encryptedConnectionType;	                /* Protocol used with an encrypted connection. (-encryptedConnType).*/
+	char 				portNo[32];				/* Port number(-p).*/
 	char				interfaceName[128];			/* Name of interface(-if).*/
 	char				username[128];				/* Username used when logging in. */
-	RsslBool			tcpNoDelay;					/* Enable/Disable Nagle's algorithm(-tcpDelay).*/
-	RsslUInt32			guaranteedOutputBuffers;	/* Guaranteed Output Buffers(-outputBufs).*/
+	RsslBool			tcpNoDelay;				/* Enable/Disable Nagle's algorithm(-tcpDelay).*/
+	RsslUInt32			guaranteedOutputBuffers;	        /* Guaranteed Output Buffers(-outputBufs).*/
 	RsslUInt32			sendBufSize;				/* System Send Buffer Size(-sendBufSize) */
 	RsslUInt32			recvBufSize;				/* System Send Buffer Size(-recvBufSize) */
 	RsslUInt32			highWaterMark;				/* sets the point which will cause ETA to automatically flush */
-	char				summaryFilename[128];		/* Name of the summary log file(-summaryFile). */
+	char				summaryFilename[128];		        /* Name of the summary log file(-summaryFile). */
 	char				statsFilename[128];			/* Name of the statistics log file(-statsFile). */
 	RsslUInt32			writeStatsInterval;			/* Controls how often statistics are written. */
 	RsslBool			displayStats;				/* Controls whether stats appear on the screen. */
 
-	char				hostName[128];				/* Name of host to connect to(-hostname).*/
+	char				hostName[128];				/* Name of host to connect to(-h).*/
 	char				sendAddr[128];				/* Outbound address, if using a multicast connection(-sa).*/
 	char				recvAddr[128];				/* Inbound address, if using a multicast connection(-ra).*/
 	char				sendPort[32];				/* Outbound port, if using a multicast connection(-sp).*/
 	char				recvPort[32];				/* Inbound port, if using a multicast connection(-rp).*/
 	char				unicastPort[32];			/* Unicast port, if using a mulicast connection(-up).*/
-	RsslBool			sAddr;						/* Whether an outbound address was specified(-sa).*/
-	RsslBool			rAddr;						/* Whether an inbound address was specified(-ra).*/
+	RsslBool			sAddr;					/* Whether an outbound address was specified(-sa).*/
+	RsslBool			rAddr;					/* Whether an inbound address was specified(-ra).*/
 
 	RsslInt32			itemPublishCount;			/* Number of items to publish noninteractively(-itemCount).*/
 	RsslInt32			commonItemCount;			/* Number of items common to all providers, if using multiple connections. */
 
-	RsslBool			useReactor;					/* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
+	RsslBool			useReactor;				/* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
 
 	char				caStore[255];				/* Certificate authority location */
 	RsslUInt32			tlsProtocolFlags;			/* Flagset of TLS protocols */

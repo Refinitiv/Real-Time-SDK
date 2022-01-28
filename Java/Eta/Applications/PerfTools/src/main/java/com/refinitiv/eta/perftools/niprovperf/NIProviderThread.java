@@ -141,7 +141,7 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
     		_connectOpts.sysRecvBufSize(NIProvPerfConfig.recvBufSize());
     	}
     	_connectOpts.connectionType(NIProvPerfConfig.connectionType());
-    	if (_connectOpts.connectionType() == ConnectionTypes.SOCKET)
+    	if (_connectOpts.connectionType() == ConnectionTypes.SOCKET || _connectOpts.connectionType() == ConnectionTypes.ENCRYPTED)
     	{
     		_connectOpts.unifiedNetworkInfo().address(NIProvPerfConfig.hostName());
     		_connectOpts.unifiedNetworkInfo().serviceName(NIProvPerfConfig.portNo());
@@ -156,6 +156,12 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
         	_connectOpts.segmentedNetworkInfo().unicastServiceName(NIProvPerfConfig.unicastPort());
     		_connectOpts.segmentedNetworkInfo().interfaceName(NIProvPerfConfig.interfaceName());
     	}
+    	if (_connectOpts.connectionType() == ConnectionTypes.ENCRYPTED)
+    	{
+    	    _connectOpts.encryptionOptions().connectionType(NIProvPerfConfig.encryptedConnectionType());
+    	    _connectOpts.encryptionOptions().KeystoreFile(NIProvPerfConfig.keyfile());
+    	    _connectOpts.encryptionOptions().KeystorePasswd(NIProvPerfConfig.keypasswd());
+        }
     	_connectOpts.tcpOpts().tcpNoDelay(NIProvPerfConfig.tcpNoDelay());
 
     	/* Setup connection. */
@@ -239,7 +245,7 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
             _connectInfo.connectOptions().sysRecvBufSize(NIProvPerfConfig.recvBufSize());
         }
         _connectInfo.connectOptions().connectionType(NIProvPerfConfig.connectionType());
-        if (_connectInfo.connectOptions().connectionType() == ConnectionTypes.SOCKET)
+        if (_connectInfo.connectOptions().connectionType() == ConnectionTypes.SOCKET || _connectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
         {
             _connectInfo.connectOptions().unifiedNetworkInfo().address(NIProvPerfConfig.hostName());
             _connectInfo.connectOptions().unifiedNetworkInfo().serviceName(NIProvPerfConfig.portNo());
@@ -253,6 +259,12 @@ public class NIProviderThread extends ProviderThread implements NIProviderCallba
             _connectInfo.connectOptions().segmentedNetworkInfo().recvServiceName(NIProvPerfConfig.recvPort());
             _connectInfo.connectOptions().segmentedNetworkInfo().unicastServiceName(NIProvPerfConfig.unicastPort());
             _connectInfo.connectOptions().segmentedNetworkInfo().interfaceName(NIProvPerfConfig.interfaceName());
+        }
+        if (_connectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
+        {
+            _connectInfo.connectOptions().encryptionOptions().connectionType(NIProvPerfConfig.encryptedConnectionType());
+            _connectInfo.connectOptions().encryptionOptions().KeystoreFile(NIProvPerfConfig.keyfile());
+            _connectInfo.connectOptions().encryptionOptions().KeystorePasswd(NIProvPerfConfig.keypasswd());
         }
         _connectInfo.connectOptions().tcpOpts().tcpNoDelay(NIProvPerfConfig.tcpNoDelay());
         

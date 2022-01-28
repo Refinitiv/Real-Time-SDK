@@ -22,6 +22,7 @@ public class NIProvPerfConfig
 
 	/* CONNECTION configuration */
 	private static String _connectionType;			/* Type of connection. */
+	private static String _encryptedConnectionType; /* Type of encrypted connection */
 	private static String _hostName;				/* hostName, if using Transport.connect(). */
 	private static String _portNo;					/* Port number. */
 	private static String _interfaceName;			/* Name of interface. */
@@ -40,6 +41,8 @@ public class NIProvPerfConfig
 	private static int _itemPublishCount;			/* Number of items to publish non-interactively. See -itemCount. */
 	private static int _commonItemCount;			/* Number of items common to all providers, if using multiple connections. */
     private static boolean _useReactor;             /* Use the VA Reactor instead of the ETA Channel for sending and receiving. */
+	private static String _keyfile;                 /* Keyfile used for encrypted connection */
+	private static String _keypasswd;               /* Key password used for encrypted connection */
 
 	static
     {
@@ -47,7 +50,8 @@ public class NIProvPerfConfig
     	CommandLine.addOption("summaryFile", "NIProvSummary.out", "Name of file for logging summary info");
     	CommandLine.addOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
     	CommandLine.addOption("noDisplayStats", false, "Stop printout of stats to screen");
-    	CommandLine.addOption("connType", "socket", "Type of connection(\"socket\", \"reliableMCast\")");
+    	CommandLine.addOption("connType", "socket", "Type of connection (\"socket\", \"encrypted\", \"reliableMCast\")");
+		CommandLine.addOption("encryptedConnectionType", "socket", "Type of encrypted connection (\"socket\", \"http\")");
     	CommandLine.addOption("h", "localhost", "Name of host for socket connection");
     	CommandLine.addOption("p", "14003", "Port number for socket connection");
     	CommandLine.addOption("if", "", "Name of network interface to use");
@@ -81,6 +85,8 @@ public class NIProvPerfConfig
     	CommandLine.addOption("directWrite", false, "Turns on direct write flag");
     	CommandLine.addOption("serviceName", "DIRECT_FEED", "Name of the provided service");
     	CommandLine.addOption("serviceId", 1, "ID of the provided service");
+		CommandLine.addOption("keyfile", "", "Keyfile used for encrypted connection");
+		CommandLine.addOption("keypasswd", "", "Key password used for encrypted connection");
     }
 	
 	/* NIProvPerfConfig cannot be instantiated */
@@ -134,6 +140,9 @@ public class NIProvPerfConfig
         ProviderPerfConfig.directWrite(CommandLine.booleanValue("directWrite"));
         ProviderPerfConfig.serviceName(CommandLine.value("serviceName"));
         _useReactor = CommandLine.booleanValue("reactor");
+        _keyfile = CommandLine.value("keyfile");
+        _keypasswd = CommandLine.value("keypasswd");
+        _encryptedConnectionType = CommandLine.value("encryptedConnectionType");
         
         try
         {
@@ -151,9 +160,9 @@ public class NIProvPerfConfig
             	ProviderPerfConfig.latencyUpdateRate(CommandLine.intValue("latencyUpdateRate"));
             _connectionType = CommandLine.value("connType");
             if(!"socket".equals(_connectionType) &&
-               !"reliableMCast".equals(_connectionType))
+               !"reliableMCast".equals(_connectionType) && !"encrypted".equals(_connectionType))
             {
-            	System.err.println("Config Error: Only socket or reliableMCast connection type is supported.\n");
+            	System.err.println("Config Error: Only socket, encrypted or reliableMCast connection type is supported.\n");
             	System.out.println(CommandLine.optionHelpString());
             	System.exit(-1);
             }
@@ -419,7 +428,7 @@ public class NIProvPerfConfig
 	public static int connectionType()
 	{
 		int retVal = -1;
-		
+
         if("socket".equals(_connectionType))
         {
         	retVal = ConnectionTypes.SOCKET;
@@ -428,8 +437,33 @@ public class NIProvPerfConfig
         {
         	retVal = ConnectionTypes.RELIABLE_MCAST;
         }
+        else if ("encrypted".equals(_connectionType))
+		{
+			retVal = ConnectionTypes.ENCRYPTED;
+		}
         
         return retVal;
+	}
+
+	/**
+	 *  Type of encrypted connection.
+	 *
+	 * @return the int
+	 */
+	public static int encryptedConnectionType()
+	{
+		int retVal = -1;
+
+		if("socket".equals(_encryptedConnectionType))
+		{
+			retVal = ConnectionTypes.SOCKET;
+		}
+		else if ("http".equals(_encryptedConnectionType))
+		{
+			retVal = ConnectionTypes.HTTP;
+		}
+
+		return retVal;
 	}
 	
 	/**
@@ -671,4 +705,24 @@ public class NIProvPerfConfig
     {
         return _useReactor;
     }
+
+	/**
+	 *  Provides keyfile path
+	 *
+	 * @return path to keyfile
+	 */
+	public static String keyfile()
+	{
+		return _keyfile;
+	}
+
+	/**
+	 *  Provides key password
+	 *
+	 * @return key password
+	 */
+	public static String keypasswd()
+	{
+		return _keypasswd;
+	}
 }
