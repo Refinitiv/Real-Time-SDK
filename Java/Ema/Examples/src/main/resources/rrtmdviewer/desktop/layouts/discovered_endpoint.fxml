@@ -95,37 +95,15 @@
                                           </HBox>
                                           <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
                                              <children>
-                                                <RadioButton styleClass="optionslabel" fx:id="clientSecretRB" focusTraversable="false" mnemonicParsing="false" prefHeight="17.0" selected="true" text="Client Secret" userData="CLIENTSECRET">
-                                                   <toggleGroup>
-                                                      <ToggleGroup fx:id="authTypeToggleGroup" />
-                                                   </toggleGroup>
-                                                   <tooltip>
-                                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Specify client secret" wrapText="true">
-                                                         <font>
-                                                            <Font size="11.0" />
-                                                         </font>
-                                                      </Tooltip>
-                                                   </tooltip>
-                                                </RadioButton>
+                                                <Label styleClass="optionslabel" text="Client Secret:" userData="CLIENTSECRET">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
                                                 <PasswordEyeComponent fx:id="clientSecretComponent" visible="true"/>
                                              </children>
                                           </HBox>
                                           <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
-                                             <children>
-                                                <RadioButton disable="true" styleClass="optionslabel" fx:id="jwtRB"
-                                                             focusTraversable="false" mnemonicParsing="false"
-                                                             prefHeight="17.0" text="JWT" toggleGroup="$authTypeToggleGroup" userData="JWT"
-                                                             visible="false">
-                                                   <tooltip>
-                                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Specify JWK file" wrapText="true">
-                                                         <font>
-                                                            <Font size="11.0" />
-                                                         </font>
-                                                      </Tooltip>
-                                                   </tooltip>
-                                                </RadioButton>
-                                                <FilePickerComponent fx:id="jwkFilePicker" visible="false"/>
-                                             </children>
                                           </HBox>
                                        </children>
                                     </VBox>

@@ -156,19 +156,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private ScrollableTextField clientId;
 
     @FXML
-    private RadioButton clientSecretRB;
-
-    @FXML
-    private RadioButton jwtRB;
-
-    @FXML
     private PasswordEyeComponent clientSecretComponent;
-
-    @FXML
-    private FilePickerComponent jwkFilePicker;
-
-    @FXML
-    private ToggleGroup authTypeToggleGroup;
 
     private final OMMViewerError ommViewerError = new OMMViewerError();
     private AsyncResponseModel asyncResponseObserver;
@@ -213,7 +201,6 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             usernameTextField.setCustomWidth(width3);
             clientIdTextField.setCustomWidth(width3);
             clientId.setCustomWidth(width3);
-            jwkFilePicker.setFilePickerWidth(width3);
             clientSecretComponent.setCustomWidth(width3);
             tokenServiceUrl.setCustomWidth(width4);
             serviceDiscoveryUrl.setCustomWidth(width4);
@@ -247,10 +234,6 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         authTypeGroup.selectedToggleProperty().addListener(
                 (observable, oldValue, newValue) -> toggleSTS_PINGRadioButton()
         );
-
-        authTypeToggleGroup.selectedToggleProperty().addListener(
-                (observable, oldValue, newValue) -> toggleSecret_JWKRadioButton()
-        );
     }
 
     private void toggleSTS_PINGRadioButton() {
@@ -263,18 +246,6 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V2);
             v1Creds.setVisible(false);
             v2Creds.setVisible(true);
-        }
-    }
-
-    private void toggleSecret_JWKRadioButton() {
-        RadioButton radioButton = (RadioButton) authTypeToggleGroup.getSelectedToggle();
-        String radioStrValue = radioButton.getUserData().toString();
-        if (radioStrValue.equals("CLIENTSECRET")) {
-            clientSecretComponent.setVisible(true);
-            jwkFilePicker.setVisible(false);
-        } else if (radioStrValue.equals("JWT")) {
-            clientSecretComponent.setVisible(false);
-            jwkFilePicker.setVisible(true);
         }
     }
 
@@ -465,7 +436,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
         EmaConfigModel emaConfigModel = emaConfigComponent.createEmaConfigModel();
 
-        if (customServiceUrlsCheckbox.isSelected() && !emaConfigModel.isUseEmaConfig()) {
+        if (customServiceUrlsCheckbox.isSelected()) {
             tokenServiceUrl = this.tokenServiceUrl.getText().trim();
             serviceDiscoveryUrl = this.serviceDiscoveryUrl.getText().trim();
         }
@@ -477,9 +448,8 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                 .username(usernameTextField.getText().trim())
                 .password(usernamePasswordComponent.getPasswordField().getText().trim())
                 .clientSecret(clientSecretComponent.getPasswordField().getText().trim())
-                .jwkPath(jwkFilePicker.getFilePickerTextField().getText())
                 .useV1(useV1)
-                .useClientSecret(authTypeToggleGroup.getSelectedToggle().getUserData().equals("CLIENTSECRET"))
+                .useClientSecret(!clientSecretComponent.getPasswordField().getText().trim().isBlank())
                 .connectionType(connectionTypesComboBox.getValue())
                 .useEncryption(encryptionDataModel)
                 .useProxy(proxyDataModel)
@@ -506,9 +476,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                         | hasErrorField("Client ID", clientIdTextField.getTextField());
             } else {
                 hasError |= hasErrorField("Client ID", clientId.getTextField())
-                        | (authTypeToggleGroup.getSelectedToggle().equals(clientSecretRB)
-                        ? hasErrorField("Client Secret", clientSecretComponent.getPasswordField())
-                        : hasErrorField("JWK", jwkFilePicker.getFilePickerTextField()));
+                        | hasErrorField("Client Secret", clientSecretComponent.getPasswordField());
             }
 
             if (encryptionOptionCheckbox.isSelected()) {
