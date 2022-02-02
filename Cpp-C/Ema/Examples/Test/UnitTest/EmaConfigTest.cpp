@@ -298,7 +298,9 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<EmaString>("ChannelGroup|ChannelList|Channel.Channel_2|Location", retrievedValue);
 	EXPECT_TRUE(debugResult && retrievedValue == "eu-west") << "extracting Location from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|EnableSessionManagement", uintValue);
-	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting TcpNodelay from EmaConfig.xml";
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting EnableSessionManagement from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|ServiceDiscoveryRetryCount", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 4) << "extracting ServiceDiscoveryRetryCount from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|InitializationTimeout", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 55) << "extracting InitializationTimeout from EmaConfig.xml";
 
@@ -1174,6 +1176,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 			.addEnum("ChannelType", 1)
 			.addAscii("Location", "eu-west")
 			.addUInt("EnableSessionManagement", 1)
+			.addUInt("ServiceDiscoveryRetryCount", 5)
 			.addEnum("EncryptedProtocolType", 0)
 			.complete())
 			.complete();
@@ -1214,6 +1217,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->location == "eu-west") << "EncryptedChannelConfig::location , \"eu-west\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->enableSessionMgnt == 1) << "EncryptedChannelConfig::enableSessionMgnt , 1";
+		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->serviceDiscoveryRetryCount == 5) << "EncryptedChannelConfig::serviceDiscoveryRetryCount , 5";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum) << "dictionaryType , Dictionary::FileDictionaryEnum";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.rdmfieldDictionaryFileName == fieldDictionaryFileNameTest) << "rdmfieldDictionaryFileName , " << fieldDictionaryFileNameTest;
 		EXPECT_TRUE(activeConfig.dictionaryConfig.enumtypeDefFileName == enumTableFileNameTest) << "enumtypeDefFileName , " << enumTableFileNameTest;

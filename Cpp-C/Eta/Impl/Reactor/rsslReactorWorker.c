@@ -686,6 +686,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 												pReactorChannel->lastReconnectAttemptMs = pReactorImpl->reactorWorker.lastRecordedTimeMs;
 
+												if (pReactorChannel->connectionOptList)
+													pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reconnectEndpointAttemptCount++;
+
 												_reactorWorkerCalculateNextTimeout(pReactorImpl, pReactorChannel->reconnectDelay);
 
 												break;
@@ -1732,7 +1735,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						RTR_ATOMIC_SET(pReactorChannel->addedToTokenSessionList, RSSL_TRUE); /* Ensure that this flag is set when the channel is added from recovering the connection */
 					}
 
-					if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
+					if ((!pReactorConnectInfoImpl->userSetConnectionInfo && pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount != 0
+						&& (pReactorConnectInfoImpl->reconnectEndpointAttemptCount % pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount == 0)) ||
+						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
 					{	/* Get host name and port for RDP service discovery */
 						RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;
@@ -2699,6 +2704,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 				free(parseBuffer.data);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT;
+				pReactorConnectInfoImpl->reconnectEndpointAttemptCount = 0;
 
 				if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 				{
@@ -3116,7 +3122,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 				if (pReactorChannel->workerParentList == &pReactorWorker->reconnectingChannels)
 				{
-					if ((!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
+					if ((!pReactorConnectInfoImpl->userSetConnectionInfo && pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount != 0
+						&& (pReactorConnectInfoImpl->reconnectEndpointAttemptCount % pReactorConnectInfoImpl->base.serviceDiscoveryRetryCount == 0)) ||
+						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.address)) &&
 						(!pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName || !(*pReactorConnectInfoImpl->base.rsslConnectOptions.connectionInfo.unified.serviceName)))
 					{	/* Get host name and port for RDP service discovery */
 						RsslBuffer rsslBuffer = RSSL_INIT_BUFFER;

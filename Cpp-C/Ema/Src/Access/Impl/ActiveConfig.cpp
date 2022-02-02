@@ -837,6 +837,7 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	securityProtocol(RSSL_ENC_TLSV1_2),
 	enableSessionMgnt(RSSL_FALSE),
 	location(DEFAULT_RDP_RT_LOCATION),
+	serviceDiscoveryRetryCount(DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT),
 	wsMaxMsgSize(DEFAULT_WS_MAXMSGSIZE),
 	wsProtocols(DEFAULT_WS_PROTOCLOS)
 {
@@ -858,6 +859,7 @@ void SocketChannelConfig::clear()
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
 	location = DEFAULT_RDP_RT_LOCATION;
+	serviceDiscoveryRetryCount = DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
 	wsMaxMsgSize = DEFAULT_WS_MAXMSGSIZE;
 	wsProtocols = DEFAULT_WS_PROTOCLOS;
 }
@@ -866,6 +868,23 @@ ChannelConfig::ChannelType SocketChannelConfig::getType() const
 {
 	return ChannelConfig::SocketChannelEnum;
 }
+
+void SocketChannelConfig::setServiceDiscoveryRetryCount(UInt64 value)
+{
+	if (value >= 0)
+	{
+		serviceDiscoveryRetryCount = value > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)value;
+	}
+}
+
+void SocketChannelConfig::setWsMaxMsgSize(UInt64 value)
+{
+	if (value >= 0)
+	{
+		wsMaxMsgSize = value > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)value;
+	}
+}
+
 
 SocketServerConfig::SocketServerConfig(const EmaString& defaultServiceName) :
 ServerConfig(RSSL_CONN_TYPE_SOCKET),

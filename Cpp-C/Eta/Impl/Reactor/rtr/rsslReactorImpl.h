@@ -101,7 +101,8 @@ typedef struct
 	RsslReactorTokenMgntEventType	reactorTokenMgntEventType; /* Specify an event type for sending to the Reactor */
 
 	RsslReactorDiscoveryTransportProtocol transportProtocol; /* This is used to keep the transport protocol for requesting service discovery */
-
+	RsslBool	userSetConnectionInfo; /* True when user specifies connectionInfo.unified fields address and serviceName. See RsslConnectionInfo */
+	RsslUInt32	reconnectEndpointAttemptCount; /* Attempts counter of connecting to the channel using this endpoint */
 } RsslReactorConnectInfoImpl;
 
 RTR_C_INLINE void rsslClearReactorConnectInfoImpl(RsslReactorConnectInfoImpl* pReactorConnectInfoImpl)
@@ -412,7 +413,7 @@ typedef struct
 	RsslInt32 reconnectAttemptLimit;
 	RsslInt32 reconnectAttemptCount;
 	RsslInt64 lastReconnectAttemptMs;
-	
+
 	RsslInt32 connectionListCount;
 	RsslInt32 connectionListIter;
 	RsslReactorConnectInfoImpl *connectionOptList;
@@ -605,6 +606,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			pReactorChannel->connectionOptList[i].base.initializationTimeout = pOpts->reactorConnectionList[i].initializationTimeout;
 			pReactorChannel->connectionOptList[i].base.enableSessionManagement = pOpts->reactorConnectionList[i].enableSessionManagement;
 			pReactorChannel->connectionOptList[i].base.pAuthTokenEventCallback = pOpts->reactorConnectionList[i].pAuthTokenEventCallback;
+			pReactorChannel->connectionOptList[i].base.serviceDiscoveryRetryCount = pOpts->reactorConnectionList[i].serviceDiscoveryRetryCount;
 
 			if (!(*enableSessionMgnt))
 				(*enableSessionMgnt) = pReactorChannel->connectionOptList[i].base.enableSessionManagement;
@@ -626,6 +628,12 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 					pReactorChannel->pChannelStatistic = NULL;
 				}
 				return RSSL_RET_FAILURE;
+			}
+
+			if ((destOpts->connectionInfo.unified.address != NULL  &&  *destOpts->connectionInfo.unified.address != '\0') &&
+				(destOpts->connectionInfo.unified.serviceName != NULL  &&  *destOpts->connectionInfo.unified.serviceName != '\0'))
+			{
+				pReactorChannel->connectionOptList[i].userSetConnectionInfo = RSSL_TRUE;
 			}
 		}
 		pReactorChannel->connectionListCount = pOpts->connectionCount;

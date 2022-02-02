@@ -107,6 +107,7 @@ void EmaActiveConfigTest::SocketChannelConfigTestDefaultValues(SocketChannelConf
 
 	EXPECT_EQ(socketChannelConfig.enableSessionMgnt, RSSL_FALSE);
 	EXPECT_TRUE(socketChannelConfig.location == DEFAULT_RDP_RT_LOCATION);
+	EXPECT_EQ(socketChannelConfig.serviceDiscoveryRetryCount, DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT);
 	EXPECT_EQ(socketChannelConfig.wsMaxMsgSize, DEFAULT_WS_MAXMSGSIZE);
 	EXPECT_TRUE(socketChannelConfig.wsProtocols == DEFAULT_WS_PROTOCLOS);
 
@@ -121,6 +122,24 @@ TEST_F(EmaActiveConfigTest, SocketChannelConfigTest)
 	// Tests default values
 	SocketChannelConfigTestDefaultValues(socketChannelConfig);
 
+	const int midValue = 120;
+	// serviceDiscoveryRetryCount
+	socketChannelConfig.setServiceDiscoveryRetryCount((RWF_MAX_32)+1ULL);
+	EXPECT_EQ((RWF_MAX_32), socketChannelConfig.serviceDiscoveryRetryCount) << "Should be equal to RWF_MAX_32 - maximum allowed value";
+	socketChannelConfig.setServiceDiscoveryRetryCount(midValue);
+	EXPECT_EQ(midValue, socketChannelConfig.serviceDiscoveryRetryCount) << "Should be equal to " << midValue;
+	socketChannelConfig.setServiceDiscoveryRetryCount(0);
+	EXPECT_EQ(0, socketChannelConfig.serviceDiscoveryRetryCount) << "Should be equal to 0";
+
+	// wsMaxMsgSize
+	socketChannelConfig.setWsMaxMsgSize((RWF_MAX_32)+1ULL);
+	EXPECT_EQ((RWF_MAX_32), socketChannelConfig.wsMaxMsgSize) << "Should be equal to RWF_MAX_32 - maximum allowed value";
+	socketChannelConfig.setWsMaxMsgSize(midValue);
+	EXPECT_EQ(midValue, socketChannelConfig.wsMaxMsgSize) << "Should be equal to " << midValue;
+	socketChannelConfig.setWsMaxMsgSize(0);
+	EXPECT_EQ(0, socketChannelConfig.wsMaxMsgSize) << "Should be equal 0";
+
+
 	// Make some changes...
 	socketChannelConfig.hostName = "non defaultHostName";
 	socketChannelConfig.serviceName = "non defaultServiceName";
@@ -133,6 +152,7 @@ TEST_F(EmaActiveConfigTest, SocketChannelConfigTest)
 
 	socketChannelConfig.enableSessionMgnt = RSSL_TRUE;
 	socketChannelConfig.location = "Oak Brooke Terrace";
+	socketChannelConfig.serviceDiscoveryRetryCount = 5671;
 	socketChannelConfig.wsMaxMsgSize = 42;
 	socketChannelConfig.wsProtocols = "Protos forever";
 	//socketChannelConfig.connectionType = RSSL_CONN_TYPE_UNIDIR_SHMEM;

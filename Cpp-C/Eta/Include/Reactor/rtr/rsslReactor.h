@@ -431,6 +431,10 @@ typedef struct
 	RsslBuffer          location;                /*!< Specifies a location to get a service endpoint to establish a connection with service provider. 
 												  * Defaults to "us-east-1" if not specified. The Reactor always uses a endpoint which provides two availability zones 
 												  * for the location. */
+	RsslUInt32			serviceDiscoveryRetryCount;				/*!< The number of times the RsslReactor attempts to reconnect a channel before that would force the API
+																 * to retry Service Discovery. Reactor will not retry to get a endpoint from the service discovery
+																 * when the value is zero. */
+
 	RsslReactorAuthTokenEventCallback *pAuthTokenEventCallback; /*!< Callback function that receives RsslReactorAuthTokenEvents. The token is requested 
 	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
 																 * reissue with the token */
@@ -444,6 +448,7 @@ RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 	pInfo->enableSessionManagement = RSSL_FALSE;
 	pInfo->location.data = (char *)"us-east-1";
 	pInfo->location.length = 9;
+	pInfo->serviceDiscoveryRetryCount = 3;
 	pInfo->pAuthTokenEventCallback = NULL;
 }
 

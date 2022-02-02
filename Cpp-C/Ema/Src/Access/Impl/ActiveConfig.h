@@ -113,6 +113,7 @@
 #define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			  false
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
+#define DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT		  3
 #define DEFAULT_WS_MAXMSGSIZE						  61440
 #define DEFAULT_WS_PROTOCLOS						  EmaString( "tr_json2, rssl.rwf, rssl.json.v2" )
 #define DEFAULT_MAX_FRAGMENT_SIZE					  6144
@@ -279,6 +280,8 @@ public :
 
 	virtual ~SocketChannelConfig();
 
+	void setServiceDiscoveryRetryCount(UInt64 value);
+	void setWsMaxMsgSize(UInt64 value);
 	void clear();
 
 	ChannelType getType() const;
@@ -296,6 +299,7 @@ public :
 	int						securityProtocol;
 	EmaString				location;
 	RsslBool				enableSessionMgnt;
+	UInt32					serviceDiscoveryRetryCount;
 	UInt64			wsMaxMsgSize;
 	EmaString		wsProtocols;
 

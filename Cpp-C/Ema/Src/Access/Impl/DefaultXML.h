@@ -151,6 +151,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"RestEnableLog",
 	"ServerSharedSocket",
 	"ServiceCountHint",
+	"ServiceDiscoveryRetryCount",
 	"ServiceId",
 	"ServiceState",
 	"SupportsOutOfBandSnapshots",

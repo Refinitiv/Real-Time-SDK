@@ -367,6 +367,7 @@
 			<ObjectName value="HttpObjectName"/>
 			<Location value="eu-west"/>
 			<EnableSessionManagement value="1"/>
+			<ServiceDiscoveryRetryCount value="4"/>
 			<InitializationTimeout value="55"/>
 		</Channel>
 		<Channel>

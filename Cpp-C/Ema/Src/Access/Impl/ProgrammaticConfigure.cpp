@@ -1162,7 +1162,7 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												}
 												else if (eentry.getName() == "DefaultServiceID")
 												{
-													activeConfig.defaultServiceIDForConverter = eentry.getUInt() <= 0xFFFF ? (RsslUInt16)eentry.getUInt() : 0xFFFF;
+													activeConfig.defaultServiceIDForConverter = eentry.getUInt() <= RWF_MAX_16 ? (RsslUInt16)eentry.getUInt() : RWF_MAX_16;
 												}
 												else if (eentry.getName() == "JsonExpandedEnumFields")
 												{
@@ -1182,7 +1182,7 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												}
 												else if (eentry.getName() == "OutputBufferSize")
 												{
-													activeConfig.outputBufferSize = eentry.getUInt() <= 0xFFFFFFFF ? (RsslUInt32)eentry.getUInt() : 0xFFFFFFFF;
+													activeConfig.outputBufferSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
 												}
 												else if (eentry.getName() == "EnableRtt")
 												{
@@ -1208,7 +1208,7 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												else if (eentry.getName() == "ReconnectAttemptLimit")
 												{
 													if (eentry.getInt() >= -1)
-														activeConfig.reconnectAttemptLimit = eentry.getInt() > 0x7FFFFFFF ? 0x7FFFFFFF : (Int32)eentry.getInt();
+														activeConfig.reconnectAttemptLimit = eentry.getInt() > RWF_MAX_U31 ? RWF_MAX_U31 : (Int32)eentry.getInt();
 												}
 												else if (eentry.getName() == "ReconnectMinDelay")
 												{
@@ -1367,7 +1367,7 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									}
 									else if (eentry.getName() == "DefaultServiceID")
 									{
-										activeConfig.defaultServiceIDForConverter = eentry.getUInt() <= 0xFFFF ? (RsslUInt16)eentry.getUInt() : 0xFFFF;
+										activeConfig.defaultServiceIDForConverter = eentry.getUInt() <= RWF_MAX_16 ? (RsslUInt16)eentry.getUInt() : RWF_MAX_16;
 									}
 									else if (eentry.getName() == "JsonExpandedEnumFields")
 									{
@@ -1387,7 +1387,7 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									}
 									else if (eentry.getName() == "OutputBufferSize")
 									{
-										activeConfig.outputBufferSize = eentry.getUInt() <= 0xFFFFFFFF ? (RsslUInt32)eentry.getUInt() : 0xFFFFFFFF;
+										activeConfig.outputBufferSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
 									}
 
 									break;
@@ -1830,6 +1830,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
 	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize;
+	UInt64 serviceDiscoveryRetryCount;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -2128,6 +2129,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				tempRelMcastCfg.setUserQLimit( channelEntry.getUInt() );
 				mcastFlags |= 0x200000;
 			}
+			else if ( channelEntry.getName() == "ServiceDiscoveryRetryCount" )
+			{
+				serviceDiscoveryRetryCount = channelEntry.getUInt();
+				flags |= 0x10000000;
+			}
 			else if (channelEntry.getName() == "WsMaxMsgSize")
 			{
 				wsMaxMsgSize = channelEntry.getUInt();
@@ -2241,7 +2247,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 						socketChannelConfig->wsProtocols = fileCfgSocket->wsProtocols;
 
 					if (websocketFlags & 0x02)
-						socketChannelConfig->wsMaxMsgSize = wsMaxMsgSize;
+						socketChannelConfig->setWsMaxMsgSize(wsMaxMsgSize);
 					else if (fileCfgSocket)
 						socketChannelConfig->wsMaxMsgSize = fileCfgSocket->wsMaxMsgSize;
 				}
@@ -2266,6 +2272,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 						socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
 					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 						socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
+
+					if (flags & 0x10000000)
+						socketChannelConfig->setServiceDiscoveryRetryCount(serviceDiscoveryRetryCount);
+					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+						socketChannelConfig->serviceDiscoveryRetryCount = fileCfgSocket->serviceDiscoveryRetryCount;
 
 					//need to copy other tunneling setting from function calls.
 					if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)

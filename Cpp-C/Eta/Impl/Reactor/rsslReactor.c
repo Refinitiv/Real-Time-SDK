@@ -3436,6 +3436,8 @@ static RsslRet _reactorReadWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslReact
 		/* Login stream established. Reset connection delay. */
 		pReactorChannel->reconnectAttemptCount = 0;
 		pReactorChannel->pWatchlist->state &= ~RSSLWL_STF_RESET_CONN_DELAY;
+		if (pReactorChannel->connectionOptList)
+			pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reconnectEndpointAttemptCount = 0;
 	}
 
 	if (pReactorChannel->pWatchlist->state & RSSLWL_STF_NEED_TIMER) 
@@ -3796,6 +3798,8 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							{
 								pReactorChannel->reconnectAttemptCount = 0;
 								pReactorChannel->lastReconnectAttemptMs = 0;
+								if (pReactorChannel->connectionOptList)
+									pReactorChannel->connectionOptList[pReactorChannel->connectionListIter].reconnectEndpointAttemptCount = 0;
 							}
 
 							_reactorMoveChannel(&pReactorImpl->activeChannels, pReactorChannel);

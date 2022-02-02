@@ -497,7 +497,8 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR)
 			.append("SecurityProtocol ").append(pTempChannelCfg->securityProtocol).append(CR)
 			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR)
-			.append("Location ").append(pTempChannelCfg->location).append(CR);
+			.append("Location ").append(pTempChannelCfg->location).append(CR)
+			.append("ServiceDiscoveryRetryCount ").append(pTempChannelCfg->serviceDiscoveryRetryCount).append(CR);
 
 		if (pTempChannelCfg->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
@@ -611,6 +612,7 @@ Channel* ChannelCallbackClient::channelConfigToReactorConnectInfo(ChannelConfig*
 			reactorConnectInfo->enableSessionManagement = static_cast<SocketChannelConfig*>(activeChannelConfig)->enableSessionMgnt;
 			reactorConnectInfo->location.length = static_cast<SocketChannelConfig*>(activeChannelConfig)->location.length();
 			reactorConnectInfo->location.data = (char*)static_cast<SocketChannelConfig*>(activeChannelConfig)->location.c_str();
+			reactorConnectInfo->serviceDiscoveryRetryCount = static_cast<SocketChannelConfig*>(activeChannelConfig)->serviceDiscoveryRetryCount;
 			// Fall through to HTTP connection options
 		}
 		case RSSL_CONN_TYPE_SOCKET:

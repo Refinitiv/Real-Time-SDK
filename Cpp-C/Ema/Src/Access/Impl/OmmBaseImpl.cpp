@@ -1038,12 +1038,16 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		if (!pConfigImpl->get< EmaString >(channelNodeName + "Location", socketChannelCfg->location))
 			socketChannelCfg->location = DEFAULT_RDP_RT_LOCATION;
 
-		UInt64 tempUInt = 0;
 		pConfigImpl->get<UInt64>(channelNodeName + "EnableSessionManagement", tempUInt);
 		if (!tempUInt)
 			socketChannelCfg->enableSessionMgnt = RSSL_FALSE;
 		else
 			socketChannelCfg->enableSessionMgnt = RSSL_TRUE;
+
+		if (pConfigImpl->get<UInt64>(channelNodeName + "ServiceDiscoveryRetryCount", tempUInt))
+		{
+			socketChannelCfg->setServiceDiscoveryRetryCount(tempUInt);
+		}
 
 		// Fall through to HTTP for common configurations
 	}
