@@ -51,6 +51,7 @@ class FieldListTypesTestParams
 	bool msg;
 	bool json;
 	bool fieldListInfo;
+	bool ansiPage;
 
 	int memberCount;
 
@@ -107,6 +108,7 @@ class FieldListTypesTestParams
 				case RSSL_DT_RMTES_STRING:	this->rmtesString = true; break;
 				case RSSL_DT_OPAQUE:		this->opaque = true; break;
 				case RSSL_DT_XML:			this->xml = true; break;
+				case RSSL_DT_ANSI_PAGE:		this->ansiPage = false; break;  // RTSDK-5039: this->ansiPage = false due to missed implementation of AnsiPage encoding
 				case RSSL_DT_FIELD_LIST:	this->fieldList = true; break;
 				case RSSL_DT_ELEMENT_LIST:	this->elementList = true; break;
 				case RSSL_DT_FILTER_LIST:	this->filterList = true; break;
@@ -146,6 +148,7 @@ class FieldListTypesTestParams
 		if (params.rmtesString) out << " rmtesString";
 		if (params.opaque) out << " opaque";
 		if (params.xml) out << " xml";
+		//if (params.ansiPage) out << " ansiPage"; // DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 		if (params.fieldList) out << " fieldList";
 		if (params.elementList) out << " elementList";
 		if (params.filterList) out << " filterList";
@@ -387,6 +390,16 @@ TEST_P(FieldListTypesTestFixture, FieldListTypesTest)
 		fieldEntry.fieldId = XML_FIELD.fieldId;
 		fieldEntry.dataType = RSSL_DT_XML;
 		fieldEntry.encData = XML_BUFFER;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeFieldEntry(&_eIter, &fieldEntry, NULL));
+	}
+
+	/* Encode AnsiPage field. */
+	if (params.ansiPage)
+	{
+		rsslClearFieldEntry(&fieldEntry);
+		fieldEntry.fieldId = ANSI_PAGE_FIELD.fieldId;
+		fieldEntry.dataType = RSSL_DT_ANSI_PAGE;
+		fieldEntry.encData = ANSI_PAGE_BUFFER;
 		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeFieldEntry(&_eIter, &fieldEntry, NULL));
 	}
 
@@ -1520,6 +1533,9 @@ INSTANTIATE_TEST_CASE_P(FieldListTestsJson2, FieldListTypesTestFixture, ::testin
 	/* Xml */
 	FieldListTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_XML, false),
 
+	/* AnsiPage */
+	//FieldListTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_ANSI_PAGE, false), // DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+
 	/* FieldList */
 	FieldListTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_FIELD_LIST, false),
 
@@ -1609,6 +1625,9 @@ INSTANTIATE_TEST_CASE_P(FieldListTestsJson1, FieldListTypesTestFixture, ::testin
 
 	/* Xml */
 	FieldListTypesTestParams(RSSL_JSON_JPT_JSON, RSSL_DT_XML, false),
+
+	/* AnsiPage */
+	//FieldListTypesTestParams(RSSL_JSON_JPT_JSON, RSSL_DT_ANSI_PAGE, false), // DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 
 	/* FieldList */
 	FieldListTypesTestParams(RSSL_JSON_JPT_JSON, RSSL_DT_FIELD_LIST, false),

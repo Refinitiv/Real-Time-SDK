@@ -8,6 +8,8 @@
 
 #include "rsslJsonConverterTestBase.h"
 
+//#include "q_ansi.h"
+
 using namespace std;
 using namespace json; 
 
@@ -78,6 +80,7 @@ class ElementListTypesTestParams
 	bool series;
 	bool msg;
 	bool json;
+	bool ansiPage;
 
 	int memberCount;
 
@@ -132,6 +135,7 @@ class ElementListTypesTestParams
 				case RSSL_DT_RMTES_STRING:	this->rmtesString = true; break;
 				case RSSL_DT_OPAQUE:		this->opaque = true; break;
 				case RSSL_DT_XML:			this->xml = true; break;
+				case RSSL_DT_ANSI_PAGE:		this->ansiPage = false; break; // RTSDK-5039: this->ansiPage = false due to missed implementation of AnsiPage encoding
 				case RSSL_DT_FIELD_LIST:	this->fieldList = true; break;
 				case RSSL_DT_ELEMENT_LIST:	this->elementList = true; break;
 				case RSSL_DT_FILTER_LIST:	this->filterList = true; break;
@@ -171,6 +175,7 @@ class ElementListTypesTestParams
 		if (params.rmtesString) out << " rmtesString";
 		if (params.opaque) out << " opaque";
 		if (params.xml) out << " xml";
+		//if (params.ansiPage) out << " ansiPage"; 	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 		if (params.fieldList) out << " fieldList";
 		if (params.elementList) out << " elementList";
 		if (params.filterList) out << " filterList";
@@ -404,6 +409,16 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 		elementEntry.name = XML_FIELD.fieldName;
 		elementEntry.dataType = RSSL_DT_XML;
 		elementEntry.encData = XML_BUFFER;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeElementEntry(&_eIter, &elementEntry, NULL));
+	}
+
+	/*Encode AnsiPage element*/
+	if (params.ansiPage)
+	{
+		rsslClearElementEntry(&elementEntry);
+		elementEntry.name = ANSI_PAGE_FIELD.fieldName;
+		elementEntry.dataType = RSSL_DT_ANSI_PAGE;
+		elementEntry.encData = ANSI_PAGE_BUFFER;
 		ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeElementEntry(&_eIter, &elementEntry, NULL));
 	}
 
@@ -1169,6 +1184,15 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 				++currentEntry;
 			}
 
+			/* Check AnsiPage element. */
+			if (params.ansiPage)
+			{
+				ASSERT_NO_FATAL_FAILURE(checkJson1ElementEntryNameAndFormat(_jsonDocument["d"]["d"][currentEntry], ANSI_PAGE_FIELD.fieldName.data, RSSL_DT_ANSI_PAGE));
+				ASSERT_TRUE(_jsonDocument["d"]["d"][currentEntry]["d"].IsString());
+				EXPECT_STREQ(ANSI_PAGE_BUFFER.data, _jsonDocument["d"]["d"][currentEntry]["d"].GetString());
+				++currentEntry;
+			}
+
 			/* Check FieldList element. */
 			if (params.fieldList)
 			{
@@ -1265,7 +1289,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 	bool foundIntElement = false, foundUintElement = false, foundFloatElement = false, foundDoubleElement = false, foundRealElement = false,
 		 foundDateElement = false, foundTimeElement = false, foundDateTimeElement = false, foundQosElement = false, foundStateElement = false,
 		 foundEnumElement = false, foundArrayElement = false, foundBufferElement = false, foundAsciiStringElement = false, foundUtf8StringElement = false,
-		 foundRmtesStringElement = false, foundOpaqueElement = false, foundXmlElement = false, foundFieldListElement = false,
+		 foundRmtesStringElement = false, foundOpaqueElement = false, foundXmlElement = false, foundAnsiPage = false, foundFieldListElement = false,
 		 foundElementListElement = false, foundFilterListElement = false, foundMapElement = false, foundVectorElement = false, foundSeriesElement = false,
 		 foundMsgElement = false, foundJsonElement = false;
 
@@ -1452,6 +1476,14 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 			EXPECT_TRUE(rsslBufferIsEqual(&XML_BUFFER, &decodeBuffer));
 			foundXmlElement = true;
 		}
+		else if (rsslBufferIsEqual(&ANSI_PAGE_FIELD.fieldName, &elementEntry.name))
+		{
+			RsslBuffer decodeBuffer;
+			ASSERT_EQ(RSSL_DT_ANSI_PAGE, elementEntry.dataType);
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeBuffer(&_dIter, &decodeBuffer));
+			EXPECT_TRUE(rsslBufferIsEqual(&ANSI_PAGE_BUFFER, &decodeBuffer));
+			foundAnsiPage = true;
+		}
 		else if (rsslBufferIsEqual(&FIELDLIST_FIELD.fieldName, &elementEntry.name))
 		{
 			ASSERT_EQ(RSSL_DT_FIELD_LIST, elementEntry.dataType);
@@ -1556,6 +1588,7 @@ TEST_P(ElementListTypesTestFixture, ElementListTypesTest)
 	ASSERT_EQ(params.rmtesString, foundRmtesStringElement);
 	ASSERT_EQ(params.opaque, foundOpaqueElement);
 	ASSERT_EQ(params.xml, foundXmlElement);
+	//ASSERT_EQ(params.ansiPage, foundAnsiPage); // RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 	ASSERT_EQ(params.fieldList, foundFieldListElement);
 	ASSERT_EQ(params.elementList, foundElementListElement);
 	ASSERT_EQ(params.filterList, foundFilterListElement);
@@ -1626,6 +1659,9 @@ INSTANTIATE_TEST_CASE_P(ElementListTests, ElementListTypesTestFixture, ::testing
 
 	/* Xml */
 	ElementListTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_XML),
+
+	/* AnsiPage */
+	//ElementListTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_ANSI_PAGE), 	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 
 	/* FieldList */
 	ElementListTypesTestParams(RSSL_JSON_JPT_JSON2, RSSL_DT_FIELD_LIST),
@@ -1716,6 +1752,9 @@ INSTANTIATE_TEST_CASE_P(ElementListTestsJson1, ElementListTypesTestFixture, ::te
 
 	/* Xml */
 	ElementListTypesTestParams(RSSL_JSON_JPT_JSON, RSSL_DT_XML),
+
+	/* AnsiPage */
+	//ElementListTypesTestParams(RSSL_JSON_JPT_JSON, RSSL_DT_ANSI_PAGE), // DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 
 	/* FieldList */
 	ElementListTypesTestParams(RSSL_JSON_JPT_JSON, RSSL_DT_FIELD_LIST),

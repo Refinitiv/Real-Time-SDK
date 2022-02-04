@@ -56,6 +56,7 @@ extern const RsslBuffer			UTF8_STRING;			/** Utf8String primitive. */
 extern const RsslBuffer			RMTES_STRING;			/** RMTESString primitive. */
 extern const RsslBuffer			RMTES_STRING_AS_UTF8;	/** RMTESString primitive, as it would appear in JSON. */
 extern const RsslBuffer			XML_BUFFER;				/** Xml Container */
+extern const RsslBuffer			ANSI_PAGE_BUFFER;		/** ANSI PAGE Container */
 extern const RsslBuffer			SERVICE_NAME;			/** Service Name corresponding to MSGKEY_SVC_ID. */
 extern const RsslReal			&REAL;					/** Real primitive. */
 extern const RsslQos			&QOS;					/** Qos primitive. */
@@ -99,6 +100,7 @@ extern const CustomField MSG_FIELD;
 extern const CustomField JSON_FIELD;
 extern const CustomField OPAQUE_FIELD;
 extern const CustomField ARRAY_FIELD;
+extern const CustomField ANSI_PAGE_FIELD;
 
 /* Array containing all supported primitive types. */
 static RsslUInt8 allPrimitiveTypes[] =
@@ -112,14 +114,14 @@ static RsslUInt8 allDataTypes[] =
 {
 	RSSL_DT_INT, RSSL_DT_UINT, RSSL_DT_FLOAT, RSSL_DT_DOUBLE, RSSL_DT_REAL, RSSL_DT_DATE, RSSL_DT_TIME, RSSL_DT_DATETIME, RSSL_DT_QOS, RSSL_DT_STATE,
 	RSSL_DT_ENUM, RSSL_DT_ARRAY, RSSL_DT_BUFFER, RSSL_DT_ASCII_STRING, RSSL_DT_UTF8_STRING, RSSL_DT_RMTES_STRING, RSSL_DT_OPAQUE, RSSL_DT_XML,
-	RSSL_DT_FIELD_LIST, RSSL_DT_ELEMENT_LIST, RSSL_DT_FILTER_LIST, RSSL_DT_MAP, RSSL_DT_VECTOR, RSSL_DT_SERIES, RSSL_DT_MSG, RSSL_DT_JSON
+	RSSL_DT_FIELD_LIST, RSSL_DT_ELEMENT_LIST, RSSL_DT_FILTER_LIST, RSSL_DT_MAP, RSSL_DT_VECTOR, RSSL_DT_SERIES, RSSL_DT_MSG, RSSL_DT_JSON/*, RSSL_DT_ANSI_PAGE*/ // DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 };
 
 static RsslUInt8 json1AllDataTypes[] =
 {
 	RSSL_DT_INT, RSSL_DT_UINT, RSSL_DT_FLOAT, RSSL_DT_DOUBLE, RSSL_DT_REAL, RSSL_DT_DATE, RSSL_DT_TIME, RSSL_DT_DATETIME, RSSL_DT_QOS, RSSL_DT_STATE,
 	RSSL_DT_ENUM, RSSL_DT_ARRAY, RSSL_DT_BUFFER, RSSL_DT_ASCII_STRING, RSSL_DT_UTF8_STRING, RSSL_DT_RMTES_STRING, RSSL_DT_OPAQUE, RSSL_DT_XML,
-	RSSL_DT_FIELD_LIST, RSSL_DT_ELEMENT_LIST, RSSL_DT_FILTER_LIST, RSSL_DT_MAP, RSSL_DT_VECTOR, RSSL_DT_SERIES, RSSL_DT_MSG
+	RSSL_DT_FIELD_LIST, RSSL_DT_ELEMENT_LIST, RSSL_DT_FILTER_LIST, RSSL_DT_MAP, RSSL_DT_VECTOR, RSSL_DT_SERIES, RSSL_DT_MSG/*, RSSL_DT_ANSI_PAGE*/ // DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
 };
 
 /* Base class for parameterized message tests.

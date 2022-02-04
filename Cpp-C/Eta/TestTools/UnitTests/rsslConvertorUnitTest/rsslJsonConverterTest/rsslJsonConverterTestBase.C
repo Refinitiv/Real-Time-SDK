@@ -9,6 +9,7 @@
 #include "rsslJsonConverterTestBase.h"
 #include <fstream>
 #include "cpp-base64/base64.h"
+#include "q_ansi.h"
 
 using namespace std;
 using namespace json;
@@ -24,12 +25,19 @@ static RsslDataDictionary	*_pRsslDictionary;
 bool cmdlPrintJsonBuffer;	/* Print JSON buffers after conversion from RWF. */
 bool cmdlPrintRsslBuffer;	/* Print RWF buffers after conversion from JSON. */
 
+
+#define ANSI_INIT_STRG             "\033c\033(B\033[0;47;30m\033[1;1H"
+#define ANSI_CHG_TEST              "\033[4;10Hwrite on line three\
+									\033[8;30Hwrite on line eight"
+
 /* Sample Data commonly used by tests. */
 
 /* Used for the RMTES and UTF8 buffers. The RMTES and UTF8 values below are the same string in their respective formats.
  * (both represent an upward arrow) */
 const char RMTES_UPTICK[] = { (const char)0xde, (const char)0x00 };
 const char UTF8_UPTICK[] = { (const char)0xe2, (const char)0x87, (const char)0xa7, (const char)0x00 };
+
+static char ENCODED_ANSI_DATA[200] = { 0 };
 
 /* Sample content */
 const RsslBuffer		MSG_KEY_NAME			= {4, (char*)"TINY"};
@@ -56,6 +64,7 @@ const RsslBuffer	 	UTF8_STRING				= {sizeof(UTF8_UPTICK)/sizeof(char) - 1, (char
 const RsslBuffer		RMTES_STRING			= {sizeof(RMTES_UPTICK)/sizeof(char) - 1, (char*)RMTES_UPTICK};
 const RsslBuffer	 	RMTES_STRING_AS_UTF8	= {sizeof(UTF8_UPTICK)/sizeof(char) - 1, (char*)UTF8_UPTICK};
 const RsslBuffer		XML_BUFFER				= {38, (char*)"<html><head>Hello World!</head></html>"};
+const RsslBuffer		ANSI_PAGE_BUFFER		= {200, (char*)ENCODED_ANSI_DATA };
 const RsslBuffer		SERVICE_NAME			= {9, (char*)"DUCK_FEED"};
 
 /* More complex types, initialized in MsgConversionTestBase::initSampleData. Only the constant references are exposed for use in tests. */
@@ -96,6 +105,83 @@ const CustomField MSG_FIELD				= { -23, "-23", {3, (char*)"MSG"}};
 const CustomField JSON_FIELD			= { -24, "-24", {4, (char*)"JSON"}};
 const CustomField OPAQUE_FIELD			= { -25, "-25", {6, (char*)"OPAQUE"}};
 const CustomField ARRAY_FIELD			= { -26, "-26", {5, (char*)"ARRAY"}};
+const CustomField ANSI_PAGE_FIELD		= { -27, "-27", {200, (char*)ENCODED_ANSI_DATA}};
+
+int decodeAnsi(int x1, int x2, int y1, int y2, char* sText, LISTTYP* u_ptr, PAGETYP* pg_ptr)
+{
+	long text_len, ch_p;
+	int retv, ucnt;
+	struct upd_type *l_ptr;
+	retv = 0; ch_p = 1;
+	text_len = strlen(sText);
+	for (; text_len > 0 && ch_p > 0; text_len -= ch_p, sText += ch_p) {
+		ch_p = qa_decode(pg_ptr, sText, text_len, u_ptr);
+		/*check all updates for range*/
+		for (ucnt = (u_ptr->index + 1), l_ptr =
+			u_ptr->upd_list; ucnt; ucnt--, l_ptr++) {
+			if (!retv && l_ptr->row >= y1 && l_ptr->row <= y2) {
+				if ((l_ptr->upd_beg >= x1 &&
+					l_ptr->upd_beg <= x2) ||
+					(l_ptr->upd_end >= x1 &&
+						l_ptr->upd_end <= x2))
+					retv = 1;
+			}
+		}
+	}
+	return (retv);
+}
+
+void encodeAnsi(LISTTYP *u_ptr, PAGETYP* pg_ptr, char* out_buffer)
+{
+	int retv;
+	long len;
+	short last_mod;
+	last_mod = pg_ptr->last_mod = 0;
+	do {
+		last_mod = pg_ptr->last_mod;
+		retv = qa_encode(pg_ptr, (unsigned char*)out_buffer, 1000, &len, 0, u_ptr);
+		out_buffer[len] = '\0';
+		/*while not done and progress is being made*/
+	} while (last_mod != pg_ptr->last_mod && retv != DONE);
+}
+
+void encodeAnsiData()
+{
+	const int ROWS = 25; /*Standard page size 25 X 80*/
+	const int COLS = 80;
+	PAGETYP qa_page; /*page structure*/
+	CHARTYP pageImage[ROWS*COLS] = { 0 };
+	LISTTYP *qa_ulist;/*pointer to update struc*/
+	char qa_list_sp[sizeof(LISTTYP) +
+		sizeof(struct upd_type) * 200] = { 0 };
+	/*space for update*/
+	int retv, cnt;
+
+	/* set up the page structure */
+	qa_page.page = pageImage;
+	qa_set_rows(ROWS);
+	qa_set_columns(COLS);
+	/* set up update list area*/
+	qa_ulist = (LISTTYP *)qa_list_sp;
+	qa_ulist->max_updt = 200;
+
+	/* clear data area */
+	cnt = qa_decode(&qa_page, ANSI_INIT_STRG, sizeof(ANSI_INIT_STRG), qa_ulist);
+	if (!cnt)
+	{
+		printf("Failed to clear data area for Ansi data \n");
+		return;
+	}
+
+	retv = decodeAnsi(1, 80, 7, 10, ANSI_CHG_TEST, qa_ulist, &qa_page);
+	if (!retv)
+	{
+		printf("Failed to decode Ansi data \n");
+		return;
+	}
+
+	encodeAnsi(qa_ulist, &qa_page, ENCODED_ANSI_DATA);
+}
 
 /* MsgConversionTestBase function definitions. */
 
@@ -228,6 +314,8 @@ void MsgConversionTestBase::initTestData()
 
 	_pRsslDictionary = &_rsslDictionary;
 	
+	encodeAnsiData();
+
 	return;
 
 	initTestDataFailed:

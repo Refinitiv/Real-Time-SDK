@@ -203,6 +203,17 @@ class NestedContainerTypesTestFixture : public MsgConversionTestBase, public ::t
 				return; /* Not encoding anything in this. */
 			}
 
+			case RSSL_DT_ANSI_PAGE:
+			{
+				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
+				ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeNonRWFDataTypeInit(pIter, &buffer));
+				ASSERT_LE(ANSI_PAGE_BUFFER.length, buffer.length);
+				buffer.length = ANSI_PAGE_BUFFER.length;
+				memcpy(buffer.data, ANSI_PAGE_BUFFER.data, ANSI_PAGE_BUFFER.length);
+				ASSERT_EQ(RSSL_RET_SUCCESS, rsslEncodeNonRWFDataTypeComplete(pIter, &buffer, RSSL_TRUE));
+				return; /* Not encoding anything in this. */
+			}
+
 			case RSSL_DT_JSON:
 			{
 				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
@@ -404,6 +415,12 @@ class NestedContainerTypesTestFixture : public MsgConversionTestBase, public ::t
 				ASSERT_STREQ(XML_BUFFER.data, document["Xml"].GetString());
 				return; /* This doesn't contain anything else */
 
+			case RSSL_DT_ANSI_PAGE:
+				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
+				ASSERT_TRUE(document.HasMember("Ansi Page"));
+				ASSERT_STREQ(ANSI_PAGE_BUFFER.data, document["Ansi Page"].GetString());
+				return; /* This doesn't contain anything else */
+
 			case RSSL_DT_JSON:
 				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
 				ASSERT_TRUE(document.HasMember("Json"));
@@ -546,6 +563,13 @@ class NestedContainerTypesTestFixture : public MsgConversionTestBase, public ::t
 				return; /* This doesn't contain anything else */
 			}
 
+			case RSSL_DT_ANSI_PAGE:
+			{
+				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
+				ASSERT_TRUE(rsslBufferIsEqual(&ANSI_PAGE_BUFFER, pInnerBuffer));
+				return; /* This doesn't contain anything else */
+			}
+
 			case RSSL_DT_JSON:
 			{
 				ASSERT_TRUE(isInnerContainer); /* Inner container only; cannot contain other containers */
@@ -682,6 +706,9 @@ INSTANTIATE_TEST_CASE_P(MapNestedContainerTests, NestedContainerTypesTestFixture
 		NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_JSON, true),
 		NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_MSG, false),
 		NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_MSG, true)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_ANSI_PAGE, false),
+		//NestedContainerTestParams(RSSL_DT_MAP, RSSL_DT_ANSI_PAGE, true)
 ));
 
 INSTANTIATE_TEST_CASE_P(VectorNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -701,6 +728,9 @@ INSTANTIATE_TEST_CASE_P(VectorNestedContainerTests, NestedContainerTypesTestFixt
 		NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_JSON, true),
 		NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_MSG, false),
 		NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_MSG, true)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_ANSI_PAGE, false),
+		//NestedContainerTestParams(RSSL_DT_VECTOR, RSSL_DT_ANSI_PAGE, true)
 ));
 
 INSTANTIATE_TEST_CASE_P(SeriesNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -720,6 +750,9 @@ INSTANTIATE_TEST_CASE_P(SeriesNestedContainerTests, NestedContainerTypesTestFixt
 		NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_JSON, true),
 		NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_MSG, false),
 		NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_MSG, true)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_ANSI_PAGE, false),
+		//NestedContainerTestParams(RSSL_DT_SERIES, RSSL_DT_ANSI_PAGE, true)
 ));
 
 INSTANTIATE_TEST_CASE_P(FilterListNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -736,6 +769,8 @@ INSTANTIATE_TEST_CASE_P(FilterListNestedContainerTests, NestedContainerTypesTest
 		NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_FILTER_LIST, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(RequestMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -752,6 +787,8 @@ INSTANTIATE_TEST_CASE_P(RequestMsgNestedContainerTests, NestedContainerTypesTest
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REQUEST, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(RefreshMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -768,6 +805,8 @@ INSTANTIATE_TEST_CASE_P(RefreshMsgNestedContainerTests, NestedContainerTypesTest
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_REFRESH, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(StatusMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -784,6 +823,8 @@ INSTANTIATE_TEST_CASE_P(StatusMsgNestedContainerTests, NestedContainerTypesTestF
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_STATUS, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(UpdateMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -800,6 +841,8 @@ INSTANTIATE_TEST_CASE_P(UpdateMsgNestedContainerTests, NestedContainerTypesTestF
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_UPDATE, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(CloseMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -832,6 +875,8 @@ INSTANTIATE_TEST_CASE_P(AckMsgNestedContainerTests, NestedContainerTypesTestFixt
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_ACK, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(GenericMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -848,6 +893,8 @@ INSTANTIATE_TEST_CASE_P(GenericMsgNestedContainerTests, NestedContainerTypesTest
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_GENERIC, RSSL_DT_ANSI_PAGE, false)
 ));
 
 INSTANTIATE_TEST_CASE_P(PostMsgNestedContainerTests, NestedContainerTypesTestFixture, ::testing::Values(
@@ -864,5 +911,7 @@ INSTANTIATE_TEST_CASE_P(PostMsgNestedContainerTests, NestedContainerTypesTestFix
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_POST, RSSL_DT_XML, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_POST, RSSL_DT_JSON, false),
 		NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_POST, RSSL_DT_MSG, false)
+	// DO NOT REMOVE! RTSDK-5039: This code temporary commented out due to missed implementation of AnsiPage
+		//NestedContainerTestParams(RSSL_DT_MSG, RSSL_MC_POST, RSSL_DT_ANSI_PAGE, false)
 ));
 

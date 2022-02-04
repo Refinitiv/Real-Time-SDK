@@ -37,6 +37,7 @@ endif()
 	target_include_directories(rsslJsonConverterTest
 							PRIVATE
 								${Eta_SOURCE_DIR}/Impl/Converter/Include
+								${Eta_SOURCE_DIR}/Include/ansi
 								${Eta_SOURCE_DIR}/Include/Converter
 							PUBLIC
 								${Eta_SOURCE_DIR}/TestTools/UnitTests/rsslConvertorUnitTest/rsslJsonConverterTest
@@ -44,6 +45,7 @@ endif()
 							)
 	target_link_libraries( rsslJsonConverterTest 
 									librssl
+									libansi
 									GTest::Main
 									CJSON::CJSON
 									${SYSTEM_LIBRARIES} )

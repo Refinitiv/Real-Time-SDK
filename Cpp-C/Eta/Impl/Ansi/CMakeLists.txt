@@ -43,9 +43,8 @@ else()
     if ( CMAKE_HOST_WIN32 )
 
         target_compile_options( libansi
-									PUBLIC
-										"/D __STDC__"
 									PRIVATE
+										"/D __STDC__"
 									    ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
                                 )
 	else()
