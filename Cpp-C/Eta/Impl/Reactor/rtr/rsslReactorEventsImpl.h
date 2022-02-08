@@ -28,7 +28,8 @@ typedef enum
 	RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL = -5, /* OAuth credential renewal event */
 	RSSL_RCIMPL_ET_PING = -6, /* Ping event for channel statistics */
 	RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT = -7,	/* For handling token session */
-	RSSL_RCIMPL_ET_WARM_STANDBY = -8 /* For handling warm standby feature */
+	RSSL_RCIMPL_ET_WARM_STANDBY = -8, /* For handling warm standby feature */
+	RSSL_RCIMPL_ET_LOGGING = -9		/* Logging message event */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -243,6 +244,19 @@ RTR_C_INLINE void rsslClearReactorWarmStanbyEvent(RsslReactorWarmStanbyEvent* pE
 	pEvent->base.eventType = RSSL_RCIMPL_ET_WARM_STANDBY;
 }
 
+/* Rest Logging Event. Used internally, transmit via reactor events queue. */
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslBuffer* pRestLoggingMessage;
+} RsslReactorLoggingEvent;
+
+RTR_C_INLINE void rsslClearReactorLoggingEvent(RsslReactorLoggingEvent* pRestLoggingEvent)
+{
+	memset(pRestLoggingEvent, 0, sizeof(RsslReactorLoggingEvent));
+	pRestLoggingEvent->base.eventType = RSSL_RCIMPL_ET_LOGGING;
+}
+
 typedef union 
 {
 	RsslReactorEventImplBase			base;
@@ -254,6 +268,7 @@ typedef union
 	RsslReactorTokenSessionEvent		tokenSessionEvent;
 	RsslReactorStateEvent				reactorEvent;
 	RsslReactorTimerEvent				timerEvent;
+	RsslReactorLoggingEvent				restLoggingEvent;
 } RsslReactorEventImpl;
 
 RTR_C_INLINE void rsslClearReactorEventImpl(RsslReactorEventImpl *pEvent)

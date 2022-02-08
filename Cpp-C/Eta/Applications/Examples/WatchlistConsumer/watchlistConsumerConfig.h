@@ -128,6 +128,7 @@ typedef struct
 
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
 	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
+	RsslBool			restEnableLogCallback;			/* Enable Rest request/response logging via callback.*/
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];
@@ -179,6 +180,8 @@ static RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslRe
  static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
 
  static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
+ static RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent);
 #ifdef __cplusplus
 }
 #endif

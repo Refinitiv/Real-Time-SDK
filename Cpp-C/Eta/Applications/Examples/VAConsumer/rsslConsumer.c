@@ -66,6 +66,7 @@ static RsslBool enableSessionMgnt = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
+static RsslBool restEnableLogCallback = RSSL_FALSE;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -165,6 +166,7 @@ void printUsageAndExit(char *appName)
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
+			"\n -restEnableLogCallback enable an alternative way to receive REST logging messages via callback.\n"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -217,57 +219,57 @@ void parseCommandLine(int argc, char **argv)
 		{
 			if (strcmp("-libsslName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libsslName, 255, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-libcryptoName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libcryptoName, 255, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-libcurlName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libcurlName, 255, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-castore", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			}
 			else if(strcmp("-uname", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				userName.length = snprintf(userNameBlock, sizeof(userNameBlock), "%s", argv[i-1]);
 				userName.data = userNameBlock;
 			}
 			else if (strcmp("-clientId", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				clientId.length = snprintf(clientIdBlock, sizeof(clientIdBlock), "%s", argv[i - 1]);
 				clientId.data = clientIdBlock;
 			}
 			else if (strcmp("-passwd", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				password.length = snprintf(passwordBlock, sizeof(passwordBlock), "%s", argv[i - 1]);
 				password.data = passwordBlock;
 			}
 			else if(strcmp("-at", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				authnToken.length = snprintf(authnTokenBlock, sizeof(authnTokenBlock), "%s", argv[i-1]);
 				authnToken.data = authnTokenBlock;
 			}
 			else if(strcmp("-ax", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				authnExtended.length = snprintf(authnExtendedBlock, sizeof(authnExtendedBlock), "%s", argv[i-1]);
 				authnExtended.data = authnExtendedBlock;
 			}
 			else if(strcmp("-aid", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				appId.length = snprintf(appIdBlock, sizeof(appIdBlock), "%s", argv[i-1]);
 				appId.data = appIdBlock;
 			}
@@ -297,37 +299,37 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-ph", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyHost, sizeof(proxyHost), "%s", argv[i - 1]);
 			}
 			else if (strcmp("-pp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyPort, sizeof(proxyPort), "%s", argv[i - 1]);
 			}
 			else if (strcmp("-plogin", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyUserName, sizeof(proxyUserName), "%s", argv[i - 1]);
 			}
 			else if (strcmp("-ppasswd", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", argv[i - 1]);
 			}
 			else if (strcmp("-pdomain", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyDomain, sizeof(proxyDomain), "%s", argv[i - 1]);
 			}
 			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(protocolList, 128, "%s", argv[i-1]);
 			}
 			else if (strcmp("-restLogFileName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				restLogFileName = fopen(argv[i - 1], "w");
 				if (!restLogFileName)
 				{
@@ -360,7 +362,12 @@ void parseCommandLine(int argc, char **argv)
 				i++;
 				restEnableLog = RSSL_TRUE;
 			}
-			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) || 
+			else if (strcmp("-restEnableLogCallback", argv[i]) == 0)
+			{
+				i++;
+				restEnableLogCallback = RSSL_TRUE;
+			}
+			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) ||
 					(strcmp("-webSocket", argv[i]) == 0) || 
 					(strcmp("-encrypted", argv[i]) == 0) || 
 					(strcmp("-encryptedHttp", argv[i]) == 0) || 
@@ -1099,7 +1106,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-maxEventsInPool", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				maxEventsInPool = atoi(argv[i - 1]);
 			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
@@ -1157,7 +1164,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-takeExclusiveSignOnControl", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				if (RTR_STRNICMP(argv[i - 1], "true", 4) == 0)
 				{
 					takeExclusiveSignOnControl = RSSL_TRUE;
@@ -1595,6 +1602,19 @@ RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName,
 	return RSSL_RET_FAILURE;
 }
 
+RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent)
+{
+	if (pLogEvent &&  pLogEvent->pRestLoggingMessage  &&  pLogEvent->pRestLoggingMessage->data)
+	{
+		FILE* pOutputStream = restLogFileName;
+		if (!pOutputStream)
+			pOutputStream = stdout;
+
+		fprintf(pOutputStream, "{restLoggingCallback}: %s", pLogEvent->pRestLoggingMessage->data);
+	}
+	return RSSL_RC_CRET_SUCCESS;
+}
+
 /*** MAIN ***/
 int main(int argc, char **argv)
 {
@@ -1833,6 +1853,9 @@ int main(int argc, char **argv)
 
 	if (restLogFileName)
 		reactorOpts.restLogOutputStream = restLogFileName;
+
+	if (restEnableLogCallback)
+		reactorOpts.pRestLoggingCallback = restLoggingCallback;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{

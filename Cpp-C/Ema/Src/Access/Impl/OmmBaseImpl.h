@@ -30,6 +30,8 @@
 #include "ErrorClientHandler.h"
 #include "OmmException.h"
 #include "OmmBaseImplMap.h"
+#include "IOCtlReactorCode.h"
+#include "RestLoggingCallbackClient.h"
 
 namespace refinitiv {
 
@@ -69,6 +71,8 @@ public :
 	static RsslReactorCallbackRet jsonConversionEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorJsonConversionEvent *pEvent);
 
 	static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
+
+	static RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent);
 
 	virtual const EmaString& getInstanceName() const;
 
@@ -118,6 +122,10 @@ public :
 	LoginCallbackClient& getLoginCallbackClient();
 
 	ChannelCallbackClient& getChannelCallbackClient();
+
+	RestLoggingCallbackClient& getRestLoggingCallbackClient();
+
+	bool hasRestLoggingCallbackClient() const;
 
 	OmmLoggerClient& getOmmLoggerClient();
 
@@ -170,6 +178,8 @@ public :
 	bool isAtExit();
 
 	void addCommonSocket();
+
+	void modifyReactorIOCtl(Int32 code, Int32 value);
 
 protected:
 
@@ -251,6 +261,7 @@ protected:
 	DirectoryCallbackClient*	_pDirectoryCallbackClient;
 	DictionaryCallbackClient*	_pDictionaryCallbackClient;
 	ItemCallbackClient*			_pItemCallbackClient;
+	RestLoggingCallbackClient*	_pRestLoggingCallbackClient;
 	OmmConsumerClient&			_consAdminClient;
 	OmmProviderClient&			_provAdminClient;
 	void*						_adminClosure;

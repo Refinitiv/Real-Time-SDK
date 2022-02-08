@@ -38,6 +38,7 @@ namespace access {
 class Data;
 class ReqMsg;
 class OmmConsumerConfigImpl;
+class OmmRestLoggingClient;
 
 class EMA_ACCESS_API OmmConsumerConfig
 {
@@ -271,6 +272,13 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& addAdminMsg( const ReqMsg& reqMsg );
+
+	/** Specifies the user callback client to receive REST logging messages.
+		@param[in] ommRestLoggingClient specifies the user callback client used for receiving REST logging messages.
+		@param[in] closure specifies application defined identification value.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& restLoggingCallback( OmmRestLoggingClient& ommRestLoggingClient, void* closure = (void*)0 );
 	//@}
 
 private :

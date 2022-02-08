@@ -63,6 +63,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_pDirectoryCallbackClient(0),
 	_pDictionaryCallbackClient(0),
 	_pItemCallbackClient(0),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount( 0 ),
@@ -96,6 +97,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pDirectoryCallbackClient(0),
 	_pDictionaryCallbackClient(0),
 	_pItemCallbackClient(0),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount(0),
@@ -130,6 +132,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_pDirectoryCallbackClient(0),
 	_pDictionaryCallbackClient(0),
 	_pItemCallbackClient(0),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount(0),
@@ -165,6 +168,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_pDirectoryCallbackClient( 0 ),
 	_pDictionaryCallbackClient( 0 ),
 	_pItemCallbackClient( 0 ),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient( 0 ),
 	_pipe(),
 	_pipeWriteCount( 0 ),
@@ -207,6 +211,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_pDirectoryCallbackClient(0),
 	_pDictionaryCallbackClient(0),
 	_pItemCallbackClient(0),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount(0),
@@ -249,6 +254,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_pDirectoryCallbackClient( 0 ),
 	_pDictionaryCallbackClient( 0 ),
 	_pItemCallbackClient( 0 ),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient( 0 ),
 	_pipe(),
 	_pipeWriteCount( 0 ),
@@ -289,6 +295,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_pDirectoryCallbackClient(0),
 	_pDictionaryCallbackClient(0),
 	_pItemCallbackClient(0),
+	_pRestLoggingCallbackClient(0),
 	_pLoggerClient(0),
 	_pipe(),
 	_pipeWriteCount(0),
@@ -318,6 +325,9 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 
 OmmBaseImpl::~OmmBaseImpl()
 {
+	if (_pRestLoggingCallbackClient)
+		delete _pRestLoggingCallbackClient;
+
 	if ( _pErrorClientHandler )
 		delete _pErrorClientHandler;
 }
@@ -1574,6 +1584,13 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 				throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
 			}
 		}
+
+		if (configImpl->getOmmRestLoggingClient())
+		{
+			_pRestLoggingCallbackClient = new RestLoggingCallbackClient(configImpl->getOmmRestLoggingClient(), configImpl->getRestLoggingClosure());
+			reactorOpts.pRestLoggingCallback = restLoggingCallback;
+		}
+
 		reactorOpts.userSpecPtr = ( void* )this;
 
 		_pRsslReactor = rsslCreateReactor( &reactorOpts, &rsslErrorInfo );
@@ -2342,6 +2359,16 @@ ChannelCallbackClient& OmmBaseImpl::getChannelCallbackClient()
 	return *_pChannelCallbackClient;
 }
 
+bool OmmBaseImpl::hasRestLoggingCallbackClient() const
+{
+	return _pRestLoggingCallbackClient != 0 ? true : false;
+}
+
+RestLoggingCallbackClient& OmmBaseImpl::getRestLoggingCallbackClient()
+{
+	return *_pRestLoggingCallbackClient;
+}
+
 OmmLoggerClient& OmmBaseImpl::getOmmLoggerClient()
 {
 	return *_pLoggerClient;
@@ -2523,6 +2550,22 @@ RsslRet OmmBaseImpl::serviceNameToIdCallback(RsslReactor *pRsslReactor, RsslBuff
 	return RSSL_RET_FAILURE;
 }
 
+RsslReactorCallbackRet OmmBaseImpl::restLoggingCallback(RsslReactor* pRsslReactor, RsslReactorRestLoggingEvent* pLogEvent)
+{
+	OmmBaseImpl* pOmmBaseImpl = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr);
+
+	pOmmBaseImpl->eventReceived();
+	if (pOmmBaseImpl->hasRestLoggingCallbackClient())
+	{
+		RestLoggingCallbackClient& restLoggingCallbackClient = pOmmBaseImpl->getRestLoggingCallbackClient();
+		OmmConsumerRestLoggingEvent
+			ommLogRestEvent(pLogEvent->pRestLoggingMessage->data, pLogEvent->pRestLoggingMessage->length, restLoggingCallbackClient.getRestLoggingClosure());
+		restLoggingCallbackClient.onRestLoggingEvent(ommLogRestEvent);
+	}
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
 const EmaString& OmmBaseImpl::getInstanceName() const
 {
 	return _activeConfig.instanceName;
@@ -2569,4 +2612,38 @@ void OmmBaseImpl::terminateIf( void* object )
 {
 	OmmBaseImpl* user = reinterpret_cast<OmmBaseImpl*>( object );
 	user->_eventTimedOut = true;
+}
+
+// Allows modifying some I/O values programmatically for Reactor to override the default values.
+void OmmBaseImpl::modifyReactorIOCtl(Int32 code, Int32 value)
+{
+	_userLock.lock();
+
+	if ( _pRsslReactor == NULL )
+	{
+		_userLock.unlock();
+		EmaString temp("No Reactor to modify I/O option.");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	RsslErrorInfo rsslErrorInfo;
+	clearRsslErrorInfo(&rsslErrorInfo);
+
+	RsslRet ret = rsslReactorIoctl(_pRsslReactor, (RsslReactorIoctlCodes)code, &value, &rsslErrorInfo);
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to modify I/O option for code = ");
+		temp.append(code).append(".").append(CR)
+			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
+	return;
 }

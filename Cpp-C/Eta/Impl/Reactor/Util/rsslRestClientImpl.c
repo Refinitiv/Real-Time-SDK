@@ -20,6 +20,7 @@
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
 #include <stdlib.h>
+#include <sys/timeb.h>
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -2296,116 +2297,450 @@ Fail:
 	return RSSL_RET_BUFFER_TOO_SMALL;
 }
 
-RsslRet rsslRestRequestDump(FILE* outputStream, RsslRestRequestArgs* pRestRequest, RsslError* pError)
+
+RsslUInt32 dumpTimestamp(char* buf, RsslUInt32 size)
+{
+	long hour = 0,
+		min = 0,
+		sec = 0,
+		msec = 0;
+
+	RsslUInt32 res = 0;
+
+#if defined(WIN32)
+	struct _timeb	_time;
+	_ftime(&_time);
+	sec = (long)(_time.time - 60 * (_time.timezone - _time.dstflag * 60));
+	min = sec / 60 % 60;
+	hour = sec / 3600 % 24;
+	sec = sec % 60;
+	msec = _time.millitm;
+#elif defined(LINUX)
+	/* localtime must be used to get the correct system time. */
+	struct tm stamptime;
+	time_t currTime;
+	currTime = time(NULL);
+	stamptime = *localtime_r(&currTime, &stamptime);
+	sec = stamptime.tm_sec;
+	min = stamptime.tm_min;
+	hour = stamptime.tm_hour;
+
+	/* localtime, however, does not give us msec. */
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	msec = tv.tv_usec / 1000;
+#endif
+
+	res = snprintf(buf, size, "<!-- Time: %ld:%02ld:%02ld:%03ld -->\n",
+		hour,
+		min,
+		sec,
+		msec);
+	return res;
+}
+
+// Constants for Rest logging methods
+static RsslBuffer headerRestRequest			= { 23, "\n--- REST REQUEST ---\n\n" };
+static RsslBuffer rest_password_text		= {  9, "password=" };
+static RsslBuffer rest_new_password_text	= { 12, "newPassword=" };
+static RsslBuffer rest_client_secret_text	= { 14, "client_secret=" };
+static RsslBuffer sUrl						= {  5, "URL: " };
+static RsslBuffer sHttpMethod				= { 13, "HTTP method: " };
+static RsslBuffer sHttpHeaderData			= { 18, "HTTP header data:\n" };
+static RsslBuffer sHttpBodyData				= { 16, "HTTP body data: " };
+static RsslBuffer sInterfaceName			= { 16, "Interface name: " };
+static RsslBuffer sProxyDomainName			= { 19, "Proxy domain name: " };
+static RsslBuffer sProxyHostName			= { 17, "Proxy host name: " };
+static RsslBuffer sProxyPort				= { 12, "Proxy port: " };
+static RsslBuffer sRequestTimeout			= { 17, "Request timeout: " };
+
+static RsslBuffer headerRestResponse		= { 24, "\n--- REST RESPONSE ---\n\n" };
+static RsslBuffer sProtocolVersion			= { 18, "Protocol version: " };
+static RsslBuffer sHttpStatusCode			= { 18, "HTTP status code: " };
+
+static RsslBuffer headerRestErr				= { 29, "\n--- REST RESPONSE ERROR---\n\n" };
+static RsslBuffer sError					= {  7, "Error: " };
+static RsslBuffer sErrorID					= { 11, " Error ID: " };
+static RsslBuffer sSystemError				= { 15, " System error: " };
+
+static const RsslUInt32 maxHttpMethodLength = 7U;
+static const RsslUInt32 szDumpTimestampLength = 64U;
+
+///////////////////////////
+// Logging RestRequest
+///////////////////////////
+
+static RsslUInt32 estimateSizeRestRequestDump(RsslRestRequestArgs* pRestRequest)
 {
 	RsslQueueLink* pLink = NULL;
 	RsslQueue* httpHeaders = NULL;
-	RsslRestHeader* httpHeaderData = NULL;
-	FILE* pOutputStream = outputStream;
 	RsslUInt32 n = 0, nameLength = 0;
-	const RsslBuffer rssl_rest_password_text = { (rtrUInt32)strlen("password="), "password=" };
-	const RsslBuffer rssl_rest_new_password_text = { (rtrUInt32)strlen("newPassword="), "newPassword=" };
-	const RsslBuffer rssl_rest_client_secret_text = { (rtrUInt32)strlen("client_secret ="), "client_secret =" };
-	const char endSymbol = '&';
-	const char *httpMethod[6] = {"UNKNOWN", "GET", "POST", "PUT", "DELETE", "PATCH"}; // from RsslRestHttpMethod
+	RsslRestHeader* httpHeaderData = NULL;
 
-	if (!pRestRequest)
-	{
-		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
-		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: rsslRestRequestDump() failed because REST request argument is empty.",
-			__FILE__, __LINE__);
-		return RSSL_RET_FAILURE;
-	}
+	//fprintf(pOutputStream, "\n--- REST REQUEST ---\n\n");
+	RsslUInt32 sizeRestRequest = headerRestRequest.length;
+	sizeRestRequest += szDumpTimestampLength;  // xmlDumpTimestamp()
+	
+	//fprintf(pOutputStream, "URL: %s\n", pRestRequest->url.data);
+	sizeRestRequest += sUrl.length + pRestRequest->url.length + 1U;
 
-	if (!pOutputStream)
-		pOutputStream = stdout;
+	//fprintf(pOutputStream, "HTTP method %s\n", httpMethod[(RsslInt32)pRestRequest->httpMethod]);
+	sizeRestRequest += sHttpMethod.length + maxHttpMethodLength + 1U;
 
-	fprintf(pOutputStream, "\n--- REST REQUEST ---\n\n");
-
-	xmlDumpTimestamp(pOutputStream);
-
-	fprintf(pOutputStream, "URL: %s\n", pRestRequest->url.data);
-	fprintf(pOutputStream, "HTTP method %s\n", httpMethod[(RsslInt32)pRestRequest->httpMethod]);
-	fprintf(pOutputStream, "HTTP header data: \n");
+	//fprintf(pOutputStream, "HTTP header data: \n");
+	sizeRestRequest += sHttpHeaderData.length;
 
 	httpHeaders = &(pRestRequest->httpHeaders);
 	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
 	{
 		httpHeaderData = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
-		fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
-		fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+		//fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
+		sizeRestRequest += httpHeaderData->key.length + 4U;
+		//fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+		sizeRestRequest += httpHeaderData->value.length + 1U;
 	}
 
-	fprintf(pOutputStream, "HTTP body data: ");
+	//fprintf(pOutputStream, "HTTP body data: ");
+	sizeRestRequest += sHttpBodyData.length;
+	sizeRestRequest += pRestRequest->httpBody.length + 1U;
+
+	//fprintf(pOutputStream, "Interface name: %s\n", pRestRequest->networkArgs.interfaceName.data);
+	if (pRestRequest->networkArgs.interfaceName.length > 0)
+		sizeRestRequest += sInterfaceName.length + pRestRequest->networkArgs.interfaceName.length + 1U;
+
+	//fprintf(pOutputStream, "Proxy domain name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyDomain.data);
+	if (pRestRequest->networkArgs.proxyArgs.proxyDomain.length > 0)
+		sizeRestRequest += sProxyDomainName.length + pRestRequest->networkArgs.proxyArgs.proxyDomain.length + 1U;
+
+	//fprintf(pOutputStream, "Proxy host name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyHostName.data);
+	if (pRestRequest->networkArgs.proxyArgs.proxyHostName.length > 0)
+		sizeRestRequest += sProxyHostName.length + pRestRequest->networkArgs.proxyArgs.proxyHostName.length + 1U;
+
+	//fprintf(pOutputStream, "Proxy port: %s\n", pRestRequest->networkArgs.proxyArgs.proxyPort.data);
+	if (pRestRequest->networkArgs.proxyArgs.proxyPort.length > 0)
+		sizeRestRequest += sProxyPort.length + pRestRequest->networkArgs.proxyArgs.proxyPort.length + 1U;
+
+	//fprintf(pOutputStream, "Request timeout: %d\n", pRestRequest->requestTimeOut);
+	sizeRestRequest += sRequestTimeout.length + 9U + 1U;
+
+	sizeRestRequest += 64U;
+
+	return sizeRestRequest;
+}
+
+RsslBuffer* rsslRestRequestDumpBuffer(RsslRestRequestArgs* pRestRequest, RsslError* pError)
+{
+	RsslQueueLink* pLink = NULL;
+	RsslQueue* httpHeaders = NULL;
+	RsslRestHeader* httpHeaderData = NULL;
+	RsslUInt32 n = 0, nameLength = 0;
+	const char endSymbol = '&';
+	const char* httpMethod[6] = { "UNKNOWN", "GET", "POST", "PUT", "DELETE", "PATCH" }; // from RsslRestHttpMethod
+
+	RsslUInt32 sizeRestRequest = 0;
+	RsslBuffer* restRequestBuffer = NULL;
+	char* data = NULL;
+	RsslUInt32 pos = 0;
+
+	if (!pRestRequest)
+	{
+		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestRequestDumpBuffer() failed because REST request argument is empty.",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
+	sizeRestRequest = estimateSizeRestRequestDump(pRestRequest);
+
+	restRequestBuffer = (RsslBuffer*)malloc(sizeof(RsslBuffer));
+	if (restRequestBuffer == NULL)
+	{
+		pError->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestRequestDumpBuffer() failed to allocate memory RsslBuffer.", __FILE__, __LINE__);
+		return NULL;
+	}
+
+	data = (char*)malloc(sizeRestRequest);
+	if (data == NULL)
+	{
+		free(restRequestBuffer);
+		pError->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestRequestDumpBuffer() failed to allocate memory data (%u).", __FILE__, __LINE__, sizeRestRequest);
+		return NULL;
+	}
+
+	//fprintf(pOutputStream, "\n--- REST REQUEST ---\n\n");
+	pos += snprintf(data + pos, (sizeRestRequest - pos), headerRestRequest.data);
+
+	//xmlDumpTimestamp(pOutputStream);
+	pos += dumpTimestamp(data + pos, (sizeRestRequest - pos));
+
+	//fprintf(pOutputStream, "URL: %s\n", pRestRequest->url.data);
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%s\n", sUrl.data, pRestRequest->url.data);
+
+	//fprintf(pOutputStream, "HTTP method %s\n", httpMethod[(RsslInt32)pRestRequest->httpMethod]);
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%s\n", sHttpMethod.data, httpMethod[(RsslInt32)pRestRequest->httpMethod]);
+
+	//fprintf(pOutputStream, "HTTP header data: \n");
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s", sHttpHeaderData.data);
+
+	httpHeaders = &(pRestRequest->httpHeaders);
+	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+	{
+		httpHeaderData = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
+		//fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
+		pos += snprintf(data + pos, (sizeRestRequest - pos), " %s : ", httpHeaderData->key.data);
+
+		//fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+		pos += snprintf(data + pos, (sizeRestRequest - pos), "%s\n", httpHeaderData->value.data);
+	}
+
+	//fprintf(pOutputStream, "HTTP body data: ");
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s", sHttpBodyData.data);
 
 	/* Cut off all confident information: username, newPassword, client_secret */
-	for (n = 0; n < pRestRequest->httpBody.length; n++)
+	for (n = 0; n < pRestRequest->httpBody.length && pos < sizeRestRequest; n++)
 	{
-		if ((strncmp(pRestRequest->httpBody.data + n, rssl_rest_password_text.data, nameLength = rssl_rest_password_text.length) == 0) ||
-			(strncmp((pRestRequest->httpBody.data) + n, rssl_rest_new_password_text.data, nameLength = rssl_rest_new_password_text.length) == 0) ||
-			(strncmp((pRestRequest->httpBody.data) + n, rssl_rest_client_secret_text.data, nameLength = rssl_rest_client_secret_text.length) == 0))
+		if ((strncmp(pRestRequest->httpBody.data + n, rest_password_text.data, nameLength = rest_password_text.length) == 0) ||
+			(strncmp((pRestRequest->httpBody.data) + n, rest_new_password_text.data, nameLength = rest_new_password_text.length) == 0) ||
+			(strncmp((pRestRequest->httpBody.data) + n, rest_client_secret_text.data, nameLength = rest_client_secret_text.length) == 0))
 		{
 			n += nameLength;
 			while (n++, pRestRequest->httpBody.data[n] != endSymbol);
 		}
 		else
 		{
-			fprintf(pOutputStream, "%c", pRestRequest->httpBody.data[n]);
+			//fprintf(pOutputStream, "%c", pRestRequest->httpBody.data[n]);
+			*(data + pos) = pRestRequest->httpBody.data[n];
+			++pos;
 		}
 	}
-	fprintf(pOutputStream, "\n");
 
-	if (pRestRequest->networkArgs.interfaceName.length > 0)
-		fprintf(pOutputStream, "Interface name: %s\n", pRestRequest->networkArgs.interfaceName.data);	
-	if (pRestRequest->networkArgs.proxyArgs.proxyDomain.length > 0)
-		fprintf(pOutputStream, "Proxy domain name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyDomain.data);
-	if (pRestRequest->networkArgs.proxyArgs.proxyHostName.length > 0)
-		fprintf(pOutputStream, "Proxy host name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyHostName.data);
-	if (pRestRequest->networkArgs.proxyArgs.proxyPort.length > 0 )
-		fprintf(pOutputStream, "Proxy port: %s\n", pRestRequest->networkArgs.proxyArgs.proxyPort.data);
-
-	fprintf(pOutputStream, "Request timeout: %d\n", pRestRequest->requestTimeOut);
-
-	return RSSL_RET_SUCCESS;
-}
-
-RsslRet rsslRestResponseDump(FILE* outputStream, RsslRestResponse* pRestResponse,  RsslError* pError)
-{
-	RsslQueueLink *pLink = NULL;
-	RsslQueue *httpHeaders = NULL;
-	RsslRestHeader *httpHeaderData = NULL;
-	RsslInt32 n = 0;
-	FILE *pOutputStream = outputStream;
-
-	if (!pRestResponse)
+	//fprintf(pOutputStream, "\n");
+	if (pos < sizeRestRequest)
 	{
-		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
-		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: rsslRestResponseDump() failed because REST response arguments is empty.",
-			__FILE__, __LINE__);
-		return RSSL_RET_FAILURE;
+		*(data + pos) = '\n';
+		++pos;
 	}
 
-	if (!pOutputStream)
-		pOutputStream = stdout;
+	if (pRestRequest->networkArgs.interfaceName.length > 0)
+	{
+		//fprintf(pOutputStream, "Interface name: %s\n", pRestRequest->networkArgs.interfaceName.data);
+		pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%s\n", sInterfaceName.data, pRestRequest->networkArgs.interfaceName.data);
+	}
+	if (pRestRequest->networkArgs.proxyArgs.proxyDomain.length > 0)
+	{
+		//fprintf(pOutputStream, "Proxy domain name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyDomain.data);
+		pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%s\n", sProxyDomainName.data, pRestRequest->networkArgs.proxyArgs.proxyDomain.data);
+	}
+	if (pRestRequest->networkArgs.proxyArgs.proxyHostName.length > 0)
+	{
+		//fprintf(pOutputStream, "Proxy host name: %s\n", pRestRequest->networkArgs.proxyArgs.proxyHostName.data);
+		pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%s\n", sProxyHostName.data, pRestRequest->networkArgs.proxyArgs.proxyHostName.data);
+	}
+	if (pRestRequest->networkArgs.proxyArgs.proxyPort.length > 0)
+	{
+		//fprintf(pOutputStream, "Proxy port: %s\n", pRestRequest->networkArgs.proxyArgs.proxyPort.data);
+		pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%s\n", sProxyPort.data, pRestRequest->networkArgs.proxyArgs.proxyPort.data);
+	}
 
-	fprintf(pOutputStream, "\n--- REST RESPONSE ---\n\n");
+	//fprintf(pOutputStream, "Request timeout: %d\n", pRestRequest->requestTimeOut);
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s%d\n", sRequestTimeout.data, pRestRequest->requestTimeOut);
 
-	xmlDumpTimestamp(pOutputStream);
+	restRequestBuffer->data = data;
+	restRequestBuffer->length = pos;
 
-	fprintf(pOutputStream, "HTTP header data:\n");
+	return restRequestBuffer;
+}
+
+
+///////////////////////////
+// Logging RestResponse
+///////////////////////////
+
+static RsslUInt32 estimateSizeRestResponseDump(RsslRestResponse* pRestResponse)
+{
+	RsslQueueLink* pLink = NULL;
+	RsslQueue* httpHeaders = NULL;
+	RsslRestHeader* httpHeaderData = NULL;
+	RsslInt32 n = 0;
+
+	//fprintf(pOutputStream, "\n--- REST RESPONSE ---\n\n");
+	RsslUInt32 sizeRestResponse = headerRestResponse.length;
+	sizeRestResponse += szDumpTimestampLength;  // xmlDumpTimestamp()
+
+	//fprintf(pOutputStream, "HTTP header data:\n");
+	sizeRestResponse += sHttpHeaderData.length;
 
 	httpHeaders = &(pRestResponse->headers);
 	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
 	{
 		httpHeaderData = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
-		fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
-		fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+		//fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
+		sizeRestResponse += httpHeaderData->key.length + 4U;
+		//fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+		sizeRestResponse += httpHeaderData->value.length + 1U;
 	}
-	fprintf(pOutputStream, "HTTP body data: %s\n", pRestResponse->dataBody.data);
-	fprintf(pOutputStream, "Protocol version: %s\n", pRestResponse->protocolVersion.data);
-	fprintf(pOutputStream, "HTTP status code: %d\n", pRestResponse->statusCode);
 
-	return RSSL_RET_SUCCESS;
+	//fprintf(pOutputStream, "HTTP body data: %s\n", pRestResponse->dataBody.data);
+	sizeRestResponse += sHttpBodyData.length + pRestResponse->dataBody.length + 1U;
+
+	//fprintf(pOutputStream, "Protocol version: %s\n", pRestResponse->protocolVersion.data);
+	sizeRestResponse += sProtocolVersion.length + pRestResponse->protocolVersion.length + 1U;
+
+	//fprintf(pOutputStream, "HTTP status code: %d\n", pRestResponse->statusCode);
+	sizeRestResponse += sHttpStatusCode.length + 9U + 1U;
+
+	sizeRestResponse += 64U;
+
+	return sizeRestResponse;
+}
+
+RsslBuffer* rsslRestResponseDumpBuffer(RsslRestResponse* pRestResponse, RsslError* pError)
+{
+	RsslQueueLink* pLink = NULL;
+	RsslQueue* httpHeaders = NULL;
+	RsslRestHeader* httpHeaderData = NULL;
+	RsslInt32 n = 0;
+
+	RsslUInt32 sizeRestResponse = 0;
+	RsslBuffer* restResponseBuffer = NULL;
+	char* data = NULL;
+	RsslUInt32 pos = 0;
+
+	if (!pRestResponse)
+	{
+		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestResponseDumpBuffer() failed because REST response arguments is empty.",
+			__FILE__, __LINE__);
+		return NULL;
+	}
+
+	sizeRestResponse = estimateSizeRestResponseDump(pRestResponse);
+
+	restResponseBuffer = (RsslBuffer*)malloc(sizeof(RsslBuffer));
+	if (restResponseBuffer == NULL)
+	{
+		pError->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestResponseDumpBuffer() failed to allocate memory RsslBuffer.", __FILE__, __LINE__);
+		return NULL;
+	}
+
+	data = (char*)malloc(sizeRestResponse);
+	if (data == NULL)
+	{
+		free(restResponseBuffer);
+		pError->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestResponseDumpBuffer() failed to allocate memory data (%u).", __FILE__, __LINE__, sizeRestResponse);
+		return NULL;
+	}
+
+	//fprintf(pOutputStream, "\n--- REST RESPONSE ---\n\n");
+	pos += snprintf(data + pos, (sizeRestResponse - pos), headerRestResponse.data);
+
+	//xmlDumpTimestamp(pOutputStream);
+	pos += dumpTimestamp(data + pos, (sizeRestResponse - pos));
+
+	//fprintf(pOutputStream, "HTTP header data:\n");
+	pos += snprintf(data + pos, (sizeRestResponse - pos), sHttpHeaderData.data);
+	
+	httpHeaders = &(pRestResponse->headers);
+	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
+	{
+		httpHeaderData = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHeader, queueLink, pLink);
+		
+		//fprintf(pOutputStream, " %s : ", httpHeaderData->key.data);
+		pos += snprintf(data + pos, (sizeRestResponse - pos), " %s : ", httpHeaderData->key.data);
+
+		//fprintf(pOutputStream, "%s\n", httpHeaderData->value.data);
+		pos += snprintf(data + pos, (sizeRestResponse - pos), "%s\n", httpHeaderData->value.data);
+	}
+
+	//fprintf(pOutputStream, "HTTP body data: %s\n", pRestResponse->dataBody.data);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s%s\n", sHttpBodyData.data, pRestResponse->dataBody.data);
+
+	//fprintf(pOutputStream, "Protocol version: %s\n", pRestResponse->protocolVersion.data);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s%s\n", sProtocolVersion.data, pRestResponse->protocolVersion.data);
+
+	//fprintf(pOutputStream, "HTTP status code: %d\n", pRestResponse->statusCode);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s%d\n", sHttpStatusCode.data, pRestResponse->statusCode);
+
+	restResponseBuffer->data = data;
+	restResponseBuffer->length = pos;
+
+	return restResponseBuffer;
+}
+
+
+////////////////////////////////
+// Logging Rest Response Error
+////////////////////////////////
+
+static RsslUInt32 estimateSizeRestResponseErrDump(RsslError* pErrorOutput)
+{
+	//fprintf(pOutputStream, "\n--- REST RESPONSE ERROR---\n\n");
+	RsslUInt32 sizeRestErr = headerRestErr.length;
+	sizeRestErr += szDumpTimestampLength;  // xmlDumpTimestamp()
+
+	//fprintf(pOutputStream, "Error: %s\n Error ID: %d\n System error: %d\n", pErrorOutput->text,
+	//	pErrorOutput->rsslErrorId, pErrorOutput->sysError);
+	sizeRestErr += sError.length + (RsslUInt32)strlen(pErrorOutput->text) + 1U;
+	sizeRestErr += sErrorID.length + 9U + 1U;
+	sizeRestErr += sSystemError.length + 9U + 1U;
+
+	sizeRestErr += 64U;
+
+	return sizeRestErr;
+}
+
+RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput)
+{
+	RsslUInt32 sizeRestResponseErr = 0;
+	RsslBuffer* restResponseErrBuffer = NULL;
+	char* data = NULL;
+	RsslUInt32 pos = 0;
+
+	if (!pErrorOutput)
+	{
+		return NULL;
+	}
+
+	sizeRestResponseErr = estimateSizeRestResponseErrDump(pErrorOutput);
+
+	restResponseErrBuffer = (RsslBuffer*)malloc(sizeof(RsslBuffer));
+	if (restResponseErrBuffer == NULL)
+	{
+		return NULL;
+	}
+
+	data = (char*)malloc(sizeRestResponseErr);
+	if (data == NULL)
+	{
+		free(restResponseErrBuffer);
+		return NULL;
+	}
+
+	//fprintf(pOutputStream, "\n--- REST RESPONSE ERROR---\n\n");
+	pos += snprintf(data + pos, (sizeRestResponseErr - pos), headerRestErr.data);
+
+	//xmlDumpTimestamp(pOutputStream);
+	pos += dumpTimestamp(data + pos, (sizeRestResponseErr - pos));
+
+	//fprintf(pOutputStream, "Error: %s\n Error ID: %d\n System error: %d\n", pErrorOutput->text,
+	//	pErrorOutput->rsslErrorId, pErrorOutput->sysError);
+	pos += snprintf(data + pos, (sizeRestResponseErr - pos), "%s%s\n%s%d\n%s%d\n",
+		sError.data, pErrorOutput->text,
+		sErrorID.data, pErrorOutput->rsslErrorId,
+		sSystemError.data, pErrorOutput->sysError);
+
+	restResponseErrBuffer->data = data;
+	restResponseErrBuffer->length = pos;
+
+	return restResponseErrBuffer;
 }

@@ -31,7 +31,8 @@ extern const EmaString& getDTypeAsString( DataType::DataTypeEnum dType );
 
 OmmConsumerConfigImpl::OmmConsumerConfigImpl(const EmaString & path) :
 	EmaConfigImpl(path),
-	_operationModel( OmmConsumerConfig::ApiDispatchEnum )
+	_operationModel( OmmConsumerConfig::ApiDispatchEnum ),
+	_pOmmRestLoggingClient(0)
 {
 	_instanceNodeName = "ConsumerGroup|ConsumerList|Consumer.";
 	_pEmaConfig->verifyDefaultConsumer();
@@ -190,4 +191,20 @@ RsslReactorOAuthCredential* OmmConsumerConfigImpl::getReactorOAuthCredential()
 	}
 
 	return pRsslReactorOAuthCredential;
+}
+
+void OmmConsumerConfigImpl::setOmmRestLoggingClient(OmmRestLoggingClient* pOmmRestLoggingClient, void* closure)
+{
+	_pOmmRestLoggingClient = pOmmRestLoggingClient;
+	_pRestLoggingClosure = closure;
+}
+
+OmmRestLoggingClient* OmmConsumerConfigImpl::getOmmRestLoggingClient() const
+{
+	return _pOmmRestLoggingClient;
+}
+
+void* OmmConsumerConfigImpl::getRestLoggingClosure() const
+{
+	return _pRestLoggingClosure;
 }

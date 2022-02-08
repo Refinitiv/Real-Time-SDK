@@ -48,10 +48,18 @@ public:
 
 	RsslReactorOAuthCredential* getReactorOAuthCredential();
 
+	void setOmmRestLoggingClient(OmmRestLoggingClient*, void*);
+
+	OmmRestLoggingClient* getOmmRestLoggingClient() const;
+
+	void* getRestLoggingClosure() const;
+
 private:
 
 	OmmConsumerConfig::OperationModel		_operationModel;
 	RsslReactorOAuthCredential				_reactorOAuthCredential;
+	OmmRestLoggingClient*					_pOmmRestLoggingClient;
+	void*									_pRestLoggingClosure;
 };
 
 }

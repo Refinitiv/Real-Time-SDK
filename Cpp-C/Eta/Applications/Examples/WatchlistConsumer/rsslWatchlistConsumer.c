@@ -211,10 +211,14 @@ int main(int argc, char **argv)
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
 
-	if (watchlistConsumerConfig.restEnableLog)
+	if (watchlistConsumerConfig.restEnableLog || watchlistConsumerConfig.restEnableLogCallback)
 	{
 		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
 		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
+		if (watchlistConsumerConfig.restEnableLogCallback)
+		{
+			reactorOpts.pRestLoggingCallback = restLoggingCallback;
+		}
 	}
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
@@ -1592,4 +1596,17 @@ RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName,
 	}
 
 	return RSSL_RET_FAILURE;
+}
+
+RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent)
+{
+	if (pLogEvent && pLogEvent->pRestLoggingMessage && pLogEvent->pRestLoggingMessage->data)
+	{
+		FILE* pOutputStream = watchlistConsumerConfig.restOutputStreamName;
+		if (!pOutputStream)
+			pOutputStream = stdout;
+
+		fprintf(pOutputStream, "{restLoggingCallback}: %s", pLogEvent->pRestLoggingMessage->data);
+	}
+	return RSSL_RC_CRET_SUCCESS;
 }

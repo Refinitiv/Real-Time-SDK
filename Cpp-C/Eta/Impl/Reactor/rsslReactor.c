@@ -714,6 +714,11 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 			pReactorImpl->restLogOutputStream = pReactorOpts->restLogOutputStream;
 		}
 	}
+	if (pReactorOpts->pRestLoggingCallback)
+	{
+		pReactorImpl->restEnableLogCallback = RSSL_TRUE;
+		pReactorImpl->pRestLoggingCallback = pReactorOpts->pRestLoggingCallback;
+	}
 	if (pReactorOpts->tokenServiceURL.data && pReactorOpts->tokenServiceURL.length)
 	{
 		pReactorImpl->tokenServiceURLBuffer.length = RSSL_REACTOR_DEFAULT_URL_LENGHT;
@@ -1393,14 +1398,14 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 			_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
-			if (pRsslReactorImpl->restEnableLog)
-				(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+				(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 			rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, &pRsslReactorImpl->accessTokenRespBuffer,
 				&errorInfo.rsslError);
 
-			if (pRsslReactorImpl->restEnableLog)
-				(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
+			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+				(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 			free(pRestRequestArgs);
 
@@ -1482,14 +1487,14 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 		_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
-		if (pRsslReactorImpl->restEnableLog)
-			(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+		if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+			(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 		rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, 
 			&pRsslReactorImpl->serviceDiscoveryRespBuffer, &errorInfo.rsslError);
 
-		if (pRsslReactorImpl->restEnableLog)
-			(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
+		if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+			(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 		if (restResponse.isMemReallocated)
 		{
@@ -5460,6 +5465,36 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						return RSSL_RET_FAILURE;
 				}
 
+				return RSSL_RET_SUCCESS;
+			}
+			case RSSL_RCIMPL_ET_LOGGING:
+			{
+				RsslReactorLoggingEvent* pLoggingEvent = (RsslReactorLoggingEvent*)pEvent;
+				if (pReactorImpl->pRestLoggingCallback)
+				{
+					RsslReactorRestLoggingEvent restLogEvent;
+					rsslClearReactorRestLoggingEvent(&restLogEvent);
+
+					restLogEvent.pUserSpec = pReactorImpl->userSpecPtr;
+					restLogEvent.pRestLoggingMessage = pLoggingEvent->pRestLoggingMessage;
+
+					_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
+					cret = (*pReactorImpl->pRestLoggingCallback)((RsslReactor*)pReactorImpl, &restLogEvent);
+					_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
+
+					if (pLoggingEvent->pRestLoggingMessage)
+					{
+						if (pLoggingEvent->pRestLoggingMessage->data)
+							free(pLoggingEvent->pRestLoggingMessage->data);
+						free(pLoggingEvent->pRestLoggingMessage);
+					}
+
+					if (cret != RSSL_RC_CRET_SUCCESS)
+					{
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Error return code %d from callback.", cret);
+						return RSSL_RET_FAILURE;
+					}
+				}
 				return RSSL_RET_SUCCESS;
 			}
 			default:
@@ -10204,14 +10239,14 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 			{
 				_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
-				if (pRsslReactorImpl->restEnableLog)
-					(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+					(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 				rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse, &pTokenSessionImpl->rsslAccessTokenRespBuffer,
 					&errorInfo.rsslError);
 
-				if (pRsslReactorImpl->restEnableLog)
-					(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
+				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+					(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 				free(pRestRequestArgs);
 
@@ -10481,14 +10516,14 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 			_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
-			if (pRsslReactorImpl->restEnableLog)
-				(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+				(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 			rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse,
 				&pTokenSessionImpl->rsslServiceDiscoveryRespBuffer, &errorInfo.rsslError);
 
-			if (pRsslReactorImpl->restEnableLog)
-				(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
+			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
+				(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 			if (restResponse.isMemReallocated)
 			{
@@ -12493,4 +12528,59 @@ static void _reactorWSDirectoryUpdateFromChannelDown(RsslReactorWarmStandbyGroup
 			}
 		}
 	}
+}
+
+RSSL_VA_API RsslRet rsslReactorIoctl(RsslReactor* pReactor, RsslReactorIoctlCodes code, void* value, RsslErrorInfo* pError)
+{
+	RsslReactorImpl* pReactorImpl = (RsslReactorImpl*)pReactor;
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	if (!pError)
+		return RSSL_RET_INVALID_ARGUMENT;
+
+	if (!pReactor)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactor not provided.");
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
+		return ret;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
+	switch (code)
+	{
+	case RSSL_RIC_ENABLE_REST_LOGGING:
+	{
+		RsslBool restEnableLog = RSSL_FALSE;
+		if (value != NULL && *((int*)value) != 0)
+		{
+			restEnableLog = RSSL_TRUE;
+		}
+		pReactorImpl->restEnableLog = restEnableLog;
+		break;
+	}
+	case RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING:
+	{
+		RsslBool restEnableLogCallback = RSSL_FALSE;
+		if (value != NULL && *((int*)value) != 0)
+		{
+			restEnableLogCallback = RSSL_TRUE;
+		}
+		pReactorImpl->restEnableLogCallback = restEnableLogCallback;
+		break;
+	}
+
+	default:
+		ret = RSSL_RET_INVALID_ARGUMENT;
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "rsslReactorIoctl code (%d) undefined.", code);
+		break;
+	}
+
+	return (reactorUnlockInterface(pReactorImpl), ret);
 }

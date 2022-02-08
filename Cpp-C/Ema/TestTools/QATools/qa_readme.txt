@@ -135,6 +135,13 @@ Series100Consumer113-ConsFunc-001
 	Alters consumer to request about 240K rics from Asian region to reproduce customer issue RTSDK-5292.
 	Cons113.exe -username <> -password <> -clientId <> -fileName preload_ubs1
 
+Series100Consumer113-RestLogCallback-001
+   Alters consumer to test a user callback that receive REST logging messages.
+   Added command line options:
+   -restLogCallback: Enable REST logging callback.
+   -restLogFilename: File name for printing the REST logging messages.
+   ./Cons113 -username <> -password <> -clientId <> -restLogCallback -restLogFilename "filename.log"
+
 Module:  Series100Consumer140
 -----------------------------
 
@@ -415,6 +422,16 @@ Series400Consumer440-TsFrag-001
     this pattern of data up to the fillSize. The provider will then need to check 
     for the same pattern in the fully assembled message and print "TEST PASSED".
 
+
+Module:  Series400Consumer450
+-----------------------------
+
+Series400Consumer450-RestLogCallback-001
+   Alters consumer to test a user callback that receive REST logging messages.
+   Added command line options:
+   -restLogCallback: Enable REST logging callback.
+   -restLogFilename: File name for printing the REST logging messages.
+   ./Cons450 -username <> -password <> -clientId <> -restLogCallback -restLogFilename "filename.log"
 
 
 Module:  Series100Provider100 

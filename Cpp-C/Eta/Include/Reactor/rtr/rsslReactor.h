@@ -101,6 +101,16 @@ typedef RsslReactorCallbackRet RsslReactorJsonConversionEventCallback(RsslReacto
  */
 typedef RsslRet RsslReactorServiceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 
+/**
+ * @brief Signature of a callback function to receive REST logging message.
+ * @param pReactor The Reactor associated with this event.
+ * @param pLogEvent An RsslReactorRestLoggingEvent that provides the REST logging message and additional information for the callback.
+ * @return RSSL_RET_SUCCESS The callback should return success as result.
+ * @see RsslReactorRestLoggingEvent
+ * @see RsslCreateReactorOptions.restEnableLog, RsslCreateReactorOptions.pRestLoggingCallback
+ */
+typedef RsslReactorCallbackRet RsslReactorRestLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent);
+
 
 /**
  * @brief Enumerated types indicating the role of a connection.
@@ -304,6 +314,7 @@ typedef struct {
 	int			port;							/*!< @deprecated DEPRECATED: This parameter no longer has any effect. It was a port used for creating the eventFd descriptor on the RsslReactor. It was never used on Linux or Solaris platforms. */
 	RsslBool	restEnableLog;					/*!< Enable REST interaction debug messages> */
 	FILE		*restLogOutputStream;			/*!< Set output stream for REST debug message (by default is stdout)> */
+	RsslReactorRestLoggingCallback* pRestLoggingCallback;	/*!< Specifies user callback to receive Rest logging messages.> */
 } RsslCreateReactorOptions;
 
 /**
@@ -326,6 +337,7 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->restRequestTimeOut = 90;
 	pReactorOpts->restEnableLog = RSSL_FALSE;
 	pReactorOpts->restLogOutputStream = NULL;
+	pReactorOpts->pRestLoggingCallback = NULL;
 }
 
 /**
@@ -1018,6 +1030,32 @@ RTR_C_INLINE void rsslClearReactorJsonConverterOptions(RsslReactorJsonConverterO
  * @see RsslReactorJsonConverterOptions, RsslErrorInfo
  */
 RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReactorJsonConverterOptions *pReactorJsonConverterOptions, RsslErrorInfo *pError);
+
+/**
+ * @brief Reactor IOCtl codes
+ * @see RsslReactorRestLoggingCallback
+ * @see rsslReactorIoctl
+ */
+typedef enum {
+	RSSL_RIC_ENABLE_REST_LOGGING = 1,			/*!< (1) Enable or disable REST interaction debug messages. (RsslReactorImpl.restEnableLog) */
+	RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING = 2,	/*!< (2) Enable or disable invoking a callback specified by user to receive Rest logging message. (RsslReactorImpl.restEnableLogCallback) */
+} RsslReactorIoctlCodes;
+
+/**
+ * @brief Allows changing some I/O values programmatically
+ *
+ * Typical use:<BR>
+ * If an I/O value needs to be changed, this is used
+ *
+ * @param pReactor The reactor that will handle the request.
+ * @param code Code of I/O Option to change
+ * @param value Value to change Option to
+ * @param error RSSL Error, to be populated in event of an error
+ * @return RsslRet RSSL return value
+ * @see RsslReactorIoctlCodes, RsslErrorInfo
+ */
+RSSL_VA_API RsslRet rsslReactorIoctl(RsslReactor* pReactor, RsslReactorIoctlCodes code, void* value, RsslErrorInfo* pError);
+
 
 /**
  *	@}

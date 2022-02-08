@@ -1345,6 +1345,14 @@ public:
 
 	virtual RsslReactorOAuthCredential* getReactorOAuthCredential() = 0;
 
+	virtual OmmRestLoggingClient* getOmmRestLoggingClient() const {
+		return ((OmmRestLoggingClient*)NULL);
+	}
+
+	virtual void* getRestLoggingClosure() const {
+		return ((void*)NULL);
+	}
+
 protected:
 
 	LoginRdmReqMsg			_loginRdmReqMsg;

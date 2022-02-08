@@ -120,6 +120,7 @@ else()
             Impl/OmmConsumerConfig.cpp Impl/OmmConsumerConfigImpl.cpp Impl/OmmConsumerConfigImpl.h
             Impl/OmmConsumerErrorClient.cpp
             Impl/OmmConsumerEvent.cpp Impl/OmmConsumerImpl.cpp Impl/OmmConsumerImpl.h
+            Impl/OmmConsumerRestLoggingEvent.cpp
             Impl/OmmDate.cpp Impl/OmmDateDecoder.cpp Impl/OmmDateDecoder.h
             Impl/OmmDateTime.cpp Impl/OmmDateTimeDecoder.cpp Impl/OmmDateTimeDecoder.h
             Impl/OmmDouble.cpp Impl/OmmDoubleDecoder.cpp Impl/OmmDoubleDecoder.h
@@ -187,6 +188,7 @@ else()
             Impl/RefreshMsgEncoder.cpp Impl/RefreshMsgEncoder.h
             Impl/ReqMsg.cpp Impl/ReqMsgDecoder.cpp Impl/ReqMsgDecoder.h
             Impl/ReqMsgEncoder.cpp Impl/ReqMsgEncoder.h
+            Impl/RestLoggingCallbackClient.cpp Impl/RestLoggingCallbackClient.h
             Impl/RmtesBuffer.cpp Impl/RmtesBufferImpl.cpp Impl/RmtesBufferImpl.h
             # Impl/S....
             Impl/Series.cpp Impl/SeriesDecoder.cpp Impl/SeriesDecoder.h
@@ -242,7 +244,8 @@ else()
             Include/FilterList.h
             Include/GenericMsg.h
             Include/GetTime.h
-	    Include/IOCtlCode.h
+            Include/IOCtlCode.h
+            Include/IOCtlReactorCode.h
             Include/Key.h
             Include/Map.h
             Include/MapEntry.h
@@ -257,6 +260,7 @@ else()
             Include/OmmConsumerConfig.h
             Include/OmmConsumerErrorClient.h
             Include/OmmConsumerEvent.h
+            Include/OmmConsumerRestLoggingEvent.h
             Include/OmmDate.h
             Include/OmmDateTime.h
             Include/OmmDouble.h
@@ -282,6 +286,7 @@ else()
             Include/OmmProviderEvent.h
             Include/OmmQos.h
             Include/OmmReal.h
+            Include/OmmRestLoggingClient.h
             Include/OmmRmtes.h
             Include/OmmState.h
             Include/OmmSystemException.h

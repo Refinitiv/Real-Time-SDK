@@ -108,7 +108,9 @@ void printUsageAndExit(int argc, char **argv)
 			"\n"
 			"-restLogFileName set REST logging output stream"
 			"\n"
-			, argv[0], argv[0]);
+			"-restEnableLogCallback enable receiving REST logging messages via callback"
+			"\n"
+		, argv[0], argv[0]);
 	exit(-1);
 }
 
@@ -194,6 +196,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
 	watchlistConsumerConfig.restEnableLog = RSSL_FALSE;
 	watchlistConsumerConfig.restOutputStreamName = NULL;
+	watchlistConsumerConfig.restEnableLogCallback = RSSL_FALSE;
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
@@ -249,23 +252,23 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 		else if (strcmp("-libsslName", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.libsslName, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.libsslName, 255, "%s", argv[i]);
 		}
 		else if (strcmp("-libcryptoName", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", argv[i]);
 		}
 		else if (strcmp("-libcurlName", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", argv[i]);
 		}
 		else if (strcmp("-castore", argv[i]) == 0)
 		{
-			i += 2;
-			snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", argv[i - 1]);
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", argv[i]);
 		}
 		else if (0 == strcmp(argv[i], "-h"))
 		{
@@ -564,13 +567,17 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 		else if (0 == strcmp(argv[i], "-restLogFileName"))
 		{
-			i += 2;
-			watchlistConsumerConfig.restOutputStreamName = fopen(argv[i - 1], "w");
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.restOutputStreamName = fopen(argv[i], "w");
 			if (!watchlistConsumerConfig.restOutputStreamName)
 			{
-				printf("Error: Unable to open the specified file name %s\n", argv[i - 1]);
+				printf("Error: Unable to open the specified file name %s\n", argv[i]);
 				printUsageAndExit(argc, argv);
 			}
+		}
+		else if (strcmp("-restEnableLogCallback", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.restEnableLogCallback = RSSL_TRUE;
 		}
 		else
 		{

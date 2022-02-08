@@ -116,6 +116,7 @@
 #include "Access/Include/Common.h"
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
+#include "Access/Include/IOCtlReactorCode.h"
 
 namespace refinitiv {
 
@@ -163,7 +164,6 @@ public :
 	 */
 	OmmConsumer( const OmmConsumerConfig& config );
 
-	//@{
 	/** Create an OmmConsumer with OmmConsumerConfig. The OmmConsumer enables functionality
 	that includes subscribing, posting and distributing generic messages.
 	This constructor will also register for all login events via the provided OmmConsumerClient and optional closure.
@@ -307,6 +307,15 @@ public :
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void modifyIOCtl(Int32 code, Int32 value);
+
+	/** Allows modifying some I/O values programmatically for Reactor to override the default values.
+		@param[in] code provides Code of I/O option defined in IOCtlReactorCode::IOCtlReactorCodeEnum to modify.
+		@param[in] value provides Value to modify I/O option to
+		@return void
+		@throw OmmInvalidUsageException if failed to modify I/O option to
+		\remark This method is \ref ObjectLevelSafe
+	*/
+	void modifyReactorIOCtl(Int32 code, Int32 value);
 	//@}
 
 private :

@@ -345,6 +345,26 @@ RTR_C_INLINE void rsslClearReactorJsonConversionEvent(RsslReactorJsonConversionE
 }
 
 /**
+ * @brief This event contains a REST logging message.
+ * @see RsslReactor, RsslReactorRestLoggingCallback
+ */
+
+typedef struct
+{
+	void			*pUserSpec;				/*!< User-specified pointer given when specifying the callback for this event. */
+	RsslBuffer		*pRestLoggingMessage;	/*!< A REST client logging message. */
+} RsslReactorRestLoggingEvent;
+
+/**
+ * @brief Clears an RsslReactorRestLoggingEvent.
+ * @see RsslReactorRestLoggingEvent
+ */
+RTR_C_INLINE void rsslClearReactorRestLoggingEvent(RsslReactorRestLoggingEvent* pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorRestLoggingEvent));
+}
+
+/**
  *	@}
  */
 

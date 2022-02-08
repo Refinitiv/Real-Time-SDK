@@ -207,3 +207,9 @@ OmmConsumerConfigImpl* OmmConsumerConfig::getConfigImpl() const
 {
 	return _pImpl;
 }
+
+OmmConsumerConfig& OmmConsumerConfig::restLoggingCallback(OmmRestLoggingClient& ommRestLoggingClient, void* closure)
+{
+	_pImpl->setOmmRestLoggingClient( &ommRestLoggingClient, closure );
+	return *this;
+}

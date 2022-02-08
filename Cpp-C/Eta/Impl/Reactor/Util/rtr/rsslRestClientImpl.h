@@ -480,23 +480,27 @@ RsslRet rsslRestParseAccessToken(RsslBuffer* dataBody, RsslBuffer *accessToken, 
 RsslBuffer* rsslRestEncodeUrlData(RsslBuffer* inputBuffer, RsslError* pError);
 
 /**
-* @brief Print out the given input argument to the output stream
-* @param outputStream stream where to print data.
-* @param pRestRequest specifies REST request data
+* @brief Allocate and fill up buffer by the given input argument.
+* @param pRestRequest specifies REST request data.
 * @param pError Error structure to be populated in the event of an error.
-* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+* @return the buffer has filled up logging info by pRestRequest parameter if perform successfully otherwise null.
 */
-
-RsslRet rsslRestRequestDump(FILE* outputStream,  RsslRestRequestArgs* pRestRequest,  RsslError* pError);
+RsslBuffer* rsslRestRequestDumpBuffer(RsslRestRequestArgs* pRestRequest, RsslError* pError);
 
 /**
-* @brief Print out the given input argument to the output stream
-* @param outputStream stream where to print data.
-* @param pRestRequestResponse specifies REST response data
+* @brief Allocate and fill up buffer by the given input argument.
+* @param pRestResponse specifies REST response data.
 * @param pError Error structure to be populated in the event of an error.
-* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+* @return the buffer has filled up logging info by pRestResponse parameter if perform successfully otherwise null.
 */
-RsslRet rsslRestResponseDump(FILE* outputStream,  RsslRestResponse* pRestRequestResponse,  RsslError* pError);
+RsslBuffer* rsslRestResponseDumpBuffer(RsslRestResponse* pRestResponse, RsslError* pError);
+
+/**
+* @brief Allocate and fill up buffer by the given input argument.
+* @param pErrorOutput specifies REST response error.
+* @return the buffer has filled up logging info by pErrorOutput parameter if perform successfully otherwise null.
+*/
+RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput);
 
  /**
  *	@}

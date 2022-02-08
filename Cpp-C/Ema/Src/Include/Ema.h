@@ -99,6 +99,8 @@
 #include "Access/Include/OmmConsumerConfig.h"
 #include "Access/Include/OmmConsumerErrorClient.h"
 #include "Access/Include/OmmConsumerEvent.h"
+#include "Access/Include/OmmConsumerRestLoggingEvent.h"
+#include "Access/Include/OmmRestLoggingClient.h"
 
 #include "Access/Include/OmmProvider.h"
 #include "Access/Include/OmmProviderClient.h"
@@ -128,6 +130,7 @@
 #include "Access/Include/ServiceEndpointDiscoveryResp.h"
 
 #include "Access/Include/IOCtlCode.h"
+#include "Access/Include/IOCtlReactorCode.h"
 
 #include "Access/Include/SessionInfo.h"
 #include "Access/Include/ConsumerSessionInfo.h"

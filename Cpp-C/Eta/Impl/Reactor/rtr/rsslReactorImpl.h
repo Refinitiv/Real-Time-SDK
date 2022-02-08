@@ -1728,6 +1728,8 @@ struct _RsslReactorImpl
 	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
 	RsslBool			restEnableLog;	/* Enable REST interaction debug messages */
 	FILE				*restLogOutputStream;	/* Set output stream for REST debug message (by default is stdout) */
+	RsslBool			restEnableLogCallback;	/* Enable of invoking a callback specified by user to receive Rest logging message (pRestLoggingCallback). */
+	RsslReactorRestLoggingCallback	*pRestLoggingCallback;	/* Sets a callback specified by users to receive Rest logging message. */
 	RsslQueue warmstandbyChannelPool;	/* Pool of available RsslReactorWarmStandByHandlerImpl structures */
 	RsslQueue closingWarmstandbyChannel;    /* Keeps a list RsslReactorWarmStandByHandlerImpl being closed. */
 };
@@ -1785,6 +1787,28 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg);
 
 /* Estimate encoded message size. */
 RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
+
+/**
+* @brief Print out the given input argument to the output stream.
+*  Method will send RestLoggingEvent and Reactor will invoke pRestLoggingCallback if enabled
+*  otherwise print out to the output stream.
+* @param pRestRequestArgs specifies REST request data.
+* @param pError Error structure to be populated in the event of an error.
+* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+* @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
+*/
+RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError);
+
+/**
+* @brief Print out the given input argument to the output stream.
+*  Method will send RestLoggingEvent and Reactor will invoke pRestLoggingCallback if enabled
+*  otherwise print out to the output stream.
+* @param pRestResponseArgs specifies REST response data.
+* @param pError Error structure to be populated in the event of an error.
+* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+* @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
+*/
+RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
 
 #ifdef __cplusplus
 };
