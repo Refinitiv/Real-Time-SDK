@@ -2043,7 +2043,11 @@ reactorConnectFail:
 			/* Ensure that the token session hasn't been initialized before removing it from the hash table */
 			if (pReactorChannel->pTokenSessionImpl->initialized == RSSL_FALSE)
 			{
+				RsslReactorTokenManagementImpl *pTokenManagementImpl = &pReactorImpl->reactorWorker.reactorTokenManagement;
+
+				RSSL_MUTEX_LOCK(&pTokenManagementImpl->tokenSessionMutex);
 				rsslHashTableRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt, &pReactorChannel->pTokenSessionImpl->hashLinkNameAndClientId);
+				RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 			}
 
 			pEvent = (RsslReactorTokenSessionEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
