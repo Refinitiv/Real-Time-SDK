@@ -155,6 +155,8 @@ FULL_PATH_NAMES        = YES
 STRIP_FROM_PATH        = ./ \
                          ../../../Include/Codec \
                          ../../../Include/Codec/rtr \
+                         ../../../Include/Converter/rtr \
+                         ../../../Include/Converter \
                          ../../../Include/Transport/rtr
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of the
@@ -786,8 +788,10 @@ WARN_LOGFILE           = ./err-common.out
 
 INPUT                  = ./rsslETADoxygen.h \
                          ./rsslETADoxygenTransport.h \
-						 ../../../Include/Codec \
+                         ../../../Include/Codec \
                          ../../../Include/Codec/rtr \
+                         ../../../Include/Converter/rtr \
+                         ../../../Include/Converter \
                          ../../../Include/Transport/rtr
 						 
 # This tag can be used to specify the character encoding of the source files
