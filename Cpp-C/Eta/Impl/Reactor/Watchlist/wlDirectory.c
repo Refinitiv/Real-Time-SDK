@@ -431,6 +431,10 @@ RsslRet wlFanoutDirectoryMsg(WlBase *pBase, WlDirectory *pDirectory, RsslQueue *
 	RsslQueueLink *pRequestLink;
 	RsslRet ret;
 
+	RsslQueueLink* pRequestedServiceLink;
+	RDMCachedService* pCachedService;
+	WlService* pWlService;
+
 	if (fanoutBufferLength > pBase->tempEncodeBuffer.length)
 		if (rsslHeapBufferResize(&pBase->tempEncodeBuffer, fanoutBufferLength, RSSL_FALSE)
 				!= RSSL_RET_SUCCESS)
@@ -447,10 +451,9 @@ RsslRet wlFanoutDirectoryMsg(WlBase *pBase, WlDirectory *pDirectory, RsslQueue *
 	 * (and if there are any service-specific requests, fanout those). */
 	RSSL_QUEUE_FOR_EACH_LINK(pUpdatedServiceList, pLink)
 	{
-		RsslQueueLink *pRequestedServiceLink;
-		RDMCachedService *pCachedService = RSSL_QUEUE_LINK_TO_OBJECT(RDMCachedService, _updatedServiceLink,
+		pCachedService = RSSL_QUEUE_LINK_TO_OBJECT(RDMCachedService, _updatedServiceLink,
 				pLink);
-		WlService *pWlService = (WlService*)pCachedService->pUserSpec;
+		pWlService = (WlService*)pCachedService->pUserSpec;
 
 		assert(pWlService);
 
@@ -499,36 +502,48 @@ RsslRet wlFanoutDirectoryMsg(WlBase *pBase, WlDirectory *pDirectory, RsslQueue *
 			pFanoutService->linkInfo.linkList = pCachedService->rdm.linkInfo.linkList;
 		}
 
+		++pFanoutService;
+	}
+
+	/* Fanout full updates. */
+	RSSL_QUEUE_FOR_EACH_LINK(&pDirectory->openDirectoryRequests,
+		pRequestLink)
+	{
+		WlDirectoryRequest* pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest, base.qlStateQueue,
+			pRequestLink);
+		if ((ret = wlSendServiceListToRequest(pBase, pDirectory, pDirectoryRequest, fanoutServiceList,
+			pUpdatedServiceList->count, pErrorInfo)) != RSSL_RET_SUCCESS)
+			return ret;
+	}
+
+	/* Fanout specific requests. */
+	pFanoutService = fanoutServiceList;
+
+	RSSL_QUEUE_FOR_EACH_LINK(pUpdatedServiceList, pLink)
+	{
+		pCachedService = RSSL_QUEUE_LINK_TO_OBJECT(RDMCachedService, _updatedServiceLink,
+			pLink);
+		pWlService = (WlService*)pCachedService->pUserSpec;
+
 		/* Find requests associated with this service, and fanout. */
 		RSSL_QUEUE_FOR_EACH_LINK(&pWlService->requestedServices,
-				pRequestedServiceLink)
+			pRequestedServiceLink)
 		{
-			WlRequestedService *pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService, 
-					qlDirectoryRequests, pRequestedServiceLink);
+			WlRequestedService* pRequestedService = RSSL_QUEUE_LINK_TO_OBJECT(WlRequestedService,
+				qlDirectoryRequests, pRequestedServiceLink);
 
 			RSSL_QUEUE_FOR_EACH_LINK(&pRequestedService->openDirectoryRequests,
-					pRequestLink)
+				pRequestLink)
 			{
-				WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest, base.qlStateQueue, 
-						pRequestLink);
-				if ((ret = wlSendServiceListToRequest(pBase, pDirectory, pDirectoryRequest, pFanoutService, 1, 
-						pErrorInfo)) != RSSL_RET_SUCCESS)
+				WlDirectoryRequest* pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest, base.qlStateQueue,
+					pRequestLink);
+				if ((ret = wlSendServiceListToRequest(pBase, pDirectory, pDirectoryRequest, pFanoutService, 1,
+					pErrorInfo)) != RSSL_RET_SUCCESS)
 					return ret;
 			}
 		}
 
 		++pFanoutService;
-	}
-
-	/* Fanout full update. */
-	RSSL_QUEUE_FOR_EACH_LINK(&pDirectory->openDirectoryRequests,
-			pRequestLink)
-	{
-		WlDirectoryRequest *pDirectoryRequest = RSSL_QUEUE_LINK_TO_OBJECT(WlDirectoryRequest, base.qlStateQueue, 
-				pRequestLink);
-		if ((ret = wlSendServiceListToRequest(pBase, pDirectory, pDirectoryRequest, fanoutServiceList, 
-				pUpdatedServiceList->count, pErrorInfo)) != RSSL_RET_SUCCESS)
-			return ret;
 	}
 
 	return RSSL_RET_SUCCESS;
