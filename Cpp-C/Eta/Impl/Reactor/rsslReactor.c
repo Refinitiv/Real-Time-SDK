@@ -9893,13 +9893,13 @@ RsslRet _reactorGetAccessToken(RsslReactorChannelImpl* pReactorChannelImpl, Rssl
 				_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
 				if (pRsslReactorImpl->restEnableLog)
-					(void)rsslRestRequestDump(pRsslReactorImpl->restLogOutputStream, pRestRequestArgs, &errorInfo.rsslError);
+					(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 				rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse, &pTokenSessionImpl->rsslAccessTokenRespBuffer,
 					&errorInfo.rsslError);
 
 				if (pRsslReactorImpl->restEnableLog)
-					(void)rsslRestResponseDump(pRsslReactorImpl->restLogOutputStream, &restResponse, &errorInfo.rsslError);
+					(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 				free(pRestRequestArgs);
 
