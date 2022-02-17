@@ -210,7 +210,10 @@ public class FieldListTests {
                 {1, new int[]{DataTypes.ASCII_STRING, DataTypes.DATE, DataTypes.TIME} },
                 {2, new int[]{DataTypes.INT, DataTypes.REAL, DataTypes.ARRAY } },
                 {3, new int[]{ DataTypes.DATE, DataTypes.MAP, DataTypes.ELEMENT_LIST } },
-                {4, new int[]{ DataTypes.DATE, DataTypes.VECTOR, DataTypes.ELEMENT_LIST } }
+                {4, new int[]{ DataTypes.DATE, DataTypes.VECTOR, DataTypes.ELEMENT_LIST } },
+                {5, new int[] {DataTypes.ELEMENT_LIST} },
+                {6, new int[] {DataTypes.MAP} },
+                {7, new int[] {DataTypes.VECTOR} }
         });
     }
 }

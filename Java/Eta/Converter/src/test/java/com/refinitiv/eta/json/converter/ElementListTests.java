@@ -64,7 +64,7 @@ public class ElementListTests {
     public void testRwfToJson_Sunny() throws IOException {
         DecodeIterator decIter = generateElementListDecodeIterator();
         JsonBuffer outBuffer = new JsonBuffer();
-        outBuffer.data = new byte[2000];
+        outBuffer.data = new byte[4000];
         assertEquals(true, converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeJson(decIter, outBuffer, false, null, convError));
 
         JsonNode root = mapper.readTree(outBuffer.data);
@@ -72,7 +72,7 @@ public class ElementListTests {
 
         EncodeIterator encIter = CodecFactory.createEncodeIterator();
         Buffer buffer = CodecFactory.createBuffer();
-        buffer.data(ByteBuffer.allocate(1000));
+        buffer.data(ByteBuffer.allocate(3000));
         encIter.setBufferAndRWFVersion(buffer, Codec.majorVersion(), Codec.minorVersion());
 
         converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeRWF(root, null, encIter, convError);
@@ -211,7 +211,16 @@ public class ElementListTests {
                 {3, new int[] {DataTypes.MAP, DataTypes.INT, DataTypes.ASCII_STRING} },
                 {4, new int[] {DataTypes.UINT, DataTypes.INT, DataTypes.ASCII_STRING,
                         DataTypes.DATE, DataTypes.DATETIME, DataTypes.TIME, DataTypes.QOS, DataTypes.STATE,
-                        DataTypes.REAL, DataTypes.DOUBLE, DataTypes.FLOAT} }
+                        DataTypes.REAL, DataTypes.DOUBLE, DataTypes.FLOAT} },
+                {5, new int[] {DataTypes.FILTER_LIST} },
+                {6, new int[] {DataTypes.VECTOR } },
+                {7, new int[] {DataTypes.SERIES} },
+                {8, new int[] {DataTypes.ELEMENT_LIST} },
+                {9, new int[] {DataTypes.OPAQUE} },
+                {10, new int[] {DataTypes.XML} },
+                {11, new int[] {DataTypes.JSON} },
+                {12, new int[] {DataTypes.MSG} },
+                {13, new int[] {DataTypes.ANSI_PAGE} }
         });
     }
 }

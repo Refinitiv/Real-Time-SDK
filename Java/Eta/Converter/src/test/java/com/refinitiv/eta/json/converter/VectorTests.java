@@ -149,7 +149,11 @@ public class VectorTests {
                 {2, DataTypes.ELEMENT_LIST, new int[]{VectorEntryActions.SET, VectorEntryActions.UPDATE, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
                 {3, DataTypes.FILTER_LIST, new int[]{VectorEntryActions.SET, VectorEntryActions.UPDATE, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
                 {4, DataTypes.MAP, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
-                {5, DataTypes.MSG, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  }
+                {5, DataTypes.MSG, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
+                {6, DataTypes.OPAQUE, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
+                {7, DataTypes.XML, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
+                {8, DataTypes.JSON, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  },
+                {9, DataTypes.ANSI_PAGE, new int[]{VectorEntryActions.SET, VectorEntryActions.INSERT, VectorEntryActions.CLEAR}, new boolean[] {false, false, true}, false, true, false  }
         });
     }
 }

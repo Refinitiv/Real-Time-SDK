@@ -20,6 +20,7 @@ abstract class AbstractContainerTypeConverter extends AbstractTypeConverter {
         containerNameMap.put(DataTypes.OPAQUE, ConstCharArrays.JSON_OPAQUE);
         containerNameMap.put(DataTypes.XML, ConstCharArrays.JSON_XML);
         containerNameMap.put(DataTypes.JSON, ConstCharArrays.JSON_JSON);
+        containerNameMap.put(DataTypes.ANSI_PAGE, ConstCharArrays.JSON_ANSI);
     }
 
     Object getContainerObject() { return null; }
@@ -135,7 +136,7 @@ abstract class AbstractContainerTypeConverter extends AbstractTypeConverter {
         }
     }
 
-    private String getContainerName(int containerType) {
+    protected String getContainerName(int containerType) {
 
         return containerNameMap.get(containerType);
     }

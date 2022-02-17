@@ -160,7 +160,11 @@ public class MapTests {
                 {11, DataTypes.VECTOR, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD, MapEntryActions.UPDATE}, new boolean[]{true, false, true}, DataTypes.REAL, false, false, false },
                 {12, DataTypes.ELEMENT_LIST, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD, MapEntryActions.UPDATE}, new boolean[]{true, false, true}, DataTypes.TIME, true, true, true },
                 {13, DataTypes.MSG, new int[]{MapEntryActions.ADD, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.STATE, false, true, true },
-                {14, DataTypes.ELEMENT_LIST, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.UINT, false, true, false }
+                {14, DataTypes.ELEMENT_LIST, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.UINT, false, true, false },
+                {15, DataTypes.OPAQUE, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.UINT, false, true, false },
+                {16, DataTypes.XML, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.UINT, false, true, false },
+                {17, DataTypes.JSON, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.UINT, false, true, false },
+                {18, DataTypes.ANSI_PAGE, new int[]{MapEntryActions.DELETE, MapEntryActions.ADD}, new boolean[]{true, false}, DataTypes.UINT, false, true, false }
         });
     }
 }

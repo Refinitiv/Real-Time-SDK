@@ -70,6 +70,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
 
     compile project(':Eta:Core')
+    compile project(':Eta:AnsiPage')
 
     // needed for cobertura
     testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'

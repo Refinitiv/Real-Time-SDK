@@ -150,7 +150,8 @@ public class SeriesTests {
                 {5, DataTypes.OPAQUE, 3, 2, true, false},
                 {6, DataTypes.JSON, 3, 2, true, false},
                 {7, DataTypes.XML, 3, 2, true, false},
-                {8, DataTypes.MSG, 3, 2, true, false}
+                {8, DataTypes.MSG, 3, 2, true, false},
+                {9, DataTypes.ANSI_PAGE, 3, 2, true, false}
         });
     }
 }

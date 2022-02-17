@@ -136,6 +136,7 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
         containerHandlerMap.put(DataTypes.MAP, new JsonMapConverter(this));
         containerHandlerMap.put(DataTypes.OPAQUE, new JsonOpaqueConverter(this));
         containerHandlerMap.put(DataTypes.XML, new JsonXmlConverter(this));
+        containerHandlerMap.put(DataTypes.ANSI_PAGE, new JsonAnsiPageConverter(this));
         containerHandlerMap.put(DataTypes.JSON, new JsonJsonConverter(this));
         containerHandlerMap.put(DataTypes.MSG, new JsonMsgConverter(this));
     }
@@ -507,6 +508,8 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
                 return DataTypes.SERIES;
             case JSON_XML:
                 return DataTypes.XML;
+            case JSON_ANSI:
+                return DataTypes.ANSI_PAGE;
             default:
                 return DataTypes.NO_DATA;
         }
@@ -1008,6 +1011,8 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
                         return DataTypes.SERIES;
                     case ConstCharArrays.JSON_XML:
                         return DataTypes.XML;
+                    case ConstCharArrays.JSON_ANSI:
+                        return DataTypes.ANSI_PAGE;
                     default:
                         break;
                 }

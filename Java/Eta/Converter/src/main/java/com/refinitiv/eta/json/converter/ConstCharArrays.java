@@ -58,6 +58,7 @@ class ConstCharArrays {
     public static final String JSON_XML = "Xml";
     public static final String JSON_JSON = "Json";
     public static final String JSON_NAME = "Name"; //{'N', 'a', 'm', 'e'};
+    public static final String JSON_ANSI = "AnsiPage";
 
     public static final String JSON_VIEW = "View"; // {'V', 'i', 'e', 'w'};
     public static final String JSON_VIEW_NAME_LIST = "NameList"; //{'N', 'a', 'm', 'e', 'L', 'i', 's', 't'};

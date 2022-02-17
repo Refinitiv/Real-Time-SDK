@@ -1,11 +1,18 @@
 package com.refinitiv.eta.json.converter;
 
+import com.refinitiv.ansi.ListType;
+import com.refinitiv.ansi.UpdateType;
+import com.refinitiv.eta.ansipage.Page;
+import com.refinitiv.eta.ansipage.PageUpdate;
 import com.refinitiv.eta.codec.Double;
 import com.refinitiv.eta.codec.Enum;
 import com.refinitiv.eta.codec.Float;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.ansi.PageType;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +28,9 @@ public class CodecUtil {
     public static int defaultArrayDataType = DataTypes.QOS;
     public static int mapKeyFieldId = 1;
     public static int defaultMapKeyType = DataTypes.STATE;
+    public static final String ANSI_INIT_STRING = "\033c\033(B\033[0;47;30m\033[1;1H";
+    public static final String ANSI_CHG_TEST = "\033[1;20Hwrite on line one\n" +
+            "\033[5;40Hwrite on line five";
 
     public static boolean[] defaultVectorEntryHasPermData = { true, false, true };
     public static boolean[] defaultMapEntryHasPermData = { true, false, true };
@@ -40,7 +50,7 @@ public class CodecUtil {
 
     public static int[] defaultFilterListDataTypes = {DataTypes.ELEMENT_LIST, DataTypes.ELEMENT_LIST, DataTypes.ELEMENT_LIST};
     public static int[] defaultFieldListTypes = { DataTypes.ASCII_STRING, DataTypes.REAL, DataTypes.DATE, DataTypes.TIME };
-    public static int[] defaultElementListTypes = { DataTypes.INT, DataTypes.REAL, DataTypes.DATETIME, DataTypes.ARRAY };
+    public static int[] defaultElementListTypes = { DataTypes.INT, DataTypes.REAL, DataTypes.DATETIME, DataTypes.QOS };
 
     public static Buffer intName = CodecFactory.createBuffer();
     public static Buffer uintName = CodecFactory.createBuffer();
@@ -60,6 +70,11 @@ public class CodecUtil {
     public static Buffer seriesName = CodecFactory.createBuffer();
     public static Buffer fieldListName = CodecFactory.createBuffer();
     public static Buffer mapName = CodecFactory.createBuffer();
+    public static Buffer xmlName = CodecFactory.createBuffer();
+    public static Buffer jsonName = CodecFactory.createBuffer();
+    public static Buffer opaqName = CodecFactory.createBuffer();
+    public static Buffer msgName = CodecFactory.createBuffer();
+    public static Buffer ansiName = CodecFactory.createBuffer();
 
     public static Int iv = CodecFactory.createInt();
     public static UInt uint = CodecFactory.createUInt();
@@ -90,6 +105,8 @@ public class CodecUtil {
     public static Buffer jsonBuf = CodecFactory.createBuffer();
     public static Buffer xmlBuf = CodecFactory.createBuffer();
 
+    private static Buffer ansiBuffer = CodecFactory.createBuffer();
+
     public static java.util.Map<Integer, String> dataTypeNameMap = new HashMap<>();
     public static java.util.Map<Integer, String> dataTypeBufferNameMap = new HashMap<>();
     public static java.util.Map<Integer, String> elDataTypeNameMap = new HashMap<>();
@@ -97,6 +114,9 @@ public class CodecUtil {
     public static java.util.Map<String, Integer> nameTypeMap = new HashMap<>();
 
     static {
+
+        encodeAnsiBuffer();
+
         intName.data("int");
         uintName.data("uint");
         doubleName.data("double");
@@ -115,6 +135,11 @@ public class CodecUtil {
         seriesName.data("series");
         fieldListName.data("fieldList");
         mapName.data("map");
+        jsonName.data("json");
+        opaqName.data("opaq");
+        xmlName.data("xml");
+        msgName.data("msg");
+        ansiName.data("ansi");
 
         byte[] binaryArray = { 3, 3, -67, 101, 98, -64};
         permData.data(ByteBuffer.wrap(binaryArray));
@@ -188,6 +213,13 @@ public class CodecUtil {
         elDataTypeNameMap.put(DataTypes.MAP, "map");
         elDataTypeNameMap.put(DataTypes.ELEMENT_LIST, "elementList");
         elDataTypeNameMap.put(DataTypes.FIELD_LIST, "fieldList");
+        elDataTypeNameMap.put(DataTypes.VECTOR, "vector");
+        elDataTypeNameMap.put(DataTypes.SERIES, "series");
+        elDataTypeNameMap.put(DataTypes.XML, "xml");
+        elDataTypeNameMap.put(DataTypes.MSG, "msg");
+        elDataTypeNameMap.put(DataTypes.JSON, "json");
+        elDataTypeNameMap.put(DataTypes.OPAQUE, "opaq");
+        elDataTypeNameMap.put(DataTypes.ANSI_PAGE, "ansi");
 
         elDataTypeFidMap.put(DataTypes.INT, intFid);
         elDataTypeFidMap.put(DataTypes.REAL, realFid);
@@ -215,6 +247,22 @@ public class CodecUtil {
         nameTypeMap.put(ConstCharArrays.DATA_TYPE_STR_FILTER_LIST, DataTypes.FILTER_LIST);
         nameTypeMap.put(ConstCharArrays.DATA_TYPE_STR_VECTOR, DataTypes.VECTOR);
         nameTypeMap.put(ConstCharArrays.DATA_TYPE_STR_SERIES, DataTypes.SERIES);
+    }
+
+    private static void encodeAnsiBuffer() {
+
+        ByteArrayInputStream input = new ByteArrayInputStream(CodecUtil.ANSI_INIT_STRING.getBytes());
+        Page page = new Page((short)25, (short)80);
+        java.util.Vector<PageUpdate> pageUpdates = new java.util.Vector<>();
+        java.util.Vector<PageUpdate> pageUpdates2 = new java.util.Vector<>();
+        page.decode(input, pageUpdates);
+        ByteArrayInputStream input1 = new ByteArrayInputStream(CodecUtil.ANSI_CHG_TEST.getBytes());
+        page.decode(input1, pageUpdates2);
+
+        pageUpdates.addAll(pageUpdates2);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        page.encode(false, pageUpdates2, out);
+        ansiBuffer.data(ByteBuffer.wrap(out.toByteArray()));
     }
 
     public static void encodeSimpleArray(EncodeIterator encIter, int dataType) {
@@ -598,6 +646,15 @@ public class CodecUtil {
         encIter.encodeNonRWFComplete(dataBuf, true);
     }
 
+    public static void encodeDefaultAnsiPage(EncodeIterator encIter) {
+
+        Buffer dataBuf = CodecFactory.createBuffer();
+        encIter.encodeNonRWFInit(dataBuf);
+        dataBuf.data().put(ansiBuffer.data().array(), ansiBuffer.position(), ansiBuffer.length());
+        encIter.encodeNonRWFComplete(dataBuf, true);
+        System.out.println();
+    }
+
     public static void encodeDefaultContainer(EncodeIterator encIter, int containerType) {
         switch (containerType) {
             case DataTypes.ELEMENT_LIST:
@@ -629,6 +686,9 @@ public class CodecUtil {
                 break;
             case DataTypes.MSG:
                 JsonConverterTestUtils.encodeBasicMsg(encIter);
+                break;
+            case DataTypes.ANSI_PAGE:
+                encodeDefaultAnsiPage(encIter);
                 break;
             default:
                 break;
@@ -876,6 +936,9 @@ public class CodecUtil {
             case DataTypes.MSG:
                 decodeAndCheckBasicMessage(decIter);
                 break;
+            case DataTypes.ANSI_PAGE:
+                decodeAndCheckAnsiPageBuffer(decIter);
+                break;
             default:
                 break;
         }
@@ -1021,6 +1084,12 @@ public class CodecUtil {
             }
         }
         assertEquals(length, 0);
+    }
+
+    public static void decodeAndCheckAnsiPageBuffer(DecodeIterator decIter) {
+        Buffer buffer = CodecFactory.createBuffer();
+        assertTrue(buffer.decode(decIter) >= SUCCESS);
+        assertTrue(buffer.toString().equals(ansiBuffer.toString()));
     }
 
     public static void decodeAndCheckSeries(DecodeIterator decIter,
