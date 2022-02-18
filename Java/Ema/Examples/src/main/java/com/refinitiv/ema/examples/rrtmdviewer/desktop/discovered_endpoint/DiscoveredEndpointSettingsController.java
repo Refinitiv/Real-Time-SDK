@@ -449,7 +449,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                 .password(usernamePasswordComponent.getPasswordField().getText().trim())
                 .clientSecret(clientSecretComponent.getPasswordField().getText().trim())
                 .useV1(useV1)
-                .useClientSecret(!clientSecretComponent.getPasswordField().getText().trim().isBlank())
+                .useClientSecret(!clientSecretComponent.getPasswordField().getText().trim().isEmpty())
                 .connectionType(connectionTypesComboBox.getValue())
                 .useEncryption(encryptionDataModel)
                 .useProxy(proxyDataModel)
