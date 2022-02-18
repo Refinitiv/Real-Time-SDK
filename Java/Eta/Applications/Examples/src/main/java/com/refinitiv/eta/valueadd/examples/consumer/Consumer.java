@@ -341,6 +341,17 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		{
 			reactorOptions.statistics(ReactorOptions.StatisticFlags.READ | ReactorOptions.StatisticFlags.WRITE | ReactorOptions.StatisticFlags.PING);
 		}
+		
+		// Set Token Generator URLs
+		if(consumerCmdLineParser.tokenURLV1() != null && !consumerCmdLineParser.tokenURLV1().equals(""))
+		{
+			reactorOptions.tokenServiceURL_V1().data(consumerCmdLineParser.tokenURLV1());
+		}
+		
+		if(consumerCmdLineParser.tokenURLV2() != null && !consumerCmdLineParser.tokenURLV2().equals(""))
+		{
+			reactorOptions.tokenServiceURL_V2().data(consumerCmdLineParser.tokenURLV2());
+		}
 
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
@@ -1477,9 +1488,17 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		if (consumerCmdLineParser.clientId() != null && !consumerCmdLineParser.clientId().equals(""))
 		{
 			oAuthCredential.clientId().data(consumerCmdLineParser.clientId());
-			oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
+			
+			if(consumerCmdLineParser.clientSecret() != null && !consumerCmdLineParser.clientSecret().equals(""))
+			{
+				oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret());
+			}
+			else
+			{
+				oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
+			}
 		}
-
+				
 		oAuthCredential.userSpecObj(oAuthCredential);
 		chnlInfo.consumerRole.reactorOAuthCredential(oAuthCredential);
 

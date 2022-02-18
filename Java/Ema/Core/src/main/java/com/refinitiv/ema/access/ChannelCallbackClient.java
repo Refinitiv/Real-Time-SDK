@@ -41,6 +41,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorConnectOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorErrorInfo;
 import com.refinitiv.eta.valueadd.reactor.ReactorFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredential;
+import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredentialEventCallback;
 import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
 import com.refinitiv.eta.valueadd.reactor.ReactorRole;
 import com.refinitiv.eta.valueadd.reactor.ReactorConnectInfo;
@@ -944,7 +945,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		}
 	}
 	
-	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, EmaConfigImpl configImpl)
+	void initializeConsumerRole(LoginRequest loginReq, DirectoryRequest dirReq, EmaConfigImpl configImpl, ReactorOAuthCredentialEventCallback credentialCallback)
 	{
         ConsumerRole consumerRole = ReactorFactory.createConsumerRole();
 		
@@ -963,6 +964,11 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		
 		oAuthCredential.takeExclusiveSignOnControl(configImpl.takeExclusiveSignOnControl());
 		
+		if(credentialCallback != null)
+		{
+			oAuthCredential.reactorOAuthCredentialEventCallback(credentialCallback);
+		}
+		
 		/* The Client ID is required parameter to enable the session management */
 		if(configImpl.clientId().length() != 0 )
 		{				
@@ -978,6 +984,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		{				
 			oAuthCredential.tokenScope(configImpl.tokenScope());
 		}
+		
+		oAuthCredential.reactorOAuthCredentialEventCallback(credentialCallback);
 		
 		consumerRole.reactorOAuthCredential(oAuthCredential);
 		

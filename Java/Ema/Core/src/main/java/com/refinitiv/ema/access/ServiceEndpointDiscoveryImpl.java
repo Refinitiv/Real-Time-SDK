@@ -37,7 +37,8 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 	private ServiceEndpointDiscoveryRespImpl _serviceEndpointDiscoveryRespImpl = new ServiceEndpointDiscoveryRespImpl();
 	private ServiceEndpointDiscoveryEventImpl _ServiceEndpointDiscoveryEventImpl = new ServiceEndpointDiscoveryEventImpl();
 	private ServiceEndpointDiscoveryClient _client;
-	private Buffer _tokenServiceURLBuf = CodecFactory.createBuffer();
+	private Buffer _tokenServiceURLV1Buf = CodecFactory.createBuffer();
+	private Buffer _tokenServiceURLV2Buf = CodecFactory.createBuffer();
 	private Buffer _serviceDiscoveryUrlBuf = CodecFactory.createBuffer();
 	
 	ServiceEndpointDiscoveryImpl()
@@ -70,8 +71,47 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 		
 		if ((tokenServiceUrl != null) && (!tokenServiceUrl.isEmpty()))
 		{
-			_tokenServiceURLBuf.data(tokenServiceUrl);
-			reactorOptions.tokenServiceURL(_tokenServiceURLBuf);
+			_tokenServiceURLV1Buf.data(tokenServiceUrl);
+			reactorOptions.tokenServiceURL(_tokenServiceURLV1Buf);
+		}
+		
+		if((serviceDiscoveryUrl != null) && (!serviceDiscoveryUrl.isEmpty()))
+		{
+			_serviceDiscoveryUrlBuf.data(serviceDiscoveryUrl);
+			reactorOptions.serviceDiscoveryURL(_serviceDiscoveryUrlBuf);
+		}
+		
+		_reactor = ReactorFactory.createReactor(reactorOptions, _reactorErrorInfo);
+		if(_reactorErrorInfo.code() != ReactorReturnCodes.SUCCESS)
+		{
+			strBuilder().append("Failed to create ServiceEndpointDiscoveryImpl (ReactorFactory.createReactor).")
+			.append("' Error Id='").append(_reactorErrorInfo.error().errorId()).append("' Internal sysError='")
+			.append(_reactorErrorInfo.error().sysError()).append("' Error Location='")
+			.append(_reactorErrorInfo.location()).append("' Error Text='")
+			.append(_reactorErrorInfo.error().text()).append("'. ");
+			
+			throw ommIUExcept().message(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INTERNAL_ERROR);
+		}
+	}
+	
+	ServiceEndpointDiscoveryImpl(String tokenServiceUrlV1, String tokenServiceUrlV2, String serviceDiscoveryUrl)
+	{
+		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
+		reactorOptions.clear();
+		_reactorErrorInfo.clear();
+		
+		reactorOptions.userSpecObj(this);
+		
+		if ((tokenServiceUrlV1 != null) && (!tokenServiceUrlV1.isEmpty()))
+		{
+			_tokenServiceURLV1Buf.data(tokenServiceUrlV1);
+			reactorOptions.tokenServiceURL(_tokenServiceURLV1Buf);
+		}
+		
+		if ((tokenServiceUrlV2 != null) && (!tokenServiceUrlV2.isEmpty()))
+		{
+			_tokenServiceURLV2Buf.data(tokenServiceUrlV2);
+			reactorOptions.tokenServiceURL_V2(_tokenServiceURLV2Buf);
 		}
 		
 		if((serviceDiscoveryUrl != null) && (!serviceDiscoveryUrl.isEmpty()))

@@ -122,6 +122,17 @@ EmaString& EmaString::clear()
     return *this;
 }
 
+EmaString& EmaString::secureClear()
+{
+    if (_pString)
+        memset((void*)_pString, 0, (size_t)_capacity);
+
+    _length = 0;
+   
+
+    return *this;
+}
+
 bool EmaString::empty() const
 {
     return !_length ? true : false;

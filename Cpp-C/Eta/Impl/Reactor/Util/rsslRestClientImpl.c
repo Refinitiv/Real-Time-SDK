@@ -15,6 +15,7 @@
 #include "rtr/rsslCurlJIT.h"
 #include "rtr/ripcutils.h"
 #include "rtr/ripcflip.h"
+#include "rtr/ripcssljit.h"
 #include "xmlDump.h"
 
 #include <curl/curl.h>
@@ -48,6 +49,7 @@ RsslBuffer rssl_rest_dataformat_type_rwf_text = { 14, "dataformat=rwf" };
 RsslBuffer rssl_rest_dataformat_type_tr_json2_text = { 20, "dataformat=tr_json2" };
 RsslBuffer rssl_rest_grant_type_refresh_token_text = { 24, "grant_type=refresh_token" };
 RsslBuffer rssl_rest_grant_type_password_text = { 19, "grant_type=password" };
+RsslBuffer rssl_rest_grant_type_client_credential_text = {29 , "grant_type=client_credentials" };
 RsslBuffer rssl_rest_username_text = { 10, "&username=" };
 RsslBuffer rssl_rest_password_text = { 10, "&password=" };
 RsslBuffer rssl_rest_new_password_text = { 13, "&newPassword=" };
@@ -63,13 +65,29 @@ RsslBuffer rssl_rest_content_length_text = { 14, "Content-Length" };
 RsslBuffer rssl_rest_content_encoding_text = { 16, "Content-Encoding" };
 RsslBuffer rssl_rest_accept_encoding_text = { 15, "Accept-Encoding" };
 RsslBuffer rssl_rest_location_header_text = { 8, "Location" };
+RsslBuffer rssl_rest_user_agent_text = { 10, "User-Agent" };
+RsslBuffer rssl_rest_user_agent_rtsdk_text = { 5, "RTSDK" };
+RsslBuffer rssl_rest_client_assertion = { 18, "&client_assertion=" };
 
-static const char * const tokenkeys[] =
+
+
+RsslBuffer rssl_rest_token_url_v1 = { 46, "https://api.refinitiv.com/auth/oauth2/v1/token" };
+
+RsslBuffer rssl_rest_token_url_v2 = { 46, "https://api.refinitiv.com/auth/oauth2/v2/token" };
+
+static const char * const tokenkeysV1[] =
 {
 	"access_token",
 	"refresh_token",
 	"expires_in",
 	"scope",
+	"token_type"
+};
+
+static const char* const tokenkeysV2[] =
+{
+	"access_token",
+	"expires_in",
 	"token_type"
 };
 
@@ -2198,7 +2216,7 @@ Fail:
 	return RSSL_RET_BUFFER_TOO_SMALL;
 }
 
-RsslRet rsslRestParseAccessToken(RsslBuffer* dataBody, RsslBuffer *accessToken, RsslBuffer *refreshToken, RsslInt *expiresIn,
+RsslRet rsslRestParseAccessTokenV1(RsslBuffer* dataBody, RsslBuffer *accessToken, RsslBuffer *refreshToken, RsslInt *expiresIn,
 									RsslBuffer *tokenType, RsslBuffer *scope, RsslBuffer* memoryBuffer, RsslError* pError)
 {
 	cJSON* root;
@@ -2222,7 +2240,7 @@ RsslRet rsslRestParseAccessToken(RsslBuffer* dataBody, RsslBuffer *accessToken, 
 
 	for (idx = 0; idx < 5; idx++)
 	{
-		value = cJSON_GetObjectItem(root, tokenkeys[idx]);
+		value = cJSON_GetObjectItem(root, tokenkeysV1[idx]);
 
 		if (value)
 			tokenvalue[idx] = value->valuestring;
@@ -2744,3 +2762,163 @@ RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput)
 
 	return restResponseErrBuffer;
 }
+
+RsslRet rsslRestParseAccessTokenV2(RsslBuffer* dataBody, RsslBuffer* accessToken, RsslBuffer* refreshToken, RsslInt* expiresIn,
+	RsslBuffer* tokenType, RsslBuffer* scope, RsslBuffer* memoryBuffer, RsslError* pError)
+{
+	cJSON* root;
+	cJSON* value;
+	char* tokenvalue[3];
+	RsslBool parseError = RSSL_FALSE;
+	RsslRestBufferImpl rsslRestBufferImpl;
+	int idx;
+
+	root = cJSON_Parse(dataBody->data);
+
+	if (!root)
+	{
+		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestParseAccessToken() failed because the passed in data body is not a valid JSON format.",
+			__FILE__, __LINE__);
+
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	for (idx = 0; idx < 3; idx++)
+	{
+		value = cJSON_GetObjectItem(root, tokenkeysV2[idx]);
+
+		if (value)
+		{
+			if (idx == 1)
+				(*expiresIn) = value->valueint;
+			else
+				tokenvalue[idx] = value->valuestring;
+		}
+		else
+		{
+			parseError = RSSL_TRUE;
+
+			break;
+		}
+	}
+
+	if (parseError)
+	{
+		pError->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslRestParseAccessToken() failed to parse token information due to field name not found.",
+			__FILE__, __LINE__);
+		cJSON_Delete(root);
+		return RSSL_RET_INVALID_ARGUMENT;
+	}
+
+	_rsslClearRestBufferImpl(&rsslRestBufferImpl);
+	_rsslRestSetToRsslRestBufferImpl(memoryBuffer, &rsslRestBufferImpl);
+
+	accessToken->length = (RsslUInt32)strlen(tokenvalue[0]);
+	if (_rsslRestGetBuffer(accessToken, accessToken->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
+	{
+		goto Fail;
+	}
+
+	accessToken->data[accessToken->length] = '\0';
+	strncpy(accessToken->data, tokenvalue[0], accessToken->length);
+
+	tokenType->length = (RsslUInt32)strlen(tokenvalue[2]);
+	if (_rsslRestGetBuffer(tokenType, tokenType->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
+	{
+		goto Fail;
+	}
+
+	tokenType->data[tokenType->length] = '\0';
+	strncpy(tokenType->data, tokenvalue[2], tokenType->length);
+
+	cJSON_Delete(root);
+	return RSSL_RET_SUCCESS;
+
+Fail:
+	pError->rsslErrorId = RSSL_RET_BUFFER_TOO_SMALL;
+	snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
+		"<%s:%d> Error: rsslRestParseAccessToken() failed because the memory buffer size is not enough to populate token information.",
+		__FILE__, __LINE__);
+
+	cJSON_Delete(root);
+	return RSSL_RET_BUFFER_TOO_SMALL;
+}
+
+OPENSSL_BIGNUM* rsslBase64URLToBigNum(RsslBuffer* in, ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs, RsslError* error)
+{
+	OPENSSL_BIO* base64buf;
+	OPENSSL_BIO* outbuf;
+	OPENSSL_BIGNUM* bignumout;
+	int i;
+	int inputRemainder;
+	int readOut = 0;
+	char* tempBuf = malloc((size_t)in->length);
+	RsslBuffer tempInputBuf;
+
+	if (tempBuf == NULL)
+	{
+		return NULL;
+	}
+	memset(tempBuf, 0, (size_t)in->length);
+
+	tempInputBuf.data = malloc((size_t)in->length + 3);
+	if (tempInputBuf.data == NULL)
+	{
+		free(tempBuf);
+		return NULL;
+	}
+	memset(tempInputBuf.data, 0, (size_t)in->length+3);
+	memcpy(tempInputBuf.data, in->data, in->length);
+
+	inputRemainder = in->length % 4;
+	if (inputRemainder == 2)
+	{
+		tempInputBuf.data[in->length] = '=';
+		tempInputBuf.data[in->length+1] = '=';
+		tempInputBuf.length = in->length + 2;
+	}
+	else if (inputRemainder == 3)
+	{
+		tempInputBuf.data[in->length] = '=';
+		tempInputBuf.length = in->length + 1;
+	}
+	else
+	{
+		tempInputBuf.length = in->length;
+	}
+
+	/* First, we need to convert the input buffer from Base64 URL to Base64*/
+
+	for (i = 0; i < (int)in->length; i++)
+	{
+		if (tempInputBuf.data[i] == '-')
+			tempInputBuf.data[i] = '+';
+		else if (in->data[i] == '_')
+			tempInputBuf.data[i] = '/';
+	}
+
+	/* Now setup a base64 BIO */
+	base64buf = (*(sslFuncs->BIO_new))((*(sslFuncs->BIO_f_base64))());
+	outbuf = (*(sslFuncs->BIO_new_mem_buf))(tempInputBuf.data, tempInputBuf.length);
+	outbuf = (*(sslFuncs->BIO_push))(base64buf, outbuf);
+
+	(*(sslFuncs->BIO_set_flags))(outbuf, RSSL_BIO_FLAGS_BASE64_NO_NL);
+
+	/* BIO_set_close */
+	(*(sslFuncs->BIO_ctrl))(outbuf, RSSL_BIO_CTRL_SET_CLOSE, RSSL_BIO_CLOSE, NULL);
+
+	readOut = (*(sslFuncs->BIO_read))(outbuf, tempBuf, tempInputBuf.length);
+
+	bignumout = (*(cryptoFuncs->bin2bn))(tempBuf, readOut, NULL);
+
+	(*(sslFuncs->BIO_free_all))(outbuf);
+	free(tempBuf);
+	memset(tempInputBuf.data, 0, (size_t)in->length + 3);
+	free(tempInputBuf.data);
+	return bignumout;
+}
+

@@ -23,186 +23,267 @@
 <?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.EmaConfigComponent?>
 <?import javafx.scene.control.ScrollPane?>
 <?import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.fxcomponents.ScrollableTextField?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
 <ScrollPane fx:id="primaryPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
             xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.refinitiv.ema.examples.rrtmdviewer.desktop.discovered_endpoint.DiscoveredEndpointSettingsController">
-      <VBox >
+      <VBox>
          <children>
-            <TabPane fx:id="primaryTabPane" stylesheets="@../styles/discovered-endpoint-style.css" tabClosingPolicy="UNAVAILABLE">
+            <TabPane fx:id="primaryTabPane" styleClass="tabpanel" stylesheets="@../styles/discovered-endpoint-style.css" tabClosingPolicy="UNAVAILABLE">
                <tabs>
                   <Tab text="Connectivity Parameters">
                      <content>
-                        <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css" spacing="5" >
-                           <children>
-                              <EmaConfigComponent fx:id="emaConfigComponent" defaultConsumerName="Consumer_RRTViewer_DE"
-                                                  styleClass="grey-area-small-box"/>
-                              <VBox spacing="5" styleClass="grey-area-small-box">
+                        <HBox>
+                           <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
+                              <HBox spacing="20">
+                                 <RadioButton fx:id="v1RadioButton" selected="true" text="oauthPasswordGrant" userData="V1">
+                                    <toggleGroup>
+                                       <ToggleGroup fx:id="authTypeGroup" />
+                                    </toggleGroup>
+                                 </RadioButton>
+                                 <RadioButton fx:id="v2RadioButton" selected="false" text="oauthClientCred" toggleGroup="$authTypeGroup" userData="V2"/>
+                              </HBox>
+                              <StackPane>
                                  <children>
-                                    <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                    <VBox fx:id="v1Creds" spacing="5" styleClass="grey-area-small-box" visible="true">
                                        <children>
-                                          <Label styleClass="optionslabel" text="Username:">
-                                             <font>
-                                                <Font size="13.0" />
-                                             </font>
-                                          </Label>
-                                          <ScrollableTextField fx:id="usernameTextField" focusTraversable="false" prompt="username"/>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <Label styleClass="optionslabel" text="Username:">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
+                                                <ScrollableTextField fx:id="usernameTextField" focusTraversable="false" prompt="username"/>
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <Label styleClass="optionslabel" text="Password:">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
+                                                <PasswordEyeComponent fx:id="usernamePasswordComponent" populatedValue="password" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <Label styleClass="optionslabel" text="Client ID:">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
+                                                <ScrollableTextField fx:id="clientIdTextField" focusTraversable="false" prompt="user id"/>
+                                             </children>
+                                          </HBox>
                                        </children>
-                                    </HBox>
-                                    <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                    </VBox>
+                                    <VBox fx:id="v2Creds" visible="false" styleClass="grey-area-small-box">
                                        <children>
-                                          <Label styleClass="optionslabel" text="Password:">
-                                             <font>
-                                                <Font size="13.0" />
-                                             </font>
-                                          </Label>
-                                          <PasswordEyeComponent fx:id="usernamePasswordComponent" populatedValue="password" />
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <Label styleClass="optionslabel" text="Client ID:">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
+                                                <ScrollableTextField fx:id="clientId" focusTraversable="false"/>
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <RadioButton styleClass="optionslabel" fx:id="clientSecretRB" focusTraversable="false" mnemonicParsing="false" prefHeight="17.0" selected="true" text="Client Secret" userData="CLIENTSECRET">
+                                                   <toggleGroup>
+                                                      <ToggleGroup fx:id="authTypeToggleGroup" />
+                                                   </toggleGroup>
+                                                   <tooltip>
+                                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Specify client secret" wrapText="true">
+                                                         <font>
+                                                            <Font size="11.0" />
+                                                         </font>
+                                                      </Tooltip>
+                                                   </tooltip>
+                                                </RadioButton>
+                                                <PasswordEyeComponent fx:id="clientSecretComponent" visible="true"/>
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <RadioButton disable="true" styleClass="optionslabel" fx:id="jwtRB"
+                                                             focusTraversable="false" mnemonicParsing="false"
+                                                             prefHeight="17.0" text="JWT" toggleGroup="$authTypeToggleGroup" userData="JWT"
+                                                             visible="false">
+                                                   <tooltip>
+                                                      <Tooltip anchorLocation="CONTENT_BOTTOM_LEFT" maxWidth="300.0" text="Specify JWK file" wrapText="true">
+                                                         <font>
+                                                            <Font size="11.0" />
+                                                         </font>
+                                                      </Tooltip>
+                                                   </tooltip>
+                                                </RadioButton>
+                                                <FilePickerComponent fx:id="jwkFilePicker" visible="false"/>
+                                             </children>
+                                          </HBox>
                                        </children>
-                                    </HBox>
-                                    <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
-                                       <children>
-                                          <Label styleClass="optionslabel" text="Client ID:">
-                                             <font>
-                                                <Font size="13.0" />
-                                             </font>
-                                          </Label>
-                                          <ScrollableTextField fx:id="clientIdTextField" focusTraversable="false" prompt="user id"/>
-                                       </children>
-                                    </HBox>
+                                    </VBox>
                                  </children>
-                              </VBox>
-                              <VBox fx:id="connectionTypeBox" alignment="CENTER_LEFT" styleClass="grey-area-small-box">
-                                 <HBox styleClass="area-without-frame">
-                                 <Label text="Connection type:" styleClass="optionslabel">
-                                    <font>
-                                       <Font size="13.0"/>
-                                    </font>
-                                 </Label>
-                                 <ComboBox fx:id="connectionTypesComboBox" focusTraversable="false"
-                                           onAction="#handleConnectionTypeComboBox" styleClass="inputfield">
-                                    <items>
-                                       <FXCollections fx:factory="observableArrayList">
-                                          <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET"/>
-                                          <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_WEBSOCKET"/>
-                                       </FXCollections>
-                                    </items>
-                                    <value>
-                                       <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET"/>
-                                    </value>
-                                 </ComboBox>
-                                 </HBox>
-                              </VBox>
-                              <VBox alignment="BOTTOM_LEFT">
-                                 <DictionaryLoaderComponent fx:id="dictionaryLoader" styleClass="area-without-frame" />
-                              </VBox>
-                           </children>
-                        </VBox>
+                              </StackPane>
+                           </VBox>
+                           <VBox styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css" spacing="5" >
+                              <children>
+                                 <EmaConfigComponent fx:id="emaConfigComponent" defaultConsumerName="Consumer_RRTViewer_DE"
+                                                     styleClass="grey-area-small-box"/>
+                                 <VBox fx:id="connectionTypeBox" alignment="CENTER_LEFT" styleClass="grey-area-small-box">
+                                    <HBox styleClass="area-without-frame">
+                                       <Label text="Connection type:" styleClass="optionslabel">
+                                          <font>
+                                             <Font size="13.0"/>
+                                          </font>
+                                       </Label>
+                                       <ComboBox fx:id="connectionTypesComboBox" focusTraversable="false"
+                                                 onAction="#handleConnectionTypeComboBox" styleClass="inputfield">
+                                          <items>
+                                             <FXCollections fx:factory="observableArrayList">
+                                                <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET"/>
+                                                <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_WEBSOCKET"/>
+                                             </FXCollections>
+                                          </items>
+                                          <value>
+                                             <DiscoveredEndpointConnectionTypes fx:value="ENCRYPTED_SOCKET"/>
+                                          </value>
+                                       </ComboBox>
+                                    </HBox>
+                                 </VBox>
+                                 <VBox alignment="BOTTOM_LEFT">
+                                    <DictionaryLoaderComponent fx:id="dictionaryLoader" styleClass="area-without-frame" />
+                                 </VBox>
+                              </children>
+                           </VBox>
+                        </HBox>
                      </content>
                   </Tab>
                   <Tab text=" Optional parameters">
                      <content>
-                        <VBox spacing="5" styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
+                        <HBox>
                            <children>
-                              <StackPane alignment="TOP_LEFT" maxHeight="90">
-                                 <Pane fx:id="customServiceUrlsPane" disable="true" styleClass="grey-area-small-box">
-                                    <padding>
-                                       <Insets left="10.0" right="10.0" />
-                                    </padding>
-                                    <children>
-                                       <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <VBox>
-                                             <Label text="Service Discovery URL" />
-                                             <ScrollableTextField fx:id="serviceDiscoveryUrl" focusTraversable="false" prefWidth="200.0" text="" />
-                                          </VBox>
-                                          <VBox>
-                                             <Label text="Token Service URL" />
-                                             <ScrollableTextField fx:id="tokenServiceUrl" focusTraversable="false" prefWidth="200.0" />
-                                          </VBox>
-                                       </HBox>
-                                    </children>
-                                 </Pane>
-                                 <CheckBox fx:id="customServiceUrlsCheckbox" focusTraversable="false" mnemonicParsing="false" onAction="#handleCustomServiceUrlsCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Custom Service URLs ">
-                                    <font>
-                                       <Font name="System Bold" size="12.0" />
-                                    </font>
-                                 </CheckBox>
-                              </StackPane>
-                              <StackPane alignment="TOP_LEFT" maxHeight="90">
-                                 <Pane fx:id="encryptionOptionsPane" disable="true" styleClass="grey-area-small-box">
-                                    <padding>
-                                       <Insets left="10.0" right="10.0" />
-                                    </padding>
-                                    <children>
-                                       <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <FilePickerComponent fx:id="keyFilePicker" label="Keystore File:" />
-                                          <VBox>
-                                             <Label text="Keystore Password:" />
-                                             <PasswordEyeComponent fx:id="keyPasswordComponent" />
-                                          </VBox>
-                                       </HBox>
-                                    </children>
-                                 </Pane>
-                                 <CheckBox fx:id="encryptionOptionCheckbox" focusTraversable="false" mnemonicParsing="false" onAction="#handleEncryptionOptionsCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Encrypted configuration ">
-                                    <font>
-                                       <Font name="System Bold" size="12.0" />
-                                    </font>
-                                 </CheckBox>
-                              </StackPane>
-                              <StackPane alignment="TOP_LEFT" maxHeight="90">
-                                 <Pane fx:id="useProxyPane" disable="true" styleClass="grey-area-small-box">
-                                    <padding>
-                                       <Insets left="10.0" right="10.0" />
-                                    </padding>
-                                    <children>
-                                       <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <VBox>
-                                             <Label text="Hostname" />
-                                             <ScrollableTextField fx:id="proxyHostTextFld" focusTraversable="false" prefWidth="150.0" />
-                                          </VBox>
-                                          <VBox>
-                                             <Label text="Port" />
-                                             <ScrollableTextField fx:id="proxyPortTextFld" focusTraversable="false" prefWidth="200.0" />
-                                          </VBox>
-                                       </HBox>
-                                    </children>
-                                 </Pane>
-                                 <CheckBox fx:id="useProxyCheckbox" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseProxyCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use proxy server ">
-                                    <font>
-                                       <Font name="System Bold" size="12.0" />
-                                    </font>
-                                 </CheckBox>
-                              </StackPane>
-                              <StackPane alignment="TOP_LEFT" maxHeight="160">
-                                 <Pane fx:id="useProxyAuthenticationPane" disable="true" styleClass="grey-area-small-box">
-                                    <children>
-                                       <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
-                                          <VBox>
-                                             <VBox>
-                                                <Label text="Username" />
-                                                <ScrollableTextField fx:id="proxyAuthLogin" focusTraversable="false" prefWidth="200.0" />
-                                             </VBox>
-                                             <FilePickerComponent fx:id="krbFilePicker" label="KRB5 Config File" />
-                                          </VBox>
-                                          <VBox>
-                                             <VBox>
-                                                <Label text="Domain" />
-                                                <ScrollableTextField fx:id="proxyAuthDomain" focusTraversable="false" prefWidth="200.0" />
-                                             </VBox>
-                                             <VBox>
-                                                <Label text="Password" />
-                                                <PasswordEyeComponent fx:id="proxyAuthPassword" />
-                                             </VBox>
-                                          </VBox>
-                                       </HBox>
-                                    </children>
-                                 </Pane>
-                                 <CheckBox fx:id="useProxyAuthenticationCheckbox" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseProxyAuthenticationCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use proxy server authentication ">
-                                    <font>
-                                       <Font name="System Bold" size="12.0" />
-                                    </font>
-                                 </CheckBox>
-                              </StackPane>
+                              <VBox spacing="5" minWidth="250.0" styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
+                                 <children>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+                                       <Pane fx:id="customServiceUrlsPane" disable="true" styleClass="grey-area-small-box">
+                                          <padding>
+                                             <Insets left="10.0" right="10.0" />
+                                          </padding>
+                                          <children>
+                                             <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
+                                                <VBox>
+                                                   <Label text="Service Discovery URL" />
+                                                   <ScrollableTextField fx:id="serviceDiscoveryUrl" focusTraversable="false" prefWidth="200.0" text="" />
+                                                </VBox>
+                                                <VBox>
+                                                   <Label text="Token Service URL" />
+                                                   <ScrollableTextField fx:id="tokenServiceUrl" focusTraversable="false" prefWidth="200.0" />
+                                                </VBox>
+                                             </HBox>
+                                          </children>
+                                       </Pane>
+                                       <CheckBox fx:id="customServiceUrlsCheckbox" focusTraversable="false"
+                                                 mnemonicParsing="false" onAction="#handleCustomServiceUrlsCheckbox"
+                                                 maxHeight="15.0" styleClass="grey-area-label-box" text="Custom Service URLs ">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+                                       <Pane fx:id="encryptionOptionsPane" disable="true" styleClass="grey-area-small-box">
+                                          <padding>
+                                             <Insets left="10.0" right="10.0" />
+                                          </padding>
+                                          <children>
+                                             <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
+                                                <FilePickerComponent fx:id="keyFilePicker" label="Keystore File:" />
+                                                <VBox>
+                                                   <Label text="Keystore Password:" />
+                                                   <PasswordEyeComponent fx:id="keyPasswordComponent" />
+                                                </VBox>
+                                             </HBox>
+                                          </children>
+                                       </Pane>
+                                       <CheckBox fx:id="encryptionOptionCheckbox" focusTraversable="false"
+                                                 mnemonicParsing="false" onAction="#handleEncryptionOptionsCheckbox"
+                                                 maxHeight="17.0" styleClass="grey-area-label-box" text="Encrypted configuration ">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                 </children>
+                              </VBox>
+                              <VBox spacing="5" minWidth="250.0" styleClass="grey-area-box" stylesheets="@../styles/discovered-endpoint-style.css">
+                                 <children>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="90">
+                                       <Pane fx:id="useProxyPane" disable="true" styleClass="grey-area-small-box">
+                                          <padding>
+                                             <Insets left="10.0" right="10.0" />
+                                          </padding>
+                                          <children>
+                                             <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
+                                                <VBox>
+                                                   <Label text="Hostname" />
+                                                   <ScrollableTextField fx:id="proxyHostTextFld" focusTraversable="false" prefWidth="150.0" />
+                                                </VBox>
+                                                <VBox>
+                                                   <Label text="Port" />
+                                                   <ScrollableTextField fx:id="proxyPortTextFld" focusTraversable="false" prefWidth="200.0" />
+                                                </VBox>
+                                             </HBox>
+                                          </children>
+                                       </Pane>
+                                       <CheckBox fx:id="useProxyCheckbox" focusTraversable="false" mnemonicParsing="false"
+                                                 onAction="#handleUseProxyCheckbox" maxHeight="17.0"
+                                                 styleClass="grey-area-label-box" text="Use proxy server ">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                    <StackPane alignment="TOP_LEFT" maxHeight="160">
+                                       <Pane fx:id="useProxyAuthenticationPane" disable="true" styleClass="grey-area-small-box">
+                                          <children>
+                                             <HBox alignment="BOTTOM_CENTER" spacing="8" styleClass="innerhbox">
+                                                <VBox>
+                                                   <VBox>
+                                                      <Label text="Username" />
+                                                      <ScrollableTextField fx:id="proxyAuthLogin" focusTraversable="false" prefWidth="200.0" />
+                                                   </VBox>
+                                                   <FilePickerComponent fx:id="krbFilePicker" label="KRB5 Config File" />
+                                                </VBox>
+                                                <VBox>
+                                                   <VBox>
+                                                      <Label text="Domain" />
+                                                      <ScrollableTextField fx:id="proxyAuthDomain" focusTraversable="false" prefWidth="200.0" />
+                                                   </VBox>
+                                                   <VBox>
+                                                      <Label text="Password" />
+                                                      <PasswordEyeComponent fx:id="proxyAuthPassword" />
+                                                   </VBox>
+                                                </VBox>
+                                             </HBox>
+                                          </children>
+                                       </Pane>
+                                       <CheckBox fx:id="useProxyAuthenticationCheckbox" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#handleUseProxyAuthenticationCheckbox" prefHeight="17.0" styleClass="grey-area-label-box" text="Use proxy server authentication ">
+                                          <font>
+                                             <Font name="System Bold" size="12.0" />
+                                          </font>
+                                       </CheckBox>
+                                    </StackPane>
+                                 </children>
+                              </VBox>
                            </children>
-                        </VBox>
+                        </HBox>
                      </content>
                   </Tab>
                </tabs>

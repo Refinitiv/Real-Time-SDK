@@ -22,6 +22,7 @@ import com.refinitiv.eta.valueadd.common.VaDoubleLinkList.Link;
 import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBase;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 
 /**
  * Channel representing a connection handled by a Reactor.
@@ -1645,7 +1646,7 @@ public class ReactorChannel extends VaNode
     boolean recoveryAttemptLimitReached()
     {
         return (_reactorConnectOptions.reconnectAttemptLimit() != NO_RECONNECT_LIMIT &&
-                _reconnectAttempts == _reactorConnectOptions.reconnectAttemptLimit());
+                _reconnectAttempts >= _reactorConnectOptions.reconnectAttemptLimit());
     }
 
     ReactorConnectInfo getReactorConnectInfo()
@@ -1676,7 +1677,7 @@ public class ReactorChannel extends VaNode
         ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
 
         userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
-
+        
         // if done getting the auth token and service discovery
         if (_state == State.EDP_RT_DONE)
         {
@@ -1740,7 +1741,7 @@ public class ReactorChannel extends VaNode
     {
         return _nextRecoveryTime;
     }
-
+    
     /* Returns whether a FLUSH event is has been sent to the worker and is awaiting a FLUSH_DONE event. */
     boolean flushRequested()
     {
@@ -1868,5 +1869,19 @@ public class ReactorChannel extends VaNode
         {
             _reactor._reactorLock.unlock();
         }
+    }
+    
+    /* Clears the token and sets the channel's _hasConnected value to false */
+    public void clearAccessTokenForV2()
+    {
+    	if(_tokenSession != null && _tokenSession.authTokenInfo().tokenVersion() == TokenVersion.V2) 
+    	{
+    		_tokenSession.authTokenInfo().accessToken("");
+    	}
+    }
+    
+    public ReactorConnectOptions getReactorConnectOptions()
+    {
+    	return _reactorConnectOptions;
     }
 }

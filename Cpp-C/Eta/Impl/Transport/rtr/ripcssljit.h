@@ -45,6 +45,11 @@
 #define RSSL_X509_V_OK 0 //X509_V_OK
 #define RSSL_10_SSL_ST_OK 0x03	//SSL_ST_OK from 1.0.2
 #define RSSL_BIO_NOCLOSE 0x00	//BIO_NOCLOSE
+#define RSSL_BIO_CTRL_FLUSH	11 //BIO_CTRL_FLUSH
+#define RSSL_BIO_C_GET_BUF_MEM_PTR 115 //BIO_C_GET_BUF_MEM_PTR
+#define RSSL_BIO_CTRL_SET_CLOSE      9 //RSSL_BIO_CTRL_SET_CLOSE
+#define RSSL_BIO_CLOSE               0x01 //BIO_CLOSE
+#define RSSL_BIO_FLAGS_BASE64_NO_NL  0x100 // BIO_FLAGS_BASE64_NO_NL
 #define RSSL_10_SSL_CTRL_MODE 33 //SSL_CTRL_MODE for 1.0.2
 #define RSSL_SSL_CTRL_SET_TMP_ECDH 4 //SSL_CTRL_SET_TMP_ECDH
 
@@ -65,6 +70,10 @@
 #define RSSL_NID_subject_alt_name 85 //NID_subject_alt_name
 #define RSSL_NID_commonName 13 // NID_commonName
 
+#define RSSL_NID_X9_62_prime256v1            415   // p-256 curve for JWK
+#define RSSL_NID_secp384r1           715			// p-384 curve for JWK
+#define RSSL_NID_secp521r1           716			// p-521 curve for JWK
+
 #define RSSL_10_TLS1_VERSION                    0x0301
 #define RSSL_10_TLS1_1_VERSION                  0x0302
 #define RSSL_10_TLS1_2_VERSION                  0x0303
@@ -75,6 +84,8 @@
 
 # define RSSL_11_SSL_CTRL_SET_MIN_PROTO_VERSION          123
 # define RSSL_11_SSL_CTRL_SET_MAX_PROTO_VERSION          124
+
+# define RSSL_OPENSSL_EC_NAMED_CURVE  0x001
 
 
 /* OpenSSL 1.1.X state table for connections. */
@@ -127,7 +138,8 @@ typedef struct openssl_11_dh OPENSSL_11_DH;
 typedef struct openssl_dh_method OPENSSL_DH_METHOD;
 typedef struct openssl_bn_mont_ctx OPENSSL_10_BN_MONT_CTX;
 typedef struct openssl_ctx OPENSSL_SSL_CTX;
-typedef struct openssl_bio OPENSSL_BIO;
+typedef struct openssl_bn_ctx OPENSSL_BN_CTX;
+
 typedef struct openssl_engine OPENSSL_ENGINE;
 /* Windows defined X509_NAME in crypto.h. To avoid a type redefinition(since we are only passing pointers that have been allocated by OpenSSL), 
   this is renamed to OPENSSL_X509_NAME */
@@ -138,6 +150,8 @@ typedef struct openssl_method OPENSSL_SSL_METHOD;
 typedef struct openssl_bignum OPENSSL_BIGNUM;
 typedef struct openssl_x509_store	OPENSSL_X509_STORE;
 typedef struct openssl_x509_verify_param OPENSSL_X509_VERIFY_PARAM;
+
+typedef struct openssl_rsa_method OPENSSL_RSA_METHOD;
 
 typedef struct openssl_stack OPENSSL_STACK;
 #define _STACK OPENSSL_STACK;
@@ -150,7 +164,18 @@ typedef struct openssl_asn1_octet_string OPENSSL_ASN1_OCTET_STRING;
 typedef struct openssl_asn1_object OPENSSL_ASN1_OBJECT;
 typedef struct openssl_asn1_string OPENSSL_ASN1_STRING;
 
+typedef struct openssl_evp_cipher OPENSSL_EVP_CIPHER;
+
+typedef struct openssl_bn_blinding OPENSSL_BN_BLINDING;
+
+typedef struct openssl_11_rsa OPENSSL_11_rsa;
+
 typedef struct openssl_ec_key_st OPENSSL_EC_KEY;
+typedef struct openssl_ec_group_st OPENSSL_EC_GROUP;
+typedef struct openssl_ec_point_st OPENSSL_EC_POINT;
+
+typedef struct openssl_bio OPENSSL_BIO;
+typedef struct openssl_bio_method OPENSSL_BIO_METHOD;
 
 typedef int (*verifyCallback)(int, OPENSSL_X509_STORE_CTX*);
 
@@ -230,6 +255,54 @@ typedef struct OPENSSL_10_DH_st
 	OPENSSL_ENGINE *engine;
 } OPENSSL_10_DH;
 
+typedef struct OPENSSL_10_rsa_st {
+	/*
+	 * The first parameter is used to pickup errors where this is passed
+	 * instead of aEVP_PKEY, it is set to 0
+	 */
+	int pad;
+	long version;
+	const OPENSSL_RSA_METHOD* meth;
+	/* functional reference if 'meth' is ENGINE-provided */
+	OPENSSL_ENGINE* engine;
+	OPENSSL_BIGNUM* n;
+	OPENSSL_BIGNUM* e;
+	OPENSSL_BIGNUM* d;
+	OPENSSL_BIGNUM* p;
+	OPENSSL_BIGNUM* q;
+	OPENSSL_BIGNUM* dmp1;
+	OPENSSL_BIGNUM* dmq1;
+	OPENSSL_BIGNUM* iqmp;
+	/* be careful using this if the RSA structure is shared */
+	OPENSSL_10_CRYPTO_EX_DATA ex_data;
+	int references;
+	int flags;
+	/* Used to cache montgomery values */
+	OPENSSL_10_BN_MONT_CTX* _method_mod_n;
+	OPENSSL_10_BN_MONT_CTX* _method_mod_p;
+	OPENSSL_10_BN_MONT_CTX* _method_mod_q;
+	/*
+	 * all BIGNUM values are actually in the following data, if it is not
+	 * NULL
+	 */
+	char* bignum_data;
+	OPENSSL_BN_BLINDING* blinding;
+	OPENSSL_BN_BLINDING* mt_blinding;
+} OPENSSL_10_rsa;
+
+typedef struct OPENSSL_10_buf_mem_st {
+	size_t length;              /* current number of bytes */
+	char* data;
+	size_t max;                 /* size of buffer */
+}OPENSSL_10_BUF_MEM;
+
+typedef struct OPENSSL_11_buf_mem_st {
+	size_t length;              /* current number of bytes */
+	char* data;
+	size_t max;                 /* size of buffer */
+	unsigned long flags;
+} OPENSSL_11_BUF_MEM;
+
 typedef enum
 {
 	RSSL_OPENSSL_VNONE = 0,
@@ -240,6 +313,7 @@ typedef enum
 typedef struct
 {
 	int initialized;
+	RsslOpenSSLAPIVersion version;
 	unsigned long (*ssl_10_version)(void); /* OpenSSL V1.0.X version SSLeay */
 	unsigned long (*ssl_11_version)();	/* OpenSSL V1.1.X version OpenSSL_version_num */
 	int (*library_init)(void);  		/* V1.0.X SSL_library_init */
@@ -296,12 +370,23 @@ typedef struct
 	int(*BIO_sock_should_retry)(int);						/* BIO_sock_should_retry */
 	OPENSSL_BIO* (*BIO_new_file)(const char*, const char*);			/* BIO_new_file */
 	int(*BIO_free)(OPENSSL_BIO*);								/* BIO_free */
+	OPENSSL_BIO_METHOD* (*BIO_f_base64)();						/* BIO_f_base64 */
+	OPENSSL_BIO_METHOD* (*BIO_s_mem)();							/* BIO_s_mem */
+	OPENSSL_BIO* (*BIO_new)(OPENSSL_BIO_METHOD*);				/* BIO_new */
+	OPENSSL_BIO* (*BIO_push)(OPENSSL_BIO*, OPENSSL_BIO*);		/* BIO_push */
+	long (*BIO_ctrl)(OPENSSL_BIO*, int, long, void*);			/* BIO_ctrl */
+	int (*BIO_write)(OPENSSL_BIO*, const void*, int);			/* BIO_write */
+	void (*BIO_free_all)(OPENSSL_BIO* a);						/*BIO_free_all*/
+	int (*BIO_read)(OPENSSL_BIO*, void*, int);					/* BIO_read */
+	OPENSSL_BIO* (*BIO_new_mem_buf)(const void*, int);			/* BIO_new_mem_buf) */
+	void (*BIO_set_flags)(OPENSSL_BIO*, int);					/* BIO_set_flags */
 } ripcSSLApiFuncs;
 
 
 typedef struct
 {
 	int initialized;
+	RsslOpenSSLAPIVersion version;
 	void (*load_crypto_strings)(); 		/* V1.0.X crypto::ERR_load_crypto_strings */
 	unsigned long (*thread_id)();						/* CRYPTO_thread_id */
 	unsigned long (*get_error_line_data)(const char**, int*, const char**, int*); /* ERR_get_error_line_data */
@@ -347,8 +432,35 @@ typedef struct
 	void*(*sk_value)(const OPENSSL_STACK*, int); /* sk_value */
 	void*(*sk_free)(OPENSSL_STACK*);			/* sk_free for 1.0.X */
 	OPENSSL_EC_KEY* (*EC_KEY_new_by_curve_name)(int); /* EC_KEY_new_by_curve_name */
+	int (*EC_KEY_set_private_key)(OPENSSL_EC_KEY*, const OPENSSL_BIGNUM*);
+	void (*EC_KEY_free)(OPENSSL_EC_KEY* key);		/* EC_KEY_free */
+	const OPENSSL_EC_GROUP* (*EC_KEY_get0_group)(const OPENSSL_EC_KEY*);
+	OPENSSL_EC_POINT* (*EC_POINT_new)(const OPENSSL_EC_GROUP*);
+	int (*EC_POINT_set_affine_coordinates_GFp)(const OPENSSL_EC_GROUP*, OPENSSL_EC_POINT*, const OPENSSL_BIGNUM*, const OPENSSL_BIGNUM*, OPENSSL_BN_CTX*);
+	int (*EC_KEY_set_public_key)(OPENSSL_EC_KEY*, const OPENSSL_EC_POINT*);
+	void (*EC_POINT_free)(OPENSSL_EC_POINT*);
+	int (*EC_POINT_mul)(const OPENSSL_EC_GROUP*, OPENSSL_EC_POINT*, const OPENSSL_BIGNUM*, const OPENSSL_EC_POINT*, const OPENSSL_BIGNUM*, OPENSSL_BN_CTX*);
+	void (*EC_KEY_set_asn1_flag)(OPENSSL_EC_KEY*, int);
+	int (*PEM_write_bio_ECPrivateKey)(OPENSSL_BIO*, OPENSSL_EC_KEY*, const OPENSSL_EVP_CIPHER*, unsigned char*, int,
+		pem_password_cb*, void*); /* PEM_write_bio_ECPrivateKey */
+	int (*PEM_write_bio_RSAPrivateKey_10)(OPENSSL_BIO*, OPENSSL_10_rsa*, const OPENSSL_EVP_CIPHER*, unsigned char*, int,
+		pem_password_cb*, void*); /* PEM_write_bio_RSAPrivateKey for v1.0.X */
+	int (*PEM_write_bio_RSAPrivateKey_11)(OPENSSL_BIO*, OPENSSL_11_rsa*, const OPENSSL_EVP_CIPHER*, unsigned char*, int,
+		pem_password_cb*, void*); /* PEM_write_bio_RSAPrivateKey for v1.1.X */
+
+	OPENSSL_11_rsa* (*RSA_new_11)();  /* RSA_new v1.1.X*/
+
+	void (*RSA_free_11)(OPENSSL_11_rsa*); /* RSA_free v1.1.X*/
+
+	int (*RSA_set0_key_11)(OPENSSL_11_rsa*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*); /* RSA_set0_key v1.1.X*/
+	int (*RSA_set0_factors_11)(OPENSSL_11_rsa*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*);				/* RSA_set0_factors v1.1.X*/
+	int (*RSA_set0_crt_params_11)(OPENSSL_11_rsa*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*); /* RSA_set0_crt_params v1.1.X*/
+
 }ripcCryptoApiFuncs;
 
+RSSL_API ripcSSLApiFuncs* rsslGetOpenSSLAPIFuncs(RsslError* error);
+
+RSSL_API ripcCryptoApiFuncs* rsslGetOpenSSLCryptoFuncs(RsslError* error);
 
 OPENSSL_10_DH *ripcSSL10DHGetParam(ripcSSLApiFuncs* sslFuncs, ripcCryptoApiFuncs* cryptoFuncs);
 

@@ -19,6 +19,7 @@
 #include "lz4.h"
  /* OpenSSL tunneling */
 #include "rtr/ripcsslutils.h"
+#include "rtr/ripcssljit.h"
 
 #if !defined(_WIN32)
 #include <netdb.h>
@@ -480,6 +481,46 @@ RsslRet ipcLoadOpenSSL(RsslError *error)
 		}
 	}
 	return RSSL_RET_SUCCESS;
+}
+
+ripcSSLApiFuncs* ipcGetOpenSSLAPIFuncs(RsslError* error)
+{
+	if (openSSLInit == 0)
+	{
+		/* Initialize open ssl */
+		if (ripcInitializeSSL(transOpts.jitOpts.libsslName, transOpts.jitOpts.libcryptoName) == 1)
+			openSSLInit = 1;
+		else
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 0012 Unable to load openSSL Libraries.\n",
+				__FILE__, __LINE__);
+
+			return NULL;
+		}
+	}
+	return ripcGetOpenSSLApiFuncs();
+}
+
+ripcCryptoApiFuncs* ipcGetOpenSSLCryptoFuncs(RsslError* error)
+{
+	if (openSSLInit == 0)
+	{
+		/* Initialize open ssl */
+		if (ripcInitializeSSL(transOpts.jitOpts.libsslName, transOpts.jitOpts.libcryptoName) == 1)
+			openSSLInit = 1;
+		else
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 0012 Unable to load openSSL Libraries.\n",
+				__FILE__, __LINE__);
+
+			return NULL;
+		}
+	}
+	return ripcGetOpenSSLCryptoFuncs();
 }
 
 RsslSocketChannel* createRsslSocketChannel()

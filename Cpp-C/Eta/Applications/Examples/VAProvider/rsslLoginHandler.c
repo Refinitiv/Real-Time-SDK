@@ -184,7 +184,24 @@ RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChanne
 				return RSSL_RC_CRET_SUCCESS;
 			}
 
-			printf("\nReceived Login Request for Username: %.*s\n", pLoginRequest->userName.length, pLoginRequest->userName.data);
+			
+			if (pLoginRequest->flags & RDM_LG_RQF_HAS_USERNAME_TYPE && pLoginRequest->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+			{
+				/* If this an authentication token user, the application needs to take the token and verify it against the token infrastructure.
+				 * In this example, the VAProvider will just accept the token */
+				printf("\nReceived Login Request for Token: %.*s\n", pLoginRequest->userName.length, pLoginRequest->userName.data);
+			}
+			else if(pLoginRequest->userName.length != 0 && pLoginRequest->userName.data != NULL)
+			{
+				printf("\nReceived Login Request for Username: %.*s\n", pLoginRequest->userName.length, pLoginRequest->userName.data);
+			}
+			else
+			{
+				if (sendLoginRequestReject(pReactor, pReactorChannel, pLoginRequest->rdmMsgBase.streamId, NO_USER_NAME_IN_REQUEST, NULL) != RSSL_RET_SUCCESS)
+					removeClientSessionForChannel(pReactor, pReactorChannel);
+
+				return RSSL_RC_CRET_SUCCESS;
+			}
 
 			/* send login response */
 			if (sendLoginRefresh(pReactor, pReactorChannel, pLoginRequest) != RSSL_RET_SUCCESS)
@@ -381,6 +398,12 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 				/* The typed message decoder failed. Pass along the error text. */
 				loginStatus.state.code = RSSL_SC_USAGE_ERROR;
 				snprintf(stateText, sizeof(stateText), "Login request rejected for stream id %d - decoding failure: %s", streamId, pError->rsslError.text);
+				loginStatus.state.text.data = stateText;
+				loginStatus.state.text.length = (RsslUInt32)strlen(stateText) + 1;
+				break;
+			case NO_USER_NAME_IN_REQUEST:
+				loginStatus.state.code = RSSL_SC_USAGE_ERROR;
+				snprintf(stateText, 128, "Login request rejected for stream id %d - request does not contain user name", streamId);
 				loginStatus.state.text.data = stateText;
 				loginStatus.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 				break;

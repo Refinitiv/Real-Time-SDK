@@ -1,12 +1,24 @@
 package com.refinitiv.eta.valueadd.reactor;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.http.HttpHost;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.utils.URIUtils;
 
 import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.transport.ConnectOptions;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 
 class RestConnectOptions {
+	
+    static final int DEFAULT_HTTPS_PORT = 443;
+    static final int DEFAULT_HTTP_PORT = 80;
+    static final String DEFAULT_SCHEME = "https";
+    static final String API_GATEWAY_HOST = "api.refinitiv.com";
+    static final String TOKEN_SERVICE_PATH = "/auth/oauth2/v1/token";
 	
 	private int _transport;
 	private int _dataFormat;
@@ -19,6 +31,10 @@ class RestConnectOptions {
 	private String _proxyLocalHostName;
 	private String _proxyKrb5ConfigFile;
 	private ReactorOptions _reactorOptions;
+	private Buffer _tokenServiceURLV1 =  CodecFactory.createBuffer();
+	private Buffer _tokenServiceURLV2 =  CodecFactory.createBuffer();
+	private HttpHost _tokenServiceHost;
+	private HttpHost _tokenServiceHostV2;
 
 	// Temporary redirect flags/locations
     private boolean _authRedirect = false;           
@@ -27,11 +43,16 @@ class RestConnectOptions {
     private String _discoveryRedirectLocation = null;
 	
     public RestConnectOptions(ReactorOptions options)
-    {    	
+    {
+		clear();
     	/* This member variable is set only once and it must not be cleared. */
     	_reactorOptions = options;
     	
-    	clear();
+    	if(options.tokenServiceURL() != null)
+    		tokenServiceURLV1(options.tokenServiceURL());
+    	
+    	if(options.tokenServiceURL_V2() != null)
+    		tokenServiceURLV2(options.tokenServiceURL_V2());
     }
     
 	public void clear() 
@@ -46,6 +67,9 @@ class RestConnectOptions {
 		_proxyDomain = null;
 		_proxyLocalHostName = "localhost";
 		_proxyKrb5ConfigFile = "krb5.conf";
+		
+		_tokenServiceURLV1.clear();
+		_tokenServiceHost = null;
 		
 		_authRedirect = false;
 		_authRedirectLocation = null;
@@ -108,9 +132,92 @@ class RestConnectOptions {
 		return _resultClosure;
 	}
 	
-	public String tokenServiceURL()
+	public String tokenServiceURLV1()
 	{
-		return _reactorOptions.tokenServiceURL().toString();
+		return _tokenServiceURLV1.toString();
+	}
+	
+	public String tokenServiceURLV2()
+	{
+		return _tokenServiceURLV2.toString();
+	}
+	
+	int tokenServiceURLV1(Buffer tokenServiceURL)
+	{
+		_tokenServiceURLV1.data(tokenServiceURL.data(), tokenServiceURL.position(), tokenServiceURL.length());
+		
+		if(tokenServiceURL == null || tokenServiceURL.length() == 0)
+    	{
+    		return ReactorReturnCodes.PARAMETER_INVALID;
+    	}
+    	
+    	try 
+    	{
+    		URI uri = new URIBuilder(tokenServiceURL.toString()).build();
+    		HttpHost tokenServiceHost = URIUtils.extractHost(uri);
+    		
+    		if(tokenServiceHost == null)
+    			return ReactorReturnCodes.PARAMETER_INVALID;
+    		
+    		_tokenServiceHost = tokenServiceHost;
+    		
+    		/* Checks whether the port is specified */
+    		if(_tokenServiceHost.getPort() == -1)
+    		{
+    			if(_tokenServiceHost.getSchemeName().equals(DEFAULT_SCHEME))
+    			{
+    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getHostName(), DEFAULT_HTTPS_PORT, _tokenServiceHost.getSchemeName());
+    			}
+    			else
+    			{
+    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getHostName(), DEFAULT_HTTP_PORT, _tokenServiceHost.getSchemeName());
+    			}
+    		}
+    		
+		} catch (URISyntaxException e) {
+			return ReactorReturnCodes.PARAMETER_INVALID;
+		}
+    	
+    	return ReactorReturnCodes.SUCCESS;
+	}
+	
+	int tokenServiceURLV2(Buffer tokenServiceURL)
+	{
+		_tokenServiceURLV2.data(tokenServiceURL.data(), tokenServiceURL.position(), tokenServiceURL.length());
+		
+		if(tokenServiceURL == null || tokenServiceURL.length() == 0)
+    	{
+    		return ReactorReturnCodes.PARAMETER_INVALID;
+    	}
+    	
+    	try 
+    	{
+    		URI uri = new URIBuilder(tokenServiceURL.toString()).build();
+    		HttpHost tokenServiceHost = URIUtils.extractHost(uri);
+    		
+    		if(tokenServiceHost == null)
+    			return ReactorReturnCodes.PARAMETER_INVALID;
+    		
+    		_tokenServiceHostV2 = tokenServiceHost;
+    		
+    		/* Checks whether the port is specified */
+    		if(_tokenServiceHostV2.getPort() == -1)
+    		{
+    			if(_tokenServiceHostV2.getSchemeName().equals(DEFAULT_SCHEME))
+    			{
+    				_tokenServiceHostV2 = new HttpHost(_tokenServiceHostV2.getHostName(), DEFAULT_HTTPS_PORT, _tokenServiceHostV2.getSchemeName());
+    			}
+    			else
+    			{
+    				_tokenServiceHostV2 = new HttpHost(_tokenServiceHostV2.getHostName(), DEFAULT_HTTP_PORT, _tokenServiceHostV2.getSchemeName());
+    			}
+    		}
+    		
+		} catch (URISyntaxException e) {
+			return ReactorReturnCodes.PARAMETER_INVALID;
+		}
+    	
+    	return ReactorReturnCodes.SUCCESS;
 	}
 	
 	public String serviceDiscoveryURL()
@@ -120,7 +227,12 @@ class RestConnectOptions {
 	
 	public HttpHost tokenServiceHost()
 	{
-		return _reactorOptions.tokenServiceHost();
+		return _tokenServiceHost;
+	}
+	
+	public HttpHost tokenServiceHostV2()
+	{
+		return _tokenServiceHostV2;
 	}
 	
 	public HttpHost serviceDiscoveryHost()
@@ -131,7 +243,7 @@ class RestConnectOptions {
 	public String toString()
 	{
 		 return "RestConnectOptions" + "\n" + 
-	               "\ttokenServiceURL: " + tokenServiceURL() + "\n" +
+	               "\ttokenServiceURL: " + tokenServiceURLV1() + "\n" +
 	               "\tserviceDiscoveryURL: " + serviceDiscoveryURL() + "\n" +             
 	               "\tuserSpecObject: " + _resultClosure + "\n";
 	}

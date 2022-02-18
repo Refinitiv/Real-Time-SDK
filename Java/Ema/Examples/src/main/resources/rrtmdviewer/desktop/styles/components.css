@@ -8,9 +8,9 @@
 .optionslabel {
    -fx-max-width: 200px;
    -fx-min-width: 200px;
-   -fx-padding: 0 0 0 20;
-   -fx-border-insets: 0 0 0 20;
-   -fx-background-insets: 0 0 0 20;
+   -fx-padding: 0;
+   -fx-border-insets: 0;
+   -fx-background-insets: 0;
 }
 
 .vboxwithframe {

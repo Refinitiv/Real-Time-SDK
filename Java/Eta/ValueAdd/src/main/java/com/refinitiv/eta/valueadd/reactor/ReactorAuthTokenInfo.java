@@ -9,18 +9,28 @@ public class ReactorAuthTokenInfo
 	private int _expiresIn = -1;
 	private String _tokenType;
 	private String _scope;
+	private TokenVersion _tokenVersion;
+	
+	/** The ReactorTokenSession's connection version */
+	enum TokenVersion
+	{
+		UNINIT,
+		V1,
+		V2
+	}
 
 	ReactorAuthTokenInfo()
 	{
 	}
 	
-	ReactorAuthTokenInfo(String accessToken, String refreshToken, int expiresIn, String scope, String tokenType)
+	ReactorAuthTokenInfo(String accessToken, String refreshToken, int expiresIn, String scope, String tokenType, TokenVersion tokenVersion)
 	{
 		_accessToken = accessToken;
 		_refreshToken = refreshToken;
 		_expiresIn = expiresIn;
 		_scope = scope;
 		_tokenType = tokenType;
+		_tokenVersion = tokenVersion;
 	}
 
 	public void clear()
@@ -76,6 +86,15 @@ public class ReactorAuthTokenInfo
 	public String tokenType() {
 		return _tokenType;
 	}
+	
+	 /**
+     * Represents a token authentication version
+     * 
+     * @return token version
+     */	
+	public TokenVersion tokenVersion() {
+		return _tokenVersion;
+	}
 
 	void accessToken(String accessToken) {
 		_accessToken = accessToken;
@@ -95,6 +114,10 @@ public class ReactorAuthTokenInfo
 
 	void tokenType(String tokenType) {
 		_tokenType = tokenType;
+	}
+	
+	void tokenVersion(TokenVersion tokenVersion) {
+		_tokenVersion = tokenVersion;
 	}
 	
 	public int copy(ReactorAuthTokenInfo destOpts)

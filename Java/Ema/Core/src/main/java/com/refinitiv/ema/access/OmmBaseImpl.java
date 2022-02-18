@@ -24,6 +24,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.valueadd.reactor.*;
+import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredentialRenewalOptions.RenewalModes;
+
 import org.slf4j.Logger;
 
 import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
@@ -75,7 +77,7 @@ interface OmmCommonImpl
 	void channelInformation(ChannelInformation ci);
 }
 
-abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback
+abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback 
 {
 	private final static int SHUTDOWN_TIMEOUT_IN_SECONDS = 3;
 
@@ -116,6 +118,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	protected ItemCallbackClient<T>  _itemCallbackClient;
 	protected ChannelCallbackClient<T> _channelCallbackClient;
 	
+	protected ReactorOAuthCredentialRenewalOptions _OAuthRenewalOpts = ReactorFactory.createReactorOAuthCredentialRenewalOptions();
+	
 	
 	private ReentrantLock _userLock = new java.util.concurrent.locks.ReentrantLock();
 	private ReentrantLock _dispatchLock = new java.util.concurrent.locks.ReentrantLock();	
@@ -138,6 +142,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	private ByteBuffer _pipeReadByte = ByteBuffer.allocate(1);
 	private volatile boolean _eventReceived;
 	private SelectionKey _pipeSelectKey;
+	protected boolean _inOAuth2Callback = false;
 	
 	abstract Logger createLoggerClient();
 	
@@ -221,10 +226,16 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				_rsslReactorOpts.serviceDiscoveryURL(config.serviceDiscoveryUrl());
 			}
 			
-			// Overrides the default token service URL if specified by user
-			if(config.tokenServiceUrl().length() != 0)
+			// Overrides the default token service URL V1 if specified by user
+			if(config.tokenServiceUrlV1().length() != 0)
 			{
-				_rsslReactorOpts.tokenServiceURL(config.tokenServiceUrl());
+				_rsslReactorOpts.tokenServiceURL_V1(config.tokenServiceUrlV1());
+			}
+			
+			// Overrides the default token service URL V2 if specified by user
+			if(config.tokenServiceUrlV2().length() != 0)
+			{
+				_rsslReactorOpts.tokenServiceURL_V2(config.tokenServiceUrlV2());
 			}
 			
 			/* Configuration parameters for handling token reissue and REST request timeout */
@@ -1150,6 +1161,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			
 			HttpChannelConfig programTunnelingChannelCfg = configImpl.tunnelingChannelCfg();
 			
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelEnableSessionMgnt)) != null)
+				socketChannelConfig.enableSessionMgnt = ce.intLongValue() == 0 ? false : true;
+			
+			if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.ChannelLocation)) != null)
+				socketChannelConfig.location = ce.asciiValue();
+			
 			socketChannelConfig.httpProxyHostName = programTunnelingChannelCfg.httpProxyHostName;
 			if ( socketChannelConfig.httpProxyHostName == null || socketChannelConfig.httpProxyHostName.length() == 0)
 			{
@@ -1798,5 +1815,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
 		}
 	}
+	
 }
 

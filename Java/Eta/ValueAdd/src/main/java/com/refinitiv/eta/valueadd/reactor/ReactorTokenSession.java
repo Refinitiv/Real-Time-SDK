@@ -8,6 +8,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.SessionMgntState;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.State;
 
@@ -32,7 +35,10 @@ class ReactorTokenSession implements RestCallback
 	private RestReactor _restReactor;
 	private ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
 	private boolean _setProxyInfo = false;
-	
+	private String _defaultTokenURLV1String = "http://api.refinitiv.com/auth/oauth2/v1/token";
+	private Buffer _tokenURLV1Buffer = CodecFactory.createBuffer();
+	private String _defaultTokenURLV2String = "http://api.refinitiv.com/auth/oauth2/v2/token";
+	private Buffer _tokenURLV2Buffer = CodecFactory.createBuffer();
 	
 	  /** The ReactorTokenSession's state. */
     enum SessionState
@@ -56,6 +62,23 @@ class ReactorTokenSession implements RestCallback
     	_reactor = reactor;
     	_restReactor = reactor._restClient._restReactor;
     	reactorOAuthCredential.copy(_reactorOAuthCredential);
+    	if(reactor._reactorOptions.tokenServiceURL_V1() != null && reactor._reactorOptions.tokenServiceURL_V1().length() > 0)
+    	{
+    		_tokenURLV1Buffer = reactor._reactorOptions.tokenServiceURL_V1();
+    	}
+    	else
+    	{
+    		_tokenURLV1Buffer.data(_defaultTokenURLV1String);
+    	}
+    		
+    	if(reactor._reactorOptions.tokenServiceURL_V2() != null && reactor._reactorOptions.tokenServiceURL_V2().length() > 0)
+    	{
+    		_tokenURLV2Buffer = reactor._reactorOptions.tokenServiceURL_V2();
+    	}
+    	else
+    	{
+    		_tokenURLV2Buffer.data(_defaultTokenURLV2String);
+    	}
     	
     	_restConnectOptions = new RestConnectOptions(_reactor.reactorOptions());
     	
@@ -72,6 +95,17 @@ class ReactorTokenSession implements RestCallback
 		_nextAuthTokenRequestTime = 0;
 		_tokenReissueAttempts = 0;
 		_originalExpiresIn = 0;
+		
+		if(_restAuthRequest.username().length() == 0)
+		{
+			_authTokenInfo.tokenVersion(TokenVersion.V2);
+			_restConnectOptions.tokenServiceURLV2(_tokenURLV2Buffer);
+		}
+		else
+		{
+			_authTokenInfo.tokenVersion(TokenVersion.V1);
+			_restConnectOptions.tokenServiceURLV1(_tokenURLV1Buffer);
+		}
     }
     
     void setProxyInfo(ReactorConnectInfo connectInfo)
@@ -252,6 +286,12 @@ class ReactorTokenSession implements RestCallback
 		return _sessionState;
 	}
 	
+	/* Used for V2 login on reconnect */
+	void resetSessionMgntState() {
+
+		_sessionState = SessionState.REQ_INIT_AUTH_TOKEN;
+	}
+	
 	boolean isInitialized()
 	{
 		return _initialized;
@@ -282,7 +322,20 @@ class ReactorTokenSession implements RestCallback
 			
 			if (body.has(RestReactor.AUTH_EXPIRES_IN))
 			{
-				authTokenInfo.expiresIn(body.getInt(RestReactor.AUTH_EXPIRES_IN));
+				if(authTokenInfo.tokenVersion() == TokenVersion.V2)
+				{
+					int expiresIn = 0;
+					if(body.getInt(RestReactor.AUTH_EXPIRES_IN) < 600)
+						expiresIn = (int)(.95 * (double)body.getInt(RestReactor.AUTH_EXPIRES_IN));
+					else
+						expiresIn = body.getInt(RestReactor.AUTH_EXPIRES_IN) - 300;
+					
+					authTokenInfo.expiresIn(expiresIn);
+				}
+				else
+				{
+					authTokenInfo.expiresIn(body.getInt(RestReactor.AUTH_EXPIRES_IN));
+				}
 			}
 			
 			if (body.has(RestReactor.AUTH_SCOPE))
@@ -420,7 +473,7 @@ class ReactorTokenSession implements RestCallback
 				/* Creates and sends worker event to get an access token */
 				_sessionState = SessionState.RECEIVED_AUTH_TOKEN;
 				
-				if(originalExpiresIn() != 0)
+				if(originalExpiresIn() != 0 && _authTokenInfo.tokenVersion() == TokenVersion.V1)
 				{
 					if(originalExpiresIn() != _authTokenInfo.expiresIn())
 					{
@@ -473,7 +526,15 @@ class ReactorTokenSession implements RestCallback
 				}
 				
 				/* Send a worker event to renew the token */
-				_reactor.sendAuthTokenWorkerEvent(this);
+				if(_authTokenInfo.tokenVersion() == TokenVersion.V2)
+				{
+					ReactorChannel reactorChannel = _reactorChannelList.get(0);
+					_reactor.sendAuthTokenWorkerEvent(reactorChannel, this);
+				}
+				else
+				{
+					_reactor.sendAuthTokenWorkerEvent(this);
+				}
 				
 				break;
 			}
@@ -495,6 +556,25 @@ class ReactorTokenSession implements RestCallback
 				
 				/* Iterates through the ReactorChannel list */
 				_reactorChannelListLock.lock();
+				
+				_sessionState = SessionState.REQUEST_TOKEN_FAILURE;
+				
+				/* Stop retrying for the HTTP 403 and 451 status codes */
+				if (event.eventType() != RestEventTypes.STOPPED)
+				{
+					if (handlesTokenReissueFailed())
+					{
+						_reactor.sendAuthTokenWorkerEvent(this);
+					}
+					else
+					{
+						_sessionState = SessionState.STOP_TOKEN_REQUEST;
+					}
+				}
+				else
+				{
+					_sessionState = SessionState.STOP_TOKEN_REQUEST;
+				}
 				
 				try
 				{
@@ -529,21 +609,6 @@ class ReactorTokenSession implements RestCallback
 				finally
 				{
 					_reactorChannelListLock.unlock();
-				}
-				
-				_sessionState = SessionState.REQUEST_TOKEN_FAILURE;
-				
-				/* Stop retrying for the HTTP 403 and 451 status codes */
-				if (event.eventType() != RestEventTypes.STOPPED)
-				{
-					if (handlesTokenReissueFailed())
-					{
-						_reactor.sendAuthTokenWorkerEvent(this);
-					}
-				}
-				else
-				{
-					_sessionState = SessionState.STOP_TOKEN_REQUEST;
 				}
 				
 				break;

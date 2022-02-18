@@ -100,6 +100,20 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		tokenServiceUrlInt(tokenServiceUrl);
 		return this;
 	}
+	
+	@Override
+	public OmmConsumerConfig tokenServiceUrlV1(String tokenServiceUrlV1)
+	{
+		tokenServiceUrlV1Int(tokenServiceUrlV1);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig tokenServiceUrlV2(String tokenServiceUrlV2)
+	{
+		tokenServiceUrlV2Int(tokenServiceUrlV2);
+		return this;
+	}
 
 	@Override
 	public OmmConsumerConfig serviceDiscoveryUrl(String serviceDiscoveryUrl)

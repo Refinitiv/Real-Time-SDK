@@ -503,6 +503,31 @@ public class WatchlistConsumerConfig
 	{
 		return CommandLine.value("clientId");
 	}
+	
+	String clientSecret()
+	{
+		return CommandLine.value("clientSecret");
+	}
+	
+	String tokenUrlV1()
+	{
+		return CommandLine.value("tokenURLV1");
+	}
+	
+	String tokenUrlV2()
+	{
+		return CommandLine.value("tokenURLV2");
+	}
+	
+	String tokenScope()
+	{
+		return CommandLine.value("tokenScope");
+	}
+	
+	String serviceDiscoveryURL()
+	{
+		return CommandLine.value("serviceDiscoveryURL");
+	}
 
 	boolean takeExclusiveSignOnControl()
 	{
@@ -683,6 +708,12 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("l", "(optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.");
 		CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
 		CommandLine.addOption("clientId", "Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.");
+		CommandLine.addOption("clientSecret", "Specifies the associted client Secret with a provided clientId for V2 logins.");
+		CommandLine.addOption("tokenURLV1", "Specifies the token URL for V1 token oauthpasswd grant type.");
+		CommandLine.addOption("tokenURLV2", "Specifies the token URL for V2 token oauthclientcreds grant type.");
+		CommandLine.addOption("tokenScope", "", "Specifies the token scope.");
+		CommandLine.addOption("serviceDiscoveryURL", "Specifies the service discovery URL.");
+
 		CommandLine.addOption("rtt", false, "(optional) Enable RTT support in the WatchList");
 		CommandLine.addOption("takeExclusiveSignOnControl", "true", "Specifies the exclusive sign on control to force sign-out for the same credentials., default is true");
 	}

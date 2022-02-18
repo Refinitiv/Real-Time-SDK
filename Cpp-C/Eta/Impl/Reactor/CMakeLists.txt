@@ -157,7 +157,7 @@ else()
 											$<TARGET_PROPERTY:librssl,INTERFACE_INCLUDE_DIRECTORIES>
                                 )
 
-	target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON librssl)
+	target_link_libraries( librsslVA_tmp LibXml2::LibXml2 CJSON::CJSON librssl )
 
 DEBUG_PRINT(librsslVA_tmp)
 
@@ -273,7 +273,7 @@ DEBUG_PRINT(librsslVA_tmp)
                                     SOVERSION ${librsslVA_SO_VERSION}
                             )
 
-		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON)
+		target_link_libraries( librsslVA_shared librssl_shared LibXml2::LibXml2 CJSON::CJSON )
 	endif()
 DEBUG_PRINT(librsslVA_tmp)
 	rcdev_add_target(rtsdk librsslVA librsslVA_shared)

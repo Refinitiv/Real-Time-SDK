@@ -26,6 +26,8 @@ class ChannelConfig
 	int					initializationTimeout;
 	String 				wsProtocols;
 	int					wsMaxMsgSize;
+	String				location;
+	boolean				enableSessionMgnt;
 
 
 	ChannelConfig() 
@@ -50,6 +52,8 @@ class ChannelConfig
 		wsProtocols = ActiveConfig.DEFAULT_WS_PROTOCOLS;
 		wsMaxMsgSize = ActiveConfig.DEFAULT_WS_MAX_MSG_SIZE;
 		compressionThresholdSet = false;
+		location = ActiveConfig.DEFAULT_REGION_LOCATION;
+		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
 	}
 	
 	void guaranteedOutputBuffers(long value) 

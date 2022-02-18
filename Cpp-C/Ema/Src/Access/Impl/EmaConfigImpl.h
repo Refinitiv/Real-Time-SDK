@@ -1223,6 +1223,8 @@ public:
 	void tokenScope( const EmaString& );
 	void takeExclusiveSignOnControl( bool );
 	void tokenServiceUrl( const EmaString& );
+	void tokenServiceUrlV1(const EmaString&);
+	void tokenServiceUrlV2(const EmaString&);
 	void serviceDiscoveryUrl( const EmaString& );
 
 	void addAdminMsg( const ReqMsg& );
@@ -1333,9 +1335,14 @@ public:
 		return _sslCAStoreSetViaFunctionCall;
 	}
 
-	const EmaString& getUserSpecifiedTokenServiceUrl()
+	const EmaString& getUserSpecifiedTokenServiceUrlV1()
 	{
-		return _tokenServiceUrl;
+		return _tokenServiceUrlV1;
+	}
+
+	const EmaString& getUserSpecifiedTokenServiceUrlV2()
+	{
+		return _tokenServiceUrlV2;
 	}
 
 	const EmaString& getUserSpecifiedServiceDiscoveryUrl()
@@ -1392,7 +1399,8 @@ protected:
 	EmaString		_clientSecret;
 	EmaString		_tokenScope;
 	bool			_takeExclusiveSignOnControl;
-	EmaString		_tokenServiceUrl;
+	EmaString		_tokenServiceUrlV1;
+	EmaString		_tokenServiceUrlV2;
 	EmaString		_serviceDiscoveryUrl;
 	EmaString		_libcurlName;
 };

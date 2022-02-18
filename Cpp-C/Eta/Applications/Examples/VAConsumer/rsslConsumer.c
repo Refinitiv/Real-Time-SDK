@@ -79,6 +79,8 @@ static FILE *restLogFileName = NULL;
 char userNameBlock[128];
 char passwordBlock[128];
 char clientIdBlock[128];
+char clientSecretBlock[128];
+char scopeBlock[128];
 static char traceOutputFile[128];
 static char protocolList[128];
 char authnTokenBlock[1024];
@@ -92,14 +94,25 @@ char proxyDomain[128];
 RsslBuffer userName = RSSL_INIT_BUFFER;
 RsslBuffer password = RSSL_INIT_BUFFER;
 RsslBuffer clientId = RSSL_INIT_BUFFER;
+RsslBuffer clientSecret = RSSL_INIT_BUFFER;
 RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
+RsslBuffer tokenURLV1 = RSSL_INIT_BUFFER;
+RsslBuffer tokenURLV2 = RSSL_INIT_BUFFER;
+RsslBuffer serviceDiscoveryURL = RSSL_INIT_BUFFER;
+RsslBuffer tokenScope = RSSL_INIT_BUFFER;
 RsslReactorChannelStatistic channelStatistics;
 
 static char libsslName[255];
 static char libcryptoName[255];
 static char libcurlName[255];
+
+static char tokenURLNameV1[255];
+static char tokenURLNameV2[255];
+static char serviceDiscoveryURLName[255];
+static char tokenScopeName[255];
+
 
 static char sslCAStore[255];
 /* default sub-protocol list */
@@ -134,10 +147,11 @@ void printUsageAndExit(char *appName)
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedWebSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (mandatory).\n"
-			"\n -passwd specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (mandatory).\n"
-			"\n -clientId specifies the Client ID for Refinitiv Real-Time - Optimized (mandatory). To generate clientID, login to Eikon,\n"
+			"\n -uname specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
+			"\n -passwd specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
+			"\n -clientId specifies the Client ID for Refinitiv Real-Time - Optimized, or the client ID for login v2 (mandatory). To generate clientID for a V1 login, login to Eikon,\n"
 			"\n  and search for App Key Generator. The App Key is the Client ID.\n"
+			"\n -clientSecret associated client secret for the client ID with the v2 login.\n"
 			"\n -sessionMgnt Enables session management in the Reactor for Refinitiv Real-Time - Optimized.\n"
 			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
@@ -167,6 +181,10 @@ void printUsageAndExit(char *appName)
 			"\n -restEnableLog enable REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
 			"\n -restEnableLogCallback enable an alternative way to receive REST logging messages via callback.\n"
+			"\n -tokenURLV1 token generator URL V1\n"
+			"\n -tokenURLV2 token generator URL V2\n"
+			"\n -serviceDiscoveryURL Service Discovery URL\n"
+			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -248,6 +266,36 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				clientId.length = snprintf(clientIdBlock, sizeof(clientIdBlock), "%s", argv[i - 1]);
 				clientId.data = clientIdBlock;
+			}
+			else if (strcmp("-clientSecret", argv[i]) == 0)
+			{
+				i += 2;
+				clientSecret.length = snprintf(clientSecretBlock, sizeof(clientSecretBlock), "%s", argv[i - 1]);
+				clientSecret.data = clientSecretBlock;
+			}
+			else if (strcmp("-tokenURLV1", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV1.length = snprintf(tokenURLNameV1, sizeof(tokenURLNameV1), "%s", argv[i - 1]);
+				tokenURLV1.data = tokenURLNameV1;
+			}
+			else if (strcmp("-tokenURLV2", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV2.length = snprintf(tokenURLNameV2, sizeof(tokenURLNameV2), "%s", argv[i - 1]);
+				tokenURLV2.data = tokenURLNameV2;
+			}
+			else if (strcmp("-serviceDiscoveryURL", argv[i]) == 0)
+			{
+				i += 2;
+				serviceDiscoveryURL.length = snprintf(serviceDiscoveryURLName, sizeof(serviceDiscoveryURLName), "%s", argv[i - 1]);
+				serviceDiscoveryURL.data = serviceDiscoveryURLName;
+			}
+			else if (strcmp("-tokenScope", argv[i]) == 0)
+			{
+				i += 2;
+				tokenScope.length = snprintf(tokenScopeName, sizeof(tokenScopeName), "%s", argv[i - 1]);
+				tokenScope.data = tokenScopeName;
 			}
 			else if (strcmp("-passwd", argv[i]) == 0)
 			{
@@ -1189,6 +1237,13 @@ void parseCommandLine(int argc, char **argv)
 					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), pCommand->serviceName);
 				}
 
+				/* Check whether the session management is enable */
+				if (enableSessionMgnt)
+				{
+					pCommand->cInfo.enableSessionManagement = enableSessionMgnt;
+					pCommand->cInfo.pAuthTokenEventCallback = authTokenEventCallback;
+				}
+
 				pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.useAuthentication = useTunnelStreamAuthentication;
 				pCommand->simpleTunnelMsgHandler.tunnelStreamHandler.domainType = tunnelStreamDomainType;
 			}
@@ -1346,7 +1401,11 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
 
 	rsslClearReactorOAuthCredentialRenewal(&reactorOAuthCredentialRenewal);
-	reactorOAuthCredentialRenewal.password = password; /* Specified password as needed */
+
+	if (password.length != 0)
+		reactorOAuthCredentialRenewal.password = password; /* Specified password as needed */
+	else
+		reactorOAuthCredentialRenewal.clientSecret = clientSecret;
 
 	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 
@@ -1685,7 +1744,17 @@ int main(int argc, char **argv)
 	if (clientId.length)
 	{
 		oAuthCredential.clientId = clientId;
+		/* This is only used with Refinitiv token service V1 */
 		oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+	}
+
+	/* If a client secret was specified */
+	if (clientSecret.length)
+	{
+		oAuthCredential.clientSecret = clientSecret;
+
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
 	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */
@@ -1700,6 +1769,12 @@ int main(int argc, char **argv)
 			loginRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
 			loginRequest.authenticationExtended = authnExtended;
 		}
+	}
+
+	/* If the token scope was specified */
+	if (tokenScope.length)
+	{
+		oAuthCredential.tokenScope = tokenScope;
 	}
 		
 	if (appId.length)
@@ -1856,6 +1931,21 @@ int main(int argc, char **argv)
 
 	if (restEnableLogCallback)
 		reactorOpts.pRestLoggingCallback = restLoggingCallback;
+
+	if (tokenURLV1.length != 0)
+	{
+		reactorOpts.tokenServiceURL_V1 = tokenURLV1;
+	}
+
+	if (tokenURLV2.length != 0)
+	{
+		reactorOpts.tokenServiceURL_V2 = tokenURLV2;
+	}
+
+	if (serviceDiscoveryURL.length != 0)
+	{
+		reactorOpts.serviceDiscoveryURL = serviceDiscoveryURL;
+	}
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{

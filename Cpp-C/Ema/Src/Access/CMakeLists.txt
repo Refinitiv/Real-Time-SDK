@@ -105,6 +105,7 @@ else()
             Impl/Mutex.cpp Impl/Mutex.h
             Impl/NoDataImpl.cpp Impl/NoDataImpl.h
             # Impl/O....
+            Impl/OAuth2CredentialRenewal.cpp
             Impl/OmmAnsiPage.cpp
             Impl/OmmAnsiPageDecoder.cpp Impl/OmmAnsiPageDecoder.h
             Impl/OmmAnsiPageEncoder.cpp Impl/OmmAnsiPageEncoder.h
@@ -153,6 +154,7 @@ else()
             Impl/OmmNiProviderConfigImpl.cpp Impl/OmmNiProviderConfigImpl.h
             Impl/OmmNiProviderImpl.cpp Impl/OmmNiProviderImpl.h
             Impl/OmmNonRwfEncoder.cpp Impl/OmmNonRwfEncoder.h
+            Impl/OmmOAuth2ConsumerClient.cpp
             Impl/OmmOpaque.cpp Impl/OmmOpaqueDecoder.cpp Impl/OmmOpaqueDecoder.h
             Impl/OmmOpaqueEncoder.cpp Impl/OmmOpaqueEncoder.h
             Impl/OmmOutOfRangeException.cpp
@@ -250,6 +252,7 @@ else()
             Include/Map.h
             Include/MapEntry.h
             Include/Msg.h
+            Include/OAuth2CredentialRenewal.h
             Include/OmmAnsiPage.h
             Include/OmmArray.h
             Include/OmmArrayEntry.h
@@ -277,6 +280,7 @@ else()
             Include/OmmJsonConverterException.h
             Include/OmmMemoryExhaustionException.h
             Include/OmmNiProviderConfig.h
+            Include/OmmOAuth2ConsumerClient.h
             Include/OmmOpaque.h
             Include/OmmOutOfRangeException.h
             Include/OmmProvider.h

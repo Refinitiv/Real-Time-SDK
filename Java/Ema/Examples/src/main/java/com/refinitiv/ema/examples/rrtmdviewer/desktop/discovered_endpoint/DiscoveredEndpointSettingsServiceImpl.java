@@ -10,7 +10,6 @@ import com.refinitiv.ema.examples.rrtmdviewer.desktop.common.model.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpointSettingsService {
@@ -19,13 +18,15 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
     private static final String OMM_CONSUMER_INIT_ERROR_HEADER = "Error during OMM consumer initialization";
 
-    private ServiceEndpointDiscovery defaultServiceDiscovery;
     private ServiceEndpointDiscovery customServiceDiscovery;
+    private OAuthCallback oAuthCallback = new OAuthCallback();
+    private CredentialStore credentials = new CredentialStore();
+    private String currServiceDiscoveryURL;
+    private String currTokenURL;
 
     private boolean initialized;
 
     public DiscoveredEndpointSettingsServiceImpl() {
-        this.defaultServiceDiscovery = EmaFactory.createServiceEndpointDiscovery();
     }
 
     @Override
@@ -35,17 +36,31 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
     @Override
     public void requestServiceDiscovery(DiscoveredEndpointSettingsModel discoveredEndpointSettings, AsyncResponseModel responseListener) {
-        final ServiceEndpointDiscovery serviceEndpointDiscovery = Optional.of(defaultServiceDiscovery)
-                .filter(dfs -> discoveredEndpointSettings.isDefaultDiscovery())
-                .orElseGet(() -> EmaFactory.createServiceEndpointDiscovery(discoveredEndpointSettings.getTokenServiceUrl(), discoveredEndpointSettings.getDiscoveryEndpointUrl()));
-        customServiceDiscovery = serviceEndpointDiscovery;
+        if (customServiceDiscovery == null
+                || !discoveredEndpointSettings.getDiscoveryEndpointUrl().equals(currServiceDiscoveryURL)
+                || !discoveredEndpointSettings.getTokenServiceUrl().equals(currTokenURL)) {
+            String tokenV1Url = discoveredEndpointSettings.useV1() ? discoveredEndpointSettings.getTokenServiceUrl() : null;
+            String tokenV2Url = discoveredEndpointSettings.useV1() ? null : discoveredEndpointSettings.getTokenServiceUrl();
+            customServiceDiscovery = EmaFactory.createServiceEndpointDiscovery(tokenV1Url, tokenV2Url, discoveredEndpointSettings.getDiscoveryEndpointUrl());
+            currServiceDiscoveryURL = discoveredEndpointSettings.getDiscoveryEndpointUrl();
+            currTokenURL = discoveredEndpointSettings.getTokenServiceUrl();
+        }
 
         final ServiceEndpointDiscoveryOption serviceDiscoveryOpt = EmaFactory.createServiceEndpointDiscoveryOption();
-        serviceDiscoveryOpt
-                .username(discoveredEndpointSettings.getUsername())
-                .password(discoveredEndpointSettings.getPassword())
-                .clientId(discoveredEndpointSettings.getClientId())
-                .transport(discoveredEndpointSettings.getConnectionType().getTransportProtocol());
+
+        if (discoveredEndpointSettings.useV1()) {
+            serviceDiscoveryOpt
+                    .username(discoveredEndpointSettings.getUsername())
+                    .password(discoveredEndpointSettings.getPassword())
+                    .clientId(discoveredEndpointSettings.getClientId());
+        } else {
+            serviceDiscoveryOpt
+                    .clientId(discoveredEndpointSettings.getClientId())
+                    .clientSecret(discoveredEndpointSettings.getClientSecret());
+        }
+        serviceDiscoveryOpt.transport(discoveredEndpointSettings.getConnectionType().getTransportProtocol());
+        serviceDiscoveryOpt.tokenScope("trapi.streaming.pricing.read");
+
         if (discoveredEndpointSettings.isProxyUsed()) {
             final ProxyDataModel proxyData = discoveredEndpointSettings.getProxyData();
             serviceDiscoveryOpt
@@ -61,7 +76,7 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             }
         }
         try {
-            serviceEndpointDiscovery.registerClient(serviceDiscoveryOpt, this, responseListener);
+            customServiceDiscovery.registerClient(serviceDiscoveryOpt, this, responseListener);
         } catch (Exception e) {
             responseListener.setResponse(e.getMessage());
             responseListener.setResponseStatus(AsyncResponseStatuses.FAILED);
@@ -85,9 +100,15 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                         .config(ommConsumerConfig)
                         .consumerName("Consumer_1");
             }
-            config.username(discoveredEndpointSettingsModel.getUsername())
-                    .password(discoveredEndpointSettingsModel.getPassword())
-                    .clientId(discoveredEndpointSettingsModel.getClientId());
+            if (discoveredEndpointSettingsModel.useV1()) {
+                config.username(discoveredEndpointSettingsModel.getUsername())
+                        .password(discoveredEndpointSettingsModel.getPassword())
+                        .clientId(discoveredEndpointSettingsModel.getClientId());
+            } else {
+                config.clientId(discoveredEndpointSettingsModel.getClientId())
+                        .clientSecret(discoveredEndpointSettingsModel.getClientSecret());
+            }
+
 
             if (discoveredEndpointSettingsModel.isEncrypted()) {
                 config.tunnelingKeyStoreFile(discoveredEndpointSettingsModel.getEncryptionData().getKeyFilePath())
@@ -105,8 +126,6 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             }
 
             ChannelInformationClient channelInformationClient;
-
-            config.tokenServiceUrl(discoveredEndpointSettingsModel.getTokenServiceUrl());
             config.serviceDiscoveryUrl(discoveredEndpointSettingsModel.getDiscoveryEndpointUrl());
 
             if(ApplicationSingletonContainer.containsBean(ChannelInformationClient.class) == false) {
@@ -120,7 +139,15 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
             channelInformationClient.setConfigScenario(ChannelInformationClient.ConfigScenario.DISCOVERY_ENDPOINT);
 
-            final OmmConsumer consumer = EmaFactory.createOmmConsumer(config,channelInformationClient);
+            final OmmConsumer consumer;
+            if (discoveredEndpointSettingsModel.useV1()) {
+                config.tokenServiceUrl(discoveredEndpointSettingsModel.getTokenServiceUrl());
+                consumer = EmaFactory.createOmmConsumer(config, channelInformationClient);
+            } else {
+                credentials.clientId = discoveredEndpointSettingsModel.getClientId();
+                credentials.clientSecret = discoveredEndpointSettingsModel.getClientSecret();
+                consumer = EmaFactory.createOmmConsumer(config.tokenServiceUrlV2(discoveredEndpointSettingsModel.getTokenServiceUrl()), channelInformationClient, oAuthCallback, credentials);
+            }
             ApplicationSingletonContainer.addBean(OmmConsumer.class, consumer);
         } catch (OmmException e) {
             viewerError.clear();
@@ -132,10 +159,6 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
     @Override
     public void initialize() {
-        if (Objects.isNull(defaultServiceDiscovery)) {
-            defaultServiceDiscovery = EmaFactory.createServiceEndpointDiscovery();
-        }
-
         initialized = true;
     }
 
@@ -156,13 +179,12 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
 
     @Override
     public void uninitialize() {
-        if (defaultServiceDiscovery != null)
-            defaultServiceDiscovery.uninitialize();
-            defaultServiceDiscovery = null;
         if (customServiceDiscovery != null) {
             customServiceDiscovery.uninitialize();
             customServiceDiscovery = null;
         }
+        currTokenURL = null;
+        currServiceDiscoveryURL = null;
 
         initialized = false;
     }
@@ -252,5 +274,28 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             seds.add(discoveredEndpointInfoModel);
         }
         return seds;
+    }
+
+    class OAuthCallback implements OmmOAuth2ConsumerClient
+    {
+        public void onOAuth2CredentialRenewal(OmmConsumerEvent event)
+        {
+            CredentialStore credentials = (CredentialStore)event.closure();
+
+            OAuth2CredentialRenewal renewal = EmaFactory.createOAuth2CredentialRenewal();
+
+            renewal.clientId(credentials.clientId);
+            renewal.clientSecret(credentials.clientSecret);
+
+            credentials.consumer.renewOAuthCredentials(renewal);
+        }
+    }
+
+    /* This is for example purposes, For best security, please use a proper credential store. */
+    class CredentialStore
+    {
+        public String clientSecret;
+        public String clientId;
+        public OmmConsumer consumer;
     }
 }

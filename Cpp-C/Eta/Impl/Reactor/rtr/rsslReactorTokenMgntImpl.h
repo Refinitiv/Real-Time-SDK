@@ -82,8 +82,11 @@ typedef struct
 
 	rtr_atomic_val				numberOfWaitingChannels; /* Keeps the number of RsslReactorChannelImpl waiting to register to the RsslReactorTokenSessionImpl*/
 
+	RsslBuffer					sessionAuthUrl;
 	RsslBuffer					temporaryURL; /* Used the memory location from the temporaryURLBuffer */
 	RsslBuffer					temporaryURLBuffer;
+
+	RsslReactorSessionMgmtVersion sessionVersion;
 
 } RsslReactorTokenSessionImpl;
 
@@ -102,6 +105,7 @@ RTR_C_INLINE void rsslFreeReactorTokenSessionImpl(RsslReactorTokenSessionImpl *p
 	free(pTokenSessionImpl->rsslPostDataBodyBuf.data);
 	free(pTokenSessionImpl->userNameAndClientId.data);
 	free(pTokenSessionImpl->pOAuthCredential);
+	free(pTokenSessionImpl->sessionAuthUrl.data);
 	RSSL_MUTEX_DESTROY(&pTokenSessionImpl->accessTokenMutex);
 
 	rsslFreeConnectOpts(&pTokenSessionImpl->proxyConnectOpts);
@@ -135,6 +139,7 @@ struct _RsslReactorOAuthCredentialRenewalImpl
 	RsslBuffer					proxyUserName;
 	RsslBuffer					proxyPasswd;
 	RsslBuffer					proxyDomain;
+	RsslReactorSessionMgmtVersion  sessionVersion;
 };
 
 RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalImpl(RsslReactorOAuthCredentialRenewalImpl *pInfo)

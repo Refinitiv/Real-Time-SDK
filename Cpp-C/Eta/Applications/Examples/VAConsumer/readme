@@ -98,10 +98,18 @@ Symbol list requests may optionally specify a name, e.g. "sl:_ETA_ITEM_LIST." If
 specified, the consumer will use the ItemList from the directory response.
 
 Specifying the -sessionMgnt option enables session management in the Reactor to perform
-authentication token management and query Refinitiv Data Platform service discovery on be half of users.
+authentication token management and query Refinitiv Data Platform service discovery on behalf of users if configured to do so.
+
+When -sessionMgnt is specified, if a host and port is specified, the Consumer will not use service discovery.
+In addition, the following options are used to retrieve a token from the authentication token management system.
+
+For a password grant(Machine ID) V1 login: -uname <Machine ID> -passwd <password> -clientId <Client ID>
+The client ID can be retrieved from Eikon by To generate clientID and search for App Key Generator. The App Key is the Client ID.
+
+For a client credentials grant(Service Account) V2 login: -clientId <service account> -clientSecret <client secret>. 
 
 Specifying the -takeExclusiveSignOnControl <true/false> option will set exclusive sign on control to force sign-out
-for the same credentials when enabling the session management. Defaults to true.
+for the same credentials when enabling the session management. This only applies to a password grant V1 login. Defaults to true.
 
 Specifying the -view option will result in a dynamic view being requested with any
 MarketPrice items.  If the provider does not indicate support for dynamic views, this

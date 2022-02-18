@@ -41,6 +41,47 @@ OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& cli
 		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
 	}
 }
+OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, void* closure) :
+	_pImpl(0)
+{
+	try
+	{
+		config._pImpl->validateSpecifiedSessionName();
+		_pImpl = new OmmConsumerImpl(config, adminClient, oAuthClient, closure);
+	}
+	catch (std::bad_alloc&)
+	{
+		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
+	}
+}
+
+OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmOAuth2ConsumerClient& oAuthClient, void* closure) :
+	_pImpl(0)
+{
+	try
+	{
+		config._pImpl->validateSpecifiedSessionName();
+		_pImpl = new OmmConsumerImpl(config, oAuthClient, closure);
+	}
+	catch (std::bad_alloc&)
+	{
+		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
+	}
+}
+
+OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* closure) :
+	_pImpl(0)
+{
+	try
+	{
+		config._pImpl->validateSpecifiedSessionName();
+		_pImpl = new OmmConsumerImpl(config, oAuthClient, errorClient, closure);
+	}
+	catch (std::bad_alloc&)
+	{
+		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
+	}
+}
 
 OmmConsumer::OmmConsumer( const OmmConsumerConfig& config, OmmConsumerErrorClient& client ) :
 	_pImpl( 0 )
@@ -67,6 +108,21 @@ OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adm
 	catch (std::bad_alloc&)
 	{
 		errorClient.onMemoryExhaustion("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& , OmmConsumerErrorClient& ).");
+	}
+}
+
+
+OmmConsumer::OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* closure) :
+	_pImpl(0)
+{
+	try
+	{
+		config._pImpl->validateSpecifiedSessionName();
+		_pImpl = new OmmConsumerImpl(config, adminClient, oAuthClient, errorClient, closure);
+	}
+	catch (std::bad_alloc&)
+	{
+		throwMeeException("Failed to allocate memory for OmmConsumerImpl in OmmConsumer( const OmmConsumerConfig& ).");
 	}
 }
 
@@ -142,4 +198,9 @@ void OmmConsumer::modifyIOCtl(Int32 code, Int32 value)
 void OmmConsumer::modifyReactorIOCtl(Int32 code, Int32 value)
 {
 	_pImpl->modifyReactorIOCtl(code, value);
+}
+
+void OmmConsumer::renewOAuth2Credentials(OAuth2CredentialRenewal& credentials)
+{
+	_pImpl->renewOAuth2Credentials(credentials);
 }

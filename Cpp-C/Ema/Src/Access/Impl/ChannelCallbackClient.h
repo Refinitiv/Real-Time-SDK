@@ -73,6 +73,9 @@ public :
 	Channel& addDirectory( Directory* );
 	Channel& removeDirectory( Directory* );
 
+	Channel& setInOAuthCallback(bool);
+	bool getInOAuthCallback();
+
 	const EmaString& toString() const;
 
 	bool operator==( const Channel& );
@@ -97,6 +100,9 @@ private :
 	EmaVector< RsslSocket >* _pRsslSocketList;
 	ReactorChannelType		_reactorChannelType;
 	Channel*				_pParentChannel;
+
+	bool					_inOAuthCallback;
+
 		
 	Channel( const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL);
 	virtual ~Channel();

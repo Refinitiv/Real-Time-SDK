@@ -157,7 +157,7 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 
 		/* check if key has user name */
 		/* user name is only login user type accepted by this application (user name is the default type) */
-		if (!(key->flags & RSSL_MKF_HAS_NAME) || ((key->flags & RSSL_MKF_HAS_NAME_TYPE) && (key->nameType != RDM_LOGIN_USER_NAME)))
+		if (!(key->flags & RSSL_MKF_HAS_NAME) || ((key->flags & RSSL_MKF_HAS_NAME_TYPE) && ((key->nameType != RDM_LOGIN_USER_NAME) && (key->nameType != RDM_LOGIN_USER_AUTHN_TOKEN))))
 		{
 			sendLoginRequestReject(chnl, msg->msgBase.streamId, NO_USER_NAME_IN_REQUEST);
 			break;
@@ -178,7 +178,10 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 			return RSSL_RET_FAILURE;
 		}
 
-		printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(loginRequestInfo->Username), loginRequestInfo->Username);
+		if(key->nameType == RDM_LOGIN_USER_NAME)
+			printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(loginRequestInfo->Username), loginRequestInfo->Username);
+		else
+			printf("\nReceived Login Request for with Token: %.*s\n", (int)strlen(loginRequestInfo->AuthenticationToken), loginRequestInfo->AuthenticationToken);
 
 		/* Check to see if RTT is supported.  If it is not, make sure it's turned off in the response */
 		if (supportRTT == RSSL_FALSE)

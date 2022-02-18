@@ -22,16 +22,20 @@ Detailed Description
 450_MP_QueryServiceDiscovery implements the following high-level steps:
 + Passes user credential through command line arguments
 including:
--username machine ID to perform authorization with the token service (mandatory).
--password password to perform authorization with the token service (mandatory).
--clientId client ID to perform authorization with the token service (mandatory).
- You can generate and manage client Ids by using the Eikon App Key Generator.
+-username machine ID to perform authorization with the token service (mandatory for V1 password grant).
+-password password to perform authorization with the token service (mandatory for V1 password grant).
+-clientId client ID to perform authorization with the token service for V1 password grant and the 
+ service account name for the V2 client crededntials grant(mandatory for both V1 password grant and V2 client credentials grant)
+ For a V1 password grant type, you can generate and manage client Ids by using the Eikon App Key Generator.
  This is found by visiting my.Refinitiv.com, launching Eikon, and
  searching for "App Key Generator". Eikon login is required to generate clientID.
+-clientSecret service account password(mandatory for V2 client credentials grant)
 - location location to get an endpoint from RDP service discovery. Default is "us-east-1" 
--takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
+-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional, only for V1 password grant).
 -websocket Use the WebSocket transport protocol (optional).
--tokenURL URL to perform authentication to get access and refresh tokens (optional).
+-tokenURLV V1 URL to perform authentication to get access and refresh tokens (optional).
+-tokenURLV1 V1 URL to perform authentication to get access and refresh tokens (optional).
+-tokenURLV2 V2 URL to perform authentication to get access token (optional).
 -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
 
 Optional RIC item name parameters.
@@ -47,6 +51,8 @@ use of a proxy to get to the Internet.
 
 Example command line: 
 Cons450 -username <machine ID> -password <machine ID password> -clientId <client ID>
+OR
+Cons450 -clientId <service account name> -clientSecret <service account password>
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods

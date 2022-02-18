@@ -81,6 +81,7 @@ private :
 	friend class ConsumerItem;
 	friend class LoginItem;
 	friend class DictionaryItem;
+	friend class OmmBaseImpl;
 
 	UInt64			_handle;
 	UInt64			_parentHandle;

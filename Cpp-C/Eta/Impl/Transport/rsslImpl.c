@@ -22,6 +22,7 @@
 
 #include "rtr/rwfNetwork.h"
 #include "curl/curl.h"
+#include "rtr/ripcssljit.h"
 
 /* for encryption/decryption helpers */
 #include "rtr/tr_sl1_64.h"
@@ -2841,4 +2842,24 @@ RSSL_API RsslRet rsslDumpBuffer(RsslChannel *channel, RsslUInt32 protocolType, R
 
 		return RSSL_RET_FAILURE;
 	}
+}
+
+RSSL_API ripcSSLApiFuncs* rsslGetOpenSSLAPIFuncs(RsslError* error)
+{
+	ripcSSLApiFuncs* tmp;
+	mutexFuncs.staticMutexLock();
+	tmp = ipcGetOpenSSLAPIFuncs(error);
+	mutexFuncs.staticMutexUnlock();
+
+	return tmp;
+}
+
+RSSL_API ripcCryptoApiFuncs* rsslGetOpenSSLCryptoFuncs(RsslError* error)
+{
+	ripcCryptoApiFuncs* tmp;
+	mutexFuncs.staticMutexLock();
+	tmp = ipcGetOpenSSLCryptoFuncs(error);
+	mutexFuncs.staticMutexUnlock();
+
+	return tmp;
 }

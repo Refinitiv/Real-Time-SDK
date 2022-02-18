@@ -94,6 +94,12 @@ The new configuration parameters introduce in version 1.4.0 for reactor to test 
 
 vaconsumer-Ws-001: Alters VAConsumer to test compression, user can pass option -compressionType to either 'ZLib' or 'LZ4'.
 
+vaconsumer-PING-001: Alter VAConsumer to create 1 reactor, 2 connections, both for PING but can identify either same / diff credential.
+
+vaconsumer-PING-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st connection is for STS and 2nd connection is for PING.
+
+vaconsumer-PING-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st, 2nd and 3rd connection are for STS. And 4th, 5th, and 6th connection are for PING.
+
 Module:  Watchlist Consumer 
 ---------------------------
 

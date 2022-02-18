@@ -2261,17 +2261,17 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
 					socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
 
+				if (flags & 0x4000000)
+					socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
+				else if (fileCfgSocket)
+					socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
+
 				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
 				{
 					if (flags & 0x2000000)
 						socketChannelConfig->location = location;
 					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 						socketChannelConfig->location = fileCfgSocket->location;
-
-					if (flags & 0x4000000)
-						socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
-					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
-						socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
 
 					if (flags & 0x10000000)
 						socketChannelConfig->setServiceDiscoveryRetryCount(serviceDiscoveryRetryCount);

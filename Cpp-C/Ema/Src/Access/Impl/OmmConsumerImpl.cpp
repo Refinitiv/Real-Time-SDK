@@ -34,6 +34,20 @@ OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerCli
 	OmmBaseImpl::initialize(config._pImpl);
 }
 
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	OmmBaseImpl(_activeConfig, oAuthClient, adminClosure)
+{
+	_activeConfig.operationModel = config._pImpl->operationModel();
+	OmmBaseImpl::initialize(config._pImpl);
+}
+
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	OmmBaseImpl(_activeConfig, adminClient, oAuthClient, adminClosure)
+{
+	_activeConfig.operationModel = config._pImpl->operationModel();
+	OmmBaseImpl::initialize(config._pImpl);
+}
+
 OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config, OmmConsumerErrorClient& client ) :
 	OmmBaseImpl( _activeConfig, client )
 {
@@ -41,8 +55,22 @@ OmmConsumerImpl::OmmConsumerImpl( const OmmConsumerConfig& config, OmmConsumerEr
 	OmmBaseImpl::initialize( config._pImpl );
 }
 
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& client, void* adminClosure) :
+	OmmBaseImpl(_activeConfig, oAuthClient, client, adminClosure)
+{
+	_activeConfig.operationModel = config._pImpl->operationModel();
+	OmmBaseImpl::initialize(config._pImpl);
+}
+
 OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure ) :
 	OmmBaseImpl(_activeConfig, adminClient, errorClient, adminClosure)
+{
+	_activeConfig.operationModel = config._pImpl->operationModel();
+	OmmBaseImpl::initialize(config._pImpl);
+}
+
+OmmConsumerImpl::OmmConsumerImpl(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	OmmBaseImpl(_activeConfig, adminClient, oAuthClient, errorClient, adminClosure)
 {
 	_activeConfig.operationModel = config._pImpl->operationModel();
 	OmmBaseImpl::initialize(config._pImpl);
@@ -487,6 +515,90 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 			.append("Error Id ").append(rsslError.rsslErrorId).append(CR)
 			.append("Internal sysError ").append(rsslError.sysError).append(CR)
 			.append("Error Text ").append(rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
+}
+void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credentials) {
+	Channel* pChannel;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorOAuthCredentialRenewal credentialRenewal;
+	RsslReactorOAuthCredentialRenewalOptions renewalOpts;
+	RsslRet ret;
+
+	_userLock.lock();
+
+	if ((pChannel = getLoginCallbackClient().getActiveChannel()) == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to renew credentials.");
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	if (pChannel->getInOAuthCallback() == false)
+	{
+		_userLock.unlock();
+		EmaString temp("Cannot call OmmConsumer::renewOAuth2Credentials outside of an OmmOAuth2ConsumerClient callback.");
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
+		return;
+	}
+
+	rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOpts);
+
+	renewalOpts.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+
+	if (!credentials.getUserName().empty())
+	{
+		credentialRenewal.userName.data = (char*)credentials.getUserName().c_str();
+		credentialRenewal.userName.length = credentials.getUserName().length();
+	}
+
+	if (!credentials.getPassword().empty())
+	{
+		credentialRenewal.password.data = (char*)credentials.getPassword().c_str();
+		credentialRenewal.password.length = credentials.getPassword().length();
+	}
+
+	if (!credentials.getNewPassword().empty())
+	{
+		credentialRenewal.newPassword.data = (char*)credentials.getNewPassword().c_str();
+		credentialRenewal.newPassword.length = credentials.getNewPassword().length();
+		renewalOpts.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD_CHANGE;
+	}
+
+	if (!credentials.getClientId().empty())
+	{
+		credentialRenewal.clientId.data = (char*)credentials.getClientId().c_str();
+		credentialRenewal.clientId.length = credentials.getClientId().length();
+	}
+
+	if (!credentials.getClientId().empty())
+	{
+		credentialRenewal.clientSecret.data = (char*)credentials.getClientId().c_str();
+		credentialRenewal.clientSecret.length = credentials.getClientId().length();
+	}
+
+	if (!credentials.getTokenScope().empty())
+	{
+		credentialRenewal.tokenScope.data = (char*)credentials.getTokenScope().c_str();
+		credentialRenewal.tokenScope.length = credentials.getTokenScope().length();
+	}
+
+	credentialRenewal.takeExclusiveSignOnControl = credentials.getTakeExclusiveSignOnControl();
+
+
+	ret = rsslReactorSubmitOAuthCredentialRenewal(pChannel->getRsslReactor(), &renewalOpts, &credentialRenewal, &rsslErrorInfo);
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to renew OAuth credentials.  ");
+		temp.append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 		handleIue(temp, ret);
 		return;
 	}

@@ -60,15 +60,42 @@ class EMA_ACCESS_API ServiceEndpointDiscovery
 public:
 
 	///@name Constructor
+//@{
+/** Create an ServiceEndpointDiscovery with the default settings.
+	\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
+ */
+	ServiceEndpointDiscovery();
+	//@}
+
+	///@name Constructor
 	//@{
 	/** Create an ServiceEndpointDiscovery.
-		@param[in] tokenServiceURL specifies the token service URL to override the default value.
+		@param[in] tokenServiceURLV1 specifies the token service URL V1 to override the default value.
 		@param[in] serviceDiscoveryURL specifies the service discovery URL to override the default value.
 		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
 	 */
-	ServiceEndpointDiscovery(const EmaString& tokenServiceURL = "https://api.refinitiv.com/auth/oauth2/v1/token",
-							 const EmaString& serviceDiscoveryURL = "https://api.refinitiv.com/streaming/pricing/v1/");
+	ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1);
 	//@}
+
+	///@name Constructor
+	//@{
+	/** Create an ServiceEndpointDiscovery.
+		@param[in] tokenServiceURLV1 specifies the token service URL V1 to override the default value.
+		@param[in] serviceDiscoveryURL specifies the service discovery URL to override the default value.
+		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
+	 */
+	ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1, const EmaString& serviceDiscoveryURL);
+	//@}
+
+	///@name Constructor
+	//@{
+	/** Create an ServiceEndpointDiscovery.
+		@param[in] tokenServiceURLV1 specifies the token service URL for V1 to override the default value.
+		@param[in] tokenServiceURLV2 specifies the token service URL for V2 to override the default value.
+		@param[in] serviceDiscoveryURL specifies the service discovery URL to override the default value.
+		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
+	 */
+	ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1, const EmaString& tokenServiceURLV2, const EmaString& serviceDiscoveryURL);
 
 	///@name Destructor
 	//@{

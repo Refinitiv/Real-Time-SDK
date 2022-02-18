@@ -141,6 +141,12 @@ RsslInt32 ripcGetCountInitializeSSLServer();
 
 RsslInt32 ripcGetCountReleaseSSLServer();
 
+ripcSSLApiFuncs* ripcGetOpenSSLApiFuncs();
+
+ripcCryptoApiFuncs* ripcGetOpenSSLCryptoFuncs();
+
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

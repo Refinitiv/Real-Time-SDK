@@ -101,6 +101,18 @@ OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrl(const EmaString& tokenServ
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrlV1(const EmaString& tokenServiceUrl)
+{
+	_pImpl->tokenServiceUrlV1(tokenServiceUrl);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrlV2(const EmaString& tokenServiceUrl)
+{
+	_pImpl->tokenServiceUrlV2(tokenServiceUrl);
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::serviceDiscoveryUrl(const EmaString& serviceDiscoveryUrl)
 {
 	_pImpl->serviceDiscoveryUrl( serviceDiscoveryUrl );

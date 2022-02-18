@@ -83,6 +83,7 @@ public class Consumer
 	static String userName;
 	static String password;
 	static String clientId;
+	static String clientSecret;
 	static String proxyHostName;
 	static String proxyPort = "-1";
 	static String proxyUserName;
@@ -97,25 +98,29 @@ public class Consumer
 
 	public static String itemName = "IBM.N";
 
-	public static String tokenUrl = "https://api.refinitiv.com/auth/oauth2/v1/token";
-	public static String serviceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/";
+	public static String tokenUrlV1 = null;
+	public static String tokenUrlV2 = null;
+	public static String serviceDiscoveryUrl = null;
 
 	static void printHelp()
 	{
 	    System.out.println("\nOptions:\n" + "  -?\tShows this usage\n"
 	    		+ "  -username machine ID to perform authorization with the\r\n" 
-	    		+ "\ttoken service (mandatory).\n"
+	    		+ "\ttoken service (mandatory for V1 password grant).\n"
 	    		+ "  -password password to perform authorization with the token \r\n"
-	    		+ "\tservice (mandatory).\n"
+	    		+ "\tservice (mandatory for V1 password grant).\n"
 	    		+ "  -location location to get an endpoint from RDP service \r\n"
 	    		+ "\tdiscovery. Defaults to \"us-east-1\" (optional).\n"
-	    		+ "  -clientId client ID for application making the request to \r\n"
+	    		+ "  -clientId client ID for application making the request to(mandatory for V1 password grant and V2 client credentials grant) \r\n"
+	    		+ "  -clientSecret service account secret (mandatory for V2 client credentials grant).\n"
 	    		+ "  -websocket Use the WebSocket transport protocol (optional) \r\n"
 	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption.\n"
 	    		+ "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).\r\n"
 	    		+ "  -keypasswd keystore password for encryption.\n"
-				+ "  -tokenURL URL to perform authentication to get access and refresh tokens (optional).\n"
+				+ "  -tokenURL V1 URL to perform authentication to get access and refresh tokens (optional).\n"
+				+ "  -tokenURLV1 V1 URL to perform authentication to get access and refresh tokens (optional).\n"
+				+ "  -tokenURLV2 V2 URL to perform authentication to get access and refresh tokens (optional).\n"
 				+ "  -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).\n"
 	    		+ "\nOptional parameters for establishing a connection and sending requests through a proxy server:\n"
 	    		+ "  -itemName Request item name (optional).\n"
@@ -155,6 +160,11 @@ public class Consumer
 	            else if ("-clientId".equals(args[argsCount]))
     			{
 	            	clientId = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;				
+    			}
+	            else if ("-clientSecret".equals(args[argsCount]))
+    			{
+	            	clientSecret = argsCount < (args.length-1) ? args[++argsCount] : null;
     				++argsCount;				
     			}
 	            else if ("-location".equals(args[argsCount]))
@@ -230,8 +240,24 @@ public class Consumer
 				else if ("-tokenURL".equals(args[argsCount]))
 				{
 					if ( argsCount < (args.length-1) ) {
-						tokenUrl = args[++argsCount];
-						config.tokenServiceUrl( tokenUrl );
+						tokenUrlV1 = args[++argsCount];
+						config.tokenServiceUrlV1( tokenUrlV1 );
+					}
+					++argsCount;
+				}
+				else if ("-tokenURLV1".equals(args[argsCount]))
+				{
+					if ( argsCount < (args.length-1) ) {
+						tokenUrlV1 = args[++argsCount];
+						config.tokenServiceUrlV1( tokenUrlV1 );
+					}
+					++argsCount;
+				}
+				else if ("-tokenURLV2".equals(args[argsCount]))
+				{
+					if ( argsCount < (args.length-1) ) {
+						tokenUrlV2 = args[++argsCount];
+						config.tokenServiceUrlV2( tokenUrlV2 );
 					}
 					++argsCount;
 				}
@@ -252,9 +278,12 @@ public class Consumer
 	        
 	        if ( userName == null || password == null || clientId == null)
 			{
-				System.out.println("Username, password, and clientId must be specified on the command line. Exiting...");
-				printHelp();
-				return false;
+	        	if(clientId == null || clientSecret == null)
+	        	{
+					System.out.println("Username/password/clientId or clientId/clientSecret must be specified on the command line. Exiting...");
+					printHelp();
+					return false;
+	        	}
 			}
         }
         catch (Exception e)
@@ -338,14 +367,26 @@ public class Consumer
 			
 			if (!readCommandlineArgs(args, config)) return;
 
-			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery(tokenUrl, serviceDiscoveryUrl);
-
-			serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().username(userName)
-					.password(password).clientId(clientId)
-					.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
-					.takeExclusiveSignOnControl(takeExclusiveSignOnControl)
-					.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
-					.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery(tokenUrlV1, tokenUrlV2, serviceDiscoveryUrl);
+			
+			/* If username, password, and clientId are present, this is a V1 password grant connection */ 
+			if ( clientSecret == null )
+			{
+				serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().username(userName)
+						.password(password).clientId(clientId)
+						.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+						.takeExclusiveSignOnControl(takeExclusiveSignOnControl)
+						.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
+						.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+			}
+			else
+			{
+				/* V2 client credentials grant */
+				serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().clientId(clientId).clientSecret(clientSecret)
+						.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+						.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
+						.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+			}
 			
 			if ( host == null || port == null )
 			{
@@ -357,16 +398,33 @@ public class Consumer
 			
 			if ( (proxyHostName == null) && (proxyPort == "-1") )
 			{
-				consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
-					.clientId(clientId).takeExclusiveSignOnControl(takeExclusiveSignOnControl).config(configDb));
+				if ( clientSecret == null )
+				{
+					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
+						.clientId(clientId).takeExclusiveSignOnControl(takeExclusiveSignOnControl).config(configDb));
+				}
+				else
+				{
+					consumer = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret).config(configDb));
+				}
 			}
 			else
 			{
-				consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
-					.clientId(clientId).config(configDb).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
-					.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
-					.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
-					.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+				if ( clientSecret == null )
+				{
+					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
+						.clientId(clientId).config(configDb).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
+						.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+						.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
+						.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+				}
+				else
+				{
+					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret)
+							.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+							.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
+							.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+				}
 			}
 					
 			

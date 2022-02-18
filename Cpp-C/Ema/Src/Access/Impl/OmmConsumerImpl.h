@@ -12,6 +12,8 @@
 #include "OmmBaseImpl.h"
 #include "OmmConsumerActiveConfig.h"
 #include "ChannelInformation.h"
+#include "OAuth2CredentialRenewal.h"
+
 namespace refinitiv {
 
 namespace ema {
@@ -22,6 +24,7 @@ class DictionaryCallbackClient;
 class DirectoryCallbackClient;
 class OmmConsumerConfig;
 class OmmConsumerClient;
+class OmmOAuth2ConsumerClient;
 class OmmConsumerErrorClient;
 class ReqMsg;
 class TunnelStreamRequest;
@@ -38,11 +41,19 @@ public:
 
 	OmmConsumerImpl( const OmmConsumerConfig& );
 
+	OmmConsumerImpl(const OmmConsumerConfig&, OmmOAuth2ConsumerClient&, void*);
+
 	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, void*);
+
+	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, OmmOAuth2ConsumerClient&, void*);
 
 	OmmConsumerImpl( const OmmConsumerConfig&, OmmConsumerErrorClient& );
 
+	OmmConsumerImpl(const OmmConsumerConfig&, OmmOAuth2ConsumerClient&, OmmConsumerErrorClient&, void*);
+
 	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, OmmConsumerErrorClient&, void*);
+
+	OmmConsumerImpl(const OmmConsumerConfig&, OmmConsumerClient&, OmmOAuth2ConsumerClient&, OmmConsumerErrorClient&, void*);
 
 	OmmConsumerImpl(const OmmConsumerConfig&, bool unittest); //for internal UnitTest only
 
@@ -79,6 +90,11 @@ public:
 	void getChannelStatistics(ChannelStatistics&);
 
 	void modifyIOCtl(Int32 code, Int32 value);
+
+	void renewOAuth2Credentials(OAuth2CredentialRenewal&);
+	
+	static RsslReactorCallbackRet oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent);
+
 
 private :
 

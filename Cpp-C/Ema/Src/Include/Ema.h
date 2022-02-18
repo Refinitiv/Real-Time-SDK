@@ -94,6 +94,8 @@
 #include "Access/Include/OmmSystemException.h"
 #include "Access/Include/OmmJsonConverterException.h"
 
+#include "Access/Include/OAuth2CredentialRenewal.h"
+
 #include "Access/Include/OmmConsumer.h"
 #include "Access/Include/OmmConsumerClient.h"
 #include "Access/Include/OmmConsumerConfig.h"
@@ -101,6 +103,7 @@
 #include "Access/Include/OmmConsumerEvent.h"
 #include "Access/Include/OmmConsumerRestLoggingEvent.h"
 #include "Access/Include/OmmRestLoggingClient.h"
+#include "Access/Include/OmmOAuth2ConsumerClient.h"
 
 #include "Access/Include/OmmProvider.h"
 #include "Access/Include/OmmProviderClient.h"

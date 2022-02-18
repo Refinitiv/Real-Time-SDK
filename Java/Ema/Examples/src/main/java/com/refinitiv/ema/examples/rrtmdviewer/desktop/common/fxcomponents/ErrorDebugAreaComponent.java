@@ -64,4 +64,8 @@ public class ErrorDebugAreaComponent extends VBox {
         debugAreaStream.clear();
         errorDebugAreaInternal.clear();
     }
+
+    public void clearDebugArea() {
+        errorDebugAreaInternal.clear();
+    }
 }

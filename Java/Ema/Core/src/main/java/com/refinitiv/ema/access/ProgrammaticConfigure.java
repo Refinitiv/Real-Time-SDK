@@ -1531,6 +1531,18 @@ class ProgrammaticConfigure
 				if (fileCfg != null
 						&& (fileCfg.rsslConnectionType == ConnectionTypes.SOCKET || fileCfg.rsslConnectionType == ConnectionTypes.WEBSOCKET))
 					fileCfgSocket = (SocketChannelConfig) (fileCfg);
+				
+				if ((flags & ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG) != 0)
+					socketChannelConfig.enableSessionMgnt = enableSessionMgnt == 0 ? false : true;
+				else if (fileCfgSocket != null) {
+					socketChannelConfig.enableSessionMgnt = fileCfgSocket.enableSessionMgnt;
+				}
+
+				if ((flags & ChannelEntryFlag.LOCATION_FLAG) != 0)
+					socketChannelConfig.location = location;
+				else if (fileCfgSocket != null) {
+					socketChannelConfig.location = fileCfgSocket.location;
+				}
 
 				if ((flags & ChannelEntryFlag.TCP_NODELAY_FLAG) != 0)
 					socketChannelConfig.tcpNodelay = (tcpNodelay == 0 ? false : ActiveConfig.DEFAULT_TCP_NODELAY);

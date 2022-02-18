@@ -25,7 +25,7 @@ class RestAuthOptions {
     public static final int HAS_NEW_PASSWORD = 0x0080;
     
     public static final int HAS_CLIENT_SECRET = 0x0100;
-
+    
     private int _flags;
     private String _username;
     private String _password;
@@ -130,7 +130,7 @@ class RestAuthOptions {
 	{
 		return _newPassword;
 	}
-
+	
 	public RestAuthOptions grantType(String grantType) {
 		_grantType = grantType;
 		_flags |= RestAuthOptions.HAS_GRANT_TYPE;
@@ -234,7 +234,7 @@ class RestAuthOptions {
 	{
 		return (_flags & RestAuthOptions.HAS_NEW_PASSWORD) != 0;
 	}
-
+	
 	public boolean hasGrantType()
 	{
 		return (_flags & RestAuthOptions.HAS_GRANT_TYPE) != 0;
@@ -264,6 +264,7 @@ class RestAuthOptions {
 	{
 		return (_flags & RestAuthOptions.HAS_HEADER_ATTRIB) != 0;
 	}
+	
     
     public String toString()
 	{

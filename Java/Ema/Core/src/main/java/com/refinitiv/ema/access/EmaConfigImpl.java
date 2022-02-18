@@ -130,7 +130,8 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	private EncryptionConfig _encyptionCfg;
     
     private Buffer								_clientId = CodecFactory.createBuffer();
-    private Buffer								_tokenServiceUrl = CodecFactory.createBuffer();
+    private Buffer								_tokenServiceUrlV1 = CodecFactory.createBuffer();
+    private Buffer								_tokenServiceUrlV2 = CodecFactory.createBuffer();
     private Buffer								_serviceDiscoveryUrl = CodecFactory.createBuffer();
     private boolean								_takeExclusiveSignOnControl = true;
     private Buffer								_clientSecret = CodecFactory.createBuffer();
@@ -252,7 +253,17 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	protected void tokenServiceUrlInt(String tokenServiceUrl)
 	{
-		_tokenServiceUrl.data(tokenServiceUrl);
+		_tokenServiceUrlV1.data(tokenServiceUrl);
+	}
+	
+	protected void tokenServiceUrlV1Int(String tokenServiceUrl)
+	{
+		_tokenServiceUrlV1.data(tokenServiceUrl);
+	}
+	
+	protected void tokenServiceUrlV2Int(String tokenServiceUrl)
+	{
+		_tokenServiceUrlV2.data(tokenServiceUrl);
 	}
 	
 	protected void serviceDiscoveryUrlInt(String serviceDiscoveryUrl)
@@ -883,7 +894,17 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	Buffer tokenServiceUrl()
 	{
-		return _tokenServiceUrl;
+		return _tokenServiceUrlV1;
+	}
+	
+	Buffer tokenServiceUrlV1()
+	{
+		return _tokenServiceUrlV1;
+	}
+	
+	Buffer tokenServiceUrlV2()
+	{
+		return _tokenServiceUrlV2;
 	}
 	
 	Buffer serviceDiscoveryUrl()

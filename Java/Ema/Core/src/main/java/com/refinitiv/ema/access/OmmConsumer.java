@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019-2021 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -292,5 +292,17 @@ public interface OmmConsumer
 	 * @throws OmmInvalidUsageException if failed to modify I/O option to
 	 */
 	public void modifyIOCtl(int code, int value);
+	
+	
+	/** Provide updated OAuth2 credentials when the callback OmmOAuth2ConsumerClient::onCredentialRenewal is called.
+	 *  This method allows the application to use a secure credential storage when using RDP functionality such as 
+	 *  the RDP token service or RDP service discovery.
+	 *	This function can only be called within the onCredentialRenewal callback.  It will throw an 
+	 *  OmmInvalidUsageException if not called in the callback
+	 *	@param credentials OAuth2CredentialRenewal object that contains the credentials.
+	 *
+	 *	@throw OmmInvalidUsageException if the credential update fails or if this method is called outside of an onCredentialRenewal callback.
+	 */
+	public void renewOAuthCredentials(OAuth2CredentialRenewal credentials);
 }
 

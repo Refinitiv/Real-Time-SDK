@@ -305,7 +305,8 @@ RsslRet decodeLoginRequest(RsslLoginRequestInfo* loginReqInfo, RsslMsg* msg, Rss
 			if (ret == RSSL_RET_SUCCESS)
 			{
 				/* get login request information */
-				/* Authentication Token */
+				/* Authentication Token.  For the Authentication token, the application should take additional steps to verify the token(the token introspection step in oauth2, for example)
+				 * In this case, we are just accepting the login. */
 				if (rsslBufferIsEqual(&element.name, &RSSL_ENAME_AUTHN_TOKEN))
 				{
 					if (element.encData.length < AUTH_TOKEN_LENGTH)

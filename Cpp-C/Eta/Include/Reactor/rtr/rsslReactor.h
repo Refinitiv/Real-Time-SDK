@@ -164,14 +164,14 @@ typedef struct
  */
 typedef struct
 {
-	RsslBuffer									userName;						/*!< The user name required to authorize with the RDP token service. Mandatory */
-	RsslBuffer									password;						/*!< The password for user name used to get access token. Mandatory */
-	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Mandatory */
-	RsslBuffer									clientSecret;					/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
+	RsslBuffer									userName;						/*!< The user name required to authorize with the RDP token service. Optional */
+	RsslBuffer									password;						/*!< The password for user name used to get access token. Mandatory only if userName is present */
+	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Optional, used as Application Id for V1 logins, the clientId for V2 logins. */
+	RsslBuffer									clientSecret;					/*!< A secret used by OAuth client to authenticate to the Authorization Server. Mandatory for V2 logins with a client secret login. */
 	RsslBuffer									tokenScope;						/*!< A user can optionally limit the scope of generated token. Optional*/
 	RsslReactorOAuthCredentialEventCallback		*pOAuthCredentialEventCallback; /*!< Callback function that receives RsslReactorOAuthCredentialEvent to specify sensitive information. Optional
 																				 *   The Reactor will not copy password and client secret if the function pointer is specified.*/
-	RsslBool									takeExclusiveSignOnControl;		/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
+	RsslBool									takeExclusiveSignOnControl;		/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional and only used for V1 logins */
 } RsslReactorOAuthCredential;
 
 /**
@@ -304,7 +304,7 @@ typedef struct {
     void		*userSpecPtr; 					/*!< user-specified pointer which will be set on the Reactor. */
 	RsslBuffer	serviceDiscoveryURL;			/*!< Specifies a URL for the RDP service discovery. The service discovery is used when the connection arguments is not specified
 												 * in the RsslReactorConnectInfo.rsslConnectOptions */
-	RsslBuffer	tokenServiceURL;				/*!< Specifies a URL of the token service to get an access token and a refresh token. This is used for querying RDP service
+	RsslBuffer	tokenServiceURL;				/*!< @deprecated: Specifies a URL of the token service to get an access token and a refresh token. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
 	RsslDouble	tokenReissueRatio;				/*!< Specifies a ratio to multiply with access token validity time(seconds) for retrieving and reissuing the access token. 
 												 * The valid range is between 0.05 to 0.95. */
@@ -315,6 +315,10 @@ typedef struct {
 	RsslBool	restEnableLog;					/*!< Enable REST interaction debug messages> */
 	FILE		*restLogOutputStream;			/*!< Set output stream for REST debug message (by default is stdout)> */
 	RsslReactorRestLoggingCallback* pRestLoggingCallback;	/*!< Specifies user callback to receive Rest logging messages.> */
+	RsslBuffer	tokenServiceURL_V1;				/*!< Specifies a URL of the token service to get an access token and a refresh token for the Refinitiv Login V1. This is used for querying RDP service
+												 * discovery and subscribing data from RDP. */
+	RsslBuffer	tokenServiceURL_V2;				/*!< Specifies a URL of the token service to get an access token from the Refinitiv Login V2. This is used for querying RDP service
+												 * discovery and subscribing data from RDP. */
 } RsslCreateReactorOptions;
 
 /**
@@ -329,8 +333,6 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->port = 55000;
 	pReactorOpts->serviceDiscoveryURL.data = (char *)"https://api.refinitiv.com/streaming/pricing/v1/";
 	pReactorOpts->serviceDiscoveryURL.length = 47;
-	pReactorOpts->tokenServiceURL.data = (char *)"https://api.refinitiv.com/auth/oauth2/v1/token";
-	pReactorOpts->tokenServiceURL.length = 46;
 	pReactorOpts->tokenReissueRatio = 0.8;
 	pReactorOpts->reissueTokenAttemptLimit = -1;
 	pReactorOpts->reissueTokenAttemptInterval = 5000;
@@ -388,11 +390,11 @@ typedef enum
  */
 typedef struct
 {
-	RsslBuffer                              userName; /* !< Specifies a user name for authorization with the token service. Mandatory */
-	RsslBuffer                              password; /* !< Specifies a password for authorization with the token service. Mandatory */
-	RsslBuffer                              clientId; /* !< Specifies an unique ID defined for an application making a request to the token service. Mandatory */
-	RsslBuffer                              clientSecret; /* !< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
-	RsslBuffer								tokenScope; /* !< A user can optionally limit the scope of generated token. Optional */
+	RsslBuffer								userName;		/*!< The user name required to authorize with the RDP token service. Optional */
+	RsslBuffer								password;		/*!< The password for user name used to get access token. Mandatory only if userName is present */
+	RsslBuffer								clientId;		/*!< A unique ID defined for an application marking the request. Optional, used as Application Id for V1 logins, the clientId for V2 logins. */
+	RsslBuffer								clientSecret;	/*!< A secret used by OAuth client to authenticate to the Authorization Server. Mandatory for V2 logins with a client secret login. */
+	RsslBuffer								tokenScope;		/* !< A user can optionally limit the scope of generated token. Optional */
 	RsslBool								takeExclusiveSignOnControl; /*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
 	RsslReactorDiscoveryTransportProtocol   transport;  /*!< This is an optional parameter to specify the desired transport protocol to get
 														 * service endpoints from the service discovery. */
@@ -913,8 +915,11 @@ RSSL_VA_API RsslRet rsslReactorRejectTunnelStream(RsslTunnelStreamRequestEvent *
 typedef enum
 {
 	RSSL_ROC_RT_INIT = 0x00,
-	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD = 1,
-	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD_CHANGE = 2
+	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD = 1,			/*!< Indicates that there is either a password(V1) or clientSecret(V2) in this renewal call.  
+														 *	 Use this for all V2 credential types, even if there is a change in clientSecret. */
+	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD_CHANGE = 2	/*!< OAuth credential V1 only: Indicates that the password has changed. 
+														 *   The associated RsslReactorOAuthCredentialRenewalOptions.newPassword and RsslReactorOAuthCredentialRenewalOptions.password need to 
+														 *	 be populated. */
 } RsslReactorOAuthCredentialRenewalMode;
 
 /**

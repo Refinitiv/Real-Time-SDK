@@ -560,7 +560,7 @@ TEST_F(ReactorSessionMgntTest, NoUserNameForEnablingSessionMgnt)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credential for enabling the session management; OAuth user name does not exist.");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credentials for enabling the session management.");
 }
 
 TEST_F(ReactorSessionMgntTest, NoClientIdForEnablingSessionMgnt)
@@ -585,7 +585,7 @@ TEST_F(ReactorSessionMgntTest, NoClientIdForEnablingSessionMgnt)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credential for enabling the session management; OAuth Client ID does not exist.");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credentials for enabling the session management.");
 }
 
 RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslReactorOAuthCredentialEvent* pOAuthCredentialEvent)
@@ -870,7 +870,7 @@ TEST_F(ReactorSessionMgntTest, NoPasswordForEnablingSessionMgnt)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credential for enabling the session management; OAuth Password does not exist.");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credentials for enabling the session management.");
 }
 
 TEST_F(ReactorSessionMgntTest, UsingOmmNiProviderRoleForSessionMgnt)

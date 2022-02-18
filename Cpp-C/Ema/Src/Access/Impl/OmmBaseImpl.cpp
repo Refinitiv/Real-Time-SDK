@@ -12,6 +12,7 @@
 #include "DirectoryCallbackClient.h"
 #include "OmmConsumerClient.h"
 #include "OmmProviderClient.h"
+#include "OmmOAuth2ConsumerClient.h"
 
 #include "OmmInaccessibleLogFileException.h"
 #include "OmmInvalidHandleException.h"
@@ -45,8 +46,15 @@ class DummyProvClient : public refinitiv::ema::access::OmmProviderClient
 {
 };
 
+/* Dummy no-op OAuth2 Consumer class client for initializing handlers */
+/* This should never be used */
+class DummyOAuth2ConsClient : public refinitiv::ema::access::OmmOAuth2ConsumerClient
+{
+};
+
 static DummyConsClient defaultConsClient;
 static DummyProvClient defaultProvClient;
+static DummyOAuth2ConsClient defaultOAuthConsClient;
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_activeConfig(activeConfig),
@@ -57,6 +65,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_state(NotInitializedEnum),
 	_pRsslReactor(0), 
 	_consAdminClient(defaultConsClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_provAdminClient(defaultProvClient),
 	_pChannelCallbackClient(0),
 	_pLoginCallbackClient(0),
@@ -73,6 +82,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_bEventReceived( false ),
 	_hasProvAdminClient( false ),
 	_hasConsAdminClient( false ),
+	_hasConsOAuthClient( false ),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -91,6 +101,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_state(NotInitializedEnum),
 	_consAdminClient(adminClient),
 	_provAdminClient(defaultProvClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_pRsslReactor(0),
 	_pChannelCallbackClient(0),
 	_pLoginCallbackClient(0),
@@ -107,6 +118,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_bEventReceived(false),
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
+	_hasConsOAuthClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -114,6 +126,78 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 {
 	_adminClosure = adminClosure;
 	
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_dispatchLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(adminClient),
+	_provAdminClient(defaultProvClient),
+	_consOAuthClient(oAuthClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(true),
+	_hasProvAdminClient(false),
+	_hasConsOAuthClient(true),
+	_pErrorClientHandler(0),
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
+{
+	_adminClosure = adminClosure;
+
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_dispatchLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(defaultProvClient),
+	_consOAuthClient(oAuthClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(false),
+	_hasProvAdminClient(false),
+	_hasConsOAuthClient(true),
+	_pErrorClientHandler(0),
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
+{
+	_adminClosure = adminClosure;
+
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
@@ -126,6 +210,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_state(NotInitializedEnum),
 	_consAdminClient(defaultConsClient),
 	_provAdminClient(adminClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_pRsslReactor(0),
 	_pChannelCallbackClient(0),
 	_pLoginCallbackClient(0),
@@ -142,6 +227,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_bEventReceived(false),
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(true),
+	_hasConsOAuthClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -162,6 +248,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_state( NotInitializedEnum ),
 	_consAdminClient(defaultConsClient),
 	_provAdminClient(defaultProvClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_pRsslReactor( 0 ),
 	_pChannelCallbackClient( 0 ),
 	_pLoginCallbackClient( 0 ),
@@ -178,6 +265,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_bEventReceived( false ),
 	_hasConsAdminClient( false ),
 	_hasProvAdminClient( false ),
+	_hasConsOAuthClient(false),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -196,6 +284,50 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 }
 
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& client, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_dispatchLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(defaultConsClient),
+	_provAdminClient(defaultProvClient),
+	_consOAuthClient(oAuthClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(false),
+	_hasProvAdminClient(false),
+	_hasConsOAuthClient(true),
+	_pErrorClientHandler(0),
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
+{
+	_adminClosure = adminClosure;
+	try
+	{
+		_pErrorClientHandler = new ErrorClientHandler(client);
+	}
+	catch (std::bad_alloc&)
+	{
+		client.onMemoryExhaustion("Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )");
+	}
+
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
 	_activeConfig(activeConfig),
 	_userLock(),
@@ -205,6 +337,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_state(NotInitializedEnum),
 	_consAdminClient(adminClient),
 	_provAdminClient(defaultProvClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_pRsslReactor(0),
 	_pChannelCallbackClient(0),
 	_pLoginCallbackClient(0),
@@ -221,6 +354,51 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_bEventReceived(false),
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
+	_hasConsOAuthClient(false),
+	_pErrorClientHandler(0),
+	_theTimeOuts(),
+	_bApiDispatchThreadStarted(false),
+	_bUninitializeInvoked(false)
+{
+	_adminClosure = adminClosure;
+	try
+	{
+		_pErrorClientHandler = new ErrorClientHandler(errorClient);
+	}
+	catch (std::bad_alloc&)
+	{
+		errorClient.onMemoryExhaustion("Failed to allocate memory in OmmBaseImpl( ActiveConfig& , OmmConsumerErrorClient& )");
+	}
+
+	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
+}
+
+OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	_activeConfig(activeConfig),
+	_userLock(),
+	_dispatchLock(),
+	_pipeLock(),
+	_reactorDispatchErrorInfo(),
+	_state(NotInitializedEnum),
+	_consAdminClient(adminClient),
+	_provAdminClient(defaultProvClient),
+	_consOAuthClient(oAuthClient),
+	_pRsslReactor(0),
+	_pChannelCallbackClient(0),
+	_pLoginCallbackClient(0),
+	_pDirectoryCallbackClient(0),
+	_pDictionaryCallbackClient(0),
+	_pItemCallbackClient(0),
+	_pLoggerClient(0),
+	_pipe(),
+	_pipeWriteCount(0),
+	_atExit(false),
+	_eventTimedOut(false),
+	_bMsgDispatched(false),
+	_bEventReceived(false),
+	_hasConsAdminClient(true),
+	_hasProvAdminClient(false),
+	_hasConsOAuthClient(true),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -248,6 +426,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_state( NotInitializedEnum ),
 	_consAdminClient(defaultConsClient),
 	_provAdminClient(defaultProvClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_pRsslReactor( 0 ),
 	_pChannelCallbackClient( 0 ),
 	_pLoginCallbackClient( 0 ),
@@ -262,6 +441,9 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_eventTimedOut( false ),
 	_bMsgDispatched( false ),
 	_bEventReceived( false ),
+	_hasConsAdminClient(false),
+	_hasProvAdminClient(false),
+	_hasConsOAuthClient(false),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -289,6 +471,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_state(NotInitializedEnum),
 	_consAdminClient(defaultConsClient),
 	_provAdminClient(adminClient),
+	_consOAuthClient(defaultOAuthConsClient),
 	_pRsslReactor(0),
 	_pChannelCallbackClient(0),
 	_pLoginCallbackClient(0),
@@ -305,6 +488,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_bEventReceived(false),
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(true),
+	_hasConsOAuthClient(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
@@ -1048,12 +1232,6 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 		if (!pConfigImpl->get< EmaString >(channelNodeName + "Location", socketChannelCfg->location))
 			socketChannelCfg->location = DEFAULT_RDP_RT_LOCATION;
 
-		pConfigImpl->get<UInt64>(channelNodeName + "EnableSessionManagement", tempUInt);
-		if (!tempUInt)
-			socketChannelCfg->enableSessionMgnt = RSSL_FALSE;
-		else
-			socketChannelCfg->enableSessionMgnt = RSSL_TRUE;
-
 		if (pConfigImpl->get<UInt64>(channelNodeName + "ServiceDiscoveryRetryCount", tempUInt))
 		{
 			socketChannelCfg->setServiceDiscoveryRetryCount(tempUInt);
@@ -1079,6 +1257,13 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 				return 0;
 			}
 		}
+
+		UInt64 tempUInt = 0;
+		pConfigImpl->get<UInt64>(channelNodeName + "EnableSessionManagement", tempUInt);
+		if (!tempUInt)
+			socketChannelCfg->enableSessionMgnt = RSSL_FALSE;
+		else
+			socketChannelCfg->enableSessionMgnt = RSSL_TRUE;
 
 		EmaString  tmp = pConfigImpl->getUserSpecifiedHostname();
 		if (tmp.length())
@@ -1550,10 +1735,16 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		// Overrides the default token service URL if specified by user
-		if ( configImpl->getUserSpecifiedTokenServiceUrl().length() > 0 )
+		if ( configImpl->getUserSpecifiedTokenServiceUrlV1().length() > 0 )
 		{
-			reactorOpts.tokenServiceURL.length = configImpl->getUserSpecifiedTokenServiceUrl().length();
-			reactorOpts.tokenServiceURL.data = (char*)configImpl->getUserSpecifiedTokenServiceUrl().c_str();
+			reactorOpts.tokenServiceURL_V1.length = configImpl->getUserSpecifiedTokenServiceUrlV1().length();
+			reactorOpts.tokenServiceURL_V1.data = (char*)configImpl->getUserSpecifiedTokenServiceUrlV1().c_str();
+		}
+		// Overrides the default token service URL if specified by user
+		if (configImpl->getUserSpecifiedTokenServiceUrlV2().length() > 0)
+		{
+			reactorOpts.tokenServiceURL_V2.length = configImpl->getUserSpecifiedTokenServiceUrlV2().length();
+			reactorOpts.tokenServiceURL_V2.data = (char*)configImpl->getUserSpecifiedTokenServiceUrlV2().c_str();
 		}
 
 		if( _activeConfig.tokenReissueRatio != DEFAULT_TOKEN_REISSUE_RATIO )
@@ -2515,6 +2706,28 @@ RsslReactorCallbackRet OmmBaseImpl::channelOpenCallback( RsslReactor* pRsslReact
 {
 	static_cast<OmmBaseImpl*>( pRsslReactor->userSpecPtr )->eventReceived();
 	return static_cast<OmmBaseImpl*>( pRsslReactor->userSpecPtr )->getChannelCallbackClient().processCallback( pRsslReactor, pRsslReactorChannel, pEvent );
+}
+
+RsslReactorCallbackRet OmmBaseImpl::oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent)
+{
+	Channel* pChannel;
+	OmmBaseImpl* pBaseImpl = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr);
+	OmmConsumerEvent event;
+
+	pChannel = pBaseImpl->getLoginCallbackClient().getActiveChannel();
+
+	pChannel->setInOAuthCallback(true);
+
+	/* Handle and parent handle are set to 0 here, as there isn't any associated item handle */
+	event._channel = pChannel->getRsslChannel();
+	event._closure = pBaseImpl->_adminClosure;
+
+	/* Call back the user with the event */
+	pBaseImpl->_consOAuthClient.onCredentialRenewal(event);
+
+	pChannel->setInOAuthCallback(false);
+
+	return RSSL_RC_CRET_SUCCESS;
 }
 
 RsslReactorCallbackRet OmmBaseImpl::jsonConversionEventCallback(RsslReactor *pRsslReactor, RsslReactorChannel *pRsslReactorChannel, RsslReactorJsonConversionEvent *pEvent)

@@ -7,43 +7,27 @@ import com.refinitiv.eta.codec.CodecFactory;
 
 public class ReactorServiceDiscoveryOptions
 {
-	private Buffer _username; 
-	private Buffer _password; 
-	private Buffer _clientId;
-	private Buffer _clientSecret;
-	private Buffer _tokenScope;
-	private int    _transport;
-	private int    _dataFormat;
-	private ReactorServiceEndpointEventCallback _reactorServiceEndpointEventCallback; 
-	private Object _userSpecObject;
-	private Buffer _proxyHostName;
-	private Buffer    _proxyPort;
-	private Buffer _proxyUserName;
-	private Buffer _proxyPassword;
-	private Buffer _proxyDomain; // Needed for NTLM and Kerberos authentication protocols
-	private Buffer _proxyLocalHostName;
-	private Buffer _proxyKrb5ConfigFile;
-	private boolean	_takeExclusiveSignOnControl;
+	private Buffer _username = CodecFactory.createBuffer(); 
+	private Buffer _password = CodecFactory.createBuffer(); 
+	private Buffer _clientId = CodecFactory.createBuffer();
+	private Buffer _clientSecret = CodecFactory.createBuffer();
+	private Buffer _tokenScope = CodecFactory.createBuffer();
+	private int    _transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
+	private int    _dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
+	private ReactorServiceEndpointEventCallback _reactorServiceEndpointEventCallback = null; 
+	private Object _userSpecObject = null;
+	private Buffer _proxyHostName = CodecFactory.createBuffer();
+	private Buffer    _proxyPort = CodecFactory.createBuffer();
+	private Buffer _proxyUserName = CodecFactory.createBuffer();
+	private Buffer _proxyPassword = CodecFactory.createBuffer();
+	private Buffer _proxyDomain = CodecFactory.createBuffer(); // Needed for NTLM and Kerberos authentication protocols
+	private Buffer _proxyLocalHostName = CodecFactory.createBuffer();
+	private Buffer _proxyKrb5ConfigFile = CodecFactory.createBuffer();
+	private boolean	_takeExclusiveSignOnControl = true;
 	
 	ReactorServiceDiscoveryOptions ()
 	{
-		_username = CodecFactory.createBuffer();
-		_password = CodecFactory.createBuffer();
-		_clientId = CodecFactory.createBuffer();
-		_clientSecret = CodecFactory.createBuffer();
-		_tokenScope = CodecFactory.createBuffer();
-		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
-		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
-		_reactorServiceEndpointEventCallback = null;		
-		_userSpecObject = null;
-		_proxyHostName = CodecFactory.createBuffer();
-		_proxyPort = CodecFactory.createBuffer();
-		_proxyUserName = CodecFactory.createBuffer();
-		_proxyPassword = CodecFactory.createBuffer();
-		_proxyDomain = CodecFactory.createBuffer();
-		_proxyLocalHostName = CodecFactory.createBuffer();
-		_proxyKrb5ConfigFile = CodecFactory.createBuffer();
-		_takeExclusiveSignOnControl = true;
+		clear();
 	}
 	
 	public void clear()
@@ -52,7 +36,7 @@ public class ReactorServiceDiscoveryOptions
 		_password.clear();
 		_clientId.clear();
 		_clientSecret.clear();
-		_tokenScope.clear();
+		_tokenScope.data("trapi.streaming.pricing.read");
 		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
 		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
 		_reactorServiceEndpointEventCallback = null;		

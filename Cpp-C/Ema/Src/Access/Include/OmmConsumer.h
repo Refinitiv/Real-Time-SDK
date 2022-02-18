@@ -117,6 +117,7 @@
 #include "Access/Include/ChannelInformation.h"
 #include "Access/Include/ChannelStatistics.h"
 #include "Access/Include/IOCtlReactorCode.h"
+#include "Access/Include/OAuth2CredentialRenewal.h"
 
 namespace refinitiv {
 
@@ -127,6 +128,7 @@ namespace access {
 class EmaString;
 class OmmConsumerConfig;
 class OmmConsumerClient;
+class OmmOAuth2ConsumerClient;
 class OmmConsumerErrorClient;
 class ReqMsg;
 class PostMsg;
@@ -173,6 +175,24 @@ public :
 	OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& client, void* closure = 0 );
 
 	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
+	select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
+	that includes subscribing, posting and distributing generic messages.
+	This constructor will also register for any oAuth credentials requests, allowing the application to use a secure credentials storage and an optional closure.
+	\remark Enables OmmConsumerErrorClient's callbacks as means of error reporting.
+	\remark This affects exceptions thrown from OmmConsumer methods
+	*/
+	OmmConsumer(const OmmConsumerConfig& config, OmmOAuth2ConsumerClient& oAuthClient, void* closure = 0);
+
+	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
+	select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
+	that includes subscribing, posting and distributing generic messages.
+	This constructor will also register for any oAuth credentials requests, allowing the application to use a secure credentials storage and an optional closure.
+	\remark Enables OmmConsumerErrorClient's callbacks as means of error reporting.
+	\remark This affects OmmConsumer methods that would throw exceptions otherwise.
+	*/
+	OmmConsumer(const OmmConsumerConfig& config, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* closure = 0);
+
+	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
 		select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
 		that includes subscribing, posting and distributing generic messages.
 		\remark Enables OmmConsumerErrorClient's callbacks as means of error reporting.
@@ -184,10 +204,29 @@ public :
 	select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
 	that includes subscribing, posting and distributing generic messages.
 	This constructor will also register for all login events via the provided OmmConsumerClient and optional closure.
+	\remark Enables exception throwing as means of error reporting.
+	\remark This affects exceptions thrown from OmmConsumer methods
+	*/
+	OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, void* closure = 0);
+
+	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
+	select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
+	that includes subscribing, posting and distributing generic messages.
+	This constructor will also register for all login events via the provided OmmConsumerClient and optional closure.
 	\remark Enables OmmConsumerErrorClient's callbacks as means of error reporting.
 	\remark This affects OmmConsumer methods that would throw exceptions otherwise.
 	*/
 	OmmConsumer( const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* closure = 0 );
+
+	/** Create an OmmConsumer with OmmConsumerConfig with an OmmConsumerErrorClient that provides
+	select global errors via callbacks opposed to exception.The OmmConsumer enables functionality
+	that includes subscribing, posting and distributing generic messages.
+	This constructor will also register for all login events via the provided OmmConsumerClient and optional closure.
+	This constructor will also register for any oAuth credentials requests, allowing the application to use a secure credentials storage.
+	\remark Enables OmmConsumerErrorClient's callbacks as means of error reporting.
+	\remark This affects OmmConsumer methods that would throw exceptions otherwise.
+	*/
+	OmmConsumer(const OmmConsumerConfig& config, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* closure = 0);
 	//@}
 
 	///@name Destructor
@@ -316,6 +355,18 @@ public :
 		\remark This method is \ref ObjectLevelSafe
 	*/
 	void modifyReactorIOCtl(Int32 code, Int32 value);
+
+
+	/** Provide updated OAuth2 credentials when the callback OmmOAuth2ConsumerClient::onCredentialRenewal is called.
+		This function allows the application to use a secure credential storage when using RDP functionality such as the RDP token service
+		or RDP service discovery.
+		@note This function can only be called within the onCredentialRenewal callback.  It will throw an OmmInvalidUsageException if not called 
+		in the callback
+		@param[in] OAuth2CredentialRenewal object that contains the credentials.
+		@return void
+		@throw OmmInvalidUsageException if the credential update fails.
+	*/
+	void renewOAuth2Credentials(OAuth2CredentialRenewal&);
 	//@}
 
 private :

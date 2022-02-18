@@ -294,6 +294,22 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		{
 			reactorOptions.enableXmlTracing();
 		}
+		
+		// Set the Token Generator URL locations, if specified
+		if (watchlistConsumerConfig.tokenUrlV1() != null && !watchlistConsumerConfig.tokenUrlV1().isEmpty())
+		{
+			reactorOptions.tokenServiceURL_V1().data(watchlistConsumerConfig.tokenUrlV1());
+		}
+		
+		if (watchlistConsumerConfig.tokenUrlV2() != null && !watchlistConsumerConfig.tokenUrlV2().isEmpty())
+		{
+			reactorOptions.tokenServiceURL_V2().data(watchlistConsumerConfig.tokenUrlV2());
+		}
+		
+		if (watchlistConsumerConfig.serviceDiscoveryURL() != null && !watchlistConsumerConfig.serviceDiscoveryURL().isEmpty())
+		{
+			reactorOptions.serviceDiscoveryURL().data(watchlistConsumerConfig.serviceDiscoveryURL());
+		}
 
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
@@ -1518,9 +1534,17 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
 		{
 			reactorOAuthCredential.clientId().data(watchlistConsumerConfig.clientId());
+			reactorOAuthCredential.clientSecret().data(watchlistConsumerConfig.clientSecret());
 			reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 			reactorServiceDiscoveryOptions.clientId().data(watchlistConsumerConfig.clientId());
+		}
+		
+		if (watchlistConsumerConfig.tokenScope() != null && !watchlistConsumerConfig.tokenScope().isEmpty())
+		{
+			reactorOAuthCredential.tokenScope().data(watchlistConsumerConfig.tokenScope());
+			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
+			reactorServiceDiscoveryOptions.tokenScope().data(watchlistConsumerConfig.tokenScope());
 		}
 
 		if (watchlistConsumerConfig.proxyHostname() != null && !watchlistConsumerConfig.proxyHostname().isEmpty())

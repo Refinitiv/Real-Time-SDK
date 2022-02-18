@@ -63,7 +63,8 @@ Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor, ReactorChann
 	_directoryList(),
 	_toStringSet( false ),
 	_reactorChannelType( reactorChannelType ),
-	_pParentChannel( NULL )
+	_pParentChannel( NULL ),
+	_inOAuthCallback( false )
 {
 	_pRsslSocketList = new EmaVector< RsslSocket >(EMA_INIT_NUMBER_OF_SOCKET);
 }
@@ -176,6 +177,17 @@ void Channel::setParentChannel(Channel* channel)
 Channel* Channel::getParentChannel() const
 {
 	return _pParentChannel;
+}
+
+Channel& Channel::setInOAuthCallback(bool inCallback)
+{
+	_inOAuthCallback = inCallback;
+	return *this;
+}
+
+bool Channel::getInOAuthCallback()
+{
+	return _inOAuthCallback;
 }
 
 const EmaString& Channel::toString() const
@@ -458,7 +470,8 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 		cfgParameters.append( "hostName " ).append( pTempChannelCfg->hostName ).append( CR )
 		.append( "port " ).append( pTempChannelCfg->serviceName ).append( CR )
 		.append( "CompressionType " ).append( compType ).append( CR )
-		.append( "tcpNodelay " ).append( ( pTempChannelCfg->tcpNodelay ? "true" : "false" ) ).append( CR );
+		.append( "tcpNodelay " ).append( ( pTempChannelCfg->tcpNodelay ? "true" : "false" ) ).append( CR )
+		.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR);
 		break;
 	}
 	case RSSL_CONN_TYPE_HTTP:
@@ -472,7 +485,8 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("tcpNodelay ").append((pTempChannelCfg->tcpNodelay ? "true" : "false")).append(CR)
 			.append("ObjectName ").append(pTempChannelCfg->objectName).append(CR)
 			.append("ProxyHost ").append(pTempChannelCfg->proxyHostName).append(CR)
-			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR);
+			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR)
+			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR);
 
 		if (pChannelCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
@@ -769,6 +783,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		if(pChannel)
 		{
 			_channelList.addChannel(pChannel);
+
 			supportedConnectionTypeChannelCount++;
 			channelNames += pChannel->getName();
 

@@ -100,6 +100,11 @@ public :
 	*/
 	EmaString& clear();
 
+	/** Clears the contained string, zeroing out all allocated memory.
+	@return reference to this object
+	*/
+	EmaString& secureClear();
+
 	/** Set method. This method copies "length" number of characters from the "str" pointer.
 		\remark Preallocates empty memory of passed in length if used as follows EmaString::set( 0, 1000 );
 		@throw OmmMemoryExhaustionException if app runs out of memory

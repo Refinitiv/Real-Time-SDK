@@ -31,11 +31,14 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 void printHelp()
 {
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
-		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
-		<< " -password password to perform authorization with the token service (mandatory)." << endl
+		<< " -username machine ID to perform authorization with the token service (mandatory for V1 oAuth password credentials)." << endl
+		<< " -password password to perform authorization with the token service (mandatory for V1 oAuth password credentials)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
-		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
-		<< " -tokenURL URL to perform authentication to get access and refresh tokens (optional)." << endl
+		<< " -clientSecret client secret to perform authorization with the token service (mandatory for V2 oAuth client credentials)." << endl
+		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional, only for V1 oAuth password credential)." << endl
+		<< " -tokenURL URL to perform authentication to get access and refresh tokens for V1 oAuth password credentials (optional)." << endl
+		<< " -tokenURLV1 URL to perform authentication to get access and refresh tokens for V1 oAuth password credentials (optional)." << endl
+		<< " -tokenURLV2 URL to perform authentication to get access and refresh tokens for V2 oAuth client credential (optional)." << endl
 		<< " -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional)." << endl
 		<< " -itemName Request item name (optional)." << endl
 		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
@@ -55,6 +58,7 @@ int main( int argc, char* argv[] )
 		UInt8 userNameSet = 0;
 		UInt8 passwordSet = 0;
 		UInt8 clientIdSet = 0;
+		UInt8 clientSecretSet = 0;
 
 		EmaString itemName = "IBM.N";
 
@@ -89,6 +93,14 @@ int main( int argc, char* argv[] )
 					config.clientId( argv[++i] );
 				}
 			}
+			else if (strcmp(argv[i], "-clientSecret") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					clientSecretSet = 1;
+					config.clientSecret(argv[++i]);
+				}
+			}
 			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
 			{
 				if (i < (argc - 1))
@@ -109,7 +121,21 @@ int main( int argc, char* argv[] )
 			{
 				if ( i < (argc - 1) )
 				{
-					config.tokenServiceUrl( argv[++i] );
+					config.tokenServiceUrlV1( argv[++i] );
+				}
+			}
+			else if (strcmp(argv[i], "-tokenURLV1") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					config.tokenServiceUrlV1(argv[++i]);
+				}
+			}
+			else if (strcmp(argv[i], "-tokenURLV2") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					config.tokenServiceUrlV2(argv[++i]);
 				}
 			}
 			else if (strcmp(argv[i], "-serviceDiscoveryURL") == 0)
@@ -149,9 +175,9 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( !userNameSet || !passwordSet || !clientIdSet )
+		if ( (!userNameSet || !passwordSet || !clientIdSet) && (!clientIdSet || !clientSecretSet) )
 		{
-			cout << "User name, password and client Id must be specified on the command line. Exiting...";
+			cout << "User name, password and client Id or client Id and client secret must be specified on the command line. Exiting...";
 			printHelp();
 			return -1;
 		}

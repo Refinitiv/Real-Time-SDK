@@ -144,6 +144,18 @@ public :
 	*/
 	OmmConsumerConfig& tokenServiceUrl( const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v1/token" );
 
+	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+		@param[in] tokenServiceUrl specifies an URL for token service.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tokenServiceUrlV1(const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v1/token");
+
+	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+		@param[in] tokenServiceUrl specifies an URL for token service.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& tokenServiceUrlV2(const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v2/token");
+
 	/** Specifies an URL to override the default for the RDP service discovery to get global endpoints
 		@param[in] serviceDiscoveryUrl specifies an URL for RDP service discovery.
 		@return reference to this object

@@ -11,9 +11,6 @@ import com.refinitiv.eta.transport.ConnectionTypes;
 
 class EncryptedChannelConfig extends HttpChannelConfig
 {
-	String				location;
-	boolean				enableSessionMgnt;
-
 	EncryptedChannelConfig()
 	{
 		clear();
@@ -32,7 +29,5 @@ class EncryptedChannelConfig extends HttpChannelConfig
 		hostName = "";
 		serviceName = "";
 		rsslConnectionType = ConnectionTypes.ENCRYPTED;
-		location = ActiveConfig.DEFAULT_REGION_LOCATION;
-		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
 	}
 }

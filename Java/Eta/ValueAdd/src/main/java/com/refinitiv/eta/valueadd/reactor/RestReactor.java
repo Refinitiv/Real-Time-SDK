@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 
 class RestReactor
 {
@@ -77,6 +79,7 @@ class RestReactor
 	static final String AUTH_NEWPASSWORD = "newPassword";
 	static final String AUTH_CLIENT_ID = "client_id";
 	static final String AUTH_CLIENT_SECRET = "client_secret";
+	static final String AUTH_CLIENT_CREDENTIALS_GRANT = "client_credentials";
 	static final String AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL = "takeExclusiveSignOnControl";
 	static final String AUTH_SCOPE = "scope";
 	static final String AUTH_BEARER = "Bearer ";
@@ -86,6 +89,8 @@ class RestReactor
 	static final String AUTH_TOKEN_TYPE = "token_type";
 	static final String AUTH_POST = "POST";
 	static final String AUTH_REQUEST_USER_AGENT = "HTTP/1.1";
+	static final String AUTH_CLIENT_ASSERTION = "client_assertion";
+	static final String AUTH_CLIENT_ASSERTION_TYPE = "client_assertion_type";
 	
 	static final int AUTH_HANDLER = 1;
 	static final int DISCOVERY_HANDLER = 2;
@@ -193,6 +198,7 @@ class RestReactor
         	errorInfo.error().text(text);
         return reactorReturnCode;
     }
+    
 
     public int submitAuthRequest(RestAuthOptions authOptions, final RestConnectOptions restConnectOptions, 
    		 ReactorAuthTokenInfo authTokenInfo, final ReactorErrorInfo errorInfo,
@@ -213,53 +219,79 @@ class RestReactor
                      ReactorReturnCodes.SHUTDOWN,
                      "RestReactor.submitAuthRequest", "RestReactor is not active, aborting");
     	}
-
-		final List<NameValuePair> params = new ArrayList<>(7);
-		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, authOptions.grantType()));
-		params.add(new BasicNameValuePair(AUTH_USER_NAME, authOptions.username()));		
-		params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
-		
-		if (authOptions.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
-		{
-			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, authTokenInfo.refreshToken()));			
-			//must set for the first access_token, otherwise receive status code: 403 forbidden.
-			//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
-		}
-		else 
-		{
-			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, authOptions.takeExclusiveSignOnControlAsString()));
+    	
+    	final List<NameValuePair> params = new ArrayList<>(7);
+    	
+		String url = null;
+    	
+    	if(authTokenInfo.tokenVersion() == TokenVersion.V1)
+    	{
+			
+			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, authOptions.grantType()));
+			params.add(new BasicNameValuePair(AUTH_USER_NAME, authOptions.username()));		
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
+			
+			if (authOptions.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
+			{
+				params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, authTokenInfo.refreshToken()));			
+				//must set for the first access_token, otherwise receive status code: 403 forbidden.
+				//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
+			}
+			else 
+			{
+				params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, authOptions.takeExclusiveSignOnControlAsString()));
+				params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
+				params.add(new BasicNameValuePair(AUTH_PASSWORD, authOptions.password()));
+				
+				if(authOptions.hasNewPassword())
+				{
+					params.add(new BasicNameValuePair(AUTH_NEWPASSWORD, authOptions.newPassword()));
+				}
+				
+				if(authOptions.hasClientSecret())
+				{
+					params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET, authOptions.clientSecret()));
+				}
+				
+				if (authOptions.tokenSession() != null)
+				{
+					authOptions.tokenSession().originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+				}
+			}
+			
+			if(url == null)
+	    	{
+				if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
+					url = restConnectOptions.authRedirectLocation();
+				} else {
+					url = restConnectOptions.tokenServiceURLV1();
+				}
+	    	}
+    	}
+    	else
+    	{
+			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, AUTH_CLIENT_CREDENTIALS_GRANT));
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
+			
+			params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET,  authOptions.clientSecret()));
 			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
-			params.add(new BasicNameValuePair(AUTH_PASSWORD, authOptions.password()));
 			
-			if(authOptions.hasNewPassword())
-			{
-				params.add(new BasicNameValuePair(AUTH_NEWPASSWORD, authOptions.newPassword()));
-			}
-			
-			if(authOptions.hasClientSecret())
-			{
-				params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET, authOptions.clientSecret()));
-			}
-			
-			if (authOptions.tokenSession() != null)
-			{
-				authOptions.tokenSession().originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
-			}
-		}
-
-		String url;
-		if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
-			url = restConnectOptions.authRedirectLocation();
-		} else {
-			url = restConnectOptions.tokenServiceURL();
-		}
+			if(url == null)
+	    	{
+				if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
+					url = restConnectOptions.authRedirectLocation();
+				} else {
+					url = restConnectOptions.tokenServiceURLV2();
+				}
+	    	}
+    	}
 		
 		final RestHandler restHandler = new RestHandler(this, authOptions, restConnectOptions, authTokenInfo, errorInfo);
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
 		{
 		    final BasicHttpEntityEnclosingRequest httpRequest = new BasicHttpEntityEnclosingRequest(AUTH_POST, url);
-		    
+
 		    httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8));
 		    if ( authOptions.hasHeaderAttribute() )	
 		    {
@@ -273,13 +305,24 @@ class RestReactor
 	                .add(new RequestConnControl())
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
-
+			if(authTokenInfo.tokenVersion() == TokenVersion.V1)
+			{
 			  requester.execute(
 		                 new BasicAsyncRequestProducer(restConnectOptions.tokenServiceHost(), httpRequest),
 		                 new BasicAsyncResponseConsumer(),
 		                 _pool,
 		                 HttpClientContext.create(),
 		                 restHandler);
+			}
+			else
+			{
+				requester.execute(
+		                 new BasicAsyncRequestProducer(restConnectOptions.tokenServiceHostV2(), httpRequest),
+		                 new BasicAsyncResponseConsumer(),
+		                 _pool,
+		                 HttpClientContext.create(),
+		                 restHandler);
+			}
 
 			if (loggerClient.isTraceEnabled()) {
 				loggerClient.trace(prepareRequestString(httpRequest, restConnectOptions));
@@ -288,11 +331,12 @@ class RestReactor
 		else
 		{
 			final RestProxyAuthHandler proxyAuthHandler = new RestProxyAuthHandler(this, _sslconSocketFactory);
+			final String threadUrl = url;
 			
 			new Thread() {
 				public void run() {
 					
-					final HttpPost httppost = new HttpPost(url);
+					final HttpPost httppost = new HttpPost(threadUrl);
 					
 				    if ( authOptions.hasHeaderAttribute() )
 				    {
@@ -518,38 +562,70 @@ class RestReactor
                     "RestReactor.submitAuthRequestBlocking", "failed to initialize the SSLConnectionSocketFactory");
     	
     	final List<NameValuePair> params = new ArrayList<>(7);
-		params.add(new BasicNameValuePair(AUTH_GRANT_TYPE,authOptions.grantType()));
-		params.add(new BasicNameValuePair(AUTH_USER_NAME, authOptions.username()));
-		params.add(new BasicNameValuePair(AUTH_CLIENT_ID, authOptions.clientId()));
-		
-		if (authOptions.grantType().equals("refresh_token")) //for new refresh token
-		{
-			params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, authTokenInfo.refreshToken()));
-		//must set for the first access_token, otherwise receive status code: 403 forbidden.
-		//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
-		}
-		else
-		{
-			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope()));
-			params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, authOptions.takeExclusiveSignOnControlAsString()));
-			params.add(new BasicNameValuePair(AUTH_PASSWORD, authOptions.password()));
+    	
+    	String url = null;
+    	
+    	if(authTokenInfo.tokenVersion() == TokenVersion.V1)
+    	{
 			
-			if(authOptions.hasNewPassword())
-			{
-				params.add(new BasicNameValuePair(AUTH_NEWPASSWORD, authOptions.newPassword()));
-			}
+			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, authOptions.grantType()));
+			params.add(new BasicNameValuePair(AUTH_USER_NAME, authOptions.username()));		
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
 			
-			if(authOptions.hasClientSecret())
+			if (authOptions.grantType().equals(AUTH_REFRESH_TOKEN)) //for new refresh token
 			{
-				params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET, authOptions.clientSecret()));
+				params.add(new BasicNameValuePair(AUTH_REFRESH_TOKEN, authTokenInfo.refreshToken()));			
+				//must set for the first access_token, otherwise receive status code: 403 forbidden.
+				//must not include scope if the scope for reissue is same, client will issue new token in the same scope.
 			}
-			
-			if (authOptions.tokenSession() != null)
+			else 
 			{
-				authOptions.tokenSession().originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+				params.add(new BasicNameValuePair(AUTH_TAKE_EXCLUSIVE_SIGN_ON_CONTROL, authOptions.takeExclusiveSignOnControlAsString()));
+				params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
+				params.add(new BasicNameValuePair(AUTH_PASSWORD, authOptions.password()));
+				
+				if(authOptions.hasNewPassword())
+				{
+					params.add(new BasicNameValuePair(AUTH_NEWPASSWORD, authOptions.newPassword()));
+				}
+				
+				if(authOptions.hasClientSecret())
+				{
+					params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET, authOptions.clientSecret()));
+				}
+				
+				if (authOptions.tokenSession() != null)
+				{
+					authOptions.tokenSession().originalExpiresIn(0); /* Unset to indicate that the password grant will be sent. */
+				}
 			}
-		}
 	
+			if(url == null)
+	    	{
+				if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
+					url = restConnectOptions.authRedirectLocation();
+				} else {
+					url = restConnectOptions.tokenServiceURLV1();
+				}
+	    	}
+    	}
+    	else
+    	{
+			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, AUTH_CLIENT_CREDENTIALS_GRANT));
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
+			params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET,  authOptions.clientSecret()));
+			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
+			
+			if(url == null)
+	    	{
+				if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
+					url = restConnectOptions.authRedirectLocation();
+				} else {
+					url = restConnectOptions.tokenServiceURLV2();
+				}
+	    	}
+	    	
+    	}
    		try
    		{
    			final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, Consts.UTF_8);
@@ -565,9 +641,6 @@ class RestReactor
    			}
    			
    			RestResponse restResponse = new RestResponse();
-
-   			// Initial value of URL is either default one or saved permanent redirect location.
-   			String url = restConnectOptions.tokenServiceURL();
    			
    			boolean done = false;
    			int attemptCount = 0;
@@ -582,6 +655,7 @@ class RestReactor
    	   				HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
    		   			RequestConfig config = RequestConfig.custom()
    		                    	.setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
+   		                    	.setRedirectsEnabled(false)
    		                    	.build();
    		   			httppost.setConfig(config);
 
@@ -590,6 +664,17 @@ class RestReactor
    	   				if( ret == ReactorReturnCodes.SUCCESS)
    	   				{
    	   					ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
+   	   					
+   	   					if(authTokenInfo.tokenVersion() == TokenVersion.V2)
+   	   					{
+   	   						int expiresIn = 0;
+   	   						if(authTokenInfo.expiresIn() < 600)
+   	   							expiresIn = (int)(.95 * (double)authTokenInfo.expiresIn());
+   	   						else
+   	   							expiresIn = authTokenInfo.expiresIn() - 300;
+   	   						
+   	   						authTokenInfo.expiresIn(expiresIn);
+   	   					}
    	   				}
 
    	   				return ret;
@@ -597,7 +682,7 @@ class RestReactor
    				else
    				{
    					final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
-   					RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
+   					RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).setRedirectsEnabled(false).build();
    					httppost.setConfig(config);
    					try
    					{
@@ -647,7 +732,14 @@ class RestReactor
 		   	   	                    	if ((statusCode == HttpStatus.SC_MOVED_PERMANENTLY) || (statusCode == 308)) {
 		   	   	                    		Buffer newUrl = CodecFactory.createBuffer();
 		   	   	                    		newUrl.data(newHost);
-		   	   	                    		restConnectOptions.reactorOptions().tokenServiceURL(newUrl);
+		   	   	                    		if(authTokenInfo.tokenVersion() == TokenVersion.V1)
+		   	   	                    		{
+		   	   	                    			restConnectOptions.reactorOptions().tokenServiceURL_V1(newUrl);
+		   	   	                    		}
+		   	   	                    		else
+		   	   	                    		{
+		   	   	                    			restConnectOptions.reactorOptions().tokenServiceURL_V2(newUrl);
+		   	   	                    		}
 		   	   	                    	}
 		   	   	                    }
 		   	   	                    
@@ -666,6 +758,8 @@ class RestReactor
 		   	   	                }
 		   	   	                			
 		   	   				case HttpStatus.SC_FORBIDDEN:
+		   	   				case HttpStatus.SC_NOT_FOUND:
+		   	   				case HttpStatus.SC_GONE:
 		   	   				case 451: //  Unavailable For Legal Reasons
 		   	   				default:
 				   				populateErrorInfo(errorInfo,
@@ -718,46 +812,55 @@ class RestReactor
     		return populateErrorInfo(errorInfo,
                     ReactorReturnCodes.FAILURE,
                     "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to initialize the SSLConnectionSocketFactory");
-    	
-    	URIBuilder uriBuilder = null;
-    	try {
-    		
-   			uriBuilder = new URIBuilder(restConnectOptions.serviceDiscoveryURL());    		
-    	}
-    	catch (Exception e)
+    	String url = null;
+    	if(restConnectOptions.discoveryRedirect() == true)
     	{
-	    	return populateErrorInfo(errorInfo,
-                    ReactorReturnCodes.FAILURE,
-                    "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+    		url = restConnectOptions.discoveryRedirectLocation();
     	}
-    			
-    	if (request.hasQueryParameter())
+    	else
     	{
-			Map<String,String> queryParameter = request.queryParameter();
-			if (queryParameter != null)
-			{
-				for (Map.Entry<String,String> entry : queryParameter.entrySet())
-				{
-					uriBuilder.setParameter(entry.getKey(), entry.getValue());
-				}
-			}
+    		url = restConnectOptions.serviceDiscoveryURL();
     	}
-		    	
+		   
 		try
 		{
-			HttpGet httpget = new HttpGet(uriBuilder.build());
-			
-			if (request.hasHeaderAttribute())
-   			{
-   				for (Map.Entry<String, String> entry : request.headerAttribute().entrySet())
-   					httpget.addHeader(entry.getKey(), entry.getValue());
-   			}
-
+			URIBuilder uriBuilder = null;
 			String token = authTokenInfo.accessToken();
 			RestResponse restResponse = new RestResponse();
    			boolean done = false;
    			int attemptCount = 0;
    			while ((attemptCount <= 1) && (!done)) {
+   				try {
+   		    		
+   		   			uriBuilder = new URIBuilder(url);    		
+   		    	}
+   		    	catch (Exception e)
+   		    	{
+   			    	return populateErrorInfo(errorInfo,
+   		                    ReactorReturnCodes.FAILURE,
+   		                    "RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
+   		    	}
+   		    			
+   		    	if (request.hasQueryParameter())
+   		    	{
+   					Map<String,String> queryParameter = request.queryParameter();
+   					if (queryParameter != null)
+   					{
+   						for (Map.Entry<String,String> entry : queryParameter.entrySet())
+   						{
+   							uriBuilder.setParameter(entry.getKey(), entry.getValue());
+   						}
+   					}
+   		    	}
+   		    	
+   				HttpGet httpget = new HttpGet(uriBuilder.build());
+   				
+   				if (request.hasHeaderAttribute())
+   	   			{
+   	   				for (Map.Entry<String, String> entry : request.headerAttribute().entrySet())
+   	   					httpget.addHeader(entry.getKey(), entry.getValue());
+   	   			}
+   				
 				httpget.setHeader(HttpHeaders.AUTHORIZATION, AUTH_BEARER + token);
 
 				if((restConnectOptions.proxyHost() != null && !restConnectOptions.proxyHost().isEmpty()) && (restConnectOptions.proxyPort() != -1))
@@ -780,7 +883,7 @@ class RestReactor
    				else
    				{
    					final CloseableHttpClient httpClient = HttpClientBuilder.create().setSSLSocketFactory(_sslconSocketFactory).build();
-   					RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).build();
+   					RequestConfig config = RequestConfig.custom().setSocketTimeout(_restReactorOptions.soTimeout()).setRedirectsEnabled(false).build();
 	   				httpget.setConfig(config);
    					try
    					{
@@ -826,15 +929,7 @@ class RestReactor
 	   	   							String newHost = header.getValue();
 	   	   							if ( newHost != null )
 	   	   							{ 
-	   	   								try {
-	   	   									uriBuilder = new URIBuilder(newHost);
-	   	   								}
-	   	   								catch (Exception e)
-	   	   								{
-	   	   									return populateErrorInfo(errorInfo,
-	   	   											ReactorReturnCodes.FAILURE,
-	   	   											"RestReactor.submitServiceDiscoveryRequestBlocking", "failed to submit a request, exception = " + getExceptionCause(e));
-	   	   								}
+	   	   								url = newHost;
 
 	   	   								if ((statusCode == HttpStatus.SC_MOVED_PERMANENTLY) || (statusCode == 308)) {
 		   	   	                    		Buffer newUrl = CodecFactory.createBuffer();
@@ -857,6 +952,8 @@ class RestReactor
 	   	   						}
 	   	   						
 	   	   				case HttpStatus.SC_FORBIDDEN:
+	   	   				case HttpStatus.SC_NOT_FOUND:
+	   	   				case HttpStatus.SC_GONE:
 	   	   				case 451: //  Unavailable For Legal Reasons
 	   	   				default:
 	   	   						populateErrorInfo(errorInfo,

@@ -59,7 +59,8 @@ void printUsageAndExit(int argc, char **argv)
 			" -c           Specifies connection type. Valid arguments are socket, webSocket, http, encrypted, and reliableMCast.\n"
 			" -ec          Specifies the encrypted transport protocol. Valid arguments are socket, webSocket, and http.  Http is only supported on Windows Platforms.\n"
 			" -if          Specifies the address of a specific network interface to use.\n"
-			" -clientId    Specifies an unique ID for application making the request to RDP token service (mandatory).\n"
+			" -clientId    Specifies an unique ID for application making the request to RDP token service, or the client Id for Refinitiv login version 2 (mandatory).\n"
+			" -clientSecret Specifies the client secret associated with the client id.\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
 			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.\n"
 			" -takeExclusiveSignOnControl Specifies true or false to set the exclusive sign on control to force sign-out for the same credentials.\n"
@@ -109,8 +110,12 @@ void printUsageAndExit(int argc, char **argv)
 			"-restLogFileName set REST logging output stream"
 			"\n"
 			"-restEnableLogCallback enable receiving REST logging messages via callback"
+			"-tokenURLV1 URL of token service V1\n"
+			"-tokenURLV2 URL of token service V2\n"
+			"-tokenScope scope for the login token\n"
+			"-serviceDiscoveryURL URL the service discovery"
 			"\n"
-		, argv[0], argv[0]);
+			, argv[0], argv[0]);
 	exit(-1);
 }
 
@@ -155,6 +160,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 {
 	int i;
 	int configFlags = 0;
+	int readSize = 0;
 	int wsConfigFlags = 0;
 	char warmStandbyMode[255];
 
@@ -190,6 +196,11 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
 	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
 	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+
+	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "");
+	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
+	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
+	snprintf(watchlistConsumerConfig._tokenScope, 255, "");
 
 	snprintf(watchlistConsumerConfig.protocolList, 255, "rssl.rwf");
 
@@ -537,6 +548,41 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			watchlistConsumerConfig.clientId.length = 
 				(RsslUInt32)snprintf(watchlistConsumerConfig._clientIdMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.clientId.data = watchlistConsumerConfig._clientIdMem;
+		}
+		else if (0 == strcmp(argv[i], "-clientSecret"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.clientSecret.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._clientSecretMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.clientSecret.data = watchlistConsumerConfig._clientSecretMem;
+		}
+		else if (0 == strcmp(argv[i], "-tokenURLV1"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.tokenURLV1.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", argv[i]);
+			watchlistConsumerConfig.tokenURLV1.data = watchlistConsumerConfig._tokenUrlV1;
+		}
+		else if (0 == strcmp(argv[i], "-tokenURLV2"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.tokenURLV2.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", argv[i]);
+			watchlistConsumerConfig.tokenURLV2.data = watchlistConsumerConfig._tokenUrlV2;
+		}
+		else if (0 == strcmp(argv[i], "-tokenScope"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.tokenScope.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._tokenScope, 255, "%s", argv[i]);
+			watchlistConsumerConfig.tokenScope.data = watchlistConsumerConfig._tokenScope;
+		}
+		else if (0 == strcmp(argv[i], "-serviceDiscoveryURL"))
+		{
+		if (++i == argc) printUsageAndExit(argc, argv);
+		watchlistConsumerConfig.serviceDiscoveryURL.length =
+			(RsslUInt32)snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", argv[i]);
+		watchlistConsumerConfig.serviceDiscoveryURL.data = watchlistConsumerConfig._serviceDiscoveryUrl;
 		}
 		else if (0 == strcmp(argv[i], "-l"))
 		{

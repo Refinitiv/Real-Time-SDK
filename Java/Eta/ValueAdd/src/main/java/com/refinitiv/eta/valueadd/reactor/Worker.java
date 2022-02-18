@@ -18,6 +18,7 @@ import com.refinitiv.eta.transport.TransportFactory;
 import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.valueadd.common.SelectableBiDirectionalQueue;
 import com.refinitiv.eta.valueadd.common.VaIteratableQueue;
+import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 import com.refinitiv.eta.valueadd.reactor.ReactorChannel.State;
 import com.refinitiv.eta.valueadd.reactor.ReactorTokenSession.SessionState;
 
@@ -133,7 +134,8 @@ class Worker implements Runnable
                     {
                         if (event.eventType() == WorkerEventTypes.TOKEN_MGNT)
                         {
-                            event._tokenSession.handleTokenReissue();
+                        	if(event._tokenSession != null && (event._tokenSession.authTokenInfo().tokenVersion() != TokenVersion.V2 || (event._reactorChannel != null && event._reactorChannel.state() != State.READY && event._reactorChannel.state() != State.UP)))
+                        		event._tokenSession.handleTokenReissue();
 
                             _timerEventQueue.remove(event);
                             event.returnToPool();
@@ -232,6 +234,12 @@ class Worker implements Runnable
                         {
                             // Reconnect attempt failed -- send channel down event.
                             _reconnectingChannelQueue.remove(reactorChannel);
+                            if(reactorChannel.tokenSession() != null && reactorChannel.tokenSession().sessionMgntState() == SessionState.STOP_TOKEN_REQUEST)
+                            {
+                            	/* This is a terminal state.  There was an REST error that we cannot recover from, so set the reconnectLimit to 0 */ 
+                            	reactorChannel.getReactorConnectOptions().reconnectAttemptLimit(0);
+                            }
+                            
                             sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_DOWN,
                                     ReactorReturnCodes.FAILURE, "Worker.run()",
                                     "Reconnection failed: " + _error.text());
@@ -284,7 +292,15 @@ class Worker implements Runnable
                 {
                     /* Go into connection recovery. */
                     reactorChannel.calculateNextReconnectTime();
+                    /* If we have connected with a V2 session management connection and wiled the access token, reset the session management state */
+                    if(reactorChannel.tokenSession() != null && reactorChannel.tokenSession().authTokenInfo().tokenVersion() == TokenVersion.V2 && reactorChannel.tokenSession().hasAccessToken() == false)
+                    {
+                    	reactorChannel.tokenSession().resetSessionMgntState();
+                    }
+                    
                     _reconnectingChannelQueue.add(reactorChannel);
+                    
+                    
                 }
                 break;
             case CHANNEL_CLOSE:

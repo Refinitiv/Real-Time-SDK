@@ -9,6 +9,8 @@ package com.refinitiv.ema.access;
 
 import com.refinitiv.eta.codec.DataDictionary;
 import com.refinitiv.eta.valueadd.reactor.*;
+import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredentialRenewalOptions.RenewalModes;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +21,11 @@ import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.eta.transport.Channel;
 import com.refinitiv.eta.transport.ChannelState;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.transport.TransportReturnCodes;
 import com.refinitiv.eta.transport.WritePriorities;
 import com.refinitiv.ema.rdm.EmaRdm;
 
-class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer
+class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsumer, ReactorOAuthCredentialEventCallback
 {
 	private OmmConsumerErrorClient _consumerErrorClient;
 	private OmmConsumerActiveConfig _activeConfig;
@@ -30,6 +33,8 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	private ReqMsg loginRequest = EmaFactory.createReqMsg();
 	private OmmConsumerClient		_adminClient;
 	private Object					_adminClosure;
+	private OmmEventImpl<OmmConsumerClient>	_OAuthEvent = new OmmEventImpl<OmmConsumerClient>();
+	private OmmOAuth2ConsumerClient _OAuthConsumerClient = null;
 	private ConsumerSessionInfo sessionInfo = new ConsumerSessionInfo();
 	private ReactorJsonConverterOptions jsonConverterOptions = ReactorFactory.createReactorJsonConverterOptions();
 
@@ -56,6 +61,32 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		}
 	}
 	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = null;
+		_adminClosure = null;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = null;
+		_adminClosure = closure;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient client)
 	{
 		super();
@@ -64,6 +95,32 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		_adminClient = client;
 		_adminClosure = null;
 		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = adminClient;
+		_adminClosure = null;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = adminClient;
+		_adminClosure = closure;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
 	}
 	
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient client, Object closure)
@@ -86,6 +143,34 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
 	}
 	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerErrorClient client, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = null;
+		_adminClosure = null;
+		_consumerErrorClient = client;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerErrorClient client, OmmOAuth2ConsumerClient OAuthClient,  Object closure)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = null;
+		_adminClosure = closure;
+		_consumerErrorClient = client;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
 	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient client)
 	{
 		super();
@@ -94,6 +179,34 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		_adminClient = adminClient;
 		_adminClosure = null;
 		_consumerErrorClient = client;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient client, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = adminClient;
+		_adminClosure = closure;
+		_consumerErrorClient = client;
+		_OAuthConsumerClient = OAuthClient;
+		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
+		
+		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
+	}
+	
+	OmmConsumerImpl(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient client, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		super();
+		_activeConfig = new OmmConsumerActiveConfig();
+		/* the client needs to be set before calling initialize, so the proper item callbacks are set */
+		_adminClient = adminClient;
+		_adminClosure = null;
+		_consumerErrorClient = client;
+		_OAuthConsumerClient = OAuthClient;
 		super.initialize(_activeConfig, (OmmConsumerConfigImpl)config);
 		
 		_rsslSubmitOptions.writeArgs().priority(WritePriorities.HIGH);		
@@ -485,9 +598,20 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			loginRequest.clear().domainType(EmaRdm.MMT_LOGIN);
 			_itemCallbackClient.registerClient(loginRequest, _adminClient, _adminClosure, 0);
 		}
+		
+		ReactorOAuthCredentialEventCallback reactorOAuthCallback;
+		
+		if(_OAuthConsumerClient == null)
+		{
+			reactorOAuthCallback = null;
+		}
+		else
+		{
+			reactorOAuthCallback = this;
+		}
 
 		_channelCallbackClient = new ChannelCallbackClient<>(this,_rsslReactor);
-		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest(), config);
+		_channelCallbackClient.initializeConsumerRole(_loginCallbackClient.rsslLoginRequest(), _directoryCallbackClient.rsslDirectoryRequest(), config, reactorOAuthCallback);
 
 		handleLoginReqTimeout();
 		loadDirectory();
@@ -630,5 +754,62 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		{
 			super.userLock().unlock();
 		}
+	}
+	
+	public void renewOAuthCredentials(OAuth2CredentialRenewal credentials)
+	{
+		super.userLock().lock();
+		
+		int ret;
+		if(_inOAuth2Callback == false)
+		{
+			
+			strBuilder().append("Cannot call submitOAuthCredentialRenewal outside of a callback.");
+			super.userLock().unlock();
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.INVALID_OPERATION);
+			return;
+			
+		}
+		if( _loginCallbackClient.activeChannelInfo() == null ||  _loginCallbackClient.activeChannelInfo().rsslReactorChannel() == null)
+		{
+			strBuilder().append("No active channel to submit credential change.");
+			super.userLock().unlock();
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
+			return;
+		}
+		
+		ReactorOAuthCredentialRenewal creds = ((OAuth2CredentialRenewalImpl)credentials).getReactorOAuthCredentialRenewal();
+		
+		if(creds.newPassword().length() != 0)
+		{
+			_OAuthRenewalOpts.renewalModes(RenewalModes.PASSWORD_CHANGE);
+		}
+		else
+		{
+			_OAuthRenewalOpts.renewalModes(RenewalModes.PASSWORD);
+		}
+		
+		ret =  _loginCallbackClient.activeChannelInfo().rsslReactorChannel().reactor().submitOAuthCredentialRenewal(_OAuthRenewalOpts, creds, _rsslErrorInfo);
+		if(ret != TransportReturnCodes.SUCCESS)
+		{
+			strBuilder().append("Failed to update OAuth credentials. Error text: ")
+			.append(_rsslErrorInfo.error().text());
+			super.userLock().unlock();
+			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
+			return;
+		}
+		
+		return;
+	}
+	
+	public int reactorOAuthCredentialEventCallback(ReactorOAuthCredentialEvent reactorOAuthCredentialEvent)
+	{
+		_inOAuth2Callback = true;
+		
+		_OAuthEvent._closure = _adminClosure;
+		
+		_OAuthConsumerClient.onOAuth2CredentialRenewal(_OAuthEvent);
+		
+		return ReactorCallbackReturnCodes.SUCCESS;
 	}
 }

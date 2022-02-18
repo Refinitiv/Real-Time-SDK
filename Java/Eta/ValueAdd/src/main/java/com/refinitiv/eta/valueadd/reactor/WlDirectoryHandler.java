@@ -602,7 +602,7 @@ class WlDirectoryHandler implements WlHandler
                             if (ret == ReactorReturnCodes.SUCCESS)
                             {
                                 _watchlist.reactorChannel().state(ReactorChannel.State.READY);
-    
+                                _watchlist.reactorChannel().clearAccessTokenForV2();;
                                 // notify item handler that directory stream is open
                                 ret = _watchlist.itemHandler().directoryStreamOpen();
                             }

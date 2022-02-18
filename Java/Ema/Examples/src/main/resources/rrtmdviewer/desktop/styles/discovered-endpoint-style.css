@@ -11,18 +11,18 @@
 
 .grey-area-label-box {
     -fx-background-color: #f4f4f4;
-    -fx-padding: 0 0 0 20;
-    -fx-border-insets: 0 0 0 20;
-    -fx-background-insets: 0 0 0 20;
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
 }
 
 .grey-area-label-box:disabled {
     -fx-background-color: #f4f4f4;
     -fx-opacity: 1.0;
     -fx-text-fill: #808080;
-    -fx-padding: 0 0 0 20;
-    -fx-border-insets: 0 0 0 20;
-    -fx-background-insets: 0 0 0 20;
+    -fx-padding: 0;
+    -fx-border-insets: 0;
+    -fx-background-insets: 0;
 }
 
 .grey-area-small-box {
@@ -42,9 +42,9 @@
 }
 
 .innerhbox {
-     -fx-padding: 20px;
-     -fx-border-insets: 20px;
-     -fx-background-insets: 20px;
+     -fx-padding: 20 10 15 10;
+     -fx-border-insets: 20 10 15 10;
+     -fx-background-insets: 20 10 15 10;
 }
 
 .connect-button {
@@ -62,11 +62,11 @@
 }
 
 .optionslabel {
-   -fx-max-width: 200px;
-   -fx-min-width: 200px;
-   -fx-padding: 0 0 0 20;
-   -fx-border-insets: 0 0 0 20;
-   -fx-background-insets: 0 0 0 20;
+   -fx-max-width: 120px;
+   -fx-min-width: 120px;
+   -fx-padding: 5 0 0 10;
+   -fx-border-insets: 5 0 0 10;
+   -fx-background-insets: 5 0 0 10;
 }
 
 .innerboxwithframe {
@@ -112,6 +112,10 @@
 #backButton:hover {
     -fx-background-color: #FFFFFF;
     -fx-text-fill: #001EFF;
+}
+
+.tabpanel {
+    -fx-border-color: #A8A8A8;
 }
 
 .root {

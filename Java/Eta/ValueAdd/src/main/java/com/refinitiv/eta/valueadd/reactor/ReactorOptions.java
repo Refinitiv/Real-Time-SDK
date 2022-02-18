@@ -40,12 +40,13 @@ public class ReactorOptions
     static final String DEFAULT_SCHEME = "https";
     static final String API_GATEWAY_HOST = "api.refinitiv.com";
     static final String SERVICE_DISCOVERY_PATH = "/streaming/pricing/v1/";
-    static final String TOKEN_SERVICE_PATH = "/auth/oauth2/v1/token";
 	
     private Buffer _serviceDiscoveryURL = CodecFactory.createBuffer();
-    private Buffer _tokenServiceURL = CodecFactory.createBuffer();
+    private Buffer _tokenServiceURL_V1 = CodecFactory.createBuffer();
+    private Buffer _tokenServiceURL_V2 = CodecFactory.createBuffer();
+    private Buffer _tempTokenURL = CodecFactory.createBuffer();
+    private Buffer _tempDiscoveryURL = CodecFactory.createBuffer();
     private HttpHost _serviceDiscoveryHost;
-    private HttpHost _tokenServiceHost;
     private int _restRequestTimeout; /* Socket read timeout(millisecond) for REST requests */
     private double _tokenReissueRatio;
     private int _reissueTokenAttemptLimit;
@@ -170,39 +171,58 @@ public class ReactorOptions
      */
     public int tokenServiceURL(Buffer tokenServiceURL)
     {
-    	if(tokenServiceURL == null || tokenServiceURL.length() == 0)
+    	if(_tokenServiceURL_V1 == null)
     	{
-    		return ReactorReturnCodes.PARAMETER_INVALID;
+    		_tokenServiceURL_V1 = CodecFactory.createBuffer();	
     	}
     	
-    	try 
+    	return _tokenServiceURL_V1.data(tokenServiceURL.data(), 
+    			tokenServiceURL.position(), tokenServiceURL.length());
+    }
+    
+    /**
+     * A URL of the token service to get an access token and a refresh token. 
+     * This is used for querying RDP service
+     * discovery and subscribing data from RDP.
+     *
+     * @param tokenServiceURL the URL for the RDP service discovery
+     * 
+     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
+     * 		   or if position or length is outside of the data's capacity.
+     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.     
+     *          
+     */
+    public int tokenServiceURL_V1(Buffer tokenServiceURL)
+    {
+    	if(_tokenServiceURL_V1 == null)
     	{
-    		URI uri = new URIBuilder(tokenServiceURL.toString()).build();
-    		HttpHost tokenServiceHost = URIUtils.extractHost(uri);
-    		
-    		if(tokenServiceHost == null)
-    			return ReactorReturnCodes.PARAMETER_INVALID;
-    		
-    		_tokenServiceHost = tokenServiceHost;
-    		
-    		/* Checks whether the port is specified */
-    		if(_tokenServiceHost.getPort() == -1)
-    		{
-    			if(_tokenServiceHost.getSchemeName().equals(DEFAULT_SCHEME))
-    			{
-    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getHostName(), DEFAULT_HTTPS_PORT, _tokenServiceHost.getSchemeName());
-    			}
-    			else
-    			{
-    				_tokenServiceHost = new HttpHost(_tokenServiceHost.getHostName(), DEFAULT_HTTP_PORT, _tokenServiceHost.getSchemeName());
-    			}
-    		}
-    		
-		} catch (URISyntaxException e) {
-			return ReactorReturnCodes.PARAMETER_INVALID;
-		}
+    		_tokenServiceURL_V1 = CodecFactory.createBuffer();	
+    	}
     	
-    	return _tokenServiceURL.data(tokenServiceURL.data(), 
+    	return _tokenServiceURL_V1.data(tokenServiceURL.data(), 
+    			tokenServiceURL.position(), tokenServiceURL.length());
+    }
+    
+    /**
+     * A URL of the token service to get an access token and a refresh token. 
+     * This is used for querying RDP service
+     * discovery and subscribing data from RDP.
+     *
+     * @param tokenServiceURL the URL for the RDP service discovery
+     * 
+     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
+     * 		   or if position or length is outside of the data's capacity.
+     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.     
+     *          
+     */
+    public int tokenServiceURL_V2(Buffer tokenServiceURL)
+    {
+    	if(_tokenServiceURL_V2 == null)
+    	{
+    		_tokenServiceURL_V2 = CodecFactory.createBuffer();	
+    	}
+    	
+    	return _tokenServiceURL_V2.data(tokenServiceURL.data(), 
     			tokenServiceURL.position(), tokenServiceURL.length());
     }
     
@@ -235,7 +255,31 @@ public class ReactorOptions
      */
     public Buffer tokenServiceURL()
     {
-        return _tokenServiceURL;
+        return _tokenServiceURL_V1;
+    }
+    
+    /**
+     * a URL of the token service to get an access token and a refresh token. 
+     * This is used for querying RDP service
+     * discovery and subscribing data from RDP.
+     * 
+     * @return the tokenServiceURL
+     */
+    public Buffer tokenServiceURL_V1()
+    {
+        return _tokenServiceURL_V1;
+    }
+    
+    /**
+     * a URL of the token service to get an access token and a refresh token. 
+     * This is used for querying RDP service
+     * discovery and subscribing data from RDP.
+     * 
+     * @return the tokenServiceURL
+     */
+    public Buffer tokenServiceURL_V2()
+    {
+        return _tokenServiceURL_V2;
     }
     
     /**
@@ -339,9 +383,7 @@ public class ReactorOptions
         _xmlTracing = false;
         _statistics = StatisticFlags.NONE;
         _serviceDiscoveryURL.data(DEFAULT_SCHEME + "://" + API_GATEWAY_HOST + SERVICE_DISCOVERY_PATH);
-        _tokenServiceURL.data(DEFAULT_SCHEME + "://" + API_GATEWAY_HOST + TOKEN_SERVICE_PATH);         
-		_serviceDiscoveryHost = new HttpHost(API_GATEWAY_HOST, DEFAULT_HTTPS_PORT, DEFAULT_SCHEME);
-        _tokenServiceHost = new HttpHost(API_GATEWAY_HOST, DEFAULT_HTTPS_PORT, DEFAULT_SCHEME);
+        _serviceDiscoveryHost = new HttpHost(API_GATEWAY_HOST, DEFAULT_HTTPS_PORT, DEFAULT_SCHEME);
         _restRequestTimeout = 45000;
         _tokenReissueRatio = 0.8;
         _reissueTokenAttemptLimit = -1;
@@ -361,6 +403,7 @@ public class ReactorOptions
         _reissueTokenAttemptInterval = options._reissueTokenAttemptInterval;
         _restRequestTimeout = options._restRequestTimeout;
         
+        if(options.serviceDiscoveryURL() != null)
         {
         	ByteBuffer byteBuffer = ByteBuffer.allocate(options._serviceDiscoveryURL.length());
         	options._serviceDiscoveryURL.copy(byteBuffer);
@@ -369,12 +412,18 @@ public class ReactorOptions
         			options.serviceDiscoveryHost().getPort(), options.serviceDiscoveryHost().getSchemeName());
         }
         
+        if(options._tokenServiceURL_V1 != null)
         {
-        	ByteBuffer byteBuffer = ByteBuffer.allocate(options._tokenServiceURL.length());
-        	options._tokenServiceURL.copy(byteBuffer);
-        	_tokenServiceURL.data(byteBuffer);
-        	_tokenServiceHost = new HttpHost(options.tokenServiceHost().getHostName(),
-        			options.tokenServiceHost().getPort(), options.tokenServiceHost().getSchemeName());
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(options._tokenServiceURL_V1.length());
+        	options._tokenServiceURL_V1.copy(byteBuffer);
+        	_tokenServiceURL_V1.data(byteBuffer);
+        }
+        
+        if(options._tokenServiceURL_V2 != null)
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(options._tokenServiceURL_V2.length());
+        	options._tokenServiceURL_V2.copy(byteBuffer);
+        	_tokenServiceURL_V2.data(byteBuffer);
         }
     }
     
@@ -384,13 +433,5 @@ public class ReactorOptions
     HttpHost serviceDiscoveryHost()
     {
     	return _serviceDiscoveryHost;
-    }
-    
-    /* 
-     * Returns HTTPHost for the token service used by Rest non-blocking request
-     */
-    HttpHost tokenServiceHost()
-    {
-    	return _tokenServiceHost;
     }
 }

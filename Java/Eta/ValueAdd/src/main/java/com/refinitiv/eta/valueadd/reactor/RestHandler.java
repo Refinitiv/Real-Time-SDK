@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 
 
 class RestHandler implements FutureCallback<HttpResponse> {
@@ -147,7 +148,14 @@ class RestHandler implements FutureCallback<HttpResponse> {
 							if ((statusCode == HttpStatus.SC_MOVED_PERMANENTLY) || (statusCode == 308)) {
 	   	                    	Buffer newUrl = CodecFactory.createBuffer();
    	   	                    	newUrl.data(location.getValue());
-   	   	                    	_restConnectOptions.reactorOptions().tokenServiceURL(newUrl);
+   	   	                    	if(_authTokenInfo.tokenVersion() == TokenVersion.V1)
+   	   	                    	{
+   	   	                    		_restConnectOptions.reactorOptions().tokenServiceURL_V1(newUrl);
+   	   	                    	}
+   	   	                    	else
+   	   	                  {
+   	   	                    		_restConnectOptions.reactorOptions().tokenServiceURL_V2(newUrl);
+   	   	                    	}	
 							}
 							
 							return;
@@ -185,6 +193,8 @@ class RestHandler implements FutureCallback<HttpResponse> {
 			}
 			break;
 		case HttpStatus.SC_FORBIDDEN:
+		case HttpStatus.SC_NOT_FOUND:
+		case HttpStatus.SC_GONE:
 		case 451: //  Unavailable For Legal Reasons
 			
 			RestReactor.convertResponse(_restReactor, response, _response, _event.errorInfo(),

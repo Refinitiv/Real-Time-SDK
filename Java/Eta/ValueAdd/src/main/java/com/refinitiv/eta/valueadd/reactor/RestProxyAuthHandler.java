@@ -105,7 +105,8 @@ class RestProxyAuthHandler
 				if (loggerClient.isTraceEnabled()) {
 					loggerClient.trace(_restReactor.prepareRequestString(httpRequest, connOptions));
 				}
-				
+				RequestConfig config = RequestConfig.custom().setRedirectsEnabled(false).build();
+		    	httpRequest.setConfig(config);
 				final HttpResponse response = httpClient.execute(httpRequest);
 				
 		  		// Extracting content string for further logging and processing
@@ -204,6 +205,8 @@ class RestProxyAuthHandler
 						done = true;
 						break;
 					case HttpStatus.SC_FORBIDDEN:
+					case HttpStatus.SC_NOT_FOUND:
+					case HttpStatus.SC_GONE:
 					case 451: //  Unavailable For Legal Reasons
 					default:
 						if(restHandler == null)
@@ -523,7 +526,8 @@ class RestProxyAuthHandler
         httpRequest.setConfig(_defaultRequestConfig);
 			
         HttpResponse  response = Subject.doAs(serviceSubject,  new PrivilegedAction<HttpResponse>() {
-			@Override
+			
+        	@Override
 			public HttpResponse run() {
 				
 				HttpResponse response = null;

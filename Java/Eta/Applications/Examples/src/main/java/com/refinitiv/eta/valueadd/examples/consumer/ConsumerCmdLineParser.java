@@ -18,6 +18,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String userName;
 	private String passwd;
 	private String clientId;
+	private String clientSecret;
 	private boolean enableView;
 	private boolean enablePost;
 	private boolean enableOffpost;
@@ -38,6 +39,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String proxyPasswd = "";
 	private String proxyDomain = "";
 	private String krbFile = "";
+	private String tokenURL_V1 = "";
+	private String tokenURL_V2 = "";
 	private String keystoreFile;
 	private String keystorePasswd;
 	private boolean cacheOption;
@@ -117,6 +120,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 				else if ("-clientId".equals(args[argsCount]))
 				{
 					clientId = args[++argsCount];
+					++argsCount;
+				}
+				else if ("-clientSecret".equals(args[argsCount]))
+				{
+					clientSecret = args[++argsCount];
 					++argsCount;
 				}
 				else if ("-view".equals(args[argsCount]))
@@ -295,17 +303,17 @@ class ConsumerCmdLineParser implements CommandLineParser
 
 					++argsCount;
 				}
-				else if ("-takeExclusiveSignOnControl".equals(args[argsCount]))
+				else if ("-tokenURLV1".equals(args[argsCount]))
 				{
-					String takeExclusiveSignOnControlStr = args[++argsCount];
-
-					if(takeExclusiveSignOnControlStr.equalsIgnoreCase("true"))
-						takeExclusiveSignOnControl = true;
-					else if (takeExclusiveSignOnControlStr.equalsIgnoreCase("false"))
-						takeExclusiveSignOnControl = false;
-
+					tokenURL_V1 = argsCount < (args.length-1) ? args[++argsCount] : null;
 					++argsCount;
-				} else if ("-pl".equals(args[argsCount])) {
+				}
+				else if ("-tokenURLV2".equals(args[argsCount]))
+				{
+					tokenURL_V2 = argsCount < (args.length-1) ? args[++argsCount] : null;
+					++argsCount;
+				}
+				else if ("-pl".equals(args[argsCount])) {
 					protocolList = args[++argsCount];
 					++argsCount;
 				}
@@ -358,6 +366,21 @@ class ConsumerCmdLineParser implements CommandLineParser
 	String clientId()
 	{
 		return clientId;
+	}
+	
+	String clientSecret()
+	{
+		return clientSecret;
+	}
+	
+	String tokenURLV1()
+	{
+		return tokenURL_V1;
+	}
+	
+	String tokenURLV2()
+	{
+		return tokenURL_V2;
 	}
 
 	boolean enableSessionMgnt()

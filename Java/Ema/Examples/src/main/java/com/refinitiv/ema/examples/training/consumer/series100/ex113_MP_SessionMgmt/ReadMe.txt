@@ -7,11 +7,12 @@ and parsing OMM MarketPrice data from Refinitiv Real-Time -- Optimized.
 
 ex113_MP_SessionManagement illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
-a connection with a Refinitiv Real-Time -- Optimized service and consuming data. This 
-application requires a user name (Machine ID), password, and client ID for authorization 
-with the token service in order to an access token for querying endpoints from the 
-RDP service discovery and sending login requests to the service. EMA automatically 
-refreshes the token to keep session alive with the service.
+a connection with a Refinitiv Real-Time service and consume data. This application requires 
+a user name (machine ID or end-user ID) and a password or a service account(used as clientId) 
+and associated client secret for authorization with the token service in order to use 
+the access token for querying endpoints from Refintiv Data Platform (RDP) service discovery 
+and sending login requests to the service. EMA automatically refreshes the token to keep 
+session alive with the service for V1 connections. EMA does not need to do so for V2 connections.
 
 
 Detailed Description
@@ -20,17 +21,19 @@ Detailed Description
 ex113_MP_SessionManagement implements the following high-level steps:
 + Passes user credential through command line arguments
 including:
--username machine ID to perform authorization with the token service (mandatory).
--password password to perform authorization with the token service (mandatory). 
+-username machine ID to perform authorization with the token service (mandatory for V1 password credentials).
+-password password to perform authorization with the token service (mandatory for V1 password credentials).
 -clientId client ID to perform authorization with the token service (mandatory).
+ For V1 password credentials:
  You can generate and manage client Ids by using the Eikon App Key Generator.
  This is found by visiting my.Refinitiv.com, launching Eikon, and 
  searching for "App Key Generator". Eikon login is required to generate clientID.
--takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional).
+ For V2 client credentials:
+ This is the service account.
+-clientSecret clientSecret for authorization with the token service(mandatory for V2 client credentials)
+-takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
+ This is only used for V1 password credential logins. It is not used for V2 client credentials.
 -websocket Use the WebSocket transport protocol (optional).
--keyfile keystore file for creating an encrypted connection.
--keypasswd keystore password for creating an encrypted connection.
-Note: please refer to README.md of RTSDK Java for generating a keystore file.
 -tokenURL URL to perform authentication to get access and refresh tokens (optional).
 -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
 

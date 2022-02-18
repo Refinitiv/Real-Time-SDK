@@ -441,6 +441,9 @@ typedef struct
 	rtr_atomic_val					addedToTokenSessionList; /* This is used to check whether RsslReactorChannelImpl has been added to the 
 															 RsslQueue of RsslReactorTokenSessionImpl*/
 
+	RsslReactorSessionMgmtVersion	sessionVersion;		/* This is defined based on inputs. */
+	RsslBool						hasConnected;
+
 	RsslBuffer						temporaryURL; /* Temporary URL for redirect */
 	RsslUInt32						temporaryURLBufLength;
 
@@ -1698,8 +1701,10 @@ struct _RsslReactorImpl
 	/* For RDP token management and service discovery */
 	RsslBuffer			serviceDiscoveryURL; /* Used the memory location from the serviceDiscoveryURLBuffer */
 	RsslBuffer			serviceDiscoveryURLBuffer;
-	RsslBuffer			tokenServiceURL; /* Used the memory location from the tokenServiceURLBuffer */
-	RsslBuffer			tokenServiceURLBuffer;
+	RsslBuffer			tokenServiceURLV1; /* Used the memory location from the tokenServiceURLBuffer */
+	RsslBuffer			tokenServiceURLBufferV1;
+	RsslBuffer			tokenServiceURLV2; /* Used the memory location from the tokenServiceURLBuffer */
+	RsslBuffer			tokenServiceURLBufferV2;
 	RsslBuffer			accessTokenRespBuffer;
 	RsslBuffer			tokenInformationBuffer;
 	RsslBuffer			serviceDiscoveryRespBuffer;
@@ -1742,8 +1747,13 @@ RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
 
-RsslRestRequestArgs* _reactorCreateRequestArgsForPassword(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
+/* Populates the request for v1 token handling */
+RsslRestRequestArgs* _reactorCreateTokenRequestV1(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
 	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBool takeExclusiveSignOnContorl, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
+
+/* Populates the request for v2 token handling */
+RsslRestRequestArgs* _reactorCreateTokenRequestV2(RsslReactorImpl* pReactorImpl, RsslBuffer* pTokenServiceURL, RsslBuffer* pClientId, RsslBuffer* pClientSecret, RsslBuffer* pTokenScope, RsslBuffer* pHeaderAndDataBodyBuf, void* pUserSpecPtr, RsslErrorInfo* pError);
+
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImpl *pReactorImpl, RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
 																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,

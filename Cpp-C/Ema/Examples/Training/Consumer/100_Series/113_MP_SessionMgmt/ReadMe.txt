@@ -8,11 +8,11 @@ and parsing OMM MarketPrice data from Refinitiv Real-Time - Optimized.
 113_MP_SessionMgmt illustrates how to use the EMA's configuration file
 to enable session management and specify a location to get an endpoint for establishing
 a connection with a Refinitiv Real-Time service and consume data. This application requires 
-a user name (machine ID or end-user ID) and a password for authorization with 
-the token service in order to use the access token for querying endpoints from 
-Refintiv Data Platform (RDP) service discovery and sending login requests to the 
-service. EMA automatically refreshes the token to keep session alive 
-with the service. 
+a user name (machine ID or end-user ID) and a password or a service account(used as clientId) 
+and associated client secret for authorization with the token service in order to use 
+the access token for querying endpoints from Refintiv Data Platform (RDP) service discovery 
+and sending login requests to the service. EMA automatically refreshes the token to keep 
+session alive with the service for V1 connections. EMA does not need to do so for V2 connections.
 
 
 Detailed Description
@@ -21,13 +21,18 @@ Detailed Description
 113_MP_SessionMgmt implements the following high-level steps:
 + Passes user credential through command line arguments
 including:
--username machine ID to perform authorization with the token service (mandatory).
--password password to perform authorization with the token service (mandatory).
+-username machine ID to perform authorization with the token service (mandatory for V1 password credentials).
+-password password to perform authorization with the token service (mandatory for V1 password credentials).
 -clientId client ID to perform authorization with the token service (mandatory).
+ For V1 password credentials:
  You can generate and manage client Ids by using the Eikon App Key Generator.
  This is found by visiting my.Refinitiv.com, launching Eikon, and 
  searching for "App Key Generator". Eikon login is required to generate clientID.
+ For V2 client credentials:
+ This is the service account.
+-clientSecret clientSecret for authorization with the token service(mandatory for V2 client credentials)
 -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional).
+ This is only used for V1 password credential logins. It is not used for V2 client credentials.
 -websocket Use the WebSocket transport protocol (optional).
 -tokenURL URL to perform authentication to get access and refresh tokens (optional).
 -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional).
@@ -45,6 +50,7 @@ use of a proxy to get to the Internet.
 
 Example command line: 
 Cons113 -username <machine ID> -password <machine ID password> -clientId <client ID>
+Cons113 -clienId <service account ID> -clientSecret <client Secret>
 
 + Implements OmmConsumerClient class in AppClient
   - Overrides desired methods

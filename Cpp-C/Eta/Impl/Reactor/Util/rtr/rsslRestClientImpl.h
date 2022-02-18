@@ -39,6 +39,7 @@ extern RsslBuffer rssl_rest_dataformat_type_rwf_text;
 extern RsslBuffer rssl_rest_dataformat_type_tr_json2_text;
 extern RsslBuffer rssl_rest_grant_type_refresh_token_text;
 extern RsslBuffer rssl_rest_grant_type_password_text;
+extern RsslBuffer rssl_rest_grant_type_client_credential_text;
 extern RsslBuffer rssl_rest_username_text;
 extern RsslBuffer rssl_rest_password_text;
 extern RsslBuffer rssl_rest_new_password_text;
@@ -46,11 +47,19 @@ extern RsslBuffer rssl_rest_client_id_text;
 extern RsslBuffer rssl_rest_client_secret_text;
 extern RsslBuffer rssl_rest_refresh_token_text;
 extern RsslBuffer rssl_rest_scope_text;
+extern RsslBuffer rssl_rest_V2_scope_text;
 extern RsslBuffer rssl_rest_take_exclusive_sign_on_false_text;
 extern RsslBuffer rssl_rest_take_exclusive_sign_on_true_text;
 extern RsslBuffer rssl_rest_content_type_text;
 extern RsslBuffer rssl_rest_application_form_urlencoded_text;
 extern RsslBuffer rssl_rest_location_header_text;
+extern RsslBuffer rssl_rest_token_url_v1;
+extern RsslBuffer rssl_rest_token_url_v2;
+extern RsslBuffer rssl_rest_user_agent_text;
+extern RsslBuffer rssl_rest_user_agent_rtsdk_text;
+
+extern RsslBuffer rssl_rest_client_assertion_type;
+extern RsslBuffer rssl_rest_client_assertion;
 
 #define RSSL_REST_MAX_WRITE_BUF_SIZE 16384
 #define RSSL_REST_INIT_TOKEN_BUFFER_SIZE 8192
@@ -185,6 +194,16 @@ RTR_C_INLINE void rsslClearRestRequestArgs(RsslRestRequestArgs *rsslRestRequestA
 	rsslClearRestNetworkArgs(&rsslRestRequestArgs->networkArgs);
 	rsslRestRequestArgs->requestTimeOut = 0; /* Never timeout during transfer and waiting for a response */
 }
+
+/**
+ *  @brief RsslReactorSessionMgmtVersion session management connection version 
+ */
+typedef enum
+{
+	RSSL_RC_SESSMGMT_NONE = 0,
+	RSSL_RC_SESSMGMT_V1 = 1,
+	RSSL_RC_SESSMGMT_V2 = 2,
+} RsslReactorSessionMgmtVersion;
 
 /**
 * @brief RsslTokenInformation represents an token information from RDP token service.
@@ -457,7 +476,7 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* location, RsslBu
 RsslRet rsslRestParseServiceDiscoveryResp(RsslBuffer* dataBody, RsslRestServiceEndpointResp* pRestServiceEndpointResp, RsslBuffer* memoryBuffer, RsslError* pError);
 
 /**
-* @brief Parses an token information from RDP token service
+* @brief Parses an token information from RDP token service V1
 * @param dataBody specifies a HTTP data body of HTTP response from the service
 * @param accessToken specifies a buffer for this function to set the access token
 * @param refreshToken specifies a buffer for this function to set the refresh token
@@ -468,8 +487,24 @@ RsslRet rsslRestParseServiceDiscoveryResp(RsslBuffer* dataBody, RsslRestServiceE
 * @param pError Error structure to be populated in the event of an error.
 * @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
 */
-RsslRet rsslRestParseAccessToken(RsslBuffer* dataBody, RsslBuffer *accessToken, RsslBuffer *refreshToken, RsslInt *expiresIn, 
+RsslRet rsslRestParseAccessTokenV1(RsslBuffer* dataBody, RsslBuffer *accessToken, RsslBuffer *refreshToken, RsslInt *expiresIn, 
 									RsslBuffer *tokenType, RsslBuffer *scope, RsslBuffer* memoryBuffer, RsslError* pError);
+
+
+/**
+* @brief Parses an token information from RDP token service V2
+* @param dataBody specifies a HTTP data body of HTTP response from the service
+* @param accessToken specifies a buffer for this function to set the access token
+* @param refreshToken specifies a buffer for this function to set the refresh token
+* @param expiresIn specifies a buffer for this function to set the access token validity
+* @param tokenType specifies a buffer for this function to set the tokey type
+* @param scope specifies a buffer for this function to set a list of all the scopes this token can be used with
+* @param memorybuffer specifies a memory buffer for storing token information
+* @param pError Error structure to be populated in the event of an error.
+* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
+*/
+RsslRet rsslRestParseAccessTokenV2(RsslBuffer* dataBody, RsslBuffer* accessToken, RsslBuffer* refreshToken, RsslInt* expiresIn,
+	RsslBuffer* tokenType, RsslBuffer* scope, RsslBuffer* memoryBuffer, RsslError* pError);
 
 /**
 * @brief Converts the given input string to URL encoded string
@@ -502,7 +537,7 @@ RsslBuffer* rsslRestResponseDumpBuffer(RsslRestResponse* pRestResponse, RsslErro
 */
 RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput);
 
- /**
+/**
  *	@}
  */
 

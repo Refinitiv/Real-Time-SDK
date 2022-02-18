@@ -30,10 +30,6 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     private static final String BUTTON_RETRIEVE_ENDPOINTS_TEXT = "Retrieve Service Endpoints";
 
-    private static final String DEFAULT_TOKEN_SERVICE_URL = "https://api.refinitiv.com/auth/oauth2/v1/token";
-
-    private static final String DEFAULT_SERVICE_ENDPOINT_URL = "https://api.refinitiv.com/streaming/pricing/v1/";
-
     private static final String CLIENT_DISCOVERED_ENDPOINT_SETTINGS_ERROR = "Discovered Endpoint Settings - Validation Failure:";
 
     private static final String SERVICE_ENDPOINT_SELECTION_EMPTY = "Validation failure: you should select at least one available " +
@@ -41,10 +37,10 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     private static final String EMPTY_VALIDATION_POSTFIX = " is empty.";
 
-    private static final double DEFAULT_PREF_HEIGHT = 900;
+    private static final double DEFAULT_PREF_HEIGHT = 650;
 
     /* This value is set more than the maximum width of VBOX at the top level */
-    private static final double DEFAULT_PREF_WIDTH = 550;
+    private static final double DEFAULT_PREF_WIDTH = 900;
 
     private static final double DEFAULT_RATIO = 0.93;
 
@@ -147,6 +143,33 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     @FXML
     private Button backButton;
 
+    @FXML
+    private ToggleGroup authTypeGroup;
+
+    @FXML
+    private VBox v1Creds;
+
+    @FXML
+    private VBox v2Creds;
+
+    @FXML
+    private ScrollableTextField clientId;
+
+    @FXML
+    private RadioButton clientSecretRB;
+
+    @FXML
+    private RadioButton jwtRB;
+
+    @FXML
+    private PasswordEyeComponent clientSecretComponent;
+
+    @FXML
+    private FilePickerComponent jwkFilePicker;
+
+    @FXML
+    private ToggleGroup authTypeToggleGroup;
+
     private final OMMViewerError ommViewerError = new OMMViewerError();
     private AsyncResponseModel asyncResponseObserver;
 
@@ -164,7 +187,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     public void initialize() {
         sceneController = ApplicationSingletonContainer.getBean(SceneController.class);
         executorService = ApplicationSingletonContainer.getBean(ExecutorService.class);
-        tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL);
+        tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V1);
         serviceDiscoveryUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_DISCOVERY_ENDPOINT_URL);
         discoveredEndpointSettingsService = new DiscoveredEndpointSettingsServiceImpl();
         ApplicationSingletonContainer.addBean(DiscoveredEndpointSettingsService.class, discoveredEndpointSettings);
@@ -185,29 +208,33 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                 primaryTabPane.getHeight() - controlButtons.getHeight() - 225));
 
         sceneController.getPrimaryStage().getScene().getWindow().widthProperty().addListener(e -> {
-            double width = Math.max(200, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() / 2 - 80);
-            usernameTextField.setCustomWidth(width);
-            clientIdTextField.setCustomWidth(width);
-            tokenServiceUrl.setCustomWidth(width);
-            serviceDiscoveryUrl.setCustomWidth(width);
-            krbFilePicker.setFilePickerWidth(width);
-            proxyAuthDomain.setCustomWidth(width);
-            proxyAuthLogin.setCustomWidth(width);
-            proxyAuthPassword.setCustomWidth(width);
-            usernamePasswordComponent.getPasswordField().setPrefWidth(width);
-            clientIdTextField.setCustomWidth(width);
-            keyPasswordComponent.setCustomWidth(width);
-            proxyHostTextFld.setCustomWidth(width);
-            proxyPortTextFld.setCustomWidth(width);
+            double width3 = Math.max(200, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() / 3 - 70);
+            double width4 = Math.max(200, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() / 4 - 30);
+            usernameTextField.setCustomWidth(width3);
+            clientIdTextField.setCustomWidth(width3);
+            clientId.setCustomWidth(width3);
+            jwkFilePicker.setFilePickerWidth(width3);
+            clientSecretComponent.setCustomWidth(width3);
+            tokenServiceUrl.setCustomWidth(width4);
+            serviceDiscoveryUrl.setCustomWidth(width4);
+            krbFilePicker.setFilePickerWidth(width4);
+            proxyAuthDomain.setCustomWidth(width4);
+            proxyAuthLogin.setCustomWidth(width4);
+            proxyAuthPassword.setCustomWidth(width4);
+            usernamePasswordComponent.getPasswordField().setPrefWidth(width3);
+            usernamePasswordComponent.setCustomWidth(width3);
+            clientIdTextField.setCustomWidth(width3);
+            keyPasswordComponent.setCustomWidth(width4);
+            proxyHostTextFld.setCustomWidth(width4);
+            proxyPortTextFld.setCustomWidth(width4);
+            keyFilePicker.setFilePickerWidth(width4);
 
-            keyFilePicker.setFilePickerWidth(width);
-            usernamePasswordComponent.setCustomWidth(width);
-            primaryTabPane.setPrefWidth(Math.max(450, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get()) - 30);
-            errorDebugArea.setPrefWidth(Math.max(450, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() - 30));
-            dictionaryLoader.setCustomWidth(width);
+            primaryTabPane.setPrefWidth(Math.max(DEFAULT_PREF_WIDTH - 20, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get()) - 90);
+            errorDebugArea.setPrefWidth(Math.max(DEFAULT_PREF_WIDTH - 20, sceneController.getPrimaryStage().getScene().getWindow().widthProperty().get() - 90));
+            dictionaryLoader.setCustomWidth(width3);
 
-            emaConfigComponent.setConsumerNameWidth(width - 30);
-            emaConfigComponent.setFilePickerTextLength(width - 30);
+            emaConfigComponent.setConsumerNameWidth(width3 - 30);
+            emaConfigComponent.setFilePickerTextLength(width3 - 30);
             primaryActionButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 30);
             backButton.setPrefWidth(sceneController.getPrimaryStage().getScene().getWindow().getWidth() / 2 - 30);
         });
@@ -216,6 +243,39 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             errorDebugArea.setAreaHeight(Math.max(60, sceneController.getPrimaryStage().getScene().getWindow().heightProperty().get() -
                     primaryTabPane.getHeight() - controlButtons.getHeight() - 225));
         });
+
+        authTypeGroup.selectedToggleProperty().addListener(
+                (observable, oldValue, newValue) -> toggleSTS_PINGRadioButton()
+        );
+
+        authTypeToggleGroup.selectedToggleProperty().addListener(
+                (observable, oldValue, newValue) -> toggleSecret_JWKRadioButton()
+        );
+    }
+
+    private void toggleSTS_PINGRadioButton() {
+        String radioStrValue = authTypeGroup.getSelectedToggle().getUserData().toString();
+        if (radioStrValue.equals("V1")) {
+            tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V1);
+            v1Creds.setVisible(true);
+            v2Creds.setVisible(false);
+        } else if (radioStrValue.equals("V2")) {
+            tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V2);
+            v1Creds.setVisible(false);
+            v2Creds.setVisible(true);
+        }
+    }
+
+    private void toggleSecret_JWKRadioButton() {
+        RadioButton radioButton = (RadioButton) authTypeToggleGroup.getSelectedToggle();
+        String radioStrValue = radioButton.getUserData().toString();
+        if (radioStrValue.equals("CLIENTSECRET")) {
+            clientSecretComponent.setVisible(true);
+            jwkFilePicker.setVisible(false);
+        } else if (radioStrValue.equals("JWT")) {
+            clientSecretComponent.setVisible(false);
+            jwkFilePicker.setVisible(true);
+        }
     }
 
     public void handleBackBtnAction(ActionEvent event) {
@@ -227,6 +287,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     @FXML
     public void handleSubmitBtnAction(ActionEvent actionEvent) {
+        errorDebugArea.clearDebugArea();
         primaryActionButton.setDisable(true);
         validateFields();
 
@@ -374,14 +435,15 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private DiscoveredEndpointSettingsModel mapDiscoveredEndpointSettings() {
         EncryptionDataModel encryptionDataModel = null;
         ProxyDataModel proxyDataModel = null;
-        String tokenServiceUrl = DEFAULT_TOKEN_SERVICE_URL;
-        String serviceDiscoveryUrl = DEFAULT_SERVICE_ENDPOINT_URL;
+        String serviceDiscoveryUrl = DiscoveredEndpointSettingsModel.DEFAULT_DISCOVERY_ENDPOINT_URL;
+        String tokenServiceUrl = ((RadioButton) authTypeGroup.getSelectedToggle()).getUserData().toString().equals("V1")
+                ? DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V1 : DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V2;
+
         if (encryptionOptionCheckbox.isSelected()) {
             encryptionDataModel = EncryptionDataModel.builder()
                     .keyFilePath(keyFilePicker.getFilePickerTextField().getText().trim())
                     .keyPassword(keyPasswordComponent.getPasswordField().getText().trim())
                     .build();
-
         }
 
         if (useProxyCheckbox.isSelected()) {
@@ -408,10 +470,16 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             serviceDiscoveryUrl = this.serviceDiscoveryUrl.getText().trim();
         }
 
+        boolean useV1 = authTypeGroup.getSelectedToggle().getUserData().equals("V1");
+
         return DiscoveredEndpointSettingsModel.builder()
-                .clientId(clientIdTextField.getText().trim())
+                .clientId(useV1 ? clientIdTextField.getText().trim() : clientId.getText().trim())
                 .username(usernameTextField.getText().trim())
                 .password(usernamePasswordComponent.getPasswordField().getText().trim())
+                .clientSecret(clientSecretComponent.getPasswordField().getText().trim())
+                .jwkPath(jwkFilePicker.getFilePickerTextField().getText())
+                .useV1(useV1)
+                .useClientSecret(authTypeToggleGroup.getSelectedToggle().getUserData().equals("CLIENTSECRET"))
                 .connectionType(connectionTypesComboBox.getValue())
                 .useEncryption(encryptionDataModel)
                 .useProxy(proxyDataModel)
@@ -430,9 +498,19 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             }
         } else {
             ommViewerError.appendErrorText(CLIENT_DISCOVERED_ENDPOINT_SETTINGS_ERROR);
-            boolean hasError = hasErrorField("Username", usernameTextField.getTextField())
-                    | hasErrorField("Password", usernamePasswordComponent.getPasswordField())
-                    | hasErrorField("Client ID", clientIdTextField.getTextField());
+            boolean useV1 = authTypeGroup.getSelectedToggle().getUserData().equals("V1");
+            boolean hasError = false;
+            if (useV1) {
+                hasError = hasErrorField("Username", usernameTextField.getTextField())
+                        | hasErrorField("Password", usernamePasswordComponent.getPasswordField())
+                        | hasErrorField("Client ID", clientIdTextField.getTextField());
+            } else {
+                hasError |= hasErrorField("Client ID", clientId.getTextField())
+                        | (authTypeToggleGroup.getSelectedToggle().equals(clientSecretRB)
+                        ? hasErrorField("Client Secret", clientSecretComponent.getPasswordField())
+                        : hasErrorField("JWK", jwkFilePicker.getFilePickerTextField()));
+            }
+
             if (encryptionOptionCheckbox.isSelected()) {
                 hasError |= hasErrorField("Key File", keyFilePicker.getFilePickerTextField())
                         | hasErrorField("Key Password", keyPasswordComponent.getPasswordField());
@@ -483,6 +561,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
 
     @Override
     public void clear() {
+        errorDebugArea.clearDebugArea();
         if(actionButtonIsClicked) {
             if (serviceEndpointsRetrieved) {
                 //unlock configuration tab and clear service endpoints.
@@ -493,6 +572,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                 serviceEndpointChoiceBox.getItems().clear();
                 primaryActionButton.getStyleClass().remove(BUTTON_CONNECT_STYLE);
                 primaryActionButton.setText(BUTTON_RETRIEVE_ENDPOINTS_TEXT);
+                serviceEndpointData.getEndpoints().clear();
             } else {
                 discoveredEndpointSettingsService.uninitialize();
                 primaryTabPane.setDisable(false);

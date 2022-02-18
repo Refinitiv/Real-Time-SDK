@@ -21,7 +21,8 @@ extern "C" {
 /* reasons a login request is rejected */
 typedef enum {
 	MAX_LOGIN_REQUESTS_REACHED	= 0,
-	LOGIN_RDM_DECODER_FAILED	= 1
+	LOGIN_RDM_DECODER_FAILED	= 1,
+	NO_USER_NAME_IN_REQUEST		= 2
 } RsslLoginRejectReason;
 
 /*

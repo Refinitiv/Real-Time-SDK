@@ -13,20 +13,33 @@
 
 using namespace refinitiv::ema::access;
 
-ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery *pServiceEndpointDiscovery, const EmaString& tokenServiceURL, 
-																const EmaString& serviceDiscoveryURL) :
-_pServiceEndpointDiscovery(0),
-_pClient(0)
+ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery* pServiceEndpointDiscovery, const EmaString* pTokenServiceURLV1, const EmaString* pTokenServiceURLV2,
+	const EmaString* pServiceDiscoveryURL) :
+	_pServiceEndpointDiscovery(0),
+	_pClient(0)
 {
 	RsslCreateReactorOptions reactorOpts;
 	RsslErrorInfo rsslErrorInfo;
 	clearRsslErrorInfo(&rsslErrorInfo);
 
 	rsslClearCreateReactorOptions(&reactorOpts);
-	reactorOpts.tokenServiceURL.data = const_cast<char*>(tokenServiceURL.c_str());
-	reactorOpts.tokenServiceURL.length = tokenServiceURL.length();
-	reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(serviceDiscoveryURL.c_str());
-	reactorOpts.serviceDiscoveryURL.length = serviceDiscoveryURL.length();
+	if (pTokenServiceURLV1 != NULL)
+	{
+		reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pTokenServiceURLV1->c_str());
+		reactorOpts.tokenServiceURL_V1.length = pTokenServiceURLV1->length();
+	}
+
+	if (pTokenServiceURLV2 != NULL)
+	{
+		reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pTokenServiceURLV2->c_str());
+		reactorOpts.tokenServiceURL_V2.length = pTokenServiceURLV2->length();
+	}
+
+	if (pServiceDiscoveryURL != NULL)
+	{
+		reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceDiscoveryURL->c_str());
+		reactorOpts.serviceDiscoveryURL.length = pServiceDiscoveryURL->length();
+	}
 	reactorOpts.userSpecPtr = this;
 
 	_pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo);
@@ -37,7 +50,7 @@ _pClient(0)
 			.append("' Internal sysError='").append(rsslErrorInfo.rsslError.sysError)
 			.append("' Error Location='").append(rsslErrorInfo.errorLocation)
 			.append("' Error Text='").append(rsslErrorInfo.rsslError.text).append("'. ");
-		throwIueException( temp, OmmInvalidUsageException::InternalErrorEnum );
+		throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
 	}
 
 	_pServiceEndpointDiscovery = pServiceEndpointDiscovery;
@@ -64,10 +77,18 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 	clearRsslErrorInfo(&rsslErrorInfo);
 	rsslClearReactorServiceDiscoveryOptions(&_serviceDiscoveryOpts);
 
-	_serviceDiscoveryOpts.userName.data = const_cast<char*>(params._username.c_str());
-	_serviceDiscoveryOpts.userName.length = params._username.length();
-	_serviceDiscoveryOpts.password.data = const_cast<char*>(params._password.c_str());
-	_serviceDiscoveryOpts.password.length = params._password.length();
+	if (!params._username.empty())
+	{
+		_serviceDiscoveryOpts.userName.data = const_cast<char*>(params._username.c_str());
+		_serviceDiscoveryOpts.userName.length = params._username.length();
+	}
+
+	if (!params._password.empty())
+	{
+		_serviceDiscoveryOpts.password.data = const_cast<char*>(params._password.c_str());
+		_serviceDiscoveryOpts.password.length = params._password.length();
+	}
+
 	_serviceDiscoveryOpts.takeExclusiveSignOnControl = (RsslBool)params._takeExclusiveSignOnControl;
 
 	if (!params._proxyHostName.empty())

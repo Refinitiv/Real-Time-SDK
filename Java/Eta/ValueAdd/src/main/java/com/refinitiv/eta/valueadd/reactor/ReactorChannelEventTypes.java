@@ -22,7 +22,7 @@ public class ReactorChannelEventTypes
     public static final int CHANNEL_DOWN_RECONNECTING = 3;
     /** Channel has sent and received all messages expected for setting up the session. Normal use (such as item requests)
      * can now be done. */
-    public static final int CHANNEL_READY = 4;
+	public static final int CHANNEL_READY = 4;
     /** An event has occurred that did not result in channel failure, but may require attention by the application. */
     public static final int WARNING = 5;
     /** The SelectableChannel representing this channel has changed. The new and old SelectableChannel can be found on

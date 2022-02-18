@@ -239,6 +239,34 @@ public class EmaFactory
 	
 	/**
 	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, OAuthClient);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, OAuthClient, closure);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
 	 * @param config OmmConsumerConfig providing configuration
 	 * @param client OmmConsumerClient that provides callback interfaces to be used for item processing
 	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
@@ -247,6 +275,35 @@ public class EmaFactory
 	{
 		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, client);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, adminClient, OAuthClient);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, adminClient, OAuthClient, closure);
 	}
 	
 	/**
@@ -280,6 +337,36 @@ public class EmaFactory
 	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
 	 * 
 	 * @param config OmmConsumerConfig providing configuration
+	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerErrorClient errorClient, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, errorClient, OAuthClient);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerErrorClient errorClient, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, errorClient, OAuthClient, closure);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
 	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
 	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
 	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
@@ -303,6 +390,38 @@ public class EmaFactory
 	{
 		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
 		return new OmmConsumerImpl(config, adminClient, errorClient, closure);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient, OmmOAuth2ConsumerClient OAuthClient)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, adminClient, errorClient, OAuthClient);
+	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumer}.
+	 * 
+	 * @param config OmmConsumerConfig providing configuration
+	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
+	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
+	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
+	 * @param closure specifies application defined identification 
+	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
+	 */
+	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient, OmmOAuth2ConsumerClient OAuthClient, Object closure)
+	{
+		((OmmConsumerConfigImpl)config).validateSpecifiedSessionName();
+		return new OmmConsumerImpl(config, adminClient, errorClient, OAuthClient, closure);
 	}
 	
 	/**
@@ -509,6 +628,15 @@ public class EmaFactory
 	}
 	
 	/**
+	 * Creates a {@link com.refinitiv.ema.access.OmmConsumerConfig}.
+	 * @return {@link com.refinitiv.ema.access.OmmConsumerConfig}
+	 */
+	public static OAuth2CredentialRenewal createOAuth2CredentialRenewal()
+	{
+		return new OAuth2CredentialRenewalImpl();
+	}
+	
+	/**
 	 * Creates a {@link com.refinitiv.ema.access.RmtesBuffer}.
 	 * @return {@link com.refinitiv.ema.access.RmtesBuffer}
 	 */
@@ -686,14 +814,28 @@ public class EmaFactory
 	/**
 	 * Creates a {@link com.refinitiv.ema.access.ServiceEndpointDiscovery} with overriding the default URLs.
 	 * 
-	 * @param tokenServiceUrl specifies the token service URL to override the default value.
+	 * @param tokenServiceUrlV1 specifies the token service V1 URL for password grant types to override the default value.
 	 * @param serviceDiscoveryUrl specifies the service discovery URL to override the default value.
 	 * @return {@link com.refinitiv.ema.access.ServiceEndpointDiscovery}
 	 */
-	public static ServiceEndpointDiscovery createServiceEndpointDiscovery(String tokenServiceUrl, String serviceDiscoveryUrl)
+	public static ServiceEndpointDiscovery createServiceEndpointDiscovery(String tokenServiceUrlV1, String serviceDiscoveryUrl)
 	{
-		return new ServiceEndpointDiscoveryImpl(tokenServiceUrl, serviceDiscoveryUrl);
+		return new ServiceEndpointDiscoveryImpl(tokenServiceUrlV1, serviceDiscoveryUrl);
 	}
+	
+	/**
+	 * Creates a {@link com.refinitiv.ema.access.ServiceEndpointDiscovery} with overriding the default URLs.
+	 * 
+	 * @param tokenServiceUrlV1 specifies the token service V1 URL for password grant types to override the default value.
+	 * @param tokenServiceUrlV2 specifies the token service V2 URL for client credential grant types to override the default value.
+	 * @param serviceDiscoveryUrl specifies the service discovery URL to override the default value.
+	 * @return {@link com.refinitiv.ema.access.ServiceEndpointDiscovery}
+	 */
+	public static ServiceEndpointDiscovery createServiceEndpointDiscovery(String tokenServiceUrlV1, String tokenServiceUrlV2, String serviceDiscoveryUrl)
+	{
+		return new ServiceEndpointDiscoveryImpl(tokenServiceUrlV1, tokenServiceUrlV2, serviceDiscoveryUrl);
+	}
+	
 	
 	/**
 	 * Creates a {@link com.refinitiv.ema.access.ServiceEndpointDiscoveryOption} to specify query options to get endpoints.

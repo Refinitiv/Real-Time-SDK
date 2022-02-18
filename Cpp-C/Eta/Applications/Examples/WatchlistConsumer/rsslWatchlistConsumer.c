@@ -153,6 +153,20 @@ int main(int argc, char **argv)
 		if(watchlistConsumerConfig.queryEndpoint) 
 			serviceDiscoveryOpts.password = loginRequest.password;
 	}
+
+	/* Set login password if specified. */
+	if (watchlistConsumerConfig.clientId.length)
+	{
+		if (watchlistConsumerConfig.queryEndpoint)
+			serviceDiscoveryOpts.clientId = watchlistConsumerConfig.clientId;
+	}
+
+	/* Set login password if specified. */
+	if (watchlistConsumerConfig.clientSecret.length)
+	{
+		if (watchlistConsumerConfig.queryEndpoint)
+			serviceDiscoveryOpts.clientSecret = watchlistConsumerConfig.clientSecret;
+	}
 	
 	/* If the authentication Token is specified, set it and authenticationExtended(if present) to the loginRequest */
 	if (watchlistConsumerConfig.authenticationToken.length)
@@ -204,14 +218,36 @@ int main(int argc, char **argv)
 	{
 		rsslClearReactorOAuthCredential(&oauthCredential);
 		oauthCredential.clientId = watchlistConsumerConfig.clientId;
+		if (watchlistConsumerConfig.clientSecret.data)
+			oauthCredential.clientSecret = watchlistConsumerConfig.clientSecret;
 		oauthCredential.takeExclusiveSignOnControl = watchlistConsumerConfig.takeExclusiveSignOnControl;
+		if (watchlistConsumerConfig.tokenScope.data)
+			oauthCredential.tokenScope = watchlistConsumerConfig.tokenScope;
 		consumerRole.pOAuthCredential = &oauthCredential;
 	}
+
+
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
 
 	if (watchlistConsumerConfig.restEnableLog || watchlistConsumerConfig.restEnableLogCallback)
+	if (watchlistConsumerConfig.tokenURLV1.data != NULL)
+	{
+		reactorOpts.tokenServiceURL_V1 = watchlistConsumerConfig.tokenURLV1;
+	}
+
+	if (watchlistConsumerConfig.tokenURLV2.data != NULL)
+	{
+		reactorOpts.tokenServiceURL_V2 = watchlistConsumerConfig.tokenURLV2;
+	}
+
+	if (watchlistConsumerConfig.serviceDiscoveryURL.data != NULL)
+	{
+		reactorOpts.serviceDiscoveryURL = watchlistConsumerConfig.serviceDiscoveryURL;
+	}
+
+	if (watchlistConsumerConfig.restEnableLog)
 	{
 		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
 		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
@@ -230,11 +266,10 @@ int main(int argc, char **argv)
 	rsslClearReactorConnectOptions(&reactorConnectOpts);
 	rsslClearReactorConnectInfo(&reactorConnectInfo);
 	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
-
 	if(watchlistConsumerConfig.location.length == 0) // Use the default location from the Reactor if not specified
 	{
 		watchlistConsumerConfig.location.length =
-                (RsslUInt32)snprintf(watchlistConsumerConfig._locationMem, 255, "%s", reactorConnectInfo.location.data);
+                (RsslUInt32)snprintf(watchlistConsumerConfig._locationMem, 255, "%.*s", reactorConnectInfo.location.length, reactorConnectInfo.location.data);
             watchlistConsumerConfig.location.data = watchlistConsumerConfig._locationMem;					
 	}
 
@@ -414,7 +449,6 @@ int main(int argc, char **argv)
 	reactorConnectOpts.reconnectAttemptLimit = -1;
 	reactorConnectOpts.reconnectMinDelay = 500;
 	reactorConnectOpts.reconnectMaxDelay = 3000;
-
 
 	/* Connect. */
 	if ((ret = rsslReactorConnect(pReactor, &reactorConnectOpts, 

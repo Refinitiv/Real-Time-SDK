@@ -100,7 +100,11 @@ typedef struct
 	RsslBuffer			serviceName;					/* Service name to use when requesting items. */
 	RsslBuffer			authenticationToken;			/* Authentication token used for logging in */
 	RsslBuffer			authenticationExtended;			/* Extended Authentication information used for logging in */
-	RsslBuffer			appId;					/* Application ID */
+	RsslBuffer			appId;							/* Application ID */
+	RsslBuffer			tokenURLV1;						/* Authentication Token V1 URL location */
+	RsslBuffer			tokenURLV2;						/* Authentication Token V2 URL location */
+	RsslBuffer			serviceDiscoveryURL;			/* Service Discovery URL location */
+	RsslBuffer			tokenScope;						/* Optional token scope */
 	RsslBool			RTTSupport;						/* Enable the RTT feature on this reactor channel */
 	ItemInfo			itemList[MAX_ITEMS];			/* The list of items to request. */
 	ItemInfo			providedItemList[MAX_ITEMS];	/* Stores any items opened by the provider.
@@ -121,7 +125,8 @@ typedef struct
 														 * opening a tunnel stream. */
 
 	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
-	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service */  
+	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service, or client ID */  
+	RsslBuffer			clientSecret;					/* Client secret with associated clientId */
 	RsslBuffer			location;						/* Location to get an endpoint from RDP Service discovery */
 	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */
 	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
@@ -138,7 +143,13 @@ typedef struct
 	char			_authenticationExtendedMem[1024];
 	char 			_appIdMem[255];
 	char 			_clientIdMem[255];
+	char 			_clientSecretMem[255];
 	char 			_locationMem[255];
+	char			_tokenUrlV1[255];
+	char			_tokenUrlV2[255];
+	char			_serviceDiscoveryUrl[255];
+	char			_tokenScope[255];
+	
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 

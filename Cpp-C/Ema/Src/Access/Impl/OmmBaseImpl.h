@@ -45,6 +45,7 @@ class DirectoryCallbackClient;
 class DictionaryCallbackClient;
 class ItemCallbackClient;
 class OmmConsumerClient;
+class OmmOAuth2ConsumerClient;
 class OmmProviderClient;
 class OmmLoggerClient;
 class TimeOut;
@@ -73,6 +74,8 @@ public :
 	static RsslRet serviceNameToIdCallback(RsslReactor *pReactor, RsslBuffer* pServiceName, RsslUInt16* pServiceId, RsslReactorServiceNameToIdEvent* pEvent);
 
 	static RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRestLoggingEvent* pLogEvent);
+
+	static RsslReactorCallbackRet oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent);
 
 	virtual const EmaString& getInstanceName() const;
 
@@ -129,11 +132,15 @@ public :
 
 	OmmLoggerClient& getOmmLoggerClient();
 
+	OmmOAuth2ConsumerClient& getOAuth2ConsumerClient();
+
 	ActiveConfig& getActiveConfig();
 
 	LoggerConfig& getActiveLoggerConfig();
 
 	ErrorClientHandler& getErrorClientHandler();
+
+	void* getAdminClosure();
 
 	bool hasErrorClientHandler() const;
 
@@ -189,11 +196,16 @@ protected:
 
 	OmmBaseImpl( ActiveConfig& );
 	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, void* = 0);
+	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, OmmOAuth2ConsumerClient&, void* = 0);
 	OmmBaseImpl(ActiveConfig&, OmmProviderClient&, void* = 0);
+	OmmBaseImpl(ActiveConfig&, OmmOAuth2ConsumerClient&, void* = 0);
 	OmmBaseImpl( ActiveConfig&, OmmConsumerErrorClient& );
+	OmmBaseImpl(ActiveConfig&, OmmOAuth2ConsumerClient&, OmmConsumerErrorClient&, void* = 0);
 	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, OmmConsumerErrorClient&, void* = 0);
+	OmmBaseImpl(ActiveConfig&, OmmConsumerClient&, OmmOAuth2ConsumerClient&, OmmConsumerErrorClient&, void* = 0);
 	OmmBaseImpl( ActiveConfig&, OmmProviderErrorClient& );
 	OmmBaseImpl(ActiveConfig&, OmmProviderClient&, OmmProviderErrorClient&, void* = 0);
+
 	virtual ~OmmBaseImpl();
 
 	void initialize( EmaConfigImpl* );
@@ -264,6 +276,7 @@ protected:
 	RestLoggingCallbackClient*	_pRestLoggingCallbackClient;
 	OmmConsumerClient&			_consAdminClient;
 	OmmProviderClient&			_provAdminClient;
+	OmmOAuth2ConsumerClient&	_consOAuthClient;
 	void*						_adminClosure;
 	OmmLoggerClient*			_pLoggerClient;
 	Pipe						_pipe;
@@ -274,10 +287,13 @@ protected:
 	bool						_bEventReceived;
 	bool						_hasConsAdminClient;
 	bool						_hasProvAdminClient;
+	bool						_hasConsOAuthClient;
 	ErrorClientHandler*			_pErrorClientHandler;
 	EmaList< TimeOut* >			_theTimeOuts;
 	bool						_bApiDispatchThreadStarted;
 	bool						_bUninitializeInvoked;
+
+	
 
 private:
 

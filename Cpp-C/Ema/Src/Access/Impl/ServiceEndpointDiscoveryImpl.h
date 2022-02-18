@@ -30,7 +30,8 @@ class ServiceEndpointDiscoveryImpl
 {
 public:
 
-	ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery *pServiceEndpointDiscovery, const EmaString& tokenServiceURL, const EmaString& serviceDiscoveryURL);
+	ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery* pServiceEndpointDiscovery, const EmaString* pTokenServiceURLV1, const EmaString* pTokenServiceURLV2, const EmaString* pServiceDiscoveryURL);
+
 
 	void registerClient(const ServiceEndpointDiscoveryOption& params, ServiceEndpointDiscoveryClient& client, void *closure);
 

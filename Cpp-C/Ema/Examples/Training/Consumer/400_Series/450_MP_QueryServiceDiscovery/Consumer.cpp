@@ -14,6 +14,7 @@ using namespace std;
 EmaString userName;
 EmaString password;
 EmaString clientId;
+EmaString clientSecret;
 EmaString host;
 EmaString port;
 EmaString location("us-east-1");
@@ -24,7 +25,8 @@ EmaString proxyPasswd;
 EmaString proxyDomain;
 bool takeExclusiveSignOnControl = true;
 bool connectWebSocket = false;
-EmaString tokenUrl("https://api.refinitiv.com/auth/oauth2/v1/token");
+EmaString tokenUrlV1("https://api.refinitiv.com/auth/oauth2/v1/token");
+EmaString tokenUrlV2("https://api.refinitiv.com/auth/oauth2/v2/token");
 EmaString serviceDiscoveryUrl("https://api.refinitiv.com/streaming/pricing/v1/");
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
@@ -142,12 +144,15 @@ void createProgramaticConfig( Map& configDb )
 void printHelp()
 {
 	cout << endl << "Options:\n" << " -?\tShows this usage" << endl
-		<< " -username machine ID to perform authorization with the token service (mandatory)." << endl
-		<< " -password password to perform authorization with the token service (mandatory)." << endl
-		<< " -clientId client ID to perform authorization with the token service (mandatory). " << endl
+		<< " -username machine ID to perform authorization with the token service (mandatory for V1 oauth password grant)." << endl
+		<< " -password password to perform authorization with the token service (mandatory V1 oauth password grant)." << endl
+		<< " -clientId client ID to perform authorization with the token service (mandatory for both V1 and V2 grant types). " << endl
+		<< " -clientSecret client secret to perform authorization with the token service (mandatory for V2 oauth client credential grant). " << endl
 		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east-1\"" << endl
-		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional)." << endl
-		<< " -tokenURL URL to perform authentication to get access and refresh tokens (optional)." << endl
+		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional, only used with V1 oauth password grant)." << endl
+		<< " -tokenURL URL for V1 to perform authentication to get access and refresh tokens (optional)." << endl
+		<< " -tokenURLV1 URL for V1 to perform authentication to get access and refresh tokens (optional)." << endl
+		<< " -tokenURLV2 URL for V2 to perform authentication to get access and refresh tokens (optional)." << endl
 		<< " -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional)." << endl
 		<< " -itemName Request item name (optional)." << endl
 		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
@@ -191,6 +196,10 @@ int main( int argc, char* argv[] )
 			{
 				if ( i < ( argc - 1 ) ) clientId.set( argv[++i] );
 			}
+			else if (strcmp(argv[i], "-clientSecret") == 0)
+			{
+				if (i < (argc - 1)) clientSecret.set(argv[++i]);
+			}
 			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
 			{
 				if (i < (argc - 1))
@@ -211,8 +220,24 @@ int main( int argc, char* argv[] )
 			{
 				if ( i < (argc - 1) )
 				{
-					tokenUrl.set( argv[++i] );
-					config.tokenServiceUrl( tokenUrl );
+					tokenUrlV1.set( argv[++i] );
+					config.tokenServiceUrlV1( tokenUrlV1 );
+				}
+			}
+			else if (strcmp(argv[i], "-tokenURLV1") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					tokenUrlV1.set(argv[++i]);
+					config.tokenServiceUrlV1(tokenUrlV1);
+				}
+			}
+			else if (strcmp(argv[i], "-tokenURLV2") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					tokenUrlV2.set(argv[++i]);
+					config.tokenServiceUrlV2(tokenUrlV2);
 				}
 			}
 			else if (strcmp(argv[i], "-serviceDiscoveryURL") == 0)
@@ -253,11 +278,14 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( !userName.length() || !password.length() || !clientId.length() )
+		if ( !userName.length() || !password.length() )
 		{
-			cout << "User name, password and client Id must be specified on the command line. Exiting...";
-			printHelp();
-			return -1;
+			if (!clientId.length() || !clientSecret.length())
+			{
+				cout << "User name, password and client Id/client Id and client Secret must be specified on the command line. Exiting...";
+				printHelp();
+				return -1;
+			}
 		}
 
 		ServiceEndpointDiscoveryOption::TransportProtocol transportProtocol = ServiceEndpointDiscoveryOption::TcpEnum;
@@ -267,11 +295,19 @@ int main( int argc, char* argv[] )
 		}
 
 		// Query endpoints from RDP service discovery for the TCP protocol
-		ServiceEndpointDiscovery serviceDiscovery(tokenUrl, serviceDiscoveryUrl);
-		serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-			.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
-			.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
-			.proxyDomain( proxyDomain ), client );
+		ServiceEndpointDiscovery serviceDiscovery(tokenUrlV1, tokenUrlV2, serviceDiscoveryUrl);
+
+		/* If this is a V1 password grant type login, set the username, password, and clientId on the OmmConsumerConfig object.  Otherwise, 
+		   set the clientId and clientSecret for a V2 client credential grant type. */
+		if(clientSecret.empty() == true)
+			serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
+				.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
+				.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
+				.proxyDomain( proxyDomain ), client );
+		else
+			serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().clientId( clientId ).clientSecret( clientSecret )
+				.transport( transportProtocol ).proxyHostName( proxyHostName ).proxyPort( proxyPort )
+				.proxyUserName( proxyUserName ).proxyPassword( proxyPasswd ).proxyDomain( proxyDomain ), client );
 
 		if ( !host.length() || !port.length() )
 		{
@@ -279,12 +315,20 @@ int main( int argc, char* argv[] )
 			return -1;
 		}
 
-		createProgramaticConfig( configDb );
+		createProgramaticConfig( configDb );\
+		/* Set the configured credentials as above */
+		if (clientSecret.empty() == true)
+			config.consumerName( "Consumer_1" ).username( userName ).password( password )
+				.clientId( clientId ).config( configDb ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
+				.tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
+				.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain );
+		else
+			config.consumerName( "Consumer_1" ).clientId( clientId ).clientSecret( clientSecret )
+				.config( configDb ).tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
+				.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain );
 
-		OmmConsumer consumer( config.consumerName( "Consumer_1" ).username( userName ).password( password )
-			.clientId( clientId ).config( configDb ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
-			.tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
-			.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain ) );
+		OmmConsumer consumer(config);
+
 
 		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( itemName ), client );
 		sleep( 900000 );			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
