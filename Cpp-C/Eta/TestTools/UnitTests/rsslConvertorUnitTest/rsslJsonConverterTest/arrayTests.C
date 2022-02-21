@@ -1445,3 +1445,164 @@ TEST_F(ArrayTests, InvalidArrayTests)
 	EXPECT_STREQ("Error", _jsonDocument["Type"].GetString());
 	ASSERT_TRUE(::testing::internal::RE::PartialMatch(_jsonDocument["Text"].GetString(), "JSON Missing required key 'Type' for 'Array'"));
 }
+
+
+class ArrayMemberOverflowTestParams
+{
+public:
+
+	RsslJsonProtocolType protocolType;
+	RsslDataTypes	primitiveType;
+	const char* stringValue;
+	int checkMinMax;
+	bool isOverflow;
+
+	ArrayMemberOverflowTestParams(RsslJsonProtocolType protocolType, const char *stringValue, RsslDataTypes primitiveType, bool isOverflow ,int checkMinMax)
+	{
+		this->protocolType = protocolType;
+		this->stringValue = stringValue;
+		this->primitiveType = primitiveType;
+		this->checkMinMax = checkMinMax;
+		this->isOverflow = isOverflow;
+	}
+
+	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+	friend ostream &operator<<(ostream &out, const ArrayMemberOverflowTestParams& params)
+	{
+		out << "[ protocolType: " << params.protocolType
+			<< ", string:" << params.stringValue << ", primitiveType:" << params.primitiveType
+			<< ", isOverflow: "<< std::boolalpha << params.isOverflow
+			<<", checkMinMax:" << params.checkMinMax << "]";
+		return out;
+	}
+};
+
+class ArrayMemberOverflowTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<ArrayMemberOverflowTestParams> {};
+
+
+TEST_P(ArrayMemberOverflowTestFixture, ArrayMemberOverflowTest)
+{
+	ArrayMemberOverflowTestParams const &params = GetParam();
+
+	RsslJsonConverterError converterError;
+
+	RsslMsg rsslMsg;
+	RsslFieldList fieldList;
+	RsslFieldEntry fieldEntry;
+
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
+	std::string jsonString;
+
+
+	if (params.protocolType == RSSL_JSON_JPT_JSON2)
+	{
+		jsonStringStream.str("{\"ID\":5,\"Type\":\"Update\",\"UpdateType\":\"Quote\",\"Key\":{\"Service\":\"DUCK_FEED\",\"Name\":\"TINY\"},\"Fields\":{\"ARRAY\":{\"Type\":");
+
+		if (params.primitiveType == RSSL_DT_UINT)
+			jsonStringStream << "\"UInt\"";
+		else if (params.primitiveType == RSSL_DT_INT)
+			jsonStringStream << "\"Int\"";
+		else if (params.primitiveType == RSSL_DT_ENUM)
+			jsonStringStream << "\"Enum\"";
+		else
+			FAIL() << "Wrong primitiveType:" << params.primitiveType;
+
+		jsonStringStream << "," << "\"Data\":[";
+		jsonStringStream << params.stringValue;
+		jsonStringStream << "]}}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else if (params.protocolType == RSSL_JSON_JPT_JSON)
+	{
+		jsonStringStream.str("{\"b\":{\"s\":5,\"c\":4,\"t\":6,\"f\":4},\"u\":1,\"k\":{\"s\":555,\"n\":\"TINY\"},\"d\":{\"d\":{\"-26\":{\"t\":");
+		jsonStringStream << params.primitiveType;
+		jsonStringStream << "," << "\"d\":[";
+		jsonStringStream << params.stringValue;
+		jsonStringStream << "]}}}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else
+		FAIL() << "Wrong protocolType: " << params.protocolType;
+
+	if (params.isOverflow)
+	{
+		EXPECT_NO_FATAL_FAILURE(getJsonToRsslError(params.protocolType, &converterError));
+		ASSERT_TRUE(::testing::internal::RE::PartialMatch(converterError.text, "JSON Unexpected Value. Received"));
+	}
+	else
+	{
+		ASSERT_NO_FATAL_FAILURE(convertJsonToRssl(params.protocolType));
+
+		/* Decode the message. */
+		rsslClearDecodeIterator(&_dIter);
+		rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+		rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+		/* Check FieldList. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldList(&_dIter, &fieldList, NULL));
+
+		/* FieldList should contain one field containing the double. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldEntry(&_dIter, &fieldEntry));
+
+		RsslArray rsslArray;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeArray(&_dIter, &rsslArray));
+		ASSERT_EQ(params.primitiveType, rsslArray.primitiveType);
+
+		RsslBuffer rsslArrayEntry;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeArrayEntry(&_dIter, &rsslArrayEntry));
+
+		if (params.primitiveType == RSSL_DT_UINT)
+		{
+			RsslUInt decodeUInt;
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeUInt(&_dIter, &decodeUInt));
+			ASSERT_EQ(decodeUInt, 18446744073709551615ULL);
+		}
+		else if (params.primitiveType == RSSL_DT_INT)
+		{
+			RsslInt decodeInt;
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeInt(&_dIter, &decodeInt));
+
+			if (params.checkMinMax == 1)
+				ASSERT_EQ(decodeInt, 9223372036854775807LL);
+			else if (params.checkMinMax == 2)
+				ASSERT_EQ(decodeInt, -9223372036854775807LL - 1);
+			else
+				FAIL() << "Wrong checkMaxMin param";
+		}
+		else if (params.primitiveType == RSSL_DT_ENUM)
+		{
+			RsslEnum decodeEnum;
+			ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeEnum(&_dIter, &decodeEnum));
+
+			ASSERT_EQ(decodeEnum, 65535);
+		}
+		else
+			FAIL() << "Wrong primitiveType" << params.primitiveType;
+
+		ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeArrayEntry(&_dIter, &rsslArrayEntry));
+		ASSERT_EQ(RSSL_RET_END_OF_CONTAINER, rsslDecodeFieldEntry(&_dIter, &fieldEntry));
+	}
+
+}
+
+INSTANTIATE_TEST_CASE_P(ArrayTests, ArrayMemberOverflowTestFixture, ::testing::Values(
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "65536", RSSL_DT_ENUM, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "65536", RSSL_DT_ENUM, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "65535", RSSL_DT_ENUM, false, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "65535", RSSL_DT_ENUM, false, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "18446744073709551616", RSSL_DT_UINT, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "18446744073709551616", RSSL_DT_UINT, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "18446744073709551615", RSSL_DT_UINT, false, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "18446744073709551615", RSSL_DT_UINT, false, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "9223372036854775808", RSSL_DT_INT, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "9223372036854775808", RSSL_DT_INT, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2, "-9223372036854775809", RSSL_DT_INT, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON, "-9223372036854775809", RSSL_DT_INT, true, 0),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2,"9223372036854775807", RSSL_DT_INT, false, 1),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON,"9223372036854775807", RSSL_DT_INT, false, 1),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON2,"-9223372036854775808", RSSL_DT_INT, false, 2),
+	ArrayMemberOverflowTestParams(RSSL_JSON_JPT_JSON,"-9223372036854775808", RSSL_DT_INT, false, 2)
+));

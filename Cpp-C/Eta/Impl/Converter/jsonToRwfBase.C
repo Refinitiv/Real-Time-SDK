@@ -704,8 +704,11 @@ bool jsonToRwfBase::processInteger(jsmntok_t ** const tokPtr, RsslBuffer ** cons
 
 	if (_jsonMsg[(*tokPtr)->start] != 'n')
 	{
-		_intVar = rtr_atoll_size(&_jsonMsg[(*tokPtr)->start],
-					&_jsonMsg[(*tokPtr)->end]);
+		if (rtr_atoi64_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &_intVar) != &_jsonMsg[(*tokPtr)->end])
+		{
+			unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+			return false;
+		}
 
 		*ptrVoidPtr = &_intVar;
 		*ptrBufPtr = 0;
@@ -713,6 +716,7 @@ bool jsonToRwfBase::processInteger(jsmntok_t ** const tokPtr, RsslBuffer ** cons
 	else
 	{
 		*ptrVoidPtr = 0;
+		_intVar = 0;
   		_bufVar.length = 0;
 		_bufVar.data = 0;
 		*ptrBufPtr = &_bufVar;
@@ -731,7 +735,7 @@ bool jsonToRwfBase::processUnsignedInteger(jsmntok_t ** const tokPtr, RsslBuffer
 
 	if (_jsonMsg[(*tokPtr)->start] != 'n')
 	{
-		if (rtr_atoull_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &_uintVar) != &_jsonMsg[(*tokPtr)->end])
+		if (rtr_atoui64_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &_uintVar) != &_jsonMsg[(*tokPtr)->end])
 		{
 			unexpectedParameter(*tokPtr, __LINE__, __FILE__);
 			return false;
@@ -743,6 +747,7 @@ bool jsonToRwfBase::processUnsignedInteger(jsmntok_t ** const tokPtr, RsslBuffer
 	else
 	{
 		*ptrVoidPtr = 0;
+		_uintVar = 0;
   		_bufVar.length = 0;
 		_bufVar.data = 0;
 		*ptrBufPtr = &_bufVar;
@@ -948,7 +953,15 @@ bool jsonToRwfBase::processState(jsmntok_t ** const tokPtr, RsslBuffer ** const 
 
 bool jsonToRwfBase::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer ** const ptrBufPtr, void** const  ptrVoidPtr)
 {
-	return processInteger(tokPtr, ptrBufPtr, ptrVoidPtr);
+	if (!processUnsignedInteger(tokPtr, ptrBufPtr, ptrVoidPtr))
+		return false;
+
+	if (_uintVar <= USHRT_MAX)
+		return true;
+
+	(*tokPtr)--;
+	unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+	return false;
 }
 
 bool jsonToRwfBase::processBuffer(jsmntok_t ** const tokPtr, RsslBuffer ** const ptrBufPtr, void** const  ptrVoidPtr)

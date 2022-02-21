@@ -342,9 +342,13 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 					tok++;
 					if (tok->type == JSMN_PRIMITIVE)
 					{
-						rsslMsgPtr->msgBase.streamId =
-							rtr_atoi_size( &_jsonMsg[tok->start],
-										   &_jsonMsg[tok->end]);
+
+						if (rtr_atoi32_size_check(&_jsonMsg[tok->start], &_jsonMsg[tok->end], &rsslMsgPtr->msgBase.streamId) != &_jsonMsg[tok->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, tok, __LINE__, __FILE__, &JSON_ID);
+							return false;
+						}
+
 						tok++;
 					}
 					else if (tok->type == JSMN_ARRAY)
@@ -490,9 +494,11 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 						}  // End of case JSMN_STRING:
 					case JSMN_PRIMITIVE:
 						{
-							rsslMsgPtr->msgBase.msgClass =
-								rtr_atoi_size( &_jsonMsg[tok->start],
-											   &_jsonMsg[tok->end]);
+							if (rtr_atoui8_size_check(&_jsonMsg[tok->start], &_jsonMsg[tok->end], &rsslMsgPtr->msgBase.msgClass) != &_jsonMsg[tok->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, tok, __LINE__, __FILE__, &JSON_CLASS);
+								return false;
+							}
 
 							break;
 						}
@@ -717,9 +723,11 @@ bool jsonToRwfSimple::processMessage(jsmntok_t ** const msgTok, RsslJsonMsg *jso
 						}
 					case JSMN_PRIMITIVE:
 						{
-							rsslMsgPtr->msgBase.domainType =
-								rtr_atoi_size( &_jsonMsg[tok->start],
-											   &_jsonMsg[tok->end]);
+							if (rtr_atoui8_size_check(&_jsonMsg[tok->start], &_jsonMsg[tok->end], &rsslMsgPtr->msgBase.domainType) != &_jsonMsg[tok->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, tok, __LINE__, __FILE__, &JSON_DOMAIN);
+								return false;
+							}
 							break;
 						}
 					default:
@@ -1500,9 +1508,13 @@ bool jsonToRwfSimple::processRequestMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNT);
 								return false;
 							}
-							rsslMsgPtr->requestMsg.priorityCount =
-								rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-											   &_jsonMsg[(*tokPtr)->end]);
+
+							if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->requestMsg.priorityCount) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNT);
+								return false;
+							}
+
 							rsslRequestMsgApplyHasPriority(&rsslMsgPtr->requestMsg);
 							(*tokPtr)++;
 
@@ -1516,9 +1528,13 @@ bool jsonToRwfSimple::processRequestMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_CLASS);
 								return false;
 							}
-							rsslMsgPtr->requestMsg.priorityClass =
-								rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-											   &_jsonMsg[(*tokPtr)->end]);
+
+							if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->requestMsg.priorityClass) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_PRIORITY);
+								return false;
+							}
+
 							rsslRequestMsgApplyHasPriority(&rsslMsgPtr->requestMsg);
 							(*tokPtr)++;
 						}
@@ -1983,9 +1999,12 @@ bool jsonToRwfSimple::processRefreshMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 						return false;
                     }
                     rsslMsgPtr->refreshMsg.flags |= RSSL_RFMF_HAS_PART_NUM;
-					rsslMsgPtr->refreshMsg.partNum = 
-							rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-										   &_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->refreshMsg.partNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_PARTNUMBER);
+						return false;
+					}
 
 					(*tokPtr)++;
 
@@ -2024,9 +2043,12 @@ bool jsonToRwfSimple::processRefreshMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 						return false;
 					}
 					rsslMsgPtr->refreshMsg.flags |= RSSL_RFMF_HAS_SEQ_NUM;
-					rsslMsgPtr->refreshMsg.seqNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->refreshMsg.seqNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_SEQNUM);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_SOLICITED))
@@ -2972,9 +2994,11 @@ bool jsonToRwfSimple::processUpdateMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslM
 					}
 
 					rsslMsgPtr->updateMsg.flags |= RSSL_UPMF_HAS_SEQ_NUM;
-					rsslMsgPtr->updateMsg.seqNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->updateMsg.seqNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_SEQNUM);
+						return false;
+					}
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_SERIES))
@@ -3030,9 +3054,12 @@ bool jsonToRwfSimple::processUpdateMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslM
 								return false;
 							}
 
-							rsslMsgPtr->updateMsg.conflationCount =
-								rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-											  &_jsonMsg[(*tokPtr)->end]);
+							if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->updateMsg.conflationCount) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_CONFINFO);
+								return false;
+							}
+
 							(*tokPtr)++;
 						}
 						if (compareStrings(*tokPtr, JSON_TIME))
@@ -3045,9 +3072,12 @@ bool jsonToRwfSimple::processUpdateMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslM
 								return false;
 							}
 
-							rsslMsgPtr->updateMsg.conflationTime =
-								rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-											  &_jsonMsg[(*tokPtr)->end]);
+							if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->updateMsg.conflationTime) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_CONFINFO);
+								return false;
+							}
+
 							(*tokPtr)++;
 						}
 					}
@@ -3160,9 +3190,11 @@ bool jsonToRwfSimple::processUpdateMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslM
 					{
 					case JSMN_PRIMITIVE:
 						{
-							rsslMsgPtr->updateMsg.updateType =
-								rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-											  &_jsonMsg[(*tokPtr)->end]);
+							if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->updateMsg.updateType) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_UPDATETYPE);
+								return false;
+							}
 							(*tokPtr)++;
 							break;
 						}
@@ -3833,9 +3865,13 @@ bool jsonToRwfSimple::processAckMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsgP
 						return false;
 					}
 					rsslMsgPtr->ackMsg.flags |= RSSL_AKMF_HAS_SEQ_NUM;
-					rsslMsgPtr->ackMsg.seqNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->ackMsg.seqNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_SEQNUM);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_SERIES))
@@ -3866,9 +3902,13 @@ bool jsonToRwfSimple::processAckMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsgP
 						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ACKID);
 						return false;
 					}
-					rsslMsgPtr->ackMsg.ackId =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->ackMsg.ackId) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ACKID);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (_flags & JSON_FLAG_CATCH_UNEXPECTED_KEYS)
@@ -4039,9 +4079,11 @@ bool jsonToRwfSimple::processAckMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsgP
 						if (_jsonMsg[(*tokPtr)->start] != 'n' &&
 							_jsonMsg[(*tokPtr)->start] != 't' &&
 							_jsonMsg[(*tokPtr)->start] != 'f')
-							rsslMsgPtr->ackMsg.nakCode =
-								rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-											   &_jsonMsg[(*tokPtr)->end]);
+							if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->ackMsg.nakCode) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_NAKCODE);
+								return false;
+							}
 						else
 							rsslMsgPtr->ackMsg.nakCode = 0;
 					}
@@ -4401,9 +4443,12 @@ bool jsonToRwfSimple::processGenericMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 						return false;
 					}
 					rsslMsgPtr->genericMsg.flags |= RSSL_GNMF_HAS_PART_NUM;
-					rsslMsgPtr->genericMsg.partNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->genericMsg.partNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_PARTNUMBER);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_PERMDATA))
@@ -4442,9 +4487,13 @@ bool jsonToRwfSimple::processGenericMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 						return false;
 					}
 					rsslMsgPtr->genericMsg.flags |= RSSL_GNMF_HAS_SEQ_NUM;
-					rsslMsgPtr->genericMsg.seqNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->genericMsg.seqNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_SEQNUM);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_SECSEQNUM))
@@ -4456,9 +4505,13 @@ bool jsonToRwfSimple::processGenericMsg(jsmntok_t ** const tokPtr, RsslMsg *rssl
 						return false;
 					}
 					rsslMsgPtr->genericMsg.flags |= RSSL_GNMF_HAS_SECONDARY_SEQ_NUM;
-					rsslMsgPtr->genericMsg.secondarySeqNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->genericMsg.secondarySeqNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_SECSEQNUM);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_SERIES))
@@ -4800,9 +4853,12 @@ bool jsonToRwfSimple::processPostMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsg
 					return false;
 				}
 				rsslMsgPtr->postMsg.flags |= RSSL_PSMF_HAS_POST_ID;
-				rsslMsgPtr->postMsg.postId =
-					rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-								   &_jsonMsg[(*tokPtr)->end]);
+				if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->postMsg.postId) != &_jsonMsg[(*tokPtr)->end])
+				{
+					unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_POSTID);
+					return false;
+				}
+
 				(*tokPtr)++;
 			}
 			else if (compareStrings(*tokPtr, JSON_PARTNUMBER))
@@ -4814,9 +4870,12 @@ bool jsonToRwfSimple::processPostMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsg
 					return false;
 				}
 				rsslMsgPtr->postMsg.flags |= RSSL_PSMF_HAS_PART_NUM;
-				rsslMsgPtr->postMsg.partNum =
-					rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-								   &_jsonMsg[(*tokPtr)->end]);
+				if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->postMsg.partNum) != &_jsonMsg[(*tokPtr)->end])
+				{
+					unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_PARTNUMBER);
+					return false;
+				}
+
 				(*tokPtr)++;
 			}
 			else if (compareStrings(*tokPtr, JSON_POSTUSERRIGHTS))
@@ -4828,9 +4887,13 @@ bool jsonToRwfSimple::processPostMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsg
 					return false;
 				}
 				rsslMsgPtr->postMsg.flags |= RSSL_PSMF_HAS_POST_USER_RIGHTS;
-				rsslMsgPtr->postMsg.postUserRights =
-					rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-								   &_jsonMsg[(*tokPtr)->end]);
+
+				if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->postMsg.postUserRights) != &_jsonMsg[(*tokPtr)->end])
+				{
+					unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_POSTUSERRIGHTS);
+					return false;
+				}
+
 				(*tokPtr)++;
 			}
 			else if (compareStrings(*tokPtr, JSON_PERMDATA))
@@ -4869,9 +4932,12 @@ bool jsonToRwfSimple::processPostMsg(jsmntok_t ** const tokPtr, RsslMsg *rsslMsg
 						return false;
 					}
 					rsslMsgPtr->postMsg.flags |= RSSL_PSMF_HAS_SEQ_NUM;
-					rsslMsgPtr->postMsg.seqNum =
-						rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									   &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &rsslMsgPtr->postMsg.seqNum) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_SEQNUM);
+						return false;
+					}
+
 					(*tokPtr)++;
 				}
 				else if (compareStrings(*tokPtr, JSON_SERIES))
@@ -5120,8 +5186,12 @@ bool jsonToRwfSimple::processFieldList(jsmntok_t ** const tokPtr, void* setDb)
 			}
 		case JSMN_PRIMITIVE:
 			{
-				fieldEntry.fieldId = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-												   &_jsonMsg[(*tokPtr)->end]);
+				if (rtr_atoi16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &fieldEntry.fieldId) != &_jsonMsg[(*tokPtr)->end])
+				{
+					unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_FIELDS);
+					return false;
+				}
+
 				def = _dictionaryList[0]->entriesArray[fieldEntry.fieldId];
 				if (!def && _flags & JSON_FLAG_CATCH_UNEXPECTED_FIDS)
 				{
@@ -5454,8 +5524,13 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNTHINT);
 						return false;
 					}
-					filterList.totalCountHint = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-									&_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &filterList.totalCountHint) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNTHINT);
+						return false;
+					}
+
 					rsslFilterListApplyHasTotalCountHint(&filterList);
 					(*tokPtr)++;
 				}
@@ -5540,8 +5615,13 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 								unexpectedTokenType(JSMN_PRIMITIVE, tmpTok, __LINE__, __FILE__, &JSON_ID);
 								return false;
 							}
-							filterEntry.id = rtr_atoi_size(&_jsonMsg[tmpTok->start],
-														   &_jsonMsg[tmpTok->end]);
+
+							if (rtr_atoui8_size_check(&_jsonMsg[tmpTok->start], &_jsonMsg[tmpTok->end], &filterEntry.id) != &_jsonMsg[tmpTok->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ID);
+								return false;
+							}
+
 							tmpTok++;
 						}
 						break;
@@ -5578,8 +5658,11 @@ bool jsonToRwfSimple::processFilterList(jsmntok_t ** const tokPtr, void* setDb)
 								}
 							case JSMN_PRIMITIVE:
 								{
-									filterEntry.action = rtr_atoi_size(&_jsonMsg[tmpTok->start],
-																	   &_jsonMsg[tmpTok->end]);
+									if (rtr_atoui8_size_check(&_jsonMsg[tmpTok->start], &_jsonMsg[tmpTok->end], &filterEntry.action) != &_jsonMsg[tmpTok->end])
+									{
+										unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ACTION);
+										return false;
+									}
 									break;
 								}
 							default:
@@ -5790,8 +5873,12 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 						return false;
 					}
 
-					vector.totalCountHint = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-													  &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &vector.totalCountHint) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNTHINT);
+						return false;
+					}
+
 					rsslVectorApplyHasTotalCountHint(&vector);
 					(*tokPtr)++;
 				}
@@ -5936,8 +6023,12 @@ bool jsonToRwfSimple::processVector(jsmntok_t ** const tokPtr, void* setDb)
 								return false;
 							}
 
-							vectorEntry.index = rtr_atoi_size(&_jsonMsg[tmpTok->start],
-															  &_jsonMsg[tmpTok->end]);
+							if (rtr_atoui32_size_check(&_jsonMsg[tmpTok->start], &_jsonMsg[tmpTok->end], &vectorEntry.index) != &_jsonMsg[tmpTok->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_INDEX);
+								return false;
+							}
+
 							tmpTok++;
 							foundValidToken = true;
 							hasEntriesIndex = true;
@@ -6212,8 +6303,13 @@ bool jsonToRwfSimple::processMap(jsmntok_t ** const tokPtr, void* setDb)
 						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_KEYFIELDID);
 						return false;
 					}
-					map.keyFieldId = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-												   &_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoi16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &map.keyFieldId) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_KEYFIELDID);
+						return false;
+					}
+
 					rsslMapApplyHasKeyFieldId(&map);
 					(*tokPtr)++;
 				}
@@ -6239,8 +6335,13 @@ bool jsonToRwfSimple::processMap(jsmntok_t ** const tokPtr, void* setDb)
 						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNTHINT);
 						return false;
 					}
-					map.totalCountHint = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-									&_jsonMsg[(*tokPtr)->end]);
+
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &map.totalCountHint) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNTHINT);
+						return false;
+					}
+
 					rsslMapApplyHasTotalCountHint(&map);
 					(*tokPtr)++;
 				}
@@ -6686,8 +6787,12 @@ bool jsonToRwfSimple::processSeries(jsmntok_t ** const tokPtr, void* setDb)
 						return false;
 					}
 
-					series.totalCountHint = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-												   &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &series.totalCountHint) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_COUNTHINT);
+						return false;
+					}
+
 					rsslSeriesApplyHasTotalCountHint(&series);
 					(*tokPtr)++;
 				}
@@ -6966,7 +7071,11 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 				/* Checks negative exponential */
 				if (_jsonMsg[i + 1] == '-')
 				{
-					expVal = rtr_atoi_size(&_jsonMsg[i+2], &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoi32_size_check(&_jsonMsg[i + 2], &_jsonMsg[(*tokPtr)->end], &expVal) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+						return false;
+					}
 
 					/* Add additional negative exponential */
 					expVal += posExp;
@@ -6981,7 +7090,12 @@ bool jsonToRwfSimple::processReal(jsmntok_t ** const tokPtr, RsslBuffer ** const
 				}
 				else
 				{
-					expVal = rtr_atoi_size(&_jsonMsg[i+1], &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoi32_size_check(&_jsonMsg[i + 1], &_jsonMsg[(*tokPtr)->end], &expVal) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+						return false;
+					}
+
 					if (foundDecimal)
 					{
 						if (posExp > expVal)
@@ -7123,8 +7237,13 @@ bool jsonToRwfSimple::processArray(jsmntok_t ** const tokPtr, RsslBuffer ** cons
 				unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_LENGTH);
 				return false;
 			}
-			array.itemLength = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-											 &_jsonMsg[(*tokPtr)->end]);
+
+			if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &array.itemLength) != &_jsonMsg[(*tokPtr)->end])
+			{
+				unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_LENGTH);
+				return false;
+			}
+
 			(*tokPtr)++;
 		}
 		else if (compareStrings(*tokPtr, JSON_TYPE))
@@ -7260,7 +7379,12 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 							break;
 						}
 						case JSMN_PRIMITIVE: //Service Id
-							keyPtr->serviceId = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end]);
+							if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &keyPtr->serviceId) != &_jsonMsg[(*tokPtr)->end])
+							{
+								unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ID);
+								return false;
+							}
+
 							break;
 						default:
 							unexpectedTokenType(JSMN_STRING, *tokPtr, __LINE__, __FILE__, &JSON_KEY_SERVICE);
@@ -7328,9 +7452,13 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 					(*tokPtr)++;
 					if ((*tokPtr)->type == JSMN_PRIMITIVE)
 					{
-						keyPtr->nameType =
-							rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-										  &_jsonMsg[(*tokPtr)->end]);
+
+						if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &keyPtr->nameType) != &_jsonMsg[(*tokPtr)->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ID);
+							return false;
+						}
+
 						flags |= RSSL_MKF_HAS_NAME_TYPE;
 						(*tokPtr)++;
 					}
@@ -7470,9 +7598,12 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
 						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_KEY_FILTER);
 						return false;
 					}
-					keyPtr->filter =
-						rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-									  &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &keyPtr->filter) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_KEY_FILTER);
+						return false;
+					}
+
 					flags |= RSSL_MKF_HAS_FILTER;
 					(*tokPtr)++;
 				}
@@ -7529,8 +7660,12 @@ bool jsonToRwfSimple::processKey(jsmntok_t ** const tokPtr, RsslMsgKey *keyPtr, 
                         return false;
                     }
 
-                    keyPtr->identifier = rtr_atoi_size(&_jsonMsg[(*tokPtr)->start],
-                                                       &_jsonMsg[(*tokPtr)->end]);
+					if (rtr_atoi32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &keyPtr->identifier) != &_jsonMsg[(*tokPtr)->end])
+					{
+						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_KEY_IDENTIFIER);
+						return false;
+					}
+
                     flags |= RSSL_MKF_HAS_IDENTIFIER;
                     (*tokPtr)++;
                 }
@@ -7652,8 +7787,12 @@ bool jsonToRwfSimple::populateQos(jsmntok_t ** const tokPtr, RsslQos *qosPtr)
 					}
 					else if ((*tokPtr)->type == JSMN_PRIMITIVE)
 					{
-						qosPtr->rate = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-													  &_jsonMsg[(*tokPtr)->end]);
+						if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &qosPtr->rate) != &_jsonMsg[(*tokPtr)->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_RATE);
+							return false;
+						}
+
 						(*tokPtr)++;
 					}
 					else
@@ -7667,8 +7806,13 @@ bool jsonToRwfSimple::populateQos(jsmntok_t ** const tokPtr, RsslQos *qosPtr)
 					(*tokPtr)++;
 					if ((*tokPtr)->type == JSMN_PRIMITIVE)
 					{
-						qosPtr->rateInfo = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-														  &_jsonMsg[(*tokPtr)->end]);
+
+						if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &qosPtr->rateInfo) != &_jsonMsg[(*tokPtr)->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_RATE);
+							return false;
+						}
+
 						(*tokPtr)++;
 					}
 					else
@@ -7745,8 +7889,12 @@ bool jsonToRwfSimple::populateQos(jsmntok_t ** const tokPtr, RsslQos *qosPtr)
 					}
 					else if ((*tokPtr)->type == JSMN_PRIMITIVE)
 					{
-						qosPtr->timeliness = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-															&_jsonMsg[(*tokPtr)->end]);
+						if (rtr_atoui8_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &qosPtr->timeliness) != &_jsonMsg[(*tokPtr)->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_TIMELINESS);
+							return false;
+						}
+
 						(*tokPtr)++;
 					}
 					else
@@ -7760,8 +7908,12 @@ bool jsonToRwfSimple::populateQos(jsmntok_t ** const tokPtr, RsslQos *qosPtr)
 					(*tokPtr)++;
 					if ((*tokPtr)->type == JSMN_PRIMITIVE)
 					{
-						qosPtr->timeInfo = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-														  &_jsonMsg[(*tokPtr)->end]);
+						if (rtr_atoui16_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &qosPtr->timeInfo) != &_jsonMsg[(*tokPtr)->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_TIMEINFO);
+							return false;
+						}
+
 						(*tokPtr)++;
 					}
 					else
@@ -8379,7 +8531,17 @@ bool jsonToRwfSimple::processEnumeration(jsmntok_t ** const tokPtr, RsslBuffer *
 		return true;
 	}
 	else
-		return processInteger(tokPtr, ptrBufPtr, ptrVoidPtr);
+	{
+		if (!processUnsignedInteger(tokPtr, ptrBufPtr, ptrVoidPtr))
+			return false;
+
+		if (_uintVar <= USHRT_MAX)
+			return true;
+
+		(*tokPtr)--;
+		unexpectedParameter(*tokPtr, __LINE__, __FILE__);
+		return false;
+	}
 }
 
 bool jsonToRwfSimple::populatePostUserInfo(jsmntok_t ** const tokPtr, RsslPostUserInfo *userInfoPtr)
@@ -8428,8 +8590,12 @@ bool jsonToRwfSimple::populatePostUserInfo(jsmntok_t ** const tokPtr, RsslPostUs
 						break;
 					}
 					case JSMN_PRIMITIVE:
-						userInfoPtr->postUserAddr = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-											   &_jsonMsg[(*tokPtr)->end]);
+						if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &userInfoPtr->postUserAddr) != &_jsonMsg[(*tokPtr)->end])
+						{
+							unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ADDRESS);
+							return false;
+						}
+
 						break;
 					default:
 						unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_ADDRESS);
@@ -8459,8 +8625,13 @@ bool jsonToRwfSimple::populatePostUserInfo(jsmntok_t ** const tokPtr, RsslPostUs
 					unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_USERID);
 					return false;
 				}
-				userInfoPtr->postUserId = rtr_atoi_size( &_jsonMsg[(*tokPtr)->start],
-									 &_jsonMsg[(*tokPtr)->end]);
+
+				if (rtr_atoui32_size_check(&_jsonMsg[(*tokPtr)->start], &_jsonMsg[(*tokPtr)->end], &userInfoPtr->postUserId) != &_jsonMsg[(*tokPtr)->end])
+				{
+					unexpectedTokenType(JSMN_PRIMITIVE, *tokPtr, __LINE__, __FILE__, &JSON_USERID);
+					return false;
+				}
+
 			}
 			else if (_flags & JSON_FLAG_CATCH_UNEXPECTED_KEYS)
 			{
@@ -8877,9 +9048,19 @@ bool jsonToRwfSimple::getDataType(jsmntok_t * tok, RsslContainerType* formatPtr)
 		}
 	case JSMN_PRIMITIVE:
 		{
-			*formatPtr =
-				rtr_atoi_size( &_jsonMsg[tok->start],
-							   &_jsonMsg[tok->end]) + RSSL_DT_CONTAINER_TYPE_MIN;
+			if (rtr_atoui8_size_check(&_jsonMsg[tok->start], &_jsonMsg[tok->end], formatPtr) != &_jsonMsg[tok->end])
+			{
+				unexpectedParameter(tok, __LINE__, __FILE__);
+				return false;
+			}
+
+			if (UCHAR_MAX - RSSL_DT_CONTAINER_TYPE_MIN > *formatPtr)
+			{
+				unexpectedParameter(tok, __LINE__, __FILE__);
+				return false;
+			}
+
+			*formatPtr += RSSL_DT_CONTAINER_TYPE_MIN;
 			break;
 		}
 	default:

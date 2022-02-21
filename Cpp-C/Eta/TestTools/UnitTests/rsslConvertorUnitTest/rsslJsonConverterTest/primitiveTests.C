@@ -14,6 +14,7 @@
 
 #include <float.h>
 #include <ctype.h>
+#include <rtr/rtratoi.h>
 
 /* Suppress warning C4756: overflow in constant arithmetic that occurs only on VS2013 */
 #if defined(WIN32) &&  _MSC_VER == 1800
@@ -870,3 +871,585 @@ INSTANTIATE_TEST_CASE_P(PrimitiveTests, InvalidUintParserTestFixture, ::testing:
 	"#",
 	"A"
 ));
+
+class EnumValueTestParam
+{
+	public:
+		RsslJsonProtocolType protocolType;
+		const char *stringValue;
+		bool isOverflow;
+
+		EnumValueTestParam (RsslJsonProtocolType protocolType, const char * stringValue, bool isOverflow)
+		{
+			this->protocolType = protocolType;
+			this->stringValue = stringValue;
+			this->isOverflow = isOverflow;
+		}
+
+		/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+		friend ostream &operator<<(ostream &out, const EnumValueTestParam& params)
+		{
+			out << "[protocolType: "<< params.protocolType
+				<< ", stringValue:" << params.stringValue
+				<< ", isOverflow:" << std::boolalpha << params .isOverflow << "]";
+			return out;
+		}
+};
+
+class OverflowEnumTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<EnumValueTestParam>
+{
+};
+
+/* Test enum overflow */
+TEST_P(OverflowEnumTestFixture, InvalidUintParserTests)
+{
+	EnumValueTestParam const &params = GetParam();
+
+	RsslJsonConverterError converterError;
+
+	RsslMsg rsslMsg;
+	RsslFieldList fieldList;
+	RsslFieldEntry fieldEntry;
+
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
+	std::string jsonString;
+
+	if (params.protocolType == RSSL_JSON_JPT_JSON2)
+	{
+		jsonStringStream.str("{\"Type\":\"Generic\",\"ID\":2,\"Domain\":128,\"SeqNumber\":3,\"Fields\":{\"RDN_EXCHID\":");
+		jsonStringStream << params.stringValue << "}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else if (params.protocolType == RSSL_JSON_JPT_JSON)
+	{
+		jsonStringStream.str("{\"b\":{\"s\":5,\"c\":4,\"t\":6,\"f\":4},\"u\":1,\"k\":{\"s\":555,\"n\":\"TINY\"},\"d\":{\"d\":{\"4\":");
+		jsonStringStream << params.stringValue << "}}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else
+		FAIL() << "Wrong protocolType: " << params.protocolType;
+
+	if(params.isOverflow)
+	{
+		EXPECT_NO_FATAL_FAILURE(getJsonToRsslError(params.protocolType, &converterError));
+		ASSERT_TRUE(::testing::internal::RE::PartialMatch(converterError.text, "JSON Unexpected Value. Received"));
+	}
+	else
+	{
+		ASSERT_NO_FATAL_FAILURE(convertJsonToRssl(params.protocolType));
+
+		/* Decode the message. */
+		rsslClearDecodeIterator(&_dIter);
+		rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+		rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+		/* Check FieldList. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldList(&_dIter, &fieldList, NULL));
+
+		/* FieldList should contain one field containing the double. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldEntry(&_dIter, &fieldEntry));
+
+		RsslEnum decodeEnum;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeEnum(&_dIter, &decodeEnum));
+
+		ASSERT_EQ(decodeEnum, 65535);
+	}
+}
+
+/* Added additional test inputs for others invalid UInt type such as $, #, A as well. */
+INSTANTIATE_TEST_CASE_P(PrimitiveTests, OverflowEnumTestFixture, ::testing::Values(
+	EnumValueTestParam(RSSL_JSON_JPT_JSON2, "-100", true),
+	EnumValueTestParam(RSSL_JSON_JPT_JSON, "-100", true),
+	EnumValueTestParam(RSSL_JSON_JPT_JSON2,"65536", true),
+	EnumValueTestParam(RSSL_JSON_JPT_JSON,"65536", true),
+	EnumValueTestParam(RSSL_JSON_JPT_JSON2,"65535", false),
+	EnumValueTestParam(RSSL_JSON_JPT_JSON,"65535", false)
+));
+
+
+class IntValueTestParam
+{
+public:
+	RsslJsonProtocolType protocolType;
+	const char *stringValue;
+	bool isOverflow;
+	int checkMaxMin;
+
+	IntValueTestParam(RsslJsonProtocolType protocolType, const char * stringValue, bool isOverflow, int checkMaxMin)
+	{
+		this->protocolType = protocolType;
+		this->stringValue = stringValue;
+		this->isOverflow = isOverflow;
+		this->checkMaxMin = checkMaxMin;
+	}
+
+	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+	friend ostream &operator<<(ostream &out, const IntValueTestParam& params)
+	{
+		out << "[protocolType: " << params.protocolType
+			<< ", stringValue:" << params.stringValue
+			<< ", isOverflow:" << std::boolalpha << params.isOverflow
+			<< ", checkMaxMin:" << params.checkMaxMin
+			<< "]";
+		return out;
+	}
+};
+
+class OverflowIntTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<IntValueTestParam>
+{
+};
+
+/* Test int (long long) overflow */
+TEST_P(OverflowIntTestFixture, InvalidUintParserTests)
+{
+	IntValueTestParam const &params = GetParam();
+
+	RsslJsonConverterError converterError;
+
+	RsslMsg rsslMsg;
+	RsslFieldList fieldList;
+	RsslFieldEntry fieldEntry;
+
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
+	std::string jsonString;
+
+	if (params.protocolType == RSSL_JSON_JPT_JSON2)
+	{
+		jsonStringStream.str("{\"Type\":\"Generic\",\"ID\":2,\"Domain\":128,\"SeqNumber\":3,\"Fields\":{\"SENTIMENT\":");
+		jsonStringStream << params.stringValue << "}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else if (params.protocolType == RSSL_JSON_JPT_JSON)
+	{
+		jsonStringStream.str("{\"b\":{\"s\":5,\"c\":4,\"t\":6,\"f\":4},\"u\":1,\"k\":{\"s\":555,\"n\":\"TINY\"},\"d\":{\"d\":{\"5170\":");
+		jsonStringStream << params.stringValue << "}}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else
+		FAIL() << "Wrong protocolType: " << params.protocolType;
+
+	if(params.isOverflow)
+	{
+		EXPECT_NO_FATAL_FAILURE(getJsonToRsslError(params.protocolType, &converterError));
+		ASSERT_TRUE(::testing::internal::RE::PartialMatch(converterError.text, "JSON Unexpected Value. Received"));
+	}
+	else
+	{
+		ASSERT_NO_FATAL_FAILURE(convertJsonToRssl(params.protocolType));
+
+		/* Decode the message. */
+		rsslClearDecodeIterator(&_dIter);
+		rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+		rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+		/* Check FieldList. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldList(&_dIter, &fieldList, NULL));
+
+		/* FieldList should contain one field containing the double. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldEntry(&_dIter, &fieldEntry));
+
+		RsslInt decodeInt;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeInt(&_dIter, &decodeInt));
+
+		if (params.checkMaxMin == 1)
+			ASSERT_EQ(decodeInt, 9223372036854775807LL);
+		else if (params.checkMaxMin == 2)
+			ASSERT_EQ(decodeInt, -9223372036854775807LL-1);
+		else
+			FAIL() << "Wrong checkMaxMin param";
+	}
+}
+
+/* Added additional test inputs for others invalid UInt type such as $, #, A as well. */
+INSTANTIATE_TEST_CASE_P(PrimitiveTests, OverflowIntTestFixture, ::testing::Values(
+	IntValueTestParam(RSSL_JSON_JPT_JSON2, "-1234567891234567891234567891234567891234567890", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON, "-1234567891234567891234567891234567891234567890", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON2, "6553734534444444444444444444444444444444444444344444444", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON, "6553734534444444444444444444444444444444444444344444444", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON2, "9223372036854775808", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON, "9223372036854775808", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON2,"-9223372036854775809", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON,"-9223372036854775809", true, 0),
+	IntValueTestParam(RSSL_JSON_JPT_JSON2,"9223372036854775807", false, 1),
+	IntValueTestParam(RSSL_JSON_JPT_JSON,"9223372036854775807", false, 1),
+	IntValueTestParam(RSSL_JSON_JPT_JSON2, "-9223372036854775808", false, 2),
+	IntValueTestParam(RSSL_JSON_JPT_JSON, "-9223372036854775808", false, 2)
+));
+
+
+class UIntValueTestParam
+{
+public:
+	RsslJsonProtocolType protocolType;
+	const char *stringValue;
+	bool isOverflow;
+
+	UIntValueTestParam(RsslJsonProtocolType protocolType, const char * stringValue, bool isOverflow)
+	{
+		this->protocolType = protocolType;
+		this->stringValue = stringValue;
+		this->isOverflow = isOverflow;
+	}
+
+	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+	friend ostream &operator<<(ostream &out, const UIntValueTestParam& params)
+	{
+		out << "[protocolType: " << params.protocolType
+			<< ", stringValue:" << params.stringValue
+			<< ", isOverflow:" << std::boolalpha << params.isOverflow << "]";
+		return out;
+	}
+};
+
+class OverflowUIntTestFixture : public MsgConversionTestBase, public ::testing::WithParamInterface<UIntValueTestParam>
+{
+};
+
+/* Test int (long long) overflow */
+TEST_P(OverflowUIntTestFixture, InvalidUintParserTests)
+{
+	UIntValueTestParam const &params = GetParam();
+
+	RsslJsonConverterError converterError;
+
+	RsslMsg rsslMsg;
+	RsslFieldList fieldList;
+	RsslFieldEntry fieldEntry;
+
+	std::ostringstream jsonStringStream(std::ostringstream::ate);
+	std::string jsonString;
+
+	if (params.protocolType == RSSL_JSON_JPT_JSON2)
+	{
+		jsonStringStream.str("{\"Type\":\"Generic\",\"ID\":2,\"Domain\":128,\"SeqNumber\":3,\"Fields\":{\"PROD_PERM\":");
+		jsonStringStream << params.stringValue << "}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else if (params.protocolType == RSSL_JSON_JPT_JSON)
+	{
+		jsonStringStream.str("{\"b\":{\"s\":5,\"c\":4,\"t\":6,\"f\":4},\"u\":1,\"k\":{\"s\":555,\"n\":\"TINY\"},\"d\":{\"d\":{\"1\":");
+		jsonStringStream << params.stringValue << "}}}";
+		jsonString = jsonStringStream.str();
+		setJsonBufferToString(jsonString.c_str());
+	}
+	else
+		FAIL() << "Wrong protocolType: " << params.protocolType;
+
+	if (params.isOverflow)
+	{
+		EXPECT_NO_FATAL_FAILURE(getJsonToRsslError(params.protocolType, &converterError));
+		ASSERT_TRUE(::testing::internal::RE::PartialMatch(converterError.text, "JSON Unexpected Value. Received"));
+	}
+	else
+	{
+		ASSERT_NO_FATAL_FAILURE(convertJsonToRssl(params.protocolType));
+
+		/* Decode the message. */
+		rsslClearDecodeIterator(&_dIter);
+		rsslSetDecodeIteratorBuffer(&_dIter, &_rsslDecodeBuffer);
+		rsslSetDecodeIteratorRWFVersion(&_dIter, RSSL_RWF_MAJOR_VERSION, RSSL_RWF_MINOR_VERSION);
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeMsg(&_dIter, &rsslMsg));
+
+		/* Check FieldList. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldList(&_dIter, &fieldList, NULL));
+
+		/* FieldList should contain one field containing the double. */
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeFieldEntry(&_dIter, &fieldEntry));
+
+		RsslUInt decodeUInt;
+		ASSERT_EQ(RSSL_RET_SUCCESS, rsslDecodeUInt(&_dIter, &decodeUInt));
+
+		ASSERT_EQ(decodeUInt, 18446744073709551615ULL);
+	}
+}
+
+/* Added additional test inputs for others invalid UInt type such as $, #, A as well. */
+INSTANTIATE_TEST_CASE_P(PrimitiveTests, OverflowUIntTestFixture, ::testing::Values(
+	UIntValueTestParam(RSSL_JSON_JPT_JSON2, "-131233333333333333333333333333333339345394583434534535", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON, "-131233333333333333333333333333333339345394583434534535", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON2, "6553734534444444444444444444444444444444444444344444444", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON, "6553734534444444444444444444444444444444444444344444444", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON2, "18446744073709551616", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON, "18446744073709551616", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON2, "-1844674407370955161", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON, "-1844674407370955161", true),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON2, "18446744073709551615", false),
+	UIntValueTestParam(RSSL_JSON_JPT_JSON, "18446744073709551615", false)
+));
+
+
+TEST(OverflowIntTest, ConversionI8ToStrTests)
+{
+	/*Max Values*/
+	const char* i8MaxVal = "127";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslInt8 i8res;
+
+	begin = (char*)i8MaxVal;
+	end = (char*)begin + strlen(i8MaxVal);
+
+	ASSERT_EQ(rtr_atoi8_size_check(begin, end, &i8res), end);
+	ASSERT_EQ(i8res, 127);
+
+	const char* i8MinVal = "-128";
+
+	begin = (char*)i8MinVal;
+	end = (char*)begin + strlen(i8MinVal);
+
+	ASSERT_EQ(rtr_atoi8_size_check(begin, end, &i8res), end);
+	ASSERT_EQ(i8res, -128);
+
+	/* Overflow */
+
+	const char* i8MMaxOverVal = "128";
+
+	begin = (char*)i8MMaxOverVal;
+	end = (char*)begin + strlen(i8MMaxOverVal);
+
+	ASSERT_NE(rtr_atoi8_size_check(begin, end, &i8res), end);
+
+	const char* i8MMinUnderVal = "-129";
+
+	begin = (char*)i8MMinUnderVal;
+	end = (char*)begin + strlen(i8MMinUnderVal);
+
+	ASSERT_NE(rtr_atoi8_size_check(begin, end, &i8res), end);
+}
+
+TEST(OverflowIntTest, ConversionUI8ToStrTests)
+{
+	/*Max Values*/
+	const char* ui8MaxVal = "255";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslUInt8 i8res;
+
+	begin = (char*)ui8MaxVal;
+	end = (char*)begin + strlen(ui8MaxVal);
+
+	ASSERT_EQ(rtr_atoui8_size_check(begin, end, &i8res), end);
+	ASSERT_EQ(i8res, 255);
+
+	/* Overflow */
+
+	const char* ui8OMaxOverVal = "256";
+
+	begin = (char*)ui8OMaxOverVal;
+	end = (char*)begin + strlen(ui8OMaxOverVal);
+
+	ASSERT_NE(rtr_atoui8_size_check(begin, end, &i8res), end);
+}
+
+TEST(OverflowIntTest, ConversionI16ToStrTests)
+{
+	/*Max Values*/
+	const char* i16MaxVal = "32767";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslInt16 i16res;
+
+	begin = (char*)i16MaxVal;
+	end = (char*)begin + strlen(i16MaxVal);
+
+	ASSERT_EQ(rtr_atoi16_size_check(begin, end, &i16res), end);
+	ASSERT_EQ(i16res, 32767);
+
+	const char* i16MinVal = "-32768";
+
+	begin = (char*)i16MinVal;
+	end = (char*)begin + strlen(i16MinVal);
+
+	ASSERT_EQ(rtr_atoi16_size_check(begin, end, &i16res), end);
+	ASSERT_EQ(i16res, -32768);
+
+	/* Overflow */
+
+	const char* i16MMaxOverVal = "32768";
+
+	begin = (char*)i16MMaxOverVal;
+	end = (char*)begin + strlen(i16MMaxOverVal);
+
+	ASSERT_NE(rtr_atoi16_size_check(begin, end, &i16res), end);
+
+	const char* i16MMinUnderVal = "-32769";
+
+	begin = (char*)i16MMinUnderVal;
+	end = (char*)begin + strlen(i16MMinUnderVal);
+
+	ASSERT_NE(rtr_atoi16_size_check(begin, end, &i16res), end);
+}
+
+TEST(OverflowIntTest, ConversionUI16ToStrTests)
+{
+	/*Max Values*/
+	const char* ui16MaxVal = "65535";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslUInt16 iu16res;
+
+	begin = (char*)ui16MaxVal;
+	end = (char*)begin + strlen(ui16MaxVal);
+
+	ASSERT_EQ(rtr_atoui16_size_check(begin, end, &iu16res), end);
+	ASSERT_EQ(iu16res, 65535);
+
+	/* Overflow */
+
+	const char* ui16OMaxOverVal = "65536";
+
+	begin = (char*)ui16OMaxOverVal;
+	end = (char*)begin + strlen(ui16OMaxOverVal);
+
+	ASSERT_NE(rtr_atoui16_size_check(begin, end, &iu16res), end);
+}
+
+TEST(OverflowIntTest, ConversionI32ToStrTests)
+{
+	/*Max Values*/
+	const char* i32MaxVal = "2147483647";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslInt32 i32res;
+
+	begin = (char*)i32MaxVal;
+	end = (char*)begin + strlen(i32MaxVal);
+
+	ASSERT_EQ(rtr_atoi32_size_check(begin, end, &i32res), end);
+	ASSERT_EQ(i32res, 2147483647);
+
+	const char* i32MinVal = "-2147483648";
+
+	begin = (char*)i32MinVal;
+	end = (char*)begin + strlen(i32MinVal);
+
+	ASSERT_EQ(rtr_atoi32_size_check(begin, end, &i32res), end);
+	ASSERT_EQ(i32res, -2147483648);
+
+	/* Overflow */
+
+	const char* i32MMaxOverVal = "2147483648";
+
+	begin = (char*)i32MMaxOverVal;
+	end = (char*)begin + strlen(i32MMaxOverVal);
+
+	ASSERT_NE(rtr_atoi32_size_check(begin, end, &i32res), end);
+
+	const char* i32MMinUnderVal = "-2147483649";
+
+	begin = (char*)i32MMinUnderVal;
+	end = (char*)begin + strlen(i32MMinUnderVal);
+
+	ASSERT_NE(rtr_atoi32_size_check(begin, end, &i32res), end);
+}
+
+TEST(OverflowIntTest, ConversionUI32ToStrTests)
+{
+	/*Max Values*/
+	const char* ui32MaxVal = "4294967295";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslUInt32 iu32res;
+
+	begin = (char*)ui32MaxVal;
+	end = (char*)begin + strlen(ui32MaxVal);
+
+	ASSERT_EQ(rtr_atoui32_size_check(begin, end, &iu32res), end);
+	ASSERT_EQ(iu32res, 4294967295);
+
+	/* Overflow */
+
+	const char* ui32OMaxOverVal = "4294967296";
+
+	begin = (char*)ui32OMaxOverVal;
+	end = (char*)begin + strlen(ui32OMaxOverVal);
+
+	ASSERT_NE(rtr_atoui32_size_check(begin, end, &iu32res), end);
+}
+
+
+TEST(OverflowIntTest, ConversionI64ToStrTests)
+{
+	/*Max Values*/
+	const char* i64MaxVal = "9223372036854775807";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslInt64 i64res;
+
+	begin = (char*)i64MaxVal;
+	end = (char*)begin + strlen(i64MaxVal);
+
+	ASSERT_EQ(rtr_atoi64_size_check(begin, end, &i64res), end);
+	ASSERT_EQ(i64res, 9223372036854775807);
+
+	const char* i64MinVal = "-9223372036854775808";
+
+	begin = (char*)i64MinVal;
+	end = (char*)begin + strlen(i64MinVal);
+
+	ASSERT_EQ(rtr_atoi64_size_check(begin, end, &i64res), end);
+	ASSERT_EQ(i64res, -9223372036854775807LL-1);
+
+	/* Overflow */
+
+	const char* i64MMaxOverVal = "9223372036854775808";
+
+	begin = (char*)i64MMaxOverVal;
+	end = (char*)begin + strlen(i64MMaxOverVal);
+
+	ASSERT_NE(rtr_atoi64_size_check(begin, end, &i64res), end);
+
+	const char* i64MMinUnderVal = "-9223372036854775809";
+
+	begin = (char*)i64MMinUnderVal;
+	end = (char*)begin + strlen(i64MMinUnderVal);
+
+	ASSERT_NE(rtr_atoi64_size_check(begin, end, &i64res), end);
+}
+
+TEST(OverflowIntTest, ConversinUI64ToStrTests)
+{
+	/*Max Values*/
+	const char* ui64MaxVal = "18446744073709551615";
+
+	char *begin = NULL;
+	char *end = NULL;
+
+	RsslUInt64 iu64res;
+
+	begin = (char*)ui64MaxVal;
+	end = (char*)begin + strlen(ui64MaxVal);
+
+	ASSERT_EQ(rtr_atoui64_size_check(begin, end, &iu64res), end);
+	ASSERT_EQ(iu64res, 18446744073709551615ULL);
+
+	/* Overflow */
+
+	const char* ui64OMaxOverVal = "18446744073709551616";
+
+	begin = (char*)ui64OMaxOverVal;
+	end = (char*)begin + strlen(ui64OMaxOverVal);
+
+	ASSERT_NE(rtr_atoui64_size_check(begin, end, &iu64res), end);
+}
