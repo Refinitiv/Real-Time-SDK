@@ -648,9 +648,17 @@ static RsslRet deepCopyCookies(RsslUserCookies* outCookies, RsslUserCookies *inC
 
 		for(line = 0; line < inCookies->numberOfCookies; line++)
 		{
-			outCookies->cookie[line].data = _rsslMalloc(inCookies->cookie->length + 1);
+			outCookies->cookie[line].data = _rsslMalloc(inCookies->cookie[line].length);
 			if (outCookies->cookie[line].data == 0)
 			{
+				RsslInt32 index = 0;
+
+				/* Free previous cookie's data */
+				for (index = 0; index < line; index++)
+				{
+					free(outCookies->cookie[index].data);
+				}
+
 				_rsslFree(outCookies->cookie);
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Unable to allocate memory for cookies", __FILE__, __LINE__);
@@ -2057,6 +2065,7 @@ RsslInt32 rwsReadResponseHandshake(RsslSocketChannel * rsslSocketChannel, char *
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
 				rsslSocketChannel->httpCallback(NULL, error);
+				return (-1);
 			}
 
 			for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
@@ -2096,7 +2105,7 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 {
 	ripcRWFlags		rwflags = RIPC_RW_WAITALL;
   	int cc = 0, i = 0;
-	RsslInt32 hsLen = 0;
+	RsslInt32 hsLen = 0, sprintfRet = 0, remaining = RWS_MAX_HTTP_HEADER_SIZE;
 	char	hsBuffer[RWS_MAX_HTTP_HEADER_SIZE];
 	rwsSession_t *wsSess = 0;
 	RsslUInt32 keyLen = 0;
@@ -2165,70 +2174,153 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 	 * Sec-WebSocket-Protocol: tr_json2<CR><LF>
 	 * User-Agent: TBD<CR><LF>
 	 */
-	hsLen = snprintf(hsBuffer, RWS_MAX_HTTP_HEADER_SIZE,		  "GET /WebSocket HTTP/1.1\r\n");
-	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "Upgrade: websocket\r\n");
-	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "Connection: keep-alive, Upgrade\r\n");
 
-	if (rsslSocketChannel->hostName)
+	do
 	{
-		hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "Host: %s:%s\r\n",
-					rsslSocketChannel->hostName, rsslSocketChannel->serverName);
-	}
-	/* If Supply Origin:*/
-	if (0)
-		hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "Origin: null\r\n");
-	
-	wsSess->keyNonce.data = _rwsGenerateKey();
-	if (wsSess->keyNonce.data == 0)
-	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error allocating memory for client key token, Sec-Websocket-Key token value.", __FUNCTION__,__LINE__);
-		return(-1);
-	}
-	wsSess->keyNonce.length = (RsslUInt32)strlen(wsSess->keyNonce.data);
+		hsLen = snprintf(hsBuffer, remaining, "GET /WebSocket HTTP/1.1\r\n");
+		remaining -= hsLen;
 
-	/* Once the Client nonce is generated for the 'Sec-WebSocket-Key' token field, construct 
-	 * the key expected within a hanshake response */
-	wsSess->keyAccept.data = (char *)_getWebSocketAcceptKey(wsSess->keyNonce.data, wsSess->keyNonce.length);
-	if (wsSess->keyAccept.data == 0)
-	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error allocating memory expected client token in Sec-Websocket-Accept field.", __FUNCTION__,__LINE__);
-		return(-1);
-	}
-	wsSess->keyAccept.length = (RsslUInt32)strlen(wsSess->keyAccept.data);
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Upgrade: websocket\r\n");
 
-	hsLen += snprintf(hsBuffer + hsLen, RWS_MAX_HTTP_HEADER_SIZE,
-								"Sec-WebSocket-Key: %s\r\n", wsSess->keyNonce.data);
+		if (sprintfRet < 0) break;
 
-	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Version: 13\r\n");
-	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Protocol: ");
+		hsLen += sprintfRet;
+		remaining -= sprintfRet;
 
-	
-	// Parse list of protocols from user options
-	if (wsSess->protocolList)
-		hsLen += snprintf(hsBuffer + hsLen, RWS_MAX_HTTP_HEADER_SIZE, "%s\r\n", wsSess->protocolList);	
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Connection: keep-alive, Upgrade\r\n");
+		
+		if (sprintfRet < 0) break;
 
-	if(wsSess->comp.type == RSSL_COMP_ZLIB)
-		hsLen += sprintf(hsBuffer + hsLen, "%s%s%s", "Sec-WebSocket-Extensions: permessage-deflate", 
-					";server_no_context_takeover", "\r\n");
+		hsLen += sprintfRet;
+		remaining -= sprintfRet;
 
-	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "User-Agent: Mozilla/5.0\r\n");
-
-	if (rsslSocketChannel->cookies.cookie != NULL && rsslSocketChannel->cookies.numberOfCookies > 0)
-	{
-		RsslInt32 line = 0;
-		for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
+		if (rsslSocketChannel->hostName)
 		{
-			hsLen += snprintf(hsBuffer + hsLen, RWS_MAX_HTTP_HEADER_SIZE, "Cookie: %s\r\n", rsslSocketChannel->cookies.cookie[line].data);
-		}
-	}
+			sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Host: %s:%s\r\n",
+				rsslSocketChannel->hostName, rsslSocketChannel->serverName);
 
-	hsLen += snprintf(hsBuffer +hsLen , RWS_MAX_HTTP_HEADER_SIZE, "\r\n");
+			if (sprintfRet < 0) break;
+
+			hsLen += sprintfRet;
+			remaining -= sprintfRet;
+		}
+		/* If Supply Origin:*/
+		if (0)
+		{
+			sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Origin: null\r\n");
+
+			if (sprintfRet < 0) break;
+
+			hsLen += sprintfRet;
+			remaining -= sprintfRet;
+		}
+
+		wsSess->keyNonce.data = _rwsGenerateKey();
+		if (wsSess->keyNonce.data == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error allocating memory for client key token, Sec-Websocket-Key token value.", __FUNCTION__, __LINE__);
+			return(-1);
+		}
+		wsSess->keyNonce.length = (RsslUInt32)strlen(wsSess->keyNonce.data);
+
+		/* Once the Client nonce is generated for the 'Sec-WebSocket-Key' token field, construct
+		 * the key expected within a hanshake response */
+		wsSess->keyAccept.data = (char*)_getWebSocketAcceptKey(wsSess->keyNonce.data, wsSess->keyNonce.length);
+		if (wsSess->keyAccept.data == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error allocating memory expected client token in Sec-Websocket-Accept field.", __FUNCTION__, __LINE__);
+			return(-1);
+		}
+		wsSess->keyAccept.length = (RsslUInt32)strlen(wsSess->keyAccept.data);
+
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Sec-WebSocket-Key: %s\r\n", wsSess->keyNonce.data);
+
+		if (sprintfRet < 0) break;
+
+		hsLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Sec-WebSocket-Version: 13\r\n");
+
+		if (sprintfRet < 0) break;
+
+		hsLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Sec-WebSocket-Protocol: ");
+
+		if (sprintfRet < 0) break;
+
+		hsLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		// Parse list of protocols from user options
+		if (wsSess->protocolList)
+		{
+			sprintfRet = snprintf(hsBuffer + hsLen, remaining, "%s\r\n", wsSess->protocolList);
+
+			if (sprintfRet < 0) break;
+
+			hsLen += sprintfRet;
+			remaining -= sprintfRet;
+		}
+
+		if (wsSess->comp.type == RSSL_COMP_ZLIB)
+		{
+			sprintfRet = snprintf(hsBuffer + hsLen, remaining, "%s%s%s", "Sec-WebSocket-Extensions: permessage-deflate",
+				";server_no_context_takeover", "\r\n");
+
+			if (sprintfRet < 0) break;
+
+			hsLen += sprintfRet;
+			remaining -= sprintfRet;
+
+		}
+
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "User-Agent: Mozilla/5.0\r\n");
+
+		if (sprintfRet < 0) break;
+
+		hsLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		if (rsslSocketChannel->cookies.cookie != NULL && rsslSocketChannel->cookies.numberOfCookies > 0)
+		{
+			RsslInt32 line = 0;
+			for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
+			{
+				sprintfRet = snprintf(hsBuffer + hsLen, remaining, "Cookie: %.*s\r\n", rsslSocketChannel->cookies.cookie[line].length, rsslSocketChannel->cookies.cookie[line].data);
+
+				if (sprintfRet < 0) break;
+
+				hsLen += sprintfRet;
+				remaining -= sprintfRet;
+			}
+
+			// Break from the while loop again
+			if (sprintfRet < 0) break;
+		}
+
+		sprintfRet = snprintf(hsBuffer + hsLen, remaining, "\r\n");
+
+		if (sprintfRet < 0) break;
+
+		hsLen += sprintfRet;
+
+	} while (RSSL_FALSE);
+
+	if (sprintfRet < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> The size of user cookies is larger than the maximum header size.", __FUNCTION__, __LINE__);
+		return(-1);
+	}
 
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
 
-	for (; retryCount < 15; retryCount++)
+	for (; retryCount < 15 ; retryCount++)
 	{
 		cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, hsBuffer, hsLen, rwflags, error);
 
@@ -2240,25 +2332,33 @@ ripcSessInit rwsSendOpeningHandshake(RsslSocketChannel *rsslSocketChannel, ripcS
 
 	_DEBUG_TRACE_WS_WRITE("handshake sent, fd "SOCKET_PRINT_TYPE" cc %d err %d\n", 
 					rsslSocketChannel->stream, cc, errno)
+	if (cc < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 rwsSendOpeningHandshake() Client WS handshake. System errno: (%d)\n",
+			__FILE__, __LINE__, errno);
+
+		return(RIPC_CONN_ERROR);
+	}
+	else if (cc != hsLen)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 rwsSendOpeningHandshake() failed to write client WS handshake. System errno: (%d)\n",
+			__FILE__, __LINE__, errno);
+
+		return(RIPC_CONN_ERROR);
+	}
 	
 	if (rsslSocketChannel->workState & RIPC_INT_SHTDOWN_PEND)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: 1003 rwsClientSendHandshake() failed due to channel shutting down.\n",
+			"<%s:%d> Error: 1003 rwsSendOpeningHandshake() failed due to channel shutting down.\n",
 			__FILE__, __LINE__);
 
 		return(RIPC_CONN_ERROR);
-	}
-
-	 if (cc < 0)
-	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT, 
-			"<%s:%d> Error: 1002 rwsClientSendHandshake() Client WS handshake. System errno: (%d)\n",
-							__FILE__, __LINE__, errno);
-	
-		return RSSL_RET_FAILURE;
 	}
 
 	rsslSocketChannel->intState = RIPC_INT_ST_WS_WAIT_HANDSHAKE_RESPONSE;
@@ -2589,63 +2689,161 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 
 RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSession_t *wsSess, RsslError *error)
 {
-	RsslInt32			cc = 0, respLen = 0;
+	RsslInt32			cc = 0, respLen = 0, sprintfRet = 0, remaining = RWS_MAX_HTTP_HEADER_SIZE;
 	char				resp[RWS_MAX_HTTP_HEADER_SIZE];
 	// TODO Validate this using max key length per RFC standard 16(?) bytes
 	ripcRWFlags			rwflags = 0;
+	RsslInt32			retryCount = 0;
 
 	rwflags |= (rsslSocketChannel->blocking ? RIPC_RW_BLOCKING : 0);
 
 	_DEBUG_TRACE_WS_CONN("fd "SOCKET_PRINT_TYPE" protocol %s(%d)\n", 
 			rsslSocketChannel->stream, wsSess->protocolName, wsSess->protocol)
 
-	respLen = snprintf(resp, RWS_MAX_HTTP_HEADER_SIZE, "HTTP/1.1 101 Switching Protocols\r\n");
-	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "Upgrade: websocket\r\n");
-	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "Connection: Upgrade\r\n");
-	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Protocol: ");
-
-	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "%s\r\n", wsSess->protocolName);
-
-	if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB && wsSess->deflate)
+	do
 	{
-		respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, 
-								"Sec-WebSocket-Extensions: permessage-deflate");
+		respLen = snprintf(resp, remaining, "HTTP/1.1 101 Switching Protocols\r\n");
+		remaining -= respLen;
 
-		//TODO When they become configurable
-		if (wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
-			respLen += snprintf(resp + respLen, RWS_MAX_HTTP_HEADER_SIZE, ";server_no_context_takeover");
+		sprintfRet = snprintf(resp + respLen, remaining, "Upgrade: websocket\r\n");
 
-		//TODO When they become configurable
-		if (wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT)
-			respLen += snprintf(resp + respLen, RWS_MAX_HTTP_HEADER_SIZE, ";client_no_context_takeover");
+		if (sprintfRet < 0) break;
 
-		respLen += snprintf (resp + respLen, RWS_MAX_HTTP_HEADER_SIZE, "\r\n");
-	}
+		respLen += sprintfRet;
+		remaining -= sprintfRet;
 
-	wsSess->keyAccept.data = _getWebSocketAcceptKey(wsSess->keyRecv.data, wsSess->keyRecv.length);
-	if (wsSess->keyAccept.data == 0)
+		sprintfRet = snprintf(resp + respLen, remaining, "Connection: Upgrade\r\n");
+		
+		if (sprintfRet < 0) break;
+
+		respLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		sprintfRet = snprintf(resp + respLen, remaining, "Sec-WebSocket-Protocol: ");
+		
+		if (sprintfRet < 0) break;
+
+		respLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		sprintfRet = snprintf(resp + respLen, remaining, "%s\r\n", wsSess->protocolName);
+
+		if (sprintfRet < 0) break;
+
+		respLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB && wsSess->deflate)
+		{
+			sprintfRet = snprintf(resp + respLen, remaining, "Sec-WebSocket-Extensions: permessage-deflate");
+
+			if (sprintfRet < 0) break;
+
+			respLen += sprintfRet;
+			remaining -= sprintfRet;
+
+			if (wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_OUTBOUND_CONTEXT)
+			{
+				sprintfRet = snprintf(resp + respLen, remaining, ";server_no_context_takeover");
+
+				if (sprintfRet < 0) break;
+
+				respLen += sprintfRet;
+				remaining -= sprintfRet;
+			}
+
+			if (wsSess->comp.flags & RWS_COMPF_DEFLATE_NO_INBOUND_CONTEXT)
+			{
+				sprintfRet = snprintf(resp + respLen, remaining, ";client_no_context_takeover");
+
+				if (sprintfRet < 0) break;
+
+				respLen += sprintfRet;
+				remaining -= sprintfRet;
+			}
+
+			sprintfRet = snprintf(resp + respLen, remaining, "\r\n");
+
+			if (sprintfRet < 0) break;
+
+			respLen += sprintfRet;
+			remaining -= sprintfRet;
+		}
+
+		wsSess->keyAccept.data = _getWebSocketAcceptKey(wsSess->keyRecv.data, wsSess->keyRecv.length);
+		if (wsSess->keyAccept.data == 0)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error allocating memory for response field, Sec-Websocket-Accept value.", __FUNCTION__, __LINE__);
+			return(-1);
+		}
+
+		wsSess->keyAccept.length = (RsslInt32)strlen(wsSess->keyRecv.data);
+		sprintfRet = snprintf(resp + respLen, remaining, "Sec-WebSocket-Accept: %s\r\n", wsSess->keyAccept.data);
+
+		if (sprintfRet < 0) break;
+
+		respLen += sprintfRet;
+		remaining -= sprintfRet;
+
+		if (rsslSocketChannel->cookies.cookie != NULL && rsslSocketChannel->cookies.numberOfCookies > 0)
+		{
+			RsslInt32 line = 0;
+			for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
+			{
+				sprintfRet = snprintf(resp + respLen, remaining, "Set-Cookie: %.*s\r\n", rsslSocketChannel->cookies.cookie[line].length, rsslSocketChannel->cookies.cookie[line].data);
+
+				if (sprintfRet < 0) break;
+
+				respLen += sprintfRet;
+				remaining -= sprintfRet;
+			}
+
+			// Break again from the while loop
+			if (sprintfRet < 0) break;
+		}
+
+		sprintfRet = snprintf(resp + respLen, remaining, "\r\n");
+
+		if (sprintfRet < 0) break;
+
+		respLen += sprintfRet;
+
+	} while (RSSL_FALSE);
+
+	if (sprintfRet < 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf(error->text, MAX_RSSL_ERROR_TEXT,"<%s:%d> Error allocating memory for response field, Sec-Websocket-Accept value.", __FUNCTION__,__LINE__);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> The size of user cookies is larger than the maximum header size.", __FUNCTION__, __LINE__);
 		return(-1);
 	}
 
-	wsSess->keyAccept.length = (RsslInt32)strlen(wsSess->keyRecv.data);
-	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "Sec-WebSocket-Accept: %s\r\n", wsSess->keyAccept.data);
-
-	if (rsslSocketChannel->cookies.cookie != NULL && rsslSocketChannel->cookies.numberOfCookies > 0)
+	for (; retryCount < 15; retryCount++)
 	{
-		RsslInt32 line = 0;
-		for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
-		{
-			respLen += snprintf(resp + respLen, RWS_MAX_HTTP_HEADER_SIZE, "Set-Cookie: %s\r\n", rsslSocketChannel->cookies.cookie[line].data);
-		}
+		cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, resp, respLen, rwflags, error);
+
+		if (cc > 0)
+			break;
 	}
 
+	if (cc < 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 rwsSendResponseHandshake() response WS handshake. System errno: (%d)\n",
+			__FILE__, __LINE__, errno);
 
-	respLen += snprintf(resp +respLen, RWS_MAX_HTTP_HEADER_SIZE, "\r\n");
+		return (RIPC_CONN_ERROR);
+	}
+	else if (cc != respLen)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: 1002 rwsSendResponseHandshake() failed to write response WS handshake. System errno: (%d)\n",
+			__FILE__, __LINE__, errno);
 
-	cc = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->transportInfo, resp, respLen,rwflags, error);
+		return (RIPC_CONN_ERROR);
+	}
 
 	/*Callback to provide HTTP header*/
 	if (rsslSocketChannel->httpCallback != NULL)
@@ -2672,6 +2870,7 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Failed to allocate memory for HTTP a headers\n", __FILE__, __LINE__);
 			rsslSocketChannel->httpCallback(NULL, error);
+			return(-1);
 		}
 
 		for (lnNum = 1; lnNum < respHdrs->total; lnNum++)
@@ -2718,11 +2917,6 @@ ripcSessInit rwsAcceptWebSocket(RsslSocketChannel *rsslSocketChannel, RsslError 
 
 	if ((rwsSendResponseHandshake(rsslSocketChannel, wsSess, error)) < 0)
 	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
-							"<%s:%d> Error: 1002 rwsClientSendHandshake() Client WS handshake. System errno: (%d)\n",
-							__FILE__, __LINE__, errno);
-	
 		return(RIPC_CONN_ERROR);
 	}
 	
@@ -5735,8 +5929,8 @@ RsslRet rwsInitSessionOptions(RsslSocketChannel *rsslSocketChannel, RsslWSocketO
 		{
 			if (deepCopyCookies(&rsslSocketChannel->cookies, &wsOpts->cookies, error) == RSSL_RET_FAILURE)
 				return RSSL_RET_FAILURE;
-			else
-				rsslSocketChannel->isCookiesShallowCopy = RSSL_FALSE;
+
+			rsslSocketChannel->isCookiesShallowCopy = RSSL_FALSE;
 		}
 
 		wsSess->protocolList = rwsSetSubProtocols((const char*)(wsOpts->protocols ?

@@ -641,6 +641,7 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->bufPool = 0;
 	rsslSocketChannel->shared_key = 0;
 	rsslSocketChannel->encryptionType = 0;
+	rsslSocketChannel->gblInputBufs = 0;
 
 	rssl_pipe_init(&rsslSocketChannel->sessPipe);
 	rsslSocketChannel->ipAddress = 0;
