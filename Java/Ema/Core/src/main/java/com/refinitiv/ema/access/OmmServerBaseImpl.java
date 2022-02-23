@@ -658,11 +658,11 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnknownJsonFids)) != null) {
-				_activeServerConfig.catchUnknownJsonKeys = ce.intLongValue() > 0;
+				_activeServerConfig.catchUnknownJsonFids = ce.intLongValue() > 0;
 			}
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.CloseChannelFromConverterFailure)) != null) {
-				_activeServerConfig.catchUnknownJsonKeys = ce.intLongValue() > 0;
+				_activeServerConfig.closeChannelFromFailure = ce.intLongValue() > 0;
 			}
 				
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
@@ -1224,7 +1224,10 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 										ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions, _rsslErrorInfo);
 									}
 									finally{
-										_userLock.unlock();
+										if(_userLock.isLocked())
+										{
+											_userLock.unlock();
+										}
 									}
 								}
 								while ( ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT );
@@ -1241,8 +1244,16 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 					loopCount = 0;
 					do {
 						_userLock.lock();
-						ret = _rsslReactor != null ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
-						_userLock.unlock();
+						try
+						{
+							ret = _rsslReactor != null ? _rsslReactor.dispatchAll(null, _rsslDispatchOptions, _rsslErrorInfo) : ReactorReturnCodes.SUCCESS;
+						}
+						finally {
+							if(_userLock.isLocked())
+							{
+								_userLock.unlock();
+							}
+						}
 					} while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < 15);
 
 					if (ret < ReactorReturnCodes.SUCCESS) 

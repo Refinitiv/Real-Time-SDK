@@ -198,16 +198,24 @@ class OmmJsonConverterExceptionImpl extends OmmJsonConverterException {
 	OmmJsonConverterExceptionImpl message(SessionInfo sessionInfo, int errorCode, String exceptMessage) {
 		this.errorCode = errorCode;
 		this._exceptMessage = exceptMessage;
+		this.sessionInfo = sessionInfo;
 		return this;
 	}
 
 	@Override
 	public String toString()
 	{
+		String sessionInfoTxt = "unavailable";
+		
+		if(sessionInfo != null && sessionInfo.getChannelInformation() != null)
+		{
+			sessionInfoTxt = sessionInfo.getChannelInformation().toString();
+		}
+		
 		_toString.setLength(0);
 		_toString.append("Exception Type='").append(exceptionTypeAsString()).append("', Text='").append(_exceptMessage)
 				.append("', ErrorCode='").append(errorCode)
-				.append("', SessionInfo='").append(sessionInfo.getChannelInformation().ipAddress())
+				.append("', SessionInfo='").append(sessionInfoTxt)
 				.append("'");
 
 		return _toString.toString();

@@ -930,16 +930,16 @@ class ProgrammaticConfigure
 												((ActiveConfig)activeConfig).reconnectMaxDelay = convertToInt(eentry.intValue());
 										} else if (eentry.name().equals("DefaultServiceID")) {
 											if (eentry.intValue() >= 0) {
-												((ActiveConfig) activeConfig).defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
+												activeConfig.defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
 											}
 										} else if (eentry.name().equals("JsonExpandedEnumFields")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.jsonExpandedEnumFields = eentry.intValue() > 0 ? true : false;
 										} else if (eentry.name().equals("CatchUnknownJsonFids")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.catchUnknownJsonFids = eentry.intValue() > 0 ? true : false;
 										} else if (eentry.name().equals("CatchUnknownJsonKeys")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.catchUnknownJsonKeys = eentry.intValue() > 0 ? true : false ;
 										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
 										}
 										break;
 									default:
@@ -1004,16 +1004,16 @@ class ProgrammaticConfigure
 												activeConfig.dispatchTimeoutApiThread = convertToInt(eentry.intValue());
 										} else if (eentry.name().equals("DefaultServiceID")) {
 											if (eentry.intValue() >= 0) {
-												((ActiveConfig) activeConfig).defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
+												activeConfig.defaultConverterServiceId = Math.min(convertToInt(eentry.intValue()), 0xFFFF);
 											}
 										} else if (eentry.name().equals("JsonExpandedEnumFields")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.jsonExpandedEnumFields = eentry.intValue() > 0 ? true : false;
 										} else if (eentry.name().equals("CatchUnknownJsonFids")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.catchUnknownJsonFids = eentry.intValue() > 0 ? true : false;
 										} else if (eentry.name().equals("CatchUnknownJsonKeys")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.catchUnknownJsonKeys = eentry.intValue() > 0 ? true : false ;
 										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
-											((ActiveConfig) activeConfig).jsonExpandedEnumFields = eentry.intValue() > 0;
+											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
 										}
 										break;
 									default:

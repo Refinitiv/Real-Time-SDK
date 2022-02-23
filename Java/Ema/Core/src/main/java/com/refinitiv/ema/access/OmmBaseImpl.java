@@ -843,6 +843,22 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					config.loginReq().attrib().applyHasSupportRoundTripLatencyMonitoring();
 				}
 			}
+			
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.JsonExpandedEnumFields)) != null) {
+				_activeConfig.jsonExpandedEnumFields = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnknownJsonKeys)) != null) {
+				_activeConfig.catchUnknownJsonKeys = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CatchUnknownJsonFids)) != null) {
+				_activeConfig.catchUnknownJsonFids = ce.intLongValue() > 0;
+			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.CloseChannelFromConverterFailure)) != null) {
+				_activeConfig.closeChannelFromFailure = ce.intLongValue() > 0;
+			}
 		}
 
 		// .........................................................................
