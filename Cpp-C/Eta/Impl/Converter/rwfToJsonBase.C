@@ -23,7 +23,7 @@
 
 char *rwfToJsonBase::_intToStringTable[RTR_RTMC_MAX_INT_TO_STR_TABLE + 1];
 RsslUInt8 rwfToJsonBase::_intToStringTableLengths[RTR_RTMC_MAX_INT_TO_STR_TABLE + 1];
-bool rwfToJsonBase::_intToStringTableInit = false;
+rtr_atomic_val rwfToJsonBase::_intToStringTableInitCount = 0;
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -244,17 +244,21 @@ const int rwfToJsonBase::_exponentTable[] = {-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,
 
 void rwfToJsonBase::uninitializeIntToStringTable()
 {
-	if (_intToStringTableInit)
+	
+	if (_intToStringTableInitCount == 1)
 	{
+		RTR_ATOMIC_SET(_intToStringTableInitCount,0);
 		for (unsigned long i = 0; i <= RTR_RTMC_MAX_INT_TO_STR_TABLE; i++)
 		{
-			delete [] _intToStringTable[i];
+			delete[] _intToStringTable[i];
 			_intToStringTable[i] = 0;
 			_intToStringTableLengths[i] = 0;
 		}
-
-		_intToStringTableInit = false;
 	}
+	else if (_intToStringTableInitCount == 0)
+		return;
+	else
+		RTR_ATOMIC_DECREMENT(_intToStringTableInitCount);
 }
 
 void rwfToJsonBase::initializeIntToStringTable()
@@ -264,43 +268,51 @@ void rwfToJsonBase::initializeIntToStringTable()
 	unsigned int len ;
 	unsigned long value;
 
-		// Must initialize zero case before loop (macro does not handle zero).
-	char *mem = new char[7];
-	memset(mem, 0 , 7);
-
-	mem[0] = '0';
-
-	_intToStringTable[0] = mem;
-	_intToStringTableLengths[0] = 1;
-
-	for (unsigned long i = 1; i <= RTR_RTMC_MAX_INT_TO_STR_TABLE; i++)
+	/* Check if it has been initialized */
+	if (_intToStringTableInitCount == 0)
 	{
-		char *tstr = temp + 11;
-		*(--tstr) = 0;
+		/* Increment the reference count to make sure we don't initialize this twice */
+		RTR_ATOMIC_SET(_intToStringTableInitCount,1);
+		// Must initialize zero case before loop (macro does not handle zero).
+		char* mem = new char[7];
+		memset(mem, 0, 7);
 
-		value = i;
-		RTR_NEW_DO_LONG_TO_STRING(quo,rem,value, tstr);
-		len = (unsigned int)strlen(tstr);
+		mem[0] = '0';
 
-		if (len < 7)
-		{	// should always hit here
-			// force to 6 + NULL - avoid ABR when using _intToStringTable
-			mem = new char[7];
-			memset(mem, 0, 7);
-		}
-		else
+		_intToStringTable[0] = mem;
+		_intToStringTableLengths[0] = 1;
+
+		for (unsigned long i = 1; i <= RTR_RTMC_MAX_INT_TO_STR_TABLE; i++)
 		{
-			mem = new char[len + 1];
-			memset(mem, 0, len + 1);
+			char* tstr = temp + 11;
+			*(--tstr) = 0;
+
+			value = i;
+			RTR_NEW_DO_LONG_TO_STRING(quo, rem, value, tstr);
+			len = (unsigned int)strlen(tstr);
+
+			if (len < 7)
+			{	// should always hit here
+				// force to 6 + NULL - avoid ABR when using _intToStringTable
+				mem = new char[7];
+				memset(mem, 0, 7);
+			}
+			else
+			{
+				mem = new char[len + 1];
+				memset(mem, 0, len + 1);
+			}
+
+			memcpy(mem, tstr, len);
+
+			_intToStringTable[i] = mem;
+			_intToStringTableLengths[i] = len;
 		}
-
-		memcpy(mem, tstr, len);
-
-		_intToStringTable[i] = mem;
-		_intToStringTableLengths[i] = len;
 	}
-
-	_intToStringTableInit = true;
+	else
+	{
+		RTR_ATOMIC_INCREMENT(_intToStringTableInitCount);
+	}
 }
 
 void rwfToJsonBase::uInt32ToString(RsslUInt32 value)

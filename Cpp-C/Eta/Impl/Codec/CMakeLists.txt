@@ -104,6 +104,7 @@ else()
                 #Utils source files
                 ${Eta_SOURCE_DIR}/Impl/Util/cutildfltcbuffer.c
                 ${Eta_SOURCE_DIR}/Impl/Util/cutilsmplcbuffer.c
+                ${Eta_SOURCE_DIR}/Impl/Util/rsslBindThread.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslHashFuncs.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslHashTable.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslMemoryBuffer.c
@@ -116,6 +117,7 @@ else()
 
                 #Utils header files
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/os.h
+                ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslBindThread.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslErrorInfo.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslEventSignal.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslHashFuncs.h

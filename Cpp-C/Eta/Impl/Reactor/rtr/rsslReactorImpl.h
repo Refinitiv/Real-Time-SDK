@@ -17,6 +17,7 @@
 #include "rtr/rsslVAUtils.h"
 
 #include "rtr/rsslQueue.h"
+#include "rtr/rsslBindThread.h"
 #include "rtr/rsslThread.h"
 #include "rtr/rsslReactorUtils.h"
 #include "rtr/tunnelManager.h"
@@ -1604,6 +1605,13 @@ RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl);
 
 #define MAX_THREADNAME_STRLEN 16
 
+typedef enum
+{
+	RSSL_REACTOR_WORKER_THREAD_ST_INIT = 0UL,
+	RSSL_REACTOR_WORKER_THREAD_STARTED = 1UL, /* Reactor Worker thread is started. */
+	RSSL_REACTOR_WORKER_THREAD_ERROR = 2UL /* Reactor Worker thread has encountered an error (not Started). */
+} RsslReactorWorkerThreadStartingState;
+
 /* RsslReactorWorker
  * The reactorWorker handles when to send pings and flushing.
  * Primary responsiblities include:
@@ -1640,7 +1648,8 @@ typedef struct
 	RsslMutex errorInfoPoolLock; /* The Mutual exclusive lock for the pool */
 
 	char nameReactorWorker[MAX_THREADNAME_STRLEN]; /* Name of the reactor worker thread */
-
+	RsslBuffer cpuBindWorkerThread; /*!< Cpu core (Cpu core id) bound to the Reactor worker thread; if the value is not set, then there is no limit of the binding processor cores for the Reactor worker thread.> */
+	rtr_atomic_val threadStarted; /*!< Describes starting of the Reactor worker thread. see RsslReactorWorkerThreadStartingState > */
 } RsslReactorWorker;
 
 typedef enum

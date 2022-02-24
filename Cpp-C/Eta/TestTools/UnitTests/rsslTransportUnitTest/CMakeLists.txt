@@ -1,5 +1,6 @@
 set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
+	rsslBindThreadUnitTest.cpp
 	rsslTransportUnitTest.cpp
 
 	TransportUnitTest.h

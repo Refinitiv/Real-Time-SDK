@@ -312,6 +312,7 @@ typedef struct {
 	RsslInt32	reissueTokenAttemptInterval;	/*!< The interval time for the RsslReactor will wait before attempting to reissue the token, in milliseconds. The minimum interval is 1000 milliseconds */
 	RsslUInt32	restRequestTimeOut;				/*!< Specifies maximum time the request is allowed to take for token service and service discovery, in seconds. If set to 0, there is no timeout */
 	int			port;							/*!< @deprecated DEPRECATED: This parameter no longer has any effect. It was a port used for creating the eventFd descriptor on the RsslReactor. It was never used on Linux or Solaris platforms. */
+	RsslBuffer	cpuBindWorkerThread;			/*!< Specifies the Cpu core (Cpu core id) for the internal Reactor worker thread binding. If the value is not set, then there is no limit of the binding processor cores for the Reactor worker thread.> */
 	RsslBool	restEnableLog;					/*!< Enable REST interaction debug messages> */
 	FILE		*restLogOutputStream;			/*!< Set output stream for REST debug message (by default is stdout)> */
 	RsslReactorRestLoggingCallback* pRestLoggingCallback;	/*!< Specifies user callback to receive Rest logging messages.> */

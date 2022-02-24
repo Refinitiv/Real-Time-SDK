@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <signal.h>
+#include "rtr/rsslBindThread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -116,16 +117,17 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 
 	ProviderThread *pProviderThread = (ProviderThread*)pArg;
 	RsslError error;
+	RsslErrorInfo rsslErrorInfo;
 
 	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
 	RsslConnectOptions copts;
 
-	if (pProviderThread->cpuId >= 0)
+	if (pProviderThread->cpuId.length > 0 && pProviderThread->cpuId.data != NULL)
 	{
-		if (bindThread(pProviderThread->cpuId) != RSSL_RET_SUCCESS)
+		if (rsslBindThread(pProviderThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			printf("Error: Failed to bind thread to core %d.\n", pProviderThread->cpuId);
+			printf("Error: Failed to bind thread to core %s: %s.\n", pProviderThread->cpuId.data, rsslErrorInfo.rsslError.text);
 			exit(-1);
 		}
 	}
@@ -564,11 +566,11 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 	RsslReactorDispatchOptions dispatchOptions;
 	RsslRet ret = 0;
 
-	if (pProviderThread->cpuId >= 0)
+	if (pProviderThread->cpuId.length > 0 && pProviderThread->cpuId.data != NULL)
 	{
-		if (bindThread(pProviderThread->cpuId) != RSSL_RET_SUCCESS)
+		if (rsslBindThread(pProviderThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			printf("Error: Failed to bind thread to core %d.\n", pProviderThread->cpuId);
+			printf("Error: Failed to bind thread to core %s: %s.\n", pProviderThread->cpuId.data, rsslErrorInfo.rsslError.text);
 			exit(-1);
 		}
 	}
@@ -580,6 +582,9 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 	rsslClearCreateReactorOptions(&reactorOpts);
 	rsslClearReactorConnectOptions(&cOpts);
 	rsslClearReactorConnectInfo(&cInfo);
+
+	/* The Cpu core id for the internal Reactor worker thread. */
+	reactorOpts.cpuBindWorkerThread = pProviderThread->cpuReactorWorkerId;
 
 	/* Create an RsslReactor which will manage our channels. */
 	if (!(pProviderThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))

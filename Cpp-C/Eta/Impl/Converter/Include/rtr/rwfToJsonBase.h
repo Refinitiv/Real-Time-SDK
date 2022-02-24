@@ -15,6 +15,7 @@
 #include "rtr/platform.h"
 #include "rtr/rjcbuffer.h"
 #include "rtr/rsslJsonConverter.h"
+#include "rtr/rtratomic.h"
 #include "jsmn.h"
 
 #define MAX_MSG_PREQUEL 24
@@ -164,7 +165,7 @@ public:
 	static void initializeIntToStringTable();
 	static void uninitializeIntToStringTable();
 
-	static bool _intToStringTableInit;
+	static rtr_atomic_val _intToStringTableInitCount;
 
 	int convertMsg(RsslMsg &);
 

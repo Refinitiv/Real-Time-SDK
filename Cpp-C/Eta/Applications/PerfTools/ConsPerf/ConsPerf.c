@@ -134,7 +134,18 @@ int main(int argc, char **argv)
 	signal(SIGINT, signal_handler);
 	
 	for(i = 0; i < consPerfConfig.threadCount; ++i)
-		consumerThreads[i].cpuId = consPerfConfig.threadBindList[i];
+	{
+		if (consPerfConfig.threadBindList[i][0] != '\0')
+		{
+			consumerThreads[i].cpuId.data = consPerfConfig.threadBindList[i];
+			consumerThreads[i].cpuId.length = (RsslUInt32)strlen(consPerfConfig.threadBindList[i]);
+		}
+		if (consPerfConfig.threadReactorBindList[i][0] != '\0')
+		{
+			consumerThreads[i].cpuReactorWorkerId.data = consPerfConfig.threadReactorBindList[i];
+			consumerThreads[i].cpuReactorWorkerId.length = (RsslUInt32)strlen(consPerfConfig.threadReactorBindList[i]);
+		}
+	}
 
 	/* Initialize RSSL */
 	if (consPerfConfig.useReactor == RSSL_FALSE && consPerfConfig.useWatchlist == RSSL_FALSE) // use ETA Channel

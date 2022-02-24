@@ -15,14 +15,10 @@
 #define snprintf _snprintf
 #endif
 
-static RsslInt32 defaultThreadCount = 1;
-static RsslInt32 defaultThreadBindList[] = { -1 };
-
 static void clearNIProvPerfConfig()
 {
 	/* Prepare defaults. */
 	niProvPerfConfig.runTime = 360;
-	providerThreadConfig.threadBindList = defaultThreadBindList;
 
 	niProvPerfConfig.highWaterMark = 0;
 	niProvPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
@@ -68,7 +64,9 @@ void exitMissingArgument(char **argv, int arg)
 
 void initNIProvPerfConfig(int argc, char **argv)
 {
+	int i;
 	int iargs;
+	int provThreadCount = 0;
 
 	clearNIProvPerfConfig();
 	clearProviderThreadConfig(); 
@@ -120,21 +118,69 @@ void initNIProvPerfConfig(int argc, char **argv)
 
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 		   
-			providerThreadConfig.threadBindList = (RsslInt32*)malloc(128 * sizeof(RsslInt32));
 			pToken = strtok(argv[iargs], ",");
 			while(pToken)
 			{
-				if (++providerThreadConfig.threadCount > 128)
+				if (++providerThreadConfig.threadCount > MAX_PROV_THREADS)
 				{
 					printf("Config Error: Too many threads specified.\n");
 					exitConfigError(argv);
 				}
 
-				sscanf(pToken, "%d", &providerThreadConfig.threadBindList[providerThreadConfig.threadCount-1]);
+				snprintf(&(providerThreadConfig.threadBindList[providerThreadConfig.threadCount - 1][0]), MAX_LEN_CPUCOREBIND, "%s", pToken);
 
 				pToken = strtok(NULL, ",");
 			}
 
+			if (provThreadCount > 0 && providerThreadConfig.threadCount != provThreadCount)
+			{
+				printf("Config Error: thread count not equal to reactor thread count.\n");
+				exit(-1);
+			}
+			if (providerThreadConfig.threadCount < MAX_PROV_THREADS)
+			{
+				for (i = providerThreadConfig.threadCount; i < MAX_PROV_THREADS; ++i)
+				{
+					providerThreadConfig.threadBindList[i][0] = '\0';
+				}
+			}
+			provThreadCount = (providerThreadConfig.threadCount > 0) ? providerThreadConfig.threadCount : 0;
+		}
+		else if (0 == strcmp("-workerThreads", argv[iargs]))
+		{
+			char* pToken;
+
+			providerThreadConfig.threadCount = 0;
+
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+
+			pToken = strtok(argv[iargs], ",");
+			while (pToken)
+			{
+				if (++providerThreadConfig.threadCount > MAX_PROV_THREADS)
+				{
+					printf("Config Error: Too many reactor threads specified.\n");
+					exitConfigError(argv);
+				}
+
+				snprintf(&(providerThreadConfig.threadReactorWorkerBindList[providerThreadConfig.threadCount - 1][0]), MAX_LEN_CPUCOREBIND, "%s", pToken);
+
+				pToken = strtok(NULL, ",");
+			}
+
+			if (provThreadCount > 0 && providerThreadConfig.threadCount != provThreadCount)
+			{
+				printf("Config Error: reactor thread count not equal to thread count.\n");
+				exit(-1);
+			}
+			if (providerThreadConfig.threadCount < MAX_PROV_THREADS)
+			{
+				for (i = providerThreadConfig.threadCount; i < MAX_PROV_THREADS; ++i)
+				{
+					providerThreadConfig.threadReactorWorkerBindList[i][0] = '\0';
+				}
+			}
+			provThreadCount = (providerThreadConfig.threadCount > 0) ? providerThreadConfig.threadCount : 0;
 		}
 		else if (0 == strcmp("-connType", argv[iargs]))
 		{
@@ -391,17 +437,33 @@ static const char *connectionTypeToString(RsslConnectionTypes connType)
 
 }
 
+#define MAXLEN_THREAD_STR 768
+
 void printNIProvPerfConfig(FILE *file)
 {
 	int i;
 	int threadStringPos = 0;
-	char threadString[128];
+	char threadString[MAXLEN_THREAD_STR];
 
 	/* Build thread list */
-	threadStringPos += snprintf(threadString, 128, "%d", providerThreadConfig.threadBindList[0]);
-	for(i = 1; i < providerThreadConfig.threadCount; ++i)
-		threadStringPos += snprintf(threadString + threadStringPos, 128 - threadStringPos, ",%d", providerThreadConfig.threadBindList[i]);
-	
+	threadStringPos += snprintf(threadString, MAXLEN_THREAD_STR, "%s",
+		(providerThreadConfig.threadBindList[0][0] != '\0' ? providerThreadConfig.threadBindList[0] : "(non)"));
+	for (i = 1; i < providerThreadConfig.threadCount && threadStringPos < MAXLEN_THREAD_STR; ++i)
+		threadStringPos += snprintf(threadString + threadStringPos, MAXLEN_THREAD_STR - threadStringPos, ",%s", providerThreadConfig.threadBindList[i]);
+
+	if (niProvPerfConfig.useReactor)
+	{
+		threadStringPos += snprintf(threadString + threadStringPos, MAXLEN_THREAD_STR - threadStringPos, " {%s",
+			(providerThreadConfig.threadReactorWorkerBindList[0][0] != '\0' ? providerThreadConfig.threadReactorWorkerBindList[0] : "(non)"));
+		if (providerThreadConfig.threadReactorWorkerBindList[0][0] != '\0')
+		{
+			for (i = 1; i < providerThreadConfig.threadCount && threadStringPos < MAXLEN_THREAD_STR; ++i)
+				threadStringPos += snprintf(threadString + threadStringPos, MAXLEN_THREAD_STR - threadStringPos, ",%s", providerThreadConfig.threadReactorWorkerBindList[i]);
+		}
+		if (threadStringPos < MAXLEN_THREAD_STR)
+			threadStringPos += snprintf(threadString + threadStringPos, MAXLEN_THREAD_STR - threadStringPos, "}");
+	}
+
 
 	fprintf(file, "--- TEST INPUTS ---\n\n");
 
@@ -559,7 +621,7 @@ void exitWithUsage()
 
 			"  -threads <thread list>           List of threads, by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                     (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
-
+			"  -workerThreads <thread list>     List of CPU bound for Reactor worker threads. -1 means do not bind.\n"
 			"  -reactor                         Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
 			" \n"
 			"  -castore                         File location of the certificate authority store.\n"

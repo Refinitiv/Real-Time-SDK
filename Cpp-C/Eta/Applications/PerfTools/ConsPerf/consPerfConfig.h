@@ -12,6 +12,7 @@
 #define _CONS_PERF_CONFIG_H
 
 #define MAX_CONS_THREADS 8
+#define MAX_LEN_CPUCOREBIND 16
 
 #include "rtr/rsslTypes.h"
 #include "rtr/rsslTransport.h"
@@ -30,7 +31,8 @@ typedef struct
 	RsslUInt32	delaySteadyStateCalc;				/* Time before the latency is calculated. See -delaySteadyStateCalc */
 	RsslInt32	ticksPerSec;						/* Main loop ticks per second.  See -tps */
 	RsslInt32	threadCount;						/* Number of threads that handle connections.  See -threads */
-	RsslInt32	*threadBindList;					/* CPU ID list for threads that handle connections.  See -threads */
+	char		threadBindList[MAX_CONS_THREADS][MAX_LEN_CPUCOREBIND];	/* CPU ID list for threads that handle connections.  See -threads */
+	char		threadReactorBindList[MAX_CONS_THREADS][MAX_LEN_CPUCOREBIND];	/* CPU ID list for Reactor worker threads.  See -workerThreads */
 
 	char		itemFilename[128];					/* File of names to use when requesting items. See -itemFile. */
 	char		msgFilename[128];					/* File of data to use for message payloads. See -msgFile. */

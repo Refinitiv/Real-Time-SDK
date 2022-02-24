@@ -16,7 +16,6 @@
 #endif
 
 static RsslInt32 defaultThreadCount = 1;
-static RsslInt32 defaultThreadBindList[] = { -1 };
 
 /* Contains the global application configuration */
 ConsPerfConfig consPerfConfig;
@@ -27,7 +26,8 @@ static void clearConsPerfConfig()
 	consPerfConfig.steadyStateTime = 300;
 	consPerfConfig.delaySteadyStateCalc = 0;
 	consPerfConfig.threadCount = defaultThreadCount;
-	consPerfConfig.threadBindList = defaultThreadBindList;
+	consPerfConfig.threadBindList[0][0] = '\0';
+	consPerfConfig.threadReactorBindList[0][0] = '\0';
 
 	snprintf(consPerfConfig.summaryFilename, sizeof(consPerfConfig.summaryFilename), "ConsSummary.out");
 	snprintf(consPerfConfig.statsFilename, sizeof(consPerfConfig.statsFilename), "ConsStats");
@@ -101,7 +101,9 @@ void exitMissingArgument(char **argv, int arg)
 
 void initConsPerfConfig(int argc, char **argv)
 {
+	int i;
 	int iargs;
+	int consThreadCount = 0;
 
 	clearConsPerfConfig();
 
@@ -140,7 +142,6 @@ void initConsPerfConfig(int argc, char **argv)
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
 
 			consPerfConfig.threadCount = 0;
-			consPerfConfig.threadBindList = (RsslInt32*)malloc(MAX_CONS_THREADS * sizeof(RsslInt32));
 
 			pToken = strtok(argv[iargs++], ",");
 			while(pToken)
@@ -151,10 +152,60 @@ void initConsPerfConfig(int argc, char **argv)
 					exit(-1);
 				}
 
-				sscanf(pToken, "%d", &consPerfConfig.threadBindList[consPerfConfig.threadCount-1]);
+				snprintf(&(consPerfConfig.threadBindList[consPerfConfig.threadCount - 1][0]), MAX_LEN_CPUCOREBIND, "%s", pToken);
 
 				pToken = strtok(NULL, ",");
 			}
+
+			if (consThreadCount > 0 && consPerfConfig.threadCount != consThreadCount)
+			{
+				printf("Config Error: thread count not equal to reactor thread count.\n");
+				exit(-1);
+			}
+			if (consPerfConfig.threadCount < MAX_CONS_THREADS)
+			{
+				for (i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i)
+				{
+					consPerfConfig.threadBindList[i][0] = '\0';
+				}
+			}
+			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
+		}
+		else if (0 == strcmp("-workerThreads", argv[iargs]))
+		{
+			char* pToken;
+
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+
+			consPerfConfig.threadCount = 0;
+
+			pToken = strtok(argv[iargs++], ",");
+			while (pToken)
+			{
+				if (++consPerfConfig.threadCount > MAX_CONS_THREADS)
+				{
+					printf("Config Error: Too many reactor threads specified.\n");
+					exit(-1);
+				}
+
+				snprintf(&(consPerfConfig.threadReactorBindList[consPerfConfig.threadCount - 1][0]), MAX_LEN_CPUCOREBIND, "%s", pToken);
+
+				pToken = strtok(NULL, ",");
+			}
+
+			if (consThreadCount > 0 && consPerfConfig.threadCount != consThreadCount)
+			{
+				printf("Config Error: reactor thread count not equal to thread count.\n");
+				exit(-1);
+			}
+			if (consPerfConfig.threadCount < MAX_CONS_THREADS)
+			{
+				for (i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i)
+				{
+					consPerfConfig.threadReactorBindList[i][0] = '\0';
+				}
+			}
+			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
 		}
 		else if(strcmp("-tcpDelay", argv[iargs]) == 0)
 		{
@@ -584,13 +635,14 @@ static const char *connectionTypeToString(RsslConnectionTypes connType)
 
 }
 
+#define MAXLEN_THREAD_STR 768
 
 /* Print the parsed configuration options(so the user can verify intended usage) */
 void printConsPerfConfig(FILE *file)
 {
 	int i;
 	int tmpStringPos = 0;
-	char tmpString[128];
+	char tmpString[MAXLEN_THREAD_STR];
 	char reactorWatchlistUsageString[32];
 	char warmStandbyModeStr[32];
 
@@ -621,9 +673,23 @@ void printConsPerfConfig(FILE *file)
 	}
 
 	/* Build thread list */
-	tmpStringPos += snprintf(tmpString, 128, "%d", consPerfConfig.threadBindList[0]);
-	for(i = 1; i < consPerfConfig.threadCount; ++i)
-		tmpStringPos += snprintf(tmpString + tmpStringPos, 128 - tmpStringPos, ",%d", consPerfConfig.threadBindList[i]);
+	tmpStringPos += snprintf(tmpString, MAXLEN_THREAD_STR, "%s",
+		(consPerfConfig.threadBindList[0][0] != '\0' ? consPerfConfig.threadBindList[0] : "(non)"));
+	for(i = 1; i < consPerfConfig.threadCount && tmpStringPos < MAXLEN_THREAD_STR; ++i)
+		tmpStringPos += snprintf(tmpString + tmpStringPos, MAXLEN_THREAD_STR - tmpStringPos, ",%s", consPerfConfig.threadBindList[i]);
+
+	if (consPerfConfig.useReactor || consPerfConfig.useWatchlist)
+	{
+		tmpStringPos += snprintf(tmpString + tmpStringPos, MAXLEN_THREAD_STR - tmpStringPos, " {%s",
+			(consPerfConfig.threadReactorBindList[0][0] != '\0' ? consPerfConfig.threadReactorBindList[0] : "(non)"));
+		if (consPerfConfig.threadReactorBindList[0][0] != '\0')
+		{
+			for (i = 1; i < consPerfConfig.threadCount && tmpStringPos < MAXLEN_THREAD_STR; ++i)
+				tmpStringPos += snprintf(tmpString + tmpStringPos, MAXLEN_THREAD_STR - tmpStringPos, ",%s", consPerfConfig.threadReactorBindList[i]);
+		}
+		if (tmpStringPos < MAXLEN_THREAD_STR)
+			tmpStringPos += snprintf(tmpString + tmpStringPos, MAXLEN_THREAD_STR - tmpStringPos, "}");
+	}
 
 	fprintf(file, "--- TEST INPUTS ---\n\n");
 
@@ -778,6 +844,7 @@ void exitWithUsage()
 			"  -threads <thread list>                list of threads(which create 1 connection each),\n"
 			"                                        by their bound CPU. Comma-separated list. -1 means do not bind.\n"
 			"                                         (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1)\n"
+			"  -workerThreads <thread list>          list of CPU bound for Reactor worker threads. -1 means do not bind.\n"
 			"  -reactor                              Use the VA Reactor instead of the ETA Channel for sending and receiving.\n"
 			"  -watchlist                            Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving.\n"
 			"\n"

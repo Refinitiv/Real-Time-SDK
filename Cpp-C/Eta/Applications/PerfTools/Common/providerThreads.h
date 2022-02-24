@@ -34,6 +34,9 @@ extern "C" {
 #define ALWAYS_SEND_LATENCY_UPDATE (-1)
 #define ALWAYS_SEND_LATENCY_GENMSG (-1)
 
+#define MAX_PROV_THREADS 128
+#define MAX_LEN_CPUCOREBIND 16
+
 /* Identifies whether this represents an interactive or non-interactive provider. */
 typedef enum
 {
@@ -73,7 +76,8 @@ typedef struct
 	RsslBool	measureEncode;				/* Measure time to encode messages(-measureEncode) */
 	RsslBool	measureDecode;				/* Measure time to decode latency updates (-measureDecode) */
 
-	RsslInt32	*threadBindList;			/* List of CPU ID's to bind threads to */
+	char	threadBindList[MAX_PROV_THREADS][MAX_LEN_CPUCOREBIND];	/* List of CPU ID's to bind threads to. (-threads) */
+	char	threadReactorWorkerBindList[MAX_PROV_THREADS][MAX_LEN_CPUCOREBIND];	/* CPU ID list for Reactor worker threads. (-workerThreads) */
 	RsslInt32	threadCount;				/* Number of provider threads to create. */
 	char		statsFilename[128];			/* Name of the statistics log file*/
 	RsslUInt8	writeFlags;
@@ -140,7 +144,8 @@ typedef struct
 	RsslMutex				newClientSessionsLock;	/* Lock for newClientSessionsList. */
 	RsslInt32				clientSessionsCount;	/* Number of channels in use. */
 	RsslThreadId			threadId;				/* Thread ID. */
-	RsslInt32				cpuId;					/* CPU to bind to, if any. */
+	RsslBuffer				cpuId;					/* CPU to bind to, if any. */
+	RsslBuffer				cpuReactorWorkerId;		/* CPU to bind for the Reactor worker thread, if any (>=0). */
 	ChannelHandler			channelHandler;			/* Channel handler. */
 	LatencyRandomArrayIter	randArrayIter;			/* Iterator for the randomized latency array. */
 	FILE					*statsFile;				/* Statistics file for recording. */

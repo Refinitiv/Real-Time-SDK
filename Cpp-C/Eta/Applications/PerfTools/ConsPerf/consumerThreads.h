@@ -151,8 +151,9 @@ typedef enum
 /* Contains information about a consumer thread and its connection. */
 typedef struct {
 	RsslThreadId			threadId;					/* ID saved from thread creation. */
-	RsslInt32				cpuId;						/* CPU to bind the thread to, if any */
-    RsslChannel				*pChannel;					/* RSSL Channel. */
+	RsslBuffer				cpuId;						/* CPU to bind the thread to, if any */
+	RsslBuffer				cpuReactorWorkerId;			/* CPU to bind for the Reactor worker thread, if any (>=0). */
+	RsslChannel				*pChannel;					/* RSSL Channel. */
 	TimeRecordQueue			latencyRecords;				/* Queue of timestamp information, collected periodically by the main thread. */
 	TimeRecordQueue			postLatencyRecords;			/* Queue of timestamp information(for posts), collected periodically by the main thread. */
 	TimeRecordQueue			genMsgLatencyRecords;		/* Queue of timestamp information(for gen msgs), collected periodically by the main thread. */

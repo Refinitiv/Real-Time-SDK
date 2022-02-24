@@ -662,6 +662,28 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		pReactorOpts->maxEventsInPool = -1;
 	}
 
+	if (pReactorOpts->cpuBindWorkerThread.length > 0 && pReactorOpts->cpuBindWorkerThread.data != NULL)
+	{
+		if (pReactorOpts->cpuBindWorkerThread.length < 512)
+		{
+			if (rsslIsStrProcessorCoreNumberValid(pReactorOpts->cpuBindWorkerThread.data) != RSSL_TRUE)
+			{
+				RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					"The required logical processor number is not valid. The number of logical processors: %u.",
+					nProcessors);
+				return NULL;
+			}
+		}
+		else
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Passed in value cpuId is longer then allowed width 512 bytes (%u).",
+				pReactorOpts->cpuBindWorkerThread.length);
+			return NULL;
+		}
+	}
+
 	/* Create internal reactor object */
 	if (!(pReactorImpl = (RsslReactorImpl*)malloc(sizeof(RsslReactorImpl))))
 	{

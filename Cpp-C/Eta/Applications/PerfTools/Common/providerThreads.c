@@ -27,7 +27,6 @@ ProvPerfConfig provPerfConfig;
 ProvStats totalStats;
 
 static RsslInt32 defaultThreadCount = 1;
-static RsslInt32 defaultThreadBindList[] = { -1 };
 
 static void providerThreadCleanup(ProviderThread *pProvThread);
 
@@ -45,7 +44,8 @@ void clearProviderThreadConfig()
 	providerThreadConfig.writeFlags = 0;
 	snprintf(providerThreadConfig.itemFilename, sizeof(providerThreadConfig.itemFilename), "350k.xml");
 	snprintf(providerThreadConfig.msgFilename, sizeof(providerThreadConfig.msgFilename), "MsgData.xml");
-	providerThreadConfig.threadBindList = defaultThreadBindList;
+	providerThreadConfig.threadBindList[0][0] = '\0';
+	providerThreadConfig.threadReactorWorkerBindList[0][0] = '\0';
 	providerThreadConfig.threadCount = defaultThreadCount;
 	snprintf(providerThreadConfig.statsFilename, sizeof(providerThreadConfig.statsFilename), "ProvStats");
 	snprintf(providerThreadConfig.latencyLogFilename, sizeof(providerThreadConfig.latencyLogFilename), "");
@@ -279,7 +279,8 @@ void providerThreadInit(ProviderThread *pProvThread,
 	pProvThread->clientSessionsCount = 0;
 	initChannelHandler(&pProvThread->channelHandler, processActiveChannel, processInactiveChannel, processMsg, convertMsg, (void*)pProvThread);
 
-	pProvThread->cpuId = -1;
+	rsslClearBuffer(&pProvThread->cpuId);
+	rsslClearBuffer(&pProvThread->cpuReactorWorkerId);
 
 	latencyRandomArrayIterInit(&pProvThread->randArrayIter);
 
@@ -1611,13 +1612,29 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 	initCountStat(&pProvider->mcastRetransReceivedCount);
 
 	pProvider->providerThreadList = (ProviderThread*)malloc(providerThreadConfig.threadCount * sizeof(ProviderThread));
+	if (pProvider->providerThreadList == NULL)
+	{
+		printf("providerThreadList malloc failed. threadCount=%d\n", providerThreadConfig.threadCount);
+		exit(-1);
+	}
 
 	for(i = 0; i < providerThreadConfig.threadCount; ++i)
 	{
-		providerThreadInit(&pProvider->providerThreadList[i],
+		ProviderThread* pProviderThread = &pProvider->providerThreadList[i];
+		providerThreadInit(pProviderThread,
 				processActiveChannel, processInactiveChannel, processMsg, convertMsg,
 				i, providerType);
-		pProvider->providerThreadList[i].cpuId = providerThreadConfig.threadBindList[i];
+
+		if (providerThreadConfig.threadBindList[i][0] != '\0')
+		{
+			pProviderThread->cpuId.data = providerThreadConfig.threadBindList[i];
+			pProviderThread->cpuId.length = (RsslUInt32)strlen(providerThreadConfig.threadBindList[i]);
+		}
+		if (providerThreadConfig.threadReactorWorkerBindList[i][0] != '\0')
+		{
+			pProviderThread->cpuReactorWorkerId.data = providerThreadConfig.threadReactorWorkerBindList[i];
+			pProviderThread->cpuReactorWorkerId.length = (RsslUInt32)strlen(providerThreadConfig.threadReactorWorkerBindList[i]);
+		}
 	}
 
 	if (initResourceUsageStats(&pProvider->resourceStats) != RSSL_RET_SUCCESS)

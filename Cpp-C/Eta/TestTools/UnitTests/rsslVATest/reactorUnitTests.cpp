@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include "rtr/rsslThread.h"
 #include "rtr/rsslGetTime.h"
+#include "rtr/rsslBindThread.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -5331,3 +5332,138 @@ void reactorUnitTests_InvalidNetworkInterface(RsslConnectionTypes connectionType
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &connectOpts[index], (RsslReactorChannelRole*)&ommConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
 }
+
+
+class ReactorThreadBindProcessorCoreTest : public ::testing::Test {
+protected:
+
+	virtual void SetUp()
+	{
+		RsslError rsslError;
+
+		ASSERT_EQ(rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError), RSSL_RET_SUCCESS);
+	}
+
+	virtual void TearDown()
+	{
+		rsslUninitialize();
+	}
+
+};
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreUnavailableForReactorWorkerShouldFailTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor;
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+
+	char strCpuBind[32] = { '\0' };
+	const char* errorTxt = "The required logical processor number is not valid. The number of logical processors: ";
+	size_t errLength = strlen(errorTxt);
+
+	ASSERT_TRUE(nProcessors > 0);
+	snprintf(strCpuBind, 32, "%u", (nProcessors+1));
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_EQ((void*)NULL, pReactor);
+
+	ASSERT_EQ(strncmp(errorTxt, rsslErrorInfo.rsslError.text, errLength), 0);
+}
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectCharForReactorWorkerShouldFailTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor;
+
+	char strCpuBind[32] = { '\0' };
+	const char* errorTxt = "The required logical processor number is not valid. The number of logical processors: ";
+	size_t errLength = strlen(errorTxt);
+
+	snprintf(strCpuBind, 32, "-");
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_EQ((void*)NULL, pReactor);
+
+	ASSERT_EQ(strncmp(errorTxt, rsslErrorInfo.rsslError.text, errLength), 0);
+}
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerShouldSuccessTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor;
+
+	char strCpuBind[32] = { '\0' };
+
+	snprintf(strCpuBind, 32, "1");
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_NE((void*)NULL, pReactor);
+
+	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+}
+
+#ifndef WIN32   // Linux
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor;
+
+	char strCpuBind[32] = { '\0' };
+	unsigned proccessorForReactorWorker = 1;
+	snprintf(strCpuBind, 32, "%u", proccessorForReactorWorker);
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_NE((void*)NULL, pReactor);
+
+	time_sleep(10);
+
+	const char* cmd = "ps -e -T -o psr,comm | grep VATes-RWT";
+	char psBuf[512] = { '\0' };
+	FILE* psFile = popen(cmd, "r");
+	ASSERT_TRUE(psFile != NULL);
+
+	if (psFile != NULL)
+	{
+		char* ps = fgets(psBuf, 512, psFile);
+		ASSERT_EQ(ps, psBuf);
+		ASSERT_TRUE(*ps);
+
+		if (ps && isdigit(*ps))
+		{
+			int processorId = atoi(ps);
+			ASSERT_TRUE(processorId >= 0);
+			ASSERT_EQ((unsigned)processorId, proccessorForReactorWorker);
+		}
+
+		pclose(psFile);
+	}
+
+	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+}
+
+#endif // !WIN32

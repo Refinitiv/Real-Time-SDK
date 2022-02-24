@@ -16,6 +16,7 @@
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslMessagePackage.h"
 #include "rtr/rsslDataPackage.h"
+#include "rtr/rsslBindThread.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1309,6 +1310,9 @@ static RsslRet connectReactor(ConsumerThread* pConsumerThread)
 	rsslClearReactorWarmStandbyGroup(&reactorWarmStandbyGroup);
 	rsslClearReactorWarmStandbyServerInfo(&standbyServerInfo);
 
+	/* The Cpu core id for the internal Reactor worker thread. */
+	reactorOpts.cpuBindWorkerThread = pConsumerThread->cpuReactorWorkerId;
+
 	/* Create an RsslReactor which will manage our channels. */
 	if (!(pConsumerThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
@@ -1571,11 +1575,11 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		createLatencyRandomArray(genMsgLatencyRandomArray, &randomArrayOpts);
 	}
 	
-	if (pConsumerThread->cpuId >= 0)
+	if (pConsumerThread->cpuId.length > 0 && pConsumerThread->cpuId.data != NULL)
 	{
-		if (bindThread(pConsumerThread->cpuId) != RSSL_RET_SUCCESS)
+		if (rsslBindThread(pConsumerThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			printf("Error: Failed to bind thread to core %d.\n", pConsumerThread->cpuId);
+			printf("Error: Failed to bind thread to core %s: %s.\n", pConsumerThread->cpuId.data, rsslErrorInfo.rsslError.text);
 			exit(-1);
 		}
 	}
@@ -2916,7 +2920,8 @@ void consumerThreadInit(ConsumerThread *pConsumerThread, RsslInt32 consThreadId)
 
 	pConsumerThread->pChannel = NULL;
 
-	pConsumerThread->cpuId = -1;
+	rsslClearBuffer(&pConsumerThread->cpuId);
+	rsslClearBuffer(&pConsumerThread->cpuReactorWorkerId);
 	pConsumerThread->latStreamId = 0;
 	pConsumerThread->pDictionary = NULL;
 	pConsumerThread->dictionaryStateFlags = DICTIONARY_STATE_NONE;

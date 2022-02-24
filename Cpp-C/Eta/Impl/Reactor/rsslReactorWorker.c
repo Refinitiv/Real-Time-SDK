@@ -182,10 +182,50 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 
 	RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 
+	/* Initialize memory block for decoding RDM structures */
+	if (pReactorOptions->cpuBindWorkerThread.length > 0 && pReactorOptions->cpuBindWorkerThread.data != NULL)
+	{
+		char* buf = (char*)malloc(pReactorOptions->cpuBindWorkerThread.length + 1);
+		if (!buf)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to create reactor worker binding memory buffer (%u).",
+				(pReactorOptions->cpuBindWorkerThread.length + 1));
+			return RSSL_RET_FAILURE;
+		}
+
+		memcpy(buf, pReactorOptions->cpuBindWorkerThread.data, pReactorOptions->cpuBindWorkerThread.length);
+		*(buf + pReactorOptions->cpuBindWorkerThread.length) = '\0';
+
+		pReactorWorker->cpuBindWorkerThread.data = buf;
+		pReactorWorker->cpuBindWorkerThread.length = pReactorOptions->cpuBindWorkerThread.length;
+	}
+
 	/* Start write reactor thread */
 	if (RSSL_THREAD_START(&pReactorImpl->reactorWorker.thread, runReactorWorker, pReactorImpl) < 0)
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to start reactorWorker.");
+		return RSSL_RET_FAILURE;
+	}
+
+	/* Waits for the worker thread start. */
+	while (pReactorImpl->reactorWorker.threadStarted == RSSL_REACTOR_WORKER_THREAD_ST_INIT)
+	{
+#if defined(_WIN32)
+		Sleep(100);
+#else
+		struct timespec sleeptime;
+		sleeptime.tv_sec = 0;
+		sleeptime.tv_nsec = 100000000;
+		nanosleep(&sleeptime, 0);
+#endif
+	}
+	if (pReactorImpl->reactorWorker.threadStarted == RSSL_REACTOR_WORKER_THREAD_ERROR)
+	{
+		RsslThreadId thread = pReactorImpl->reactorWorker.thread;
+		rsslCopyErrorInfo(pError, &pReactorImpl->reactorWorker.workerCerr);
+
+		RSSL_THREAD_JOIN(thread);
 		return RSSL_RET_FAILURE;
 	}
 
@@ -334,6 +374,10 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 
 		RSSL_MUTEX_DESTROY(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
+
+		if (pReactorWorker->cpuBindWorkerThread.data)
+			free(pReactorWorker->cpuBindWorkerThread.data);
+		rsslClearBuffer(&pReactorWorker->cpuBindWorkerThread);
 
 		/* Free RsslReactorErrorInfoImpl from the Reactor worker's pool */
 		RSSL_MUTEX_LOCK(&pReactorWorker->errorInfoPoolLock);
@@ -585,6 +629,21 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 	pthread_setname_np(pthread_self(), pReactorWorker->nameReactorWorker);
 #endif
 	pReactorWorker->sleepTimeMs = 3000;
+
+	/* Bind cpu for the worker thread. */
+	if (pReactorWorker->cpuBindWorkerThread.length > 0 && pReactorWorker->cpuBindWorkerThread.data != NULL)
+	{
+		if (rsslBindThread(pReactorWorker->cpuBindWorkerThread.data, &pReactorWorker->workerCerr) != RSSL_RET_SUCCESS)
+		{
+			/* Indicates the worker thread is started. */
+			/* So the _reactorWorkerCleanupReactor() function can cleanup resources related to the worker thread properly. */
+			pReactorImpl->rsslWorkerStarted = RSSL_TRUE;
+			RTR_ATOMIC_SET(pReactorWorker->threadStarted, RSSL_REACTOR_WORKER_THREAD_ERROR);
+			return RSSL_THREAD_RETURN();
+		}
+	}
+
+	RTR_ATOMIC_SET(pReactorWorker->threadStarted, RSSL_REACTOR_WORKER_THREAD_STARTED);
 
 	while (1)
 	{

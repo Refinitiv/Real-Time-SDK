@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <signal.h>
+#include "rtr/rsslBindThread.h"
 
 //uncomment the following line for debugging only - this will greatly affect performance
 //#define ENABLE_XML_TRACE
@@ -92,11 +93,11 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
 
-	if (pProvThread->cpuId >= 0)
+	if (pProvThread->cpuId.length > 0 && pProvThread->cpuId.data != NULL)
 	{
-		if (bindThread(pProvThread->cpuId) != RSSL_RET_SUCCESS)
+		if (rsslBindThread(pProvThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			printf("Error: Failed to bind thread to core %d.\n", pProvThread->cpuId);
+			printf("Error: Failed to bind thread to core %s: %s.\n", pProvThread->cpuId.data, rsslErrorInfo.rsslError.text);
 			exit(-1);
 		}
 	}
@@ -157,17 +158,20 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 	rsslClearReactorDispatchOptions(&dispatchOptions);
 
-	if (pProvThread->cpuId >= 0)
+	if (pProvThread->cpuId.length>0 && pProvThread->cpuId.data != NULL)
 	{
-		if (bindThread(pProvThread->cpuId) != RSSL_RET_SUCCESS)
+		if (rsslBindThread(pProvThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
-			printf("Error: Failed to bind thread to core %d.\n", pProvThread->cpuId);
+			printf("Error: Failed to bind thread to core %s: %s.\n", pProvThread->cpuId.data, rsslErrorInfo.rsslError.text);
 			exit(-1);
 		}
 	}
 
 	// create reactor
 	rsslClearCreateReactorOptions(&reactorOpts);
+
+	/* The Cpu core id for the internal Reactor worker thread. */
+	reactorOpts.cpuBindWorkerThread = pProvThread->cpuReactorWorkerId;
 
 	if (!(pProvThread->pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
