@@ -350,6 +350,7 @@ class RestReactor
 				    HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 		   			RequestConfig config = RequestConfig.custom()
 		                    .setProxy(proxy)
+		                    .setRedirectsEnabled(false)
 		                    .build();
 		   			httppost.setConfig(config);
 		   			
@@ -469,6 +470,7 @@ class RestReactor
 				    HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 		   			RequestConfig config = RequestConfig.custom()
 		                    .setProxy(proxy)
+		                    .setRedirectsEnabled(false)
 		                    .build();
 		   			httpRequest.setConfig(config);
 
@@ -664,17 +666,6 @@ class RestReactor
    	   				if( ret == ReactorReturnCodes.SUCCESS)
    	   				{
    	   					ReactorTokenSession.parseTokenInfomation(restResponse, authTokenInfo);
-   	   					
-   	   					if(authTokenInfo.tokenVersion() == TokenVersion.V2)
-   	   					{
-   	   						int expiresIn = 0;
-   	   						if(authTokenInfo.expiresIn() < 600)
-   	   							expiresIn = (int)(.95 * (double)authTokenInfo.expiresIn());
-   	   						else
-   	   							expiresIn = authTokenInfo.expiresIn() - 300;
-   	   						
-   	   						authTokenInfo.expiresIn(expiresIn);
-   	   					}
    	   				}
 
    	   				return ret;
@@ -868,6 +859,7 @@ class RestReactor
    					HttpHost proxy = new HttpHost(restConnectOptions.proxyHost(), restConnectOptions.proxyPort(), "http");
 	   				RequestConfig config = RequestConfig.custom()
 	                        .setProxy(proxy).setSocketTimeout(_restReactorOptions.soTimeout())
+	                        .setRedirectsEnabled(false)
 	                        .build();
 	   				httpget.setConfig(config);
 

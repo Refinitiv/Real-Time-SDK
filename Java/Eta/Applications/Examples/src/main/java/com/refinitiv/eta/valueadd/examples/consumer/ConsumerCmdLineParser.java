@@ -554,11 +554,14 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n     -tsDomain (optional) specifes the domain a consumer uses when opening a tunnel stream. This applies to both basic tunnel streams and those for queue messaging.\n" +
 						   "\n -bc specifies a backup connection that is attempted if the primary connection fails\n" +
 						   "\n -pl protocol list (defaults to rssl.rwf, tr_json2, rssl.json.v2)\n" +
-						   "\n -uname changes the username used when logging into the provider\n" +
-						   "\n -passwd changes the password used when logging into the provider\n" +
-						   "\n -clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.\n" +
+						   "\n -uname changes the username used when logging into the provider(required for V1 password credential logins)\n" +
+						   "\n -passwd changes the password used when logging into the provider(required for V1 password credential logins)\n" +
+						   "\n -clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator for V1 password credentials. For V2 client credentials, this is the service account.(required for V1 password credential and V2 client credential logins)\n" +
+						   "\n -clientSecret specifies the associated secret with the client id(required for V2 client credential logins)." +
 						   "\n -sessionMgnt enables the session management in the Reactor\n" +
-						   "\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n" +
+						   "\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials. This is only used with V1 password credential logins(optional for V1 password credential logins).\n" +
+						   "\n -tokenURLV1 specifies the URL for the V1 token generator(optional)." +
+						   "\n -tokenURLV2 specifies the URL for the V2 token generator(optional)." +
 						   "\n -view specifies each request using a basic dynamic view\n" +
 						   "\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +
 						   "\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +

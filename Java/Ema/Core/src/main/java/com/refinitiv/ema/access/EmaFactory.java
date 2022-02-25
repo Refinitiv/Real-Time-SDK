@@ -242,7 +242,6 @@ public class EmaFactory
 	 * 
 	 * @param config OmmConsumerConfig providing configuration
 	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
-	 * @param closure specifies application defined identification 
 	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmOAuth2ConsumerClient OAuthClient)
@@ -339,7 +338,6 @@ public class EmaFactory
 	 * @param config OmmConsumerConfig providing configuration
 	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
 	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
-	 * @param closure specifies application defined identification 
 	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerErrorClient errorClient, OmmOAuth2ConsumerClient OAuthClient)
@@ -399,7 +397,6 @@ public class EmaFactory
 	 * @param adminClient OmmConsumerClient that provides callback interfaces to be used for item processing
 	 * @param errorClient OmmConsumerErrorClient that provides callback interfaces to be used for error reporting
 	 * @param OAuthClient OmmOAuth2ConsumerClient that provides callback interfaces for oauth credentials
-	 * @param closure specifies application defined identification 
 	 * @return {@link com.refinitiv.ema.access.OmmConsumer}
 	 */
 	public static OmmConsumer createOmmConsumer(OmmConsumerConfig config, OmmConsumerClient adminClient, OmmConsumerErrorClient errorClient, OmmOAuth2ConsumerClient OAuthClient)

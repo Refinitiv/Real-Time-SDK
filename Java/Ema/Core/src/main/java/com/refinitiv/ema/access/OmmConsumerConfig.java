@@ -137,7 +137,7 @@ public interface OmmConsumerConfig
 	/**
 	 * Specifies an URL to override the default for token service V1 to perform authentication to get access and refresh tokens.
 	 * <p>Defaults to "https://api.refinitiv.com/auth/oauth2/v1/token".</p>
-	 * @param tokenServiceUrl specifies an URL for token service.
+	 * @param tokenServiceUrlV1 specifies an URL for token service.
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig tokenServiceUrlV1(String tokenServiceUrlV1);
@@ -145,7 +145,7 @@ public interface OmmConsumerConfig
 	/**
 	 * Specifies an URL to override the default for token service V2 to perform authentication to get access and refresh tokens.
 	 * <p>Defaults to "https://api.refinitiv.com/auth/oauth2/v2/token".</p>
-	 * @param tokenServiceUrl specifies an URL for token service.
+	 * @param tokenServiceUrlV2 specifies an URL for token service.
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig tokenServiceUrlV2(String tokenServiceUrlV2);

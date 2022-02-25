@@ -301,7 +301,7 @@ public interface OmmConsumer
 	 *  OmmInvalidUsageException if not called in the callback
 	 *	@param credentials OAuth2CredentialRenewal object that contains the credentials.
 	 *
-	 *	@throw OmmInvalidUsageException if the credential update fails or if this method is called outside of an onCredentialRenewal callback.
+	 *	@throws OmmInvalidUsageException if the credential update fails or if this method is called outside of an onCredentialRenewal callback.
 	 */
 	public void renewOAuthCredentials(OAuth2CredentialRenewal credentials);
 }

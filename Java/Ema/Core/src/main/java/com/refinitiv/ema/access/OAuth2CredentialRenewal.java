@@ -26,7 +26,7 @@ public interface OAuth2CredentialRenewal {
 	/**
      * Sets the user name that will be used when sending the authorization request.  Mandatory for V1 oAuthPasswordGrant.
      * 
-     * * @param userName the userName for this request.
+     * @param userName the userName for this request.
      * 
      * @return - reference to this object
      */
@@ -46,6 +46,8 @@ public interface OAuth2CredentialRenewal {
      * Sets password to authorize with the token service. Mandatory for V1 oAuthPasswordGrant
      *
      * @param newPassword the new password associated with the user name
+     * 
+     * @return - reference to this object
      */
     public OAuth2CredentialRenewal newPassword(String newPassword);
     
@@ -53,6 +55,8 @@ public interface OAuth2CredentialRenewal {
      * Sets unique identifier defined for the application or user making a request to the token service. Mandatory for V1 oAuthPasswordGrant and V2 oAuthClientCred
      *
      * @param clientId the unique identifier for the application
+     * 
+     * @return - reference to this object
      */
     public OAuth2CredentialRenewal clientId(String clientId);
     
@@ -60,6 +64,8 @@ public interface OAuth2CredentialRenewal {
      * Sets client secret to authorize with the token service. Required for V2 oAuthClientCred
      *
      * @param clientSecret the client secret
+     * 
+     * @return - reference to this object
      */
     public OAuth2CredentialRenewal clientSecret(String clientSecret);
     
@@ -67,6 +73,8 @@ public interface OAuth2CredentialRenewal {
      * Sets token scope to limit the scope of generated token. Optional
      *
      * @param tokenScope the token scope
+     * 
+     * @return - reference to this object
      */
     public OAuth2CredentialRenewal tokenScope(String tokenScope);
     
@@ -74,6 +82,8 @@ public interface OAuth2CredentialRenewal {
      * Sets the exclusive sign on control to force sign-out of other applications using the same credentials. Not used with V2.
      *
      * @param takeExclusiveSignOnControl the exclusive sign on control.
+     * 
+     * @return - reference to this object
      */
     public OAuth2CredentialRenewal takeExclusiveSignOnControl(boolean takeExclusiveSignOnControl);
     

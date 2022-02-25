@@ -2527,7 +2527,7 @@ RsslBuffer* rsslRestRequestDumpBuffer(RsslRestRequestArgs* pRestRequest, RsslErr
 			(strncmp((pRestRequest->httpBody.data) + n, rest_client_secret_text.data, nameLength = rest_client_secret_text.length) == 0))
 		{
 			n += nameLength;
-			while (n++, pRestRequest->httpBody.data[n] != endSymbol);
+			while (n++, (n < pRestRequest->httpBody.length && pRestRequest->httpBody.data[n] != endSymbol));
 		}
 		else
 		{

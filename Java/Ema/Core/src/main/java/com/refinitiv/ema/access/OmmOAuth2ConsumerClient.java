@@ -11,6 +11,7 @@ public interface OmmOAuth2ConsumerClient {
 
 	/**
 	 * Invoked when new credentials are required
+	 * @param event Renewal event information
 	 */ 
 	public void onOAuth2CredentialRenewal(OmmConsumerEvent event);
 }

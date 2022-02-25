@@ -105,8 +105,7 @@ class RestProxyAuthHandler
 				if (loggerClient.isTraceEnabled()) {
 					loggerClient.trace(_restReactor.prepareRequestString(httpRequest, connOptions));
 				}
-				RequestConfig config = RequestConfig.custom().setRedirectsEnabled(false).build();
-		    	httpRequest.setConfig(config);
+
 				final HttpResponse response = httpClient.execute(httpRequest);
 				
 		  		// Extracting content string for further logging and processing

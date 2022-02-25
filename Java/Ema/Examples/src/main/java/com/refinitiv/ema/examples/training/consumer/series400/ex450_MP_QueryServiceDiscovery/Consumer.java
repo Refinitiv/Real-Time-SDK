@@ -420,7 +420,7 @@ public class Consumer
 				}
 				else
 				{
-					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret)
+					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret).config(configDb)
 							.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
 							.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
 							.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
