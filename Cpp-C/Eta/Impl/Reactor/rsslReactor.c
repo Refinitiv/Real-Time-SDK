@@ -12355,7 +12355,7 @@ static void _reactorHandlesWSBSocketList(RsslReactorWarmStandByHandlerImpl* pWar
 	RsslQueueLink* pLink = NULL;
 	RsslReactorChannelImpl* pReactorChannelImpl = NULL;
 	RsslUInt32 index = 0;
-	RsslReatorWarmStandbyChannelInfo warmStandbyChInfoItemp;
+	RsslReactorWarmStandbyChannelInfo warmStandbyChInfoItemp;
 
 	warmStandbyChInfoItemp = pWarmStandbyHandler->wsbChannelInfoImpl.base;
 

@@ -1468,13 +1468,16 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_FD_CHANGE:
 		{
-			RsslUInt32 index;
-			for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
-				socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
-			}
+				RsslUInt32 index;
+				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+				{
+					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+				}
 
-			socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
+			}
 
 			return RSSL_RC_CRET_SUCCESS;
 		}

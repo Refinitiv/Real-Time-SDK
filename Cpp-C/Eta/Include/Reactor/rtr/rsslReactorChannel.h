@@ -37,7 +37,9 @@ typedef struct
 	RsslSocket* oldSocketIdList;       /*!< A list of Previous Socket ID of the Reactor warm standby channel. if an FD_CHANGE event has occurred.  */
 	RsslUInt32  oldSocketIdCount;      /*!< The number of Socket ID in oldSocketIdList. */
 
-} RsslReatorWarmStandbyChannelInfo;
+} RsslReactorWarmStandbyChannelInfo;
+
+typedef RsslReactorWarmStandbyChannelInfo RsslReatorWarmStandbyChannelInfo;
 
  /**
   * @brief RSSL Reactor Channel types
@@ -65,7 +67,7 @@ typedef struct
 	RsslUInt32	protocolType;	/*!< The protocol type of the encoder & decoder that should be used. */
 	void	*userSpecPtr;		/*!< A user specified pointer associated with this RsslReactorChannel. */
 	RsslReactorChannelType reactorChannelType; /*!< The Reactor channel type that this channel represents. */
-	RsslReatorWarmStandbyChannelInfo *pWarmStandbyChInfo; /*!< This member is only available for the Reactor warm standby channel to get a list of Socket ID.
+	RsslReactorWarmStandbyChannelInfo *pWarmStandbyChInfo; /*!< This member is only available for the Reactor warm standby channel to get a list of Socket ID.
 										Used for notification of available data for this channel. */
 } RsslReactorChannel;
 

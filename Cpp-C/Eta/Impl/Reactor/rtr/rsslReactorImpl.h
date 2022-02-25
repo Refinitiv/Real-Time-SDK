@@ -244,7 +244,7 @@ RTR_C_INLINE void _reactorFreeSubmitMsgOptions(RsslReactorSubmitMsgOptionsImpl* 
 
 typedef struct
 {
-	RsslReatorWarmStandbyChannelInfo base;
+	RsslReactorWarmStandbyChannelInfo base;
 	RsslUInt32  maxNumberOfSocket;     /*!< Keeps track memory allocation size of socketIdList and oldSocketIdList */
 } RsslReatorWarmStandbyChInfoImpl;
 
