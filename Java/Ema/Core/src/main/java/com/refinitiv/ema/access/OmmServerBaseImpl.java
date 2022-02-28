@@ -1121,7 +1121,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 		long startTime = System.nanoTime();
 		long endTime = 0;
 
-		boolean noWait = timeOut == OmmConsumer.DispatchTimeout.NO_WAIT;
+		boolean noWait = timeOut == OmmProvider.DispatchTimeout.NO_WAIT;
 		timeOut = timeOut * 1000;
 		long userTimeout = TimeoutEvent.userTimeOutExist(_timeoutEventQueue);
 		boolean userTimeoutExist = false;

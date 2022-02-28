@@ -27,11 +27,13 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.ConnectionConfig;
@@ -305,6 +307,9 @@ class RestReactor
 	                .add(new RequestConnControl())
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
+
+		    restHandler.setCurrentRequest(httpRequest);
+
 			if(authTokenInfo.tokenVersion() == TokenVersion.V1)
 			{
 			  requester.execute(
@@ -322,10 +327,6 @@ class RestReactor
 		                 _pool,
 		                 HttpClientContext.create(),
 		                 restHandler);
-			}
-
-			if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(prepareRequestString(httpRequest, restConnectOptions));
 			}
 		}
 		else
@@ -450,17 +451,15 @@ class RestReactor
 	                .add(new RequestConnControl())
 	                .add(new RequestUserAgent(AUTH_REQUEST_USER_AGENT))
 	                .add(new RequestExpectContinue(true)).build());
+
+			restHandler.setCurrentRequest(httpRequest);
+
 			requester.execute(
 	             new BasicAsyncRequestProducer(restConnectOptions.serviceDiscoveryHost(), httpRequest),
 	             new BasicAsyncResponseConsumer(),
 	             _pool,
 	             HttpCoreContext.create(),
 	             restHandler);
-			
-			if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(prepareRequestString(httpRequest, restConnectOptions));
-			}
-			
 		}
 		else
 		{
@@ -677,11 +676,7 @@ class RestReactor
    					httppost.setConfig(config);
    					try
    					{
-   						if (loggerClient.isTraceEnabled()) {
-							loggerClient.trace(prepareRequestString(httppost, restConnectOptions));
-						}
-   						
-						final HttpResponse response = httpClient.execute(httppost);
+						final HttpResponse response = executeRequest(httppost, restConnectOptions, httpClient, loggerClient);
 		
 		   	   			// Extracting content string for further logging and processing
 		   	   			HttpEntity entityFromResponse = response.getEntity();
@@ -879,11 +874,7 @@ class RestReactor
 	   				httpget.setConfig(config);
    					try
    					{
-   						if (loggerClient.isTraceEnabled()) {
-							loggerClient.trace(prepareRequestString(httpget, restConnectOptions));
-						}
-   						
-						final HttpResponse response = httpClient.execute(httpget);
+						final HttpResponse response = executeRequest(httpget, restConnectOptions, httpClient, loggerClient);
 
 		   	   			// Extracting content string for further logging and processing
 		   	   			HttpEntity entityFromResponse = response.getEntity();
@@ -1245,4 +1236,28 @@ class RestReactor
     		bufferPool.add(buffer);
     	}
     }
+
+	HttpResponse executeRequest(HttpRequestBase httpRequest, RestConnectOptions connOptions, HttpClient httpClient, Logger loggerClient) throws IOException
+	{
+		HttpResponse response = null;
+
+		try
+		{
+			response = httpClient.execute(httpRequest);
+		} catch (Exception e) {
+			if (loggerClient.isTraceEnabled())
+			{
+				loggerClient.trace(prepareRequestString(httpRequest, connOptions));
+			}
+			throw e;
+		}
+
+		if (loggerClient.isTraceEnabled())
+		{
+			loggerClient.trace(prepareRequestString(httpRequest, connOptions));
+		}
+
+		return response;
+	}
+
 }

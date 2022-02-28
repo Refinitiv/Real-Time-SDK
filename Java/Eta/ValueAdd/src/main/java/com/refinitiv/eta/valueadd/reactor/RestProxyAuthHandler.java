@@ -71,7 +71,7 @@ class RestProxyAuthHandler
 			    .setAuthenticationEnabled(true)
 			    .build();
 
-	loggerClient = LoggerFactory.getLogger(RestReactor.class);
+		loggerClient = LoggerFactory.getLogger(RestReactor.class);
 	}
 	
 	void clear()
@@ -102,11 +102,7 @@ class RestProxyAuthHandler
 
 			try
 			{
-				if (loggerClient.isTraceEnabled()) {
-					loggerClient.trace(_restReactor.prepareRequestString(httpRequest, connOptions));
-				}
-
-				final HttpResponse response = httpClient.execute(httpRequest);
+				final HttpResponse response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
 				
 		  		// Extracting content string for further logging and processing
 		  		HttpEntity entityFromResponse = response.getEntity();
@@ -303,11 +299,7 @@ class RestProxyAuthHandler
 	    
 	    try
 	    {
-	    	if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(_restReactor.prepareRequestString(httpRequest, connOptions));
-			}
-	    	
-			HttpResponse response = httpClient.execute(httpRequest);
+			HttpResponse response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
 		    
 	  		// Extracting content string for further logging and processing
 	  		HttpEntity entityFromResponse = response.getEntity();
@@ -399,11 +391,7 @@ class RestProxyAuthHandler
 	    
 	    try
 	    {
-	    	if (loggerClient.isTraceEnabled()) {
-				loggerClient.trace(_restReactor.prepareRequestString(httpRequest, connOptions));
-			}
-	    	
-			HttpResponse response = httpClient.execute(httpRequest);
+	    	HttpResponse response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
 		    
 	  		// Extracting content string for further logging and processing
 	  		HttpEntity entityFromResponse = response.getEntity();
@@ -532,11 +520,7 @@ class RestProxyAuthHandler
 				HttpResponse response = null;
 				
 					try {
-						if (loggerClient.isTraceEnabled()) {
-							loggerClient.trace(_restReactor.prepareRequestString(httpRequest, connOptions));
-						}
-						
-						response = httpClient.execute(httpRequest);
+						response = _restReactor.executeRequest(httpRequest, connOptions, httpClient, loggerClient);
 					} catch (IOException e) {
 						
 						if(restHandler == null)

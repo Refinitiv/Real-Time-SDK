@@ -9,6 +9,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,8 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	ReactorAuthTokenInfo _authTokenInfo = null;
 	ReactorErrorInfo _errorInfo = null;
 	RestRequest _request = null;
-	List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList = null; 
+	List<ReactorServiceEndpointInfo> _reactorServiceEndpointInfoList = null;
+	AbstractHttpMessage _currentRequest = null;
      
     RestHandler(RestReactor restReactor, RestResultClosure resultClosure)
 	{
@@ -94,6 +96,10 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	@Override
 	public void completed(HttpResponse response)
 	{
+		if (_currentRequest != null && loggerClient.isTraceEnabled()) {
+			loggerClient.trace(_restReactor.prepareRequestString(_currentRequest, _restConnectOptions));
+		}
+
 		_event.clear();
 		_event.eventType(RestEventTypes.COMPLETED);
 		_event.resultClosure(_resultClosure);
@@ -238,6 +244,10 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	@Override
 	public void failed(Exception ex)
 	{
+		if (_currentRequest != null && loggerClient.isTraceEnabled()) {
+			loggerClient.trace(_restReactor.prepareRequestString(_currentRequest, _restConnectOptions));
+		}
+
 		_event.clear();
 		_event.eventType(RestEventTypes.FAILED);
 		_event.resultClosure(_resultClosure);
@@ -252,6 +262,10 @@ class RestHandler implements FutureCallback<HttpResponse> {
 	@Override
 	public void cancelled()
 	{
+		if (_currentRequest != null && loggerClient.isTraceEnabled()) {
+			loggerClient.trace(_restReactor.prepareRequestString(_currentRequest, _restConnectOptions));
+		}
+
 		_event.clear();
 		_event.eventType(RestEventTypes.CANCELLED);
 		_event.resultClosure(_resultClosure);
@@ -283,4 +297,8 @@ class RestHandler implements FutureCallback<HttpResponse> {
     {
     	_contentString = contentString;
     }
+
+    void setCurrentRequest(AbstractHttpMessage currentRequest) {
+    	_currentRequest = currentRequest;
+	}
 }
