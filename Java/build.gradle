@@ -38,11 +38,11 @@ subprojects {
 //
 //=========================================================================================
 
-ext.YEAR = '2021'
+ext.YEAR = '2022'
 
-ext.BuildDate = 'Thu Sep 30 16:20:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.6.4.0'
-ext.SpecificationVersionShort = '3.6.4'
+ext.BuildDate = 'Tue Mar 1 16:20:22 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.6.5.0'
+ext.SpecificationVersionShort = '3.6.5'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
