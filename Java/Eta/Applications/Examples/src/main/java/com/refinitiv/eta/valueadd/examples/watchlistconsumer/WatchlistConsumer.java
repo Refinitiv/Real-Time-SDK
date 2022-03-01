@@ -1538,6 +1538,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 			reactorServiceDiscoveryOptions.clientId().data(watchlistConsumerConfig.clientId());
+			reactorServiceDiscoveryOptions.clientSecret().data(watchlistConsumerConfig.clientSecret());		
 		}
 		
 		if (watchlistConsumerConfig.tokenScope() != null && !watchlistConsumerConfig.tokenScope().isEmpty())
@@ -1770,7 +1771,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 
 			if (reactor.queryServiceDiscovery(reactorServiceDiscoveryOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
 			{
-				System.out.println("Error: " + errorInfo.code());
+				System.out.println("Error: " + errorInfo.code() + " Text: " + errorInfo.error().text());
 				return;
 			}
 		}
