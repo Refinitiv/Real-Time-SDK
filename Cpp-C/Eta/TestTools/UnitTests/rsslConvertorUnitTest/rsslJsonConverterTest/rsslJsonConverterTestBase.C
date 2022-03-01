@@ -113,7 +113,7 @@ int decodeAnsi(int x1, int x2, int y1, int y2, char* sText, LISTTYP* u_ptr, PAGE
 	int retv, ucnt;
 	struct upd_type *l_ptr;
 	retv = 0; ch_p = 1;
-	text_len = strlen(sText);
+	text_len = (long)strlen(sText);
 	for (; text_len > 0 && ch_p > 0; text_len -= ch_p, sText += ch_p) {
 		ch_p = qa_decode(pg_ptr, sText, text_len, u_ptr);
 		/*check all updates for range*/

@@ -1333,7 +1333,7 @@ TEST(OverflowIntTest, ConversionI32ToStrTests)
 	end = (char*)begin + strlen(i32MaxVal);
 
 	ASSERT_EQ(rtr_atoi32_size_check(begin, end, &i32res), end);
-	ASSERT_EQ(i32res, 2147483647);
+	ASSERT_EQ(i32res, INT_MAX);
 
 	const char* i32MinVal = "-2147483648";
 
@@ -1341,7 +1341,7 @@ TEST(OverflowIntTest, ConversionI32ToStrTests)
 	end = (char*)begin + strlen(i32MinVal);
 
 	ASSERT_EQ(rtr_atoi32_size_check(begin, end, &i32res), end);
-	ASSERT_EQ(i32res, -2147483648);
+	ASSERT_EQ(i32res, INT_MIN);
 
 	/* Overflow */
 
