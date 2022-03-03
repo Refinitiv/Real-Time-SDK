@@ -1850,7 +1850,13 @@ TunnelStreamStatusEventCallback
 		_statusMsg.decode(rsslMsg, reactorChannel.majorVersion(), reactorChannel.minorVersion(), dataDictionary);
 		if (_eventImpl._item.type() == Item.ItemType.BATCH_ITEM)
 		{
+
+			if((_eventImpl._item._streamId == _statusMsg.streamId()) &&
+					_statusMsg.hasState() && _statusMsg.state().streamState() == StreamState.CLOSED)
+				((BatchItem<T>) _eventImpl._item)._statusFlag = true;
+
 			_eventImpl._item = ((BatchItem<T>)_eventImpl._item).singleItem(rsslMsg.streamId());
+
 			if  (_eventImpl._item == null)
 			{
 				if (_baseImpl.loggerClient().isErrorEnabled())
@@ -3833,7 +3839,8 @@ class BatchItem<T> extends SingleItem<T>
 	private static final String 	CLIENT_NAME = "BatchItem";
 	
 	private List<SingleItem<T>>		_singleItemList = new ArrayList<>();
-	private  int	 _itemCount;
+	int	 _itemCount;
+	boolean _statusFlag;
 	
 	BatchItem() {}
 			
@@ -3852,6 +3859,7 @@ class BatchItem<T> extends SingleItem<T>
 		
 		_singleItemList.clear();
 		_itemCount = 1;
+		_statusFlag = false;
 	}
 
 	@Override
@@ -3985,7 +3993,13 @@ class BatchItem<T> extends SingleItem<T>
 
 	void decreaseItemCount()
 	{
-		if ( --_itemCount == 0 )
+		if ( --_itemCount == 0 && _statusFlag )
+			_baseImpl.itemCallbackClient().removeFromMap(this);
+	}
+
+	@Override
+	void remove() {
+		if(_itemCount == 0)
 			_baseImpl.itemCallbackClient().removeFromMap(this);
 	}
 }
@@ -4122,7 +4136,10 @@ class ClosedStatusClient<T> implements TimeoutClient
 		_client.notifyOnAllMsg(_client._statusMsg);
 		_client.notifyOnStatusMsg();
 
-		_client._eventImpl._item.remove();
+		if(_item.type() != Item.ItemType.BATCH_ITEM)
+			_client._eventImpl._item.remove();
+		else
+			((ItemCallbackClient<T>)_client).removeFromMap(_item);
 	}
 }
 
