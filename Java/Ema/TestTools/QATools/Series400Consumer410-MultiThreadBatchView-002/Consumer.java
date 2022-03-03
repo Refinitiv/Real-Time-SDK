@@ -24,9 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.refinitiv.ema.access.AckMsg;
 import com.refinitiv.ema.access.DataType;
 import com.refinitiv.ema.access.ElementList;
@@ -326,7 +323,8 @@ class EmaConsumerServiceImpl implements EmaConsumerService {
 		OmmArray viewElement = EmaFactory.createOmmArray();
 		List<String> viewFieldIdList = Arrays.asList(viewFieldList.trim()
 				.split(","));
-		if (CollectionUtils.isNotEmpty(viewFieldIdList)) {
+		//if (CollectionUtils.isNotEmpty(viewFieldIdList)) {
+		if (viewFieldList != null && !viewFieldList.isEmpty()) {
 			for (String field : viewFieldIdList) {
 				viewElement.add(EmaFactory.createOmmArrayEntry().intValue(
 						Integer.parseInt(field)));
@@ -341,7 +339,8 @@ class EmaConsumerServiceImpl implements EmaConsumerService {
 
 	private OmmArray createBatchArray(List<String> unifiedRequest) {
 		OmmArray ommArray = EmaFactory.createOmmArray();
-		if (CollectionUtils.isNotEmpty(unifiedRequest)) {
+		//if (CollectionUtils.isNotEmpty(unifiedRequest)) {
+		if (unifiedRequest != null && !unifiedRequest.isEmpty()) {
 			unifiedRequest.stream().forEach(
 					requestString -> {
 						ommArray.add(EmaFactory.createOmmArrayEntry().ascii(

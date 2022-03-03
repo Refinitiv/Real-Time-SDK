@@ -1,5 +1,11 @@
-apply plugin: 'application'
+plugins {
+	id 'org.openjfx.javafxplugin' version '0.0.9' apply(false)
+}
 
+apply plugin: 'application'
+if (JavaVersion.current().java11Compatible) {
+	apply plugin: 'org.openjfx.javafxplugin'
+}
 eclipse {
         project {
                 name = 'RTSDK-Ema-Examples'
@@ -7,8 +13,16 @@ eclipse {
 }
 
 dependencies {
-        compile project(':Ema:PerfTools')	
 	compile project(':Ema:Core')
+	compile project(':Ema:PerfTools')
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+if (JavaVersion.current().java11Compatible) {
+	javafx {
+		version = "16"
+		modules = ['javafx.controls', 'javafx.fxml']
+	}
 }
 
 mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
@@ -26,14 +40,26 @@ task copyDictionary( type: Copy ) {
 	into '.'
 }
 
+task copyEmaConfig(type: Copy) {
+	from '../EmaConfig.xml'
+	into '.'
+}
+
 task deleteDictionary( type: Delete ) {
 	delete "$projectDir/RDMFieldDictionary"
 	delete "$projectDir/RDMFieldDictionary_large"
 	delete "$projectDir/enumtype.def"
 }
 
-run.dependsOn copyDictionary
-clean.dependsOn deleteDictionary
+def JVM_OPTIONS = "-Xms512m -Xmx1024m"
+def JVM_OPTIONS_RTTVIEWER_DESKTOP = "-Xms1g -Xmx2g"
+
+task deleteEmaConfig( type: Delete ) {
+	delete "$projectDir/EmaConfig.xml"
+}
+
+run.dependsOn copyDictionary, copyEmaConfig
+clean.dependsOn deleteDictionary, deleteEmaConfig
 
 tasks.withType ( JavaExec ) {
 	// to enable the logger comment out the line below
@@ -72,6 +98,8 @@ fileTree('.') {
 		TaskDescription = 'IProvider ' + TaskDescription
 		exampleMainLocation = exampleMainLocation.replace('src.main.java.', '') + '.IProvider'
         ExampleType = 'Interactive Provider'
+	} else {
+		return
 	}
 
 	// creating tasks for running all the examples dynamically
@@ -80,10 +108,49 @@ fileTree('.') {
 
 		description 'This task runs the ' + TaskDescription
 
-		dependsOn copyDictionary
+		dependsOn copyDictionary, copyEmaConfig
+
+		if (JVM_OPTIONS)
+			jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
 
 		main = exampleMainLocation
 		classpath = sourceSets.main.runtimeClasspath
 	}
+}
+
+task runrrtviewerdesktop ( type: JavaExec ) {
+	def exampleMainLocation = 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+	def TaskDescription = 'RRTMDViewerDesktop'
+	group 'Run EMA RRTMDViewer desktop'
+
+	description 'This task runs the ' + TaskDescription
+
+	dependsOn copyDictionary, copyEmaConfig
+
+	jvmArgs += "-Djava.util.logging.config.file=src/main/resources/rrtmdviewer/desktop/logging.properties"
+
+	if (JVM_OPTIONS_RTTVIEWER_DESKTOP)
+		jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS_RTTVIEWER_DESKTOP ) )
+
+	main = exampleMainLocation
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+task createRRTViewerFatJar (type: Jar) {
+
+	group 'Run EMA RRTMDViewer desktop'
+	description 'This task builds fat jar for RRTViewer'
+
+	manifest {
+		attributes(
+				'Main-Class' : 'com.refinitiv.ema.examples.rrtmdviewer.desktop.RRTMDViewerDesktopMain'
+		)
+	}
+
+	baseName('RRTMDViewer')
+
+	from {
+		configurations.compileClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+	} with jar
 }
 

@@ -11,8 +11,8 @@
 !tag Desc        IDN Marketstream enumerated tables
 !tag RT_Version  4.20.51
 !tag Build_RDMD  4.20.51
-!tag DT_Version  22.11
-!tag Date        10-Jan-2022
+!tag DT_Version  22.21
+!tag Date        21-Feb-2022
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -137,7 +137,7 @@ RDN_EXCHID     4
     106        "TYO"   Tokyo Stock Exchange
     107        "NGO"   Nagoya Stock Exchange
     108        "SAP"   Sapporo Stock Exchange
-    109        "CHJ"   JAPAN - CHI-X
+    109        "CHJ"   Cboe Japan
     110        "KYO"   Kyoto Stock Exchange
     111        "HIR"   Hiroshima Stock Exchange
     112        "FKA"   Fukuoka Stock Exchange
@@ -7225,7 +7225,7 @@ DRK_EXID   13610
     106        "TYO"   Tokyo Stock Exchange
     107        "NGO"   Nagoya Stock Exchange
     108        "SAP"   Sapporo Stock Exchange
-    109        "CHJ"   JAPAN - CHI-X
+    109        "CHJ"   Cboe Japan
     110        "KYO"   Kyoto Stock Exchange
     111        "HIR"   Hiroshima Stock Exchange
     112        "FKA"   Fukuoka Stock Exchange
@@ -8067,7 +8067,7 @@ DRK_EXID   13610
     948        "TRX"   REFINITIV INDICES
     949        "PRV"   PSEUDO PACIFIC STOCK EXCHANGE
     950        "BKL"   BAIKAL
-    951        "CHA"   AUSTRALIA - CHI-X
+    951        "CHA"   Cboe Australia
     952        "SNL"   SNL ENERGY
     953        "GCD"   Cboe EDGX Exchange - Nasdaq Global Select Market
     954        "LCD"   Cboe EDGX Exchange - Nasdaq Global Market
@@ -8809,6 +8809,15 @@ DRK_EXID   13610
    1690        "FLC"   FrieslandCampina(Royal FrieslandCampina N.V.)
    1691        "CVS"   Cherwell Valley Silos
    1692        "CHL"   Chemlinks Shanghai Limited
+   1693        "CRU"   CRU
+   1694        "ABL"   Alibra Shipping Limited
+   1695        "ANZ"   ANZ Australia and New Zealand Banking Group
+   1696        "UCD"   UCDA Uganda Coffee Development Authority
+   1697        "CCO"   COCHILCO (THE CHILEAN COPPER COMMISSION)
+   1698        "NRE"   National Renewable Energy Info Management Center
+   1699        "ODX"   OSAKA DIGITAL EXCHANGE
+   1700        "AUR"   Aurubis UK
+   1701        "CUP"   CUPRAMET
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13014,6 +13023,7 @@ MK_PHASE   12765
      17        " U "   Up
      18        " D "   Down
      19        " R "   In recovery
+     20        "TC "   Continuous Trading with Condition(s)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13392,6 +13402,7 @@ REFPRC_TP4 13491
      63   "ID1     "   Weighted average price of all continuous trades executed within last trading hour of a contract
      64   "CNY/L   "   Chinese Yuan/Litre conversion
      65   "CNY/mT  "   Chinese Yuan/Tonnes conversion
+     66   "Tariff  "   Tariff Rate
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19419,6 +19430,7 @@ CNTR_SZ_UT 13611
     431      "UG/kg"   US gallon per kilogram
     432      "kWhkg"   Kilowatt hours per kilogram
     433      "kg/d "   Kilogram per day
+    434      "psi  "   Pounds Per Square Inch
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21482,6 +21494,21 @@ ORGN_PORT  13579
     691   "YE ADE  "   Aden
     692   "AU GET  "   Geraldton
     693   "MZ BEW  "   Beira
+    694   "DE  DUI "   Duisburg
+    695   "DE  DTM "   Dortmund
+    696   "DE  CGN "   Cologne
+    697   "DE  KAE "   Karlsruhe
+    698   "CH  BSL "   Basel
+    699   "US  GZI "   Granite City
+    700   "US  STP "   Saint Paul
+    701   "US  CIR "   Cairo
+    702   "US  ZE2 "   Ohio City
+    703   "US  MG2 "   McGregor
+    704   "US  PAH "   Paducah
+    705   "US  MEM "   Memphis
+    706   "US  DBQ "   Dubuque
+    707   "US  OWB "   Owensboro
+    708   "US  CGI "   Cape Girardeau
 !
 ! ACRONYM    FID
 ! -------    ---
