@@ -128,9 +128,9 @@ public class Reactor
     // REST client support
     RestClient _restClient;
     ReactorTokenSession _tokenSessionForCredentialRenewalCallback;
-	private String _defaultTokenURLV1String = "http://api.refinitiv.com/auth/oauth2/v1/token";
+	private String _defaultTokenURLV1String = "https://api.refinitiv.com/auth/oauth2/v1/token";
 	private Buffer _tokenURLV1String = CodecFactory.createBuffer();
-	private String _defaultTokenURLV2String = "http://api.refinitiv.com/auth/oauth2/v2/token";
+	private String _defaultTokenURLV2String = "https://api.refinitiv.com/auth/oauth2/v2/token";
 	private Buffer _tokenURLV2String = CodecFactory.createBuffer();
 	private String _defaultServiceDiscoveryString = "https://api.refinitiv.com/streaming/pricing/v1/";
 	private Buffer _seviceDiscoveryString = CodecFactory.createBuffer();

@@ -35,9 +35,9 @@ class ReactorTokenSession implements RestCallback
 	private RestReactor _restReactor;
 	private ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
 	private boolean _setProxyInfo = false;
-	private String _defaultTokenURLV1String = "http://api.refinitiv.com/auth/oauth2/v1/token";
+	private String _defaultTokenURLV1String = "https://api.refinitiv.com/auth/oauth2/v1/token";
 	private Buffer _tokenURLV1Buffer = CodecFactory.createBuffer();
-	private String _defaultTokenURLV2String = "http://api.refinitiv.com/auth/oauth2/v2/token";
+	private String _defaultTokenURLV2String = "https://api.refinitiv.com/auth/oauth2/v2/token";
 	private Buffer _tokenURLV2Buffer = CodecFactory.createBuffer();
 	
 	  /** The ReactorTokenSession's state. */
