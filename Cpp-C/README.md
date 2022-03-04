@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2021 Refinitiv. All rights reserved.
+Copyright (C) 2019-2022 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -58,8 +58,9 @@ Users are welcome to migrate open source code to the platforms they prefer, howe
 
 Platforms:
 
-	Microsoft Windows Server 2012 Enterprise Edition or later 64-bit
-	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
+	Microsoft Windows Server 2012 R2 Standard Edition or later 64-bit
+	Microsoft Windows Server 2016 Standard Edition or later 64-bit
+	Microsoft Windows Server 2019 Standard Edition or later 64-bit
 	Microsoft Windows 8.1 Professional or later 64-bit
 	Microsoft Windows 10 Professional 64-bit 
 
@@ -143,8 +144,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.3
-- ADH 3.5.3
+- ADS 3.5.4
+- ADH 3.5.4
 - DACS 7.6
 
 # Documentation

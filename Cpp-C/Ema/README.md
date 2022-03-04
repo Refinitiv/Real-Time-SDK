@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2018-2021 Refinitiv. All rights reserved.
+Copyright (C) 2018-2022 Refinitiv. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.6.4.L1
+    libema.lib                ema3.6.5.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.6.4.L1
-    libema.dll                ema3.6.4.L1
+    libema.lib                ema3.6.5.L1
+    libema.dll                ema3.6.5.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.6.4.L1
+    libema.a                    ema3.6.5.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.6.4.L1          libema.so.12          ema3.6.4.L1
+    libema.so.3.6.5.L1          libema.so.13          ema3.6.5.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -158,19 +158,19 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6032
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.6.4
+    Release Number: 3.6.5
     Load Number: 1
-    Windows Load ID: ema3.6.4.L1.win
-        Supersedes: ema3.6.3.L2.win
-    Linux Load ID: ema3.6.4.L1.linux
-        Supersedes: ema3.6.3.L2.linux
+    Windows Load ID: ema3.6.5.L1.win
+        Supersedes: ema3.6.4.L1.win
+    Linux Load ID: ema3.6.5.L1.linux
+        Supersedes: ema3.6.4.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.50_RealTimeDistributionSystem_22.01 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.51_RealTimeDistributionSystem_22.21 for RWF and Marketfeed Record Templates
 
 # Security
 

@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|-----------------------------------------------------------------------------
+ */
+
 /**
   Provides classes and interfaces for encoding and decoding various messages and other data content.
   Besides iterators, it contains various data types that can be combined in a variety of ways to assist with 

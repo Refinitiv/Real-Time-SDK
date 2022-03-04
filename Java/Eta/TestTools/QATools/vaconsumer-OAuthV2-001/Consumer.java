@@ -389,108 +389,24 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
         	
         	if (index==0)
         	{
-        		// connection1 is for STS
-        		oAuthCredential.clear();
-                if (consumerCmdLineParser.userName1() != null && !consumerCmdLineParser.userName1().equals(""))
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.userName().data(consumerCmdLineParser.userName1());
-                }
-                if (consumerCmdLineParser.passwd1() != null)
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.password().data(consumerCmdLineParser.passwd1());
-                    loginRequest.applyHasPassword();
-                    oAuthCredential.password().data(consumerCmdLineParser.passwd1());
-                    /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                }
-                if (consumerCmdLineParser.clientId1_1() != null && !consumerCmdLineParser.clientId1_1().equals(""))
-                {
-                	oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_1());
-                	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
-                }
-        	}
-        	else if (index==1)
-        	{
-        		// connection2 is for STS
-        		oAuthCredential.clear();
-                if (consumerCmdLineParser.userName2() != null && !consumerCmdLineParser.userName2().equals(""))
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.userName().data(consumerCmdLineParser.userName2());
-                }
-                if (consumerCmdLineParser.passwd2() != null)
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.password().data(consumerCmdLineParser.passwd2());
-                    loginRequest.applyHasPassword();
-                    oAuthCredential.password().data(consumerCmdLineParser.passwd2());
-                    /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                }
-                if (consumerCmdLineParser.clientId1_2() != null && !consumerCmdLineParser.clientId1_2().equals(""))
-                {
-                	oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_2());
-                	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
-                }
-        	}
-        	else if (index==2)
-        	{
-        		// connection3 is for STS
-        		oAuthCredential.clear();
-                if (consumerCmdLineParser.userName3() != null && !consumerCmdLineParser.userName3().equals(""))
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.userName().data(consumerCmdLineParser.userName3());
-                }
-                if (consumerCmdLineParser.passwd3() != null)
-                {
-                	LoginRequest loginRequest = chnlInfo.consumerRole.rdmLoginRequest();
-                    loginRequest.password().data(consumerCmdLineParser.passwd3());
-                    loginRequest.applyHasPassword();
-                    oAuthCredential.password().data(consumerCmdLineParser.passwd3());
-                    /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                }
-                if (consumerCmdLineParser.clientId1_3() != null && !consumerCmdLineParser.clientId1_3().equals(""))
-                {
-                	oAuthCredential.clientId().data(consumerCmdLineParser.clientId1_3());
-                	oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
-                }
-        	}
-        	else if (index==3)
-        	{
-        		 // connection4 is for PING
+        		 // connection1 is for OAuthV2 
         		 oAuthCredential.clear();
-        		 if (consumerCmdLineParser.clientId2_1() != null && !consumerCmdLineParser.clientId2_1().equals(""))
+        		 if (consumerCmdLineParser.clientId1() != null && !consumerCmdLineParser.clientId1().equals(""))
                  {
         			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret1());
-        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_1());
-                     /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
-        			 oAuthCredential.reactorOAuthCredentialEventCallback(this);
-                 }
-        	}
-        	else if (index==4)
-        	{
-        		 // connection5 is for PING
-        		 oAuthCredential.clear();
-        		 if (consumerCmdLineParser.clientId2_2() != null && !consumerCmdLineParser.clientId2_2().equals(""))
-                 {
-        			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret2());
-        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_2());
+        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId1());
                      /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
         			 oAuthCredential.reactorOAuthCredentialEventCallback(this);
                  }
         	}
         	else
         	{
-        		 // connection6 is for PING
+        		 // connection2 is for OAuthV2 
         		 oAuthCredential.clear();
-        		 if (consumerCmdLineParser.clientId2_3() != null && !consumerCmdLineParser.clientId2_3().equals(""))
+        		 if (consumerCmdLineParser.clientId2() != null && !consumerCmdLineParser.clientId2().equals(""))
                  {
-        			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret3());
-        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2_3());
+        			 oAuthCredential.clientSecret().data(consumerCmdLineParser.clientSecret2());
+        			 oAuthCredential.clientId().data(consumerCmdLineParser.clientId2());
                      /* Specified the ReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
         			 oAuthCredential.reactorOAuthCredentialEventCallback(this);
                  }

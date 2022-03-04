@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2019-2021 Refinitiv. All rights reserved.
+Copyright (C) 2019-2022 Refinitiv. All rights reserved.
   
 # EMA Java Documentation
 
@@ -76,7 +76,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.6.4.0.jar         ema3.6.4.L1
+    ema-3.6.5.0.jar         ema3.6.5.L1
 
 # EMA Java Issues and Workarounds
  
@@ -97,17 +97,17 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6313
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.6.4
+    Release Number: 3.6.5
     Load Number: 1
-    Load ID: ema3.6.4.L1.java
-        Supersedes: ema3.6.3.L2.java
+    Load ID: ema3.6.5.L1.java
+        Supersedes: ema3.6.4.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.50_RealTimeDistributionSystem_22.01 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.51_RealTimeDistributionSystem_22.21 for RWF and Marketfeed Record Templates
 
 # Security
 

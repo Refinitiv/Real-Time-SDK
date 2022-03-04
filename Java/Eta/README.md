@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK Gradle build.
 
-Copyright (C) 2019-2021 Refinitiv. All rights reserved.
+Copyright (C) 2019-2022 Refinitiv. All rights reserved.
 
 # ETA Java Documentation
 
@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.6.4.0.jar               eta3.6.4.L1       The ETA - Java Edition library.  Includes
+    eta-3.6.5.0.jar               eta3.6.5.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.6.4.0.jar       eta3.6.4.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.6.5.0.jar       eta3.6.5.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.6.4.0.jar  eta3.6.4.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.6.5.0.jar  eta3.6.5.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.6.4.0.jar     eta3.6.4.L1       The RWF/JSON Converter library.
+    etajConverter-3.6.5.0.jar     eta3.6.5.L1       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.7           The ETA Java DACS library.
 
-    ansipage-3.6.4.0.jar          eta3.6.4.L1       The ANSI decoders and encoders.
+    ansipage-3.6.5.0.jar          eta3.6.5.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.6.4.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.6.5.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -160,7 +160,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - ESDK-312 Watchlist fans out Dictionary state of Open/Suspect state instead of Closed/Recover
 
-- Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates.  Users can upgrade to a higher JRE version if they encounter problems.
+- Users of encrypted tunneling connection type may encounter trust issues with DigiCert certificates. JRE8 update 91 and higher support DigiCert certificates. Users can upgrade to a higher JRE version if they encounter problems.
 
 - ETA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr\_json2/rssl\_json protocol. This is a limitation of the simplied JSON protocol.
 
@@ -179,17 +179,17 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.6.4
+    Release Number: 3.6.5
     Load Number: 1
-    Load ID: etaj3.6.4.L1.all
-        Supersedes: etaj3.6.3.L2.all.rrg
+    Load ID: etaj3.6.5.L1.all
+        Supersedes: etaj3.6.4.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.50_RealTimeDistributionSystem_22.01 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.51_RealTimeDistributionSystem_22.21 for RWF and Marketfeed Record Templates
 
 # Security
 

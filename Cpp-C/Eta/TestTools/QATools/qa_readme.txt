@@ -83,11 +83,11 @@ vaconsumer-Ws-004: Alter VAConsumer to test handle error case when it sends requ
 
 vaconsumer-Ws-005: Alter VAConsumer to send Post Key Attribute as FieldList and Domain Contribution.
 
-vaconsumer-PING-001: Alter VAConsumer to create 1 reactor, 2 connections, both for PING but can identify either same / diff credential.
+vaconsumer-OAuthV2-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 but can identify either same / diff credential.
 
-vaconsumer-PING-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st connection is for STS and 2nd connection is for PING.
+vaconsumer-OAuthV2-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st connection is for STS and 2nd connection is for OAuth V2.
 
-vaconsumer-PING-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st, 2nd and 3rd connection are for STS. And 4th, 5th, and 6th connection are for PING.
+vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st, 2nd and 3rd connection are for STS. And 4th, 5th, and 6th connection are for OAuth V2.
 
 consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
 

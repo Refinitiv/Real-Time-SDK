@@ -67,7 +67,7 @@ static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
 
-#define MAX_CHAN_COMMANDS 4
+#define MAX_CHAN_COMMANDS 6
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
 static int channelCommandCount = 0;
 
@@ -75,16 +75,30 @@ fd_set readFds, exceptFds;
 static RsslReactor *pReactor = NULL;
 static FILE *restLogFileName = NULL;
 
-char userNameBlock[128];
-char passwordBlock[128];
+char userName1Block[128];
+char password1Block[128];
+char userName2Block[128];
+char password2Block[128];
+char userName3Block[128];
+char password3Block[128];
 //API QA
-char clientId1Block[128];
-char clientId2Block[128];
+char clientId1_1Block[128];
+char clientId1_2Block[128];
+char clientId1_3Block[128];
+char clientId2_1Block[128];
+char clientId2_2Block[128];
+char clientId2_3Block[128];
 //END API QA
-char clientSecretBlock[128];
+char clientSecret1Block[128];
+char clientSecret2Block[128];
+char clientSecret3Block[128];
 //API QA
-char scope1Block[128];
-char scope2Block[128];
+char scope1_1Block[128];
+char scope1_2Block[128];
+char scope1_3Block[128];
+char scope2_1Block[128];
+char scope2_2Block[128];
+char scope2_3Block[128];
 // END API QA
 static char traceOutputFile[128];
 static char protocolList[128];
@@ -96,22 +110,48 @@ char proxyPort[256];
 char proxyUserName[128];
 char proxyPasswd[128];
 char proxyDomain[128];
-RsslBuffer userName = RSSL_INIT_BUFFER;
-RsslBuffer password = RSSL_INIT_BUFFER;
+//for sts
+RsslBuffer userName1 = RSSL_INIT_BUFFER;
+RsslBuffer password1 = RSSL_INIT_BUFFER;
+RsslBuffer userName2 = RSSL_INIT_BUFFER;
+RsslBuffer password2 = RSSL_INIT_BUFFER;
+RsslBuffer userName3 = RSSL_INIT_BUFFER;
+RsslBuffer password3 = RSSL_INIT_BUFFER;
 //API QA
-RsslBuffer clientId1 = RSSL_INIT_BUFFER;
-RsslBuffer clientId2 = RSSL_INIT_BUFFER;
+//for sts
+RsslBuffer clientId1_1 = RSSL_INIT_BUFFER;
+RsslBuffer clientId1_2 = RSSL_INIT_BUFFER;
+RsslBuffer clientId1_3 = RSSL_INIT_BUFFER;
+//for ping
+RsslBuffer clientId2_1 = RSSL_INIT_BUFFER;
+RsslBuffer clientId2_2 = RSSL_INIT_BUFFER;
+RsslBuffer clientId2_3 = RSSL_INIT_BUFFER;
 //END API QA
-RsslBuffer clientSecret = RSSL_INIT_BUFFER;
+//for ping
+RsslBuffer clientSecret1 = RSSL_INIT_BUFFER;
+RsslBuffer clientSecret2 = RSSL_INIT_BUFFER;
+RsslBuffer clientSecret3 = RSSL_INIT_BUFFER;
 RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
-RsslBuffer tokenURLV1 = RSSL_INIT_BUFFER;
-RsslBuffer tokenURLV2 = RSSL_INIT_BUFFER;
+//for sts
+RsslBuffer tokenURLV1_1 = RSSL_INIT_BUFFER;
+RsslBuffer tokenURLV1_2 = RSSL_INIT_BUFFER;
+RsslBuffer tokenURLV1_3 = RSSL_INIT_BUFFER;
+//for ping
+RsslBuffer tokenURLV2_1 = RSSL_INIT_BUFFER;
+RsslBuffer tokenURLV2_2 = RSSL_INIT_BUFFER;
+RsslBuffer tokenURLV2_3 = RSSL_INIT_BUFFER;
 //API QA
 RsslBuffer serviceDiscoveryURL = RSSL_INIT_BUFFER;
-RsslBuffer tokenScope1 = RSSL_INIT_BUFFER;
-RsslBuffer tokenScope2 = RSSL_INIT_BUFFER;
+//for sts
+RsslBuffer tokenScope1_1 = RSSL_INIT_BUFFER;
+RsslBuffer tokenScope1_2 = RSSL_INIT_BUFFER;
+RsslBuffer tokenScope1_3 = RSSL_INIT_BUFFER;
+//for ping
+RsslBuffer tokenScope2_1 = RSSL_INIT_BUFFER;
+RsslBuffer tokenScope2_2 = RSSL_INIT_BUFFER;
+RsslBuffer tokenScope2_3 = RSSL_INIT_BUFFER;
 //END API QA
 RsslReactorChannelStatistic channelStatistics;
 
@@ -119,12 +159,20 @@ static char libsslName[255];
 static char libcryptoName[255];
 static char libcurlName[255];
 
-static char tokenURLNameV1[255];
-static char tokenURLNameV2[255];
+static char tokenURLNameV1_1[255];
+static char tokenURLNameV1_2[255];
+static char tokenURLNameV1_3[255];
+static char tokenURLNameV2_1[255];
+static char tokenURLNameV2_2[255];
+static char tokenURLNameV2_3[255];
 // API QA
 static char serviceDiscoveryURLName[255];
-static char tokenScope1Name[255];
-static char tokenScope2Name[255];
+static char tokenScope1_1Name[255];
+static char tokenScope1_2Name[255];
+static char tokenScope1_3Name[255];
+static char tokenScope2_1Name[255];
+static char tokenScope2_2Name[255];
+static char tokenScope2_3Name[255];
 // End API QA
 
 
@@ -161,14 +209,23 @@ void printUsageAndExit(char *appName)
 			"\n -encryptedSocket specifies an encrypted connection to open.  Host, port, service, and items are the same as -tcp above.\n"
 			"\n -encryptedWebSocket specifies an encrypted websocket connection to open.  Host, port, service, and items are the same as -tcp above. Also note argument -protocolList\n"
 			"\n -encryptedHttp specifies an encrypted WinInet-based Http connection to open.  Host, port, service, and items are the same as -tcp above.  This option is only available on Windows.\n"
-			"\n -uname specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
-			"\n -passwd specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
+			"\n -uname1 specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
+		    "\n -uname2 specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
+		    "\n -uname3 specifies the username used when logging into the provider. The machine ID for Refinitiv Real-Time - Optimized (optional).\n"
+			"\n -passwd1 specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
+		    "\n -passwd2 specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
+		    "\n -passwd3 specifies the password used when logging into the provider. The password for Refinitiv Real-Time - Optimized (optional).\n"
 		    // API QA
-			"\n -clientId1 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
-		    "\n -clientId2 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
-		    // END API QA
-			"\n  and search for App Key Generator. The App Key is the Client ID.\n"
-			"\n -clientSecret associated client secret for the client ID with the v2 login.\n"
+			"\n -clientId1_1 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId1_2 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId1_3 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V1 login, login to Eikon,\n"
+		    "\n -clientId2_1 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
+		    "\n -clientId2_2 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
+		    "\n -clientId2_3 specifies the Client ID for Refinitiv Real-Time -To generate clientID for a V2 login, login to Eikon,\n"
+			"\n -clientSecret1 associated client secret for the client ID with the v2 login.\n"
+   		    "\n -clientSecret2 associated client secret for the client ID with the v2 login.\n"
+		    "\n -clientSecret3 associated client secret for the client ID with the v2 login.\n"
+		    // End API QA
 			"\n -sessionMgnt Enables session management in the Reactor for Refinitiv Real-Time - Optimized.\n"
 			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
@@ -197,12 +254,20 @@ void printUsageAndExit(char *appName)
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
-			"\n -tokenURLV1 token generator URL V1\n"
-			"\n -tokenURLV2 token generator URL V2\n"
 		    // API QA
+			"\n -tokenURLV1_1 token generator URL V1\n"
+ 	 	    "\n -tokenURLV1_2 token generator URL V1\n"
+		    "\n -tokenURLV1_3 token generator URL V1\n"
+			"\n -tokenURLV2_1 token generator URL V2\n"
+		    "\n -tokenURLV2_2 token generator URL V2\n"
+		    "\n -tokenURLV2_3 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL. Used with both V1 and V2 tokens\n"
-			"\n -tokenScope1 Scope for the token. Used with V1 token\n"
-			"\n -tokenScope2 Scope for the token. Used with V2 token\n"
+			"\n -tokenScope1_1 Scope for the token. Used with V1 token\n"
+		    "\n -tokenScope1_2 Scope for the token. Used with V1 token\n"
+	    	"\n -tokenScope1_3 Scope for the token. Used with V1 token\n"
+			"\n -tokenScope2_1 Scope for the token. Used with V2 token\n"
+	    	"\n -tokenScope2_2 Scope for the token. Used with V2 token\n"
+	     	"\n -tokenScope2_3 Scope for the token. Used with V2 token\n"
 		    // END API QA
 			, appName, appName);
 
@@ -274,44 +339,115 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			}
-			else if(strcmp("-uname", argv[i]) == 0)
+			else if(strcmp("-uname1", argv[i]) == 0)
 			{
 				i += 2;
-				userName.length = snprintf(userNameBlock, sizeof(userNameBlock), "%s", argv[i-1]);
-				userName.data = userNameBlock;
+				userName1.length = snprintf(userName1Block, sizeof(userName1Block), "%s", argv[i-1]);
+				userName1.data = userName1Block;
+			}
+			else if (strcmp("-uname2", argv[i]) == 0)
+			{
+				i += 2;
+				userName2.length = snprintf(userName2Block, sizeof(userName2Block), "%s", argv[i - 1]);
+				userName2.data = userName2Block;
+			}
+			else if (strcmp("-uname3", argv[i]) == 0)
+			{
+				i += 2;
+				userName3.length = snprintf(userName3Block, sizeof(userName3Block), "%s", argv[i - 1]);
+				userName3.data = userName3Block;
 			}
 			//API QA
-			else if (strcmp("-clientId1", argv[i]) == 0)
+			else if (strcmp("-clientId1_1", argv[i]) == 0)
 			{
 				i += 2;
-				clientId1.length = snprintf(clientId1Block, sizeof(clientId1Block), "%s", argv[i - 1]);
-				clientId1.data = clientId1Block;
+				clientId1_1.length = snprintf(clientId1_1Block, sizeof(clientId1_1Block), "%s", argv[i - 1]);
+				clientId1_1.data = clientId1_1Block;
 			}
-			else if (strcmp("-clientId2", argv[i]) == 0)
+			else if (strcmp("-clientId1_2", argv[i]) == 0)
 			{
 				i += 2;
-				clientId2.length = snprintf(clientId2Block, sizeof(clientId2Block), "%s", argv[i - 1]);
-				clientId2.data = clientId2Block;
+				clientId1_2.length = snprintf(clientId1_2Block, sizeof(clientId1_2Block), "%s", argv[i - 1]);
+				clientId1_2.data = clientId1_2Block;
+			}
+			else if (strcmp("-clientId1_3", argv[i]) == 0)
+			{
+				i += 2;
+				clientId1_3.length = snprintf(clientId1_3Block, sizeof(clientId1_3Block), "%s", argv[i - 1]);
+				clientId1_3.data = clientId1_3Block;
+			}
+			else if (strcmp("-clientId2_1", argv[i]) == 0)
+			{
+				i += 2;
+				clientId2_1.length = snprintf(clientId2_1Block, sizeof(clientId2_1Block), "%s", argv[i - 1]);
+				clientId2_1.data = clientId2_1Block;
+			}
+			else if (strcmp("-clientId2_2", argv[i]) == 0)
+			{
+				i += 2;
+				clientId2_2.length = snprintf(clientId2_2Block, sizeof(clientId2_2Block), "%s", argv[i - 1]);
+				clientId2_2.data = clientId2_2Block;
+			}
+			else if (strcmp("-clientId2_3", argv[i]) == 0)
+			{
+				i += 2;
+				clientId2_3.length = snprintf(clientId2_3Block, sizeof(clientId2_3Block), "%s", argv[i - 1]);
+				clientId2_3.data = clientId2_3Block;
 			}
 			//END API QA
-			else if (strcmp("-clientSecret", argv[i]) == 0)
+			else if (strcmp("-clientSecret1", argv[i]) == 0)
 			{
 				i += 2;
-				clientSecret.length = snprintf(clientSecretBlock, sizeof(clientSecretBlock), "%s", argv[i - 1]);
-				clientSecret.data = clientSecretBlock;
+				clientSecret1.length = snprintf(clientSecret1Block, sizeof(clientSecret1Block), "%s", argv[i - 1]);
+				clientSecret1.data = clientSecret1Block;
 			}
-	
-			else if (strcmp("-tokenURLV1", argv[i]) == 0)
+			else if (strcmp("-clientSecret2", argv[i]) == 0)
 			{
 				i += 2;
-				tokenURLV1.length = snprintf(tokenURLNameV1, sizeof(tokenURLNameV1), "%s", argv[i - 1]);
-				tokenURLV1.data = tokenURLNameV1;
+				clientSecret2.length = snprintf(clientSecret2Block, sizeof(clientSecret2Block), "%s", argv[i - 1]);
+				clientSecret2.data = clientSecret2Block;
 			}
-			else if (strcmp("-tokenURLV2", argv[i]) == 0)
+			else if (strcmp("-clientSecret3", argv[i]) == 0)
 			{
 				i += 2;
-				tokenURLV2.length = snprintf(tokenURLNameV2, sizeof(tokenURLNameV2), "%s", argv[i - 1]);
-				tokenURLV2.data = tokenURLNameV2;
+				clientSecret3.length = snprintf(clientSecret3Block, sizeof(clientSecret3Block), "%s", argv[i - 1]);
+				clientSecret3.data = clientSecret3Block;
+			}
+			else if (strcmp("-tokenURLV1_1", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV1_1.length = snprintf(tokenURLNameV1_1, sizeof(tokenURLNameV1_1), "%s", argv[i - 1]);
+				tokenURLV1_1.data = tokenURLNameV1_1;
+			}
+			else if (strcmp("-tokenURLV1_2", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV1_2.length = snprintf(tokenURLNameV1_2, sizeof(tokenURLNameV1_2), "%s", argv[i - 1]);
+				tokenURLV1_2.data = tokenURLNameV1_2;
+			}
+			else if (strcmp("-tokenURLV1_3", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV1_3.length = snprintf(tokenURLNameV1_3, sizeof(tokenURLNameV1_3), "%s", argv[i - 1]);
+				tokenURLV1_3.data = tokenURLNameV1_3;
+			}
+			else if (strcmp("-tokenURLV2_1", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV2_1.length = snprintf(tokenURLNameV2_1, sizeof(tokenURLNameV2_1), "%s", argv[i - 1]);
+				tokenURLV2_1.data = tokenURLNameV2_1;
+			}
+			else if (strcmp("-tokenURLV2_2", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV2_1.length = snprintf(tokenURLNameV2_2, sizeof(tokenURLNameV2_1), "%s", argv[i - 1]);
+				tokenURLV2_2.data = tokenURLNameV2_2;
+			}
+			else if (strcmp("-tokenURLV2_3", argv[i]) == 0)
+			{
+				i += 2;
+				tokenURLV2_3.length = snprintf(tokenURLNameV2_3, sizeof(tokenURLNameV2_3), "%s", argv[i - 1]);
+				tokenURLV2_3.data = tokenURLNameV2_3;
 			}
 			// API QA
 			else if (strcmp("-serviceDiscoveryURL", argv[i]) == 0)
@@ -320,24 +456,60 @@ void parseCommandLine(int argc, char **argv)
 				serviceDiscoveryURL.length = snprintf(serviceDiscoveryURLName, sizeof(serviceDiscoveryURLName), "%s", argv[i - 1]);
 				serviceDiscoveryURL.data = serviceDiscoveryURLName;
 			}
-			else if (strcmp("-tokenScope1", argv[i]) == 0)
+			else if (strcmp("-tokenScope1_1", argv[i]) == 0)
 			{
 				i += 2;
-				tokenScope1.length = snprintf(tokenScope1Name, sizeof(tokenScope1Name), "%s", argv[i - 1]);
-				tokenScope1.data = tokenScope1Name;
+				tokenScope1_1.length = snprintf(tokenScope1_1Name, sizeof(tokenScope1_1Name), "%s", argv[i - 1]);
+				tokenScope1_1.data = tokenScope1_1Name;
 			}
-			else if (strcmp("-tokenScope2", argv[i]) == 0)
+			else if (strcmp("-tokenScope1_2", argv[i]) == 0)
 			{
 				i += 2;
-				tokenScope2.length = snprintf(tokenScope2Name, sizeof(tokenScope2Name), "%s", argv[i - 1]);
-				tokenScope2.data = tokenScope2Name;
+				tokenScope1_2.length = snprintf(tokenScope1_2Name, sizeof(tokenScope1_2Name), "%s", argv[i - 1]);
+				tokenScope1_2.data = tokenScope1_2Name;
+			}
+			else if (strcmp("-tokenScope1_3", argv[i]) == 0)
+			{
+				i += 2;
+				tokenScope1_3.length = snprintf(tokenScope1_3Name, sizeof(tokenScope1_3Name), "%s", argv[i - 1]);
+				tokenScope1_3.data = tokenScope1_3Name;
+			}
+			else if (strcmp("-tokenScope2_1", argv[i]) == 0)
+			{
+				i += 2;
+				tokenScope2_1.length = snprintf(tokenScope2_1Name, sizeof(tokenScope2_1Name), "%s", argv[i - 1]);
+				tokenScope2_1.data = tokenScope2_1Name;
+			}
+			else if (strcmp("-tokenScope2_2", argv[i]) == 0)
+			{
+				i += 2;
+				tokenScope2_2.length = snprintf(tokenScope2_2Name, sizeof(tokenScope2_2Name), "%s", argv[i - 1]);
+				tokenScope2_2.data = tokenScope2_2Name;
+			}
+			else if (strcmp("-tokenScope2_3", argv[i]) == 0)
+			{
+				i += 2;
+				tokenScope2_3.length = snprintf(tokenScope2_3Name, sizeof(tokenScope2_3Name), "%s", argv[i - 1]);
+				tokenScope2_3.data = tokenScope2_3Name;
 			}
 			// END API QA
-			else if (strcmp("-passwd", argv[i]) == 0)
+			else if (strcmp("-passwd1", argv[i]) == 0)
 			{
 				i += 2;
-				password.length = snprintf(passwordBlock, sizeof(passwordBlock), "%s", argv[i - 1]);
-				password.data = passwordBlock;
+				password1.length = snprintf(password1Block, sizeof(password1Block), "%s", argv[i - 1]);
+				password1.data = password1Block;
+			}
+			else if (strcmp("-passwd2", argv[i]) == 0)
+			{
+				i += 2;
+				password2.length = snprintf(password2Block, sizeof(password2Block), "%s", argv[i - 1]);
+				password2.data = password2Block;
+			}
+			else if (strcmp("-passwd3", argv[i]) == 0)
+			{
+				i += 2;
+				password3.length = snprintf(password3Block, sizeof(password3Block), "%s", argv[i - 1]);
+				password3.data = password3Block;
 			}
 			else if(strcmp("-at", argv[i]) == 0)
 			{
@@ -1445,12 +1617,32 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 			if (i == 0)
 			{
 				//connection1 is for STS
-				reactorOAuthCredentialRenewal.password = password;
+				reactorOAuthCredentialRenewal.password = password1;
+			}
+			else if (i == 1 )
+			{
+				//connection2 is for STS
+				reactorOAuthCredentialRenewal.password = password2;
+			}
+			else if (i == 2)
+			{
+				//connection3 is for STS
+				reactorOAuthCredentialRenewal.password = password3;
+			}
+			else if (i == 3 )
+			{
+				//connection4 is for OAuth V2 
+				reactorOAuthCredentialRenewal.clientSecret = clientSecret1;
+			}
+			else if (i == 4)
+			{
+				//connection5 is for OAuth V2 
+				reactorOAuthCredentialRenewal.clientSecret = clientSecret2;
 			}
 			else
 			{
-				//connection2 is for PING
-				reactorOAuthCredentialRenewal.clientSecret = clientSecret;
+				//connection6 is for OAuth V2 
+				reactorOAuthCredentialRenewal.clientSecret = clientSecret3;
 			}
 		}
 	//}
@@ -1966,14 +2158,29 @@ int main(int argc, char **argv)
 	if (restLogFileName)
 		reactorOpts.restLogOutputStream = restLogFileName;
 
-	if (tokenURLV1.length != 0)
+	if (tokenURLV1_1.length != 0)
 	{
-		reactorOpts.tokenServiceURL_V1 = tokenURLV1;
+		reactorOpts.tokenServiceURL_V1 = tokenURLV1_1;
 	}
-
-	if (tokenURLV2.length != 0)
+	if (tokenURLV1_2.length != 0)
 	{
-		reactorOpts.tokenServiceURL_V2 = tokenURLV2;
+		reactorOpts.tokenServiceURL_V1 = tokenURLV1_2;
+	}
+	if (tokenURLV1_3.length != 0)
+	{
+		reactorOpts.tokenServiceURL_V1 = tokenURLV1_3;
+	}
+	if (tokenURLV2_1.length != 0)
+	{
+		reactorOpts.tokenServiceURL_V2 = tokenURLV2_1;
+	}
+	if (tokenURLV2_2.length != 0)
+	{
+		reactorOpts.tokenServiceURL_V2 = tokenURLV2_2;
+	}
+	if (tokenURLV2_3.length != 0)
+	{
+		reactorOpts.tokenServiceURL_V2 = tokenURLV2_3;
 	}
 	// API QA
 	if (serviceDiscoveryURL.length != 0)
@@ -2008,44 +2215,132 @@ int main(int argc, char **argv)
 	    // Connection1 is for STS
 		{   
 			rsslClearReactorOAuthCredential(&oAuthCredential);
-			if (userName.length)
-				loginRequest.userName = userName;
+			if (userName1.length)
+				loginRequest.userName = userName1;
 
 			/* If a password was specified */
-			if (password.length)
+			if (password1.length)
 			{
-				oAuthCredential.password = password;
+				oAuthCredential.password = password1;
 				/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
 				oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 			}
-			if (clientId1.length)
+			if (clientId1_1.length)
 			{
-				oAuthCredential.clientId = clientId1;
+				oAuthCredential.clientId = clientId1_1;
 				oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
 			}
-			if (tokenScope1.length)
+			if (tokenScope1_1.length)
 			{
-				oAuthCredential.tokenScope = tokenScope1;
+				oAuthCredential.tokenScope = tokenScope1_1;
 			}
 		}
-		else
-		// Connection2 is for PING
+		else if (i == 1)
+			// Connection2 is for STS
 		{
 			rsslClearReactorOAuthCredential(&oAuthCredential);
-			if (clientId2.length)
+			if (userName2.length)
+				loginRequest.userName = userName2;
+
+			/* If a password was specified */
+			if (password2.length)
 			{
-				oAuthCredential.clientId = clientId2;
+				oAuthCredential.password = password2;
+				/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+				oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+			}
+			if (clientId1_2.length)
+			{
+				oAuthCredential.clientId = clientId1_2;
+				oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+			}
+			if (tokenScope1_2.length)
+			{
+				oAuthCredential.tokenScope = tokenScope1_2;
+			}
+		}
+		else if (i == 2)
+			// Connection3 is for STS
+		{
+			rsslClearReactorOAuthCredential(&oAuthCredential);
+			if (userName3.length)
+				loginRequest.userName = userName3;
+
+			/* If a password was specified */
+			if (password3.length)
+			{
+				oAuthCredential.password = password3;
+				/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+				oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+			}
+			if (clientId1_3.length)
+			{
+				oAuthCredential.clientId = clientId1_3;
+				oAuthCredential.takeExclusiveSignOnControl = takeExclusiveSignOnControl;
+			}
+			if (tokenScope1_3.length)
+			{
+				oAuthCredential.tokenScope = tokenScope1_3;
+			}
+		}
+		else if (i == 3)
+			// Connection4 is for OAuth V2 
+		{
+			rsslClearReactorOAuthCredential(&oAuthCredential);
+			if (clientId2_1.length)
+			{
+				oAuthCredential.clientId = clientId2_1;
 			}
 			/*If a client secret was specified */
-			if (clientSecret.length)
+			if (clientSecret1.length)
 			{
-				oAuthCredential.clientSecret = clientSecret;
+				oAuthCredential.clientSecret = clientSecret1;
 				/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service.*/
 				oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 			}
-			if (tokenScope2.length)
+			if (tokenScope2_1.length)
 			{
-				oAuthCredential.tokenScope = tokenScope2;
+				oAuthCredential.tokenScope = tokenScope2_1;
+			}
+		}
+		else if (i == 4)
+			// Connection5 is for OAuth V2 
+		{
+			rsslClearReactorOAuthCredential(&oAuthCredential);
+			if (clientId2_2.length)
+			{
+				oAuthCredential.clientId = clientId2_2;
+			}
+			/*If a client secret was specified */
+			if (clientSecret2.length)
+			{
+				oAuthCredential.clientSecret = clientSecret2;
+				/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service.*/
+				oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+			}
+			if (tokenScope2_2.length)
+			{
+				oAuthCredential.tokenScope = tokenScope2_2;
+			}
+		}
+		else
+			// Connection6 is for OAuth V2 
+			{
+			rsslClearReactorOAuthCredential(&oAuthCredential);
+			if (clientId2_3.length)
+			{
+				oAuthCredential.clientId = clientId2_3;
+			}
+			/*If a client secret was specified */
+			if (clientSecret3.length)
+			{
+				oAuthCredential.clientSecret = clientSecret3;
+				/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service.*/
+				oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+			}
+			if (tokenScope2_3.length)
+			{
+				oAuthCredential.tokenScope = tokenScope2_3;
 			}
 		}
 

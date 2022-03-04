@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2021 Refinitiv. All rights reserved.
+Copyright (C) 2019-2022 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -127,8 +127,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.3
-- ADH 3.5.3
+- ADS 3.5.4
+- ADH 3.5.4
 - DACS 7.6
 
 # Documentation
@@ -211,40 +211,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.4.0</version>
+		<version>3.6.5.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.4.0</version>
+		<version>3.6.5.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.4.0</version>
+		<version>3.6.5.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.4.0</version>
+		<version>3.6.5.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.4.0</version>
+		<version>3.6.5.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.4.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.4.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.4.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.4.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.4.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.5.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.5.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.5.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.5.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.5.0'
 
 # Developing 
 

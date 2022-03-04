@@ -9,20 +9,55 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.4.L1 aka EMA/ETA 3.6.4.Ll aka 3.6.4.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.5.L1 aka EMA/ETA 3.6.5.Ll aka 3.6.5.0
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This release introduces Warm Standby consumer feature in ETA-Reactor and EMA along with fixes.
+This release introduces oAuthClientCredentials authentication in Early Access. This feature is available for preview only with ability to obtain credentials and use it, forthcoming. In addition, this release contains a couple of enhancement requests dynamic REST interaction logging and Reactor worker thread binding. Also included are fixes and documentation clarificaitons. 
 
 Customer Issue Resoved 
 -----------------------
-- [GitHub # 184] - [RTSDK-5688] - Invalid comparison at Ema/Src/Access/Impl/DirectoryServiceStore.cpp:149
+- [Case Number: 09924064] - [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files
+- [Case Number: 10539465] - [RTSDK-5717] - Fix for posting submit failure upon reconnect to ADS
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.5.L1 (Mar 10, 2022)
+--------------------------------------------
+
+EMA C++ 3.6.5.L1 Issues Resolved
+--------------------------------
+- [RTSDK-4379] - Documentation update to clarify printing of RMTES strings with partial updates
+- [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files [Case Number: 09924064]
+- [RTSDK-5717] - Fix for posting submit failure upon reconnect to ADS [Case Number: 10539465] 
+- [RTSDK-5953] - Documentation clarification in EMA Dev Guide related to session management
+
+ETA C 3.6.5.L1 Issues Resolved
+--------------------------------
+- [RTSDK-5039] - Added unit tests to cover additional simplified JSON-to-RWF conversions
+- [RTSDK-5111] - Add ADS/Server-Side Websocket JSON->RWF conversion error checks on posted data to be in valid range
+- [RTSDK-5610] - Added the missing lock around the sessionByNameAndClientIdHt hash when fails to create a reactor channel
+- [RTSDK-5889] - Altered ETA C NIProvPerf to support encrypted connection
+- [RTSDK-6011] - Doxygen generated does not include RWF/JSON Converter
+- [RTSDK-6019] - Crash due to double-free or corruption in rwfToJsonBase::uninitializeIntToStringTable
+- [RTSDK-6025] - Fixed misspelled for the RsslReactorWarmStandbyChannelInfo structure
+
+
+Both ETA C and EMA C++ 3.6.5.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-4551] - Redo Service Discovery after X reconnection attempts
+- [RTSDK-4994] - Support oAuthClientCredential authentication
+- [RTSDK-5056] - Support Windows Server 2019
+- [RTSDK-5098] - oAuthClientCredential support: Add in token timer for reconnection cases
+- [RTSDK-5473] - Enhancement Request: Dynamically enable/disable REST interaction logging
+- [RTSDK-5727] - oAuthClientCredential support: Update READMEs for examples with support
+- [RTSDK-5855] - Rename TransportAPIC_RDMUsageGuide to TransportAPI_C_RDMUsageGuide
+- [RTSDK-5948] - Unexpected characters in the Set-Cookie header causes websocket connection close with java clients
+- [RTSDK-6013] - Enhancement Request: Reactor should bind worker thread to specified core (logical binding)
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.4.L1 (Dec 17, 2021)

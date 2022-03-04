@@ -9,14 +9,51 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.4.L1 aka EMA/ETA 3.6.4.L1 aka 3.6.4.0 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.5.L1 aka EMA/ETA 3.6.5.L1 aka 3.6.5.0 
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes. 
+This release introduces oAuthClientCredentials authentication in Early Access. This feature is available for preview only with ability to obtain credentials and use it, forthcoming. In addition, this release serves as a maintenance release with fixes to customer issues.
+
+Customer Issue Resoved 
+-----------------------
+- [Case Number: 09924064] - [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files 
+- [Case Number: 10624185] - [RTSDK-5715] - ConcurrentModificationException when attempting to log REST interactions
+- [Case Number: 10982169] - [RTSDK-6051] - EMA throws a null pointer exception when making multiple batch requests
+- [GitHub # 182] - [RTSDK-5604] - Enhancement Request: add asBigDecimal() to OmmReal interface
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.5.L1 (Mar 10, 2022)
+--------------------------------------------
+
+EMA Java 3.6.5.L1 Issues Resolved
+---------------------------------
+- [RTSDK-4379] - Documentation update to clarify printing of RMTES strings with partial updates
+- [RTSDK-5096] - oAuthClientCredential support added to RRTViewer tool 
+- [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files [Case Number: 09924064]
+- [RTSDK-5521] - Altered ETA Java NIProvPerf to support encrypted connection
+- [RTSDK-5953] - Documentation clarification in EMA Dev Guides related to session management
+
+ETA Java 3.6.5.L1 Issues Resolved
+---------------------------------
+- [RTSDK-4191] - Dictionary download support added for NIProvider role
+- [RTSDK-5229] - Improvements to ReactorWatchlistJUnit
+- [RTSDK-5593] - Added unit tests to cover additional simplified JSON-to-RWF conversions
+- [RTSDK-5715] - ConcurrentModificationException when attempting to log REST interactions [Case Number: 10624185]
+- [RTSDK-5854] - Remove extra copies of Dictionaries and fixed associated unit tests
+- [RTSDK-6010] - Fixed exception to OmmJsonConverterException upon receiving FID not in dictionary with JSON over Websocket
+
+Both ETA Java and EMA Java 3.6.5.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-5056] - Support Windows Server 2019
+- [RTSDK-5098] - oAuthClientCredential support: Add in token timer for reconnection cases
+- [RTSDK-5181] - Support oAuthClientCredential authentication
+- [RTSDK-5604] - Enhancement Request: add asBigDecimal() to OmmReal interface [GitHub # 182]
+- [RTSDK-5727] - oAuthClientCredential support: Update READMEs for examples with support
+- [RTSDK-6051] - EMA throws a null pointer exception when making multiple batch requests [Case Number: 10982169]
 
 --------------------------------------------
 RTSDK Java Release 2.0.4.L1 (Dec 17, 2021)
@@ -69,8 +106,8 @@ This is a maintenance release with fixes for customer issues and bugs
 EMA Java 3.6.3.L1 Issues Resolved
 ---------------------------------
 - [RTSDK-4780] - Programmatic config should set ChannelType by default
-- [RTSDK-5188] - Provide a jar for the RTViewer tool as part of the build
-- [RTSDK-5342] - Desktop Viewer fails if using the EMA Configuration file [ GitHub #178] 
+- [RTSDK-5188] - Provide a jar for the RRTViewer tool as part of the build
+- [RTSDK-5342] - Desktop RRTViewer fails if using the EMA Configuration file [ GitHub #178] 
 - [RTSDK-5412] - Documentation error in EMA Java Config guide [GitHub #179] 
 
 ETA Java 3.6.3.L1 Issues Resolved
