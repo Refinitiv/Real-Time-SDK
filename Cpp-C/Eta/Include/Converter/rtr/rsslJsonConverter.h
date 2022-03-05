@@ -12,6 +12,11 @@
 #include "rtr/rsslDataDictionary.h"
 #include "rtr/rsslMsg.h"
 
+/**
+* @addtogroup rsslJsonConverter
+ * @{
+*/
+
  /* Used when exporting or importing as Windows DLL or linking as static library */
 #if defined(RSSL_RJC_EXPORTS) || defined(RSSL_EXPORTS)
 #define 	RSSL_RJC_API			RTR_API_EXPORT
@@ -470,6 +475,10 @@ RSSL_RJC_API RsslRet rsslJsonGetErrorMessage(RsslJsonConverter pConverter, RsslG
  * @see RsslLibraryVersionInfo
  */
 RSSL_RJC_API void rsslQueryJsonConverterLibraryVersion(RsslLibraryVersionInfo *pVerInfo);
+
+/**
+* @}
+*/
 
 #ifdef __cplusplus
 }

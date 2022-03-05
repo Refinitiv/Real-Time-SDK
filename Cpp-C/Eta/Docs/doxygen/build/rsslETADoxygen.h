@@ -5786,5 +5786,18 @@
  
 /* End of Util Group */
 
+/* Start of Converter */
+
+/**
+* @defgroup rsslJsonConverter
+* @brief This is the RWF to JSON and JSON to RWF conversion library. The functions provided by this library may be used for several use cases: for conversion of content sent/received over Websocket Transport with JSON data format and/or conversion of RWF content sent/received over Websocket or Socket Transports.
+*
+* @{
+*   This section describes functions provided to convert from RWF to JSON or vice versa.
+* @}
+*/
+
+/* End of Converter */
+
 
 
