@@ -126,12 +126,18 @@ class WlStream extends VaNode
     Buffer _viewBuffer = CodecFactory.createBuffer();
     ByteBuffer _viewByteBuffer = ByteBuffer.allocateDirect(2048);
         
+    /* This is used to keep track whether this object has been added the watchlist's timeout list
+     * in oder to remove it from the list before returning back to its pool.
+     */
+    boolean _addedToTimeOutList;
+
     WlStream()
     {
         _ackMsg = (AckMsg)CodecFactory.createMsg();
         _ackMsg.msgClass(MsgClasses.ACK);
         _closeMsg = (CloseMsg)CodecFactory.createMsg();
         _closeMsg.msgClass(MsgClasses.CLOSE);
+        _addedToTimeOutList = false;
     }
     
     /* Returns the state of the watchlist stream. */
@@ -971,6 +977,7 @@ class WlStream extends VaNode
         _requestsWithViewCount = 0;
         _reactorChannel = null;
         _reactor = null;
+        _addedToTimeOutList = false;
     }
     
 	WlView aggregateView()
@@ -1001,7 +1008,13 @@ class WlStream extends VaNode
         		_aggregateView.clear();
         		_aggregateView.returnToPool();
         		_aggregateView = null;
-    		}
+        }
+
+		if(_addedToTimeOutList)
+		{
+			_addedToTimeOutList = false;
+			_watchlist._streamTimeoutInfoList.remove(this);
+		}
         
 		_handler  = null;
 		_requestMsg = null;

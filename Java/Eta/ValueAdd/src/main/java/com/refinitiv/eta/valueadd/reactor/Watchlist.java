@@ -333,6 +333,7 @@ class Watchlist extends VaNode
         
         if  (wlStream != null)
         {
+            wlStream._addedToTimeOutList = false;
             ret = wlStream.timeout(errorInfo);
         }
         
@@ -480,6 +481,7 @@ class Watchlist extends VaNode
         }
         
         _streamTimeoutInfoList.add(wlStream);
+        wlStream._addedToTimeOutList = true;
     
         return ReactorReturnCodes.SUCCESS;
     }
