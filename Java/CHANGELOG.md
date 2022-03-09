@@ -19,6 +19,7 @@ Customer Issue Resoved
 - [Case Number: 09924064] - [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files 
 - [Case Number: 10624185] - [RTSDK-5715] - ConcurrentModificationException when attempting to log REST interactions
 - [Case Number: 10982169] - [RTSDK-6051] - EMA throws a null pointer exception when making multiple batch requests
+- [Case Number: 11101002] - [RTSDK-6069] - Fixed null pointer exception with request timeout
 - [GitHub # 182] - [RTSDK-5604] - Enhancement Request: add asBigDecimal() to OmmReal interface
 
 ----------------------------------------------------------------------------------------
@@ -54,6 +55,7 @@ Both ETA Java and EMA Java 3.6.5.L1 Issues Resolved
 - [RTSDK-5604] - Enhancement Request: add asBigDecimal() to OmmReal interface [GitHub # 182]
 - [RTSDK-5727] - oAuthClientCredential support: Update READMEs for examples with support
 - [RTSDK-6051] - EMA throws a null pointer exception when making multiple batch requests [Case Number: 10982169]
+- [RTSDK-6069] - Fixed a null pointer exception with request timeout [Case Number: 11101002]
 
 --------------------------------------------
 RTSDK Java Release 2.0.4.L1 (Dec 17, 2021)
