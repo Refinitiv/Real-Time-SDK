@@ -230,8 +230,7 @@ int main(int argc, char **argv)
 
 	/* Create Reactor. */
 	rsslClearCreateReactorOptions(&reactorOpts);
-
-	if (watchlistConsumerConfig.restEnableLog || watchlistConsumerConfig.restEnableLogCallback)
+	
 	if (watchlistConsumerConfig.tokenURLV1.data != NULL)
 	{
 		reactorOpts.tokenServiceURL_V1 = watchlistConsumerConfig.tokenURLV1;
@@ -247,7 +246,7 @@ int main(int argc, char **argv)
 		reactorOpts.serviceDiscoveryURL = watchlistConsumerConfig.serviceDiscoveryURL;
 	}
 
-	if (watchlistConsumerConfig.restEnableLog)
+	if (watchlistConsumerConfig.restEnableLog || watchlistConsumerConfig.restEnableLogCallback)
 	{
 		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
 		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
