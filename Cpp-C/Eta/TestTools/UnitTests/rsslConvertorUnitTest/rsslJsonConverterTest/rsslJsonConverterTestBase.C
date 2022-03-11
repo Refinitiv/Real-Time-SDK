@@ -166,14 +166,14 @@ void encodeAnsiData()
 	qa_ulist->max_updt = 200;
 
 	/* clear data area */
-	cnt = qa_decode(&qa_page, ANSI_INIT_STRG, sizeof(ANSI_INIT_STRG), qa_ulist);
+	cnt = qa_decode(&qa_page, (char*)ANSI_INIT_STRG, (int)sizeof(ANSI_INIT_STRG), qa_ulist);
 	if (!cnt)
 	{
 		printf("Failed to clear data area for Ansi data \n");
 		return;
 	}
 
-	retv = decodeAnsi(1, 80, 7, 10, ANSI_CHG_TEST, qa_ulist, &qa_page);
+	retv = decodeAnsi(1, 80, 7, 10, (char*)ANSI_CHG_TEST, qa_ulist, &qa_page);
 	if (!retv)
 	{
 		printf("Failed to decode Ansi data \n");

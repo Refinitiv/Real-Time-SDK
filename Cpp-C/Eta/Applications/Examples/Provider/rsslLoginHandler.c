@@ -186,10 +186,10 @@ RsslRet processLoginRequest(RsslChannel* chnl, RsslMsg* msg, RsslDecodeIterator*
 			return RSSL_RET_FAILURE;
 		}
 
-		if(key->nameType == RDM_LOGIN_USER_NAME)
+		if(key->nameType != RDM_LOGIN_USER_AUTHN_TOKEN)
 			printf("\nReceived Login Request for Username: %.*s\n", (int)strlen(loginRequestInfo->Username), loginRequestInfo->Username);
 		else
-			printf("\nReceived Login Request for with Token: %.*s\n", (int)strlen(loginRequestInfo->AuthenticationToken), loginRequestInfo->AuthenticationToken);
+			printf("\nReceived Login Request with Token: %.*s\n", (int)strlen(loginRequestInfo->AuthenticationToken), loginRequestInfo->AuthenticationToken);
 
 		/* Check to see if RTT is supported.  If it is not, make sure it's turned off in the response */
 		if (supportRTT == RSSL_FALSE)

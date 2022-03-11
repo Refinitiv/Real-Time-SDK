@@ -12033,7 +12033,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 		RsslInt32 line = 0;
 
 		for (line = 0; line < rsslSocketChannel->cookies.numberOfCookies; line++)
-			_rsslFree(rsslSocketChannel->cookies.cookie[line].data);
+			_rsslFree((void*)(rsslSocketChannel->cookies.cookie[line].data));
 
 		_rsslFree(rsslSocketChannel->cookies.cookie);
 	}

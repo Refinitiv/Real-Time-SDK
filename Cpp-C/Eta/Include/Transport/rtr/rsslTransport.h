@@ -1840,8 +1840,8 @@ typedef enum {
 RSSL_API RsslRet rsslSetDebugFunctions(
 	void(*dumpIpcIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
 	void(*dumpIpcOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslUInt64 opaque),
-	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
-	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
+	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket channel),
+	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket channel),
 	RsslError *error);
 
 /**

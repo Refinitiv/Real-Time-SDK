@@ -785,6 +785,22 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		pReactorImpl->tokenServiceURLV1.length = pReactorOpts->tokenServiceURL.length;
 		strncpy(pReactorImpl->tokenServiceURLV1.data, pReactorOpts->tokenServiceURL.data, pReactorImpl->tokenServiceURLV1.length);
 	}
+	else
+	{
+		pReactorImpl->tokenServiceURLBufferV1.length = rssl_rest_token_url_v1.length;
+
+		if (!(pReactorImpl->tokenServiceURLBufferV1.data = (char*)malloc(pReactorImpl->tokenServiceURLBufferV1.length + 1)))
+		{
+			_reactorWorkerCleanupReactor(pReactorImpl);
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for the token service URL.");
+			return NULL;
+		}
+
+		memset(pReactorImpl->tokenServiceURLBufferV1.data, 0, pReactorImpl->tokenServiceURLBufferV1.length+1);
+		pReactorImpl->tokenServiceURLV1.data = pReactorImpl->tokenServiceURLBufferV1.data;
+		pReactorImpl->tokenServiceURLV1.length = rssl_rest_token_url_v1.length;
+		strncpy(pReactorImpl->tokenServiceURLV1.data, rssl_rest_token_url_v1.data, pReactorImpl->tokenServiceURLV1.length);
+	}
 
 	if (pReactorOpts->tokenServiceURL_V2.data && pReactorOpts->tokenServiceURL_V2.length)
 	{
@@ -807,6 +823,22 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		pReactorImpl->tokenServiceURLV2.data = pReactorImpl->tokenServiceURLBufferV2.data;
 		pReactorImpl->tokenServiceURLV2.length = pReactorOpts->tokenServiceURL_V2.length;
 		strncpy(pReactorImpl->tokenServiceURLV2.data, pReactorOpts->tokenServiceURL_V2.data, pReactorImpl->tokenServiceURLV2.length);
+	}
+	else
+	{
+		pReactorImpl->tokenServiceURLBufferV2.length = rssl_rest_token_url_v2.length;
+
+		if (!(pReactorImpl->tokenServiceURLBufferV2.data = (char*)malloc(pReactorImpl->tokenServiceURLBufferV2.length + 1)))
+		{
+			_reactorWorkerCleanupReactor(pReactorImpl);
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for the token service URL.");
+			return NULL;
+		}
+
+		memset(pReactorImpl->tokenServiceURLBufferV2.data, 0, pReactorImpl->tokenServiceURLBufferV2.length+1);
+		pReactorImpl->tokenServiceURLV2.data = pReactorImpl->tokenServiceURLBufferV2.data;
+		pReactorImpl->tokenServiceURLV2.length = rssl_rest_token_url_v2.length;
+		strncpy(pReactorImpl->tokenServiceURLV2.data, rssl_rest_token_url_v2.data, pReactorImpl->tokenServiceURLV2.length);
 	}
 
 	if (pReactorOpts->serviceDiscoveryURL.data && pReactorOpts->serviceDiscoveryURL.length)

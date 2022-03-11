@@ -37,7 +37,7 @@ public class ReactorOAuthCredentialRenewalOptions
         /** None */
         public static final int NONE = 0;
 
-        /** Renew access token with password only */
+        /** Renew access token with password/clientSecret only */
         public static final int PASSWORD = 1;
         
         /** Renew access token with changing password*/

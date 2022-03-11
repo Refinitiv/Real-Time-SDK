@@ -904,8 +904,7 @@ TEST_F(ReactorSessionMgntTest, EmptyAuthTokenServiceURL)
 	mOpts.tokenServiceURL.data = const_cast<char*>("");
 	mOpts.tokenServiceURL.length = 0;
 	cleanupReactor = RSSL_FALSE;
-	ASSERT_TRUE(rsslCreateReactor(&mOpts, &rsslErrorInfo) == NULL);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "The token service URL is not available.");
+	ASSERT_TRUE(rsslCreateReactor(&mOpts, &rsslErrorInfo) != NULL);
 }
 
 TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
@@ -1869,7 +1868,6 @@ TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_User
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.userName not provided.", rsslErrorInfo.rsslError.text);
 }
 
 TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Password_NotSpecified)
@@ -1880,7 +1878,6 @@ TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Pass
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.password not provided.", rsslErrorInfo.rsslError.text);
 }
 
 TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_ClientId_NotSpecified)
@@ -1892,7 +1889,6 @@ TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Clie
 	_reactorServiceDiscoveryOpts.userName = g_userName;
 	_reactorServiceDiscoveryOpts.password = g_password;
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.clientId not provided.", rsslErrorInfo.rsslError.text);
 }
 
 TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Callback_NotSpecified)

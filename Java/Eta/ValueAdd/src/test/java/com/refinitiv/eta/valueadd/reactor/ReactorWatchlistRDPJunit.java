@@ -36,6 +36,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
+import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 
 
 public class ReactorWatchlistRDPJunit
@@ -4328,70 +4329,6 @@ public class ReactorWatchlistRDPJunit
 	}
 	
 	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest() {
-		RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(false, null);
-	}
-
-	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest_WebSocket_Rwf() {
-		RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(true, "rssl.rwf");
-	}
-
-	@Test
-	public void RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest_WebSocket_Json() {
-		RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(true, "tr_json2");
-	}
-
-	private void RDPMultipleOpenConnections_SameUser_Diff_ClientSecret(boolean isWebsocket, String protocol)
-	{
-		System.out.println("\n>>>>>>>>> Running RDPMultipleOpenConnections_SameUser_Diff_ClientSecretTest <<<<<<<<<<\n");	
-		
-		assumeTrue(checkCredentials());
-		unlockAccount();
-		TestReactor consumerReactor = null;
-		
-		try {
-			
-			ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();	 	
-
-			/* Create reactor. */
-			ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
-			
-			consumerReactor = new TestReactor(reactorOptions);
-
-			Consumer consumer = new Consumer(consumerReactor);
-			setupConsumer(consumer, true);
-			
-			ConsumerRole consumerRole = (ConsumerRole)consumer.reactorRole();
-			ReactorOAuthCredential oAuthCredential = ReactorFactory.createReactorOAuthCredential();
-			
-			oAuthCredential.clientSecret().data("ClientSecret1");
-			consumerRole.reactorOAuthCredential(oAuthCredential);
-			
-			/*
-			 * create a Client Connection.
-			*/
-			ReactorConnectOptions rcOpts = createDefaultConsumerConnectOptionsForSessionManagment(consumer, isWebsocket, protocol);
-			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
-			setupProxyForConnectOptions(connectInfo.connectOptions());
-			connectInfo.enableSessionManagement(true);
-			rcOpts.connectionList().add(connectInfo);
-
-			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.SUCCESS);
-			
-			oAuthCredential.clientSecret().data("ClientSecret2");
-			consumerRole.reactorOAuthCredential(oAuthCredential);
-			
-			assertTrue("Expected INVALID_USAGE", consumerReactor._reactor.connect(rcOpts, consumer.reactorRole(), errorInfo) == ReactorReturnCodes.INVALID_USAGE);
-			assertEquals("Expected error text", "The Client secret of ReactorOAuthCredential is not equal for the existing token session.", errorInfo.error().text());
-		}
-		finally
-		{
-			consumerReactor.close();
-		}
-	}
-	
-	@Test
 	public void RDPMultipleOpenConnections_SameUser_Diff_PasswordTest() {
 		RDPMultipleOpenConnections_SameUser_Diff_Password(false, null);
 	}
@@ -5133,6 +5070,8 @@ public class ReactorWatchlistRDPJunit
 				authOptions.username(loginRequest.userName().toString());
 				authOptions.clientId(consumerRole.clientId().toString());
 				authOptions.password(loginRequest.password().toString());
+				
+				authTokenInfo.tokenVersion(TokenVersion.V1);
 				
 				assertTrue("Expected SUCCESS", restClient.getAuthAccessTokenInfo(authOptions, restConnectOptions, authTokenInfo, true, errorInfo) == ReactorReturnCodes.SUCCESS);
 			}

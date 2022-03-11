@@ -1015,7 +1015,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 												if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
 												{
-													tokenServiceURL = (pTokenSessionImpl == 0) ? pReactorImpl->tokenServiceURLV1 : (pTokenSessionImpl->temporaryURL.data == 0) ? pTokenSessionImpl->sessionAuthUrl : pTokenSessionImpl->temporaryURL;
+													tokenServiceURL = (pTokenSessionImpl->temporaryURL.data == 0) ? pTokenSessionImpl->sessionAuthUrl : pTokenSessionImpl->temporaryURL;
 
 													/* Handling error cases to get authentication token using the password */
 													pRestRequestArgs = _reactorCreateTokenRequestV1(pReactorImpl,
@@ -1033,7 +1033,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												}
 												else
 												{
-													tokenServiceURL = (pTokenSessionImpl == 0) ? pReactorImpl->tokenServiceURLV2 : (pTokenSessionImpl->temporaryURL.data == 0) ? pTokenSessionImpl->sessionAuthUrl : pTokenSessionImpl->temporaryURL;
+													tokenServiceURL = (pTokenSessionImpl->temporaryURL.data == 0) ? pTokenSessionImpl->sessionAuthUrl : pTokenSessionImpl->temporaryURL;
 
 													pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &tokenServiceURL, &pTokenSessionImpl->pOAuthCredential->clientId,
 														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, &pTokenSessionImpl->pOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf, pUserSpec, &pTokenSessionImpl->tokenSessionWorkerCerr);
@@ -1142,6 +1142,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												/* Figure out if the credentials provided are V1 or V2 */
 												if (pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.userName.data != 0 && pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.userName.length != 0)
 												{
+													tokenServiceURL = pReactorImpl->tokenServiceURLV1;
+
 													sessionVersion = RSSL_RC_SESSMGMT_V1;
 													/* Handling error cases to get authentication token using the password */
 													pRestRequestArgs = _reactorCreateTokenRequestV1(pReactorImpl,
@@ -1159,6 +1161,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												}
 												else
 												{
+													tokenServiceURL = pReactorImpl->tokenServiceURLV2;
 													sessionVersion = RSSL_RC_SESSMGMT_V2;
 													pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &tokenServiceURL, (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientId),
 														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.tokenScope), &pOAuthCredentialRenewalImpl->rsslPostDataBodyBuf, pUserSpec, &pReactorWorker->workerCerr);

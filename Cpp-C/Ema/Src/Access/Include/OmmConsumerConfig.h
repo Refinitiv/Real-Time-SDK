@@ -114,7 +114,7 @@ public :
 	*/
 	OmmConsumerConfig& applicationId( const EmaString& applicationId );
 
-	/** Specifies an unique identifier defined for making an authentication request to the token service
+	/** Specifies an unique identifier defined for making an authentication request to the token service.
 		@param[in] clientId specifies an unique identifier.
 		@return reference to this object
 	*/
@@ -138,19 +138,19 @@ public :
 	*/
 	OmmConsumerConfig& takeExclusiveSignOnControl( bool takeExclusiveSignOnControl = true );
 
-	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+	/** Specifies an URL to override the default for token service V1 Password Credentials to perform authentication to get access and refresh tokens.
 		@param[in] tokenServiceUrl specifies an URL for token service.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& tokenServiceUrl( const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v1/token" );
 
-	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+	/** Specifies an URL to override the default for token service V1 Password Credentials to perform authentication to get access and refresh tokens.
 		@param[in] tokenServiceUrl specifies an URL for token service.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& tokenServiceUrlV1(const EmaString& tokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v1/token");
 
-	/** Specifies an URL to override the default for token service to perform authentication to get access and refresh tokens.
+	/** Specifies an URL to override the default for token service V2 Client Credentials to perform authentication to get access and refresh tokens.
 		@param[in] tokenServiceUrl specifies an URL for token service.
 		@return reference to this object
 	*/

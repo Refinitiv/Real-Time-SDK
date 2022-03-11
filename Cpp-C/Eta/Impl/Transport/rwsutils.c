@@ -648,7 +648,7 @@ static RsslRet deepCopyCookies(RsslUserCookies* outCookies, RsslUserCookies *inC
 
 		for(line = 0; line < inCookies->numberOfCookies; line++)
 		{
-			outCookies->cookie[line].data = _rsslMalloc(inCookies->cookie[line].length);
+			outCookies->cookie[line].data = _rsslMalloc(inCookies->cookie[line].length + 1);
 			if (outCookies->cookie[line].data == 0)
 			{
 				RsslInt32 index = 0;
@@ -657,15 +657,17 @@ static RsslRet deepCopyCookies(RsslUserCookies* outCookies, RsslUserCookies *inC
 				for (index = 0; index < line; index++)
 				{
 					free(outCookies->cookie[index].data);
+					outCookies->cookie[index].data = NULL;
 				}
 
 				_rsslFree(outCookies->cookie);
+
 				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Unable to allocate memory for cookies", __FILE__, __LINE__);
 				return RSSL_RET_FAILURE;
 			}
-
-			strncpy(outCookies->cookie[line].data, inCookies->cookie[line].data, inCookies->cookie[line].length + 1);
+			memset((void*)outCookies->cookie[line].data, 0, (size_t)(inCookies->cookie[line].length + 1));
+			strncpy(outCookies->cookie[line].data, inCookies->cookie[line].data, inCookies->cookie[line].length);
 			outCookies->cookie[line].length = inCookies->cookie[line].length;
 		}
 

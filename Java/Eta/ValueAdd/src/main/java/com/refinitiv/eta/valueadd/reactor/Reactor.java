@@ -1374,13 +1374,24 @@ public class Reactor
                         "Reactor.queryServiceDiscovery(): ReactorServiceEndpointEventCallback cannot be null, aborting.");
             }
 
-            if ((options.userName() == null || options.userName().length() == 0) && ((options.clientId() == null || options.clientId().length() == 0)))
+            if ((options.userName() == null || options.userName().length() == 0))
             {
-                return populateErrorInfo(errorInfo,
-                        ReactorReturnCodes.PARAMETER_INVALID,
-                        "Reactor.queryServiceDiscovery",
-                        "Required parameter username or clientId are not set");
+            	if(options.clientId() == null || options.clientId().length() == 0)
+            	{
+	                return populateErrorInfo(errorInfo,
+	                        ReactorReturnCodes.PARAMETER_INVALID,
+	                        "Reactor.queryServiceDiscovery",
+	                        "Required parameter username or clientId are not set");
+            	}
             }
+            else if(options.clientId() == null || options.clientId().length() == 0)
+            {
+            	 return populateErrorInfo(errorInfo,
+	                        ReactorReturnCodes.PARAMETER_INVALID,
+	                        "Reactor.queryServiceDiscovery",
+	                        "Required parameter clientId is not set");
+            }
+            
 
             if ((options.password() == null || options.password().length() == 0) && (options.clientSecret() == null || options.clientSecret().length() == 0 ))
             {
@@ -1538,11 +1549,18 @@ public class Reactor
             {
                 if ( oAuthCredentialRenewal.userName() == null ||oAuthCredentialRenewal.userName().isBlank() )
                 {
-                    return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal",
-                            "ReactorOAuthCredentialRenewal.userName() not provided, aborting.");
+                	if(oAuthCredentialRenewal.clientId() == null ||oAuthCredentialRenewal.clientId().isBlank() )
+                	{
+                		return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal",
+                				"ReactorOAuthCredentialRenewal.userName() or clientId() not provided, aborting.");
+                	}
                 }
 
-
+                if(oAuthCredentialRenewal.clientId() == null ||oAuthCredentialRenewal.clientId().isBlank() )
+            	{
+                	return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal",
+            				"ReactorOAuthCredentialRenewal.clientId() not provided, aborting.");
+            	}
 
                 if ( renewalOptions.reactorAuthTokenEventCallback() == null )
                 {
@@ -1551,10 +1569,10 @@ public class Reactor
                 }
             }
 
-            if (oAuthCredentialRenewal.password() == null || oAuthCredentialRenewal.password().isBlank())
+            if ((oAuthCredentialRenewal.password() == null || oAuthCredentialRenewal.password().isBlank()) && (oAuthCredentialRenewal.clientSecret() == null || oAuthCredentialRenewal.clientSecret().isBlank()))
             {
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.PARAMETER_INVALID, "Reactor.submitOAuthCredentialRenewal",
-                        "ReactorOAuthCredentialRenewal.password() not provided, aborting.");
+                        "ReactorOAuthCredentialRenewal.password() or clientSecret not provided, aborting.");
             }
 
             try
@@ -1616,6 +1634,15 @@ public class Reactor
                 restAuthOptions.password(oAuthCredentialRenewalCopy.password().toString());
                 restAuthOptions.newPassword(oAuthCredentialRenewalCopy.newPassword().toString());
                 restAuthOptions.clientSecret(oAuthCredentialRenewalCopy.clientSecret().toString());
+                
+                if(!restAuthOptions.username().isBlank())
+                {
+                	authTokenInfo.tokenVersion(TokenVersion.V1);
+                }
+                else
+                {
+                	authTokenInfo.tokenVersion(TokenVersion.V2);
+                }
 
 
                 if ( _restClient.getAuthAccessTokenInfo(restAuthOptions, restConnectOptions, authTokenInfo, true, errorInfo) != ReactorReturnCodes.SUCCESS)
