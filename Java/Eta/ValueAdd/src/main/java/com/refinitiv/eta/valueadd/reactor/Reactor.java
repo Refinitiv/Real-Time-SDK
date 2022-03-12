@@ -1635,7 +1635,7 @@ public class Reactor
                 restAuthOptions.newPassword(oAuthCredentialRenewalCopy.newPassword().toString());
                 restAuthOptions.clientSecret(oAuthCredentialRenewalCopy.clientSecret().toString());
                 
-                if(!restAuthOptions.username().isBlank())
+                if(!restAuthOptions.username().isEmpty())
                 {
                 	authTokenInfo.tokenVersion(TokenVersion.V1);
                 }
