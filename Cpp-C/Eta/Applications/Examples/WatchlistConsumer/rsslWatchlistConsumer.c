@@ -1643,6 +1643,7 @@ RsslReactorCallbackRet restLoggingCallback(RsslReactor* pReactor, RsslReactorRes
 			pOutputStream = stdout;
 
 		fprintf(pOutputStream, "{restLoggingCallback}: %s", pLogEvent->pRestLoggingMessage->data);
+		fflush(pOutputStream);
 	}
 	return RSSL_RC_CRET_SUCCESS;
 }

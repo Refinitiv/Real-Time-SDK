@@ -1204,7 +1204,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														pRestRequestArgs->networkArgs.proxyArgs.proxyUserName = pOAuthCredentialRenewalImpl->proxyUserName;
 													}
 
-													if (pReactorImpl->restEnableLog)
+													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
 														(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs,
 															pTokenSessionImpl ? &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError : &pReactorWorker->workerCerr.rsslError);
 
@@ -4056,7 +4056,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallbackV2(RsslRestResponse* 
 	RsslReactorTokenMgntEvent* pEvent;
 	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl = NULL;
 
-	if (pRsslReactorImpl->restEnableLog)
+	if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
 		(void)rsslRestResponseDump(pRsslReactorImpl, restresponse, &rsslError);
 
 	/* Releases the old memory and points the buffer to the new location. */
@@ -4331,6 +4331,7 @@ RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* 
 			pOutputStream = stdout;
 
 		fprintf(pOutputStream, "%s", restRequestBuffer->data);
+		fflush(pOutputStream);
 	}
 	if (pReactorImpl->restEnableLogCallback  &&  pReactorImpl->pRestLoggingCallback)
 	{
@@ -4386,6 +4387,7 @@ RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pR
 			pOutputStream = stdout;
 
 		fprintf(pOutputStream, "%s", pResponseBuffer->data);
+		fflush(pOutputStream);
 	}
 	if (pReactorImpl->restEnableLogCallback  &&  pReactorImpl->pRestLoggingCallback)
 	{
@@ -4439,6 +4441,7 @@ RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutp
 			pOutputStream = stdout;
 
 		fprintf(pOutputStream, "%s", pResponseErrBuffer->data);
+		fflush(pOutputStream);
 	}
 	if (pReactorImpl->restEnableLogCallback  &&  pReactorImpl->pRestLoggingCallback)
 	{
