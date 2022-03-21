@@ -9,13 +9,13 @@
 include(rcdevExternalUtils)
 
 if(NOT cjson_url)
-	set(cjson_url "https://github.com/DaveGamble/cJSON/archive/v1.7.10.tar.gz")
+	set(cjson_url "https://github.com/DaveGamble/cJSON/archive/v1.7.15.tar.gz")
 endif()
 if(NOT cjson_hash)
-	set(cjson_hash "MD5=f7ee1a04b7323440f1d7a58ea2c0c197")
+	set(cjson_hash "MD5=921b4bcb401aa604dc632fdb1c8dbdea")
 endif()
 if(NOT cjson_version)
-	set(cjson_version "1.7.10")
+	set(cjson_version "1.7.15")
 endif()
 	
 # If the option for using the system installed 
