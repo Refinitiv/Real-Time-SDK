@@ -2,14 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
 #]=============================================================================]
 
 ################################################################################################
 #[=============================================================================================[
 WARNING:  The logic contained within this block is a hack.  This hack is neccessary to account 
 for the inconsistent naming of zlib libraries from Linux to Windows with the ZLIB CMake build, 
-as of version zlib-1.2.11.  The following "work-around" will provide the logic for a patch step 
+as of version zlib-1.2.12.  The following "work-around" will provide the logic for a patch step 
 which will write out a modified CMakeLists.txt file which will build zlib static and shared 
 libraries the same naming convention expected by the CMake FindZLIB module.  This does not 
 address any other opportunities within the stock zlib CMake build.
@@ -23,7 +23,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION \"1.2.11\")
+set(VERSION \"1.2.12\")
 
 option(ASM686 \"Enable building i686 assembly implementation\")
 option(AMD64 \"Enable building amd64 assembly implementation\")
@@ -283,13 +283,13 @@ End of work around for WIN32 zlib library naming issue
 include(rcdevExternalUtils)
 
 if(NOT zlib_url)
-	set(zlib_url "https://www.zlib.net/zlib-1.2.11.tar.xz")
+	set(zlib_url "https://www.zlib.net/fossils/zlib-1.2.12.tar.gz")
 endif()
 if(NOT zlib_hash)
-	set(zlib_hash "SHA256=4ff941449631ace0d4d203e3483be9dbc9da454084111f97ea0a2114e19bf066")
+	set(zlib_hash "SHA256=91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9")
 endif()
 if(NOT zlib_version)
-	set(zlib_version "1.2.11")
+	set(zlib_version "1.2.12")
 endif()
 	
 # If the option for using the system installed 
