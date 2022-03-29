@@ -24,7 +24,7 @@ RTSDK C++/C Release 2.0.5.G1 (Mar 31, 2022)
 
 ETA C 3.6.5.G1 Issues Resolved
 --------------------------------
-- [RTSDK-6061] - Updated ZLIB library to version 1.2.12
+- [RTSDK-6101] - Updated ZLIB library to version 1.2.12
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.5.L1 (Mar 10, 2022)
