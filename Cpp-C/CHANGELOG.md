@@ -9,21 +9,22 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.5.L1 aka EMA/ETA 3.6.5.Ll aka 3.6.5.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.5.G1 aka EMA/ETA 3.6.5.Gl aka 3.6.5.1
 ----------------------------------------------------------------------------------------
 
-New Features Added
-------------------
-This release introduces oAuthClientCredentials authentication in Early Access. This feature is available for preview only with ability to obtain credentials and use it, forthcoming. In addition, this release contains a couple of enhancement requests dynamic REST interaction logging and Reactor worker thread binding. Also included are fixes and documentation clarificaitons. 
-
-Customer Issue Resoved 
------------------------
-- [Case Number: 09924064] - [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files
-- [Case Number: 10539465] - [RTSDK-5717] - Fix for posting submit failure upon reconnect to ADS
+This release updates the zlib dependency library for RTSDK.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.5.G1 (Mar 31, 2022)
+--------------------------------------------
+
+ETA C 3.6.5.G1 Issues Resolved
+--------------------------------
+- [RTSDK-6101] - Updated ZLIB library to version 1.2.12
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.5.L1 (Mar 10, 2022)
