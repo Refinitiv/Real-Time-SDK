@@ -16,6 +16,7 @@
 #include "rtr/ripcutils.h"
 #include "rtr/ripcflip.h"
 #include "rtr/ripcssljit.h"
+#include "rtr/rsslSocketTransportImpl.h"
 #include "xmlDump.h"
 
 #include <curl/curl.h>
@@ -887,9 +888,9 @@ RsslRet _rsslRestSetHttpMethod(CURL* curl, RsslUInt16 httpMethod, RsslError* err
 	return RSSL_RET_SUCCESS;
 }
 
-RsslRet rsslRestClientInitialize(char* libcurlName, RsslError *error)
+RsslRet rsslRestClientInitialize(RsslError *error)
 {
-	if ( !(rssl_rest_CurlJITFuncs = rsslInitCurlApi(libcurlName, error)) )
+	if ( !(rssl_rest_CurlJITFuncs = ipcGetCurlFuncs(error)) )
 	{
 		return RSSL_RET_FAILURE;
 	}
@@ -926,8 +927,6 @@ RsslRet rsslRestClientUninitialize(RsslError *error)
 			rssl_rest_proxy_header_list = 0;
 		}
 
-		if(rsslCurlIsInitialized())
-			rsslUninitCurlApi();
 	}
 
 	return RSSL_RET_SUCCESS;

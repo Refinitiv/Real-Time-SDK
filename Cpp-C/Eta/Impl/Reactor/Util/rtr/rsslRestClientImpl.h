@@ -371,12 +371,11 @@ typedef void RsslRestErrorCallback(RsslError*, RsslRestResponseEvent*);
 
 /** 
 * @brief Initializes the REST client. This function must be called before calling others function
-* @param libcurlName specifies the shared library name of libcurl.
 * @param pError Error structure to be populated in the event of an error.
 * @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
 * @see pRsslRestClient, RsslError
 */
-RsslRet rsslRestClientInitialize(char* libcurlName, RsslError *error);
+RsslRet rsslRestClientInitialize(RsslError *error);
 
 /**
 * @brief Uninitializes the REST client. This function must be called when no logger uses the REST client.

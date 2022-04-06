@@ -33,6 +33,7 @@ extern "C" {
 #include "rtr/rsslQueue.h"
 #include "rtr/debugPrint.h"
 #include "rtr/ripcssljit.h"
+#include "rtr/rsslCurlJIT.h"
 #include <stdio.h>
 #include "curl/curl.h"
 #if defined(_WIN32)
@@ -815,6 +816,8 @@ extern RsslRet ipcLoadOpenSSL(RsslError *error);
 extern ripcSSLApiFuncs* ipcGetOpenSSLAPIFuncs(RsslError* error);
 
 extern ripcCryptoApiFuncs* ipcGetOpenSSLCryptoFuncs(RsslError* error);
+
+RSSL_API RsslCurlJITFuncs* ipcGetCurlFuncs(RsslError* error);
 
 RsslInt32 ipcReleaseDataBuffer(RsslSocketChannel *, rtr_msgb_t *, RsslError *);
 rtr_msgb_t *ipcGetPoolBuffer(rtr_bufferpool_t *, size_t );

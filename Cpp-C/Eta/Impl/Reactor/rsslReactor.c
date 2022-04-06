@@ -1207,7 +1207,7 @@ RSSL_VA_API RsslRet rsslReactorCreateRestClient(RsslReactorImpl *pRsslReactorImp
 		RsslCreateRestClientOptions rssRestClientOpts;
 		rsslClearRestClientOptions(&rssRestClientOpts);
 
-		if (rsslRestClientInitialize(NULL, &rsslError) != RSSL_RET_SUCCESS)
+		if (rsslRestClientInitialize(&rsslError) != RSSL_RET_SUCCESS)
 		{
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to initialize RsslRestClient. Text: %s", rsslError.text);
 			return RSSL_RET_FAILURE;

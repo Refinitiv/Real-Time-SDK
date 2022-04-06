@@ -523,6 +523,26 @@ ripcCryptoApiFuncs* ipcGetOpenSSLCryptoFuncs(RsslError* error)
 	return ripcGetOpenSSLCryptoFuncs();
 }
 
+RsslCurlJITFuncs* ipcGetCurlFuncs(RsslError* error)
+{
+	if (libcurlInit == 0)
+	{
+		/* Initialize curl */
+		if (rsslInitCurlApi(transOpts.jitOpts.libcurlName, error) != NULL)
+			libcurlInit = 1;
+		else
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 0012 Unable to load CURL.\n",
+				__FILE__, __LINE__);
+
+			return NULL;
+		}
+	}
+	return rsslGetCurlFuncs();
+}
+
 RsslSocketChannel* createRsslSocketChannel()
 {
 	RsslSocketChannel* rsslSocketChannel = (RsslSocketChannel*)_rsslMalloc(sizeof(RsslSocketChannel));
@@ -8403,15 +8423,12 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 		/* If we are not using winInet, check if libcurl has been loaded and initialized.  If it has, load it */
 		if (rsslSocketChannel->usingWinInet == 0 && rsslCurlIsInitialized() == RSSL_FALSE)
 		{
-			if (rsslInitCurlApi(transOpts.jitOpts.libcurlName, error) == NULL)
+			if (ipcGetCurlFuncs(error) == NULL)
 			{
 				/* Error text has been populated in the init call */
 				ripcRelSocketChannel(rsslSocketChannel);
 				return RSSL_RET_FAILURE;
 			}
-
-			/* We called Init, so we must call Uninit when we uninitialize rssl */
-			libcurlInit = 1;
 		}
 	}
 	
