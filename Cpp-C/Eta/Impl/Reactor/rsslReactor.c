@@ -6442,7 +6442,9 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 								return RSSL_RET_SUCCESS;
 							case RSSL_MC_ACK:
 								return RSSL_RET_SUCCESS;
-							default: 
+							case RSSL_MC_GENERIC:
+								return RSSL_RET_SUCCESS;
+							default:
 								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Received unexpected msg class %u from login domain, received while setting up channel", pMsg->msgBase.msgClass);
 								if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
 									return RSSL_RET_FAILURE;
