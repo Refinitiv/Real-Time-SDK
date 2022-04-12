@@ -221,13 +221,9 @@ class ServerImpl extends EtaNode implements Server
                 socketAddress = new InetSocketAddress(_portNumber);
             else if (interfaceName.isEmpty())
                 socketAddress = new InetSocketAddress(_portNumber);
-            else
-            {
-                if (interfaceName.equals("0") || interfaceName.equals("localhost"))
-                {
-                    String ipAddress = InetAddress.getLocalHost().getHostAddress();
-                    interfaceName = ipAddress;
-                }
+            else if (interfaceName.equals("0") || interfaceName.equals("localhost")) {
+                socketAddress = new InetSocketAddress(InetAddress.getLoopbackAddress(), _portNumber);
+            } else {
                 socketAddress = new InetSocketAddress(interfaceName, _portNumber);
             }
 
