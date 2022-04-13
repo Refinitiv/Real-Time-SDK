@@ -1468,14 +1468,12 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 				_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
-				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-					(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
+				rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 				rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, &pRsslReactorImpl->accessTokenRespBuffer,
 					&errorInfo.rsslError);
 
-				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-					(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
+				rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 				free(pRestRequestArgs);
 
@@ -1556,14 +1554,12 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 			_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
-			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-				(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
+			rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 			rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, &pRsslReactorImpl->accessTokenRespBuffer,
 				&errorInfo.rsslError);
 
-			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-				(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
+			rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 			free(pRestRequestArgs);
 
@@ -1647,14 +1643,12 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 		_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
 
-		if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-			(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
+		rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 		rsslRet = rsslRestClientBlockingRequest(pRsslReactorImpl->pRestClient, pRestRequestArgs, &restResponse, 
 			&pRsslReactorImpl->serviceDiscoveryRespBuffer, &errorInfo.rsslError);
 
-		if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-			(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
+		rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 		if (restResponse.isMemReallocated)
 		{
@@ -10750,14 +10744,12 @@ RsslRet _reactorGetAccessToken(RsslReactorChannelImpl* pReactorChannelImpl, Rssl
 			{
 				_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
-				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-					(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
+				rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 				rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse, &pTokenSessionImpl->rsslAccessTokenRespBuffer,
 					&errorInfo.rsslError);
 
-				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-					(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
+				rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 				free(pRestRequestArgs);
 
@@ -11109,14 +11101,12 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 			{
 				_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
-				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-					(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
+				rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 				rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse, &pTokenSessionImpl->rsslAccessTokenRespBuffer,
 					&errorInfo.rsslError);
 
-				if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-					(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
+				rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 				free(pRestRequestArgs);
 
@@ -11435,14 +11425,12 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 			_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
 
-			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-				(void)rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
+			rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
 			rsslRet = rsslRestClientBlockingRequest(pReactorChannelImpl->pParentReactor->pRestClient, pRestRequestArgs, &restResponse,
 				&pTokenSessionImpl->rsslServiceDiscoveryRespBuffer, &errorInfo.rsslError);
 
-			if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-				(void)rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
+			rsslRestResponseDump(pRsslReactorImpl, &restResponse, &errorInfo.rsslError);
 
 			if (restResponse.isMemReallocated)
 			{

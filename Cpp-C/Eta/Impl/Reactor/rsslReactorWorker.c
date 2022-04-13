@@ -83,7 +83,7 @@ static void _reactorWorkerFreeRsslReactorOAuthCredentialRenewal(RsslReactorOAuth
 
 static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, RsslRestResponseEvent* event);
 
-static RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutput);
+static void restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutput);
 
 /* Build the ReactorWorker's thread name by format <processName>-RWT.<numeric> */
 static RsslRet _reactorWorkerBuildName(RsslReactorWorker* pReactorWorker, rtr_atomic_val reactorIndex, RsslErrorInfo* pError);
@@ -1057,9 +1057,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 													_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
 
-
-												if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-													(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs,
+													rsslRestRequestDump(pReactorImpl, pRestRequestArgs,
 														pTokenSessionImpl ? &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError : &pReactorWorker->workerCerr.rsslError);
 
 													if ((pRsslRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
@@ -1204,8 +1202,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														pRestRequestArgs->networkArgs.proxyArgs.proxyUserName = pOAuthCredentialRenewalImpl->proxyUserName;
 													}
 
-													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-														(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs,
+													rsslRestRequestDump(pReactorImpl, pRestRequestArgs,
 															pTokenSessionImpl ? &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError : &pReactorWorker->workerCerr.rsslError);
 
 													if (sessionVersion == RSSL_RC_SESSMGMT_V1)
@@ -1839,8 +1836,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
 
-								if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-									(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError);
+								rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError);
 
 								if ((pTokenSessionImpl->pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 									rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
@@ -2029,8 +2025,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 						_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
 
-						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
+						rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
 
 						if ((pReactorChannel->pRestHandle = rsslRestClientNonBlockingRequest(pReactorChannel->pParentReactor->pRestClient, pRestRequestArgs,
 							rsslRestServiceDiscoveryResponseCallback,
@@ -2221,8 +2216,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts, pRestRequestArgs);
 
-								if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-									(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
+								rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
 
 								if ( (pTokenSession->pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 									rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
@@ -2310,8 +2304,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						{
 							_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts, pRestRequestArgs);
 
-							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
+							rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
 
 							if ( (pTokenSession->pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 								rsslRestAuthTokenResponseCallback,
@@ -2840,8 +2833,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 
 	pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
-	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-		(void)rsslRestResponseDump(pReactorImpl, restresponse, &rsslError);
+	rsslRestResponseDump(pReactorImpl, restresponse, &rsslError);
 
 	/* Releases the old memory and points the buffer to the new location. */
 	if (restresponse->isMemReallocated)
@@ -3011,8 +3003,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
-				if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-					(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
+				rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
 
 				if ((pReactorChannel->pRestHandle = rsslRestClientNonBlockingRequest(pReactorChannel->pParentReactor->pRestClient, pRestRequestArgs,
 					rsslRestServiceDiscoveryResponseCallback,
@@ -3088,8 +3079,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
-				if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-					(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
+				rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
 
 				if ((pReactorChannel->pRestHandle = rsslRestClientNonBlockingRequest(pReactorChannel->pParentReactor->pRestClient, pRestRequestArgs,
 					rsslRestServiceDiscoveryResponseCallback,
@@ -3179,8 +3169,7 @@ static void rsslRestErrorCallback(RsslError* rsslError, RsslRestResponseEvent* e
 
 	pReactorConnectInfoImpl = _reactorGetCurrentReactorConnectInfoImpl(pReactorChannel);
 
-	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-		(void)restResponseErrDump(pReactorImpl, rsslError);
+	restResponseErrDump(pReactorImpl, rsslError);
 
 	rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 		"Failed to send the REST request. Text: %s", rsslError->text);
@@ -3229,8 +3218,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = NULL;
 	RsslQueueLink *pLink;
 
-	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-		(void)rsslRestResponseDump(pReactorImpl, restresponse, &rsslError);
+	rsslRestResponseDump(pReactorImpl, restresponse, &rsslError);
 
 	/* Releases the old memory and points the buffer to the new location. */
 	if (restresponse->isMemReallocated)
@@ -3478,8 +3466,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 						_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
 
-						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
+						rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
 
 						if ((pReactorChannel->pRestHandle = rsslRestClientNonBlockingRequest(pReactorChannel->pParentReactor->pRestClient, pRestRequestArgs,
 							rsslRestServiceDiscoveryResponseCallback,
@@ -3620,8 +3607,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					{
 						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts, pRestRequestArgs);
 
-						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
+						rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
 
 						if ((pReactorTokenSession->pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 							rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
@@ -3733,8 +3719,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					{
 						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts, pRestRequestArgs);
 
-						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
+						rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
 
 						if ((pReactorTokenSession->pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 							rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
@@ -3892,8 +3877,7 @@ static void rsslRestAuthTokenErrorCallback(RsslError* rsslError, RsslRestRespons
 	RsslReactorConnectInfoImpl *pReactorConnectInfoImpl = NULL;
 	RsslQueueLink *pLink;
 
-	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogCallback)
-		(void)restResponseErrDump(pReactorImpl, rsslError);
+	restResponseErrDump(pReactorImpl, rsslError);
 
 	rsslSetErrorInfo(&pReactorTokenSession->tokenSessionWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 		"Failed to send the REST request. Text: %s", rsslError->text);
@@ -3941,8 +3925,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallbackV1(RsslRestResponse* 
 	RsslReactorTokenMgntEvent *pEvent;
 	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = NULL;
 
-	if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-		(void)rsslRestResponseDump(pRsslReactorImpl, restresponse, &rsslError);
+	rsslRestResponseDump(pRsslReactorImpl, restresponse, &rsslError);
 
 	/* Releases the old memory and points the buffer to the new location. */
 	if (restresponse->isMemReallocated)
@@ -4056,8 +4039,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallbackV2(RsslRestResponse* 
 	RsslReactorTokenMgntEvent* pEvent;
 	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl = NULL;
 
-	if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-		(void)rsslRestResponseDump(pRsslReactorImpl, restresponse, &rsslError);
+	rsslRestResponseDump(pRsslReactorImpl, restresponse, &rsslError);
 
 	/* Releases the old memory and points the buffer to the new location. */
 	if (restresponse->isMemReallocated)
@@ -4170,8 +4152,7 @@ static void rsslRestErrorWithoutSessionCallback(RsslError* rsslError, RsslRestRe
 	RsslReactorTokenMgntEvent *pEvent;
 	RsslReactorErrorInfoImpl *pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
 
-	if (pRsslReactorImpl->restEnableLog || pRsslReactorImpl->restEnableLogCallback)
-		(void)restResponseErrDump(pRsslReactorImpl, rsslError);
+	restResponseErrDump(pRsslReactorImpl, rsslError);
 
 	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
 
@@ -4299,27 +4280,28 @@ void getProgramTitle(char* title, const RsslUInt32 buflen)
 }
 #endif
 
-RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError)
+void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError)
 {
 	if (pError == NULL)
-		return RSSL_RET_INVALID_ARGUMENT;
+		return;
 	if (pReactorImpl == NULL || pRestRequestArgs == NULL)
-		return RSSL_RET_INVALID_ARGUMENT;
+		return;
+	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogCallback == RSSL_FALSE)
+		return;
 
 	// Allocates memory for buffer and fills up it.
 	RsslBuffer* restRequestBuffer = rsslRestRequestDumpBuffer(pRestRequestArgs, pError);
 
 	if (restRequestBuffer == NULL)
-		return RSSL_RET_FAILURE;
+		return;
 	if (restRequestBuffer->data == NULL || restRequestBuffer->length == 0)
 	{
 		if (restRequestBuffer->data)
 			free(restRequestBuffer->data);
 		free(restRequestBuffer);
-		return RSSL_RET_FAILURE;
+		return;
 	}
 
-	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslBool shouldFreeBuffer = RSSL_TRUE;
 
 	if (pReactorImpl->restEnableLog)
@@ -4343,7 +4325,7 @@ RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* 
 		rsslClearReactorLoggingEvent(pEvent);
 		pEvent->pRestLoggingMessage = restRequestBuffer;
 
-		ret = rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent);
+		rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent);
 	}
 
 	if (shouldFreeBuffer == RSSL_TRUE)
@@ -4352,30 +4334,31 @@ RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* 
 		free(restRequestBuffer);
 	}
 
-	return ret;
+	return;
 }
 
-RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError)
+void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError)
 {
 	if (pError == NULL)
-		return RSSL_RET_INVALID_ARGUMENT;
+		return;
 	if (pReactorImpl == NULL || pRestResponseArgs == NULL)
-		return RSSL_RET_INVALID_ARGUMENT;
+		return;
+	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogCallback == RSSL_FALSE)
+		return;
 
 	// Allocates memory for buffer and fills up it.
 	RsslBuffer* pResponseBuffer = rsslRestResponseDumpBuffer(pRestResponseArgs, pError);
 
 	if (pResponseBuffer == NULL)
-		return RSSL_RET_FAILURE;
+		return;
 	if (pResponseBuffer->data == NULL || pResponseBuffer->length == 0)
 	{
 		if (pResponseBuffer->data)
 			free(pResponseBuffer->data);
 		free(pResponseBuffer);
-		return RSSL_RET_FAILURE;
+		return;
 	}
 
-	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslBool shouldFreeBuffer = RSSL_TRUE;
 
 	if (pReactorImpl->restEnableLog)
@@ -4399,7 +4382,7 @@ RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pR
 		rsslClearReactorLoggingEvent(pEvent);
 		pEvent->pRestLoggingMessage = pResponseBuffer;
 
-		ret = rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent);
+		rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent);
 	}
 
 	if (shouldFreeBuffer == RSSL_TRUE)
@@ -4408,28 +4391,31 @@ RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pR
 		free(pResponseBuffer);
 	}
 
-	return ret;
+	return;
 }
 
-RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutput)
+void restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutput)
 {
 	if (pErrorOutput == NULL)
-		return RSSL_RET_INVALID_ARGUMENT;
+		return;
+	if (pReactorImpl == NULL)
+		return;
+	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogCallback == RSSL_FALSE)
+		return;
 
 	// Allocates memory for buffer and fills up it.
 	RsslBuffer* pResponseErrBuffer = rsslRestResponseErrDumpBuffer(pErrorOutput);
 
 	if (pResponseErrBuffer == NULL)
-		return RSSL_RET_FAILURE;
+		return;
 	if (pResponseErrBuffer->data == NULL || pResponseErrBuffer->length == 0)
 	{
 		if (pResponseErrBuffer->data)
 			free(pResponseErrBuffer->data);
 		free(pResponseErrBuffer);
-		return RSSL_RET_FAILURE;
+		return;
 	}
 
-	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslBool shouldFreeBuffer = RSSL_TRUE;
 
 	if (pReactorImpl->restEnableLog)
@@ -4453,7 +4439,7 @@ RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutp
 		rsslClearReactorLoggingEvent(pEvent);
 		pEvent->pRestLoggingMessage = pResponseErrBuffer;
 
-		ret = rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent);
+		rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent);
 	}
 
 	if (shouldFreeBuffer == RSSL_TRUE)
@@ -4462,5 +4448,5 @@ RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutp
 		free(pResponseErrBuffer);
 	}
 
-	return ret;
+	return;
 }

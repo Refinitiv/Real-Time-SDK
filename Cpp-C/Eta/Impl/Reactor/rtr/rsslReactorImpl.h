@@ -1813,10 +1813,9 @@ RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
 *  otherwise print out to the output stream.
 * @param pRestRequestArgs specifies REST request data.
 * @param pError Error structure to be populated in the event of an error.
-* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
 * @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
 */
-RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError);
+void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError);
 
 /**
 * @brief Print out the given input argument to the output stream.
@@ -1824,10 +1823,9 @@ RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* 
 *  otherwise print out to the output stream.
 * @param pRestResponseArgs specifies REST response data.
 * @param pError Error structure to be populated in the event of an error.
-* @return RSSL_RET_SUCCESS if perform successfully otherwise the error codes.
 * @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
 */
-RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
+void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
 
 #ifdef __cplusplus
 };
