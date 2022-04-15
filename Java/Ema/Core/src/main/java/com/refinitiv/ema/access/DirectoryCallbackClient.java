@@ -101,7 +101,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 			{
 				com.refinitiv.eta.codec.State state = ((DirectoryRefresh)directoryMsg).state();
 	
-				if (state.streamState() != com.refinitiv.eta.codec.StreamStates.OPEN)
+				if (state.streamState() != StreamStates.OPEN)
 				{
 					_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
 	
@@ -156,7 +156,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 		    	{
 					com.refinitiv.eta.codec.State state = ((DirectoryStatus)directoryMsg).state();
 	
-					if (state.streamState() != com.refinitiv.eta.codec.StreamStates.OPEN)
+					if (state.streamState() != StreamStates.OPEN)
 					{
 						_ommBaseImpl.closeRsslChannel(rsslReactorChannel);
 	
@@ -329,7 +329,7 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				{
 					Service existService = null;
 					Directory existDirectory = null; 
-			        if (_serviceById.size() > 0)
+			        if (_serviceById.size() > 0 && _serviceById.containsKey(oneService.serviceId()))
 			        {
 			        	existDirectory = _serviceById.get(oneService.serviceId());
 			        	existService = existDirectory.service();
@@ -401,9 +401,10 @@ class DirectoryCallbackClient<T> extends CallbackClient<T> implements RDMDirecto
 				case MapEntryActions.DELETE :
 				{
 					Service existService = null;
-			        if (_serviceById.size() > 0)
-			        	existService = _serviceById.get(oneService.serviceId()).service();
-					
+			        if (_serviceById.size() > 0 && _serviceById.containsKey(oneService.serviceId()))
+					{
+						existService = _serviceById.get(oneService.serviceId()).service();
+					}
 					if (existService == null)
 					{
 						if (_baseImpl.loggerClient().isErrorEnabled())
