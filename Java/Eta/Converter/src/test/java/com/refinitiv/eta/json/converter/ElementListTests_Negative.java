@@ -13,9 +13,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.TransportFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
@@ -45,9 +48,14 @@ public class ElementListTests_Negative {
                 .build(convError);
     }
 
+    @After
+    public void tearDown() {
+        convError = null;
+        converter = null;
+    }
+
     @Test
     public void testError_notObject() throws JsonProcessingException {
-
         String wrongJson = "[{}]";
         JsonNode wrongNode = mapper.readTree(wrongJson);
         converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeRWF(wrongNode, "", null, convError);
@@ -57,57 +65,124 @@ public class ElementListTests_Negative {
 
     @Test
     public void testError_entryNotObject() throws JsonProcessingException {
-
         String wrongJson = "{\"name\":[]}";
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(200));
         EncodeIterator iter = CodecFactory.createEncodeIterator();
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
-        JsonNode wrongNode = mapper.readTree(wrongJson);
-        converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeRWF(wrongNode, "", iter, convError);
-        assertTrue(convError.isFailed());
-        assertEquals(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, convError.getCode());
+        testWrongJsonData(iter, wrongJson, converter.getContainerHandler(DataTypes.ELEMENT_LIST), JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE);
     }
 
     @Test
     public void testError_entryMissingType() throws JsonProcessingException {
-
         String wrongJson = "{\"name\":{\"Data\":25}}";
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(200));
         EncodeIterator iter = CodecFactory.createEncodeIterator();
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
-        JsonNode wrongNode = mapper.readTree(wrongJson);
-        converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeRWF(wrongNode, "", iter, convError);
-        assertTrue(convError.isFailed());
-        assertEquals(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, convError.getCode());
+        testWrongJsonData(iter, wrongJson, converter.getContainerHandler(DataTypes.ELEMENT_LIST), JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY);
     }
 
     @Test
     public void testError_entryMissingData() throws JsonProcessingException {
-
         String wrongJson = "{\"name\":{\"Type\":\"UInt\"}}";
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(200));
         EncodeIterator iter = CodecFactory.createEncodeIterator();
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
-        JsonNode wrongNode = mapper.readTree(wrongJson);
-        converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeRWF(wrongNode, "", iter, convError);
-        assertTrue(convError.isFailed());
-        assertEquals(JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY, convError.getCode());
+        testWrongJsonData(iter, wrongJson, converter.getContainerHandler(DataTypes.ELEMENT_LIST), JsonConverterErrorCodes.JSON_ERROR_MISSING_KEY);
     }
 
     @Test
     public void testError_entryUnsupportedDataType() throws JsonProcessingException {
-
         String wrongJson = "{\"name\":{\"Type\":\"Unsupported\",\"Data\":1234}}";
         Buffer buf = CodecFactory.createBuffer();
         buf.data(ByteBuffer.allocate(200));
         EncodeIterator iter = CodecFactory.createEncodeIterator();
         iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        testWrongJsonData(iter, wrongJson, converter.getContainerHandler(DataTypes.ELEMENT_LIST), JsonConverterErrorCodes.JSON_ERROR_UNSUPPORTED_DATA_TYPE);
+    }
+
+    @Test
+    public void testError_entryUintValueOutsideRange() throws JsonProcessingException {
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.ELEMENT_LIST);
+        int expectedErrorCode = JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE;
+
+        String wrongJson = "{\"name\":{\"Type\":\"UInt\",\"Data\": 18446744073709551616}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"UInt1\",\"Data\": -1}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"UInt1\",\"Data\": 256}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"UInt2\",\"Data\": 65536}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"UInt4\",\"Data\": 4294967296}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"UInt8\",\"Data\": 18446744073709551616}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+    }
+
+    @Test
+    public void testError_entryIntValueOutsideRange() throws JsonProcessingException {
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.ELEMENT_LIST);
+        int expectedErrorCode = JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE;
+
+        String wrongJson = "{\"name\":{\"Type\":\"Int\",\"Data\": 18446744073709551616}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int\",\"Data\": 125.1212}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int\",\"Data\": 9223372036854775808}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int\",\"Data\": -9223372036854775809}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int1\",\"Data\": 9223372036854775807}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int1\",\"Data\": -129}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int2\",\"Data\": 32768}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int2\",\"Data\": -32769}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int4\",\"Data\": 2147483648}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int4\",\"Data\": -2147483649}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int8\",\"Data\": 9223372036854775808}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+
+        wrongJson = "{\"name\":{\"Type\":\"Int8\",\"Data\": -9223372036854775809}}";
+        testWrongJsonData(iter, wrongJson, containerHandler, expectedErrorCode);
+    }
+
+    private void testWrongJsonData(EncodeIterator iter, String wrongJson,
+            AbstractContainerTypeConverter containerHandler, int jsonConverterErrorCode) throws JsonProcessingException {
+        convError.clear();
         JsonNode wrongNode = mapper.readTree(wrongJson);
-        converter.getContainerHandler(DataTypes.ELEMENT_LIST).encodeRWF(wrongNode, "", iter, convError);
+        containerHandler.encodeRWF(wrongNode, "", iter, convError);
         assertTrue(convError.isFailed());
-        assertEquals(JsonConverterErrorCodes.JSON_ERROR_UNSUPPORTED_DATA_TYPE, convError.getCode());
+        assertEquals(jsonConverterErrorCode, convError.getCode());
     }
 }

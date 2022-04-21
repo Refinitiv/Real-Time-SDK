@@ -11,8 +11,10 @@ package com.refinitiv.eta.json.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.TransportFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,6 +48,12 @@ public class FieldListTests_Negative {
                 .build(convError);
     }
 
+    @After
+    public void tearDown() {
+        convError = null;
+        converter = null;
+    }
+
     @Test
     public void testError_notObject() throws JsonProcessingException {
 
@@ -68,5 +76,20 @@ public class FieldListTests_Negative {
         converter.getContainerHandler(DataTypes.FIELD_LIST).encodeRWF(wrongNode, "", iter, convError);
         assertTrue(convError.isFailed());
         assertEquals(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_FID, convError.getCode());
+    }
+
+    @Test
+    public void testError_fieldsOutsideBounds() throws JsonProcessingException {
+        String wrongJson = "{\"RDN_EXCHID\":-100,\"PRCTCK_1\":65537,\"TRD_UNITS\":00}";
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        mapper.enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS.mappedFeature());
+        JsonNode wrongNode = mapper.readTree(wrongJson);
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.FIELD_LIST);
+        containerHandler.encodeRWF(wrongNode, "", iter, convError);
+        assertTrue(convError.isFailed());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, convError.getCode());
     }
 }

@@ -15,9 +15,13 @@ import com.refinitiv.eta.codec.EncodeIterator;
 import com.refinitiv.eta.codec.UInt;
 import com.refinitiv.eta.json.util.JsonFactory;
 
+import java.math.BigInteger;
+
 import static com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 
 class JsonLongConverter extends AbstractPrimitiveTypeConverter {
+
+    public static final BigInteger MAX_BIG_INTEGER_VALUE = new BigInteger("18446744073709551615");
 
     JsonLongConverter(JsonAbstractConverter converter) {
         super(converter);
@@ -43,7 +47,11 @@ class JsonLongConverter extends AbstractPrimitiveTypeConverter {
 
     @Override
     boolean writeToJson(JsonBuffer outBuffer, Object type, JsonConverterError error) {
-        return BasicPrimitiveConverter.writeLong(((UInt) type).toLong(), outBuffer, error);
+        final long longValue = ((UInt) type).toLong();
+        if(longValue < 0)
+            return BasicPrimitiveConverter.writeBigInteger(((UInt) type).toBigInteger(), outBuffer, error);
+        else
+            return BasicPrimitiveConverter.writeLong(longValue, outBuffer, error);
     }
 
     @Override
@@ -92,6 +100,50 @@ class JsonLongConverter extends AbstractPrimitiveTypeConverter {
         } finally {
             JsonFactory.releaseUInt(encUIntValue);
         }
+    }
 
+    @Override
+    boolean isInRange(int dataType, JsonNode dataNode) {
+        if (dataNode.isDouble() || dataNode.isFloat()) {
+            return false;
+        }
+        if (dataNode.isBigInteger()) {
+            if (dataType == DataTypes.UINT || dataType == DataTypes.UINT_8) {
+                BigInteger bigValue = dataNode.bigIntegerValue();
+                return bigValue.compareTo(MAX_BIG_INTEGER_VALUE) <= 0;
+            }
+            return false;
+        }
+
+        long value = dataNode.asLong();
+        switch (dataType) {
+            case (DataTypes.UINT):
+            case (DataTypes.UINT_8):
+                if (value >= 0 && value <= Long.MAX_VALUE) {
+                    return true;
+                }
+                break;
+
+            case (DataTypes.UINT_1):
+                if (value >= 0 && value <= 255) {
+                    return true;
+                }
+                break;
+
+            case (DataTypes.UINT_2):
+                if (value >= 0 && value <= 65535) {
+                    return true;
+                }
+                break;
+
+            case (DataTypes.UINT_4):
+                if (value >= 0 && value <= 4294967295L) {
+                    return true;
+                }
+                break;
+            default:
+                return false;
+        }
+        return false;
     }
 }

@@ -14,6 +14,7 @@ import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.json.util.JsonFactory;
 
 import static com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
+import static com.refinitiv.eta.json.converter.JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE;
 
 class JsonEnumerationConverter extends AbstractPrimitiveTypeConverter {
 
@@ -131,8 +132,12 @@ class JsonEnumerationConverter extends AbstractPrimitiveTypeConverter {
  	   Enum encIntValue = JsonFactory.createEnum();
         try {
             encIntValue.clear();
-            encIntValue.value(enumValue);
-            int result = encIntValue.encode(iter);
+            int result = encIntValue.value(enumValue);
+            if (result != SUCCESS) {
+                error.setError(JSON_ERROR_UNEXPECTED_VALUE, "Received '" + enumValue + "'");
+                return;
+            }
+            result = encIntValue.encode(iter);
             if (result != SUCCESS) {
                 error.setEncodeError(result, key);
                 return;

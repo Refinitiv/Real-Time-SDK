@@ -13,6 +13,7 @@ import com.refinitiv.eta.json.util.JsonFactory;
 
 import java.lang.Double;
 import java.lang.Float;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 
@@ -206,6 +207,17 @@ class BasicPrimitiveConverter {
         int length = getLongLengthCompare(value);
         if (BufferHelper.checkAndResize(buffer, length, error)) {
             writeLong(value, length, buffer.position, buffer.data);
+            buffer.position += length;
+            return true;
+        } else
+            return false;
+    }
+
+    static boolean writeBigInteger(BigInteger value, JsonBuffer buffer, JsonConverterError error ) {
+        final char[] bigIntegerCharArr = value.toString().toCharArray();
+        int length = bigIntegerCharArr.length;
+        if (BufferHelper.checkAndResize(buffer, length, error)) {
+            BufferHelper.copyToByteArray(bigIntegerCharArr, buffer.position, buffer.data);
             buffer.position += length;
             return true;
         } else

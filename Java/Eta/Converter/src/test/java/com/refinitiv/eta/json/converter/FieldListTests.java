@@ -8,10 +8,12 @@
 
 package com.refinitiv.eta.json.converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.TransportFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +71,12 @@ public class FieldListTests {
                 .build(convError);
 
 
+    }
+
+    @After
+    public void tearDown() {
+        convError = null;
+        converter = null;
     }
 
     @Test
@@ -223,6 +231,20 @@ public class FieldListTests {
                 {6, new int[] {DataTypes.MAP} },
                 {7, new int[] {DataTypes.VECTOR} }
         });
+    }
+
+    @Test
+    public void fieldsInsideBounds() throws JsonProcessingException {
+        String json = "{\"RDN_EXCHID\":100,\"PRCTCK_1\":65535,\"TRD_UNITS\":0}";
+        Buffer buf = CodecFactory.createBuffer();
+        buf.data(ByteBuffer.allocate(200));
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        iter.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode node = mapper.readTree(json);
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.FIELD_LIST);
+        containerHandler.encodeRWF(node, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_NO_ERROR_CODE, convError.getCode());
     }
 }
 

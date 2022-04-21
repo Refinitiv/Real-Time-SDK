@@ -88,4 +88,43 @@ class JsonIntConverter extends AbstractPrimitiveTypeConverter {
             JsonFactory.releaseInt(encIntValue);
         }
     }
+
+    @Override
+    boolean isInRange(int dataType, JsonNode dataNode) {
+        if (dataNode.isBigInteger() ||
+            dataNode.isDouble() ||
+            dataNode.isFloat()) {
+            return false;
+        }
+        long value = dataNode.asLong();
+        switch (dataType) {
+            case (DataTypes.INT):
+            case (DataTypes.INT_8):
+                if (value >= Long.MIN_VALUE && value <= Long.MAX_VALUE) {
+                    return true;
+                }
+                break;
+
+            case (DataTypes.INT_1):
+                if (value >= Byte.MIN_VALUE && value <= Byte.MAX_VALUE) {
+                    return true;
+                }
+                break;
+
+            case (DataTypes.INT_2):
+                if (value >= Short.MIN_VALUE && value <= Short.MAX_VALUE) {
+                    return true;
+                }
+                break;
+
+            case (DataTypes.INT_4):
+                if (value >= Integer.MIN_VALUE && value <= Integer.MAX_VALUE) {
+                    return true;
+                }
+                break;
+            default:
+                return false;
+        }
+        return false;
+    }
 }

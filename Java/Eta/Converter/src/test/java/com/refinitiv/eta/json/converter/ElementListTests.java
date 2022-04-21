@@ -12,12 +12,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.TransportFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,8 +66,12 @@ public class ElementListTests {
                 .setProperty(JsonConverterProperties.JSON_CPC_EXPAND_ENUM_FIELDS, true)
                 .setDictionary(dictionary)
                 .build(convError);
+    }
 
-
+    @After
+    public void tearDown() {
+        convError = null;
+        converter = null;
     }
 
     @Test
@@ -230,5 +236,168 @@ public class ElementListTests {
                 {12, new int[] {DataTypes.MSG} },
                 {13, new int[] {DataTypes.ANSI_PAGE} }
         });
+    }
+
+    @Test
+    public void entryUintValueInsideRange() throws IOException {
+        Buffer inputBuf = CodecFactory.createBuffer();
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        DecodeIterator decIter = CodecFactory.createDecodeIterator();
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.ELEMENT_LIST);
+
+        long value = Long.MAX_VALUE;
+        String json = String.format("{\"name\":{\"Type\":\"UInt\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Byte.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"UInt1\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Short.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"UInt2\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Integer.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"UInt4\",\"Data\": %d}}", value);
+        inputBuf.data(ByteBuffer.allocate(200));
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Long.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"UInt8\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+    }
+
+    @Test
+    public void entryIntTypeInsideRange() throws IOException {
+        Buffer inputBuf = CodecFactory.createBuffer();
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        DecodeIterator decIter = CodecFactory.createDecodeIterator();
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.ELEMENT_LIST);
+
+        long value = Long.MAX_VALUE;
+        String json = String.format("{\"name\":{\"Type\":\"Int\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = 0;
+        json = String.format("{\"name\":{\"Type\":\"Int\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = -1;
+        json = String.format("{\"name\":{\"Type\":\"Int\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Long.MIN_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Byte.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int1\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Byte.MIN_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int1\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Short.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int2\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Short.MIN_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int2\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Integer.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int4\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Integer.MIN_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int4\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Long.MAX_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int8\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = Long.MIN_VALUE;
+        json = String.format("{\"name\":{\"Type\":\"Int8\",\"Data\": %d}}", value);
+        testJsonConverterValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+    }
+
+    private void testJsonConverterValidData(Buffer inputBuf, EncodeIterator iter, DecodeIterator decIter,
+            String json, JsonConverterError convError,
+            AbstractContainerTypeConverter containerHandler, long value) throws IOException {
+        inputBuf.clear();
+        iter.clear();
+        decIter.clear();
+        inputBuf.data(ByteBuffer.allocate(200));
+        iter.setBufferAndRWFVersion(inputBuf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode node = mapper.readTree(json);
+        containerHandler.encodeRWF(node, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_NO_ERROR_CODE, convError.getCode());
+
+        decIter.setBufferAndRWFVersion(inputBuf, Codec.majorVersion(), Codec.minorVersion());
+        JsonBuffer outputBuf = new JsonBuffer();
+        outputBuf.data = new byte[200];
+        assertTrue(containerHandler.encodeJson(decIter, outputBuf, false, null, convError));
+        node = mapper.readTree(outputBuf.data);
+        JsonNode jsonNode = node.get(node.fieldNames().next());
+        long result = jsonNode.isLong() || jsonNode.isInt() ? jsonNode.asLong() : jsonNode.path(JSON_DATA).asLong();
+        assertEquals(value, result);
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_NO_ERROR_CODE, convError.getCode());
+    }
+
+    @Test
+    public void entryUintBigIntegerValueInsideRange() throws IOException {
+        Buffer inputBuf = CodecFactory.createBuffer();
+        EncodeIterator iter = CodecFactory.createEncodeIterator();
+        DecodeIterator decIter = CodecFactory.createDecodeIterator();
+        AbstractContainerTypeConverter containerHandler = converter.getContainerHandler(DataTypes.ELEMENT_LIST);
+
+        BigInteger value = new BigInteger(Long.toString(Long.MAX_VALUE));
+        String json = String.format("{\"name\":{\"Type\":\"UInt\",\"Data\": %d}}", value);
+        testJsonConverterBigIntegerValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = new BigInteger("18446744073709551614");
+        json = String.format("{\"name\":{\"Type\":\"UInt\",\"Data\": %d}}", value);
+        testJsonConverterBigIntegerValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = new BigInteger("18446744073709551615");
+        json = String.format("{\"name\":{\"Type\":\"UInt\",\"Data\": %d}}", value);
+        testJsonConverterBigIntegerValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = new BigInteger("18446744073709551614");
+        json = String.format("{\"name\":{\"Type\":\"UInt8\",\"Data\": %d}}", value);
+        testJsonConverterBigIntegerValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+
+        value = new BigInteger("18446744073709551615");
+        json = String.format("{\"name\":{\"Type\":\"UInt8\",\"Data\": %d}}", value);
+        testJsonConverterBigIntegerValidData(inputBuf, iter, decIter, json, convError, containerHandler, value);
+    }
+
+    private void testJsonConverterBigIntegerValidData(Buffer inputBuf, EncodeIterator iter, DecodeIterator decIter,
+                                                      String json, JsonConverterError convError,
+                                                      AbstractContainerTypeConverter containerHandler, BigInteger value) throws IOException {
+        inputBuf.clear();
+        iter.clear();
+        decIter.clear();
+        inputBuf.data(ByteBuffer.allocate(200));
+        iter.setBufferAndRWFVersion(inputBuf, Codec.majorVersion(), Codec.minorVersion());
+        JsonNode node = mapper.readTree(json);
+        containerHandler.encodeRWF(node, "", iter, convError);
+        assertTrue(convError.isSuccessful());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_NO_ERROR_CODE, convError.getCode());
+
+        decIter.setBufferAndRWFVersion(inputBuf, Codec.majorVersion(), Codec.minorVersion());
+        JsonBuffer outputBuf = new JsonBuffer();
+        outputBuf.data = new byte[200];
+        boolean condition = containerHandler.encodeJson(decIter, outputBuf, false, null, convError);
+        assertTrue(condition);
+        node = mapper.readTree(outputBuf.data);
+        JsonNode jsonNode = node.get(node.fieldNames().next());
+        BigInteger bigVal = jsonNode.bigIntegerValue();
+        int result = bigVal.compareTo(value);
+        assertEquals(0, result);
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_NO_ERROR_CODE, convError.getCode());
     }
 }

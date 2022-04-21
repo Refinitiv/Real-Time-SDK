@@ -8,6 +8,7 @@
 
 package com.refinitiv.eta.json.converter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
 import com.refinitiv.eta.codec.CodecReturnCodes;
@@ -72,6 +73,7 @@ abstract class AbstractPrimitiveTypeConverter extends AbstractTypeConverter {
 
     Object getPrimitiveType() { return null; }
     void releasePrimitiveType(Object type) {}
+    boolean isInRange(int dataType, JsonNode dataNode) { return true;}
 
     abstract int decode(DecodeIterator decIter, Object type);
     abstract boolean writeToJson(JsonBuffer outBuffer, Object type, JsonConverterError error);

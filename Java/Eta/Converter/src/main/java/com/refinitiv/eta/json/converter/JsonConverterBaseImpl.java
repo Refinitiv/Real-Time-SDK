@@ -10,6 +10,7 @@ package com.refinitiv.eta.json.converter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.json.util.JsonFactory;
 import com.refinitiv.eta.rdm.DomainTypes;
@@ -767,7 +768,9 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
             ByteBuffer data = buffer.data();
             ByteBufferInputStream stream = inputStream.get();
             stream.setByteBuffer(data, buffer.dataStartPosition(), data.limit());
-            jsonConverterState.setCurrentRoot(mapper.get().readTree(stream));
+            ObjectMapper objectMapper = mapper.get();
+            objectMapper.enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS.mappedFeature());
+            jsonConverterState.setCurrentRoot(objectMapper.readTree(stream));
             jsonConverterState.getCurrentBufferData().data(data);
         } catch (IOException e) {
             byte[] data = new byte[buffer.length()];
@@ -816,6 +819,12 @@ class JsonConverterBaseImpl extends JsonAbstractConverter {
         if (subParser == null) {
             error.setError(JsonConverterErrorCodes.JSON_ERROR_UNSUPPORTED_MESSAGE,"Unknown datatype to parse: [" + dataType + "]");
             return;
+        }
+        if (subParser instanceof AbstractPrimitiveTypeConverter) {
+            if (!((AbstractPrimitiveTypeConverter) subParser).isInRange(dataType, dataNode)) {
+                error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE,"Value outside the range: [" + dataType + "]");
+                return;
+            }
         }
         subParser.encodeRWF(dataNode, key, iterator, error);
     }
