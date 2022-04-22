@@ -239,7 +239,7 @@ public class FieldListTests extends TestCase
 
         // Create a ETA Buffer to encode into
         com.refinitiv.eta.codec.Buffer buf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-        buf.data(ByteBuffer.allocate(4096));
+        buf.data(ByteBuffer.allocate(8192));
 
         // Encode FieldList with ETA.
         int retVal;

@@ -358,9 +358,14 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 				{			
 					int dType = dataType(rsslDictionaryEntry.rwfType(), _rsslMajVer, _rsslMinVer, fieldEntry._rsslFieldEntry.encodedData());
 					load = dataInstance(fieldEntry._load, dType);
-					if ( dType < DataType.DataTypes.FIELD_LIST || dType == DataType.DataTypes.ANSI_PAGE )
-						load.decode(fieldEntry._rsslFieldEntry.encodedData(),_rsslDecodeIter);
-					else
+					if ( dType < DataType.DataTypes.FIELD_LIST || dType == DataType.DataTypes.ANSI_PAGE ) {
+						int decodeRetVal = load.decode(fieldEntry._rsslFieldEntry.encodedData(), _rsslDecodeIter);
+						if(decodeRetVal == com.refinitiv.eta.codec.CodecReturnCodes.INVALID_ARGUMENT ||
+								decodeRetVal ==	com.refinitiv.eta.codec.CodecReturnCodes.INCOMPLETE_DATA){
+							load = dataInstance(load, DataTypes.ERROR);
+							load.decode(fieldEntry._rsslFieldEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+						}
+					} else
 						load.decode(fieldEntry._rsslFieldEntry.encodedData(), _rsslMajVer, _rsslMinVer, _rsslDictionary, _rsslLocalFLSetDefDb);
 				}
 				break;

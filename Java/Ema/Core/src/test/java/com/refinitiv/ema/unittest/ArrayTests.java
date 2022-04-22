@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import com.refinitiv.ema.access.*;
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.Array;
@@ -32,15 +33,6 @@ import com.refinitiv.eta.codec.RealHints;
 import com.refinitiv.eta.codec.State;
 import com.refinitiv.eta.codec.Time;
 import com.refinitiv.ema.access.Data.DataCode;
-import com.refinitiv.ema.access.DataType;
-import com.refinitiv.ema.access.EmaFactory;
-import com.refinitiv.ema.access.JUnitTestConnect;
-import com.refinitiv.ema.access.OmmArray;
-import com.refinitiv.ema.access.OmmArrayEntry;
-import com.refinitiv.ema.access.OmmException;
-import com.refinitiv.ema.access.OmmQos;
-import com.refinitiv.ema.access.OmmReal;
-import com.refinitiv.ema.access.OmmState;
 
 
 public class ArrayTests
@@ -834,6 +826,10 @@ public class ArrayTests
 			real.value(-33, RealHints.FRACTION_2);
 			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
 
+			real.value(22801, 31);
+			assertEquals(arrayEntry.encode(iter, real), CodecReturnCodes.SUCCESS);
+			iter.buffer().data().put(iter.buffer().data().position() - 2, (byte)0x1F);
+
 			assertEquals(array.encodeComplete(iter, true), CodecReturnCodes.SUCCESS);
 
 				//Now do EMA decoding of OmmArray
@@ -871,8 +867,14 @@ public class ArrayTests
 				TestUtilities.checkResult( ae3.loadType()== DataType.DataTypes.REAL, "OmmArrayEntry.loadType() == DataType.DataTypes.REAL" );
 				TestUtilities.checkResult( ae3.real().mantissa() == -33, "OmmArrayEntry.real().mantissa()" );
 				TestUtilities.checkResult( ae3.real().magnitudeType() == OmmReal.MagnitudeType.DIVISOR_2, "OmmArrayEntry.real().magnitudeType()" );
+
+				TestUtilities.checkResult( arIter.hasNext(), "OmmArray with three Real - fourth next()" );
+				OmmArrayEntry ae4 = arIter.next();
+				TestUtilities.checkResult( ae4.loadType() == DataType.DataTypes.ERROR, "OmmArrayEntry.loadType() == DataType.DataTypes.ERROR" );
+				TestUtilities.checkResult( ae4.code() == Data.DataCode.NO_CODE, "OmmArrayEntry.code()" );
+				TestUtilities.checkResult( ae4.error().errorCode() == OmmError.ErrorCode.INCOMPLETE_DATA, "OmmArrayEntry.error().errorCode()" );
 	       
-				TestUtilities.checkResult( !arIter.hasNext(), "OmmArray with three Real - fourth next()" );
+				TestUtilities.checkResult( !arIter.hasNext(), "OmmArray with three Real - fifth next()" );
 
 			
 				arIter = ar.iterator();
@@ -906,8 +908,14 @@ public class ArrayTests
 					TestUtilities.checkResult( ae3.loadType()== DataType.DataTypes.REAL, "OmmArrayEntry.loadType() == DataType.DataTypes.REAL" );
 					TestUtilities.checkResult( ae3.real().mantissa() == -33, "OmmArrayEntry.real().mantissa()" );
 					TestUtilities.checkResult( ae3.real().magnitudeType() == OmmReal.MagnitudeType.DIVISOR_2, "OmmArrayEntry.real().magnitudeType()" );
-	       
-					TestUtilities.checkResult( !arIter.hasNext(), "OmmArray with three Real - fourth next()" );
+
+					TestUtilities.checkResult( arIter.hasNext(), "OmmArray with three Real - fourth next()" );
+					ae4 = arIter.next();
+					TestUtilities.checkResult( ae4.loadType() == DataType.DataTypes.ERROR, "OmmArrayEntry.loadType() == DataType.DataTypes.ERROR" );
+					TestUtilities.checkResult( ae4.code() == Data.DataCode.NO_CODE, "OmmArrayEntry.code()" );
+					TestUtilities.checkResult( ae4.error().errorCode() == OmmError.ErrorCode.INCOMPLETE_DATA, "OmmArrayEntry.error().errorCode()" );
+
+					TestUtilities.checkResult( !arIter.hasNext(), "OmmArray with three Real - fifth next()" );
 				}
 
 				TestUtilities.checkResult( true, "OmmArray with three Real - exception not expected" );

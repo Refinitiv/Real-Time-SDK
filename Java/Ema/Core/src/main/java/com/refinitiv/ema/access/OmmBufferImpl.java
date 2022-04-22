@@ -41,11 +41,13 @@ class OmmBufferImpl extends DataImpl implements OmmBuffer
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		if (_rsslBuffer.decode(dIter) == CodecReturnCodes.SUCCESS)
 			_dataCode = DataCode.NO_CODE;
 		else
 			_dataCode = DataCode.BLANK;
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

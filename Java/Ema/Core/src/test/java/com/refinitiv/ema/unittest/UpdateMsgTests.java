@@ -608,7 +608,7 @@ public class UpdateMsgTests extends TestCase
 
         // Create a ETA Buffer to encode into
         com.refinitiv.eta.codec.Buffer buffer = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-        buffer.data(ByteBuffer.allocate(8192));
+        buffer.data(ByteBuffer.allocate(12288));
         
     	int majorVersion = Codec.majorVersion();  // This should be initialized to the MAJOR version of RWF being encoded
 		int minorVersion = Codec.minorVersion();  // This should be initialized to the MINOR version of RWF being encoded

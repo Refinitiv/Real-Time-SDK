@@ -221,7 +221,7 @@ class OmmStateImpl extends DataImpl implements OmmState
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
@@ -232,6 +232,8 @@ class OmmStateImpl extends DataImpl implements OmmState
 			_dataCode = DataCode.BLANK;
 			_rsslState.clear();
 		}
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 	
 	void decode(com.refinitiv.eta.codec.State rsslState)

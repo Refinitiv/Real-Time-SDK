@@ -34,7 +34,7 @@ class OmmDoubleImpl extends DataImpl implements OmmDouble
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
@@ -45,5 +45,6 @@ class OmmDoubleImpl extends DataImpl implements OmmDouble
 			_dataCode = DataCode.BLANK;
 			_rsslDouble.blank();
 		}
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

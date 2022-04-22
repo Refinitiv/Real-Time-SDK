@@ -80,7 +80,9 @@ class DataImpl extends VaNode implements Data
 
 	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, int errorCode) {}
 	
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter) {}
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter) {
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
+	}
 	
 	void decode(com.refinitiv.eta.codec.Msg rsslMsg, int majVer, int minVer,
 			com.refinitiv.eta.codec.DataDictionary rsslDictionary) {}

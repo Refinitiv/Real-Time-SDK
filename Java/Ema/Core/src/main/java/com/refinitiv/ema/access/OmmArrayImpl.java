@@ -287,7 +287,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 	}
 
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_fillCollection = true;
 
@@ -303,7 +303,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 		{
 			_dataCode = _rsslBuffer.length() > 0 ? DataCode.NO_CODE : DataCode.BLANK;
 			_errorCode = ErrorCode.ITERATOR_SET_FAILURE;
-			return;
+			return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 		}
 		
 		_rsslArray.clear();
@@ -333,6 +333,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			_errorCode = ErrorCode.UNKNOWN_ERROR;
 			break;
 		}
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 
 	void fillCollection()
@@ -360,8 +361,14 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			{
 			case com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS :
 			load = dataInstance(arrayEntry._load, _rsslArray.primitiveType());
-			load.decode(arrayEntry._rsslArrayEntry.encodedData(),_rsslDecodeIter);
-			break;
+				int decodeRetVal = load.decode(arrayEntry._rsslArrayEntry.encodedData(), _rsslDecodeIter);
+				if(decodeRetVal == com.refinitiv.eta.codec.CodecReturnCodes.INVALID_ARGUMENT ||
+						decodeRetVal ==	com.refinitiv.eta.codec.CodecReturnCodes.INCOMPLETE_DATA)
+				{
+					load = dataInstance(load, DataTypes.ERROR);
+					load.decode(arrayEntry._rsslArrayEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);
+				}
+				break;
 			case com.refinitiv.eta.codec.CodecReturnCodes.INCOMPLETE_DATA :
 				load = dataInstance(arrayEntry._load, DataTypes.ERROR);
 				load.decode(arrayEntry._rsslArrayEntry.encodedData(),ErrorCode.INCOMPLETE_DATA);

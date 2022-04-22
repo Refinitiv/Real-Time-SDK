@@ -42,7 +42,7 @@ class OmmUIntImpl extends DataImpl implements OmmUInt
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
@@ -53,5 +53,7 @@ class OmmUIntImpl extends DataImpl implements OmmUInt
 			_dataCode = DataCode.BLANK;
 			_rsslUInt.clear();
 		}
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

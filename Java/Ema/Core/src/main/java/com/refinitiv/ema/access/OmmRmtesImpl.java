@@ -40,7 +40,7 @@ class OmmRmtesImpl extends DataImpl implements OmmRmtes
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		if (_rmtesBuffer.applyToCache())
 			_rmtesBuffer.clear();
@@ -51,5 +51,6 @@ class OmmRmtesImpl extends DataImpl implements OmmRmtes
 			_dataCode = DataCode.BLANK;
 		
 	   _rsslBuffer = _rmtesBuffer.rsslBuffer();
+	   return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

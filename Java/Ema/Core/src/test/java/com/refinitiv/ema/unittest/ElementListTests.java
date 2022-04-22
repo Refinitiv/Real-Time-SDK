@@ -229,7 +229,7 @@ public class ElementListTests extends TestCase
 
         // Create a ETA Buffer to encode into
         com.refinitiv.eta.codec.Buffer buf = com.refinitiv.eta.codec.CodecFactory.createBuffer();
-        buf.data(ByteBuffer.allocate(14240));
+        buf.data(ByteBuffer.allocate(16384));
 
         // Encode ElementList with ETA.
         int retVal;

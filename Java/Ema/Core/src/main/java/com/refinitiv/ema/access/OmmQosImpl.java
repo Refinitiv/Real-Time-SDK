@@ -148,7 +148,7 @@ class OmmQosImpl extends DataImpl implements OmmQos
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
@@ -159,6 +159,8 @@ class OmmQosImpl extends DataImpl implements OmmQos
 			_dataCode = DataCode.BLANK;
 			_rsslQos.clear();
 		}
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 	
 	void decode(com.refinitiv.eta.codec.Qos rsslQos)

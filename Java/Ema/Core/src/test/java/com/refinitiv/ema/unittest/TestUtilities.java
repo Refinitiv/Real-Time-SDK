@@ -310,9 +310,9 @@ public final class TestUtilities extends TestCase
 		    {
 				// create a date and populate {day, month, year}
 				com.refinitiv.eta.codec.Date date = CodecFactory.createDate();
-				date.month(11);
-				date.day(30);
-				date.year(2010);
+				date.month(1);
+				date.day(31);
+				date.year(2022);
 				
 				com.refinitiv.eta.codec.Real real = CodecFactory.createReal();
 				com.refinitiv.eta.codec.Time time = CodecFactory.createTime();
@@ -730,7 +730,43 @@ public final class TestUtilities extends TestCase
 					return retVal;
 				}
 				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded : " + enumValue.toInt());
-	
+
+				// TWENTY SIXTH Field Entry: encode entry for corrupted Real primitive type
+				// using Date FID
+				fieldEntry.fieldId(16);
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.REAL);
+				real.value(22801, RealHints.EXPONENT_4);
+				if ((retVal = fieldEntry.encode(encodeIter, real)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal));
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded Real: hint: " + real.hint() + " value: " + real.toLong());
+
+				// TWENTY SEVENTH Field Entry: encode entry from corrupted the Date
+				// primitive type using Real FID
+				fieldEntry.fieldId(6);
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.DATE);
+				if ((retVal = fieldEntry.encode(encodeIter, date)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal));
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded Date: " + date.month() + "-" + date.day() + "-" + date.year());
+
+				// TWENTY EIGHTH Field Entry: encode entry from corrupted the DATE
+				// primitive type using TIME FID
+				fieldEntry.fieldId(5);
+				fieldEntry.dataType(com.refinitiv.eta.codec.DataTypes.DATE);
+				if ((retVal = fieldEntry.encode(encodeIter, date)) < CodecReturnCodes.SUCCESS)
+				{
+					System.out.println("ETA error " + CodecReturnCodes.toString(retVal) + "(" + retVal + ") encountered with EncodeFieldEntry.  "
+							+ "Error Text: " + CodecReturnCodes.info(retVal));
+					return retVal;
+				}
+				System.out.println("\t\tFID " + fieldEntry.fieldId() + " Encoded Date: " + date.month() + "-" + date.day() + "-" + date.year());
 			}
 			
 			if ( (encodeFlag & EncodingTypeFlags.CONTAINER_TYPES) != 0 )
@@ -1355,6 +1391,9 @@ public final class TestUtilities extends TestCase
 			com.refinitiv.eta.codec.Double doubleVal = CodecFactory.createDouble();
 			doubleVal.value(1.345);
 
+			Real real = CodecFactory.createReal();
+			real.value(22801, 31);
+
 			// FIRST Element Entry: encode entry from the Time primitive type
 			// Populate and encode element entry with name and dataType information.
 			elemEntry.name().data("Element - Time");
@@ -1403,6 +1442,16 @@ public final class TestUtilities extends TestCase
 			System.out.println("\tEncoding Element Entry (name: " + elemEntry.name() + ")");
 			retVal = elemEntry.encode(encodeIter, doubleVal);
 			System.out.println("\t\tEncoded Float: " + doubleVal.toDouble());
+
+//			// SEVENTH Element Entry: encode entry from the Real primitive type
+//			// Populate and encode element entry with name and dataType information
+			elemEntry.clear(); // clear this to ensure a blank element
+			elemEntry.name().data("Element - Real - Invalid");
+			elemEntry.dataType(com.refinitiv.eta.codec.DataTypes.REAL);
+			System.out.println("\tEncoding Element Entry (name: " + elemEntry.name() + ")");
+			retVal = elemEntry.encode(encodeIter, real);
+			System.out.println("\t\tEncoded Real: " + real);
+			encodeIter.buffer().data().put(encodeIter.buffer().data().position() - 2, (byte)0x1F);
 	    }
 		
 		if ( (encodeFlag & EncodingTypeFlags.CONTAINER_TYPES) != 0 )
@@ -9042,9 +9091,9 @@ public final class TestUtilities extends TestCase
 	        checkResult(fe2.loadType(), com.refinitiv.ema.access.DataType.DataTypes.DATE);
 	        checkResult(fe2.load().dataType(), com.refinitiv.ema.access.DataType.DataTypes.DATE);
 	        checkResult(fe2.code(), Data.DataCode.NO_CODE);
-	        checkResult(fe2.date().day(), 30);
-	        checkResult(fe2.date().month(), 11);
-	        checkResult(fe2.date().year(), 2010);
+	        checkResult(fe2.date().day(), 31);
+	        checkResult(fe2.date().month(), 1);
+	        checkResult(fe2.date().year(), 2022);
 	       
 	        // check third field entry
 	        checkResult(iter.hasNext());
@@ -9326,7 +9375,37 @@ public final class TestUtilities extends TestCase
 	        checkResult(fe25.enumValue() == 2, "enumValue() == 2");
 	        checkResult(fe25.hasEnumDisplay(), "hasEnumDisplay() == true");
 	        checkResult(fe25.enumDisplay().equals("  EURO  ") , "enumDisplay() == \"  EURO  \"");
-	        
+
+			// check twenty sixth entry
+			checkResult(iter.hasNext());
+			com.refinitiv.ema.access.FieldEntry fe26 = iter.next();
+			checkResult(fe26.fieldId(), 16);
+			checkResult(fe26.name(), "TRADE_DATE");
+			checkResult(fe26.loadType(), DataTypes.ERROR);
+			checkResult(fe26.load().dataType(), DataTypes.ERROR);
+			checkResult(fe26.code(), Data.DataCode.NO_CODE);
+			checkResult(fe26.error().errorCode(), OmmError.ErrorCode.INCOMPLETE_DATA);
+
+			// check twenty seventh field entry
+			checkResult(iter.hasNext());
+			com.refinitiv.ema.access.FieldEntry fe27 = iter.next();
+			checkResult(fe27.fieldId(), 6);
+			checkResult(fe27.name(), "TRDPRC_1");
+			checkResult(fe27.loadType(), DataTypes.ERROR);
+			checkResult(fe27.load().dataType(), DataTypes.ERROR);
+			checkResult(fe27.code(), Data.DataCode.NO_CODE);
+			checkResult(fe27.error().errorCode(), OmmError.ErrorCode.INCOMPLETE_DATA);
+
+			// check twenty eighth field entry
+			checkResult(iter.hasNext());
+			com.refinitiv.ema.access.FieldEntry fe28 = iter.next();
+			checkResult(fe28.fieldId(), 5);
+			checkResult(fe28.name(), "TIMACT");
+			checkResult(fe28.loadType(), DataTypes.ERROR);
+			checkResult(fe28.load().dataType(), DataTypes.ERROR);
+			checkResult(fe28.code(), Data.DataCode.NO_CODE);
+			checkResult(fe28.error().errorCode(), OmmError.ErrorCode.INCOMPLETE_DATA);
+
 	        if ( encodeOption == EncodingTypeFlags.PRIMITIVE_TYPES )
 	        	checkResult(!iter.hasNext()); //final forth() - no more field entries
        	}
@@ -9610,6 +9689,15 @@ public final class TestUtilities extends TestCase
 	        checkResult(ee6.load().dataType(), com.refinitiv.ema.access.DataType.DataTypes.DOUBLE);
 	        checkResult(ee6.code(), Data.DataCode.NO_CODE);
 	        checkResult(ee6.doubleValue(), 1.345);
+
+			// check seventh element entry
+			checkResult(elIter.hasNext());
+			com.refinitiv.ema.access.ElementEntry ee7 = elIter.next();
+			checkResult(ee7.name(), "Element - Real - Invalid");
+			checkResult(ee7.loadType(), DataTypes.ERROR);
+			checkResult(ee7.load().dataType(), DataTypes.ERROR);
+			checkResult(ee7.code(), Data.DataCode.NO_CODE);
+			checkResult(ee7.error().errorCode(), OmmError.ErrorCode.INCOMPLETE_DATA);
 	        
 	        if ( encodeOption == EncodingTypeFlags.PRIMITIVE_TYPES )
 	        	checkResult(!elIter.hasNext()); //final forth() - no more element entries

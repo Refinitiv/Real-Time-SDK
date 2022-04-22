@@ -34,7 +34,7 @@ class OmmEnumImpl extends DataImpl implements OmmEnum
 	}
 
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
@@ -45,5 +45,7 @@ class OmmEnumImpl extends DataImpl implements OmmEnum
 			_dataCode = DataCode.BLANK;
 			_rsslEnum.clear();
 		}
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

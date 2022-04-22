@@ -64,16 +64,21 @@ class OmmTimeImpl extends DataImpl implements OmmTime
 	}
 
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
-		if (com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS == _rsslTime.decode(dIter))
+		int decodeRetValue = _rsslTime.decode(dIter);
+		if (com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS == decodeRetValue)
 			_dataCode = DataCode.NO_CODE;
+		else if (com.refinitiv.eta.codec.CodecReturnCodes.INCOMPLETE_DATA == decodeRetValue)
+			return com.refinitiv.eta.codec.CodecReturnCodes.INCOMPLETE_DATA;
 		else
 		{
 			_dataCode = DataCode.BLANK;
 			_rsslTime.blank();
 		}
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

@@ -34,7 +34,7 @@ class OmmFloatImpl extends DataImpl implements OmmFloat
 	}
 	
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
@@ -45,5 +45,7 @@ class OmmFloatImpl extends DataImpl implements OmmFloat
 			_dataCode = DataCode.BLANK;
 			_rsslFloat.blank();
 		}
+
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }

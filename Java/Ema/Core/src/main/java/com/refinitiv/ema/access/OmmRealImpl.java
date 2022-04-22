@@ -168,16 +168,21 @@ class OmmRealImpl extends DataImpl implements OmmReal
 	}
 
 	@Override
-	void decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
+	public int decode(com.refinitiv.eta.codec.Buffer rsslBuffer, com.refinitiv.eta.codec.DecodeIterator dIter)
 	{
 		_rsslBuffer = rsslBuffer;
 
-		if (com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS == _rsslReal.decode(dIter))
+		int decodeRetValue = _rsslReal.decode(dIter);
+		if (com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS == decodeRetValue)
 			_dataCode = DataCode.NO_CODE;
+		else if (com.refinitiv.eta.codec.CodecReturnCodes.INVALID_ARGUMENT == decodeRetValue){
+			return com.refinitiv.eta.codec.CodecReturnCodes.INVALID_ARGUMENT;
+		}
 		else
 		{
 			_dataCode = DataCode.BLANK;
 			_rsslReal.blank();
 		}
+		return com.refinitiv.eta.codec.CodecReturnCodes.SUCCESS;
 	}
 }
