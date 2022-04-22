@@ -727,6 +727,20 @@ class WlStream extends VaNode
         _ackMsg.ackId(postMsg.postId());
         _ackMsg.seqNum(postMsg.seqNum());
 
+        if(postMsg.checkHasMsgKey()) {
+            if(postMsg.msgKey().checkHasName()) {
+                _ackMsg.applyHasMsgKey();
+                _ackMsg.msgKey().applyHasName();
+                _ackMsg.msgKey().name(postMsg.msgKey().name());
+            }
+
+            if(postMsg.msgKey().checkHasServiceId()) {
+                _ackMsg.applyHasMsgKey();
+                _ackMsg.msgKey().applyHasServiceId();
+                _ackMsg.msgKey().serviceId(postMsg.msgKey().serviceId());
+            }
+        }
+
         if (postMsg.checkHasSeqNum())
             _ackMsg.applyHasSeqNum();
          

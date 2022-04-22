@@ -1767,12 +1767,14 @@ class WlItemHandler implements WlHandler
             msg.streamId(wlStream._streamId);
             ret = wlStream.sendMsg(msg, submitOptions, errorInfo);
             msg.streamId(userStreamId);
-			 // reset service id if necessary
-            if (resetServiceId)
+
+            // reset service id if checkAck() return false
+            if( resetServiceId && (!((PostMsg) msg).checkAck() || ( ret < ReactorReturnCodes.SUCCESS)))
             {
-                ((PostMsg)msg).msgKey().flags(((PostMsg)msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
-                ((PostMsg)msg).msgKey().serviceId(0);
-            }  
+                ((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+                ((PostMsg) msg).msgKey().serviceId(0);
+                resetServiceId = false;
+            }
             if (ret < ReactorReturnCodes.SUCCESS)
                 return ret;
             else
@@ -1784,6 +1786,13 @@ class WlItemHandler implements WlHandler
                       
                       // update post tables
                       ret = wlStream.updatePostTables((PostMsg)msg, errorInfo);
+
+                      // reset service id if necessary
+                      if (resetServiceId)
+                      {
+                          ((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+                          ((PostMsg) msg).msgKey().serviceId(0);
+                      }
                   }
             }
         }

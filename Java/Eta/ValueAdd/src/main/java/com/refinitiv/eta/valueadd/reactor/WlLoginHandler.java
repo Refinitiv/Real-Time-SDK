@@ -269,13 +269,14 @@ class WlLoginHandler implements WlHandler
 		            ret = _stream.sendMsg(msg, submitOptions, errorInfo);
 		            msg.streamId(userStreamId);
 
- 					// reset service id if necessary
-	                if (resetServiceId)
-	                {
-	                    ((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
-	                    ((PostMsg) msg).msgKey().serviceId(0);
-	                }              
-	                
+					// reset service id if checkAck() return false
+					if( resetServiceId && (!((PostMsg) msg).checkAck() || ( ret < ReactorReturnCodes.SUCCESS)))
+					{
+						((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+						((PostMsg) msg).msgKey().serviceId(0);
+						resetServiceId = false;
+					}
+
 	                // return if send message not successful
 		            if (ret < ReactorReturnCodes.SUCCESS)
 		                return ret;
@@ -288,6 +289,13 @@ class WlLoginHandler implements WlHandler
 		                      
 		                      // update post tables
 		                      ret = _stream.updatePostTables((PostMsg)msg, errorInfo);
+
+							  // reset service id if necessary
+							  if (resetServiceId)
+							  {
+								  ((PostMsg) msg).msgKey().flags(((PostMsg) msg).msgKey().flags() & ~MsgKeyFlags.HAS_SERVICE_ID);
+								  ((PostMsg) msg).msgKey().serviceId(0);
+							  }
 		                  }
 		            }
 				} 
