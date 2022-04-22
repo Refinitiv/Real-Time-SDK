@@ -51,6 +51,7 @@ class AppClient implements OmmProviderClient
 	public void onGenericMsg(GenericMsg genericMsg, OmmProviderEvent providerEvent) {}
 	public void onPostMsg(PostMsg postMsg, OmmProviderEvent providerEvent) {
 		System.out.println("Received PostMsg with id: " + postMsg.postId());
+		System.out.println(postMsg);
 		if(postMsg.solicitAck()) {
 			AckMsg ackMsg = EmaFactory.createAckMsg();
 			if(postMsg.hasSeqNum()){

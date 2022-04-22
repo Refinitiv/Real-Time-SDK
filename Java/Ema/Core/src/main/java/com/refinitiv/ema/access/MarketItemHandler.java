@@ -339,7 +339,7 @@ class MarketItemHandler implements DefaultMsgCallback
 					GenericMsgImpl genericMsg = _ommServerBaseImpl.genericMsg();
 
 					genericMsg.decode(msg, reactorChannel.majorVersion(),
-							reactorChannel.minorVersion(), getDataDictionary(itemInfo));
+							reactorChannel.minorVersion(), getDataDictionary(itemInfo, msg));
 
 					setCommonProviderEventAttributes(reactorChannel, itemInfo.handle(), clientSession.clientHandle());
 
@@ -540,7 +540,7 @@ class MarketItemHandler implements DefaultMsgCallback
 		}
 		PostMsgImpl postMsg = _ommServerBaseImpl.postMsg();
 		postMsg.decode(msg, reactorChannel.majorVersion(),
-				reactorChannel.minorVersion(), getDataDictionary(itemInfo));
+				reactorChannel.minorVersion(), getDataDictionary(itemInfo, msg));
 
 		if (((PostMsg) msg).checkHasMsgKey() && msg.msgKey().checkHasServiceId())
 		{
@@ -548,7 +548,7 @@ class MarketItemHandler implements DefaultMsgCallback
 			if (serviceName == null)
 			{
 				StringBuilder temp = _ommServerBaseImpl.strBuilder();
-				temp.append("Request Message invalid - the service Id = ").append(msg.msgKey().serviceId())
+				temp.append("Post Message invalid - the service Id = ").append(msg.msgKey().serviceId())
 						.append(" does not exist in the source directory.");
 
 				if (_ommServerBaseImpl.loggerClient().isTraceEnabled())
@@ -625,11 +625,14 @@ class MarketItemHandler implements DefaultMsgCallback
 	}
 
 
-	private DataDictionary getDataDictionary(ItemInfo itemInfo)
+	private DataDictionary getDataDictionary(ItemInfo itemInfo, Msg msg)
 	{
 		if (itemInfo.msgKey().checkHasServiceId())
 		{
 			return _ommServerBaseImpl.dictionaryHandler().getDictionaryByServiceId(itemInfo.msgKey().serviceId());
+		} else if (msg.msgKey().checkHasServiceId())
+		{
+		return _ommServerBaseImpl.dictionaryHandler().getDictionaryByServiceId(msg.msgKey().serviceId());
 		}
 		return null;
 	}
