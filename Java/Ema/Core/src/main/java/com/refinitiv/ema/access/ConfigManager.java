@@ -122,6 +122,7 @@ class ConfigManager
 	public static final int ChannelName = 103;
 	public static final int ChannelType = 104;
 	public static final int ChannelInitTimeout = 105;
+	public static final int ServiceDiscoveryRetryCount = 106;
 	
 	// Channel: Socket, HTTP, Encrypted, WebSocket
 	public static final int ChannelCompressionThreshold = 200;
@@ -356,6 +357,7 @@ class ConfigManager
 		ChannelTagDict.add( "SysRecvBufSize",SysRecvBufSize );
 		ChannelTagDict.add( "SysSendBufSize",SysSendBufSize );
 		ChannelTagDict.add( "HighWaterMark",HighWaterMark );
+		ChannelTagDict.add( "ServiceDiscoveryRetryCount", ServiceDiscoveryRetryCount);
 		
 		// ConnectionTypes.SOCKET, ConnectionTypes.HTTP, ConnectionTypes.ENCRYPTED 
 		ChannelTagDict.add( "CompressionThreshold",ChannelCompressionThreshold );
@@ -701,6 +703,7 @@ class ConfigManager
 		"WorkerEventPoolLimit",
 		"ReactorChannelEventPoolLimit",
 		"ReactorMsgEventPoolLimit",
+		"ServiceDiscoveryRetryCount",
 		"TunnelStreamMsgEventPoolLimit",
 		"TunnelStreamStatusEventPoolLimit"
 	};

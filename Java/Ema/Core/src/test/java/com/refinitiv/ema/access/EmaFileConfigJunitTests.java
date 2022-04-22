@@ -202,6 +202,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("Host == 0.0.0.1", chanHost.contentEquals("0.0.0.1"));
 		String chanPort = JUnitTestConnect.configGetChanPort(testConfig, ConsChannelVal);
 		TestUtilities.checkResult("Port == 19001", chanPort.contentEquals("19001"));
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ServiceDiscoveryRetryCount);
+		TestUtilities.checkResult("ServiceDiscoveryRetryCount value == 5", intLongValue == 5 );
 		
 		// Check Channel_2 configuration.
 		ConsChannelVal = "Channel_2";
@@ -236,6 +238,8 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ObjectName == HttpObjectName", strValue.contentEquals("HttpObjectName"));
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout);
 		TestUtilities.checkResult("InitializationTimeout == 55", intLongValue == 55);
+		intLongValue = JUnitTestConnect.configGetIntValue(testConfig, ConsChannelVal, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ServiceDiscoveryRetryCount);
+		TestUtilities.checkResult("ServiceDiscoveryRetryCount value == 0", intLongValue == 0 );
 
 		// Check Channel_3 configuration.
 		ConsChannelVal = "Channel_3";
@@ -1020,6 +1024,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("TcpNodelay", 0));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("DirectWrite", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("InitializationTimeout", 66));
+			innerElementList.add(EmaFactory.createElementEntry().intValue( "ServiceDiscoveryRetryCount", 100 ));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Channel_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -1164,6 +1169,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("Port == 14002", chanPort.contentEquals("14002"));
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout, 0);
 			TestUtilities.checkResult("InitializationTimeout == 66", intLongValue == 66);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ServiceDiscoveryRetryCount, 0);
+			TestUtilities.checkResult("ServiceDiscoveryRetryCount value == 100", intLongValue == 100 );
 			
 			// Check Dictionary_1 configuration.
 			ConsDictionary = "Dictionary_1";

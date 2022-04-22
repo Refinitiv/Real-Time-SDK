@@ -20,9 +20,9 @@ public class ReactorConnectOptions
     private final int DEFAULT_DELAY = 1000;
     
     List<ReactorConnectInfo> _connectionList;
-    int _reconnectAttemptLimit;
-    int _reconnectMinDelay = DEFAULT_DELAY;
-    int _reconnectMaxDelay = DEFAULT_DELAY;
+    int     _reconnectAttemptLimit;
+    int     _reconnectMinDelay = DEFAULT_DELAY;
+    int     _reconnectMaxDelay = DEFAULT_DELAY;
 
     ReactorConnectOptions()
     {

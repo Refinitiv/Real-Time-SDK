@@ -80,6 +80,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static String DEFAULT_WS_PROTOCOLS					= "tr_json2, rssl.rwf, rssl.json.v2";
 	final static int DEFAULT_WS_MAX_MSG_SIZE					= 61440;
 	final static int DEFAULT_MAX_FRAGMENT_SIZE 					= 6144;
+	final static int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT		= 3;
 	
 	final static int SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL   = 0x01;  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 	final static int SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL = 0x02;  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -192,8 +193,9 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t loginRequestTimeOut: ").append(loginRequestTimeOut)
 		.append("\n\t wsProtocols: ").append(wsProtocols)
 		.append("\n\t wsMaxMsgSize: ").append(wsMaxMsgSize)
-		.append("\n\t maxFragmentSize: ").append(maxFragmentSize);
-		
+		.append("\n\t maxFragmentSize: ").append(maxFragmentSize)
+		.append("\n\t serviceDiscoveryRetryCount: ");
+
 		return traceStr;
 	}
 	

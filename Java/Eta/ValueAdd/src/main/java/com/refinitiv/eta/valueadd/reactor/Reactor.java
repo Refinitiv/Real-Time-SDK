@@ -1272,11 +1272,6 @@ public class Reactor
                     reactorChannel.state(State.EDP_RT_DONE);
                 }
             }
-            else
-            {
-                /* Waits for a service discovery response for non-blocking request. */
-                reactorChannel.state(State.EDP_RT);
-            }
         }
         else
         {

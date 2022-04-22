@@ -28,6 +28,7 @@ class ChannelConfig
 	int					wsMaxMsgSize;
 	String				location;
 	boolean				enableSessionMgnt;
+	int 				serviceDiscoveryRetryCount;
 
 
 	ChannelConfig() 
@@ -54,6 +55,7 @@ class ChannelConfig
 		compressionThresholdSet = false;
 		location = ActiveConfig.DEFAULT_REGION_LOCATION;
 		enableSessionMgnt = ActiveConfig.DEFAULT_ENABLE_SESSION_MGNT;
+		serviceDiscoveryRetryCount = ActiveConfig.DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
 	}
 	
 	void guaranteedOutputBuffers(long value) 
@@ -65,6 +67,15 @@ class ChannelConfig
 	{
 		if ( value > 0 )
 			numInputBuffers = (int)(value > Integer.MAX_VALUE ? Integer.MAX_VALUE : value);
+	}
+
+	void serviceDiscoveryRetryCount(long value)
+	{
+		if (value >= 0) {
+			serviceDiscoveryRetryCount = value > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int)value;
+		} else {
+			serviceDiscoveryRetryCount = ActiveConfig.DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
+		}
 	}
 }
 

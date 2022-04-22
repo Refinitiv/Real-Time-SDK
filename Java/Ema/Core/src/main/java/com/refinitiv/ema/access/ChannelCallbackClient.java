@@ -727,12 +727,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					connectOptions = _rsslReactorConnOptions.connectionList().get(i).connectOptions();
 					connectOptions.userSpecObject(channelInfo);
 					_rsslReactorConnOptions.connectionList().get(i).initTimeout(channelConfig.initializationTimeout);
+					_rsslReactorConnOptions.connectionList().get(i).serviceDiscoveryRetryCount(channelConfig.serviceDiscoveryRetryCount);
 				}
 				else
 				{
 					
 					ReactorConnectInfo newReactConnInfo = ReactorFactory.createReactorConnectInfo();
 					newReactConnInfo.initTimeout(channelConfig.initializationTimeout);
+					newReactConnInfo.serviceDiscoveryRetryCount(channelConfig.serviceDiscoveryRetryCount);
 					connectOptions = newReactConnInfo.connectOptions();
 					connectOptions.userSpecObject(channelInfo);
 					_rsslReactorConnOptions.connectionList().add(newReactConnInfo);					

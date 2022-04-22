@@ -63,6 +63,7 @@ class ProgrammaticConfigure
 		final static int ENABLE_SESSION_MGNT_FLAG =				0x8000; // Enable the reactor to refresh the token and reissue login request.
 		final static int LOCATION_FLAG = 						0x10000; // Specify a location to get an endpoint for establishing a connection.
 		final static int ENCRYPTED_PROTOCOL_FLAG =				0x20000;
+		final static int SERVICE_DISCOVERY_RETRY_COUNT_FLAG =	0x40000;
 	}
 	
 	/** @class ServerEntryFlag
@@ -1357,6 +1358,7 @@ class ProgrammaticConfigure
 		long initializationTimeout = 0;
 		long tcpNodelay = 0, directWrite = 0, enableSessionMgnt = 0;
 		long wsMaxMsgSize = 0;
+		int serviceDiscoveryRetryCount = 0;
 	
 		for (ElementEntry channelEntry : mapEntry.elementList())
 		{
@@ -1498,9 +1500,15 @@ class ProgrammaticConfigure
 				{
 					enableSessionMgnt = channelEntry.intValue();
 					flags |= ChannelEntryFlag.ENABLE_SESSION_MGNT_FLAG;
-				} else if (channelEntry.name().equals("WsMaxMsgSize")) {
+				}
+				else if (channelEntry.name().equals("WsMaxMsgSize")) {
 					wsMaxMsgSize = channelEntry.intValue();
 					webSocketFlags |= WebSocketFlag.WS_MAX_MSG_SIZE_FLAG;
+				}
+				else if (channelEntry.name().equals("ServiceDiscoveryRetryCount"))
+				{
+					serviceDiscoveryRetryCount = convertToInt(channelEntry.intValue());
+					flags |= ChannelEntryFlag.SERVICE_DISCOVERY_RETRY_COUNT_FLAG;
 				}
 				break;
 			default:
@@ -1855,6 +1863,11 @@ class ProgrammaticConfigure
 			} else if (useFileCfg) {
 				currentChannelConfig.wsMaxMsgSize = fileCfg.wsMaxMsgSize;
 			}
+
+			if ((flags & ChannelEntryFlag.SERVICE_DISCOVERY_RETRY_COUNT_FLAG) != 0)
+				currentChannelConfig.serviceDiscoveryRetryCount(serviceDiscoveryRetryCount);
+			else if (useFileCfg)
+				currentChannelConfig.serviceDiscoveryRetryCount(fileCfg.serviceDiscoveryRetryCount);
 		}
 	}
 

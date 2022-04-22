@@ -17,6 +17,9 @@ import com.refinitiv.eta.transport.TransportFactory;
  */
 public class ReactorConnectInfo
 {
+
+    private final int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT	= 3;
+
     private boolean _enableSessionManagement;
     private String _location;
     private ReactorAuthTokenEventCallback _reactorAuthTokenEventCallback;
@@ -24,6 +27,9 @@ public class ReactorConnectInfo
     ConnectOptions _connectOptions = null;
     int DEFAULT_TIMEOUT = 60;
     int _initTimeout = DEFAULT_TIMEOUT;
+
+    int	_serviceDiscoveryRetryCount = DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;	/*!< The number of times the RsslReactor attempts to reconnect a channel that would force the API to retry Service Discovery. */
+
 
     ReactorConnectInfo()
     {
@@ -90,6 +96,7 @@ public class ReactorConnectInfo
         _location = "us-east-1";
         _reactorAuthTokenEventCallback = null;
         _initTimeout = DEFAULT_TIMEOUT;
+        _serviceDiscoveryRetryCount = DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
     }
 
     /**
@@ -112,6 +119,7 @@ public class ReactorConnectInfo
         destInfo._reactorAuthTokenEventCallback = _reactorAuthTokenEventCallback;
         
         destInfo._initTimeout = _initTimeout;
+        destInfo._serviceDiscoveryRetryCount = _serviceDiscoveryRetryCount;
         return ReactorReturnCodes.SUCCESS;
     }
     
@@ -192,5 +200,19 @@ public class ReactorConnectInfo
     public String location()
     {
     	return _location;
+    }
+
+    /**
+     * The number of times the Reactor will try to reconnect before performing
+     * Service Discovery again. Takes effect only when Session Management is enabled and
+     * host and port are not set for the given connection. The default value is equal to 3.
+     * @param count the number of retries
+     */
+    public void serviceDiscoveryRetryCount(int count) {
+        _serviceDiscoveryRetryCount = count;
+    }
+
+    public int serviceDiscoveryRetryCount() {
+        return _serviceDiscoveryRetryCount;
     }
 }

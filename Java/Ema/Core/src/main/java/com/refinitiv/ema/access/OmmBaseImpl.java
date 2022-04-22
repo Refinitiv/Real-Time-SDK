@@ -836,6 +836,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				if(doubleValue > 0)
 					_activeConfig.tokenReissueRatio = doubleValue;
 			}
+
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.EnableRtt)) != null)
 			{
 				long rttVal = ce.intLongValue();
@@ -1355,6 +1356,11 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				if ((ce = attributes.getPrimitiveValue(ConfigManager.WsMaxMsgSize)) != null) {
 					currentChannelConfig.wsMaxMsgSize = ce.intLongValue() < 0 ? ActiveConfig.DEFAULT_WS_MAX_MSG_SIZE : ce.intLongValue();
 				}
+			}
+
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.ServiceDiscoveryRetryCount)) != null)
+			{
+				currentChannelConfig.serviceDiscoveryRetryCount(ce.intValue());
 			}
 		}
 		

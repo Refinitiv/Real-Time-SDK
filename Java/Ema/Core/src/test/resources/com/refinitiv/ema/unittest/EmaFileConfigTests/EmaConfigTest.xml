@@ -300,6 +300,7 @@
 			<Host value="0.0.0.1"/>
 			<Port value="19001"/>
 			<DirectWrite value= "1" />
+			<ServiceDiscoveryRetryCount value="5"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_2"/>
@@ -318,6 +319,7 @@
 			<TcpNodelay value="0"/>
 			<ObjectName value="HttpObjectName"/>
 			<InitializationTimeout value="55"/>
+			<ServiceDiscoveryRetryCount value="0"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_3"/>

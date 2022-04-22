@@ -86,6 +86,7 @@ public class JUnitTestConnect
 	public static final int ChannelInitTimeout = ConfigManager.ChannelInitTimeout;
 	public static final int WsProtocols = ConfigManager.WsProtocols;
 	public static final int WsMaxMsgSize = ConfigManager.WsMaxMsgSize;
+	public static final int ServiceDiscoveryRetryCount = ConfigManager.ServiceDiscoveryRetryCount;
 	
 	// Channel: Multicast
 	public static final int ChannelDisconnectOnGap  = ConfigManager.ChannelDisconnectOnGap; 
@@ -976,6 +977,8 @@ public class JUnitTestConnect
 				return chanConfig.initializationTimeout;
 			else if (configParam == WsMaxMsgSize)
 				return chanConfig.wsMaxMsgSize;
+			else if (configParam == ServiceDiscoveryRetryCount)
+				return chanConfig.serviceDiscoveryRetryCount;
 		}
 		else if (type == ConfigGroupTypeDictionary)
 		{
