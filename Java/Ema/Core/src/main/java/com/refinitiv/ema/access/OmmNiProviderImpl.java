@@ -296,12 +296,18 @@ class OmmNiProviderImpl extends OmmBaseImpl<OmmProviderClient> implements OmmPro
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client)
 	{
+		if(checkClient(client))
+			return 0;
+
 		return registerClient(reqMsg, client, null);
 	}
 	
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client, Object closure)
 	{
+		if(checkClient(client))
+			return 0;
+
 		userLock().lock();
 		
 		if ( reqMsg.domainType() != EmaRdm.MMT_LOGIN && reqMsg.domainType() != EmaRdm.MMT_DICTIONARY )

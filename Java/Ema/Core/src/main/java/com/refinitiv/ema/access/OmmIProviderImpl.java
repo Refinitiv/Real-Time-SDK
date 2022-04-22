@@ -254,12 +254,17 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client)
 	{
+		if(checkClient(client))
+			return 0;
 		return  registerClient(reqMsg, client, null);
 	}
 
 	@Override
 	public long registerClient(ReqMsg reqMsg, OmmProviderClient client, Object closure)
 	{
+		if(checkClient(client))
+			return 0;
+
 		userLock().lock();
 		
 		if ( reqMsg.domainType() != EmaRdm.MMT_DICTIONARY )
@@ -1668,5 +1673,13 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 			}
 			loggerClient().error(errorMessage);
 		}
+	}
+
+	private boolean checkClient(OmmProviderClient client) {
+		if (client == null) {
+			handleInvalidUsage("Client not set", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+			return true;
+		}
+		return false;
 	}
 }

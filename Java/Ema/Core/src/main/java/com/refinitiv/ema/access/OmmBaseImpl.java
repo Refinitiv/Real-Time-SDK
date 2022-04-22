@@ -445,6 +445,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	protected long registerClient(ReqMsg reqMsg, T client, Object closure, long parentHandle)
 	{
+		if(checkClient(client))
+			return 0;
 		try
 		{
 			_userLock.lock();
@@ -459,6 +461,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	protected long registerClient(TunnelStreamRequest tunnelStreamRequest, T client, Object closure)
 	{
+		if(checkClient(client))
+			return 0;
 		try
 		{
 			_userLock.lock();
@@ -473,6 +477,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	protected long registerClient(ReqMsg reqMsg, T client)
 	{
+		if(checkClient(client))
+			return 0;
 		try
 		{
 			_userLock.lock();
@@ -484,9 +490,13 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			_userLock.unlock();
 		}
 	}
-	
+
+
+
 	protected long registerClient(ReqMsg reqMsg, T client, Object closure)
 	{
+		if(checkClient(client))
+			return 0;
 		try
 		{
 			_userLock.lock();
@@ -501,6 +511,8 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	
 	protected long registerClient(TunnelStreamRequest tunnelStreamRequest, T client)
 	{
+		if(checkClient(client))
+			return 0;
 		try
 		{
 			_userLock.lock();
@@ -1837,6 +1849,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			handleInvalidUsage(_strBuilder.toString(), OmmInvalidUsageException.ErrorCode.FAILURE);
 		}
 	}
-	
-}
 
+	protected boolean checkClient(T client) {
+		if (client == null) {
+			handleInvalidUsage("Client not set", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+			return true;
+		}
+		return false;
+	}
+}

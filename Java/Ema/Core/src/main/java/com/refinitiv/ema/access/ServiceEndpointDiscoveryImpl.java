@@ -136,12 +136,20 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 	@Override
 	public void registerClient(ServiceEndpointDiscoveryOption params, ServiceEndpointDiscoveryClient client)
 	{
+		if (client == null) {
+			throw ommIUExcept().message("Client not set", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+
 		registerClient(params, client, null);
 	}
 
 	@Override
 	public void registerClient(ServiceEndpointDiscoveryOption params, ServiceEndpointDiscoveryClient client, Object closure)
 	{
+		if (client == null) {
+			throw ommIUExcept().message("Client not set", OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+		}
+
 		_userLock.lock();
 		try
 		{
