@@ -407,6 +407,8 @@ public class RefreshMsgTest {
                 {16, true, true, true, true, true, true, true, true, true, true, true, true, MAP, DomainTypes.DICTIONARY, 2, true, InstrumentNameTypes.CONTRIBUTOR, true, "Name", true},
                 /* Login refresh */
                 {17, true, true, true, true, true, true, true, true, true, true, true, true, DataTypes.NO_DATA, DomainTypes.LOGIN, 2, true, Login.UserIdTypes.TOKEN, true, "Name", true},
+                /* Backslash in Item Name on Msg Key refresh */
+                {17, true, true, true, true, true, true, true, true, true, true, true, true, DataTypes.NO_DATA, DomainTypes.LOGIN, 2, true, Login.UserIdTypes.TOKEN, true, "\\Name", true},
         });
     }
 }
