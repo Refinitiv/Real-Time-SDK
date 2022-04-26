@@ -3960,10 +3960,7 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 	}
 	else if (cc < 0)
 	{
-		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
-		snprintf((error->text), MAX_RSSL_ERROR_TEXT, 
-				"<%s:%d> Error: 1002 Error Reading WS Header. System errno: (%d)\n",
-				__FILE__, __LINE__, errno);
+		/* Returns RSSL_RET_FAILURE for applications to close the channel */
 		*readret = RSSL_RET_FAILURE;
 
 		return(0);
