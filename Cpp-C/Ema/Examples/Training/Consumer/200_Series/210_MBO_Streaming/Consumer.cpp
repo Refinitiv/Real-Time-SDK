@@ -52,9 +52,9 @@ void AppClient::decode( const Map& map )
 	{
 		const MapEntry& me = map.getEntry();
 
-		if ( me.getKey().getDataType() == DataType::BufferEnum )
+		if ( me.getKey().getDataType() == DataType::AsciiEnum )
 			cout << "Action: " << me.getMapActionAsString() << endl
-				 << "key value: " << me.getKey().getBuffer() << endl;
+				 << "key value: " << me.getKey().getAscii() << endl;
 
 		if ( me.getLoadType() == DataType::FieldListEnum )
 		{
