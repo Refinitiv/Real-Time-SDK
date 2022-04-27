@@ -11,6 +11,8 @@ package com.refinitiv.eta.valueadd.reactor;
 import com.refinitiv.eta.valueadd.common.LimitedVaPool;
 import com.refinitiv.eta.valueadd.common.VaPool;
 
+import java.io.OutputStream;
+
 /**
  * Factory for Reactor package objects.
  */
@@ -868,5 +870,52 @@ public class ReactorFactory
     	}
     	
     	return packedBuffer;
+    }
+
+    /**
+     * Creates a new ReactorDebugger instance that will use the provided OutputStream to write messages.
+     * In case the OutputStream instance is null, a ByteArrayOutputStream will be created with the capacity set to
+     * {@link ReactorDebuggerOptions#DEFAULT_CAPACITY}
+     * @param stream the OutputStream instance into which the debugging messages will be written
+     * @return ReactorDebugger instance
+     */
+    static ReactorDebugger createReactorDebugger(OutputStream stream)
+    {
+        return new ReactorDebuggerImpl(stream);
+    }
+
+    /**
+     * Creates a new ReactorDebugger instance that will use the provided OutputStream to write messages.
+     * In case the OutputStream instance is null, a ByteArrayOutputStream will be created with the capacity set to
+     * the provided capacity value
+     * @param stream the OutputStream instance into which the debugging messages will be written
+     * @param capacity the capacity that will be used when creating ByteArrayOutputStream in case the provided OutputStream is null.
+     *                 This value determines the total size of the debug messages that can be stored by the debugger
+     *                 until {@link Reactor#getDebuggingInfo()} is called.
+     *                 If it is smaller than {@link ReactorDebuggerOptions#DEFAULT_CAPACITY}, the default capacity will be used.
+     *                 If it is equal to {@link ReactorDebuggerOptions#NO_LIMIT_SET}, the debugger will not check whether the capacity
+     *                 was exceeded when writing the message.
+     * @return ReactorDebugger instance
+     */
+    static ReactorDebugger createReactorDebugger(OutputStream stream, int capacity)
+    {
+        return new ReactorDebuggerImpl(stream, capacity);
+    }
+
+    /**
+     * Creates a new ReactorDebugger instance that will use a ByteArrayOutputStream instance to write messages.
+     * The ByteArrayOutputStream will be created with the capacity set to the provided capacity value. The user application has to call
+     * {@link Reactor#getDebuggingInfo()} method to get the debugging output
+     * @param capacity the capacity that will be used when creating ByteArrayOutputStream in case the provided OutputStream is null.
+     *                 This value determines the total size of the debug messages that can be stored by the debugger
+     *                 until {@link Reactor#getDebuggingInfo()} is called.
+     *                 If it is smaller than {@link ReactorDebuggerOptions#DEFAULT_CAPACITY}, the default capacity will be used.
+     *                 If it is equal to {@link ReactorDebuggerOptions#NO_LIMIT_SET}, the debugger will not check whether the capacity
+     *                 was exceeded when writing the message.
+     * @return ReactorDebugger instance
+     */
+    static ReactorDebugger createReactorDebugger(int capacity)
+    {
+        return new ReactorDebuggerImpl(capacity);
     }
 }

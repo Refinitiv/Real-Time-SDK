@@ -10,6 +10,7 @@ package com.refinitiv.eta.valueadd.examples.provider;
 
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.examples.common.CommandLineParser;
+import com.refinitiv.eta.valueadd.reactor.ReactorDebuggerLevels;
 
 class ProviderCmdLineParser implements CommandLineParser
 {
@@ -25,6 +26,9 @@ class ProviderCmdLineParser implements CommandLineParser
 	private String keypasswd = null;
 	private int connType = ConnectionTypes.SOCKET;
 	private String protocolList = "rssl.rwf, tr_json2, rssl.json.v2";
+
+	private int debuggingLevels = ReactorDebuggerLevels.LEVEL_NONE;
+	private int debugInfoInterval = 50;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -97,6 +101,21 @@ class ProviderCmdLineParser implements CommandLineParser
 				} else if ("-pl".equals(args[argsCount])) {
 					protocolList = args[++argsCount];
 					++argsCount;
+				} else if ("-debugConn".equals(args[argsCount])) {
+					debuggingLevels |= ReactorDebuggerLevels.LEVEL_CONNECTION;
+					++argsCount;
+				} else if ("-debugEventQ".equals(args[argsCount])) {
+					debuggingLevels |= ReactorDebuggerLevels.LEVEL_EVENTQUEUE;
+					++argsCount;
+				} else if ("-debugTunnelStream".equals(args[argsCount])) {
+					debuggingLevels |= ReactorDebuggerLevels.LEVEL_TUNNELSTREAM;
+					++argsCount;
+				} else if ("-debugAll".equals(args[argsCount])) {
+					debuggingLevels = ReactorDebuggerLevels.LEVEL_CONNECTION | ReactorDebuggerLevels.LEVEL_EVENTQUEUE | ReactorDebuggerLevels.LEVEL_TUNNELSTREAM;
+					++argsCount;
+				} else if ("-debugInfoInterval".equals(args[argsCount])) {
+					debugInfoInterval = Math.max(50, Integer.parseInt(args[++argsCount]));
+					++argsCount;
 				}
 				else // unrecognized command line argument
 				{
@@ -129,7 +148,12 @@ class ProviderCmdLineParser implements CommandLineParser
 						   "\n -rtt application (provider) supports calculation of Round Trip Latency" +
 						   "\n -c Provider connection type.  Either \"socket\" or \"encrypted\"" +
 						   "\n -keyfile jks encoded keyfile for Encrypted connections" +
-						   "\n -keypasswd password for keyfile");
+						   "\n -keypasswd password for keyfile" +
+				           "\n -debugConn turn on debugging events related to Connection process" +
+						   "\n -debugEventQ turn on debugging events in Event Queue" +
+						   "\n -debugTunnelStream turn on debugging TunnelStream events" +
+						   "\n -debugAll turn on all debugging levels" +
+						   "\n -debugInfoInterval interval (in milliseconds) for printing out debugging info");
 	}
 
 	String portNo()
@@ -190,5 +214,13 @@ class ProviderCmdLineParser implements CommandLineParser
 	String protocolList()
 	{
 		return protocolList;
+	}
+
+	int getDebuggingLevels() {
+		return debuggingLevels;
+	}
+
+	public int getDebugInfoInterval() {
+		return debugInfoInterval;
 	}
 }

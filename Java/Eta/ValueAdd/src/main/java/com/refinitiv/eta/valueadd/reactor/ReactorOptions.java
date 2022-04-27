@@ -59,7 +59,9 @@ public class ReactorOptions
     private double _tokenReissueRatio;
     private int _reissueTokenAttemptLimit;
     private int _reissueTokenAttemptInterval;
-    
+
+    private ReactorDebuggerOptions _debuggerOptions = new ReactorDebuggerOptionsImpl();
+
     Object _userSpecObj = null;
     boolean _xmlTracing = false;
     int _statistics = StatisticFlags.NONE;
@@ -181,56 +183,56 @@ public class ReactorOptions
     {
     	if(_tokenServiceURL_V1 == null)
     	{
-    		_tokenServiceURL_V1 = CodecFactory.createBuffer();	
+    		_tokenServiceURL_V1 = CodecFactory.createBuffer();
     	}
     	
-    	return _tokenServiceURL_V1.data(tokenServiceURL.data(), 
+    	return _tokenServiceURL_V1.data(tokenServiceURL.data(),
     			tokenServiceURL.position(), tokenServiceURL.length());
     }
-    
+
     /**
-     * A URL of the token service to get an access token and a refresh token. 
+     * A URL of the token service to get an access token and a refresh token.
      * This is used for querying RDP service
      * discovery and subscribing data from RDP.
      *
      * @param tokenServiceURL the URL for the RDP service discovery
-     * 
-     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
+     *
+     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null,
      * 		   or if position or length is outside of the data's capacity.
-     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.     
-     *          
+     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.
+     *
      */
     public int tokenServiceURL_V1(Buffer tokenServiceURL)
     {
     	if(_tokenServiceURL_V1 == null)
     	{
-    		_tokenServiceURL_V1 = CodecFactory.createBuffer();	
+    		_tokenServiceURL_V1 = CodecFactory.createBuffer();
     	}
-    	
-    	return _tokenServiceURL_V1.data(tokenServiceURL.data(), 
+
+    	return _tokenServiceURL_V1.data(tokenServiceURL.data(),
     			tokenServiceURL.position(), tokenServiceURL.length());
     }
-    
+
     /**
-     * A URL of the token service to get an access token and a refresh token. 
+     * A URL of the token service to get an access token and a refresh token.
      * This is used for querying RDP service
      * discovery and subscribing data from RDP.
      *
      * @param tokenServiceURL the URL for the RDP service discovery
-     * 
-     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null, 
+     *
+     * @return {@link ReactorReturnCodes#SUCCESS} on success, if data is null,
      * 		   or if position or length is outside of the data's capacity.
-     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.     
-     *          
+     *         {@link ReactorReturnCodes#PARAMETER_INVALID}.
+     *
      */
     public int tokenServiceURL_V2(Buffer tokenServiceURL)
     {
     	if(_tokenServiceURL_V2 == null)
     	{
-    		_tokenServiceURL_V2 = CodecFactory.createBuffer();	
+    		_tokenServiceURL_V2 = CodecFactory.createBuffer();
     	}
     	
-    	return _tokenServiceURL_V2.data(tokenServiceURL.data(), 
+    	return _tokenServiceURL_V2.data(tokenServiceURL.data(),
     			tokenServiceURL.position(), tokenServiceURL.length());
     }
     
@@ -265,24 +267,24 @@ public class ReactorOptions
     {
         return _tokenServiceURL_V1;
     }
-    
+
     /**
-     * a URL of the token service to get an access token and a refresh token. 
+     * a URL of the token service to get an access token and a refresh token.
      * This is used for querying RDP service
      * discovery and subscribing data from RDP.
-     * 
+     *
      * @return the tokenServiceURL
      */
     public Buffer tokenServiceURL_V1()
     {
         return _tokenServiceURL_V1;
     }
-    
+
     /**
-     * a URL of the token service to get an access token and a refresh token. 
+     * a URL of the token service to get an access token and a refresh token.
      * This is used for querying RDP service
      * discovery and subscribing data from RDP.
-     * 
+     *
      * @return the tokenServiceURL
      */
     public Buffer tokenServiceURL_V2()
@@ -396,6 +398,7 @@ public class ReactorOptions
         _tokenReissueRatio = 0.8;
         _reissueTokenAttemptLimit = -1;
         _reissueTokenAttemptInterval = 5000;
+        _debuggerOptions.clear();
     }
     
     /*
@@ -426,13 +429,15 @@ public class ReactorOptions
         	options._tokenServiceURL_V1.copy(byteBuffer);
         	_tokenServiceURL_V1.data(byteBuffer);
         }
-        
+
         if(options._tokenServiceURL_V2 != null)
         {
         	ByteBuffer byteBuffer = ByteBuffer.allocate(options._tokenServiceURL_V2.length());
         	options._tokenServiceURL_V2.copy(byteBuffer);
         	_tokenServiceURL_V2.data(byteBuffer);
         }
+
+        options._debuggerOptions.copy(_debuggerOptions);
     }
     
     /* 
@@ -441,5 +446,23 @@ public class ReactorOptions
     HttpHost serviceDiscoveryHost()
     {
     	return _serviceDiscoveryHost;
+    }
+
+    /**
+     * Getter for the debugger options
+     * @return current ReactorDebuggerOptions instance
+     */
+    public ReactorDebuggerOptions debuggerOptions() {
+        return _debuggerOptions;
+    }
+
+    /**
+     * Setter for the debugger options
+     * @param debuggerOptions ReactorDebuggerOptions instance to be set
+     */
+    public void debuggerOptions(ReactorDebuggerOptions debuggerOptions) {
+        if (debuggerOptions != null) {
+            debuggerOptions.copy(this._debuggerOptions);
+        }
     }
 }

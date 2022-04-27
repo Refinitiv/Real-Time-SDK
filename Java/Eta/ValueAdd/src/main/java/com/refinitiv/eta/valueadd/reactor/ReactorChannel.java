@@ -1473,6 +1473,15 @@ public class ReactorChannel extends VaNode
                 }
             }
 
+            if (_reactor._reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+                _reactor.debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_SEND_STREAM_OPEN,
+                        _reactor.hashCode(),
+                        this.hashCode(),
+                        event.streamId(),
+                        ReactorDebugger.getChannelId(this)
+                );
+            }
+
             // open tunnel stream
             TunnelStream tunnelStream = _tunnelStreamManager.createTunnelStream(event, options);
             tunnelStream.channelStreamId(tunnelStream.streamId());
@@ -1499,6 +1508,24 @@ public class ReactorChannel extends VaNode
             tunnelStream.classOfService().flowControl().sendWindowSize(event.classOfService().flowControl().recvWindowSize());
             if (tunnelStream.classOfService().flowControl().sendWindowSize() < tunnelStream.classOfService().common().maxFragmentSize())
                 tunnelStream.classOfService().flowControl().sendWindowSize(tunnelStream.classOfService().common().maxFragmentSize());
+
+            if (_reactor._reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+                _reactor.debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_ACCEPT,
+                        _reactor.hashCode(),
+                        this.hashCode(),
+                        tunnelStream.streamId(),
+                        ReactorDebugger.getChannelId(this)
+                );
+            }
+
+            if (_reactor._reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+                _reactor.debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_STREAM_ESTABLISHED,
+                        _reactor.hashCode(),
+                        this.hashCode(),
+                        event.streamId(),
+                        ReactorDebugger.getChannelId(this)
+                );
+            }
 
             return _reactor.sendAndHandleTunnelStreamStatusEventCallback("ReactorChannel.acceptTunnelStream",
                     this,
@@ -1592,6 +1619,15 @@ public class ReactorChannel extends VaNode
                         return ret;
                     }
                 }
+            }
+
+            if (_reactor._reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+                _reactor.debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_STREAM_REJECT,
+                        _reactor.hashCode(),
+                        this.hashCode(),
+                        event.streamId(),
+                        ReactorDebugger.getChannelId(this)
+                );
             }
         }
         finally
@@ -1740,6 +1776,15 @@ public class ReactorChannel extends VaNode
 
                 return reconnect(reactorConnectInfo, error);
             }
+            if (_reactor._reactorOptions.debuggerOptions().debugConnectionLevel()) {
+                _reactor.debugger.writeDebugInfo(ReactorDebugger.CONNECTION_RECONNECT_RDP,
+                        _reactor.hashCode(),
+                        this.hashCode(),
+                        ReactorDebugger.getChannelId(this)
+                );
+            }
+
+            return reconnect(reactorConnectInfo, error);
         }
 
         if (_state == State.EDP_RT_FAILED)
@@ -1783,6 +1828,14 @@ public class ReactorChannel extends VaNode
             }
 
             return null;
+        }
+
+        if (_reactor._reactorOptions.debuggerOptions().debugConnectionLevel()) {
+            _reactor.debugger.writeDebugInfo(ReactorDebugger.CONNECTION_RECONNECT,
+                    _reactor.hashCode(),
+                    this.hashCode(),
+                    ReactorDebugger.getChannelId(this)
+            );
         }
 
         return reconnect(reactorConnectInfo, error);

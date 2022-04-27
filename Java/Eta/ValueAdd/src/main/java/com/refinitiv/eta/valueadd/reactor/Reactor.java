@@ -188,6 +188,8 @@ public class Reactor
 
     static String JSON_PONG_MESSAGE = "{\"Type\":\"Pong\"}";
 
+    ReactorDebugger debugger;
+
     /**
      * The specified ReactorOptions are copied so that it can be re-used by the
      * client application. The ErrorInfo will be populated if an error occurs.
@@ -218,6 +220,7 @@ public class Reactor
             }
 
             _reactorOptions.copy(options);
+            debugger = ReactorFactory.createReactorDebugger(_reactorOptions.debuggerOptions().outputStream(), _reactorOptions.debuggerOptions().capacity());
         }
         else
         {
@@ -566,6 +569,14 @@ public class Reactor
 
             /* Set additional accept options for WebSocket connections */
             reactorChannel.sendPingMessage(reactorAcceptOptions.websocketAcceptOptions().sendPingMessage);
+            if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+                debugger.writeDebugInfo(ReactorDebugger.CONNECTION_SERVER_ACCEPT,
+                        this.hashCode(),
+                        server.hashCode(),
+                        reactorChannel.hashCode(),
+                        ReactorDebugger.getChannelId(reactorChannel)
+                );
+            }
         }
         finally
         {
@@ -762,6 +773,13 @@ public class Reactor
                 }
             }
 
+            if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+                debugger.writeDebugInfo(ReactorDebugger.CONNECTION_SESSION_STARTUP_DONE, this.hashCode(), reactorChannel.hashCode(),
+                        ReactorDebugger.getChannelId(reactorChannel),
+                        enableSessionManagement(reactorConnectOptions)
+                );
+            }
+
             reactorChannel.state(State.INITIALIZING);
             reactorChannel.role(role);
 
@@ -819,6 +837,22 @@ public class Reactor
 	                            "Reactor.connect",
 	                            "sendAuthTokenWorkerEvent() failed");
                 	}
+                }
+            }
+
+            if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+                if (channel != null) {
+                    debugger.writeDebugInfo(ReactorDebugger.CONNECTION_CONNECTING_PERFORMED,
+                            this.hashCode(),
+                            reactorChannel.hashCode(),
+                            ReactorDebugger.getChannelId(reactorChannel)
+                    );
+                } else {
+                    debugger.writeDebugInfo(ReactorDebugger.CONNECTION_CHANNEL_DOWN,
+                            this.hashCode(),
+                            reactorChannel.hashCode(),
+                            ReactorDebugger.getChannelId(reactorChannel)
+                    );
                 }
             }
 
@@ -1864,6 +1898,15 @@ public class Reactor
         WorkerEvent event = ReactorFactory.createWorkerEvent();
         event.eventType(WorkerEventTypes.TUNNEL_STREAM_DISPATCH_NOW);
         event.reactorChannel(reactorChannel);
+
+        if (_reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+            debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_DISPATCH_NOW,
+                    this.hashCode(),
+                    reactorChannel.hashCode(),
+                    ReactorDebugger.getChannelId(reactorChannel)
+            );
+        }
+
         retVal = _workerQueue.remote().write(event);
 
         return retVal;
@@ -2050,6 +2093,14 @@ public class Reactor
                 reactorChannel.watchlist().channelDown();
             }
 
+            if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+                debugger.writeDebugInfo(ReactorDebugger.CONNECTION_CHANNEL_DOWN,
+                        this.hashCode(),
+                        reactorChannel.hashCode(),
+                        ReactorDebugger.getChannelId(reactorChannel)
+                );
+            }
+
             /* Channel callback complete. If channel is not already closed, notify worker. */
             if (reactorChannel.state() != State.CLOSED)
             {
@@ -2182,6 +2233,15 @@ public class Reactor
                 tunnelStream.close(_finalStatusEvent, errorInfo.error());
             else
                 reactorChannel.tunnelStreamManager().removeTunnelStream(tunnelStream);
+
+            if (_reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+                debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_STREAM_CLOSE,
+                        this.hashCode(),
+                        reactorChannel.hashCode(),
+                        tunnelStream.streamId(),
+                        ReactorDebugger.getChannelId(reactorChannel)
+                );
+            }
         }
 
         tunnelStreamEvent.reactorChannel(reactorChannel);
@@ -2640,7 +2700,9 @@ public class Reactor
     int dispatchChannel(ReactorChannel reactorChannel, ReactorDispatchOptions dispatchOptions, ReactorErrorInfo errorInfo)
     {
         _reactorLock.lock();
-
+        if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+            debugger.incNumOfDispatchCalls();
+        }
         try
         {
             if (reactorChannel.state() == ReactorChannel.State.CLOSED)
@@ -2650,6 +2712,14 @@ public class Reactor
             }
             else if (reactorChannel != _reactorChannel)
             {
+                if (_reactorOptions.debuggerOptions().debugEventQueueLevel()) {
+                    debugger.writeDebugInfo(ReactorDebugger.EVENTQUEUE_COUNT_SPECIFIED,
+                            this.hashCode(),
+                            reactorChannel.hashCode(),
+                            _workerQueue.countNumberOfReadQueueElements(node -> ((WorkerEvent)node).reactorChannel() == reactorChannel),
+                            ReactorDebugger.getChannelId(reactorChannel)
+                    );
+                }
                 int maxMessages = dispatchOptions.maxMessages();
                 int msgCount = 0;
                 int retval = ReactorReturnCodes.SUCCESS;
@@ -2672,6 +2742,17 @@ public class Reactor
             }
             else
             {
+                if (_reactorOptions.debuggerOptions().debugEventQueueLevel()) {
+                    debugger.writeDebugInfo(ReactorDebugger.EVENTQUEUE_COUNT_REACTOR,
+                            this.hashCode(),
+                            _workerQueue.countNumberOfReadQueueElements(node -> ((WorkerEvent)node).reactorChannel() == this._reactorChannel)
+                    );
+                    debugger.writeDebugInfo(ReactorDebugger.EVENTQUEUE_COUNT_ALL,
+                            this.hashCode(),
+                            _workerQueue.countNumberOfReadQueueElements(node -> ((WorkerEvent)node).reactorChannel() != this._reactorChannel
+                                    && ((WorkerEvent)node).reactorChannel() != null)
+                    );
+                }
                 int maxMessages = dispatchOptions.maxMessages();
                 int msgCount = 0;
                 int retval = 0;
@@ -3084,6 +3165,15 @@ public class Reactor
         else // server channel or no more retries
         {
             reactorChannel.state(State.DOWN);
+        }
+
+        if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+            debugger.writeDebugInfo(ReactorDebugger.CONNECTION_DISCONNECT,
+                    this.hashCode(),
+                    reactorChannel.hashCode(),
+                    reactorChannel.state().equals(State.DOWN) ? "DOWN" : "DOWN_RECONNECTING",
+                    ReactorDebugger.getChannelId(reactorChannel)
+            );
         }
 
         if (reactorChannel.server() == null && !reactorChannel.recoveryAttemptLimitReached()) // client channel
@@ -3582,6 +3672,15 @@ public class Reactor
                     {
                         rejectString = "Class of service common properties decode failed with return code: " + ret + " <" + errorInfo.error().text() + ">";
                     }
+
+                    if (_reactorOptions.debuggerOptions().debugTunnelStreamLevel()) {
+                        debugger.writeDebugInfo(ReactorDebugger.TUNNELSTREAM_STREAM_REQUEST,
+                                this.hashCode(),
+                                reactorChannel.hashCode(),
+                                msg.streamId(),
+                                ReactorDebugger.getChannelId(reactorChannel)
+                        );
+                    }
                 }
                 else // doesn't contain FILTER_LIST and have filter in message key
                 {
@@ -3880,6 +3979,13 @@ public class Reactor
         _readArgsAggregator.clear();
         _writeArgsAggregator.clear();
         reactorChannel.pingHandler().resetAggregatedStats();
+
+        if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+            debugger.writeDebugInfo(ReactorDebugger.CONNECTION_CHANNEL_UP,
+                    this.hashCode(),
+                    reactorChannel.hashCode(),
+                    ReactorDebugger.getChannelId(reactorChannel));
+        }
 
         // send channel_up to user app via reactorChannelEventCallback.
         if (sendAndHandleChannelEventCallback("Reactor.processChannelUp",
@@ -5242,6 +5348,19 @@ public class Reactor
                         "Reactor.dispatchAll", "Reactor is not active, aborting.");
             }
 
+            if (_reactorOptions.debuggerOptions().debugEventQueueLevel()) {
+                debugger.writeDebugInfo(ReactorDebugger.EVENTQUEUE_COUNT_REACTOR,
+                        this.hashCode(),
+                        _workerQueue.countNumberOfReadQueueElements(node -> ((WorkerEvent)node).reactorChannel() == null
+                                || ((WorkerEvent)node).reactorChannel() == this._reactorChannel)
+                );
+                debugger.writeDebugInfo(ReactorDebugger.EVENTQUEUE_COUNT_ALL,
+                        this.hashCode(),
+                        _workerQueue.countNumberOfReadQueueElements(node -> ((WorkerEvent)node).reactorChannel() != this._reactorChannel
+                                && ((WorkerEvent)node).reactorChannel() != null)
+                );
+            }
+
             // handle Reactor's channel before individual channels
             while (msgCount < maxMessages && _workerQueue.readQueueSize() > 0)
             {
@@ -5466,6 +5585,21 @@ public class Reactor
     int closeChannel(ReactorChannel reactorChannel, ReactorErrorInfo errorInfo)
     {
         _reactorLock.lock();
+
+        if (_reactorOptions.debuggerOptions().debugConnectionLevel()) {
+            debugger.incNumOfCloseCalls();
+            debugger.writeDebugInfo(ReactorDebugger.CONNECTION_CHANNEL_CLOSE,
+                    this.hashCode(), reactorChannel.hashCode(),
+                    ReactorDebugger.getChannelId(reactorChannel)
+            );
+            debugger.writeDebugInfo(ReactorDebugger.CONNECTION_CHANNEL_CLOSE_NUM_OF_CALLS,
+                    this.hashCode(),
+                    reactorChannel.hashCode(),
+                    debugger.getNumOfCloseCalls(),
+                    debugger.getNumOfDispatchCalls(),
+                    ReactorDebugger.getChannelId(reactorChannel)
+            );
+        }
 
         try
         {
@@ -5873,5 +6007,76 @@ public class Reactor
             return (int)sum;
         else
             return Integer.MAX_VALUE;
+    }
+
+    /**
+     * Enables the provided debugging level
+     * @param level the debugging level to be enabled, see {@link ReactorDebuggerLevels}
+     */
+    public void enableDebuggingLevel(int level) {
+        _reactorOptions.debuggerOptions().enableLevel(level);
+    }
+
+    /**
+     * Disables the provided debugging level
+     * @param level the debugging level to be disabled, see {@link ReactorDebuggerLevels}
+     */
+    public void disableDebuggingLevel(int level) {
+        _reactorOptions.debuggerOptions().disableLevel(level);
+    }
+
+    /**
+     * Getter for the debugging levels currently set for this Reactor instance
+     * @return integer that represents debugging levels currently enabled
+     */
+    public int debuggingLevels() {
+        return _reactorOptions.debuggerOptions().debuggingLevels();
+    }
+
+    /**
+     * Determines whether the CONNECTION debugging level is enabled
+     * @return true if the CONNECTION debugging level is enabled, false otherwise
+     */
+    boolean debugConnectionLevel() {
+        return _reactorOptions.debuggerOptions().debugConnectionLevel();
+    }
+
+    /**
+     * Determines whether the EVENTQUEUE debugging level is enabled
+     * @return true if the EVENTQUEUE debugging level is enabled, false otherwise
+     */
+    boolean debugEventQueueLevel() {
+        return _reactorOptions.debuggerOptions().debugEventQueueLevel();
+    }
+
+    /**
+     * Determines whether the TUNNELSTREAM debugging level is enabled
+     * @return true if the TUNNELSTREAM debugging level is enabled, false otherwise
+     */
+    boolean debugTunnelStreamLevel() {
+        return _reactorOptions.debuggerOptions().debugTunnelStreamLevel();
+    }
+
+    /**
+     * Determines whether any debugging is done at all
+     * @return true if at least one debugging level is enabled, false otherwise
+     */
+    boolean debugEnabled() {
+        return _reactorOptions.debuggerOptions().debugEnabled();
+    }
+
+    /**
+     * Provides access to the messages debugged up to this point in case the underlying debugger stream
+     * is an instance of ByteArrayOutputStream (which is the case when, e.g., no OutputStream was provided
+     * in the {@link ReactorDebuggerOptions} while creating the Reactor instance
+     * @return byte array that contains debugging messages (up to a certain capacity) currently written
+     * from the beginning of debugging or since the last call to this method.
+     * In case debugging is not enabled at the point when this method is called, one of the following can be returned:
+     * - null in case the user has provided a debug output stream that is not an instance of ByteArrayOutputStream
+     * - otherwise, a byte array; if debugging was at some point enabled and this method has not been priorly called,
+     * the array will contain the previously logged messages
+     */
+    public byte[] getDebuggingInfo() {
+        return debugger.toByteArray();
     }
 }

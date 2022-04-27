@@ -152,6 +152,8 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
     private long closeRunTime;
     boolean closeHandled;
 
+    private long debugInfoInterval;
+    private long nextDebugTime;
 
     /* default server port number */
     private static final String defaultSrvrPortNo = "14002";
@@ -256,6 +258,9 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
             reactorOptions.enableXmlTracing();
         }
 
+        reactorOptions.debuggerOptions().setDebuggingLevels(providerCmdLineParser.getDebuggingLevels());
+        debugInfoInterval = providerCmdLineParser.getDebugInfoInterval();
+
         // open selector
         try
         {
@@ -343,6 +348,10 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
         itemHandler.init(cacheInfo);
         directoryHandler.serviceId(serviceId);
         itemHandler.serviceId(serviceId);
+
+        if (providerCmdLineParser.getDebuggingLevels() != ReactorDebuggerLevels.LEVEL_NONE) {
+            nextDebugTime = System.currentTimeMillis() + debugInfoInterval;
+        }
     }
 
     /*
@@ -444,6 +453,14 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
                         }
                     }
                 }
+            }
+
+            if (reactorOptions.debuggerOptions().debugEnabled() && System.currentTimeMillis() > nextDebugTime) {
+                byte[] info = reactor.getDebuggingInfo();
+                for (int i = 0; i < info.length; i++) {
+                    System.out.print((char)info[i]);
+                }
+                nextDebugTime += debugInfoInterval;
             }
 
             // Handle run-time

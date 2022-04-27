@@ -15,6 +15,7 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 /**
  * A selectable bidirectional queue used to communicate events between the Reactor
@@ -347,6 +348,28 @@ public class SelectableBiDirectionalQueue
                                 + " stacktrace="
                                 + e.getStackTrace().toString());
             }
+        }
+    }
+
+    /**
+     * Counts the number of elements in the queue that satisfy the given condition
+     * @param filter the condition that the counted elements must satisfy
+     * @return the number of suitable elements in the queue
+     */
+    public int countNumberOfReadQueueElements(Predicate<VaNode> filter) {
+        _readLock.lock();
+        try {
+            int result = 0;
+            VaNode current = _readQueue._head;
+            while (current != null) {
+                if (filter.test(current)) {
+                    result++;
+                }
+                current = current.next();
+            }
+            return result;
+        } finally {
+            _readLock.unlock();
         }
     }
 }
