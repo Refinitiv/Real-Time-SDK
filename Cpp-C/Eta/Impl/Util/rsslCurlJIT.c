@@ -149,6 +149,11 @@ RsslCurlJITFuncs* rsslInitCurlApi(char* curlLibName, RsslError *error)
 			return curlLoadError(error);
 
 		RSSL_LI_RESET_DLERROR;
+		curlJITFuncs.curl_multi_poll = (CURLMcode (*)(CURLM *multi_handle, struct curl_waitfd extra_fds[], unsigned int extra_nfds, int timeout_ms, int *numFds))RSSL_LI_DLSYM(curlHandle, "curl_multi_poll");
+		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_poll, dlErr))
+			return curlLoadError(error);
+
+		RSSL_LI_RESET_DLERROR;
 		curlJITFuncs.curl_multi_info_read = (CURLMsg* (*)(CURLM *multi_handle, int *msgs_in_queue))RSSL_LI_DLSYM(curlHandle, "curl_multi_info_read");
 		if (dlErr = RSSL_LI_CHK_DLERROR(curlJITFuncs.curl_multi_info_read, dlErr))
 			return curlLoadError(error);

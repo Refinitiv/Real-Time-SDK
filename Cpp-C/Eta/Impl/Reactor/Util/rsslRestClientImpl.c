@@ -1101,12 +1101,23 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 	RsslHashLink *pRsslHashLink = NULL;
 	RsslRestHandleImpl *pRestHandleImpl = NULL;
 	CURL *pHandle = NULL;
+	int numfds = 0;
 
 	mcode = (*(rssl_rest_CurlJITFuncs->curl_multi_perform))(rsslRestClientImpl->pCURLM, &still_running);
 	
 	if (!still_running)
 	{
 		rsslResetEventSignal(&rsslRestClientImpl->rsslEventSignal);
+	}
+	else
+	{
+		/* wait for activity, timeout or "nothing" */
+		mcode = (*(rssl_rest_CurlJITFuncs->curl_multi_poll))(rsslRestClientImpl->pCURLM, NULL, 0, 1000, &numfds);
+
+		if (!numfds)
+		{
+			return still_running;
+		}
 	}
 
 	/* Handling status for each individual requests */
