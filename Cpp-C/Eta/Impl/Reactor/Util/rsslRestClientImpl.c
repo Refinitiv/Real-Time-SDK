@@ -1112,7 +1112,7 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 	else
 	{
 		/* wait for activity, timeout or "nothing" */
-		mcode = (*(rssl_rest_CurlJITFuncs->curl_multi_poll))(rsslRestClientImpl->pCURLM, NULL, 0, 1000, &numfds);
+		mcode = (*(rssl_rest_CurlJITFuncs->curl_multi_poll))(rsslRestClientImpl->pCURLM, NULL, 0, 10, &numfds);
 
 		if (!numfds)
 		{
