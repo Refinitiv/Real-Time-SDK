@@ -92,7 +92,7 @@ public class HTTPSocketBuffer extends SocketBuffer
             {
                 slice._isPacked = true;
                 slice._packedMsgOffSetPosition = slice._startPosition + SocketBuffer.RIPC_WRITE_POSITION
-                                                 + http_write_position + http_chunk_end_size;
+                                                 + http_write_position;
             }
             else
             {
