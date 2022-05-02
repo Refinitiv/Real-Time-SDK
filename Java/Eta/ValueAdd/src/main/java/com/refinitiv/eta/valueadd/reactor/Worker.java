@@ -564,6 +564,7 @@ class Worker implements Runnable
                 // channel.init is complete,
                 // save the channel's negotiated ping timeout
                 reactorChannel.pingHandler().initPingHandler(channel.pingTimeout());
+                reactorChannel.resetCurrentChannelRetryCount();
 
                 // move the channel from the initQueue to the activeQueue
                 _initChannelQueue.remove(reactorChannel);

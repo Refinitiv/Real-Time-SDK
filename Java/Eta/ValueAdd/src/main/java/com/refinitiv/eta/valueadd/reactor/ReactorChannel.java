@@ -1847,7 +1847,7 @@ public class ReactorChannel extends VaNode
         }
     }
 
-    private void resetCurrentChannelRetryCount() {
+    void resetCurrentChannelRetryCount() {
         if (_connectOptionsInfoList != null) {
             _connectOptionsInfoList.get(_listIndex).reconnectAttempts = 0;
         }
