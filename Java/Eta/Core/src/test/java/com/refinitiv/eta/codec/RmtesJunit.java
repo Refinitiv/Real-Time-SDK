@@ -7,15 +7,17 @@
 
 package com.refinitiv.eta.codec;
 
-import static org.junit.Assert.assertEquals;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
 import com.refinitiv.eta.codec.CharSet.RmtesWorkingSet;
+
+import static org.junit.Assert.*;
 
 public class RmtesJunit
 {
@@ -774,4 +776,123 @@ public class RmtesJunit
     	assertEquals(CodecReturnCodes.FAILURE, rmtesDecoder.RMTESApplyToCache(inBuffer, rmtesCacheBuffer));
     }
 
+    @Test
+    public void partialUpdateConversionTest() {
+        RmtesBuffer rmtesBuffer = CodecFactory.createRmtesBuffer(100);
+        RmtesDecoder decoder = CodecFactory.createRmtesDecoder();
+        RmtesCacheBuffer cacheBuffer = CodecFactory.createRmtesCacheBuffer(100);
+        Buffer rmtes = CodecFactory.createBuffer();
+
+        char[] charBuf1 = {'a','b','c','d','e','f','g','h','i','j','k','l'};
+        String charBuf1String = new String(charBuf1);
+
+        rmtes.data(charBuf1String);
+
+        assertFalse(decoder.hasPartialRMTESUpdate(rmtes));
+
+        cacheBuffer.data(cacheBuffer.byteData().put(charBuf1String.getBytes()));
+        cacheBuffer.length(12);
+        cacheBuffer.allocatedLength(100);
+
+        assertEquals(CodecReturnCodes.SUCCESS, decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer));
+        assertEquals(12, rmtesBuffer.length());
+
+        assertTrue(charBuf1String.regionMatches(
+                0,
+                new String(rmtesBuffer.byteData().array(), StandardCharsets.UTF_8),
+                0,
+                charBuf1String.length()));
+
+        char[] charBuf2 = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 0x1B, 0x5B, '3', 0x60, 'j', 'k', 'l'};
+        String charBuf2String = new String(charBuf2);
+        rmtesBuffer.clear();
+        cacheBuffer.clear();
+
+        rmtes.clear();
+        rmtes.data(charBuf2String);
+
+        assertTrue(decoder.hasPartialRMTESUpdate(rmtes));
+
+        cacheBuffer.data(cacheBuffer.byteData().put(charBuf2String.getBytes()));
+        cacheBuffer.length(16);
+        cacheBuffer.allocatedLength(100);
+
+        assertEquals(CodecReturnCodes.SUCCESS, decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer));
+        assertEquals(16, rmtesBuffer.length());
+        rmtesBuffer.byteData().position(16);
+        assertTrue(charBuf2String.regionMatches(
+                0,
+                new String(rmtesBuffer.byteData().array(), StandardCharsets.UTF_8),
+                0,
+                charBuf2String.length()));
+
+        char[] charBuf3 = {'a', 'b', 'c', 'd', 0x1B, 0x5B, '3', 0x62, 'e', 'f', 'g'};
+        String charBuf3String = new String(charBuf3);
+        rmtesBuffer.clear();
+        cacheBuffer.clear();
+
+        rmtes.clear();
+        rmtes.data(charBuf3String);
+
+        assertTrue(decoder.hasPartialRMTESUpdate(rmtes));
+
+        cacheBuffer.data(cacheBuffer.byteData().put(charBuf3String.getBytes()));
+        cacheBuffer.length(11);
+        cacheBuffer.allocatedLength(100);
+
+        assertEquals(CodecReturnCodes.SUCCESS, decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer));
+        assertEquals(11, rmtesBuffer.length());
+
+        assertTrue(charBuf3String.regionMatches(
+                0,
+                new String(rmtesBuffer.byteData().array(), StandardCharsets.UTF_8),
+                0,
+                charBuf3String.length()));
+
+        char[] charBuf4 = {0x1B, 0x5B, '1', '0', 0x60, 'm', 'n', 'o'};
+        String charBuf4String = new String(charBuf4);
+        rmtesBuffer.clear();
+        cacheBuffer.clear();
+
+        rmtes.clear();
+        rmtes.data(charBuf4String);
+
+        assertTrue(decoder.hasPartialRMTESUpdate(rmtes));
+
+        cacheBuffer.data(cacheBuffer.byteData().put(charBuf4String.getBytes()));
+        cacheBuffer.length(8);
+        cacheBuffer.allocatedLength(100);
+
+        assertEquals(CodecReturnCodes.SUCCESS, decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer));
+        assertEquals(8, rmtesBuffer.length());
+
+        assertTrue(charBuf4String.regionMatches(
+                0,
+                new String(rmtesBuffer.byteData().array(), StandardCharsets.UTF_8),
+                0,
+                charBuf4String.length()));
+
+        char[] charBuf5 = {'a', 'b', 'c', 0x1B, 0x5B, '2', 0x60, 'd', 'e', 0x1B, 0x5B, '3', 0x62};
+        String charBuf5String = new String(charBuf5);
+        rmtesBuffer.clear();
+        cacheBuffer.clear();
+
+        rmtes.clear();
+        rmtes.data(charBuf5String);
+
+        assertTrue(decoder.hasPartialRMTESUpdate(rmtes));
+
+        cacheBuffer.data(cacheBuffer.byteData().put(charBuf5String.getBytes()));
+        cacheBuffer.length(13);
+        cacheBuffer.allocatedLength(100);
+
+        assertEquals(CodecReturnCodes.SUCCESS, decoder.RMTESToUTF8(rmtesBuffer, cacheBuffer));
+        assertEquals(13, rmtesBuffer.length());
+
+        assertTrue(charBuf5String.regionMatches(
+                0,
+                new String(rmtesBuffer.byteData().array(), StandardCharsets.UTF_8),
+                0,
+                charBuf5String.length()));
+    }
 }

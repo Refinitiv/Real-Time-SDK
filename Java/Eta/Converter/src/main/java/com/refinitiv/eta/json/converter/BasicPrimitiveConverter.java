@@ -1163,7 +1163,16 @@ class BasicPrimitiveConverter {
                 cacheBuffer = CodecFactory.createRmtesCacheBuffer(rmtes.length() * 3); //in decoder.RMTESApplyToCache one byte from rmtes can turn into 3 in the cache
             }
 
-            decoder.RMTESApplyToCache(rmtes, cacheBuffer);
+            if(decoder.hasPartialRMTESUpdate(rmtes))
+            {
+                for (int i = rmtes.position(); i < rmtes.length() + rmtes.position(); i++)
+                {
+                    cacheBuffer.byteData().put(rmtes.data().get(i));
+                }
+                cacheBuffer.length(rmtes.length());
+            }
+            else
+                decoder.RMTESApplyToCache(rmtes, cacheBuffer);
 
             int length = rmtes.length() * 9; //in decoder.RMTESToUTF8 one byte from cacheBuffer can turn into 3
             if (length > rmtesBuffer.allocatedLength())

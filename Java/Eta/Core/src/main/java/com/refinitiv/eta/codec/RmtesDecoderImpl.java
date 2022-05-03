@@ -500,6 +500,23 @@ class RmtesDecoderImpl implements RmtesDecoder
                         return _returnInfo.returnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
                     }
                     break;
+                case RMTESParseState.LBRKT:
+                    while (currPtr.get(i) >= '0' && currPtr.get(i) <= '9')
+                    {
+                        ++i;
+                        ++length;
+                    }
+                    if (currPtr.get(i) == RHPA_CHAR)
+                    {
+                        newState = RMTESParseState.RHPA;
+                        return _returnInfo.returnControlParse(ESCReturnCode.RHPA_CMD, currentSet, length, currPtr);
+                    }
+                    if (currPtr.get(i) == RREP_CHAR)
+                    {
+                        newState = RMTESParseState.RREP;
+                        return _returnInfo.returnControlParse(ESCReturnCode.RREP_CMD, currentSet, length, currPtr);
+                    }
+                    break;
                 default:
                     return _returnInfo.returnControlParse(ESCReturnCode.ESC_ERROR, currentSet, 0, currPtr);
             }
@@ -609,10 +626,29 @@ class RmtesDecoderImpl implements RmtesDecoder
                     }
                     else
                     {
+
                         _curWorkingSet = _tempInfo.getSet();
-                        inIterCount += _tempInfo.getValue();
-                        if (_tempInfo.getRetCode() == ESCReturnCode.UTF_ENC)
-                            encType = EncodeType.TYPE_UTF8;
+                        if (_tempInfo.getRetCode() == ESCReturnCode.RHPA_CMD || _tempInfo.getRetCode() == ESCReturnCode.RREP_CMD)
+                        {
+                            for (int i = 0; i < _tempInfo.getValue(); i++)
+                            {
+                                if (outIterCount + 1 > rmtesBuffer.allocatedLength()) {
+                                    return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                }
+                                rmtesBuffer.byteData().put(outIterCount++, (byte)0);
+                                if (cacheBuffer.byteData() != null)
+                                    rmtesBuffer.byteData().put(outIterCount++, cacheBuffer.byteData().get(inIterCount));
+                                else
+                                    rmtesBuffer.byteData().put(outIterCount++, (byte)0);
+                                inIterCount++;
+                            }
+                        } else
+                        {
+                            inIterCount += _tempInfo.getValue();
+                            if (_tempInfo.getRetCode() == ESCReturnCode.UTF_ENC)
+                                encType = EncodeType.TYPE_UTF8;
+                        }
+
                     }
                 }
                 else if (_curWorkingSet.GL.get_shape() == CharSet.SHAPE_94 &&
@@ -807,10 +843,20 @@ class RmtesDecoderImpl implements RmtesDecoder
                     }
                     else
                     {
-                        if (_tempInfo.getValue() == 0)
-                            inIterCount++;
-                        else
-                            inIterCount += _tempInfo.getValue();
+                        if (_tempInfo.getRetCode() == ESCReturnCode.RHPA_CMD || _tempInfo.getRetCode() == ESCReturnCode.RREP_CMD) {
+                            for (int i = 0; i < _tempInfo.getValue(); i++) {
+                                if (outIterCount + 2 > rmtesBuffer.allocatedLength()) {
+                                    return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                }
+                                rmtesBuffer.byteData().put(outIterCount++, cacheBuffer.byteData().get(inIterCount));
+                                inIterCount++;
+                            }
+                        } else {
+                            if (_tempInfo.getValue() == 0)
+                                inIterCount++;
+                            else
+                                inIterCount += _tempInfo.getValue();
+                        }
                     }
                 }
                 else if (cacheBuffer.byteData() != null && cacheBuffer.byteData().get(inIterCount) == 0x00)
@@ -948,9 +994,22 @@ class RmtesDecoderImpl implements RmtesDecoder
                     else
                     {
                         _curWorkingSet = _tempInfo.getSet();
-                        inIterCount += _tempInfo.getValue();
-                        if (_tempInfo.getRetCode() == ESCReturnCode.UTF_ENC)
-                            encType = EncodeType.TYPE_UTF8;
+                        if (_tempInfo.getRetCode() == ESCReturnCode.RHPA_CMD || _tempInfo.getRetCode() == ESCReturnCode.RREP_CMD)
+                        {
+                            for (int i = 0; i < _tempInfo.getValue(); i++)
+                            {
+                                if (outIterCount + 1 > rmtesBuffer.allocatedLength()) {
+                                    return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                }
+                                rmtesBuffer.byteData().put(outIterCount++, cacheBuffer.byteData().get(inIterCount));
+                                inIterCount++;
+                            }
+                        } else
+                            {
+                                inIterCount += _tempInfo.getValue();
+                                if (_tempInfo.getRetCode() == ESCReturnCode.UTF_ENC)
+                                    encType = EncodeType.TYPE_UTF8;
+                            }
                     }
                 }
                 else if (_curWorkingSet.GL.get_shape() == CharSet.SHAPE_94 &&
@@ -1143,10 +1202,23 @@ class RmtesDecoderImpl implements RmtesDecoder
                     }
                     else
                     {
-                        if (_tempInfo.getValue() == 0)
-                            inIterCount++;
-                        else
-                            inIterCount += _tempInfo.getValue();
+                        if (_tempInfo.getRetCode() == ESCReturnCode.RREP_CMD || _tempInfo.getRetCode() == ESCReturnCode.RHPA_CMD)
+                        {
+                            for (int i = 0; i < _tempInfo.getValue(); i++)
+                            {
+                                if (outIterCount + 1 > rmtesBuffer.allocatedLength()) {
+                                    return CodecReturnCodes.BUFFER_TOO_SMALL;
+                                }
+                                rmtesBuffer.byteData().put(outIterCount++, cacheBuffer.byteData().get(inIterCount));
+                                inIterCount++;
+                            }
+                        } else
+                        {
+                            if (_tempInfo.getValue() == 0)
+                                inIterCount++;
+                            else
+                                inIterCount += _tempInfo.getValue();
+                        }
                     }
                 }
                 else if (cacheBuffer.byteData() != null && cacheBuffer.byteData().get(inIterCount) == 0x00)
