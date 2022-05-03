@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.         --
 ///*|-----------------------------------------------------------------------------
 
 #include "Consumer.h"
@@ -50,10 +50,23 @@ void AppClient::decode( const Map& map )
 
 	while ( map.forth() )
 	{
-		if ( map.getEntry().getKey().getDataType() != DataType::AsciiEnum )
-			return;
+			
+		const MapEntry& me = map.getEntry();
 
-		const EmaString& key = map.getEntry().getKey().getAscii();
+		switch ( me.getKey().getDataType() )
+		{
+			case DataType::AsciiEnum :
+				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getAscii() << endl;
+				break;
+			case DataType::BufferEnum :
+				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getBuffer() << endl;
+				break;
+			case DataType::RmtesEnum :
+				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getRmtes().toString() << endl;
+				break;
+			default:
+				break;
+		}
 
 		DataType::DataTypeEnum dType = map.getEntry().getLoadType();
 
