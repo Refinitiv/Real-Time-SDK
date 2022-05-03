@@ -60,12 +60,19 @@ static RsslUInt32 maxFragmentSize = 0;
 static RsslUInt32 guaranteedOutputBuffers = 0;
 static RsslUInt32 maxOutputBuffers = 0;
 
+static time_t debugInfoIntervalMS = 50;
+static time_t nextDebugTimeMS = 0;
+static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
+
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
 static RsslVACacheInfo cacheInfo;
 static void initializeCache(RsslBool cacheOption);
 static void uninitializeCache();
 static void initializeCacheDictionary();
+static void reactorDebugPrint();
+static void initReactorNextDebugTime();
+
 
 /* default port number */
 static const char *defaultPortNo = "14002";
@@ -88,6 +95,11 @@ void exitWithUsage()
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
 	printf(" -maxEventsInPool size of event pool\n");
+	printf(" -debugConn set 'connection' rector debug info level");
+	printf(" -debugEventQ set 'eventqueue' rector debug info level");
+	printf(" -debugTunnelStream set 'tunnelstream' debug info level");
+	printf(" -debugAll enable all levels of debug info");
+	printf(" -debugInfoInterval set time interval for debug log");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -365,6 +377,27 @@ int main(int argc, char **argv)
 			++iargs;
 			maxEventsInPool = atoi(argv[iargs]);
 		}
+		else if (0 == strcmp("-debugConn", argv[iargs]))
+		{
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_CONNECTION;
+		}
+		else if (0 == strcmp("-debugEventQ", argv[iargs]))
+		{
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTENQUE;
+		}
+		else if (0 == strcmp("-debugTunnelStream", argv[iargs]))
+		{
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+		}
+		else if (0 == strcmp("-debugAll", argv[iargs]))
+		{
+			reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTENQUE | RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+		}
+		else if (0 == strcmp("-debuginfoInterval", argv[iargs]))
+		{
+			++iargs;
+			debugInfoIntervalMS = (time_t)atoi(argv[iargs]);
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -402,6 +435,7 @@ int main(int argc, char **argv)
 	rsslClearCreateReactorOptions(&reactorOpts);
 
 	reactorOpts.maxEventsInPool = maxEventsInPool;
+	reactorOpts.debugLevel = reactorDebugLevel;
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
@@ -467,6 +501,12 @@ int main(int argc, char **argv)
 	/* Initialize run-time */
 	initRuntime();
 
+	/*Initialize reactor debug interval*/
+	if (reactorDebugLevel != RSSL_RC_DEBUG_LEVEL_NONE)
+	{
+		initReactorNextDebugTime();
+	}
+
 	FD_ZERO(&readFds);
 	FD_ZERO(&exceptFds);
 	
@@ -528,6 +568,12 @@ int main(int argc, char **argv)
 		if (selRet > 0)
 		{
 			RsslRet ret;
+
+			if ((rsslReactorGetDebugLevel(pReactor, &reactorDebugLevel, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+				printf("rsslGetReactorDebugLevel failed: %s\n", rsslErrorInfo.rsslError.text);
+
+			if (reactorDebugLevel != RSSL_RC_DEBUG_LEVEL_NONE)
+				reactorDebugPrint();
 
 			/* Accept connection, if one is waiting */
 			if (FD_ISSET(rsslSrvr->socketId, &useRead))
@@ -640,6 +686,51 @@ static void initRuntime()
 	time(&currentTime);
 	
 	rsslProviderRuntime = currentTime + (time_t)timeToRun;
+}
+
+/*
+ * Printout ractor debug information if debug was enabled.
+ */
+static void initReactorNextDebugTime()
+{
+	time_t currentTime = 0;
+
+	/* get current time */
+	time(&currentTime);
+
+	nextDebugTimeMS = (currentTime * 1000) + debugInfoIntervalMS;
+}
+
+/*
+ * Print debug data from reactor
+ */
+
+static void reactorDebugPrint()
+{
+	time_t currentTime = 0, currentTimeMS = 0;
+	RsslReactorDebugInfo pReactorDebugInfo = {0};
+	RsslErrorInfo pError = {0};
+	RsslUInt32 i;
+
+	/* get current time */
+	time(&currentTime);
+
+	if (currentTime * 1000 > nextDebugTimeMS)
+	{
+		if (RSSL_RET_SUCCESS != rsslReactorGetDebugInfo(pReactor, &pReactorDebugInfo, &pError))
+		{
+			printf("rsslReactorGetDebugInfo FAILED with error code: %d, error text: %s\n", pError.rsslError.rsslErrorId, pError.rsslError.text);
+			return;
+		}
+		else
+		{
+			for(i = 0; i < pReactorDebugInfo.debugInfoBuffer.length; i++)
+				printf("%c", pReactorDebugInfo.debugInfoBuffer.data[i]);
+		}
+
+		/*set new time for debug*/
+		nextDebugTimeMS += debugInfoIntervalMS;
+	}
 }
 
 /*

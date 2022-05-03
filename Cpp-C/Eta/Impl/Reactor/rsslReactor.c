@@ -22,11 +22,18 @@
 #include <unistd.h>
 #include <sys/resource.h>
 #include <alloca.h>
+#include "sys/time.h"
 #endif
 
+#include <sys/timeb.h>
+#include <time.h>
+
 #define RSSL_REACTOR_MAX_JSON_ERROR_MSG_SIZE 1101
+#define RSSL_REACTOR_DEBUGGING_BUFFER_MIN_INIT_SIZE 512000
 
 RsslBuffer PONG_MESSAGE = { 15, (char*)"{\"Type\":\"Pong\"}" };
+
+RsslBuffer REACTOR_EMPTY_DEBUG_INFO = { 1, (char*)"" };
 
 /* Moves a RsslReactorChannelImpl from whatever list it's on to the given list and changes its state. */
 static void _reactorMoveChannel(RsslQueue *pNewList, RsslReactorChannelImpl *pReactorChannel);
@@ -908,6 +915,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	rsslInitQueue(&pReactorImpl->closingWarmstandbyChannel);
 
 	RSSL_MUTEX_INIT(&pReactorImpl->interfaceLock);
+	RSSL_MUTEX_INIT(&pReactorImpl->debugLock);
 
 	pReactorImpl->lastRecordedTimeMs = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
 
@@ -996,6 +1004,27 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	{
 		_reactorWorkerCleanupReactor(pReactorImpl);
 		return NULL;
+	}
+
+	pReactorImpl->debugLevel = pReactorOpts->debugLevel;
+
+	if (pReactorOpts->debugBufferSize < RSSL_REACTOR_DEBUGGING_BUFFER_MIN_INIT_SIZE)
+	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Set debugBufferSize: %d is to small. Min debug buffer size is %d", pReactorOpts->debugBufferSize, RSSL_REACTOR_DEBUGGING_BUFFER_MIN_INIT_SIZE);
+		return NULL;
+	}
+
+	pReactorImpl->debugBufferSize = pReactorOpts->debugBufferSize;
+
+
+	if (isReactorDebugEnabled(pReactorImpl))
+	{
+		if (_initReactorDebugInfo(pReactorImpl, pError) != RSSL_RET_SUCCESS)
+		{
+			_reactorWorkerCleanupReactor(pReactorImpl);
+			return NULL;
+		}
 	}
 
 	pReactorImpl->rsslWorkerStarted = RSSL_TRUE; /* Indicates the worker thread is started */
@@ -2059,6 +2088,23 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		pReactorChannel->userNameType = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType;
 	}
 
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+	{
+		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+		{
+			if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+			{
+				_reactorShutdown(pReactorImpl, pError);
+				_reactorSendShutdownEvent(pReactorImpl, pError);
+				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+			}
+		}
+
+		pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_SESSION_STARTUP_DONE;
+
+		_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") connection EXECUTED on channel fd = "RSSL_REACTOR_SOCKET_PRINT_TYPE"..]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+	}
+
 	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen((RsslReactor*)pReactorChannel->pParentReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
 		return RSSL_RET_FAILURE;
 
@@ -2137,6 +2183,25 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 
 	if (queryConnectInfo || !(pChannel = rsslConnect(pConnOptions, &pError->rsslError)))
 	{
+
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+		{
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+			{
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
+			}
+
+			pReactorChannel->pChannelDebugInfo->debugInfoState &= (~RSSL_RC_DEBUG_INFO_CHANNEL_UP);
+			pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_DOWN;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") is DOWN on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+		}
+
 		if (pOpts->reconnectAttemptLimit != 0)
 		{
 			if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
@@ -2153,6 +2218,23 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 	else
 	{
 		pReactorChannel->reactorChannel.pRsslChannel = pChannel;
+
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+		{
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+			{
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
+			}
+
+			pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_CONNECTING_PERFORMED;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") is connection PERFORMED on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+		}
 
 		if (!RSSL_ERROR_INFO_CHECK((ret = _reactorAddChannel(pReactorImpl, pReactorChannel, pError)) == RSSL_RET_SUCCESS, ret, pError))
 		{
@@ -2280,9 +2362,23 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 	
 	rsslResetReactorChannel(pReactorImpl, pReactorChannel);
 
+	/* Checks whether per reactor debuging is enabled. */
+	if (isReactorDebugEnabled(pReactorImpl))
+	{
+		if (_initReactorChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+		{
+			_reactorShutdown(pReactorImpl, pError);
+			_reactorSendShutdownEvent(pReactorImpl, pError);
+			return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+		}
+	}
+
 	if (_reactorChannelCopyRole(pReactorChannel, pRole, pError) != RSSL_RET_SUCCESS)
 	{
 		rsslCloseChannel(pChannel, &pError->rsslError);
+
+		_cleanupReactorChannelDebugInfo(pReactorChannel);
+
 		_reactorMoveChannel(&pReactorImpl->channelPool, pReactorChannel);
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
@@ -2296,17 +2392,24 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen(pReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
 	{
 		rsslCloseChannel(pChannel, &pError->rsslError);
+
+		_cleanupReactorChannelDebugInfo(pReactorChannel);
+
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 
 	if (pReactorChannel->connectionDebugFlags != 0 && !RSSL_ERROR_INFO_CHECK((ret = rsslIoctl(pReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pReactorChannel->connectionDebugFlags), &(pError->rsslError))) == RSSL_RET_SUCCESS, ret, pError))
 	{
 		rsslCloseChannel(pChannel, &pError->rsslError);
+
+		_cleanupReactorChannelDebugInfo(pReactorChannel);
+
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 
 	if (!RSSL_ERROR_INFO_CHECK((ret = _reactorAddChannel(pReactorImpl, pReactorChannel, pError)) == RSSL_RET_SUCCESS, ret, pError))
 	{
+		_cleanupReactorChannelDebugInfo(pReactorChannel);
 		_reactorShutdown(pReactorImpl, pError);
 		_reactorSendShutdownEvent(pReactorImpl, pError);
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
@@ -2319,6 +2422,23 @@ RSSL_VA_API RsslRet rsslReactorAccept(RsslReactor *pReactor, RsslServer *pServer
 	}
 
 	++pReactorImpl->channelCount;
+
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+	{
+		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+		{
+			if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+			{
+				_reactorShutdown(pReactorImpl, pError);
+				_reactorSendShutdownEvent(pReactorImpl, pError);
+				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+			}
+		}
+
+		pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_ACCEPT_CHANNEL;
+
+		_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), RsslServer("RSSL_REACTOR_POINTER_PRINT_TYPE") ACCEPT reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactor, pServer, pReactorChannel, pChannel->socketId);
+	}
 
 	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 }
@@ -2372,6 +2492,22 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 			if (rsslNotifierEventIsReadable(pReactorImpl->pQueueNotifierEvent))
 			{
 				RsslReactorEventQueue *pQueue;
+
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && (pReactorImpl->activeEventQueueGroup.readyEventQueueGroup.count > 0))
+				{
+					if (pReactorImpl->pReactorDebugInfo == NULL)
+					{
+						if (_initReactorDebugInfo(pReactorImpl, pError) != RSSL_RET_SUCCESS)
+						{
+							_reactorShutdown(pReactorImpl, pError);
+							_reactorSendShutdownEvent(pReactorImpl, pError);
+							return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+						}
+					}
+
+					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Ready event queue GROUP COUNT (%lu) to be dispatched from active event queue group.]\n",
+						pReactor, pReactorImpl->activeEventQueueGroup.readyEventQueueGroup.count);
+				}
 
 				/* Dispatch events from queues in a round-robin fashion until all are processed. */
 				while (maxMsgs > 0 && (pQueue = rsslReactorEventQueueGroupShift(&pReactorImpl->activeEventQueueGroup)))
@@ -2487,8 +2623,28 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 			}
 
+			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && pReactorChannel->pChannelDebugInfo != NULL)
+			{
+				pReactorChannel->pChannelDebugInfo->numOfDispatchCall++;
+			}
+
 			if (rsslNotifierEventIsReadable(pReactorImpl->pQueueNotifierEvent))
 			{
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && (pReactorImpl->reactorEventQueue.eventQueue.count > 0))
+				{
+					if (pReactorImpl->pReactorDebugInfo == NULL)
+					{
+						if (_initReactorDebugInfo(pReactorImpl, pError) != RSSL_RET_SUCCESS)
+						{
+							_reactorShutdown(pReactorImpl, pError);
+							_reactorSendShutdownEvent(pReactorImpl, pError);
+							return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+						}
+					}
+
+					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE") event queue count %lu to be dispatched.]\n", pReactor,
+						pReactorImpl->reactorEventQueue.eventQueue.count);
+				}
 
 				/* Dispatch from reactor queue */
 				while (maxMsgs > 0)
@@ -2511,6 +2667,22 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 						if (ret == RSSL_RET_SUCCESS)
 							break;
 					}
+				}
+
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && (pReactorChannel->eventQueue.eventQueue.count > 0))
+				{
+					if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+					{
+						if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+						{
+							_reactorShutdown(pReactorImpl, pError);
+							_reactorSendShutdownEvent(pReactorImpl, pError);
+							return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+						}
+					}
+
+					_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Per Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") event queue count (%lu) to be dispatched on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+						pReactor, pReactorChannel, pReactorChannel->eventQueue.eventQueue.count, pReactorChannel->reactorChannel.pRsslChannel->socketId);
 				}
 
 				/* Dispatch from channel queue */
@@ -3158,6 +3330,33 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 		pReactorChannel->pUserBufferWriteCallAgain = NULL;
 	}
 
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+	{
+		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+		{
+			if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+			{
+				_reactorShutdown(pReactorImpl, pError);
+				_reactorSendShutdownEvent(pReactorImpl, pError);
+				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+			}
+		}
+
+		if (pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING)
+		{
+			pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_RECONNECTING;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") is RECONNECTING on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+		}
+		else
+		{
+			pReactorChannel->pChannelDebugInfo->debugInfoState &= (~RSSL_RC_DEBUG_INFO_CHANNEL_UP);
+			pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_DOWN;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") is DOWN on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+		}
+	}
+
 	/* Bring down tunnel streams. */
 	if (pReactorChannel->pTunnelManager 
 			&& !pReactorChannel->pWatchlist /* Watchlist will fanout closes */)
@@ -3726,10 +3925,54 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 	{
 		/* Channel is in the process of being closed. */
 
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+		{
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+			{
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
+			}
+
+			pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_CLOSE;
+
+			pReactorChannel->pChannelDebugInfo->numOfCloseChannelCall++;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Closes reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE" but the channel is being closed.]\n",
+				pReactor, pReactorChannel, pChannel->socketId);
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE"), number of closing call(%hu) and number of dispatching per channel call(%lu) ]\n",
+				pReactor, pReactorChannel, pReactorChannel->pChannelDebugInfo->numOfCloseChannelCall, pReactorChannel->pChannelDebugInfo->numOfDispatchCall);
+		}
+
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
 	}
 	else
 	{
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+		{
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+			{
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
+			}
+
+			pReactorChannel->pChannelDebugInfo->numOfCloseChannelCall++;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Closes reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactor,
+				pReactorChannel, pChannel->socketId);
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE"), number of closing call(%hu) and number of dispatching per channel call(%lu) ]\n",
+				pReactor, pReactorChannel, pReactorChannel->pChannelDebugInfo->numOfCloseChannelCall, pReactorChannel->pChannelDebugInfo->numOfDispatchCall);
+		}
+		
 		if (_reactorHandlesWarmStandby(pReactorChannel))
 		{
 			RsslQueueLink* pLink = NULL;
@@ -3969,6 +4212,23 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 							_reactorMoveChannel(&pReactorImpl->activeChannels, pReactorChannel);
 							pReactorChannel->lastPingReadMs = pReactorImpl->lastRecordedTimeMs;
+
+							if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+							{
+								if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+								{
+									if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+									{
+										_reactorShutdown(pReactorImpl, pError);
+										_reactorSendShutdownEvent(pReactorImpl, pError);
+										return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+									}
+								}
+
+								pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_UP;
+
+								_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") is UP on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+							}
 
 							{
 								RsslReactorChannel* pCallbackChannel = (RsslReactorChannel*)pReactorChannel;
@@ -8030,6 +8290,45 @@ RSSL_VA_API RsslRet rsslReactorAcceptTunnelStream(RsslTunnelStreamRequestEvent *
 	if ((ret = tunnelManagerAcceptStream(pReactorChannelImpl->pTunnelManager, pEvent, pOptions, pError)) != RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface(pReactorImpl), ret);
 
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+	{
+		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+		{
+			if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+			{
+				_reactorShutdown(pReactorImpl, pError);
+				_reactorSendShutdownEvent(pReactorImpl, pError);
+				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+			}
+		}
+
+		pReactorChannelImpl->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_ACCEPT_TUNNEL_REQUEST;
+
+		_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") ACCEPTS a tunnel stream REQUEST(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+			pReactorImpl, pReactorChannelImpl, pEvent->streamId, pReactorChannelImpl->reactorChannel.socketId);
+	}
+
+	if (pReactorChannelImpl->tunnelDispatchEventQueued)
+	{
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+		{
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+			{
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
+			}
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") has invalid state of tunnelDispatchEventQueued(%d) for tunnel stream (stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+				pReactorImpl, pReactorChannelImpl, pReactorChannelImpl->tunnelDispatchEventQueued, pEvent->streamId, pReactorChannelImpl->reactorChannel.socketId);
+		}
+
+		pReactorChannelImpl->tunnelDispatchEventQueued = RSSL_FALSE;
+	}
+
 	// send a dispatch tunnel stream event if necessary
 	if (pReactorChannelImpl->pTunnelManager->_needsDispatchNow && !pReactorChannelImpl->tunnelDispatchEventQueued)
 	{
@@ -8039,6 +8338,24 @@ RSSL_VA_API RsslRet rsslReactorAcceptTunnelStream(RsslTunnelStreamRequestEvent *
 		rsslClearReactorChannelEventImpl(pDispatchEvent);
 		pDispatchEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM;
 		pDispatchEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+		{
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+			{
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
+			}
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") put an tunnel stream event(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+				pReactorImpl, pReactorChannelImpl, pEvent->streamId, pReactorChannelImpl->reactorChannel.socketId);
+		}
+
+
 		ret = rsslReactorEventQueuePut(&pReactorChannelImpl->eventQueue, (RsslReactorEventImpl*)pDispatchEvent);
 		return (reactorUnlockInterface(pReactorImpl), ret);
 	}
@@ -13490,4 +13807,317 @@ RSSL_VA_API RsslRet rsslReactorIoctl(RsslReactor* pReactor, RsslReactorIoctlCode
 	}
 
 	return (reactorUnlockInterface(pReactorImpl), ret);
+}
+
+RSSL_VA_API RsslRet rsslReactorGetDebugInfo(RsslReactor* pReactor, RsslReactorDebugInfo* pDebugInfo, RsslErrorInfo* pError)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslReactorImpl* pReactorImpl = (RsslReactorImpl*)pReactor;
+	RsslReactorDebugInfoImpl* pReactorDebugInfoImpl = NULL;
+	RsslUInt32 outputSize = 0;
+
+	if (pError == NULL)
+		return RSSL_RET_FAILURE;
+
+	if (pReactor == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"The pReactor parameter is NULL");
+
+		return RSSL_RET_FAILURE;
+	}
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (pDebugInfo == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"The pDebugInfo parameter is NULL");
+
+		return RSSL_RET_FAILURE;
+	}
+
+	rsslClearBuffer(&pDebugInfo->debugInfoBuffer);
+
+	if (!isReactorDebugEnabled(pReactorImpl))
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Per reactor debuging is not enabled.");
+
+		return RSSL_RET_FAILURE;
+	}
+
+	pReactorDebugInfoImpl = pReactorImpl->pReactorDebugInfo;
+
+	if ((ret = reactorLockInterface(pReactorImpl, RSSL_TRUE, pError)) != RSSL_RET_SUCCESS)
+		return ret;
+
+	RSSL_MUTEX_LOCK(&pReactorImpl->debugLock);
+
+	outputSize = pReactorDebugInfoImpl->debuggingMemory.length - pReactorDebugInfoImpl->remainingLength;
+
+	if (outputSize != 0)
+	{
+		memset(pReactorDebugInfoImpl->outputMemory.data, 0, pReactorImpl->debugBufferSize);
+		memcpy(pReactorDebugInfoImpl->outputMemory.data, pReactorDebugInfoImpl->debuggingMemory.data, outputSize);
+
+		/* Transfer to the parameter. */
+		pDebugInfo->debugInfoBuffer.data = pReactorDebugInfoImpl->outputMemory.data;
+		pDebugInfo->debugInfoBuffer.length = outputSize;
+
+		/* Resets the debuging memory portiion */
+		pReactorDebugInfoImpl->pCurrentWrite = pReactorDebugInfoImpl->debuggingMemory.data;
+		pReactorDebugInfoImpl->remainingLength = pReactorDebugInfoImpl->debuggingMemory.length;
+	}
+	else
+	{
+		pDebugInfo->debugInfoBuffer.data = REACTOR_EMPTY_DEBUG_INFO.data;
+		pDebugInfo->debugInfoBuffer.length = 0;
+	}
+
+	RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+
+	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+}
+
+RSSL_VA_API RsslRet rsslReactorGetDebugLevel(RsslReactor *pReactor, RsslUInt32 *debugLevel, RsslErrorInfo* pError)
+{
+	RsslReactorImpl *pReactorImpl = (RsslReactorImpl*)pReactor;
+
+	if (pReactor == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Income pReactor is NULL");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (pError == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Income pError is NULL");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (debugLevel == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Income debugLevel is NULL.");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (reactorLockInterface(pReactorImpl, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
+		return RSSL_RET_INVALID_ARGUMENT;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+	}
+
+	*debugLevel = pReactorImpl->debugLevel;
+
+	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+}
+
+RSSL_VA_API RsslRet rsslReactorSetDebugLevel(RsslReactor *pReactor, RsslUInt32 debugLevel, RsslErrorInfo* pError)
+{
+	RsslReactorImpl *pReactorImpl = (RsslReactorImpl*)pReactor;
+
+	if (pReactor == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Income pReactor is NULL");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (pError == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Income pError is NULL");
+		return RSSL_RET_FAILURE;
+	}
+
+	if (reactorLockInterface(pReactorImpl, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
+		return RSSL_RET_INVALID_ARGUMENT;
+
+	if (pReactorImpl->state != RSSL_REACTOR_ST_ACTIVE)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Reactor is shutting down.");
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
+	}
+
+	(((RsslReactorImpl*)pReactor)->debugLevel) = debugLevel;
+
+	return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+}
+
+
+RsslRet _initReactorAndChannelDebugInfo(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError)
+{
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	if (pReactorImpl->pReactorDebugInfo == NULL)
+	{
+		if ((ret =_initReactorDebugInfo(pReactorImpl, pError)) != RSSL_RET_SUCCESS) return ret;
+	}
+
+	if (pReactorChannel->pChannelDebugInfo == NULL)
+	{
+		if ((ret = _initReactorChannelDebugInfo(pReactorImpl, pReactorChannel, pError)) != RSSL_RET_SUCCESS) return ret;
+	}
+
+	return ret;
+}
+
+RsslRet _initReactorDebugInfo(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pError)
+{
+	RSSL_MUTEX_LOCK(&pReactorImpl->debugLock);
+
+	pReactorImpl->pReactorDebugInfo = (RsslReactorDebugInfoImpl*)malloc(sizeof(RsslReactorDebugInfoImpl));
+
+	if (!pReactorImpl->pReactorDebugInfo)
+	{
+		RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create reactor debugging information.");
+		return RSSL_RET_FAILURE;
+	}
+
+	rsslClearReactorDebugInfoImpl(pReactorImpl->pReactorDebugInfo);
+
+	pReactorImpl->pReactorDebugInfo->debuggingMemory.data = (char*)malloc(pReactorImpl->debugBufferSize);
+
+	if (!pReactorImpl->pReactorDebugInfo->debuggingMemory.data)
+	{
+		RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create reactor debugging information.");
+		return RSSL_RET_FAILURE;
+	}
+
+	pReactorImpl->pReactorDebugInfo->debuggingMemory.length = pReactorImpl->debugBufferSize;
+	pReactorImpl->pReactorDebugInfo->remainingLength = pReactorImpl->pReactorDebugInfo->debuggingMemory.length;
+	pReactorImpl->pReactorDebugInfo->pCurrentWrite = pReactorImpl->pReactorDebugInfo->debuggingMemory.data;
+	memset(pReactorImpl->pReactorDebugInfo->debuggingMemory.data, 0, pReactorImpl->debugBufferSize);
+
+	pReactorImpl->pReactorDebugInfo->outputMemory.data = (char*)malloc(pReactorImpl->debugBufferSize);
+
+	if (!pReactorImpl->pReactorDebugInfo->outputMemory.data)
+	{
+		RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create reactor debugging information.");
+		return RSSL_RET_FAILURE;
+	}
+
+	RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet _initReactorChannelDebugInfo(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError)
+{
+	RSSL_MUTEX_LOCK(&pReactorImpl->debugLock);
+
+	pReactorChannel->pChannelDebugInfo = (RsslReactorChannelDebugInfo*)malloc(sizeof(RsslReactorChannelDebugInfo));
+
+	if (!pReactorChannel->pChannelDebugInfo)
+	{
+		RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to create channel debugging information.");
+		return RSSL_RET_FAILURE;
+	}
+
+	rsslClearReactorChannelDebugInfo(pReactorChannel->pChannelDebugInfo);
+	pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_ACCEPT_CHANNEL;
+
+	RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
+
+	return RSSL_RET_SUCCESS;
+}
+
+void _cleanupReactorChannelDebugInfo(RsslReactorChannelImpl *pReactorChannel)
+{
+	if (pReactorChannel && pReactorChannel->pChannelDebugInfo)
+	{
+		free(pReactorChannel->pChannelDebugInfo);
+		pReactorChannel->pChannelDebugInfo = NULL;
+	}
+}
+
+RsslRet _getCurrentTimestamp(RsslBuffer* pTimeStamp)
+{
+	long hour = 0,
+		min = 0,
+		sec = 0,
+		msec = 0;
+
+#if defined(WIN32)
+	struct _timeb	_time;
+	_ftime(&_time);
+	sec = (long)(_time.time - 60 * (_time.timezone - _time.dstflag * 60));
+	min = sec / 60 % 60;
+	hour = sec / 3600 % 24;
+	sec = sec % 60;
+	msec = _time.millitm;
+#elif defined(LINUX)
+	/* localtime must be used to get the correct system time. */
+	struct tm stamptime;
+	time_t currTime;
+	currTime = time(NULL);
+	stamptime = *localtime_r(&currTime, &stamptime);
+	sec = stamptime.tm_sec;
+	min = stamptime.tm_min;
+	hour = stamptime.tm_hour;
+
+	/* localtime, however, does not give us msec. */
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	msec = tv.tv_usec / 1000;
+#endif
+
+	if(!pTimeStamp)
+		return RSSL_RET_FAILURE;
+
+	/* The time stamp length is 38. */
+	pTimeStamp->length = (RsslUInt32)sprintf(pTimeStamp->data, "[Reactor DEBUG Time: %ld:%02ld:%02ld:%03ld -> ",
+		hour,
+		min,
+		sec,
+		msec);
+
+	return RSSL_RET_SUCCESS;
+}
+
+void _writeDebugInfo(RsslReactorImpl* pReactorImpl, const char* debugText, ...)
+{
+	RsslBuffer timeStamp;
+	va_list fmtArgs;
+	int writeLength;
+	RsslReactorDebugInfoImpl* pReactorDebugInfoImpl;
+
+	if (!pReactorImpl || !pReactorImpl->pReactorDebugInfo)
+		return;
+
+	pReactorDebugInfoImpl = pReactorImpl->pReactorDebugInfo;
+
+	/* Ensure that there is enough space to write a debugging message. */
+	if (pReactorDebugInfoImpl->remainingLength < 155 || !debugText)
+		return;
+
+	rsslClearBuffer(&timeStamp);
+
+	RSSL_MUTEX_LOCK(&pReactorImpl->debugLock);
+
+	timeStamp.data = pReactorDebugInfoImpl->pCurrentWrite;
+
+	_getCurrentTimestamp(&timeStamp);
+
+	pReactorDebugInfoImpl->pCurrentWrite += timeStamp.length;
+	pReactorDebugInfoImpl->remainingLength -= timeStamp.length;
+
+	va_start(fmtArgs, debugText);
+	writeLength = vsnprintf(pReactorDebugInfoImpl->pCurrentWrite, pReactorDebugInfoImpl->remainingLength, debugText, fmtArgs);
+	va_end(fmtArgs);
+
+	pReactorDebugInfoImpl->pCurrentWrite += writeLength;
+	pReactorDebugInfoImpl->remainingLength -= writeLength;
+
+	RSSL_MUTEX_UNLOCK(&pReactorImpl->debugLock);
 }

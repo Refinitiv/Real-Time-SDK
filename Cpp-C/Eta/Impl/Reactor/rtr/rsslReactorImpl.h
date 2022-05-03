@@ -39,6 +39,19 @@
 #define RSSL_REACTOR_WSB_STARTING_SERVER_INDEX -1 /* indicates the RsslReactorWarmStandbyGroup.startingActiveServer */
 #define RSSL_REACTOR_WORKER_ERROR_INFO_MAX_POOL_SIZE 16
 
+#ifdef _WIN32
+#ifdef _WIN64
+#define RSSL_REACTOR_SOCKET_PRINT_TYPE "%llu"	/* WIN64 */
+#define RSSL_REACTOR_POINTER_PRINT_TYPE	"0x%p"
+#else
+#define RSSL_REACTOR_SOCKET_PRINT_TYPE "%u"	/* WIN32 */
+#define RSSL_REACTOR_POINTER_PRINT_TYPE	"0x%p"
+#endif
+#else
+#define RSSL_REACTOR_SOCKET_PRINT_TYPE "%d"  /* Linux */
+#define RSSL_REACTOR_POINTER_PRINT_TYPE	"%p"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -111,6 +124,24 @@ RTR_C_INLINE void rsslClearReactorConnectInfoImpl(RsslReactorConnectInfoImpl* pR
 	memset(pReactorConnectInfoImpl, 0, sizeof(RsslReactorConnectInfoImpl));
 	rsslClearReactorConnectInfo(&pReactorConnectInfoImpl->base);
 }
+
+typedef enum
+{
+	RSSL_RC_DEBUG_INFO_UNKNOWN = 0x00, /* Unknown */
+	RSSL_RC_DEBUG_INFO_ACCEPT_CHANNEL= 0x01, /* Server acceps a channel */
+	RSSL_RC_DEBUG_INFO_CHANNEL_UP = 0x02, /* Channel Up */
+	RSSL_RC_DEBUG_INFO_CHANNEL_DOWN = 0x04, /* Channel Down */
+	RSSL_RC_DEBUG_INFO_CHANNEL_SESSION_STARTUP_DONE = 0x08, /* Chennel start up session executed */
+	RSSL_RC_DEBUG_INFO_CHANNEL_CONNECTING_PERFORMED = 0x10, /* Channel connection is go on*/
+	RSSL_RC_DEBUG_INFO_CHANNEL_CLOSE = 0x20, /* Channel close. */
+	RSSL_RC_DEBUG_INFO_CHANNEL_RECONNECTING = 0x40, /* Channel reconnecting. */
+	RSSL_RC_DEBUG_INFO_RECEIVE_TUNNEL_REQUEST = 0x80, /* Receive tunnel stream request */
+	RSSL_RC_DEBUG_INFO_ACCEPT_TUNNEL_REQUEST = 0x100, /* Accept tunnel stream request */
+	RSSL_RC_DEBUG_INFO_SUBMIT_TUNNEL_STREAM_RESP = 0x200, /* Submit a response to open tunnel stream request */
+	RSSL_RC_DEBUG_INFO_TUNNEL_STREAM_ESTABLISHED = 0x400, /* Accept tunnel stream request */
+	RSSL_RC_DEBUG_INFO_HANDLE_TUNNEL_CLOSE = 0x800, /* Receives close tunnel stream requst. */
+	RSSL_RC_DEBUG_INFO_REJECT_TUNNEL_REQUEST = 0x2000, /* Receive tunnel stream request */
+}RsslReactorChannelDebugInfoState;
 
 typedef enum
 {
@@ -363,6 +394,18 @@ RTR_C_INLINE void rsslClearReactorWarmStandByGroupImpl(RsslReactorWarmStandbyGro
 	pReactorWarmStandByGroupImpl->streamId = 0;
 }
 
+typedef struct
+{
+	RsslUInt32 numOfDispatchCall;
+	RsslUInt16 numOfCloseChannelCall;
+	RsslReactorChannelDebugInfoState debugInfoState;
+} RsslReactorChannelDebugInfo;
+
+RTR_C_INLINE void rsslClearReactorChannelDebugInfo(RsslReactorChannelDebugInfo* pReactorChannelImplDebugInfo)
+{
+	memset(pReactorChannelImplDebugInfo, 0, sizeof(RsslReactorChannelDebugInfo));
+}
+
 /* RsslReactorChannelImpl 
  * - Handles a channel associated with the RsslReactor */
 typedef struct 
@@ -460,6 +503,7 @@ typedef struct
 	RsslBool						  isStartingServerConfig; /* This is used to indicate that this channel uses the starting server configuration. */
 	RsslInt64						  lastSubmitOptionsTime; /* Keeps the timestamp when handling the last submit options. */
 	RsslQueue						  *pWSRecoveryMsgList; /* Keeps a list of recovery status messages to notify application when this channel becomes active. */
+	RsslReactorChannelDebugInfo*      pChannelDebugInfo; /* Provides addtional debugging information for channel and tunnel stream. */
 
 } RsslReactorChannelImpl;
 
@@ -1660,6 +1704,20 @@ typedef enum
 	RSSL_REACTOR_ST_SHUT_DOWN = 3 /* Reactor has shutdown */
 } RsslReactorState;
 
+typedef struct
+{
+	char* pCurrentWrite; /* Keeps the current write position in the debugging memory. */
+	RsslUInt32 remainingLength; /* Keeps the remaining buffer's length for writing. */
+	RsslBuffer debuggingMemory; /* Keeps the allocation address and size*/
+	RsslBuffer outputMemory; /* This is used to present debugging information.*/
+
+} RsslReactorDebugInfoImpl;
+
+RTR_C_INLINE void rsslClearReactorDebugInfoImpl(RsslReactorDebugInfoImpl* pReactorDebugInfo)
+{
+	memset(pReactorDebugInfo, 0, sizeof(RsslReactorDebugInfoImpl));
+}
+
 /* RsslReactorImpl
  * The Reactor handles reading messages and commands from the application.
  * Primary responsibilities include:
@@ -1746,12 +1804,27 @@ struct _RsslReactorImpl
 	RsslReactorRestLoggingCallback	*pRestLoggingCallback;	/* Sets a callback specified by users to receive Rest logging message. */
 	RsslQueue warmstandbyChannelPool;	/* Pool of available RsslReactorWarmStandByHandlerImpl structures */
 	RsslQueue closingWarmstandbyChannel;    /* Keeps a list RsslReactorWarmStandByHandlerImpl being closed. */
+
+	RsslInt32		    debugLevel; /*Configure level of debugging info*/
+	RsslReactorDebugInfoImpl* pReactorDebugInfo;	/* Keeps debug info pre reactor. */
+	RsslUInt32			debugBufferSize;			/* Configure size of debug buffer  */
+	RsslMutex			debugLock;					/* Ensures reactor debug function calls are thread-safe */
 };
 
 RTR_C_INLINE void rsslClearReactorImpl(RsslReactorImpl *pReactorImpl)
 {
 	memset(pReactorImpl, 0, sizeof(RsslReactorImpl));
 	pReactorImpl->closeChannelFromFailure = RSSL_TRUE;
+}
+
+RTR_C_INLINE RsslBool isReactorDebugLevelEnabled(RsslReactorImpl *pReactorImpl, RsslReactorDebuggerLevels debugLevel)
+{
+	return (pReactorImpl->debugLevel & debugLevel);
+}
+
+RTR_C_INLINE RsslBool isReactorDebugEnabled(RsslReactorImpl *pReactorImpl)
+{
+	return (pReactorImpl->debugLevel != RSSL_RC_DEBUG_LEVEL_NONE);
 }
 
 void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
@@ -1826,6 +1899,17 @@ void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRe
 * @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
 */
 void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
+RsslRet _getCurrentTimestamp(RsslBuffer* timeStamp);
+
+void _writeDebugInfo(RsslReactorImpl* pReactorDebugInfo, const char* debugText, ...);
+
+RsslRet _initReactorAndChannelDebugInfo(RsslReactorImpl* pReactorDebugInfo, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError);
+
+RsslRet _initReactorDebugInfo(RsslReactorImpl *pReactorImpl, RsslErrorInfo *pError);
+
+RsslRet _initReactorChannelDebugInfo(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pReactorChannel, RsslErrorInfo *pError);
+
+void _cleanupReactorChannelDebugInfo(RsslReactorChannelImpl *pReactorChannel);
 
 #ifdef __cplusplus
 };

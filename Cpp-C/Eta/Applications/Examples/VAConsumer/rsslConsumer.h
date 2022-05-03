@@ -20,6 +20,8 @@ extern "C" {
 
 static void initRuntime();
 static void handleRuntime();
+static void initReactorNextDebugTime();
+static void reactorDebugPrint();
 void cleanUpAndExit(int code);
 void exitApp(int code);
 

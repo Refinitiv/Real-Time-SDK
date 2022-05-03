@@ -358,6 +358,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		free(pReactorImpl->memoryBuffer.data);
 
 	RSSL_MUTEX_DESTROY(&pReactorImpl->interfaceLock);
+	RSSL_MUTEX_DESTROY(&pReactorImpl->debugLock);
 
 	/* Ensure that the worker thread is started before cleaning up its resources */
 	if (pReactorImpl->rsslWorkerStarted)
@@ -443,6 +444,26 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		{
 			free(pReactorImpl->pJsonErrorInfo);
 			pReactorImpl->pJsonErrorInfo = NULL;
+		}
+	}
+
+	if (pReactorImpl->pReactorDebugInfo)
+	{
+		RsslReactorDebugInfoImpl* pReactorDebugInfo = pReactorImpl->pReactorDebugInfo;
+
+		if (pReactorDebugInfo)
+		{
+			if (pReactorDebugInfo->debuggingMemory.data)
+			{
+				free(pReactorDebugInfo->debuggingMemory.data);
+			}
+
+			if (pReactorDebugInfo->outputMemory.data)
+			{
+				free(pReactorDebugInfo->outputMemory.data);
+			}
+
+			free(pReactorDebugInfo);
 		}
 	}
 
@@ -2059,6 +2080,21 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						{
 							if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 							{
+								if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+								{
+									if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+									{
+										if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS)
+										{
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+										}
+									}
+
+									pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_CLOSE;
+
+									_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) is RECONNECTING on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+								}
+
 								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 								{
 									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
@@ -2111,6 +2147,21 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 					if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect(&(pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 					{
+						if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+						{
+							if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+							{
+								if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS)
+								{
+									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+								}
+							}
+
+							pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_CLOSE;
+
+							_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) is RECONNECTING on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+						}
+
 						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 							return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 					}
@@ -2918,6 +2969,22 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 
 				if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 				{
+					if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+					{
+						if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+						{
+							if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS)
+							{
+								_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+								return;
+							}
+						}
+
+						pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_CLOSE;
+
+						_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) is RECONNECTING to RDP on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+					}
+
 					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 					{
 						_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
@@ -3505,6 +3572,22 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 						{
 							if (!(pReactorChannel->reactorChannel.pRsslChannel = rsslConnect((&pReactorConnectInfoImpl->base.rsslConnectOptions), &pReactorChannel->channelWorkerCerr.rsslError)))
 							{
+								if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
+								{
+									if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+									{
+										if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS)
+										{
+											_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+											return;
+										}
+									}
+
+									pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_CLOSE;
+
+									_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) is RECONNECTING o RDP on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
+								}
+
 								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 								{
 									_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);

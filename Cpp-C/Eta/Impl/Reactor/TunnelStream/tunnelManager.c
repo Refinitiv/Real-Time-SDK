@@ -185,6 +185,8 @@ RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorIn
 	RsslRet ret;
 	RsslHashLink *pHashLink;
 	RsslTunnelStream *pTunnelStream;
+	RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pManager->_pReactorChannel;
+	RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
 
 	if ((pHashLink = rsslHashTableFind(&pManagerImpl->_streamIdToTunnelStreamTable, &pMsg->msgBase.streamId, NULL)) != NULL)
 	{
@@ -305,6 +307,22 @@ RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorIn
 						return RSSL_RET_SUCCESS;
 					}
 					newRequest.streamVersion = streamVersion;
+				}
+
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+				{
+					if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+					{
+						if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) == RSSL_RET_SUCCESS)
+						{
+							return RSSL_RET_FAILURE;
+						}
+					}
+
+					pReactorChannelImpl->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_RECEIVE_TUNNEL_REQUEST;
+
+					_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) RECEIVES a tunnel stream REQUEST(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+						pReactorImpl, pReactorChannelImpl, newRequest.event.streamId, pReactorChannelImpl->reactorChannel.socketId);
 				}
 
 				if ((cret = (*pManagerImpl->_listenerCallback)(&newRequest.event, pErrorInfo))
@@ -550,6 +568,22 @@ RsslRet tunnelManagerRejectStream(TunnelManager *pManager, RsslTunnelStreamReque
 
 	if ((ret = tunnelManagerSubmitChannelBuffer(pManagerImpl, pBuffer, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
+
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+	{
+		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+		{
+			if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) == RSSL_RET_SUCCESS)
+			{
+				return RSSL_RET_FAILURE;
+			}
+		}
+
+		pReactorChannelImpl->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_REJECT_TUNNEL_REQUEST;
+
+		_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) REJECTS a tunnel stream REQUEST(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+			pReactorImpl, pReactorChannelImpl, tunnelStatus.base.streamId, pReactorChannelImpl->reactorChannel.socketId);
+	}
 
 	/* Successfully rejected */
 	pRequest->state = TSR_REJECTED;

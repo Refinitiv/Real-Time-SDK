@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+#define RSSL_REACTOR_DEBUGGING_BUFFER_INIT_SIZE 1048576
+
 /**
  *	@addtogroup VAReactorStruct
  *	@{
@@ -293,6 +295,37 @@ RTR_C_INLINE void rsslClearReactorChannelRole(RsslReactorChannelRole *pRole)
 	memset(pRole, 0, sizeof(RsslReactorChannelRole));
 }
 
+/**
+ * @brief Enumerated types indicates reactor debug level.
+ */
+
+typedef enum
+{
+	RSSL_RC_DEBUG_LEVEL_NONE = 0x0000, /* No messages will be debugged */
+	RSSL_RC_DEBUG_LEVEL_CONNECTION = 0x0001, /* If applied, messages related to Connection will be debugged */
+	RSSL_RC_DEBUG_LEVEL_EVENTENQUE = 0x0002, /* if applied, the ReactorDebugger will log the number of events associated with different ReactorChannel */
+	RSSL_RC_DEBUG_LEVEL_TUNELSTREAM = 0x0004 /* If applied, ReactorDebugger will log messages asscoated with different TunnelStream events*/
+}RsslReactorDebuggerLevels;
+
+/**
+ * @brief Get an debugLevel of the reactor.
+ * @param debugLevel out RsslUInt32 pointer to get debug level
+ * @param pError Error structure to be populated in the event of an error.
+ * @return Status of receiving debug level from reactor instance.
+ * @see RsslReactorImpl, RsslReactorDebuggerLevels
+ */
+
+RSSL_VA_API RsslRet rsslReactorGetDebugLevel(RsslReactor *pReactor, RsslUInt32 *debugLevel, RsslErrorInfo *pError);
+
+/**
+ * @brief Set an debugLevel of the reactor.
+ * @param debugLevel configure reactor debug level. Reactor debug level listed in RsslReactorDebuggerLevels
+ * @param pError Error structure to be populated in the event of an error.
+ * @return Status of setting debug level to reactor instance.
+ * @see RsslReactorImpl, RsslReactorDebuggerLevels
+ */
+
+RSSL_VA_API RsslRet rsslReactorSetDebugLevel(RsslReactor *pReactor, RsslUInt32 debugLevel, RsslErrorInfo *pError);
 
 /**
  * @brief Configuration options for creating an RsslReactor.
@@ -320,6 +353,8 @@ typedef struct {
 												 * discovery and subscribing data from RDP. */
 	RsslBuffer	tokenServiceURL_V2;				/*!< Specifies a URL of the token service to get an access token from the Refinitiv Login V2. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
+	RsslUInt32   debugLevel;						/*!< Configure level of debugging info> */
+	RsslUInt32	 debugBufferSize;				/*!< Configure size of debug buffer> */
 } RsslCreateReactorOptions;
 
 /**
@@ -341,6 +376,8 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->restEnableLog = RSSL_FALSE;
 	pReactorOpts->restLogOutputStream = NULL;
 	pReactorOpts->pRestLoggingCallback = NULL;
+	pReactorOpts->debugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
+	pReactorOpts->debugBufferSize = RSSL_REACTOR_DEBUGGING_BUFFER_INIT_SIZE;
 }
 
 /**
@@ -1062,6 +1099,32 @@ typedef enum {
  */
 RSSL_VA_API RsslRet rsslReactorIoctl(RsslReactor* pReactor, RsslReactorIoctlCodes code, void* value, RsslErrorInfo* pError);
 
+/**
+ * @brief This structure is used to retrieve per Reactor debugging information from the rsslReactorGetDebugInfo() method.
+ */
+typedef struct
+{
+	RsslBuffer							debugInfoBuffer;					/*!< Returns the debugging information as text per Reactor. This is read only buffer.*/
+} RsslReactorDebugInfo;
+
+/**
+ * @brief Clears an RsslReactorDebugInfo object.
+ * @see RsslReactorDebugInfo
+ */
+RTR_C_INLINE void rsslClearReactorDebugInfo(RsslReactorDebugInfo* pReactorDebugInfo)
+{
+	memset(pReactorDebugInfo, 0, sizeof(RsslReactorDebugInfo));
+}
+
+/**
+ * @brief Retrieves per Reactor debugging information. The debugging information is cleared after this calls.
+ * @param pReactor The reactor to get debugging information.
+ * @param pReactorDebugInfo The passed in pReactorDebugInfo to retrieve debugging information.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
+ * @see RsslReactor, RsslReactorDebugInfo
+ */
+RSSL_VA_API RsslRet rsslReactorGetDebugInfo(RsslReactor* pReactor, RsslReactorDebugInfo* pReactorDebugInfo, RsslErrorInfo* pError);
 
 /**
  *	@}

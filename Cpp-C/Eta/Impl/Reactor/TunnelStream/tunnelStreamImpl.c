@@ -1385,6 +1385,8 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 	TunnelStreamImpl *pTunnelImpl = (TunnelStreamImpl*)pTunnel;
 	RsslReactorChannel	*pReactorChannel = pTunnelImpl->_manager->base._pReactorChannel;
 	RsslUInt32 pendingBigBufferListCount, i;
+	RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+	RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
 
 	if (pTunnelImpl->_interfaceError && pTunnelImpl->_state <= TSS_OPEN)
 	{
@@ -1570,6 +1572,22 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 				return RSSL_RET_CHANNEL_ERROR;
 			}
 
+			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+			{
+				if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+				{
+					if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) == RSSL_RET_SUCCESS)
+					{
+						return RSSL_RET_FAILURE;
+					}
+				}
+
+				pReactorChannelImpl->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_SUBMIT_TUNNEL_STREAM_RESP;
+
+				_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) SUBMITED a tunnel stream open RESPONSE(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+					pReactorImpl, pReactorChannelImpl, pTunnelImpl->base.streamId, pReactorChannelImpl->reactorChannel.socketId);
+			}
+
 			pTunnelImpl->_state = TSS_OPEN;
 
 			if ((ret = _tunnelStreamHandleEstablished(pTunnelImpl, pErrorInfo)) != RSSL_RET_SUCCESS)
@@ -1585,6 +1603,22 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 			if ((ret = tunnelStreamHandleState(pTunnelImpl, &state,
 							NULL, NULL, NULL, RSSL_FALSE, pErrorInfo)) != RSSL_RET_SUCCESS)
 				return ret;
+
+			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+			{
+				if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+				{
+					if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) == RSSL_RET_SUCCESS)
+					{
+						return RSSL_RET_FAILURE;
+					}
+				}
+
+				pReactorChannelImpl->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_TUNNEL_STREAM_ESTABLISHED;
+
+				_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p), tunnel stream ESTABLISHED(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+					pReactorImpl, pReactorChannelImpl, pTunnelImpl->base.streamId, pReactorChannelImpl->reactorChannel.socketId);
+			}
 
 			tunnelStreamUnsetNeedsDispatch(pTunnelImpl);
 			break;
@@ -2346,6 +2380,9 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 {
 	RsslRet ret;
 	TunnelManagerImpl *pManagerImpl = pTunnelImpl->_manager;
+	RsslReactorChannel* pReactorChannel = pTunnelImpl->base.pReactorChannel;
+	RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pReactorChannel;
+	RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
 
 	if (pState != NULL)
 	{
@@ -2413,6 +2450,22 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 				case TSS_SEND_ACK_OF_FIN:
 				case TSS_WAIT_CLOSE:
 				case TSS_SEND_REFRESH:
+
+					if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+					{
+						if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
+						{
+							if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannelImpl, &pReactorChannelImpl->channelWorkerCerr) == RSSL_RET_SUCCESS)
+							{
+								return RSSL_RET_FAILURE;
+							}
+						}
+
+						pReactorChannelImpl->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_HANDLE_TUNNEL_CLOSE;
+
+						_writeDebugInfo(pReactorImpl, "Reactor(0x%p), Reactor channel(0x%p) HANDLES tunnel stream CLOSE(stream ID=%d) on channel fd="RSSL_REACTOR_SOCKET_PRINT_TYPE".]\n",
+							pReactorImpl, pReactorChannelImpl, pTunnelImpl->base.streamId, pReactorChannelImpl->reactorChannel.socketId);
+					}
 
 					if (pAuthInfo)
 					{

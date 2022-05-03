@@ -67,6 +67,9 @@ static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
 static RsslBool restEnableLogCallback = RSSL_FALSE;
+static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
+static time_t debugInfoIntervalMS = 50;
+static time_t nextDebugTimeMS = 0;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -185,6 +188,11 @@ void printUsageAndExit(char *appName)
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
 			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
+		    "\n -debugConn set 'connection' rector debug info level"
+			"\n -debugEventQ set 'eventqueue' rector debug info level"
+			"\n -debugTunnelStream set 'tunnelstream' debug info level"
+			"\n -debugAll enable all levels of debug info"
+			"\n -debugInfoInterval set time interval for debug log"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -1157,6 +1165,31 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				maxEventsInPool = atoi(argv[i - 1]);
 			}
+			else if (0 == strcmp("-debugConn", argv[i]))
+			{
+				i++;
+				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_CONNECTION;
+			}
+			else if (0 == strcmp("-debugEventQ", argv[i]))
+			{
+				i++;
+				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTENQUE;
+			}
+			else if (0 == strcmp("-debugTunnelStream", argv[i]))
+			{
+				i++;
+				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+			}
+			else if (0 == strcmp("-debugAll", argv[i]))
+			{
+				i++;
+				reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTENQUE | RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+			}
+			else if (0 == strcmp("-debuginfoInterval", argv[i]))
+			{
+				i+=2;
+				reactorDebugLevel = (time_t)atoi(argv[i]);;
+			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
 			{
 				if (pCommand == NULL)
@@ -1721,6 +1754,12 @@ int main(int argc, char **argv)
 	/* Initialize run-time */
 	initRuntime();
 
+	/*Initialize reactor debug interval*/
+	if (reactorDebugLevel != RSSL_RC_DEBUG_LEVEL_NONE)
+	{
+		initReactorNextDebugTime();
+	}
+
 	/* Initialize the default login request(Use 1 as the Login Stream ID). */
 	if (rsslInitDefaultRDMLoginRequest(&loginRequest, 1) != RSSL_RET_SUCCESS)
 	{
@@ -1925,6 +1964,8 @@ int main(int argc, char **argv)
 
 	reactorOpts.maxEventsInPool = maxEventsInPool;
 
+	reactorOpts.debugLevel = reactorDebugLevel;
+
 	reactorOpts.restEnableLog = restEnableLog;
 
 	if (restLogFileName)
@@ -2003,6 +2044,12 @@ int main(int argc, char **argv)
 		int dispatchCount = 0;
 		fd_set useReadFds = readFds, useExceptFds = exceptFds;
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
+
+		if ((rsslReactorGetDebugLevel(pReactor, &reactorDebugLevel, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
+			printf("rsslGetReactorDebugLevel failed: %s\n", rsslErrorInfo.rsslError.text);
+
+		if (reactorDebugLevel != RSSL_RC_DEBUG_LEVEL_NONE)
+			reactorDebugPrint();
 
 		handleRuntime();
 
@@ -2115,6 +2162,51 @@ static void initRuntime()
 	rsslConsumerRuntime = currentTime + (time_t)timeToRun;
 
 	cacheTime = currentTime + (time_t)cacheInterval;
+}
+
+/*
+ * Printout ractor debug information if debug was enabled.
+ */
+static void initReactorNextDebugTime()
+{
+	time_t currentTime = 0;
+
+	/* get current time */
+	time(&currentTime);
+
+	nextDebugTimeMS = (currentTime * 1000) + debugInfoIntervalMS;
+}
+
+/*
+ * Print debug data from reactor
+ */
+
+static void reactorDebugPrint()
+{
+	time_t currentTime = 0, currentTimeMS = 0;
+	RsslReactorDebugInfo pReactorDebugInfo = { 0 };
+	RsslErrorInfo pError = { 0 };
+	RsslUInt32 i;
+
+	/* get current time */
+	time(&currentTime);
+
+	if (currentTime * 1000 > nextDebugTimeMS)
+	{
+		if (RSSL_RET_SUCCESS != rsslReactorGetDebugInfo(pReactor, &pReactorDebugInfo, &pError))
+		{
+			printf("rsslReactorGetDebugInfo FAILED with error code: %d, error text: %s\n", pError.rsslError.rsslErrorId, pError.rsslError.text);
+			return;
+		}
+		else
+		{
+			for (i = 0; i < pReactorDebugInfo.debugInfoBuffer.length; i++)
+				printf("%c", pReactorDebugInfo.debugInfoBuffer.data[i]);
+		}
+
+		/*set new time for debug*/
+		nextDebugTimeMS += debugInfoIntervalMS;
+	}
 }
 
 /*
