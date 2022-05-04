@@ -1070,21 +1070,6 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.xmlTraceFileName = eentry.getAscii();
 												}
-												else if (eentry.getName() == "LibsslName")
-												{
-													if (activeConfig.libSslName.length() == 0)
-														activeConfig.libSslName = eentry.getAscii();
-												}
-												else if (eentry.getName() == "LibcryptoName")
-												{
-													if (activeConfig.libCryptoName.length() == 0)
-														activeConfig.libCryptoName = eentry.getAscii();
-												}
-												else if (eentry.getName() == "LibcurlName")
-												{
-													if (activeConfig.libcurlName.length() == 0)
-														activeConfig.libcurlName = eentry.getAscii();
-												}
 												else if (eentry.getName() == "RestLogFileName")
 												{
 													activeConfig.restLogFileName = eentry.getAscii();

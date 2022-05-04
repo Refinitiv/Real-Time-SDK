@@ -1409,7 +1409,7 @@ void EmaConfigServerImpl::libcryptoName(const EmaString& libcryptoName)
 
 void EmaConfigServerImpl::libcurlName(const EmaString& libcurlName)
 {
-	_libCryptoName = libcurlName;
+	_libCurlName = libcurlName;
 }
 
 void EmaConfigServerImpl::serverCert(const EmaString& serverCert)
