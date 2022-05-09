@@ -303,8 +303,8 @@ typedef enum
 {
 	RSSL_RC_DEBUG_LEVEL_NONE = 0x0000, /* No messages will be debugged */
 	RSSL_RC_DEBUG_LEVEL_CONNECTION = 0x0001, /* If applied, messages related to Connection will be debugged */
-	RSSL_RC_DEBUG_LEVEL_EVENTENQUE = 0x0002, /* if applied, the ReactorDebugger will log the number of events associated with different ReactorChannel */
-	RSSL_RC_DEBUG_LEVEL_TUNELSTREAM = 0x0004 /* If applied, ReactorDebugger will log messages asscoated with different TunnelStream events*/
+	RSSL_RC_DEBUG_LEVEL_EVENTQUEUE = 0x0002, /* if applied, the ReactorDebugger will log the number of events associated with different ReactorChannel */
+	RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM = 0x0004 /* If applied, ReactorDebugger will log messages asscoated with different TunnelStream events*/
 }RsslReactorDebuggerLevels;
 
 /**

@@ -1572,7 +1572,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 				return RSSL_RET_CHANNEL_ERROR;
 			}
 
-			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 			{
 				if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 				{
@@ -1604,7 +1604,7 @@ RsslRet tunnelStreamDispatch(RsslTunnelStream *pTunnel,
 							NULL, NULL, NULL, RSSL_FALSE, pErrorInfo)) != RSSL_RET_SUCCESS)
 				return ret;
 
-			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 			{
 				if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 				{
@@ -2451,7 +2451,7 @@ RsslRet tunnelStreamHandleState(TunnelStreamImpl *pTunnelImpl, RsslState *pState
 				case TSS_WAIT_CLOSE:
 				case TSS_SEND_REFRESH:
 
-					if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+					if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 					{
 						if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 						{

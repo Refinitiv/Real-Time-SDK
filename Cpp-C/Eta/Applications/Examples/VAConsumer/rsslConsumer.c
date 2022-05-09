@@ -1173,17 +1173,17 @@ void parseCommandLine(int argc, char **argv)
 			else if (0 == strcmp("-debugEventQ", argv[i]))
 			{
 				i++;
-				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTENQUE;
+				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTQUEUE;
 			}
 			else if (0 == strcmp("-debugTunnelStream", argv[i]))
 			{
 				i++;
-				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+				reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM;
 			}
 			else if (0 == strcmp("-debugAll", argv[i]))
 			{
 				i++;
-				reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTENQUE | RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+				reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTQUEUE | RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM;
 			}
 			else if (0 == strcmp("-debuginfoInterval", argv[i]))
 			{

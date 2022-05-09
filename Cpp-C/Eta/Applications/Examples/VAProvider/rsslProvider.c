@@ -383,15 +383,15 @@ int main(int argc, char **argv)
 		}
 		else if (0 == strcmp("-debugEventQ", argv[iargs]))
 		{
-			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTENQUE;
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_EVENTQUEUE;
 		}
 		else if (0 == strcmp("-debugTunnelStream", argv[iargs]))
 		{
-			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+			reactorDebugLevel |= RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM;
 		}
 		else if (0 == strcmp("-debugAll", argv[iargs]))
 		{
-			reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTENQUE | RSSL_RC_DEBUG_LEVEL_TUNELSTREAM;
+			reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_CONNECTION | RSSL_RC_DEBUG_LEVEL_EVENTQUEUE | RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM;
 		}
 		else if (0 == strcmp("-debuginfoInterval", argv[iargs]))
 		{

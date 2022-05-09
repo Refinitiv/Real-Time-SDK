@@ -2493,7 +2493,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 			{
 				RsslReactorEventQueue *pQueue;
 
-				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && (pReactorImpl->activeEventQueueGroup.readyEventQueueGroup.count > 0))
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTQUEUE) && (pReactorImpl->activeEventQueueGroup.readyEventQueueGroup.count > 0))
 				{
 					if (pReactorImpl->pReactorDebugInfo == NULL)
 					{
@@ -2623,14 +2623,14 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 			}
 
-			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && pReactorChannel->pChannelDebugInfo != NULL)
+			if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTQUEUE) && pReactorChannel->pChannelDebugInfo != NULL)
 			{
 				pReactorChannel->pChannelDebugInfo->numOfDispatchCall++;
 			}
 
 			if (rsslNotifierEventIsReadable(pReactorImpl->pQueueNotifierEvent))
 			{
-				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && (pReactorImpl->reactorEventQueue.eventQueue.count > 0))
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTQUEUE) && (pReactorImpl->reactorEventQueue.eventQueue.count > 0))
 				{
 					if (pReactorImpl->pReactorDebugInfo == NULL)
 					{
@@ -2669,7 +2669,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 					}
 				}
 
-				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTENQUE) && (pReactorChannel->eventQueue.eventQueue.count > 0))
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_EVENTQUEUE) && (pReactorChannel->eventQueue.eventQueue.count > 0))
 				{
 					if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
 					{
@@ -8290,7 +8290,7 @@ RSSL_VA_API RsslRet rsslReactorAcceptTunnelStream(RsslTunnelStreamRequestEvent *
 	if ((ret = tunnelManagerAcceptStream(pReactorChannelImpl->pTunnelManager, pEvent, pOptions, pError)) != RSSL_RET_SUCCESS)
 		return (reactorUnlockInterface(pReactorImpl), ret);
 
-	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 	{
 		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 		{
@@ -8310,7 +8310,7 @@ RSSL_VA_API RsslRet rsslReactorAcceptTunnelStream(RsslTunnelStreamRequestEvent *
 
 	if (pReactorChannelImpl->tunnelDispatchEventQueued)
 	{
-		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 		{
 			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 			{
@@ -8339,7 +8339,7 @@ RSSL_VA_API RsslRet rsslReactorAcceptTunnelStream(RsslTunnelStreamRequestEvent *
 		pDispatchEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM;
 		pDispatchEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
 
-		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 		{
 			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 			{

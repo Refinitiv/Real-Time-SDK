@@ -309,7 +309,7 @@ RsslRet tunnelManagerReadMsg(TunnelManager *pManager, RsslMsg *pMsg, RsslErrorIn
 					newRequest.streamVersion = streamVersion;
 				}
 
-				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+				if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 				{
 					if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 					{
@@ -569,7 +569,7 @@ RsslRet tunnelManagerRejectStream(TunnelManager *pManager, RsslTunnelStreamReque
 	if ((ret = tunnelManagerSubmitChannelBuffer(pManagerImpl, pBuffer, pErrorInfo)) != RSSL_RET_SUCCESS)
 		return ret;
 
-	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNELSTREAM))
+	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_TUNNELSTREAM))
 	{
 		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannelImpl->pChannelDebugInfo == NULL)
 		{
