@@ -59,7 +59,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String applicationId;
 	private boolean enableRtt;
 	private boolean takeExclusiveSignOnControl = true;
-	private String protocolList = "rssl.rwf, tr_json2, rssl.json.v2";
+	private String protocolList = "tr_json2";
 
 	@Override
 	public boolean parseArgs(String[] args)

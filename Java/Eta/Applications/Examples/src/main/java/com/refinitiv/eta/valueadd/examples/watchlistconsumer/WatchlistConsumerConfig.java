@@ -47,7 +47,7 @@ public class WatchlistConsumerConfig
 	private static final String defaultItemName = "TRI.N";
 
 
-	private String protocolList = "rssl.rwf, tr_json2, rssl.json.v2";
+	private String protocolList = "tr_json2";
 
 	private static final int defaultRuntime = 600;
 

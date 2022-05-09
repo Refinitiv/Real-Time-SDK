@@ -119,7 +119,7 @@ static char tokenScopeName[255];
 
 static char sslCAStore[255];
 /* default sub-protocol list */
-static const char *defaultProtocols = "rssl.rwf";
+static const char *defaultProtocols = "tr_json2";
 
 static void displayCache(ChannelCommand *pCommand);
 static void displayCacheDomain(ChannelCommand *pCommand, RsslUInt8 domainType, RsslBool privateStreams, RsslInt32 itemCount, ItemRequest items[]);

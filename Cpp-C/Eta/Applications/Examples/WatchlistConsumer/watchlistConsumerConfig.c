@@ -202,7 +202,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
 	snprintf(watchlistConsumerConfig._tokenScope, 255, "");
 
-	snprintf(watchlistConsumerConfig.protocolList, 255, "rssl.rwf");
+	snprintf(watchlistConsumerConfig.protocolList, 255, "tr_json2");
 
 	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
 	watchlistConsumerConfig.restEnableLog = RSSL_FALSE;
