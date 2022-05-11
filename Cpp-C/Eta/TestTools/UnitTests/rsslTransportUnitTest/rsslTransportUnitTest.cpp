@@ -3095,13 +3095,22 @@ rsslServerCountersInfo* rsslGetServerCountersInfo(RsslServer* pServer)
 int main(int argc, char* argv[])
 {
 	int ret;
+	bool isGtestFilter = false;
 
 	::testing::InitGoogleTest(&argc, argv);
 
 	// Run ServerStartStopTests after all the other tests.
 	// ServerStartStopTests create and destroy the transport library and its internal members many times.
 	// It will interfere with other tests that could run parallel.
-	::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
+	if (::testing::GTEST_FLAG(filter).empty() || ::testing::GTEST_FLAG(filter)=="*")
+	{
+		::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
+	}
+	else
+	{
+		isGtestFilter = true;
+	}
+
 	RsslThreadId dlThread;
 	RSSL_MUTEX_INIT(&pipeLock);
 
@@ -3113,18 +3122,20 @@ int main(int argc, char* argv[])
 	RSSL_THREAD_JOIN(dlThread);
 
 	// Run ServerStartStopTests
-	if (checkCertificateFiles())
+	if (!isGtestFilter)
 	{
-		::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
-	}
-	else
-	{
-		std::cout  << "The tests ServerSSLStartStop*Test will be skip." << std::endl
-			<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl;
-		::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*:-ServerStartStopTests.ServerSSL*";
-	}
+		if (checkCertificateFiles())
+		{
+			::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*";
+		}
+		else
+		{
+			std::cout << "The tests ServerSSLStartStop*Test will be skip." << std::endl
+				<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl;
+			::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*:-ServerStartStopTests.ServerSSL*";
+		}
 
-	ret = RUN_ALL_TESTS();
-
+		ret = RUN_ALL_TESTS();
+	}
 	return ret;
 }

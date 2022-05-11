@@ -23,6 +23,7 @@
 #include "rtr/rsslThread.h"
 #include "rtr/rsslGetTime.h"
 #include "rtr/rsslBindThread.h"
+#include "rtr/bindthread.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -5330,6 +5331,9 @@ void reactorUnitTests_InvalidNetworkInterface(RsslConnectionTypes connectionType
 }
 
 
+const unsigned MAXLEN = 32;
+const unsigned MAXERRLEN = 256;
+
 class ReactorThreadBindProcessorCoreTest : public ::testing::Test {
 protected:
 
@@ -5342,10 +5346,47 @@ protected:
 
 	virtual void TearDown()
 	{
+		rsslClearBindings();
 		rsslUninitialize();
 	}
 
-};
+	void getReactorCheckValidityErrorText(char* errorTxt, size_t bufferSize)
+	{
+		const char* errorReactorCheckTxt = "The required logical processor number is not valid or Cpu core string does not match to format P:X C:Y T:Z. The number of logical processors: ";
+		RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+
+		snprintf(errorTxt, bufferSize, "%s%u.", errorReactorCheckTxt, nProcessors);
+		return;
+	}
+
+#ifndef WIN32   // Linux
+	RsslBool checkProcessorIdByPS(RsslUInt32 proccessorForReactorWorker)
+	{
+		const char* cmd = "ps -e -T -o psr,comm | grep VATes-RWT";
+		char psBuf[512] = { '\0' };
+		FILE* psFile = popen(cmd, "r");
+
+		if (psFile != NULL)
+		{
+			char* ps = fgets(psBuf, 512, psFile);
+			pclose(psFile);
+
+			if (ps)
+			{
+				while (isspace(*ps))
+					++ps;
+
+				if (ps && isdigit(*ps))
+				{
+					int processorId = atoi(ps);
+					return (processorId >= 0 && (unsigned)processorId == proccessorForReactorWorker ? RSSL_TRUE : RSSL_FALSE);
+				}
+			}
+		}
+		return RSSL_FALSE;
+	}
+#endif
+};  // class ReactorThreadBindProcessorCoreTest
 
 TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreUnavailableForReactorWorkerShouldFailTest)
 {
@@ -5354,45 +5395,69 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreUnavailableForReactorWorke
 	RsslReactor* pReactor;
 	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 
-	char strCpuBind[32] = { '\0' };
-	const char* errorTxt = "The required logical processor number is not valid. The number of logical processors: ";
-	size_t errLength = strlen(errorTxt);
+	char strCpuBind[MAXLEN] = { '\0' };
+	char errorTxt[MAXERRLEN] = { '\0' };
 
 	ASSERT_TRUE(nProcessors > 0);
-	snprintf(strCpuBind, 32, "%u", (nProcessors+1));
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%u", (nProcessors + 1));
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
 	ASSERT_EQ((void*)NULL, pReactor);
 
-	ASSERT_EQ(strncmp(errorTxt, rsslErrorInfo.rsslError.text, errLength), 0);
+	getReactorCheckValidityErrorText(errorTxt, sizeof(errorTxt));
+	ASSERT_STREQ(errorTxt, rsslErrorInfo.rsslError.text);
 }
 
-TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectCharForReactorWorkerShouldFailTest)
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectChar1ForReactorWorkerShouldFailTest)
 {
 	RsslCreateReactorOptions createReactorOpts;
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactor* pReactor;
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 
-	char strCpuBind[32] = { '\0' };
-	const char* errorTxt = "The required logical processor number is not valid. The number of logical processors: ";
-	size_t errLength = strlen(errorTxt);
+	char strCpuBind[MAXLEN] = { '\0' };
+	char errorTxt[MAXERRLEN] = { '\0' };
 
-	snprintf(strCpuBind, 32, "-");
+	const char* badCpuCoreStr = "-";
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), badCpuCoreStr);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
 	ASSERT_EQ((void*)NULL, pReactor);
 
-	ASSERT_EQ(strncmp(errorTxt, rsslErrorInfo.rsslError.text, errLength), 0);
+	getReactorCheckValidityErrorText(errorTxt, sizeof(errorTxt));
+	ASSERT_STREQ(errorTxt, rsslErrorInfo.rsslError.text);
+}
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectChar2ForReactorWorkerShouldFailTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor;
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+
+	char strCpuBind[MAXLEN] = { '\0' };
+	char errorTxt[MAXERRLEN] = { '\0' };
+
+	const char* badCpuCoreStr = "Q";
+
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), badCpuCoreStr);
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_EQ((void*)NULL, pReactor);
+
+	getReactorCheckValidityErrorText(errorTxt, sizeof(errorTxt));
+	ASSERT_STREQ(errorTxt, rsslErrorInfo.rsslError.text);
 }
 
 TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerShouldSuccessTest)
@@ -5400,10 +5465,30 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerShouldSucc
 	RsslCreateReactorOptions createReactorOpts;
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactor* pReactor;
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 iProc = (nProcessors > 1 ? 1 : 0);
 
-	char strCpuBind[32] = { '\0' };
+	char strCpuBind[MAXLEN] = { '\0' };
 
-	snprintf(strCpuBind, 32, "1");
+	rsslClearCreateReactorOptions(&createReactorOpts);
+	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%u", iProc);
+
+	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+
+	ASSERT_NE((void*)NULL, pReactor);
+
+	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+}
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCore0PCTForReactorWorkerShouldSuccessTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor = NULL;
+
+	// P:X C:Y T:Z
+	char strCpuBind[MAXLEN] = "P:0 C:0 T:0";
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
@@ -5411,6 +5496,46 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerShouldSucc
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
+	ASSERT_NE((void*)NULL, pReactor);
+
+	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+}
+
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCorePCTForReactorWorkerShouldSuccessTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor = NULL;
+
+	// If one processor core is available in this system then return.
+	// Case binding to Core:0 has already tested.
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Three different topologies for the next processor core.
+	// At least, one of them must be correct.
+	// P:X C:Y T:Z
+	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
+	char strCpuBind[MAXLEN] = { '\0' };
+
+	// Try to choose one of the Cpu core templates
+	for (unsigned k = 0; k < 3; ++k)
+	{
+		rsslClearCreateReactorOptions(&createReactorOpts);
+		createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+		createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", sCpuCorePCT[k]);
+
+		pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+		if (pReactor != NULL)
+		{
+			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
+			break;
+		}
+	}
 	ASSERT_NE((void*)NULL, pReactor);
 
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -5424,13 +5549,14 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerTest)
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactor* pReactor;
 
-	char strCpuBind[32] = { '\0' };
-	unsigned proccessorForReactorWorker = 1;
-	snprintf(strCpuBind, 32, "%u", proccessorForReactorWorker);
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslUInt32 proccessorForReactorWorker = (nProcessors > 1 ? 1 : 0);
+
+	char strCpuBind[MAXLEN] = { '\0' };
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = (RsslUInt32)strlen(strCpuBind);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%u", proccessorForReactorWorker);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
@@ -5438,28 +5564,54 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreForReactorWorkerTest)
 
 	time_sleep(10);
 
-	const char* cmd = "ps -e -T -o psr,comm | grep VATes-RWT";
-	char psBuf[512] = { '\0' };
-	FILE* psFile = popen(cmd, "r");
-	ASSERT_TRUE(psFile != NULL);
-
-	if (psFile != NULL)
-	{
-		char* ps = fgets(psBuf, 512, psFile);
-		ASSERT_EQ(ps, psBuf);
-		ASSERT_TRUE(*ps);
-
-		if (ps && isdigit(*ps))
-		{
-			int processorId = atoi(ps);
-			ASSERT_TRUE(processorId >= 0);
-			ASSERT_EQ((unsigned)processorId, proccessorForReactorWorker);
-		}
-
-		pclose(psFile);
-	}
+	ASSERT_EQ(checkProcessorIdByPS(proccessorForReactorWorker), RSSL_TRUE);
 
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
 
+TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCorePCTForReactorWorkerTest)
+{
+	RsslCreateReactorOptions createReactorOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactor* pReactor;
+
+	// If one processor core is available in this system then return.
+	// Case binding to Core:0 has already tested.
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	RsslUInt32 proccessorForReactorWorker = (nProcessors > 1 ? 1 : 0);
+	char strCpuBind[MAXLEN] = { '\0' };
+
+	// Three different topologies for the next processor core.
+	// At least, one of them must be correct.
+	// P:X C:Y T:Z
+	char sCpuCorePCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
+
+	// Try to choose one of the Cpu core templates
+	for (unsigned k = 0; k < 3; ++k)
+	{
+		rsslClearCreateReactorOptions(&createReactorOpts);
+		createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
+		createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", sCpuCorePCT[k]);
+
+		pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
+		if (pReactor != NULL)
+		{
+			//printf("Binding success: k=%u (%s)\n", k, sCpuCorePCT[k]);
+			break;
+		}
+	}
+	ASSERT_NE((void*)NULL, pReactor);
+
+	time_sleep(10);
+
+	ASSERT_EQ(checkProcessorIdByPS(proccessorForReactorWorker), RSSL_TRUE);
+
+	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+}
 #endif // !WIN32

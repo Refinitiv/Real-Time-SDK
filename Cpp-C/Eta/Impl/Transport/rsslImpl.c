@@ -20,6 +20,7 @@
 #include "rtr/rsslErrors.h"
 #include "rtr/rsslAlloc.h"
 
+#include "rtr/bindthread.h"
 #include "rtr/rwfNetwork.h"
 #include "curl/curl.h"
 #include "rtr/ripcssljit.h"
@@ -767,6 +768,15 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 	if (!initialized)
 	{
 		/* Initialize All transports here */
+
+		/* initialize cpuid library */
+		retVal = rsslBindThreadInitialize();
+
+		if (retVal < RSSL_RET_SUCCESS)
+		{
+			mutexFuncs.staticMutexUnlock();
+			return retVal;
+		}
 
 		/* initialize socket transport */
 		retVal = rsslSocketInitialize(rsslInitOpts, error);
@@ -2169,6 +2179,9 @@ RsslRet rsslUninitialize()
 		RTR_ATOMIC_SET(initialized,0);
 		_rsslCleanUp();
 		rsslUnloadTransport();
+
+		/* Uninitialize cpuid library */
+		rsslBindThreadUninitialize();
 
 		/* uninitialize various transports */
 		rsslSocketUninitialize();

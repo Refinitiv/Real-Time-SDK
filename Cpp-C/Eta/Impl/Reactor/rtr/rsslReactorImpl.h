@@ -1649,6 +1649,7 @@ RsslRet reactorUnlockInterface(RsslReactorImpl *pReactorImpl);
 
 #define MAX_THREADNAME_STRLEN 16
 
+/* Describes the starting process of the Reactor worker thread. */
 typedef enum
 {
 	RSSL_REACTOR_WORKER_THREAD_ST_INIT = 0UL,
@@ -1692,8 +1693,8 @@ typedef struct
 	RsslMutex errorInfoPoolLock; /* The Mutual exclusive lock for the pool */
 
 	char nameReactorWorker[MAX_THREADNAME_STRLEN]; /* Name of the reactor worker thread */
-	RsslBuffer cpuBindWorkerThread; /*!< Cpu core (Cpu core id) bound to the Reactor worker thread; if the value is not set, then there is no limit of the binding processor cores for the Reactor worker thread.> */
-	rtr_atomic_val threadStarted; /*!< Describes starting of the Reactor worker thread. see RsslReactorWorkerThreadStartingState > */
+	RsslBuffer cpuBindWorkerThread; /*!< Specifies Cpu core in string format (Cpu core id or P:X C:Y T:Z format) for the worker thread binding; if the value is not set, then there is no limit of the binding processor cores for the Reactor worker thread.> */
+	rtr_atomic_val threadStarted; /*!< Describes the starting process of the Reactor worker thread. see RsslReactorWorkerThreadStartingState > */
 } RsslReactorWorker;
 
 typedef enum

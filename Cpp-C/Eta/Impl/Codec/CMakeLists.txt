@@ -1,4 +1,12 @@
 
+if( CMAKE_HOST_UNIX )
+    ENABLE_LANGUAGE(ASM-ATT)
+endif()
+
+if ( CMAKE_HOST_WIN32 )
+    ENABLE_LANGUAGE(ASM_MASM)
+endif()
+
 if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
 	
 	if(CMAKE_HOST_WIN32)
@@ -114,6 +122,8 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Util/tr_sha_1.c
                 ${Eta_SOURCE_DIR}/Impl/Util/tr_sl1_64.c
 				${Eta_SOURCE_DIR}/Impl/Util/rsslGetTime.c
+                ${Eta_SOURCE_DIR}/Impl/Util/cpu_topo.c
+                ${Eta_SOURCE_DIR}/Impl/Util/util_os.c
 
                 #Utils header files
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/os.h
@@ -133,7 +143,9 @@ else()
 				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslCurlJIT.h
 				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslGetTime.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/application_signing.h
+                ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/bindthread.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/byteswap.h
+                ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/cputopology.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/custmem.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/cutilcbuffer.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/cutildfltcbuffer.h
@@ -250,9 +262,18 @@ else()
                 ${Eta_SOURCE_DIR}/Include/rssl.rc
                 ${Eta_SOURCE_DIR}/Include/rsslResource.h
             )
+        set(cutil20WinAsm
+                ${Eta_SOURCE_DIR}/Impl/Util/get_cpuid.asm
+            )
+
     else()
 		set(staticVersionSrc	rsslVersionStatic.c)
 		set(sharedVersionSrc	rsslVersionShared.c)
+
+        set(cutil20Lnx64Asm
+                ${Eta_SOURCE_DIR}/Impl/Util/get_cpuid_lix64.s
+            )
+        add_library(cutil20_asm OBJECT ${cutil20Lnx64Asm})
     endif()
 
 	#
@@ -262,9 +283,14 @@ else()
 	if (NOT EXISTS "${_rssl_tmp_dir}/src")
 		file(MAKE_DIRECTORY "${_rssl_tmp_dir}/src")
 	endif()
-	
-    add_library( librssl_tmp STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles})
+
+    if (CMAKE_HOST_WIN32)
+        add_library( librssl_tmp STATIC 
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${cutil20WinAsm} )
+    else()
+        add_library( librssl_tmp STATIC 
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:cutil20_asm> )
+    endif()
 
     if (CMAKE_HOST_WIN32)
 		set_target_properties(librssl_tmp PROPERTIES 
@@ -358,8 +384,13 @@ else()
 	#
 	##          -- Build librssl SHARED LIBRARY --
 
-    add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} )
+    if (CMAKE_HOST_WIN32)
+        add_library( librssl_shared SHARED 
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${cutil20WinAsm} )
+    else()
+        add_library( librssl_shared SHARED 
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:cutil20_asm> )
+    endif()
 
     target_include_directories(librssl_shared
 										PRIVATE

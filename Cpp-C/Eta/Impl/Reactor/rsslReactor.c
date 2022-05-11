@@ -671,13 +671,13 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 
 	if (pReactorOpts->cpuBindWorkerThread.length > 0 && pReactorOpts->cpuBindWorkerThread.data != NULL)
 	{
-		if (pReactorOpts->cpuBindWorkerThread.length < 512)
+		if (pReactorOpts->cpuBindWorkerThread.length < MAX_CPU_STRING_LEN)
 		{
-			if (rsslIsStrProcessorCoreNumberValid(pReactorOpts->cpuBindWorkerThread.data) != RSSL_TRUE)
+			if (rsslIsStrProcessorCoreBindValid(pReactorOpts->cpuBindWorkerThread.data) != RSSL_TRUE)
 			{
 				RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-					"The required logical processor number is not valid. The number of logical processors: %u.",
+					"The required logical processor number is not valid or Cpu core string does not match to format P:X C:Y T:Z. The number of logical processors: %u.",
 					nProcessors);
 				return NULL;
 			}
@@ -685,7 +685,8 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		else
 		{
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Passed in value cpuId is longer then allowed width 512 bytes (%u).",
+				"Passed in value cpuId is longer then allowed width %u bytes (%u).",
+				(MAX_CPU_STRING_LEN),
 				pReactorOpts->cpuBindWorkerThread.length);
 			return NULL;
 		}

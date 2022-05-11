@@ -566,15 +566,6 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 	RsslReactorDispatchOptions dispatchOptions;
 	RsslRet ret = 0;
 
-	if (pProviderThread->cpuId.length > 0 && pProviderThread->cpuId.data != NULL)
-	{
-		if (rsslBindThread(pProviderThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-		{
-			printf("Error: Failed to bind thread to core %s: %s.\n", pProviderThread->cpuId.data, rsslErrorInfo.rsslError.text);
-			exit(-1);
-		}
-	}
-
 	FD_ZERO(&pProviderThread->readfds);
 	FD_ZERO(&pProviderThread->exceptfds);
 	FD_ZERO(&pProviderThread->wrtfds);
@@ -591,6 +582,18 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
 		exit(-1);
+	}
+
+	// Cpu core bind for the NI provider thread thread.
+	// The application should invoke rsslBindThread() after rsslInitialize() has invoked.
+	// rsslInitialize analyzed Cpu Topology.
+	if (pProviderThread->cpuId.length > 0 && pProviderThread->cpuId.data != NULL)
+	{
+		if (rsslBindThread(pProviderThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("Error: Failed to bind thread to core %s: %s\n", pProviderThread->cpuId.data, rsslErrorInfo.rsslError.text);
+			exit(-1);
+		}
 	}
 
 	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors 

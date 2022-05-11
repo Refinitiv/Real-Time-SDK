@@ -1592,6 +1592,8 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 		MsgConverterCallback *convertMsg)
 {
 	RsslInt32 i;
+	char* pEnd = NULL;
+	RsslInt32 cpuId = 0;
 
 	memset(pProvider, 0, sizeof(pProvider));
 	pProvider->providerType = providerType;
@@ -1627,13 +1629,21 @@ void providerInit(Provider *pProvider, ProviderType providerType,
 
 		if (providerThreadConfig.threadBindList[i][0] != '\0')
 		{
-			pProviderThread->cpuId.data = providerThreadConfig.threadBindList[i];
-			pProviderThread->cpuId.length = (RsslUInt32)strlen(providerThreadConfig.threadBindList[i]);
+			cpuId = strtol(providerThreadConfig.threadBindList[i], &pEnd, 10);
+			if (cpuId >= 0)  // when negative value then the thread does not need to bind
+			{
+				pProviderThread->cpuId.data = providerThreadConfig.threadBindList[i];
+				pProviderThread->cpuId.length = (RsslUInt32)strlen(providerThreadConfig.threadBindList[i]);
+			}
 		}
 		if (providerThreadConfig.threadReactorWorkerBindList[i][0] != '\0')
 		{
-			pProviderThread->cpuReactorWorkerId.data = providerThreadConfig.threadReactorWorkerBindList[i];
-			pProviderThread->cpuReactorWorkerId.length = (RsslUInt32)strlen(providerThreadConfig.threadReactorWorkerBindList[i]);
+			cpuId = strtol(providerThreadConfig.threadReactorWorkerBindList[i], &pEnd, 10);
+			if (cpuId >= 0)  // when negative value then the thread does not need to bind
+			{
+				pProviderThread->cpuReactorWorkerId.data = providerThreadConfig.threadReactorWorkerBindList[i];
+				pProviderThread->cpuReactorWorkerId.length = (RsslUInt32)strlen(providerThreadConfig.threadReactorWorkerBindList[i]);
+			}
 		}
 	}
 

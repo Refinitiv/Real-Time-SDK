@@ -158,15 +158,6 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 	rsslClearReactorJsonConverterOptions(&jsonConverterOptions);
 	rsslClearReactorDispatchOptions(&dispatchOptions);
 
-	if (pProvThread->cpuId.length>0 && pProvThread->cpuId.data != NULL)
-	{
-		if (rsslBindThread(pProvThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-		{
-			printf("Error: Failed to bind thread to core %s: %s.\n", pProvThread->cpuId.data, rsslErrorInfo.rsslError.text);
-			exit(-1);
-		}
-	}
-
 	// create reactor
 	rsslClearCreateReactorOptions(&reactorOpts);
 
@@ -177,6 +168,18 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 	{
 		printf("Reactor creation failed: %s\n", rsslErrorInfo.rsslError.text);
 		cleanUpAndExit();
+	}
+
+	// Cpu core bind for the provider thread thread.
+	// The application should invoke rsslBindThread() after rsslInitialize() has invoked.
+	// rsslInitialize analyzed Cpu Topology.
+	if (pProvThread->cpuId.length > 0 && pProvThread->cpuId.data != NULL)
+	{
+		if (rsslBindThread(pProvThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("Error: Failed to bind thread to core %s: %s\n", pProvThread->cpuId.data, rsslErrorInfo.rsslError.text);
+			exit(-1);
+		}
 	}
 
 	jsonConverterOptions.pDictionary = pProvThread->pDictionary;

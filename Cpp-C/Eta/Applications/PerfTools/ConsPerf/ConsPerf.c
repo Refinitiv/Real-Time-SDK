@@ -72,7 +72,9 @@ int main(int argc, char **argv)
 	RsslInProgInfo inProg = RSSL_INIT_IN_PROG_INFO;
 	RsslInt32 i;
 	RsslTimeValue nextTime;
-	
+	char* pEnd = NULL;
+	RsslInt32 cpuId = 0;
+
 
 #ifndef _WIN32
 	struct timespec sleeptime;
@@ -137,13 +139,21 @@ int main(int argc, char **argv)
 	{
 		if (consPerfConfig.threadBindList[i][0] != '\0')
 		{
-			consumerThreads[i].cpuId.data = consPerfConfig.threadBindList[i];
-			consumerThreads[i].cpuId.length = (RsslUInt32)strlen(consPerfConfig.threadBindList[i]);
+			cpuId = strtol(consPerfConfig.threadBindList[i], &pEnd, 10);
+			if (cpuId >= 0)  // when negative value then the thread does not need to bind
+			{
+				consumerThreads[i].cpuId.data = consPerfConfig.threadBindList[i];
+				consumerThreads[i].cpuId.length = (RsslUInt32)strlen(consPerfConfig.threadBindList[i]);
+			}
 		}
 		if (consPerfConfig.threadReactorBindList[i][0] != '\0')
 		{
-			consumerThreads[i].cpuReactorWorkerId.data = consPerfConfig.threadReactorBindList[i];
-			consumerThreads[i].cpuReactorWorkerId.length = (RsslUInt32)strlen(consPerfConfig.threadReactorBindList[i]);
+			cpuId = strtol(consPerfConfig.threadReactorBindList[i], &pEnd, 10);
+			if (cpuId >= 0)  // when negative value then the thread does not need to bind
+			{
+				consumerThreads[i].cpuReactorWorkerId.data = consPerfConfig.threadReactorBindList[i];
+				consumerThreads[i].cpuReactorWorkerId.length = (RsslUInt32)strlen(consPerfConfig.threadReactorBindList[i]);
+			}
 		}
 	}
 

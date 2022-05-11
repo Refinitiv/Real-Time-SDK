@@ -42,6 +42,7 @@ target_include_directories(rsslVATest
 								#Needed for testing of internal functionality
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Reactor/Watchlist>
 								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Reactor/Util>
+								$<BUILD_INTERFACE:${Eta_SOURCE_DIR}/Impl/Util/Include>
 							)
 
 

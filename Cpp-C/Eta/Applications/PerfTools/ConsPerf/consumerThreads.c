@@ -1575,15 +1575,6 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		createLatencyRandomArray(genMsgLatencyRandomArray, &randomArrayOpts);
 	}
 	
-	if (pConsumerThread->cpuId.length > 0 && pConsumerThread->cpuId.data != NULL)
-	{
-		if (rsslBindThread(pConsumerThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-		{
-			printf("Error: Failed to bind thread to core %s: %s.\n", pConsumerThread->cpuId.data, rsslErrorInfo.rsslError.text);
-			exit(-1);
-		}
-	}
-
 	/* Get names of other items from file. */
 	if (!(pXmlItemInfoList = createXmlItemList(consPerfConfig.itemFilename, consPerfConfig.itemRequestCount)))
 	{
@@ -1851,6 +1842,18 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		}
 
 		initTunnel(pConsumerThread);
+	}
+
+	// Cpu core bind for the consumer thread.
+	// The application should invoke rsslBindThread() after rsslInitialize() has invoked.
+	// rsslInitialize analyzed Cpu Topology.
+	if (pConsumerThread->cpuId.length > 0 && pConsumerThread->cpuId.data != NULL)
+	{
+		if (rsslBindThread(pConsumerThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("Error: Failed to bind thread to core %s: %s\n", pConsumerThread->cpuId.data, rsslErrorInfo.rsslError.text);
+			exit(-1);
+		}
 	}
 
 #ifdef ENABLE_XML_TRACE
