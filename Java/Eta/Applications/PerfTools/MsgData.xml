@@ -81,6 +81,17 @@ One refreshMsg and at least one updateMsg is needed.  If posting, at least one p
 			<fieldEntry fieldId="1465" dataType="RSSL_DT_REAL" data="392.8"/>
 			<fieldEntry fieldId="207" dataType="RSSL_DT_REAL" data=""/>
 			<fieldEntry fieldId="208" dataType="RSSL_DT_DATE" data="11/15/2005"/>
+			<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="S"/>
+			<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="S"/>
+			<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="31721"/>
+			<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100229"/>
+			<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="2"/>
+			<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="3"/>
+			<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:003:007:001"/>
+			<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data="S"/>
 		</fieldList>
 	</dataBody>
 </refreshMsg>
