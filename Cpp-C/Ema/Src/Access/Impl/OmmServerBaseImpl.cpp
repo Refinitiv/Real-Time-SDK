@@ -1230,6 +1230,19 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 	_serverReadEventFdsIdx = -1;
 #endif
 
+	RsslError rsslError;
+	if (RSSL_RET_SUCCESS != rsslCloseServer(_pRsslServer, &rsslError))
+	{
+		if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
+		{
+			EmaString temp("rsslCloseServer() failed while uninitializing OmmServerBaseImpl.");
+			temp.append(" Internal sysError='").append(rsslError.sysError)
+				.append("' Error text='").append(rsslError.text).append("'. ");
+
+			_pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+		}
+	}
+
 	if (RSSL_RET_SUCCESS != rsslUninitialize())
 	{
 		if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
