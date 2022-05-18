@@ -120,6 +120,7 @@ typedef enum {
 } ripcSessInit;
 
 typedef enum {
+	RIPC_INPROG_INIT			= 0x0,
 	RIPC_INPROG_NEW_FD			= 0x01,
 	RIPC_INPROG_WRT_NOT			= 0x02
 } ripcInProgOper;

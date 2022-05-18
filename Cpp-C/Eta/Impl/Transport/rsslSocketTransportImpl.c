@@ -1899,7 +1899,7 @@ RsslInt32 ipcIntWrtHeader(RsslSocketChannel *rsslSocketChannel, RsslError *error
 }
 
 
-RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rsslBufferImpl, RsslInt32 wFlags, RsslInt32 *bytesWritten,
+RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rsslBufImpl, RsslInt32 wFlags, RsslInt32 *bytesWritten,
 	RsslInt32 *uncompBytesWritten, RsslInt32 forceFlush, RsslError *error)
 {
 	RsslRet			retval = RSSL_RET_SUCCESS;
@@ -1920,8 +1920,8 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 	RsslUInt16		tempLen;
 	rtr_msgb_t		*compressedmb1;
 	rtr_msgb_t		*msgb = NULL;
-	RsslUInt32		size = rsslBufferImpl->buffer.length;
-	RsslUInt32		fragId = rsslBufferImpl->fragId;
+	RsslUInt32		size = rsslBufImpl->buffer.length;
+	RsslUInt32		fragId = rsslBufImpl->fragId;
 	RsslQueueLink	*pLink = 0;
 
 	_DEBUG_TRACE_WRITE("called\n")
@@ -1943,7 +1943,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 		return RSSL_RET_FAILURE;
 	}
 
-	if (rsslBufferImpl->bufferInfo == 0)
+	if (rsslBufImpl->bufferInfo == 0)
         {
                 _rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
                 snprintf(error->text, MAX_RSSL_ERROR_TEXT,
@@ -1955,25 +1955,25 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
                 return RSSL_RET_FAILURE;
         }
 
-	msgb = (rtr_msgb_t*)rsslBufferImpl->bufferInfo;
+	msgb = (rtr_msgb_t*)rsslBufImpl->bufferInfo;
 	rsslSocketChannel->bytesOutLastMsg = 0;
 	IPC_header_size = rsslSocketChannel->version->dataHeaderLen;
 	footer_size = rsslSocketChannel->version->footerLen;
 
 	/* for first message in the chain, add the Frag header flag and header */
-	if ((rsslBufferImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER) && (rsslBufferImpl->fragId > 0))
+	if ((rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER) && (rsslBufImpl->fragId > 0))
 	{
 		flags |= IPC_EXTENDED_FLAGS;
 		opCodes |= IPC_FRAG_HEADER;
 	}
 
-	if ((rsslBufferImpl->fragmentationFlag == BUFFER_IMPL_SUBSEQ_FRAG_HEADER) && (rsslBufferImpl->fragId > 0))
+	if ((rsslBufImpl->fragmentationFlag == BUFFER_IMPL_SUBSEQ_FRAG_HEADER) && (rsslBufImpl->fragId > 0))
 	{
 		flags |= IPC_EXTENDED_FLAGS;
 		opCodes |= IPC_FRAG;
 	}
 
-	if (rsslBufferImpl->packingOffset > 0)
+	if (rsslBufImpl->packingOffset > 0)
 		flags |= IPC_PACKING;
 
 	while (msgb)
@@ -2946,7 +2946,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 	}
 
 	/* If this is a chained message and the full value has not been queued*/
-	rsslBufferImpl->bufferInfo = (void*)msgb;
+	rsslBufImpl->bufferInfo = (void*)msgb;
 
 	if (retval != RSSL_RET_FAILURE)
 	{
@@ -3649,7 +3649,7 @@ ripcSessInit ipcIntSessInit(RsslSocketChannel *rsslSocketChannel, ripcSessInProg
 
 	_DEBUG_TRACE_CONN("fd %d\n",rsslSocketChannel->stream);
 
-	inPr->types = 0;
+	inPr->types = RIPC_INPROG_INIT;
 	inPr->intConnState = 0;
 	while (cont)
 	{
