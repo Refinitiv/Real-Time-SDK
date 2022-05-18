@@ -262,7 +262,7 @@ else()
                 ${Eta_SOURCE_DIR}/Include/rssl.rc
                 ${Eta_SOURCE_DIR}/Include/rsslResource.h
             )
-        set(cutil20WinAsm
+        set(rsslWinAsm
                 ${Eta_SOURCE_DIR}/Impl/Util/get_cpuid.asm
             )
 
@@ -270,10 +270,10 @@ else()
 		set(staticVersionSrc	rsslVersionStatic.c)
 		set(sharedVersionSrc	rsslVersionShared.c)
 
-        set(cutil20Lnx64Asm
+        set(rsslLnx64Asm
                 ${Eta_SOURCE_DIR}/Impl/Util/get_cpuid_lix64.s
             )
-        add_library(cutil20_asm OBJECT ${cutil20Lnx64Asm})
+        add_library(rssl_asm OBJECT ${rsslLnx64Asm})
     endif()
 
 	#
@@ -286,10 +286,10 @@ else()
 
     if (CMAKE_HOST_WIN32)
         add_library( librssl_tmp STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${cutil20WinAsm} )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${rsslWinAsm} )
     else()
         add_library( librssl_tmp STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:cutil20_asm> )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:rssl_asm> )
     endif()
 
     if (CMAKE_HOST_WIN32)
@@ -386,10 +386,10 @@ else()
 
     if (CMAKE_HOST_WIN32)
         add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${cutil20WinAsm} )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${rsslWinAsm} )
     else()
         add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:cutil20_asm> )
+                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:rssl_asm> )
     endif()
 
     target_include_directories(librssl_shared
