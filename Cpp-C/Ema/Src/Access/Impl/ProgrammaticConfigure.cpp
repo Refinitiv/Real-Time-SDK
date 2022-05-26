@@ -1819,8 +1819,6 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
-	UInt64 encryptionFlags = 0;
-	UInt64 websocketFlags = 0;
 	ReliableMcastChannelConfig tempRelMcastCfg;
 
 	while ( elementListChannel.forth() )
@@ -1833,92 +1831,92 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			if ( channelEntry.getName() == "Host" )
 			{
 				host = channelEntry.getAscii();
-				flags |= 0x02;
+				flags |= HostEnum;
 			}
 			else if ( channelEntry.getName() == "Port" )
 			{
 				port = channelEntry.getAscii();
-				flags |= 0x04;
+				flags |= PortEnum;
 			}
 			else if ( channelEntry.getName() == "InterfaceName" )
 			{
 				interfaceName = channelEntry.getAscii();
-				flags |= 0x80000;
+				flags |= InterfaceNameEnum;
 			}
 			else if (channelEntry.getName() == "Location")
 			{
 				location = channelEntry.getAscii();
-				flags |= 0x2000000;
+				flags |= LocationEnum;
 			}
 			else if ( channelEntry.getName() == "ObjectName" )
 			{
 				objectName = channelEntry.getAscii();
-				encryptionFlags |= 0x02;
+				flags |= ObjectNameEnum;
 			}
 			else if (channelEntry.getName() == "ProxyPort")
 			{
 				tunnelingProxyPort = channelEntry.getAscii();
-				encryptionFlags |= 0x04;
+				flags |= ProxyPortEnum;
 			}
 			else if (channelEntry.getName() == "ProxyHost")
 			{
 				tunnelingProxyHost = channelEntry.getAscii();
-				encryptionFlags |= 0x08;
+				flags |= ProxyHostEnum;
 			}
 			else if (channelEntry.getName() == "OpenSSLCAStore")
 			{
 				sslCAStore = channelEntry.getAscii();
-				encryptionFlags |= 0x40;
+				flags |= OpenSSLCAStoreEnum;
 			}
 			else if ( channelEntry.getName() == "RecvAddress" )
 			{
 				tempRelMcastCfg.recvAddress = channelEntry.getAscii();
-				mcastFlags |= 0x01;
+				mcastFlags |= RecvAddressEnum;
 			}
 			else if ( channelEntry.getName() == "RecvPort" )
 			{
 				tempRelMcastCfg.recvServiceName = channelEntry.getAscii();
-				mcastFlags |= 0x02;
+				mcastFlags |= RecvPortEnum;
 			}
 			else if ( channelEntry.getName() == "SendAddress" )
 			{
 				tempRelMcastCfg.sendAddress = channelEntry.getAscii();
-				mcastFlags |= 0x04;
+				mcastFlags |= SendAddressEnum;
 			}
 			else if ( channelEntry.getName() == "SendPort" )
 			{
 				tempRelMcastCfg.sendServiceName = channelEntry.getAscii();
-				mcastFlags |= 0x08;
+				mcastFlags |= SendPortEnum;
 			}
 			else if ( channelEntry.getName() == "UnicastPort" )
 			{
 				tempRelMcastCfg.unicastServiceName = channelEntry.getAscii();
-				mcastFlags |= 0x10;
+				mcastFlags |= UnicastPortEnum;
 			}
 			else if ( channelEntry.getName() == "HsmInterface" )
 			{
 				tempRelMcastCfg.hsmInterface = channelEntry.getAscii();
-				mcastFlags |= 0x20;
+				mcastFlags |= HsmInterfaceEnum;
 			}
 			else if ( channelEntry.getName() == "HsmMultAddress" )
 			{
 				tempRelMcastCfg.hsmMultAddress = channelEntry.getAscii();
-				mcastFlags |= 0x40;
+				mcastFlags |= HsmMultAddressEnum;
 			}
 			else if ( channelEntry.getName() == "HsmPort" )
 			{
 				tempRelMcastCfg.hsmPort = channelEntry.getAscii();
-				mcastFlags |= 0x80;
+				mcastFlags |= HsmPortEnum;
 			}
 			else if ( channelEntry.getName() == "tcpControlPort" )
 			{
 				tempRelMcastCfg.tcpControlPort = channelEntry.getAscii();
-				mcastFlags |= 0x400000;
+				mcastFlags |= TcpControlPortEnum;
 			}
 			else if (channelEntry.getName() == "WsProtocols")
 			{
 				wsProtocols = channelEntry.getAscii();
-				websocketFlags |= 0x01;
+				flags |= WsProtocolsEnum;
 			}
 			break;
 
@@ -1934,7 +1932,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				case RSSL_CONN_TYPE_HTTP:
 				case RSSL_CONN_TYPE_ENCRYPTED:
 				case RSSL_CONN_TYPE_WEBSOCKET:
-					flags |= 0x10;
+					flags |= ChannelTypeEnum;
 					break;
 				default:
 					EmaString text( "Invalid ChannelType [" );
@@ -1963,7 +1961,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				}
 				else
 				{
-					flags |= 0x20;
+					flags |= CompressionTypeEnum;
 				}
 			}
 			else if (channelEntry.getName() == "EncryptedProtocolType")
@@ -1975,7 +1973,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				case RSSL_CONN_TYPE_SOCKET:
 				case RSSL_CONN_TYPE_HTTP:
 				case RSSL_CONN_TYPE_WEBSOCKET:
-					encryptionFlags |= 0x10;
+					flags |= EncryptedProtocolTypeEnum;
 					break;
 				default:
 					EmaString text("Invalid Encrypted Channel Type [");
@@ -1992,143 +1990,143 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			if ( channelEntry.getName() == "GuaranteedOutputBuffers" )
 			{
 				guaranteedOutputBuffers = channelEntry.getUInt();
-				flags |= 0x40;
+				flags |= GuaranteedOutputBuffersEnum;
 			}
 			if ( channelEntry.getName() == "NumInputBuffers" )
 			{
 				numInputBuffers = channelEntry.getUInt();
-				flags |= 0x800000;
+				flags |= NumInputBuffersEnum;
 			}
 			if ( channelEntry.getName() == "SysRecvBufSize" )
 			{
 				sysRecvBufSize = channelEntry.getUInt();
-				flags |= 0x200000;
+				flags |= SysRecvBufSizeEnum;
 			}
 			if ( channelEntry.getName() == "SysSendBufSize" )
 			{
 				sysSendBufSize = channelEntry.getUInt();
-				flags |= 0x400000;
+				flags |= SysSendBufSizeEnum;
 			}
 			if ( channelEntry.getName() == "HighWaterMark" )
 			{
 				highWaterMark = channelEntry.getUInt();
-				flags |= 0x8000000;
+				flags |= HighWaterMarkEnum;
 			}
 			else if ( channelEntry.getName() == "TcpNodelay" )
 			{
 				tcpNodelay = channelEntry.getUInt();
-				flags |= 0x80;
+				flags |= TcpNodelayEnum;
 			}
 			else if (channelEntry.getName() == "ConnectionPingTimeout" )
 			{
 				connectionPingTimeout = channelEntry.getUInt();
-				flags |= 0x8000;
+				flags |= ConnectionPingTimeoutEnum;
 			}
 			else if ( channelEntry.getName() == "CompressionThreshold" )
 			{
 				compressionThreshold = channelEntry.getUInt();
-				flags |= 0x1000000;
+				flags |= CompressionThresholdEnum;
 			}
 			else if (channelEntry.getName() == "InitializationTimeout")
 			{
 				initializationTimeout = channelEntry.getUInt();
-				flags |= 0x2000000;
+				flags |= InitializationTimeoutEnum;
 			}
 			else if (channelEntry.getName() == "EnableSessionManagement")
 			{
 				enableSessionMgnt = channelEntry.getUInt();
-				flags |= 0x4000000;
+				flags |= EnableSessionManagementEnum;
 			}
 			else if (channelEntry.getName() == "SecurityProtocol")
 			{
 				encryptedSslProtocolVer = channelEntry.getUInt();
-				encryptionFlags |= 0x20;
+				flags |= SecurityProtocolEnum;
 			}
 			else if ( channelEntry.getName() == "PacketTTL" )
 			{
 				tempRelMcastCfg.setPacketTTL( channelEntry.getUInt() );
-				mcastFlags |= 0x100;
+				mcastFlags |= PacketTTLEnum;
 			}
 			else if ( channelEntry.getName() == "DisconnectOnGap" )
 			{
 				tempRelMcastCfg.disconnectOnGap = channelEntry.getUInt()  ? true : false;
-				mcastFlags |= 0x200;
+				mcastFlags |= DisconnectOnGapEnum;
 			}
 			else if ( channelEntry.getName() == "HsmInterval" )
 			{
 				tempRelMcastCfg.setHsmInterval( channelEntry.getUInt() );
-				mcastFlags |= 0x400;
+				mcastFlags |= HsmIntervalEnum;
 			}
 			else if ( channelEntry.getName() == "ndata" )
 			{
 				tempRelMcastCfg.setNdata( channelEntry.getUInt() );
-				mcastFlags |= 0x800;
+				mcastFlags |= ndataEnum;
 			}
 			else if ( channelEntry.getName() == "nmissing" )
 			{
 				tempRelMcastCfg.setNmissing( channelEntry.getUInt() );
-				mcastFlags |= 0x1000;
+				mcastFlags |= nmissingEnum;
 			}
 			else if ( channelEntry.getName() == "nrreq" )
 			{
 				tempRelMcastCfg.setNrreq( channelEntry.getUInt() );
-				mcastFlags |= 0x2000;
+				mcastFlags |= nrreqEnum;
 			}
 			else if ( channelEntry.getName() == "tdata" )
 			{
 				tempRelMcastCfg.setTdata( channelEntry.getUInt() );
-				mcastFlags |= 0x4000;
+				mcastFlags |= tdataEnum;
 			}
 			else if ( channelEntry.getName() == "trreq" )
 			{
 				tempRelMcastCfg.setTrreq( channelEntry.getUInt() );
-				mcastFlags |= 0x8000;
+				mcastFlags |= trreqEnum;
 			}
 			else if ( channelEntry.getName() == "pktPoolLimitHigh" )
 			{
 				tempRelMcastCfg.setPktPoolLimitHigh( channelEntry.getUInt() );
-				mcastFlags |= 0x10000;
+				mcastFlags |= pktPoolLimitHighEnum;
 			}
 			else if ( channelEntry.getName() == "pktPoolLimitLow" )
 			{
 				tempRelMcastCfg.setPktPoolLimitLow( channelEntry.getUInt() );
-				mcastFlags |= 0x20000;
+				mcastFlags |= pktPoolLimitLowEnum;
 			}
 			else if ( channelEntry.getName() == "twait" )
 			{
 				tempRelMcastCfg.setTwait( channelEntry.getUInt() );
-				mcastFlags |= 0x40000;
+				mcastFlags |= twaitEnum;
 			}
 			else if ( channelEntry.getName() == "tbchold" )
 			{
 				tempRelMcastCfg.setTbchold( channelEntry.getUInt() );
-				mcastFlags |= 0x80000;
+				mcastFlags |= tbcholdEnum;
 			}
 			else if ( channelEntry.getName() == "tpphold" )
 			{
 				tempRelMcastCfg.setTpphold( channelEntry.getUInt() );
-				mcastFlags |= 0x100000;
+				mcastFlags |= tppholdEnum;
 			}
 			else if ( channelEntry.getName() == "userQLimit" )
 			{
 				tempRelMcastCfg.setUserQLimit( channelEntry.getUInt() );
-				mcastFlags |= 0x200000;
+				mcastFlags |= userQLimitEnum;
 			}
 			else if ( channelEntry.getName() == "ServiceDiscoveryRetryCount" )
 			{
 				serviceDiscoveryRetryCount = channelEntry.getUInt();
-				flags |= 0x10000000;
+				flags |= ServiceDiscoveryRetryCountEnum;
 			}
 			else if (channelEntry.getName() == "WsMaxMsgSize")
 			{
 				wsMaxMsgSize = channelEntry.getUInt();
-				websocketFlags |= 0x02;
+				flags |= WsMaxMsgSizeEnum;
 			}
 			break;
 		}
 	}
 
-	if ( flags & 0x10 )
+	if ( flags & ChannelTypeEnum)
 	{
 		if ( setByFnCalled & (SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL | SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL) )
 		{
@@ -2179,59 +2177,59 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				if (fileCfg && ((fileCfg->connectionType == RSSL_CONN_TYPE_SOCKET) || (fileCfg->connectionType == RSSL_CONN_TYPE_ENCRYPTED) || (fileCfg->connectionType == RSSL_CONN_TYPE_HTTP) || (fileCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)))
 					fileCfgSocket = static_cast<SocketChannelConfig*>(fileCfg);
 
-				if (flags & 0x80)
+				if (flags & TcpNodelayEnum)
 					socketChannelConfig->tcpNodelay = tcpNodelay ? true : false;
 				else if (fileCfgSocket)
 					socketChannelConfig->tcpNodelay = fileCfgSocket->tcpNodelay;
 
-				if (flags & 0x02 && !(setByFnCalled & SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL))
+				if (flags & HostEnum && !(setByFnCalled & SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL))
 					socketChannelConfig->hostName = host;
 				else if (fileCfgSocket)
 					socketChannelConfig->hostName = fileCfgSocket->hostName;
 
-				if (flags & 0x04 && !(setByFnCalled & SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL))
+				if (flags & PortEnum && !(setByFnCalled & SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL))
 					socketChannelConfig->serviceName = port;
 				else if (fileCfgSocket)
 					socketChannelConfig->serviceName = fileCfgSocket->serviceName;
 
-				if (encryptionFlags & 0x02 && !(setByFnCalled & TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL))
+				if (flags & ObjectNameEnum && !(setByFnCalled & TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL))
 					socketChannelConfig->objectName = objectName;
 				else if (fileCfgSocket)
 					socketChannelConfig->objectName = fileCfgSocket->objectName;
 
-				if (encryptionFlags & 0x04 && !(setByFnCalled & PROXY_PORT_CONFIG_BY_FUNCTION_CALL))
+				if (flags & ProxyPortEnum && !(setByFnCalled & PROXY_PORT_CONFIG_BY_FUNCTION_CALL))
 					socketChannelConfig->proxyPort = tunnelingProxyPort;
 				else if (fileCfgSocket)
 					socketChannelConfig->proxyPort = fileCfgSocket->proxyPort;
 
-				if (encryptionFlags & 0x08 && !(setByFnCalled & PROXY_HOST_CONFIG_BY_FUNCTION_CALL))
+				if (flags & ProxyHostEnum && !(setByFnCalled & PROXY_HOST_CONFIG_BY_FUNCTION_CALL))
 					socketChannelConfig->proxyHostName = tunnelingProxyHost;
 				else if (fileCfgSocket)
 					socketChannelConfig->proxyHostName = fileCfgSocket->proxyHostName;
 
-				if (encryptionFlags & 0x10)
+				if (flags & EncryptedProtocolTypeEnum)
 					socketChannelConfig->encryptedConnectionType = (RsslConnectionTypes)encryptedProtocolType;
 				else if (fileCfgSocket)
 					socketChannelConfig->encryptedConnectionType = fileCfgSocket->encryptedConnectionType;
 
-				if (encryptionFlags & 0x20)
+				if (flags & SecurityProtocolEnum)
 					socketChannelConfig->securityProtocol = (int)encryptedSslProtocolVer;
 				else if (fileCfgSocket)
 					socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
 
-				if (encryptionFlags & 0x40)
+				if (flags & OpenSSLCAStoreEnum)
 					socketChannelConfig->sslCAStore = sslCAStore;
 				else if (fileCfgSocket)
 					socketChannelConfig->sslCAStore = fileCfgSocket->sslCAStore;
 
 				if (channelType == RSSL_CONN_TYPE_WEBSOCKET || (channelType == RSSL_CONN_TYPE_ENCRYPTED && socketChannelConfig->encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
 				{
-					if (websocketFlags & 0x01)
+					if (flags & WsProtocolsEnum)
 						socketChannelConfig->wsProtocols = wsProtocols;
 					else if (fileCfgSocket)
 						socketChannelConfig->wsProtocols = fileCfgSocket->wsProtocols;
 
-					if (websocketFlags & 0x02)
+					if (flags & WsMaxMsgSizeEnum)
 						socketChannelConfig->setWsMaxMsgSize(wsMaxMsgSize);
 					else if (fileCfgSocket)
 						socketChannelConfig->wsMaxMsgSize = fileCfgSocket->wsMaxMsgSize;
@@ -2246,19 +2244,19 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
 					socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
 
-				if (flags & 0x4000000)
+				if (flags & EnableSessionManagementEnum)
 					socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;
 				else if (fileCfgSocket)
 					socketChannelConfig->enableSessionMgnt = fileCfgSocket->enableSessionMgnt;
 
 				if (channelType == RSSL_CONN_TYPE_ENCRYPTED)
 				{
-					if (flags & 0x2000000)
+					if (flags & LocationEnum)
 						socketChannelConfig->location = location;
 					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 						socketChannelConfig->location = fileCfgSocket->location;
 
-					if (flags & 0x10000000)
+					if (flags & ServiceDiscoveryRetryCountEnum)
 						socketChannelConfig->setServiceDiscoveryRetryCount(serviceDiscoveryRetryCount);
 					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 						socketChannelConfig->serviceDiscoveryRetryCount = fileCfgSocket->serviceDiscoveryRetryCount;
@@ -2281,19 +2279,19 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 		bool useFileCfg = ( fileCfg && fileCfg->connectionType == pCurrentChannelConfig->connectionType ) ? true : false;
 
-		if ( flags & 0x80000 )
+		if ( flags & InterfaceNameEnum)
 			pCurrentChannelConfig->interfaceName = interfaceName;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->interfaceName = fileCfg->interfaceName;
 
 		if ( channelType != RSSL_CONN_TYPE_RELIABLE_MCAST )
 		{
-			if ( flags & 0x20 )
+			if ( flags & CompressionTypeEnum)
 				pCurrentChannelConfig->compressionType = ( RsslCompTypes )compressionType;
 			else if ( useFileCfg )
 				pCurrentChannelConfig->compressionType = fileCfg->compressionType;
 
-			if (flags & 0x1000000)
+			if (flags & CompressionThresholdEnum)
 			{
 				pCurrentChannelConfig->compressionThreshold = compressionThreshold > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)compressionThreshold;
 				pCurrentChannelConfig->compressionThresholdSet = true;
@@ -2308,43 +2306,43 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				 * theory, this may override a user setting in the configuration file, but only
 				 * in the case where the user set it to 30 which is invalid for LZ4 anyway.
 				 */
-				if ( flags & 0x20 && compressionType == RSSL_COMP_LZ4 &&
+				if ( flags & CompressionTypeEnum && compressionType == RSSL_COMP_LZ4 &&
 					 pCurrentChannelConfig->compressionThreshold == DEFAULT_COMPRESSION_THRESHOLD)
 				  pCurrentChannelConfig->compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD_LZ4;
 			}
 		}
 
-		if ( flags & 0x40 )
+		if ( flags & GuaranteedOutputBuffersEnum)
 			pCurrentChannelConfig->setGuaranteedOutputBuffers( guaranteedOutputBuffers );
 		else if ( useFileCfg )
 			pCurrentChannelConfig->guaranteedOutputBuffers = fileCfg->guaranteedOutputBuffers;
 
-		if ( flags & 0x800000 )
+		if ( flags & NumInputBuffersEnum)
 			pCurrentChannelConfig->setNumInputBuffers( numInputBuffers );
 		else if ( useFileCfg )
 			pCurrentChannelConfig->numInputBuffers = fileCfg->numInputBuffers;
 
-		if ( flags & 0x200000 )
+		if ( flags & SysRecvBufSizeEnum)
 			pCurrentChannelConfig->sysRecvBufSize = sysRecvBufSize > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )sysRecvBufSize;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->sysRecvBufSize = fileCfg->sysRecvBufSize;
 
-		if ( flags & 0x400000 )
+		if ( flags & SysSendBufSizeEnum)
 			pCurrentChannelConfig->sysSendBufSize = sysSendBufSize > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : ( UInt32 )sysSendBufSize;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->sysSendBufSize = fileCfg->sysSendBufSize;
 
-		if ( flags & 0x8000000 )
+		if ( flags & HighWaterMarkEnum)
 			pCurrentChannelConfig->highWaterMark = highWaterMark > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32) highWaterMark;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->highWaterMark = fileCfg->highWaterMark;
 
-		if ( flags & 0x8000 )
+		if ( flags & ConnectionPingTimeoutEnum)
 			pCurrentChannelConfig->connectionPingTimeout = connectionPingTimeout > MAX_UNSIGNED_INT32  ? MAX_UNSIGNED_INT32 : ( UInt32 )connectionPingTimeout;
 		else if ( useFileCfg )
 			pCurrentChannelConfig->connectionPingTimeout = fileCfg->connectionPingTimeout;
 
-		if (flags & 0x2000000)
+		if (flags & InitializationTimeoutEnum)
 			pCurrentChannelConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
 		else if (useFileCfg)
 			pCurrentChannelConfig->initializationTimeout = fileCfg->initializationTimeout;
@@ -2373,12 +2371,12 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 			if (channelEntry.getName() == "Channel")
 			{
 				channelName = channelEntry.getAscii();
-				flags |= 0x01;
+				flags |= WSBChannelNameEnum;
 			}
 			else if (channelEntry.getName() == "PerServiceNameSet")
 			{
 				PerServiceNameSet = channelEntry.getAscii();
-				flags |= 0x02;
+				flags |= WSBPerServiceNameSet;
 			}
 		}
 	}
@@ -2386,7 +2384,7 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 	if (flags != 0)
 	{
 		EmaString queryName;
-		if (flags & 0x01)
+		if (flags & WSBChannelNameEnum)
 		{
 			queryName = channelName;
 		}
@@ -2415,7 +2413,7 @@ void ProgrammaticConfigure::retrieveWSBServerInfo(const MapEntry& mapEntry, cons
 			activeConfig.configChannelSet.removePosition(orgSize);
 		}
 
-		if (flags & 0x02)
+		if (flags & WSBPerServiceNameSet)
 		{
 			char* pToken = NULL;
 			char* pNextToken = NULL;
@@ -2503,19 +2501,19 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			if (channelEntry.getName() == "StartingActiveServer")
 			{
 				startingActiveServer = channelEntry.getAscii();
-				flags |= 0x01;
+				flags |= WSBActiveServerNameEnum;
 			}
 			else if (channelEntry.getName() == "StandbyServerSet")
 			{
 				standbyServerSet = channelEntry.getAscii();
-				flags |= 0x02;
+				flags |= WSBStandbyServerSetEnum;
 			}
 			break;
 		case DataType::UIntEnum:
 			if (channelEntry.getName() == "DownloadConnectionConfig")
 			{
 				downloadConnectionConfig = channelEntry.getUInt();
-				//flags |= 0x04;
+				//flags |= WSBDownloadConnectionConfig;
 			}
 			break;
 		case DataType::EnumEnum:
@@ -2527,7 +2525,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 				{
 				case RSSL_RWSB_MODE_LOGIN_BASED:
 				case RSSL_RWSB_MODE_SERVICE_BASED:
-					flags |= 0x08;
+					flags |= WSBModeEnum;
 					break;
 				default:
 					EmaString text("Invalid WarmStandbyMode [");
@@ -2549,7 +2547,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 
 	if (flags != 0)
 	{
-		if (flags & 0x01)
+		if (flags & WSBActiveServerNameEnum)
 		{
 			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(startingActiveServer);
 			wsbChannelConfig->startingActiveServer = wsbCurrentServerInfoConfig;
@@ -2564,7 +2562,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			retrieveWSBServerInfoConfig(fileConfig->startingActiveServer->name, activeConfig, wsbCurrentServerInfoConfig, fileConfig->startingActiveServer);
 		}
 
-		if (flags & 0x02)
+		if (flags & WSBStandbyServerSetEnum)
 		{
 			char* pToken = NULL;
 			char* pNextToken = NULL;
@@ -2612,7 +2610,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			}
 		}
 
-		if (flags & 0x04)
+		if (flags & WSBDownloadConnectionConfig)
 		{
 			wsbChannelConfig->downloadConnectionConfig = downloadConnectionConfig;
 		}
@@ -2621,7 +2619,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 			wsbChannelConfig->downloadConnectionConfig = fileConfig->downloadConnectionConfig;
 		}
 
-		if (flags & 0x08)
+		if (flags & WSBModeEnum)
 		{
 			wsbChannelConfig->warmStandbyMode = (WarmStandbyChannelConfig::WarmStandbyMode)warmStandbyMode;
 		}
@@ -2728,7 +2726,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 			else if (serverEntry.getName() == "WsProtocols")
 			{
 				wsProtocols = serverEntry.getAscii();
-				websocketFlags |= 0x01;
+				websocketFlags |= WebsocketProtocolEnum;
 			}
 			break;
 
@@ -2977,7 +2975,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
 			}
 
-			if (websocketFlags & 0x01)
+			if (websocketFlags & WebsocketProtocolEnum)
 				pCurrentServerConfig->wsProtocols = wsProtocols;
 			else if (fileCfgSocket)
 				pCurrentServerConfig->wsProtocols = fileCfgSocket->wsProtocols;
@@ -2999,117 +2997,117 @@ bool ProgrammaticConfigure::setReliableMcastChannelInfo( ReliableMcastChannelCon
 	if ( useFileCfg )
 		pFileMcastCfg =  static_cast<ReliableMcastChannelConfig*>( fileCfg );
 
-	if ( mcastFlags & 0x01 )
+	if ( mcastFlags & RecvAddressEnum)
 		pChannelCfg->recvAddress = relMcastcfg.recvAddress;
 	else if ( useFileCfg )
 		pChannelCfg->recvAddress = pFileMcastCfg->recvAddress;
 
-	if ( mcastFlags & 0x02 )
+	if ( mcastFlags & RecvPortEnum)
 		pChannelCfg->recvServiceName = relMcastcfg.recvServiceName;
 	else if ( useFileCfg )
 		pChannelCfg->recvServiceName = pFileMcastCfg->recvServiceName;
 
-	if ( mcastFlags & 0x04 )
+	if ( mcastFlags & SendAddressEnum)
 		pChannelCfg->sendAddress = relMcastcfg.sendAddress;
 	else if ( useFileCfg )
 		pChannelCfg->sendAddress = pFileMcastCfg->sendAddress;
 
-	if ( mcastFlags & 0x08 )
+	if ( mcastFlags & SendPortEnum)
 		pChannelCfg->sendServiceName = relMcastcfg.sendServiceName;
 	else if ( useFileCfg )
 		pChannelCfg->sendServiceName = pFileMcastCfg->sendServiceName;
 
-	if ( mcastFlags & 0x10 )
+	if ( mcastFlags & UnicastPortEnum)
 		pChannelCfg->unicastServiceName = relMcastcfg.unicastServiceName;
 	else if ( useFileCfg )
 		pChannelCfg->unicastServiceName = pFileMcastCfg->unicastServiceName;
 
-	if ( mcastFlags & 0x20 )
+	if ( mcastFlags & HsmInterfaceEnum)
 		pChannelCfg->hsmInterface = relMcastcfg.hsmInterface;
 	else if ( useFileCfg )
 		pChannelCfg->hsmInterface = pFileMcastCfg->hsmInterface;
 
-	if ( mcastFlags & 0x40 )
+	if ( mcastFlags & HsmMultAddressEnum)
 		pChannelCfg->hsmMultAddress = relMcastcfg.hsmMultAddress;
 	else if ( useFileCfg )
 		pChannelCfg->hsmMultAddress = pFileMcastCfg->hsmMultAddress;
 
-	if ( mcastFlags & 0x80 )
+	if ( mcastFlags & HsmPortEnum)
 		pChannelCfg->hsmPort = relMcastcfg.hsmPort;
 	else if ( useFileCfg )
 		pChannelCfg->hsmPort = pFileMcastCfg->hsmPort;
 
-	if ( mcastFlags & 0x100 )
+	if ( mcastFlags & PacketTTLEnum)
 		pChannelCfg->packetTTL = relMcastcfg.packetTTL;
 	else if ( useFileCfg )
 		pChannelCfg->packetTTL = pFileMcastCfg->packetTTL;
 
-	if ( mcastFlags & 0x200 )
+	if ( mcastFlags & DisconnectOnGapEnum)
 		pChannelCfg->disconnectOnGap = relMcastcfg.disconnectOnGap;
 	else if ( useFileCfg )
 		pChannelCfg->disconnectOnGap = pFileMcastCfg->disconnectOnGap;
 
-	if ( mcastFlags & 0x400 )
+	if ( mcastFlags & HsmIntervalEnum)
 		pChannelCfg->hsmInterval = relMcastcfg.hsmInterval;
 	else if ( useFileCfg )
 		pChannelCfg->hsmInterval = pFileMcastCfg->hsmInterval;
 
-	if ( mcastFlags & 0x800 )
+	if ( mcastFlags & ndataEnum)
 		pChannelCfg->ndata = relMcastcfg.ndata;
 	else if ( useFileCfg )
 		pChannelCfg->ndata = pFileMcastCfg->ndata;
 
-	if ( mcastFlags & 0x1000 )
+	if ( mcastFlags & nmissingEnum)
 		pChannelCfg->nmissing = relMcastcfg.nmissing;
 	else if ( useFileCfg )
 		pChannelCfg->nmissing = pFileMcastCfg->nmissing;
 
-	if ( mcastFlags & 0x2000 )
+	if ( mcastFlags & nrreqEnum)
 		pChannelCfg->nrreq = relMcastcfg.nrreq;
 	else if ( useFileCfg )
 		pChannelCfg->nrreq = pFileMcastCfg->nrreq;
 
-	if ( mcastFlags & 0x4000 )
+	if ( mcastFlags & tdataEnum)
 		pChannelCfg->tdata = relMcastcfg.tdata;
 	else if ( useFileCfg )
 		pChannelCfg->tdata = pFileMcastCfg->tdata;
 
-	if ( mcastFlags & 0x8000 )
+	if ( mcastFlags & trreqEnum)
 		pChannelCfg->trreq = relMcastcfg.trreq;
 	else if ( useFileCfg )
 		pChannelCfg->trreq = pFileMcastCfg->trreq;
 
-	if ( mcastFlags & 0x10000 )
+	if ( mcastFlags & pktPoolLimitHighEnum)
 		pChannelCfg->pktPoolLimitHigh = relMcastcfg.pktPoolLimitHigh;
 	else if ( useFileCfg )
 		pChannelCfg->pktPoolLimitHigh = pFileMcastCfg->pktPoolLimitHigh;
 
-	if ( mcastFlags & 0x20000 )
+	if ( mcastFlags & pktPoolLimitLowEnum)
 		pChannelCfg->pktPoolLimitLow = relMcastcfg.pktPoolLimitLow;
 	else if ( useFileCfg )
 		pChannelCfg->pktPoolLimitLow = pFileMcastCfg->pktPoolLimitLow;
 
-	if ( mcastFlags & 0x40000 )
+	if ( mcastFlags & twaitEnum)
 		pChannelCfg->twait = relMcastcfg.twait;
 	else if ( useFileCfg )
 		pChannelCfg->twait = pFileMcastCfg->twait;
 
-	if ( mcastFlags & 0x80000 )
+	if ( mcastFlags & tbcholdEnum)
 		pChannelCfg->tbchold = relMcastcfg.tbchold;
 	else if ( useFileCfg )
 		pChannelCfg->tbchold = pFileMcastCfg->tbchold;
 
-	if ( mcastFlags & 0x100000 )
+	if ( mcastFlags & tppholdEnum)
 		pChannelCfg->tpphold = relMcastcfg.tpphold;
 	else if ( useFileCfg )
 		pChannelCfg->tpphold = pFileMcastCfg->tpphold;
 
-	if ( mcastFlags & 0x200000 )
+	if ( mcastFlags & userQLimitEnum)
 		pChannelCfg->userQLimit = relMcastcfg.userQLimit;
 	else if ( useFileCfg )
 		pChannelCfg->userQLimit = pFileMcastCfg->userQLimit;
 
-	if ( mcastFlags & 0x400000 )
+	if ( mcastFlags & TcpControlPortEnum)
 		pChannelCfg->tcpControlPort = relMcastcfg.tcpControlPort;
 	else if ( useFileCfg )
 		pChannelCfg->tcpControlPort = pFileMcastCfg->tcpControlPort;

@@ -80,7 +80,78 @@ public:
 		LibCurlNameEnum =				0x100000,
 		MaxFragmentSizeFlagEnum =		0x200000,
 		ServerSharedSocketEnum =		0x400000,
+		WebsocketProtocolEnum =			0x800000
 
+	};
+
+	enum ClientEntryFlagEnum
+	{
+		HostEnum						= 0x0000001,
+		PortEnum						= 0x0000002,
+		InterfaceNameEnum				= 0x0000004,
+		LocationEnum					= 0x0000008,
+		ObjectNameEnum					= 0x0000010,
+		ProxyPortEnum					= 0x0000020, 
+		ProxyHostEnum					= 0x0000040,
+		OpenSSLCAStoreEnum				= 0x0000080,
+		WsProtocolsEnum					= 0x0000100,
+		ChannelTypeEnum					= 0x0000200,
+		CompressionTypeEnum				= 0x0000400,
+		EncryptedProtocolTypeEnum		= 0x0000800,
+		GuaranteedOutputBuffersEnum		= 0x0001000,
+		NumInputBuffersEnum				= 0x0002000,
+		SysRecvBufSizeEnum				= 0x0004000,
+		SysSendBufSizeEnum				= 0x0008000,
+		HighWaterMarkEnum				= 0x0010000,
+		TcpNodelayEnum					= 0x0020000,
+		ConnectionPingTimeoutEnum		= 0x0040000,
+		CompressionThresholdEnum		= 0x0080000,
+		InitializationTimeoutEnum		= 0x0100000,
+		EnableSessionManagementEnum		= 0x0200000,
+		SecurityProtocolEnum			= 0x0400000,
+		ServiceDiscoveryRetryCountEnum	= 0x0800000,
+		WsMaxMsgSizeEnum				= 0x1000000
+	};
+
+	enum MultcastEntryFlagEnum
+	{
+		RecvAddressEnum					= 0x000001,
+		RecvPortEnum					= 0x000002,
+		SendPortEnum					= 0x000004,
+		SendAddressEnum					= 0x000008,
+		UnicastPortEnum					= 0x000010,
+		HsmInterfaceEnum				= 0x000020,
+		HsmMultAddressEnum				= 0x000040,
+		HsmPortEnum						= 0x000080,
+		TcpControlPortEnum				= 0x000100,
+		PacketTTLEnum					= 0x000200,
+		DisconnectOnGapEnum				= 0x000400,
+		HsmIntervalEnum					= 0x000800,
+		ndataEnum						= 0x001000,
+		nmissingEnum					= 0x002000,
+		nrreqEnum						= 0x004000,
+		tdataEnum						= 0x008000,
+		trreqEnum						= 0x010000,
+		pktPoolLimitHighEnum			= 0x020000,
+		pktPoolLimitLowEnum				= 0x040000,
+		twaitEnum						= 0x080000,
+		tbcholdEnum						= 0x100000,
+		tppholdEnum						= 0x200000,
+		userQLimitEnum					= 0x400000
+	};
+
+	enum WSBServerInfoEnum
+	{
+		WSBChannelNameEnum   = 0x01,
+		WSBPerServiceNameSet = 0x02
+	};
+
+	enum WSBChannelEnum
+	{
+		WSBActiveServerNameEnum		= 0x01,
+		WSBStandbyServerSetEnum		= 0x02,
+		WSBModeEnum					= 0x04,
+		WSBDownloadConnectionConfig = 0x08
 	};
 
 
