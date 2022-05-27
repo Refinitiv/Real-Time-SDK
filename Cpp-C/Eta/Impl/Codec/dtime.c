@@ -13,6 +13,7 @@
 #include "rtr/decoderTools.h"
 #include <ctype.h>
 #include <time.h>
+#include <limits.h>
 
 
 static const char * months[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
@@ -363,7 +364,7 @@ int translateMonth(const char* monthStr)
 		}
 	}
 
-	return month;
+	return month != 0 ? month : -1;;
 }
 
 RSSL_API RsslBool _rsslIsLeapYear(RsslUInt16 year)
@@ -498,7 +499,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 	char * tmp;
 	RsslUInt8 u8;
 	RsslUInt16 u16;
-	int a, b, c;
+	int a = 0, b = 0, c = 0;
 	int year = 0;
 	int month = 0;
 	int day = 0;
@@ -507,6 +508,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 	int i = 0;
 	int numberCount = 0;
 	char* end;
+	char delimiter[2];
 
 	RSSL_ASSERT(oDate && iDateString, Invalid parameters or parameters passed in as NULL);
 
@@ -536,6 +538,9 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 	if (numberCount == 4 && (tmp == end || *tmp == '\0'))
 	{
 		oDate->year = tmpInt;
+
+		if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 		return RSSL_RET_SUCCESS;
 	}
 	
@@ -570,6 +575,9 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			{
 				oDate->year = year;
 				oDate->month = month;
+
+				if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 				return RSSL_RET_SUCCESS;
 			}
 
@@ -598,6 +606,9 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 					oDate->year = year;
 					oDate->month = month;
 					oDate->day = day;
+
+					if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 					return RSSL_RET_SUCCESS;
 				}
 				else
@@ -635,7 +646,11 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 
 		/* Check to make sure there's nothing left in the buffer */
 		if (tmp == end || *tmp == '\0')
+		{
+			if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
+		}
 		else
 		{
 			rsslClearDate(oDate);
@@ -693,6 +708,8 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			oDate->day = tmpInt;
 			oDate->month = month;
 
+			if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
 		}
 		else if (*tmp == '-')
@@ -715,94 +732,186 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			oDate->day = tmpInt;
 			oDate->month = month;
 
+			if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
 		}
 		else
 			return RSSL_RET_INVALID_DATA;
 	}
 
-	if (sscanf(iDateString->data, "%d/%d/%d", &a, &b, &c) == 3)
-	{
-		// 1974/04/14
-		//
-		if (a > 255) // assume year here is greater than MAX UINT8
-		{
-			oDate->day = c;
-			oDate->month = b;
-			oDate->year = a;
-		}
-		// 04/14/74
-		//
-		else if (c < 100) // assume year here is less than 100, then add 1900
-		{
-			oDate->day = b;
-			oDate->month = a;
-			oDate->year = c + 1900;
-		}
-		// 04/14/1974
-		//
-		else
-		{
-			oDate->day = b;
-			oDate->month = a;
-			oDate->year = c;
-		}
-		return RSSL_RET_SUCCESS;
-	}	
+	/* Covers:
+	yy/mm/dd
+	dd/mm/yy
+	mm/dd/yy
 
-	if (isdigit(iDateString->data[3]))
+	yy mm dd
+	dd mm yy
+	mm dd yy
+	*/
+	else if ((numberCount == 2 || numberCount == 4) && (*tmp == ' ' || *tmp == '/'))
 	{
-		if (sscanf(iDateString->data, "%d %d %d", &a, &b, &c) == 3)
+		tmp = iDateString->data;
+
+		// Scan first number in date
+		// 1974/04/14
+		// 04/14/74
+		// 04/14/1974
+
+		for (a = 0, i = 0; i < numberCount; i++, tmp++)
+			a = a * 10 + (*tmp - '0');
+
+		if (*tmp != ' ' && *tmp != '/')
+			return RSSL_RET_INVALID_DATA;
+
+		delimiter[0] = *tmp;
+
+		if (isspace(*tmp))
 		{
-			if (a > 255) // assume year here is greater than MAX UINT
+			while (tmp <= end && isspace(*tmp))
+				tmp++; /* skip whitespace */
+		}
+		else
+			tmp++;  /* skip delimiter */
+
+		// Scan second number in date
+		// /04/14
+		// /14/74
+		// /14/1974
+		// FEB 2020
+		if (isalpha(*tmp))
+		{
+			strncpy(monthStr, tmp, 3);
+			monthStr[3] = '\0';
+			b = translateMonth(monthStr);
+
+			if (b == -1)
+				return RSSL_RET_INVALID_DATA;
+
+			tmp += 3;
+
+			if (*tmp != ' ' && *tmp != '/')
+				return RSSL_RET_INVALID_DATA;
+
+			delimiter[1] = *tmp;
+
+			if (delimiter[0] != delimiter[1])
+				return RSSL_RET_INVALID_DATA;
+			if (isspace(*tmp))
+			{
+				while (tmp < end && isspace(*tmp))
+					tmp++; /* skip whitespace */
+			}
+			else
+				tmp++;  /* skip delimiter */
+
+			// Scan third number in date
+			// /14
+			// /74
+			// /1974
+			for (c = 0, i = 0; tmp < end && isdigit(*tmp); tmp++, i++)
+				c = c * 10 + (*tmp - '0');
+
+			if (i != 2 && i != 4)
+				return RSSL_RET_INVALID_DATA;
+
+			if (c < 100) // assume year here is less than 100, then add 1900
+			{
+				oDate->day = a;
+				oDate->month = b;
+				oDate->year = c + 1900;
+			}
+			else
+			{
+				oDate->day = a;
+				oDate->month = b;
+				oDate->year = c;
+			}
+
+			if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
+			return RSSL_RET_SUCCESS;
+		}
+		else if (isdigit(*tmp))
+		{
+			for (b = 0, i = 0; i < 2; i++, tmp++)
+			{
+				if (tmp <= end && isdigit(*tmp))
+					b = b * 10 + (*tmp - '0');
+				else
+					return RSSL_RET_INVALID_DATA;
+			}
+
+			if (*tmp != ' ' && *tmp != '/')
+				return RSSL_RET_INVALID_DATA;
+
+			delimiter[1] = *tmp;
+
+			if (delimiter[0] != delimiter[1])
+				return RSSL_RET_INVALID_DATA;
+
+			if (isspace(*tmp))
+			{
+				while (tmp < end && isspace(*tmp))
+					tmp++; /* skip whitespace */
+			}
+			else
+				tmp++;  /* skip delimiter */
+
+			// Scan third number in date
+			// /14
+			// /74
+			// /1974
+			for (c = 0, i = 0; tmp <= end && isdigit(*tmp); tmp++, i++)
+				c = c * 10 + (*tmp - '0');
+
+			if (i != 2 && i != 4)
+				return RSSL_RET_INVALID_DATA;
+
+			// 1974/04/14
+            //
+			if (a > 255) // assume year here is greater than MAX UINT8
 			{
 				oDate->day = c;
 				oDate->month = b;
 				oDate->year = a;
 			}
+			// 04/14/74
+			//
 			else if (c < 100) // assume year here is less than 100, then add 1900
 			{
 				oDate->day = b;
 				oDate->month = a;
 				oDate->year = c + 1900;
 			}
+			// 04/14/1974
+			//
 			else
 			{
 				oDate->day = b;
 				oDate->month = a;
 				oDate->year = c;
 			}
+
+			if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
 		}
-	}
-	else if (isalpha(iDateString->data[3]))
-	{
-		if (sscanf(iDateString->data, "%d %3s %d", &a, monthStr, &c) == 3)
-		{
-			if (c < 100) // assume year here is less than 100, then add 1900
-			{
-				oDate->day = a;
-				oDate->month = translateMonth(monthStr);
-				oDate->year = c + 1900;
-			}
-			else
-			{
-				oDate->day = a;
-				oDate->month = translateMonth(monthStr);
-				oDate->year = c;
-			}
-			return RSSL_RET_SUCCESS;
-		}
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
 	if (iDateString->length > 0)
 	{
 		tmp = iDateString->data;
-		for (u8 = 0; isdigit(*tmp); tmp++)
-			u8 = u8 * 10 + (*tmp - '0');
-		oDate->day = u8;
+		for (day = 0, i = 0; tmp <= end && isdigit(*tmp); tmp++, i++)
+			day = day * 10 + (*tmp - '0');
+		if (day < UCHAR_MAX && i == 2)
+			oDate->day = day;
+		else
+			return RSSL_RET_INVALID_DATA;
 
-		while (isspace(*tmp))
+		while (tmp <= end && isspace(*tmp))
 			tmp++; /* skip whitespace */
 		
 		if (tmp == iDateString->data + iDateString->length)
@@ -814,20 +923,37 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			return RSSL_RET_BLANK_DATA;
 		}
 
-		for (u8 = 1; u8 <= 12 && strncmp(months[u8-1], tmp, 3) ; u8++);
-		if (u8 > 12)
-        {
-			return RSSL_RET_INVALID_DATA;
-        }
+		for (month = 0, i = 0; tmp <= end && isdigit(*tmp); tmp++, i++)
+			month = month * 10 + (*tmp - '0');
+
+		if (month < UCHAR_MAX && i == 2)
+			oDate->month = month;
 		else
-			oDate->month = u8;
+			return RSSL_RET_INVALID_DATA;
+
+		if (isalpha(*tmp))
+		{
+			strncpy(monthStr, tmp, 3);
+			monthStr[3] = '\0';
+			month = translateMonth(monthStr);
+
+			if (month == -1)
+				return RSSL_RET_INVALID_DATA;
+			oDate->month = month;
+		}
 		tmp += 3;
 
-		tmp++; /* skip whitespace */
+		while (tmp <= end && isspace(*tmp))
+			tmp++; /* skip whitespace */
 
-		for (u16 = 0; isdigit(*tmp); tmp++)
-			u16 = u16 * 10 + (*tmp - '0');
-		oDate->year = u16;
+		for (year = 0, i = 0; (tmp <= end && isdigit(*tmp)); tmp++, i++)
+			year = year * 10 + (*tmp - '0');
+		if (year < USHRT_MAX && i == 4)
+			oDate->year = year;
+		else
+			return RSSL_RET_INVALID_DATA;
+
+		if (RSSL_TRUE != rsslDateIsValid(oDate)) return RSSL_RET_INVALID_DATA;
 	}
 	else
 	{
@@ -847,8 +973,8 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTimeString)
 {
 	char * tmp;
-	RsslUInt8 u8;
-	RsslUInt16 u16;
+	//RsslUInt8 u8;
+	//RsslUInt16 u16;
 	int tmpInt = 0;
 	int min = 0;
 	int sec = 0;
@@ -924,6 +1050,9 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 		{
 			oTime->hour = hour;
 			oTime->minute = min;
+
+			if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
 		}
 
@@ -949,6 +1078,9 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 			oTime->hour = hour;
 			oTime->minute = min;
 			oTime->second = sec;
+
+			if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
 		}
 
@@ -976,6 +1108,9 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				oTime->minute = min;
 				oTime->second = sec;
 				oTime->millisecond = milli;
+
+				if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 				return RSSL_RET_SUCCESS;
 			}
 
@@ -1002,6 +1137,9 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				oTime->second = sec;
 				oTime->millisecond = milli;
 				oTime->microsecond = micro;
+
+				if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 				return RSSL_RET_SUCCESS;
 			}
 
@@ -1029,6 +1167,9 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				oTime->millisecond = milli;
 				oTime->microsecond = micro;
 				oTime->nanosecond = nano;
+
+				if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 				return RSSL_RET_SUCCESS;
 			}
 		}
@@ -1046,7 +1187,11 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 			for (i = 0; i < 3; ++i)
 			{
 				if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+				{
+					if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 					return RSSL_RET_SUCCESS;
+				}
 				else if (isdigit(*tmp))
 				{
 					oTime->millisecond = oTime->millisecond + (*tmp - '0') * placeValue;
@@ -1064,7 +1209,11 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 			for (i = 0; i < 3; ++i)
 			{
 				if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+				{
+					if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 					return RSSL_RET_SUCCESS;
+				}
 				else if (isdigit(*tmp))
 				{
 					oTime->microsecond = oTime->microsecond + (*tmp - '0') * placeValue;
@@ -1082,7 +1231,11 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 			for (i = 0; i < 3; ++i)
 			{
 				if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+				{
+					if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 					return RSSL_RET_SUCCESS;
+				}
 				else if (isdigit(*tmp))
 				{
 					oTime->nanosecond = oTime->nanosecond + (*tmp - '0') * placeValue;
@@ -1095,6 +1248,8 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				}
 				tmp++;
 			}
+
+			if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
 
 			/* We've parsed all available data, and are ignoring any time zone specification */
 			return RSSL_RET_SUCCESS;
@@ -1136,6 +1291,8 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 			/* Ignoring ISO time zone formatting */
 			if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
 			{
+				if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 				return RSSL_RET_SUCCESS;
 			}
 			else if (*tmp == '.' || *tmp == ',')
@@ -1148,7 +1305,11 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				for (i = 0; i < 3; ++i)
 				{
 					if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+					{
+						if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 						return RSSL_RET_SUCCESS;
+					}
 					else if (isdigit(*tmp))
 					{
 						oTime->millisecond = oTime->millisecond + (*tmp - '0') * placeValue;
@@ -1166,7 +1327,11 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				for (i = 0; i < 3; ++i)
 				{
 					if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+					{
+						if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 						return RSSL_RET_SUCCESS;
+					}
 					else if (isdigit(*tmp))
 					{
 						oTime->microsecond = oTime->microsecond + (*tmp - '0') * placeValue;
@@ -1184,7 +1349,11 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 				for (i = 0; i < 3; ++i)
 				{
 					if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
+					{
+						if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 						return RSSL_RET_SUCCESS;
+					}
 					else if (isdigit(*tmp))
 					{
 						oTime->nanosecond = oTime->nanosecond + (*tmp - '0') * placeValue;
@@ -1198,6 +1367,8 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 					tmp++;
 				}
 
+				if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 				/* We've parsed all available data, and are ignoring any time zone specification */
 				return RSSL_RET_SUCCESS;
 			}
@@ -1206,6 +1377,8 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 		}
 		else if (tmp == end || *tmp == '\0' || *tmp == 'Z' || *tmp == '+' || *tmp == '-')
 		{
+			if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 			return RSSL_RET_SUCCESS;
 		}
 		else
@@ -1215,7 +1388,7 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 	/* Catchall for remaining alternate formats */
 	tmp = iTimeString->data;
 
-	while (isspace(*tmp))
+	while (tmp <= end && isspace(*tmp))
 		tmp++; /* skip whitespace */
 		
 	/* if all whitespaces init to blank */
@@ -1230,78 +1403,93 @@ RSSL_API RsslRet rsslTimeStringToTime(RsslTime * oTime, const RsslBuffer * iTime
 		return RSSL_RET_BLANK_DATA;
 	}
 
-	for (u8 = 0; isdigit(*tmp); tmp++)
-		u8 = u8 * 10 + (*tmp - '0');
-	oTime->hour = u8;
+	for (hour = 0; (tmp <= end && isdigit(*tmp)); tmp++)
+		hour = hour * 10 + (*tmp - '0');
+	if (hour < UCHAR_MAX)
+		oTime->hour = hour;
+	else
+		return RSSL_RET_INVALID_DATA;
 	
-	while ((*tmp == ':') || isspace(*tmp))
+	while ((*tmp == ':') || (tmp <= end && isspace(*tmp)))
 		tmp++;
 
 	if (tmp == end || *tmp == '\0' || !isdigit(*tmp))
 		return RSSL_RET_INVALID_DATA;
 
-	for (u8 = 0; isdigit(*tmp); tmp++)
-		u8 = u8 * 10 + (*tmp - '0');
-	oTime->minute = u8;
+	for (min = 0; (tmp <= end && isdigit(*tmp)); tmp++)
+		min = min * 10 + (*tmp - '0');
+	if (min < UCHAR_MAX)
+		oTime->minute = min;
+	else
+		return RSSL_RET_INVALID_DATA;
 
-	while ((*tmp == ':') || isspace(*tmp))
+	while ((*tmp == ':') || (tmp <= end && isspace(*tmp)))
 		tmp++;
 
 	if ((tmp < end))
 	{
-		for (u8 = 0; isdigit(*tmp); tmp++)
-			u8 = u8 * 10 + (*tmp - '0');
-		oTime->second = u8;
+		for (sec = 0; (tmp <= end && isdigit(*tmp)); tmp++)
+			sec = sec * 10 + (*tmp - '0');
+		if (sec < UCHAR_MAX)
+			oTime->second = sec;
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
-	while ((*tmp == ':') || isspace(*tmp))
+	while ((*tmp == ':') || (tmp <= end && isspace(*tmp)))
 		tmp++;
 
 	if ((tmp < end))
 	{
-		for (u16 = 0; isdigit(*tmp); tmp++)
-			u16 = u16 * 10 + (*tmp - '0');
-		oTime->millisecond =u16;
+		for (milli = 0; (tmp <= end && isdigit(*tmp)); tmp++)
+			milli = milli * 10 + (*tmp - '0');
+		if (milli < USHRT_MAX)
+			oTime->millisecond = milli;
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
-	while ((*tmp == ':') || isspace(*tmp))
+	while ((*tmp == ':') || (tmp <= end && isspace(*tmp)))
 		tmp++;
 
 	if ((tmp < end))
 	{
-		for (u16 = 0; isdigit(*tmp); tmp++)
-			u16 = u16 * 10 + (*tmp - '0');
-		oTime->microsecond =u16;
+		for (micro = 0; tmp <= end && isdigit(*tmp); tmp++)
+			micro = micro * 10 + (*tmp - '0');
+		if (micro < USHRT_MAX)
+			oTime->microsecond = micro;
+		else
+			return RSSL_RET_INVALID_DATA;
 	}
 
-	while ((*tmp == ':') || isspace(*tmp))
+	while ((*tmp == ':') || (tmp <= end && isspace(*tmp)))
 		tmp++;
 
 	if ((tmp < end))
 	{
-		for (u16 = 0; isdigit(*tmp); tmp++)
-			u16 = u16 * 10 + (*tmp - '0');
-		oTime->nanosecond =u16;
-	}		
+		for (nano = 0; tmp <= end && isdigit(*tmp); tmp++)
+			nano = nano * 10 + (*tmp - '0');
+		if (nano < USHRT_MAX)
+			oTime->nanosecond = nano;
+		else
+			return RSSL_RET_INVALID_DATA;
+	}
+
+	if (RSSL_TRUE != rsslTimeIsValid(oTime)) return RSSL_RET_INVALID_DATA;
+
 	return RSSL_RET_SUCCESS;
 }
 
 RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const RsslBuffer *iDateTimeString)
 {
-	int hour = 0;
-	int minute = 0;
-	int second = 0;
-	int millisecond = 0;
-	int micro = 0;
-	int nano = 0;
-	int a, b, c;
-	char monthStr[32];
+	unsigned long long spaceChNumber = 0;
 	char* tmp;
 	char* end;
 	int curr = 0;
 	int tlocation = -1;
+	char const *timePtr = NULL;
 	RsslBuffer tmpBuf;
-	RsslRet ret;
+	RsslRet ret = RSSL_RET_INVALID_DATA;
 
 	if (iDateTimeString->data == NULL || iDateTimeString->length == 0)
 	{
@@ -1375,272 +1563,56 @@ RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const Rss
 		return RSSL_RET_SUCCESS;
 	}
 
+	// Find the end of data substring in data time string
+	// 1999/11/03 59 59 59
+	tmp = strstr(iDateTimeString->data, " ");
 
-	if (sscanf(iDateTimeString->data, "%d/%d/%d %d:%d:%d:%d:%d:%d", &a, &b, &c, &hour, &minute, &second, &millisecond, &micro, & nano) >= 5)
+	spaceChNumber = (unsigned long long)tmp - (unsigned long long)iDateTimeString->data;
+
+	// max year length is 4 chars
+	if (spaceChNumber <= 4 && spaceChNumber > 0)
 	{
-		// 1974/04/14
-		//
-		if (a > 255) // assume year here is greater than MAX UINT8
-		{
-			oDateTime->date.day = c;
-			oDateTime->date.month = b;
-			oDateTime->date.year = a;
+		// if space is a delimeter find a time substring
+		// 1999       11         03     59     59     59
+		while (tmp <= end && isspace(*tmp))
+			tmp++; /* skip whitespace */
 
-			oDateTime->time.hour = hour;
-			oDateTime->time.minute = minute;
-			oDateTime->time.second = second;
-			oDateTime->time.millisecond = millisecond;
-			oDateTime->time.microsecond = micro;
-			oDateTime->time.nanosecond = nano;
-		}
-		// 04/14/74
-		//
-		else if (c < 100) // assume year here is less than 100, then add 1900
-		{
-			oDateTime->date.day = b;
-			oDateTime->date.month = a;
-			oDateTime->date.year = c + 1900;
+		while ((tmp <= end && isalpha(*tmp)) || (isdigit(*tmp) && tmp < end))
+			tmp++; /* skip month or day. Can be digits of alphas */
 
-			oDateTime->time.hour = hour;
-			oDateTime->time.minute = minute;
-			oDateTime->time.second = second;
-			oDateTime->time.millisecond = millisecond;
-			oDateTime->time.microsecond = micro;
-			oDateTime->time.nanosecond = nano;
-		}
-		// 04/14/1974
-		//
-		else
-		{
-			oDateTime->date.day = b;
-			oDateTime->date.month = a;
-			oDateTime->date.year = c;
+		while (tmp <= end && isspace(*tmp))
+			tmp++; /* skip whitespace */
 
-			oDateTime->time.hour = hour;
-			oDateTime->time.minute = minute;
-			oDateTime->time.second = second;
-			oDateTime->time.millisecond = millisecond;
-			oDateTime->time.microsecond = micro;
-			oDateTime->time.nanosecond = nano;
-		}
-		return RSSL_RET_SUCCESS;
-	}	
+		while (tmp <= end && isdigit(*tmp))
+			tmp++; /* skip month or day. Can be digits of alphas */
 
-	if (isdigit(iDateTimeString->data[3]))
-	{
-		if (sscanf(iDateTimeString->data, "%d %d %d %d %d %d %d %d %d", &a, &b, &c, &hour, &minute, &second, &millisecond, &micro, &nano) >= 5)
-		{
-			if (a > 255) // assume year here is greater than MAX UINT8
-			{
-				oDateTime->date.day = c;
-				oDateTime->date.month = b;
-				oDateTime->date.year = a;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			else if (c < 100) // assume year here is less than 100, then add 1900
-			{
-				oDateTime->date.day = b;
-				oDateTime->date.month = a;
-				oDateTime->date.year = c + 1900;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			else
-			{
-				oDateTime->date.day = b;
-				oDateTime->date.month = a;
-				oDateTime->date.year = c;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			return RSSL_RET_SUCCESS;
-		}	
+		while (tmp <= end && isspace(*tmp))
+			tmp++; /* skip whitespace */
 	}
-	else if (isalpha(iDateTimeString->data[3]))
+	else if (spaceChNumber == 0)
 	{
-		if (sscanf(iDateTimeString->data, "%d %3s %d %d %d %d %d %d %d", &a, monthStr, &c, &hour, &minute, &second, &millisecond, &micro, &nano) >= 5)
-		{
-			if (c < 100) // assume year here is less than 100, then add 1900
-			{
-				oDateTime->date.day = a;
-				oDateTime->date.month = translateMonth(monthStr);
-				oDateTime->date.year = c + 1900;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			else
-			{
-				oDateTime->date.day = a;
-				oDateTime->date.month = translateMonth(monthStr);
-				oDateTime->date.year = c;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			return RSSL_RET_SUCCESS;
-		}
+		return RSSL_RET_INVALID_DATA;
+	}
+	else
+	{
+		tmp++; /* skip whitespace */
 	}
 
-	if (sscanf(iDateTimeString->data, "%d/%d/%d %d %d %d %d %d %d", &a, &b, &c, &hour, &minute, &second, &millisecond, &micro, &nano) >= 5)
-	{
-		// 1974/04/14
-		//
-		if (a > 255) // assume year here is greater than MAX UINT8
-		{
-			oDateTime->date.day = c;
-			oDateTime->date.month = b;
-			oDateTime->date.year = a;
+	tmpBuf.data = iDateTimeString->data;
+	tmpBuf.length = (unsigned long)((unsigned long long)tmp - (unsigned long long)iDateTimeString->data);
 
-			oDateTime->time.hour = hour;
-			oDateTime->time.minute = minute;
-			oDateTime->time.second = second;
-			oDateTime->time.millisecond = millisecond;
-			oDateTime->time.microsecond = micro;
-			oDateTime->time.nanosecond = nano;
-		}
-		// 04/14/74
-		//
-		else if (c < 100) // assume year here is less than 100, then add 1900
-		{
-			oDateTime->date.day = b;
-			oDateTime->date.month = a;
-			oDateTime->date.year = c + 1900;
+	if (RSSL_RET_SUCCESS != (ret = rsslDateStringToDate(&oDateTime->date, &tmpBuf))) return ret;
 
-			oDateTime->time.hour = hour;
-			oDateTime->time.minute = minute;
-			oDateTime->time.second = second;
-			oDateTime->time.millisecond = millisecond;
-			oDateTime->time.microsecond = micro;
-			oDateTime->time.nanosecond = nano;
-		}
-		// 04/14/1974
-		//
-		else
-		{
-			oDateTime->date.day = b;
-			oDateTime->date.month = a;
-			oDateTime->date.year = c;
+	tmpBuf.data = tmp;
+	tmpBuf.length = strlen(tmpBuf.data);
 
-			oDateTime->time.hour = hour;
-			oDateTime->time.minute = minute;
-			oDateTime->time.second = second;
-			oDateTime->time.millisecond = millisecond;
-			oDateTime->time.microsecond = micro;
-			oDateTime->time.nanosecond = nano;
-		}
-		return RSSL_RET_SUCCESS;
-	}	
+	if (RSSL_RET_SUCCESS != (ret = rsslTimeStringToTime(&oDateTime->time, &tmpBuf))) return ret;
 
-	if (isdigit(iDateTimeString->data[3]))
-	{
-		if (sscanf(iDateTimeString->data, "%d %d %d %d:%d:%d:%d:%d:%d", &a, &b, &c, &hour, &minute, &second, &millisecond, &micro, &nano) >= 5)
-		{
-			if (a > 255) // assume year here is greater than MAX UINT8
-			{
-				oDateTime->date.day = c;
-				oDateTime->date.month = b;
-				oDateTime->date.year = a;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			else if (c < 100) // assume year here is less than 100, then add 1900
-			{
-				oDateTime->date.day = b;
-				oDateTime->date.month = a;
-				oDateTime->date.year = c + 1900;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			else
-			{
-				oDateTime->date.day = b;
-				oDateTime->date.month = a;
-				oDateTime->date.year = c;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			return RSSL_RET_SUCCESS;
-		}	
-	}
-	else if (isalpha(iDateTimeString->data[3]))
-	{
-		if (sscanf(iDateTimeString->data, "%d %3s %d %d:%d:%d:%d:%d:%d", &a, monthStr, &c, &hour, &minute, &second, &millisecond, &micro, &nano) >= 5)
-		{
-			if (c < 100) // assume year here is less than 100, then add 1900
-			{
-				oDateTime->date.day = a;
-				oDateTime->date.month = translateMonth(monthStr);
-				oDateTime->date.year = c + 1900;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			else
-			{
-				oDateTime->date.day = a;
-				oDateTime->date.month = translateMonth(monthStr);
-				oDateTime->date.year = c;
-
-				oDateTime->time.hour = hour;
-				oDateTime->time.minute = minute;
-				oDateTime->time.second = second;
-				oDateTime->time.millisecond = millisecond;
-				oDateTime->time.microsecond = micro;
-				oDateTime->time.nanosecond = nano;
-			}
-			return RSSL_RET_SUCCESS;
-		}
-	}
-
-	if (iDateTimeString->length > 0)
+	if (iDateTimeString->length > 0 && ret != RSSL_RET_SUCCESS)
 	{
 		char* tmp = iDateTimeString->data;
 
-		while (isspace(*tmp))
+		while (tmp <= end && isspace(*tmp))
 			tmp++; /* skip whitespace */
 		
 		/* if all whitespaces init to blank */

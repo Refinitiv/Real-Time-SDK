@@ -12025,6 +12025,47 @@ TEST(dateTimeStringToDateTimeTest, dateTimeStringValueRejected)
 	ASSERT_TRUE(rsslTimeStringToTime(&oTime, &dateTimeStrBuf) == RSSL_RET_INVALID_DATA);
 }
 
+TEST(dateTimeStringToDateTimeTest, dateTimeStringValueOverflow)
+{
+	RsslDateTime testDateAndTime = { 0 };
+	RsslBuffer dateTimeStrBuf = { 0 };
+	char* invalidTimeValue = NULL;
+	const char* valueOverflow[] = { "65536/04/14 599:59:59", "74/599/14 59:599:59", "04/499/1974 59:599:59",
+									"2003 12 23 59 59 599", "23 11 03 59 599 59" , "23 10 2003 599 59 59",
+									"23 DEC 2003 59:59:599", "23 DEC 2003 59:599:59" , "23 DEC 03 599:59:59",
+									"74/04/14 599 59 59", "74/05/14 59 599 59", "04/06/1974 59 59 599", 
+									"1974        04            14          59       59        59" };
+
+	for (int i = 0; i < 13; i++)
+	{
+		invalidTimeValue = const_cast<char*>(valueOverflow[i]);
+		dateTimeStrBuf.data = invalidTimeValue;
+		dateTimeStrBuf.length = (rtrUInt32)strlen(valueOverflow[i]);
+
+		ASSERT_TRUE(rsslDateTimeStringToDateTime(&testDateAndTime, &dateTimeStrBuf) == RSSL_RET_INVALID_DATA);
+	}
+}
+
+TEST(dateTimeStringToDateTimeTest, dateStringValueOverflow)
+{
+	RsslDate testDate = {0};
+	RsslBuffer dateTimeStrBuf = { 0 };
+	char* invalidTimeValue = NULL;
+	const char* valueOverflow[] = { "65536/04/14", "74/599/14" , "04/499/1974",
+									"65536 04 14", "74 599 14" , "04 499 1974",
+									"04 DEC 65536", "04           DEC                65536", 
+									"04444444444 DEC 2003", "04 DAC 2003, 04 DECCC 2003"};
+
+	for (int i = 0; i < 8; i++)
+	{
+		invalidTimeValue = const_cast<char*>(valueOverflow[i]);
+		dateTimeStrBuf.data = invalidTimeValue;
+		dateTimeStrBuf.length = (rtrUInt32)strlen(valueOverflow[i]);
+
+		ASSERT_TRUE(rsslDateStringToDate(&testDate, &dateTimeStrBuf) == RSSL_RET_INVALID_DATA);
+	}
+}
+
 TEST(partialUpdateTest, partialUpdateTest)
 {
 	partialUpdateTest();
