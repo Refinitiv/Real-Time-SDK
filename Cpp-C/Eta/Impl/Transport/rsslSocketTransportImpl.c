@@ -78,11 +78,20 @@
 static void(*rsslSocketDumpInFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 static void(*rsslSocketDumpOutFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 
-void(*ripcDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
-void(*ripcDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
+static void(*ripcDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
+static void(*ripcDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque) = 0;
+
+RsslSocketDumpFuncs rsslSocketDumpFuncs[MAX_PROTOCOL_TYPES];
+
+extern RsslSocketDumpFuncs rsslWebSocketDumpFuncs[MAX_PROTOCOL_TYPES];
 
 extern void(*webSocketDumpInFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque);
 extern void(*webSocketDumpOutFunc)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque);
+
+RTR_C_INLINE void ripcDumpInFuncImpl(const char* functionName, char* buf, RsslUInt32 len, RsslSocket socket, RsslUInt8 protocolType);
+RTR_C_INLINE void ripcDumpOutFuncImpl(const char* functionName, char* buf, RsslUInt32 len, RsslSocket socket, RsslUInt8 protocolType);
+RTR_C_INLINE void rsslSocketDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+RTR_C_INLINE void rsslSocketDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
 
 static ripcSessInit ipcReadHdr(RsslSocketChannel*, ripcSessInProg*, RsslError*);
 static ripcSessInit ipcInitTransport(RsslSocketChannel*, ripcSessInProg*, RsslError*);
@@ -1240,8 +1249,8 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 
 		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) && (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT))
 		{
-			(*(ripcDumpInFunc))(__FUNCTION__, rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor,
-				ipcLen, rsslSocketChannel->stream);
+			ripcDumpInFuncImpl(__FUNCTION__, rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor,
+				ipcLen, rsslSocketChannel->stream, rsslSocketChannel->protocolType);
 		}
 
 		rsslSocketChannel->inputBufCursor += ipcLen;
@@ -1429,8 +1438,11 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 	rsslSocketChannel->curInputBuf->buffer += cHdrLen;
 
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_IN)
-		(*ripcDumpInFunc)(__FUNCTION__,rsslSocketChannel->curInputBuf->buffer - cHdrLen,
-		(RsslUInt32)(rsslSocketChannel->curInputBuf->length + cHdrLen), rsslSocketChannel->stream);
+	{
+		ripcDumpInFuncImpl(__FUNCTION__, rsslSocketChannel->curInputBuf->buffer - cHdrLen,
+			(RsslUInt32)(rsslSocketChannel->curInputBuf->length + cHdrLen), rsslSocketChannel->stream,
+			rsslSocketChannel->protocolType);
+	}
 
 	/* Reset the read information
 	* when complete with message.
@@ -1848,7 +1860,10 @@ RsslInt32 ipcIntWrtHeader(RsslSocketChannel *rsslSocketChannel, RsslError *error
 		buffer->length = totalSize = iterator;
 
 		if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
-			(*ripcDumpOutFunc)(__FUNCTION__, buffer->buffer, (RsslUInt32)(buffer->length), rsslSocketChannel->stream);
+		{
+			ripcDumpOutFuncImpl(__FUNCTION__, buffer->buffer, (RsslUInt32)(buffer->length), rsslSocketChannel->stream,
+				rsslSocketChannel->protocolType);
+		}
 		break;
 
 	default:
@@ -2144,7 +2159,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 					msgb->length = totalSize = (messageLength + footer_size);
 
 					if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
-						(*ripcDumpOutFunc)(__FUNCTION__, msgb->buffer, (RsslUInt32)(msgb->length), rsslSocketChannel->stream);
+					{
+						ripcDumpOutFuncImpl(__FUNCTION__, msgb->buffer, (RsslUInt32)(msgb->length), rsslSocketChannel->stream,
+							rsslSocketChannel->protocolType);
+					}
 				}
 				else /* _conn_version_10/11/12/13 && compression */
 				{
@@ -2228,7 +2246,8 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 					if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
 					{
 						hdr[2] = (char)0;           /* hdr.IPC_opcode */
-						(*ripcDumpOutFunc)(__FUNCTION__, msgb->buffer, messageLength, rsslSocketChannel->stream);
+						ripcDumpOutFuncImpl(__FUNCTION__, msgb->buffer, messageLength, rsslSocketChannel->stream,
+							rsslSocketChannel->protocolType);
 						hdr[2] = (char)flags;           /* hdr.IPC_opcode */
 					}
 
@@ -2368,7 +2387,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 
 						if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
 							(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
-							(*ripcDumpOutFunc)(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)(compressedmb1->length), rsslSocketChannel->stream);
+						{
+							ripcDumpOutFuncImpl(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)(compressedmb1->length),
+								rsslSocketChannel->stream, rsslSocketChannel->protocolType);
+						}
 
 						/* Set/populate the prefix protocol header if one exists */
 						(*(rsslSocketChannel->protocolFuncs->prependTransportHdr))((void*)rsslSocketChannel, compressedmb1, error);
@@ -2617,7 +2639,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						compressedmb2->priority = msgb->priority;
 						if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
 							(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
-							(*ripcDumpOutFunc)(__FUNCTION__, compressedmb2->buffer, (RsslUInt32)(compressedmb2->length), rsslSocketChannel->stream);
+						{
+							ripcDumpOutFuncImpl(__FUNCTION__, compressedmb2->buffer, (RsslUInt32)(compressedmb2->length),
+								rsslSocketChannel->stream, rsslSocketChannel->protocolType);
+						}
 						rtr_dfltcFreeMsg(msgb);
 						msgb = compressedmb2;
 					}
@@ -2691,7 +2716,10 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						compressedmb1->length = totalSize = (compLen1 + footer_size + httpHeaderLen);
 						if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
 							(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
-							(*ripcDumpOutFunc)(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)(compressedmb1->length), rsslSocketChannel->stream);
+						{
+							ripcDumpOutFuncImpl(__FUNCTION__, compressedmb1->buffer, (RsslUInt32)(compressedmb1->length),
+								rsslSocketChannel->stream, rsslSocketChannel->protocolType);
+						}
 						rtr_dfltcFreeMsg(msgb);
 						msgb = compressedmb1;
 					}
@@ -3983,7 +4011,9 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		(*(ripcDumpInFunc))(__FUNCTION__, hdrStart, (RsslUInt32)(rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor), rsslSocketChannel->stream);
+		ripcDumpInFuncImpl(__FUNCTION__, hdrStart,
+			(RsslUInt32)(rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor), rsslSocketChannel->stream,
+			rsslSocketChannel->protocolType);
 	}
 
 	_move_u16_swap(&length, hdrStart);
@@ -5418,7 +5448,8 @@ static ripcSessInit ipcRejectSession(RsslSocketChannel *rsslSocketChannel, RsslU
 
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		(*(ripcDumpOutFunc))(__FUNCTION__, cMsg->buffer, (RsslUInt32)cMsg->length, rsslSocketChannel->stream);
+		ripcDumpOutFuncImpl(__FUNCTION__, cMsg->buffer, (RsslUInt32)cMsg->length, rsslSocketChannel->stream,
+			rsslSocketChannel->protocolType);
 	}
 
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
@@ -5685,7 +5716,8 @@ static ripcSessInit ipcFinishSess(RsslSocketChannel *rsslSocketChannel, ripcSess
 
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		(*(ripcDumpOutFunc))(__FUNCTION__, cMsg->buffer, (RsslUInt32)cMsg->length, rsslSocketChannel->stream);
+		ripcDumpOutFuncImpl(__FUNCTION__, cMsg->buffer, (RsslUInt32)cMsg->length, rsslSocketChannel->stream,
+			rsslSocketChannel->protocolType);
 	}
 
 	IPC_MUTEX_UNLOCK(rsslSocketChannel);
@@ -5828,7 +5860,8 @@ static ripcSessInit ipcSendClientKey(RsslSocketChannel *rsslSocketChannel, ripcS
 
 		if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 		{
-			(*(ripcDumpOutFunc))(__FUNCTION__, ckeyMsg->buffer, (RsslUInt32)ckeyMsg->length, rsslSocketChannel->stream);
+			ripcDumpOutFuncImpl(__FUNCTION__, ckeyMsg->buffer, (RsslUInt32)ckeyMsg->length, rsslSocketChannel->stream,
+				rsslSocketChannel->protocolType);
 		}
 
 		IPC_MUTEX_UNLOCK(rsslSocketChannel);
@@ -5972,7 +6005,9 @@ static ripcSessInit ipcWaitClientKey(RsslSocketChannel *rsslSocketChannel, ripcS
 
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		(*(ripcDumpInFunc))(__FUNCTION__, hdrStart, (RsslUInt32)(rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor), rsslSocketChannel->stream);
+		ripcDumpInFuncImpl(__FUNCTION__, hdrStart,
+			(RsslUInt32)(rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor), rsslSocketChannel->stream,
+			rsslSocketChannel->protocolType);
 	}
 
 	_move_u16_swap(&length, hdrStart);
@@ -6367,7 +6402,8 @@ ripcSessInit ipcConnecting(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 
 		if (cMsg && (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT))
 		{
-			(*(ripcDumpOutFunc))(__FUNCTION__, cMsg->buffer, (RsslUInt32)cMsg->length, rsslSocketChannel->stream);
+			ripcDumpOutFuncImpl(__FUNCTION__, cMsg->buffer, (RsslUInt32)cMsg->length, rsslSocketChannel->stream,
+				rsslSocketChannel->protocolType);
 		}
 
 		IPC_MUTEX_UNLOCK(rsslSocketChannel);
@@ -6924,7 +6960,7 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 	}
 	else if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		(*(ripcDumpInFunc))(__FUNCTION__, buf, cc, rsslSocketChannel->stream);
+		ripcDumpInFuncImpl(__FUNCTION__, buf, cc, rsslSocketChannel->stream, rsslSocketChannel->protocolType);
 	}
 
 	if (cc < IPC_100_CONN_ACK)  /* 451 ACK is more so it safe to asume an error */
@@ -9265,7 +9301,10 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 		*readRet = ripcMoreData;
 
 		if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length))
-			(*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
+		{
+			rsslSocketDumpInFuncImpl(__FUNCTION__, rsslChnlImpl->returnBuffer.data,
+				rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+		}
 
 		return &(rsslChnlImpl->returnBuffer);
 	}
@@ -9534,8 +9573,11 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			/* it is possible that the returnBuffer is null in this case -
 			   this is because of fragmentation, if we receive multiple fragments but do not have the
 			   entire message, we return moreData but no buffer */
-			if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length ))
-				(*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
+			if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length))
+			{
+				rsslSocketDumpInFuncImpl(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length,
+					rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+			}
 
 			if (!returnNull)
 				return &(rsslChnlImpl->returnBuffer);
@@ -9552,7 +9594,10 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslSocketRead(rsslChannelImpl* rsslChnl
 			else
 			{
 				if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length))
-					(*(rsslSocketDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
+				{
+					rsslSocketDumpInFuncImpl(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length,
+						rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+				}
 
 				if (!returnNull)
 				{
@@ -10710,28 +10755,92 @@ RSSL_RSSL_SOCKET_FAST(RsslRet) rsslSocketIoctl(rsslChannelImpl *rsslChnlImpl, Rs
 		break;
 
 	case RSSL_DEBUG_FLAGS:
+	{
+		RsslBool dumpInFuncPresent = RSSL_FALSE;
+		RsslBool dumpOutFuncPresent = RSSL_FALSE;
+
 		/* reset debug flags - if user still wants these on, they should continue passing them in */
 		rsslChnlImpl->debugFlags = 0;
 		/* set rssl debug options and unset them in the opts we pass to ripc */
-		if ((iValue & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslSocketDumpInFunc))
+		if ((iValue & RSSL_DEBUG_RSSL_DUMP_IN))
 		{
-			iValue ^= RSSL_DEBUG_RSSL_DUMP_IN;
-			rsslChnlImpl->debugFlags |= RSSL_DEBUG_RSSL_DUMP_IN;
+			dumpInFuncPresent = (rsslSocketDumpInFunc != NULL ? RSSL_TRUE : RSSL_FALSE);
+			if (dumpInFuncPresent == RSSL_FALSE)
+			{
+				for (i = 0; i < MAX_PROTOCOL_TYPES; i++)
+				{
+					if (rsslSocketDumpFuncs[i].dumpRsslIn != NULL)
+					{
+						dumpInFuncPresent = RSSL_TRUE;
+						break;
+					}
+				}
+			}
+
+			if (dumpInFuncPresent)
+			{
+				iValue ^= RSSL_DEBUG_RSSL_DUMP_IN;
+				rsslChnlImpl->debugFlags |= RSSL_DEBUG_RSSL_DUMP_IN;
+			}
 		}
-		if ((iValue & RSSL_DEBUG_RSSL_DUMP_OUT) && (rsslSocketDumpOutFunc))
+		if ((iValue & RSSL_DEBUG_RSSL_DUMP_OUT))
 		{
-			iValue ^= RSSL_DEBUG_RSSL_DUMP_OUT;
-			rsslChnlImpl->debugFlags |= RSSL_DEBUG_RSSL_DUMP_OUT;
+			dumpOutFuncPresent = (rsslSocketDumpOutFunc != NULL ? RSSL_TRUE : RSSL_FALSE);
+			if (dumpOutFuncPresent == RSSL_FALSE)
+			{
+				for (i = 0; i < MAX_PROTOCOL_TYPES; i++)
+				{
+					if (rsslSocketDumpFuncs[i].dumpRsslOut != NULL)
+					{
+						dumpOutFuncPresent = RSSL_TRUE;
+						break;
+					}
+				}
+			}
+			if (dumpOutFuncPresent)
+			{
+				iValue ^= RSSL_DEBUG_RSSL_DUMP_OUT;
+				rsslChnlImpl->debugFlags |= RSSL_DEBUG_RSSL_DUMP_OUT;
+			}
+		}
+
+		/* ripc functions */
+		dumpInFuncPresent = (ripcDumpInFunc != NULL ? RSSL_TRUE : RSSL_FALSE);
+		if (dumpInFuncPresent == RSSL_FALSE)
+		{
+			for (i = 0; i < MAX_PROTOCOL_TYPES; i++)
+			{
+				if (rsslSocketDumpFuncs[i].dumpIpcIn != NULL)
+				{
+					dumpInFuncPresent = RSSL_TRUE;
+					break;
+				}
+			}
+		}
+
+		dumpOutFuncPresent = (ripcDumpOutFunc != NULL ? RSSL_TRUE : RSSL_FALSE);
+		if (dumpOutFuncPresent == RSSL_FALSE)
+		{
+			for (i = 0; i < MAX_PROTOCOL_TYPES; i++)
+			{
+				if (rsslSocketDumpFuncs[i].dumpIpcOut != NULL)
+				{
+					dumpOutFuncPresent = RSSL_TRUE;
+					break;
+				}
+			}
 		}
 
 		rsslSocketChannel->dbgFlags = iValue;
-		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_IN) && (ripcDumpInFunc == 0))
+		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_IN) && (dumpInFuncPresent == RSSL_FALSE))
 			rsslSocketChannel->dbgFlags &= !RSSL_DEBUG_IPC_DUMP_IN;
-		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT) && (ripcDumpOutFunc == 0))
+		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT) && (dumpOutFuncPresent == RSSL_FALSE))
 			rsslSocketChannel->dbgFlags &= !RSSL_DEBUG_IPC_DUMP_OUT;
-		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT) && ((ripcDumpInFunc == 0) || (ripcDumpOutFunc == 0)))
+		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT) 
+			&& ((dumpInFuncPresent == RSSL_FALSE) || (dumpOutFuncPresent == RSSL_FALSE)))
 			rsslSocketChannel->dbgFlags &= !RSSL_DEBUG_IPC_DUMP_INIT;
 		break;
+	}
 
 	case RSSL_COMPRESSION_THRESHOLD:
 	{
@@ -11566,6 +11675,42 @@ RsslInt32 ripcSetDbgFuncs(
 	return(0);
 }
 
+RsslInt32 ripcSetDbgFuncsEx(RsslDebugFunctionsExOpts* pOpts)
+{
+	if (multiThread)
+	{
+		if (!gblmutexinit)
+		{
+			(void)RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
+			RTR_ATOMIC_SET(gblmutexinit, 1);
+		}
+
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	if ((pOpts->dumpIpcIn && rsslSocketDumpFuncs[pOpts->protocolType].dumpIpcIn)
+		|| (pOpts->dumpIpcOut && rsslSocketDumpFuncs[pOpts->protocolType].dumpIpcOut))
+	{
+		if (multiThread)
+		{
+			(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+			_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+		}
+		return(-1);
+	}
+	rsslSocketDumpFuncs[pOpts->protocolType].dumpIpcIn = pOpts->dumpIpcIn;
+	rsslSocketDumpFuncs[pOpts->protocolType].dumpIpcOut = pOpts->dumpIpcOut;
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
+
+	return(0);
+}
+
 RsslInt32 rwsDbgFuncs(
 	void(*dumpIn)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque),
 	void(*dumpOut)(const char *functionName, char *buf, RsslUInt32 len, RsslUInt64 opaque))
@@ -11603,6 +11748,41 @@ RsslInt32 rwsDbgFuncs(
 	return(0);
 }
 
+RsslInt32 rwsDbgFuncsEx(RsslDebugFunctionsExOpts* pOpts)
+{
+	if (multiThread)
+	{
+		if (!gblmutexinit)
+		{
+			(void)RSSL_MUTEX_INIT_RTSDK(&ripcMutex);
+			RTR_ATOMIC_SET(gblmutexinit, 1);
+		}
+
+		(void)RSSL_MUTEX_LOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_LOCK", NULL, &ripcMutex)
+	}
+
+	if ((pOpts->dumpIpcIn && rsslWebSocketDumpFuncs[pOpts->protocolType].dumpIpcIn)
+		|| (pOpts->dumpIpcOut && rsslWebSocketDumpFuncs[pOpts->protocolType].dumpIpcOut))
+	{
+		if (multiThread)
+		{
+			(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+			_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+		}
+		return(-1);
+	}
+	rsslWebSocketDumpFuncs[pOpts->protocolType].dumpIpcIn = pOpts->dumpIpcIn;
+	rsslWebSocketDumpFuncs[pOpts->protocolType].dumpIpcOut = pOpts->dumpIpcOut;
+
+	if (multiThread)
+	{
+		(void)RSSL_MUTEX_UNLOCK(&ripcMutex);
+		_DEBUG_MUTEX_TRACE("RSSL_MUTEX_UNLOCK", NULL, &ripcMutex)
+	}
+
+	return(0);
+}
 
 /* Sets Socket debug dump functions */
 RsslRet rsslSetSocketDebugFunctions(
@@ -11652,6 +11832,108 @@ RsslRet rsslSetSocketDebugFunctions(
 	return retVal;
 }
 
+/**
+* Initialization the Socket and WebSocket transport debug dump functions' entries.
+*/
+void rsslClearSoketDebugFunctionsEx()
+{
+	memset(rsslSocketDumpFuncs, 0, (sizeof(RsslSocketDumpFuncs) * MAX_PROTOCOL_TYPES));
+	memset(rsslWebSocketDumpFuncs, 0, (sizeof(RsslSocketDumpFuncs) * MAX_PROTOCOL_TYPES));
+}
+
+
+/* Sets Socket debug dump functions for the protocol type */
+/* See: RsslDebugFunctionsExOpts.protocolType */
+RsslRet rsslSetSocketDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error)
+{
+	RsslRet retVal = RSSL_RET_SUCCESS;
+	RsslInt32	tempRetVal = 0;
+
+	if ((pOpts->dumpRsslIn && rsslSocketDumpFuncs[pOpts->protocolType].dumpRsslIn)
+		|| (pOpts->dumpRsslOut && rsslSocketDumpFuncs[pOpts->protocolType].dumpRsslOut))
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetDebugFunctionsEx() Cannot set socket Rssl dump functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+	else
+	{
+		rsslSocketDumpFuncs[pOpts->protocolType].dumpRsslIn = pOpts->dumpRsslIn;
+		rsslSocketDumpFuncs[pOpts->protocolType].dumpRsslOut = pOpts->dumpRsslOut;
+		retVal = RSSL_RET_SUCCESS;
+	}
+
+	tempRetVal = ripcSetDbgFuncsEx(pOpts);
+
+	if ((tempRetVal < RSSL_RET_SUCCESS) && (retVal < RSSL_RET_SUCCESS))
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetDebugFunctionsEx() Cannot set socket Rssl and IPC dump functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+	else if (tempRetVal < RSSL_RET_SUCCESS)
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetDebugFunctionsEx() Cannot set socket IPC dump functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+
+	return retVal;
+}
+
+void ripcDumpInFuncImpl(const char* functionName, char* buf, RsslUInt32 len, RsslSocket socket, RsslUInt8 protocolType)
+{
+	if (ripcDumpInFunc)
+	{
+		(*(ripcDumpInFunc))(functionName, buf, len, socket);
+	}
+	if (rsslSocketDumpFuncs[protocolType].dumpIpcIn)
+	{
+		(*(rsslSocketDumpFuncs[protocolType].dumpIpcIn))(functionName, buf, len, socket);
+	}
+}
+
+void ripcDumpOutFuncImpl(const char* functionName, char* buf, RsslUInt32 len, RsslSocket socket, RsslUInt8 protocolType)
+{
+	if (ripcDumpOutFunc)
+	{
+		(*(ripcDumpOutFunc))(functionName, buf, len, socket);
+	}
+	if (rsslSocketDumpFuncs[protocolType].dumpIpcOut)
+	{
+		(*(rsslSocketDumpFuncs[protocolType].dumpIpcOut))(functionName, buf, len, socket);
+	}
+}
+
+void rsslSocketDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslSocketDumpInFunc)
+	{
+		(*(rsslSocketDumpInFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslSocketDumpFuncs[pChannel->protocolType].dumpRsslIn)
+	{
+		(*(rsslSocketDumpFuncs[pChannel->protocolType].dumpRsslIn))(functionName, buffer, length, pChannel);
+	}
+}
+
+void rsslSocketDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslSocketDumpOutFunc)
+	{
+		(*(rsslSocketDumpOutFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslSocketDumpFuncs[pChannel->protocolType].dumpRsslOut)
+	{
+		(*(rsslSocketDumpFuncs[pChannel->protocolType].dumpRsslOut))(functionName, buffer, length, pChannel);
+	}
+}
 
 RsslInt32 rsslSocketGetSockOpts( RsslSocketChannel *rsslSocketChannel, RsslInt32 code, RsslInt32* value, RsslError *error)
 {

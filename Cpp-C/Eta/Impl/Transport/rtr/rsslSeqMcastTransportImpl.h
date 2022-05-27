@@ -89,6 +89,15 @@ RsslRet rsslSetSeqMcastDebugFunctions(
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	RsslError *error);
 
+/**
+* @brief Initialization the Sequence Multicast transport debug dump functions' entries.
+*/
+void rsslClearSeqMcastDebugFunctionsEx();
+
+/* Sets Sequence Multicast transport debug dump functions for the protocol type */
+/* @see RsslDebugFunctionsExOpts.protocolType */
+RsslRet rsslSetSeqMcastDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error);
+
 #ifdef __cplusplus
 };
 #endif

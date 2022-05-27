@@ -1844,6 +1844,51 @@ RSSL_API RsslRet rsslSetDebugFunctions(
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket channel),
 	RsslError *error);
 
+/*
+* This structure represents the debug function entry points that can be used by rssl.
+*/
+typedef struct
+{
+	RsslUInt8 protocolType;
+	void(*dumpIpcIn)(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket); //
+	void(*dumpIpcOut)(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket); //
+	void(*dumpRsslIn)(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
+	void(*dumpRsslOut)(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
+}
+RsslDebugFunctionsExOpts;
+
+#define RSSL_INIT_DEBUG_FUNCTIONS_EX_OPTS { 0U, NULL, NULL, NULL, NULL }
+
+/**
+ * @brief DebugFunctionsEx Options dynamic initialization
+ *
+ * This initializes the RsslDebugFunctionsExOpts
+ *
+ * @param opts instance of RsslDebugFunctionsExOpts
+ * @see RsslDebugFunctionsExOpts
+ */
+RTR_C_INLINE void rsslClearDebugFunctionsExOpts(RsslDebugFunctionsExOpts* opts)
+{
+	opts->protocolType = 0U;
+	opts->dumpIpcIn = NULL;
+	opts->dumpIpcOut = NULL;
+	opts->dumpRsslIn = NULL;
+	opts->dumpRsslOut = NULL;
+}
+
+/** 
+* @brief Sets debug dump functions for the protocol type
+* need to turn these on with Ioctl in order to use them
+*
+* @param RsslDebugFunctionsExOpts options uses to initialize the debug dump functions entry points for the protocol type
+* @param error Rssl Error, to be populated in event of an error
+* @return RsslRet RSSL return value
+* 
+* @see rsslIoctl, RSSL_DEBUG_FLAGS
+* @see RsslDebugFlags
+*/
+RSSL_API RsslRet rsslSetDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error);
+
 /**
 * @brief Dump the passed in RWF or JSON messages according to the RsslTraceCodes option for a particular channel.
 * The RSSL_TRACE_DUMP flag must be set for this function to take effect.

@@ -114,6 +114,12 @@ typedef struct
 static void(*rsslSeqMcastDumpInFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 static void(*rsslSeqMcastDumpOutFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 
+/* The list of the Sequence Multicast transport debug functions' entry points index by the protocol type. */
+static RsslDumpFuncs rsslSeqMcastDumpFuncs[MAX_PROTOCOL_TYPES];
+
+RTR_C_INLINE void rsslSeqMcastDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+RTR_C_INLINE void rsslSeqMcastDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+
 /* lock information */
 static RsslBool chnlLocking;
 
@@ -1132,7 +1138,10 @@ RSSL_RSSL_SEQ_MCAST_IMPL_FAST(RsslBuffer*) rsslSeqMcastRead(rsslChannelImpl* rss
 	readOutArgs->instanceId = pSeqMcastChannel->readInstanceID;
 
 	if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (pSeqMcastChannel->readBuffer.length))
-		(*(rsslSeqMcastDumpInFunc))(__FUNCTION__, pSeqMcastChannel->readBuffer.data, pSeqMcastChannel->readBuffer.length, rsslChnlImpl->Channel.socketId);
+	{
+		rsslSeqMcastDumpInFuncImpl(__FUNCTION__, pSeqMcastChannel->readBuffer.data, pSeqMcastChannel->readBuffer.length,
+			rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+	}
 
 	return &pSeqMcastChannel->readBuffer;
 }
@@ -1384,7 +1393,7 @@ RsslRet rsslSeqMcastInitialize(RsslLockingTypes lockingType, RsslError *error)
 	return RSSL_RET_SUCCESS;
 }
 
-/* Sets UniShMem debug dump functions */
+/* Sets Sequence Multicast debug dump functions */
 RsslRet rsslSetSeqMcastDebugFunctions(
 	void(*dumpRsslIn)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
@@ -1407,4 +1416,55 @@ RsslRet rsslSetSeqMcastDebugFunctions(
 	}
 
 	return retVal;
+}
+
+/* Initialization the Sequence Multicast transport debug dump functions' entries. */
+void rsslClearSeqMcastDebugFunctionsEx()
+{
+	memset(rsslSeqMcastDumpFuncs, 0, (sizeof(RsslDumpFuncs) * MAX_PROTOCOL_TYPES));
+}
+
+/* Sets Sequence Multicast debug dump functions for the protocol type */
+RsslRet rsslSetSeqMcastDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error)
+{
+	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	if ((pOpts->dumpRsslIn && rsslSeqMcastDumpFuncs[pOpts->protocolType].rsslDumpInFunc)
+		|| (pOpts->dumpRsslOut && rsslSeqMcastDumpFuncs[pOpts->protocolType].rsslDumpOutFunc))
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetSeqMcastDebugFunctionsEx() Cannot set sequence multicast Rssl dump functions.\n", __FILE__, __LINE__);
+		retVal = RSSL_RET_FAILURE;
+	}
+	else
+	{
+		rsslSeqMcastDumpFuncs[pOpts->protocolType].rsslDumpInFunc = pOpts->dumpRsslIn;
+		rsslSeqMcastDumpFuncs[pOpts->protocolType].rsslDumpOutFunc = pOpts->dumpRsslOut;
+	}
+
+	return retVal;
+}
+
+void rsslSeqMcastDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslSeqMcastDumpInFunc)
+	{
+		(*(rsslSeqMcastDumpInFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslSeqMcastDumpFuncs[pChannel->protocolType].rsslDumpInFunc)
+	{
+		(*(rsslSeqMcastDumpFuncs[pChannel->protocolType].rsslDumpInFunc))(functionName, buffer, length, pChannel);
+	}
+}
+
+void rsslSeqMcastDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslSeqMcastDumpOutFunc)
+	{
+		(*(rsslSeqMcastDumpOutFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslSeqMcastDumpFuncs[pChannel->protocolType].rsslDumpOutFunc)
+	{
+		(*(rsslSeqMcastDumpFuncs[pChannel->protocolType].rsslDumpOutFunc))(functionName, buffer, length, pChannel);
+	}
 }

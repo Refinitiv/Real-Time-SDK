@@ -90,6 +90,15 @@ RsslRet rsslSetUniShMemDebugFunctions(
 	void(*dumpRsslOut)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId),
 	RsslError *error);
 
+/**
+* @brief Initialization the UniShMem transport debug dump functions' entries.
+*/
+void rsslClearUniShMemDebugFunctionsEx();
+
+/* Sets UniShMem transport debug dump functions for the protocol type */
+/* @see RsslDebugFunctionsExOpts.protocolType */
+RsslRet rsslSetUniShMemDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error);
+
 #ifdef __cplusplus
 };
 #endif

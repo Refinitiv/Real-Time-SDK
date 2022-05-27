@@ -39,6 +39,12 @@ static RsslUInt32 writeByteCnt = 0;
 static void(*rsslUniShMemDumpInFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 static void(*rsslUniShMemDumpOutFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 
+/* The list of debug functions index by the protocol type. */
+static RsslDumpFuncs rsslUniShMemDumpFuncs[MAX_PROTOCOL_TYPES];
+
+RTR_C_INLINE void rsslUniShMemDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+RTR_C_INLINE void rsslUniShMemDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+
 /***************************
  * START INLINE HELPER FUNCTIONS 
  ***************************/
@@ -571,8 +577,11 @@ RSSL_RSSL_UNIDIRECTION_SHMEM_IMPL_FAST(RsslBuffer*) rsslUniShMemRead(rsslChannel
 		readOutArgs->uncompressedBytesRead = buf->length;
 	}
 
-	if (rtrUnlikely((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length )))
-		(*(rsslUniShMemDumpInFunc))(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length, rsslChnlImpl->Channel.socketId);
+	if (rtrUnlikely((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_IN) && (rsslChnlImpl->returnBuffer.length)))
+	{
+		rsslUniShMemDumpInFuncImpl(__FUNCTION__, rsslChnlImpl->returnBuffer.data, rsslChnlImpl->returnBuffer.length,
+			rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+	}
 
 	/* readRet was set by rtrShmTransClientRead() to the number of messages left to read */
 	return &(rsslChnlImpl->returnBuffer);
@@ -609,7 +618,10 @@ RSSL_RSSL_UNIDIRECTION_SHMEM_IMPL_FAST(RsslRet) rsslUniShMemWrite(rsslChannelImp
 	writeOutArgs->uncompressedBytesWritten = shmBuffer->length;
 
 	if (rtrUnlikely((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (shmBuffer->length)))
-		(*(rsslUniShMemDumpOutFunc))(__FUNCTION__, shmBuffer->buffer, shmBuffer->length, rsslChnlImpl->Channel.socketId);
+	{
+		rsslUniShMemDumpOutFuncImpl(__FUNCTION__, shmBuffer->buffer, shmBuffer->length,
+			rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
+	}
 	
 	/* since it was a successful write, free the RsslBuffer */
 	/* remove it from the active buffer list and then add to free buffer list */
@@ -1044,6 +1056,52 @@ RsslRet rsslSetUniShMemDebugFunctions(
 	return retVal;
 }
 
+/* Initialization the UniShMem transport debug dump functions' entries. */
+void rsslClearUniShMemDebugFunctionsEx()
+{
+	memset(rsslUniShMemDumpFuncs, 0, (sizeof(RsslDumpFuncs) * MAX_PROTOCOL_TYPES));
+}
+/* Sets UniShMem debug dump functions for the protocol type */
+RsslRet rsslSetUniShMemDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error)
+{
+	RsslRet retVal = RSSL_RET_SUCCESS;
 
+	if ((pOpts->dumpRsslIn && rsslUniShMemDumpFuncs[pOpts->protocolType].rsslDumpInFunc)
+		|| (pOpts->dumpRsslOut && rsslUniShMemDumpFuncs[pOpts->protocolType].rsslDumpOutFunc))
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetUniShMemDebugFunctionsEx() Cannot set shared memory Rssl dump functions.\n", __FILE__, __LINE__);
+		retVal = RSSL_RET_FAILURE;
+	}
+	else
+	{
+		rsslUniShMemDumpFuncs[pOpts->protocolType].rsslDumpInFunc = pOpts->dumpRsslIn;
+		rsslUniShMemDumpFuncs[pOpts->protocolType].rsslDumpOutFunc = pOpts->dumpRsslOut;
+	}
 
+	return retVal;
+}
 
+void rsslUniShMemDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslUniShMemDumpInFunc)
+	{
+		(*(rsslUniShMemDumpInFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslUniShMemDumpFuncs[pChannel->protocolType].rsslDumpInFunc)
+	{
+		(*(rsslUniShMemDumpFuncs[pChannel->protocolType].rsslDumpInFunc))(functionName, buffer, length, pChannel);
+	}
+}
+
+void rsslUniShMemDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslUniShMemDumpOutFunc)
+	{
+		(*(rsslUniShMemDumpOutFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslUniShMemDumpFuncs[pChannel->protocolType].rsslDumpOutFunc)
+	{
+		(*(rsslUniShMemDumpFuncs[pChannel->protocolType].rsslDumpOutFunc))(functionName, buffer, length, pChannel);
+	}
+}

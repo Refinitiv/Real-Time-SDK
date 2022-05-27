@@ -850,6 +850,37 @@ RsslRet rsslSetWebSocketDebugFunctions(
 
 RSSL_THREAD_DECLARE(testBlocking, threadStruct);
 
+/* This structure represents the function entry points that can be used by rssl. */
+typedef struct {
+	/* Function pointer to the incoming IPC message debug function. */
+	void(*dumpIpcIn)(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket);
+	/* Function pointer to the outgoing IPC message debug function. */
+	void(*dumpIpcOut)(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket);
+	void(*dumpRsslIn)(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* rsslChannel);
+	void(*dumpRsslOut)(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* rsslChannel);
+} RsslSocketDumpFuncs;
+
+/**
+* @brief Initialization the Socket and WebSocket transport debug dump functions' entries.
+*/
+void rsslClearSoketDebugFunctionsEx();
+
+/** Sets Socket transport debug functions for the protocol type
+* @param RsslDebugFunctionsExOpts options uses to initialize the debug dump functions entry points for the protocol type
+* @param error Rssl Error, to be populated in event of an error
+* @return RsslRet RSSL return value
+* @see RsslDebugFunctionsExOpts.protocolType
+*/
+RsslRet rsslSetSocketDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error);
+
+/** Sets WebSocket transport debug functions for the protocol type
+* @param RsslDebugFunctionsExOpts options uses to initialize the debug dump functions entry points for the protocol type
+* @param error Rssl Error, to be populated in event of an error
+* @return RsslRet RSSL return value
+* @see RsslDebugFunctionsExOpts.protocolType
+*/
+RsslRet rsslSetWebSocketDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error);
+
 #ifdef __cplusplus
 };
 #endif

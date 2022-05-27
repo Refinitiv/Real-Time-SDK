@@ -219,6 +219,8 @@ vaprovider-Ws-002: Alter VAProvider to add test options for Websocket transport 
 
 provider-Ws-001: Alter Provider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel
 
+provider-DebugDump-001: Alter Provider to add option -debugDumpProtocolRWF and -debugDumpProtocolJSON
+
 Module:  NIProvider 
 -----------------
 
@@ -229,3 +231,5 @@ Module: Reactor
 -----------------
 
 etareactor-001: Alters reactor worker thread to print calculated reconnect delay for connection recovery
+
+

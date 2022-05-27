@@ -17,6 +17,8 @@
 #include "rtr/rsslThread.h"
 #include "rtr/rtrdefs.h"
 
+#include <limits.h>
+
 #ifndef WIN32
 #include <netdb.h>
 #else
@@ -307,6 +309,19 @@ typedef struct RsslTransServerFuncs {
 RsslRet rsslSetTransportChannelFunc( int transportType, RsslTransportChannelFuncs *funcs );
 RsslRet rsslSetTransportServerFunc( int transportType, RsslTransportServerFuncs *funcs );
 RsslTransportChannelFuncs* rsslGetTransportChannelFunc(int transportType);
+
+/* Maximum number of protocol types for function debug dump entry points */
+#define MAX_PROTOCOL_TYPES UCHAR_MAX
+
+/* This structure represents the function entry points that can be used by rssl.
+*/
+typedef struct {
+	/* Function pointer to the incoming IPC message debug function. */
+	void(*rsslDumpInFunc)(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
+	/* Function pointer to the outgoing IPC message debug function. */
+	void(*rsslDumpOutFunc)(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
+} RsslDumpFuncs;
+
 
 /**********************************
  *  INLINE UTILITY/HELPER FUNCTIONS

@@ -50,6 +50,15 @@
 static void(*rsslDumpInFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 static void(*rsslDumpOutFunc)(const char *functionName, char *buffer, RsslUInt32 length, RsslSocket socketId) = 0;
 
+/* The list of debug functions' entries index by the protocol type. */
+static RsslDumpFuncs rsslDumpFuncs[MAX_PROTOCOL_TYPES];
+
+/* Initialization the debug dump functions' entries. */
+void rsslClearDebugFunctionsEx();
+
+RTR_C_INLINE void rsslDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+RTR_C_INLINE void rsslDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+
 /* 33 additional chars to hold time stamps (when needed) */
 #define TIME_STAMP_SIZE 33
 
@@ -778,6 +787,9 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 			return retVal;
 		}
 
+		/* initialize debug dump functions */
+		rsslClearDebugFunctionsEx();
+
 		/* initialize socket transport */
 		retVal = rsslSocketInitialize(rsslInitOpts, error);
 
@@ -894,8 +906,91 @@ RsslRet rsslSetDebugFunctions(
 	mutexFuncs.staticMutexUnlock();
 
 	return retVal;
-
 }
+
+/* Initialization debug dump functions' entries */
+void rsslClearDebugFunctionsEx()
+{
+	memset(rsslDumpFuncs, 0, (sizeof(RsslDumpFuncs) * MAX_PROTOCOL_TYPES));
+	
+	rsslClearSoketDebugFunctionsEx();
+	rsslClearUniShMemDebugFunctionsEx();
+	rsslClearSeqMcastDebugFunctionsEx();
+}
+
+/** Sets debug dump functions for the protocol type
+* need to turn these on with Ioctl in order to use them
+*/
+RSSL_API RsslRet rsslSetDebugFunctionsEx(RsslDebugFunctionsExOpts* pOpts, RsslError* error)
+{
+	RsslRet retVal = RSSL_RET_SUCCESS;
+
+	mutexFuncs.staticMutexLock();
+
+	if ((pOpts->dumpRsslIn && rsslDumpFuncs[pOpts->protocolType].rsslDumpInFunc)
+		|| (pOpts->dumpRsslOut && rsslDumpFuncs[pOpts->protocolType].rsslDumpOutFunc))
+	{
+		/* set error message */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslSetDebugFunctionsEx() Cannot change Rssl dump functions.\n", __FILE__, __LINE__);
+
+		retVal = RSSL_RET_FAILURE;
+	}
+	else
+	{
+		rsslDumpFuncs[pOpts->protocolType].rsslDumpInFunc = pOpts->dumpRsslIn;
+		rsslDumpFuncs[pOpts->protocolType].rsslDumpOutFunc = pOpts->dumpRsslOut;
+
+		if (rsslSetSocketDebugFunctionsEx(pOpts, error) < RSSL_RET_SUCCESS)
+		{
+			retVal = RSSL_RET_FAILURE;
+		}
+
+		if (rsslSetWebSocketDebugFunctionsEx(pOpts, error) < RSSL_RET_SUCCESS)
+		{
+			retVal = RSSL_RET_FAILURE;
+		}
+
+		if (rsslSetUniShMemDebugFunctionsEx(pOpts, error) < RSSL_RET_SUCCESS)
+		{
+			retVal = RSSL_RET_FAILURE;
+		}
+
+		if (rsslSetSeqMcastDebugFunctionsEx(pOpts, error) < RSSL_RET_SUCCESS)
+		{
+			retVal = RSSL_RET_FAILURE;
+		}
+	}
+
+	mutexFuncs.staticMutexUnlock();
+
+	return retVal;
+}
+
+void rsslDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslDumpInFunc)
+	{
+		(*(rsslDumpInFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslDumpFuncs[pChannel->protocolType].rsslDumpInFunc)
+	{
+		(*(rsslDumpFuncs[pChannel->protocolType].rsslDumpInFunc))(functionName, buffer, length, pChannel);
+	}
+}
+
+void rsslDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel)
+{
+	if (rsslDumpOutFunc)
+	{
+		(*(rsslDumpOutFunc))(functionName, buffer, length, socketId);
+	}
+	if (rsslDumpFuncs[pChannel->protocolType].rsslDumpOutFunc)
+	{
+		(*(rsslDumpFuncs[pChannel->protocolType].rsslDumpOutFunc))(functionName, buffer, length, pChannel);
+	}
+}
+
 
 /* returned ipAddr in host byte order */
 RsslRet rsslHostByName(RsslBuffer *hostName, RsslUInt32 *ipAddr)
@@ -1777,7 +1872,9 @@ RsslRet rsslWrite(RsslChannel *chnl, RsslBuffer *buffer, RsslWritePriorities rss
 
 		/* do debugging if wanted */
 		if (rtrUnlikely((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (buffer->length > 0)))
-		  (*(rsslDumpOutFunc))((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId);
+		{
+			rsslDumpOutFuncImpl((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId, chnl);
+		}
 
 		if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 		{
@@ -1882,7 +1979,9 @@ RsslRet rsslWriteEx(RsslChannel *chnl, RsslBuffer *buffer, RsslWriteInArgs *writ
 
 		/* do debugging if wanted */
 		if (rtrUnlikely((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (buffer->length > 0)))
-		        (*(rsslDumpOutFunc))((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId);
+		{
+			rsslDumpOutFuncImpl((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId, chnl);
+		}
 
 		if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 		{
@@ -2250,7 +2349,9 @@ RSSL_API RsslBuffer* rsslPackBuffer(RsslChannel *chnl, RsslBuffer *buffer,  Rssl
 	}
 
 	if (rtrUnlikely(rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT))
-	        (*(rsslDumpOutFunc))((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId);
+	{
+		rsslDumpOutFuncImpl((char*)__FUNCTION__, buffer->data, buffer->length, chnl->socketId, chnl);
+	}
 
 	if (rtrUnlikely(rsslChnlImpl->traceOptionsInfo.traceOptions.traceFlags & (RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT)))
 	{
