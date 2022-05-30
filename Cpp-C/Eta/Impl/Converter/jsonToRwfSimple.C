@@ -8684,7 +8684,7 @@ bool jsonToRwfSimple::processDate(jsmntok_t ** const tokPtr, RsslBuffer ** const
 		{
 			buf.data = &_jsonMsg[(*tokPtr)->start];
 			buf.length = (*tokPtr)->end - (*tokPtr)->start;
-			if ((_rsslRet = rsslDateStringToDate(&_dateVar, &buf) < RSSL_RET_SUCCESS))
+			if ((_rsslRet = rsslDateStringToDate(&_dateVar, &buf)) < RSSL_RET_SUCCESS)
 			{
 				error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 				return false;
@@ -8734,7 +8734,7 @@ bool jsonToRwfSimple::processTime(jsmntok_t ** const tokPtr, RsslBuffer ** const
 		{
 			buf.data = &_jsonMsg[(*tokPtr)->start];
 			buf.length = (*tokPtr)->end - (*tokPtr)->start;
-			if ((_rsslRet = rsslTimeStringToTime(&_timeVar, &buf) < RSSL_RET_SUCCESS))
+			if ((_rsslRet = rsslTimeStringToTime(&_timeVar, &buf)) < RSSL_RET_SUCCESS)
 			{
 				error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 				return false;
@@ -8784,7 +8784,7 @@ bool jsonToRwfSimple::processDateTime(jsmntok_t ** const tokPtr, RsslBuffer ** c
 		{
 			buf.data = &_jsonMsg[(*tokPtr)->start];
 			buf.length = (*tokPtr)->end - (*tokPtr)->start;
-			if ((_rsslRet = rsslDateTimeStringToDateTime(&_dateTimeVar, &buf) < RSSL_RET_SUCCESS))
+			if ((_rsslRet = rsslDateTimeStringToDateTime(&_dateTimeVar, &buf)) < RSSL_RET_SUCCESS)
 			{
 				error(RSSL_ENCODE_ERROR, __LINE__, __FILE__);
 				return false;
