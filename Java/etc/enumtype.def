@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.51
-!tag Build_RDMD  4.20.51
-!tag DT_Version  22.21
-!tag Date        21-Feb-2022
+!tag RT_Version  4.20.52
+!tag Build_RDMD  4.20.52
+!tag DT_Version  22.41
+!tag Date        9-May-2022
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -554,6 +554,7 @@ INS_P_CCY  13612
     905        "SAh"   Saudi Arabian Halalah (deprecated)
     906        "QAd"   Qatari Dirham (deprecated)
     907        "AEf"   UAE Fils (deprecated)
+    925        "SLE"   Sierra Leone leone
     926        "VED"   New Venezuelan Bolivar Soberano
     927        "UYW"   Uruguayan Unidad Previsional
     928        "VES"   Venezuelan Bolivar Soberano
@@ -8809,7 +8810,7 @@ DRK_EXID   13610
    1690        "FLC"   FrieslandCampina(Royal FrieslandCampina N.V.)
    1691        "CVS"   Cherwell Valley Silos
    1692        "CHL"   Chemlinks Shanghai Limited
-   1693        "CRU"   CRU
+   1693        "CRU"   CRU GROUP
    1694        "ABL"   Alibra Shipping Limited
    1695        "ANZ"   ANZ Australia and New Zealand Banking Group
    1696        "UCD"   UCDA Uganda Coffee Development Authority
@@ -8818,6 +8819,14 @@ DRK_EXID   13610
    1699        "ODX"   OSAKA DIGITAL EXCHANGE
    1700        "AUR"   Aurubis UK
    1701        "CUP"   CUPRAMET
+   1702        "AQS"   Aquis Stock Exchange
+   1703        "THE"   TRADING HUB EUROPE
+   1704        "BCQ"   BondCliq
+   1705        "INO"   ICCSINO
+   1706        "BJS"   Beijing Stock Exchange
+   1707        "NNP"   Nigerian National Petroleum Corporation
+   1708        "VFX"   Victoria Falls Stock Exchange Limited
+   1709        "BZL"   FEDERAL OFFICE
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13122,6 +13131,7 @@ EXPIR_CYCL  8934
       4        "Q  "   Quarterly
       5        "E  "   End Of Month
       6        "Y  "   Yearly
+      7        "S  "   Semi-Annually
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13403,6 +13413,10 @@ REFPRC_TP4 13491
      64   "CNY/L   "   Chinese Yuan/Litre conversion
      65   "CNY/mT  "   Chinese Yuan/Tonnes conversion
      66   "Tariff  "   Tariff Rate
+     67   "WAVG    "   Weighted Average Price
+     68   "GBP/KG  "   Pound Sterling per kilogramme
+     69   "CalcClos"   Refinitiv Calculated Close
+     70   "UVWAP   "   VWAP of the underlying asset
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13432,6 +13446,8 @@ T_TAX_ELG   8951
 !
 MID_IV_FLG  8952
 SETL_IV_FL 12842
+MID2_IV_FG 13111
+MID3_IV_FG 13112
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -18303,10 +18319,30 @@ ORTS_SC    13107
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET408 13109
-PRE_1ET409 13110
-PRE_1ET410 13111
-PRE_1ET411 13112
+MMEYNES_TP 13109
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "DELTA   "   Delta
+      2   "MNEYNES "   Moneyness
+      3   "ACT  PRC"   Actual Price
+      4   "BP      "   Basis Points
+!
+! ACRONYM    FID
+! -------    ---
+!
+MID2_P_FLG 13110
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "SPOT    "   Spot
+      2   "FWD     "   Forward
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_1ET412 13113
 PRE_1ET413 13114
 PRE_1ET414 13115
@@ -18873,6 +18909,16 @@ MET_TYP22  13605
     139   "TNSV    "   Today's net short position value. The value of the new short position opened minus the value of the existing short position closed.
     140   "TALB    "   Total amount of loan balance.
     141   "TALBNC  "   Total amount of loan balance net change.
+    142   "05-<10% "   LME Banding 5-<10%
+    143   "10-<20% "   LME Banding 10-<20%
+    144   "20-<30% "   LME Banding 20-<30%
+    145   "30-<40% "   LME Banding 30-<40%
+    146   ">40%    "   LME Banding >40%
+    147   "40-<50% "   LME Banding 40-<50%
+    148   "50-<80% "   LME Banding 50-<80%
+    149   "80-<90% "   LME Banding 80-<90%
+    150   ">90%    "   LME Banding >90%
+    151   "Unrept  "   LME Banding Unreported %
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21509,6 +21555,27 @@ ORGN_PORT  13579
     706   "US  DBQ "   Dubuque
     707   "US  OWB "   Owensboro
     708   "US  CGI "   Cape Girardeau
+    709   "CL SVE  "   San Vicente
+    710   "ES CAR  "   Cartagena
+    711   "MA CAS  "   Casablanca
+    712   "OM STQ  "   Mina Sultan Qaboos, Muscat
+    713   "OM SLL  "   Salalah
+    714   "RU BLT  "   Baltiysk
+    715   "TR CKZ  "   Canakkale
+    716   "VE PBL  "   Puerto Cabello
+    717   "YE SAL  "   Saleef Port
+    718   "NG LOS  "   Lagos
+    719   "BJ COO  "   Cotonou
+    720   "GN CKY  "   Conakry
+    721   "LR MLW  "   Monrovia
+    722   "MG TOA  "   Toamasina
+    723   "GW OXB  "   Bissau
+    724   "CM DLA  "   Douala
+    725   "IN KAK  "   Kakinada
+    726   "GB TIL  "   Tilbury
+    727   "JP  HYU "   Hyuga
+    728   "US  ZFT "   Illinois City
+    729   "US  LMJ "   Lemont
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22457,11 +22524,580 @@ CMD_TYPE   13618
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0   "        "   undefined
+      1   "ENRGY   "   Energy
+      2   "MISCAGRI"   Miscellaneous
+      3   "OTHER   "   Others
+   1000   "AGRIC   "   Agriculture
+   1001   "ALFAHAY "   Alfalfa Hay
+   1002   "ALFALSEE"   Alfalfa Seed (Commodity)
+   1003   "ALFAMEAL"   Alfalfa Meal
+   1004   "ALFAPELL"   Alfalfa Pellets
+   1005   "ALMONDS "   Almonds (Commodity)
+   1006   "ARBCOF  "   Arabica
+   1007   "AVOIL   "   Avocado Oil
+   1008   "BARL    "   Barley
+   1009   "BARLBRAN"   Barley Bran (Commodity)
+   1010   "BEEF    "   Beef
+   1011   "BEER    "   Beer (Commodity)
+   1012   "BEESWAX "   Beeswax (Commodity)
+   1013   "BLCKSD  "   Black Seed
+   1014   "BONEMEAL"   Bone Meal (Commodity)
+   1015   "BRAZILNU"   Brazil Nuts (Commodity)
+   1016   "BUCKW   "   Buckwheat
+   1017   "BUTTER  "   Butter
+   1018   "CANARYSE"   Canary Seed (Commodity)
+   1019   "CASHEW  "   Cashews
+   1020   "CASSAVA "   Cassava (Commodity)
+   1021   "CASTOIL "   Castor Oil
+   1022   "CATTLE  "   Live Cattle
+   1023   "CHEESE  "   Cheese
+   1024   "CHESTNUT"   Chestnuts (Commodity)
+   1025   "CITRUP  "   Citrus Pulp
+   1026   "CLOTH   "   Clothing
+   1027   "COCOA   "   Cocoa
+   1028   "COCOIL  "   Coconut Oil
+   1029   "COF     "   Coffee
+   1030   "COLA    "   Cola
+   1031   "COPRA   "   Copra
+   1032   "COPRPEL "   Copra Pellets
+   1033   "CORN    "   Corn
+   1034   "CORNF   "   Cornflour
+   1035   "CORNOIL "   Corn Oil
+   1036   "COTT    "   Cotton
+   1037   "COTTY   "   Cotton Yarn
+   1038   "CTTNSD  "   Cottonseed
+   1039   "CTTNSDML"   Cottonseed Meal
+   1040   "CTTNSDOI"   Cottonseed Oil
+   1041   "DAIRY   "   Dairy
+   1042   "EDBARL  "   Edible Barley
+   1043   "EDWHEAT "   Edible Wheat
+   1044   "EGG     "   Egg
+   1045   "FATPROD "   Fat Products (Commodity)
+   1046   "FDBARL  "   Feed Barley
+   1047   "FDCORN  "   Feed Corn
+   1048   "FDWHEAT "   Feed Wheat
+   1049   "FEEDCON "   Feed Concentrate (Commodity)
+   1050   "FERT    "   Fertilisers
+   1051   "FIBERPRO"   Fiber Products (Commodity)
+   1052   "FISH    "   Fish
+   1053   "FISHML  "   Fish Meal
+   1054   "FISHOIL "   Fish Oil
+   1055   "FLAX    "   Flax
+   1056   "FLOUR   "   Flour
+   1057   "FORES   "   Forestry / Fibre
+   1058   "FROGSLEG"   Frog Legs (Commodity)
+   1059   "FRUIT   "   Fruits
+   1060   "FTHML   "   Feather Meal
+   1061   "FTTYAC  "   Fatty Acid
+   1062   "FURSKINS"   Fur Skins (Commodity)
+   1063   "GELATINE"   Gelatine (Commodity)
+   1064   "GLTML   "   Gluten Meal
+   1065   "GLTPELL "   Gluten Feed Pellets
+   1066   "GOATMEAT"   Goat Meat (Commodity)
+   1067   "GRAIN   "   Grains
+   1068   "GREAVES "   Greaves (Commodity)
+   1069   "GRNBEAN "   Green Beans
+   1070   "GUM     "   Gum
+   1071   "HAZELNUT"   Hazel Nuts (Commodity)
+   1072   "HEMP    "   Hemp
+   1073   "HMNFEED "   Hominy Feed
+   1074   "HONEY   "   Honey
+   1075   "HOPS    "   Hops (Commodity)
+   1076   "HORTICUL"   Horticulture (Commodity)
+   1077   "JUTE    "   Jute
+   1078   "LAMB    "   Lamb / Mutton
+   1079   "LARDTALL"   Lard / Tallow
+   1080   "LEATH   "   Leather
+   1081   "LINEN   "   Linen
+   1082   "LINSD   "   Linseed
+   1083   "LINSDOIL"   Linseed Oil
+   1084   "LIVESTK "   Livestock
+   1085   "LSTKCBV "   Cattle / Beef / Veal
+   1086   "LSTKFISH"   Fish / Fish Oil
+   1087   "LSTKPIG "   Pigs / Hogs / Pork
+   1088   "LSTKPLT "   Poultry
+   1089   "LSTKSLM "   Sheep / Lamb / Mutton
+   1090   "MALT    "   Malt (Commodity)
+   1091   "MEALFEED"   Meals / Feeds / Pulses
+   1092   "MEATEXTR"   Meat Extracts (Commodity)
+   1093   "MEATMEAL"   Meat Meal (Commodity)
+   1094   "MILK    "   Milk
+   1095   "MILL    "   Millet
+   1096   "MILLBRAN"   Millet Bran (Commodity)
+   1097   "MLTBARL "   Malting Barley
+   1098   "MLTWHEAT"   Malting Wheat
+   1099   "MOLAS   "   Molasses
+   1100   "MUSTD   "   Mustard
+   1101   "NUTS    "   Nuts
+   1102   "OAT     "   Oats
+   1103   "OATBRAN "   Oat Bran (Commodity)
+   1104   "OFFAL   "   Offals
+   1105   "OILSD   "   Oils / Oilseeds
+   1106   "OJUICE  "   Orange Juice
+   1107   "OLIVEOIL"   Olive Oil
+   1108   "OLIVES  "   Olives (Commodity)
+   1109   "OTHANIPR"   Other Animal Products (Commodity)
+   1110   "OTHERBRA"   Other Bran (Commodity)
+   1111   "OTHERMEA"   Other Meat (Commodity)
+   1112   "OTHERNUT"   Other Nuts (Commodity)
+   1113   "OTHOILCR"   Other Oil Crops (Commodity)
+   1114   "OTHROOTC"   Other Root Crops (Commodity)
+   1115   "OTHSEEDC"   Other Seed Crops (Commodity)
+   1116   "OTRCORN "   Other Corn
+   1117   "PALMKOIL"   Palm Kernel Oil
+   1118   "PALMOIL "   Palm Oil
+   1119   "PAPER   "   Paper
+   1120   "PASTA   "   Pasta (Commodity)
+   1121   "PEA     "   Peas (for human consumption)
+   1122   "PEAN    "   Peanuts
+   1123   "PEANOIL "   Peanut Oil
+   1124   "PEANTML "   Peanut Meal
+   1125   "PETFOOD "   Pet Food (Commodity)
+   1126   "PIG     "   Live Pigs / Hogs
+   1127   "PISTACHI"   Pistachios (Commodity)
+   1128   "PLMFRTCR"   Palm Fruit Oil - Crude (Commodity)
+   1129   "PLMFRTDE"   Palm Fruit Oil Olein - Refined Bleached and Deodorized (Commodity)
+   1130   "PLMFRTNE"   Palm Fruit Oil - Bleached and Neutralized (Commodity)
+   1131   "PLMFRTST"   Palm Fruit Stearin - Refined Bleached and Deodorized (Commodity)
+   1132   "PLMKERCR"   Palm Kernel Oil - Crude (Commodity)
+   1133   "PLMKERPR"   Palm Kernel Oil - Processed (Commodity)
+   1134   "PLMKERST"   Palm Kernel Stearin (Commodity)
+   1135   "PLMKRNML"   Palm Kernel Meal
+   1136   "PLMKRNPL"   Palm Kernel Pellets
+   1137   "PORK    "   Pork
+   1138   "POT     "   Potatoes (for human consumption)
+   1139   "PULP    "   Pulp
+   1140   "QUINOA  "   Quinoa (Commodity)
+   1141   "RABBITME"   Rabbit Meat (Commodity)
+   1142   "RAPE    "   Rapeseed
+   1143   "RAPEML  "   Rapeseed Meal
+   1144   "RAPEOIL "   Rapeseed Oil
+   1145   "REDBN   "   Red Beans
+   1146   "RICE    "   Rice
+   1147   "ROBCOF  "   Robusta
+   1148   "ROOTSTUB"   Roots / Tubers (Commodity)
+   1149   "ROUGHRIC"   Rough Rice
+   1150   "RUBBR   "   Rubber
+   1151   "RYE     "   Rye
+   1152   "SAFFL   "   Safflower
+   1153   "SAFFLOIL"   Safflower Oil
+   1154   "SALT    "   Salt (Commodity)
+   1155   "SEEDCORN"   Seed Corn
+   1156   "SEEDCROP"   Seed Crops (Commodity)
+   1157   "SESAM   "   Sesame
+   1158   "SGRBPL  "   Sugar Beet Pulp
+   1159   "SHEABUTT"   Shea Butter
+   1160   "SHEANUT "   Shea Nuts
+   1161   "SHEEP   "   Live Sheep / Lamb
+   1162   "SHELLFIS"   Shellfish (Commodity)
+   1163   "SHRIMP  "   Shrimp
+   1164   "SILK    "   Silk
+   1165   "SISAL   "   Sisal
+   1166   "SOFTS   "   Softs
+   1167   "SORG    "   Sorghum
+   1168   "SOYB    "   Soybean
+   1169   "SOYBOIL "   Soybean Oil
+   1170   "SOYML   "   Soybean Meal
+   1171   "SOYPELL "   Soybean Pellets
+   1172   "SPICE   "   Herbs & Spices
+   1173   "STEAR   "   Stearin
+   1174   "SUGAR   "   Sugar
+   1175   "SUGARCAN"   Sugar Cane
+   1176   "SUNFL   "   Sunflower
+   1177   "SUNFLOIL"   Sunflower Oil
+   1178   "SUNML   "   Sunflower Seed Meal
+   1179   "SWEETPOT"   Sweet Potatoes (Commodity)
+   1180   "TALLOIL "   Tall Oil (Commodity)
+   1181   "TAPML   "   Tapioca Meal
+   1182   "TEA     "   Tea
+   1183   "TIMB    "   Timber / Lumber
+   1184   "TRITICAL"   Triticale (Commodity)
+   1185   "UREA    "   Urea
+   1186   "VEAL    "   Veal
+   1187   "VEG     "   Vegetables
+   1188   "VEGOIL  "   Vegetable Oil (Commodity)
+   1189   "WALNUTS "   Walnuts (Commodity)
+   1190   "WHEAT   "   Wheat
+   1191   "WHEATBRN"   Wheat Bran
+   1192   "WHEATFLR"   Wheat Flour
+   1193   "WHEATSTA"   Wheat Starch
+   1194   "WHEY    "   Whey
+   1195   "WINE    "   Wine
+   1196   "WOODPROD"   Wood Products (Commodity)
+   1197   "WOOL    "   Wool
+   1198   "YOG     "   Yoghurt
+   1600   "ACEACID "   Acetic Acid (Commodity)
+   1601   "ACETONE "   Acetone (Commodity)
+   1602   "ACIDDERI"   Acids / Acid Derivatives (Commodity)
+   1603   "ACIDS   "   Acids (Commodity)
+   1604   "ACRYACID"   Acrylic Acid (Commodity)
+   1605   "ACRYESTE"   Acrylate Esters (Commodity)
+   1606   "ADIPACID"   Adipic Acid (Commodity)
+   1607   "ALCOETHE"   Alcohols / Ethers (Commodity)
+   1608   "AMINOALC"   Amino Alcohols (Commodity)
+   1609   "AMMONIA "   Ammonia (Commodity)
+   1610   "AMMONITR"   Ammonium Nitrate
+   1611   "AMMONWAT"   Ammonia Water 25% (Commodity)
+   1612   "ANHYDSUL"   Anhydrous Sulphate
+   1613   "ANHYIDE "   Anhydrides (Commodity)
+   1614   "ANTHRAEN"   Anthracene Fraction (Commodity)
+   1615   "BEVWASTE"   Beverage Waste
+   1616   "BRDSD   "   Bird Seed
+   1617   "BUILDMTR"   Building Materials
+   1618   "BUTANDIO"   Butanediol (Commodity)
+   1619   "BUTYRUB "   Butyl Rubbers (Commodity)
+   1620   "CARBFORR"   Carbamide-Formaldehyde Resins (Commodity)
+   1621   "CHLORDER"   Chlorinated Derivatives (Commodity)
+   1622   "COSMET  "   Cosmetics
+   1623   "CRAMP   "   Cramp
+   1624   "CYCHEXAN"   Cyclohexane (Commodity)
+   1625   "DDGS    "   Distillers Dried Grains with Solubles (Commodity)
+   1626   "DETERGNT"   Detergents
+   1627   "DIENES  "   Dienes (Commodity)
+   1628   "DIETHGLY"   Diethylene Glycol (Commodity)
+   1629   "DIETOLMI"   Diethanolamine (Commodity)
+   1630   "DIOLPHTA"   Dioctylphthalate (Commodity)
+   1631   "DIVINRUB"   Divinyl Rubbers (Commodity)
+   1632   "DRUG    "   Drugs
+   1633   "DYE     "   Dyes
+   1634   "ELECGD  "   Electrical Goods
+   1635   "EMULSPVC"   Emulsion PVC (Commodity)
+   1636   "EPICHLDR"   Epichlorohydrin (Commodity)
+   1637   "EPOXIDES"   Epoxides (Commodity)
+   1638   "EPOXYRES"   Epoxy Resins (Commodity)
+   1639   "ESSENOIL"   Essential Oils
+   1640   "ETERBUTE"   Ethyl Tertiary Butyl Ether (Commodity)
+   1641   "ETHERS  "   Ethers (Commodity)
+   1642   "ETHHEXNO"   2-Ethylhexanol (Commodity)
+   1643   "ETHYVINA"   Ethylene Vinyl Acetate (Commodity)
+   1644   "FATALCO "   Fatty Alcohols (Commodity)
+   1645   "GENPOLYS"   Polystyrene
+   1646   "GLYCERIN"   Glycerine (Commodity)
+   1647   "GLYCOETH"   Glycol Ethers (Commodity)
+   1648   "GLYCOLS "   Glycols (Commodity)
+   1649   "HARDWR  "   Hardware
+   1650   "HEPYRORE"   Heavy Pyrolysis Resins (Commodity)
+   1651   "HIMPPOLY"   High-Impact Polystyrene (Commodity)
+   1652   "HYDCHLOA"   Hydrochloric Acid (Commodity)
+   1653   "INORGNCO"   Inorganic Compounds (Commodity)
+   1654   "ISOACID "   Isophthalic Acid (Commodity)
+   1655   "ISOPRERU"   Isoprene Rubbers (Commodity)
+   1656   "KETONE  "   Ketones (Commodity)
+   1657   "LIQPYROP"   Liquid Pyrolysis Products (Commodity)
+   1658   "LOWSWRES"   Low Sulphur Waxy Residue
+   1659   "MALANHYI"   Maleic Anhydride (Commodity)
+   1660   "MELAMINE"   Melamine (Commodity)
+   1661   "METHETHK"   Methyl Ethyl Ketone (Commodity)
+   1662   "METHISOK"   Methyl Isobutyl Ketone (Commodity)
+   1663   "METHYCHI"   Methylene Chloride (Commodity)
+   1664   "MINFERT "   Mineral Fertilizers (Commodity)
+   1665   "MONOAPH "   Mono Ammonium Phosphate
+   1666   "MONOOLMI"   Monoethanolamine (Commodity)
+   1667   "MONOPRGL"   Monopropylene Glycol (Commodity)
+   1668   "NITRILES"   Nitriles (Commodity)
+   1669   "NITROFER"   Nitrogen Fertilizers (Commodity)
+   1670   "NITROPHP"   Nitrogen Phosphorus Potassium
+   1671   "NOAROCYC"   Non-Aromatic Cyclic Compounds (Commodity)
+   1672   "NYLON   "   Nylon (Commodity)
+   1673   "OLEFINS "   Olefins (Commodity)
+   1674   "OTHPOLY "   Other Polymers (Commodity)
+   1675   "PHOSP   "   Phosphates
+   1676   "PHOSPACI"   Phosphoric Acid
+   1677   "PHTANHYI"   Phthalic Anhydride (Commodity)
+   1678   "PLASTPOL"   Plastics / Polymers
+   1679   "POLYACET"   Polyacetals (Commodity)
+   1680   "POLYALCO"   Polyatomic Alcohols (Commodity)
+   1681   "POLYBUTE"   Polybutylene Terephthalate (Commodity)
+   1682   "POLYCARB"   Polycarbonate (Commodity)
+   1683   "POLYMETH"   Polymethyl Methacrylate (Commodity)
+   1684   "POLYOLS "   Polyols (Commodity)
+   1685   "POLYPOLY"   Polyether Polyols (Commodity)
+   1686   "POLYPROP"   Polypropylene
+   1687   "PYROPROD"   Pyrolysis Products (Commodity)
+   1688   "SANPLAST"   SAN Plastic (Commodity)
+   1689   "SIMPLEAL"   Simple Alcohols (Commodity)
+   1690   "SOAPNOOD"   Soap Noodles (Commodity)
+   1691   "SODAASH "   Soda Ash
+   1692   "SORBITOL"   Sorbitol (Commodity)
+   1693   "STYPLAST"   Styrene Plastics (Commodity)
+   1694   "SULF    "   Sulphur
+   1695   "SULFACID"   Sulfuric Acid (Commodity)
+   1696   "SUSPPVC "   Suspension PVC (Commodity)
+   1697   "SYNRUBLA"   Synthetic Rubbers / Latexes (Commodity)
+   1698   "TEREACID"   Purified Terephthalic Acid
+   1699   "TOBAC   "   Tobacco
+   1700   "TRIOLMIN"   Triethanolamine (Commodity)
+   1701   "TRIPLSPH"   Triple Simple Phosphate
+   1702   "TRITHYGL"   Triethylene Glycol (Commodity)
+   1703   "TUNG    "   Tung Oil
+   1704   "TUNGSTAT"   Tungstate
+   1705   "UREAAMMN"   Urea Ammonium Nitrate
+   1706   "VINCHLMO"   Vinyl Chloride Monomer
+   1707   "VINPOLY "   Vinyl Polymers (Commodity)
+   1708   "WATER   "   Water
+   1709   "WOODBIOM"   Woody Biomass
+   1900   "BIODI   "   Biodiesel
+   1901   "BIOFU   "   Biofuels
+   1902   "CELLUBIO"   Cellulosic Biofuels
+   1903   "ETHANOL "   Ethanol
+   2000   "BAROM   "   Barometric Pressure
+   2001   "CLOUD   "   Cloud
+   2002   "CLOUDCOV"   Cloud Cover
+   2003   "COOLDEGD"   Cooling Degree Days
+   2004   "DEWPNT  "   Dew Point
+   2005   "DROUGHT "   Drought
+   2006   "GRWDEGDA"   Growing Degree Days
+   2007   "HEATDEGD"   Heating Degree Days
+   2008   "PRECIP  "   Precipitation
+   2009   "RELHUM  "   Relative Humidity
+   2010   "SNOWCOVE"   Snow Cover
+   2011   "SOILMOIS"   Soil Moisture
+   2012   "SUNSHN  "   Sunshine
+   2013   "TEMPRTR "   Temperature
+   2014   "VISIB   "   Visibility
+   2015   "WEATHER "   Weather
+   2016   "WIND    "   Wind
+   3000   "ALUM    "   Aluminium (metal only)
+   3001   "ALUMALL "   Aluminium Alloy
+   3002   "ALUMORE "   Alumina / Bauxite
+   3003   "ANTIMONY"   Antimony
+   3004   "ARSENIC "   Arsenic
+   3005   "AUTOMTV "   Automotive
+   3006   "BASEMTLS"   Base Metals / Ores
+   3007   "BISMUTH "   Bismuth
+   3008   "BRASS   "   Brass
+   3009   "BRONZE  "   Bronze
+   3010   "CADMIUM "   Cadmium
+   3011   "CHROMITE"   Chromite
+   3012   "CHROMIUM"   Chromium (metal only)
+   3013   "COBALT  "   Cobalt
+   3014   "COPP    "   Copper (metal only)
+   3015   "COPPALL "   Copper Alloy
+   3016   "COPPCON "   Copper Concentrates (Commodity)
+   3017   "COPPORE "   Copper Ore
+   3018   "DIAMOND "   Diamonds
+   3019   "ELCTWR  "   Electrical Wire
+   3020   "FERRALL "   Iron / Steel
+   3021   "FERROALL"   Ferrous Alloys
+   3022   "FERROCHR"   Ferrous Chrome
+   3023   "GALLIUM "   Gallium
+   3024   "GERMAN  "   Germanium
+   3025   "GOLD    "   Gold
+   3026   "GOLDBULL"   Gold Bullion
+   3027   "GOLDCOIN"   Gold Coins
+   3028   "GOLDING "   Gold Ingots
+   3029   "GUNMTL  "   Gunmetal
+   3030   "INDIUM  "   Indium
+   3031   "IRIDIUM "   Iridium
+   3032   "IRONORE "   Iron Ore
+   3033   "LEAD    "   Lead (metal only)
+   3034   "LEADORE "   Lead Ore
+   3035   "MAGNESM "   Magnesium
+   3036   "MANGANOR"   Manganese Ore
+   3037   "MANGANS "   Manganese (metal only)
+   3038   "MERCURY "   Mercury
+   3039   "METAL   "   Metals
+   3040   "MINMETAL"   Minor Metals / Minerals
+   3041   "MOLYBDNM"   Molybdenum
+   3042   "NASAA   "   North American Special Aluminium Alloy (NASAA)
+   3043   "NICK    "   Nickel (metal only)
+   3044   "NICKORE "   Nickel Ore
+   3045   "PALL    "   Palladium
+   3046   "PALLBULL"   Palladium Bullion
+   3047   "PALLCOIN"   Palladium Coins
+   3048   "PALLING "   Palladium Ingots
+   3049   "PHOSPROC"   Phosphate Rock
+   3050   "PLAT    "   Platinum
+   3051   "PLATBULL"   Platinum Bullion
+   3052   "PLATCOIN"   Platinum Coins
+   3053   "PLATING "   Platinum Ingots
+   3054   "PRECIOUS"   Precious Metals / Minerals
+   3055   "RAREEART"   Rare Earths
+   3056   "RHODIUM "   Rhodium
+   3057   "RUTHENM "   Ruthenium
+   3058   "SCRAP   "   Scrap / Secondary Alloys
+   3059   "SCRPALUM"   Scrap Aluminium
+   3060   "SCRPCOPP"   Scrap Copper
+   3061   "SCRPIRON"   Scrap Iron
+   3062   "SCRPLEAD"   Scrap Lead
+   3063   "SCRPNICK"   Scrap Nickel
+   3064   "SCRPTIN "   Scrap Tin
+   3065   "SCRPZINC"   Scrap Zinc
+   3066   "SELENM  "   Selenium
+   3067   "SILICON "   Silicon
+   3068   "SILVBULL"   Silver Bullion
+   3069   "SILVCOIN"   Silver Coins
+   3070   "SILVER  "   Silver
+   3071   "SILVING "   Silver Ingots
+   3072   "STEEL   "   Steel (excluding Stainless Steel)
+   3073   "STNSTEEL"   Stainless Steel
+   3074   "TANTALT "   Tantalite
+   3075   "TIN     "   Tin (metal only)
+   3076   "TINORE  "   Tin Ore
+   3077   "TITAN   "   Titanium
+   3078   "TITANDIO"   Titanium Dioxide
+   3079   "TUNGSTEN"   Tungsten
+   3080   "URANIUM "   Uranium
+   3081   "VANADM  "   Vanadium
+   3082   "WOLFRMT "   Wolframite
+   3083   "ZINC    "   Zinc (metal only)
+   3084   "ZINCORE "   Zinc Ore
+   4000   "ABSPLAST"   Acrylonitrile Butadiene Styrene
+   4001   "ACRYLONI"   Acrylonitrile
+   4002   "ALPHMETH"   Alpha-Methylstyrene (Commodity)
+   4003   "ANHYDAMM"   Anhydrous Ammonia
+   4004   "AROMATIC"   Aromatics
+   4005   "ASPHLT  "   Asphalt
+   4006   "BENZENE "   Benzene
+   4007   "BISPHNOL"   Bisphenol A (Commodity)
+   4008   "BNKFUEL "   Bunker Fuel
+   4009   "BRENTCRD"   Brent / Forties / Oseberg / Ekofisk
+   4010   "BURNKERO"   Burning Kerosene
+   4011   "BUTACETA"   Butyl Acetate (Commodity)
+   4012   "BUTADIEN"   Butadiene
+   4013   "BUTDILAT"   Butadiene Latexes (Commodity)
+   4014   "BUTDINIT"   Butadiene Nitrile Rubbers (Commodity)
+   4015   "BUTN    "   Butane
+   4016   "BUTSTYLA"   Butadiene-Styrene Latexes (Commodity)
+   4017   "BUTSTYRU"   Butadiene-Styrene Rubbers (Commodity)
+   4018   "CAPLACTA"   Caprolactum
+   4019   "CAUSTSOD"   Caustic Soda/Chlorine
+   4020   "CHEMCL  "   Chemicals
+   4021   "CRUDEOIL"   Crude Oil
+   4022   "CUMENE  "   Cumene (Commodity)
+   4023   "DIAMMPH "   Diammonium Phosphate
+   4024   "DIESEL  "   Diesel
+   4025   "DIMTERLA"   Dimethyl Terephthalate
+   4026   "DIST    "   Middle Distillates
+   4027   "DUBAICRD"   Dubai
+   4028   "ESTERS  "   Esters (Commodity)
+   4029   "ETHN    "   Ethane
+   4030   "ETHPROPR"   Ethylene-Propylene Rubbers (Commodity)
+   4031   "ETHYBEZE"   Ethylbenzene (Commodity)
+   4032   "ETHYDICI"   Ethylene Dichloride
+   4033   "ETHYLENE"   Ethylene
+   4034   "ETHYOXID"   Ethylene Oxide (Commodity)
+   4035   "EXPANDPO"   Expandable Polystyrene
+   4036   "FUELOIL "   Fuel Oil
+   4037   "GASCOMP "   Gasoline Components (Commodity)
+   4038   "GASGASCO"   Gasoline / Gasoline Components (Commodity)
+   4039   "GASOLIN "   Gasoline
+   4040   "HEATOIL "   Heating Oil / Gas Oil
+   4041   "HEAVYDIS"   Heavy Distillates / Residuals
+   4042   "HEXANE  "   Hexane (Commodity)
+   4043   "HIDENPOE"   HDPE
+   4044   "HISULFOI"   High Sulphur Fuel Oil
+   4045   "ISOBUTNO"   Iso-Butanol (Commodity)
+   4046   "ISOCYATE"   Isocyanates (Commodity)
+   4047   "ISOPROPN"   Iso-Propanol (Commodity)
+   4048   "JETFUEL "   Jet Fuel / Kerosene
+   4049   "JETKEROS"   Jet Kerosene
+   4050   "KEROS   "   Dual Purpose Kerosene
+   4051   "KEROSENE"   Kerosene (Commodity)
+   4052   "LIGHTDIS"   Light Distillates
+   4053   "LINALKEN"   Linear Alkylbenzene (Commodity)
+   4054   "LINALKSU"   Linear Alkylbenzene Sulphonate (Commodity)
+   4055   "LINLODEN"   LLDPE
+   4056   "LIQNATGA"   Liquefied Natural Gas
+   4057   "LODENPOE"   LDPE
+   4058   "LOSULFOI"   Low Sulphur Fuel Oil
+   4059   "LPG     "   Liquefied Petroleum Gas
+   4060   "LUBOILS "   Lubricating Oils
+   4061   "METHANOL"   Methanol
+   4062   "METHBETH"   Methyl Tertiary Butyl Ether
+   4063   "METHMETH"   Methyl Methacrylate
+   4064   "MONOTHGL"   Ethylene Glycol
+   4065   "NAPHTHA "   Naphtha
+   4066   "NATGASLI"   Natural Gas Liquids
+   4067   "NBUTANOL"   N-Butanol (Commodity)
+   4068   "OILPROD "   Oil / Oil Products
+   4069   "OLEFDIEN"   Olefins
+   4070   "OTHERCRD"   Other Crudes
+   4071   "OTHPETRO"   Other Petrochemicals (Commodity)
+   4072   "OTRLPG  "   Other LPG
+   4073   "OXYLENE "   O-Xylene (Commodity)
+   4074   "PARAFWAX"   Paraffin Wax
+   4075   "PETROCHE"   Petrochemicals
+   4076   "PETROSOL"   Petroleum Solvents (Commodity)
+   4077   "PHENOL  "   Phenol (Commodity)
+   4078   "POLY    "   Polyester
+   4079   "POLYBLOC"   Polypropylene Block Copolymer (Commodity)
+   4080   "POLYETHY"   Polyethylene
+   4081   "POLYHOME"   Polypropylene Homopolymer (Commodity)
+   4082   "POLYRANC"   Polypropylene Random Copolymer (Commodity)
+   4083   "POLYTERA"   Polyethylene Terephthalate
+   4084   "PROPGLYE"   Propylene Glycol Ether
+   4085   "PROPN   "   Propane
+   4086   "PROPOXID"   Propylene Oxide
+   4087   "PROPYLEN"   Propylene
+   4088   "PXYLENE "   Para-Xylene
+   4089   "REFPROD "   Refined Products
+   4090   "SOLVNT  "   Solvents
+   4091   "STRTFOIL"   Straight Run Fuel Oil
+   4092   "STYRENE "   Styrene
+   4093   "SYNCRUDE"   Synthetic Sweet
+   4094   "TOLUENE "   Toluene
+   4095   "USLTSWCR"   US Light Sweet Crudes
+   4096   "VINYLACE"   Vinyl Acetate (Commodity)
+   4097   "WHTESPRT"   White Spirit (Commodity)
+   4098   "XYLENES "   Xylenes (Commodity)
+   5000   "BASELD  "   Baseload
+   5001   "BIOMASS "   Biomass
+   5002   "BLOCK   "   Block
+   5003   "CARBAAU "   Assigned Amount Unit
+   5004   "CARBCER "   Certified Emission Reduction
+   5005   "CARBD   "   Carbon Dioxide
+   5006   "CARBEAA "   European Aviation Allowance (Commodity)
+   5007   "CARBERU "   Emission Reduction Unit
+   5008   "CARBEUA "   European Unit Allowance
+   5009   "CARBVCU "   Voluntary Carbon Unit
+   5010   "CARBVER "   Voluntary Emission Reduction
+   5011   "COAL    "   Coal
+   5012   "COKCOAL "   Coking Coal
+   5013   "EMISS   "   Emissions
+   5014   "GASPROD "   Gas / Gas Products
+   5015   "HEATCOAL"   Thermal Coal
+   5016   "NATGAS  "   Natural Gas
+   5017   "NITRX   "   Nitrous Oxide
+   5018   "OFFPK   "   Off-Peak
+   5019   "OTRNATGA"   Other Natural Gas
+   5020   "PKLD    "   Peakload
+   5021   "POTAS   "   Potash
+   5022   "POWER   "   Power
+   5023   "RENEW   "   Renewable Energy
+   5024   "RENEWREC"   Renewable Energy Certificate
+   5025   "RENEWROC"   Renewable Obligation Certificate
+   5026   "RENEWWC "   White Certificate
+   5027   "SULFD   "   Sulphur Dioxide
+   6000   "BARGE   "   Barge
+   6001   "CONTNR  "   Container
+   6002   "DRYBFR  "   Dry Bulk Freight
+   6003   "DRYBSING"   Dry Bulk Single Voyage
+   6004   "DRYBTIME"   Dry Bulk Time Charter
+   6005   "RAILFR  "   Rail Freight
+   6006   "ROADFR  "   Road Freight
+   6007   "TANKCLSV"   Tanker Clean Single Voyage
+   6008   "TANKCLTC"   Tanker Clean Time Charter
+   6009   "TANKDISV"   Tanker Dirty Single Voyage
+   6010   "TANKDITC"   Tanker Dirty Time Charter
+   6011   "TANKFR  "   Tanker Freight
+   6012   "TRNSPRT "   Transportation
 !
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET298 13619
+DSC_METH   13619
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "OIS     "   Overnight Index Swap
+      2   "IBOR    "   Interbank offered rate
+      3   "SOFR    "   Secured Overnight Financing Rate
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET299 13620
 PRE_2ET300 13621
 PRE_2ET301 13622

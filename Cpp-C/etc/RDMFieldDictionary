@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.51_RealTimeDistributionSystem_22.21		02/25/2022
-!	* Modified 02/25/2022 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.51.
+!   Version	 4.20.52_RealTimeDistributionSystem_22.41		05/11/2022
+!	* Modified 05/11/2022 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.52.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.51_RealTimeDistributionSystem
+!   Version: 4.20.52_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.51
+!tag Version   4.20.52
 !tag Build     2
-!tag Date      19-Jan-2022
+!tag Date      17-Mar-2022
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -1203,8 +1203,7 @@ LOW_YLD    "LOW YIELD"            366  NULL        PRICE              17  REAL64
 !
 HST_CLSYLD "HIST CLOSE YIELD"     367  NULL        PRICE              17  REAL64           7
 !
-! The historic closing yield i.e. the last non-zero closing yield derived once daily 
-! outside market hours from the RT_YIELD_1 field.
+! Historical Close Yield
 !
 OPINT_2    "PRV OPEN INT"         368  NULL        INTEGER            15  REAL64           7
 !
@@ -8772,7 +8771,7 @@ CLS_INFO2  "CLOSE INFO2"         3593  NULL        PRICE              17  REAL64
 !
 CLS_YLD    "CLS YLD"             3594  NULL        PRICE              17  REAL64           7
 !
-! Last day's closing yield
+! Close Yield
 !
 CNCRTD_DT  "CNC RTD DT"          3595  NULL        DATE               11  DATE             4
 !
@@ -16457,12 +16456,11 @@ ASK_10     "ASK 10"              6137  NULL        PRICE              17  REAL64
 !
 IMPLD_RATE "IMPLIED RATE"        6138  NULL        PRICE              17  REAL64           7
 !
-! The future base interest Rate implied from the cash or derivatives market
+! Implied Rate.
 !
 IMPLD_BPS  "IMPLIED BPS"         6139  NULL        PRICE              17  REAL64           7
 !
-! The change in basis points of the base interest Rate implied from the cash or 
-! derivatives market
+! Implied Basis Point.
 !
 PRV_BID_H  "PREV DAY BID HIGH"   6140  NULL        PRICE              17  REAL64           7
 !
@@ -19549,8 +19547,7 @@ SP_SHS_AV  "SP SHS ACVOL"        7058  NULL        INTEGER            15  INT64 
 !
 MN_LIQM_OZ "MIN LIQ MKER ORD"    7059  NULL        INTEGER            15  INT64            6
 !
-! The Minimum amount required for liquidity maker orders(An order that cannot remove 
-! liquidity from the order book)
+! Minimum Order Size for the liquidity provider(s).
 !
 CD_NAK_REJ "CONTRB NAK FID"      7060  NULL        INTEGER            15  INT64            6
 !
@@ -23782,7 +23779,10 @@ BEI_BMK    "BRKEN INFL BMK"      8336  NULL        ALPHANUMERIC       32  ASCII_
 !
 ! The benchmark instrument for breakeven inflation related analytics.
 !
-PRE_AN038  "PRED ALPH NM 038"    8337  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+DSCMTH_RIC "DISCOUNT METH RIC"   8337  NULL        ALPHANUMERIC       32  ASCII_STRING    32
+!
+! Reference instrument used for the discounting method mentioned in the field DSC_METH.
+!
 PRE_AN039  "PRED ALPH NM 039"    8338  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN040  "PRED ALPH NM 040"    8339  NULL        ALPHANUMERIC       32  ASCII_STRING    32
 PRE_AN041  "PRED ALPH NM 041"    8340  NULL        ALPHANUMERIC       32  ASCII_STRING    32
@@ -26847,7 +26847,10 @@ LST_ELG_DT "LST ELIGBL TRD DT"   9398  NULL        DATE               11  DATE  
 ! The date of the last eligible trade price of the day from the regular trading 
 ! session(s).
 !
-PRE_DT288  "PRED DATE 288"       9399  NULL        DATE               11  DATE             4
+SBL_DATE   "SBL DATE"            9399  NULL        DATE               11  DATE             4
+!
+! Last update date for the security borrowing and lending data.
+!
 PRE_DT289  "PRED DATE 289"       9400  NULL        DATE               11  DATE             4
 PRE_DT290  "PRED DATE 290"       9401  NULL        DATE               11  DATE             4
 PRE_DT291  "PRED DATE 291"       9402  NULL        DATE               11  DATE             4
@@ -31653,20 +31656,62 @@ CPR_LIFE   "LIFE CPR"           11029  NULL        PRICE              17  REAL64
 !
 ! Life Constant Prepayment Rate. 
 !
-PRERL2039  "PRED REAL 2039"     11030  NULL        PRICE              17  REAL64           7
-PRERL2040  "PRED REAL 2040"     11031  NULL        PRICE              17  REAL64           7
-PRERL2041  "PRED REAL 2041"     11032  NULL        PRICE              17  REAL64           7
-PRERL2042  "PRED REAL 2042"     11033  NULL        PRICE              17  REAL64           7
-PRERL2043  "PRED REAL 2043"     11034  NULL        PRICE              17  REAL64           7
-PRERL2044  "PRED REAL 2044"     11035  NULL        PRICE              17  REAL64           7
-PRERL2045  "PRED REAL 2045"     11036  NULL        PRICE              17  REAL64           7
-PRERL2046  "PRED REAL 2046"     11037  NULL        PRICE              17  REAL64           7
-PRERL2047  "PRED REAL 2047"     11038  NULL        PRICE              17  REAL64           7
-PRERL2048  "PRED REAL 2048"     11039  NULL        PRICE              17  REAL64           7
-PRERL2049  "PRED REAL 2049"     11040  NULL        PRICE              17  REAL64           7
-PRERL2050  "PRED REAL 2050"     11041  NULL        PRICE              17  REAL64           7
-PRERL2051  "PRED REAL 2051"     11042  NULL        PRICE              17  REAL64           7
-PRERL2052  "PRED REAL 2052"     11043  NULL        PRICE              17  REAL64           7
+UN_EXPFCT  "UNDLY EXP FCT"      11030  NULL        PRICE              17  REAL64           7
+!
+! Underlying instrument expiration factor
+!
+OPEN_FWDRT "OPEN FWD RATE"      11031  NULL        PRICE              17  REAL64           7
+!
+! Open forward rate.
+!
+HIGH_FWDRT "HIGH FWD RATE"      11032  NULL        PRICE              17  REAL64           7
+!
+! The highest forward rate of the day.
+!
+LOW_FWDRT  "LOW FWD RATE"       11033  NULL        PRICE              17  REAL64           7
+!
+! The lowest forward rate of the day.
+!
+CLS_FWDRT  "CLS FWD RATE"       11034  NULL        PRICE              17  REAL64           7
+!
+! Close forward rate.
+!
+MID_IV_OPN "MID IV OPEN"        11035  NULL        PRICE              17  REAL64           7
+!
+! MID Implied Volatility Open.
+!
+MID_IV_HGH "MID IV HIGH"        11036  NULL        PRICE              17  REAL64           7
+!
+! MID Implied Volatility High.
+!
+MID_IV_LOW "MID IV LOW"         11037  NULL        PRICE              17  REAL64           7
+!
+! MID Implied Volatility Low.
+!
+MID_IV_CLS "MID IV CLOSE"       11038  NULL        PRICE              17  REAL64           7
+!
+! MID Implied Volatility Close.
+!
+MID2_PRICE "MID2 PRICE"         11039  NULL        PRICE              17  REAL64           7
+!
+! Secondary Mid Price.
+!
+MID2_IV    "MID2 IMP VOL"       11040  NULL        PRICE              17  REAL64           7
+!
+! Secondary Mid Implied Volatility.
+!
+MID3_IV    "MID3 IMP VOL"       11041  NULL        PRICE              17  REAL64           7
+!
+! Tertiary Mid Implied Volatility.
+!
+SBL_LMT    "SBL LIMIT"          11042  NULL        PRICE              17  REAL64           7
+!
+! Security borrowing and lending limit.
+!
+SBLLMT_REM "SBL LIMIT REM"      11043  NULL        PRICE              17  REAL64           7
+!
+! Security borrowing and lending remaining limit.
+!
 PRERL2053  "PRED REAL 2053"     11044  NULL        PRICE              17  REAL64           7
 PRERL2054  "PRED REAL 2054"     11045  NULL        PRICE              17  REAL64           7
 PRERL2055  "PRED REAL 2055"     11046  NULL        PRICE              17  REAL64           7
@@ -35280,10 +35325,22 @@ PI_QSIDE   "PRC IMP QTE SIDE"   13108  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 ! Price Improvement Quote Side
 !
-PRE_1ET408 "PRED 1 ET 408"      13109  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET409 "PRED 1 ET 409"      13110  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET410 "PRED 1 ET 410"      13111  NULL        ENUMERATED    3 ( 8 )  ENUM             1
-PRE_1ET411 "PRED 1 ET 411"      13112  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+MMEYNES_TP "MONEYNESS TYPE"     13109  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! The type of strike value populated in the field MONEYNESS.
+!
+MID2_P_FLG "MID2 PRC FLG"       13110  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Price qualifier for MID2_PRICE.
+!
+MID2_IV_FG "MID2 IMP VOL FLG"   13111  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Qualifier of the secondary mid implied volatility.
+!
+MID3_IV_FG "MID3 IMP VOL FLG"   13112  NULL        ENUMERATED    3 ( 8 )  ENUM             1
+!
+! Qualifier of the tertiary mid implied volatility.
+!
 PRE_1ET412 "PRED 1 ET 412"      13113  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET413 "PRED 1 ET 413"      13114  NULL        ENUMERATED    3 ( 8 )  ENUM             1
 PRE_1ET414 "PRED 1 ET 414"      13115  NULL        ENUMERATED    3 ( 8 )  ENUM             1
@@ -36397,7 +36454,10 @@ CMD_TYPE   "COMMOD TYPE"        13618  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Describes the type of commodity.
 !
-PRE_2ET298 "PRED 2 ET 298"      13619  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+DSC_METH   "DISCOUNT METH"      13619  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Discounting method.
+!
 PRE_2ET299 "PRED 2 ET 299"      13620  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET300 "PRED 2 ET 300"      13621  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET301 "PRED 2 ET 301"      13622  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -38630,7 +38690,10 @@ BIQTIM_NS  "BUYIN QUOTIM NS"    14699  NULL        INTEGER            15  TIME  
 !
 ! Buy-in quote time
 !
-PRE_270_NS "PRED TIME NS 270"   14700  NULL        INTEGER            15  TIME             8
+SBL_TM_NS  "SBL TIME NS"        14700  NULL        INTEGER            15  TIME             8
+!
+! Last update time for the security borrowing and lending data.
+!
 PRE_271_NS "PRED TIME NS 271"   14701  NULL        INTEGER            15  TIME             8
 PRE_272_NS "PRED TIME NS 272"   14702  NULL        INTEGER            15  TIME             8
 PRE_273_NS "PRED TIME NS 273"   14703  NULL        INTEGER            15  TIME             8
