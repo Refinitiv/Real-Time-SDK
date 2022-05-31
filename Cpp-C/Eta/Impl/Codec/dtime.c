@@ -497,8 +497,6 @@ RSSL_API RsslBool rsslDateTimeIsValid(const RsslDateTime * iDateTime)
 RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDateString)
 {
 	char * tmp;
-	RsslUInt8 u8;
-	RsslUInt16 u16;
 	int a = 0, b = 0, c = 0;
 	int year = 0;
 	int month = 0;
@@ -1604,7 +1602,7 @@ RSSL_API RsslRet rsslDateTimeStringToDateTime(RsslDateTime *oDateTime, const Rss
 	if (RSSL_RET_SUCCESS != (ret = rsslDateStringToDate(&oDateTime->date, &tmpBuf))) return ret;
 
 	tmpBuf.data = tmp;
-	tmpBuf.length = strlen(tmpBuf.data);
+	tmpBuf.length = (RsslUInt32) strlen(tmpBuf.data);
 
 	if (RSSL_RET_SUCCESS != (ret = rsslTimeStringToTime(&oDateTime->time, &tmpBuf))) return ret;
 
