@@ -64,7 +64,8 @@ Channel::Channel( const EmaString& name, RsslReactor* pRsslReactor, ReactorChann
 	_toStringSet( false ),
 	_reactorChannelType( reactorChannelType ),
 	_pParentChannel( NULL ),
-	_inOAuthCallback( false )
+	_inOAuthCallback( false ),
+	_addedToDeleteList( false )
 {
 	_pRsslSocketList = new EmaVector< RsslSocket >(EMA_INIT_NUMBER_OF_SOCKET);
 }
@@ -190,6 +191,16 @@ bool Channel::getInOAuthCallback()
 	return _inOAuthCallback;
 }
 
+void Channel::setAddedToDeleteList(bool isAdded)
+{
+	_addedToDeleteList = isAdded;
+}
+
+bool Channel::getAddedToDeleteList() const
+{
+	return _addedToDeleteList;
+}
+
 const EmaString& Channel::toString() const
 {
 	if ( !_toStringSet )
@@ -268,8 +279,12 @@ void ChannelList::addChannel( Channel* pChannel )
 
 void ChannelList::removeChannel( Channel* pChannel )
 {
-	_list.remove( pChannel );
-	_deleteList.push_back(pChannel);
+	if (pChannel != NULL && pChannel->getAddedToDeleteList() == false)
+	{
+		_list.remove(pChannel);
+		_deleteList.push_back(pChannel);
+		pChannel->setAddedToDeleteList(true);
+	}
 }
 
 void ChannelList::removeAllChannel()
@@ -1073,11 +1088,17 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
     RsslReactorChannel* pRsslReactorChannel,
     RsslReactorChannelEvent* pEvent )
 {
+	ChannelConfig* pChannelConfig = NULL;
 	Channel* pChannel = ( Channel* )( pEvent->pReactorChannel->userSpecPtr );
-	ChannelConfig* pChannelConfig = _ommBaseImpl.getActiveConfig().findChannelConfig( pChannel );
-	if (pChannel->getParentChannel())
+	
+	if (pChannel != NULL)
 	{
-		pChannel = pChannel->getParentChannel();
+		pChannelConfig = _ommBaseImpl.getActiveConfig().findChannelConfig(pChannel);
+
+		if (pChannel->getParentChannel())
+		{
+			pChannel = pChannel->getParentChannel();
+		}
 	}
 
 	if ( !pChannelConfig )

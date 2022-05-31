@@ -86,6 +86,10 @@ public :
 
 	Channel* getParentChannel() const;
 
+	void setAddedToDeleteList(bool);
+
+	bool getAddedToDeleteList() const;
+
 private :
 
 	EmaString				_name;
@@ -102,6 +106,8 @@ private :
 	Channel*				_pParentChannel;
 
 	bool					_inOAuthCallback;
+
+	bool					_addedToDeleteList;
 
 		
 	Channel( const EmaString&, RsslReactor*, ReactorChannelType reactorChannelType = NORMAL);
