@@ -1801,7 +1801,7 @@ struct _RsslReactorImpl
 	RsslBool			closeChannelFromFailure; /* This is used to indicate whether to close the channel from dispatching */
 	RsslBool			restEnableLog;	/* Enable REST interaction debug messages */
 	FILE				*restLogOutputStream;	/* Set output stream for REST debug message (by default is stdout) */
-	RsslBool			restEnableLogCallback;	/* Enable of invoking a callback specified by user to receive Rest logging message (pRestLoggingCallback). */
+	RsslBool			restEnableLogViaCallback;	/* Enable of invoking a callback specified by user to receive Rest logging message (pRestLoggingCallback). */
 	RsslReactorRestLoggingCallback	*pRestLoggingCallback;	/* Sets a callback specified by users to receive Rest logging message. */
 	RsslQueue warmstandbyChannelPool;	/* Pool of available RsslReactorWarmStandByHandlerImpl structures */
 	RsslQueue closingWarmstandbyChannel;    /* Keeps a list RsslReactorWarmStandByHandlerImpl being closed. */
@@ -1887,7 +1887,7 @@ RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
 *  otherwise print out to the output stream.
 * @param pRestRequestArgs specifies REST request data.
 * @param pError Error structure to be populated in the event of an error.
-* @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
+* @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogViaCallback, RsslReactorImpl.pRestLoggingCallback.
 */
 void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError);
 
@@ -1897,7 +1897,7 @@ void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRe
 *  otherwise print out to the output stream.
 * @param pRestResponseArgs specifies REST response data.
 * @param pError Error structure to be populated in the event of an error.
-* @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogCallback, RsslReactorImpl.pRestLoggingCallback.
+* @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogViaCallback, RsslReactorImpl.pRestLoggingCallback.
 */
 void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
 RsslRet _getCurrentTimestamp(RsslBuffer* timeStamp);

@@ -745,7 +745,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	}
 	if (pReactorOpts->pRestLoggingCallback)
 	{
-		pReactorImpl->restEnableLogCallback = RSSL_TRUE;
+		pReactorImpl->restEnableLogViaCallback = pReactorOpts->restEnableLogViaCallback;
 		pReactorImpl->pRestLoggingCallback = pReactorOpts->pRestLoggingCallback;
 	}
 
@@ -13792,12 +13792,12 @@ RSSL_VA_API RsslRet rsslReactorIoctl(RsslReactor* pReactor, RsslReactorIoctlCode
 	}
 	case RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING:
 	{
-		RsslBool restEnableLogCallback = RSSL_FALSE;
-		if (value != NULL && *((int*)value) != 0)
+		RsslBool restEnableLogViaCallback = RSSL_FALSE;
+		if (value != NULL && *((int*)value) != 0 && pReactorImpl->pRestLoggingCallback)
 		{
-			restEnableLogCallback = RSSL_TRUE;
+			restEnableLogViaCallback = RSSL_TRUE;
 		}
-		pReactorImpl->restEnableLogCallback = restEnableLogCallback;
+		pReactorImpl->restEnableLogViaCallback = restEnableLogViaCallback;
 		break;
 	}
 

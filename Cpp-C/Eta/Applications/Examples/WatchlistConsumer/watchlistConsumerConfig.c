@@ -109,7 +109,8 @@ void printUsageAndExit(int argc, char **argv)
 			"\n"
 			"-restLogFileName set REST logging output stream"
 			"\n"
-			"-restEnableLogCallback enable receiving REST logging messages via callback"
+			"-restEnableLogViaCallback enable receiving REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage."
+			"\n"
 			"-tokenURLV1 URL of token service V1\n"
 			"-tokenURLV2 URL of token service V2\n"
 			"-tokenScope scope for the login token\n"
@@ -207,7 +208,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.RTTSupport = RSSL_FALSE;
 	watchlistConsumerConfig.restEnableLog = RSSL_FALSE;
 	watchlistConsumerConfig.restOutputStreamName = NULL;
-	watchlistConsumerConfig.restEnableLogCallback = RSSL_FALSE;
+	watchlistConsumerConfig.restEnableLogViaCallback = 0U;
 
 
 	watchlistConsumerConfig.tunnelStreamDomainType = RSSL_DMT_SYSTEM;
@@ -621,9 +622,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				printUsageAndExit(argc, argv);
 			}
 		}
-		else if (strcmp("-restEnableLogCallback", argv[i]) == 0)
+		else if (strcmp("-restEnableLogViaCallback", argv[i]) == 0)
 		{
-			watchlistConsumerConfig.restEnableLogCallback = RSSL_TRUE;
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.restEnableLogViaCallback = atoi(argv[i]);
 		}
 		else
 		{

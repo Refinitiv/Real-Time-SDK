@@ -348,6 +348,7 @@ typedef struct {
 	RsslBuffer	cpuBindWorkerThread;			/*!< Specifies the Cpu core in string format (Cpu core id or P:X C:Y T:Z format) for the internal Reactor worker thread binding. If the value is not set, then there is no limit of the binding processor cores for the Reactor worker thread.> */
 	RsslBool	restEnableLog;					/*!< Enable REST interaction debug messages> */
 	FILE		*restLogOutputStream;			/*!< Set output stream for REST debug message (by default is stdout)> */
+	RsslBool	restEnableLogViaCallback;			/*!< Enable receiving REST logging messages via callback (pRestLoggingCallback).> */
 	RsslReactorRestLoggingCallback* pRestLoggingCallback;	/*!< Specifies user callback to receive Rest logging messages.> */
 	RsslBuffer	tokenServiceURL_V1;				/*!< Specifies a URL of the token service to get an access token and a refresh token for the Refinitiv Login V1. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
@@ -375,6 +376,7 @@ RTR_C_INLINE void rsslClearCreateReactorOptions(RsslCreateReactorOptions *pReact
 	pReactorOpts->restRequestTimeOut = 90;
 	pReactorOpts->restEnableLog = RSSL_FALSE;
 	pReactorOpts->restLogOutputStream = NULL;
+	pReactorOpts->restEnableLogViaCallback = RSSL_FALSE;
 	pReactorOpts->pRestLoggingCallback = NULL;
 	pReactorOpts->debugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 	pReactorOpts->debugBufferSize = RSSL_REACTOR_DEBUGGING_BUFFER_INIT_SIZE;
@@ -1081,7 +1083,7 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
  */
 typedef enum {
 	RSSL_RIC_ENABLE_REST_LOGGING = 1,			/*!< (1) Enable or disable REST interaction debug messages. (RsslReactorImpl.restEnableLog) */
-	RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING = 2,	/*!< (2) Enable or disable invoking a callback specified by user to receive Rest logging message. (RsslReactorImpl.restEnableLogCallback) */
+	RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING = 2,	/*!< (2) Enable or disable invoking a callback specified by user to receive Rest logging message. (RsslReactorImpl.restEnableLogViaCallback) */
 } RsslReactorIoctlCodes;
 
 /**

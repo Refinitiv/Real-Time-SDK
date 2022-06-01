@@ -1784,6 +1784,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		{
 			_pRestLoggingCallbackClient = new RestLoggingCallbackClient(configImpl->getOmmRestLoggingClient(), configImpl->getRestLoggingClosure());
 			reactorOpts.pRestLoggingCallback = restLoggingCallback;
+
+			if (_activeConfig.restEnableLogViaCallback != DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK)
+				reactorOpts.restEnableLogViaCallback = _activeConfig.restEnableLogViaCallback;
 		}
 
 		reactorOpts.userSpecPtr = ( void* )this;

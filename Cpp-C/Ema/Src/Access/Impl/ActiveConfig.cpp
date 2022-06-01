@@ -164,6 +164,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	enableRtt(DEFAULT_ENABLE_RTT),
 	restEnableLog(DEFAULT_REST_ENABLE_LOG),
+	restEnableLogViaCallback(DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -208,6 +209,7 @@ void BaseConfig::clear()
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
 	enableRtt = DEFAULT_ENABLE_RTT;
 	restEnableLog = DEFAULT_REST_ENABLE_LOG;
+	restEnableLogViaCallback = DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK;
 	loggerConfig.clear();
 	catchUnhandledException = DEFAULT_HANDLE_EXCEPTION;
 	parameterConfigGroup = 1;

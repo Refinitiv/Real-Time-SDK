@@ -66,7 +66,7 @@ static RsslBool enableSessionMgnt = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
-static RsslBool restEnableLogCallback = RSSL_FALSE;
+static RsslUInt restEnableLogViaCallback = 0U;  // 0: disabled, 1: enabled from the start, 2: enabled after initialization stage
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
 static time_t nextDebugTimeMS = 0;
@@ -183,7 +183,7 @@ void printUsageAndExit(char *appName)
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
-			"\n -restEnableLogCallback enable an alternative way to receive REST logging messages via callback.\n"
+			"\n -restEnableLogViaCallback <type> enable an alternative way to receive REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage.\n"
 			"\n -tokenURLV1 token generator URL V1\n"
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
@@ -418,10 +418,10 @@ void parseCommandLine(int argc, char **argv)
 				i++;
 				restEnableLog = RSSL_TRUE;
 			}
-			else if (strcmp("-restEnableLogCallback", argv[i]) == 0)
+			else if (strcmp("-restEnableLogViaCallback", argv[i]) == 0)
 			{
-				i++;
-				restEnableLogCallback = RSSL_TRUE;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				restEnableLogViaCallback = atoi(argv[i - 1]);
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) ||
 					(strcmp("-webSocket", argv[i]) == 0) || 
@@ -1971,8 +1971,11 @@ int main(int argc, char **argv)
 	if (restLogFileName)
 		reactorOpts.restLogOutputStream = restLogFileName;
 
-	if (restEnableLogCallback)
+	if (restEnableLogViaCallback > 0)
 		reactorOpts.pRestLoggingCallback = restLoggingCallback;
+
+	if (restEnableLogViaCallback == 1)  // enabled from the start
+		reactorOpts.restEnableLogViaCallback = RSSL_TRUE;
 
 	if (tokenURLV1.length != 0)
 	{
@@ -2031,6 +2034,17 @@ int main(int argc, char **argv)
 	{
 		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
 		exit(-1);
+	}
+
+	if (restEnableLogViaCallback == 2)  // enabled after initialization stage
+	{
+		RsslInt value = 1;
+
+		if (rsslReactorIoctl(pReactor, RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING, &value, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("Error initialization Rest callback logging: %s\n", rsslErrorInfo.rsslError.text);
+			exit(-1);
+		}
 	}
 
 	rsslClearReactorDispatchOptions(&dispatchOpts);

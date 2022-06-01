@@ -146,6 +146,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"RequestTimeout",
 	"RestRequestTimeOut",
 	"RestEnableLog",
+	"RestEnableLogViaCallback",
 	"ServerSharedSocket",
 	"ServiceCountHint",
 	"ServiceDiscoveryRetryCount",

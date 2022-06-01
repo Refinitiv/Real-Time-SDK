@@ -125,6 +125,7 @@
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  (RWF_MAX_16)
 #define DEFAULT_ENABLE_RTT							  false
 #define DEFAULT_REST_ENABLE_LOG						  false
+#define DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK		  false
 #define DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG		  false;
 #define DEFAULT_WSB_MODE							  RSSL_RWSB_MODE_LOGIN_BASED
 
@@ -462,6 +463,7 @@ public:
 	bool					xmlTraceDump;
 	bool					enableRtt;
 	bool					restEnableLog;
+	bool					restEnableLogViaCallback;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.

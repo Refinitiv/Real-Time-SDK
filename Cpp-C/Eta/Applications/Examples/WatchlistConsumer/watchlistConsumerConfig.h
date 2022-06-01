@@ -133,7 +133,7 @@ typedef struct
 
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
 	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
-	RsslBool			restEnableLogCallback;			/* Enable Rest request/response logging via callback.*/
+	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];

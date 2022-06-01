@@ -246,14 +246,20 @@ int main(int argc, char **argv)
 		reactorOpts.serviceDiscoveryURL = watchlistConsumerConfig.serviceDiscoveryURL;
 	}
 
-	if (watchlistConsumerConfig.restEnableLog || watchlistConsumerConfig.restEnableLogCallback)
+	if (watchlistConsumerConfig.restEnableLog || watchlistConsumerConfig.restEnableLogViaCallback > 0)
 	{
 		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
 		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
-		if (watchlistConsumerConfig.restEnableLogCallback)
-		{
-			reactorOpts.pRestLoggingCallback = restLoggingCallback;
-		}
+	}
+
+	if (watchlistConsumerConfig.restEnableLogViaCallback > 0)
+	{
+		reactorOpts.pRestLoggingCallback = restLoggingCallback;
+	}
+
+	if (watchlistConsumerConfig.restEnableLogViaCallback == 1)
+	{
+		reactorOpts.restEnableLogViaCallback = RSSL_TRUE;
 	}
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
@@ -466,6 +472,17 @@ int main(int argc, char **argv)
 	{
 		printf("Error initializing RWF/JSON Converter: %s\n", rsslErrorInfo.rsslError.text);
 		exit(-1);
+	}
+
+	if (watchlistConsumerConfig.restEnableLogViaCallback == 2)  // enabled after initialization stage
+	{
+		RsslInt value = 1;
+
+		if (rsslReactorIoctl(pReactor, RSSL_RIC_ENABLE_REST_CALLBACK_LOGGING, &value, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			printf("Error initialization Rest callback logging: %s\n", rsslErrorInfo.rsslError.text);
+			exit(-1);
+		}
 	}
 
 	/* Dispatch until application stops. */

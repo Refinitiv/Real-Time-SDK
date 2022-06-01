@@ -4369,7 +4369,7 @@ void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRe
 		return;
 	if (pReactorImpl == NULL || pRestRequestArgs == NULL)
 		return;
-	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogCallback == RSSL_FALSE)
+	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogViaCallback == RSSL_FALSE)
 		return;
 
 	// Allocates memory for buffer and fills up it.
@@ -4398,7 +4398,7 @@ void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRe
 		fprintf(pOutputStream, "%s", restRequestBuffer->data);
 		fflush(pOutputStream);
 	}
-	if (pReactorImpl->restEnableLogCallback  &&  pReactorImpl->pRestLoggingCallback)
+	if (pReactorImpl->restEnableLogViaCallback  &&  pReactorImpl->pRestLoggingCallback)
 	{
 		// Sends Rest Logging event.
 		// ReactorDispatch should free the allocated memory buffer (restRequestBuffer, restRequestBuffer->data).
@@ -4426,7 +4426,7 @@ void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRest
 		return;
 	if (pReactorImpl == NULL || pRestResponseArgs == NULL)
 		return;
-	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogCallback == RSSL_FALSE)
+	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogViaCallback == RSSL_FALSE)
 		return;
 
 	// Allocates memory for buffer and fills up it.
@@ -4455,7 +4455,7 @@ void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRest
 		fprintf(pOutputStream, "%s", pResponseBuffer->data);
 		fflush(pOutputStream);
 	}
-	if (pReactorImpl->restEnableLogCallback  &&  pReactorImpl->pRestLoggingCallback)
+	if (pReactorImpl->restEnableLogViaCallback  &&  pReactorImpl->pRestLoggingCallback)
 	{
 		// Sends Rest Logging event.
 		// ReactorDispatch should free the allocated memory buffer (pResponseBuffer, pResponseBuffer->data).
@@ -4483,7 +4483,7 @@ void restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutput)
 		return;
 	if (pReactorImpl == NULL)
 		return;
-	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogCallback == RSSL_FALSE)
+	if (pReactorImpl->restEnableLog == RSSL_FALSE && pReactorImpl->restEnableLogViaCallback == RSSL_FALSE)
 		return;
 
 	// Allocates memory for buffer and fills up it.
@@ -4512,7 +4512,7 @@ void restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutput)
 		fprintf(pOutputStream, "%s", pResponseErrBuffer->data);
 		fflush(pOutputStream);
 	}
-	if (pReactorImpl->restEnableLogCallback  &&  pReactorImpl->pRestLoggingCallback)
+	if (pReactorImpl->restEnableLogViaCallback  &&  pReactorImpl->pRestLoggingCallback)
 	{
 		// Sends Rest Logging event.
 		// ReactorDispatch should free the allocated memory buffer (pResponseErrBuffer, pResponseErrBuffer->data).

@@ -490,6 +490,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.closeChannelFromFailure, DEFAULT_CLOSE_CHANNEL_FROM_FAILURE);
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
+	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
 }
 
 TEST_F(EmaActiveConfigTest, BaseConfigTest)
@@ -593,6 +594,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.closeChannelFromFailure = false;
 	baseConfig.outputBufferSize = 23;
 	baseConfig.restEnableLog = true;
+	baseConfig.restEnableLogViaCallback = true;
 
 	// Tests clear method
 	baseConfig.clear();
