@@ -5256,19 +5256,7 @@ public class Reactor
                 }
                 receivedFieldDictResponse = ((ConsumerRole)reactorRole).receivedFieldDictionaryResp();
                 receivedEnumTypeResponse = ((ConsumerRole)reactorRole).receivedEnumDictionaryResp();
-				// if both field and enum type refreshes received, send CHANNEL_READY
-                if (((ConsumerRole)reactorRole).receivedFieldDictionaryResp() &&
-                    ((ConsumerRole)reactorRole).receivedEnumDictionaryResp())
-                {
-                    reactorChannel.state(State.READY);
-                    reactorChannel.clearAccessTokenForV2();
-                    if ((retval = sendAndHandleChannelEventCallback("Reactor.processDictionaryMessage",
-                            ReactorChannelEventTypes.CHANNEL_READY,
-                            reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS)
-                    {
-                        return retval;
-                    }
-                }
+                
             } else if (reactorChannel.state() == State.UP
                     && reactorChannel.role().type() == ReactorRoleTypes.NIPROVIDER
                     && _dictionaryMsg.rdmMsgType() == DictionaryMsgType.REFRESH
@@ -5301,6 +5289,7 @@ public class Reactor
             // if both field and enum type refreshes received, send CHANNEL_READY
             if (receivedFieldDictResponse && receivedEnumTypeResponse) {
                 reactorChannel.state(State.READY);
+                reactorChannel.clearAccessTokenForV2();
                 if ((retval = sendAndHandleChannelEventCallback("Reactor.processDictionaryMessage",
                         ReactorChannelEventTypes.CHANNEL_READY,
                         reactorChannel, errorInfo)) != ReactorCallbackReturnCodes.SUCCESS) {
