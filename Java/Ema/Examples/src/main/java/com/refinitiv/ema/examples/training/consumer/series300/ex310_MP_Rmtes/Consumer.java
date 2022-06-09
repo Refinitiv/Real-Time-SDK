@@ -76,6 +76,11 @@ class AppClient implements OmmConsumerClient
 
 	void decode(FieldList fieldList)
 	{
+		// In the below loop partial updates for the specific field of RMTES type are handled.
+		// Note that in case it is necessary to handle partial updates for multiple fields,
+		// the application has to cache each RMTES string in a separate RmtesBuffer
+		// (e.g., use a hashmap to track RmtesBuffer instances corresponding to specific FIDs)
+		// and apply the updates accordingly.
 		for (FieldEntry fieldEntry : fieldList)
 		{
 			if (fieldEntry.name().equals("BCAST_TEXT"))
