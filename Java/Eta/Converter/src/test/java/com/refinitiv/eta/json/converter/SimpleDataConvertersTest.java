@@ -58,7 +58,7 @@ public class SimpleDataConvertersTest {
         arrEntry.encode(enc, uInt);
         uInt.value(3);
         arrEntry.encode(enc, uInt);
-        uInt.value(-1);
+        uInt.value(-1); /* Set the maximum UINT64 value. */
         arrEntry.encode(enc, uInt);
         uInt.value(-2);
         arrEntry.encode(enc, uInt);
@@ -72,7 +72,7 @@ public class SimpleDataConvertersTest {
         dec.setBufferAndRWFVersion(buf, Codec.majorVersion(), Codec.minorVersion());
 
         assertTrue(converter.getPrimitiveHandler(DataTypes.ARRAY).encodeJson(dec, buffer, convError));
-        String correct = "{\"Type\":\"UInt\",\"Data\":[1,2,3,-1,-2]}";
+        String correct = "{\"Type\":\"UInt\",\"Data\":[1,2,3,18446744073709551615,18446744073709551614]}";
         for (int i = 0; i < correct.length();  i++) {
             assertEquals(correct.charAt(i), (char)buffer.data[i + 5]);
         }
