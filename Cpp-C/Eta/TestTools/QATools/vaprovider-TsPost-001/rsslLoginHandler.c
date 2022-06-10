@@ -42,6 +42,8 @@ static const char *applicationId = "256";
 /* application name */
 static const char *applicationName = "rsslProvider";
 
+static RsslBool rejectLogin = RSSL_FALSE;
+
 /*
  * Initializes login information fields.
  */
@@ -53,6 +55,11 @@ void initLoginHandler()
 	{
 		clearLoginRequestInfo(&loginRequests[i]);
 	}
+}
+
+void setRejectLogin()
+{
+	rejectLogin = RSSL_TRUE;
 }
 
 /*
@@ -131,6 +138,16 @@ LoginRequestInfo* findLoginRequestInfo(RsslReactorChannel* pReactorChannel)
 RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent)
 {
 	RsslRDMLoginMsg *pLoginMsg = pLoginMsgEvent->pRDMLoginMsg;
+
+	if (rejectLogin)
+	{
+		RsslRDMLoginRequest *pLoginRequest = &pLoginMsg->request;
+
+		if (sendLoginRequestReject(pReactor, pReactorChannel, pLoginRequest->rdmMsgBase.streamId, MAX_LOGIN_REQUESTS_REACHED, NULL) != RSSL_RET_SUCCESS)
+			removeClientSessionForChannel(pReactor, pReactorChannel);
+
+		return RSSL_RC_CRET_SUCCESS;
+	}
 
 	if (!pLoginMsg)
 	{

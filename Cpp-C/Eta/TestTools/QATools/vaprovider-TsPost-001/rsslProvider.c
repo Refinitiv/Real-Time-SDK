@@ -53,6 +53,9 @@ static time_t rsslProviderRuntime = 0;
 static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
+static RsslBool sendNack = RSSL_FALSE;
+static RsslBool rejectLogin = RSSL_FALSE;
+static RsslBool rejectTsLogin = RSSL_FALSE;
 
 static RsslUInt32 maxFragmentSize = 0;
 static RsslUInt32 guaranteedOutputBuffers = 0;
@@ -84,6 +87,9 @@ void exitWithUsage()
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf(" -sendNack send negative acks if post message is received\n");
+	printf(" -rejectLogin reject main login request\n");
+	printf(" -rejectTsLogin reject the tonnel stream login request\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -342,6 +348,18 @@ int main(int argc, char **argv)
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-sendNack", argv[iargs]))
+		{
+			sendNack = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-rejectLogin", argv[iargs]))
+		{
+			rejectLogin = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-rejectTsLogin", argv[iargs]))
+		{
+			rejectTsLogin = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -408,6 +426,14 @@ int main(int argc, char **argv)
 	/* Initialize market by order items */
 	initMarketByOrderItems();
 
+	if (rejectLogin)
+		setRejectLogin();
+
+	if (rejectTsLogin)
+		setRejectTsLogin();
+
+	if (sendNack)
+		setSendNack();
 
 	/* set service name in directory handler */
 	setServiceName(serviceName);

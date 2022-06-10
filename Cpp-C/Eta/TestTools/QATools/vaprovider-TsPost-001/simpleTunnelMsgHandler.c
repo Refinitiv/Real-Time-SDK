@@ -17,17 +17,37 @@
  */
 
 #include "simpleTunnelMsgHandler.h"
+#include "rsslLoginHandler.h"
 
 #define TUNNEL_MSG_STREAM_ID 2000
 #define TUNNEL_MSG_FREQUENCY 2
 #define TUNNEL_DOMAIN_TYPE 199
 
 #define MAX_STREAMID 1024
+#define MAX_ITEM_INFO_STRLEN 128
 
 RsslInt			_inited = 0;
 RsslUInt8		_domainType[MAX_STREAMID];
 RsslUInt8		_msgClass[MAX_STREAMID];
 RsslUInt		_updateCount[MAX_STREAMID];
+
+static RsslBool sendNack = RSSL_FALSE;
+static RsslBool rejectTsLogin = RSSL_FALSE;
+
+static RsslRet sendRequestReject(RsslTunnelStream *pTunnelStream, RsslLoginRejectReason reason, RsslErrorInfo* errorInfo);
+static RsslRet encodeRequestReject(RsslTunnelStream* pReactorChannel, RsslInt32 streamId, RsslLoginRejectReason reason, RsslBuffer* msgBuf, RsslUInt8 domainType);
+static RsslRet sendTunnelAck(RsslTunnelStream *pTunnelStream, RsslPostMsg *postMsg, RsslUInt8 nakCode, char *errText);
+static RsslRet encodeTunnelAck(RsslTunnelStream* pTunnelStream, RsslBuffer* ackBuf, RsslPostMsg *postMsg, RsslUInt8 nakCode, char *text);
+
+void setSendNack()
+{
+	sendNack = RSSL_TRUE;
+}
+
+void setRejectTsLogin()
+{
+	rejectTsLogin = RSSL_TRUE;
+}
 
 void initTunnelStream()
 {
@@ -456,6 +476,13 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 					RsslRet ret;
 					RsslErrorInfo errorInfo;
 
+					if (rejectTsLogin)
+					{
+						if (sendRequestReject(pTunnelStream, LOGIN_RDM_DECODER_FAILED, &errorInfo) != RSSL_RET_SUCCESS)
+							printf("sendRequestReject failed error: %s id:%d", errorInfo.rsslError.text, errorInfo.rsslError.rsslErrorId);
+						break;
+					}
+
 					/* Use the ValueAdd RDM Decoder to decode the login message. */
 					rsslClearDecodeIterator(&dIter);
 					rsslSetDecodeIteratorRWFVersion(&dIter, pTunnelStream->classOfService.common.protocolMajorVersion,
@@ -616,6 +643,35 @@ RsslReactorCallbackRet simpleTunnelMsgHandlerProviderMsgCallback(RsslTunnelStrea
 					break;
 				}
 			}
+
+			switch (pRsslMsg->msgBase.msgClass)
+			{
+				case RSSL_MC_POST:
+				{
+					RsslPostMsg	*postMsg = &pRsslMsg->postMsg;
+
+					if (sendNack)
+					{
+						char *errText = (char *)"Intentional NACK";
+						postMsg->flags |= RSSL_PSMF_ACK;
+						if (sendTunnelAck(pTunnelStream, postMsg, RSSL_NAKC_NO_RESPONSE, errText) != RSSL_RET_SUCCESS)
+							return RSSL_RC_CRET_FAILURE;
+					}
+					else
+					{
+						if (postMsg->flags & RSSL_PSMF_HAS_MSG_KEY)
+						{
+							/*Send ack if requested*/
+							if (sendTunnelAck(pTunnelStream, postMsg, RSSL_NAKC_NONE, NULL) != RSSL_RET_SUCCESS)
+								return RSSL_RC_CRET_FAILURE;
+						}
+					}
+					break;
+				}
+				default:
+					break;
+			}
+
 			break;
 		}
 
@@ -788,6 +844,223 @@ char* simpleTunnelMsgHandlerCheckRequestedClassOfService(SimpleTunnelMsgHandler 
 void simpleTunnelMsgHandlerCloseStreams(SimpleTunnelMsgHandler *pSimpleTunnelMsgHandler)
 {
 	tunnelStreamHandlerCloseStreams(&pSimpleTunnelMsgHandler->tunnelStreamHandler);
+}
+
+/*
+ * Sends ack message for a tunnel.
+ * pTunnelStream - The tunnel to send request reject status message to
+ * postMsg - received postMsg
+ * nakCode - Nack error code
+ */
+
+static RsslRet sendTunnelAck(RsslTunnelStream *pTunnelStream, RsslPostMsg *postMsg, RsslUInt8 nakCode, char *errText)
+{
+	RsslBuffer *ackBuf;
+	RsslErrorInfo errorInfo;
+	RsslRet ret;
+	RsslTunnelStreamGetBufferOptions getTunnelMsgOpts;
+	rsslClearTunnelStreamGetBufferOptions(&getTunnelMsgOpts);
+	RsslTunnelStreamSubmitOptions submitTunnelOpts;
+	rsslClearTunnelStreamSubmitOptions(&submitTunnelOpts);
+
+	// send an ack if it was requested
+	if (postMsg->flags & RSSL_PSMF_ACK)
+	{
+		getTunnelMsgOpts.size = 1024;
+		if ((ackBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &getTunnelMsgOpts, &errorInfo)) == NULL)
+		{
+			printf("\n rsslTunnelStreamGetBuffer() Failed (rsslErrorId = %d)\n", errorInfo.rsslError.rsslErrorId);
+			return RSSL_RET_FAILURE;
+		}
+
+		if ((ret = encodeTunnelAck(pTunnelStream, ackBuf, postMsg, nakCode, errText)) < RSSL_RET_SUCCESS)
+		{
+			rsslTunnelStreamReleaseBuffer(ackBuf, &errorInfo);
+			printf("\n encodeAck() Failed (ret = %d)\n", ret);
+			return RSSL_RET_FAILURE;
+		}
+
+		/* send ack/nack reject status */
+		submitTunnelOpts.containerType = RSSL_DT_MSG;
+
+		if (rsslTunnelStreamSubmit(pTunnelStream, ackBuf, &submitTunnelOpts, &errorInfo) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+
+/*
+* Encodes acknowledgement message for a post message we received.
+*
+* chnl - The channel to send close status message to
+* ackBuf - The message buffer to encode the market price close status into
+* postMsg - the post message that we are acknowledging
+* nakCode - the nakCode to use in the acknowledgement
+* text - the text to put in the acknowledgement
+*/
+
+static RsslRet encodeTunnelAck(RsslTunnelStream* pTunnelStream, RsslBuffer* ackBuf, RsslPostMsg *postMsg, RsslUInt8 nakCode, char *text)
+{
+	RsslRet ret = 0;
+	RsslAckMsg ackMsg = RSSL_INIT_ACK_MSG;
+	RsslEncodeIterator encodeIter;
+
+	/* clear encode iterator */
+	rsslClearEncodeIterator(&encodeIter);
+
+	/* set-up message */
+	ackMsg.msgBase.msgClass = RSSL_MC_ACK;
+	ackMsg.msgBase.streamId = postMsg->msgBase.streamId;
+	ackMsg.msgBase.domainType = postMsg->msgBase.domainType;
+	ackMsg.msgBase.containerType = RSSL_DT_NO_DATA;
+	ackMsg.flags = RSSL_AKMF_NONE;
+	ackMsg.nakCode = nakCode;
+	ackMsg.ackId = postMsg->postId;
+	ackMsg.seqNum = postMsg->seqNum;
+
+	if (nakCode != RSSL_NAKC_NONE)
+		ackMsg.flags |= RSSL_AKMF_HAS_NAK_CODE;
+
+	if (postMsg->flags & RSSL_PSMF_HAS_SEQ_NUM)
+		ackMsg.flags |= RSSL_AKMF_HAS_SEQ_NUM;
+
+	if (text != NULL)
+	{
+		ackMsg.flags |= RSSL_AKMF_HAS_TEXT;
+		ackMsg.text.data = text;
+		ackMsg.text.length = (RsslUInt32)strlen(text);
+	}
+
+	/* encode message */
+	if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, ackBuf)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+		return ret;
+	}
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, pTunnelStream->pReactorChannel->majorVersion, pTunnelStream->pReactorChannel->minorVersion);
+	if ((ret = rsslEncodeMsg(&encodeIter, (RsslMsg*)&ackMsg)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeMsg() of ackMsg failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	ackBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+	return RSSL_RET_SUCCESS;
+}
+
+
+/*
+ * Sends request reject status message for a tunnel.
+ * pTunnelStream - The tunnel to send request reject status message to
+ * streamId - The stream id of the request
+ * reason - The reason for the reject
+ */
+
+static RsslRet sendRequestReject(RsslTunnelStream *pTunnelStream, RsslLoginRejectReason reason, RsslErrorInfo* errorInfo)
+{
+	RsslBuffer* msgBuf = 0;
+	RsslTunnelStreamGetBufferOptions getTunnelMsgOpts;
+	rsslClearTunnelStreamGetBufferOptions(&getTunnelMsgOpts);
+	RsslTunnelStreamSubmitOptions submitTunnelOpts;
+	rsslClearTunnelStreamSubmitOptions(&submitTunnelOpts);
+
+	getTunnelMsgOpts.size = 1024;
+	/* get a buffer for the item request reject status */
+	msgBuf = rsslTunnelStreamGetBuffer(pTunnelStream, &getTunnelMsgOpts, errorInfo);
+
+	if (msgBuf != NULL)
+	{
+		/* encode request reject status */
+		if (encodeRequestReject(pTunnelStream, pTunnelStream->streamId, reason, msgBuf, pTunnelStream->domainType) != RSSL_RET_SUCCESS)
+		{
+			rsslTunnelStreamReleaseBuffer(msgBuf, errorInfo);
+			printf("\nencodeRequestReject() failed\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		printf("\nRejecting Request with streamId=%d,  reason: %s\n", pTunnelStream->streamId, rejectReasonToString(reason));
+
+		/* send request reject status */
+		submitTunnelOpts.containerType = RSSL_DT_MSG;
+
+		if (rsslTunnelStreamSubmit(pTunnelStream, msgBuf, &submitTunnelOpts, errorInfo) != RSSL_RET_SUCCESS)
+			return RSSL_RET_FAILURE;
+	}
+	else
+	{
+		printf("rsslReactorGetBuffer(): Failed <%s>\n", errorInfo->rsslError.text);
+		return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+/*
+ * Encodes a status message rejecting a request for tunnel buffer.  Returns success if
+ * encoding succeeds or failure if encoding fails.
+ * pTunnelStream - The channel to send request reject status message to
+ * streamId - The stream id of the request
+ * reason - The reason for the reject
+ * msgBuf - The message buffer to encode the market price request reject into
+ * domainTypr - message domain type
+ */
+static RsslRet encodeRequestReject(RsslTunnelStream* pTunnelStream, RsslInt32 streamId, RsslLoginRejectReason reason, RsslBuffer* msgBuf, RsslUInt8 domainType)
+{
+	RsslRet ret = 0;
+	RsslStatusMsg msg;
+	char stateText[MAX_ITEM_INFO_STRLEN];
+	RsslEncodeIterator encodeIter;
+	rsslClearStatusMsg(&msg);
+
+	/* clear encode iterator */
+	rsslClearEncodeIterator(&encodeIter);
+
+	/* set-up message */
+	msg.msgBase.msgClass = RSSL_MC_STATUS;
+	msg.msgBase.streamId = streamId;
+	msg.msgBase.domainType = RSSL_DMT_LOGIN;
+	msg.msgBase.containerType = RSSL_DT_NO_DATA;
+	msg.flags = RSSL_STMF_HAS_STATE;
+	msg.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
+	msg.state.dataState = RSSL_DATA_SUSPECT;
+	switch (reason)
+	{
+	case LOGIN_RDM_DECODER_FAILED:
+		msg.state.code = RSSL_SC_USAGE_ERROR;
+		sprintf(stateText, "Item request rejected for stream id %d - decoding failure", streamId);
+		msg.state.text.data = stateText;
+		msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
+		break;
+
+	case MAX_LOGIN_REQUESTS_REACHED:
+		msg.state.code = RSSL_SC_TOO_MANY_ITEMS;
+		sprintf(stateText, "Item request rejected for stream id %d - max request count reached", streamId);
+		msg.state.text.data = stateText;
+		msg.state.text.length = (RsslUInt32)strlen(stateText) + 1;
+		break;
+
+	default:
+		break;
+	}
+
+	/* encode message */
+	if ((ret = rsslSetEncodeIteratorBuffer(&encodeIter, msgBuf)) < RSSL_RET_SUCCESS)
+	{
+		printf("\nrsslSetEncodeIteratorBuffer() failed with return code: %d\n", ret);
+		return ret;
+	}
+	rsslSetEncodeIteratorRWFVersion(&encodeIter, pTunnelStream->pReactorChannel->majorVersion, pTunnelStream->pReactorChannel->minorVersion);
+	if ((ret = rsslEncodeMsg(&encodeIter, (RsslMsg*)&msg)) < RSSL_RET_SUCCESS)
+	{
+		printf("rsslEncodeMsg() failed with return code: %d\n", ret);
+		return ret;
+	}
+
+	msgBuf->length = rsslGetEncodedBufferLength(&encodeIter);
+
+	return RSSL_RET_SUCCESS;
 }
 
 //END APIQA

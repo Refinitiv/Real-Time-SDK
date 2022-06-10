@@ -25,6 +25,25 @@ typedef enum {
 } RsslLoginRejectReason;
 
 /*
+ * Returns a string for the reject reason code.
+ * rejectReason - The RsslLoginRejectReason enum code
+ */
+RTR_C_INLINE const char* rejectReasonToString(RsslLoginRejectReason rejectReason)
+{
+	switch (rejectReason)
+	{
+	case MAX_LOGIN_REQUESTS_REACHED:
+		return "ITEM_COUNT_REACHED";
+		break;
+	case LOGIN_RDM_DECODER_FAILED:
+		return "DECODING_FAILED";
+		break;
+	default:
+		return "Unknown reason";
+	}
+}
+
+/*
  * Stores information about a consumer's login.
  */
 typedef struct LoginRequestInfo
@@ -42,6 +61,7 @@ void closeLoginStreamForChannel(RsslReactorChannel* pReactorChannel);
 static void closeLoginStream(RsslInt32 streamId);
 LoginRequestInfo* findLoginRequestInfo(RsslReactorChannel* pReactorChannel);
 RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent* pLoginMsgEvent);
+void setRejectLogin();
 
 #ifdef __cplusplus
 };
