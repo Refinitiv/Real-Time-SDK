@@ -1,8 +1,8 @@
 ///*|----------------------------------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license 
+// *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details. 
-// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.  
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series200.ex290_Custom_Decode;
@@ -94,14 +94,14 @@ class AppClient implements OmmConsumerClient
 		
 		switch (attrib.dataType())
 		{
-			case DataTypes.FIELD_LIST :
-				decode(attrib.fieldList());
-				break;
-			case DataTypes.MAP :
-				decode(attrib.map());
-				break;
-			default:
-				break;
+		case DataTypes.FIELD_LIST :
+			decode(attrib.fieldList());
+			break;
+		case DataTypes.MAP :
+			decode(attrib.map());
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -111,20 +111,20 @@ class AppClient implements OmmConsumerClient
 
 		switch (payload.dataType())
 		{
-			case DataTypes.FIELD_LIST :
-				decode(payload.fieldList());
-				break;
-			case DataTypes.MAP :
-				decode(payload.map());
-				break;
-			case DataTypes.REFRESH_MSG :
-				decode(payload.refreshMsg());
+		case DataTypes.FIELD_LIST :
+			decode(payload.fieldList());
 			break;
-			case DataTypes.UPDATE_MSG :
-				decode(payload.updateMsg());
-				break;
-			default:
-				break;
+		case DataTypes.MAP :
+			decode(payload.map());
+			break;
+		case DataTypes.REFRESH_MSG :
+			decode(payload.refreshMsg());
+			break;
+		case DataTypes.UPDATE_MSG :
+			decode(payload.updateMsg());
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -132,55 +132,52 @@ class AppClient implements OmmConsumerClient
 	{
 		switch (map.summaryData().dataType())
 		{
-			case DataTypes.FIELD_LIST :
-				decode(map.summaryData().fieldList());
-				break;
-			case DataTypes.MAP :
-				decode(map.summaryData().map());
-				break;
-			case DataTypes.REFRESH_MSG :
-				decode(map.summaryData().refreshMsg());
-				break;
-			case DataTypes.UPDATE_MSG :
-				decode(map.summaryData().updateMsg());
-				break;
-			default:
-				break;
+		case DataTypes.FIELD_LIST :
+			decode(map.summaryData().fieldList());
+			break;
+		case DataTypes.MAP :
+			decode(map.summaryData().map());
+			break;
+		case DataTypes.REFRESH_MSG :
+			decode(map.summaryData().refreshMsg());
+			break;
+		case DataTypes.UPDATE_MSG :
+			decode(map.summaryData().updateMsg());
+			break;
+		default:
+			break;
 		}
 
 		for (MapEntry mapEntry : map)
 		{
 			switch (mapEntry.key().dataType())
-                        {
-                                case DataTypes.BUFFER :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().buffer().toString() + "\n");
-                                        break;
-                                case DataTypes.ASCII :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().ascii().toString() + "\n");
-                                        break;
-                                case DataTypes.RMTES :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().rmtes().toString() + "\n");
-                                        break;
-                                default:
-                                        break;
-                        }
+			{
+			case DataTypes.ASCII :
+				System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().ascii());
+				break;
+			case DataTypes.BUFFER :
+				System.out.println("Action = " + mapEntry.mapActionAsString() + ", key = " + mapEntry.key().buffer());
+				break;
+			default:
+				break;
+			}
 			
 			switch (mapEntry.loadType())
 			{
-				case DataTypes.FIELD_LIST :
-					decode(mapEntry.fieldList());
-					break;
-				case DataTypes.MAP :
-					decode(mapEntry.map());
-					break;
-				case DataTypes.REFRESH_MSG :
-					decode(mapEntry.refreshMsg());
-					break;
-				case DataTypes.UPDATE_MSG :
-					decode(mapEntry.updateMsg());
-					break;
-				default:
-					break;
+			case DataTypes.FIELD_LIST :
+				decode(mapEntry.fieldList());
+				break;
+			case DataTypes.MAP :
+				decode(mapEntry.map());
+				break;
+			case DataTypes.REFRESH_MSG :
+				decode(mapEntry.refreshMsg());
+				break;
+			case DataTypes.UPDATE_MSG :
+				decode(mapEntry.updateMsg());
+				break;
+			default:
+				break;
 			}
 		}
 	}

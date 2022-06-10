@@ -1,8 +1,8 @@
 ///*|----------------------------------------------------------------------------------------------------
-// *|            This source code is provided under the Apache 2.0 license  
+// *|            This source code is provided under the Apache 2.0 license
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.                
-// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.           
+// *|                See the project's LICENSE.md for details.
+// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series200.ex210_MBO_Streaming;
@@ -17,6 +17,7 @@ import com.refinitiv.ema.access.Data;
 import com.refinitiv.ema.access.DataType;
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.EmaFactory;
+import com.refinitiv.ema.access.EmaUtility;
 import com.refinitiv.ema.access.FieldEntry;
 import com.refinitiv.ema.access.FieldList;
 import com.refinitiv.ema.access.Map;
@@ -79,20 +80,8 @@ class AppClient implements OmmConsumerClient
 
 		for (MapEntry mapEntry : map)
 		{
-                        switch (mapEntry.key().dataType())
-                        {
-                                case DataTypes.BUFFER :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().buffer().toString() + "\n");
-                                        break;
-                                case DataTypes.ASCII :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().ascii().toString() + "\n");
-                                        break;
-                                case DataTypes.RMTES :
-                                        System.out.println("Action: " + mapEntry.mapActionAsString() + ", key value: " + mapEntry.key().rmtes().toString() + "\n");
-                                        break;
-                                default:
-                                        break;
-                        }
+			if (DataTypes.ASCII == mapEntry.key().dataType())
+				System.out.println("Action: " + mapEntry.mapActionAsString() + " key value: " + EmaUtility.asHexString(mapEntry.key().ascii().asHex()));
 
 			if (DataTypes.FIELD_LIST == mapEntry.loadType())
 			{

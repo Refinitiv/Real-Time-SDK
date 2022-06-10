@@ -120,32 +120,22 @@ void AppClient::decode( const Map& map )
 
 		switch ( me.getKey().getDataType() )
 		{
-			case DataType::AsciiEnum:
-				cout << "Action = " << me.getMapActionAsString() 
-					<< ", key = " << me.getKey().getAscii() << endl;
-				break;
-			case DataType::BufferEnum:
-				cout << "Action = " << me.getMapActionAsString() 
-					<< ", key = " << me.getKey().getBuffer() << endl;
-				break;
-			case DataType::RmtesEnum :
-				cout << "Action = " << me.getMapActionAsString() 
-					<< ", key = " << me.getKey().getRmtes().toString() << endl;
-				break;
-			default:
-				break;
+		case DataType::AsciiEnum:
+			cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getAscii() << endl;
+			break;
+		case DataType::BufferEnum:
+			cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getBuffer() << endl;
+			break;
 		}
 
 		switch ( me.getLoadType() )
 		{
-			case DataType::FilterListEnum:
-				decode( me.getFilterList() );
-				break;
-			case DataType::ElementListEnum:
-				decode( me.getElementList() );
-				break;
-			default:
-				break;
+		case DataType::FilterListEnum:
+			decode( me.getFilterList() );
+			break;
+		case DataType::ElementListEnum:
+			decode( me.getElementList() );
+			break;
 		}
 	}
 }
@@ -159,15 +149,15 @@ void AppClient::decode( const FilterList& fl )
 		cout << "ID: " << fe.getFilterId() << " Action: " << fe.getAction() <<  " DataType: " << DataType( fe.getLoad().getDataType() ) << " Value: ";
 		switch ( fe.getLoadType() )
 		{
-			case DataType::ElementListEnum:
-				decode( fe.getElementList() );
-				break;
-			case DataType::MapEnum:
-				decode( fe.getMap() );
-				break;
-			default:
-				cout << endl;
-				break;
+		case DataType::ElementListEnum:
+			decode( fe.getElementList() );
+			break;
+		case DataType::MapEnum:
+			decode( fe.getMap() );
+			break;
+		default:
+			cout << endl;
+			break;
 		}
 	}
 }
@@ -189,15 +179,10 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getReal().getAsDouble() << endl;
 				break;
 			case DataType::DateEnum:
-				cout << (UInt64)fe.getDate().getDay() << " / " 
-					<< (UInt64)fe.getDate().getMonth() << " / " 
-					<< (UInt64)fe.getDate().getYear() << endl;
+				cout << (UInt64)fe.getDate().getDay() << " / " << (UInt64)fe.getDate().getMonth() << " / " << (UInt64)fe.getDate().getYear() << endl;
 				break;
 			case DataType::TimeEnum:
-				cout << (UInt64)fe.getTime().getHour() << ":" 
-					<< (UInt64)fe.getTime().getMinute() << ":" 
-					<< (UInt64)fe.getTime().getSecond() << ":" 
-					<< (UInt64)fe.getTime().getMillisecond() << endl;
+				cout << (UInt64)fe.getTime().getHour() << ":" << (UInt64)fe.getTime().getMinute() << ":" << (UInt64)fe.getTime().getSecond() << ":" << (UInt64)fe.getTime().getMillisecond() << endl;
 				break;
 			case DataType::IntEnum:
 				cout << fe.getInt() << endl;
@@ -209,8 +194,7 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getAscii() << endl;
 				break;
 			case DataType::ErrorEnum:
-				cout << fe.getError().getErrorCode() << "( " 
-					<< fe.getError().getErrorCodeAsString() << " )" << endl;
+				cout << fe.getError().getErrorCode() << "( " << fe.getError().getErrorCodeAsString() << " )" << endl;
 				break;
 			case DataType::EnumEnum:
 				fe.hasEnumDisplay() ? cout << fe.getEnumDisplay() << endl : cout << fe.getEnum() << endl;
@@ -238,39 +222,33 @@ void AppClient::decode(const OmmArray& ommArray)
 		else
 			switch (ae.getLoadType())
 			{
-				case DataType::RealEnum:
-					cout << ae.getReal().getAsDouble() << endl;
-					break;
-				case DataType::DateEnum:
-					cout << (UInt64)ae.getDate().getDay() << " / " 
-						<< (UInt64)ae.getDate().getMonth() << " / " 
-						<< (UInt64)ae.getDate().getYear() << endl;
-					break;
-				case DataType::TimeEnum:
-					cout << (UInt64)ae.getTime().getHour() << ":" 
-						<< (UInt64)ae.getTime().getMinute() << ":" 
-						<< (UInt64)ae.getTime().getSecond() << ":" 
-						<< (UInt64)ae.getTime().getMillisecond() << endl;
-					break;
-				case DataType::IntEnum:
-					cout << ae.getInt() << endl;
-					break;
-				case DataType::UIntEnum:
-					cout << ae.getUInt() << endl;
-					break;
-				case DataType::AsciiEnum:
-					cout << ae.getAscii() << endl;
-					break;
-				case DataType::ErrorEnum:
-					cout << ae.getError().getErrorCode() << "( " 
-						<< ae.getError().getErrorCodeAsString() << " )" << endl;
-					break;
-				case DataType::EnumEnum:
-					cout << ae.getEnum() << endl;
-					break;
-				default:
-					cout << endl;
-					break;
+			case DataType::RealEnum:
+				cout << ae.getReal().getAsDouble() << endl;
+				break;
+			case DataType::DateEnum:
+				cout << (UInt64)ae.getDate().getDay() << " / " << (UInt64)ae.getDate().getMonth() << " / " << (UInt64)ae.getDate().getYear() << endl;
+				break;
+			case DataType::TimeEnum:
+				cout << (UInt64)ae.getTime().getHour() << ":" << (UInt64)ae.getTime().getMinute() << ":" << (UInt64)ae.getTime().getSecond() << ":" << (UInt64)ae.getTime().getMillisecond() << endl;
+				break;
+			case DataType::IntEnum:
+				cout << ae.getInt() << endl;
+				break;
+			case DataType::UIntEnum:
+				cout << ae.getUInt() << endl;
+				break;
+			case DataType::AsciiEnum:
+				cout << ae.getAscii() << endl;
+				break;
+			case DataType::ErrorEnum:
+				cout << ae.getError().getErrorCode() << "( " << ae.getError().getErrorCodeAsString() << " )" << endl;
+				break;
+			case DataType::EnumEnum:
+				cout << ae.getEnum() << endl;
+				break;
+			default:
+				cout << endl;
+				break;
 			}
 	}
 }

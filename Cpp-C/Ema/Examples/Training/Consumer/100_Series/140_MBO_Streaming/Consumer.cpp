@@ -58,20 +58,8 @@ void AppClient::decode( const Map& map )
 	{
 		const MapEntry& me = map.getEntry();
 
-		switch ( me.getKey().getDataType() )
-		{
-			case DataType::AsciiEnum :
-				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getAscii() << endl;
-				break;
-			case DataType::BufferEnum :
-				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getBuffer() << endl;
-				break;
-			case DataType::RmtesEnum :
-				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getRmtes().toString() << endl;
-				break;
-			default:
-				break;
-		}
+		if ( me.getKey().getDataType() == DataType::AsciiEnum )
+			cout << "Action: " << me.getMapActionAsString() << " key value: " << me.getKey().getAscii() << endl;
 
 		if ( me.getLoadType() == DataType::FieldListEnum )
 		{
