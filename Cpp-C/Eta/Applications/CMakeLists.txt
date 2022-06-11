@@ -24,6 +24,7 @@ if (BUILD_ETA_EXAMPLES)
 		add_subdirectory( Examples/VAConsumer )
 		add_subdirectory( Examples/VANIProvider )
 		add_subdirectory( Examples/WatchlistConsumer )
+		add_subdirectory( Examples/MultiCredWLConsumer )
 	endif()
 else()
     message(STATUS 

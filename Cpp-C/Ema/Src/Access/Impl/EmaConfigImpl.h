@@ -23,6 +23,12 @@
 #include "OmmNiProviderConfig.h"
 #include "ProgrammaticConfigure.h"
 #include "EmaRdm.h"
+#include "OmmOAuth2ConsumerClient.h"
+#include "OmmLoginCredentialConsumerClient.h"
+#include "OAuth2Credential.h"
+#include "OmmOAuth2CredentialImpl.h"
+#include "LoginRdmReqMsgImpl.h"
+
 
 #include "rtr/rsslRDMLoginMsg.h"
 #include "rtr/rsslReactor.h"
@@ -46,6 +52,7 @@ class XMLnode;
 class ProgrammaticConfigure;
 class EmaConfigBaseImpl;
 class WarmStandbyChannelConfig;
+class LoginRdmReqMsgImpl;
 
 static struct MsgTypeConverter
 {
@@ -976,72 +983,29 @@ private :
 
 class AdminRefreshMsg
 {
-public :
+public:
 
-	AdminRefreshMsg( EmaConfigBaseImpl* );
-	AdminRefreshMsg( const AdminRefreshMsg & );
-	AdminRefreshMsg& operator=( const AdminRefreshMsg& );
+	AdminRefreshMsg(EmaConfigBaseImpl*);
+	AdminRefreshMsg(const AdminRefreshMsg&);
+	AdminRefreshMsg& operator=(const AdminRefreshMsg&);
 
 	virtual ~AdminRefreshMsg();
 
 	AdminRefreshMsg& clear();
 
-	AdminRefreshMsg& set( RsslRefreshMsg* );
+	AdminRefreshMsg& set(RsslRefreshMsg*);
 
 	RsslRefreshMsg* get();
 
-private :
+private:
 
-	EmaConfigBaseImpl*		_pEmaConfigImpl;
+	EmaConfigBaseImpl* _pEmaConfigImpl;
 	RsslRefreshMsg		_rsslMsg;
 	RsslBuffer			_name;
 	RsslBuffer			_header;
 	RsslBuffer			_attrib;
 	RsslBuffer			_payload;
 	RsslBuffer			_statusText;
-};
-
-class LoginRdmReqMsg
-{
-public :
-
-	LoginRdmReqMsg( EmaConfigImpl& );
-
-	virtual ~LoginRdmReqMsg();
-
-	LoginRdmReqMsg& clear();
-
-	LoginRdmReqMsg& set( RsslRequestMsg* );
-
-	RsslRDMLoginRequest* get();
-
-	LoginRdmReqMsg& username( const EmaString& );
-
-	LoginRdmReqMsg& position( const EmaString& );
-
-	LoginRdmReqMsg& password( const EmaString& );
-
-	LoginRdmReqMsg& applicationId( const EmaString& );
-
-	LoginRdmReqMsg& applicationName( const EmaString& );
-
-	LoginRdmReqMsg& instanceId( const EmaString& );
-
-	LoginRdmReqMsg& setRole( RDMLoginRoleTypes );
-
-private :
-
-	EmaConfigImpl&			_emaConfigImpl;
-	EmaString				_username;
-	EmaString				_password;
-	EmaString				_authenticationToken;
-	EmaBuffer				_authenticationExtended;
-	EmaString				_position;
-	EmaString				_applicationId;
-	EmaString				_applicationName;
-	EmaString				_instanceId;
-	RsslRDMLoginRequest		_rsslRdmLoginRequest;
-	EmaString				_defaultApplicationName;
 };
 
 struct PortSetViaFunctionCall
@@ -1251,6 +1215,19 @@ public:
 	void libsslName(const EmaString&);
 	void libcryptoName(const EmaString&);
 
+	void addOAuth2Credential(const OAuth2Credential&);
+
+	void addOAuth2Credential(const OAuth2Credential&, const OmmOAuth2ConsumerClient&);
+
+	void addOAuth2Credential(const OAuth2Credential&, const OmmOAuth2ConsumerClient&, void*);
+
+	void addLoginMsgCredential(const ReqMsg&, const EmaString&);
+
+	void addLoginMsgCredential(const ReqMsg&, const EmaString&, const OmmLoginCredentialConsumerClient&);
+
+	void addLoginMsgCredential(const ReqMsg&, const EmaString&, const OmmLoginCredentialConsumerClient&, void*);
+
+
 	void libcurlName(const EmaString&);
 
 	void sslCAStore(const EmaString&);
@@ -1269,6 +1246,9 @@ public:
 	AdminReqMsg* getEnumDefDictionaryReq();
 
 	AdminRefreshMsg* getDirectoryRefreshMsg();
+
+	OAuth2Credential& getOAuthCredential();
+
 
 	const EmaString& getUserSpecifiedHostname() const
 	{
@@ -1350,7 +1330,18 @@ public:
 		return _serviceDiscoveryUrl;
 	}
 
-	virtual RsslReactorOAuthCredential* getReactorOAuthCredential() = 0;
+	EmaVector < OmmOAuth2CredentialImpl* > getOAuth2CredentialVector()
+	{
+		return _oAuth2Credentials;
+	}
+
+	EmaVector < LoginRdmReqMsgImpl* > getLoginCredentialVector()
+	{
+		return _LoginRequestMsgs;
+	}
+
+	LoginRdmReqMsgImpl& getLoginRdmReqMsg();
+
 
 	virtual OmmRestLoggingClient* getOmmRestLoggingClient() const {
 		return ((OmmRestLoggingClient*)NULL);
@@ -1362,7 +1353,8 @@ public:
 
 protected:
 
-	LoginRdmReqMsg			_loginRdmReqMsg;
+	LoginRdmReqMsgImpl			_loginRdmReqMsg;
+	OAuth2Credential			_oAuthCredential;
 
 	AdminReqMsg*			_pDirectoryRsslRequestMsg;
 	AdminReqMsg*			_pRdmFldRsslRequestMsg;
@@ -1395,14 +1387,15 @@ protected:
 	EmaString		_objectName;
 	EmaString		_libSslName;
 	EmaString		_libCryptoName;
-	EmaString		_clientId;
-	EmaString		_clientSecret;
-	EmaString		_tokenScope;
-	bool			_takeExclusiveSignOnControl;
 	EmaString		_tokenServiceUrlV1;
 	EmaString		_tokenServiceUrlV2;
 	EmaString		_serviceDiscoveryUrl;
 	EmaString		_libcurlName;
+
+	EmaVector < OmmOAuth2CredentialImpl* > _oAuth2Credentials;
+
+	EmaVector < LoginRdmReqMsgImpl* > _LoginRequestMsgs;
+
 };
 
 class EmaConfigServerImpl : public EmaConfigBaseImpl

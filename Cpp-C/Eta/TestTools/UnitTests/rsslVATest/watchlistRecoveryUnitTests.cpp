@@ -2393,11 +2393,6 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 		ASSERT_TRUE(pLoginStatus->state.streamState == RSSL_STREAM_OPEN);
 		ASSERT_TRUE(pLoginStatus->state.dataState == RSSL_DATA_SUSPECT);
 
-		/* Consumer receives channel down/reconnecting event */
-		ASSERT_TRUE(pEvent = wtfGetEvent());
-		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-		ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-
 		if (i == 0)
 		{
 			/* First time, consumer receives item status (Open/Suspect or ClosedRecover/Suspect based on Single-Open 
@@ -2411,6 +2406,11 @@ void watchlistRecoveryTest_OneItem_LoginClosedRecover(RsslBool singleOpen, RsslC
 			ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
 			ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
 		}
+
+		/* Consumer receives channel down/reconnecting event */
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+		ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 
 		startTimeUsec = rsslGetTimeMicro();
 
@@ -4746,11 +4746,7 @@ void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectio
 
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 
-	/* Consumer receives channel event. */
-	ASSERT_TRUE((pEvent = wtfGetEvent()));
-	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
-	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
+
 
 	/* Consumer receives Open/Suspect login status. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -4785,6 +4781,12 @@ void watchlistRecoveryTest_OneItem_Disconnect(RsslBool singleOpen, RsslConnectio
 	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
 	ASSERT_TRUE(pStatusMsg->state.code == RSSL_SC_NONE);
 	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
+
+	/* Consumer receives channel event. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
+	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
 
 	/* Wait for channel to come back. */
 	wtfAcceptWithTime(reconnectMinDelay * 2);

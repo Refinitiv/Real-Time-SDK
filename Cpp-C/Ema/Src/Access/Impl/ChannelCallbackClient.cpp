@@ -180,17 +180,6 @@ Channel* Channel::getParentChannel() const
 	return _pParentChannel;
 }
 
-Channel& Channel::setInOAuthCallback(bool inCallback)
-{
-	_inOAuthCallback = inCallback;
-	return *this;
-}
-
-bool Channel::getInOAuthCallback()
-{
-	return _inOAuthCallback;
-}
-
 void Channel::setAddedToDeleteList(bool isAdded)
 {
 	_addedToDeleteList = isAdded;
@@ -711,10 +700,10 @@ Channel* ChannelCallbackClient::channelConfigToReactorConnectInfo(ChannelConfig*
 	}
 }
 
-void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslRDMDirectoryRequest* dirRequest, RsslReactorOAuthCredential* pOAuthCredential)
+void ChannelCallbackClient::initialize()
 {
 	RsslReactorChannelRole role;
-	_ommBaseImpl.setRsslReactorChannelRole( role, pOAuthCredential);
+	_ommBaseImpl.setRsslReactorChannelRole(role);
 
 	EmaString componentVersionInfo(COMPONENTNAME);
 	componentVersionInfo.append( EMA_COMPONENT_VER_PLATFORM );
@@ -797,6 +786,12 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 		if(pChannel)
 		{
+			if (role.ommConsumerRole.pLoginRequest == NULL)
+				reactorConnectInfo[i].loginReqIndex = _ommBaseImpl.getLoginArrayIndex(activeConfigChannelSet[i]->name);
+
+			if (reactorConnectInfo[i].enableSessionManagement == RSSL_TRUE)
+				reactorConnectInfo[i].oAuthCredentialIndex = _ommBaseImpl.getOAuthArrayIndex(activeConfigChannelSet[i]->name);
+
 			_channelList.addChannel(pChannel);
 
 			supportedConnectionTypeChannelCount++;
@@ -846,6 +841,13 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 			if (pChannel)
 			{
+
+				if (role.ommConsumerRole.pLoginRequest == NULL)
+					warmStandbyChannelGroup[j].startingActiveServer.reactorConnectInfo.loginReqIndex = _ommBaseImpl.getLoginArrayIndex(pWarmStandbyChannelConfig->startingActiveServer->channelConfig->name);
+
+				if (warmStandbyChannelGroup[j].startingActiveServer.reactorConnectInfo.enableSessionManagement == RSSL_TRUE)
+					warmStandbyChannelGroup[j].startingActiveServer.reactorConnectInfo.oAuthCredentialIndex = _ommBaseImpl.getOAuthArrayIndex(pWarmStandbyChannelConfig->startingActiveServer->channelConfig->name);
+
 				pChannel->setParentChannel(pWarmStandbyChannel);
 				
 				_channelList.addChannel(pChannel);
@@ -917,6 +919,13 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 
 			if (pChannel)
 			{
+
+				if (role.ommConsumerRole.pLoginRequest == NULL)
+					warmStandbyServerInfo->reactorConnectInfo.loginReqIndex = _ommBaseImpl.getLoginArrayIndex(pWarmStandbyChannelConfig->standbyServerSet[k]->channelConfig->name);
+
+				if (warmStandbyServerInfo->reactorConnectInfo.enableSessionManagement == RSSL_TRUE)
+					warmStandbyServerInfo->reactorConnectInfo.oAuthCredentialIndex = _ommBaseImpl.getOAuthArrayIndex(pWarmStandbyChannelConfig->standbyServerSet[k]->channelConfig->name);
+
 				pChannel->setParentChannel(pWarmStandbyChannel);
 
 				_channelList.addChannel(pChannel);
@@ -1047,6 +1056,7 @@ void ChannelCallbackClient::initialize( RsslRDMLoginRequest* loginRequest, RsslR
 		}
 
 		delete [] warmStandbyChannelGroup;
+
 		throwIueException( errorStrUnsupportedConnectionType, OmmInvalidUsageException::InvalidOperationEnum );
 
 		return;

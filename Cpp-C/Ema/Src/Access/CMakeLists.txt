@@ -70,7 +70,7 @@ else()
             Impl/EmaStaticCombined.cpp
             Impl/EmaString.cpp Impl/EmaStringInt.cpp Impl/EmaStringInt.h
             Impl/EmaUnitTestConnect.h
-	    Impl/EncodeIterator.cpp Impl/EncodeIterator.h
+	        Impl/EncodeIterator.cpp Impl/EncodeIterator.h
             Impl/Encoder.cpp Impl/Encoder.h
             Impl/ErrorClientHandler.cpp Impl/ErrorClientHandler.h
             Impl/ExceptionTranslator.cpp Impl/ExceptionTranslator.h
@@ -93,6 +93,8 @@ else()
             Impl/Key.cpp
             Impl/LoginCallbackClient.cpp Impl/LoginCallbackClient.h
             Impl/LoginHandler.cpp Impl/LoginHandler.h
+            Impl/LoginMsgCredentialRenewal.cpp
+            Impl/LoginRdmReqMsgImpl.cpp Impl/LoginRdmReqMsgImpl.h
             # Impl/M,N...
             Impl/Map.cpp
             Impl/MapDecoder.cpp Impl/MapDecoder.h
@@ -105,6 +107,10 @@ else()
             Impl/Mutex.cpp Impl/Mutex.h
             Impl/NoDataImpl.cpp Impl/NoDataImpl.h
             # Impl/O....
+            Impl/OAuth2Credential.cpp
+            Impl/OmmOAuth2CredentialImpl.cpp Impl/OmmOAuth2CredentialImpl.h
+
+            Impl/OmmLoginCredentialConsumerClient.cpp
             Impl/OAuth2CredentialRenewal.cpp
             Impl/OmmAnsiPage.cpp
             Impl/OmmAnsiPageDecoder.cpp Impl/OmmAnsiPageDecoder.h
@@ -145,8 +151,8 @@ else()
             Impl/OmmIProviderConfigImpl.cpp Impl/OmmIProviderConfigImpl.h
             Impl/OmmIProviderImpl.cpp Impl/OmmIProviderImpl.h
             Impl/OmmLoggerClient.cpp Impl/OmmLoggerClient.h
-	    Impl/OmmJsonConverterException.cpp
-	    Impl/OmmJsonConverterExceptionImpl.cpp Impl/OmmJsonConverterExceptionImpl.h
+	        Impl/OmmJsonConverterException.cpp
+	        Impl/OmmJsonConverterExceptionImpl.cpp Impl/OmmJsonConverterExceptionImpl.h
             Impl/OmmMemoryExhaustionException.cpp
             Impl/OmmMemoryExhaustionExceptionImpl.cpp Impl/OmmMemoryExhaustionExceptionImpl.h
             Impl/OmmNiProviderActiveConfig.cpp Impl/OmmNiProviderActiveConfig.h
@@ -249,10 +255,13 @@ else()
             Include/IOCtlCode.h
             Include/IOCtlReactorCode.h
             Include/Key.h
+            Include/LoginMsgCredentialRenewal.h
             Include/Map.h
             Include/MapEntry.h
             Include/Msg.h
+            Include/OAuth2Credential.h
             Include/OAuth2CredentialRenewal.h
+            Include/OmmLoginCredentialConsumerClient.h
             Include/OmmAnsiPage.h
             Include/OmmArray.h
             Include/OmmArrayEntry.h

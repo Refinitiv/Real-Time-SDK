@@ -13,6 +13,7 @@
 #include "OmmConsumerActiveConfig.h"
 #include "ChannelInformation.h"
 #include "OAuth2CredentialRenewal.h"
+#include "LoginMsgCredentialRenewal.h"
 
 namespace refinitiv {
 
@@ -77,7 +78,7 @@ public:
 
 	void loadDirectory();
 
-	void setRsslReactorChannelRole( RsslReactorChannelRole&, RsslReactorOAuthCredential* );
+	void setRsslReactorChannelRole( RsslReactorChannelRole&);
 
 	void createDictionaryCallbackClient( DictionaryCallbackClient*&, OmmBaseImpl& );
 
@@ -92,8 +93,8 @@ public:
 	void modifyIOCtl(Int32 code, Int32 value);
 
 	void renewOAuth2Credentials(OAuth2CredentialRenewal&);
-	
-	static RsslReactorCallbackRet oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent);
+
+	void renewLoginMsgCredentials(LoginMsgCredentialRenewal&);
 
 
 private :

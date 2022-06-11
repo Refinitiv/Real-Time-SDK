@@ -275,8 +275,8 @@ private:
 
 	static void atExit()
 	{
-		_listLock.lock();
 		_cleanupLock.lock();
+		_listLock.lock();
 
 		UInt32 size = _clientList.size();
 		EmaVector< T* > copyClientList(size);

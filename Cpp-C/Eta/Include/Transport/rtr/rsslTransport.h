@@ -204,9 +204,8 @@ typedef enum
 
 
 /**
- *	@brief Just-In-Time loaded library configuration options
+ *	@brief Just-In-Time loaded library configuration options.  Please see the ETA Developers guide for details on the default library loading behaviors.
  */
-/* TODO: Better documentation about default behaviors */
 typedef struct {
 	char*			libsslName;				/*!< Name of the openSSL libssl shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */
 	char*			libcryptoName;			/*!< Name of the openSSL libcrypto shared library.  The RSSL API will attempt to dynamically load this library for encrypted connections. */

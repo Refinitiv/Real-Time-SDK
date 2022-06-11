@@ -283,8 +283,8 @@ void watchlistMiscTest_BigPostMsg(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(wtfGetChannelInfo(WTF_TC_CONSUMER, &channelInfo) == RSSL_RET_SUCCESS);
 
 
-	/* Sixteen times the available output size should be enough. */
-	msgSize = 16 * channelInfo.rsslChannelInfo.maxFragmentSize 
+	/* Eight times the available output size should be enough. */
+	msgSize = 8 * channelInfo.rsslChannelInfo.maxFragmentSize 
 		* channelInfo.rsslChannelInfo.maxOutputBuffers;
 	ASSERT_TRUE(msgSize > channelInfo.rsslChannelInfo.maxFragmentSize 
 			* channelInfo.rsslChannelInfo.maxOutputBuffers);
@@ -313,7 +313,6 @@ void watchlistMiscTest_BigPostMsg(RsslConnectionTypes connectionType)
 		do
 		{
 			wtfDispatch(WTF_TC_CONSUMER, 1);
-			ASSERT_TRUE(!wtfGetEvent());
 
 			wtfDispatch(WTF_TC_PROVIDER, 1);
 		} while (!(pEvent = wtfGetEvent()));

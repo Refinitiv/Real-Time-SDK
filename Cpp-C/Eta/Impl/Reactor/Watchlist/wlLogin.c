@@ -361,8 +361,8 @@ RsslRet wlLoginProcessProviderMsg(WlLogin *pLogin, WlBase *pBase,
 	}
 }
 
-RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
-		RsslRDMLoginMsg *pLoginMsg, void *pUserSpec,
+RsslRet wlLoginProcessConsumerMsg(WlLogin* pLogin, WlBase* pBase,
+		RsslRDMLoginMsg* pLoginMsg, void* pUserSpec, RsslBool newConnection,
 		WlLoginConsumerAction *pAction, RsslErrorInfo *pErrorInfo)
 {
 	WlStreamBase *pStream;
@@ -376,149 +376,174 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 			RsslRDMLoginRequest *pLoginReqMsg = &pLoginMsg->request;
 			RsslBool newUserToken = RSSL_FALSE;
 
-			if (pLogin->pRequest[pLogin->index]) 
+			if (pLogin->pRequest[pLogin->index])
 			{
 				RsslBool pendingRequest = RSSL_FALSE;
-				WlLoginRequest *pLoginRequest = (WlLoginRequest*)pLogin->pRequest[pLogin->index];
+				WlLoginRequest* pLoginRequest = (WlLoginRequest*)pLogin->pRequest[pLogin->index];
 
-				RsslRDMLoginRequest *pOrigLoginReqMsg = 
+				RsslRDMLoginRequest* pOrigLoginReqMsg =
 					pLogin->pRequest[pLogin->index]->pLoginReqMsg;
 
-				if (pLoginMsg->rdmMsgBase.streamId != 
+				if (pLoginMsg->rdmMsgBase.streamId !=
 					pLogin->pRequest[pLogin->index]->base.streamId)
 				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
-							__FILE__, __LINE__, "Only one login stream allowed.");
+					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
+						__FILE__, __LINE__, "Only one login stream allowed.");
 
 					return RSSL_RET_INVALID_ARGUMENT;
 				}
 
 				/* Make sure login parameters match. */
 
-				if (!wlMatchLoginParameterUInt(pLoginReqMsg->userNameType, 1, 
-							pOrigLoginReqMsg->userNameType, 1, 1, RDM_INSTRUMENT_NAME_TYPE_RIC))
+				if (newConnection == RSSL_TRUE)
 				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
-							__FILE__, __LINE__, "Login userNameType does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+					// Overwrite the login request message.  We have already verified that the important watchlist settings all match on connection, so we just need to overwrite the current pLoginReqMsg.
+					RsslRDMLoginRequest* pTmpMsg = (RsslRDMLoginRequest*)wlCreateRdmMsgCopy((RsslRDMMsg*)pLoginMsg, &pLoginRequest->rdmMsgMemoryBuffer, pErrorInfo);
 
-				if (!rsslBufferIsEqual(&pLoginReqMsg->userName, &pOrigLoginReqMsg->userName))
-				{
-					if ( pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE
-							&& (pLoginReqMsg->userNameType == RDM_LOGIN_USER_TOKEN || pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN))
+					if (pTmpMsg == NULL)
 					{
-						newUserToken = RSSL_TRUE;
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE,
+							__FILE__, __LINE__, "Cannot allocate new rdm login message");
+
+						return RSSL_RET_FAILURE;
 					}
-					else
+
+					free((void*)pLogin->pRequest[pLogin->index]->pLoginReqMsg);
+					pLogin->pRequest[pLogin->index]->pLoginReqMsg = pTmpMsg;
+
+					pOrigLoginReqMsg = pTmpMsg;
+
+					// Set newUserToken to true to clear out any queued changes and to also make sure that pendingRequest is set.
+					newUserToken = RSSL_TRUE;
+
+				}
+				else
+				{
+					if (!wlMatchLoginParameterUInt(pLoginReqMsg->userNameType, 1,
+						pOrigLoginReqMsg->userNameType, 1, 1, RDM_INSTRUMENT_NAME_TYPE_RIC))
 					{
-						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
-								__FILE__, __LINE__, "Login userName does not match existing request.");
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
+							__FILE__, __LINE__, "Login userNameType does not match existing request.");
 						return RSSL_RET_INVALID_DATA;
 					}
-				}
-				
-				if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->applicationId,
-							pLoginReqMsg->flags, &pOrigLoginReqMsg->applicationId,
-							pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_APPLICATION_ID))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+
+					if (!rsslBufferIsEqual(&pLoginReqMsg->userName, &pOrigLoginReqMsg->userName))
+					{
+						if ((pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE
+							&& (pLoginReqMsg->userNameType == RDM_LOGIN_USER_TOKEN || pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)))
+						{
+							newUserToken = RSSL_TRUE;
+						}
+						else
+						{
+							rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
+								__FILE__, __LINE__, "Login userName does not match existing request.");
+							return RSSL_RET_INVALID_DATA;
+						}
+					}
+
+					if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->applicationId,
+						pLoginReqMsg->flags, &pOrigLoginReqMsg->applicationId,
+						pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_APPLICATION_ID))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login applicationId does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->applicationName,
-							pLoginReqMsg->flags, &pOrigLoginReqMsg->applicationName,
-							pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_APPLICATION_NAME))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->applicationName,
+						pLoginReqMsg->flags, &pOrigLoginReqMsg->applicationName,
+						pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_APPLICATION_NAME))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login applicationName does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterUInt(
-							pLoginReqMsg->downloadConnectionConfig, pLoginReqMsg->flags, 
-							pOrigLoginReqMsg->downloadConnectionConfig, pOrigLoginReqMsg->flags,
-							RDM_LG_RQF_HAS_DOWNLOAD_CONN_CONFIG, 0))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
-							__FILE__, __LINE__, "Login downloadConnectionConfig does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
-
-				if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->instanceId,
-							pLoginReqMsg->flags, &pOrigLoginReqMsg->instanceId,
-							pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_INSTANCE_ID))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->instanceId,
+						pLoginReqMsg->flags, &pOrigLoginReqMsg->instanceId,
+						pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_INSTANCE_ID))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login instanceId does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->password,
-							pLoginReqMsg->flags, &pOrigLoginReqMsg->password,
-							pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_PASSWORD))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->password,
+						pLoginReqMsg->flags, &pOrigLoginReqMsg->password,
+						pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_PASSWORD))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login password does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->position,
-							pLoginReqMsg->flags, &pOrigLoginReqMsg->position,
-							pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_POSITION))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterBuffer(&pLoginReqMsg->position,
+						pLoginReqMsg->flags, &pOrigLoginReqMsg->position,
+						pOrigLoginReqMsg->flags, RDM_LG_RQF_HAS_POSITION))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login position does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterUInt(
-							pLoginReqMsg->allowSuspectData, pLoginReqMsg->flags, 
-							pOrigLoginReqMsg->allowSuspectData, pOrigLoginReqMsg->flags,
-							RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA, 0))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterUInt(
+						pLoginReqMsg->downloadConnectionConfig, pLoginReqMsg->flags,
+						pOrigLoginReqMsg->downloadConnectionConfig, pOrigLoginReqMsg->flags,
+						RDM_LG_RQF_HAS_DOWNLOAD_CONN_CONFIG, 0))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
+							__FILE__, __LINE__, "Login downloadConnectionConfig does not match existing request.");
+						return RSSL_RET_INVALID_DATA;
+					}
+
+					if (!wlMatchLoginParameterUInt(
+						pLoginReqMsg->allowSuspectData, pLoginReqMsg->flags,
+						pOrigLoginReqMsg->allowSuspectData, pOrigLoginReqMsg->flags,
+						RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA, 0))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login allowSuspectData does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterUInt(
-							pLoginReqMsg->providePermissionExpressions, pLoginReqMsg->flags, 
-							pOrigLoginReqMsg->providePermissionExpressions, pOrigLoginReqMsg->flags,
-							RDM_LG_RQF_HAS_PROVIDE_PERM_EXPR, 0))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterUInt(
+						pLoginReqMsg->providePermissionExpressions, pLoginReqMsg->flags,
+						pOrigLoginReqMsg->providePermissionExpressions, pOrigLoginReqMsg->flags,
+						RDM_LG_RQF_HAS_PROVIDE_PERM_EXPR, 0))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login providePermissionExpressions does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterUInt(
-							pLoginReqMsg->providePermissionProfile, pLoginReqMsg->flags, 
-							pOrigLoginReqMsg->providePermissionProfile, pOrigLoginReqMsg->flags,
-							RDM_LG_RQF_HAS_PROVIDE_PERM_PROFILE, 0))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterUInt(
+						pLoginReqMsg->providePermissionProfile, pLoginReqMsg->flags,
+						pOrigLoginReqMsg->providePermissionProfile, pOrigLoginReqMsg->flags,
+						RDM_LG_RQF_HAS_PROVIDE_PERM_PROFILE, 0))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login providePermissionProfile does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (pLoginReqMsg->flags & RDM_LG_RQF_HAS_ROLE
+					if (pLoginReqMsg->flags & RDM_LG_RQF_HAS_ROLE
 						&& pLoginReqMsg->role != RDM_LOGIN_ROLE_CONS)
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login role is not consumer.");
-					return RSSL_RET_INVALID_DATA;
-				}
+						return RSSL_RET_INVALID_DATA;
+					}
 
-				if (!wlMatchLoginParameterUInt(
-							pLoginReqMsg->singleOpen, pLoginReqMsg->flags, 
-							pOrigLoginReqMsg->singleOpen, pOrigLoginReqMsg->flags,
-							RDM_LG_RQF_HAS_SINGLE_OPEN, 0))
-				{
-					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA, 
+					if (!wlMatchLoginParameterUInt(
+						pLoginReqMsg->singleOpen, pLoginReqMsg->flags,
+						pOrigLoginReqMsg->singleOpen, pOrigLoginReqMsg->flags,
+						RDM_LG_RQF_HAS_SINGLE_OPEN, 0))
+					{
+						rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_DATA,
 							__FILE__, __LINE__, "Login singleOpen does not match existing request.");
-					return RSSL_RET_INVALID_DATA;
+						return RSSL_RET_INVALID_DATA;
+					}
 				}
 
 				/* Everything that needed to match does, so change the message
@@ -580,8 +605,35 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
 
 					if (pLoginRequest->pCurrentToken)
 					{
+						/* If this is a brand new connection with new credentials, clear out any pending request values and set the curren to the new token that was created above */
+						if (newConnection == RSSL_TRUE)
+						{
+							if (pLoginRequest->pNextToken != NULL)
+							{
+								free(pLoginRequest->pNextToken);
+								pLoginRequest->pNextToken = NULL;
+							}
+
+							free(pLoginRequest->pCurrentToken);
+							pLoginRequest->pCurrentToken = pNewToken;
+							if (pLoginReqMsg->flags & RDM_LG_RQF_HAS_USERNAME_TYPE &&
+								pLoginReqMsg->userNameType == RDM_LOGIN_USER_AUTHN_TOKEN)
+							{
+								pLoginRequest->pLoginReqMsg->userName =
+									pLoginRequest->pCurrentToken->buffer;
+								pLoginRequest->pLoginReqMsg->authenticationExtended =
+									pLoginRequest->pCurrentToken->extBuffer;
+							}
+							else
+							{
+								pLoginRequest->pLoginReqMsg->userName =
+									pLoginRequest->pCurrentToken->buffer;
+							}
+
+							pendingRequest = RSSL_TRUE;
+						}
 						/* If a next token is present, or the stream state is either in a PENDING_REQUEST or PENDING_RESPONSE, set the pNewToken */
-						if (pLoginRequest->pNextToken || pLogin->pRequest[pLogin->index]->base.pStream->requestState == WL_STRS_PENDING_RESPONSE || pLogin->pRequest[pLogin->index]->base.pStream->requestState == WL_STRS_PENDING_REQUEST)
+						else if (pLoginRequest->pNextToken || pLogin->pRequest[pLogin->index]->base.pStream->requestState == WL_STRS_PENDING_RESPONSE || pLogin->pRequest[pLogin->index]->base.pStream->requestState == WL_STRS_PENDING_REQUEST)
 						{
 							/* If a pending next token is present, free it and set the new token to the next pending token */
 							if(pLoginRequest->pNextToken != NULL)

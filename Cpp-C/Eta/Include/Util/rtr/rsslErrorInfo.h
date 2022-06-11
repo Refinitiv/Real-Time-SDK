@@ -89,7 +89,6 @@ RTR_C_INLINE void rsslCopyErrorInfo(RsslErrorInfo *pNewError, RsslErrorInfo *pOl
 	pNewError->rsslError.sysError = pOldError->rsslError.sysError;
 	snprintf(pNewError->rsslError.text, MAX_RSSL_ERROR_TEXT, "%s", pOldError->rsslError.text);
 	snprintf(pNewError->errorLocation, RSSL_ERROR_INFO_LOCATION_LENGTH, "%s", pOldError->errorLocation);
-
 }
 
  /**

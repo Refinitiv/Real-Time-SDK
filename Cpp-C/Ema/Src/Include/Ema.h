@@ -95,6 +95,12 @@
 #include "Access/Include/OmmJsonConverterException.h"
 
 #include "Access/Include/OAuth2CredentialRenewal.h"
+#include "Access/Include/OmmOAuth2ConsumerClient.h"
+#include "Access/Include/OAuth2Credential.h"
+
+#include "Access/Include/LoginMsgCredentialRenewal.h"
+#include "Access/Include/OmmLoginCredentialConsumerClient.h"
+
 
 #include "Access/Include/OmmConsumer.h"
 #include "Access/Include/OmmConsumerClient.h"

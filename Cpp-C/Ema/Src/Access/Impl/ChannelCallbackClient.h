@@ -14,6 +14,7 @@
 #include "EmaVector.h"
 #include "Mutex.h"
 #include "OmmLoggerClient.h"
+#include "OmmBaseImpl.h"
 
 namespace refinitiv {
 
@@ -73,9 +74,6 @@ public :
 	Channel& addDirectory( Directory* );
 	Channel& removeDirectory( Directory* );
 
-	Channel& setInOAuthCallback(bool);
-	bool getInOAuthCallback();
-
 	const EmaString& toString() const;
 
 	bool operator==( const Channel& );
@@ -85,6 +83,9 @@ public :
 	void setParentChannel(Channel* channel);
 
 	Channel* getParentChannel() const;
+
+	bool hasCalledRenewal;
+
 
 	void setAddedToDeleteList(bool);
 
@@ -160,7 +161,7 @@ public :
 
 	RsslReactorCallbackRet processCallback( RsslReactor*, RsslReactorChannel*, RsslReactorChannelEvent* );
 
-	void initialize( RsslRDMLoginRequest*, RsslRDMDirectoryRequest*, RsslReactorOAuthCredential* );
+	void initialize( );
 
 	Channel* channelConfigToReactorConnectInfo( ChannelConfig* , RsslReactorConnectInfo*, EmaString&);
 

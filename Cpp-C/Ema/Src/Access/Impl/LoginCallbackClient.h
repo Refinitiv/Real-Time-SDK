@@ -20,6 +20,7 @@
 #include "StatusMsg.h"
 #include "ReqMsg.h"
 #include "PostMsg.h"
+#include "OmmBaseImpl.h"
 
 namespace refinitiv {
 
@@ -219,6 +220,8 @@ public :
 
 	RsslRDMLoginRefresh* getLoginRefresh();
 
+	void setLoginRequest(LoginRdmReqMsgImpl*);
+
 	UInt32 sendLoginClose();
 
 	Login* getLogin();
@@ -253,11 +256,9 @@ private :
 
 	LoginList						_loginList;
 
-	RsslRDMLoginRequest				_loginRequestMsg;
+	LoginRdmReqMsgImpl*				_loginRequestMsg;
 
 	RsslRDMLoginRefresh				_loginRefreshMsg;
-
-	char*							_loginRequestBuffer;
 
 	char*							_loginRefreshBuffer;
 

@@ -9,7 +9,7 @@ if (BUILD_RTSDK-BINARYPACK OR BUILD_INTERNAL_RTSDK)
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/simpleTunnelMsgHandler.h
   ${EtaExamples_SOURCE_DIR}/Examples/VACommon/tunnelStreamHandler.h
   )
-
+  
 	add_executable( WatchlistConsumer_shared ${SOURCE_FILES} )
 	target_include_directories(WatchlistConsumer_shared
 							PUBLIC

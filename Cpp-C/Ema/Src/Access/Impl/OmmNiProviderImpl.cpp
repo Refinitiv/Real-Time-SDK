@@ -1807,7 +1807,7 @@ void OmmNiProviderImpl::submit(const AckMsg&, UInt64)
 	handleIue("Non-interactive provider does not support submitting AckMsg.", OmmInvalidUsageException::InvalidOperationEnum);
 }
 
-void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role, RsslReactorOAuthCredential* pReactorOAuthCredential)
+void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role)
 {
 	RsslReactorOMMNIProviderRole& niProviderRole = role.ommNIProviderRole;
 	rsslClearOMMNIProviderRole( &niProviderRole );

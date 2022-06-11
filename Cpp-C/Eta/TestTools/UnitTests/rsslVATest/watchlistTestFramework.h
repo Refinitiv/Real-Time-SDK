@@ -437,9 +437,9 @@ typedef struct
 void wtfSetupConnection(WtfSetupConnectionOpts *pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET);
 
 void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandbyExpectedMode* pExpectedWarmStandbyMode, 
-	RsslRDMService *pActiveServerService, RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest = RSSL_FALSE, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET);
+	RsslRDMService *pActiveServerService, RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest = RSSL_FALSE, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET, RsslBool multiLogin = RSSL_FALSE);
 
-void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET);
+void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, RsslConnectionTypes connectionType = RSSL_CONN_TYPE_SOCKET, RsslBool multiLogin = RSSL_FALSE);
 
 void wtfSendDefaultSourceDirectory(WtfSetupWarmStandbyOpts *pOpts, RsslRDMDirectoryRequest *pRDMDirectoryRequest,RsslUInt16 serverIndex = 0);
 

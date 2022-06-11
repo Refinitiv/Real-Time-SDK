@@ -13,6 +13,7 @@
 #include "OmmConsumerClient.h"
 #include "OmmProviderClient.h"
 #include "OmmOAuth2ConsumerClient.h"
+#include "OmmOAuth2CredentialImpl.h"
 
 #include "OmmInaccessibleLogFileException.h"
 #include "OmmInvalidHandleException.h"
@@ -83,12 +84,17 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_hasProvAdminClient( false ),
 	_hasConsAdminClient( false ),
 	_hasConsOAuthClient( false ),
+	_inOAuthCallback(false),
+	_isInitialized(false),
+	_inLoginCredentialCallback(false),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 }
 
@@ -119,13 +125,18 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(false),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
-	
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
+
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
@@ -156,12 +167,17 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(true),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
 
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
@@ -193,12 +209,17 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(true),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
 
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
@@ -230,12 +251,17 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(true),
 	_hasConsOAuthClient(false),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
 
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
@@ -268,11 +294,17 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 	_hasConsAdminClient( false ),
 	_hasProvAdminClient( false ),
 	_hasConsOAuthClient(false),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
+
 	_adminClosure = 0;
 	try
 	{
@@ -313,12 +345,18 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(true),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(client);
@@ -358,12 +396,18 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(false),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -403,12 +447,18 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_hasConsAdminClient(true),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(true),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+	_LoginReactorConfig = NULL;
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -448,12 +498,17 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(false),
 	_hasConsOAuthClient(false),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler( 0 ),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = 0;
+	_OAuthReactorConfig = NULL;
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -493,12 +548,17 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_hasConsAdminClient(false),
 	_hasProvAdminClient(true),
 	_hasConsOAuthClient(false),
+	_inOAuthCallback(false),
+	_inLoginCredentialCallback(false),
+	_isInitialized(false),
 	_pErrorClientHandler(0),
 	_theTimeOuts(),
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
 	_adminClosure = adminClosure;
+	_OAuthReactorConfig = NULL;
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -513,16 +573,175 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 
 OmmBaseImpl::~OmmBaseImpl()
 {
+	UInt32 i;
 	if (_pRestLoggingCallbackClient)
 		delete _pRestLoggingCallbackClient;
 
 	if ( _pErrorClientHandler )
 		delete _pErrorClientHandler;
+
+	if (_LoginReactorConfig != NULL)
+	{
+		for (i = 0; i < _LoginRequestMsgs.size(); i++)
+		{
+			if (_LoginReactorConfig[i] != NULL)
+				free(_LoginReactorConfig[i]);
+		}
+
+		free(_LoginReactorConfig);
+	}
+
+	if (_OAuthReactorConfig != NULL)
+	{
+		for (i = 0; i < _oAuth2Credentials.size(); i++)
+		{
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientSecret()).secureClear();
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getPassword()).secureClear();
+
+			if (_OAuthReactorConfig[i] != NULL)
+				free(_OAuthReactorConfig[i]);
+		}
+		free(_OAuthReactorConfig);
+	}
+
+	for (i = 0; i < _LoginRequestMsgs.size(); i++)
+	{
+		delete _LoginRequestMsgs[i];
+		_LoginRequestMsgs.removePosition(i);
+	}
+
+	for (i = 0; i < _oAuth2Credentials.size(); i++)
+	{
+		delete _oAuth2Credentials[i];
+		_oAuth2Credentials.removePosition(i);
+	}
+
+}
+
+UInt8 OmmBaseImpl::getOAuthArrayIndex(EmaString& channelName)
+{
+	UInt8 index = 0;
+	char* pToken = NULL;
+	char* pNextToken = NULL;
+	EmaString channelListName;
+	UInt32 i;
+
+
+	/* Try to find a match in the login request channel lists */
+	for (i = 0; i < _oAuth2Credentials.size(); i++)
+	{
+		/* Strtok changes the underlying c string(replaces the found token with a NULL character), so we need to make a temporary copy here */
+		EmaString tmpChannelList = _oAuth2Credentials[i]->getChannelList();
+		pToken = strtok(const_cast<char*>(tmpChannelList.c_str()), ",");
+		do
+		{
+			if (pToken)
+			{
+				channelListName = pToken;
+				pNextToken = strtok(NULL, ",");
+				if (channelListName.trimWhitespace().caseInsensitiveCompare(channelName))
+					return i;
+			}
+
+			pToken = pNextToken;
+		} while (pToken != NULL);
+	}
+
+	/* No match found, see if a default(no configured channel list) has been set */
+	for (i = 0; i < _oAuth2Credentials.size(); i++)
+	{
+		if (_oAuth2Credentials[i]->getChannelList().empty())
+			return i;
+	}
+
+	EmaString errorMsg("Unable to match a configured oAuth login for channelName ");
+	errorMsg.append(channelName).append(".");
+	throwIceException(errorMsg);
+	return 0;
+}
+
+void OmmBaseImpl::clearSensitiveInfo()
+{
+	UInt32 i;
+
+	if (_LoginReactorConfig != NULL)
+	{
+		for (i = 0; i < _LoginRequestMsgs.size(); i++)
+		{
+			if (_LoginReactorConfig[i] != NULL)
+				free(_LoginReactorConfig[i]);
+		}
+
+		free(_LoginReactorConfig);
+	}
+
+	_LoginReactorConfig = NULL;
+
+
+	if (_OAuthReactorConfig != NULL)
+	{
+		for (i = 0; i < _oAuth2Credentials.size(); i++)
+		{
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientSecret()).secureClear();
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getPassword()).secureClear();
+
+			if (_OAuthReactorConfig[i] != NULL)
+				free(_OAuthReactorConfig[i]);
+		}
+		free(_OAuthReactorConfig);
+	}
+
+	_OAuthReactorConfig = NULL;
+
+}
+
+UInt8 OmmBaseImpl::getLoginArrayIndex(EmaString& channelName)
+{
+	UInt8 index = 0;
+	char* pToken = NULL;
+	char* pNextToken = NULL;
+	EmaString channelListName;
+	UInt32 i;
+
+
+	/* Try to find a match in the login request channel lists */
+	for (i = 0; i < _LoginRequestMsgs.size(); i++)
+	{
+		/* Strtok changes the underlying c string(replaces the found token with a NULL character), so we need to make a temporary copy here */
+		EmaString tmpChannelList = _LoginRequestMsgs[i]->channelList();
+
+		pToken = strtok(const_cast<char*>(tmpChannelList.c_str()), ",");
+		do
+		{
+			if (pToken)
+			{
+				channelListName = pToken;
+				pNextToken = strtok(NULL, ",");
+				if (channelListName.trimWhitespace().caseInsensitiveCompare(channelName))
+					return i;
+			}
+
+			pToken = pNextToken;
+		} while (pToken != NULL);
+	}
+
+	/* No match found, see if a default(no configured channel list) has been set */
+	for (i = 0; i < _LoginRequestMsgs.size(); i++)
+	{
+		if (_LoginRequestMsgs[i]->channelList().empty())
+			return i;
+	}
+
+	EmaString errorMsg("Unable to match a configured login for channelName ");
+	errorMsg.append(channelName).append(".");
+	throwIceException(errorMsg);
+	return 0;
 }
 
 void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 {
 	UInt64 id = OmmBaseImplMap<OmmBaseImpl>::add(this);
+	UInt32 i;
 
 	_activeConfig.configuredName = pConfigImpl->getConfiguredName();
 	_activeConfig.instanceName = _activeConfig.configuredName;
@@ -966,7 +1185,162 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		}
 	}
 
-	_activeConfig.pRsslRDMLoginReq = pConfigImpl->getLoginReq();
+	OmmOAuth2CredentialImpl* pOAuth2Impl;
+	OAuth2Credential& oAuthCredential = pConfigImpl->getOAuthCredential();
+	int oAuthOffset = 0;
+
+	/* Check to see if a clientId has been set, if so, there should be OAuth credentials(if they fail, they will fail at connection) */
+	if (oAuthCredential.getClientId().length() != 0)
+	{
+		if (_hasConsOAuthClient)
+			pOAuth2Impl = new OmmOAuth2CredentialImpl(oAuthCredential, _consOAuthClient, _adminClosure);
+		else
+			pOAuth2Impl = new OmmOAuth2CredentialImpl(oAuthCredential);
+
+		pOAuth2Impl->oAuth2ArrayIndex(0);
+		_oAuth2Credentials.push_back(pOAuth2Impl);
+		pOAuth2Impl = NULL;
+		if(oAuthCredential.getPassword().length() != 0)
+			pConfigImpl->getLoginRdmReqMsg().clearPassword();
+
+		oAuthOffset = 1;
+	}
+
+	for (i = 0; i < pConfigImpl->getOAuth2CredentialVector().size(); i++)
+	{
+		pOAuth2Impl = new OmmOAuth2CredentialImpl(*(pConfigImpl->getOAuth2CredentialVector()[i]));
+		_oAuth2Credentials.push_back(pOAuth2Impl);
+		pOAuth2Impl->oAuth2ArrayIndex(i + oAuthOffset);
+		pOAuth2Impl = NULL;
+	}
+
+	if (_oAuth2Credentials.size() > 0)
+	{
+		_OAuthReactorConfig = (RsslReactorOAuthCredential**)malloc(sizeof(RsslReactorOAuthCredential*) * (_oAuth2Credentials.size()));
+		if (!_OAuthReactorConfig)
+		{
+			throwMeeException("Failed to allocate memory for OAuth Credential List structure in OmmBaseImpl::readConfig");
+			return;
+		}
+
+		memset((void*)_OAuthReactorConfig, 0, _oAuth2Credentials.size()*sizeof(RsslReactorOAuthCredential*));
+
+
+		for (i = 0; i < _oAuth2Credentials.size(); i++)
+		{
+			RsslReactorOAuthCredential* pOAuthCredential = (RsslReactorOAuthCredential*)malloc(sizeof(RsslReactorOAuthCredential));
+			if (!pOAuthCredential)
+			{
+				throwMeeException("Failed to allocate memory for OAuth Credential List structure in OmmBaseImpl::readConfig");
+				return;
+			}
+
+			rsslClearReactorOAuthCredential(pOAuthCredential);
+
+			_OAuthReactorConfig[i] = pOAuthCredential;
+			if (_oAuth2Credentials[i]->getUserName().length())
+			{
+				pOAuthCredential->userName.data = const_cast<char*>(_oAuth2Credentials[i]->getUserName().c_str());
+				pOAuthCredential->userName.length = _oAuth2Credentials[i]->getUserName().length();
+			}
+
+			if (_oAuth2Credentials[i]->getPassword().length())
+			{
+				pOAuthCredential->password.data = const_cast<char*>(_oAuth2Credentials[i]->getPassword().c_str());
+				pOAuthCredential->password.length = _oAuth2Credentials[i]->getPassword().length();
+			}
+
+			if (_oAuth2Credentials[i]->getClientId().length())
+			{
+				pOAuthCredential->clientId.data = const_cast<char*>(_oAuth2Credentials[i]->getClientId().c_str());
+				pOAuthCredential->clientId.length = _oAuth2Credentials[i]->getClientId().length();
+			}
+
+			if (_oAuth2Credentials[i]->getClientSecret().length())
+			{
+				pOAuthCredential->clientSecret.data = const_cast<char*>(_oAuth2Credentials[i]->getClientSecret().c_str());
+				pOAuthCredential->clientSecret.length = _oAuth2Credentials[i]->getClientSecret().length();
+			}
+
+			if (_oAuth2Credentials[i]->getTokenScope().length())
+			{
+				pOAuthCredential->tokenScope.data = const_cast<char*>(_oAuth2Credentials[i]->getTokenScope().c_str());
+				pOAuthCredential->tokenScope.length = _oAuth2Credentials[i]->getTokenScope().length();
+			}
+
+			pOAuthCredential->takeExclusiveSignOnControl = _oAuth2Credentials[i]->getTakeExclusiveSignOnControl();
+
+			if (_oAuth2Credentials[i]->isOAuth2ClientSet())
+			{
+				pOAuthCredential->userSpecPtr = (void*)_oAuth2Credentials[i];
+				pOAuthCredential->pOAuthCredentialEventCallback = OmmBaseImpl::oAuthCredentialCallback;
+			}
+
+		}
+	}
+
+	LoginRdmReqMsgImpl& configLoginReqMsgImpl = pConfigImpl->getLoginRdmReqMsg();
+
+	LoginRdmReqMsgImpl* pLoginImpl;
+
+	pLoginImpl = new LoginRdmReqMsgImpl(configLoginReqMsgImpl);
+
+	pLoginImpl->arrayIndex(0);
+
+	_LoginRequestMsgs.push_back(pLoginImpl);
+
+	pLoginImpl = NULL;
+
+	for (i = 0; i < pConfigImpl->getLoginCredentialVector().size(); i++)
+	{
+		pLoginImpl = new LoginRdmReqMsgImpl(*pConfigImpl->getLoginCredentialVector()[i]);
+
+		pLoginImpl->arrayIndex(i + 1);
+		_LoginRequestMsgs.push_back(pLoginImpl);
+		pLoginImpl = NULL;
+	}
+
+	_LoginReactorConfig = (RsslReactorLoginRequestMsgCredential**)malloc(sizeof(RsslReactorLoginRequestMsgCredential*) * _LoginRequestMsgs.size());
+
+	if (!_LoginReactorConfig)
+	{
+		throwMeeException("Failed to allocate memory for Login List structure in OmmBaseImpl::readConfig");
+		return;
+	}
+
+	memset((void*)_LoginReactorConfig, 0, (_LoginRequestMsgs.size()*sizeof(RsslReactorLoginRequestMsgCredential*)));
+
+	for (i = 0; i < _LoginRequestMsgs.size(); i++)
+	{
+		RsslReactorLoginRequestMsgCredential* pLoginMsgCredential = (RsslReactorLoginRequestMsgCredential*)malloc(sizeof(RsslReactorLoginRequestMsgCredential));
+
+		if (!pLoginMsgCredential)
+		{
+			throwMeeException("Failed to allocate memory for Login structure in OmmBaseImpl::readConfig");
+			return;
+		}
+
+		pLoginMsgCredential->loginRequestMsg = _LoginRequestMsgs[i]->get();
+		
+		pLoginMsgCredential->userSpecPtr = (void*)_LoginRequestMsgs[i];
+
+		// Need to set this no matter what for EMA's bookkeeping. 
+		pLoginMsgCredential->pLoginRenewalEventCallback = OmmBaseImpl::loginCredentialCallback;
+
+		_LoginReactorConfig[i] = pLoginMsgCredential;
+	}
+
+	if (_activeConfig.configWarmStandbySet.size() != 0)
+	{
+		if(_activeConfig.configWarmStandbySet[0]->startingActiveServer != NULL)
+			_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[getLoginArrayIndex(_activeConfig.configWarmStandbySet[0]->startingActiveServer->name)];
+		else
+			_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[0];
+	}
+	else
+	{
+		_activeConfig.pRsslRDMLoginReq = _LoginRequestMsgs[getLoginArrayIndex(_activeConfig.configChannelSet[0]->name)];
+	}
 
 	catchUnhandledException( _activeConfig.catchUnhandledException );
 }
@@ -1784,9 +2158,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		{
 			_pRestLoggingCallbackClient = new RestLoggingCallbackClient(configImpl->getOmmRestLoggingClient(), configImpl->getRestLoggingClosure());
 			reactorOpts.pRestLoggingCallback = restLoggingCallback;
-
-			if (_activeConfig.restEnableLogViaCallback != DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK)
-				reactorOpts.restEnableLogViaCallback = _activeConfig.restEnableLogViaCallback;
 		}
 
 		reactorOpts.userSpecPtr = ( void* )this;
@@ -1881,7 +2252,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		if (!_atExit)
 		{
 			_pChannelCallbackClient = ChannelCallbackClient::create( *this, _pRsslReactor );
-			_pChannelCallbackClient->initialize( _pLoginCallbackClient->getLoginRequest(), _pDirectoryCallbackClient->getDirectoryRequest(), configImpl->getReactorOAuthCredential() );
+			_pChannelCallbackClient->initialize();
 		}
 
 		UInt64 timeOutLengthInMicroSeconds = _activeConfig.loginRequestTimeOut * 1000;
@@ -1933,6 +2304,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		loadDirectory();
 		loadDictionary();
+
+		clearSensitiveInfo();
+		_isInitialized = true;
 
 		if ( isApiDispatching() && !_atExit )
 		{
@@ -2042,6 +2416,12 @@ bool OmmBaseImpl::isPipeWritten()
 
 	return ( _pipeWriteCount > 0 ? true : false );
 }
+
+bool OmmBaseImpl::isInitialized()
+{
+	return _isInitialized;
+}
+
 
 void OmmBaseImpl::pipeWrite()
 {
@@ -2647,6 +3027,28 @@ Mutex& OmmBaseImpl::getUserMutex()
 	return _userLock;
 }
 
+void OmmBaseImpl::setInOAuthCallback(bool inCallback)
+{
+	_inOAuthCallback = inCallback;
+}
+
+bool OmmBaseImpl::getInOAuthCallback()
+{
+	return _inOAuthCallback;
+}
+
+void OmmBaseImpl::setInLoginCredentialCallback(bool inCallback)
+{
+	_inLoginCredentialCallback = inCallback;
+}
+
+
+bool OmmBaseImpl::getInLoginCredentialCallback()
+{
+	return _inLoginCredentialCallback;
+}
+
+
 void OmmBaseImpl::run()
 {
 	_dispatchLock.lock();
@@ -2717,25 +3119,105 @@ RsslReactorCallbackRet OmmBaseImpl::channelOpenCallback( RsslReactor* pRsslReact
 
 RsslReactorCallbackRet OmmBaseImpl::oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent)
 {
-	Channel* pChannel;
 	OmmBaseImpl* pBaseImpl = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr);
 	OmmConsumerEvent event;
+	OmmOAuth2CredentialImpl* oAuthCredentialImpl = (OmmOAuth2CredentialImpl*)oAuthEvent->userSpecPtr;
 
-	pChannel = pBaseImpl->getLoginCallbackClient().getActiveChannel();
-
-	pChannel->setInOAuthCallback(true);
+	pBaseImpl->setInOAuthCallback(true);
 
 	/* Handle and parent handle are set to 0 here, as there isn't any associated item handle */
-	event._channel = pChannel->getRsslChannel();
-	event._closure = pBaseImpl->_adminClosure;
+	event._channel = NULL;
+	event._closure = oAuthCredentialImpl->getClosure();
 
 	/* Call back the user with the event */
-	pBaseImpl->_consOAuthClient.onCredentialRenewal(event);
+	if(pBaseImpl->isInitialized())
+		oAuthCredentialImpl->getClient().onCredentialRenewal(event);
+	else
+	{
+		RsslErrorInfo rsslErrorInfo;
+		RsslReactorOAuthCredentialRenewal credentialRenewal;
+		RsslReactorOAuthCredentialRenewalOptions renewalOpts;
+		
+		rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
+		rsslClearReactorOAuthCredentialRenewalOptions(&renewalOpts);
 
-	pChannel->setInOAuthCallback(false);
+		renewalOpts.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+
+		if (!oAuthCredentialImpl->getUserName().empty())
+		{
+			credentialRenewal.userName.data = (char*)oAuthCredentialImpl->getUserName().c_str();
+			credentialRenewal.userName.length = oAuthCredentialImpl->getUserName().length();
+		}
+
+		if (!oAuthCredentialImpl->getPassword().empty())
+		{
+			credentialRenewal.password.data = (char*)oAuthCredentialImpl->getPassword().c_str();
+			credentialRenewal.password.length = oAuthCredentialImpl->getPassword().length();
+		}
+
+		if (!oAuthCredentialImpl->getClientId().empty())
+		{
+			credentialRenewal.clientId.data = (char*)oAuthCredentialImpl->getClientId().c_str();
+			credentialRenewal.clientId.length = oAuthCredentialImpl->getClientId().length();
+		}
+
+		if (!oAuthCredentialImpl->getClientSecret().empty())
+		{
+			credentialRenewal.clientSecret.data = (char*)oAuthCredentialImpl->getClientSecret().c_str();
+			credentialRenewal.clientSecret.length = oAuthCredentialImpl->getClientSecret().length();
+		}
+
+		if (!oAuthCredentialImpl->getTokenScope().empty())
+		{
+			credentialRenewal.tokenScope.data = (char*)oAuthCredentialImpl->getTokenScope().c_str();
+			credentialRenewal.tokenScope.length = oAuthCredentialImpl->getTokenScope().length();
+		}
+
+		credentialRenewal.takeExclusiveSignOnControl = oAuthCredentialImpl->getTakeExclusiveSignOnControl();
+
+
+		rsslReactorSubmitOAuthCredentialRenewal(pRsslReactor, &renewalOpts, &credentialRenewal, &rsslErrorInfo);
+	}
+
+	pBaseImpl->setInOAuthCallback(false);
 
 	return RSSL_RC_CRET_SUCCESS;
 }
+
+RsslReactorCallbackRet OmmBaseImpl::loginCredentialCallback(RsslReactor* pRsslReactor, RsslReactorChannel* pReactorChannel, RsslReactorLoginRenewalEvent* pEvent)
+{
+	OmmBaseImpl* pBaseImpl = static_cast<OmmBaseImpl*>(pRsslReactor->userSpecPtr);
+	OmmConsumerEvent event;
+	LoginRdmReqMsgImpl* pLoginCredentialImpl = (LoginRdmReqMsgImpl*)pEvent->userSpecPtr;
+
+	pBaseImpl->setInLoginCredentialCallback(true);
+
+	/* Handle and parent handle are set to 0 here, as there isn't any associated item handle */
+	event._channel = pReactorChannel;
+	event._closure = pLoginCredentialImpl->getClosure();
+	pBaseImpl->_tmpLoginMsg = pLoginCredentialImpl;
+	pBaseImpl->_tmpChnl = pReactorChannel;
+
+	/* Call back the user with the event */
+	if(pBaseImpl->isInitialized() && pLoginCredentialImpl->hasLoginClient())
+		pLoginCredentialImpl->getClient().onLoginCredentialRenewal(event);
+	else
+	{
+		RsslReactorLoginCredentialRenewalOptions opts;
+		RsslErrorInfo Error;
+		rsslClearReactorLoginCredentialRenewalOptions(&opts);
+		opts.userName = pEvent->pLoginMsg->userName;
+		opts.authenticationExtended = pEvent->pLoginMsg->authenticationExtended;
+
+		rsslReactorSubmitLoginCredentialRenewal(pRsslReactor, pReactorChannel, &opts, &Error);
+	}
+
+	pBaseImpl->setInLoginCredentialCallback(false);
+	pBaseImpl->_activeConfig.pRsslRDMLoginReq = pLoginCredentialImpl;
+	pBaseImpl->getLoginCallbackClient().setLoginRequest(pLoginCredentialImpl);
+	return RSSL_RC_CRET_SUCCESS;
+}
+
 
 RsslReactorCallbackRet OmmBaseImpl::jsonConversionEventCallback(RsslReactor *pRsslReactor, RsslReactorChannel *pRsslReactorChannel, RsslReactorJsonConversionEvent *pEvent)
 {

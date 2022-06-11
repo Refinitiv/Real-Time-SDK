@@ -35,16 +35,18 @@ class WatchlistWarmStandbyTestParameters
 public:
 	RsslConnectionTypes connectionType;
 	RsslReactorWarmStandbyMode warmStandbyMode;
+	RsslBool multiLoginMsg;
 
-	WatchlistWarmStandbyTestParameters(RsslConnectionTypes conType, RsslReactorWarmStandbyMode wsbMode)
+	WatchlistWarmStandbyTestParameters(RsslConnectionTypes conType, RsslReactorWarmStandbyMode wsbMode, RsslBool multiLogin)
 	{
 		connectionType = conType;
 		warmStandbyMode = wsbMode;
+		multiLoginMsg = multiLogin;
 	}
 
 	friend ostream &operator<<(ostream &out, const WatchlistWarmStandbyTestParameters& params)
 	{
-		out << "ConnectionType = " << params.connectionType << ", Warm standby mode = " << params.warmStandbyMode << endl;
+		out << "ConnectionType = " << params.connectionType << ", Warm standby mode = " << params.warmStandbyMode << ", multiple Login mode = " << params.multiLoginMsg << endl;
 		return out;
 	}
 };
@@ -87,10 +89,16 @@ INSTANTIATE_TEST_CASE_P(
 	TestingWarmStandbyUnitTests,
 	WatchlistWarmStandbyUnitTest,
 	::testing::Values(
-		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_SOCKET, RSSL_RWSB_MODE_LOGIN_BASED),
-		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWSB_MODE_LOGIN_BASED),
-		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_SOCKET, RSSL_RWSB_MODE_SERVICE_BASED),
-		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWSB_MODE_SERVICE_BASED)
+		
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_SOCKET, RSSL_RWSB_MODE_LOGIN_BASED, RSSL_FALSE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWSB_MODE_LOGIN_BASED, RSSL_FALSE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_SOCKET, RSSL_RWSB_MODE_SERVICE_BASED, RSSL_FALSE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWSB_MODE_SERVICE_BASED, RSSL_FALSE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_SOCKET, RSSL_RWSB_MODE_LOGIN_BASED, RSSL_TRUE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWSB_MODE_LOGIN_BASED, RSSL_TRUE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_SOCKET, RSSL_RWSB_MODE_SERVICE_BASED, RSSL_TRUE),
+		WatchlistWarmStandbyTestParameters(RSSL_CONN_TYPE_WEBSOCKET, RSSL_RWSB_MODE_SERVICE_BASED, RSSL_TRUE)
+		
 	));
 
 TEST_P(WatchlistWarmStandbyUnitTest, LoginBasedActiveAndStandbyServers)
@@ -221,6 +229,11 @@ void warmStandbyTest_LoginBased_ActiveAndStandbyServers(WatchlistWarmStandbyTest
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -234,6 +247,11 @@ void warmStandbyTest_LoginBased_ActiveAndStandbyServers(WatchlistWarmStandbyTest
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -250,7 +268,7 @@ void warmStandbyTest_LoginBased_ActiveAndStandbyServers(WatchlistWarmStandbyTest
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -479,6 +497,11 @@ void warmStandbyTest_LoginBased_SwitchingStandbyServerToActive(WatchlistWarmStan
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -492,6 +515,11 @@ void warmStandbyTest_LoginBased_SwitchingStandbyServerToActive(WatchlistWarmStan
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -508,7 +536,7 @@ void warmStandbyTest_LoginBased_SwitchingStandbyServerToActive(WatchlistWarmStan
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Closes the channel of active server. */
 	wtfCloseChannel(WTF_TC_PROVIDER, 0);
@@ -818,6 +846,11 @@ void warmStandbyTest_ServiceBased_ActiveAndStandbyServices(WatchlistWarmStandbyT
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -831,6 +864,11 @@ void warmStandbyTest_ServiceBased_ActiveAndStandbyServices(WatchlistWarmStandbyT
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -848,7 +886,7 @@ void warmStandbyTest_ServiceBased_ActiveAndStandbyServices(WatchlistWarmStandbyT
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -1078,6 +1116,11 @@ void warmStandbyTest_ServiceBased_SwitchingActiveAndStandbyServices_By_ChannelDo
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -1091,6 +1134,11 @@ void warmStandbyTest_ServiceBased_SwitchingActiveAndStandbyServices_By_ChannelDo
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -1108,7 +1156,7 @@ void warmStandbyTest_ServiceBased_SwitchingActiveAndStandbyServices_By_ChannelDo
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Closes the channel of the active server. */
 	wtfCloseChannel(WTF_TC_PROVIDER, 0);
@@ -1426,6 +1474,11 @@ void warmStandbyTest_ServiceBased_SwitchingActiveAndStandbyServices_By_ServiceDo
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -1439,6 +1492,11 @@ void warmStandbyTest_ServiceBased_SwitchingActiveAndStandbyServices_By_ServiceDo
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -1456,7 +1514,7 @@ void warmStandbyTest_ServiceBased_SwitchingActiveAndStandbyServices_By_ServiceDo
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -1723,6 +1781,11 @@ void warmStandbyTest_LoginBased_SwitchingFromGroupList_To_ChannelList(WatchlistW
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -1736,6 +1799,11 @@ void warmStandbyTest_LoginBased_SwitchingFromGroupList_To_ChannelList(WatchlistW
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -1757,6 +1825,11 @@ void warmStandbyTest_LoginBased_SwitchingFromGroupList_To_ChannelList(WatchlistW
 	connectionServer.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	connectionServer.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		connectionServer.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		connectionServer.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -1769,7 +1842,7 @@ void warmStandbyTest_LoginBased_SwitchingFromGroupList_To_ChannelList(WatchlistW
 	connOpts.reconnectMaxDelay = 2000;
 
 	/* Setup a single connection from the connection list by switching from a starting server and a standby server. */
-	wtfSetupConnectionServerFromConnectionList(&connOpts, parameters.connectionType);
+	wtfSetupConnectionServerFromConnectionList(&connOpts, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -1929,6 +2002,11 @@ void warmStandbyTest_ServiceBased_SelectingActiveService_Per_Server(WatchlistWar
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -1944,6 +2022,11 @@ void warmStandbyTest_ServiceBased_SelectingActiveService_Per_Server(WatchlistWar
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 	standbyServer.perServiceBasedOptions.serviceNameCount = 1;
 	standbyServer.perServiceBasedOptions.serviceNameList = &selectServiceName;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -1961,7 +2044,7 @@ void warmStandbyTest_ServiceBased_SelectingActiveService_Per_Server(WatchlistWar
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	wtfFinishTest();
 }
@@ -2021,6 +2104,11 @@ void warmStandbyTest_SubmitGenericMsg(WatchlistWarmStandbyTestParameters paramet
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -2034,6 +2122,11 @@ void warmStandbyTest_SubmitGenericMsg(WatchlistWarmStandbyTestParameters paramet
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -2051,7 +2144,7 @@ void warmStandbyTest_SubmitGenericMsg(WatchlistWarmStandbyTestParameters paramet
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -2258,6 +2351,11 @@ void warmStandbyTest_SubmitPostMsg(WatchlistWarmStandbyTestParameters parameters
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -2271,6 +2369,11 @@ void warmStandbyTest_SubmitPostMsg(WatchlistWarmStandbyTestParameters parameters
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -2288,7 +2391,7 @@ void warmStandbyTest_SubmitPostMsg(WatchlistWarmStandbyTestParameters parameters
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request a market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -2510,6 +2613,11 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -2523,6 +2631,11 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -2540,7 +2653,7 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request first market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -2816,13 +2929,10 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 
 	/* Consumer channel FD change. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
-
+	
 	if (parameters.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
 	{
 		/* Consumer receives a status message when it switches to the standby server. */
-		ASSERT_TRUE(pEvent = wtfGetEvent());
 		ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
 		ASSERT_TRUE(pStatusMsg->msgBase.streamId == secondConStreamID);
 		ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
@@ -2830,6 +2940,11 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 		ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
 		ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
 		ASSERT_TRUE(rsslBufferIsEqual(&pStatusMsg->state.text, &expectedStatusText));
+
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+		ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 		ASSERT_TRUE(pEvent = wtfGetEvent());
 		ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
@@ -2856,13 +2971,17 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 		/* Consumer receives status messages when it switches to the standby server. */
 
 		/* Service down status message. */
-		ASSERT_TRUE(pEvent = wtfGetEvent());
 		ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
 		ASSERT_TRUE(pStatusMsg->msgBase.streamId == secondConStreamID);
 		ASSERT_TRUE(pStatusMsg->msgBase.msgClass == RSSL_MC_STATUS);
 		ASSERT_TRUE(pStatusMsg->flags == (RSSL_STMF_HAS_STATE));
 		ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
 		ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+		ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 		/* Fand out closed recoverable message */
 		ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -2886,6 +3005,8 @@ void warmStandbyTest_ProviderCloseItemStreams(WatchlistWarmStandbyTestParameters
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->directoryMsg.consumerStatus.consumerServiceStatusList[0].warmStandbyMode == RDM_DIRECTORY_SERVICE_TYPE_ACTIVE);
 		ASSERT_TRUE(pEvent->rdmMsg.serverIndex == 1);
 	}
+
+	
 
 	wtfDispatch(WTF_TC_CONSUMER, 100);
 
@@ -2942,6 +3063,11 @@ void warmStandbyTest_SubmitPrivateStream(WatchlistWarmStandbyTestParameters para
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -2955,6 +3081,11 @@ void warmStandbyTest_SubmitPrivateStream(WatchlistWarmStandbyTestParameters para
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -2972,7 +3103,7 @@ void warmStandbyTest_SubmitPrivateStream(WatchlistWarmStandbyTestParameters para
 	wtfSetService1Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request first market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -3071,6 +3202,11 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -3084,6 +3220,11 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -3101,7 +3242,7 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	wtfSetService2Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_TRUE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_TRUE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request first market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -3277,36 +3418,40 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
-	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+	
 
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pDirectoryUpdate = (RsslRDMDirectoryUpdate*)wtfGetRdmMsg(pEvent));
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+	if(parameters.multiLoginMsg == RSSL_FALSE)
+		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[0].serviceId);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].flags == RDM_SVCF_NONE);
 
-	/* Checks the closed recover stream state for the first item */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
-	ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
-	ASSERT_TRUE(pStatusMsg->msgBase.streamId == firstConStreamID);
-	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_CLOSED_RECOVER);
-	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
-	ASSERT_TRUE(rsslBufferIsEqual(&pStatusMsg->state.text, &expectedStatusText));
-
-	wtfDispatch(WTF_TC_CONSUMER, 100);
-
-	wtfDispatch(WTF_TC_PROVIDER, 400, 1);
 	if (parameters.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
 	{
+		/* Checks the closed recover stream state for the first item */
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pStatusMsg->msgBase.streamId == firstConStreamID);
+		ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
+		ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+		ASSERT_TRUE(rsslBufferIsEqual(&pStatusMsg->state.text, &expectedStatusText));
+
+		/* Consumer channel FD change. */
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+		ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+
+		wtfDispatch(WTF_TC_PROVIDER, 400, 1);
+
 		ASSERT_TRUE(pEvent = wtfGetEvent());
 		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
@@ -3369,6 +3514,23 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	}
 	else
 	{
+
+		/* Checks the closed recover stream state for the first item */
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
+		ASSERT_TRUE(pStatusMsg = (RsslStatusMsg*)wtfGetRsslMsg(pEvent));
+		ASSERT_TRUE(pStatusMsg->msgBase.streamId == firstConStreamID);
+		ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_CLOSED_RECOVER);
+		ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+		ASSERT_TRUE(rsslBufferIsEqual(&pStatusMsg->state.text, &expectedStatusText));
+
+		/* Consumer channel FD change. */
+		ASSERT_TRUE(pEvent = wtfGetEvent());
+		ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+		ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+
+		wtfDispatch(WTF_TC_PROVIDER, 400, 1);
+
 		/* There is no active service to change its status. */
 		ASSERT_FALSE(pEvent = wtfGetEvent());
 	}
@@ -3378,10 +3540,6 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
-	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 
 	/* Checks for login status message. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -3397,7 +3555,10 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+	if (parameters.multiLoginMsg == RSSL_FALSE)
+		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[1].serviceId);
@@ -3411,6 +3572,12 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ChannelDown(Watchl
 	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
 	ASSERT_TRUE(rsslBufferIsEqual(&pStatusMsg->state.text, &expectedStatusText));
+
+
+	/* Consumer channel FD change. */
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 
 	wtfDispatch(WTF_TC_CONSUMER, 200);
 
@@ -3479,6 +3646,11 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ServiceDown(Watchl
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -3492,6 +3664,11 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ServiceDown(Watchl
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -3509,7 +3686,7 @@ void warmStandbyTest_DifferentServiceForActiveAndStanbyServer_ServiceDown(Watchl
 	wtfSetService2Info(&rdmService[1]);
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request first market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -3696,6 +3873,11 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+	if (parameters.multiLoginMsg)
+	{
+		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+	}
+
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
 		reactorWarmstandByGroup.startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -3709,6 +3891,11 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 	standbyServer.reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	standbyServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+	if (parameters.multiLoginMsg)
+	{
+		standbyServer.reactorConnectInfo.loginReqIndex = 1;
+	}
 
 	if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 	{
@@ -3734,7 +3921,7 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 	}
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_TRUE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_TRUE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* The active server sends directory update to indicate service down for service ID 1. */
 	rsslClearRDMDirectoryUpdate(&directoryUpdate);
@@ -3813,7 +4000,10 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 	ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-	ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+	if (parameters.multiLoginMsg == RSSL_FALSE)
+		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 	ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service1.action);
 	ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[0].serviceId);
@@ -3859,7 +4049,10 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service2.action);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[1].serviceId);
@@ -3904,7 +4097,10 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[0].serviceId);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service1.action);
@@ -3928,7 +4124,10 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+		
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[1].serviceId);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service2.action);
@@ -3954,7 +4153,10 @@ void warmStandbyTest_AggregateSourceDirectoryResponse(WatchlistWarmStandbyTestPa
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 		ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 		ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].serviceId == rdmService[0].serviceId);
 		ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == service1.action);
@@ -3991,6 +4193,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	WtfMarketPriceItem marketPriceItem;
 	RsslRDMLoginRefresh loginRefresh;
 	RsslReactorSubmitMsgOptions submitOpts;
+	RsslBuffer activeUserName = { 10, const_cast<char*>("activeUser") };
+	RsslBuffer standbyUserName = { 11, const_cast<char*>("standbyUser") };
+
 
 	if (parameters.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
 	{
@@ -4020,6 +4225,11 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 		reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+		if (parameters.multiLoginMsg)
+		{
+			reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.loginReqIndex = 0;
+		}
+
 		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
 			reactorWarmstandByGroup[0].startingActiveServer.reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -4033,6 +4243,11 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 		standbyServer[0].reactorConnectInfo.rsslConnectOptions.tcpOpts.tcp_nodelay = RSSL_TRUE;
 		standbyServer[0].reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 		standbyServer[0].reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
+
+		if (parameters.multiLoginMsg)
+		{
+			standbyServer[0].reactorConnectInfo.loginReqIndex = 1;
+		}
 
 		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
@@ -4069,6 +4284,11 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 		standbyServer[1].reactorConnectInfo.rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
 		standbyServer[1].reactorConnectInfo.rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 
+		if (parameters.multiLoginMsg)
+		{
+			standbyServer[1].reactorConnectInfo.loginReqIndex = 1;
+		}
+
 		if (parameters.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
 			standbyServer[1].reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = const_cast<char*>("rssl.json.v2");
@@ -4088,7 +4308,7 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 
 
 	/* Setup warm standby connections and source directory information. */
-	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType);
+	wtfSetupWarmStandbyConnection(&connOpts, &warmStandbyExpectedMode[0], &rdmService[0], &rdmService[1], RSSL_FALSE, parameters.connectionType, parameters.multiLoginMsg);
 
 	/* Request first market price request */
 	rsslClearRequestMsg(&requestMsg);
@@ -4234,9 +4454,6 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 	/* Consumer channel FD change. */
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RSSL_MSG);
@@ -4246,6 +4463,10 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
 	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 	
 	wtfDispatch(WTF_TC_PROVIDER, 200);
 	if (parameters.warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
@@ -4280,15 +4501,13 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 
 	wtfDispatch(WTF_TC_CONSUMER, 400);
 
+
 #if !defined(_WIN32)
 	/* Consumer channel FD change. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
 	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
 #endif
-	ASSERT_TRUE(pEvent = wtfGetEvent());
-	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
 
 	/* Checks for login status message. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -4307,6 +4526,11 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	ASSERT_TRUE(pStatusMsg->msgBase.containerType == RSSL_DT_NO_DATA);
 	ASSERT_TRUE(pStatusMsg->state.streamState == RSSL_STREAM_OPEN);
 	ASSERT_TRUE(pStatusMsg->state.dataState == RSSL_DATA_SUSPECT);
+
+	ASSERT_TRUE(pEvent = wtfGetEvent());
+	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+
 
 	/* Consumer should receive no more event from the server. */
 	ASSERT_FALSE(pEvent = wtfGetEvent());
@@ -4359,6 +4583,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
 	ASSERT_TRUE(wtfGetProviderLoginStream() == pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId);
 
+	if (parameters.multiLoginMsg == RSSL_TRUE)
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+
 	/* Provider sends login response. */
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
 
@@ -4374,7 +4601,8 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		if(parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
 	}
 	else
 	{
@@ -4382,7 +4610,8 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.msgClass == RSSL_MC_REFRESH);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
-		ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		if (parameters.multiLoginMsg == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
 	}
 
 	/* Provider receives a generic message on the login domain to indicate warm standby mode. */
@@ -4583,7 +4812,7 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	/* Consumer channel FD change. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_CHNL);
-	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE);
+	ASSERT_TRUE(pEvent->channelEvent.channelEventType == RSSL_RC_CET_FD_CHANGE); 
 
 	/* Consumer receives a refresh message from the active server only. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -4605,6 +4834,9 @@ void warmStandbyTest_FailOverFromOneWSBGroup_ToAnotherWSBGroup(WatchlistWarmStan
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+
+	if (parameters.multiLoginMsg == RSSL_TRUE)
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &standbyUserName));
 
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
 	rsslClearReactorSubmitMsgOptions(&submitOpts);

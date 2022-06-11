@@ -55,6 +55,8 @@ void OAuthClient::onCredentialRenewal( const OmmConsumerEvent& consumerEvent )
 	OAuth2CredentialRenewal credentialRenewal;
 	credentialRenewal.clientId(clientId);
 	credentialRenewal.clientSecret(clientSecret);
+
+	cout << "Renewal event called!" << endl;
 	
 	/* Call ommConsumer::renewOAuthCredentials to apply the credentials to the OmmConsumer object */
 	pOmmConsumer->renewOAuth2Credentials(credentialRenewal);

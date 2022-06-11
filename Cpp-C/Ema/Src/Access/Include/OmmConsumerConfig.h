@@ -28,6 +28,7 @@
 */
 
 #include "Access/Include/EmaString.h"
+#include "Access/Include/OmmLoginCredentialConsumerClient.h"
 
 namespace refinitiv {
 
@@ -38,6 +39,8 @@ namespace access {
 class Data;
 class ReqMsg;
 class OmmConsumerConfigImpl;
+class OAuth2Credential;
+class OmmOAuth2ConsumerClient;
 class OmmRestLoggingClient;
 
 class EMA_ACCESS_API OmmConsumerConfig
@@ -284,6 +287,59 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& addAdminMsg( const ReqMsg& reqMsg );
+
+
+	/** Specifies a set of OAuth2 credentials to be used with a specific set of channels.  
+		Application may call this multiple times prior to initialization to set multiple sets of credentials.
+		@param[in] credential specifies oAuth2 credentials
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addOAuth2Credential(const OAuth2Credential& credential);
+
+	/** Specifies a set of OAuth2 credentials to be used with a specific set of channels.
+		Application may call this multiple times prior to initialization to set multiple sets of credentials.
+		@param[in] credential specifies oAuth2 credentials
+		@param[in] client callback client associated with the above set of credentials
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addOAuth2Credential(const OAuth2Credential& credential, const OmmOAuth2ConsumerClient& client);
+	
+	/** Specifies a set of OAuth2 credentials to be used with a specific set of channels.
+		Application may call this multiple times prior to initialization to set multiple sets of credentials.
+		@param[in] credential specifies oAuth2 credentials
+		@param[in] client callback client associated with the above set of credentials
+		@param[in] closure user specified closure
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addOAuth2Credential(const OAuth2Credential& credential, const OmmOAuth2ConsumerClient& client, void* closure);
+
+	/** Specifies a set of Login credentials to be used with a specific set of channels.
+		Application may call this multiple times prior to initialization to set multiple sets of credentials.
+		@param[in] ReqMsg Login domain request message. This message must follow the RDM Login domain.
+		@param[in] channelList Comma separated list of channel names 
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString& channelList);
+
+	/** Specifies a set of Login credentials to be used with a specific set of channels.
+		Application may call this multiple times prior to initialization to set multiple sets of credentials.
+		@param[in] ReqMsg Login domain request message. This message must follow the RDM Login domain.
+		@param[in] channelList Comma separated list of channel names
+		@param[in] client callback client associated with the above request message
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString& channelList, const OmmLoginCredentialConsumerClient& client);
+
+	/** Specifies a set of Login credentials to be used with a specific set of channels.
+		Application may call this multiple times prior to initialization to set multiple sets of credentials.
+		@param[in] ReqMsg Login domain request message. This message must follow the RDM Login domain.
+		@param[in] channelList Comma separated list of channel names
+		@param[in] client callback client associated with the above request message
+		@param[in] closure user specified closure
+		@return reference to this object
+	*/
+	OmmConsumerConfig& addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString& channelList, const OmmLoginCredentialConsumerClient& client, void* closure);
+
 
 	/** Specifies the user callback client to receive REST logging messages.
 		@param[in] ommRestLoggingClient specifies the user callback client used for receiving REST logging messages.

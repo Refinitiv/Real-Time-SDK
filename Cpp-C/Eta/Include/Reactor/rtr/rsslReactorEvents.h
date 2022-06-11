@@ -196,6 +196,8 @@ typedef struct
 	RsslReactorChannel			*pReactorChannel;	/*!< The channel associated with this event. */
 	RsslReactorAuthTokenInfo	*pReactorAuthTokenInfo; /*!< The token information associated with this event. */
 	RsslErrorInfo				*pError; 			/*!< Contains information about the error that occurred with the token information. */
+	RsslBuffer					*hostName;
+	RsslInt8					authTokenArrayIndex;
 	RsslUInt32					statusCode;			/*!< Represents HTTP response status code */
 } RsslReactorAuthTokenEvent;
 
@@ -294,6 +296,7 @@ typedef struct
 {
 	RsslReactorChannel					*pReactorChannel;						/*!< The channel associated with this event. */
 	RsslReactorOAuthCredentialRenewal	*pReactorOAuthCredentialRenewal;		/*!< The OAuth credential for renewal authentication with the RDP token service. */
+	void								*userSpecPtr;							/*!< User specified pointer */
 } RsslReactorOAuthCredentialEvent;
 
 /**
@@ -303,6 +306,27 @@ typedef struct
 RTR_C_INLINE void rsslClearReactorOAuthCredentialEvent(RsslReactorOAuthCredentialEvent *pEvent)
 {
 	memset(pEvent, 0, sizeof(RsslReactorOAuthCredentialEvent));
+}
+
+// TDOO DOC
+/**
+ * @brief An token information event that has occurred on an RsslReactorChannel.
+ * @see RsslReactorChannel
+ */
+typedef struct
+{
+	RsslReactorChannel* pReactorChannel;	/*!< The channel associated with this event. */
+	RsslRDMLoginRequest* pLoginMsg;
+	void* userSpecPtr;
+} RsslReactorLoginRenewalEvent;
+
+/**
+ * @brief Clears an RsslReactorAuthTokenEvent.
+ * @see RsslReactorAuthTokenEvent
+ */
+RTR_C_INLINE void rsslClearReactorLoginRenewalEvent(RsslReactorLoginRenewalEvent* pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorLoginRenewalEvent));
 }
 
 /**

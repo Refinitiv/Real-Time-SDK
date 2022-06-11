@@ -29,7 +29,8 @@ typedef enum
 	RSSL_RCIMPL_ET_PING = -6, /* Ping event for channel statistics */
 	RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT = -7,	/* For handling token session */
 	RSSL_RCIMPL_ET_WARM_STANDBY = -8, /* For handling warm standby feature */
-	RSSL_RCIMPL_ET_LOGGING = -9		/* Logging message event */
+	RSSL_RCIMPL_ET_LOGGING = -9,		/* Logging message event */
+	RSSL_RCIMPL_ET_LOGIN_RENEWAL = -10 /* RDM Login Msg credential renewal event */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -127,7 +128,9 @@ typedef enum
 	RSSL_RCIMPL_TKET_RESP_FAILURE = -3,
 	RSSL_RCIMPL_TKET_SUBMIT_LOGIN_MSG = -4,
 	RSSL_RCIMPL_TKET_CHANNEL_WARNING = -5,
-	RSSL_RCIMPL_TKET_RENEW_TOKEN = -6
+	RSSL_RCIMPL_TKET_RENEW_TOKEN = -6,
+	RSSL_RCIMPL_TKET_SUBMIT_LOGIN_MSG_NEW_CONNECTION = -7,
+	RSSL_RCIMPL_TKET_REISSUE_NEW_CONNECTION = -8
 } RsslReactorTokenMgntEventType;
 
 typedef struct
@@ -152,8 +155,8 @@ typedef enum
 {
 	RSSL_RCIMPL_CRET_MEM_ALLOC_FAILED = -1,
 	RSSL_RCIMPL_CRET_INIT = 0,
-	RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD = 0x01,
-	RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD_CHANGE = 0x02,
+	RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD = 0x01,			/* Matches RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD */
+	RSSL_RCIMPL_CRET_AUTH_REQ_WITH_PASSWORD_CHANGE = 0x02,  /* Matches RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD_CHANGE */
 	RSSL_RCIMPL_CRET_RENEWAL_CALLBACK = 0x04,
 	RSSL_RCIMPL_CRET_MEMORY_DEALLOCATION = 0x08
 } RsslReactorOAuthCredentialRenewalEventType;
@@ -173,6 +176,20 @@ RTR_C_INLINE void rsslClearReactorCredentialRenewalEvent(RsslReactorCredentialRe
 {
 	memset(pEvent, 0, sizeof(RsslReactorCredentialRenewalEvent));
 	pEvent->base.eventType = RSSL_RCIMPL_ET_CREDENTIAL_RENEWAL;
+}
+
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorLoginRequestMsgCredential* pRequest;
+	RsslReactorChannel* pReactorChannel;
+	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl;
+} RsslReactorLoginCredentialRenewalEvent;
+
+RTR_C_INLINE void rsslClearReactorLoginCredentialRenewalEvent(RsslReactorLoginCredentialRenewalEvent* pEvent)
+{
+	memset(pEvent, 0, sizeof(RsslReactorLoginCredentialRenewalEvent));
+	pEvent->base.eventType = RSSL_RCIMPL_ET_LOGIN_RENEWAL;
 }
 
 /* This is used to notify ping sent from the worker thread to the dispatching thread */
@@ -221,7 +238,7 @@ typedef enum
 	RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVICE_CHANNEL_DOWN = 0x10,
 	RSSL_RCIMPL_WSBET_CHANGE_STANDBY_TO_ACTIVE_PER_SERVICE = 0x20,
 	RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP = 0x40,
-	RSSL_RCIMPL_WSBET_CONNECT_TO_NEXT_STARTING_SERVER = 0x80,
+	RSSL_RCIMPL_WSBET_CONNECT_TO_NEXT_STARTING_SERVER = 0x80,			/* currently not used */
 	RSSL_RCIMPL_WSBET_ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP = 0x100,
 	RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL = 0x200
 } RsslReactorWarmStandByEventType;
@@ -269,6 +286,7 @@ typedef union
 	RsslReactorStateEvent				reactorEvent;
 	RsslReactorTimerEvent				timerEvent;
 	RsslReactorLoggingEvent				restLoggingEvent;
+	RsslReactorLoginCredentialRenewalEvent loginRenewalEvent;
 } RsslReactorEventImpl;
 
 RTR_C_INLINE void rsslClearReactorEventImpl(RsslReactorEventImpl *pEvent)

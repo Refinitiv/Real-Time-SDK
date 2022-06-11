@@ -13,6 +13,10 @@
 #include "DictionaryCallbackClient.h"
 #include "EmaConfigImpl.h"
 #include "OmmIProviderConfig.h"
+#include "OAuth2Credential.h"
+#include "OmmOAuth2CredentialImpl.h"
+
+#include "LoginRdmReqMsgImpl.h"
 
 #include "rtr/rsslTransport.h"
 #include "rtr/rwfNet.h"
@@ -539,7 +543,7 @@ public:
 	EmaVector< WarmStandbyChannelConfig* >  configWarmStandbySet;
 	EmaVector< ChannelConfig* >		configChannelSetForWSB;
 
-	RsslRDMLoginRequest*	pRsslRDMLoginReq;
+	LoginRdmReqMsgImpl*		pRsslRDMLoginReq;
 	RsslRequestMsg*			pRsslDirectoryRequestMsg;
 	AdminReqMsg*			pRsslRdmFldRequestMsg;
 	AdminReqMsg*			pRsslEnumDefRequestMsg;

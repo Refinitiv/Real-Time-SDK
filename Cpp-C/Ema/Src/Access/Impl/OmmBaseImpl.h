@@ -32,6 +32,9 @@
 #include "OmmBaseImplMap.h"
 #include "IOCtlReactorCode.h"
 #include "RestLoggingCallbackClient.h"
+#include "LoginRdmReqMsgImpl.h"
+#include "OmmOAuth2CredentialImpl.h"
+
 
 namespace refinitiv {
 
@@ -44,6 +47,7 @@ class LoginCallbackClient;
 class DirectoryCallbackClient;
 class DictionaryCallbackClient;
 class ItemCallbackClient;
+class LoginRdmReqMsgImpl;
 class OmmConsumerClient;
 class OmmOAuth2ConsumerClient;
 class OmmProviderClient;
@@ -77,6 +81,8 @@ public :
 
 	static RsslReactorCallbackRet oAuthCredentialCallback(RsslReactor* pRsslReactor, RsslReactorOAuthCredentialEvent* oAuthEvent);
 
+	static RsslReactorCallbackRet loginCredentialCallback(RsslReactor* pRsslReactor, RsslReactorChannel* pReactorChannel, RsslReactorLoginRenewalEvent* pEvent);
+
 	virtual const EmaString& getInstanceName() const;
 
 	virtual void reissue( const ReqMsg&, UInt64 );
@@ -94,6 +100,14 @@ public :
 	virtual void removeAllSocket() = 0;
 
 	void closeChannel( RsslReactorChannel* );
+
+
+	void setInOAuthCallback(bool);
+	bool getInOAuthCallback();
+
+	void setInLoginCredentialCallback(bool);
+	bool getInLoginCredentialCallback();
+
 
 	enum ImplState
 	{
@@ -156,7 +170,7 @@ public :
 
 	virtual void loadDirectory() = 0;
 
-	virtual void setRsslReactorChannelRole( RsslReactorChannelRole&, RsslReactorOAuthCredential* ) = 0;
+	virtual void setRsslReactorChannelRole( RsslReactorChannelRole&) = 0;
 
 	virtual void createDictionaryCallbackClient( DictionaryCallbackClient*&, OmmBaseImpl& ) = 0;
 
@@ -187,6 +201,12 @@ public :
 	void addCommonSocket();
 
 	void modifyReactorIOCtl(Int32 code, Int32 value);
+
+	UInt8 getLoginArrayIndex(EmaString& channelName);
+
+	UInt8 getOAuthArrayIndex(EmaString& channelName);
+
+	void clearSensitiveInfo();
 
 protected:
 
@@ -242,6 +262,8 @@ protected:
 
 	bool isPipeWritten();
 
+	bool isInitialized();
+
 	// return values:
 	// -2 -> error
 	// -1 -> timeout expired ( nothing dispatched )
@@ -253,6 +275,10 @@ protected:
 	static void notifErrorClientHandler( const OmmException&, ErrorClientHandler& );
 
 	void initializeForTest(EmaConfigImpl*); //only for unit test, internal use 
+
+
+	LoginRdmReqMsgImpl* _tmpLoginMsg;
+	RsslReactorChannel* _tmpChnl;
 
 	ActiveConfig&	_activeConfig;
 
@@ -293,6 +319,17 @@ protected:
 	bool						_bApiDispatchThreadStarted;
 	bool						_bUninitializeInvoked;
 
+	bool					_isInitialized;
+	bool					_inOAuthCallback;
+	bool					_inLoginCredentialCallback;
+
+	EmaVector < OmmOAuth2CredentialImpl* > _oAuth2Credentials;
+
+	RsslReactorOAuthCredential** _OAuthReactorConfig;
+
+	EmaVector < LoginRdmReqMsgImpl* > _LoginRequestMsgs;
+
+	RsslReactorLoginRequestMsgCredential** _LoginReactorConfig;
 	
 
 private:

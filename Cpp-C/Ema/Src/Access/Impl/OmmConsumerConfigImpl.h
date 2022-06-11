@@ -17,6 +17,8 @@
 #include "EmaConfigImpl.h"
 #include "ExceptionTranslator.h"
 #include "ProgrammaticConfigure.h"
+#include "OAuth2Credential.h"
+#include "OmmOAuth2CredentialImpl.h"
 
 namespace refinitiv {
 
@@ -46,8 +48,6 @@ public:
 
 	bool getDirectoryName( const EmaString& , EmaString& ) const;
 
-	RsslReactorOAuthCredential* getReactorOAuthCredential();
-
 	void setOmmRestLoggingClient(OmmRestLoggingClient*, void*);
 
 	OmmRestLoggingClient* getOmmRestLoggingClient() const;
@@ -57,7 +57,9 @@ public:
 private:
 
 	OmmConsumerConfig::OperationModel		_operationModel;
-	RsslReactorOAuthCredential				_reactorOAuthCredential;
+	EmaString								_oAuthPassword;
+	RsslReactorOAuthCredential**			_reactorOAuthCredentialList;
+	RsslUInt8								_reactorOAuthCredentialCount;
 	OmmRestLoggingClient*					_pOmmRestLoggingClient;
 	void*									_pRestLoggingClosure;
 };

@@ -12,32 +12,32 @@
 using namespace refinitiv::ema::access;
 
 OmmConsumerConfig::OmmConsumerConfig() :
-	_pImpl( 0 )
+	_pImpl(0)
 {
 	try {
 		_pImpl = new OmmConsumerConfigImpl(EmaString());
 	}
-	catch ( std::bad_alloc& )
+	catch (std::bad_alloc&)
 	{
-		throwMeeException( "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig()." );
+		throwMeeException("Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig().");
 	}
 }
 
-OmmConsumerConfig::OmmConsumerConfig(const EmaString & path) :
-	_pImpl( 0 )
+OmmConsumerConfig::OmmConsumerConfig(const EmaString& path) :
+	_pImpl(0)
 {
 	try {
 		_pImpl = new OmmConsumerConfigImpl(path);
 	}
-	catch ( std::bad_alloc& )
+	catch (std::bad_alloc&)
 	{
-		throwMeeException( "Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig()." );
+		throwMeeException("Failed to allocate memory for OmmConsumerConfigImpl in OmmConsumerConfig().");
 	}
 }
 
 OmmConsumerConfig::~OmmConsumerConfig()
 {
-	if ( _pImpl )
+	if (_pImpl)
 		delete _pImpl;
 }
 
@@ -47,57 +47,57 @@ OmmConsumerConfig& OmmConsumerConfig::clear()
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::username( const EmaString& username )
+OmmConsumerConfig& OmmConsumerConfig::username(const EmaString& username)
 {
-	_pImpl->username( username );
+	_pImpl->username(username);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::password( const EmaString& password )
+OmmConsumerConfig& OmmConsumerConfig::password(const EmaString& password)
 {
-	_pImpl->password( password );
+	_pImpl->password(password);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::position( const EmaString& position )
+OmmConsumerConfig& OmmConsumerConfig::position(const EmaString& position)
 {
-	_pImpl->position( position );
+	_pImpl->position(position);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::applicationId( const EmaString& applicationId )
+OmmConsumerConfig& OmmConsumerConfig::applicationId(const EmaString& applicationId)
 {
-	_pImpl->applicationId( applicationId );
+	_pImpl->applicationId(applicationId);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::clientId( const EmaString& clientId )
+OmmConsumerConfig& OmmConsumerConfig::clientId(const EmaString& clientId)
 {
-	_pImpl->clientId( clientId );
+	_pImpl->clientId(clientId);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::clientSecret( const EmaString& clientSecret )
+OmmConsumerConfig& OmmConsumerConfig::clientSecret(const EmaString& clientSecret)
 {
-	_pImpl->clientSecret( clientSecret );
+	_pImpl->clientSecret(clientSecret);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::tokenScope( const EmaString& tokenScope )
+OmmConsumerConfig& OmmConsumerConfig::tokenScope(const EmaString& tokenScope)
 {
-	_pImpl->tokenScope( tokenScope );
+	_pImpl->tokenScope(tokenScope);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::takeExclusiveSignOnControl( bool takeExclusiveSignOnControl )
+OmmConsumerConfig& OmmConsumerConfig::takeExclusiveSignOnControl(bool takeExclusiveSignOnControl)
 {
-	_pImpl->takeExclusiveSignOnControl( takeExclusiveSignOnControl );
+	_pImpl->takeExclusiveSignOnControl(takeExclusiveSignOnControl);
 	return *this;
 }
 
 OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrl(const EmaString& tokenServiceUrl)
 {
-	_pImpl->tokenServiceUrl( tokenServiceUrl );
+	_pImpl->tokenServiceUrl(tokenServiceUrl);
 	return *this;
 }
 
@@ -115,25 +115,25 @@ OmmConsumerConfig& OmmConsumerConfig::tokenServiceUrlV2(const EmaString& tokenSe
 
 OmmConsumerConfig& OmmConsumerConfig::serviceDiscoveryUrl(const EmaString& serviceDiscoveryUrl)
 {
-	_pImpl->serviceDiscoveryUrl( serviceDiscoveryUrl );
+	_pImpl->serviceDiscoveryUrl(serviceDiscoveryUrl);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::host( const EmaString& host )
+OmmConsumerConfig& OmmConsumerConfig::host(const EmaString& host)
 {
-	_pImpl->host( host );
+	_pImpl->host(host);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::operationModel( OperationModel operationModel )
+OmmConsumerConfig& OmmConsumerConfig::operationModel(OperationModel operationModel)
 {
-	_pImpl->operationModel( operationModel );
+	_pImpl->operationModel(operationModel);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::consumerName( const EmaString& consumerName )
+OmmConsumerConfig& OmmConsumerConfig::consumerName(const EmaString& consumerName)
 {
-	_pImpl->consumerName( consumerName );
+	_pImpl->consumerName(consumerName);
 	return *this;
 }
 
@@ -203,15 +203,15 @@ OmmConsumerConfig& OmmConsumerConfig::sslCAStore(const EmaString& sslCAStore)
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::config( const Data& config )
+OmmConsumerConfig& OmmConsumerConfig::config(const Data& config)
 {
-	_pImpl->config( config );
+	_pImpl->config(config);
 	return *this;
 }
 
-OmmConsumerConfig& OmmConsumerConfig::addAdminMsg( const ReqMsg& reqMsg )
+OmmConsumerConfig& OmmConsumerConfig::addAdminMsg(const ReqMsg& reqMsg)
 {
-	_pImpl->addAdminMsg( reqMsg );
+	_pImpl->addAdminMsg(reqMsg);
 	return *this;
 }
 
@@ -220,8 +220,45 @@ OmmConsumerConfigImpl* OmmConsumerConfig::getConfigImpl() const
 	return _pImpl;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::addOAuth2Credential(const OAuth2Credential& credential)
+{
+	_pImpl->addOAuth2Credential(credential);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::addOAuth2Credential(const OAuth2Credential& credential, const OmmOAuth2ConsumerClient& client)
+{
+	_pImpl->addOAuth2Credential(credential, client);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::addOAuth2Credential(const OAuth2Credential& credential, const OmmOAuth2ConsumerClient& client, void* closure)
+{
+	_pImpl->addOAuth2Credential(credential, client, closure);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString& channelList)
+{
+	_pImpl->addLoginMsgCredential(reqMsg, channelList);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString& channelList, const OmmLoginCredentialConsumerClient& client)
+{
+	_pImpl->addLoginMsgCredential(reqMsg, channelList, client);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString& channelList, const OmmLoginCredentialConsumerClient& client, void* closure)
+{
+	_pImpl->addLoginMsgCredential(reqMsg, channelList, client, closure);
+	return *this;
+}
+
+
 OmmConsumerConfig& OmmConsumerConfig::restLoggingCallback(OmmRestLoggingClient& ommRestLoggingClient, void* closure)
 {
-	_pImpl->setOmmRestLoggingClient( &ommRestLoggingClient, closure );
+	_pImpl->setOmmRestLoggingClient(&ommRestLoggingClient, closure);
 	return *this;
 }

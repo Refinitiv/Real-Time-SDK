@@ -111,6 +111,10 @@ RsslBuffer loginUserName = { 15, const_cast<char*>("watchlistTester")};
 RsslBuffer service1Name = { 8, const_cast<char*>("service1") };
 RsslUInt16 service1Id = 1;
 
+RsslBuffer activeUserName = { 10, const_cast<char*>("activeUser") };
+RsslBuffer standbyUserName = { 11, const_cast<char*>("standbyUser") };
+
+
 static RsslUInt	service1CapabilitiesList[] = { RSSL_DMT_DICTIONARY, RSSL_DMT_MARKET_PRICE, 
 	RSSL_DMT_MARKET_BY_ORDER, RSSL_DMT_SYMBOL_LIST };
 static RsslUInt32 service1CapabilitiesCount = 4;
@@ -1491,7 +1495,7 @@ void wtfSendDefaultSourceDirectory(WtfSetupWarmStandbyOpts *pOpts, RsslRDMDirect
 }
 
 void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandbyExpectedMode* pExpectedWarmStandbyMode, RsslRDMService *pActiveServerService, 
-	RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest, RsslConnectionTypes connectionType)
+	RsslRDMService* pStandByServerService, RsslBool sendDirectoryRequest, RsslConnectionTypes connectionType, RsslBool multiLogin)
 {
 	RsslReactorSubmitMsgOptions submitOpts;
 	WtfEvent *pEvent;
@@ -1500,6 +1504,10 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 	RsslRDMDirectoryRequest directoryRequest;
 	RsslRDMDirectoryRefresh *pDirectoryRefresh;
 	RsslRDMDirectoryUpdate *pDirectoryUpdate;
+
+	RsslReactorLoginRequestMsgCredential* pLoginRequestList[2];
+	RsslReactorLoginRequestMsgCredential ploginRequestCredentials[2];
+	RsslRDMLoginRequest pLoginRequests[2];
 
 	ASSERT_TRUE(pOpts != NULL);
 
@@ -1518,6 +1526,61 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		wtf.ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
 	if (pOpts->consumerDictionaryCallback != WTF_CB_NONE)
 		wtf.ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+
+	if (multiLogin == RSSL_TRUE)
+	{
+		/* Consumer submits login. */
+		wtfInitDefaultLoginRequest(&pLoginRequests[0]);
+		rsslClearReactorLoginRequestMsgCredential(&ploginRequestCredentials[0]);
+
+		wtfInitDefaultLoginRequest(&pLoginRequests[1]);
+		rsslClearReactorLoginRequestMsgCredential(&ploginRequestCredentials[1]);
+
+		if (!pOpts->singleOpen)
+		{
+			pLoginRequests[0].flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			pLoginRequests[0].singleOpen = 0;
+		}
+		if (!pOpts->allowSuspectData)
+		{
+			pLoginRequests[0].flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
+			pLoginRequests[0].allowSuspectData = 0;
+		}
+
+		pLoginRequests[0].userName = activeUserName;
+		ploginRequestCredentials[0].loginRequestMsg = &pLoginRequests[0];
+		pLoginRequestList[0] = &ploginRequestCredentials[0];
+
+		if (!pOpts->singleOpen)
+		{
+			pLoginRequests[1].flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			pLoginRequests[1].singleOpen = 0;
+		}
+		if (!pOpts->allowSuspectData)
+		{
+			pLoginRequests[1].flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
+			pLoginRequests[1].allowSuspectData = 0;
+		}
+
+		pLoginRequests[1].userName = standbyUserName;
+		ploginRequestCredentials[1].loginRequestMsg = &pLoginRequests[1];
+		pLoginRequestList[1] = &ploginRequestCredentials[1];
+
+		wtf.ommConsumerRole.pLoginRequestList = pLoginRequestList;
+		wtf.ommConsumerRole.loginRequestMsgCredentialCount = 2;
+
+		if (sendDirectoryRequest)
+		{
+			rsslClearRDMDirectoryRequest(&directoryRequest);
+			directoryRequest.flags = RDM_DR_RQF_STREAMING;
+			directoryRequest.rdmMsgBase.streamId = WTF_DIRECTORY_STREAM_ID;
+			directoryRequest.filter = RDM_DIRECTORY_SERVICE_INFO_FILTER | RDM_DIRECTORY_SERVICE_STATE_FILTER | RDM_DIRECTORY_SERVICE_GROUP_FILTER;
+
+			wtf.ommConsumerRole.pDirectoryRequest = &directoryRequest;
+		}
+	}
+
+		
 
 	rsslClearOMMProviderRole(&wtf.ommProviderRole);
 	wtf.ommProviderRole.base.defaultMsgCallback = msgCallback;
@@ -1552,40 +1615,45 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 	if (!pOpts->login)
 		return;
 
-	/* Consumer submits login. */
-	wtfInitDefaultLoginRequest(&loginRequest);
-
-	if (!pOpts->singleOpen)
+	if (multiLogin == RSSL_FALSE)
 	{
-		loginRequest.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
-		loginRequest.singleOpen = 0;
-	}
-	if (!pOpts->allowSuspectData)
-	{
-		loginRequest.flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
-		loginRequest.allowSuspectData = 0;
-	}
+		/* Consumer submits login. */
+		wtfInitDefaultLoginRequest(&loginRequest);
 
-	rsslClearReactorSubmitMsgOptions(&submitOpts);
-	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
-	submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_LOGIN_USER_SPEC_PTR;
-	wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
-
-	if (sendDirectoryRequest)
-	{
-		rsslClearRDMDirectoryRequest(&directoryRequest);
-		directoryRequest.flags = RDM_DR_RQF_STREAMING;
-		directoryRequest.rdmMsgBase.streamId = WTF_DIRECTORY_STREAM_ID;
-		directoryRequest.filter = RDM_DIRECTORY_SERVICE_INFO_FILTER | RDM_DIRECTORY_SERVICE_STATE_FILTER | RDM_DIRECTORY_SERVICE_GROUP_FILTER;
+		if (!pOpts->singleOpen)
+		{
+			loginRequest.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			loginRequest.singleOpen = 0;
+		}
+		if (!pOpts->allowSuspectData)
+		{
+			loginRequest.flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
+			loginRequest.allowSuspectData = 0;
+		}
 
 		rsslClearReactorSubmitMsgOptions(&submitOpts);
-		submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
-		submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR;
+		submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
+		submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_LOGIN_USER_SPEC_PTR;
 		wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+
+		if (sendDirectoryRequest)
+		{
+			rsslClearRDMDirectoryRequest(&directoryRequest);
+			directoryRequest.flags = RDM_DR_RQF_STREAMING;
+			directoryRequest.rdmMsgBase.streamId = WTF_DIRECTORY_STREAM_ID;
+			directoryRequest.filter = RDM_DIRECTORY_SERVICE_INFO_FILTER | RDM_DIRECTORY_SERVICE_STATE_FILTER | RDM_DIRECTORY_SERVICE_GROUP_FILTER;
+
+			rsslClearReactorSubmitMsgOptions(&submitOpts);
+			submitOpts.pRDMMsg = (RsslRDMMsg*)&directoryRequest;
+			submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR;
+			wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_TRUE);
+		}
 	}
 
 	if (!pOpts->accept)
 		return;
+
+	pEvent = wtfGetEvent();
 
 	/* Provider should now accept. */
 	wtfAccept();
@@ -1624,6 +1692,11 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
 	wtf.providerLoginStreamId = pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId;
 
+	if (multiLogin == RSSL_TRUE)
+	{
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+	}
+
 	if (!pOpts->provideLoginRefresh)
 		return;
 
@@ -1642,7 +1715,10 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		if (multiLogin == RSSL_FALSE)
+		{
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 	else
 	{
@@ -1650,7 +1726,10 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.msgClass == RSSL_MC_REFRESH);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
-		ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		if (multiLogin == RSSL_FALSE)
+		{
+			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		}
 	}
 
 	/* Provider receives a generic message on the login domain to indicate warm standby mode. */
@@ -1741,7 +1820,10 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 		ASSERT_TRUE(pDirectoryRefresh->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
 		ASSERT_TRUE(pDirectoryRefresh->state.streamState == RSSL_STREAM_OPEN);
 		ASSERT_TRUE(pDirectoryRefresh->state.dataState == RSSL_DATA_OK);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+		if(multiLogin == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 		ASSERT_TRUE(pDirectoryRefresh->serviceCount == 1);
 		ASSERT_TRUE(pDirectoryRefresh->serviceList[0].flags == (RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE));
 		ASSERT_TRUE(pDirectoryRefresh->serviceList[0].action == RSSL_MPEA_ADD_ENTRY);
@@ -1806,6 +1888,11 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 	ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.domainType == RSSL_DMT_LOGIN);
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
+
+	if (multiLogin == RSSL_TRUE)
+	{
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &standbyUserName));
+	}
 
 	wtfInitDefaultLoginRefresh(&loginRefresh, true);
 	rsslClearReactorSubmitMsgOptions(&submitOpts);
@@ -1901,7 +1988,10 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 			ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.domainType == RSSL_DMT_SOURCE);
 			ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.rdmMsgType == RDM_DR_MT_UPDATE);
 			ASSERT_TRUE(pDirectoryUpdate->rdmMsgBase.streamId == WTF_DIRECTORY_STREAM_ID);
-			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
+			if(multiLogin == RSSL_FALSE)
+				ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)WTF_DEFAULT_DIRECTORY_USER_SPEC_PTR);
+
 			ASSERT_TRUE(pDirectoryUpdate->serviceCount == 1);
 			ASSERT_TRUE(pDirectoryUpdate->serviceList[0].flags == (RDM_SVCF_HAS_INFO | RDM_SVCF_HAS_STATE));
 			ASSERT_TRUE(pDirectoryUpdate->serviceList[0].action == RSSL_MPEA_ADD_ENTRY); /* This indicates addting a new service from the standby server.*/
@@ -1949,12 +2039,16 @@ void wtfSetupWarmStandbyConnection(WtfSetupWarmStandbyOpts *pOpts, WtfWarmStandb
 	}
 }
 
-void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, RsslConnectionTypes connectionType)
+void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, RsslConnectionTypes connectionType, RsslBool multiLogin)
 {
 	RsslReactorSubmitMsgOptions submitOpts;
 	WtfEvent *pEvent;
 	RsslRDMLoginRequest loginRequest;
 	RsslRDMLoginRefresh loginRefresh;
+
+	RsslReactorLoginRequestMsgCredential* pLoginRequestList[2];
+	RsslReactorLoginRequestMsgCredential ploginRequestCredentials[2];
+	RsslRDMLoginRequest pLoginRequests[2];
 
 	ASSERT_TRUE(pOpts != NULL);
 
@@ -1973,6 +2067,49 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 		wtf.ommConsumerRole.directoryMsgCallback = directoryMsgCallback;
 	if (pOpts->consumerDictionaryCallback != WTF_CB_NONE)
 		wtf.ommConsumerRole.dictionaryMsgCallback = dictionaryMsgCallback;
+
+	if (multiLogin == RSSL_TRUE)
+	{
+		/* Consumer submits login. */
+		wtfInitDefaultLoginRequest(&pLoginRequests[0]);
+		rsslClearReactorLoginRequestMsgCredential(&ploginRequestCredentials[0]);
+
+		wtfInitDefaultLoginRequest(&pLoginRequests[1]);
+		rsslClearReactorLoginRequestMsgCredential(&ploginRequestCredentials[1]);
+
+		if (!pOpts->singleOpen)
+		{
+			pLoginRequests[0].flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			pLoginRequests[0].singleOpen = 0;
+		}
+		if (!pOpts->allowSuspectData)
+		{
+			pLoginRequests[0].flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
+			pLoginRequests[0].allowSuspectData = 0;
+		}
+
+		pLoginRequests[0].userName = activeUserName;
+		ploginRequestCredentials[0].loginRequestMsg = &pLoginRequests[0];
+		pLoginRequestList[0] = &ploginRequestCredentials[0];
+
+		if (!pOpts->singleOpen)
+		{
+			pLoginRequests[1].flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			pLoginRequests[1].singleOpen = 0;
+		}
+		if (!pOpts->allowSuspectData)
+		{
+			pLoginRequests[1].flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
+			pLoginRequests[1].allowSuspectData = 0;
+		}
+
+		pLoginRequests[1].userName = standbyUserName;
+		ploginRequestCredentials[1].loginRequestMsg = &pLoginRequests[1];
+		pLoginRequestList[1] = &ploginRequestCredentials[1];
+
+		wtf.ommConsumerRole.pLoginRequestList = pLoginRequestList;
+		wtf.ommConsumerRole.loginRequestMsgCredentialCount = 2;
+	}
 
 	rsslClearOMMProviderRole(&wtf.ommProviderRole);
 	wtf.ommProviderRole.base.defaultMsgCallback = msgCallback;
@@ -2006,25 +2143,27 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 
 	if (!pOpts->login)
 		return;
-
-	/* Consumer submits login. */
-	wtfInitDefaultLoginRequest(&loginRequest);
-
-	if (!pOpts->singleOpen)
+	if (multiLogin == RSSL_FALSE)
 	{
-		loginRequest.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
-		loginRequest.singleOpen = 0;
-	}
-	if (!pOpts->allowSuspectData)
-	{
-		loginRequest.flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
-		loginRequest.allowSuspectData = 0;
-	}
+		/* Consumer submits login. */
+		wtfInitDefaultLoginRequest(&loginRequest);
 
-	rsslClearReactorSubmitMsgOptions(&submitOpts);
-	submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
-	submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_LOGIN_USER_SPEC_PTR;
-	wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+		if (!pOpts->singleOpen)
+		{
+			loginRequest.flags |= RDM_LG_RQF_HAS_SINGLE_OPEN;
+			loginRequest.singleOpen = 0;
+		}
+		if (!pOpts->allowSuspectData)
+		{
+			loginRequest.flags |= RDM_LG_RQF_HAS_ALLOW_SUSPECT_DATA;
+			loginRequest.allowSuspectData = 0;
+		}
+
+		rsslClearReactorSubmitMsgOptions(&submitOpts);
+		submitOpts.pRDMMsg = (RsslRDMMsg*)&loginRequest;
+		submitOpts.requestMsgOptions.pUserSpec = (void*)WTF_DEFAULT_LOGIN_USER_SPEC_PTR;
+		wtfSubmitMsg(&submitOpts, WTF_TC_CONSUMER, NULL, RSSL_FALSE);
+	}
 
 	if (!pOpts->accept)
 		return;
@@ -2092,6 +2231,9 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 	ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REQUEST);
 	wtf.providerLoginStreamId = pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId;
 
+	if (multiLogin == RSSL_TRUE)
+		ASSERT_TRUE(rsslBufferIsEqual(&pEvent->rdmMsg.pRdmMsg->loginMsg.request.userName, &activeUserName));
+
 	if (!pOpts->provideLoginRefresh)
 		return;
 
@@ -2111,7 +2253,8 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 		ASSERT_TRUE(pEvent->base.type == WTF_DE_RDM_MSG);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.rdmMsgType == RDM_LG_MT_REFRESH);
 		ASSERT_TRUE(pEvent->rdmMsg.pRdmMsg->rdmMsgBase.streamId == 1);
-		ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
+		if(multiLogin == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rdmMsg.pUserSpec == (void*)0x55557777);
 	}
 	else
 	{
@@ -2119,7 +2262,8 @@ void wtfSetupConnectionServerFromConnectionList(WtfSetupWarmStandbyOpts *pOpts, 
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.msgClass == RSSL_MC_REFRESH);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.domainType == RSSL_DMT_LOGIN);
 		ASSERT_TRUE(pEvent->rsslMsg.pRsslMsg->msgBase.streamId == 1);
-		ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
+		if (multiLogin == RSSL_FALSE)
+			ASSERT_TRUE(pEvent->rsslMsg.pUserSpec == (void*)0x55557777);
 	}
 
 	wtfDispatch(WTF_TC_CONSUMER, 200);

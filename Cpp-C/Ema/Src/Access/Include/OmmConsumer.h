@@ -118,6 +118,7 @@
 #include "Access/Include/ChannelStatistics.h"
 #include "Access/Include/IOCtlReactorCode.h"
 #include "Access/Include/OAuth2CredentialRenewal.h"
+#include "Access/Include/LoginMsgCredentialRenewal.h"
 
 namespace refinitiv {
 
@@ -367,6 +368,16 @@ public :
 		@throw OmmInvalidUsageException if the credential update fails.
 	*/
 	void renewOAuth2Credentials(OAuth2CredentialRenewal&);
+
+	/** Provide updated Login credentials when the callback OmmLoginCredentialConsumerClient::onCredentialRenewal is called.
+	This function allows the application to use update login userName and authenticationExtended information during a reconnection.
+	@note This function can only be called within the onLoginCredentialRenewal callback.  It will throw an OmmInvalidUsageException if not called
+	in the callback
+	@param[in] LoginMsgCredentialRenewal object that contains the credentials.
+	@return void
+	@throw OmmInvalidUsageException if the credential update fails.
+*/
+	void renewLoginCredentials(LoginMsgCredentialRenewal&);
 	//@}
 
 private :

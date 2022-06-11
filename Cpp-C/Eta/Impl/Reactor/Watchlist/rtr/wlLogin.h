@@ -104,7 +104,7 @@ typedef enum
 
 /* Process a Login message from the consumer. */
 RsslRet wlLoginProcessConsumerMsg(WlLogin *pLogin, WlBase *pBase,
-		RsslRDMLoginMsg *pLoginMsg, void *pUserSpec, WlLoginConsumerAction *pAction, RsslErrorInfo *pErrorInfo);
+		RsslRDMLoginMsg *pLoginMsg, void *pUserSpec, RsslBool newConnection, WlLoginConsumerAction *pAction,  RsslErrorInfo *pErrorInfo);
 
 /* Updates the login request to the next user token, if the AAA API is in use. */
 void wlLoginSetNextUserToken(WlLogin *pLogin, WlBase *pBase);

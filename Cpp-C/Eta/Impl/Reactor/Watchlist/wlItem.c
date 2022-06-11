@@ -267,7 +267,7 @@ void wlItemRequestEstablishQos(WlItemRequest *pItemRequest, RsslQos *pQos)
 {
 	if (pItemRequest->flags & WL_IRQF_HAS_STATIC_QOS 
 			|| pItemRequest->qos.dynamic
-			|| pItemRequest->flags & RSSL_RQMF_HAS_QOS
+			|| pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_QOS
 				&& !(pItemRequest->requestMsgFlags & RSSL_RQMF_HAS_WORST_QOS))
 		return;
 

@@ -7,6 +7,7 @@
  */
 
 #include "OmmNiProviderConfigImpl.h"
+#include "OmmOAuth2ConsumerClient.h"
 #include "ExceptionTranslator.h"
 
 using namespace refinitiv::ema::access;
@@ -146,9 +147,4 @@ OmmNiProviderConfig::OperationModel OmmNiProviderConfigImpl::getOperationModel()
 OmmNiProviderConfig::AdminControl OmmNiProviderConfigImpl::getAdminControlDirectory() const
 {
 	return _adminControlDirectory;
-}
-
-RsslReactorOAuthCredential* OmmNiProviderConfigImpl::getReactorOAuthCredential()
-{
-	return NULL;
 }

@@ -115,11 +115,12 @@ int main(int argc, char **argv)
 	initOpts.jitOpts.libsslName = watchlistConsumerConfig.libsslName;
 	initOpts.jitOpts.libcryptoName = watchlistConsumerConfig.libcryptoName;
 	initOpts.jitOpts.libcurlName = watchlistConsumerConfig.libcurlName;
+	initOpts.rsslLocking = RSSL_LOCK_GLOBAL_AND_CHANNEL;
 
 	/* Initialize RSSL. The locking mode RSSL_LOCK_GLOBAL_AND_CHANNEL is required to use the RsslReactor. */
-	if (rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+	if (rsslInitializeEx(&initOpts, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
 	{
-		printf("rsslInitialize(): failed <%s>\n", rsslErrorInfo.rsslError.text);
+		printf("rsslInitializeEx(): failed <%s>\n", rsslErrorInfo.rsslError.text);
 		exit(-1);
 	}
 

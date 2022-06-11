@@ -3316,12 +3316,7 @@ void watchlistDirectoryTest_DuplicateServiceName(RsslConnectionTypes connectionT
 	opts.pRDMMsg = (RsslRDMMsg*)&directoryUpdate;
 	wtfSubmitMsg(&opts, WTF_TC_PROVIDER, NULL, RSSL_TRUE);
 
-	/* Consumer receives channel event. */
 	wtfDispatch(WTF_TC_CONSUMER, 100);
-	ASSERT_TRUE((pEvent = wtfGetEvent()));
-	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
-	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
-	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
 
 	/* Consumer receives Open/Suspect login status. */
 	ASSERT_TRUE(pEvent = wtfGetEvent());
@@ -3343,6 +3338,12 @@ void watchlistDirectoryTest_DuplicateServiceName(RsslConnectionTypes connectionT
 	serviceList = pDirectoryUpdate->serviceList;
 	ASSERT_TRUE(serviceList[0].serviceId == service1Id);
 	ASSERT_TRUE(serviceList[0].action == RSSL_MPEA_DELETE_ENTRY);
+
+	/* Consumer receives channel event. */
+	ASSERT_TRUE((pEvent = wtfGetEvent()));
+	ASSERT_TRUE((pChannelEvent = wtfGetChannelEvent(pEvent)));
+	ASSERT_TRUE(pChannelEvent->channelEventType == RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING);
+	ASSERT_TRUE(pChannelEvent->rsslErrorId == RSSL_RET_FAILURE);
 
 	wtfFinishTest();
 }

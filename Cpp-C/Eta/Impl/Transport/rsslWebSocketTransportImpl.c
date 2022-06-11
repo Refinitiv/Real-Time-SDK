@@ -216,7 +216,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslBuffer*) rsslWebSocketRead(rsslChannelImpl* rsslC
 	{
 		switch (ipcReadRet)
 		{
-		case RSSL_RET_FAILURE:
+			case RSSL_RET_FAILURE:
 				/* if read fails we need to update state */
 				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
 

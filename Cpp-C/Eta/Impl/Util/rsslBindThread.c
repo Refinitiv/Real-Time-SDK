@@ -514,6 +514,7 @@ RSSL_API RsslRet rsslBindThreadInitialize()
 		if (rsslCPUTopology.cpu_topology_ptr != NULL)
 			dumpCpuTopology();
 #endif
+		rsslClearBindings();
 	}
 	return RSSL_RET_SUCCESS;
 }

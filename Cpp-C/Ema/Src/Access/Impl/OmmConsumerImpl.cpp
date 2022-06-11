@@ -296,12 +296,21 @@ void OmmConsumerImpl::processChannelEvent( RsslReactorChannelEvent* )
 {
 }
 
-void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role, RsslReactorOAuthCredential* pReactorOAuthCredential )
+void OmmConsumerImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role)
 {
 	RsslReactorOMMConsumerRole& consumerRole = role.ommConsumerRole;
 	rsslClearOMMConsumerRole( &consumerRole );
-	consumerRole.pLoginRequest = getLoginCallbackClient().getLoginRequest();
-	consumerRole.pOAuthCredential = pReactorOAuthCredential;
+	if (_LoginRequestMsgs.size() == 1)
+	{
+		consumerRole.pLoginRequest = getLoginCallbackClient().getLoginRequest();
+	}
+	else
+	{
+		consumerRole.pLoginRequestList = _LoginReactorConfig;
+		consumerRole.loginRequestMsgCredentialCount = _LoginRequestMsgs.size();
+	}
+	consumerRole.pOAuthCredentialList = _OAuthReactorConfig;
+	consumerRole.oAuthCredentialCount = _oAuth2Credentials.size();
 	consumerRole.pDirectoryRequest = getDirectoryCallbackClient().getDirectoryRequest();
 	consumerRole.dictionaryDownloadMode = RSSL_RC_DICTIONARY_DOWNLOAD_NONE;
 
@@ -522,7 +531,6 @@ void OmmConsumerImpl::modifyIOCtl(Int32 code, Int32 value)
 	_userLock.unlock();
 }
 void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credentials) {
-	Channel* pChannel;
 	RsslErrorInfo rsslErrorInfo;
 	RsslReactorOAuthCredentialRenewal credentialRenewal;
 	RsslReactorOAuthCredentialRenewalOptions renewalOpts;
@@ -530,15 +538,7 @@ void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credential
 
 	_userLock.lock();
 
-	if ((pChannel = getLoginCallbackClient().getActiveChannel()) == NULL)
-	{
-		_userLock.unlock();
-		EmaString temp("No active channel to renew credentials.");
-		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
-		return;
-	}
-
-	if (pChannel->getInOAuthCallback() == false)
+	if (getInOAuthCallback() == false)
 	{
 		_userLock.unlock();
 		EmaString temp("Cannot call OmmConsumer::renewOAuth2Credentials outside of an OmmOAuth2ConsumerClient callback.");
@@ -576,10 +576,10 @@ void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credential
 		credentialRenewal.clientId.length = credentials.getClientId().length();
 	}
 
-	if (!credentials.getClientId().empty())
+	if (!credentials.getClientSecret().empty())
 	{
-		credentialRenewal.clientSecret.data = (char*)credentials.getClientId().c_str();
-		credentialRenewal.clientSecret.length = credentials.getClientId().length();
+		credentialRenewal.clientSecret.data = (char*)credentials.getClientSecret().c_str();
+		credentialRenewal.clientSecret.length = credentials.getClientSecret().length();
 	}
 
 	if (!credentials.getTokenScope().empty())
@@ -591,12 +591,67 @@ void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credential
 	credentialRenewal.takeExclusiveSignOnControl = credentials.getTakeExclusiveSignOnControl();
 
 
-	ret = rsslReactorSubmitOAuthCredentialRenewal(pChannel->getRsslReactor(), &renewalOpts, &credentialRenewal, &rsslErrorInfo);
+	ret = rsslReactorSubmitOAuthCredentialRenewal(_pRsslReactor, &renewalOpts, &credentialRenewal, &rsslErrorInfo);
 
 	if (ret != RSSL_RET_SUCCESS)
 	{
 		_userLock.unlock();
 		EmaString temp("Failed to renew OAuth credentials.  ");
+		temp.append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+		handleIue(temp, ret);
+		return;
+	}
+
+	_userLock.unlock();
+}
+
+
+void OmmConsumerImpl::renewLoginMsgCredentials(LoginMsgCredentialRenewal& credentials) {
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret;
+	RsslReactorLoginCredentialRenewalOptions opts;
+
+	_userLock.lock();
+
+	if (getInLoginCredentialCallback() == false)
+	{
+		_userLock.unlock();
+		EmaString temp("Cannot call OmmConsumer::renewLoginMsgCredentials outside of an OmmOAuth2ConsumerClient callback.");
+		handleIue(temp, OmmInvalidUsageException::InvalidOperationEnum);
+		return;
+	}
+
+	rsslClearReactorLoginCredentialRenewalOptions(&opts);
+	// OmmBaseImpl::_tmpLoginMsg was set immediately before this call in the callback.
+	if (credentials.getUserName().length() != 0)
+	{
+		opts.userName.data = const_cast<char*>(credentials.getUserName().c_str());
+		opts.userName.length = credentials.getUserName().length();
+		_tmpLoginMsg->username(EmaString(credentials.getUserName().c_str(), credentials.getUserName().length()));
+	}
+	else
+	{
+		opts.userName = _tmpLoginMsg->get()->userName;
+	}
+
+	if (credentials.getAuthenticationExtended().length() != 0)
+	{
+		opts.authenticationExtended.data = const_cast<char*>(credentials.getAuthenticationExtended().c_buf());
+		opts.authenticationExtended.length = credentials.getAuthenticationExtended().length();
+		_tmpLoginMsg->authenticationExtended(EmaBuffer(credentials.getAuthenticationExtended().c_buf(), credentials.getAuthenticationExtended().length()));
+	}
+	else
+	{
+		opts.authenticationExtended = _tmpLoginMsg->get()->authenticationExtended;
+	}
+
+	ret = rsslReactorSubmitLoginCredentialRenewal(_pRsslReactor, _tmpChnl, &opts, &rsslErrorInfo);
+
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		_userLock.unlock();
+		EmaString temp("Failed to renew Login credentials.  ");
 		temp.append(CR)
 			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
 		handleIue(temp, ret);

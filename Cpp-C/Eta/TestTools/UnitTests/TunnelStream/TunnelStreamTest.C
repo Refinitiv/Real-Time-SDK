@@ -400,11 +400,7 @@ void tunnelStreamOpenWhileDisconnectedTest(bool enableWatchlist)
 	/* Consumer receives disconnection event */
 	consumerReactor.dispatch(1 + (enableWatchlist ? 2 : 0));
 
-	pEvent = consumer.testReactor()->pollEvent();
-	ASSERT_EQ(CHANNEL_EVENT, pEvent->type());
-	pChannelEvent = (RsslReactorChannelEvent *)pEvent->reactorEvent();
-	ASSERT_EQ(RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING, pChannelEvent->channelEventType);
-	delete pEvent;
+
 
 	if (enableWatchlist)
 	{
@@ -418,6 +414,20 @@ void tunnelStreamOpenWhileDisconnectedTest(bool enableWatchlist)
 		ASSERT_EQ(DIRECTORY_MSG, pEvent->type());
 		pDirectoryMsgEvent = (RsslRDMDirectoryMsgEvent *)pEvent->reactorEvent();
 		ASSERT_EQ(RDM_DR_MT_UPDATE, pDirectoryMsgEvent->pRDMDirectoryMsg->rdmMsgBase.rdmMsgType);
+		delete pEvent;
+
+		pEvent = consumer.testReactor()->pollEvent();
+		ASSERT_EQ(CHANNEL_EVENT, pEvent->type());
+		pChannelEvent = (RsslReactorChannelEvent*)pEvent->reactorEvent();
+		ASSERT_EQ(RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING, pChannelEvent->channelEventType);
+		delete pEvent;
+	}
+	else
+	{
+		pEvent = consumer.testReactor()->pollEvent();
+		ASSERT_EQ(CHANNEL_EVENT, pEvent->type());
+		pChannelEvent = (RsslReactorChannelEvent*)pEvent->reactorEvent();
+		ASSERT_EQ(RSSL_RC_CET_CHANNEL_DOWN_RECONNECTING, pChannelEvent->channelEventType);
 		delete pEvent;
 	}
 

@@ -153,6 +153,7 @@ typedef struct
 	RsslUInt32			minorVersion;
 	RsslUInt8			*pFTGroupId;
 	RsslUInt32			*pSeqNum;
+	RsslBool			newConnection;
 } RsslWatchlistProcessMsgOptions;
 
 RTR_C_INLINE void rsslWatchlistClearProcessMsgOptions(RsslWatchlistProcessMsgOptions *pOptions)

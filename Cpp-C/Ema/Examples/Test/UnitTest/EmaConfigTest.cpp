@@ -1205,14 +1205,14 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 		outermostMap.complete();
 
 		SCOPED_TRACE("Must load data dictionary files from current working location\n");
-		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).username(g_userName).password(g_password));
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).username(g_userName).password(g_password).clientId(g_userName));
 
 		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
 		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;
 		EXPECT_TRUE(found) << "ommConsumerImpl.getConsumerName() , \"Consumer_1_1\"";
 		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.20) << "tokenReissueRatio, 0.20";
 		EXPECT_TRUE(activeConfig.reissueTokenAttemptLimit == 10) << "reissueTokenAttemptLimit, 10";
-		EXPECT_TRUE(activeConfig.reissueTokenAttemptLimit == 10000) << "reissueTokenAttemptInterval, 10000";
+		EXPECT_TRUE(activeConfig.reissueTokenAttemptInterval == 10000) << "reissueTokenAttemptInterval, 10000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->name == "Channel_1") << "Connection name , \"Channel_1\"";
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0])->location == "eu-west") << "EncryptedChannelConfig::location , \"eu-west\"";

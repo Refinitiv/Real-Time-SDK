@@ -41,8 +41,8 @@ subprojects {
 ext.YEAR = '2022'
 
 ext.BuildDate = 'Tue Mar 1 16:20:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.6.5.0'
-ext.SpecificationVersionShort = '3.6.5'
+ext.SpecificationVersion = '3.6.6.0'
+ext.SpecificationVersionShort = '3.6.6'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"

@@ -60,6 +60,8 @@ typedef struct _RsslReactorImpl RsslReactorImpl;
 
 typedef struct _RsslReactorWarmStandByHandlerImpl RsslReactorWarmStandByHandlerImpl;
 
+typedef struct _RsslReactorChannelImpl RsslReactorChannelImpl;
+
 typedef enum
 {
 	RSSL_RC_CHST_INIT = 0,
@@ -68,7 +70,8 @@ typedef enum
 	RSSL_RC_CHST_HAVE_RWFFLD = 3,
 	RSSL_RC_CHST_HAVE_RWFENUM = 4,
 	RSSL_RC_CHST_READY = 5,
-	RSSL_RC_CHST_RECONNECTING = 6
+	RSSL_RC_CHST_RECONNECTING = 6,
+	RSSL_RC_CHST_INIT_FAIL = 7
 } RsslReactorChannelSetupState;
 
 /* RsslReactorChannelInfoImplState
@@ -86,6 +89,9 @@ typedef enum
 	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_AUTH_TOKEN = 2,
 	RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY = 3,
 	RSSL_RC_CHINFO_IMPL_ST_ASSIGNED_HOST_PORT = 4,
+	RSSL_RC_CHINFO_IMPL_ST_REQ_LOGIN_MSG = 5,
+	RSSL_RC_CHINFO_IMPL_ST_RECEIVED_LOGIN_MSG = 6,
+	RSSL_RC_CHINFO_IMPL_ST_DONE = 7
 } RsslReactorChannelInfoImplState;
 
 /* RsslReactorPackedBufferImpl
@@ -117,6 +123,7 @@ typedef struct
 	RsslReactorDiscoveryTransportProtocol transportProtocol; /* This is used to keep the transport protocol for requesting service discovery */
 	RsslBool	userSetConnectionInfo; /* True when user specifies connectionInfo.unified fields address and serviceName. See RsslConnectionInfo */
 	RsslUInt32	reconnectEndpointAttemptCount; /* Attempts counter of connecting to the channel using this endpoint */
+	RsslBool startedSessionManagement; /* Indicates that this conenctionInfo has started session management */
 } RsslReactorConnectInfoImpl;
 
 RTR_C_INLINE void rsslClearReactorConnectInfoImpl(RsslReactorConnectInfoImpl* pReactorConnectInfoImpl)
@@ -156,7 +163,8 @@ typedef enum
 	RSSL_RWSB_STATE_RECEIVED_PRIMARY_FIELD_DICT_RESP  = 0x80,
 	RSSL_RWSB_STATE_RECEIVED_PRIMARY_ENUM_DICT_RESP   = 0x100,
 	RSSL_RWSB_STATE_CLOSING                           = 0x200,
-	RSSL_RWSB_STATE_INACTIVE                          = 0x400
+	RSSL_RWSB_STATE_INACTIVE                          = 0x400,
+	RSSL_RWSB_STATE_MOVED_TO_CHANNEL_LIST			  = 0x800
 
 }RsslReactorWarmStandByHandlerState;
 
@@ -372,6 +380,7 @@ typedef struct
 	RsslUInt32                numOfClosingStandbyServers; /* Keeps track of number of standby servers being closed. */
 	RsslInt32				  downloadConfigActiveServer; /* Select an active server from downloadConnectionConfig */
 	RsslInt32				  streamId; /* Stream ID for the source directory. */
+	RsslBool				  isStartingServerIsDown; /* Indicate whether the starting server is down. */
 }RsslReactorWarmStandbyGroupImpl;
 
 RTR_C_INLINE void rsslClearReactorWarmStandByGroupImpl(RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl)
@@ -392,6 +401,22 @@ RTR_C_INLINE void rsslClearReactorWarmStandByGroupImpl(RsslReactorWarmStandbyGro
 	pReactorWarmStandByGroupImpl->downloadConfigActiveServer = RSSL_REACTOR_WSB_STARTING_SERVER_INDEX;
 	pReactorWarmStandByGroupImpl->numOfClosingStandbyServers = 0;
 	pReactorWarmStandByGroupImpl->streamId = 0;
+	pReactorWarmStandByGroupImpl->isStartingServerIsDown = RSSL_FALSE;
+}
+
+typedef struct
+{
+	RsslQueueLink					tokenSessionLink; /* Keeps in the RsslQueue of RsslReactorTokenSessionImpl */
+	RsslReactorTokenSessionImpl* pSessionImpl;
+	RsslUInt32 credentialArrayIndex;
+	rtr_atomic_val hasBeenActivated;
+	RsslReactorChannelImpl* pChannelImpl;
+}RsslReactorTokenChannelInfo;
+
+RTR_C_INLINE void rsslClearReactorTokenChannelInfo(RsslReactorTokenChannelInfo* pTokenChannelImpl)
+{
+	memset((void*)pTokenChannelImpl, 0, sizeof(RsslReactorTokenChannelInfo));
+	rsslInitQueueLink(&pTokenChannelImpl->tokenSessionLink);
 }
 
 typedef struct
@@ -408,7 +433,7 @@ RTR_C_INLINE void rsslClearReactorChannelDebugInfo(RsslReactorChannelDebugInfo* 
 
 /* RsslReactorChannelImpl 
  * - Handles a channel associated with the RsslReactor */
-typedef struct 
+struct _RsslReactorChannelImpl
 {
 	RsslReactorChannel reactorChannel;
 
@@ -460,11 +485,13 @@ typedef struct
 
 	RsslInt32 connectionListCount;
 	RsslInt32 connectionListIter;
-	RsslReactorConnectInfoImpl *connectionOptList;
+	RsslReactorConnectInfoImpl *connectionOptList;				/* List of connection objects */
+	RsslReactorConnectInfoImpl *currentConnectionOpts;  /* Pointer to the current connection info. Actual location is either in the connectionOptList or the warm standby config. This is assigned in one of three places.  
+														Either the initial rsslReactorConnect call for a non-warm standby or WSB active, in the reconnection logic once the next connection location has been determined, or 
+														during the standby connection initialization for WSB. */
 	TunnelManager *pTunnelManager;
 
 	/* Support session management and RDP service discovery. */
-	RsslBool				supportSessionMgnt;
 	RsslUInt32				httpStausCode; /* the latest HTTP status code */
 	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from RDP service discovery */
 
@@ -480,12 +507,9 @@ typedef struct
 	RsslReactorChannelStatisticFlags statisticFlags;
 
 	/* This is used for token session management */
-	RsslQueueLink					tokenSessionLink; /* Keeps in the RsslQueue of RsslReactorTokenSessionImpl */
-	RsslReactorTokenSessionImpl		*pTokenSessionImpl; /* The RsslReactorTokenSessionImpl for this channel if token management is enable */
-	rtr_atomic_val					addedToTokenSessionList; /* This is used to check whether RsslReactorChannelImpl has been added to the 
-															 RsslQueue of RsslReactorTokenSessionImpl*/
+	RsslReactorTokenChannelInfo		*pTokenSessionList; /* List of RsslReactorTokenSessionImpl pointers for this channel if token management is enabled. This is either a size of 1 or a size of the number of configured oAUth credentials */
+	RsslReactorTokenChannelInfo		*pCurrentTokenSession; /* The current token session */
 
-	RsslReactorSessionMgmtVersion	sessionVersion;		/* This is defined based on inputs. */
 	RsslBool						hasConnected;
 
 	RsslBuffer						temporaryURL; /* Temporary URL for redirect */
@@ -505,7 +529,13 @@ typedef struct
 	RsslQueue						  *pWSRecoveryMsgList; /* Keeps a list of recovery status messages to notify application when this channel becomes active. */
 	RsslReactorChannelDebugInfo*      pChannelDebugInfo; /* Provides addtional debugging information for channel and tunnel stream. */
 
-} RsslReactorChannelImpl;
+	/* For multi-credentials */
+	RsslBool						  deepCopyRole;			/* This RsslReactorChannelImpl contains a deepy copy of the channel role credentials */
+	RsslBool			inLoginCredentialCallback;
+	RsslBool			doNotNotifyWorkerOnCredentialChange;
+	
+
+};
 
 RTR_C_INLINE void rsslClearReactorChannelImpl(RsslReactorImpl *pReactorImpl, RsslReactorChannelImpl *pInfo)
 {
@@ -554,8 +584,6 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslReactorDictionaryVersion	rdmEnumTypeVersion; /* keeps RDM enumerated type version of primary sever */
 	RsslReactorChannelImpl			*pReadMsgChannel; /* keeps track which channel reads the current processing message. */
 	RsslBool						queuedRecoveryMessage; /* This is used to indicate for queing recovery message when moving to another WSB group. */
-	RsslBool						enableSessionMgnt; /* This is used to indicate whether this warm standby channel enables session management. */
-
 	/* For applying ioctl */
 	RsslUInt32				ioCtlCodes; /* Keeps ioctl codes for all channels. Defined in RsslReactorWSIoctlCodes */
 	RsslTraceOptions traceOptions; /* Keeps the trace options. */
@@ -622,6 +650,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 
 			if(pOpts->reactorConnectionList[i].enableSessionManagement)
 			{
+				*enableSessionMgnt = RSSL_TRUE;
 				pReactorChannel->connectionOptList[i].base.location.length = (RsslUInt32)strlen(pOpts->reactorConnectionList[i].location.data);
 				pReactorChannel->connectionOptList[i].base.location.data = (char*)malloc((size_t)pReactorChannel->connectionOptList[i].base.location.length + (size_t)1);
 				if (pReactorChannel->connectionOptList[i].base.location.data == 0)
@@ -655,9 +684,8 @@ RTR_C_INLINE RsslRet _rsslChannelCopyConnectionList(RsslReactorChannelImpl *pRea
 			pReactorChannel->connectionOptList[i].base.enableSessionManagement = pOpts->reactorConnectionList[i].enableSessionManagement;
 			pReactorChannel->connectionOptList[i].base.pAuthTokenEventCallback = pOpts->reactorConnectionList[i].pAuthTokenEventCallback;
 			pReactorChannel->connectionOptList[i].base.serviceDiscoveryRetryCount = pOpts->reactorConnectionList[i].serviceDiscoveryRetryCount;
-
-			if (!(*enableSessionMgnt))
-				(*enableSessionMgnt) = pReactorChannel->connectionOptList[i].base.enableSessionManagement;
+			pReactorChannel->connectionOptList[i].base.loginReqIndex = pOpts->reactorConnectionList[i].loginReqIndex;
+			pReactorChannel->connectionOptList[i].base.oAuthCredentialIndex = pOpts->reactorConnectionList[i].oAuthCredentialIndex;
 
 			destOpts = &pReactorChannel->connectionOptList[i].base.rsslConnectOptions;
 			sourceOpts = &pOpts->reactorConnectionList[i].rsslConnectOptions;
@@ -743,6 +771,7 @@ RTR_C_INLINE void _rsslFreeReactorWSBServiceConfigImpl(RsslReactorWarmStandbyGro
 RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl *pWarmStandByHandler, RsslUInt32 count, RsslBool freeWarmStandbyHandler)
 {
 	RsslUInt32 i, o, m;
+	RsslInt8 j;
 	RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl = NULL;
 	RsslQueueLink* pLink = NULL;
 	RsslReactorWarmStandbyServiceImpl* pReactorWarmStandbyServiceImpl = NULL;
@@ -798,6 +827,71 @@ RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl 
 			free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
 		}
 	}
+
+	if (pWarmStandByHandler->mainReactorChannelImpl.deepCopyRole == RSSL_TRUE)
+	{
+		RsslReactorOMMConsumerRole* pConsRole = (RsslReactorOMMConsumerRole*)&pWarmStandByHandler->mainReactorChannelImpl.channelRole;
+
+		if (pConsRole->pLoginRequestList != NULL)
+		{
+			for (j = 0; j < pConsRole->loginRequestMsgCredentialCount; j++)
+			{
+				if (pConsRole->pLoginRequestList[j]->loginRequestMsg)
+				{
+					free(pConsRole->pLoginRequestList[j]->loginRequestMsg);
+					pConsRole->pLoginRequestList[j]->loginRequestMsg = NULL;
+				}
+			}
+
+			free(pConsRole->pLoginRequestList);
+			pConsRole->pLoginRequestList = NULL;
+
+			/* This has already been free'd in the above */
+			pConsRole->pLoginRequest = NULL;
+		}
+
+		/* We only copy the oAuth credential list, not the pOAuthCredential element */
+		if (pConsRole->pOAuthCredentialList)
+		{
+			for (j = 0; j < pConsRole->oAuthCredentialCount; j++)
+			{
+				if (pConsRole->pOAuthCredentialList[j])
+				{
+					// Clear out all of the credential information
+					if (pConsRole->pOAuthCredentialList[j]->clientId.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->clientId.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->clientId.length));
+
+					if (pConsRole->pOAuthCredentialList[j]->clientSecret.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->clientSecret.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->clientSecret.length));
+
+					if (pConsRole->pOAuthCredentialList[j]->password.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->password.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->password.length));
+
+					if (pConsRole->pOAuthCredentialList[j]->tokenScope.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->tokenScope.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->tokenScope.length));
+
+					if (pConsRole->pOAuthCredentialList[j]->userName.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->userName.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->userName.length));
+
+					memset((void*)pConsRole->pOAuthCredentialList[j], 0, sizeof(RsslReactorOAuthCredential));
+					free((void*)pConsRole->pOAuthCredentialList[j]);
+					pConsRole->pOAuthCredentialList[j] = NULL;
+				}
+			}
+			free(pConsRole->pOAuthCredentialList);
+
+			pConsRole->pOAuthCredentialList = NULL;
+		}
+		else if (pConsRole->pOAuthCredential)
+		{
+			free(pConsRole->pOAuthCredential);
+
+			pConsRole->pOAuthCredential = NULL;
+		}
+
+		pWarmStandByHandler->mainReactorChannelImpl.deepCopyRole = RSSL_FALSE;
+	}
+
 
 	/* Free memory from RDMLoginRefresh */
 	if (pWarmStandByHandler->rdmLoginRefresh.userName.data)
@@ -876,7 +970,7 @@ RTR_C_INLINE RsslReactorWarmStandByHandlerImpl* _reactorTakeWSBChannelHandler(Rs
 	return pReactorWarmStandByHandler;
 }
 
-RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReactorImpl, RsslQueue *pWSChannelPool, RsslReactorConnectOptions* pOpts, RsslReactorWarmStandByHandlerImpl** pWarmStandByHandler, RsslBool* enableSessionMgnt)
+RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReactorImpl, RsslQueue *pWSChannelPool, RsslReactorConnectOptions* pOpts, RsslReactorChannelRole* pRole,  RsslReactorWarmStandByHandlerImpl** pWarmStandByHandler, RsslBool* enableSessionMgnt, RsslErrorInfo *pError)
 {
 	RsslUInt32 wsGroupIndex = 0, j = 0, k = 0, l = 0, m = 0, o = 0;
 	RsslReactorWarmStandbyGroupImpl* pReactorWarmStandByGroupImpl = NULL;
@@ -889,6 +983,12 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 	
 	if (pOpts->warmStandbyGroupCount != 0 && pOpts->reactorWarmStandbyGroupList != NULL)
 	{
+		if (pRole->base.roleType != RSSL_RC_RT_OMM_CONSUMER)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "A warm standby group list was set for a non-consume role");
+			return RSSL_RET_FAILURE;
+		}
+
 		/* Checks to ensure the user specified warm standby mode is valid for all groups.*/
 		for (wsGroupIndex = 0; wsGroupIndex < pOpts->warmStandbyGroupCount; wsGroupIndex++)
 		{
@@ -904,7 +1004,8 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 				}
 				default: /* Invalid warm standby mode. */
 				{
-					return RSSL_RET_INVALID_ARGUMENT;
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Invalid warm standby mode specified in a warm standby group.");
+					return RSSL_RET_FAILURE;
 				}
 			}
 		}
@@ -933,6 +1034,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 					RSSL_TRUE, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 				{
 					/* Free previous warmstandby group if any */
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 					goto cleanUpPreviousWarmStandGroup;
 				}
 
@@ -949,6 +1051,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
 
 							/* Free previous warmstandby group if any */
+							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 							goto cleanUpPreviousWarmStandGroup;
 						}
 					}
@@ -956,6 +1059,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 					{
 						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
 						/* Free previous warmstandby group if any */
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 						goto cleanUpPreviousWarmStandGroup;
 					}
 
@@ -967,6 +1071,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 						free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
 
 						/* Free previous warmstandby group if any */
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 						goto cleanUpPreviousWarmStandGroup;
 					}
 
@@ -975,8 +1080,8 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 
 				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].warmStandbyMode == RSSL_RWSB_MODE_SERVICE_BASED)
 				{
-					RsslReactorWSBServiceConfigImpl *pServiceConfigImpl = NULL;
-					
+					RsslReactorWSBServiceConfigImpl* pServiceConfigImpl = NULL;
+
 					/* Copies per service based options for the active server info */
 					if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameCount != 0 && pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameList)
 					{
@@ -990,12 +1095,13 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 							free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 							/* Free previous warmstandby group if any */
+							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 							goto cleanUpPreviousWarmStandGroup;
 						}
 
 						for (o = 0; o < pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameCount; o++)
 						{
-							RsslBuffer *pServiceName = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameList[o];
+							RsslBuffer* pServiceName = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.perServiceBasedOptions.serviceNameList[o];
 							RsslUInt32 hashCode = rsslHashBufferSum(pServiceName);
 							pHashLink = rsslHashTableFind(pReactorWarmStandByGroupImpl->pActiveServiceConfig, pServiceName, &hashCode);
 
@@ -1020,6 +1126,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 									free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 									/* Free previous warmstandby group if any */
+									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 									goto cleanUpPreviousWarmStandGroup;
 								}
 
@@ -1044,6 +1151,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 								free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 								/* Free previous warmstandby group if any */
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 								goto cleanUpPreviousWarmStandGroup;
 							}
 
@@ -1054,7 +1162,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 							{
 								/* Add service config to queue link and hash table. */
 								rsslQueueAddLinkToBack(pReactorWarmStandByGroupImpl->pActiveServiceConfigList, &pServiceConfigImpl->queueLink);
-								rsslHashTableInsertLink(pReactorWarmStandByGroupImpl->pActiveServiceConfig, &pServiceConfigImpl->hashLink, 
+								rsslHashTableInsertLink(pReactorWarmStandByGroupImpl->pActiveServiceConfig, &pServiceConfigImpl->hashLink,
 									&pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[o], &hashCode);
 								pServiceConfigImpl->isStartingServerConfig = RSSL_TRUE;
 							}
@@ -1064,11 +1172,67 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 					}
 				}
 
-				/* Copies the location field for the active server. */
-				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.enableSessionManagement)
+				if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.enableSessionManagement == RSSL_TRUE)
 				{
+					/* If session management was turned on and neither pOauthCredential nor pOAuthCredentialList exist, error out */
+					if (pRole->ommConsumerRole.pOAuthCredential == NULL && pRole->ommConsumerRole.pOAuthCredentialList == NULL)
+					{
+						for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+						{
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+						}
+
+						free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+
+						if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+						{
+							rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+						}
+
+						_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+						/* Free previous warmstandby group if any */
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "No oAuth credentials were specified with session management enabled.");
+						goto cleanUpPreviousWarmStandGroup;
+					}
+					/* if a credential list is present, then check to see if the index is valid.  If the credential list is present, ignore the index */
+					else if (pRole->ommConsumerRole.pOAuthCredentialList != NULL && pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.oAuthCredentialIndex >= pRole->ommConsumerRole.oAuthCredentialCount)
+					{
+						for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+						{
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+						}
+
+						free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+						rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+
+						if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+						{
+							rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+						}
+
+						_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+						/* Free previous warmstandby group if any */
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Invalid oAuth array index %d set for warm standby active.", pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.oAuthCredentialIndex);
+						goto cleanUpPreviousWarmStandGroup;
+					}
+
 					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length = (RsslUInt32)strlen(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.location.data);
-					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data = (char*)malloc((size_t)pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length + (size_t)1);
+					if (pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length != 0)
+						pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data = (char*)malloc((size_t)pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length + (size_t)1);
+
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.enableSessionManagement = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.enableSessionManagement;
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.initializationTimeout = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.initializationTimeout;
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.pAuthTokenEventCallback = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.pAuthTokenEventCallback;
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.oAuthCredentialIndex = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.oAuthCredentialIndex;
 
 					if (pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data == NULL)
 					{
@@ -1091,17 +1255,49 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 						free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 						/* Free previous warmstandby group if any */
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 						goto cleanUpPreviousWarmStandGroup;
 					}
 
 					memset(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data, 0, (size_t)pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length + (size_t)1);
 					strncpy(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data, pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.location.data,
 						(size_t)(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.length));
+
+					(*enableSessionMgnt) = RSSL_TRUE;
 				}
 				else
 				{
 					rsslClearBuffer(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location);
 				}
+
+				/* For Login messages, we only need to verify that the request list exists.  If it doesn't, we handle a null ommConsumerRole.pLoginRequest at l*/
+				if (pRole->ommConsumerRole.pLoginRequestList != NULL && pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.loginReqIndex >= pRole->ommConsumerRole.loginRequestMsgCredentialCount)
+				{
+					for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+					{
+						free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+					}
+
+					free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+					rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+
+					if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+					{
+						rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+						free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+					}
+
+					_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+					free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+					/* Free previous warmstandby group if any */
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Invalid login array index %d set for warm standby active.", pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.oAuthCredentialIndex);
+					goto cleanUpPreviousWarmStandGroup;
+				}
+
+				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.loginReqIndex = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.loginReqIndex;
+				
 
 				destOpts = &pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions;
 				sourceOpts = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.rsslConnectOptions;
@@ -1132,16 +1328,14 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 					free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 					/* Free previous warmstandby group if any */
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 					goto cleanUpPreviousWarmStandGroup;
 				}
 
-				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.enableSessionManagement = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.enableSessionManagement;
-				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.initializationTimeout = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.initializationTimeout;
-				pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.pAuthTokenEventCallback = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].startingActiveServer.reactorConnectInfo.pAuthTokenEventCallback;
-
-				if (!(*enableSessionMgnt))
+				if ((destOpts->connectionInfo.unified.address != NULL && *destOpts->connectionInfo.unified.address != '\0') &&
+					(destOpts->connectionInfo.unified.serviceName != NULL && *destOpts->connectionInfo.unified.serviceName != '\0'))
 				{
-					(*enableSessionMgnt) = pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.enableSessionManagement;
+					pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.userSetConnectionInfo = RSSL_TRUE;
 				}
 
 				++numberOfServers;
@@ -1176,6 +1370,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 						free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 						/* Free previous warmstandby group if any */
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 						goto cleanUpPreviousWarmStandGroup;
 					}
 					
@@ -1232,6 +1427,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 									free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 									/* Free previous warmstandby group if any */
+									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 									goto cleanUpPreviousWarmStandGroup;
 								}
 
@@ -1290,6 +1486,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 											free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 											/* Free previous warmstandby group if any */
+											rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 											goto cleanUpPreviousWarmStandGroup;
 										}
 
@@ -1342,6 +1539,7 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 										free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 										/* Free previous warmstandby group if any */
+										rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 										goto cleanUpPreviousWarmStandGroup;
 									}
 
@@ -1364,10 +1562,106 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 							}
 						}
 
-						if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.enableSessionManagement)
+						if (pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.enableSessionManagement == RSSL_TRUE)
 						{
+							/* If session management was turned on and neither pOauthCredential nor pOAuthCredentialList exist, error out */
+							if (pRole->ommConsumerRole.pOAuthCredential == NULL && pRole->ommConsumerRole.pOAuthCredentialList == NULL)
+							{
+								for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+								{
+									free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+								}
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+								rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+								for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameCount; o++)
+								{
+									free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data);
+								}
+								free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList);
+
+								for (k = 0; k < j; k++)
+								{
+									for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+									{
+										free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+									}
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+									rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+								}
+
+								free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+								rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+								if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+								{
+									rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+									free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+								}
+								_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+								/* Free previous warmstandby group if any */
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "No oAuth credentials were specified with session management enabled.");
+								goto cleanUpPreviousWarmStandGroup;
+							}
+							/* if a credential list is present, then check to see if the index is valid.  If the credential list is present, ignore the index */
+							else if (pRole->ommConsumerRole.pOAuthCredentialList != NULL && pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.oAuthCredentialIndex >= pRole->ommConsumerRole.oAuthCredentialCount)
+							{
+								for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+								{
+									free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+								}
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+								rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+								for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameCount; o++)
+								{
+									free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data);
+								}
+								free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList);
+
+								for (k = 0; k < j; k++)
+								{
+									for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+									{
+										free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+									}
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+									rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+								}
+
+								free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+								rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+								if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+								{
+									rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+									free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+								}
+								_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+								/* Free previous warmstandby group if any */
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Invalid oAuth array index %d set for warm standby group connection.", pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.oAuthCredentialIndex);
+								goto cleanUpPreviousWarmStandGroup;
+							}
+
 							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length = (RsslUInt32)strlen(pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.location.data);
 							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data = (char*)malloc((size_t)pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length + (size_t)1);
+
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.initializationTimeout = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.initializationTimeout;
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.enableSessionManagement = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.enableSessionManagement;
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.pAuthTokenEventCallback = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.pAuthTokenEventCallback;
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.oAuthCredentialIndex = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.oAuthCredentialIndex;
+
 
 							if (pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data == NULL)
 							{
@@ -1410,28 +1704,70 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 								free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 								/* Free previous warmstandby group if any */
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 								goto cleanUpPreviousWarmStandGroup;
 							}
 
 							memset(pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data, 0, (size_t)pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length + (size_t)1);
 							strncpy(pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.data, pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.location.data,
 								(size_t)(pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location.length));
+
+							(*enableSessionMgnt) = RSSL_TRUE;
 						}
 						else
 						{
 							rsslClearBuffer(&pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.location);
 						}
 
-						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.initializationTimeout = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.initializationTimeout;
-						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.enableSessionManagement = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.enableSessionManagement;
-						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.pAuthTokenEventCallback = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.pAuthTokenEventCallback;
+						/* For Login messages, we only need to verify that the request list exists.  If it doesn't, we handle a null ommConsumerRole.pLoginRequest at l*/
+						if (pRole->ommConsumerRole.pLoginRequestList != NULL && pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.loginReqIndex >= pRole->ommConsumerRole.loginRequestMsgCredentialCount)
+						{
+							for (m = 0; m < pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameCount; m++)
+							{
+								free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList[m].data);
+							}
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.perServiceBasedOptions.serviceNameList);
+
+							free(pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.location.data);
+							rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.rsslConnectOptions);
+
+							for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameCount; o++)
+							{
+								free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList[o].data);
+							}
+							free(pReactorWarmStandByGroupImpl->standbyServerList[j].perServiceBasedOptions.serviceNameList);
+
+							for (k = 0; k < j; k++)
+							{
+								for (o = 0; o < pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameCount; o++)
+								{
+									free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList[o].data);
+								}
+								free(pReactorWarmStandByGroupImpl->standbyServerList[k].perServiceBasedOptions.serviceNameList);
+
+								free(pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.location.data);
+								rsslFreeConnectOpts(&pReactorWarmStandByGroupImpl->standbyServerList[k].reactorConnectInfoImpl.base.rsslConnectOptions);
+							}
+
+							free(pReactorWarmStandByGroupImpl->standbyServerList);
+
+							rsslHashTableCleanup(&pReactorWarmStandByGroupImpl->_perServiceById);
+							if (pReactorWarmStandByGroupImpl->pActiveServiceConfig)
+							{
+								rsslHashTableCleanup(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+								free(pReactorWarmStandByGroupImpl->pActiveServiceConfig);
+							}
+							_rsslFreeReactorWSBServiceConfigImpl(pReactorWarmStandByGroupImpl);
+							free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
+
+							/* Free previous warmstandby group if any */
+							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Invalid login array index %d set for warm standby group connection.", pReactorWarmStandByGroupImpl->startingActiveServer.reactorConnectInfoImpl.base.oAuthCredentialIndex);
+							goto cleanUpPreviousWarmStandGroup;
+						}
+
+						pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.loginReqIndex = pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.loginReqIndex;
 
 						++numberOfServers;
-
-						if (!(*enableSessionMgnt))
-						{
-							(*enableSessionMgnt) = pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.enableSessionManagement;
-						}
 
 						destOpts = &pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.base.rsslConnectOptions;
 						sourceOpts = &pOpts->reactorWarmStandbyGroupList[wsGroupIndex].standbyServerList[j].reactorConnectInfo.rsslConnectOptions;
@@ -1472,7 +1808,14 @@ RTR_C_INLINE RsslRet _rsslChannelCopyWarmStandByGroupList(RsslReactorImpl *pReac
 							free(pReactorWarmStandByGroupImpl->pActiveServiceConfigList);
 
 							/* Free previous warmstandby group if any */
+							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unable to copy warmstandby group list.");
 							goto cleanUpPreviousWarmStandGroup;
+						}
+
+						if ((destOpts->connectionInfo.unified.address != NULL && *destOpts->connectionInfo.unified.address != '\0') &&
+							(destOpts->connectionInfo.unified.serviceName != NULL && *destOpts->connectionInfo.unified.serviceName != '\0'))
+						{
+							pReactorWarmStandByGroupImpl->standbyServerList[j].reactorConnectInfoImpl.userSetConnectionInfo = RSSL_TRUE;
 						}
 					}
 				}
@@ -1600,17 +1943,15 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 
 	/* Reset all buffers for the session management */
-	pReactorChannel->supportSessionMgnt = RSSL_FALSE;
 	pReactorChannel->pRestHandle = NULL;
-	pReactorChannel->addedToTokenSessionList = RSSL_FALSE;
 
 	/* The channel statistics */
 	pReactorChannel->pChannelStatistic = NULL;
 	pReactorChannel->statisticFlags = RSSL_RC_ST_NONE;
 
 	/* The token session management */
-	rsslInitQueueLink(&pReactorChannel->tokenSessionLink);
-	pReactorChannel->pTokenSessionImpl = NULL;
+	pReactorChannel->pTokenSessionList = NULL;
+	pReactorChannel->pCurrentTokenSession = NULL;
 	rsslClearBuffer(&pReactorChannel->temporaryURL);
 	pReactorChannel->temporaryURLBufLength = 0;
 
@@ -1787,6 +2128,7 @@ struct _RsslReactorImpl
 	RsslInt32			reissueTokenAttemptInterval; /* User defined the number of attempt interval in milliseconds */
 
 	RsslReactorTokenSessionImpl	*pTokenSessionForCredentialRenewalCallback; /* This is set before calling the callback to get user's credential */
+	RsslBool			doNotNotifyWorkerOnCredentialChange;
 	RsslBool			rsslWorkerStarted;
 	RsslUInt32			restRequestTimeout; /* Keeps the request timeout */
 
@@ -1844,8 +2186,6 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 
 RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReactorChannelImpl, RsslBool *queryConnectInfo, RsslErrorInfo* pError);
 
-RsslRet _reactorGetAccessToken(RsslReactorChannelImpl* pReactorChannelImpl, RsslReactorConnectInfoImpl* pReactorConnectInfoImpl, RsslErrorInfo* pError);
-
 RsslBuffer* getHeaderValue(RsslQueue *pHeaders, RsslBuffer* pHeaderName);
 
 void _cumulativeValue(RsslUInt* destination, RsslUInt32 value);
@@ -1867,7 +2207,11 @@ RsslBool isRsslChannelActive(RsslReactorChannelImpl *pReactorChannelImpl);
 
 RsslRet copyWlItemRequest(RsslReactorImpl *pReactorImpl, RsslReactorSubmitMsgOptionsImpl* pDestinationImpl, WlItemRequest *pItemRequest);
 
-RsslReactorConnectInfoImpl* _reactorGetCurrentReactorConnectInfoImpl(RsslReactorChannelImpl* pReactorChannel);
+RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
+	RsslReactorOAuthCredential* pOAuthCredential, RsslReactorTokenChannelInfo* pTokenChannelImpl, RsslBool setMutex, RsslErrorInfo* pError);
+
+RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChannel,
+	 RsslBool setMutex, RsslErrorInfo* pError);
 
 /* Setup and start the worker thread (Should be called from rsslCreateReactor) */
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError);
@@ -1881,6 +2225,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg);
 /* Estimate encoded message size. */
 RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
 
+void _clearRoleSensitiveData(RsslReactorOMMConsumerRole* pRole);
+
 /**
 * @brief Print out the given input argument to the output stream.
 *  Method will send RestLoggingEvent and Reactor will invoke pRestLoggingCallback if enabled
@@ -1889,7 +2235,7 @@ RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
 * @param pError Error structure to be populated in the event of an error.
 * @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogViaCallback, RsslReactorImpl.pRestLoggingCallback.
 */
-void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError);
+RsslRet rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRestRequestArgs, RsslError* pError);
 
 /**
 * @brief Print out the given input argument to the output stream.
@@ -1899,8 +2245,10 @@ void rsslRestRequestDump(RsslReactorImpl* pReactorImpl, RsslRestRequestArgs* pRe
 * @param pError Error structure to be populated in the event of an error.
 * @see RsslReactorImpl.restEnableLog, RsslReactorImpl.restEnableLogViaCallback, RsslReactorImpl.pRestLoggingCallback.
 */
-void rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
+RsslRet rsslRestResponseDump(RsslReactorImpl* pReactorImpl, RsslRestResponse* pRestResponseArgs, RsslError* pError);
 RsslRet _getCurrentTimestamp(RsslBuffer* timeStamp);
+
+RSSL_VA_API RsslRet rsslReactorCreateRestClient(RsslReactorImpl* pRsslReactorImpl, RsslErrorInfo* pError);
 
 void _writeDebugInfo(RsslReactorImpl* pReactorDebugInfo, const char* debugText, ...);
 

@@ -539,7 +539,7 @@ TEST_F(ReactorSessionMgntTest, NoOAuthCredentialForEnablingSessionMgnt)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "There is no user credential available for enabling session management.");
+	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "No oAuth credentials have been set for a channel with session management turned on");
 }
 
 TEST_F(ReactorSessionMgntTest, NoUserNameForEnablingSessionMgnt)
@@ -869,10 +869,9 @@ TEST_F(ReactorSessionMgntTest, NoPasswordForEnablingSessionMgnt)
 	_reactorOAuthCredential.clientId = g_userName;
 	_reactorOmmConsumerRole.pOAuthCredential = &_reactorOAuthCredential;
 
-	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
-	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Failed to copy OAuth credentials for enabling the session management.");
+	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
 }
 
 TEST_F(ReactorSessionMgntTest, UsingOmmNiProviderRoleForSessionMgnt)

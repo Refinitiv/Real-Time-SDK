@@ -708,7 +708,6 @@ LoginCallbackClient::LoginCallbackClient( OmmBaseImpl& ommBaseImpl ) :
 	_loginItemLock(),
 	_loginList(),
 	_loginRequestMsg(),
-	_loginRequestBuffer( 0 ),
 	_loginRefreshMsg(),
 	_loginRefreshBuffer( 0 ),
 	_refreshMsg(),
@@ -731,9 +730,6 @@ LoginCallbackClient::~LoginCallbackClient()
 	_loginItems.clear();
 
 	Login::destroy( _requestLogin );
-
-	if ( _loginRequestBuffer )
-		free( _loginRequestBuffer );
 
 	if (_loginRefreshBuffer)
 		free(_loginRefreshBuffer);
@@ -769,14 +765,13 @@ void LoginCallbackClient::destroy( LoginCallbackClient*& pClient )
 
 void LoginCallbackClient::initialize()
 {
-	rsslClearRDMLoginRequest( &_loginRequestMsg );
 	rsslClearRDMLoginRefresh(&_loginRefreshMsg);
 	_notifyChannelDownReconnecting = false;
 
-	if ( !_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->userName.length )
+	if ( !_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->get()->userName.length )
 	{
 		RsslBuffer tempBuffer;
-		tempBuffer.data = _ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->defaultUsername;
+		tempBuffer.data = _ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->get()->defaultUsername;
 		tempBuffer.length = 256;
 
 		if ( RSSL_RET_SUCCESS != rsslGetUserName( &tempBuffer ) )
@@ -785,40 +780,14 @@ void LoginCallbackClient::initialize()
 			return;
 		}
 
-		_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->userName = tempBuffer;
+		_ommBaseImpl.getActiveConfig().pRsslRDMLoginReq->username(EmaString(tempBuffer.data, tempBuffer.length));
 	}
 
-	RsslBuffer tempLRB;
-
-	tempLRB.length = 1000;
-	tempLRB.data = ( char* ) malloc( tempLRB.length );
-	if ( !tempLRB.data )
-	{
-		_ommBaseImpl.handleMee( "Failed to allocate memory for RsslRDMLoginRequest in LoginCallbackClient." );
-		return;
-	}
-
-	_loginRequestBuffer = tempLRB.data;
-
-	while ( RSSL_RET_BUFFER_TOO_SMALL == rsslCopyRDMLoginRequest( &_loginRequestMsg, _ommBaseImpl.getActiveConfig().pRsslRDMLoginReq, &tempLRB ) )
-	{
-		free( _loginRequestBuffer );
-
-		tempLRB.length += tempLRB.length;
-
-		tempLRB.data = ( char* ) malloc( tempLRB.length );
-		if ( !tempLRB.data )
-		{
-			_ommBaseImpl.handleMee( "Failed to allocate memory for RsslRDMLoginRequest in LoginCallbackClient." );
-			return;
-		}
-
-		_loginRequestBuffer = tempLRB.data;
-	}
+	_loginRequestMsg = _ommBaseImpl.getActiveConfig().pRsslRDMLoginReq;
 
 	_requestLogin = Login::create( _ommBaseImpl );
 
-	_requestLogin->set( &_loginRequestMsg );
+	_requestLogin->set( _loginRequestMsg->get() );
 
 	if ( OmmLoggerClient::VerboseEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 	{
@@ -839,7 +808,7 @@ UInt32 LoginCallbackClient::sendLoginClose()
 
 RsslRDMLoginRequest* LoginCallbackClient::getLoginRequest()
 {
-	return &_loginRequestMsg;
+	return _loginRequestMsg->get();
 }
 
 RsslRDMLoginRefresh* LoginCallbackClient::getLoginRefresh()
@@ -847,129 +816,81 @@ RsslRDMLoginRefresh* LoginCallbackClient::getLoginRefresh()
 	return &_loginRefreshMsg;
 }
 
+void LoginCallbackClient::setLoginRequest(LoginRdmReqMsgImpl* newMsg)
+{
+	_loginRequestMsg = newMsg;
+}
+
 /* This function will take in an RsslRDMLoginRequest, and overlay any string element changes to the stored request login request in the loginCallbackClient.
   In addition, this function will apply the pause flag. */
 void LoginCallbackClient::overlayLoginRequest(RsslRDMLoginRequest* pRequest)
 {
-	RsslRDMLoginRequest tempRequest;
-	bool bufferChange = false;
-	/* Copy the RsslRDMLoginRequest's values */
-	tempRequest = _loginRequestMsg;
+	RsslRDMLoginRequest* oldRequest = _loginRequestMsg->get();
+	
 
-	if (pRequest->userName.length != 0 && !rsslBufferIsEqual(&pRequest->userName, &_loginRequestMsg.userName))
+	if (pRequest->userName.length != 0 && !rsslBufferIsEqual(&oldRequest->userName, &pRequest->userName))
 	{
-		tempRequest.userName = pRequest->userName;
-		bufferChange = true;
+		_loginRequestMsg->username(EmaString(pRequest->userName.data, pRequest->userName.length));
 	}
 
 	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID)
 	{
-		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_APPLICATION_ID) || !rsslBufferIsEqual(&pRequest->applicationId, &_loginRequestMsg.applicationId))
+		if (!(oldRequest->flags & RDM_LG_RQF_HAS_APPLICATION_ID) || !rsslBufferIsEqual(&oldRequest->applicationId, &pRequest->applicationId))
 		{
-			tempRequest.applicationId = pRequest->applicationId;
-			tempRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_ID;
-			bufferChange = true;
+			_loginRequestMsg->applicationId(EmaString(pRequest->applicationId.data, pRequest->applicationId.length));
 		}
 	}
 
 	if (pRequest->flags & RDM_LG_RQF_HAS_PASSWORD)
 	{
-		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_PASSWORD) || !rsslBufferIsEqual(&pRequest->password, &_loginRequestMsg.password))
+		if (!(oldRequest->flags & RDM_LG_RQF_HAS_PASSWORD) || !rsslBufferIsEqual(&oldRequest->password, &pRequest->password))
 		{
-			tempRequest.password = pRequest->password;
-			tempRequest.flags |= RDM_LG_RQF_HAS_PASSWORD;
-			bufferChange = true;
+			_loginRequestMsg->password(EmaString(pRequest->password.data, pRequest->password.length));
 		}
 	}
 
 	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME)
 	{
-		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_APPLICATION_NAME) ||  !rsslBufferIsEqual(&pRequest->applicationName, &_loginRequestMsg.applicationName))
+		if (!(oldRequest->flags & RDM_LG_RQF_HAS_APPLICATION_NAME) || !rsslBufferIsEqual(&oldRequest->applicationName, &pRequest->applicationName))
 		{
-			tempRequest.applicationName = pRequest->applicationName;
-			tempRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_NAME;
-			bufferChange = true;
+			_loginRequestMsg->applicationName(EmaString(pRequest->applicationName.data, pRequest->applicationName.length));
 		}
 	}
 
 	if (pRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID)
 	{
-		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_INSTANCE_ID) || !rsslBufferIsEqual(&pRequest->instanceId, &_loginRequestMsg.instanceId))
+		if (!(oldRequest->flags & RDM_LG_RQF_HAS_INSTANCE_ID) || !rsslBufferIsEqual(&oldRequest->instanceId, &pRequest->instanceId))
 		{
-			tempRequest.instanceId = pRequest->instanceId;
-			tempRequest.flags |= RDM_LG_RQF_HAS_INSTANCE_ID;
-			bufferChange = true;
+			_loginRequestMsg->instanceId(EmaString(pRequest->instanceId.data, pRequest->instanceId.length));
 		}
 	}
 
 	if (pRequest->flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN)
 	{
-		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN) || !rsslBufferIsEqual(&pRequest->applicationAuthorizationToken, &_loginRequestMsg.applicationAuthorizationToken))
+		if (!(oldRequest->flags & RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN) || !rsslBufferIsEqual(&oldRequest->applicationAuthorizationToken, &pRequest->applicationAuthorizationToken))
 		{
-			tempRequest.applicationAuthorizationToken = pRequest->applicationAuthorizationToken;
-			tempRequest.flags |= RDM_LG_RQF_HAS_APPLICATION_AUTHORIZATION_TOKEN;
-			bufferChange = true;
+			_loginRequestMsg->applicationAuthorizationToken(EmaString(pRequest->applicationAuthorizationToken.data, pRequest->applicationAuthorizationToken.length));
 		}
 	}
 
 	if (pRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED)
 	{
-		if (!(_loginRequestMsg.flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED) || !rsslBufferIsEqual(&pRequest->applicationAuthorizationToken, &_loginRequestMsg.applicationAuthorizationToken))
+		if (!(oldRequest->flags & RDM_LG_RQF_HAS_AUTHN_EXTENDED) || !rsslBufferIsEqual(&oldRequest->authenticationExtended, &pRequest->authenticationExtended))
 		{
-			tempRequest.authenticationExtended = pRequest->authenticationExtended;
-			tempRequest.flags |= RDM_LG_RQF_HAS_AUTHN_EXTENDED;
-			bufferChange = true;
+			_loginRequestMsg->authenticationExtended(EmaBuffer(pRequest->authenticationExtended.data, pRequest->authenticationExtended.length));
 		}
 	}
 
 	/* Set the pause all flag.  Unset this after submitting it to the reactor */
 	if (pRequest->flags & RDM_LG_RQF_PAUSE_ALL)
 	{
-		tempRequest.flags |= RDM_LG_RQF_PAUSE_ALL;
-		bufferChange = true;
+		_loginRequestMsg->get()->flags |= RDM_LG_RQF_PAUSE_ALL;
 	}
 
 
 	if (pRequest->flags & RDM_LG_RQF_NO_REFRESH)
 	{
-		tempRequest.flags |= RDM_LG_RQF_NO_REFRESH;
-		bufferChange = true;
-	}
-
-
-	
-	/* Deep copy the tempRequest onto the previous request.  Since we're potentially pulling data from 
-	   the the previous memory buffer, do not free the buffer'd until the copy operation is complete. */
-	if (bufferChange == true)
-	{
-		RsslBuffer tempLRB;
-		char* tmpBuffer;
-		tempLRB.length = 1000;
-		tmpBuffer = (char*)malloc(tempLRB.length);
-		tempLRB.data = tmpBuffer;
-		if (!tempLRB.data)
-		{
-			_ommBaseImpl.handleMee("Failed to allocate memory for RsslRDMLoginRequest in LoginCallbackClient.");
-			return;
-		}
-
-		while (RSSL_RET_BUFFER_TOO_SMALL == rsslCopyRDMLoginRequest(&_loginRequestMsg, &tempRequest, &tempLRB))
-		{
-			/* Buffer too small, free the data and re-malloc */
-			free(tmpBuffer);
-			tempLRB.length += tempLRB.length;
-			tmpBuffer = (char*)malloc(tempLRB.length);
-			tempLRB.data = tmpBuffer;
-
-			if (!tempLRB.data)
-			{
-				_ommBaseImpl.handleMee("Failed to allocate memory for RsslRDMLoginRequest in LoginCallbackClient.");
-				return;
-			}
-		}
-
-		free(_loginRequestBuffer);
-		_loginRequestBuffer = tmpBuffer;
+		_loginRequestMsg->get()->flags |= RDM_LG_RQF_NO_REFRESH;
 	}
 }
 
@@ -1036,7 +957,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 
 		while (RSSL_RET_BUFFER_TOO_SMALL == rsslCopyRDMLoginRefresh(&_loginRefreshMsg, &pLoginMsg->refresh, &tempLRB))
 		{
-			free(_loginRequestBuffer);
+			free(_loginRefreshBuffer);
 
 			tempLRB.length += tempLRB.length;
 
@@ -1047,7 +968,7 @@ RsslReactorCallbackRet LoginCallbackClient::processCallback( RsslReactor* pRsslR
 				return RSSL_RC_CRET_FAILURE;
 			}
 
-			_loginRequestBuffer = tempLRB.data;
+			_loginRefreshBuffer = tempLRB.data;
 		}
 
 		RsslState* pState = &pLoginMsg->refresh.state;

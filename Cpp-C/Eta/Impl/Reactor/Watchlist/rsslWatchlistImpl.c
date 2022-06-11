@@ -292,7 +292,7 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 	/* Update the login index when the channel supports the session management */
 	if (_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE)
 	{
-		if (pReactorChannelImpl->supportSessionMgnt)
+		if (pReactorChannelImpl->currentConnectionOpts->base.enableSessionManagement)
 			pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
 	}
 	else
@@ -664,8 +664,6 @@ RsslRet rsslWatchlistProcessTimer(RsslWatchlist *pWatchlist, RsslInt64 currentTi
 				rsslClearDecodeIterator(&dIter);
 				rsslSetDecodeIteratorRWFVersion(&dIter, RSSL_RWF_MAJOR_VERSION, 
 						RSSL_RWF_MINOR_VERSION);
-
-				msgEvent.pRsslMsg->msgBase.streamId = pWatchlistImpl->login.pStream->base.streamId;
 
 				if ((ret = wlLoginProcessProviderMsg(&pWatchlistImpl->login, &pWatchlistImpl->base, 
 								&dIter, (RsslMsg*)&statusMsg, &loginMsg, &loginAction, pErrorInfo)) 
@@ -1786,7 +1784,19 @@ static RsslBool wlWarmStandbyCompareRDMServiceInfo(RsslReactorWarmStandbyGroupIm
 				{
 					return RSSL_FALSE;
 				}
+			}
+			else
+			{
+				/* Checks to see if there is the same service name but different service ID.*/
+				pServiceInfo = &pReactorWarmStandbyServiceImpl->rdmServiceInfo;
 
+				pHashLink = rsslHashTableFind(&pServiceCache->_servicesByName, &pServiceInfo->serviceName, NULL);
+
+				if (pHashLink)
+				{
+					/* Found the same service name but different service ID. */
+					return RSSL_FALSE;
+				}
 			}
 		}
 	}
@@ -4108,7 +4118,7 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				/* Update the login index when the channel supports the session management */
 				if (_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE)
 				{
-					if (pReactorChannelImpl->supportSessionMgnt)
+					if (pReactorChannelImpl->currentConnectionOpts->base.enableSessionManagement || pReactorChannelImpl->channelRole.ommConsumerRole.pLoginRequestList)
 						pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
 				}
 				else
@@ -4117,7 +4127,7 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				}
 
 				if ((ret = wlLoginProcessConsumerMsg(&pWatchlistImpl->login, &pWatchlistImpl->base,
-						(RsslRDMLoginMsg*)pRdmMsg, pOptions->pUserSpec, &loginAction, pErrorInfo)) != RSSL_RET_SUCCESS)
+						(RsslRDMLoginMsg*)pRdmMsg, pOptions->pUserSpec, pOptions->newConnection, &loginAction, pErrorInfo)) != RSSL_RET_SUCCESS)
 						return ret;
 
 				switch(loginAction)

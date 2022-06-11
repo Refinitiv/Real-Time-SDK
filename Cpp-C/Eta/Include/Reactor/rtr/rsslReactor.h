@@ -75,6 +75,12 @@ typedef RsslReactorCallbackRet RsslReactorChannelEventCallback(RsslReactor*, Rss
 typedef RsslReactorCallbackRet RsslReactorAuthTokenEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorAuthTokenEvent*);
 
 /**
+ * @brief Signature of a Login Message Renewal Callback function.
+ * @see RsslReactorAuthTokenEvent
+ */
+typedef RsslReactorCallbackRet RsslReactorLoginMsgRenewalEventCallback(RsslReactor*, RsslReactorChannel*, RsslReactorLoginRenewalEvent*);
+
+/**
  * @brief Signature of a Service Endpoint Event Callback function.
  * @see RsslReactorServiceEndpointEvent
  */
@@ -174,7 +180,9 @@ typedef struct
 	RsslReactorOAuthCredentialEventCallback		*pOAuthCredentialEventCallback; /*!< Callback function that receives RsslReactorOAuthCredentialEvent to specify sensitive information. Optional
 																				 *   The Reactor will not copy password and client secret if the function pointer is specified.*/
 	RsslBool									takeExclusiveSignOnControl;		/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional and only used for V1 logins */
+	void*										userSpecPtr;					/*!< user specified pointer that will be referenced in any instances of pOAuthCredentialEventCallback */
 } RsslReactorOAuthCredential;
+
 
 /**
  * @brief Clears an RsslReactorOAuthCredential object.
@@ -189,6 +197,30 @@ RTR_C_INLINE void rsslClearReactorOAuthCredential(RsslReactorOAuthCredential *pO
 }
 
 /**
+ * @brief Structure representing the a Login message to be used with the multi-credential functionality.
+ * @see RsslReactorOMMConsumerRole
+ */
+typedef struct
+{
+	RsslRDMLoginRequest* loginRequestMsg;									/*!< The initial login message.  Please note that all login messages configured in RsslReactorOMMConsumerRole.pLoginMsgList must have the same Single Open and Allow Suspect Data Validation flags and values set. */
+	RsslReactorLoginMsgRenewalEventCallback* pLoginRenewalEventCallback;	/*!< Optional callback for a login message.  This is intended to be used in cases where
+																				 the login userName and/or authentication extended fields in the login may change between a full channel recovery, 
+																				 and will be called if Session Management is turned off for this connection, and the channel is in full reconnection.*/
+	void* userSpecPtr;														/*!< Optional user specified pointer that will be referenced in any instances of pLoginRenewalEventCallback */
+}
+RsslReactorLoginRequestMsgCredential;
+
+/**
+ * @brief Clears an RsslReactorOAuthCredential object.
+ * @see RsslReactorOAuthCredential
+ */
+RTR_C_INLINE void rsslClearReactorLoginRequestMsgCredential(RsslReactorLoginRequestMsgCredential* pLoginCredential)
+{
+	memset(pLoginCredential, 0, sizeof(RsslReactorLoginRequestMsgCredential));
+}
+
+
+/**
  * @brief Structure representing the role of an OMM Consumer.
  * @see RsslReactorChannelRole, RsslReactorChannelRoleBase
  */
@@ -198,7 +230,7 @@ typedef struct
 	RsslRDMLoginRequest				*pLoginRequest;			/*!< A Login Request to be sent during the setup of a Consumer-Provider session. Optional. */
 	RsslBuffer						clientId;				/*!< @deprecated This is used only for backward compatibility. All OAuth credentials should be specified in RsslReactorOAuthCredential. 
 															 * Specifies an unique ID defined for an application making a request to the RDP token service. */
-	RsslReactorOAuthCredential		*pOAuthCredential;		/*!< A OAuth credential for authentication with the RDP token service. This member has higher precedence for
+	RsslReactorOAuthCredential*		pOAuthCredential;		/*!< OAuth credential for authentication with the RDP token service. This member has higher precedence for
 																authorization than the user credential specified in pLoginRequest. Optional. */
 	RsslRDMLoginMsgCallback			*loginMsgCallback;		/*!< A callback function for processing RsslRDMLoginMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
 	RsslRDMDirectoryRequest			*pDirectoryRequest;		/*!< A Directory Request to be sent during the setup of a Consumer-Provider session. Optional. Requires pLoginRequest to be set.*/
@@ -206,6 +238,12 @@ typedef struct
 	RsslDownloadDictionaryMode		dictionaryDownloadMode;	/*!< Indicates a method of requesting dictionaries from the Provider. If not set to RSSL_RC_DICTIONARY_DOWNLOAD_NONE, requires pLoginRequest and pDirectoryRequest to be set. */
 	RsslRDMDictionaryMsgCallback	*dictionaryMsgCallback;	/*!< A callback function for processing RsslRDMDictionaryMsgs received. If not present, the received message will be passed to the defaultMsgCallback. */
 	RsslConsumerWatchlistOptions 	watchlistOptions;		/*!< Options for using the watchlist. */
+	RsslReactorLoginRequestMsgCredential **pLoginRequestList;			/*!< An array of RsslRDMLoginRequest pointers to be sent during the setup of a Consumer-Provider session, if multiple connections with different credentials are
+														required. This only applies if a warm standby group or multiple element connectionList is specifed, and will override what is set in pLoginRequest. Optional. */
+	RsslInt8						loginRequestMsgCredentialCount; /*!< Count of the number of login credentials in pLoginRequestList */
+	RsslReactorOAuthCredential** pOAuthCredentialList;		/*!< OAuth credential for authentication with the RDP token service if sesion management is specified on the warm standby or connectionList RsslReactorConnectInfo. 
+															This member has higher precedence for authorization than the user credential specified in pOAuthCredential Optional. */
+	RsslInt8						oAuthCredentialCount;	/*!< Count of the number of oAuth credentials in pOAuthCredentialList */
 } RsslReactorOMMConsumerRole;
 
 /**
@@ -493,6 +531,13 @@ typedef struct
 	                                                             * by the Reactor for Consumer(disabling watchlist) and NiProvider applications to send login request and
 																 * reissue with the token */
 
+	RsslUInt8			loginReqIndex;					/*!< Login request array index for this channel, mapping to the login that will be used for this channel 
+														 *	if RsslReactorOMMConsumerRole.pLoginRequestList has been set.  This must be less than the number set 
+														 *	in RsslReactorOMMConsumerRole.pLoginRequestCount  */
+	RsslUInt8			oAuthCredentialIndex;			/*!< oAuth request array index for this channel, mapping to the login that will be used for this channel if 
+														 *	session management is turned on and if RsslReactorOMMConsumerRole.oAuthCredentialCount has been set.  
+														 *	This must be less than the number set in RsslReactorOMMConsumerRole.oAuthCredentialCount  */
+
 } RsslReactorConnectInfo;
 
 RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
@@ -504,6 +549,8 @@ RTR_C_INLINE void rsslClearReactorConnectInfo(RsslReactorConnectInfo *pInfo)
 	pInfo->location.length = 9;
 	pInfo->serviceDiscoveryRetryCount = 3;
 	pInfo->pAuthTokenEventCallback = NULL;
+	pInfo->loginReqIndex = 0;
+	pInfo->oAuthCredentialIndex = 0;
 }
 
 /**
@@ -1000,6 +1047,35 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialRenewalOptions(RsslReactorOAuth
 RSSL_VA_API RsslRet rsslReactorSubmitOAuthCredentialRenewal(RsslReactor *pReactor, RsslReactorOAuthCredentialRenewalOptions *pOptions,
 						RsslReactorOAuthCredentialRenewal *pReactorOAuthCredentialRenewal, RsslErrorInfo *pError);
 
+/**
+ * @brief Configuration options for submitting Login credential.
+ * @see RsslReactorLoginMsgRenewalEventCallback
+ */
+typedef struct
+{
+	RsslBuffer									userName;				/*!<  @brief The user name or authentication token for the new login credentials. Corresponds to the configured userName on the initial RsslRDMLoginRequest */
+	RsslBuffer									authenticationExtended; /*!<  @brief The extended authentation for the new login credentials. Corresponds to the configured authenticationExtended on the initial RsslRDMLoginRequest */
+} RsslReactorLoginCredentialRenewalOptions;
+
+/**
+ * @brief Clears an RsslReactorOAuthCredentialRenewalOptions object.
+ * @see RsslReactorOAuthCredentialRenewalOptions
+ */
+RTR_C_INLINE void rsslClearReactorLoginCredentialRenewalOptions(RsslReactorLoginCredentialRenewalOptions* pOpts)
+{
+	memset(pOpts, 0, sizeof(RsslReactorLoginCredentialRenewalOptions));
+}
+
+/**
+ * @brief Submit Login Msg renewal with updated credentials. This function can only be called during a RsslReactorLoginMsgRenewalEventCallback function. Any further updates to the login message should be done through rsslSubmitMsg.
+ * @param pReactor The reactor handling the login renewal.
+ * @param pReactorChannel the channel that will have it's login updated.
+ * @param pNewLoginMsg new Login request message.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
+ * @see RsslReactor
+ */
+RSSL_VA_API RsslRet rsslReactorSubmitLoginCredentialRenewal(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslReactorLoginCredentialRenewalOptions* pOptions, RsslErrorInfo* pError);
 /**
  * @brief This structure is used to retrieve connection statistics from the rsslReactorChannelStatistic() method.
  * @see RsslReactorChannelStatisticFlags

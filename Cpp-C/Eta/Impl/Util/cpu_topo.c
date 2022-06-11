@@ -1851,6 +1851,8 @@ int GetHWMTConfig(unsigned  pkg)
 void InitCpuTopology()
 {
     RsslErrorInfo rsslErrorInfo;
+    memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
+    memset((void*)&errorCpuIdInit, 0, sizeof(RsslErrorInfo));
     initializeCpuTopology(&rsslErrorInfo);
 }
 
