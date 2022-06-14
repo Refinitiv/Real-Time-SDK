@@ -9865,7 +9865,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		for (i = 0; i < pReactorChannel->channelRole.ommConsumerRole.oAuthCredentialCount; i++)
 		{
 			rsslClearReactorTokenChannelInfo(&pTokenChannelList[i]);
-			if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredentialList[i], &pTokenChannelList[i], setMutex, pError) != RSSL_RET_SUCCESS)
+			if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredentialList[i], &pTokenChannelList[i], setMutex, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
 			{
 				return ret;
 			}
@@ -9900,7 +9900,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		}
 
 		rsslClearReactorTokenChannelInfo(pTokenChannel);
-		if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential, pTokenChannel, setMutex, pError) != RSSL_RET_SUCCESS)
+		if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential, pTokenChannel, setMutex, RSSL_FALSE, pError) != RSSL_RET_SUCCESS)
 		{
 			return ret;
 		}
@@ -9930,7 +9930,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 }
 
 RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel, 
-	RsslReactorOAuthCredential* pOAuthCredential,  RsslReactorTokenChannelInfo *pTokenChannelImpl, RsslBool setMutex,  RsslErrorInfo* pError)
+	RsslReactorOAuthCredential* pOAuthCredential,  RsslReactorTokenChannelInfo *pTokenChannelImpl, RsslBool setMutex, RsslBool errorOnV1Repeat, RsslErrorInfo* pError)
 {
 
 	RsslRet ret;
@@ -9994,6 +9994,12 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 				if (setMutex == RSSL_TRUE)
 					RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
+
+			if (errorOnV1Repeat)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Cannot use the same oAuth V1 credentials multiple times in the credential list.");
 				return RSSL_RET_INVALID_ARGUMENT;
 			}
 
