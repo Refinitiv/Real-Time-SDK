@@ -14,9 +14,9 @@ using namespace std;
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
 	cout << endl << "Item Name: " << ( refreshMsg.hasName() ? refreshMsg.getName() : EmaString( "<not set>" ) ) << endl
-		<< "Service Name: " << (refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "<not set>" ) );
+		<< "Service Name: " << (refreshMsg.hasServiceName() ? refreshMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
-	cout << endl << "Item State: " << refreshMsg.getState().toString() << endl;
+	cout << "Item State: " << refreshMsg.getState().toString() << endl;
 
 	if ( DataType::MapEnum == refreshMsg.getPayload().getDataType() )
 		decode( refreshMsg.getPayload().getMap() );
@@ -25,7 +25,7 @@ void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEve
 void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent& ) 
 {
 	cout << endl << "Item Name: " << ( updateMsg.hasName() ? updateMsg.getName() : EmaString( "<not set>" ) ) << endl
-		<< "Service Name: " << (updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "<not set>" ) );
+		<< "Service Name: " << (updateMsg.hasServiceName() ? updateMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
 	if ( DataType::MapEnum == updateMsg.getPayload().getDataType() )
 		decode( updateMsg.getPayload().getMap() );
@@ -33,11 +33,11 @@ void AppClient::onUpdateMsg( const UpdateMsg& updateMsg, const OmmConsumerEvent&
 
 void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent& ) 
 {
-	cout << endl << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "<not set>" ) ) << endl
-		<< "Service Name: " << (statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "<not set>" ) );
+	cout << "Item Name: " << ( statusMsg.hasName() ? statusMsg.getName() : EmaString( "<not set>" ) ) << endl
+		<< "Service Name: " << (statusMsg.hasServiceName() ? statusMsg.getServiceName() : EmaString( "<not set>" ) ) << endl;
 
 	if ( statusMsg.hasState() )
-		cout << endl << "Item State: " << statusMsg.getState().toString() << endl;
+		cout << "Item State: " << statusMsg.getState().toString() << endl;
 }
 
 void AppClient::decode( const Map& map )
@@ -52,9 +52,20 @@ void AppClient::decode( const Map& map )
 	{
 		const MapEntry& me = map.getEntry();
 
-		if ( me.getKey().getDataType() == DataType::AsciiEnum )
-			cout << "Action: " << me.getMapActionAsString() << endl
-				 << "key value: " << me.getKey().getAscii() << endl;
+		switch ( me.getKey().getDataType() )
+		{
+			case DataType::AsciiEnum :
+				cout << endl << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getAscii() << endl;
+				break;
+			case DataType::BufferEnum :
+				cout << endl << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getBuffer();
+				break;
+			case DataType::RmtesEnum :
+				cout << endl << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getRmtes().toString();
+				break;
+			default:
+				break;
+		}
 
 		if ( me.getLoadType() == DataType::FieldListEnum )
 		{
@@ -105,7 +116,6 @@ void AppClient::decode( const FieldList& fl )
 				cout << fe.getRmtes().toString() << endl;
 				break;
 			default:
-				cout << endl;
 				break;
 		}
 	}

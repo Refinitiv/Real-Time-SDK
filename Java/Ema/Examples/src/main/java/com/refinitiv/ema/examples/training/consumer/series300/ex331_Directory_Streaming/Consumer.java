@@ -1,8 +1,8 @@
 ///*|----------------------------------------------------------------------------------------------------
 // *|            This source code is provided under the Apache 2.0 license
-// *|  and is provided AS IS with no warranty or guarantee of fit for purpose.
-// *|                See the project's LICENSE.md for details.
-// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.
+// *|  and is provided AS IS with no warranty or guarantee of fit for purpose. 
+// *|                See the project's LICENSE.md for details.         
+// *|           Copyright (C) 2019,2022 Refinitiv. All rights reserved.  
 ///*|----------------------------------------------------------------------------------------------------
 
 package com.refinitiv.ema.examples.training.consumer.series300.ex331_Directory_Streaming;
@@ -114,29 +114,28 @@ class AppClient implements OmmConsumerClient
 			else
 				switch (elementEntry.loadType())
 				{
-				case DataTypes.REAL :
-					System.out.println(elementEntry.real().asDouble());
-					break;
-				case DataTypes.DATE :
-					System.out.println(elementEntry.date().day() + " / " + elementEntry.date().month() + " / " + elementEntry.date().year());
-					break;
-				case DataTypes.TIME :
-					System.out.println(elementEntry.time().hour() + ":" + elementEntry.time().minute() + ":" + elementEntry.time().second() + ":" + elementEntry.time().millisecond());
-					break;
-				case DataTypes.INT :
-					System.out.println(elementEntry.intValue());
-					break;
-				case DataTypes.UINT :
-					System.out.println(elementEntry.uintValue());
-					break;
-				case DataTypes.ASCII :
-					System.out.println(elementEntry.ascii());
-					break;
-				case DataTypes.ENUM :
-					System.out.println(elementEntry.enumValue());
-					break;
-				case DataTypes.ARRAY :
-					{
+					case DataTypes.REAL :
+						System.out.println(elementEntry.real().asDouble());
+						break;
+					case DataTypes.DATE :
+						System.out.println(elementEntry.date().day() + " / " + elementEntry.date().month() + " / " + elementEntry.date().year());
+						break;
+					case DataTypes.TIME :
+						System.out.println(elementEntry.time().hour() + ":" + elementEntry.time().minute() + ":" + elementEntry.time().second() + ":" + elementEntry.time().millisecond());
+						break;
+					case DataTypes.INT :
+						System.out.println(elementEntry.intValue());
+						break;
+					case DataTypes.UINT :
+						System.out.println(elementEntry.uintValue());
+						break;
+					case DataTypes.ASCII :
+						System.out.println(elementEntry.ascii());
+						break;
+					case DataTypes.ENUM :
+						System.out.println(elementEntry.enumValue());
+						break;
+					case DataTypes.ARRAY :
 						boolean first = true;
 						for(OmmArrayEntry arrayEntry : elementEntry.array())
 						{
@@ -146,31 +145,30 @@ class AppClient implements OmmConsumerClient
 								first = false;
 							switch(arrayEntry.loadType())
 							{
-							case DataTypes.ASCII :
-								System.out.print(arrayEntry.ascii());
-								break;
-							case DataTypes.UINT :
-								System.out.print(arrayEntry.uintValue());
-								break;
-							case DataTypes.QOS :
-								System.out.print(arrayEntry.qos());
-								break;
-							default:
-								break;
+								case DataTypes.ASCII :
+									System.out.print(arrayEntry.ascii());
+									break;
+								case DataTypes.UINT :
+									System.out.print(arrayEntry.uintValue());
+									break;
+								case DataTypes.QOS :
+									System.out.print(arrayEntry.qos());
+									break;
+								default:
+									break;
 							}
 						}
 						System.out.println();
-					}
-					break;
-				case DataTypes.RMTES :
-					System.out.println(elementEntry.rmtes());
-					break;
-				case DataTypes.ERROR :
-					System.out.println(elementEntry.error().errorCode() +" (" + elementEntry.error().errorCodeAsString() + ")");
-					break;
-				default :
-					System.out.println();
-					break;
+						break;
+					case DataTypes.RMTES :
+						System.out.println(elementEntry.rmtes());
+						break;
+					case DataTypes.ERROR :
+						System.out.println(elementEntry.error().errorCode() +" (" + elementEntry.error().errorCodeAsString() + ")");
+						break;
+					default :
+						System.out.println();
+						break;
 				}
 		}
 	}
@@ -186,39 +184,39 @@ class AppClient implements OmmConsumerClient
 			else
 				switch (fieldEntry.loadType())
 				{
-				case DataTypes.REAL :
-					System.out.println(fieldEntry.real().asDouble());
-					break;
-				case DataTypes.DATE :
-					System.out.println(fieldEntry.date().day() + " / " + fieldEntry.date().month() + " / " + fieldEntry.date().year());
-					break;
-				case DataTypes.TIME :
-					System.out.println(fieldEntry.time().hour() + ":" + fieldEntry.time().minute() + ":" + fieldEntry.time().second() + ":" + fieldEntry.time().millisecond());
-					break;
-				case DataTypes.INT :
-					System.out.println(fieldEntry.intValue());
-					break;
-				case DataTypes.UINT :
-					System.out.println(fieldEntry.uintValue());
-					break;
-				case DataTypes.ASCII :
-					System.out.println(fieldEntry.ascii());
-					break;
-				case DataTypes.ENUM :
-					System.out.println(fieldEntry.hasEnumDisplay() ? fieldEntry.enumDisplay() : fieldEntry.enumValue());
-					break;
-				case DataTypes.ARRAY :
-					System.out.println(fieldEntry.array());
-					break;
-				case DataTypes.RMTES :
-					System.out.println(fieldEntry.rmtes());
-					break;
-				case DataTypes.ERROR :
-					System.out.println(fieldEntry.error().errorCode() +" (" + fieldEntry.error().errorCodeAsString() + ")");
-					break;
-				default :
-					System.out.println();
-					break;
+					case DataTypes.REAL :
+						System.out.println(fieldEntry.real().asDouble());
+						break;
+					case DataTypes.DATE :
+						System.out.println(fieldEntry.date().day() + " / " + fieldEntry.date().month() + " / " + fieldEntry.date().year());
+						break;
+					case DataTypes.TIME :
+						System.out.println(fieldEntry.time().hour() + ":" + fieldEntry.time().minute() + ":" + fieldEntry.time().second() + ":" + fieldEntry.time().millisecond());
+						break;
+					case DataTypes.INT :
+						System.out.println(fieldEntry.intValue());
+						break;
+					case DataTypes.UINT :
+						System.out.println(fieldEntry.uintValue());
+						break;
+					case DataTypes.ASCII :
+						System.out.println(fieldEntry.ascii());
+						break;
+					case DataTypes.ENUM :
+						System.out.println(fieldEntry.hasEnumDisplay() ? fieldEntry.enumDisplay() : fieldEntry.enumValue());
+						break;
+					case DataTypes.ARRAY :
+						System.out.println(fieldEntry.array());
+						break;
+					case DataTypes.RMTES :
+						System.out.println(fieldEntry.rmtes());
+						break;
+					case DataTypes.ERROR :
+						System.out.println(fieldEntry.error().errorCode() +" (" + fieldEntry.error().errorCodeAsString() + ")");
+						break;
+					default :
+						System.out.println();
+						break;
 				}
 		}
 	}
@@ -227,14 +225,32 @@ class AppClient implements OmmConsumerClient
 	{
 		for(MapEntry mapEntry : map)
 		{
+			switch (mapEntry.key().dataType())
+                        {
+                                case DataTypes.BUFFER :
+                                        System.out.println("Action: " + mapEntry.mapActionAsString() + 
+							", key value: " + mapEntry.key().buffer().toString() + "\n");
+                                        break;
+                                case DataTypes.ASCII :
+                                        System.out.println("Action: " + mapEntry.mapActionAsString() + 
+							", key value: " + mapEntry.key().ascii().toString() + "\n");
+                                        break;
+                                case DataTypes.RMTES :
+                                        System.out.println("Action: " + mapEntry.mapActionAsString() + 
+							", key value: " + mapEntry.key().rmtes().toString() + "\n");
+                                        break;
+                                default:
+                                        break;
+                        }
+
 			switch (mapEntry.loadType())
 			{
-			case DataTypes.FILTER_LIST :
-				decode(mapEntry.filterList());
-				break;
-			default:
-				System.out.println();
-				break;
+				case DataTypes.FILTER_LIST :
+					decode(mapEntry.filterList());
+					break;
+				default:
+					System.out.println();
+					break;
 			}
 		}
 	}
@@ -243,19 +259,21 @@ class AppClient implements OmmConsumerClient
 	{
 		for(FilterEntry filterEntry : filterList)
 		{
-			System.out.println("ID: " + filterEntry.filterId() + " Action = " + filterEntry.filterActionAsString() + " DataType: " + DataType.asString(filterEntry.loadType()) + " Value: ");
+			System.out.println("ID: " + filterEntry.filterId() 
+					+ " Action = " + filterEntry.filterActionAsString() 
+					+ " DataType: " + DataType.asString(filterEntry.loadType()) + " Value: ");
 
 			switch (filterEntry.loadType())
 			{
-			case DataTypes.ELEMENT_LIST :
-				decode(filterEntry.elementList());
-				break;
-			case DataTypes.MAP :
-				decode(filterEntry.map());
-				break;
-			default:
-				System.out.println();
-				break;
+				case DataTypes.ELEMENT_LIST :
+					decode(filterEntry.elementList());
+					break;
+				case DataTypes.MAP :
+					decode(filterEntry.map());
+					break;
+				default:
+					System.out.println();
+					break;
 			}
 		}
 	}

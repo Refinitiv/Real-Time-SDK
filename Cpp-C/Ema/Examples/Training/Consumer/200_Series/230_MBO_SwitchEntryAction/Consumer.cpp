@@ -50,10 +50,23 @@ void AppClient::decode( const Map& map )
 
 	while ( map.forth() )
 	{
-		if ( map.getEntry().getKey().getDataType() != DataType::AsciiEnum )
-			return;
+			
+		const MapEntry& me = map.getEntry();
 
-		const EmaString& key = map.getEntry().getKey().getAscii();
+		switch ( me.getKey().getDataType() )
+		{
+			case DataType::AsciiEnum :
+				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getAscii() << endl;
+				break;
+			case DataType::BufferEnum :
+				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getBuffer() << endl;
+				break;
+			case DataType::RmtesEnum :
+				cout << "Action = " << me.getMapActionAsString() << ", key = " << me.getKey().getRmtes().toString() << endl;
+				break;
+			default:
+				break;
+		}
 
 		DataType::DataTypeEnum dType = map.getEntry().getLoadType();
 

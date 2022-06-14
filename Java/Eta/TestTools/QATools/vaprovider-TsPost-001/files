@@ -1,6 +1,0 @@
-# file,location
-,Applications/Examples
-,Applications/Shared
-ProviderCmdLineParser.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/provider
-Provider.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/provider
-TunnelStreamHandler.java,Applications/Examples/src/main/java/com/refinitiv/eta/valueadd/examples/provider
