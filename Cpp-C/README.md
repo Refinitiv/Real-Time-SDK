@@ -19,7 +19,7 @@ External modules used by this version of RTSDK C/C++:
 	----------		-------
 	openSSL 		1.0.1e
 	openSSL			1.1.1a
-	cJSON			v1.7.10
+	cJSON			1.7.15
 	curl			7.78.0
 	googletest		release-1.8.1
 	libxml2			2.9.12
@@ -144,8 +144,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.4
-- ADH 3.5.4
+- ADS 3.6.0
+- ADH 3.6.0
 - DACS 7.6
 
 # Documentation

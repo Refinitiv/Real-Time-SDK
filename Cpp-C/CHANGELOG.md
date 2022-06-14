@@ -9,14 +9,65 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.5.G1 aka EMA/ETA 3.6.5.Gl aka 3.6.5.1
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.6.L1 aka EMA/ETA 3.6.6.Ll aka 3.6.6.0
 ----------------------------------------------------------------------------------------
 
-This release updates the zlib dependency library for RTSDK.
+New Features Added
+----------------------------------------------------------------------------------------
+
+This release introduces Multi-Credential feature which permits ability for different authentication mechanisms/credentials to be associated with a channel or group of channels. The features provides additional flexibility when using connection recovery (ETA) or channelset (EMA) and warm standby features.
+
+Customer Issues Resolved
+----------------------------------------------------------------------------------------
+
+- [GitHub #190] - [RTSDK-6059] - Fix curl configuration to set library
+- [GitHub #191] - [RTSDK-6077] - VAConsumer example default protocol list changed to json when using encryptedWebSocket 
+- [GitHub #192] - [RTSDK-6099] - Port is not released after destroying OMMProvider  
+- [GitHub #196] - [RTSDK-6168] - InitializationTimeout does not take effect via EMA config
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.6.L1 (Jun 8, 2022)
+--------------------------------------------
+
+EMA C++ 3.6.6.L1 Issues Resolved
+--------------------------------
+- [RTSDK-1486] - Fix to EMA examples to account for MapEntry key which can be Buffer, Ascii or Rmtes
+- [RTSDK-6099] - Port is not released after destroying OMMProvider [GitHub #192]
+- [RTSDK-6125] - Ensure that LibcurlName can be specified via programmatic config (removed from file config)
+- [RTSDK-6150] - EMA_Config Guide shows duplicate definitions: NumberOfLogFiles, Filename, etc
+- [RTSDK-6168] - InitializationTimeout does not take effect via programmatic config [GitHub #196]
+- [RTSDK-6302] - EMAC++'s default Login request does not have the correct position on Windows
+- [RTSDK-6290] - Cons470 Segmentation fault when connect to server doesn't support warmstandby and Ctrl+C
+
+ETA C 3.6.6.L1 Issues Resolved
+--------------------------------
+- [RTSDK-892] - Additional error checking added to Date, Time & DateTime
+- [RTSDK-305] - Enhance xml encode utilities to be able to configure buffer size
+- [RTSDK-4416] - Missing initializer enumeration in ripch.h
+- [RTSDK-5343] - Support binding Reactor threads to specified cores: logical and physical binding
+- [RTSDK-5544] - High CPU usage with VAConsumer with session mgmt enabled
+- [RTSDK-5577] - Provide debugging information per Reactor instance
+- [RTSDK-5822] - Fix rwsReadWebSocket error output
+- [RTSDK-5919] - RTT Generic messages are not handled resulting in "Received unexpected msg class 7 from login domain"
+- [RTSDK-6016] - Add QATool for ETAC VAProvider which supports posting and can send ACK/NACK using comand line options
+- [RTSDK-6059] - Fix curl to configuration to set library [GitHub #190]
+- [RTSDK-6065] - Support ability to log JSON data differently from RWF per channel
+- [RTSDK-6077] - VAConsumer example gets HTTP 400 trying to use encryptedWebSocket [GitHub #191]
+- [RTSDK-6079] - Improvement REST logging mechanism; enhancement to RTSDK-5473
+- [RTSDK-6288] - Provide an option to disable/enable REST callback logging when creating a Reactor instance
+- [RTSDK-6304] - Fixed WarmStandby loginbase doesn't check if serviceID and serviceName mismatched.
+- [RTSDK-6325] - Handle mismatched QoS values when moving from one warm standby group to another warm standby group.
+
+Both ETA C and EMA C++ 3.6.6.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-5763] - Design Multi-Credential feature to associate different auth per channel or group of channels for channelset and warmstandby features
+- [RTSDK-6080] - Update cJson version
+- [RTSDK-6136] - Implement ETAC and EMA C++ changes for Multi-Credentials feature
+- [RTSDK-6153] - Documentation: Correction to API Concepts Guide, section 2.4, for WarmStandBy support
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.5.G1 (Mar 31, 2022)

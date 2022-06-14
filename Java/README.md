@@ -47,9 +47,9 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11.
+The Refinitiv Real-Time-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11, Amazon Corretto 8 & 11.
 
-NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11 and must be explicitly downloaded if using open/JDK 1.8. 
+NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8.
 
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
@@ -95,6 +95,8 @@ This release has been tested with the following:
 	Oracle Java SE 11 (JDK1.11)
 	Oracle Open JDK (1.8) -- Linux-only
 	Oracle Open JDK (1.11)
+	Amazon Corretto 8
+	Amazon Corretto 11
 
 #### Proxy Authentication Support
 
@@ -127,8 +129,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.5.4
-- ADH 3.5.4
+- ADS 3.6.0
+- ADH 3.6.0
 - DACS 7.6
 
 # Documentation
@@ -211,40 +213,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.5.0</version>
+		<version>3.6.6.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.5.0</version>
+		<version>3.6.6.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.5.0</version>
+		<version>3.6.6.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.5.0</version>
+		<version>3.6.6.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.5.0</version>
+		<version>3.6.6.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.5.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.5.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.5.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.5.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.5.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.6.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.6.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.6.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.6.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.6.0'
 
 # Developing 
 

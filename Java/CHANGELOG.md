@@ -9,26 +9,62 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.5.L1 aka EMA/ETA 3.6.5.L1 aka 3.6.5.0 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.6.L1 aka EMA/ETA 3.6.6.L1 aka 3.6.6.0 
 ----------------------------------------------------------------------------------------
 
-This release introduces oAuthClientCredentials authentication in Early Access. This feature is available for preview only with ability to obtain credentials and use it, forthcoming. In addition, this release serves as a maintenance release with fixes to customer issues.
+This is a maintenance release with fixes. 
 
-Customer Issue Resoved 
------------------------
-- [Case Number: 09924064] - [RTSDK-5115] - EmaConfig.xml fix to remove references to bespoke dictionary files 
-- [Case Number: 10624185] - [RTSDK-5715] - ConcurrentModificationException when attempting to log REST interactions
-- [Case Number: 10982169] - [RTSDK-6051] - EMA throws a null pointer exception when making multiple batch requests
-- [Case Number: 11101002] - [RTSDK-6069] - Fixed null pointer exception with request timeout
-- [GitHub # 182] - [RTSDK-5604] - Enhancement Request: add asBigDecimal() to OmmReal interface
+Customer Issues Resolved
+----------------------------------------------------------------------------------------
+[Case Number: 10825196] - [RTSDK-5901] - NullPointerException with emaj 3.6.1.2 processing directory domain message
+
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.0.6.L1 (Jun 8, 2022)
+--------------------------------------------
+
+EMA Java 3.6.6.L1 Issues Resolved
+---------------------------------
+- [RTSDK-362] - EMAJ allows a null AppClient set for registerClient
+- [RTSDK-1486] - Discrepancy between Provider and Consumer examples with MapEntry key
+- [RTSDK-4415] - EMA Java offstream posting payload decode issue
+- [RTSDK-5244] - EMAJ treats corrupted Real data as blank
+- [RTSDK-6150] - EMA_Config Guide shows duplicate definitions: NumberOfLogFiles, Filename, etc
+- [RTSDK-6297] - Add comment to Consumer310 to clarify RMTES partial updates handling  [Case Number: 11264942]
+
+
+ETA Java 3.6.6.L1 Issues Resolved
+---------------------------------
+- [RTSDK-189] - Issue with Packed messages sent by server over HTTP connection
+- [RTSDK-4633] - Java Provider doesn't bind to localhost interface correctly
+- [RTSDK-5276] - Added edge case testing for TCP transport
+- [RTSDK-5430] - Permitted RMTES partial updates to be sent without buffering
+- [RTSDK-5574] - Add ADS/Server-Side Websocket JSON->RWF conversion error checks on posted data to be in valid range
+- [RTSDK-5576] - Provides debugging information per Reactor instance
+- [RTSDK-5741] - Additional unit test added for conversion of a double-backslash or escaped backslash in JSON msg key
+- [RTSDK-5901] - NullPointerException when processing directory domain message - [Case Number: 10825196]
+- [RTSDK-6036] - Add QATool for ETAC VAProvider which supports posting and can send ACK/NACK using comand line options
+
+
+Both ETA Java and EMA Java 3.6.6.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-5324] - Nack Msg should contain Name and ServiceId attributes
+- [RTSDK-5338] - Redo Service Discovery after X reconnection attempts
+- [RTSDK-5694] - Qualify RTSDK Java with Amazon Corretto 8 & 11
+- [RTSDK-6133] - Documentation: Correction to API Concepts Guide, section 2.4 with Websocket transport
+- [RTSDK-6153] - Documentation: Correction to API Concepts Guide, section 2.4, for WarmStandBy support
+- [RTSDK-6235] - Documentation: Fixes to EMAJ Configuration Guide
+
+
+--------------------------------------------
 RTSDK Java Release 2.0.5.L1 (Mar 10, 2022)
 --------------------------------------------
+
+This release introduces oAuthClientCredentials authentication in Early Access. This feature is available for preview only with ability to obtain credentials and use it, forthcoming. In addition, this release serves as a maintenance release with fixes to customer issues.
 
 EMA Java 3.6.5.L1 Issues Resolved
 ---------------------------------
@@ -409,13 +445,13 @@ ETA Java 3.5.0.G1 Issues Resolved
 - [RTSDK-773] ETAJ Training Provider Module 5 fails to connect to infra
 - [RTSDK-1650] rsslDoubleToReal conversion  function doesn't work as expected [Case Number: 06708565]
 - [RTSDK-3618] Dictionary.entry(int fieldId) returns the same DictionaryEntry instance [Case Number: 07697024 and GitHub # 141]
-- [RTSDK-3823] Support release of memory used by reactor events by adding maxEventsInPool
 - [RTSDK-3847] ETA Build warnings using JDK1.11
 - [RTSDK-3918] ETAJ+Reactor: Support Round Trip Latency Monitoring
 
 Both ETA Java and EMA Java 3.5.0.G1 Issues Resolved
 ---------------------------------------------------
 - [RTSDK-3696] OpenJDK 1.11 qualification
+- [RTSDK-3823] Support release of memory used by reactor events by adding maxEventsInPool
 - [RTSDK-4084] EMA should not set compression threshold unless explicitly configured by application 
 
 --------------------------------------------
