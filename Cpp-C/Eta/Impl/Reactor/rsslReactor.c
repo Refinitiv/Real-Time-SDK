@@ -3650,7 +3650,7 @@ static RsslRet _reactorHandleChannelDown(RsslReactorImpl *pReactorImpl, RsslReac
 			if (pEvent->channelEvent.channelEventType == RSSL_RC_CET_CHANNEL_DOWN)
 			{
 				RsslBool recoverChannel = RSSL_FALSE;
-				RsslUInt32 numberOfStandbyChannel = pWarmStandByGroup->standbyServerCount;
+				RsslUInt32 numberOfStandbyChannel = (pWarmStandByHandlerImpl->rsslChannelQueue.count -1);
 
 				if (pReactorChannel->isStartingServerConfig)
 				{
@@ -5537,7 +5537,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 									if (pStandByReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
 										RSSL_MUTEX_UNLOCK(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex);
 
-									++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 									++pReactorImpl->channelCount; /* Reactor will reduce this from the RSSL_RCIMPL_CET_CLOSE_CHANNEL_ACK event*/
 
 									_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
@@ -5572,7 +5571,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 										if ((ret = _reactorSubmitWatchlistMsg(pReactorImpl, pStandByReactorChannel, &processOpts, pError))
 											< RSSL_RET_SUCCESS)
 										{
-											++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 											++pReactorImpl->channelCount;
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
@@ -5595,7 +5593,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 											if ((ret = _reactorSubmitWatchlistMsg(pReactorImpl, pStandByReactorChannel, &processOpts, pError))
 												< RSSL_RET_SUCCESS)
 											{
-												++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 												++pReactorImpl->channelCount;
 
 												_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
@@ -5618,7 +5615,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 										if ((ret = _reactorSubmitWatchlistMsg(pReactorImpl, pStandByReactorChannel, &processOpts, pError))
 											< RSSL_RET_SUCCESS)
 										{
-											++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 											++pReactorImpl->channelCount;
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
@@ -5633,7 +5629,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 									if ((ret = _submitQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl, pStandByReactorChannel, pError)) < RSSL_RET_SUCCESS)
 									{
-										++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 										++pReactorImpl->channelCount;
 
 										_reactorWSSendWarningMessage(pStandByReactorChannel, pError);
@@ -5662,7 +5657,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 										}
 										else
 										{
-											++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 											++pReactorImpl->channelCount;
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
@@ -5688,7 +5682,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 										/* Set debug callback usage here. */
 										if (pStandByReactorChannel->connectionDebugFlags != 0 && !RSSL_ERROR_INFO_CHECK((ret = rsslIoctl(pStandByReactorChannel->reactorChannel.pRsslChannel, RSSL_DEBUG_FLAGS, (void*)&(pStandByReactorChannel->connectionDebugFlags), &(pError->rsslError))) == RSSL_RET_SUCCESS, ret, pError))
 										{
-											++pWarmStandbyGroupImpl->numOfClosingStandbyServers;
 											++pReactorImpl->channelCount;
 
 											_cleanUpQueuedMessages(pWarmStandByHandlerImpl, pWarmStandbyGroupImpl);
@@ -9872,7 +9865,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		for (i = 0; i < pReactorChannel->channelRole.ommConsumerRole.oAuthCredentialCount; i++)
 		{
 			rsslClearReactorTokenChannelInfo(&pTokenChannelList[i]);
-			if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredentialList[i], &pTokenChannelList[i], setMutex, pError) != RSSL_RET_SUCCESS)
+			if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredentialList[i], &pTokenChannelList[i], setMutex, RSSL_TRUE, pError) != RSSL_RET_SUCCESS)
 			{
 				return ret;
 			}
@@ -9907,7 +9900,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		}
 
 		rsslClearReactorTokenChannelInfo(pTokenChannel);
-		if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential, pTokenChannel, setMutex, pError) != RSSL_RET_SUCCESS)
+		if (ret = _reactorChannelGetTokenSession(pReactorChannel, pReactorChannel->channelRole.ommConsumerRole.pOAuthCredential, pTokenChannel, setMutex, RSSL_FALSE, pError) != RSSL_RET_SUCCESS)
 		{
 			return ret;
 		}
@@ -9937,7 +9930,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 }
 
 RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel, 
-	RsslReactorOAuthCredential* pOAuthCredential,  RsslReactorTokenChannelInfo *pTokenChannelImpl, RsslBool setMutex,  RsslErrorInfo* pError)
+	RsslReactorOAuthCredential* pOAuthCredential,  RsslReactorTokenChannelInfo *pTokenChannelImpl, RsslBool setMutex, RsslBool errorOnV1Repeat, RsslErrorInfo* pError)
 {
 
 	RsslRet ret;
@@ -10001,6 +9994,12 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 				if (setMutex == RSSL_TRUE)
 					RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
 
+				return RSSL_RET_INVALID_ARGUMENT;
+			}
+
+			if (errorOnV1Repeat)
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Cannot use the same oAuth V1 credentials multiple times in the credential list.");
 				return RSSL_RET_INVALID_ARGUMENT;
 			}
 

@@ -2208,7 +2208,7 @@ RsslBool isRsslChannelActive(RsslReactorChannelImpl *pReactorChannelImpl);
 RsslRet copyWlItemRequest(RsslReactorImpl *pReactorImpl, RsslReactorSubmitMsgOptionsImpl* pDestinationImpl, WlItemRequest *pItemRequest);
 
 RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
-	RsslReactorOAuthCredential* pOAuthCredential, RsslReactorTokenChannelInfo* pTokenChannelImpl, RsslBool setMutex, RsslErrorInfo* pError);
+	RsslReactorOAuthCredential* pOAuthCredential, RsslReactorTokenChannelInfo* pTokenChannelImpl, RsslBool setMutex, RsslBool errorOnV1Repeat, RsslErrorInfo* pError);
 
 RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChannel,
 	 RsslBool setMutex, RsslErrorInfo* pError);
