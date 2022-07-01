@@ -10128,14 +10128,14 @@ TEST(dateTimeToStringFormatTest,dateTimeToStringFormatTest)
 TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 {
 	/* Date  */ 
-	char dateTestName[7][72] = {		
-		"Date", "Date w space", "ISO8601 Date", "ISO8601 Year Month", "ISO8601 Date w/o hyphen", "--MM-DD", "--MMDD"
+	char dateTestName[9][72] = {
+		"Date", "Date month & day 1 char", "Date w space", "Date w space month & day 1 char", "ISO8601 Date", "ISO8601 Year Month", "ISO8601 Date w/o hyphen", "--MM-DD", "--MMDD"
 	};
-	char dateFormat[7][56] = { 
-		"%2d/%2d/%4d", "%2d %2d %4d", "%04d-%02d-%02d", "%4d-%02d", "%04d%02d%02d", "--%2d-%2d", "--%02d%02d"
+	char dateFormat[9][56] = {
+		"%2d/%2d/%4d", "%1d/%1d/%4d", "%2d %2d %4d", "%1d %1d %4d", "%04d-%02d-%02d", "%4d-%02d", "%04d%02d%02d", "--%2d-%2d", "--%02d%02d"
 	};
-	RsslDate iDate[7] = {
-		{21,10,1978}, {15,12,1998}, {27,6,2008}, {0,1,2009}, {25,5,2010}, {21,10,0}, {13,5,0}
+	RsslDate iDate[9] = {
+		{21,10,1978}, {2,1,2005}, {15,12,1998}, {3,5,1998}, {27,6,2008}, {0,1,2009}, {25,5,2010}, {21,10,0}, {13,5,0}
 	};
 	RsslDate oDate;
 
@@ -10176,13 +10176,13 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 	RsslDateTime oDateTime;
 	char dateTimeFormat[128];
 
-	for (i = 0; i < 7; ++i)
+	for (i = 0; i < 9; ++i)
 	{ /* Date Tests  */ 
-		if( i < 2 )
+		if( i < 4 )
 			dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].month, iDate[i].day, iDate[i].year);
-		else if (i == 5 || i == 6) /* Month & day only */
+		else if (i == 7 || i == 8) /* Month & day only */
 			dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].month, iDate[i].day);
-		else if(i == 3)
+		else if(i == 5)
 			dateTimeStrBuf.length = (RsslUInt)snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].year, iDate[i].month);
 		else
 			dateTimeStrBuf.length= (RsslUInt) snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].year, iDate[i].month, iDate[i].day);
@@ -10231,7 +10231,7 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 		ASSERT_TRUE(rsslTimeIsEqual(&(iTime[i]), &oTime));
 	}
 
-	for (i = 0; i < 2; ++i)
+	for (i = 0; i < 4; ++i)
 	{ /* DateTime Tests Strf */
 		rsslClearDateTime(&iDateTime);
 		iDateTime.date = iDate[i];
@@ -10252,7 +10252,7 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 		}
 	}
 
-	for (i = 2; i < 7; ++i)
+	for (i = 4; i < 9; ++i)
 	{   /* DateTime Tests ISO8601 */
 		rsslClearDateTime(&iDateTime);
 		iDateTime.date = iDate[i];
@@ -10260,13 +10260,13 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 		{
 			snprintf(dateTimeFormat,128, "%sT%s", dateFormat[i], timeFormat[t]);
 			iDateTime.time = iTime[t];
-			if (i == 3)
+			if (i == 5)
 			{
 				dateTimeStrBuf.length = (RsslUInt)snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.year, iDateTime.date.month,
 					iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 					iDateTime.time.millisecond, iDateTime.time.microsecond, iDateTime.time.nanosecond);
 			}
-			else if(i == 5 || i == 6)
+			else if(i == 7 || i == 8)
 				dateTimeStrBuf.length = (RsslUInt)snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.month, iDateTime.date.day,
 					iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 					iDateTime.time.millisecond, iDateTime.time.microsecond, iDateTime.time.nanosecond);

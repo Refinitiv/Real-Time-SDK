@@ -747,7 +747,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 	dd mm yy
 	mm dd yy
 	*/
-	else if ((numberCount == 2 || numberCount == 4) && (*tmp == ' ' || *tmp == '/'))
+	else if ((numberCount == 1 || numberCount == 2 || numberCount == 4) && (*tmp == ' ' || *tmp == '/'))
 	{
 		tmp = iDateString->data;
 
@@ -755,6 +755,7 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 		// 1974/04/14
 		// 04/14/74
 		// 04/14/1974
+		// 1975/4/5
 
 		for (a = 0, i = 0; i < numberCount; i++, tmp++)
 			a = a * 10 + (*tmp - '0');
@@ -807,10 +808,11 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			// /14
 			// /74
 			// /1974
+			// /5
 			for (c = 0, i = 0; tmp < end && isdigit(*tmp); tmp++, i++)
 				c = c * 10 + (*tmp - '0');
 
-			if (i != 2 && i != 4)
+			if (i != 1 && i != 2 && i != 4)
 				return RSSL_RET_INVALID_DATA;
 
 			if (c < 100) // assume year here is less than 100, then add 1900
@@ -836,6 +838,8 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			{
 				if (tmp <= end && isdigit(*tmp))
 					b = b * 10 + (*tmp - '0');
+				else if (*tmp == ' ' || *tmp == '/')
+					break;
 				else
 					return RSSL_RET_INVALID_DATA;
 			}
@@ -860,10 +864,11 @@ RSSL_API RsslRet rsslDateStringToDate(RsslDate * oDate, const RsslBuffer * iDate
 			// /14
 			// /74
 			// /1974
+			// /5
 			for (c = 0, i = 0; tmp <= end && isdigit(*tmp); tmp++, i++)
 				c = c * 10 + (*tmp - '0');
 
-			if (i != 2 && i != 4)
+			if (i != 1 && i != 2 && i != 4)
 				return RSSL_RET_INVALID_DATA;
 
 			// 1974/04/14
