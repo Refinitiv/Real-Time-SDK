@@ -2004,6 +2004,7 @@ int main(int argc, char **argv)
 	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors 
 	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
 	FD_SET(pReactor->eventFd, &readFds);
+	FD_SET(pReactor->eventFd, &exceptFds);
 
 	/* Add the desired connections to the reactor. */
 	for(i = 0; i < channelCommandCount; ++i)

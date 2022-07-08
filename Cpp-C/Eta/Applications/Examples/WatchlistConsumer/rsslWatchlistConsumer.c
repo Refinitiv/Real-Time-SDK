@@ -57,11 +57,12 @@ static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
 RsslSocket socketIdList[2] = { 0, 0 };
-RsslUInt32 socketIdListCount = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
+
+fd_set	readFds, exceptFds;
 
 extern RsslDataDictionary dictionary;
 
@@ -456,6 +457,12 @@ int main(int argc, char **argv)
 	reactorConnectOpts.reconnectMinDelay = 500;
 	reactorConnectOpts.reconnectMaxDelay = 3000;
 
+	FD_ZERO(&readFds);
+	FD_ZERO(&exceptFds);
+
+	FD_SET(pReactor->eventFd, &readFds);
+	FD_SET(pReactor->eventFd, &exceptFds);
+
 	/* Connect. */
 	if ((ret = rsslReactorConnect(pReactor, &reactorConnectOpts, 
 					(RsslReactorChannelRole*)&consumerRole, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
@@ -490,38 +497,12 @@ int main(int argc, char **argv)
 	do
 	{
 		struct timeval 				selectTime;
-		fd_set						readFds;
-		fd_set						exceptFds;
 		RsslReactorDispatchOptions	dispatchOpts;
 		RsslUInt32					index;
-
-		FD_ZERO(&readFds);
-		FD_ZERO(&exceptFds);
-		FD_SET(pReactor->eventFd, &readFds);
-		FD_SET(pReactor->eventFd, &exceptFds);
-
-		if (pConsumerChannel)
-		{
-			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
-			{
-				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
-				{
-					FD_SET(pConsumerChannel->socketId, &readFds);
-					FD_SET(pConsumerChannel->socketId, &exceptFds);
-				}
-			}
-			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
-			{
-				for (index = 0; index < socketIdListCount; index++)
-				{
-					FD_SET(socketIdList[index], &readFds);
-					FD_SET(socketIdList[index], &exceptFds);
-				}
-			}
-		}
+		fd_set useReadFds = readFds, useExceptFds = exceptFds;
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
-		ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
+		ret = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
 
 		if (ret < 0)
 		{
@@ -1426,6 +1407,31 @@ static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChan
 	return RSSL_RC_CRET_SUCCESS;
 }
 
+static void clearConnection(RsslReactorChannel *pReactorChannel)
+{
+	if (pReactorChannel == NULL)
+	{
+		printf("Error in clearConnection (). pReactorChannel is not SET.");
+		return;
+	}
+
+	if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+	{
+		FD_CLR(pReactorChannel->socketId, &readFds);
+		FD_CLR(pReactorChannel->socketId, &exceptFds);
+	}
+	else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+	{
+		RsslUInt32 index;
+
+		for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+		{
+			FD_CLR(socketIdList[index], &readFds);
+			FD_CLR(socketIdList[index], &exceptFds);
+		}
+	}
+}
+
 /* Callback for when the channel is first opened by the application.
  * If dictionaries are loaded, items will immediately be requested.
  * Otherwise, dictionaries must be retrieved before requesting items. 
@@ -1450,19 +1456,24 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* Save the channel on our info structure. */
 			pConsumerChannel = pReactorChannel;
-			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				FD_SET(pReactorChannel->socketId, &readFds);
+				FD_SET(pReactorChannel->socketId, &exceptFds);
+			}
+			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
 
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+					FD_SET(socketIdList[index], &readFds);
+					FD_SET(socketIdList[index], &exceptFds);
 				}
-
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
-
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
+
 			if (isXmlTracingEnabled() == RSSL_TRUE) 
 			{
 				RsslTraceOptions traceOptions;
@@ -1485,15 +1496,24 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_FD_CHANGE:
 		{
-			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				FD_CLR(pReactorChannel->oldSocketId, &readFds);
+				FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
+				FD_SET(pReactorChannel->socketId, &readFds);
+				FD_SET(pReactorChannel->socketId, &exceptFds);
+			}
+			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
+					FD_CLR(socketIdList[index], &readFds);
+					FD_CLR(socketIdList[index], &exceptFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
 				}
-
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
 
 			return RSSL_RC_CRET_SUCCESS;
@@ -1503,7 +1523,10 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
 				printf("Channel "SOCKET_PRINT_TYPE" down.\n", pReactorChannel->socketId);
+				clearConnection(pReactorChannel);
+			}
 			else
 				printf("Channel down.\n");
 
@@ -1530,14 +1553,16 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			}
 
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
 				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting hostname %s\n", pReactorChannel->socketId, hostName);
+				clearConnection(pReactorChannel);
+			}
 			else
 				printf("Channel down. Reconnecting hostname %s\n",  hostName);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
-			socketIdListCount = 0;
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
