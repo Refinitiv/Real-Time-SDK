@@ -707,3 +707,22 @@ emalibs-Cons-001
     Alters ema library, specifically ItemCallbackClient.cpp, to change 
     CONSUMER_STARTING_STREAM_ID from 4 to 2147483636.  
 
+
+Module:  Emacppconsperf-Rto
+----------------------------------
+emacppconsperf-Rto-001
+    Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
+    Alters ConsPerfConfig.cpp, ConsPerfConfig.h, ConsumerThread.cpp, EmaCppConsPerf.cpp to connect to RTO, requires CLI credentials.
+    Run EmaCppConsPerf. Sample Cmd:
+
+    # encrypted
+    EMACppPerfCons -serviceName ELEKTRON_DD \
+           -uname <username> -password <password> -clientId <clientId> \
+           -tickRate 1000 -steadyStateTime 300 \
+           -itemFile 350k.xml -consumerName Perf_Consumer_1
+
+    # encrypted websocket json rssl.json.v2
+    EMACppPerfCons -serviceName ELEKTRON_DD \
+           -uname <username> -password <password> -clientId <clientId> \
+           -tickRate 1000 -steadyStateTime 300 \
+           -itemFile 350k.xml -consumerName Perf_Consumer_WSJSON_1

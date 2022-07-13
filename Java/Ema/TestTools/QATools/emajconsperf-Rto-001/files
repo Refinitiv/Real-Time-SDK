@@ -1,5 +1,5 @@
 #file,location
 ConsPerfConfig.java,PerfTools/src/main/java/com/refinitiv/ema/perftools/emajconsperf
 ConsumerThread.java,PerfTools/src/main/java/com/refinitiv/ema/perftools/emajconsperf
-350.xml,PerfTools
+350k.xml,PerfTools
 EmaConfig.xml,Ema

@@ -1,0 +1,5 @@
+#file,location
+consPerfConfig.c,Applications/PerfTools/ConsPerf
+consPerfConfig.h,Applications/PerfTools/ConsPerf
+consumerThreads.c,Applications/PerfTools/ConsPerf
+350k.xml,Applications/PerfTools/Common

@@ -232,4 +232,17 @@ Module: Reactor
 
 etareactor-001: Alters reactor worker thread to print calculated reconnect delay for connection recovery
 
+etacconsperf-Rto-001
+    Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
+    Alters consPerfConfig.c, consPerfConfig.h, consumerThreads.c to connect to RTO, requires CLI credentials.
+    Run ConsPerf. Sample Cmd:
 
+    # ETA session management with reactor socket no proxy 
+    ConsPerf -serviceName ELEKTRON_DD \
+         -uname <username> -password <password> -clientId <clientId> \
+         -steadyStateTime 300 -sendBufSize 65000 -recvBufSize 65000 -inputBufs 2048 \
+         -itemFile 350k.xml -outputBufs 5000  \
+         -connType encrypted -encryptedConnectionType socket \
+         -sessionMgnt -reactor
+
+    If -sessionMgnt is enabled should set -reactor or -watchlist
