@@ -27,6 +27,13 @@ consumer-Ws-002: Alters Consumer to test compression Zlib -testCompressionZlib.
 Module:  Value Add Provider 
 ---------------------------
 
+vaprovider-TsPost-001: Alters VAProvider to handle incoming tunnel stream Post message. Sends back Ack message if the flag "applyAck" has been set on Post message. Added additional command line options/arguments:
+	-sendNack: sends negative acks if post message is received (defaults to false);
+	-rejectLogin: rejects main login request (defaults to false);
+	-rejectTsLogin: rejects the tunnel stream login request (defaults to false).
+
+	Example: ./gradlew runVAProvider -PcommandLineArgs="-p 14002 -s DIRECT_FEED -sendNack -x"
+
 vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.

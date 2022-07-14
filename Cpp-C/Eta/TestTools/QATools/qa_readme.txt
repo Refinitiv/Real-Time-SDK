@@ -195,7 +195,13 @@ provider-Multi-001: Alters Provider to enable serverSharedSocket = RSSL_TRUE.
 Module:  VA Provider 
 -----------------
 
-vaprovider-TunnelStream-001: Alters VAProvider to process a generic message with a nested market price request and respond with a generic messagae which contains a market price refresh message. Altered code is in simpleTunnelMsgHandler.c. However, all files are saved to build a standalone VAProvider. 
+vaprovider-TsPost-001:
+	1. Alters VAProvider to process a generic message with a nested market price request and respond with a generic messagae which contains a market price refresh message. Altered code is in simpleTunnelMsgHandler.c. However, all files are saved to build a standalone VAProvider. 
+	2. Alters VAProvider to handle incoming tunnel stream Post message. Sends back Ack message if the flag "applyAck" has been set on Post message.Added additional command line options/arguments: 
+		-sendNack: sends negative acks if post message is received (defaults to false);
+		-rejectLogin: rejects main login request (defaults to false);
+		-rejectTsLogin: rejects the tunnel stream login request (defaults to false).
+		Example: ./VAProvider -p 14002 -s DIRECT_FEED -sendNack -x
 
 vaprovider-GenM-001:  Alters VAProvider to send genericMsg on login, directory and 
 market price streams. 
