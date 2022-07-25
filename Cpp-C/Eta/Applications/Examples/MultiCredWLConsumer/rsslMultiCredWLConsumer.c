@@ -275,6 +275,7 @@ int main(int argc, char **argv)
 			if (!runTimeExpired)
 			{
 				runTimeExpired = RSSL_TRUE;
+				break;
 			}
 		}
 	} while(ret >= RSSL_RET_SUCCESS);
