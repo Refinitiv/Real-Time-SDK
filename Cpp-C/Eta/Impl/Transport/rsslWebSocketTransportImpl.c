@@ -522,6 +522,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 		{
 			if (ripcBuffer)
 			{
+				int wasFirstFragment = firstFragment;
 				if (firstFragment)
 				{
 					firstFragment = 0;
@@ -547,7 +548,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 
 					if (tempSize == 0)
 					{
-						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
+						if (wasFirstFragment)
+						{
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_NONE;
+						}
+						else
+						{
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
+						}
 					}
 				}
 				else
@@ -571,7 +579,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 						
 					if (tempSize == 0)
 					{
-						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
+						if (wasFirstFragment)
+						{
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_NONE;
+						}
+						else
+						{
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
+						}
 					}
 				}
 
