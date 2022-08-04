@@ -1597,6 +1597,13 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 {
 	RsslUInt32 index;
 	RsslReactorServiceEndpointInfo *pServiceEndpointInfo;
+
+	if (pEndPointEvent->pErrorInfo != NULL)
+	{
+		printf("Error requesting Service Discovery Endpoint Information: %s\n", pEndPointEvent->pErrorInfo->rsslError.text);
+		exit(-1);
+	}
+
 	for(index = 0; index < pEndPointEvent->serviceEndpointInfoCount; index++)
 	{
 		pServiceEndpointInfo = &pEndPointEvent->serviceEndpointInfoList[index];
