@@ -4650,9 +4650,9 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 	RsslQueueLink	*pLink = 0;
 	int	hdrlen = 0;
 	rwsOpCodes_t opCode = RWS_OPC_NONE;
-	RsslBool singleMessage = RSSL_FALSE;
-	RsslBool compressedFlag = RSSL_FALSE;
+	RsslBool compressedFlag = RSSL_FALSE; /* This is used for fragmented message only. */
 	RsslBool enableCompression = RSSL_FALSE;
+	RsslBool singleMessage = RSSL_FALSE;
 
 	if (IPC_NULL_PTR(rsslSocketChannel, "rwsWriteWebSocket", "rsslSocketChannel", error))
 		return RSSL_RET_FAILURE;
@@ -4698,6 +4698,15 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 	{
 		wsSess->finBit = RSSL_TRUE;
 		singleMessage = RSSL_TRUE;
+	}
+	else if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_ONLY_ONE_FRAG_MSG)
+	{
+		wsSess->finBit = RSSL_TRUE;
+
+		if (enableCompression)
+		{
+			compressedFlag = RSSL_TRUE; /* Set the compressed flag for the single compressed fragmentation message. */
+		}
 	}
 	else if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
 	{

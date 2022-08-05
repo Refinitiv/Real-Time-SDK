@@ -522,7 +522,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 		{
 			if (ripcBuffer)
 			{
-				int wasFirstFragment = firstFragment;
 				if (firstFragment)
 				{
 					firstFragment = 0;
@@ -548,9 +547,9 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 
 					if (tempSize == 0)
 					{
-						if (wasFirstFragment)
+						if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
 						{
-							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_NONE;
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_ONLY_ONE_FRAG_MSG;
 						}
 						else
 						{
@@ -560,15 +559,7 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 				}
 				else
 				{
-					/* If this the first fragmented message then split it into two WS frames. */
-					if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
-					{
-						copyUserMsgSize = tempSize/2;
-					}
-					else
-					{
-						copyUserMsgSize = tempSize;
-					}
+					copyUserMsgSize = tempSize;
 
 					/* this will all actually fit in one message */
 					MemCopyByInt(pBuffer, pDataBuffer + rsslBufImpl->writeCursor, copyUserMsgSize);
@@ -577,16 +568,13 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 					ripcBuffer->priority = rsslBufImpl->priority;
 					tempSize -= copyUserMsgSize;
 						
-					if (tempSize == 0)
+					if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
 					{
-						if (wasFirstFragment)
-						{
-							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_NONE;
-						}
-						else
-						{
-							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
-						}
+						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_ONLY_ONE_FRAG_MSG;
+					}
+					else
+					{
+						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
 					}
 				}
 
