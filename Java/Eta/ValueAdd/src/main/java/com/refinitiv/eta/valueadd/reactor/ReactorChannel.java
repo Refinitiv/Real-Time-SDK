@@ -1894,13 +1894,10 @@ public class ReactorChannel extends VaNode
         String transportType = "";
         boolean foundLocation = false;
 
-        for(int index = 0; index < _reactorServiceEndpointInfoList.size(); index++)
+        for (ReactorServiceEndpointInfo serviceEndpointInfo : _reactorServiceEndpointInfoList)
         {
-            endpointInfo = _reactorServiceEndpointInfoList.get(index);
-
-            if ( reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
-            {
-                if(reactorConnectInfo.connectOptions().encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET)
+            if (reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED) {
+                if (reactorConnectInfo.connectOptions().encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET)
                 {
                     transportType = RestClient.EDP_RT_TRANSPORT_PROTOCOL_WEBSOCKET;
                 }
@@ -1910,13 +1907,21 @@ public class ReactorChannel extends VaNode
                 }
             }
 
-            if(endpointInfo.locationList().size() > 1 && endpointInfo.transport().equals(transportType))
+            // Get an endpoint that provides auto failover for the specified location
+            if (serviceEndpointInfo.locationList().size() >= 2 && serviceEndpointInfo.transport().equals(transportType) &&
+                    serviceEndpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
             {
-                if ( endpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
-                {
-                    foundLocation = true;
-                    break;
-                }
+                foundLocation = true;
+                endpointInfo = serviceEndpointInfo;
+                break;
+            }
+            // Try to get backups and keep looking for main case. Keep only the first item met.
+            else if(serviceEndpointInfo.locationList().size() > 0 && !foundLocation &&
+                    serviceEndpointInfo.transport().equals(transportType) &&
+                    serviceEndpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
+            {
+                foundLocation = true;
+                endpointInfo = serviceEndpointInfo;
             }
         }
 

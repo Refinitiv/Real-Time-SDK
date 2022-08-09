@@ -498,7 +498,6 @@ int main(int argc, char **argv)
 	{
 		struct timeval 				selectTime;
 		RsslReactorDispatchOptions	dispatchOpts;
-		RsslUInt32					index;
 		fd_set useReadFds = readFds, useExceptFds = exceptFds;
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
@@ -1597,25 +1596,37 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 {
 	RsslUInt32 index;
 	RsslReactorServiceEndpointInfo *pServiceEndpointInfo;
-
-	if (pEndPointEvent->pErrorInfo != NULL)
-	{
-		printf("Error requesting Service Discovery Endpoint Information: %s\n", pEndPointEvent->pErrorInfo->rsslError.text);
-		exit(-1);
-	}
-
+	char *endPoint = NULL;
+	char *port = NULL;
 	for(index = 0; index < pEndPointEvent->serviceEndpointInfoCount; index++)
 	{
 		pServiceEndpointInfo = &pEndPointEvent->serviceEndpointInfoList[index];
-		if(pServiceEndpointInfo->locationCount == 2) // Get an endpoint that provides auto failover for the specified location
+		if(pServiceEndpointInfo->locationCount >= 2) // Get an endpoint that provides auto failover for the specified location
 		{
 			if (strncmp(watchlistConsumerConfig.location.data, pServiceEndpointInfo->locationList[0].data, watchlistConsumerConfig.location.length) == 0 )
 			{
-				snprintf(watchlistConsumerConfig.hostName, 255, "%s", pServiceEndpointInfo->endPoint.data);	
-				snprintf(watchlistConsumerConfig.port, 255, "%s", pServiceEndpointInfo->port.data);	
+				endPoint = pServiceEndpointInfo->endPoint.data;
+				port = pServiceEndpointInfo->port.data;
 				break;
 			}
 		}
+		else if (pServiceEndpointInfo->locationCount > 0) // Try to get backups and keep looking for main case
+		{
+			if (endPoint == NULL && port == NULL) // keep only the first item met
+			{
+				if (strncmp(watchlistConsumerConfig.location.data, pServiceEndpointInfo->locationList[0].data, watchlistConsumerConfig.location.length) == 0)
+				{
+					endPoint = pServiceEndpointInfo->endPoint.data;
+					port = pServiceEndpointInfo->port.data;
+				}
+			}
+		}
+	}
+
+	if (endPoint != NULL && port != NULL)
+	{
+		snprintf(watchlistConsumerConfig.hostName, 255, "%s", pServiceEndpointInfo->endPoint.data);
+		snprintf(watchlistConsumerConfig.port, 255, "%s", pServiceEndpointInfo->port.data);
 	}
 
 	return RSSL_RC_CRET_SUCCESS;

@@ -1326,20 +1326,32 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 	{
 		if ( event.errorInfo().code() == ReactorReturnCodes.SUCCESS)
 		{
+			String endPoint = null;
+			String port = null;
 			List<ReactorServiceEndpointInfo> serviceEndpointInfoList = event.serviceEndpointInfo();
 
-			for (int i = 0; i < serviceEndpointInfoList.size(); i++)
-			{
-				ReactorServiceEndpointInfo info = serviceEndpointInfoList.get(i);
-				if (info.locationList().size() == 2) // Get an endpoint that provides auto failover for the specified location
+			for (ReactorServiceEndpointInfo info : serviceEndpointInfoList) {
+				if (info.locationList().size() >= 2 && watchlistConsumerConfig.location() != null &&
+						info.locationList().get(0).startsWith(watchlistConsumerConfig.location())) // Get an endpoint that provides auto failover for the specified location
 				{
-					if (watchlistConsumerConfig.location() != null && info.locationList().get(0).startsWith(watchlistConsumerConfig.location()))
-					{
-						watchlistConsumerConfig.connectionList().get(0).hostname(info.endPoint());
-						watchlistConsumerConfig.connectionList().get(0).port(info.port());
-						break;
-					}
+					endPoint = info.endPoint();
+					port = info.port();
+					break;
 				}
+				// Try to get backups and keep looking for main case. Keep only the first item met.
+				else if(info.locationList().size() > 0 && watchlistConsumerConfig.location() != null &&
+						info.locationList().get(0).startsWith(watchlistConsumerConfig.location()) &&
+						endPoint == null && port == null)
+				{
+					endPoint = info.endPoint();
+					port = info.port();
+				}
+			}
+
+			if(Objects.nonNull(endPoint) && Objects.nonNull(port))
+			{
+				watchlistConsumerConfig.connectionList().get(0).hostname(endPoint);
+				watchlistConsumerConfig.connectionList().get(0).port(port);
 			}
 		}
 		else

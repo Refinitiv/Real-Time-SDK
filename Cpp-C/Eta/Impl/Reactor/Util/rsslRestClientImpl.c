@@ -2133,8 +2133,8 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* pLocation, RsslB
 	cJSON* arrayValue;
 	RsslInt32 idx;
 	RsslRestBufferImpl rsslRestBufferImpl;
-	char* endpoint;
-	RsslInt32 port;
+	char* endpoint = NULL;
+	RsslInt32 port = 0;
 
 	rsslClearBuffer(pHostName);
 	rsslClearBuffer(pPort);
@@ -2162,7 +2162,7 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* pLocation, RsslB
 		cJSON * subitem = cJSON_GetArrayItem(items, idx);
 		location = cJSON_GetObjectItem(subitem, "location");
 
-		if (cJSON_GetArraySize(location) == 2)
+		if (cJSON_GetArraySize(location) >= 2)
 		{
 			arrayValue = cJSON_GetArrayItem(location, 0);
 
@@ -2182,25 +2182,50 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* pLocation, RsslB
 				else
 					break;
 
-				pHostName->length = (RsslUInt32)strlen(endpoint);
-				if (_rsslRestGetBuffer(pHostName, pHostName->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
-				{
-					goto Fail;
-				}
-
-				pHostName->data[pHostName->length] = '\0';
-				strncpy(pHostName->data, endpoint, pHostName->length);
-
-				pPort->length = 5;
-				if (_rsslRestGetBuffer(pPort, pPort->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
-				{
-					goto Fail;
-				}
-
-				pPort->length = (RsslUInt32)sprintf(pPort->data, "%d", port);
 				break;
 			}
 		}
+		else if (endpoint == NULL && port == 0 && cJSON_GetArraySize(location) > 0)
+		{
+			arrayValue = cJSON_GetArrayItem(location, 0);
+
+			if (arrayValue && (strncmp(pLocation->data, arrayValue->valuestring, strlen(pLocation->data)) == 0))
+			{
+				value = cJSON_GetObjectItem(subitem, "endpoint");
+
+				if (value)
+					endpoint = value->valuestring;
+				else
+					continue;
+
+				value = cJSON_GetObjectItem(subitem, "port");
+
+				if (value)
+					port = value->valueint;
+				else
+					endpoint = NULL;
+			}
+		}
+	}
+
+	if (endpoint != NULL && port != 0)
+	{
+		pHostName->length = (RsslUInt32)strlen(endpoint);
+		if (_rsslRestGetBuffer(pHostName, pHostName->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
+		{
+			goto Fail;
+		}
+
+		pHostName->data[pHostName->length] = '\0';
+		strncpy(pHostName->data, endpoint, pHostName->length);
+
+		pPort->length = 5;
+		if (_rsslRestGetBuffer(pPort, pPort->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
+		{
+			goto Fail;
+		}
+
+		pPort->length = (RsslUInt32)sprintf(pPort->data, "%d", port);
 	}
 
 	if ( (pHostName->length == 0) || (pPort->length == 0) )

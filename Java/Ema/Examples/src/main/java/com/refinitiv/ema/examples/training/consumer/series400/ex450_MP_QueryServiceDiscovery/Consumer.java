@@ -9,8 +9,6 @@ package com.refinitiv.ema.examples.training.consumer.series400.ex450_MP_QuerySer
 
 import com.refinitiv.ema.access.Msg;
 
-import java.util.List;
-
 import com.refinitiv.ema.access.AckMsg;
 import com.refinitiv.ema.access.ElementList;
 import com.refinitiv.ema.access.GenericMsg;
@@ -30,6 +28,9 @@ import com.refinitiv.ema.access.ServiceEndpointDiscoveryClient;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryEvent;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryOption;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryResp;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryInfo;
+
+import java.util.Objects;
 
 class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 {
@@ -55,20 +56,28 @@ class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 	public void onSuccess(ServiceEndpointDiscoveryResp serviceEndpointResp, ServiceEndpointDiscoveryEvent event)
 	{
 		System.out.println(serviceEndpointResp); // dump service discovery endpoints
-		
-		for(int index = 0; index < serviceEndpointResp.serviceEndpointInfoList().size(); index++)
+		String endPoint = null;
+		String port = null;
+		for(ServiceEndpointDiscoveryInfo info : serviceEndpointResp.serviceEndpointInfoList())
 		{
-			List<String> locationList = serviceEndpointResp.serviceEndpointInfoList().get(index).locationList();
-			
-			if(locationList.size() == 2) // Get an endpoint that provides auto failover for the specified location.
+			if(info.locationList().size() >= 2 && info.locationList().get(0).startsWith(Consumer.location)) // Get an endpoint that provides auto failover for the specified location.
 			{
-				if(locationList.get(0).startsWith(Consumer.location))
-				{
-					Consumer.host = serviceEndpointResp.serviceEndpointInfoList().get(index).endpoint();
-					Consumer.port = serviceEndpointResp.serviceEndpointInfoList().get(index).port();
-					break;
-				}
+				endPoint = info.endpoint();
+				port = info.port();
+				break;
 			}
+			// Try to get backups and keep looking for main case. Keep only the first item met.
+			else if(info.locationList().size() > 0 && info.locationList().get(0).startsWith(Consumer.location) &&
+					endPoint == null && port == null)
+			{
+				endPoint = info.endpoint();
+				port = info.port();
+			}
+		}
+
+		if(Objects.nonNull(endPoint) && Objects.nonNull(port)) {
+			Consumer.host = endPoint;
+			Consumer.port = port;
 		}
 	}
 

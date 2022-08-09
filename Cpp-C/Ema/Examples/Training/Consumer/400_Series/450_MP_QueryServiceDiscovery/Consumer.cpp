@@ -52,7 +52,7 @@ void AppClient::onSuccess( const ServiceEndpointDiscoveryResp& serviceEndpointRe
 	{
 		const EmaVector<EmaString>& locationList = serviceEndpointResp.getServiceEndpointInfoList()[index].getLocationList();
 
-		if ( locationList.size() == 2 ) // Get an endpoint that provides auto failover for the specified location.
+		if ( locationList.size() >= 2 ) // Get an endpoint that provides auto failover for the specified location.
 		{
 			if ( locationList[0].find(location) != -1 )
 			{
@@ -61,6 +61,15 @@ void AppClient::onSuccess( const ServiceEndpointDiscoveryResp& serviceEndpointRe
 				break;
 			}
 		}
+		else if (locationList.size() > 0 && host.empty() && port.empty())
+		{
+			if ( locationList[0].find(location) != -1 )
+			{
+				host = serviceEndpointResp.getServiceEndpointInfoList()[index].getEndPoint();
+				port = serviceEndpointResp.getServiceEndpointInfoList()[index].getPort();
+			}
+		}
+		
 	}
 }
 
