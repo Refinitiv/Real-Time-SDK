@@ -69,7 +69,7 @@ void createProgrammaticConfig( Map& configMap )
 	serviceMap.addKeyAscii( "NI_PUB", MapEntry::AddEnum,
 		ElementList()
 		.addElementList( "InfoFilter",
-			ElementList().addUInt( "ServiceId", 0 )
+			ElementList().addUInt( "ServiceId", 2 )
 			.addAscii( "Vendor", "company name" )
 			.addUInt( "IsSource", 0 )
 			.addUInt( "AcceptingConsumerStatus", 0 )

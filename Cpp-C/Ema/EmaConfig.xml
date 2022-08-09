@@ -625,7 +625,7 @@
 
 				<InfoFilter>
 					<!-- optional value; if not specified EMA will assign it							-->
-					<ServiceId value="0"/>
+					<ServiceId value="11"/>
 
 					<!-- optional value																	-->
 					<Vendor value="company name"/>
