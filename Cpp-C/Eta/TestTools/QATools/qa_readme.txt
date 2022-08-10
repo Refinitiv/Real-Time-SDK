@@ -89,6 +89,14 @@ vaconsumer-OAuthV2-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st
 
 vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st, 2nd and 3rd connection are for STS. And 4th, 5th, and 6th connection are for OAuth V2.
 
+vaconsumer-CpuBind-001: Alter VAConsumer to add command-line options for testing bind CPU API.
+ Command line options.
+-mainThreadBindVer specifies the method of API call to bind main thread: 1 - use regular (default), 2 - use extended,
+   i.e. when 1 - will call rsslBindThread() to bind CPU specified in "-mainThreadCPU" for the main thread of VAConsumer,
+        when 2 - will call rsslBindThreadEx() to bind CPU specified in "-mainThreadCPU" for the main thread of VAConsumer;
+-mainThreadCPU specifies the CPU to bind for main VAConsumer thread: Cpu core id or P:X C:Y T:Z format;
+-workerThreadCPU specifies the CPU to bind for Reactor worker thread: Cpu core id or P:X C:Y T:Z format.
+
 consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
 
 Module:  Watchlist Consumer

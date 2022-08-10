@@ -62,6 +62,16 @@ RSSL_API RsslRet rsslBindProcessorCoreThread(RsslInt32 cpuId, RsslErrorInfo* pEr
  */
 RSSL_API RsslRet rsslBindThread(const char* cpuString, RsslErrorInfo* pError);
 
+/**
+ * @brief Binds the calling thread to the Cpu core.
+ * @param cpuString Specifies the Cpu core in string format (Cpu core id or P:X C:Y T:Z format).
+ * @param pOutputResult on Success, the list of logical core id that were bound for the calling thread; on Fail, an error text description same as in pError.
+ * @param pError Error structure to be populated in the event of failure.
+ * @return RSSL_RET_SUCCESS if the thread binding was successful.
+ * @return RSSL_RET_FAILURE when an error received, specific description of binding error see in pError.
+ */
+RSSL_API RsslRet rsslBindThreadEx(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError);
+
 #ifdef __cplusplus
 }
 #endif
