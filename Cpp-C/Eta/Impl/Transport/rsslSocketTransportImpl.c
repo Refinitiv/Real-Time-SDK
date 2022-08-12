@@ -7324,7 +7324,7 @@ ripcSessInit ipcWaitAck(RsslSocketChannel *rsslSocketChannel, ripcSessInProg *in
 
 		return(RIPC_CONN_ERROR);
 	}
-	rsslSocketChannel->readSize = (RsslInt32)rsslSocketChannel->inputBuffer->maxLength / 2;
+	rsslSocketChannel->readSize = (RsslInt32)(rsslSocketChannel->inputBuffer->maxLength / 2);
 
 	if ((rsslSocketChannel->guarBufPool->sharedPool) &&
 		(rsslSocketChannel->guarBufPool->sharedPool->initialized == 0))

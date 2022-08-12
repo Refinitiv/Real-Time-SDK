@@ -2650,7 +2650,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		else
 		{
 			rsslSocketChannel->curInputBuf = ipcDupGblMsg(rsslSocketChannel->inputBuffer);
-}
+		}
 
 		if ((rsslSocketChannel->inputBuffer == 0) || (rsslSocketChannel->curInputBuf == 0))
 		{
@@ -2661,7 +2661,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 
 			return(RIPC_CONN_ERROR);
 		}
-		rsslSocketChannel->readSize = (RsslInt32)rsslSocketChannel->inputBuffer->maxLength / 2;
+		rsslSocketChannel->readSize = (RsslInt32)(rsslSocketChannel->inputBuffer->maxLength / 2);
 
 		if ((rsslSocketChannel->guarBufPool->sharedPool) &&
 			(rsslSocketChannel->guarBufPool->sharedPool->initialized == 0))
