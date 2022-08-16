@@ -2298,11 +2298,12 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     public int defaultMsgCallback(ReactorMsgEvent event)
     {
         Msg msg = event.msg();
-        
-        _dIter.clear();
-        _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+        if (msg.domainType() == DomainTypes.MARKET_PRICE && msg.encodedDataBody() != null) {
+            _dIter.clear();
+            _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
 
-        processMarketPriceResp(msg, _dIter);
+            processMarketPriceResp(msg, _dIter);
+        }
 
         return ReactorCallbackReturnCodes.SUCCESS;
     }
@@ -2591,10 +2592,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
 	@Override
 	public int serviceNameToIdCallback(String serviceName, Object closure)
-	{
+    {
 		ConsumerThread consumerThread = (ConsumerThread)closure;
-		
-		if(consumerThread._srcDirHandler.serviceInfo().info().serviceName().toString().equals(serviceName))
+
+		Buffer infoServiceName = consumerThread._srcDirHandler.serviceInfo().info().serviceName();
+		if(infoServiceName != null && infoServiceName.toString().equals(serviceName))
 		{
 			return consumerThread._srcDirHandler.serviceInfo().serviceId();
 		}
@@ -2604,13 +2606,13 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
 	@Override
 	public int reactorServiceNameToIdCallback(ReactorServiceNameToId serviceNameToId,
-			ReactorServiceNameToIdEvent serviceNameToIdEvent) 
+			ReactorServiceNameToIdEvent serviceNameToIdEvent)
 	{
 		ConsumerThread consumerThread = (ConsumerThread)serviceNameToIdEvent.userSpecObj();
 		
-		if(consumerThread._srcDirHandler.serviceInfo().info().serviceName().toString().equals(serviceNameToId.serviceName()))
+		if(consumerThread._service.info().serviceName().toString().equals(serviceNameToId.serviceName()))
 		{
-			serviceNameToId.serviceId(consumerThread._srcDirHandler.serviceInfo().serviceId());
+			serviceNameToId.serviceId(consumerThread._service.serviceId());
 			return ReactorReturnCodes.SUCCESS;
 		}
 		

@@ -5530,6 +5530,11 @@ public class Reactor
                         "Reactor.initJsonConverter", "The service ID must be in a range between 0 to 65535.");
             }
 
+            jsonConverterUserSpec = jsonConverterOptions.userSpec();
+            serviceNameToIdCallback = jsonConverterOptions.serviceNameToIdCallback();
+            JsonConversionEventCallback = jsonConverterOptions.jsonConversionEventCallback();
+            closeChannelFromFailure = jsonConverterOptions.closeChannelFromFailure();
+
             JsonFactory.initPools(3);
             JsonConverterBuilder jsonConverterBuilder = ConverterFactory.createJsonConverterBuilder();
 
@@ -5557,11 +5562,6 @@ public class Reactor
                 return populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                         "Reactor.initJsonConverter", converterError.getText());
             }
-
-            jsonConverterUserSpec = jsonConverterOptions.userSpec();
-            serviceNameToIdCallback = jsonConverterOptions.serviceNameToIdCallback();
-            JsonConversionEventCallback = jsonConverterOptions.jsonConversionEventCallback();
-            closeChannelFromFailure = jsonConverterOptions.closeChannelFromFailure();
         }
         finally
         {
