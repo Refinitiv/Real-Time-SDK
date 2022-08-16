@@ -66,8 +66,8 @@ eclipse {
 }
 
 dependencies {
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.4'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.7'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7'
 
     compile project(':Eta:Core')
     compile project(':Eta:AnsiPage')
