@@ -1,4 +1,4 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 
@@ -8,50 +8,65 @@ group = "com.refinitiv.eta.valueadd.cache"
 archivesBaseName = "etaValueAddCache"
 version "$SpecificationVersion"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+publishing {
+    publications{
+        mavenJava(MavenPublication){
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
 
-            pom.project {
-                name "$archivesBaseName"
-                    packaging 'jar'
-                    url 'https://github.com/Refinitiv/Real-Time-SDK'
-                    description 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
-
-                    scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                    }
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
 
                 developers {
                     developer {
-                        organization 'Refinitiv'
+                        organization = 'Refinitiv'
                     }
                 }
 
                 licenses {
                     license {
-                        name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "repository"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+        }
+        maven {
+            name = "snapshotRepository"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
             }
         }
     }
 }
 
 signing {
-    sign configurations.archives
+    sign publishing.publications.mavenJava
 }
 
 eclipse {
@@ -61,11 +76,12 @@ eclipse {
 }
 
 dependencies {
-    testCompile('org.mockito:mockito-all:1.9.0'){
+    testImplementation('org.mockito:mockito-all:1.9.0'){
         exclude group: 'org.hamcrest'
     }
 
-	compile project(':Eta:ValueAdd')
+    implementation project(':Eta:Core')
+    implementation project(':Eta:ValueAdd')
 }
 
 ext.sharedManifest = manifest {
@@ -85,9 +101,9 @@ jar {
 		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
 		from sharedManifest 
 	}
-
-        destinationDir = file("../Libs/")
-        baseName = 'etaValueAddCache'
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('etaValueAddCache');
+    archiveBaseName.set('etaValueAddCache');
 }
 
 javadoc {
@@ -113,9 +129,10 @@ task cleanJar (type: Delete) {
 clean.dependsOn cleanJar
 
 task javadocJar (type: Jar) {
-        classifier = 'javadoc'
+        archiveClassifier.convention('javadoc');
+        archiveClassifier.set('javadoc');
         from javadoc.destinationDir
-        destinationDir = jar.destinationDir
+        destinationDirectory.set(jar.destinationDirectory)
 
         manifest {
 		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
@@ -124,7 +141,8 @@ task javadocJar (type: Jar) {
 }
 
 task sourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier.convention('sources');
+        archiveClassifier.set('sources');
         from sourceSets.main.allSource
 }
 

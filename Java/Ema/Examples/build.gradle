@@ -13,8 +13,9 @@ eclipse {
 }
 
 dependencies {
-	compile project(':Ema:Core')
-	testCompile group: 'junit', name: 'junit', version: '4.12'
+	implementation project(':Ema:Core')
+	implementation project(':Eta:Core')
+	testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 if (JavaVersion.current().java11Compatible) {
@@ -27,21 +28,39 @@ if (JavaVersion.current().java11Compatible) {
 mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
 
 task createExtraRunApp(type: CreateStartScripts) {
-	mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
+	mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
 	classpath = startScripts.classpath
 	outputDir = startScripts.outputDir
 	applicationName = 'iprovider100'
 	classpath += files ('build/classes/java')
 }
 
-task copyDictionary( type: Copy ) {
-	from '../../etc'
-	into '.'
+task copyDictionary{
+	outputs.files files('../../etc')
+				.asFileTree
+				.files
+				.collect{'./${it.name}'}
+
+	doLast{
+		copy{
+			from '../../etc'
+			into './'
+		}
+	}
 }
 
-task copyEmaConfig(type: Copy) {
-	from '../EmaConfig.xml'
-	into '.'
+task copyEmaConfig{
+	outputs.files files('../EmaConfig.xml')
+			.asFileTree
+			.files
+			.collect{'./${it.name}'}
+
+	doLast{
+		copy{
+			from '../EmaConfig.xml'
+			into './'
+		}
+	}
 }
 
 task deleteDictionary( type: Delete ) {
@@ -112,7 +131,7 @@ fileTree('.') {
 		if (JVM_OPTIONS)
 			jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS ) )
 
-		main = exampleMainLocation
+		mainClass.set(exampleMainLocation)
 		classpath = sourceSets.main.runtimeClasspath
 	}
 }
@@ -131,7 +150,7 @@ task runrrtviewerdesktop ( type: JavaExec ) {
 	if (JVM_OPTIONS_RTTVIEWER_DESKTOP)
 		jvmArgs Eval.me ( buildArgsList ( JVM_OPTIONS_RTTVIEWER_DESKTOP ) )
 
-	main = exampleMainLocation
+	mainClass.set(exampleMainLocation)
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -146,7 +165,10 @@ task createRRTViewerFatJar (type: Jar) {
 		)
 	}
 
-	baseName('RRTMDViewer')
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE;
+
+	archiveBaseName.set('RRTMDViewer')
+	archiveBaseName.convention('RRTMDViewer');
 
 	from {
 		configurations.compileClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }

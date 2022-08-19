@@ -22,11 +22,10 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 
 import org.junit.After;
 import org.junit.Test;
-
-import sun.security.ssl.SSLSocketImpl;
 
 public class CryptoHelperTest
 {
@@ -69,7 +68,7 @@ public class CryptoHelperTest
 	public void shouldUseTLS1_2Version() throws IOException, ExecutionException, InterruptedException
 	{
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
-		startServer(VALID_CERTIFICATE, null, socket -> protocolFuture.complete(((SSLSocketImpl) socket).getSession().getProtocol()));
+		startServer(VALID_CERTIFICATE, null, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
 		createCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
@@ -80,7 +79,7 @@ public class CryptoHelperTest
 	public void shouldFailHandshakeIfServerDoesntSupportTLS1_2() throws IOException, ExecutionException, InterruptedException
 	{
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
-		startServer(VALID_CERTIFICATE, "TLSv1.1", socket -> protocolFuture.complete(((SSLSocketImpl) socket).getSession().getProtocol()));
+		startServer(VALID_CERTIFICATE, "TLSv1.1", socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
 		createCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);

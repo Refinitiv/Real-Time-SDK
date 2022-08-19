@@ -7,30 +7,38 @@ eclipse {
 }
 
 dependencies {
-	compile project(':Eta:AnsiPage')
-	compile project(':Eta:ValueAdd')
-	compile project(':Eta:ValueAddCache')
-	compile project(':Eta:Applications:Shared')
-	compile project(':Eta:Applications:PerfTools').sourceSets.main.output
-	compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
+	implementation project(':Eta:AnsiPage')
+	implementation project(':Eta:ValueAdd')
+	implementation project(':Eta:ValueAddCache')
+	implementation project(':Eta:Applications:Shared')
+	implementation project(':Eta:Applications:PerfTools').sourceSets.main.output
+	implementation group: 'xpp3', name: 'xpp3', version: '1.1.4c'
 	// Adding dependency on the jdacsEtalib.jar
-	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
-	compile fileTree(dir: '../../Libs', include: 'jdacsEtalib.jar')
+	implementation fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
+	implementation fileTree(dir: '../../Libs', include: 'jdacsEtalib.jar')
 }
 
 mainClassName = 'com.refinitiv.eta.examples.provider.Provider'
 
 task createExtraRunApp(type: CreateStartScripts) {
-	mainClassName = 'main.java.com.refinitiv.eta.examples.consumer.Consumer'
+	mainClass.set('main.java.com.refinitiv.eta.examples.consumer.Consumer')
 	classpath = startScripts.classpath
 	outputDir = startScripts.outputDir
 	applicationName = 'myconsumer'
 }
 
-task copyDictionary( type: Copy ) {
+task copyDictionary{
+	outputs.files files('../../../etc')
+			.asFileTree
+			.files
+			.collect{'./${it.name}'}
 
-	from '../../../etc'
-	into '.'
+	doLast{
+		copy{
+			from '../../../etc'
+			into './'
+		}
+	}
 }
 
 task deleteDictionary( type: Delete ) {
@@ -45,91 +53,91 @@ clean.dependsOn deleteDictionary
 task runProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.provider.Provider'
+	mainClass.set('com.refinitiv.eta.examples.provider.Provider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runConsumer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.consumer.Consumer'
+	mainClass.set('com.refinitiv.eta.examples.consumer.Consumer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runNIProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.niprovider.NIProvider'
+	mainClass.set('com.refinitiv.eta.examples.niprovider.NIProvider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runVAProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.valueadd.examples.provider.Provider'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.provider.Provider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runVAConsumer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.valueadd.examples.consumer.Consumer'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.consumer.Consumer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runVANIProvider(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.valueadd.examples.niprovider.NIProvider'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.niprovider.NIProvider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runWatchlistConsumer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumer'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runGenericProv(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.genericprov.GenericProv'
+	mainClass.set('com.refinitiv.eta.examples.genericprov.GenericProv')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runGenericCons(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.genericcons.GenericCons'
+	mainClass.set('com.refinitiv.eta.examples.genericcons.GenericCons')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runNewsViewer(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.newsviewer.NewsViewer'
+	mainClass.set('com.refinitiv.eta.examples.newsviewer.NewsViewer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runAnsiPageExample(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.ansipage.AnsiPageExample'
+	mainClass.set('com.refinitiv.eta.examples.ansipage.AnsiPageExample')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runCodecExample(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.codec.CodecExample'
+	mainClass.set('com.refinitiv.eta.examples.codec.CodecExample')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
 task runAuthLockExample(type: JavaExec) {
 	dependsOn 'copyDictionary'
 
-	main = 'com.refinitiv.eta.examples.authlock.AuthLockExample'
+	mainClass.set('com.refinitiv.eta.examples.authlock.AuthLockExample')
 	classpath = sourceSets.main.runtimeClasspath
 }
 

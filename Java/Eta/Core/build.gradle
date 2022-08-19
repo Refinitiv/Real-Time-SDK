@@ -1,6 +1,7 @@
 apply plugin: 'net.saliman.cobertura'
-apply plugin: 'maven' 
-apply plugin: 'signing' 
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: 'application'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -8,50 +9,65 @@ group = "com.refinitiv.eta"
 archivesBaseName = "eta"
 version "$SpecificationVersion"
 
-uploadArchives { 
-    repositories { 
-        mavenDeployer { 
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+publishing {
+    publications{
+        mavenJava(MavenPublication){
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Transport API (ETA) Java Edition'
 
-            pom.project {
-                name "$archivesBaseName"
-                    packaging 'jar'
-                    url 'https://github.com/Refinitiv/Real-Time-SDK'
-                    description 'Enterprise Transport API (ETA) Java Edition'
-
-                    scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                    }
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
 
                 developers {
                     developer {
-                        organization 'Refinitiv'
+                        organization = 'Refinitiv'
                     }
                 }
 
                 licenses {
                     license {
-                        name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
             }
-        } 
-    } 
+        }
+    }
+
+    repositories {
+        maven {
+            name = "repository"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+        }
+        maven {
+            name = "snapshotRepository"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+        }
+    }
 }
 
 signing {
-	sign configurations.archives
+    sign publishing.publications.mavenJava
 }
 
 cobertura {
@@ -65,17 +81,17 @@ eclipse {
 }
 
 dependencies {
-		compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-		compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.13'
-		compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
-		compile group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.13'
+    implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
+    implementation group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
 
-    testCompile('org.mockito:mockito-all:1.9.0'){
+    testImplementation('org.mockito:mockito-all:1.9.0'){
         exclude group: 'org.hamcrest'
     }
 
     // needed for cobertura
-    testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
 }
 
 ext.sharedManifest = manifest {
@@ -101,8 +117,9 @@ jar {
         include 'com/refinitiv/proxy/authentication/kerberos/login.conf'
     }
 
-    destinationDir = file("../Libs/")
-        baseName = 'eta'
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('eta');
+    archiveBaseName.set('eta');
 }
 
 javadoc {
@@ -124,7 +141,7 @@ javadoc {
 }
 
 task cleanJar (type: Delete) {
-        delete "${jar.archivePath}"
+        delete "${jar.archiveFile}"
 }
 
 task cleanJavadoc (type: Delete) {
@@ -134,9 +151,10 @@ task cleanJavadoc (type: Delete) {
 clean.dependsOn cleanJar, cleanJavadoc
 
 task javadocJar (type: Jar) {
-	classifier = 'javadoc'
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
 	from javadoc.destinationDir
-        destinationDir = jar.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
 
         manifest {
 		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
@@ -145,7 +163,8 @@ task javadocJar (type: Jar) {
 }
 
 task sourcesJar(type: Jar) {
-	classifier = 'sources'
+    archiveClassifier.convention('sources');
+    archiveClassifier.set('sources');
 	from sourceSets.main.allSource
 }
 
@@ -155,8 +174,9 @@ artifacts {
 
 test {
     systemProperty "sun.net.useExclusiveBind", "false"
+
+    forkEvery = 1
 	// set to true to see the junit stdoutput
         testLogging.showStandardStreams = false
-	maxParallelForks = Runtime.runtime.availableProcessors()
+	maxParallelForks = 1
 }
-

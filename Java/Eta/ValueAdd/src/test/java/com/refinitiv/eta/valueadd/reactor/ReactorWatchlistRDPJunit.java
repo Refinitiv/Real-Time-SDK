@@ -358,17 +358,15 @@ public class ReactorWatchlistRDPJunit
 	boolean checkCredentials()
 	{
 		if (System.getProperty("edpUserName") != null && 
-				System.getProperty("edpPassword") != null && 
-				System.getProperty("keyfile") != null && 
-				System.getProperty("keypasswd") != null ) 	
+				System.getProperty("edpPassword") != null)
 		{
 			return true;
 		}
 		else
 		{
-			System.out.println("edpUserName edpPassword keyfile and keypasswd need to be set as VM arguments to run this test.");
-			System.out.println("i.e. -DedpUserName=USERNAME -DedpPassword=PASSWORD -Dkeyfile=*.jks -Dkeypasswd=PASSWORD");
-			System.out.println("or with gradle i.e. ./gradlew eta:valueadd:test --tests *RDP* -PvmArgs=\"-DedpUserName=USERNAME -DedpPassword=PASSWORD -Dkeyfile=keystore.jks -Dkeypasswd=PASSWORD\"");
+			System.out.println("edpUserName and edpPassword need to be set as VM arguments to run this test.");
+			System.out.println("i.e. -DedpUserName=USERNAME -DedpPassword=PASSWORD");
+			System.out.println("or with gradle i.e. ./gradlew eta:valueadd:test --tests *RDP* -PvmArgs=\"-DedpUserName=USERNAME -DedpPassword=PASSWORD\"");
 			System.out.println("Skipping this test");			
 			return false;
 		}
@@ -409,8 +407,12 @@ public class ReactorWatchlistRDPJunit
 
 		if(isWebsocket)
 		{
-			connectInfo.connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
-			connectInfo.connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+			if(Objects.nonNull(System.getProperty("keyfile")))
+				connectInfo.connectOptions().encryptionOptions().KeystoreFile(System.getProperty("keyfile"));
+
+			if(Objects.nonNull(System.getProperty("keypasswd")))
+				connectInfo.connectOptions().encryptionOptions().KeystorePasswd(System.getProperty("keypasswd"));
+
 			connectInfo.connectOptions().encryptionOptions().KeystoreType("JKS");
 			connectInfo.connectOptions().encryptionOptions().SecurityProtocol("TLS");
 			connectInfo.connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
@@ -423,9 +425,13 @@ public class ReactorWatchlistRDPJunit
             		}
 		}
 		else
-		{			
-			connectInfo.connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
-			connectInfo.connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+		{
+			if(Objects.nonNull(System.getProperty("keyfile")))
+				connectInfo.connectOptions().tunnelingInfo().KeystoreFile(System.getProperty("keyfile"));
+
+			if(Objects.nonNull(System.getProperty("keypasswd")))
+				connectInfo.connectOptions().tunnelingInfo().KeystorePasswd(System.getProperty("keypasswd"));
+
 			connectInfo.connectOptions().tunnelingInfo().objectName("");
 			connectInfo.connectOptions().tunnelingInfo().KeystoreType("JKS");
 			connectInfo.connectOptions().tunnelingInfo().SecurityProtocol("TLS");
@@ -1907,7 +1913,7 @@ public class ReactorWatchlistRDPJunit
 			connectInfo.connectOptions().unifiedNetworkInfo().address("localhost");
 			connectInfo.connectOptions().unifiedNetworkInfo().serviceName("14002");
 			connectInfo.connectOptions().userSpecObject(consumer);		
-			connectInfo.initTimeout(40);
+			connectInfo.initTimeout(60);
 			connectInfo.enableSessionManagement(false);		
 			setupProxyForConnectOptions(connectInfo.connectOptions());
 
@@ -1922,7 +1928,7 @@ public class ReactorWatchlistRDPJunit
 
 			assertTrue("Expected SUCCESS", consumerReactor._reactor.connect(rcOpts, consumerRole, errorInfo) == ReactorReturnCodes.SUCCESS);
 			
-			consumer.testReactor().dispatch(-1, 8000);			
+			consumer.testReactor().dispatch(-1, 16000);
 
 			// check that user specified connection info was not overwritten
 			assertTrue(rcOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address().equals("localhost"));
@@ -1939,17 +1945,17 @@ public class ReactorWatchlistRDPJunit
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
 
 			try {
-				Thread.sleep(5 * 1000);
+				Thread.sleep(10 * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}		
 
-			int sleep = verifyAuthTokenEvent(consumerReactor, 10, true, true);
+			int sleep = verifyAuthTokenEvent(consumerReactor, 15, true, true);
 			long runtime = System.currentTimeMillis() + ((sleep - 5) * 1000);		        
 
 
 			try {
-				Thread.sleep(10 * 1000);
+				Thread.sleep(15 * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}			
@@ -1962,7 +1968,7 @@ public class ReactorWatchlistRDPJunit
 
 
 			try {
-				Thread.sleep(10 * 1000);
+				Thread.sleep(15 * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}			

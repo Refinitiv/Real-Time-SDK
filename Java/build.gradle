@@ -7,13 +7,13 @@ buildscript {
         }
 
         dependencies {
-                classpath "net.saliman:gradle-cobertura-plugin:2.5.1"
+                classpath "net.saliman:gradle-cobertura-plugin:4.0.0"
         }
 }
 
 plugins {
-        id 'net.saliman.cobertura' version '2.5.1'
-		id "de.undercouch.download" version "3.4.3"
+        id 'net.saliman.cobertura' version '4.0.0'
+		id "de.undercouch.download" version "4.1.2"
 }
 
 apply plugin: 'net.saliman.cobertura'
@@ -29,6 +29,10 @@ subprojects {
 	repositories {
 	    mavenCentral()
 	}
+}
+
+repositories {
+	mavenCentral()
 }
 
 //=========================================================================================
@@ -109,10 +113,11 @@ task getBinaryPack () {
 
 allprojects {
 	dependencies {
-		testCompile ('junit:junit:4.12') {
+		testImplementation ('junit:junit:4.12') {
 			exclude group: 'org.hamcrest'
 		}
-		testCompile 'org.hamcrest:hamcrest-core:1.3'
+		testImplementation 'org.hamcrest:hamcrest-core:1.3'
+		testImplementation 'org.mockito:mockito-all:1.9.0'
 	}
 
 	compileJava {
@@ -178,7 +183,7 @@ allprojects {
 }
 
 wrapper {
-	gradleVersion = '5.4.1'
+	gradleVersion = '7.3.3'
 }
 
 task uploadAll ( ) {

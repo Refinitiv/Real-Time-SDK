@@ -1,5 +1,5 @@
 apply plugin: 'net.saliman.cobertura'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
@@ -8,50 +8,65 @@ group = "com.refinitiv.eta.valueadd"
 archivesBaseName = "etaValueAdd"
 version "$SpecificationVersion"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+publishing {
+    publications{
+        mavenJava(MavenPublication){
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
 
-            pom.project {
-                name "$archivesBaseName"
-                    packaging 'jar'
-                    url 'https://github.com/Refinitiv/Real-Time-SDK'
-                    description 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
-
-                    scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                    }
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
 
                 developers {
                     developer {
-                        organization 'Refinitiv'
+                        organization = 'Refinitiv'
                     }
                 }
 
                 licenses {
                     license {
-                        name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
             }
-        } 
-    } 
+        }
+    }
+
+    repositories {
+        maven {
+            name = "repository"
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+        }
+        maven {
+            name = "snapshotRepository"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+        }
+    }
 }
 
 signing {
-    sign configurations.archives
+    sign publishing.publications.mavenJava
 }
 
 cobertura {
@@ -65,10 +80,11 @@ eclipse {
 }
 
 dependencies {
-        compile group: 'org.json', name: 'json', version: '20210307'
-        compile group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.13'
-        compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
-        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    implementation group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.13'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito
@@ -76,27 +92,27 @@ dependencies {
 	// needs to be executed with the -Pmavencentral
 	if (project.hasProperty("mavencentral"))
 	{
-        testCompile('org.mockito:mockito-all:1.9.0'){
+        testImplementation('org.mockito:mockito-all:1.9.0'){
             exclude group: 'org.hamcrest'
         }
 	}
 	else
 	{
-        compile('org.mockito:mockito-all:1.9.0'){
+        implementation('org.mockito:mockito-all:1.9.0'){
             exclude group: 'org.hamcrest'
         }
 	}
 
-	compile project(':Eta:Core')
-        compile project(':Eta:Converter')
+    implementation project(':Eta:Core')
+    implementation project(':Eta:Converter')
 
-	testCompile project(':Eta:Core').sourceSets.test.output
+    testImplementation project(':Eta:Core').sourceSets.test.output
 
 	// for unit test use the classes instead of the jar file, since the jar is sealed
-	testRuntime project(':Eta:Core').sourceSets.main.output
+    testRuntimeOnly project(':Eta:Core').sourceSets.main.output
 
 	// needed for cobertura
-        testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
 
 }
 
@@ -119,8 +135,9 @@ jar {
 		from sharedManifest 
 	}
 
-        destinationDir = file("../Libs/")
-        baseName = 'etaValueAdd'
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('etaValueAdd');
+    archiveBaseName.set('etaValueAdd');
 }
 
 javadoc {
@@ -142,14 +159,15 @@ javadoc {
 }
 
 task cleanJar (type: Delete) {
-        delete "${jar.archivePath}"
+        delete "${jar.archiveFile}"
 }
 clean.dependsOn cleanJar
 
 task javadocJar (type: Jar) {
-        classifier = 'javadoc'
+        archiveClassifier.convention('javadoc');
+        archiveClassifier.set('javadoc');
         from javadoc.destinationDir
-        destinationDir = jar.destinationDir
+        destinationDirectory.set(jar.destinationDirectory)
 
         manifest {
 		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
@@ -158,7 +176,8 @@ task javadocJar (type: Jar) {
 }
 
 task sourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier.convention('sources');
+        archiveClassifier.set('sources');
         from sourceSets.main.allSource
 }
 
@@ -171,5 +190,9 @@ test {
         testLogging.showStandardStreams = false
         maxParallelForks = 1
 //        maxParallelForks = Runtime.runtime.availableProcessors()
+}
+
+repositories {
+    mavenCentral()
 }
 

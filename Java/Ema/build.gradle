@@ -1,10 +1,10 @@
 buildscript {
         repositories {
-                jcenter()
+                gradlePluginPortal()
         }
 
         dependencies {
-                classpath 'com.github.jengelman.gradle.plugins:shadow:5.0.0'
+                classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
         }
 }
 
@@ -12,28 +12,31 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-        compile project(':Ema:Core')
-        compile project(':Ema:Examples')
-        compile project(':Eta:Core')
-        compile project(':Eta:ValueAdd')
-        compile project(':Eta:ValueAddCache')
-        compile project(':Eta:AnsiPage')
-        compile project(':Eta:Applications:Shared')
-        compile project(':Eta:Applications:PerfTools')
-        compile project(':Eta:Applications:Examples')
+    implementation project(':Ema:Core')
+    implementation project(':Ema:Examples')
+    implementation project(':Eta:Core')
+    implementation project(':Eta:ValueAdd')
+    implementation project(':Eta:ValueAddCache')
+    implementation project(':Eta:AnsiPage')
+    implementation project(':Eta:Applications:Shared')
+    implementation project(':Eta:Applications:PerfTools')
+    implementation project(':Eta:Applications:Examples')
 }
 
 shadowJar {
-        baseName = 'RTSDK'
+    archiveBaseName.convention('RTSDK');
+    archiveBaseName.set('RTSDK');
 }
 
 task coberturaTestFatJar (type: com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-        baseName = 'RTSDK'
-	classifier = 'coberturaTestFatJar'
+    archiveBaseName.convention('RTSDK');
+    archiveBaseName.set('RTSDK');
+    archiveClassifier.convention('coberturaTestFatJar');
+    archiveClassifier.set('coberturaTestFatJar');
 	from ('Core/build/instrumented_classes')
 	from ('../Eta/Core/build/instrumented_classes')
 	from ('../Eta/ValueAdd/build/instrumented_classes')
-	configurations = [project.configurations.testRuntime]
+	configurations = [project.configurations.testRuntimeOnly]
 }
 
 // disable creating empty Ema.jar file

@@ -5,6 +5,7 @@ eclipse {
 }
 
 dependencies {
-	compile project(':Eta:ValueAdd')
-    compile project(':Eta:Converter')
+    implementation project(':Eta:ValueAdd')
+    implementation project(':Eta:Converter')
+    implementation project(':Eta:Core')
 }

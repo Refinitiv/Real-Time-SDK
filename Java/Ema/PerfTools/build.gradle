@@ -8,11 +8,11 @@ eclipse {
 
 dependencies {
         // version 1.1.3_8 not available on mavencentral
-    compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
+    implementation group: 'xpp3', name: 'xpp3', version: '1.1.4c'
+    implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
 
-	compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
-
-	compile project(':Ema:Core')
+    implementation project(':Ema:Core')
+    implementation project(':Eta:Core')
 }
 
 def JVM_OPTIONS = "-server -XX:+ForceTimeHighResolution -Xms3048m -Xmx3048m"
@@ -49,7 +49,7 @@ task runEMAPerfConsumer(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-    main = 'com.refinitiv.ema.perftools.emajconsperf.emajConsPerf'
+    mainClass.set('com.refinitiv.ema.perftools.emajconsperf.emajConsPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -66,7 +66,7 @@ task runEMAPerfProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-    main = 'com.refinitiv.ema.perftools.emajprovperf.EmajProvPerf'
+    mainClass.set('com.refinitiv.ema.perftools.emajprovperf.EmajProvPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -85,18 +85,36 @@ task runEMAPerfNIProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-    main = 'com.refinitiv.ema.perftools.emajniprovperf.EmajNIProvPerf'
+    mainClass.set('com.refinitiv.ema.perftools.emajniprovperf.EmajNIProvPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task copyDictionary( type: Copy ) {
-	from '../../etc'
-	into '.'
+task copyDictionary{
+    outputs.files files('../../etc')
+            .asFileTree
+            .files
+            .collect{'./${it.name}'}
+
+    doLast{
+        copy{
+            from '../../etc'
+            into './'
+        }
+    }
 }
 
-task copyEmaConfig( type: Copy) {
-    from '../EmaConfig.xml'
-    into '.'
+task copyEmaConfig{
+    outputs.files files('../EmaConfig.xml')
+            .asFileTree
+            .files
+            .collect{'./${it.name}'}
+
+    doLast{
+        copy{
+            from '../EmaConfig.xml'
+            into './'
+        }
+    }
 }
 
 task deleteDictionary( type: Delete ) {

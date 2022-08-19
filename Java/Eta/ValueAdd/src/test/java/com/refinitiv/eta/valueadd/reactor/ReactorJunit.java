@@ -5509,7 +5509,7 @@ public class ReactorJunit
              */
             deviationTimeMs = (event.nanoTime() - startTimeNano) / 1000000 - expectedReconnectDelayTimeMs;
             assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too soon.", deviationTimeMs >= -150);
-            assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 2005);
+            assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 3000);
         }
 
         provider.bindForReconnectTest(sessionOpts);
@@ -5589,7 +5589,7 @@ public class ReactorJunit
              */
             deviationTimeMs = (event.nanoTime() - startTimeNano) / 1000000 - expectedReconnectDelayTimeMs;
             assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too soon.", deviationTimeMs >= -100);
-            assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 2000);
+            assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 3000);
         }
 
         consumer.close();
@@ -5672,7 +5672,7 @@ public class ReactorJunit
              */
             deviationTimeMs = (event.nanoTime() - startTimeNano) / 1000000 - expectedReconnectDelayTimeMs;
             assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too soon.", deviationTimeMs >= -100);
-            assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 2005);
+            assertTrue("Reconnection delay was " + (-deviationTimeMs) + "ms too long.", deviationTimeMs <= 3000);
         }
 
         consumer.close();
