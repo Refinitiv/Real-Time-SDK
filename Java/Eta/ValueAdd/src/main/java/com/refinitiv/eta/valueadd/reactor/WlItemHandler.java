@@ -1652,7 +1652,9 @@ class WlItemHandler implements WlHandler
                 break;
             }
         }
-        
+
+        _requestTimeoutList.remove(wlRequest);
+
         return ret;
     }
     
