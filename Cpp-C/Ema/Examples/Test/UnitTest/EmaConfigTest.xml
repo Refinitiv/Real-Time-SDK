@@ -402,6 +402,7 @@
 			<SysRecvBufSize value= "125000" />
 			<SysSendBufSize value= "550000" />
 			<ConnectionPingTimeout value="3555"/>
+			<DirectWrite value="0"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_4"/>
@@ -416,6 +417,7 @@
 			<TcpNodelay value="0"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
+			<DirectWrite value="1"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_5"/>
@@ -482,6 +484,7 @@
             <TcpNodelay value="1"/>
             <Port value="14002"/>
             <ServerSharedSocket value="0"/>
+			<DirectWrite value="1"/>
         </Server>
 		<Server>
             <Name value="Server_2"/>
@@ -500,6 +503,7 @@
             <TcpNodelay value="1"/>
             <Port value="14005"/>
 			<InitializationTimeout value="44"/>
+			<DirectWrite value="0"/>
         </Server>
         <Server>
             <Name value="Server_11"/>

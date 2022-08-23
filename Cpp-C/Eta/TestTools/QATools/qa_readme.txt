@@ -260,3 +260,11 @@ etacconsperf-Rto-001
          -sessionMgnt -reactor
 
     If -sessionMgnt is enabled should set -reactor or -watchlist
+
+Module: ETA
+-----------------
+
+eta-rsslWrite-001: Alters ETA methods rsslWrite and rsslWriteEx to display that the parameter writeFlags contains RSSL_WRITE_DIRECT_SOCKET_WRITE or not.
+	rsslWrite/rsslWriteEx will print info about RSSL_WRITE_DIRECT_SOCKET_WRITE:
+	- on the first usage of the method;
+	- every time from call to call when the writeFlags parameter changes its value.

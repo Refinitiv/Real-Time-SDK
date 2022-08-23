@@ -453,6 +453,7 @@ struct _RsslReactorChannelImpl
 	RsslWatchlist *pWatchlist;
 	RsslBool	wlDispatchEventQueued;
 	RsslBool	tunnelDispatchEventQueued;
+	RsslBool		directWrite;	/* Indicates that rsslWrite() will attempt to pass the data directly to the transport, avoiding the queuing. */
 
 	RsslRDMMsg rdmMsg;				/* The typed message that has been decoded */
 	RsslReactorChannelSetupState channelSetupState;
@@ -554,7 +555,8 @@ typedef enum
 	RSSL_REACTOR_WS_SYSTEM_WRITE_BUFFERS = 0x10,
 	RSSL_REACTOR_WS_PRIORITY_FLUSH_ORDER = 0x20,
 	RSSL_REACTOR_WS_COMPRESSION_THRESHOLD = 0x40,
-	RSSL_REACTOR_WS_TRACE = 0x80
+	RSSL_REACTOR_WS_TRACE = 0x80,
+	RSSL_REACTOR_WS_DIRECT_WRITE = 0x0100
 } RsslReactorWSIoctlCodes;
 
 /* RsslWarmStandByHandlerImpl
@@ -595,6 +597,7 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslUInt32		systemWriteBuffers;
 	RsslUInt32		priorityFlushOrder;
 	RsslUInt32		compressionThresHold;
+	RsslBool		directWrite;
 };
 
 RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
@@ -1934,6 +1937,8 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 
 	/* Always resets the flag to clear the tunnel stream event queued indication. */
 	pReactorChannel->tunnelDispatchEventQueued = RSSL_FALSE;
+
+	pReactorChannel->directWrite = RSSL_FALSE;
 
 	pReactorChannel->connectionListCount = 0;
 	pReactorChannel->connectionListIter = 0;

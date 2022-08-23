@@ -38,6 +38,7 @@ void EmaActiveConfigTest::ChannelConfigTestDefaultValues(SocketChannelConfig & c
 	EXPECT_EQ(channelConfig.getType(), RSSL_CONN_TYPE_SOCKET);
 
 	EXPECT_EQ(channelConfig.connectionPingTimeout, DEFAULT_CONNECTION_PINGTIMEOUT);
+	EXPECT_EQ(channelConfig.directWrite, DEFAULT_DIRECT_WRITE);
 	EXPECT_EQ(channelConfig.initializationTimeout, DEFAULT_INITIALIZATION_TIMEOUT);
 	EXPECT_EQ(channelConfig.guaranteedOutputBuffers, DEFAULT_GUARANTEED_OUTPUT_BUFFERS);
 	EXPECT_EQ(channelConfig.numInputBuffers, DEFAULT_NUM_INPUT_BUFFERS);
@@ -80,6 +81,7 @@ TEST_F(EmaActiveConfigTest, ChannelConfigTest)
 	//channelConfig.connectionType = RSSL_CONN_TYPE_UNIDIR_SHMEM;
 
 	channelConfig.connectionPingTimeout = 3002;
+	channelConfig.directWrite = 1;
 	channelConfig.initializationTimeout = 55;
 	channelConfig.guaranteedOutputBuffers = 45;
 	channelConfig.numInputBuffers = 33;
@@ -175,6 +177,7 @@ void EmaActiveConfigTest::ServerConfigTestDefaultValues(SocketServerConfig& serv
 
 	EXPECT_EQ(serverConfig.connectionPingTimeout, DEFAULT_CONNECTION_PINGTIMEOUT);
 	EXPECT_EQ(serverConfig.connectionMinPingTimeout, DEFAULT_CONNECTION_MINPINGTIMEOUT);
+	EXPECT_EQ(serverConfig.directWrite, DEFAULT_DIRECT_WRITE);
 	EXPECT_EQ(serverConfig.initializationTimeout, DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT);
 	EXPECT_EQ(serverConfig.guaranteedOutputBuffers, DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS);
 	EXPECT_EQ(serverConfig.numInputBuffers, DEFAULT_NUM_INPUT_BUFFERS);
@@ -217,6 +220,7 @@ TEST_F(EmaActiveConfigTest, ServerConfigTest)
 
 	serverConfig.connectionPingTimeout = 7897;
 	serverConfig.connectionMinPingTimeout = 12;
+	serverConfig.directWrite = 1;
 	serverConfig.initializationTimeout = 7;
 	serverConfig.guaranteedOutputBuffers = 8;
 	serverConfig.numInputBuffers = 33;

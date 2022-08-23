@@ -57,30 +57,31 @@ public:
 	*/
 	enum ServerEntryFlagEnum
 	{
-		ServerTypeFlagEnum =			0x000001,
-		PortFlagEnum =					0x000002,
-		InterfaceNameFlagEnum =			0x000004,
-		CompTypeFlagEnum =				0x000008,
-		GuarantOutputBufFlagEnum =		0x000010,
-		NumInputBufFlagEnum =			0x000020,
-		SysRecvBufSizeFlagEnum =		0x000040,
-		SysSendBufSizeFlagEnum =		0x000080,
-		HighWaterMarkFlagEnum =			0x000100,
-		TcpNodelayFlagEnum =			0x000200,
-		ConnMinPingTimeoutFlagEnum =	0x000400,
-		ConnPingTimeoutFlagEnum =		0x000800,
-		CompressThresHoldFlagEnum =		0x001000,
-		InitializationTimeoutFlagEnum = 0x002000,
-		ServerCertEnum =				0x004000,
-		ServerPrivateKeyEnum =			0x008000,
-		DHParamEnum =					0x010000,
-		CipherSuiteEnum =				0x020000,
-		LibSslNameEnum =				0x040000,
-		LibCryptoNameEnum =				0x080000,
-		LibCurlNameEnum =				0x100000,
-		MaxFragmentSizeFlagEnum =		0x200000,
-		ServerSharedSocketEnum =		0x400000,
-		WebsocketProtocolEnum =			0x800000
+		ServerTypeFlagEnum =			0x0000001,
+		PortFlagEnum =					0x0000002,
+		InterfaceNameFlagEnum =			0x0000004,
+		CompTypeFlagEnum =				0x0000008,
+		GuarantOutputBufFlagEnum =		0x0000010,
+		NumInputBufFlagEnum =			0x0000020,
+		SysRecvBufSizeFlagEnum =		0x0000040,
+		SysSendBufSizeFlagEnum =		0x0000080,
+		HighWaterMarkFlagEnum =			0x0000100,
+		TcpNodelayFlagEnum =			0x0000200,
+		ConnMinPingTimeoutFlagEnum =	0x0000400,
+		ConnPingTimeoutFlagEnum =		0x0000800,
+		CompressThresHoldFlagEnum =		0x0001000,
+		InitializationTimeoutFlagEnum = 0x0002000,
+		ServerCertEnum =				0x0004000,
+		ServerPrivateKeyEnum =			0x0008000,
+		DHParamEnum =					0x0010000,
+		CipherSuiteEnum =				0x0020000,
+		LibSslNameEnum =				0x0040000,
+		LibCryptoNameEnum =				0x0080000,
+		LibCurlNameEnum =				0x0100000,
+		MaxFragmentSizeFlagEnum =		0x0200000,
+		ServerSharedSocketEnum =		0x0400000,
+		WebsocketProtocolEnum =			0x0800000,
+		DirectWriteFlagEnum =			0x1000000
 
 	};
 
@@ -110,7 +111,8 @@ public:
 		EnableSessionManagementEnum		= 0x0200000,
 		SecurityProtocolEnum			= 0x0400000,
 		ServiceDiscoveryRetryCountEnum	= 0x0800000,
-		WsMaxMsgSizeEnum				= 0x1000000
+		WsMaxMsgSizeEnum				= 0x1000000,
+		DirectWriteEnum					= 0x2000000
 	};
 
 	enum MultcastEntryFlagEnum

@@ -1800,6 +1800,10 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "HighWaterMark", tempUInt ) )
 		newChannelConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32) tempUInt;
 
+	tempUInt = 0;
+	if (pConfigImpl->get<UInt64>(channelNodeName + "DirectWrite", tempUInt))
+		newChannelConfig->directWrite = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+
 	/* @deprecated DEPRECATED:
 	 *ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace is per consumer/niprov/iprov instance based now. 
 	  The following code will be removed in the future.

@@ -550,6 +550,10 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "HighWaterMark", tempUInt))
 		newServerConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
+	tempUInt = 0;
+	if (pConfigServerImpl->get<UInt64>(serverNodeName + "DirectWrite", tempUInt))
+		newServerConfig->directWrite = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+
 	EmaString instanceNodeName(pConfigServerImpl->getInstanceNodeName());
 	instanceNodeName.append(_activeServerConfig.configuredName).append("|");
 

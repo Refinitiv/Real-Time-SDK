@@ -198,7 +198,7 @@ static RsslRet _reactorSendJSONMessage(RsslReactorImpl *pReactorImpl, RsslReacto
 	ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel,
 		pBuffer,
 		submitOpts.priority,
-		submitOpts.writeFlags,
+		submitOpts.writeFlags | (pReactorChannel->directWrite ? RSSL_WRITE_DIRECT_SOCKET_WRITE : 0),
 		&dummyBytesWritten,
 		&dummyUncompBytesWritten,
 		&pError->rsslError);
@@ -3055,7 +3055,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 				ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel,
 					pMsgBuffer,
 					pSubmitOptions->priority,
-					pSubmitOptions->writeFlags,
+					pSubmitOptions->writeFlags | (pReactorChannel->directWrite ? RSSL_WRITE_DIRECT_SOCKET_WRITE : 0),
 					pSubmitOptions->pBytesWritten ? pSubmitOptions->pBytesWritten : &dummyBytesWritten,
 					pSubmitOptions->pUncompressedBytesWritten ? pSubmitOptions->pUncompressedBytesWritten : &dummyUncompBytesWritten,
 					&pError->rsslError);
@@ -3078,7 +3078,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 				ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel,
 					pMsgBuffer,
 					pSubmitOptions->priority,
-					pSubmitOptions->writeFlags,
+					pSubmitOptions->writeFlags | (pReactorChannel->directWrite ? RSSL_WRITE_DIRECT_SOCKET_WRITE : 0),
 					pSubmitOptions->pBytesWritten ? pSubmitOptions->pBytesWritten : &dummyBytesWritten,
 					pSubmitOptions->pUncompressedBytesWritten ? pSubmitOptions->pUncompressedBytesWritten : &dummyUncompBytesWritten,
 					&pError->rsslError);
@@ -3099,7 +3099,7 @@ RSSL_VA_API RsslRet rsslReactorSubmit(RsslReactor *pReactor, RsslReactorChannel 
 		ret = rsslWrite(pReactorChannel->reactorChannel.pRsslChannel, 
 				buffer, 
 				pSubmitOptions->priority,
-				pSubmitOptions->writeFlags, 
+				pSubmitOptions->writeFlags | (pReactorChannel->directWrite ? RSSL_WRITE_DIRECT_SOCKET_WRITE : 0),
 				pSubmitOptions->pBytesWritten ? pSubmitOptions->pBytesWritten : &dummyBytesWritten,
 				pSubmitOptions->pUncompressedBytesWritten ? pSubmitOptions->pUncompressedBytesWritten : &dummyUncompBytesWritten,
 				&pError->rsslError);
@@ -4530,6 +4530,11 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 													if (_reactorHandleChannelDown(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
 														return RSSL_RET_FAILURE;
 												}
+											}
+
+											if ((pReactorChannel->pWarmStandByHandlerImpl->ioCtlCodes & RSSL_REACTOR_WS_DIRECT_WRITE) != 0)
+											{
+												pReactorChannel->directWrite = pReactorChannel->pWarmStandByHandlerImpl->directWrite;
 											}
 										}
 									}
@@ -9410,6 +9415,12 @@ RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel *pReactorChannel,
 				pReactorWarmStandByHandlerImpl->compressionThresHold = *(RsslUInt32*)(value);
 				break;
 			}
+			case RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE:
+			{
+				pReactorWarmStandByHandlerImpl->ioCtlCodes |= RSSL_REACTOR_WS_DIRECT_WRITE;
+				pReactorWarmStandByHandlerImpl->directWrite = (*(RsslUInt32*)(value) != 0 ? RSSL_TRUE : RSSL_FALSE);
+				break;
+			}
 		}
 
 		/* Apply ioctl codes to all channels */
@@ -9417,20 +9428,32 @@ RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel *pReactorChannel,
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByHandlerImpl->rsslChannelQueue, pLink)
 		{
 			pApplyReactorChannelImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, warmstandbyChannelLink, pLink);
-			ret = rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
-			if (ret != RSSL_RET_SUCCESS)
+			if (code != RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE)
 			{
-				rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
-				break;
+				ret = rsslIoctl(pApplyReactorChannelImpl->reactorChannel.pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
+				if (ret != RSSL_RET_SUCCESS)
+				{
+					rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+					break;
+				}
+			}
+			else {
+				pApplyReactorChannelImpl->directWrite = (*(RsslUInt32*)(value) != 0 ? RSSL_TRUE : RSSL_FALSE);
 			}
 		}
 		RSSL_MUTEX_UNLOCK(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
 	}
 	else
 	{
-		ret = rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
-		if (ret != RSSL_RET_SUCCESS)
-			rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+		if (code != RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE)
+		{
+			ret = rsslIoctl(pReactorChannel->pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
+			if (ret != RSSL_RET_SUCCESS)
+				rsslSetErrorInfoLocation(pError, __FILE__, __LINE__);
+		}
+		else {
+			pReactorChannelImpl->directWrite = (*(RsslUInt32*)(value) != 0 ? RSSL_TRUE : RSSL_FALSE);
+		}
 	}
 
 	return (reactorUnlockInterface(pReactorImpl), ret);

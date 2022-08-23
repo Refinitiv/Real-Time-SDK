@@ -342,6 +342,11 @@ Series400Consumer410-Encryption-001
 Module:  Series400Consumer421 
 ---------------------------
 
+Series400Consumer421-DirectWrite-001
+    Alters consumer such that Channel_1 added configuration for DirectWrite
+	.addUInt( "DirectWrite", 1 ).
+    Note: to display the writeFlags parameter in rsslWrite/rsslWriteEx use eta-rsslWrite-001
+
 Series400Consumer421-PConfig-001
     Alters consumer such that Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName 
     to consumerInterface, 
@@ -572,6 +577,11 @@ delete service after sending 9 updates.
 
 Module:  Series400Provider421
 ---------------------------
+
+Series400Provider421-DirectWrite-001
+    Alters Provider such that Server_1 added configuration for DirectWrite
+	.addUInt( "DirectWrite", 1 ).
+    Note: to display the writeFlags parameter in rsslWrite/rsslWriteEx use eta-rsslWrite-001
 
 Series400Provider421-PConfig-001: 
     Alters Provider for following changes

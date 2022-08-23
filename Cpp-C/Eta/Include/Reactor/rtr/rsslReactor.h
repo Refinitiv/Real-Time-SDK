@@ -790,7 +790,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 typedef struct
 {
 	RsslWritePriorities	priority;						/*!< Priority of message. Affects the order of messages sent. Populated by RsslWritePriorities. */
-	RsslUInt8			writeFlags;						/*!< Options for how the message is written.  Populated by RsslWritePriorities. */
+	RsslUInt8			writeFlags;						/*!< Options for how the message is written.  Populated by RsslWriteFlags. */
 	RsslUInt32			*pBytesWritten;					/*!< Returns total number of bytes written. Optional. */
 	RsslUInt32			*pUncompressedBytesWritten;		/*!< Returns total number of bytes written, before any compression. Optional. */
 } RsslReactorSubmitOptions;

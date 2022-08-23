@@ -323,6 +323,32 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<RsslConnectionTypes>("ChannelGroup|ChannelList|Channel.Channel_12|EncryptedProtocolType", channelType);
 	EXPECT_TRUE(debugResult && channelType == RSSL_CONN_TYPE_WEBSOCKET) << "extracting EncryptedProtocolType from EmaConfig.xml";
 
+	// Checks all values from Channel:DirectWrite
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_1|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_1|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_2|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_3|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting Channel_3|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_4|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Channel_4|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_5|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_5|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_10|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_10|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_11|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult& & uintValue == 0) << "extracting Channel_11|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_12|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_12|DirectWrite from EmaConfigTest.xml";
+
 	// Checks ServerType == RSSL_CONN_TYPE_WEBSOCKET values from Server_11
 	serverType = RSSL_CONN_TYPE_INIT;
 	debugResult = config.get<RsslConnectionTypes>("ServerGroup|ServerList|Server.Server_11|ServerType", serverType);
@@ -401,6 +427,20 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	uintValue = 0;
 	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|ServerSharedSocket", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_12|ServerSharedSocket from EmaConfig.xml";
+
+	// Checks all values from Server:DirectWrite
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_1|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_1|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_2|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting Server_2|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_11|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Server_11|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Server_12|DirectWrite from EmaConfigTest.xml";
 
 	/* Check loadFilter in the Directory_1 */
 	uintValue = 0;
@@ -1033,6 +1073,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 0)
 			.addUInt("InitializationTimeout", 56)
+			.addUInt("DirectWrite", 0)
 			.complete())
 			.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
 				.addEnum("ChannelType", 2)
@@ -1127,6 +1168,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->compressionThreshold == 12856) << "CompressionThreshold , 12856";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionPingTimeout == 30000) << "connectionPingTimeout , 30000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->directWrite == 0) << "directWrite , 0";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
@@ -1545,6 +1587,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 1)
 			.addUInt("InitializationTimeout", 77) // Overried the 55 value defined in the config file
+			.addUInt("DirectWrite", 1)
 			.complete()).complete();
 
 		elementList.addMap("ChannelList", innerMap).complete();
@@ -1635,6 +1678,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->compressionThreshold == 12758) << "compressionThreshold , compressionThreshold";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionPingTimeout == 70000) << "connectionPingTimeout , 70000";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE( activeConfig.configChannelSet[0]->directWrite == 1) << "directWrite , 1";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
@@ -2461,6 +2505,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
 					.addUInt("MaxFragmentSize", 100500)
+					.addUInt("DirectWrite", 0)
 					.addAscii("WsProtocols", "rssl.json.v2, rssl.rwf, tr_json2")
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
@@ -2485,6 +2530,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					.addAscii("Port", "14010")
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
+					.addUInt("DirectWrite", 0)
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 						.addEnum("ServerType", 1)
@@ -2719,6 +2765,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.pServerConfig->compressionThreshold == 12856) << "CompressionThreshold , 12856";
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionPingTimeout == 30000) << "connectionPingTimeout , 30000";
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionMinPingTimeout == 8000) << "connectionMinPingTimeout , 8000";
+			EXPECT_TRUE(activeConfig.pServerConfig->directWrite == 0) << "directWrite , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->getType() == 0) << "SocketServerConfig::getType , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
@@ -4454,6 +4501,7 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
 					.addUInt("ServerSharedSocket", 0)
+					.addUInt("DirectWrite", 0)
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 						.addEnum("ServerType", 1)
@@ -4477,6 +4525,7 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
 					.addUInt("ServerSharedSocket", 1)
+					.addUInt("DirectWrite", 1)
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 						.addEnum("ServerType", 1)
@@ -4559,6 +4608,15 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 			else
 			{
 				EXPECT_NE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 1";
+			}
+
+			if (testCase < 2)
+			{
+				EXPECT_EQ(activeConfig.pServerConfig->directWrite, 0) << "ServerConfig::directWrite , 0";
+			}
+			else
+			{
+				EXPECT_NE(activeConfig.pServerConfig->directWrite, 0) << "ServerConfig::directWrite, 1";
 			}
 		}
 		catch (const OmmException& excp)

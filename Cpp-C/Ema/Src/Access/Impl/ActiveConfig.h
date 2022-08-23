@@ -41,6 +41,7 @@
 #define DEFAULT_DICTIONARY_REQUEST_TIMEOUT				45000
 #define DEFAULT_DICTIONARY_TYPE							Dictionary::FileDictionaryEnum
 #define DEFAULT_DIRECTORY_REQUEST_TIMEOUT				45000
+#define DEFAULT_DIRECT_WRITE							0
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
 #define DEFAULT_RDP_RT_LOCATION							EmaString( "us-east-1" )
 #define DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT				-1
@@ -179,6 +180,7 @@ public :
 	bool					compressionThresholdSet;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
+	UInt32					directWrite;
 	UInt32					initializationTimeout;
 	UInt32					guaranteedOutputBuffers;
 	UInt32					numInputBuffers;
@@ -220,6 +222,7 @@ public:
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
 	UInt32					connectionMinPingTimeout;
+	UInt32					directWrite;
 	UInt32					initializationTimeout;
 	UInt32					guaranteedOutputBuffers;
 	UInt32					numInputBuffers;

@@ -113,6 +113,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"DefaultServiceID",
 	"DictionaryRequestTimeOut",
 	"DirectoryRequestTimeOut",
+	"DirectWrite",
 	"DisconnectOnGap",
 	"EnableSessionManagement",
 	"EnforceAckIDValidation",

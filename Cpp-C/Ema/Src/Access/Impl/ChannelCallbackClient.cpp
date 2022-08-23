@@ -1227,6 +1227,29 @@ RsslReactorCallbackRet ChannelCallbackClient::processCallback( RsslReactor* pRss
 			}
 		}
 
+		if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE, &pChannelConfig->directWrite, &rsslErrorInfo)
+					!= RSSL_RET_SUCCESS)
+		{
+			if (OmmLoggerClient::ErrorEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity)
+			{
+				EmaString temp("Failed to set direct write on channel ");
+				temp.append(pChannelConfig->name).append(CR)
+					.append("Consumer Name ").append(_ommBaseImpl.getInstanceName()).append(CR)
+					.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
+					.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+					.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+					.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+					.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+					.append("Error text ").append(rsslErrorInfo.rsslError.text);
+
+				_ommBaseImpl.getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+			}
+
+			_ommBaseImpl.closeChannel(pRsslReactorChannel);
+
+			return RSSL_RC_CRET_SUCCESS;
+		}
+
 		if ( OmmLoggerClient::SuccessEnum >= _ommBaseImpl.getActiveConfig().loggerConfig.minLoggerSeverity )
 		{
 			EmaString temp( "Received ChannelUp event on channel " );

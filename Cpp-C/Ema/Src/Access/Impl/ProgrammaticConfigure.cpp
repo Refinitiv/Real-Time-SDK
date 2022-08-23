@@ -1818,7 +1818,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore, wsProtocols;
 	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize;
+	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize, directWrite;
 	UInt64 serviceDiscoveryRetryCount;
 
 	UInt64 flags = 0;
@@ -2126,6 +2126,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				wsMaxMsgSize = channelEntry.getUInt();
 				flags |= WsMaxMsgSizeEnum;
 			}
+			else if (channelEntry.getName() == "DirectWrite")
+			{
+				directWrite = channelEntry.getUInt();
+				flags |= DirectWriteEnum;
+			}
 			break;
 		}
 	}
@@ -2350,6 +2355,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 			pCurrentChannelConfig->initializationTimeout = initializationTimeout > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)initializationTimeout;
 		else if (useFileCfg)
 			pCurrentChannelConfig->initializationTimeout = fileCfg->initializationTimeout;
+
+		if (flags & DirectWriteEnum)
+			pCurrentChannelConfig->directWrite = directWrite > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)directWrite;
+		else if (useFileCfg)
+			pCurrentChannelConfig->directWrite = fileCfg->directWrite;
 	}
 }
 
@@ -2667,7 +2677,7 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName, wsProtocols;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket;
+		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket, directWrite;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -2846,6 +2856,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				serverSharedSocket = serverEntry.getUInt();
 				flags |= ServerSharedSocketEnum;
 			}
+			else if (serverEntry.getName() == "DirectWrite")
+			{
+				directWrite = serverEntry.getUInt();
+				flags |= DirectWriteFlagEnum;
+			}
 			break;
 		}
 	}
@@ -2955,6 +2970,10 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 			else if (fileCfgSocket)
 				pCurrentServerConfig->serverSharedSocket = fileCfgSocket->serverSharedSocket;
 
+			if (flags & DirectWriteFlagEnum)
+				pCurrentServerConfig->directWrite = directWrite > MAX_UNSIGNED_INT32 ? MAX_UNSIGNED_INT32 : (UInt32)directWrite;
+			else if (fileCfgSocket)
+				pCurrentServerConfig->directWrite = fileCfgSocket->directWrite;
 
 			if (serverType == RSSL_CONN_TYPE_ENCRYPTED)
 			{
