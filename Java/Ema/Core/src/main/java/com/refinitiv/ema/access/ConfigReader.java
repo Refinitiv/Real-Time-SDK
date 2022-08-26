@@ -8,6 +8,9 @@
 package com.refinitiv.ema.access;
 
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -926,6 +929,15 @@ class ConfigReader
 
 			if (path == null || path.isEmpty()) {
 				fileName = defaultFileName;
+				File tmp = new File(fileName);
+				String filePath = System.getProperty("user.dir") + FileSystems.getDefault().getSeparator() + fileName;
+				if (!Files.isReadable(Paths.get(filePath)) || tmp.length() == 0)
+				{
+					errorTracker().append(String.format("Missing, unreadable or empty file configuration, path=[%s",
+									filePath)).append( "]" )
+							.create(Severity.INFO);
+				}
+
 			} else {
 				File tmp = new File(path);
 				if(!tmp.exists()) {

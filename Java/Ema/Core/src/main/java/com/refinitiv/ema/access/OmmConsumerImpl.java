@@ -400,7 +400,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 			if (attributes == null)
 			{
 				config.errorTracker().append("no configuration exists in the config file for consumer dictionary [")
-						.append(ConfigManager.DICTIONARY_LIST.toString()).append("]. Will use dictionary defaults if not config programmatically.").create(Severity.WARNING);
+						.append(ConfigManager.DICTIONARY_LIST.toString()).append("]. Will use dictionary defaults if not config programmatically.").create(Severity.INFO);
 			}
 			else
 			{
