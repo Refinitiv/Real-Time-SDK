@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2021 Refinitiv.      All rights reserved.          --
+// *|         Copyright (C) 2021-2022 Refinitiv.     All rights reserved.       --
 ///*|-----------------------------------------------------------------------------
 
 #include "ProviderThread.h"
@@ -37,7 +37,7 @@ ProviderThreadState::ProviderThreadState(const IProvPerfConfig& config) :
 
 ProviderThread::ProviderThread(IProvPerfConfig& config, PerfMessageData* perfData, Int32 provIndex)
 	:	stopThread(false), running(false),
-		providerThreadIndex(provIndex), cpuId(-1),
+		providerThreadIndex(provIndex),
 		provPerfConfig(config), perfMessageData(perfData),
 		providerClient(NULL),
 		provider(NULL),
@@ -248,14 +248,54 @@ void ProviderThread::run()
 
 		providerConfig.providerName(sProviderName);
 
+		if ( !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+			providerConfig.apiThreadBind(apiThreadCpuId);
+		if ( !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1") )
+			providerConfig.workerThreadBind(workerThreadCpuId);
+
 		provider = new OmmProvider(providerConfig, *providerClient);
 
 		//cout << "ProviderThread.MainThread. run.2" << endl;
-
-		while (!running && !stopThread)
+		while ( !running && !stopThread )
 		{
 			cout << "ProviderThread. run. Waiting initilization... #" << providerThreadIndex << endl;
 			AppUtil::sleep(200);
+		}
+
+		if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1") )
+		{
+			EmaString provThreadName("EmaThread for ");
+			provThreadName.append(sProviderName);
+
+			// bind cpuId for the provider thread
+			if (!bindThisThread(provThreadName, cpuId))
+			{
+				cout << "ProviderThread::run() #" << providerThreadIndex << " bindThisThread failed!"
+					<< " cpuId[" << cpuId << "] " << endl;
+				running = false;
+			}
+		}
+		if ( !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1") )
+		{
+			EmaString workerThreadName(sProviderName);
+			workerThreadName.append("_RW");
+			// Add information about Reactor worker thread
+			addThisThread(workerThreadName, workerThreadCpuId, 0);
+		}
+		if ( !provPerfConfig.useUserDispatch
+			&& !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+		{
+			EmaString provApiThreadName(sProviderName);
+			provApiThreadName.append("_Api");
+			// Add information about API internal thread
+			addThisThread(provApiThreadName, apiThreadCpuId, 0);
+		}
+
+		if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1")
+			|| !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1")
+			|| !provPerfConfig.useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+		{
+			printAllThreadBinding();
 		}
 
 		currentTime = perftool::common::GetTime::getTimeMicro();

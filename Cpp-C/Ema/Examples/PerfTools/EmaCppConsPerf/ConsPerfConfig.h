@@ -55,8 +55,6 @@ public:
 	Int32			genMsgsPerSec;				// Number of generic messages to send per second. See -genericMsgRate.
 	Int32			latencyGenMsgsPerSec;		// Number of latency generic messages to send per second. See -genericMsgLatencyRate.
 
-	long			apiThreadBindList[MAX_CONS_THREADS];	// CPU ID list for threads that handle connections.  See -apiThreads.
-
 	EmaString		consumerName;				// Name of the Consumer component in EmaConfig.xml. See -consumerName.
 
 	enum WebsocketProtocol

@@ -331,6 +331,7 @@ protected:
 
 	RsslReactorLoginRequestMsgCredential** _LoginReactorConfig;
 	
+	EmaString				_cpuApiThreadBind;
 
 private:
 

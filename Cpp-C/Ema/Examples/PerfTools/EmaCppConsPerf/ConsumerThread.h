@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 #ifndef _CONSUMER_THREADS_H
@@ -339,8 +339,11 @@ protected:
 	ConsumerStats		stats;				// Other stats, collected periodically by the main thread. */
 	FILE				*statsFile;			// File for logging stats for this connection. */
 	FILE				*latencyLogFile;	// File for logging latency for this connection. */
-	Int32				cpuId;
-	Int32				apiThreadCpuId;
+	
+	EmaString			cpuId;				// CPU for binding Consumer thread.
+	EmaString			apiThreadCpuId;		// CPU for binding EMA API internal thread when ApiDispatch mode set.
+	EmaString			workerThreadCpuId;	// CPU for binding Reactor Worker thread.
+
 	ItemRequestList		itemRequestList;
 	PostGenMsgItemList	postItemList;
 	PostGenMsgItemList	genMsgItemList;

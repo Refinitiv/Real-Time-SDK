@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -189,6 +189,21 @@ public :
 		@return reference to this object
 	*/
 	OmmIProviderConfig& addAdminMsg( const RefreshMsg& refreshMsg );
+
+	/** Specifies the Cpu core to bind for Reactor Worker thread.
+		Application may call multiple times prior to initialization.
+		@param[in] cpuString specifies the Cpu core in string format (Cpu core id or P:X C:Y T:Z format).
+		@return reference to this object
+	*/
+	OmmIProviderConfig& workerThreadBind( const EmaString& cpuString );
+
+	/** Specifies the Cpu core to bind for internal EMA thread that dispatch messages.
+		When ApiDispatchEnum set as operational model.
+		Application may call multiple times prior to initialization.
+		@param[in] cpuString specifies the Cpu core in string format (Cpu core id or P:X C:Y T:Z format).
+		@return reference to this object
+	*/
+	OmmIProviderConfig& apiThreadBind( const EmaString& cpuString );
 	//@}
 
 private:

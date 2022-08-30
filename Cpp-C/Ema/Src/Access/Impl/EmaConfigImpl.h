@@ -1152,6 +1152,20 @@ public:
 
 	static void setDefaultConfigFileName(const EmaString&);
 
+	const EmaString& getCpuWorkerThreadBind()
+	{
+		return _cpuWorkerThreadBind;
+	}
+
+	const EmaString& getCpuApiThreadBind()
+	{
+		return _cpuApiThreadBind;
+	}
+
+	void setCpuWorkerThreadBind(const EmaString&);
+
+	void setCpuApiThreadBind(const EmaString&);
+
 protected:
 
 	XMLnode*				_pEmaConfig;
@@ -1159,6 +1173,9 @@ protected:
 
 	EmaString				_instanceNodeName;
 	EmaString				_configSessionName;
+
+	EmaString				_cpuWorkerThreadBind;
+	EmaString				_cpuApiThreadBind;
 
 private:
 

@@ -769,6 +769,15 @@ void EmaConfigBaseImpl::getServiceNames(const EmaString& directoryName, EmaVecto
 	_pEmaConfig->getServiceNameList(directoryName, serviceNames);
 }
 
+void EmaConfigBaseImpl::setCpuWorkerThreadBind(const EmaString& cpuString)
+{
+	_cpuWorkerThreadBind = cpuString;
+}
+
+void EmaConfigBaseImpl::setCpuApiThreadBind(const EmaString& cpuString)
+{
+	_cpuApiThreadBind = cpuString;
+}
 
 EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	EmaConfigBaseImpl( path ),

@@ -23,6 +23,7 @@
 #include "OmmJsonConverterException.h"
 #include "OmmNiProviderImpl.h"
 
+#include "rtr/rsslBindThread.h"
 #include "GetTime.h"
 
 #ifdef WIN32
@@ -58,6 +59,7 @@ static DummyProvClient defaultProvClient;
 static DummyOAuth2ConsClient defaultOAuthConsClient;
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -95,10 +97,16 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
+
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -137,10 +145,15 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -179,10 +192,15 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -221,10 +239,15 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -263,11 +286,16 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& client ) :
+	OmmCommonImpl(),
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_dispatchLock(),
@@ -304,8 +332,13 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 {
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
-
 	_adminClosure = 0;
+
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -319,6 +352,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& client, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -357,6 +391,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(client);
@@ -370,6 +409,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -408,6 +448,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -421,6 +466,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -459,6 +505,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -472,6 +523,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 }
 
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& client ) :
+	OmmCommonImpl(),
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_dispatchLock(),
@@ -509,6 +561,11 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -522,6 +579,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, OmmProviderErrorClient& errorClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -558,6 +616,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
+
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 
 	try
 	{
@@ -2054,12 +2117,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
 		}
 
-/* Ensure that _readFds and _exceptFds are cleared properly before creating the pipe. */
-#ifdef USING_SELECT
-		FD_ZERO(&_readFds);
-		FD_ZERO(&_exceptFds);
-#endif
-
 		if ( !_pipe.create() )
 		{
 			EmaString temp( "Failed to create communication Pipe." );
@@ -2162,6 +2219,12 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		{
 			_pRestLoggingCallbackClient = new RestLoggingCallbackClient(configImpl->getOmmRestLoggingClient(), configImpl->getRestLoggingClosure());
 			reactorOpts.pRestLoggingCallback = restLoggingCallback;
+		}
+
+		if ( !configImpl->getCpuWorkerThreadBind().empty() )
+		{
+			reactorOpts.cpuBindWorkerThread.length = configImpl->getCpuWorkerThreadBind().length();
+			reactorOpts.cpuBindWorkerThread.data = (char*)configImpl->getCpuWorkerThreadBind().c_str();
 		}
 
 		reactorOpts.userSpecPtr = ( void* )this;
@@ -2314,10 +2377,15 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		if ( isApiDispatching() && !_atExit )
 		{
+			if ( !configImpl->getCpuApiThreadBind().empty() )
+			{
+				_cpuApiThreadBind = configImpl->getCpuApiThreadBind();
+			}
+
 			start();
 
 			/* Waits until the API dispatch thread started */
-			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
+			while ( !_bApiDispatchThreadStarted && !_atExit ) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
 		}
 		
 		if (_atExit)
@@ -2487,7 +2555,7 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	{
 		if (!calledFromInit) _userLock.lock();
 	}
-	
+
 	if ( _state == NotInitializedEnum )
 	{
 		if ( !calledFromInit ) _userLock.unlock();
@@ -2542,11 +2610,17 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	}
 
 #ifdef USING_SELECT
-	FD_CLR( _pipe.readFD(), &_readFds );
-	FD_CLR( _pipe.readFD(), &_exceptFds );
+	if ( _pipe.isInitialized() )
+	{
+		FD_CLR( _pipe.readFD(), &_readFds );
+		FD_CLR( _pipe.readFD(), &_exceptFds );
+	}
 #else
-	removeFd( _pipe.readFD() );
-	_pipeReadEventFdsIdx = -1;
+	if ( _pipe.isInitialized() )
+	{
+		removeFd( _pipe.readFD() );
+		_pipeReadEventFdsIdx = -1;
+	}
 #endif
 	_pipe.close();
 
@@ -2557,7 +2631,8 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	if ( !calledFromInit ) _userLock.unlock();
 
 #ifdef USING_POLL
-	delete[] _eventFds;
+	if ( _eventFds )
+		delete[] _eventFds;
 #endif
 }
 
@@ -3057,6 +3132,35 @@ void OmmBaseImpl::run()
 {
 	_dispatchLock.lock();
 	_bApiDispatchThreadStarted = true;
+
+	/* Bind cpu for the API thread. */
+	if ( !_cpuApiThreadBind.empty() )
+	{
+		RsslRet ret;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
+		{
+			_dispatchLock.unlock();
+			EmaString temp( "Failed to bind Cpu for API thread. OmmBaseImpl::run()." );
+			temp.append( " CPU='" ).append( _cpuApiThreadBind )
+				.append( "' Error Id='" ).append( rsslErrorInfo.rsslError.rsslErrorId )
+				.append( "' Internal sysError='" ).append( rsslErrorInfo.rsslError.sysError )
+				.append( "' Error Location='" ).append (rsslErrorInfo.errorLocation )
+				.append( "' Error Text='" ).append( rsslErrorInfo.rsslError.text ).append( "'." );
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
+			setAtExit();
+			return;
+		}
+
+		if ( OmmLoggerClient::SuccessEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "EMA Api thread bound to CPU: " );
+			temp.append( _cpuApiThreadBind ).append( "." );
+
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::SuccessEnum, temp );
+		}
+	}
 
 	while ( !Thread::isStopping() && !_atExit )
 		rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -193,5 +193,17 @@ OmmNiProviderConfig& OmmNiProviderConfig::addAdminMsg( const ReqMsg& reqMsg )
 OmmNiProviderConfig& OmmNiProviderConfig::addAdminMsg( const RefreshMsg& refreshMsg )
 {
 	_pImpl->addAdminMsg( refreshMsg );
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::workerThreadBind(const EmaString& cpuString)
+{
+	_pImpl->setCpuWorkerThreadBind(cpuString);
+	return *this;
+}
+
+OmmNiProviderConfig& OmmNiProviderConfig::apiThreadBind(const EmaString& cpuString)
+{
+	_pImpl->setCpuApiThreadBind(cpuString);
 	return *this;
 }

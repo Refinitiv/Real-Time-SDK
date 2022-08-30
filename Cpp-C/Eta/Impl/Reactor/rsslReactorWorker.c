@@ -2328,7 +2328,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						}
 					}
 				}
-				else if(pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
+				else if(pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER
+						&&  pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
 				{
 					/* Get the next login request message */
 					pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorChannel->currentConnectionOpts->base.loginReqIndex]->loginRequestMsg;

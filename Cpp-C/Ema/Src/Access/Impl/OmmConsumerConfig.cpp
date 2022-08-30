@@ -262,3 +262,15 @@ OmmConsumerConfig& OmmConsumerConfig::restLoggingCallback(OmmRestLoggingClient& 
 	_pImpl->setOmmRestLoggingClient(&ommRestLoggingClient, closure);
 	return *this;
 }
+
+OmmConsumerConfig& OmmConsumerConfig::workerThreadBind(const EmaString& cpuString)
+{
+	_pImpl->setCpuWorkerThreadBind(cpuString);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::apiThreadBind(const EmaString& cpuString)
+{
+	_pImpl->setCpuApiThreadBind(cpuString);
+	return *this;
+}

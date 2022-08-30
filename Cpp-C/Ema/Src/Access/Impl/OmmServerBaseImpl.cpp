@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
 */
 
@@ -30,6 +30,8 @@
 
 #include "OmmIProviderImpl.h"
 
+#include "rtr/rsslBindThread.h"
+
 #include "GetTime.h"
 
 #ifdef WIN32
@@ -43,6 +45,7 @@
 using namespace refinitiv::ema::access;
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, void* closure) :
+	OmmCommonImpl(),
 	_activeServerConfig(activeServerConfig),
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
@@ -71,10 +74,18 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+#ifdef USING_POLL
+	_serverReadEventFdsIdx = -1;
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, OmmProviderErrorClient& client, void* closure) :
+	OmmCommonImpl(),
 	_activeServerConfig(activeServerConfig),
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
@@ -103,6 +114,13 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+#ifdef USING_POLL
+	_serverReadEventFdsIdx = -1;
+#endif
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(client);
@@ -719,6 +737,12 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		rsslClearCreateReactorOptions(&reactorOpts);
 
+		if ( !serverConfigImpl->getCpuWorkerThreadBind().empty() )
+		{
+			reactorOpts.cpuBindWorkerThread.length = serverConfigImpl->getCpuWorkerThreadBind().length();
+			reactorOpts.cpuBindWorkerThread.data = (char*)serverConfigImpl->getCpuWorkerThreadBind().c_str();
+		}
+
 		reactorOpts.userSpecPtr = (void*)this;
 
 		_pRsslReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo);
@@ -743,9 +767,6 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		_state = ReactorInitializedEnum;
 
 #ifdef USING_SELECT
-		FD_ZERO(&_readFds);
-		FD_ZERO(&_exceptFds);
-
 		FD_SET(_pipe.readFD(), &_readFds);
 		FD_SET(_pipe.readFD(), &_exceptFds);
 		FD_SET(_pRsslReactor->eventFd, &_readFds);
@@ -869,10 +890,15 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		if ( isApiDispatching() && !_atExit )
 		{
+			if ( !serverConfigImpl->getCpuApiThreadBind().empty() )
+			{
+				_cpuApiThreadBind = serverConfigImpl->getCpuApiThreadBind();
+			}
+
 			start();
 
 			/* Waits until the API dispatch thread started */
-			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
+			while ( !_bApiDispatchThreadStarted && !_atExit ) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
 		}
 
 		if (_atExit)
@@ -1235,7 +1261,7 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 #endif
 
 	RsslError rsslError;
-	if (RSSL_RET_SUCCESS != rsslCloseServer(_pRsslServer, &rsslError))
+	if (_pRsslServer && RSSL_RET_SUCCESS != rsslCloseServer(_pRsslServer, &rsslError))
 	{
 		if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 		{
@@ -1263,7 +1289,8 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 	if (!calledFromInit) _userLock.unlock();
 
 #ifdef USING_POLL
-	delete[] _eventFds;
+	if (_eventFds)
+		delete[] _eventFds;
 #endif
 }
 
@@ -1762,6 +1789,36 @@ void OmmServerBaseImpl::run()
 {
 	_dispatchLock.lock();
 	_bApiDispatchThreadStarted = true;
+
+	/* Bind cpu for the API thread. */
+	if ( !_cpuApiThreadBind.empty() )
+	{
+		RsslRet ret;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
+		{
+			_dispatchLock.unlock();
+			EmaString temp( "Failed to bind Cpu for API thread. OmmServerBaseImpl::run()." );
+			temp.append( " CPU='" ).append( _cpuApiThreadBind )
+				.append( "' Error Id='" ).append( rsslErrorInfo.rsslError.rsslErrorId )
+				.append( "' Internal sysError='" ).append( rsslErrorInfo.rsslError.sysError )
+				.append( "' Error Location='" ).append( rsslErrorInfo.errorLocation )
+				.append( "' Error Text='" ).append( rsslErrorInfo.rsslError.text).append( "'. " );
+
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
+			setAtExit();
+			return;
+		}
+
+		if ( OmmLoggerClient::SuccessEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "EMA Api thread bound to CPU: " );
+			temp.append( _cpuApiThreadBind ).append( "." );
+
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeServerConfig.instanceName, OmmLoggerClient::SuccessEnum, temp );
+		}
+	}
 
 	while (!Thread::isStopping() && !_atExit)
 		rsslReactorDispatchLoop(_activeServerConfig.dispatchTimeoutApiThread, _activeServerConfig.maxDispatchCountApiThread, _bEventReceived);

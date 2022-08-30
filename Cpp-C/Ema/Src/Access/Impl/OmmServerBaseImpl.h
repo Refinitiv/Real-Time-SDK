@@ -261,7 +261,7 @@ protected:
 	GenericMsg					_genericMsg;
 	PostMsg						_postMsg;
 	RsslServer*					_pRsslServer;
-
+	EmaString					_cpuApiThreadBind;
 
 private:
 
