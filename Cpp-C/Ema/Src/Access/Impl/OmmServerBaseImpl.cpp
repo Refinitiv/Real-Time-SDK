@@ -258,7 +258,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		{
 			EmaString errorMsg("no configuration exists for consumer logger [");
 			errorMsg.append(loggerNodeName).append("]; will use logger defaults if not config programmatically");
-			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::VerboseEnum);
 		}
 
 		pConfigServerImpl->get<OmmLoggerClient::LoggerType>(loggerNodeName + "LoggerType", _activeServerConfig.loggerConfig.loggerType);

@@ -122,7 +122,7 @@ void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 		{
 			EmaString errorMsg( "no configuration exists in the config file for consumer dictionary [" );
 			errorMsg.append( dictionaryNodeName ).append( "]; will use dictionary defaults if not config programmatically" );
-			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
+			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::VerboseEnum );
 		}
 
 		if ( !pConfigImpl->get<Dictionary::DictionaryType>( dictionaryNodeName + "DictionaryType", _activeConfig.dictionaryConfig.dictionaryType ) )

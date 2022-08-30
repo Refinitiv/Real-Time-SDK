@@ -49,13 +49,7 @@ EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 {
 	createNameToValueHashTable();
 
-	OmmLoggerClient::Severity result(readXMLconfiguration(path));
-	if (result == OmmLoggerClient::ErrorEnum || result == OmmLoggerClient::VerboseEnum)
-	{
-		EmaString errorMsg("failed to extract configuration from path [");
-		errorMsg.append(path.c_str()).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, result);
-	}
+	readXMLconfiguration(path);
 }
 
 EmaConfigBaseImpl::~EmaConfigBaseImpl()
@@ -266,23 +260,6 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 	struct stat statBuffer;
 	statResult = stat(fileName.c_str(), &statBuffer);
 #endif
-	if (statResult == -1 || !statBuffer.st_size)
-	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName.c_str()).append("]; file is empty");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return handleConfigurationPathError(errorMsg, !path.empty());
-	}
-
-	FILE* fp;
-	fp = fopen(fileName.c_str(), "r");
-	if (!fp)
-	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName.c_str()).append("]; could not open file; system error message [").append(strerror(errno)).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return handleConfigurationPathError(errorMsg, !path.empty());
-	}
 
 	char* xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1));
 	if (!xmlData)
@@ -293,13 +270,27 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
 
-	size_t bytesRead(fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp));
-	if (!bytesRead)
+	FILE* fp = NULL;
+	size_t bytesRead = 0;
+
+	if (statResult == -1 || !statBuffer.st_size ||
+		!(fp = fopen(fileName.c_str(), "r"))    ||
+		!(bytesRead = fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp)))
 	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName.c_str()).append("]; fread failed; system error message [").append(strerror(errno)).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		free(xmlData);
+		EmaString workingDir;
+		getCurrentDir(workingDir);
+
+		EmaString errorMsg("Missing, unreadable or empty file configuration, path=[");
+		errorMsg.append(workingDir);
+#ifdef WIN32
+		errorMsg.append("\\");
+#else
+		errorMsg.append("/");
+#endif
+		errorMsg.append(fileName.c_str()).append("];");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		if(xmlData) free(xmlData);
+		if(fp) fclose(fp);
 		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
 	fclose(fp);
