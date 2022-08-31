@@ -368,7 +368,11 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 
 		ripcBuffer->priority = rsslBufImpl->priority;
 
-		if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (ripcBuffer->length))
+		/* Dumps the buffer when this is a packed buffer only 
+		* to avoid duplicate dumping the buffer.
+		* rsslWrite and rsslPackBuffer also invoke dump method.
+		*/
+		if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (ripcBuffer->length) && (rsslBufImpl->packingOffset > 1))
 		{
 			rsslWebSocketDumpOutFuncImpl(__FUNCTION__, ripcBuffer->buffer, (RsslUInt32)ripcBuffer->length,
 				rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
