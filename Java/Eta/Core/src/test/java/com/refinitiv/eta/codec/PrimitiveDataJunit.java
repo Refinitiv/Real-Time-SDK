@@ -636,6 +636,42 @@ public class PrimitiveDataJunit
         assertEquals("date.value(04 jan 1974)", 1, date.month());
         assertEquals("date.value(04 jan 1974)", 4, date.day());
     	assertFalse(date.isBlank());
+
+        date.blank();
+
+        //Nov 2000 ISO YYYY-MM
+        date.value("2000-11");
+        assertEquals("date.value(2000-11)", 2000, date.year());
+        assertEquals("date.value(2000-11)", 11, date.month());
+        assertEquals("date.value(2000-11)", 0, date.day());
+        assertFalse(date.isBlank());
+
+        date.blank();
+
+        //2022 ISO YYYY
+        date.value("2022");
+        assertEquals("date.value(2022)", 2022, date.year());
+        assertEquals("date.value(2022)", 0, date.month());
+        assertEquals("date.value(2022)", 0, date.day());
+        assertFalse(date.isBlank());
+
+        date.blank();
+
+        //--12-05 ISO --MM-DD
+        date.value("--12-05");
+        assertEquals("date.value(--12-05)", 0, date.year());
+        assertEquals("date.value(--12-05)", 12, date.month());
+        assertEquals("date.value(--12-05)", 5, date.day());
+        assertFalse(date.isBlank());
+
+        date.blank();
+
+        //--1205  ISO --MMDD
+        date.value("--1205");
+        assertEquals("date.value(--1205)", 0, date.year());
+        assertEquals("date.value(--1205)", 12, date.month());
+        assertEquals("date.value(--1205)", 5, date.day());
+        assertFalse(date.isBlank());
     }
 
     private void timeED(Time time)

@@ -30,8 +30,12 @@ class DateImpl implements Date
     private static final Pattern DATE_PATTERN_1 = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
     private static final Pattern DATE_PATTERN_2 = Pattern.compile("(\\d+)\\s(\\d+)\\s(\\d+)");
     private static final Pattern DATE_PATTERN_3 = Pattern.compile("(\\d+)\\s(\\p{Alpha}+)\\s(\\d+)");
-    private static final Pattern DATE_PATTERN_4 = Pattern.compile("(\\d+)-(\\d+)-(\\d+)"); // ISO8601 date 'YYYY-MM-DD'
-    private static final Pattern DATE_PATTERN_5 = Pattern.compile("(\\d+)"); // ISO8601 date 'YYYYMMDD'
+    private static final Pattern DATE_PATTERN_4 = Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})"); // ISO8601 date 'YYYY-MM-DD'
+    private static final Pattern DATE_PATTERN_5 = Pattern.compile("(\\d{8})"); // ISO8601 date 'YYYYMMDD'
+    private static final Pattern DATE_PATTERN_6 = Pattern.compile("(\\d{4})"); //ISO8601 'YYYY'"
+    private static final Pattern DATE_PATTERN_7 = Pattern.compile("(\\d{4})-(\\d{2})"); //ISO8601 'YYYY-MM'"
+    private static final Pattern DATE_PATTERN_8 = Pattern.compile("--(\\d{2})-(\\d{2})"); //ISO8601 '--MM-DD'"
+    private static final Pattern DATE_PATTERN_9 = Pattern.compile("--(\\d{4})"); //ISO8601 '--MMDD'"
     
     // Converts RsslDate to string in ISO8601 'YYYY-MM-DD' format (e.g. 2003-06-01).
     public String toStringIso8601()
@@ -325,8 +329,8 @@ class DateImpl implements Date
                     return ret;  	
             	return CodecReturnCodes.SUCCESS;
             }
-            matcher = DATE_PATTERN_1.matcher(trimmedVal);
 
+            matcher = DATE_PATTERN_1.matcher(trimmedVal);
             if (matcher.matches() && matcher.groupCount() == 3)
             {
                 int a = Integer.parseInt(matcher.group(1));
@@ -372,6 +376,65 @@ class DateImpl implements Date
                     if (ret != CodecReturnCodes.SUCCESS)
                         return ret;
                 }
+
+                return CodecReturnCodes.SUCCESS;
+            }
+
+            matcher = DATE_PATTERN_6.matcher(trimmedVal);
+            if (matcher.matches() && matcher.groupCount() == 1)
+            {
+                int n = Integer.parseInt(matcher.group(1));
+                ret = year(n);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+
+                return CodecReturnCodes.SUCCESS;
+            }
+
+            matcher = DATE_PATTERN_7.matcher(trimmedVal);
+            if (matcher.matches() && matcher.groupCount() == 2)
+            {
+                int a = Integer.parseInt(matcher.group(1));
+                int b = Integer.parseInt(matcher.group(2));
+
+                ret = month(b);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = year(a);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+
+                return CodecReturnCodes.SUCCESS;
+            }
+
+            matcher = DATE_PATTERN_8.matcher(trimmedVal);
+            if (matcher.matches() && matcher.groupCount() == 2)
+            {
+                int a = Integer.parseInt(matcher.group(1));
+                int b = Integer.parseInt(matcher.group(2));
+
+                ret = month(a);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = day(b);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+
+                return CodecReturnCodes.SUCCESS;
+            }
+
+            matcher = DATE_PATTERN_9.matcher(trimmedVal);
+            if (matcher.matches() && matcher.groupCount() == 1)
+            {
+                int a = Integer.parseInt(matcher.group(1).substring(0, 2));
+                int b = Integer.parseInt(matcher.group(1).substring(2, 4));
+
+                ret = month(a);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                ret = day(b);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
 
                 return CodecReturnCodes.SUCCESS;
             }
