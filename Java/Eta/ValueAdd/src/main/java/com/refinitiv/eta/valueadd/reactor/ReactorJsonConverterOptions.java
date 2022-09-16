@@ -9,6 +9,7 @@
 package com.refinitiv.eta.valueadd.reactor;
 
 import com.refinitiv.eta.codec.DataDictionary;
+import com.refinitiv.eta.json.util.JsonFactory;
 
 /**
  * ReactorJsonConverterOptions is used to initialize the JSON converter library 
@@ -25,6 +26,7 @@ public class ReactorJsonConverterOptions
 	private boolean catchUnknownJsonKeys;
 	private boolean catchUnknownJsonFids;
 	private boolean closeChannelFromFailure;
+	private int jsonConverterPoolsSize = JsonFactory.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
 	
 	ReactorJsonConverterOptions()
 	{
@@ -44,6 +46,7 @@ public class ReactorJsonConverterOptions
 		catchUnknownJsonKeys(false);
 		catchUnknownJsonFids(true);
 		closeChannelFromFailure(true);
+		jsonConverterPoolsSize = JsonFactory.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
 	}
 	
 	/**
@@ -229,5 +232,25 @@ public class ReactorJsonConverterOptions
 	public void closeChannelFromFailure(boolean closeChannelFromFailure)
 	{
 		this.closeChannelFromFailure = closeChannelFromFailure;
+	}
+
+	/**
+	 * Returns the value of jsonConverterPoolsSize. If it's not set, the default (10) value will be used.
+	 *
+	 * @return the value of jsonConverterPoolsSize.
+	 */
+	public int jsonConverterPoolsSize()
+	{
+		return jsonConverterPoolsSize;
+	}
+
+	/**
+	 * Specifies the value that will be used to set the jsonConverterPoolsSize.
+	 *
+	 * @param jsonConverterPoolsSize specifies the new value of jsonConverterPoolsSize.
+	 */
+	public void jsonConverterPoolsSize(int jsonConverterPoolsSize)
+	{
+		this.jsonConverterPoolsSize = jsonConverterPoolsSize;
 	}
 }

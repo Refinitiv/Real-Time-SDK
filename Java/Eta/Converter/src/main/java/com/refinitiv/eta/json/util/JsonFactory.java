@@ -53,6 +53,9 @@ public class JsonFactory {
     private static ObjectPool<ByteBuffer> byteBufferPool = new ObjectPool<>(true, () -> ByteBuffer.allocate(DEFAULT_BYTEBUFFER_SIZE));
     private static ByteArrayPool byteArrayPool = new ByteArrayPool();
 
+    private static boolean isInitialized = false;
+    public static final int JSON_CONVERTER_DEFAULT_POOLS_SIZE = 10;
+
     private JsonFactory() {
         throw new AssertionError();
     }
@@ -333,39 +336,44 @@ public class JsonFactory {
     }
 
 
-    public static void initPools(int numOfObjects) {
+    public static void initPools(int numOfObjects)
+    {
+        if(!isInitialized && numOfObjects > 0)
+        {
+            intPool.growPool(numOfObjects);
+            uintPool.growPool(numOfObjects);
+            elementListPool.growPool(numOfObjects);
+            elementEntryPool.growPool(numOfObjects);
+            bufferPool.growPool(numOfObjects);
+            fieldListPool.growPool(numOfObjects);
+            fieldEntryPool.growPool(numOfObjects);
+            vectorPool.growPool(numOfObjects);
+            vectorEntryPool.growPool(numOfObjects);
+            seriesPool.growPool(numOfObjects);
+            seriesEntryPool.growPool(numOfObjects);
+            filterListPool.growPool(numOfObjects);
+            filterEntryPool.growPool(numOfObjects);
+            realPool.growPool(numOfObjects);
+            doublePool.growPool(numOfObjects);
+            floatPool.growPool(numOfObjects);
+            statePool.growPool(numOfObjects);
+            qosPool.growPool(numOfObjects);
+            mapPool.growPool(numOfObjects);
+            mapEntryPool.growPool(numOfObjects);
+            enumPool.growPool(numOfObjects);
+            timePool.growPool(numOfObjects);
+            datePool.growPool(numOfObjects);
+            dateTimePool.growPool(numOfObjects);
+            arrayPool.growPool(numOfObjects);
+            arrayEntryPool.growPool(numOfObjects);
+            msgPool.growPool(numOfObjects);
+            fieldSetDefDbPool.growPool(numOfObjects);
+            elementSetDefDbPool.growPool(numOfObjects);
+            decodeIterPool.growPool(numOfObjects);
+            encodeIteratorPool.growPool(numOfObjects);
+            byteBufferPool.growPool(numOfObjects);
 
-       intPool.growPool(numOfObjects);
-       uintPool.growPool(numOfObjects);
-       elementListPool.growPool(numOfObjects);
-       elementEntryPool.growPool(numOfObjects);
-       bufferPool.growPool(numOfObjects);
-       fieldListPool.growPool(numOfObjects);
-       fieldEntryPool.growPool(numOfObjects);
-       vectorPool.growPool(numOfObjects);
-       vectorEntryPool.growPool(numOfObjects);
-       seriesPool.growPool(numOfObjects);
-       seriesEntryPool.growPool(numOfObjects);
-       filterListPool.growPool(numOfObjects);
-       filterEntryPool.growPool(numOfObjects);
-       realPool.growPool(numOfObjects);
-       doublePool.growPool(numOfObjects);
-       floatPool.growPool(numOfObjects);
-       statePool.growPool(numOfObjects);
-       qosPool.growPool(numOfObjects);
-       mapPool.growPool(numOfObjects);
-       mapEntryPool.growPool(numOfObjects);
-       enumPool.growPool(numOfObjects);
-       timePool.growPool(numOfObjects);
-       datePool.growPool(numOfObjects);
-       dateTimePool.growPool(numOfObjects);
-       arrayPool.growPool(numOfObjects);
-       arrayEntryPool.growPool(numOfObjects);
-       msgPool.growPool(numOfObjects);
-       fieldSetDefDbPool.growPool(numOfObjects);
-       elementSetDefDbPool.growPool(numOfObjects);
-       decodeIterPool.growPool(numOfObjects);
-       encodeIteratorPool.growPool(numOfObjects);
-       byteBufferPool.growPool(numOfObjects);
+            isInitialized = true;
+        }
     }
 }

@@ -75,6 +75,53 @@ interface OmmCommonImpl
 	long nextLongId();
 
 	void channelInformation(ChannelInformation ci);
+
+	default int getJsonConverterPoolsSize(ConfigElement configElement, BaseConfig baseConfig, StringBuilder stringBuilder,
+										  Logger loggerClient) {
+		String jsonConverterPoolsSizeValue = configElement._valueStr;
+
+		try {
+			if (jsonConverterPoolsSizeValue == null || jsonConverterPoolsSizeValue.isEmpty())
+				return GlobalConfig.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
+
+			long jsonConverterPoolsSize = Long.parseLong(jsonConverterPoolsSizeValue);
+
+			if (jsonConverterPoolsSize < 0) {
+				if (loggerClient.isWarnEnabled())
+				{
+					stringBuilder.append("JsonConverterPoolsSize value should be equal or greater than 0.")
+							.append(" It will be set to default value: 10.");
+					loggerClient.warn(formatLogMessage(baseConfig.instanceName, stringBuilder.toString(), Severity.WARNING));
+				}
+				return GlobalConfig.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
+			}
+
+			if (jsonConverterPoolsSize > Integer.MAX_VALUE) {
+				if (loggerClient.isWarnEnabled())
+				{
+					stringBuilder.append("JsonConverterPoolsSize value should not be greater than ")
+							.append(Integer.MAX_VALUE)
+							.append(". It will be set to ")
+							.append(Integer.MAX_VALUE)
+							.append(".");
+					loggerClient.warn(formatLogMessage(baseConfig.instanceName, stringBuilder.toString(), Severity.WARNING));
+				}
+				return Integer.MAX_VALUE;
+			}
+
+			return (int) jsonConverterPoolsSize;
+		} catch (NumberFormatException exception) {
+			if (loggerClient.isWarnEnabled())
+			{
+				stringBuilder.append("invalid JsonConverterPoolsSize value format [")
+						.append(jsonConverterPoolsSizeValue)
+						.append("]; expected number. It will be set to default value - 10.");
+				loggerClient.warn(formatLogMessage(baseConfig.instanceName, stringBuilder.toString(), Severity.WARNING));
+			}
+		}
+
+		return GlobalConfig.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
+	}
 }
 
 abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient, ReactorServiceNameToIdCallback, ReactorJsonConversionEventCallback 
@@ -940,6 +987,11 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit)) != null)
 			{
 				_activeConfig.globalConfig.tunnelStreamStatusEventPoolLimit = ce.intValue();
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.JsonConverterPoolsSize)) != null)
+			{
+				_activeConfig.globalConfig.jsonConverterPoolsSize =
+						getJsonConverterPoolsSize(ce, _activeConfig, strBuilder(), _loggerClient);
 			}
 		}
 		

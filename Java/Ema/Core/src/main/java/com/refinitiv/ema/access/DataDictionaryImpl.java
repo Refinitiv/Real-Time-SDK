@@ -1064,7 +1064,7 @@ class DataDictionaryImpl implements DataDictionary
 		return enumTypeTableImpl;
 	}
 	
-	private void clearFlags()
+	void clearFlags()
 	{
 		loadedFieldDictionary = false;
 		loadedEnumTypeDef = false;

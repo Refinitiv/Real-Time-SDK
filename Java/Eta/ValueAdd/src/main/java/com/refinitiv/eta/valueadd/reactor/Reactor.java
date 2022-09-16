@@ -5530,7 +5530,7 @@ public class Reactor
                         "Reactor.initJsonConverter", "The service ID must be in a range between 0 to 65535.");
             }
 
-            JsonFactory.initPools(3);
+            JsonFactory.initPools(jsonConverterOptions.jsonConverterPoolsSize());
             JsonConverterBuilder jsonConverterBuilder = ConverterFactory.createJsonConverterBuilder();
 
             if(Objects.isNull(serviceNameIdConverterClient))

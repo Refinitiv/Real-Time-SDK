@@ -10,12 +10,14 @@ package com.refinitiv.ema.access;
 class GlobalConfig
 {
 	final static int DEFAULT_EVENT_POOL_LIMIT = -1;
+	static final int JSON_CONVERTER_DEFAULT_POOLS_SIZE = 10;
 
 	int reactorMsgEventPoolLimit;
 	int reactorChannelEventPoolLimit;
 	int workerEventPoolLimit;
 	int tunnelStreamMsgEventPoolLimit;
 	int tunnelStreamStatusEventPoolLimit;
+	int jsonConverterPoolsSize;
 
 	GlobalConfig()
 	{
@@ -25,6 +27,7 @@ class GlobalConfig
 		workerEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		tunnelStreamMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		tunnelStreamStatusEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		jsonConverterPoolsSize = JSON_CONVERTER_DEFAULT_POOLS_SIZE;
 	}
 
 	void clear()
@@ -34,5 +37,6 @@ class GlobalConfig
 		workerEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		tunnelStreamMsgEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
 		tunnelStreamStatusEventPoolLimit = DEFAULT_EVENT_POOL_LIMIT;
+		jsonConverterPoolsSize = JSON_CONVERTER_DEFAULT_POOLS_SIZE;
 	}
 }
