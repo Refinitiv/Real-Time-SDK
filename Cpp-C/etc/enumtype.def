@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.52
-!tag Build_RDMD  4.20.52
-!tag DT_Version  22.41
-!tag Date        9-May-2022
+!tag RT_Version  4.20.54
+!tag Build_RDMD  4.20.54
+!tag DT_Version  22.71
+!tag Date        23-Aug-2022
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -360,6 +360,7 @@ QUOTE_CUR  13594
 CURRENCY_D 13595
 MN_IIN_CCY 13596
 INS_P_CCY  13612
+SETT_CCY   13620
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -2041,6 +2042,11 @@ CUM_EX_MKR   117
     118        "CLT"   Cum Listing
     119        "CDL"   Cum Delisting
     120        "OCL"   Offer Closing
+    121        "CQ "   Cum equal access scheme
+    122        "CZ "   Cum priority
+    123        "PA "   Protection available
+    124        "PU "   Protection unavailable
+    125        "XQ "   Ex equal access scheme
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5187,6 +5193,7 @@ OFF_CD_IN2  1055
      59        "RED"   RED ID code for Credit Default Swaps
      60        "TSH"   TOSHO - Tokyo SE security Identification number
      61        "BAS"   Buenos Aires code
+     62        "FGI"   Financial Instrument Global Identifier
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5541,36 +5548,36 @@ YIELD_TP     969
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
       0        "   "   Not allocated
-      1        "MAT"   yield to maturity in RT_YIELD_n and SEC_YLD_n.
-      2        "PUT"   yield to put in RT_YIELD_n and SEC_YLD_n.
-      3        "CAL"   yield to call in RT_YIELD_n and SEC_YLD_n.
-      4        "AVL"   average life yield in RT_YIELD_n and SEC_YLD_n.
-      5        "SAN"   semi-annual yield in RT_YIELD_n and SEC_YLD_n.
-      6        "SIM"   simple yield in RT_YIELD_n and SEC_YLD_n.
-      7        "FLT"   flat yield in RT_YIELD_n and SEC_YLD_n.
-      8        "CNS"   consortium yield in RT_YIELD_n and SEC_YLD_n.
-      9        "F/C"   flat yield in RT_YIELD_n, consortium yield in SEC_YLD_n.
-     10        "REQ"   Refinitiv equivalent yield in RT_YIELD_n and SEC_YLD_n.
-     11        "DIS"   discount yield in RT_YIELD_n and SEC_YLD_n.
-     12        "BEY"   bond equivalent yield in RT_YIELD_n and SEC_YLD_n.
-     13        "NA "   native ask in RT_YIELD_n, SEC_YLD_n not allocated.
-     14        "NIA"   native ask in RT_YIELD_n, ISMA ask in SEC_YLD_n.
-     15        "NB "   native bid in RT_YIELD_n, SEC_YLD_n not allocated.
-     16        "NIB"   native bid in RT_YIELD_n, ISMA bid in SEC_YLD_n.
-     17        "NAB"   native bid in RT_YIELD_n, native ask in SEC_YLD_n.
-     18        "NM "   native mid in RT_YIELD_n, SEC_YLD_n not allocated.
-     19        "NIM"   native mid in RT_YIELD_n, ISMA bid in SEC_YLD_n.
-     20        "NL "   native last in RT_YIELD_n, SEC_YLD_n not allocated.
-     21        "NIL"   native last in RT_YIELD_n, ISMA last in SEC_YLD_n.
-     22        "IB "   ISMA bid in RT_YIELD_n, SEC_YLD_n not allocated.
-     23        "IAB"   ISMA bid in RT_YIELD_n, ISMA ask in SEC_YLD_n.
-     24        "IA "   ISMA ask in RT_YIELD_n, SEC_YLD_n not allocated.
-     25        "IM "   ISMA mid in RT_YIELD_n, SEC_YLD_n not allocated.
-     26        "IL "   ISMA last in RT_YIELD_n, SEC_YLD_n not allocated.
-     27        "YTW"   Yield to Worst in RT_YIELD_n and SEC_YLD_n.
+      1        "MAT"   yield to maturity
+      2        "PUT"   yield to put
+      3        "CAL"   yield to call
+      4        "AVL"   average life yield
+      5        "SAN"   semi-annual yield
+      6        "SIM"   simple yield
+      7        "FLT"   flat yield
+      8        "CNS"   consortium yield
+      9        "F/C"   flat yield and consortium yield
+     10        "REQ"   Refinitiv equivalent yield
+     11        "DIS"   discount yield
+     12        "BEY"   bond equivalent yield
+     13        "NA "   native ask
+     14        "NIA"   native ask and ISMA ask
+     15        "NB "   native bid
+     16        "NIB"   native bid and ISMA bid
+     17        "NAB"   native bid and ask
+     18        "NM "   native mid
+     19        "NIM"   native mid and ISMA bid
+     20        "NL "   native last
+     21        "NIL"   native last and ISMA last
+     22        "IB "   ISMA bid
+     23        "IAB"   ISMA bid and ask
+     24        "IA "   ISMA ask
+     25        "IM "   ISMA mid
+     26        "IL "   ISMA last
+     27        "YTW"   Yield to Worst
      28        "MME"   Money Market Equivalent
-     29        "MTH"   Monthly yield for RT_YIELD_n, SEC_YLD_n
-     30        "QRT"   Quarterly yield for RT_YIELD_n, SEC_YLD_n
+     29        "MTH"   Monthly yield
+     30        "QRT"   Quarterly yield
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8785,7 +8792,7 @@ DRK_EXID   13610
    1665        "SHU"   Sichuan United Environment Exchange
    1666        "REL"   Regelleistung.net
    1667        "PXP"   PEXAPARK
-   1668        "FRX"   FairX
+   1668        "FRX"   Coinbase Derivatives
    1669        "NAL"   National Aluminium Company Limited (NALCO)
    1670        "AHD"   AHD-AGRICULTURE & HORTICULTURE DEVELOPMENT BOARD
    1671        "PME"   Ministry of Energy and Mines, Peru.
@@ -8826,7 +8833,23 @@ DRK_EXID   13610
    1706        "BJS"   Beijing Stock Exchange
    1707        "NNP"   Nigerian National Petroleum Corporation
    1708        "VFX"   Victoria Falls Stock Exchange Limited
-   1709        "BZL"   FEDERAL OFFICE
+   1709        "BZL"   Federal Office for Agriculture and Food (Bonn-Mehlem)
+   1710        "AEM"   Australian Energy Market Operator
+   1711        "MMI"   India Ministry of Mines
+   1712        "NMP"   Norwegian ministry of petroleum and energy
+   1713        "CEF"   Central Energy Fund
+   1714        "SGL"   Siglar Carbon
+   1715        "ILZ"   International Lead and Zinc Study Group
+   1716        "NDX"   NODAL
+   1717        "SPQ"   S&P Global
+   1718        "RTR"   REUTERS NEWS & MEDIA INC
+   1719        "WBM"   World Bureau of Metal Statistics
+   1720        "IRF"   Investment Research Finland
+   1721        "FMD"   FIMMDA
+   1722        "CES"   CSE Secondary Book - CSE2
+   1723        "OVT"   OVET
+   1724        "PAD"   Peters Agrardaten
+   1725        "SCH"   SHANGHAI CLEARING HOUSE
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13121,6 +13144,7 @@ OPT_TYPE    8933
 ! -------    ---
 !
 EXPIR_CYCL  8934
+CNTR_CYCL  13113
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -13235,6 +13259,7 @@ INDEX_TYPE  8939
      16   "Hdg Dly "   Hedged Index (Daily hedged)
      17   "Prc Cln "   Clean Price Return Index
      18   "Prc Grs "   Gross Price Return Index
+     19   "Yield   "   Yield Index
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17585,6 +17610,11 @@ DELIV_PRD  13015
      73   "QTR AHD "   Quarter ahead
      74   "SSN AHD "   Season ahead
      75   "BOM     "   Balance of Month
+     76   "2020/21 "   Year 2020 to 2021
+     77   "2021/22 "   Year 2021 to 2022
+     78   "2022/23 "   Year 2022 to 2023
+     79   "2023/24 "   Year 2023 to 2024
+     80   "2024/25 "   Year 2024 to 2025
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18343,7 +18373,6 @@ MID2_P_FLG 13110
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_1ET412 13113
 PRE_1ET413 13114
 PRE_1ET414 13115
 PRE_1ET415 13116
@@ -18692,6 +18721,7 @@ FXMM_TYPE  13404
      30   "STN     "   Derivative - Swaption
      31   "CAP     "   Derivative - Caps
      32   "Start   "   Yield Curve - Swap Zero Yield Curve
+     33   "NDFOR   "   Foreign Exchange - FX Non-Deliverable Forward Outrights
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18919,6 +18949,14 @@ MET_TYP22  13605
     149   "80-<90% "   LME Banding 80-<90%
     150   ">90%    "   LME Banding >90%
     151   "Unrept  "   LME Banding Unreported %
+    152   "Beta1   "   First Beta Value
+    153   "Beta2   "   Second Beta Value
+    154   "Beta3   "   Third Beta Value
+    155   "Beta4   "   Fourth Beta Value
+    156   "Lambda1 "   First Lambda Value
+    157   "Lambda2 "   Second Lambda Value
+    158   "OLD_S_OI"   Old season open interest
+    159   "NEW_S_OI"   New season open interest
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19477,6 +19515,7 @@ CNTR_SZ_UT 13611
     432      "kWhkg"   Kilowatt hours per kilogram
     433      "kg/d "   Kilogram per day
     434      "psi  "   Pounds Per Square Inch
+    435      " Nm3 "   Normal Cubic Metre
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21576,6 +21615,8 @@ ORGN_PORT  13579
     727   "JP  HYU "   Hyuga
     728   "US  ZFT "   Illinois City
     729   "US  LMJ "   Lemont
+    730   "UA RNI  "   Reni
+    731   "UA IZM  "   Izmail
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22942,6 +22983,14 @@ CMD_TYPE   13618
    3082   "WOLFRMT "   Wolframite
    3083   "ZINC    "   Zinc (metal only)
    3084   "ZINCORE "   Zinc Ore
+   3085   "STEELNGP"   Steel Long Products
+   3086   "STEEFLTP"   Steel Flat Products
+   3087   "PIGIRON "   Pig Iron
+   3088   "IRNORECO"   Iron Ore Concentrates
+   3089   "ZINCCON "   Zinc Concentrates
+   3090   "LEADCON "   Lead Concentrates
+   3091   "COPPANO "   Copper Anodes
+   3092   "COPPCATH"   Copper Cathodes
    4000   "ABSPLAST"   Acrylonitrile Butadiene Styrene
    4001   "ACRYLONI"   Acrylonitrile
    4002   "ALPHMETH"   Alpha-Methylstyrene (Commodity)
@@ -23098,8 +23147,50 @@ DSC_METH   13619
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET299 13620
-PRE_2ET300 13621
+PRIMACT_TP 13621
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "IMP ACTL"   Import (Actual)
+      2   "IMP EST "   Import (Estimated)
+      3   "IMP FCST"   Import (Forecasted)
+      4   "EXP ACTL"   Export (Actual)
+      5   "EXP EST "   Export (Estimated)
+      6   "EXP FCST"   Export (Forecasted)
+      7   "PLANTED "   Planted
+      8   "HARVEST "   Harvested
+      9   "YIELD   "   Yield
+     10   "PRODN   "   Production
+     11   "SUPPLY  "   Supply
+     12   "DEMAND  "   Demand
+     13   "CLS STCK"   Closing Stock
+     14   "OPN STCK"   Opening Stock
+     15   "TOTAL   "   Total
+     16   "STOCK   "   Stock
+     17   "INSPCTN "   Inspection
+     18   "SALES   "   Sales
+     19   "CONSMPTN"   Consumption
+     20   "OPN INT "   Open Interest
+     21   "INVNTRY "   Inventory
+     22   "INPUT   "   Input
+     23   "OUTPUT  "   Output
+     24   "CAPACITY"   Capacity
+     25   "FLOWS   "   Flows
+     26   "OUTAGES "   Outages
+     27   "RESERVE "   Reserve
+     28   "PIPELINE"   Pipeline
+     29   "DRILLING"   Drilling
+     30   "WAREHSE "   Warehouse
+     31   "WARRANT "   Warrant
+     32   "TARIFF  "   Tariff
+     33   "FD AREA "   Field Area
+     34   "WHS RCPT"   Warehouse Receipt
+     35   "THRPUT  "   Throughput
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET301 13622
 PRE_2ET302 13623
 PRE_2ET303 13624
@@ -23849,6 +23940,7 @@ DEF_DMI    32312
       4   "LDM     "   Legacy Data Model
       5   "PDM     "   Platform Data Model
       6   "MVP     "   MVP Data Model
+      7   "WFL     "   Web-grabber FID List
 !
 ! ACRONYM    FID
 ! -------    ---
