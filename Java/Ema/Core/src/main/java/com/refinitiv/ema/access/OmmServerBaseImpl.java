@@ -285,6 +285,7 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			jsonConverterOptions.catchUnknownJsonKeys(activeConfig.catchUnknownJsonKeys);
 			jsonConverterOptions.catchUnknownJsonFids(activeConfig.catchUnknownJsonFids);
 			jsonConverterOptions.closeChannelFromFailure(activeConfig.closeChannelFromFailure);
+			jsonConverterOptions.jsonConverterPoolsSize(activeConfig.globalConfig.jsonConverterPoolsSize);
 
 			if (_rsslReactor.initJsonConverter(jsonConverterOptions, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS) {
 				strBuilder().append("Failed to initialize OmmServerBaseImpl (RWF/JSON Converter).")
@@ -721,6 +722,11 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.TunnelStreamStatusEventPoolLimit)) != null)
 			{
 				_activeServerConfig.globalConfig.tunnelStreamStatusEventPoolLimit = ce.intValue();
+			}
+			if( (ce = globalConfigAttributes.getPrimitiveValue(ConfigManager.JsonConverterPoolsSize)) != null)
+			{
+				_activeServerConfig.globalConfig.jsonConverterPoolsSize =
+						getJsonConverterPoolsSize(ce, _activeServerConfig, strBuilder(), _loggerClient);
 			}
 		}
 		

@@ -9,14 +9,14 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.6.L1 aka EMA/ETA 3.6.6.L1 aka 3.6.6.0 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.6.G1 aka EMA/ETA 3.6.6.G1 aka 3.6.6.1 
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes. 
+This is a rapid release with a critical fix. 
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-[Case Number: 10825196] - [RTSDK-5901] - NullPointerException with emaj 3.6.1.2 processing directory domain message
+- [Case Number: 11444081] - [RTSDK-6411] - Memory leak upon repeated init and un-init of OMMConsumer due to a growing global pool 
 
 
 ----------------------------------------------------------------------------------------
@@ -24,8 +24,18 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.0.6.G1 (Sep 16, 2022)
+--------------------------------------------
+This is a rapid release with a critical fix. 
+
+EMA Java 3.6.6.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6411] - Memory leak upon repeated init and un-init of OMMConsumer due to a growing global pool [Case Number: 11444081] 
+
+--------------------------------------------
 RTSDK Java Release 2.0.6.L1 (Jun 20, 2022)
 --------------------------------------------
+This is a maintenance release with fixes.
 
 EMA Java 3.6.6.L1 Issues Resolved
 ---------------------------------

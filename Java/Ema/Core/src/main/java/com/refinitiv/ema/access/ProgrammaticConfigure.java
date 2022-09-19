@@ -600,6 +600,7 @@ class ProgrammaticConfigure
 		ElementEntry workerEventPoolLimit = getIntElementEntry(globalConfigEntry, "WorkerEventPoolLimit");
 		ElementEntry tunnelStreamMsgEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamMsgEventPoolLimit");
 		ElementEntry tunnelStreamStatusEventPoolLimit = getIntElementEntry(globalConfigEntry, "TunnelStreamStatusEventPoolLimit");
+		ElementEntry jsonConverterPoolsSize = getIntElementEntry(globalConfigEntry, "JsonConverterPoolsSize");
 
 		if (reactorMsgEventPoolLimit != null) {
 			config.reactorMsgEventPoolLimit = convertToInt(reactorMsgEventPoolLimit.intValue());
@@ -615,6 +616,9 @@ class ProgrammaticConfigure
 		}
 		if (tunnelStreamStatusEventPoolLimit != null) {
 			config.tunnelStreamStatusEventPoolLimit = convertToInt(tunnelStreamStatusEventPoolLimit.intValue());
+		}
+		if (jsonConverterPoolsSize != null) {
+			config.jsonConverterPoolsSize = getJsonConverterPoolsSize(jsonConverterPoolsSize.intValue());
 		}
 		return config;
 	}
@@ -3201,5 +3205,28 @@ class ProgrammaticConfigure
 			else
 				i++;
 		}
+	}
+
+	private int getJsonConverterPoolsSize(long jsonConverterPoolsSize)
+	{
+		if(jsonConverterPoolsSize < 0)
+		{
+			_emaConfigErrList.append( "JsonConverterPoolsSize value should be equal or greater than 0.")
+					.append( " It will be set to default value: 10.")
+					.create(Severity.WARNING);
+			return GlobalConfig.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
+		}
+
+		if(jsonConverterPoolsSize > Integer.MAX_VALUE)
+		{
+			_emaConfigErrList.append("JsonConverterPoolsSize value should not be greater than ")
+					.append(Integer.MAX_VALUE)
+					.append(". It will be set to ")
+					.append(Integer.MAX_VALUE)
+					.append(".")
+					.create(Severity.WARNING);
+			return Integer.MAX_VALUE;
+		}
+		return (int) jsonConverterPoolsSize;
 	}
 }

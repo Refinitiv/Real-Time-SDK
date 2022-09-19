@@ -576,6 +576,7 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 		jsonConverterOptions.catchUnknownJsonKeys(_activeConfig.catchUnknownJsonKeys);
 		jsonConverterOptions.catchUnknownJsonFids(_activeConfig.catchUnknownJsonFids);
 		jsonConverterOptions.closeChannelFromFailure(_activeConfig.closeChannelFromFailure);
+		jsonConverterOptions.jsonConverterPoolsSize(_activeConfig.globalConfig.jsonConverterPoolsSize);
 
 		if (_rsslReactor.initJsonConverter(jsonConverterOptions, _rsslErrorInfo) != ReactorReturnCodes.SUCCESS) {
 			strBuilder().append("Failed to initialize OmmBaseImpl (RWF/JSON Converter).")

@@ -123,6 +123,7 @@ class ConfigManager
 	public static final int ChannelType = 104;
 	public static final int ChannelInitTimeout = 105;
 	public static final int ServiceDiscoveryRetryCount = 106;
+	public static final int JsonConverterPoolsSize = 107;
 	
 	// Channel: Socket, HTTP, Encrypted, WebSocket
 	public static final int ChannelCompressionThreshold = 200;
@@ -561,6 +562,7 @@ class ConfigManager
 		GlobalConfigDict.add( "ReactorMsgEventPoolLimit",ReactorMsgEventPoolLimit );
 		GlobalConfigDict.add( "TunnelStreamMsgEventPoolLimit", TunnelStreamMsgEventPoolLimit);
 		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
+		GlobalConfigDict.add("JsonConverterPoolsSize", JsonConverterPoolsSize);
 		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
@@ -788,7 +790,8 @@ class ConfigManager
 		"CloseChannelFromConverterFailure",
 		"OpenLimit",
 		"OpenWindow",
-		"LoadFactor"
+		"LoadFactor",
+		"JsonConverterPoolsSize"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

@@ -5535,7 +5535,7 @@ public class Reactor
             JsonConversionEventCallback = jsonConverterOptions.jsonConversionEventCallback();
             closeChannelFromFailure = jsonConverterOptions.closeChannelFromFailure();
 
-            JsonFactory.initPools(3);
+            JsonFactory.initPools(jsonConverterOptions.jsonConverterPoolsSize());
             JsonConverterBuilder jsonConverterBuilder = ConverterFactory.createJsonConverterBuilder();
 
             if(Objects.isNull(serviceNameIdConverterClient))

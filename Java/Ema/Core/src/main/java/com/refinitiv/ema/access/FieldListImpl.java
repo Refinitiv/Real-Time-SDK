@@ -203,6 +203,13 @@ class FieldListImpl extends CollectionDataImpl implements FieldList
 	{
 		throw new UnsupportedOperationException("FieldList collection doesn't support this operation.");
 	}
+
+	@Override
+	public void returnToPool()
+	{
+		_dataDictionaryImpl.rsslDataDictionary(null);
+		_dataDictionaryImpl.clearFlags();
+	}
 	
 	String toString(int indent)
 	{
