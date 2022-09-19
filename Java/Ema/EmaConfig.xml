@@ -60,23 +60,6 @@
 			<XmlTraceToStdout value="0"/>
 			<DefaultServiceID value="1"/>
 		</Consumer>
-		<Consumer>
-			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
-			<Name value="Consumer_5"/>
-			<Channel value="Channel_5"/>
-			<Dictionary value="Dictionary_2"/>
-			<XmlTraceToStdout value="0"/>
-			<DefaultServiceID value="1"/>
-		</Consumer>
-		<Consumer>
-			<!-- Name is mandatory -->
-			<Name value="Consumer_6"/>
-			<Channel value="Channel_6"/>
-			<!-- Dictionary is optional: defaulted to "ChannelDictionary" -->
-			<Dictionary value="Dictionary_1"/>
-			<XmlTraceToStdout value="0"/>
-			<DefaultServiceID value="1"/>
-		</Consumer>
 		<!-- Consumer with enabled RTT feature -->
 		<Consumer>
 			<Name value="Consumer_7"/>
