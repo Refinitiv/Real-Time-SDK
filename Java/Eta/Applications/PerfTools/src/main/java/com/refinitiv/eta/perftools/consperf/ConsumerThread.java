@@ -12,11 +12,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import com.refinitiv.eta.perftools.common.ByteBufferInputStream;
+import com.refinitiv.eta.perftools.common.ByteBufferOutputStream;
 
 import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.Codec;
@@ -42,6 +54,7 @@ import com.refinitiv.eta.shared.ConsumerLoginState;
 import com.refinitiv.eta.shared.PingHandler;
 import com.refinitiv.eta.perftools.common.DictionaryHandler;
 import com.refinitiv.eta.perftools.common.DirectoryHandler;
+import com.refinitiv.eta.perftools.common.DirectoryHandlerJson;
 import com.refinitiv.eta.perftools.common.ItemEncoder;
 import com.refinitiv.eta.perftools.common.ItemFlags;
 import com.refinitiv.eta.perftools.common.ItemInfo;
@@ -50,6 +63,7 @@ import com.refinitiv.eta.perftools.common.JsonServiceNameToIdCallback;
 import com.refinitiv.eta.perftools.common.LatencyRandomArray;
 import com.refinitiv.eta.perftools.common.LatencyRandomArrayOptions;
 import com.refinitiv.eta.perftools.common.LoginHandler;
+import com.refinitiv.eta.perftools.common.LoginHandlerJson;
 import com.refinitiv.eta.perftools.common.MarketPriceItem;
 import com.refinitiv.eta.perftools.common.PerfToolsReturnCodes;
 import com.refinitiv.eta.perftools.common.ResponseCallback;
@@ -137,10 +151,13 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private ReadArgs _readArgs = TransportFactory.createReadArgs();
     private Msg _responseMsg; /* response message */
     private LoginHandler _loginHandler; /* login handler */
+    private LoginHandlerJson _loginHandlerJson; /* login handler JSON */
     private DirectoryHandler _srcDirHandler; /* source directory handler */ 
+    private DirectoryHandlerJson _srcDirHandlerJson; /* source directory handler JSON */ 
     private DictionaryHandler _dictionaryHandler; /* dictionary handler */
     private PingHandler _pingHandler; /* ping handler */
     private MarketPriceDecoder _marketPriceDecoder; /* market price decoder */
+    private MarketPriceDecoderJson _marketPriceDecoderJson; /* market price decoder JSON */
     private InProgInfo _inProg; /* connection in progress information */
     private Error _error; /* error structure */
     private XmlItemInfoList _itemInfoList; /* item information list from XML file */
@@ -200,12 +217,19 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     private TunnelStreamInfo _tunnelStreamInfo;
     protected JsonConverterSession		_jsonConverterSession;				// Use the converter library to converter between JSON and RWF messages.
 
+    private ObjectMapper		_jsonObjectMapper;
+    private JsonGenerator		_jsonGenerator;
+    private ByteBufferInputStream	_jsonInputStream;
+    private ByteBufferOutputStream	_jsonOutputStream;
+
     {
     	_eIter = CodecFactory.createEncodeIterator();
     	_dIter = CodecFactory.createDecodeIterator();
     	_responseMsg = CodecFactory.createMsg();
         _loginHandler = new LoginHandler();
+        _loginHandlerJson = new LoginHandlerJson();
         _srcDirHandler = new DirectoryHandler();
+        _srcDirHandlerJson = new DirectoryHandlerJson();
         _dictionaryHandler = new DictionaryHandler();
         _pingHandler = new PingHandler();
         _inProg = TransportFactory.createInProgInfo();
@@ -242,6 +266,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 		_msgData = msgData;
 		_itemEncoder = new ItemEncoder(msgData);
 		_marketPriceDecoder = new MarketPriceDecoder(_postUserInfo);
+		_marketPriceDecoderJson = new MarketPriceDecoderJson(_postUserInfo);
         
         _reactorOptions = ReactorFactory.createReactorOptions();
         _role = ReactorFactory.createConsumerRole();
@@ -608,7 +633,25 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 
                 if (initializeJsonSession() != CodecReturnCodes.SUCCESS) {
                     closeChannelAndShutDown("RWF/JSON Converter failed: " + _error.text());
-                    return;
+                }
+
+                if (_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && !_consPerfConfig.convertJSON())
+                {
+                    _jsonInputStream = new ByteBufferInputStream();
+                    _jsonOutputStream = new ByteBufferOutputStream();
+
+                    _jsonObjectMapper = new ObjectMapper();
+                    _jsonObjectMapper.enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS.mappedFeature());
+
+                    try
+                    {
+                        _jsonGenerator = _jsonObjectMapper.getFactory().createGenerator(_jsonOutputStream);
+                    }
+                    catch (IOException e)
+                    {
+                        closeChannelAndShutDown("JSON Generator failed");
+                        return;
+                    }
                 }
     
                 // set service name in directory handler
@@ -622,13 +665,26 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                 } 
                 System.out.printf("Channel active. " + _chnlInfo.toString() + "\n");
                 
-                // set login parameters
-                _loginHandler.applicationName("ConsPerf");
-                _loginHandler.userName(_consPerfConfig.username());
-                _loginHandler.role(Login.RoleTypes.CONS);
+                TransportBuffer msg = null;
+
+                if (_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && !_consPerfConfig.convertJSON())
+                {
+                    // Send login request message
+                    // .applicationName and .role are fixed parts of JSON message here
+                    msg = _loginHandlerJson.getRequestMsg(_channel, _error, _consPerfConfig.username(),
+                                                          _jsonObjectMapper, _jsonGenerator, _jsonOutputStream);
+                }
+                else
+                {
+                    // set login parameters
+                    _loginHandler.applicationName("ConsPerf");
+                    _loginHandler.userName(_consPerfConfig.username());
+                    _loginHandler.role(Login.RoleTypes.CONS);
+
+                    msg = _loginHandler.getRequestMsg(_channel, _error, _eIter);
+                }
 
                 // Send login request message
-                TransportBuffer msg = _loginHandler.getRequestMsg(_channel, _error, _eIter);
                 if (msg != null)
                 {
                     write(msg);
@@ -723,7 +779,16 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     }
                     else
                     {
-                    	if ((ret = sendBursts(currentTicks, service)) < TransportReturnCodes.SUCCESS)
+                        if (_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && !_consPerfConfig.convertJSON())
+                    	{
+                    		ret = sendBurstsJson(currentTicks, _srcDirHandlerJson.serviceId(), _srcDirHandlerJson.serviceQos());
+                    	}
+                    	else
+                    	{
+                    		ret = sendBursts(currentTicks, service);
+                    	}
+
+                    	if (ret < TransportReturnCodes.SUCCESS)
                     	{
                     		if (ret != TransportReturnCodes.NO_BUFFERS)
                     		{
@@ -964,7 +1029,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             _writeArgs.priority(WritePriorities.HIGH);
             _writeArgs.flags(WriteFlags.DIRECT_SOCKET_WRITE);
             
-            if(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+            if(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && _consPerfConfig.convertJSON())
             {
             	TransportBuffer convertedMsgBuffer = null;
             	int ret = 0;
@@ -1142,6 +1207,12 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         int numConverted = 0;
 		
         do {
+
+			if(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && !_consPerfConfig.convertJSON())
+        		{
+				processResponseJson(buffer);
+				return;
+			}
         	
         	// clear decode iterator
         	_dIter.clear();
@@ -1150,7 +1221,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         	if(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE)
         	{
         		origBuffer = buffer;
-        		
+
         		if((cRet = _jsonConverterSession.convertFromJsonMessage(_channel,
         				(numConverted == 0 ? origBuffer : null), _error)) == CodecReturnCodes.FAILURE)
         		{
@@ -1213,6 +1284,214 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         
         } while(_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && cRet != CodecReturnCodes.END_OF_CONTAINER);
     }
+
+
+	public static final String DOMAIN_STR_LOGIN = "Login";
+	public static final String DOMAIN_STR_SOURCE = "Source";
+	public static final String DOMAIN_STR_DICTIONARY = "Dictionary";
+	public static final String DOMAIN_STR_MARKET_PRICE = "MarketPrice";
+
+	static final String UPDATE_STR = "Update";
+	static final String GENERIC_STR = "Generic";
+	static final String REFRESH_STR = "Refresh";
+	static final String REQUEST_STR = "Request";
+	static final String POST_STR = "Post";
+	static final String STATUS_STR = "Status";
+	static final String CLOSE_STR = "Close";
+	static final String ACK_STR = "Ack";
+	static final String PING_STR = "Ping";
+	static final String PONG_STR = "Pong";
+
+	static final String JSON_PONG_MESSAGE = "{\"Type\":\"Pong\"}";
+
+	int sendJsonMessage(Channel channel, TransportBuffer buffer, int wrtFlags, Error error)
+	{
+		int ret = TransportReturnCodes.SUCCESS;
+		WriteArgs writeArgs = TransportFactory.createWriteArgs();
+		writeArgs.flags(wrtFlags);
+
+		ret = channel.write(buffer, writeArgs, error);
+
+		while (ret == TransportReturnCodes.WRITE_CALL_AGAIN)
+		{
+			if ((ret = channel.flush(error)) < TransportReturnCodes.SUCCESS)
+			{
+				error.text("rsslFlush() failed with error text: " + error.text());
+				return ret;
+			}
+
+			ret = channel.write(buffer, writeArgs, error);
+		}
+
+		if(ret != TransportReturnCodes.SUCCESS)
+		{
+			error.text("rsslWrite() failed with error text: " + error.text());
+		}
+
+		return ret;
+	}
+
+    /** Parse JSON message. */
+	public JsonNode parseJsonMessage(TransportBuffer buffer)
+	{
+		try {
+			ByteBuffer data = buffer.data();
+			_jsonInputStream.setByteBuffer(data, buffer.dataStartPosition(), data.limit());
+			return _jsonObjectMapper.readTree(_jsonInputStream);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+    /** Parse JSON message. */
+	public JsonNode parseJsonMessage(JsonNode jsonNode)
+	{
+		_responseMsg.clear();
+
+		JsonNode typeNode = jsonNode.path("Type");
+		if (typeNode == null || typeNode.textValue() == null)
+		{
+			System.out.println("No MsgType.");
+			return null;
+		}
+
+		switch (typeNode.textValue()) {
+		case UPDATE_STR:
+			_responseMsg.msgClass(MsgClasses.UPDATE);
+			break;
+		case GENERIC_STR:
+			_responseMsg.msgClass(MsgClasses.GENERIC);
+			break;
+		case REFRESH_STR:
+			_responseMsg.msgClass(MsgClasses.REFRESH);
+			break;
+		case REQUEST_STR:
+			_responseMsg.msgClass(MsgClasses.REQUEST);
+			break;
+		case POST_STR:
+			_responseMsg.msgClass(MsgClasses.POST);
+			break;
+		case STATUS_STR:
+			_responseMsg.msgClass(MsgClasses.STATUS);
+			break;
+		case CLOSE_STR:
+			_responseMsg.msgClass(MsgClasses.CLOSE);
+			break;
+		case ACK_STR:
+			_responseMsg.msgClass(MsgClasses.ACK);
+			break;
+		case PING_STR:
+		{
+			System.out.println("Ping");
+			TransportBuffer buffer = _channel.getBuffer(JSON_PONG_MESSAGE.length(), false, _error);
+			if(Objects.nonNull(buffer))
+			{
+				buffer.data().put(JSON_PONG_MESSAGE.getBytes());
+	
+				int ret = sendJsonMessage(_channel, buffer, WriteFlags.DIRECT_SOCKET_WRITE, _error);
+				if( ret != TransportReturnCodes.FAILURE )
+				{
+					ret = TransportReturnCodes.READ_PING;
+				}
+			}
+			else
+			{
+				int ret = TransportReturnCodes.FAILURE;
+				_error.channel(_channel);
+				_error.errorId(CodecReturnCodes.FAILURE);
+				_error.sysError(0);
+				_error.text("Failed to get buffer for Ping response : " + _error.text());
+			}
+			return null;
+		}
+		case PONG_STR:
+			System.out.println("Pong");
+			return null;
+		default:
+			System.out.println("Bad MsgType: " + typeNode.textValue());
+			return null;
+		}
+
+		JsonNode domainNode = jsonNode.path("Domain");
+		if (domainNode != null && domainNode.textValue() != null)
+		{
+			switch (domainNode.textValue()) {
+			case DOMAIN_STR_LOGIN:
+				_responseMsg.domainType(DomainTypes.LOGIN);
+				break;
+			case DOMAIN_STR_SOURCE:
+				_responseMsg.domainType(DomainTypes.SOURCE);
+				break;
+			case DOMAIN_STR_DICTIONARY:
+				_responseMsg.domainType(DomainTypes.DICTIONARY);
+				break;
+			case DOMAIN_STR_MARKET_PRICE:
+				_responseMsg.domainType(DomainTypes.MARKET_PRICE);
+				break;
+			default:
+				System.out.println("Bad Domain: " + domainNode.textValue());
+				return null;
+			}
+		}
+		else
+		{
+			_responseMsg.domainType(DomainTypes.MARKET_PRICE);
+		}
+
+		return jsonNode;
+	}
+
+    /** Process JSON message. */
+	public void processJsonMessage(JsonNode jsonNode)
+	{
+		if (parseJsonMessage(jsonNode) != null)
+		{
+			switch (_responseMsg.domainType())
+			{
+				case DomainTypes.LOGIN:
+					processLoginRespJson(jsonNode);
+					break;
+				case DomainTypes.SOURCE:
+					processSourceDirectoryRespJson(jsonNode);
+					break;
+				case DomainTypes.DICTIONARY:
+					processDictionaryRespJson(_responseMsg, jsonNode);
+					break;
+				case DomainTypes.MARKET_PRICE:
+					processMarketPriceRespJson(_responseMsg, jsonNode);
+					break;
+				default:
+					System.out.println("Unhandled Domain Type: " + _responseMsg.domainType());
+					break;
+			}
+		}
+	}
+
+    /** Process transport response. */
+	public void processResponseJson(TransportBuffer buffer)
+	{
+		JsonNode root = parseJsonMessage(buffer);
+		if (root.isObject())
+		{
+			processJsonMessage(root);
+		}
+		else if (root.isArray())
+		{
+			for (final JsonNode node : root)
+			{
+				if (root.isObject())
+				{
+					System.out.println("JSON not Object");
+					continue;
+				}
+				processJsonMessage(node);
+			}
+		}
+		else
+		{
+			closeChannelAndShutDown("Error in JSON parsing: JSON not Object not Array.");
+		}
+	}
     
     /* Process login response. */
     private void processLoginResp()
@@ -1259,6 +1538,53 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         }
     }
     
+    /* Process login response JSON. */
+    private void processLoginRespJson(JsonNode jsonNode)
+    {
+        int ret = _loginHandlerJson.processResponse(_responseMsg, jsonNode, _error);
+        if (ret != CodecReturnCodes.SUCCESS)
+            if (ret != CodecReturnCodes.SUCCESS)
+            {
+            	closeChannelAndShutDown(_error.text());
+        		return;
+            }
+
+        if (_responseMsg.msgClass() == MsgClasses.REFRESH)
+        {
+        	if (_consPerfConfig.postsPerSec() > 0 &&
+        			(!_loginHandlerJson.refreshInfo().checkHasFeatures() ||
+        					!_loginHandlerJson.refreshInfo().features().checkHasSupportPost() ||
+        					_loginHandlerJson.refreshInfo().features().supportOMMPost() == 0))
+        	{
+        		closeChannelAndShutDown("Provider for this connection does not support posting.");
+        		return;
+        	}
+        }
+
+        //Handle login states
+        ConsumerLoginState loginState = _loginHandlerJson.loginState();
+        if (loginState == ConsumerLoginState.OK_SOLICITED)
+        {
+            _srcDirHandlerJson.serviceName(_consPerfConfig.serviceName());
+            TransportBuffer buffer = _srcDirHandlerJson.getRequest(_channel, _error,
+                                                                   _jsonObjectMapper, _jsonGenerator, _jsonOutputStream);
+            if (buffer != null)
+            {
+            	write(buffer);
+            }
+            else
+            {
+            	closeChannelAndShutDown("Error sending directory request: " + _error.text());
+        		return;
+            }
+        }
+        else
+        {
+        	closeChannelAndShutDown("Invalid login state : " + loginState);
+    		return;
+        }
+    }
+
     //process source directory response.
     private void processSourceDirectoryResp()
     {
@@ -1281,6 +1607,41 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
             else // dictionaries not loaded yet
             {
                 sendDictionaryRequests(_channel, _srcDirHandler.serviceInfo());
+            }
+        }
+        else
+        {
+            // service not up or
+            // previously up service went down
+            _requestsSent = false;
+
+            System.out.println("Requested service '" + _consPerfConfig.serviceName() + "' not up. Waiting for service to be up...");
+        }
+    }
+
+    //process source directory response JSON.
+    private void processSourceDirectoryRespJson(JsonNode jsonNode)
+    {
+        int ret = _srcDirHandlerJson.processResponse(_channel, _responseMsg, jsonNode, _error);
+        if (ret != CodecReturnCodes.SUCCESS)
+        {
+        	closeChannelAndShutDown(_error.text());
+    		return;
+        }
+
+        if (_srcDirHandlerJson.isRequestedServiceUp())
+        {
+            if (isDictionariesLoaded())
+            {
+                _consThreadInfo.dictionary(_dictionaryHandler.dictionary());
+                System.out.println("Dictionary ready, requesting item(s)...\n");
+
+                _requestsSent = true;
+            }
+            else // dictionaries not loaded yet
+            {
+                closeChannelAndShutDown("JSON dictionary request not supported");
+                return;
             }
         }
         else
@@ -1384,6 +1745,12 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         }
     }
     
+    /* Process dictionary response JSON. */
+    private void processDictionaryRespJson(Msg responseMsg, JsonNode jsonNode)
+    {
+        closeChannelAndShutDown("Processing dictionary response JSON not implemented.");
+    }
+
     //process market price response.
     private void processMarketPriceResp(Msg responseMsg, DecodeIterator dIter)
     {
@@ -1524,6 +1891,183 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     	}
     }
     
+	private boolean jsonIsRefreshStateFinal(JsonNode jsonNode)
+	{
+		JsonNode stateNode = jsonNode.get("State");
+		JsonNode streamNode = stateNode.get("Stream");
+		return (!streamNode.textValue().equals("Open"));
+	}
+
+	private boolean jsonRefreshMsgDataStateOK(JsonNode jsonNode)
+	{
+		JsonNode stateNode = jsonNode.get("State");
+		JsonNode dataNode = stateNode.get("Data");
+		return (dataNode.textValue().equals("Ok"));
+	}
+
+	private boolean jsonIsRefreshComplete(JsonNode jsonNode)
+	{
+		JsonNode node = jsonNode.get("Complete");
+		if(node == null) {
+			return true;
+		}
+		else if(node.isBoolean()) {
+			return node.booleanValue();
+		}
+		else if(node.isTextual() && node.asText().equals("false")) {
+			return false;
+		}
+		else if(node.isInt() && node.asInt() == 0) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	private int jsonStreamId(JsonNode jsonNode)
+	{
+		int id = 0;
+		JsonNode node = jsonNode.get("ID");
+		if(node.isInt()) {
+			id = node.asInt();
+		}
+
+		return id;
+	}
+
+	private String streamStateToString(JsonNode jsonNode)
+	{
+		JsonNode stateNode = jsonNode.get("State");
+		return stateNode.toString();
+	}
+
+	private String msgKeyNameToString(JsonNode jsonNode)
+	{
+		JsonNode keyNode = jsonNode.get("Key");
+		return keyNode.toString();
+	}
+
+	//process market price response JSON.
+	private void processMarketPriceRespJson(Msg responseMsg, JsonNode jsonNode)
+	{
+		int ret = CodecReturnCodes.SUCCESS;
+		int msgClass = responseMsg.msgClass();
+		int streamId = jsonStreamId(jsonNode);
+
+		switch (msgClass)
+		{
+		case MsgClasses.REFRESH:
+			_consThreadInfo.stats().refreshCount().increment();
+
+			//If we are still retrieving images, check if this item still needs one.
+			if ((ret = _marketPriceDecoderJson.decodeUpdate(jsonNode, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
+			{
+				closeChannelAndShutDown("Decoding failure: " + ret);
+				return;
+			}
+			if (_consThreadInfo.stats().imageRetrievalEndTime() == 0)
+			{
+				if (jsonIsRefreshStateFinal(jsonNode))
+				{
+					closeChannelAndShutDown("Received unexpected final state in refresh for item: " +
+						streamStateToString(jsonNode) +
+						msgKeyNameToString(jsonNode));
+					return;
+				}
+
+				if (jsonIsRefreshComplete(jsonNode))
+				{
+					if (_consPerfConfig.primeJVM() == false)
+					{
+						if (jsonRefreshMsgDataStateOK(jsonNode))
+						{
+							_itemRequestList[streamId].requestState(ItemRequestState.HAS_REFRESH);
+							_consThreadInfo.stats().refreshCompleteCount().increment();
+							if (_consThreadInfo.stats().refreshCompleteCount().getTotal() == (_requestListSize - ITEM_STREAM_ID_START))
+							{
+								_consThreadInfo.stats().imageRetrievalEndTime(System.nanoTime());
+								_consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
+							}
+						}
+					}
+					else // JVM priming enabled
+					{
+						// Count snapshot images used for priming, ignoring state
+						if (_JVMPrimingRefreshCount < (_requestListSize - ITEM_STREAM_ID_START))
+						{
+							_JVMPrimingRefreshCount++;
+							// reset request state so items can be re-requested
+							_itemRequestList[streamId].requestState(ItemRequestState.NOT_REQUESTED);
+							if (_JVMPrimingRefreshCount == (_requestListSize - ITEM_STREAM_ID_START))
+							{
+								// reset request count and _requestListIndex so items can be re-requested
+								//set the image retrieval start time
+								_consThreadInfo.stats().requestCount().init();
+								_consThreadInfo.stats().refreshCompleteCount().init();
+								_consThreadInfo.stats().refreshCount().init();
+								_requestListIndex = ITEM_STREAM_ID_START;
+							}
+						}
+						else // the streaming image responses after priming
+						{
+							if (jsonRefreshMsgDataStateOK(jsonNode))
+							{
+								_itemRequestList[streamId].requestState(ItemRequestState.HAS_REFRESH);
+								_consThreadInfo.stats().refreshCompleteCount().increment();
+								if (_consThreadInfo.stats().refreshCompleteCount().getTotal() == (_requestListSize - ITEM_STREAM_ID_START))
+								{
+									_consThreadInfo.stats().imageRetrievalEndTime(System.nanoTime());
+									_consThreadInfo.stats().steadyStateLatencyTime(_consThreadInfo.stats().imageRetrievalEndTime() + _consPerfConfig.delaySteadyStateCalc() * 1000000L);
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		case MsgClasses.UPDATE:
+			if (_consThreadInfo.stats().imageRetrievalEndTime() > 0)
+			{
+				_consThreadInfo.stats().steadyStateUpdateCount().increment();
+			}
+			else
+			{
+				_consThreadInfo.stats().startupUpdateCount().increment();
+			}
+			if (_consThreadInfo.stats().firstUpdateTime() == 0)
+				_consThreadInfo.stats().firstUpdateTime(System.nanoTime());
+			if ((ret = _marketPriceDecoderJson.decodeUpdate(jsonNode, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
+			{
+				closeChannelAndShutDown("Decoding failure: " + ret);
+				return;
+			}
+			break;
+		case MsgClasses.GENERIC:
+			_consThreadInfo.stats().genMsgRecvCount().increment();
+			if ((ret = _marketPriceDecoderJson.decodeUpdate(jsonNode, responseMsg, _consThreadInfo)) != CodecReturnCodes.SUCCESS)
+			{
+				closeChannelAndShutDown("Decoding failure: " + ret);
+				return;
+			}
+			break;
+		case MsgClasses.STATUS:
+			_consThreadInfo.stats().statusCount().increment();
+
+			if (jsonIsRefreshStateFinal(jsonNode))
+			{
+				closeChannelAndShutDown("Received unexpected final state for item: " +
+					streamStateToString(jsonNode) +
+					_itemRequestList[streamId].itemName());
+				return;
+			}
+
+			break;
+		default:
+			break;
+		}
+	}
+
     //sends a burst of item requests.
     private int sendItemRequestBurst(int itemBurstCount, Service service)
     {
@@ -1593,6 +2137,85 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     	return TransportReturnCodes.SUCCESS;
     }
     
+	//sends a burst of item requests.
+	private int sendItemRequestBurstJson(int itemBurstCount, int serviceId, Qos qos)
+	{
+		int ret;
+
+		for (int i = 0; i < itemBurstCount; ++i)
+		{
+			ItemRequest itemRequest;
+
+			if (_requestListIndex == _requestListSize)
+				return TransportReturnCodes.SUCCESS;
+
+			itemRequest = _itemRequestList[_requestListIndex];
+
+			//Encode request msg.
+			_requestMsg.msgClass(MsgClasses.REQUEST);
+			//don't apply streaming for JVM priming and snapshot
+			if (_consPerfConfig.requestSnapshots() == false &&
+				((itemRequest.itemInfo().itemFlags() & ItemFlags.IS_STREAMING_REQ) > 0) &&
+				((_consPerfConfig.primeJVM() == false) ||
+				(_consPerfConfig.primeJVM() == true &&
+					_JVMPrimingRefreshCount == (_requestListSize - ITEM_STREAM_ID_START))))
+			{
+				_requestMsg.applyStreaming();
+			}
+
+			if (qos != null)
+			{
+				_requestMsg.applyHasQos();
+				_requestMsg.qos().dynamic(qos.isDynamic());
+				_requestMsg.qos().rate(qos.rate());
+				_requestMsg.qos().rateInfo(qos.rateInfo());
+				_requestMsg.qos().timeInfo(qos.timeInfo());
+				_requestMsg.qos().timeliness(qos.timeliness());
+			}
+
+			/* get a buffer for the login request */
+			TransportBuffer msgBuf = _channel.getBuffer(512 /*TRANSPORT_BUFFER_SIZE_REQUEST*/, false, _error);
+			if (msgBuf == null)
+				return TransportReturnCodes.NO_BUFFERS;
+
+			_jsonOutputStream.setByteBuffer(msgBuf.data());
+
+			ObjectMapper mapper = _jsonObjectMapper;
+			JsonGenerator generator = _jsonGenerator;
+
+			// [{"ID":6,"Type":"Request","KeyInUpdates":false,"Qos":{"Timeliness":"Realtime","Rate":"TickByTick"},"Key":{"Service":1,"Name":"RDT1"}}]
+			ObjectNode json = mapper.createObjectNode()
+				.put("ID", Integer.valueOf(itemRequest.itemInfo().streamId()))
+				.put("Type", "Request")
+				.put("KeyInUpdates", Boolean.FALSE)
+				.set("Qos", mapper.createObjectNode()
+					.put("Timeliness", "Realtime")
+					.put("Rate", "TickByTick"));
+
+			json.set("Key", mapper.createObjectNode()
+				.put("Service", Integer.valueOf(serviceId))
+				.put("Name", itemRequest.msgKey().name().toString()));
+			try
+			{
+				mapper.writeTree(generator, json);
+			}
+			catch (IOException e)
+			{
+				return TransportReturnCodes.FAILURE;
+			}
+
+			write(msgBuf);
+
+			//request has been made.
+			itemRequest.requestState(ItemRequestState.WAITING_FOR_REFRESH);
+
+			_requestListIndex++;
+			_consThreadInfo.stats().requestCount().increment();
+		}
+
+		return TransportReturnCodes.SUCCESS;
+	}
+
     //sends a burst of post messages. 
 	private int sendPostBurst(int itemBurstCount)
 	{
@@ -1657,6 +2280,20 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 		}
 
 		return TransportReturnCodes.SUCCESS;
+	}
+
+	private boolean isSendPostBurstJson = true;
+
+	// sends a burst of post messages JSON.
+	private int sendPostBurstJson(int itemBurstCount)
+	{
+		// to show the message only once
+		if (isSendPostBurstJson)
+		{
+			System.out.printf("It is not supported to send JSON generic messages.\n");
+			isSendPostBurstJson = false;
+		}
+	    	return TransportReturnCodes.SUCCESS;
 	}
 
 	// sends a burst of generic messages.
@@ -1725,6 +2362,20 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 		}
 
     	return TransportReturnCodes.SUCCESS;
+	}
+
+	private boolean isSendGenMsgBurstJson = true;
+
+	// sends a burst of generic messages JSON.
+	private int sendGenMsgBurstJson(int itemBurstCount)
+	{
+		// to show the message only once
+		if (isSendGenMsgBurstJson)
+		{
+			System.out.printf("It is not supported to send JSON generic messages.\n");
+			isSendGenMsgBurstJson = false;
+		}
+	    	return TransportReturnCodes.SUCCESS;
 	}
 
     //retrieves next post item information to send.
@@ -2053,6 +2704,75 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 				if ((ret = sendGenMsgBurst((int) (_genMsgsPerTick + ((currentTicks < _genMsgsPerTickRemainder) ? 1 : 0)))) < TransportReturnCodes.SUCCESS) 
 				{
 					if (ret != TransportReturnCodes.NO_BUFFERS) 
+					{
+						_shutdownCallback.shutdown();
+					}
+					return ret;
+				}
+			}
+		}
+
+		return TransportReturnCodes.SUCCESS;
+	}
+
+	// send item requests, post bursts and or generic msg bursts.
+	private int sendBurstsJson(int currentTicks, int serviceId, Qos qos)
+	{
+		int ret = TransportReturnCodes.SUCCESS;
+
+		//send item requests until all sent
+		if (_consThreadInfo.stats().requestCount().getTotal() < (_requestListSize - ITEM_STREAM_ID_START))
+		{
+			int requestBurstCount;
+
+			requestBurstCount = _consPerfConfig.requestsPerTick();
+			if (currentTicks > _consPerfConfig.requestsPerTickRemainder())
+				++requestBurstCount;
+
+			if (_consThreadInfo.stats().imageRetrievalStartTime() == 0)
+			{
+				if (!_consPerfConfig.primeJVM())
+				{
+					_consThreadInfo.stats().imageRetrievalStartTime(System.nanoTime());
+				}
+				else
+				{
+					if (_JVMPrimingRefreshCount == (_requestListSize - ITEM_STREAM_ID_START))
+					{
+						_consThreadInfo.stats().imageRetrievalStartTime(System.nanoTime());
+					}
+				}
+			}
+
+			if ((ret = sendItemRequestBurstJson(requestBurstCount, serviceId, qos)) < TransportReturnCodes.SUCCESS)
+			{
+				if (ret != TransportReturnCodes.NO_BUFFERS)
+				{
+					_shutdownCallback.shutdown();
+				}
+				return ret;
+			}
+		}
+
+		// send bursts of posts and or generic msgs
+		if (_consThreadInfo.stats().imageRetrievalEndTime() > 0)
+		{
+			if (_consPerfConfig.postsPerSec() > 0 && _postItemCount > 0)
+			{
+				if ((ret = sendPostBurstJson((int)(_postsPerTick + ((currentTicks < _postsPerTickRemainder) ? 1 : 0)))) < TransportReturnCodes.SUCCESS)
+				{
+					if (ret != TransportReturnCodes.NO_BUFFERS)
+					{
+						_shutdownCallback.shutdown();
+					}
+					return ret;
+				}
+			}
+			if (_consPerfConfig.genMsgsPerSec() > 0 && _genMsgItemCount > 0)
+			{
+				if ((ret = sendGenMsgBurstJson((int)(_genMsgsPerTick + ((currentTicks < _genMsgsPerTickRemainder) ? 1 : 0)))) < TransportReturnCodes.SUCCESS)
+				{
+					if (ret != TransportReturnCodes.NO_BUFFERS)
 					{
 						_shutdownCallback.shutdown();
 					}

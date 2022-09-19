@@ -77,6 +77,8 @@ public class ConsPerfConfig
 	private String _keypasswd = null;		/* password for encrypted keyfile */
 	private boolean _calcRWFJSONConversionLatency; /* If set, the application will caluclate time spent on rwf-to-json conversion for WebSocket RWF protocol */
 
+	private boolean _convertJSON; /* If set, the application will do rwf-to-json conversion for WebSocket JSON protocol */
+
     {
         CommandLine.programName("ConsPerf");
         CommandLine.addOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
@@ -123,6 +125,7 @@ public class ConsPerfConfig
         CommandLine.addOption("keypasswd", "", "Keystore password");        
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
      	CommandLine.addOption("calcRWFJSONConversionLatency", false, "Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF");
+     	CommandLine.addOption("addConversionOverhead", false, "Enable JSON to RWF conversion");
     }
 	
     /**
@@ -230,6 +233,9 @@ public class ConsPerfConfig
         	_latencyGenMsgsPerSec = CommandLine.intValue("genericMsgLatencyRate");
         	_calcRWFJSONConversionLatency = (_connectionType == ConnectionTypes.WEBSOCKET || _encryptedConnType == ConnectionTypes.WEBSOCKET)
 					&& CommandLine.booleanValue("calcRWFJSONConversionLatency");
+
+                _convertJSON = (_connectionType == ConnectionTypes.WEBSOCKET || _encryptedConnType == ConnectionTypes.WEBSOCKET)
+					&& CommandLine.booleanValue("addConversionOverhead");
         }
         catch (NumberFormatException ile)
         {
@@ -366,6 +372,13 @@ public class ConsPerfConfig
 			System.exit(-1);
 		}
 
+		if(!_convertJSON && (_useReactor || _useWatchlist))
+		{
+			System.err.println("Config Error: Should not combine -addConversionOverhead and -reactor or -watchlist.\n");
+			System.out.println(CommandLine.optionHelpString());
+			System.exit(-1);
+		}
+
 		_requestsPerTick = _itemRequestsPerSec / _ticksPerSec;
 
 		_requestsPerTickRemainder = _itemRequestsPerSec % _ticksPerSec;
@@ -424,6 +437,7 @@ public class ConsPerfConfig
             "                 Stats File: " + _statsFilename + "\n" +
             "           Latency Log File: " + (_latencyLogFilename.length() > 0 ? _latencyLogFilename : "(none)") + "\n" +
             "     Latency Show JSON Conv: " + (_calcRWFJSONConversionLatency ? "Yes" : "No") + "\n" +
+            "         Use JSON Converter: " + (_convertJSON ? "Yes" : "No") + "\n" +
             "                  Tick Rate: " + _ticksPerSec + "\n" +
 	        "                  Prime JVM: " + (_primeJVM ? "Yes" : "No") + "\n" +
             "    Reactor/Watchlist Usage: " + reactorWatchlistUsageString + "\n" +
@@ -916,6 +930,14 @@ public class ConsPerfConfig
 	 */
 	public boolean calcRWFJSONConversionLatency() {
 		return _calcRWFJSONConversionLatency;
+	}
+
+	/**
+	 * If set, the application will do rwf-to-json conversion for WebSocket RWF protocol
+	 * @return the flag for the rwf-json conversion.
+	 */
+	public boolean convertJSON() {
+		return _convertJSON;
 	}
 
 }
