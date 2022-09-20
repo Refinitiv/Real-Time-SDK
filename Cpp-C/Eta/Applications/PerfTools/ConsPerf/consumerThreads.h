@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
 */
 
 /* consumerThreads.h
@@ -207,6 +207,12 @@ typedef struct {
 	RsslBool				tunnelMessagingEnabled;		/* Whether to create tunnel for sending messages. */
 	char					tunnelStreamServiceName[128];	/* Service name requested by application. */
 	PerfTunnelMsgHandler	perfTunnelMsgHandler;		/* The handler for exchanging messages through a tunnel stream.  */
+
+	RsslBool loggedIn;
+
+	RsslUInt			jsonDesiredServiceId;		/* Store information about the desired service once we find it. */
+	void*				jsonAllocatorPtr;			/* Store pointer to the cJSON Allocator buffer */
+	size_t				jsonAllocatorSize;			/* Store size of the cJSON Allocator buffer */
 } ConsumerThread;
 
 /* Shorthand for consumerThread's RsslError struct. */

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
 */
 
 /* consPerfConfig.h
@@ -98,6 +98,9 @@ typedef struct
 	char				standbyHostName[255];		/* Specify a standby server hostname for warm standby feature. See -standbyHostName.*/
 	char				standbyPort[255];			/* Specify a standby server port for warm standby feature. See -standbyPort.*/
 	RsslReactorWarmStandbyMode	warmStandbyMode;	/* Specify a warm standby mode. See -warmStandbyMode. */
+
+	RsslBool	convertJSON;		/* do JSON conversion. */
+	RsslUInt32	jsonAllocatorSize;	/* Specify size of the cJSON Allocator buffer */
 } ConsPerfConfig;
 
 /* Contains the global application configuration */

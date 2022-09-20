@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
 */
 
 #include "consumerThreads.h"
@@ -35,6 +35,9 @@
 #include <unistd.h>
 #endif
 
+#include <cjson/cJSON.h>
+#include "jsonHandler.h"
+
 #define LATENCY_RANDOM_ARRAY_SET_COUNT 20
 
 //uncomment the following line for debugging only - this will greatly affect performance
@@ -52,6 +55,61 @@ static RsslBuffer applicationName = { 8, (char*)"ConsPerf" } ;
 RsslPostUserInfo postUserInfo;
 
 RsslBool shutdownThreads = RSSL_FALSE;
+
+#ifdef _WIN32
+#define CJSON_TLS_INDEX_PTR 1
+#define CJSON_TLS_INDEX_SIZE 2
+void RTR_C_INLINE SET_CJSON_ALLOCATOR(void * ptr, size_t sz)
+{
+	TlsSetValue(CJSON_TLS_INDEX_PTR, ptr);
+	TlsSetValue(CJSON_TLS_INDEX_SIZE, (LPVOID)sz);
+}
+
+static void * cJSON_malloc_fn(size_t sz)
+{
+	void * lpvData = TlsGetValue(CJSON_TLS_INDEX_PTR);
+	size_t size = (size_t)TlsGetValue(CJSON_TLS_INDEX_SIZE);
+	if (sz > size)
+		return NULL;
+	char * new_ptr = (char*)(lpvData);
+	new_ptr += sz;
+	size -= sz;
+	SET_CJSON_ALLOCATOR(new_ptr, size);
+	return lpvData;
+}
+#else
+static __thread void* jsonTlsPtr = NULL;
+static __thread size_t jsonTlsSize = 0;
+void RTR_C_INLINE SET_CJSON_ALLOCATOR(void * ptr, size_t sz)
+{
+	jsonTlsPtr = ptr;
+	jsonTlsSize = sz;
+}
+
+static void * cJSON_malloc_fn(size_t sz)
+{
+	void * lpvData = jsonTlsPtr;
+	size_t size = jsonTlsSize;
+	if (sz > size)
+		return NULL;
+	char * new_ptr = (char*)(lpvData);
+	new_ptr += sz;
+	size -= sz;
+	SET_CJSON_ALLOCATOR(new_ptr, size);
+	return lpvData;
+}
+#endif
+
+static void cJSON_free_fn(void *ptr)
+{
+	/*	It's simple continuous allocator that will 'forget' everything at once
+		by moving the current pointer back to the start of the buffer.
+		See: RESET_CJSON_ALLOCATOR()
+		So it does not need to call cJSON_Delete() and that's why free() function
+		hook is empty. */
+}
+
+#define RESET_CJSON_ALLOCATOR() SET_CJSON_ALLOCATOR(pConsumerThread->jsonAllocatorPtr, pConsumerThread->jsonAllocatorSize);
 
 RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorChannelEvent *pConnEvent);
 RsslReactorCallbackRet loginMsgCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslRDMLoginMsgEvent *pLoginMsgEvent);
@@ -141,6 +199,36 @@ RsslRet RTR_C_INLINE decodePayload(RsslDecodeIterator* dIter, RsslMsg *msg, Cons
 	}
 }
 
+RsslRet RTR_C_INLINE decodePayloadJson(ConsumerThread* pConsumerThread, RsslDomainTypes rsslDomainType, RsslMsgClasses rsslMsgClass, cJSON* json)
+{
+	RsslRet ret;
+
+	switch (rsslDomainType)
+	{
+	case RSSL_DMT_MARKET_PRICE:
+		if ((ret = decodeMPUpdateJson(pConsumerThread, rsslMsgClass, json)) != RSSL_RET_SUCCESS)
+		{
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+				(char*)"decodeMPUpdate() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+			return ret;
+		}
+		return RSSL_RET_SUCCESS;
+	case RSSL_DMT_MARKET_BY_ORDER:
+		if ((ret = decodeMBOUpdateJson(pConsumerThread, rsslMsgClass, json) != RSSL_RET_SUCCESS))
+		{
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+				(char*)"decodeMBOUpdate() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+			return ret;
+		}
+		return RSSL_RET_SUCCESS;
+	default:
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			(char*)"decodePayloadJson(): Unhandled domain type %s(%d)",
+			rsslDomainTypeToString(rsslDomainType), rsslDomainType);
+		return RSSL_RET_FAILURE;
+	}
+}
+
 void updateTunnelStreamBufUsageStats(ConsumerThread *pConsumerThread, const char* nameMethod)
 {
 	RsslTunnelStream *pTunnelStream = pConsumerThread->perfTunnelMsgHandler.tunnelStreamHandler.pTunnelStream;
@@ -174,7 +262,7 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 
 		pBuffer = 0;
 
-		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && consPerfConfig.convertJSON == RSSL_TRUE)
 		{
 			RsslErrorInfo	eInfo;
 
@@ -222,7 +310,7 @@ RsslRet sendMessage(ConsumerThread *pConsumerThread, RsslBuffer *msgBuf)
 			rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
 			return ret;
 		}
-		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+		if ( pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && consPerfConfig.convertJSON == RSSL_TRUE )
 			rsslReleaseBuffer(msgBuf, &pConsumerThread->threadRsslError);
 	}
 	else if (pConsumerThread->tunnelMessagingEnabled == RSSL_TRUE  &&
@@ -332,6 +420,61 @@ RsslRet sendLoginRequest(ConsumerThread *pConsumerThread, RsslInt32 streamId)
 	return RSSL_RET_SUCCESS;
 }
 
+/* Sends a basic JSON Login Request on the given streamID, using the RDM package. */
+RsslRet sendLoginRequestJson(ConsumerThread *pConsumerThread, RsslInt32 streamId)
+{
+	RsslRDMLoginRequest loginRequest;
+	RsslRet ret;
+	const char *username;
+	RsslBuffer *msgBuf;
+	cJSON *json, *jsonKey, *jsonElements;
+
+	/* Send Login Request */
+	if ((ret = rsslInitDefaultRDMLoginRequest(&loginRequest, streamId)) != RSSL_RET_SUCCESS)
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			(char*)"rsslInitDefaultRDMLoginRequest() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+		return ret;
+	}
+
+	if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
+	{
+		rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+		return pConsumerThread->threadRsslError.rsslErrorId;
+	}
+
+	if (strlen(consPerfConfig.username))
+		username = consPerfConfig.username;
+	else
+		username = loginRequest.defaultUsername;
+
+	// {"ID":1,"Type":"Request","Domain":"Login","KeyInUpdates":false,"Key":{"Name":"username","Elements":{"ApplicationId":"256","ApplicationName":"ConsPerf","Position":"10.46.188.76/net","Role":0}}}
+	json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "ID", 1.);
+	cJSON_AddStringToObject(json, "Type", "Request");
+	cJSON_AddStringToObject(json, "Domain", "Login");
+	cJSON_AddFalseToObject(json, "KeyInUpdates");
+	jsonKey = cJSON_AddObjectToObject(json, "Key");
+	cJSON_AddStringToObject(jsonKey, "Name", username);
+	jsonElements = cJSON_AddObjectToObject(jsonKey, "Elements");
+	cJSON_AddStringToObject(jsonElements, "ApplicationId", loginRequest.applicationId.data);
+	cJSON_AddStringToObject(jsonElements, "ApplicationName", applicationName.data);
+	cJSON_AddStringToObject(jsonElements, "Position", loginRequest.position.data);
+	cJSON_AddNumberToObject(jsonElements, "Role", 0.);
+
+	cJSON_PrintPreallocated(json, msgBuf->data, msgBuf->length, 0);
+
+	msgBuf->length = (rtrUInt32)strnlen(msgBuf->data, 512);
+
+	//cJSON_Delete(json);
+	RESET_CJSON_ALLOCATOR();
+
+	if ((ret = sendMessage(pConsumerThread, msgBuf)) != RSSL_RET_SUCCESS)
+		return ret;
+
+	return RSSL_RET_SUCCESS;
+}
+
 /* Sends a basic Directory Request on the given streamID, using the RDM package. */
 RsslRet sendDirectoryRequest(ConsumerThread *pConsumerThread, RsslInt32 streamId)
 {
@@ -367,6 +510,50 @@ RsslRet sendDirectoryRequest(ConsumerThread *pConsumerThread, RsslInt32 streamId
 		return ret;
 
 	if ( sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
+		return ret;
+
+	return RSSL_RET_SUCCESS;
+}
+
+/* Sends a basic Directory Request on the given streamID, using the RDM package. */
+RsslRet sendDirectoryRequestJson(ConsumerThread* pConsumerThread, RsslInt32 streamId)
+{
+	RsslRDMDirectoryRequest directoryRequest;
+	RsslRet ret;
+	RsslBuffer *msgBuf;
+	cJSON *json, *jsonKey;
+
+	/* Send Directory Request */
+	if ((ret = rsslInitDefaultRDMDirectoryRequest(&directoryRequest, streamId)) != RSSL_RET_SUCCESS)
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			(char*)"rsslInitDefaultRDMDirectoryRequest() failed: %d(%s)", ret, rsslRetCodeToString(ret));
+		return ret;
+	}
+
+	if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
+	{
+		rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+		return pConsumerThread->threadRsslError.rsslErrorId;
+	}
+
+	// {"ID":2,"Type":"Request","Domain":"Source","KeyInUpdates":false,"Key":{"Filter":7}}
+	json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "ID", 2.);
+	cJSON_AddStringToObject(json, "Type", "Request");
+	cJSON_AddStringToObject(json, "Domain", "Source");
+	cJSON_AddFalseToObject(json, "KeyInUpdates");
+	jsonKey = cJSON_AddObjectToObject(json, "Key");
+	cJSON_AddNumberToObject(jsonKey, "Filter", 7.);
+
+	cJSON_PrintPreallocated(json, msgBuf->data, msgBuf->length, 0);
+
+	msgBuf->length = (rtrUInt32)strnlen(msgBuf->data, 512);
+
+	//cJSON_Delete(json);
+	RESET_CJSON_ALLOCATOR();
+
+	if (sendMessage(pConsumerThread, msgBuf) != RSSL_RET_SUCCESS)
 		return ret;
 
 	return RSSL_RET_SUCCESS;
@@ -650,6 +837,87 @@ RsslRet sendItemRequestBurst(ConsumerThread *pConsumerThread, RsslUInt32 itemBur
 	return RSSL_RET_SUCCESS;
 }
 
+RsslRet sendItemRequestBurstJson(ConsumerThread *pConsumerThread, RsslUInt32 itemBurstCount)
+{
+	RsslRet ret;
+	RsslUInt32 i;
+	RsslQos *pQos;
+	cJSON *json, *jsonKey, *jsonQos;
+	ItemRequest *pItemRequest;
+	char itemNameBuf[sizeof(pItemRequest->itemNameChar)];
+
+	/* Use a QoS from the service, if one is given. */
+	//pQos = &pConsumerThread->pDesiredService->info.qosList[0];
+	pQos = NULL;
+
+	for (i = 0; i < itemBurstCount; ++i)
+	{
+		RsslQueueLink *pLink;
+		RsslBuffer *msgBuf;
+
+		pLink = rsslQueuePeekFront(&pConsumerThread->requestQueue);
+		if (!pLink) return RSSL_RET_SUCCESS;
+
+		pItemRequest = RSSL_QUEUE_LINK_TO_OBJECT(ItemRequest, link, pLink);
+		assert(pItemRequest->requestState == ITEM_NOT_REQUESTED);
+
+		if (!(msgBuf = rsslGetBuffer(pConsumerThread->pChannel, 512, RSSL_FALSE, &pConsumerThread->threadRsslError)))
+		{
+			if (pConsumerThread->threadRsslError.rsslErrorId == RSSL_RET_BUFFER_NO_BUFFERS)
+			{
+				pConsumerThread->threadRsslError.rsslErrorId = RSSL_RET_SUCCESS;
+				return RSSL_RET_SUCCESS;
+			}
+			else
+			{
+				rsslSetErrorInfoLocation(&pConsumerThread->threadErrorInfo, __FILE__, __LINE__);
+				return pConsumerThread->threadRsslError.rsslErrorId;
+			}
+		}
+
+		// {"ID":7,"Type":"Request","KeyInUpdates":false,"Qos":{"Timeliness":"Realtime","Rate":"TickByTick"},"Key":{"Service":1,"Name":"RDT2"}}
+
+		/* Desired service has been found, so add it to the msgKey. */
+		pItemRequest->msgKey.flags |= RSSL_MKF_HAS_SERVICE_ID;
+		pItemRequest->msgKey.serviceId = (RsslUInt16)pConsumerThread->jsonDesiredServiceId;
+
+//+		if (!consPerfConfig.requestSnapshots && pItemRequest->itemInfo.itemFlags & ITEM_IS_STREAMING_REQ)
+//+			requestMsg.flags |= RSSL_RQMF_STREAMING;
+
+		json = cJSON_CreateObject();
+		cJSON_AddNumberToObject(json, "ID", (double)pItemRequest->itemInfo.StreamId);
+		cJSON_AddStringToObject(json, "Type", "Request");
+		cJSON_AddFalseToObject(json, "KeyInUpdates");
+		jsonQos = cJSON_AddObjectToObject(json, "Qos");
+		cJSON_AddStringToObject(jsonQos, "Timeliness", "Realtime");
+		cJSON_AddStringToObject(jsonQos, "Rate", "TickByTick");
+		jsonKey = cJSON_AddObjectToObject(json, "Key");
+		cJSON_AddNumberToObject(jsonKey, "Service", (double)pItemRequest->msgKey.serviceId);
+		strncpy(itemNameBuf, pItemRequest->msgKey.name.data, pItemRequest->msgKey.name.length);
+		itemNameBuf[pItemRequest->msgKey.name.length] = '\0';
+		cJSON_AddStringToObject(jsonKey, "Name", itemNameBuf);
+
+		cJSON_PrintPreallocated(json, msgBuf->data, msgBuf->length, 0);
+
+		msgBuf->length = (rtrUInt32)strnlen(msgBuf->data, 512);
+
+		//cJSON_Delete(json);
+		RESET_CJSON_ALLOCATOR();
+
+		if ((ret = sendMessage(pConsumerThread, msgBuf)) != RSSL_RET_SUCCESS)
+			return ret;
+
+		/* Requests has been made, move the link. */
+		pItemRequest->requestState = ITEM_WAITING_FOR_REFRESH;
+		rsslQueueRemoveFirstLink(&pConsumerThread->requestQueue);
+		rsslQueueAddLinkToBack(&pConsumerThread->waitingForRefreshQueue, pLink);
+
+		countStatIncr(&pConsumerThread->stats.requestCount);
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
 {
 	RsslRet ret;
@@ -793,6 +1061,26 @@ RsslRet sendPostBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRand
 
 		countStatIncr(&pConsumerThread->stats.postSentCount);
 
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+static int isSendPostBurstJson = 1;
+
+RsslRet sendPostBurstJson(ConsumerThread *pConsumerThread, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
+{
+	assert(pConsumerThread->jsonDesiredServiceId);
+	assert(itemBurstCount);
+
+	if (!rotatingQueueGetCount(&pConsumerThread->postItemQueue))
+		return RSSL_RET_SUCCESS;
+
+	/* to show the message only once */
+	if (isSendPostBurstJson)
+	{
+		printf("It is not supported to send JSON generic messages.\n");
+		isSendPostBurstJson = 0;
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -944,6 +1232,26 @@ RsslRet sendGenMsgBurst(ConsumerThread *pConsumerThread, LatencyRandomArray *pRa
 		if (!pConsumerThread->stats.firstGenMsgSentTime)
 			pConsumerThread->stats.firstGenMsgSentTime = rsslGetTimeNano();
 
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+static int isSendGenMsgBurstJson = 1;
+
+RsslRet sendGenMsgBurstJson(ConsumerThread *pConsumerThread, LatencyRandomArray *pRandomArray, RsslUInt32 itemBurstCount)
+{
+	assert(pConsumerThread->jsonDesiredServiceId);
+	assert(itemBurstCount);
+
+	if (!rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue))
+		return RSSL_RET_SUCCESS;
+
+	/* to show the message only once */
+	if (isSendGenMsgBurstJson)
+	{
+		printf("It is not supported to send JSON post messages.\n");
+		isSendGenMsgBurstJson = 0;
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -1827,7 +2135,15 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 
 		consumerThreadInitPings(pConsumerThread);
 
-		if ( (ret = sendLoginRequest(pConsumerThread, LOGIN_STREAM_ID)) != RSSL_RET_SUCCESS)
+		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && consPerfConfig.convertJSON == RSSL_TRUE)
+		{
+			ret = sendLoginRequest(pConsumerThread, LOGIN_STREAM_ID);
+		}
+		else
+		{
+			ret = sendLoginRequestJson(pConsumerThread, LOGIN_STREAM_ID);
+		}
+		if ( ret != RSSL_RET_SUCCESS )
 		{
 			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 			shutdownThreads = RSSL_TRUE;
@@ -1910,6 +2226,55 @@ static RsslRet processLoginResp(ConsumerThread* pConsumerThread, RsslRDMLoginMsg
 			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
 			shutdownThreads = RSSL_TRUE;
 			return RSSL_RET_FAILURE;
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet processLoginRespJson(ConsumerThread* pConsumerThread, cJSON* json)
+{
+	RsslError closeError;
+	const char* applicationName;
+
+	RsslRDMLoginMsgType rsslRDMLoginMsgType = jsonGetRDMLoginMsgType(json);
+
+	switch (rsslRDMLoginMsgType)
+	{
+	case RDM_LG_MT_REFRESH:
+
+		printf("Received login refresh.\n");
+		if ((applicationName = jsonGetLoginRefreshApplicationName(json)) != NULL)
+			printf("  ApplicationName: %s\n", applicationName);
+		printf("\n");
+
+		RsslStreamStates rsslStreamState = jsonGetStreamState(json);
+
+		if (rsslStreamState != RSSL_STREAM_OPEN)
+		{
+			const char* text = jsonGetRefreshStateText(json);
+			printf("Error: StreamState: %s, Login failed: %s\n", rsslStreamStateToString(rsslStreamState), text);
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+
+		if (consPerfConfig.postsPerSec && !jsonGetSupportOMMPost(json))
+		{
+			rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				(char*)"Provider for this connection does not support posting.");
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+		break;
+	case RDM_LG_MT_STATUS:
+		break;
+	default:
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			(char*)"Received unhandled RDMLoginMsgType %d", rsslRDMLoginMsgType);
+		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RET_FAILURE;
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -2058,6 +2423,105 @@ static RsslRet processSourceDirectoryResp(ConsumerThread* pConsumerThread, RsslR
 	return RSSL_RET_SUCCESS;
 }
 
+static RsslRet processSourceDirectoryRespJson(ConsumerThread* pConsumerThread, cJSON* json)
+{
+	RsslError closeError;
+	RsslBool foundServiceName = RSSL_FALSE;
+
+	RsslRDMDirectoryMsgType rsslRDMDirectoryMsgType = jsonGetRDMDirectoryMsgType(json);
+
+	switch (rsslRDMDirectoryMsgType)
+	{
+	case RDM_DR_MT_REFRESH:
+		break;
+	case RDM_DR_MT_UPDATE:
+		break;
+	case RDM_DR_MT_STATUS:
+	default:
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			(char*)"Error: Received unhandled directory message type %d.", rsslRDMDirectoryMsgType);
+		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RET_FAILURE;
+	}
+
+	/* Search service list for our desired service. */
+	cJSON* jsonMapNode = cJSON_GetObjectItem(json, "Map");
+	cJSON* jsonMapEntriesNode = cJSON_GetObjectItem(jsonMapNode, "Entries");
+	cJSON* jsonMapEntry = NULL;
+	cJSON_ArrayForEach(jsonMapEntry, jsonMapEntriesNode)
+	{
+		const char * serviceName = NULL;
+		RsslUInt serviceState = 0;
+		RsslUInt acceptingRequests = 0;
+
+		cJSON* jsonFilterListNode = cJSON_GetObjectItem(jsonMapEntry, "FilterList");
+		cJSON* jsonEntriesNode = cJSON_GetObjectItem(jsonFilterListNode, "Entries");
+		cJSON* jsonEntry = NULL;
+		cJSON_ArrayForEach(jsonEntry, jsonEntriesNode)
+		{
+			cJSON* jsonIdNode = cJSON_GetObjectItem(jsonEntry, "ID");
+			RsslUInt8 id = (RsslUInt8)cJSON_GetNumberValue(jsonIdNode);
+			switch (id)
+			{
+			case RDM_DIRECTORY_SERVICE_INFO_ID:
+				{
+					cJSON* jsonElementsNode = cJSON_GetObjectItem(jsonEntry, "Elements");
+					cJSON* jsonNameNode = cJSON_GetObjectItem(jsonElementsNode, "Name");
+					serviceName = cJSON_GetStringValue(jsonNameNode);
+
+					// [TODO] service QoS
+			}
+				break;
+			case RDM_DIRECTORY_SERVICE_STATE_ID:
+				{
+					cJSON* jsonElementsNode = cJSON_GetObjectItem(jsonEntry, "Elements");
+					cJSON* jsonServiceStateNode = cJSON_GetObjectItem(jsonElementsNode, "ServiceState");
+					serviceState = (RsslUInt)cJSON_GetNumberValue(jsonServiceStateNode);
+					cJSON* jsonAcceptingRequestsNode = cJSON_GetObjectItem(jsonElementsNode, "AcceptingRequests");
+					acceptingRequests = (RsslUInt)cJSON_GetNumberValue(jsonAcceptingRequestsNode);
+				}
+				break;
+			case RDM_DIRECTORY_SERVICE_GROUP_ID:
+				/*!< (3) Source Group Filter ID is not supported in this app */
+			case RDM_DIRECTORY_SERVICE_LOAD_ID:
+				/*!< (4) Source Load Filter ID is not supported in this app */
+			case RDM_DIRECTORY_SERVICE_DATA_ID:
+				/*!< (5) Source Data Filter ID is not supported in this app */
+			case RDM_DIRECTORY_SERVICE_LINK_ID:
+				/*!< (6) Communication Link Filter ID is not supported in this app */
+			case RDM_DIRECTORY_SERVICE_SEQ_MCAST_ID:
+				/*!< (7) Sequenced Multicast Filter ID is not supported in this app */
+			default:
+				continue;
+			}
+		}
+
+		/* Check for matching service name. */
+		if (serviceName && strcmp(serviceName, consPerfConfig.serviceName) == 0)
+		{
+			foundServiceName = RSSL_TRUE;
+			if (serviceState > 0 && acceptingRequests > 0)
+			{
+				cJSON* jsonKeyNode = cJSON_GetObjectItem(jsonMapEntry, "Key");
+				pConsumerThread->jsonDesiredServiceId = (RsslUInt)cJSON_GetNumberValue(jsonKeyNode);
+			}
+		}
+	}
+
+	if (!pConsumerThread->jsonDesiredServiceId)
+	{
+		if (foundServiceName)
+			printf("Service %s is currently down.\n\n", consPerfConfig.serviceName);
+		else
+			printf("Service %s not found in message.\n\n", consPerfConfig.serviceName);
+	}
+	else
+		printf("Service %s is up.\n\n", consPerfConfig.serviceName);
+
+	return RSSL_RET_SUCCESS;
+}
+
 static RsslRet processDictionaryResp(ConsumerThread* pConsumerThread, RsslRDMDictionaryMsg *pDictionaryMsg, RsslDecodeIterator *pDIter)
 {
 	RsslRet ret;
@@ -2119,6 +2583,11 @@ static RsslRet processDictionaryResp(ConsumerThread* pConsumerThread, RsslRDMDic
 			return RSSL_RET_FAILURE;
 	}
 
+	return RSSL_RET_SUCCESS;
+}
+
+static RsslRet processDictionaryRespJson(ConsumerThread* pConsumerThread, RsslDomainTypes rsslDomainType, cJSON* json)
+{
 	return RSSL_RET_SUCCESS;
 }
 
@@ -2316,6 +2785,322 @@ static RsslRet processDefaultMsgResp(ConsumerThread* pConsumerThread, RsslMsg *p
 	return RSSL_RET_SUCCESS;
 }
 
+static RsslRet processDefaultMsgRespJson(ConsumerThread* pConsumerThread, RsslDomainTypes rsslDomainType, cJSON* json)
+{
+	RsslRet ret = 0;
+	RsslError closeError;
+
+	RsslInt32 rsslStreamId;
+	RsslMsgClasses rsslMsgClass;
+
+	RsslTimeValue decodeTimeStart, decodeTimeEnd;
+	ItemInfo *pItemInfo = NULL;
+
+	rsslMsgClass = jsonGetMsgClass(json);
+
+	/* process JSON PING&PONG here */
+	switch (rsslMsgClass)
+	{
+	case RSSL_MC_JSON_PING:
+	{
+		RsslError err;
+		RsslBuffer PONG_MESSAGE = { 15, (char*)"{\"Type\":\"Pong\"}" };
+
+		RsslBuffer *msgBuf = rsslGetBuffer(pConsumerThread->pChannel, PONG_MESSAGE.length, RSSL_FALSE, &err);
+		if (msgBuf)
+		{
+			memcpy(msgBuf->data, PONG_MESSAGE.data, PONG_MESSAGE.length);
+
+			/* Reply with JSON PONG message to the sender */
+			ret = sendMessage(pConsumerThread, msgBuf);
+			if (ret != RSSL_RET_SUCCESS)
+				return ret;
+			else
+				return RSSL_RET_READ_PING;
+		}
+		else
+		{
+			snprintf(pConsumerThread->threadErrorInfo.rsslError.text, MAX_RSSL_ERROR_TEXT,
+				"Failed to get buffer for Ping response :%s", err.text);
+			return RSSL_RET_FAILURE;
+		}
+		return RSSL_RET_READ_PING;
+		break;
+	}
+	case RSSL_MC_JSON_PONG:
+	{
+		return RSSL_RET_READ_PING;
+		break;
+	}
+	}
+
+	if (consPerfConfig.measureDecode)
+		decodeTimeStart = rsslGetTimeNano();
+
+	rsslStreamId = jsonGetStreamId(json);
+
+	if (rsslStreamId < ITEM_STREAM_ID_START || rsslStreamId
+		>= ITEM_STREAM_ID_START + consPerfConfig.commonItemCount + pConsumerThread->itemListCount)
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+			(char*)"Error: Received message with unexpected Stream ID: %d  Class: %s(%u) Domain: %s(%u)",
+			rsslStreamId,
+			rsslMsgClassToString(rsslMsgClass), rsslMsgClass,
+			rsslDomainTypeToString(rsslDomainType), rsslDomainType);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RET_FAILURE;
+	}
+
+	pItemInfo = &pConsumerThread->itemRequestList[rsslStreamId].itemInfo;
+
+	if (pItemInfo->attributes.domainType != rsslDomainType)
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, ret, __FILE__, __LINE__,
+			(char*)"Error: Received message with domain type %u vs. expected type %u",
+			rsslDomainType, pItemInfo->attributes.domainType);
+		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+		shutdownThreads = RSSL_TRUE;
+		return RSSL_RET_FAILURE;
+	}
+
+	switch (rsslMsgClass)
+	{
+	case RSSL_MC_UPDATE:
+	{
+		countStatIncr(pConsumerThread->stats.imageRetrievalEndTime ?
+			&pConsumerThread->stats.steadyStateUpdateCount :
+			&pConsumerThread->stats.startupUpdateCount);
+
+		if (!pConsumerThread->stats.firstUpdateTime)
+			pConsumerThread->stats.firstUpdateTime = rsslGetTimeNano();
+
+		if ((ret = decodePayloadJson(pConsumerThread, rsslDomainType, rsslMsgClass, json))
+			!= RSSL_RET_SUCCESS)
+		{
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+
+		if (consPerfConfig.measureDecode)
+		{
+			decodeTimeEnd = rsslGetTimeNano();
+			timeRecordSubmit(&pConsumerThread->updateDecodeTimeRecords, decodeTimeStart, decodeTimeEnd, 1000);
+		}
+
+		break;
+	}
+	case RSSL_MC_REFRESH:
+	{
+		countStatIncr(&pConsumerThread->stats.refreshCount);
+
+		if ((ret = decodePayloadJson(pConsumerThread, rsslDomainType, rsslMsgClass, json))
+			!= RSSL_RET_SUCCESS)
+		{
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+
+		if (!pConsumerThread->stats.imageRetrievalEndTime && rsslQueueGetElementCount(&pConsumerThread->waitingForRefreshQueue))
+		{
+			if (jsonIsFinalState(json) == RSSL_TRUE)
+			{
+				if (pItemInfo)
+				{
+					RsslBuffer *pName = &pItemInfo->attributes.pMsgKey->name;
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						(char*)"Received unexpected final state %s in refresh for item: %.*s", rsslStreamStateToString(jsonGetStreamState(json)),
+						pName->length, pName->data);
+				}
+				else
+				{
+					const char* name = jsonGetMsgKeyName(json);
+					if (name != NULL)
+						rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						(char*)"Received unexpected final state %s in refresh for item: %s", rsslStreamStateToString(jsonGetStreamState(json)),
+							name);
+					else
+						rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						(char*)"Received unexpected final state %s in refresh for unknown item", rsslStreamStateToString(jsonGetStreamState(json)));
+				}
+
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return RSSL_RET_FAILURE;
+			}
+
+			if (jsonIsRefreshComplete(json) == RSSL_TRUE
+				&& jsonRefreshMsgDataStateOK(json) == RSSL_TRUE)
+			{
+				/* Received a complete refresh. */
+				if (pConsumerThread->itemRequestList[rsslStreamId].requestState == ITEM_WAITING_FOR_REFRESH)
+				{
+					pConsumerThread->itemRequestList[rsslStreamId].requestState = ITEM_HAS_REFRESH;
+					rsslQueueRemoveLink(&pConsumerThread->waitingForRefreshQueue, &pConsumerThread->itemRequestList[rsslStreamId].link);
+					rsslQueueAddLinkToBack(&pConsumerThread->refreshCompleteQueue, &pConsumerThread->itemRequestList[rsslStreamId].link);
+
+					if (pConsumerThread->itemRequestList[rsslStreamId].itemInfo.itemFlags & ITEM_IS_STREAMING_REQ)
+					{
+						if (pConsumerThread->itemRequestList[rsslStreamId].itemInfo.itemFlags & ITEM_IS_POST && consPerfConfig.postsPerSec)
+						{
+							pConsumerThread->itemRequestList[rsslStreamId].itemInfo.myQueue = &pConsumerThread->postItemQueue;
+							rotatingQueueInsert(&pConsumerThread->postItemQueue, &pConsumerThread->itemRequestList[rsslStreamId].postQueueLink);
+						}
+						if (pConsumerThread->itemRequestList[rsslStreamId].itemInfo.itemFlags & ITEM_IS_GEN_MSG && consPerfConfig.genMsgsPerSec)
+						{
+							pConsumerThread->itemRequestList[rsslStreamId].itemInfo.myQueue = &pConsumerThread->genMsgItemQueue;
+							rotatingQueueInsert(&pConsumerThread->genMsgItemQueue, &pConsumerThread->itemRequestList[rsslStreamId].genMsgQueueLink);
+						}
+					}
+
+					if (rsslQueueGetElementCount(&pConsumerThread->refreshCompleteQueue) == pConsumerThread->itemListCount)
+					{
+						pConsumerThread->stats.imageRetrievalEndTime = rsslGetTimeNano();
+						pConsumerThread->stats.steadyStateLatencyTime = pConsumerThread->stats.imageRetrievalEndTime + (RsslUInt64)consPerfConfig.delaySteadyStateCalc * 1000000ULL;
+					}
+				}
+			}
+		}
+
+		break;
+	}
+	case RSSL_MC_STATUS:
+	{
+		countStatIncr(&pConsumerThread->stats.statusCount);
+
+		/* Stop if an item is unexpectedly closed. */
+		if (jsonIsFinalState(json) == RSSL_TRUE)
+		{
+			if (pItemInfo)
+			{
+				RsslBuffer *pName = &pItemInfo->attributes.pMsgKey->name;
+				rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+					(char*)"Received unexpected final state %s in refresh for item: %.*s", rsslStreamStateToString(jsonGetStreamState(json)),
+					pName->length, pName->data);
+			}
+			else
+			{
+				const char* name = jsonGetMsgKeyName(json);
+				if (name != NULL)
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						(char*)"Received unexpected final state %s in refresh for item: %s", rsslStreamStateToString(jsonGetStreamState(json)),
+						name);
+				else
+					rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						(char*)"Received unexpected final state %s in refresh for unknown item", rsslStreamStateToString(jsonGetStreamState(json)));
+			}
+
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+
+		break;
+	}
+	case RSSL_MC_GENERIC:
+	{
+		countStatIncr(&pConsumerThread->stats.genMsgRecvCount);
+
+		if (!pConsumerThread->stats.firstGenMsgRecvTime)
+			pConsumerThread->stats.firstGenMsgRecvTime = rsslGetTimeNano();
+
+		if ((ret = decodePayloadJson(pConsumerThread, rsslDomainType, rsslMsgClass, json))
+			!= RSSL_RET_SUCCESS)
+		{
+			rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+			shutdownThreads = RSSL_TRUE;
+			return RSSL_RET_FAILURE;
+		}
+		break;
+	}
+	default:
+	{
+		rsslSetErrorInfo(&pConsumerThread->threadErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			(char*)"Received unhandled msg class %u on stream ID %d.", rsslMsgClass, rsslStreamId);
+		rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+		return RSSL_RET_FAILURE;
+	}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+RsslRet processJsonMsg(ConsumerThread* pConsumerThread, cJSON* json)
+{
+	RsslError closeError;
+	RsslRet ret = 0;
+
+	RsslDomainTypes rsslDomainType = jsonGetDomainType(json);
+
+	switch (rsslDomainType)
+	{
+	case RSSL_DMT_LOGIN:
+	{
+		if ((ret = processLoginRespJson(pConsumerThread, json)) != RSSL_RET_SUCCESS)
+		{
+			return ret;
+		}
+
+		if (!pConsumerThread->loggedIn)
+		{
+			if ((ret = sendDirectoryRequestJson(pConsumerThread, DIRECTORY_STREAM_ID)) != RSSL_RET_SUCCESS)
+			{
+				rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+				shutdownThreads = RSSL_TRUE;
+				return ret;
+			}
+
+			pConsumerThread->loggedIn = RSSL_TRUE;
+		}
+		break;
+	}
+
+	case RSSL_DMT_SOURCE:
+	{
+		printf("Received source directory response.\n\n");
+
+		/* Found our service already, ignore the message. */
+		if (pConsumerThread->pDesiredService)
+			break;
+
+		if ((ret = processSourceDirectoryRespJson(pConsumerThread, json)) != RSSL_RET_SUCCESS)
+		{
+			return ret;
+		}
+
+		break;
+	}
+
+	case RSSL_DMT_DICTIONARY:
+	{
+		printf("Received dictionary response.\n\n");
+
+		if ((ret = processDictionaryRespJson(pConsumerThread, rsslDomainType, json)) != RSSL_RET_SUCCESS)
+		{
+			return ret;
+		}
+
+		break;
+	}
+
+	default:
+	{
+		if ((ret = processDefaultMsgRespJson(pConsumerThread, rsslDomainType, json)) != RSSL_RET_SUCCESS)
+		{
+			if (ret == RSSL_RET_READ_PING)
+				pConsumerThread->receivedPing = RSSL_TRUE;
+			else
+				return ret;
+		}
+
+		break;
+	}
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
 RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct) 
 {
 	ConsumerThread* pConsumerThread = (ConsumerThread*)threadStruct;
@@ -2336,7 +3121,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 	RsslBuffer errorText = {255, (char*)errTxt};
 	RsslTimeValue decodetime;
 
-	RsslBool loggedIn = RSSL_FALSE;
+	pConsumerThread->loggedIn = RSSL_FALSE;
 
 	RsslInt32 postsPerTick, postsPerTickRemainder;
 	RsslInt32 genMsgsPerTick, genMsgsPerTickRemainder;
@@ -2355,6 +3140,13 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 	rsslInitQueue(&pConsumerThread->refreshCompleteQueue);
 	initRotatingQueue(&pConsumerThread->postItemQueue);
 	initRotatingQueue(&pConsumerThread->genMsgItemQueue);
+
+	RESET_CJSON_ALLOCATOR();
+
+	cJSON_Hooks hooks;
+	hooks.malloc_fn = cJSON_malloc_fn;
+	hooks.free_fn = cJSON_free_fn;
+	cJSON_InitHooks(&hooks);
 
 	if (initialize(pConsumerThread, &postLatencyRandomArray, &genMsgLatencyRandomArray) < RSSL_RET_SUCCESS)
 	{
@@ -2402,6 +3194,27 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 							if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
 							{
 								RsslErrorInfo	errInf;
+
+								if (!consPerfConfig.convertJSON)
+								{
+									cJSON *root = cJSON_ParseWithLength(msgBuf->data, msgBuf->length);
+									if (cJSON_IsObject(root)) {
+										processJsonMsg(pConsumerThread, root);
+									}
+									else if (cJSON_IsArray(root)) {
+										cJSON *json = NULL;
+										cJSON_ArrayForEach(json, root)
+										{
+											processJsonMsg(pConsumerThread, json);
+										}
+									}
+
+									//cJSON_Delete(root);
+									RESET_CJSON_ALLOCATOR();
+
+									cRet = RSSL_RET_END_OF_CONTAINER;
+									break;
+								}
 								
 								messageBuff.data = pConsumerThread->rjcSess.convBuff.data;
 								messageBuff.length = pConsumerThread->rjcSess.convBuff.length;
@@ -2413,7 +3226,6 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 															 (numConverted == 0 ? msgBuf:NULL), &errInf);
 								numConverted++;
 								decodetime = rsslGetTimeNano() - decodetime;
-
 							
 								if (cRet == RSSL_RET_END_OF_CONTAINER)
 								{
@@ -2475,7 +3287,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 										return RSSL_THREAD_RETURN();
 									}
 
-									if (!loggedIn)
+									if (!pConsumerThread->loggedIn)
 									{
 										if ( (ret = sendDirectoryRequest(pConsumerThread, DIRECTORY_STREAM_ID)) != RSSL_RET_SUCCESS)
 										{
@@ -2484,7 +3296,7 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 											return RSSL_THREAD_RETURN();
 										}
 
-										loggedIn = RSSL_TRUE;
+										pConsumerThread->loggedIn = RSSL_TRUE;
 									}
 									break;
 								}
@@ -2613,7 +3425,59 @@ RSSL_THREAD_DECLARE(runConsumerChannelConnection, threadStruct)
 			currentTime = rsslGetTimeNano();
 			nextTickTime += nsecPerTick;
 			
-			if (pConsumerThread->pDesiredService)
+			if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE
+				&& consPerfConfig.convertJSON == RSSL_FALSE
+				&& pConsumerThread->jsonDesiredServiceId)
+			{
+				/* Send some item requests(assuming dictionaries are ready). */
+				if (rsslQueueGetElementCount(&pConsumerThread->requestQueue)
+					&& pConsumerThread->dictionaryStateFlags ==
+					(DICTIONARY_STATE_HAVE_FIELD_DICT | DICTIONARY_STATE_HAVE_ENUM_DICT))
+				{
+					RsslInt32 requestBurstCount;
+
+					requestBurstCount = consPerfConfig._requestsPerTick;
+					if (currentTicks > consPerfConfig._requestsPerTickRemainder)
+						++requestBurstCount;
+
+					if (!pConsumerThread->stats.imageRetrievalStartTime)
+						pConsumerThread->stats.imageRetrievalStartTime = rsslGetTimeNano();
+
+					if (sendItemRequestBurstJson(pConsumerThread, requestBurstCount) < RSSL_RET_SUCCESS)
+					{
+						rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+						shutdownThreads = RSSL_TRUE;
+						return RSSL_THREAD_RETURN();
+					}
+				}
+
+				if (pConsumerThread->stats.imageRetrievalEndTime)
+				{
+					if (rotatingQueueGetCount(&pConsumerThread->postItemQueue))
+					{
+						if (sendPostBurstJson(pConsumerThread, &postLatencyRandomArray,
+							postsPerTick + ((currentTicks < postsPerTickRemainder) ? 1 : 0))
+							< RSSL_RET_SUCCESS)
+						{
+							rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+							shutdownThreads = RSSL_TRUE;
+							return RSSL_THREAD_RETURN();
+						}
+					}
+					if (rotatingQueueGetCount(&pConsumerThread->genMsgItemQueue))
+					{
+						if (sendGenMsgBurstJson(pConsumerThread, &genMsgLatencyRandomArray,
+							genMsgsPerTick + ((currentTicks < genMsgsPerTickRemainder) ? 1 : 0))
+							< RSSL_RET_SUCCESS)
+						{
+							rsslCloseChannel(pConsumerThread->pChannel, &closeError);
+							shutdownThreads = RSSL_TRUE;
+							return RSSL_THREAD_RETURN();
+						}
+					}
+				}
+			}
+			else if (pConsumerThread->pDesiredService)
 			{
 				/* Send some item requests(assuming dictionaries are ready). */
 				if (rsslQueueGetElementCount(&pConsumerThread->requestQueue)
@@ -2703,7 +3567,7 @@ RSSL_THREAD_DECLARE(runConsumerReactorConnection, threadStruct)
 	char errTxt[256];
 	RsslBuffer errorText = {255, (char*)errTxt};
 
-	RsslBool loggedIn = RSSL_FALSE;
+	pConsumerThread->loggedIn = RSSL_FALSE;
 
 	RsslInt32 postsPerTick, postsPerTickRemainder;
 	RsslInt32 genMsgsPerTick, genMsgsPerTickRemainder;
@@ -2983,6 +3847,10 @@ void consumerThreadInit(ConsumerThread *pConsumerThread, RsslInt32 consThreadId)
 
 	pConsumerThread->tunnelMessagingEnabled = RSSL_FALSE;
 	pConsumerThread->tunnelStreamServiceName[0] = '\0';
+
+	pConsumerThread->jsonDesiredServiceId = 0;
+	pConsumerThread->jsonAllocatorSize = consPerfConfig.jsonAllocatorSize;
+	pConsumerThread->jsonAllocatorPtr = malloc(pConsumerThread->jsonAllocatorSize);
 }
 
 void consumerThreadCleanup(ConsumerThread *pConsumerThread)
@@ -3006,6 +3874,11 @@ void consumerThreadCleanup(ConsumerThread *pConsumerThread)
 	{
 		pConsumerThread->itemRequestList += ITEM_STREAM_ID_START;
 		free(pConsumerThread->itemRequestList);
+	}
+
+	if (pConsumerThread->jsonAllocatorPtr)
+	{
+		free(pConsumerThread->jsonAllocatorPtr);
 	}
 }
 

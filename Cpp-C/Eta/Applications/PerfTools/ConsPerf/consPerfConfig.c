@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2021 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
 */
 
 /* This provides handling for command-line configuration of ConsPerf. */
@@ -83,6 +83,9 @@ static void clearConsPerfConfig()
 	snprintf(consPerfConfig.standbyHostName, sizeof(consPerfConfig.standbyHostName), "");
 	snprintf(consPerfConfig.standbyPort, sizeof(consPerfConfig.standbyPort), "");
 	consPerfConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+
+	consPerfConfig.convertJSON = RSSL_FALSE;
+	consPerfConfig.jsonAllocatorSize = 64 * 1024;
 }
 
 void exitConfigError(char **argv)
@@ -469,6 +472,15 @@ void initConsPerfConfig(int argc, char **argv)
 				exitConfigError(argv);
 			}
 		}
+		else if (strcmp("-addConversionOverhead", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.convertJSON = RSSL_TRUE;
+		}
+		else if (strcmp("-jsonAllocatorSize", argv[iargs]) == 0)
+		{
+			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
+			consPerfConfig.jsonAllocatorSize = atoi(argv[iargs++]);
+		}
 		else
 		{
 			printf("Config Error: Unrecognized option: %s\n", argv[iargs]);
@@ -581,11 +593,25 @@ void initConsPerfConfig(int argc, char **argv)
 		exitConfigError(argv);
 	}
 
+	if (consPerfConfig.convertJSON == RSSL_TRUE && (consPerfConfig.useReactor == RSSL_TRUE || consPerfConfig.useWatchlist == RSSL_TRUE))
+	{
+		printf("\nConfig error: Should not combine -addConversionOverhead and -reactor or -watchlist.\n");
+		exitConfigError(argv);
+	}
+
 	if (consPerfConfig.latencyIncludeJSONConversion == RSSL_TRUE
 		&& !(consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET
 			|| consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
 	{
 		printf("\nConfig error: -calcRWFJSONConversionLatency enables for WebSocket connection only.\n");
+		exitConfigError(argv);
+	}
+
+	if (consPerfConfig.convertJSON == RSSL_TRUE
+		&& !(consPerfConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET
+			|| consPerfConfig.connectionType == RSSL_CONN_TYPE_ENCRYPTED && consPerfConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET))
+	{
+		printf("\nConfig error: -addConversionOverhead enables for WebSocket connection only.\n");
 		exitConfigError(argv);
 	}
 
@@ -734,6 +760,8 @@ void printConsPerfConfig(FILE *file)
 		"              Stats File: %s\n"
 		"        Latency Log File: %s\n"
 		"  Latency Show JSON Conv: %s\n"
+		"      Use JSON Converter: %s\n"
+		"     JSON Allocator Size: %u\n"
 		"               Tick Rate: %u\n"
 		" Reactor/Watchlist Usage: %s\n"
 		"       CA store location: %s\n"
@@ -777,6 +805,8 @@ void printConsPerfConfig(FILE *file)
 		consPerfConfig.statsFilename,
 		consPerfConfig.logLatencyToFile ? consPerfConfig.latencyLogFilename : "(none)",
 		(consPerfConfig.latencyIncludeJSONConversion ? "Yes" : "No"),
+		(consPerfConfig.convertJSON ? "Yes" : "No"),
+		consPerfConfig.jsonAllocatorSize,
 		consPerfConfig.ticksPerSec,
 		reactorWatchlistUsageString,
 		consPerfConfig.caStore,
@@ -826,6 +856,8 @@ void exitWithUsage()
 			"  -genericMsgRate <genMsgs/sec>         Rate at which to send generic messages.\n"
 			"  -genericMsgLatencyRate <genMsgs/sec>  Rate at which to send latency generic messages.\n"
 			"  -calcRWFJSONConversionLatency         Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF.\n"
+			"  -addConversionOverhead                Enable rwf-json conversion for WebSocket Transport + RWF. This setting is disabled by default.\n"
+			"  -jsonAllocatorSize                    Size of cJSON custom allocator buffer.\n"
 			"\n"
 			"  -uname <name>                         Username to use in login request\n"
 			"  -serviceName <name>                   Service Name\n"

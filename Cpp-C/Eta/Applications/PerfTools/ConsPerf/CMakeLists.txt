@@ -2,6 +2,7 @@
 set( SOURCE_FILES
   consPerfConfig.c                  consumerThreads.c               marketByOrderDecoder.c
   marketPriceDecoder.c              ConsPerf.c
+  jsonHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.c
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.c
@@ -16,6 +17,7 @@ set( SOURCE_FILES
 
     consPerfConfig.h                  consumerThreads.h               marketByOrderDecoder.h
   marketPriceDecoder.h              ConsPerf.h
+  jsonHandler.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/rjConverter.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/channelHandler.h
   ${EtaExamples_SOURCE_DIR}/PerfTools/Common/itemEncoder.h
@@ -40,6 +42,7 @@ set_target_properties( ConsPerf_shared
 								OUTPUT_NAME ConsPerf )
 target_link_libraries( ConsPerf_shared librsslVA_shared librsslJsonConverter_shared 
 								LibXml2::LibXml2 
+								CJSON::CJSON
 								${SYSTEM_LIBRARIES} )
 
 add_executable( ConsPerf ${SOURCE_FILES} )
@@ -54,6 +57,7 @@ set_target_properties( ConsPerf
 								OUTPUT_NAME ConsPerf )
 target_link_libraries( ConsPerf 
 								librsslVA  LibXml2::LibXml2 
+								CJSON::CJSON
 								${SYSTEM_LIBRARIES} )
 
 if ( CMAKE_HOST_UNIX )

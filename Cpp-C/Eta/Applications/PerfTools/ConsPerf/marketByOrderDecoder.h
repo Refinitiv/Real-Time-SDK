@@ -12,6 +12,7 @@
 #define _MARKET_BY_ORDER_DECODER_H
 
 #include "consumerThreads.h"
+#include "jsonHandler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +20,9 @@ extern "C" {
 
 /* Decodes a MarketByOrder message. */
 RsslRet decodeMBOUpdate(RsslDecodeIterator *pIter, RsslMsg *msg, ConsumerThread* pConsumerThread);
+
+/* Decodes a MarketByOrder JSON message. */
+RsslRet decodeMBOUpdateJson(ConsumerThread* pConsumerThread, RsslMsgClasses rsslMsgClass, cJSON* json);
 
 #ifdef __cplusplus
 };
