@@ -372,7 +372,7 @@ public class ConsPerfConfig
 			System.exit(-1);
 		}
 
-		if(!_convertJSON && (_useReactor || _useWatchlist))
+		if(_convertJSON && (_useReactor || _useWatchlist))
 		{
 			System.err.println("Config Error: Should not combine -addConversionOverhead and -reactor or -watchlist.\n");
 			System.out.println(CommandLine.optionHelpString());
