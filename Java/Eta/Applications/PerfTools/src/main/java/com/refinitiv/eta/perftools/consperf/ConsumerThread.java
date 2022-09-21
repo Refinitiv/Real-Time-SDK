@@ -3018,10 +3018,11 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
     public int defaultMsgCallback(ReactorMsgEvent event)
     {
         Msg msg = event.msg();
-        if (msg.domainType() == DomainTypes.MARKET_PRICE && msg.encodedDataBody() != null) {
-            _dIter.clear();
-            _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
-
+        if (msg.domainType() == DomainTypes.MARKET_PRICE) {
+            if (msg.encodedDataBody() != null && msg.encodedDataBody().data() != null) {
+                _dIter.clear();
+                _dIter.setBufferAndRWFVersion(msg.encodedDataBody(), _reactorChannel.majorVersion(), _reactorChannel.minorVersion());
+            }
             processMarketPriceResp(msg, _dIter);
         }
 
