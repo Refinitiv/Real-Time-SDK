@@ -779,7 +779,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
                     }
                     else
                     {
-                        if (_channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && !_consPerfConfig.convertJSON())
+                        if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist() && _channel.protocolType() == Codec.JSON_PROTOCOL_TYPE && !_consPerfConfig.convertJSON())
                     	{
                     		ret = sendBurstsJson(currentTicks, _srcDirHandlerJson.serviceId(), _srcDirHandlerJson.serviceQos());
                     	}
