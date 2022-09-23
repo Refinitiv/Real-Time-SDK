@@ -9,19 +9,58 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.6.G1 aka EMA/ETA 3.6.6.G1 aka 3.6.6.1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.7.L1 aka EMA/ETA 3.6.7.L1 aka 3.6.7.0 
 ----------------------------------------------------------------------------------------
 
-This is a rapid release with a critical fix. 
+This release introduces Warm Standby consumer feature in ETA-Reactor and EMA. It also includes maintenance/fixes for issues. 
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 11444081] - [RTSDK-6411] - Memory leak upon repeated init and un-init of OMMConsumer due to a growing global pool 
 
+Customer Issues
+- [Case Number: 11147646] - [RTSDK-6167] - Uncaught NPE in EMA due to race condition in cleanup after timeout
+- [Case Number: 11444081] - [RTSDK-6411] - Memory leak upon repeated OMMConsumer initialize and un-intialize
+- [Github #201] - [RTSDK-6395] - Apache commons-configuration2 version 2.7 vulnerability in EMAJ
+- [GitHub #204] - [RTSDK-6412] - Documentation: Fix EMAJ configuration guide, section 4.5.3: add innerElementList.clear() 
+- [GitHub #207] - [RTSDK-6531] - JSON Converter unexpected value with date of 2022-11
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.7.L1 (Oct 6, 2022)
+--------------------------------------------
+This release introduces Warm Standby consumer feature in ETA-Reactor and EMA. It also include maintenance/fixes for issues. 
+
+EMA Java 3.6.7.L1 Issues Resolved
+---------------------------------
+- [RTSDK-2523] - EMA does not allow to publish Directory if serviceName is not NI_PUB and serviceId 0
+- [RTSDK-6040] - Added EMAJ Consumer Example 470 for Warm Standby feature
+- [RTSDK-6042] - Support for Java WarmStandby feature in EMAJ: programmatic and file config and implementation
+- [RTSDK-6412] - Documentation: Fix EMAJ configuration guide, section 4.5.3: add innerElementList.clear() [GitHub #204] 
+- [RTSDK-6417] - EMA log shows messages that should be "Info" as "Error"
+- [RTSDK-6601] - EmaConfig.xml fix to remove duplicate Consumer_5 and Consumer_6
+
+ETA Java 3.6.7.L1 Issues Resolved
+---------------------------------
+- [RTSDK-5276] - Added edge case testing for TCP transport
+- [RTSDK-6127] - ETA ConsPerf support for parsing JSON messages over Websocket connection with option to measure overhead of conversion to RWF
+- [RTSDK-6241] - WatchlistConsumer does not connect to endpoint if service discovery returns 1 endpoint in the location
+- [RTSDK-6403] - ConsPerf WS JSON gets ClassCastException upon connecting to RTDS/RTC
+- [RTSDK-6404] - Java provider training example fix to copy dictionary name into response
+- [RTSDK-6044] - Support for Java WarmStandby feature in ETAJ: login based and service based standby
+- [RTSDK-6568] - ETAJ Consperf exception when connect to RTDS/RTC
+
+Both ETA Java and EMA Java 3.6.7.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-6167] - Uncaught NPE in EMA due to race condition in cleanup after timeout [Case Number: 11147646]
+- [RTSDK-6259] - Support JDK and Oracle OpenJDK 1.17
+- [RTSDK-6347] - Update to Jackson jar due to vulnerabilities detected
+- [RTSDK-6395] - Apache commons-configuration2 version 2.7 vulnerability [GitHub #201]
+- [RTSDK-6411] - Memory leak upon repeated OMMConsumer initialize and un-intialize [Case Number: 11444081] 
+- [RTSDK-6479] - Update to DACS 7.8
+- [RTSDK-6531] - JSON Converter unexpected value with date of 2022-11 [GitHub #207]
 
 --------------------------------------------
 RTSDK Java Release 2.0.6.G1 (Sep 16, 2022)
@@ -44,19 +83,18 @@ EMA Java 3.6.6.L1 Issues Resolved
 - [RTSDK-4415] - EMA Java offstream posting payload decode issue
 - [RTSDK-5244] - EMAJ treats corrupted Real data as blank
 - [RTSDK-6150] - EMA_Config Guide shows duplicate definitions: NumberOfLogFiles, Filename, etc
-- [RTSDK-6297] - Add comment to Consumer310 to clarify RMTES partial updates handling  [Case Number: 11264942]
+- [RTSDK-6297] - Add comment to Consumer310 to clarify RMTES partial updates handling [Case Number: 11264942]
 
 
 ETA Java 3.6.6.L1 Issues Resolved
 ---------------------------------
 - [RTSDK-189] - Issue with Packed messages sent by server over HTTP connection
 - [RTSDK-4633] - Java Provider doesn't bind to localhost interface correctly
-- [RTSDK-5276] - Added edge case testing for TCP transport
 - [RTSDK-5430] - Permitted RMTES partial updates to be sent without buffering
 - [RTSDK-5574] - Add ADS/Server-Side Websocket JSON->RWF conversion error checks on posted data to be in valid range
 - [RTSDK-5576] - Provides debugging information per Reactor instance
 - [RTSDK-5741] - Additional unit test added for conversion of a double-backslash or escaped backslash in JSON msg key
-- [RTSDK-5901] - NullPointerException when processing directory domain message - [Case Number: 10825196]
+- [RTSDK-5901] - NullPointerException when processing directory domain message [Case Number: 10825196]
 - [RTSDK-6036] - Add QATool for ETAC VAProvider which supports posting and can send ACK/NACK using comand line options
 
 

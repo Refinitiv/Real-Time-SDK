@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.6.6.0.jar               eta3.6.6.L1       The ETA - Java Edition library.  Includes
+    eta-3.6.7.0.jar               eta3.6.7.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.6.6.0.jar       eta3.6.6.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.6.7.0.jar       eta3.6.7.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.6.6.0.jar  eta3.6.6.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.6.7.0.jar  eta3.6.7.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.6.6.0.jar     eta3.6.6.L1       The RWF/JSON Converter library.
+    etajConverter-3.6.7.0.jar     eta3.6.7.L1       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.7           The ETA Java DACS library.
 
-    ansipage-3.6.6.0.jar          eta3.6.6.L1       The ANSI decoders and encoders.
+    ansipage-3.6.7.0.jar          eta3.6.7.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.6.6.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.6.7.L1       The JNI libraries for Reliable Multicast
                                                     Transport and Shared Memory Transport. These
                                                     are native libraries for each supported
                                                     platform. The DLL files must be included
@@ -172,6 +172,8 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 - Customers must choose and set characterSet, such as UTF-8, that supports non-ascii characters in order to display them correctly. For example, it is recommended to run with -Dfile.encoding=UTF-8, where UTF-8, is replaced with characterSet that supports non-ascii characters.
 
+- RTSDK-6619 Pause and resume feature is prevented with Warm StandBy enabled due to issues with recovery if re-issue occurs during transition from active to standby.
+
 
 
 # Reference Information
@@ -179,17 +181,17 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6314
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.6.6
+    Release Number: 3.6.7
     Load Number: 1
-    Load ID: etaj3.6.6.L1.all
-        Supersedes: etaj3.6.5.L1.all.rrg
+    Load ID: etaj3.6.7.L1.all
+        Supersedes: etaj3.6.6.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.52_RealTimeDistributionSystem_22.41 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.54_RealTimeDistributionSystem_22.71 for RWF and Marketfeed Record Templates
 
 # Security
 
@@ -199,5 +201,5 @@ The distribution contains several JAR files and other non-Java libraries, intend
     Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
 
 # Notes:
-- This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the README.md files within each package for clarification.
+- This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the README.md files within each package for clarification.
 - Java unit tests may use [Mockito](http://site.mockito.org/) for creation of mock objects. Mockito is distributed under the MIT license.

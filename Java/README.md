@@ -20,9 +20,10 @@ External modules used by this version of RTSDK Java:
 	commons-codec 		1.11
 	commons-configuration2  2.7	
 	commons-collections4    4.4	
-	commons-lang		2.6
+	commons-lang3	 	3.9
 	commons-logging		1.2
-	jackson-annotations     2.11.0  
+	commons-text		1.8
+	jackson-annotations     2.12.4
 	jackson-core            2.12.4  
 	jackson-databind        2.12.4  
 	junit			4.12
@@ -47,7 +48,7 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11, Amazon Corretto 8 & 11.
+The Refinitiv Real-Time-SDK supports Oracle JDK 1.8, 1.11 & 1.17, OpenJDK 1.8, 1.11 & 1.17, Amazon Corretto 8 & 11.
 
 NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8.
 
@@ -81,7 +82,6 @@ NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, plea
 
 Platforms:
 
-	Red Hat Enterprise Linux 6.X Release 64bit, GCC 4.4.4 (JNI Libraries)
 	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
         Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1 (JNI Libraries)
         CentOS 7.X Release 64-bit Qualification 
@@ -113,10 +113,10 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption for TLS 1.2.  
+This release supports encryption using TLS 1.2.  
 
 ##### Generating a keystore file
-The **keystore** file is used to contain your own private keys and public key certificates which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. If you do not need to include your own private keys, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you do need to [create your own keystore file](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html), please follow industry standard instructions. 
+The **keystore** file can contain custom private keys and public key certificates (including your server certificate) that are used in TLS handshake to establish an encrypted connection. By default, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you create your own keystore file, please follow industry [standard instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html) to do so. This custom keystore file must be specified an input into API to successfully connect to the encrypted server.
 
 ### Interoperability
 
@@ -129,9 +129,9 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.0
-- ADH 3.6.0
-- DACS 7.6
+- ADS 3.6.1
+- ADH 3.6.1
+- DACS 7.8
 
 # Documentation
   
@@ -197,7 +197,7 @@ To debug a encrypted consumer connection, you can add the following JVM argument
 
 	-Djavax.net.debug=all
 
-This provides SSL/TLS details that can be useful if SSL/TLS handshake failed
+This provides TLS details that can be useful if TLS handshake failed
 
 
 # Obtaining the Refinitiv Field Dictionaries
@@ -213,40 +213,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.6.7.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.6.7.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.6.7.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.6.7.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.6.7.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.6.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.6.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.6.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.6.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.6.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.7.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.7.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.7.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.7.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.7.0'
 
 # Developing 
 

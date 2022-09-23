@@ -9,25 +9,59 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.6.L1 aka EMA/ETA 3.6.6.Ll aka 3.6.6.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.7.L1 aka EMA/ETA 3.6.7.Ll aka 3.6.7.0
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ----------------------------------------------------------------------------------------
 
-This release introduces Multi-Credential feature which permits ability for different authentication mechanisms/credentials to be associated with a channel or group of channels. The features provides additional flexibility when using connection recovery (ETA) or channelset (EMA) and warm standby features.
+This is a maintenance release with fixes
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-
-- [GitHub #190] - [RTSDK-6059] - Fix curl configuration to set library
-- [GitHub #191] - [RTSDK-6077] - VAConsumer example default protocol list changed to json when using encryptedWebSocket 
-- [GitHub #192] - [RTSDK-6099] - Port is not released after destroying OMMProvider  
-- [GitHub #196] - [RTSDK-6168] - InitializationTimeout does not take effect via EMA config
+- [GitHub #194] - [RTSDK-6108] - Service Discovery doesn't return an error when an incorrect password is provided.
+- [GitHub #199] - [RTSDK-6339] - Document curl/openSSL dependency in README
+- [Case Number: 11340239] - [RTSDK-6396] ETAC Server sends wrong fin/opcode flags over websocket transport in boundary case when sending single fragement
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.7.L1 (Oct 6, 2022)
+--------------------------------------------
+This is a maintenance release with fixes
+
+EMA C++ 3.6.7.L1 Issues Resolved
+--------------------------------
+- [RTSDK-5561] - EMA C++ exception due to prior random data in RMTES cache buffer
+- [RTSDK-5686] - Add support DirectWrite to Ema configuration for IProvPerf and NIProvPerf
+- [RTSDK-5938] - EMA Support: Reactor should bind threads to specified cores
+- [RTSDK-6303] - Fix libxml2 utilities for encoding/decoding to check for flags wrt. counthint, updatetype, serviceID, etc.
+- [RTSDK-6151] - Add ability to append to existing file upon application restart
+- [RTSDK-6152] - EMA C++ : Log shows messages that should be "Info" as "Error"
+
+ETA C 3.6.7.L1 Issues Resolved
+------------------------------
+- [RTSDK-5076] - ETAC ConsPerf websocket JSON cannot send Directory/Item request to ProvPerf running with inputs: -inputBufs >=35000 -outputBufs >=35000
+- [RTSDK-6076] - WatchlistConsumer connect RTO via websocket sometimes gets select: Bad file descriptor on RH6 only
+- [RTSDK-6108] - Service Discovery doesn't return an error when an incorrect password is provided [GitHub #194] 
+- [RTSDK-6126] - ETA ConsPerf support for parsing JSON messages over Websocket connection with option to measure overhead of conversion to RWF
+- [RTSDK-6241] - WatchlistConsumer does NOT connect to endpoint if servicediscovery returns 1 endpoint in the location
+- [RTSDK-6287] - Fix for libxml2EncodeUtilTest failure
+- [RTSDK-6352] - Fix supporting single digit month values in dates
+- [RTSDK-6423] - Remove duplicate dumpOut
+- [RTSDK-6557] - Add ipc dumpOut to include print debug after adding RIPC header
+
+Both ETA C and EMA C++ 3.6.7.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-5116] - Update to LZ4 version (dependency)
+- [RTSDK-5221] - Add support for RTO connectivity in consumer perf applications as a QATool
+- [RTSDK-6305] - Enhance rsslBindThreadWithString() to take in an output string and populate with cpu array
+- [RTSDK-6339] - Document curl/openSSL dependency in README [GitHub #199]
+- [RTSDK-6358] - Update CURL version (dependency)
+- [RTSDK-6396] ETAC Server sends wrong fin/opcode flags over websocket transport in boundary case when sending single fragement [Case Number: 11340239]
+- [RTSDK-6479] - Update DACS libraries to 7.8
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.6.L1 (Jun 20, 2022)
@@ -115,7 +149,7 @@ Both ETA C and EMA C++ 3.6.5.L1 Issues Resolved
 RTSDK C++/C Release 2.0.4.L1 (Dec 17, 2021)
 --------------------------------------------
 
-This release introduces Warm Standby consumer feature in ETA-Reactor and EMA along with fixes.
+This release introduces Warm Standby consumer feature in ETA-Reactor and EMA. It also include maintenance/fixes for issues. 
 
 EMA C++ 3.6.4.L1 Issues Resolved
 --------------------------------

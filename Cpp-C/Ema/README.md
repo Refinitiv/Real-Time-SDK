@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.6.6.L1
+    libema.lib                ema3.6.7.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.6.6.L1
-    libema.dll                ema3.6.6.L1
+    libema.lib                ema3.6.7.L1
+    libema.dll                ema3.6.7.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.6.6.L1
+    libema.a                    ema3.6.7.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.6.6.L1          libema.so.14          ema3.6.6.L1
+    libema.so.3.6.7.L1          libema.so.15          ema3.6.7.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -158,19 +158,19 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6032
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.6.6
+    Release Number: 3.6.7
     Load Number: 1
-    Windows Load ID: ema3.6.6.L1.win
-        Supersedes: ema3.6.5.L1.win
-    Linux Load ID: ema3.6.6.L1.linux
-        Supersedes: ema3.6.5.L1.linux
+    Windows Load ID: ema3.6.7.L1.win
+        Supersedes: ema3.6.6.L1.win
+    Linux Load ID: ema3.6.7.L1.linux
+        Supersedes: ema3.6.6.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.52_RealTimeDistributionSystem_22.41 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.54_RealTimeDistributionSystem_22.71 for RWF and Marketfeed Record Templates
 
 # Security
 
@@ -180,4 +180,4 @@ This will create all necessary soft links for example makefiles to link. It is s
     Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
 
 # Notes:
-- This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.
+- This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the top level README.md files for clarification.

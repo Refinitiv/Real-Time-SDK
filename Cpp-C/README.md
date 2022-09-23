@@ -3,7 +3,7 @@ This is the Refinitiv Real-Time SDK. This SDK encompasses a couple of APIs:  Ent
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
+The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
 
 Copyright (C) 2019-2022 Refinitiv. All rights reserved.
 
@@ -20,14 +20,15 @@ External modules used by this version of RTSDK C/C++:
 	openSSL 		1.0.1e
 	openSSL			1.1.1a
 	cJSON			1.7.15
-	curl			7.78.0
+	curl			7.84.0
 	googletest		release-1.8.1
 	libxml2			2.9.12
-	lz4			1.8.3
-	zlib			1.2.11
+	lz4			1.9.3
+	zlib			1.2.12
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
-- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build OpenSSL, and we recommend that all installed versions of OpenSSL are patched to the latest version available. 
+- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available. 
+- Please note that the default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - Check installation guide for details regarding including external dependencies for build 
    
 
@@ -38,11 +39,9 @@ External modules used by this version of RTSDK C/C++:
 - HP Intel PC or AMD Opteron (64-bit)
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
-- Red Hat Enterprise Server 6.X Release 64-bit
-- Oracle Linux Server 6.X or 7.X Release 64-bit
+- Oracle Linux Server 7.X Release 64-bit
 - Red Hat Enterprise Server 8.X Release 64-bit
 - CentOS 7.X Release 64-bit
-- CentOS 8.X Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type
@@ -78,17 +77,14 @@ Notes:
 
 Platforms & Compilers:
 
-	GCC compiler suite version 4.4.4 or higher for Red Hat Enterprise Server 6.X, 64-bit, Native build
 	GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
-	GCC compiler suite version 4.4.4 or higher for Oracle Linux 6.0, 64-bit, qualification with RH6 library build
 	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
 	GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
-	GCC compiler suite version 8.3.1 or higher for CentOS 8.0, 64-bit, qualification with RH8 library build 
-	Clang compiler version 9.0.1 for CentOS 8.0, 64-bit, qualification with RH8 library build 
+	Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
 
 * Eta VACache library built 
 
-NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8, Oracle Linux 7 and Red Hat 6 are available in release packages available on Refinitiv Developer Portal. 
+NOTE: User has the option to use pre-built libraries or build source natively on a platform of choice. Pre-built libraries for Red Hat 8 and Oracle Linux 7 are available in release packages available on Refinitiv Developer Portal. 
 
 #### Tested Versions
 
@@ -100,18 +96,12 @@ This release has been tested with the following on supported platform/OS combina
 
 	OS						GCC Version	Use-Prebuilt Library	Use-Natively Build Library
 	--------------------------------		------------	----------------------	----------------------------		
-	Oracle Linux Server 6.6 64-bit 			GCC 4.4.4  	RHEL6_64_GCC444		OL6_64_GCC444
-	Red Hat Enterprise Linux Server 6.3 64-bit   	GCC 4.4.6	RHEL6_64_GCC444	 	RHEL6_64_GCC446	
-	Red Hat Enterprise Linux Server 6.9 64-bit   	GCC 4.4.7	RHEL6_64_GCC444	 	RHEL6_64_GCC447	
 	CentOS 7.0 64-bit                		GCC 4.8.2	OL7_64_GCC482		CENTOS7_64_GCC482
 	Oracle Linux Server 7.7 64-bit 			GCC 4.8.5	OL7_64_GCC482		OL7_64_GCC485
 	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 4.8.5 	OL7_64_GCC482		RHEL7_64_GCC485
 	Oracle Linux Server 7.7 64-bit     		GCC 7.4.0	n/a           		OL7_64_GCC740
-	Red Hat Enterprise Linux Server 6.10 64-bit 	GCC 7.4.0 	n/a			RHEL6_64_GCC740
 	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 	n/a			RHEL7_64_GCC740
 	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 	n/a			RHEL8_64_GCC831
-	CentOS 8.0 64-bit                		GCC 8.3.1	RHEL8_64_GCC831 	CENTOS8_64_GCC831
-	CentOS 8.0 64-bit                		Clang 9.0.1     RHEL8_64_GCC831         CENTOS8_64_Clang901	
 
 	n/a = This is not a tested combination
 
@@ -130,7 +120,7 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption for TLS 1.2.  
+This release supports encryption using TLS 1.2.  
 
 
 ### Interoperability
@@ -144,9 +134,9 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.0
-- ADH 3.6.0
-- DACS 7.6
+- ADS 3.6.1
+- ADH 3.6.1
+- DACS 7.8
 
 # Documentation
 
@@ -215,7 +205,7 @@ Note that your installation of Visual Studio needs to be updated to add Microsof
 
 **32 bit support**:
 
-CMake has build support for 32 bit platforms.
+CMake has build support for 32 bit platforms. This 32-bit support is available only for ETA core RSSL layer.
 
 Linux: Add "-DBUILD\_32\_BIT\_ETA=ON" to the cmake build
 
@@ -249,5 +239,5 @@ Please email a signed and scanned copy to sdkagreement@refinitiv.com. If you req
 
 # Notes:
 - For more details on each API, please see the corresponding readme file in their top level directory.
-- This package contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each package for clarification.
+- This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the readme files within each package for clarification.
 - Please make sure to review the LICENSE.md file.
