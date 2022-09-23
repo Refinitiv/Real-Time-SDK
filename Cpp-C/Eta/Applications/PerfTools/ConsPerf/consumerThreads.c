@@ -2135,13 +2135,13 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 
 		consumerThreadInitPings(pConsumerThread);
 
-		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && consPerfConfig.convertJSON == RSSL_TRUE)
+		if (pConsumerThread->pChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE && consPerfConfig.convertJSON == RSSL_FALSE)
 		{
-			ret = sendLoginRequest(pConsumerThread, LOGIN_STREAM_ID);
+			ret = sendLoginRequestJson(pConsumerThread, LOGIN_STREAM_ID);
 		}
 		else
 		{
-			ret = sendLoginRequestJson(pConsumerThread, LOGIN_STREAM_ID);
+			ret = sendLoginRequest(pConsumerThread, LOGIN_STREAM_ID);
 		}
 		if ( ret != RSSL_RET_SUCCESS )
 		{
