@@ -34,6 +34,8 @@ consumer-OMMSeq-001: Alter Consumer to have the following new options and implem
 	Set Private Stream Flag for Item Request(-privateStreamForItemReq)
     Two Market Price Item Request with same key and different streamId (-requestSameKeyWithDiffStreamId)
 
+consumer-DebugDump-001: Alter Consumer to print debug dumps and add options -dumpIpcIn, -dumpIpcOut, -dumpIpcComp, -dumpIpcInit, -dumpRsslIn, -dumpRsslOut.
+
 
 Module:  Value Add Consumer
 ---------------------------
@@ -200,6 +202,14 @@ sendDictionaryRequestReject in rsslDictionaryProvider.c.
 
 provider-Multi-001: Alters Provider to enable serverSharedSocket = RSSL_TRUE.
 
+provider-Ws-001: Alter Provider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel
+
+provider-DebugDump-001: Alter Provider to print debug dumps and add options -dumpIpcIn, -dumpIpcOut, -dumpIpcComp, -dumpIpcInit, -dumpRsslIn, -dumpRsslOut.
+	Sample usage for sending source directory response.
+	./Provider -pl "rssl.json.v2,rssl.rwf" -dumpRsslOut
+	./Consumer -c websocket -pl "rssl.json.v2"
+
+
 Module:  VA Provider 
 -----------------
 
@@ -230,10 +240,6 @@ vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream mess
 vaprovider-Ws-001: Alter VAProvider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel, -sendGenericMessage and -jsonExpandEnum
 
 vaprovider-Ws-002: Alter VAProvider to add test options for Websocket transport -catchUnknownJsonKeys and decode FieldList data
-
-provider-Ws-001: Alter Provider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel
-
-provider-DebugDump-001: Alter Provider to add option -debugDumpProtocolRWF and -debugDumpProtocolJSON
 
 Module:  NIProvider 
 -----------------
@@ -268,3 +274,12 @@ eta-rsslWrite-001: Alters ETA methods rsslWrite and rsslWriteEx to display that 
 	rsslWrite/rsslWriteEx will print info about RSSL_WRITE_DIRECT_SOCKET_WRITE:
 	- on the first usage of the method;
 	- every time from call to call when the writeFlags parameter changes its value.
+
+
+Module: Provider Performance tool
+-----------------
+
+provperf-DebugDump-001: Alter ProvPerf to print debug dumps and add options -dumpIpcIn, -dumpIpcOut, -dumpIpcComp, -dumpIpcInit, -dumpRsslIn, -dumpRsslOut.
+	Sample usage for sending Websocket+JSON packed messages:
+	./ProvPerf -pl "rssl.json.v2,rssl.rwf" -tickRate 1 -updateRate 3 -latencyUpdateRate 0 -maxPackCount 3 -dumpRsslOut
+	./ConsPerf -connType websocket -pl "rssl.json.v2" -tickRate 1 -itemCount 3

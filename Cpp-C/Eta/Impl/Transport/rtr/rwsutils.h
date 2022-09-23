@@ -439,6 +439,7 @@ RsslUInt8 rwsGetWsHdrSize(RsslUInt64 , RsslInt32 );
 RsslUInt8 rwsWriteWsHdrBuffer(char * , RsslUInt64 , rwsSession_t *, RsslBool, RsslInt32 , rwsOpCodes_t );
 RsslUInt8 rwsWriteWsHdr(rtr_msgb_t * msgb, rtr_msgb_t * msgb2, rwsSession_t * wsSess, RsslInt32 compressed, rwsOpCodes_t opCode);
 RsslInt32 rwsPrependWsHdr(void *, rtr_msgb_t *msgb, RsslError *error);
+void rwsDumpMsgAndTransportHdr(const char *, rtr_msgb_t *, void *);
 RsslInt32 rwsSendPingData(RsslSocketChannel *, RsslBuffer *, RsslError *);
 RsslInt32 rwsSendWsPing( RsslSocketChannel *, RsslBuffer *, RsslError *);
 RsslInt32 rwsSendWsPong(RsslSocketChannel *, RsslBuffer *, RsslError *);
@@ -514,6 +515,7 @@ RTR_C_INLINE RsslRet rwsInitializeProtocolFuncs()
 	funcs.additionalTransportHdrLength = rwsAdditionalHeaderLength;
 	funcs.getPoolBuffer = rwsGetPoolBuffer;
 	funcs.getGlobalBuffer = rwsGetSimpleBuffer;
+	funcs.dumpMsgAndTransportHdr = rwsDumpMsgAndTransportHdr;
 	
 	return (ipcSetProtocolHdrFuncs(RSSL_CONN_TYPE_WEBSOCKET, &funcs));
 }

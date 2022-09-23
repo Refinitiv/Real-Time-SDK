@@ -68,6 +68,12 @@ static RsslBool httpHdrEnable = RSSL_FALSE;
 static RsslReadOutArgs readOutArgs;
 static RsslBool loginWithCookies = RSSL_FALSE;
 static RsslBool serverSharedSocket = RSSL_FALSE;
+
+//API QA
+static RsslBool testCompressionZlib = RSSL_FALSE;
+static RsslInt32 compressionLevel = 3;
+//END API QA
+
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
 /* default port number */
@@ -77,32 +83,6 @@ static const char *defaultServiceName = "DIRECT_FEED";
 /* default sub-protocol list */
 static const char *defaultProtocols = "rssl.rwf, rssl.json.v2";
 
-//API QA
-#define HEX_LINE_SIZE 16
-static void displayHexData(int length, const char* buffer);
-
-static RsslBool debugDumpGeneral = RSSL_FALSE;
-static RsslBool debugDumpProtocolRWF = RSSL_FALSE;
-static RsslBool debugDumpProtocolJSON = RSSL_FALSE;
-
-static int dumpDebugFlags = (RSSL_DEBUG_RSSL_DUMP_IN) | (RSSL_DEBUG_RSSL_DUMP_OUT)
-					| (RSSL_DEBUG_IPC_DUMP_IN) | (RSSL_DEBUG_IPC_DUMP_OUT);
-
-static void dumpIpcIn(const char* functionName, char* buffer, RsslUInt32 length, RsslUInt64 opaque);
-static void dumpIpcOut(const char* functionName, char* buffer, RsslUInt32 length, RsslUInt64 opaque);
-static void dumpRsslIn(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId);
-static void dumpRsslOut(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId);
-
-static void dumpIpcInRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket);
-static void dumpIpcOutRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket);
-static void dumpRsslInRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
-static void dumpRsslOutRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
-
-static void dumpIpcInJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket);
-static void dumpIpcOutJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket);
-static void dumpRsslInJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
-static void dumpRsslOutJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel);
-//END API QA
 /*
 * Clears the client session information.
 * clientSessionInfo - The client session information to be cleared
@@ -134,9 +114,23 @@ void exitWithUsage()
 	printf(" -httpCookie with ';' delineated list of cookies data\n");
 	printf(" -rtt if specified, support the round trip latency measurement\n");
 	printf(" -serverSharedSocket if specified, turn on server shared socket\n");
-	printf(" -debugDumpGeneral, debug general is enabled\n");
-	printf(" -debugDumpProtocolRWF, debug protocol RWF is enabled\n");
-	printf(" -debugDumpProtocolJSON, debug protocol JSON is enabled\n");
+	//API QA
+	printf(" -testCompressionZlib turns on Zlib compression\n");
+	printf(" -compressionLevel specifies Zlib compression level\n");
+	//END API QA
+// API QA
+	printf("\n");
+	printf(" -debugDumpGeneral if specified, debug general is enabled (by default: Disabled)\n");
+	printf(" -debugDumpProtocolRWF if specified, debug protocol RWF is enabled (by default: Enabled)\n");
+	printf(" -debugDumpProtocolJSON if specified, debug protocol JSON is enabled (by default: Enabled)\n");
+	printf("\n");
+	printf(" -dumpIpcIn if specified, dump incoming IPC messages as they are received from the network\n");
+	printf(" -dumpIpcOut if specified, dump outgoing IPC messages as they are written to the network\n");
+	printf(" -dumpIpcComp if specified, and If compression is enabled, dump compressed IPC message\n");
+	printf(" -dumpIpcInit if specified, dump channel IPC initialization messages\n");
+	printf(" -dumpRsslIn if specified, dump incoming RSSL messages as they are received from the transport\n");
+	printf(" -dumpRsslOut if specified, dump outgoing RSSL messages as they are passed to the transport\n");
+// END API QA
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -146,10 +140,6 @@ void exitWithUsage()
 
 int main(int argc, char **argv)
 {
-	//API QA
-	RsslDebugFunctionsExOpts rsslDebugRWF = { RSSL_RWF_PROTOCOL_TYPE, dumpIpcInRWF, dumpIpcOutRWF, dumpRsslInRWF, dumpRsslOutRWF };
-	RsslDebugFunctionsExOpts rsslDebugJSON = { RSSL_JSON_PROTOCOL_TYPE, dumpIpcInJSON, dumpIpcOutJSON, dumpRsslInJSON, dumpRsslOutJSON };
-	//END API QA
 	int i;
 	struct timeval time_interval;
 	RsslError error;
@@ -233,24 +223,6 @@ int main(int argc, char **argv)
 			xmlTrace = RSSL_TRUE;
 			snprintf(traceOutputFile, 128, "RsslProvider\0");
 		}
-		//API QA
-		else if (0 == strcmp("-debugDumpGeneral", argv[iargs]))
-		{
-			debugDumpGeneral = RSSL_TRUE;
-			printf("Debug dumping functions for %s Protocol enabled.\n", "General");
-		}
-		else if (0 == strcmp("-debugDumpProtocolRWF", argv[iargs]))
-		{
-			debugDumpProtocolRWF = RSSL_TRUE;
-			printf("Debug dumping functions for %s Protocol enabled.\n", "RWF");
-		}
-		else if (0 == strcmp("-debugDumpProtocolJSON", argv[iargs]))
-		{
-			debugDumpProtocolJSON = RSSL_TRUE;
-			printf("Debug dumping functions for %s Protocol enabled.\n", "JSON");
-		}
-		//END API QA
-
 		else if (0 == strcmp("-td", argv[iargs]))
 		{
 			showTransportDetails = RSSL_TRUE;
@@ -299,6 +271,58 @@ int main(int argc, char **argv)
 		{
 			serverSharedSocket = RSSL_TRUE;
 		}
+// API QA
+		else if (strcmp("-dumpIpcIn", argv[iargs]) == 0)
+		{
+			dumpDebugFlags += RSSL_DEBUG_IPC_DUMP_IN;
+		}
+		else if (strcmp("-dumpIpcOut", argv[iargs]) == 0)
+		{
+			dumpDebugFlags += RSSL_DEBUG_IPC_DUMP_OUT;
+		}
+		else if (strcmp("-dumpIpcComp", argv[iargs]) == 0)
+		{
+			dumpDebugFlags += RSSL_DEBUG_IPC_DUMP_COMP;
+		}
+		else if (strcmp("-dumpIpcInit", argv[iargs]) == 0)
+		{
+			dumpDebugFlags += RSSL_DEBUG_IPC_DUMP_INIT;
+		}
+		else if (strcmp("-dumpRsslIn", argv[iargs]) == 0)
+		{
+			dumpDebugFlags += RSSL_DEBUG_RSSL_DUMP_IN;
+		}
+		else if (strcmp("-dumpRsslOut", argv[iargs]) == 0)
+		{
+			dumpDebugFlags += RSSL_DEBUG_RSSL_DUMP_OUT;
+		}
+		else if (0 == strcmp("-debugDumpGeneral", argv[iargs]))
+		{
+			debugDumpGeneral = RSSL_TRUE;
+			printf("Debug dumping functions for %s Protocol enabled.\n", "General");
+		}
+		else if (0 == strcmp("-debugDumpProtocolRWF", argv[iargs]))
+		{
+			debugDumpProtocol[DUMP_DEBUG_RWF] = RSSL_TRUE;
+			printf("Debug dumping functions for %s Protocol enabled.\n", "RWF");
+		}
+		else if (0 == strcmp("-debugDumpProtocolJSON", argv[iargs]))
+		{
+			debugDumpProtocol[DUMP_DEBUG_JSON] = RSSL_TRUE;
+			printf("Debug dumping functions for %s Protocol enabled.\n", "JSON");
+		}
+// END API QA
+		//API QA
+		else if (strcmp("-testCompressionZlib", argv[iargs]) == 0)
+		{
+			testCompressionZlib = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-compressionLevel", argv[iargs]))
+		{
+			++iargs; if (iargs == argc) exitWithUsage();
+			compressionLevel = atoi(argv[iargs]);
+		}
+		//END API QA
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -363,6 +387,15 @@ int main(int argc, char **argv)
 		exit(RSSL_RET_FAILURE);
 	}
 
+	// API QA
+	// Enable dump functions
+	if (initDump() != RSSL_RET_SUCCESS)
+	{
+		printf("initDump(): failed\n");
+		exit(RSSL_RET_FAILURE);
+	}
+	// END API QA
+
 	FD_ZERO(&readfds);
 	FD_ZERO(&exceptfds);
 	FD_ZERO(&wrtfds);
@@ -378,27 +411,6 @@ int main(int argc, char **argv)
 #endif
 		exit(RSSL_RET_FAILURE);
 	}
-	//API QA
-	// Set function entry points
-	if (rsslSetDebugFunctions(dumpIpcIn, dumpIpcOut, dumpRsslIn, dumpRsslOut, &error) < RSSL_RET_SUCCESS)
-	{
-		printf("rsslSetDebugFunctions(): failed <%s>\n", error.text);
-		exit(RSSL_RET_FAILURE);
-	}
-	// Set function entry points for RWF protocol
-	if (rsslSetDebugFunctionsEx(&rsslDebugRWF, &error) < RSSL_RET_SUCCESS)
-	{
-		printf("rsslSetDebugFunctionsEx(): failed for RWF debug functions <%s>\n", error.text);
-		exit(RSSL_RET_FAILURE);
-	}
-
-	// Set function entry points for JSON protocol
-	if (rsslSetDebugFunctionsEx(&rsslDebugJSON, &error) < RSSL_RET_SUCCESS)
-	{
-		printf("rsslSetDebugFunctionsEx(): failed for JSON debug functions <%s>\n", error.text);
-		exit(RSSL_RET_FAILURE);
-	}
-	//END API QA
 
 	/* this is the main loop */
 	while(1)
@@ -571,20 +583,6 @@ static void readFromChannel(RsslChannel* chnl)
 						printf("rsslIoctl(): failed <%s>\n", error.text);
 					}
 #endif
-					//API QA
-					/* enable debug logging for new client channel */
-					if (debugDumpGeneral || debugDumpProtocolRWF || debugDumpProtocolJSON)
-					{
-						if (rsslIoctl(chnl, RSSL_DEBUG_FLAGS, &dumpDebugFlags, &error) != RSSL_RET_SUCCESS)
-						{
-							printf("rsslIoctl(): Enable debug logging failed <%s>\n", error.text);
-						}
-						else
-						{
-							printf("rsslIoctl(): Enable debug logging oK+++\n");
-						}
-					}
-					//END API QA
 
 					/* if device we connect to supports connected component versioning, 
 					 * also display the product version of what this connection is to */
@@ -795,6 +793,13 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 	sopts.connectionType = connType;
 	sopts.encryptionOpts.serverCert = certFile;
 	sopts.encryptionOpts.serverPrivateKey = keyFile;
+	//API QA
+	if (testCompressionZlib)
+	{
+		sopts.compressionType = RSSL_COMP_ZLIB;
+		sopts.compressionLevel = compressionLevel;
+	}
+	//END API QA
 
 	if (userSpecCipher == RSSL_TRUE)
 		sopts.encryptionOpts.cipherSuite = cipherSuite;
@@ -880,6 +885,13 @@ static void createNewClientSession(RsslServer *srvr)
 			FD_SET(sckt->socketId,&readfds);
 			FD_SET(sckt->socketId,&exceptfds);
 
+			// API QA
+			if (activateDump(sckt) != RSSL_RET_SUCCESS)
+			{
+				printf("activateDump(): failed\n");
+				exit(RSSL_RET_FAILURE);
+			}
+			// END API QA
 		}
 	}
 }
@@ -1291,229 +1303,4 @@ void cleanUpAndExit()
 	exit(RSSL_RET_FAILURE);
 }
 
-//API QA
-void dumpIpcIn(const char* functionName, char* buffer, RsslUInt32 length, RsslUInt64 opaque)
-{
-	char* pCh = buffer;
-	int i = 0;
 
-	if (!debugDumpGeneral)
-		return;
-
-	printf("\nCalling DumpIpcIn for %s\n", functionName);
-
-	while (*pCh && i < length)
-	{
-		printf("%2.2X", *(pCh + i) & 0xFF);
-		printf(" ");
-		i++;
-	}
-
-	printf("\n");
-}
-
-void dumpIpcOut(const char* functionName, char* buffer, RsslUInt32 length, RsslUInt64 opaque)
-{
-	char* pCh = buffer;
-	int i = 0;
-
-	if (!debugDumpGeneral)
-		return;
-
-	printf("\nCalling DumpIpcOut for %s\n", functionName);
-
-	while (*pCh && i < length)
-	{
-		printf("%2.2X", *(pCh + i) & 0xFF);
-		printf(" ");
-		i++;
-	}
-
-	printf("\n");
-}
-
-void dumpRsslIn(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId)
-{
-	char* pCh = buffer;
-	int i = 0;
-
-	if (!debugDumpGeneral)
-		return;
-
-	printf("\nCalling DumpRsslIn for %s\n", functionName);
-
-	while (*pCh && i < length)
-	{
-		printf("%2.2X", *(pCh + i) & 0xFF);
-		printf(" ");
-		i++;
-	}
-
-	printf("\n");
-}
-
-void dumpRsslOut(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId)
-{
-	char* pCh = buffer;
-	int i = 0;
-
-	if (!debugDumpGeneral)
-		return;
-
-	printf("\nCalling DumpRsslOut for %s\n", functionName);
-
-	while (*pCh && i < length)
-	{
-		printf("%2.2X", *(pCh + i) & 0xFF);
-		printf(" ");
-		i++;
-	}
-
-	printf("\n");
-}
-
-// For RWF protocol
-void dumpIpcInRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket)
-{
-	if (!debugDumpProtocolRWF)
-		return;
-
-	printf("\nCalling dumpIpcInRWF for %s\n", functionName);
-
-	displayHexData(length, buffer);
-}
-
-void dumpIpcOutRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket)
-{
-	if (!debugDumpProtocolRWF)
-		return;
-
-	printf("\nCalling dumpIpcOutRWF for %s\n", functionName);
-
-	displayHexData(length, buffer);
-}
-
-void dumpRsslInRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel)
-{
-	if (!debugDumpProtocolRWF)
-		return;
-
-	printf("\nCalling dumpRsslInRWF for %s. chan.protocolType=%u\n", functionName, channel->protocolType);
-
-	displayHexData(length, buffer);
-}
-
-void dumpRsslOutRWF(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel)
-{
-	if (!debugDumpProtocolRWF)
-		return;
-
-	printf("\nCalling dumpRsslOutRWF for %s. chan.protocolType=%u\n", functionName, channel->protocolType);
-
-	displayHexData(length, buffer);
-}
-
-// For JSON protocol
-void dumpIpcInJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket)
-{
-	if (!debugDumpProtocolJSON)
-		return;
-
-	printf("\nCalling dumpIpcInJSON for %s\n", functionName);
-
-	displayHexData(length, buffer);
-}
-
-void dumpIpcOutJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socket)
-{
-	if (!debugDumpProtocolJSON)
-		return;
-
-	printf("\nCalling dumpIpcOutJSON for %s\n", functionName);
-
-	displayHexData(length, buffer);
-}
-
-void dumpRsslInJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel)
-{
-	if (!debugDumpProtocolJSON)
-		return;
-
-	printf("\nCalling dumpRsslInJSON for %s. chan.protocolType=%u\n", functionName, channel->protocolType);
-
-	displayHexData(length, buffer);
-}
-
-void dumpRsslOutJSON(const char* functionName, char* buffer, RsslUInt32 length, RsslChannel* channel)
-{
-	if (!debugDumpProtocolJSON)
-		return;
-
-	printf("\nCalling dumpRsslOutJSON for %s. chan.protocolType=%u\n", functionName, channel->protocolType);
-
-	displayHexData(length, buffer);
-}
-void displayHexData(int length, const char* buffer)
-{
-#if defined(TEST_HEX_DUMP)
-
-	RsslUInt32 outputLen;
-	RsslBuffer outputBuf;
-	RsslBuffer inputBuf;
-	RsslError error;
-
-	inputBuf.length = length;
-	inputBuf.data = (char*)buffer;
-
-	outputBuf.length = rsslCalculateHexDumpOutputSize(&inputBuf, HEX_LINE_SIZE);
-
-	outputBuf.data = (char*)alloca(outputBuf.length);
-
-	if (rsslBufferToHexDump(&inputBuf, &outputBuf, HEX_LINE_SIZE, &error) != RSSL_RET_SUCCESS)
-		printf("Error converting to hex, %s\n", error.text);
-	else
-		printf("%s\n", outputBuf.data);
-
-#else
-	int line_num = (length + HEX_LINE_SIZE - 1) / HEX_LINE_SIZE;
-
-	int i = 0;
-	int k = 0;
-	int byte = 0;
-	int line = 0;
-
-	for (line = 0; line < line_num && i < length; line++)
-	{
-		printf("%4.4X: ", i);
-
-		k = i;
-		byte = 0;
-
-		for (; byte < HEX_LINE_SIZE && i < length; byte++)
-		{
-			printf("%2.2X ", buffer[i++] & 0xFF);
-
-			if ((byte + 1) % (HEX_LINE_SIZE / 2) == 0)
-				printf(" ");
-		}
-
-		while (byte++ < HEX_LINE_SIZE)
-		{
-			if (byte % (HEX_LINE_SIZE / 2) == 0)
-				printf(" ");
-			printf("   ");
-		}
-
-		printf(" ");
-		for (byte = 0; byte < HEX_LINE_SIZE && k < length; byte++, k++)
-		{
-			printf("%c", isprint((unsigned char)buffer[k]) ? buffer[k] : '.');
-			if ((byte + 1) % (HEX_LINE_SIZE / 2) == 0)
-				printf(" ");
-		}
-
-		printf("\n");
-	}
-#endif
-}
-//END API QA

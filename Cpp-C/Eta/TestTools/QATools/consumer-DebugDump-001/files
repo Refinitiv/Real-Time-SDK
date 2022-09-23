@@ -1,4 +1,4 @@
 #file,location
-rsslProvider.c,Applications/Examples/Provider
+rsslConsumer.c,Applications/Examples/Consumer
 rsslSendMessage.c,Applications/Examples/Common
 rsslSendMessage.h,Applications/Examples/Common

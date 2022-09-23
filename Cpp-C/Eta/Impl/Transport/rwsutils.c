@@ -5265,6 +5265,20 @@ RsslInt32 rwsPrependWsHdr(void *transport, rtr_msgb_t *msgb, RsslError *error)
 	return ((RsslInt32)msgb->length);
 }
 
+/* Dumps WS header and message
+ * buf->buffer points to the start of the header and payload data,
+ * buf->length is the length of the header and current payload data. */
+void rwsDumpMsgAndTransportHdr(const char* functionName, rtr_msgb_t* buf, void* transport)
+{
+	RsslSocketChannel* rsslSocketChannel = (RsslSocketChannel*)transport;
+	if (rsslSocketChannel != NULL)
+	{
+		webSocketDumpOutFuncImpl(functionName, buf->buffer, (RsslUInt32)(buf->length),
+			rsslSocketChannel->stream, rsslSocketChannel->protocolType);
+	}
+	return;
+}
+
 RsslInt32 rwsSendPingData(RsslSocketChannel* rsslSocketChannel, RsslBuffer *pingData, RsslError *error)
 {
   	RsslInt32	forceFlush = 1;

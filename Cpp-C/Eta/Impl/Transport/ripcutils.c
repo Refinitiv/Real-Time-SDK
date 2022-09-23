@@ -1678,6 +1678,7 @@ int ipcSetProtFuncs()
 	func.additionalTransportHdrLength = ipcAdditionalHeaderLength; // Not defined, only a stub
 	func.getPoolBuffer = ipcGetPoolBuffer;  // Get a buffer from the socketChannel inputbuffer pool
 	func.getGlobalBuffer = ipcAllocGblMsg;  // Get a simple buffer from the global pool
+	func.dumpMsgAndTransportHdr = ipcDumpMsgAndTransportHdr; // Not defined, only a stub
 	
 	return (ipcSetProtocolHdrFuncs(RSSL_CONN_TYPE_SOCKET, &func));
 }

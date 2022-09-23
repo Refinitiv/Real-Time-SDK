@@ -1744,6 +1744,13 @@ RsslInt32 ipcPrependTransportHdr(void * transport, rtr_msgb_t *buf, RsslError *e
 	return (0);
 }
 
+/* This additional call is needed for other transports to have the ability to dump their
+ * protocol header for _SOCKET type connection */
+void ipcDumpMsgAndTransportHdr(const char *functionName, rtr_msgb_t * buf, void *transport)
+{
+	return;
+}
+
 RsslInt32 ipcWrtHeader(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 {
 	RsslRet		retval = RSSL_RET_SUCCESS;
@@ -2395,6 +2402,12 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 						/* Set/populate the prefix protocol header if one exists */
 						(*(rsslSocketChannel->protocolFuncs->prependTransportHdr))((void*)rsslSocketChannel, compressedmb1, error);
 
+						if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
+							(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT))
+						{
+							(*(rsslSocketChannel->protocolFuncs->dumpMsgAndTransportHdr))(__FUNCTION__, compressedmb1, (void*)rsslSocketChannel);
+						}
+
 						totalSize += compressedmb1->protocolHdrLength;
 
 						compressedmb1->local = compressedmb1->buffer;
@@ -2740,6 +2753,11 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 
 			totalSize += msgb->protocolHdrLength;
 			uncompBytes += msgb->protocolHdrLength;
+
+			if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_OUT)
+			{
+				(*(rsslSocketChannel->protocolFuncs->dumpMsgAndTransportHdr))(__FUNCTION__, msgb, (void*)rsslSocketChannel);
+			}
 
 			msgb->local = msgb->buffer;
 
@@ -11126,6 +11144,8 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 			protHdrFuncs[i].prependTransportHdr = 0;
 			protHdrFuncs[i].getPoolBuffer = 0;
 			protHdrFuncs[i].additionalTransportHdrLength = 0;
+			protHdrFuncs[i].getGlobalBuffer = 0;
+			protHdrFuncs[i].dumpMsgAndTransportHdr = 0;
 		}
 		ipcSetProtFuncs();
 
