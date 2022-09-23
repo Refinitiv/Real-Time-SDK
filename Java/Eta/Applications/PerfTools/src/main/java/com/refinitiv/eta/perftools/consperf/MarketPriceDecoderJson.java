@@ -91,7 +91,7 @@ public class MarketPriceDecoderJson
     /**
      *  Decode the update.
      *
-     * @param iter the iter
+     * @param jsonNode the JSON node to decode
      * @param msg the msg
      * @param consumerThread the consumer thread
      * @return the int

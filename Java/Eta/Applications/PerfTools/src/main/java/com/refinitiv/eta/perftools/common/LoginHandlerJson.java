@@ -118,7 +118,10 @@ public class LoginHandlerJson
      *
      * @param channel The channel to send a login request to
      * @param error the error
-     * @param eIter the e iter
+     * @param username the username
+     * @param mapper the JSON mapper
+     * @param generator the JSON generator
+     * @param byteStream the byte stream object
      * @return Returns success if send login request succeeds or failure if it
      *         fails.
      */
@@ -191,7 +194,7 @@ public class LoginHandlerJson
      * login states.
      *
      * @param msg The partially decoded message
-     * @param dIter The decode iterator
+     * @param jsonNode the JSON node to process
      * @param error the error
      * @return returns success if decoding of message succeeds or failure if it
      *         fails.

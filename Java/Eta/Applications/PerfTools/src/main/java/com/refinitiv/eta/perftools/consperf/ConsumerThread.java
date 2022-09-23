@@ -1332,7 +1332,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 	}
 
     /** Parse JSON message. */
-	public JsonNode parseJsonMessage(TransportBuffer buffer)
+	private JsonNode parseJsonMessage(TransportBuffer buffer)
 	{
 		try {
 			ByteBuffer data = buffer.data();
@@ -1344,7 +1344,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 	}
 
     /** Parse JSON message. */
-	public JsonNode parseJsonMessage(JsonNode jsonNode)
+	private JsonNode parseJsonMessage(JsonNode jsonNode)
 	{
 		_responseMsg.clear();
 
@@ -1442,7 +1442,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 	}
 
     /** Process JSON message. */
-	public void processJsonMessage(JsonNode jsonNode)
+	private void processJsonMessage(JsonNode jsonNode)
 	{
 		if (parseJsonMessage(jsonNode) != null)
 		{
@@ -1468,7 +1468,7 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 	}
 
     /** Process transport response. */
-	public void processResponseJson(TransportBuffer buffer)
+	private void processResponseJson(TransportBuffer buffer)
 	{
 		JsonNode root = parseJsonMessage(buffer);
 		if (root.isObject())

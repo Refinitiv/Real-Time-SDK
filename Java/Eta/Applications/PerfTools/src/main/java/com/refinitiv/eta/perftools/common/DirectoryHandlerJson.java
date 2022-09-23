@@ -111,6 +111,9 @@ public class DirectoryHandlerJson
      *
      * @param channel the channel
      * @param error the error
+     * @param mapper the JSON mapper
+     * @param generator the JSON generator
+     * @param byteStream the byte stream object
      * @return the request
      */
     public TransportBuffer getRequest(Channel channel, Error error, ObjectMapper mapper, JsonGenerator generator, ByteBufferOutputStream byteStream)
@@ -161,7 +164,7 @@ public class DirectoryHandlerJson
      * @param chnl - The channel of the response msg - The partially decoded
      *            message
      * @param msg the msg
-     * @param dIter - The decode iterator
+     * @param jsonNode - the JSON node to process
      * @param error the error
      * @return the int
      */
