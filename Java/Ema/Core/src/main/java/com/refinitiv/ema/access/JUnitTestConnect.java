@@ -14,6 +14,7 @@ import com.refinitiv.ema.access.ConfigManager.ConfigAttributes;
 import com.refinitiv.ema.access.ConfigManager.ConfigElement;
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.transport.ConnectionTypes;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode;
 
 //This class is created as a connect bridge between JUNIT test and EMA external/internal interface/classes.
 
@@ -25,6 +26,9 @@ public class JUnitTestConnect
 	public static final int ConfigGroupTypeProvider = 4;
 	public static final int ConfigGroupTypeDirectory = 5;
 	public static final int ConfigGroupTypeServer = 6;
+	public static final int ConfigGroupTypeWarmStandbyGroup = 7;
+	public static final int ConfigGroupTypeWarmStandbyStartingServerInfo = 8;
+	public static final int ConfigGroupTypeWarmStandbyStandbyServerInfo = 9;
 
 	// Common Parameters:
 	public static final int ChannelSet  = ConfigManager.ChannelSet; 
@@ -195,6 +199,26 @@ public class JUnitTestConnect
 	public static final int ServerTcpNodelay = ConfigManager.ServerTcpNodelay;
 	public static final int ServerDirectSocketWrite = ConfigManager.ServerDirectSocketWrite;
 	public static final int ConnectionMinPingTimeout = ConfigManager.ConnectionMinPingTimeout;
+	
+	// WarmStandby
+	public static final int ConsumerWarmStandbyChannelSet = ConfigManager.ConsumerWarmStandbyChannelSet;
+	
+	// WarmStandbyGroup
+	public static final int WarmStandbyGroup = ConfigManager.WarmStandbyGroup;
+	public static final int WarmStandbyList = ConfigManager.WarmStandbyList;
+	public static final int WarmStandbyChannel = ConfigManager.WarmStandbyChannel;
+	public static final int WarmStandbyChannelName = ConfigManager.WarmStandbyChannelName;
+	public static final int StartingActiveServer = ConfigManager.StartingActiveServer;
+	public static final int StandbyServerSet = ConfigManager.StandbyServerSet;
+	public static final int WarmStandbyMode = ConfigManager.WarmStandbyMode;
+	
+	// WarmStandbyServerInfo
+	public static final int WarmStandbyServerInfoGroup = ConfigManager.WarmStandbyServerInfoGroup;
+	public static final int WarmStandbyServerInfoList = ConfigManager.WarmStandbyServerInfoList;
+	public static final int WarmStandbyServerInfo = ConfigManager.WarmStandbyServerInfo;
+	public static final int WarmStandbyServerName = ConfigManager.WarmStandbyServerName;
+	public static final int WarmStandbyServerChannel = ConfigManager.WarmStandbyServerChannel;
+	public static final int PerServiceNameSet = ConfigManager.PerServiceNameSet;
 	
 	public static String _lastErrorText = "";
 	public static EmaObjectManager _objManager = new EmaObjectManager();
@@ -729,6 +753,12 @@ public class JUnitTestConnect
 	}
 	
 	// used only for JUNIT tests
+	public static String configGetWarmStandbyChannelSet(OmmConsumerConfig consConfig, String warmStandbyChannelSet)
+	{
+		return ((OmmConsumerConfigImpl) consConfig).warmStandbyChannelSet(warmStandbyChannelSet);
+	}
+	
+	// used only for JUNIT tests
 	public static String configGetDictionaryName(OmmConsumerConfig consConfig, String consumerName)
 	{
 		return ((OmmConsumerConfigImpl) consConfig).dictionaryName(consumerName);
@@ -832,10 +862,14 @@ public class JUnitTestConnect
 			attributes = consConfig.xmlConfig().getDictionaryAttributes(name);
 		else if (type == ConfigGroupTypeProvider)
 			attributes = consConfig.xmlConfig().getIProviderAttributes(name);
-		else if (type == ConfigGroupTypeServer) {
+		else if (type == ConfigGroupTypeServer)
 			attributes = consConfig.xmlConfig().getServerAttributes(name);
-		}
-
+		else if (type == ConfigGroupTypeWarmStandbyGroup)
+			attributes = consConfig.xmlConfig().getWSBGroupAttributes(name);
+		else if (type == ConfigGroupTypeWarmStandbyStartingServerInfo)
+			attributes = consConfig.xmlConfig().getWSBServerInfoAttributes(name);
+		else if (type == ConfigGroupTypeWarmStandbyStandbyServerInfo)
+			attributes = consConfig.xmlConfig().getWSBServerInfoAttributes(name);
 		if (attributes != null) {
 			return attributes.getPrimitiveValue(configParam);
 		}
@@ -1031,6 +1065,92 @@ public class JUnitTestConnect
 		throw new IllegalArgumentException("Invalid Input");  
 	}
 	
+	public static String activeConfigGetStringValue(OmmConsumer consumer, int type, int configParam, int channelIndex, int subChannelIndex)
+	{
+		OmmConsumerImpl consImpl = (OmmConsumerImpl) consumer;
+		
+		if (consImpl == null || consImpl.activeConfig() == null)
+		{
+			_lastErrorText = "Not initialize OmmConsumerImpl object or Active config object yet ";
+			return null;
+		}
+		
+		ActiveConfig activeConfig = consImpl.activeConfig();
+		
+		if (type == ConfigGroupTypeWarmStandbyGroup)
+		{
+			WarmStandbyChannelConfig wsbConfig = null;
+			wsbConfig = getWSBChannelConfig(channelIndex, wsbConfig, activeConfig);
+			
+			if (configParam == WarmStandbyChannelName)
+				return wsbConfig.name;
+			else if (configParam == StartingActiveServer)
+				return wsbConfig.startingActiveServer.name;
+			else if (configParam == StandbyServerSet)
+				return wsbConfig.standbyServerSet.get(subChannelIndex).name;
+			else if (configParam == WarmStandbyMode)
+			{
+				switch (wsbConfig.warmStandbyMode)
+				{
+					case ReactorWarmStandbyMode.LOGIN_BASED:
+						return "WarmStandbyMode::LOGIN_BASED";
+					case ReactorWarmStandbyMode.SERVICE_BASED:
+						return "WarmStandbyMode::SERVICE_BASED";
+					default:
+						return "WarmStandbyMode::LOGIN_BASED";
+				}
+			}
+		}
+		else if (type == ConfigGroupTypeWarmStandbyStartingServerInfo)
+		{
+			WarmStandbyServerInfoConfig wsbConfig = null;
+			wsbConfig = getWSBStartingServerConfig(channelIndex, wsbConfig, activeConfig);
+			
+			if (configParam == WarmStandbyServerInfo)
+				return wsbConfig.name;
+			else if (configParam == WarmStandbyServerChannel)
+				return wsbConfig.channelConfig.name;
+			else if (configParam == PerServiceNameSet)
+			{
+				String returnString = "";
+				for (int i = 0; i < wsbConfig.perServiceNameSet.size(); ++i)
+				{
+					if (returnString.length() > 0)
+					{
+						returnString += ", ";
+					}
+					returnString += wsbConfig.perServiceNameSet.get(i);
+				}
+				return returnString;
+			}
+		}
+		else if (type == ConfigGroupTypeWarmStandbyStandbyServerInfo)
+		{
+			WarmStandbyServerInfoConfig wsbConfig = null;
+			wsbConfig = getWSBStandbyServerConfig(channelIndex, subChannelIndex, wsbConfig, activeConfig);
+			
+			if (configParam == WarmStandbyServerInfo)
+				return wsbConfig.name;
+			else if (configParam == WarmStandbyServerChannel)
+				return wsbConfig.channelConfig.name;
+			else if (configParam == PerServiceNameSet)
+			{
+				String returnString = "";
+				for (int i = 0; i < wsbConfig.perServiceNameSet.size(); ++i)
+				{
+					if (returnString.length() > 0)
+					{
+						returnString += ", ";
+					}
+					returnString += wsbConfig.perServiceNameSet.get(i);
+				}
+				return returnString;
+			}
+		}
+		
+		throw new IllegalArgumentException("Invalid Input");  
+	}	
+	
 	public static String activeConfigGetStringValue(OmmConsumer consumer, int type, int configParam, int channelIndex)
 	{
 		ChannelConfig chanConfig = null;
@@ -1113,6 +1233,53 @@ public class JUnitTestConnect
 				return dictConfig.enumtypeDefFileName;
 			else if (configParam == DictionaryRDMFieldDictFileName)
 				return dictConfig.rdmfieldDictionaryFileName;
+		}
+		else if (type == ConfigGroupTypeWarmStandbyGroup)
+		{
+			WarmStandbyChannelConfig wsbConfig = null;
+			wsbConfig = getWSBChannelConfig(channelIndex, wsbConfig, activeConfig);
+			
+			if (configParam == WarmStandbyChannelName)
+				return wsbConfig.name;
+			else if (configParam == StartingActiveServer)
+				return wsbConfig.startingActiveServer.name;
+			else if (configParam == StandbyServerSet)
+				return wsbConfig.standbyServerSet.get(channelIndex).name;
+			else if (configParam == WarmStandbyMode)
+			{
+				switch (wsbConfig.warmStandbyMode)
+				{
+					case ReactorWarmStandbyMode.LOGIN_BASED:
+						return "WarmStandbyMode::LOGIN_BASED";
+					case ReactorWarmStandbyMode.SERVICE_BASED:
+						return "WarmStandbyMode::SERVICE_BASED";
+					default:
+						return "WarmStandbyMode::LOGIN_BASED";
+				}
+			}
+		}
+		else if (type == ConfigGroupTypeWarmStandbyStartingServerInfo)
+		{
+			WarmStandbyServerInfoConfig wsbConfig = null;
+			wsbConfig = getWSBStartingServerConfig(channelIndex, wsbConfig, activeConfig);
+			
+			if (configParam == WarmStandbyServerInfo)
+				return wsbConfig.name;
+			else if (configParam == WarmStandbyServerChannel)
+				return wsbConfig.channelConfig.name;
+			else if (configParam == PerServiceNameSet)
+			{
+				String returnString = "";
+				for (int i = 0; i < wsbConfig.perServiceNameSet.size(); ++i)
+				{
+					if (returnString.length() > 0)
+					{
+						returnString += ", ";
+					}
+					returnString += wsbConfig.perServiceNameSet.get(i);
+				}
+				return returnString;
+			}
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");  
@@ -1222,6 +1389,14 @@ public class JUnitTestConnect
 				return chanConfig.connectionPingTimeout;
 			else if (configParam == ChannelInitTimeout)
 				return chanConfig.initializationTimeout;
+		}
+		else if (type == ConfigGroupTypeWarmStandbyGroup)
+		{
+			WarmStandbyChannelConfig wsbConfig = null;
+			wsbConfig = getWSBChannelConfig(channelIndex, wsbConfig, activeConfig);
+
+			if (configParam == WarmStandbyMode)
+				return wsbConfig.warmStandbyMode;
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");  
@@ -1514,5 +1689,53 @@ public class JUnitTestConnect
 			}
 		}
 		return chanConfig;
+	}
+	
+	private static WarmStandbyChannelConfig getWSBChannelConfig(int channelIndex, WarmStandbyChannelConfig chanConfig, ActiveConfig activeConfig) {
+		if (channelIndex >= 0) {
+			if (channelIndex >= activeConfig.configWarmStandbySet.size()) {
+				_lastErrorText = "ChannelIndex is out of range ";
+				throw new IllegalArgumentException(_lastErrorText);
+			}
+
+			chanConfig = activeConfig.configWarmStandbySet.get(channelIndex);
+			if (chanConfig == null) {
+				_lastErrorText = "Unable to find the active channel config object ";
+				throw new NullPointerException(_lastErrorText);
+			}
+		}
+		return chanConfig;
+	}
+	
+	private static WarmStandbyServerInfoConfig getWSBStartingServerConfig(int channelIndex, WarmStandbyServerInfoConfig serverConfig, ActiveConfig activeConfig) {
+		if (channelIndex >= 0) {
+			if (channelIndex >= activeConfig.configWarmStandbySet.size()) {
+				_lastErrorText = "ChannelIndex is out of range ";
+				throw new IllegalArgumentException(_lastErrorText);
+			}
+
+			serverConfig = activeConfig.configWarmStandbySet.get(channelIndex).startingActiveServer;
+			if (serverConfig == null) {
+				_lastErrorText = "Unable to find the active channel config object ";
+				throw new NullPointerException(_lastErrorText);
+			}
+		}
+		return serverConfig;
+	}
+	
+	private static WarmStandbyServerInfoConfig getWSBStandbyServerConfig(int channelIndex, int standbyServerIndex, WarmStandbyServerInfoConfig serverConfig, ActiveConfig activeConfig) {
+		if (channelIndex >= 0) {
+			if (channelIndex >= activeConfig.configWarmStandbySet.size()) {
+				_lastErrorText = "ChannelIndex is out of range ";
+				throw new IllegalArgumentException(_lastErrorText);
+			}
+
+			serverConfig = activeConfig.configWarmStandbySet.get(channelIndex).standbyServerSet.get(standbyServerIndex);
+			if (serverConfig == null) {
+				_lastErrorText = "Unable to find the active channel config object ";
+				throw new NullPointerException(_lastErrorText);
+			}
+		}
+		return serverConfig;
 	}
 }

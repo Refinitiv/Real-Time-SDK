@@ -9,6 +9,7 @@
 package com.refinitiv.eta.valueadd.reactor;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,9 +24,15 @@ public class ReactorConnectOptions
     int     _reconnectAttemptLimit;
     int     _reconnectMinDelay = DEFAULT_DELAY;
     int     _reconnectMaxDelay = DEFAULT_DELAY;
+    /* A list of warm standby groups for the warm standby feature.
+     * Reactor always uses this list if specified and then moves next to the reactorConnectionList option. 
+     */
+    List<ReactorWarmStandbyGroup> _reactorWarmStandyGroupList;
 
     ReactorConnectOptions()
     {
+   		_reactorWarmStandyGroupList = new LinkedList<ReactorWarmStandbyGroup>();
+  	
         _connectionList = new ArrayList<ReactorConnectInfo>(10);
     }
 
@@ -156,6 +163,7 @@ public class ReactorConnectOptions
         _reconnectAttemptLimit = 0;
         _reconnectMinDelay = DEFAULT_DELAY;
         _reconnectMaxDelay = DEFAULT_DELAY;
+        _reactorWarmStandyGroupList.clear();
     }
 
     /**
@@ -179,10 +187,31 @@ public class ReactorConnectOptions
             _connectionList.get(i).copy(reactorConnectInfo);
             destOpts._connectionList.add(reactorConnectInfo);
         }
+        
+        destOpts._reactorWarmStandyGroupList.clear();
+        for(int i = 0; i < _reactorWarmStandyGroupList.size(); i++)
+        {
+        	ReactorWarmStandbyGroupImpl wsbGroup = new ReactorWarmStandbyGroupImpl();
+        	((ReactorWarmStandbyGroupImpl)_reactorWarmStandyGroupList.get(i)).copy(wsbGroup);
+        	destOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
 
         destOpts._reconnectAttemptLimit = _reconnectAttemptLimit;
         destOpts._reconnectMinDelay = _reconnectMinDelay;
         destOpts._reconnectMaxDelay = _reconnectMaxDelay;
+
         return ReactorReturnCodes.SUCCESS;
     }
+    
+    /**
+     * Returns the List of ReactorWarmStandbyGroup.
+     * Reactor always uses this list if specified and then moves next to the reactorConnectionList option
+     * 
+     * @return the List of ReactorWarmStandbyGroup
+     */
+    public List<ReactorWarmStandbyGroup> reactorWarmStandbyGroupList()
+    {
+    	return _reactorWarmStandyGroupList;
+    }
+    
 }

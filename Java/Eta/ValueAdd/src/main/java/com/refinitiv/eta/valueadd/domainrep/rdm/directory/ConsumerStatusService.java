@@ -81,6 +81,22 @@ public interface ConsumerStatusService
      * @param action the action
      */
     public void action(int action);
+    
+    /**
+     * The RDM Consumer Service Status flags. Populated by
+     * {@link ConsumerStatusServiceFlags}.
+     * 
+     * @return flags
+     */
+    public int flags();
+    
+    /**
+     * The RDM Consumer Service Status flags. Populated by
+     * {@link ConsumerStatusServiceFlags}.
+     * 
+     * @param flags the flags
+     */
+    public void flags(int flags);
 
     /**
      * sourceMirroringMode - The Source Mirroring Mode for this service.
@@ -99,5 +115,60 @@ public interface ConsumerStatusService
      * @param sourceMirroringMode the source mirroring mode
      */
     public void sourceMirroringMode(long sourceMirroringMode);
+    
+    /**
+     * Checks the presence of Source Mirroring Mode field.
+     * 
+     * Flags may also be bulk-get via {@link #flags()}.
+     * 
+     * @return true - if exists; false if does not exist.
+     */
+    public boolean checkHasSourceMirroringMode();
+
+    /**
+     * Applies the Source Mirroring Mode flag.
+     * 
+     * Flags may also be bulk-set via {@link #flags(int)}.
+     * 
+     * @see #flags(int)
+     */
+    public void applyHasSourceMirroringMode();
+    
+    /**
+     * warmStandbyMode - The Warm Standby Mode for this service.
+     * Populated by
+     * {@link com.refinitiv.eta.rdm.Directory.SourceMirroringMode}.
+     * 
+     * @return Warm Standby Mode.
+     */
+    public long warmStandbyMode();
+
+    /**
+     * warmStandbyMode - The Warm Standby Mode for this service.
+     * Populated by
+     * {@link com.refinitiv.eta.rdm.Directory.SourceMirroringMode}.
+     *
+     * @param warmStandbyMode the Warm Standby Mode
+     */
+    public void warmStandbyMode(long warmStandbyMode);
+    
+    /**
+     * Checks the presence of Warm Standby Mode field.
+     * 
+     * Flags may also be bulk-get via {@link #flags()}.
+     * 
+     * @return true - if exists; false if does not exist.
+     */
+    public boolean checkHasWarmStandbyMode();
+
+    /**
+     * Applies the Warm Standby Mode flag.
+     * 
+     * Flags may also be bulk-set via {@link #flags(int)}.
+     * 
+     * @see #flags(int)
+     */
+    public void applyHasWarmStandbyMode();
+
 
 }

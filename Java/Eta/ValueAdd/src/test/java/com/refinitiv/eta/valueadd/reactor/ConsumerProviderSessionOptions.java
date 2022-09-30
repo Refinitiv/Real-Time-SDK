@@ -25,6 +25,8 @@ public class ConsumerProviderSessionOptions {
     private long _openWindow = -1;
     private int numOfGuaranteedBuffers = 50;
     private int _compressionType = CompressionTypes.NONE;
+    
+    private int _wsbMode = ReactorWarmStandbyMode.LOGIN_BASED;
 	
 	/** Returns the type of connection the session will use. */
 	public int connectionType() { return _connectionType; }
@@ -187,5 +189,13 @@ public class ConsumerProviderSessionOptions {
 
 	public void compressionType(int compressionType) {
 		this._compressionType = compressionType;
+	}
+	
+	public int wsbMode() {
+		return _wsbMode;
+	}
+
+	public void wsbMode(int wsbMode) {
+		this._wsbMode = wsbMode;
 	}
 }

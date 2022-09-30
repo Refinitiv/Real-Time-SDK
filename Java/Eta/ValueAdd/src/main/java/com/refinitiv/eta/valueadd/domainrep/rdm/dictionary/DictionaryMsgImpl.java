@@ -558,4 +558,9 @@ class DictionaryMsgImpl implements DictionaryMsg, DictionaryRequest, DictionaryC
     {
         return DomainTypes.DICTIONARY;
     }
+    
+    public Buffer version()
+    {
+    	return rdmDictionaryRefresh().version();
+    }
 }

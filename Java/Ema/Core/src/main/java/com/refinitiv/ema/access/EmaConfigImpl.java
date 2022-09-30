@@ -391,6 +391,7 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	
 	abstract String channelName(String instanceName);
 	
+	abstract String warmStandbyChannelSet(String instanceName);
 
 	int setLoginRequest(RequestMsg rsslRequestMsg)
 	{

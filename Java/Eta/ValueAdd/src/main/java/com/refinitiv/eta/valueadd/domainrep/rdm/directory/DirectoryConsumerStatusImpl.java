@@ -89,7 +89,7 @@ class DirectoryConsumerStatusImpl extends MsgBaseImpl
         genericMsg.containerType(DataTypes.MAP);
         genericMsg.flags(GenericMsgFlags.HAS_MSG_KEY);
         genericMsg.msgKey().flags(MsgKeyFlags.HAS_NAME);
-        genericMsg.msgKey().name(ElementNames.CONS_CONN_STATUS);
+        genericMsg.msgKey().name(ElementNames.CONS_STATUS);
         int ret = genericMsg.encodeInit(encodeIter, 0);
         if (ret != CodecReturnCodes.ENCODE_CONTAINER)
             return CodecReturnCodes.FAILURE;
@@ -152,7 +152,7 @@ class DirectoryConsumerStatusImpl extends MsgBaseImpl
         if (key == null || !key.checkHasName())
             return CodecReturnCodes.FAILURE;
 
-        if (!key.name().equals(ElementNames.CONS_CONN_STATUS))
+        if (!key.name().equals(ElementNames.CONS_STATUS))
         {
             // Unknown generic msg name
             return CodecReturnCodes.FAILURE;

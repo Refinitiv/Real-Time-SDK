@@ -170,6 +170,54 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
 		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
 	
+		// Checks values of Consumer_8
+		System.out.println("\nRetrieving Consumer_8 configuration values "); 
+
+		ConsChannelVal = JUnitTestConnect.configGetChannelName(testConfig, "Consumer_8");
+		String WarmStandbyChannelSet  = JUnitTestConnect.configGetWarmStandbyChannelSet(testConfig, "Consumer_8");
+		TestUtilities.checkResult("WarmStandbyChannelSet value == WarmStandbyChannel_1, WarmStandbyChannel_2", WarmStandbyChannelSet.contentEquals("WarmStandbyChannel_1, WarmStandbyChannel_2") );
+		ConsDictionary = JUnitTestConnect.configGetDictionaryName(testConfig, "Consumer_8");
+		TestUtilities.checkResult("Dictionary != null", ConsDictionary != null);
+		TestUtilities.checkResult("Dictionary value == Dictionary_2", ConsDictionary.contentEquals("Dictionary_2") );
+
+		// Check all values from WarmStandbyChannel_1
+		String WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_1", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer);
+		TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StartingActiveServer value == Server_Info_1", WSBGroupAttrib.contentEquals("Server_Info_1") );
+		WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_1", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet);
+		TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StandbyServerSet value == Server_Info_2", WSBGroupAttrib.contentEquals("Server_Info_2") );
+		WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_1", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.WarmStandbyMode);
+		TestUtilities.checkResult("WarmStandbyMode value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("WarmStandbyMode value == WarmStandbyMode::LOGIN_BASED", WSBGroupAttrib.contentEquals("WarmStandbyMode::LOGIN_BASED") );
+		
+		// Check all values from WarmStandbyChannel_2
+		WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_2", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer);
+		TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StartingActiveServer value == Server_Info_2", WSBGroupAttrib.contentEquals("Server_Info_2") );
+		WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_2", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet);
+		TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StandbyServerSet value == Server_Info_1", WSBGroupAttrib.contentEquals("Server_Info_1") );
+		WSBGroupAttrib = JUnitTestConnect.configGetStringValue(testConfig, "WarmStandbyChannel_2", JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.WarmStandbyMode);
+		TestUtilities.checkResult("WarmStandbyMode value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("WarmStandbyMode value == WarmStandbyMode::SERVICE_BASED", WSBGroupAttrib.contentEquals("WarmStandbyMode::SERVICE_BASED") );
+		
+		// Checks all values from Server_Info_1
+		String WSBServerAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Server_Info_1", JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_1", WSBServerAttrib.contentEquals("Channel_1") );
+		WSBServerAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Server_Info_1", JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == DIRECT_FEED", WSBServerAttrib.contentEquals("DIRECT_FEED") );
+		
+		// Checks all values from Server_Info_2
+		WSBServerAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Server_Info_2", JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_4", WSBServerAttrib.contentEquals("Channel_4") );
+		WSBServerAttrib = JUnitTestConnect.configGetStringValue(testConfig, "Server_Info_2", JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == DIRECT_FEED2, DIRECT_FEED3", WSBServerAttrib.contentEquals("DIRECT_FEED2, DIRECT_FEED3") );
+
 		// Check Channel configuration:
 		// Check Channel_1 configuration.
 		ConsChannelVal = "Channel_1";
@@ -5333,6 +5381,195 @@ public void testReuseProgrammaticInterface()
 			System.out.println(excp.getMessage());
 			TestUtilities.checkResult("Receiving exception, test failed.", false );
 		}
-}	
+}
+
+public void testLoadConfigFromProgrammaticForWarmStandby()
+{
+	TestUtilities.printTestHead("testLoadConfigFromProgrammaticForWarmStandby","Test loading configuration parameters programmatically from Cons with Warm Standby configuration");
+	
+	Map outermostMapCons = EmaFactory.createMap();
+	Map innerMap = EmaFactory.createMap();
+	ElementList elementList = EmaFactory.createElementList();
+	ElementList innerElementList = EmaFactory.createElementList();
+	try
+	{
+		elementList.add(EmaFactory.createElementEntry().ascii("DefaultConsumer", "Consumer_8"));
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii("WarmStandbyChannelSet", "WarmStandbyChannel_1, WarmStandbyChannel_2"));
+		innerElementList.add(EmaFactory.createElementEntry().uintValue("XmlTraceToStdout", 0));
+
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_8", MapEntry.MapAction.ADD, innerElementList));
+
+		elementList.add(EmaFactory.createElementEntry().map("ConsumerList", innerMap));
+
+		innerMap.clear();
+		
+		outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("ConsumerGroup", MapEntry.MapAction.ADD, elementList));
+		elementList.clear();
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().enumValue("ChannelType", 0));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14002"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Channel_1", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().enumValue("ChannelType", 0));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "15008"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Channel_2", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().enumValue("ChannelType", 0));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Host", "localhost"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Port", "14008"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Channel_3", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+
+		elementList.add(EmaFactory.createElementEntry().map("ChannelList", innerMap));
+		innerMap.clear();
+		
+		outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("ChannelGroup", MapEntry.MapAction.ADD, elementList));
+		elementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_1"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("PerServiceNameSet", "Service_A, Service_B"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Server_Info_1", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_2"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("PerServiceNameSet", "Service_C, Service_D"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Server_Info_2", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii("Channel", "Channel_3"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("PerServiceNameSet", "Service_E, Service_F"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Server_Info_3", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+
+		elementList.add(EmaFactory.createElementEntry().map("WarmStandbyServerInfoList", innerMap));
+		innerMap.clear();
+
+		outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyServerInfoGroup", MapEntry.MapAction.ADD, elementList));
+		elementList.clear();
+
+		innerElementList.add(EmaFactory.createElementEntry().ascii("StartingActiveServer", "Server_Info_1"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("StandbyServerSet", "Server_Info_2, Server_Info_3"));
+		innerElementList.add(EmaFactory.createElementEntry().enumValue("WarmStandbyMode", 1)); /* 2 for service based while 1 for login based warm standby */
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyChannel_1", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().ascii("StartingActiveServer", "Server_Info_2"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("StandbyServerSet", "Server_Info_1, Server_Info_3"));
+		innerElementList.add(EmaFactory.createElementEntry().enumValue("WarmStandbyMode", 2)); /* 2 for service based while 1 for login based warm standby */
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyChannel_2", MapEntry.MapAction.ADD, innerElementList));
+		innerElementList.clear();
+
+		elementList.add(EmaFactory.createElementEntry().map("WarmStandbyList", innerMap));
+		innerMap.clear();
+
+		outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("WarmStandbyGroup", MapEntry.MapAction.ADD, elementList));
+		elementList.clear();
+		
+		innerElementList.add(EmaFactory.createElementEntry().enumValue("DictionaryType", 0));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("RdmFieldDictionaryFileName", "./RDMFieldDictionary"));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("EnumTypeDefFileName", "./enumtype.def"));
+		innerMap.add(EmaFactory.createMapEntry().keyAscii("Dictionary_2", MapEntry.MapAction.ADD, innerElementList));
+		
+		elementList.add(EmaFactory.createElementEntry().map("DictionaryList", innerMap));
+		
+		outermostMapCons.add(EmaFactory.createMapEntry().keyAscii("DictionaryGroup", MapEntry.MapAction.ADD, elementList));
+		
+		OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig();
+		OmmConsumer cons = JUnitTestConnect.createOmmConsumer(testConfig.config(outermostMapCons));
+
+		String defaultConsName = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerDefaultConsumerName, -1);
+		TestUtilities.checkResult("DefaultConsumer value != null", defaultConsName != null);
+		TestUtilities.checkResult("DefaultConsumer value == Consumer_8", defaultConsName.contentEquals("Consumer_8") );
+		String WarmStandbyChannelSet  = JUnitTestConnect.configGetWarmStandbyChannelSet(testConfig, "Consumer_8");
+		TestUtilities.checkResult("WarmStandbyChannelSet value == WarmStandbyChannel_1, WarmStandbyChannel_2", WarmStandbyChannelSet.contentEquals("WarmStandbyChannel_1, WarmStandbyChannel_2") );
+
+		// Check all values from WarmStandbyChannel_1
+		String WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer, 0);
+		TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StartingActiveServer value == Server_Info_1", WSBGroupAttrib.contentEquals("Server_Info_1") );
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 0, 0);
+		TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StandbyServerSet value == Server_Info_2", WSBGroupAttrib.contentEquals("Server_Info_2") );
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 0, 1);
+		TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StandbyServerSet value == Server_Info_3", WSBGroupAttrib.contentEquals("Server_Info_3") );
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.WarmStandbyMode, 0);
+		TestUtilities.checkResult("WarmStandbyMode value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("WarmStandbyMode value == WarmStandbyMode::LOGIN_BASED", WSBGroupAttrib.contentEquals("WarmStandbyMode::LOGIN_BASED") );
+		
+		// Check all values from WarmStandbyChannel_2
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StartingActiveServer, 1);
+		TestUtilities.checkResult("StartingActiveServer value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StartingActiveServer value == Server_Info_2", WSBGroupAttrib.contentEquals("Server_Info_2") );
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 1, 0);
+		TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StandbyServerSet value == Server_Info_1", WSBGroupAttrib.contentEquals("Server_Info_1") );
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.StandbyServerSet, 1, 1);
+		TestUtilities.checkResult("StandbyServerSet value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("StandbyServerSet value == Server_Info_3", WSBGroupAttrib.contentEquals("Server_Info_3") );
+		WSBGroupAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyGroup, JUnitTestConnect.WarmStandbyMode, 1);
+		TestUtilities.checkResult("WarmStandbyMode value != null", WSBGroupAttrib != null);
+		TestUtilities.checkResult("WarmStandbyMode value == WarmStandbyMode::SERVICE_BASED", WSBGroupAttrib.contentEquals("WarmStandbyMode::SERVICE_BASED") );
+
+		// Checks all values from Server_Info_1 of WarmStandbyChannel_1's starting active server
+		String WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 0);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_1", WSBServerAttrib.contentEquals("Channel_1") );
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.PerServiceNameSet, 0);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == Service_A, Service_B", WSBServerAttrib.contentEquals("Service_A, Service_B") );
+		
+		// Checks all values from Server_Info_2 of WarmStandbyChannel_1's first Standby Server
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 0, 0);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_2", WSBServerAttrib.contentEquals("Channel_2") );
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 0, 0);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == Service_C, Service_D", WSBServerAttrib.contentEquals("Service_C, Service_D") );
+		
+		// Checks all values from Server_Info_3 of WarmStandbyChannel_1's second Standby Server
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 0, 1);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_3", WSBServerAttrib.contentEquals("Channel_3") );
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 0, 1);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == Service_E, Service_F", WSBServerAttrib.contentEquals("Service_E, Service_F") );
+	
+		// Checks all values from Server_Info_2 of WarmStandbyChannel_2's Starting Active Server
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 1);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_2", WSBServerAttrib.contentEquals("Channel_2") );
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStartingServerInfo, JUnitTestConnect.PerServiceNameSet, 1);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == Service_C, Service_D", WSBServerAttrib.contentEquals("Service_C, Service_D") );
+		
+		// Checks all values from Server_Info_1 of WarmStandbyChannel_2's first standby server
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 1, 0);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_1", WSBServerAttrib.contentEquals("Channel_1") );
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 1, 0);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == Service_A, Service_B", WSBServerAttrib.contentEquals("Service_A, Service_B") );
+
+		// Checks all values from Server_Info_3 of WarmStandbyChannel_2's second Standby Server
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.WarmStandbyServerChannel, 1, 1);
+		TestUtilities.checkResult("Channel value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("Channel value == Channel_3", WSBServerAttrib.contentEquals("Channel_3") );
+		WSBServerAttrib = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeWarmStandbyStandbyServerInfo, JUnitTestConnect.PerServiceNameSet, 1, 1);
+		TestUtilities.checkResult("PerServiceNameSet value != null", WSBServerAttrib != null);
+		TestUtilities.checkResult("PerServiceNameSet value == Service_E, Service_F", WSBServerAttrib.contentEquals("Service_E, Service_F") );
+	}
+	catch ( OmmException excp)
+	{
+		System.out.println(excp.getMessage());
+		TestUtilities.checkResult("Receiving exception, test failed.", false );
+	}
+}
 	
 }

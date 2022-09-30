@@ -850,6 +850,14 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.GlobalConfigDict;
 						}
+						else if ( configNodeChild.getNodeName().equals("WarmStandbyGroup"))
+						{
+							tagDict = ConfigManager.WarmStandbyGroupDict;
+						}
+						else if ( configNodeChild.getNodeName().equals("WarmStandbyServerInfoGroup"))
+						{
+							tagDict = ConfigManager.WarmStandbyServerDict;
+						}
 					}
 					
 					if ( level == 5 )
@@ -1671,6 +1679,26 @@ class ConfigReader
 			}
 
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.SERVER_LIST,serverName,ConfigManager.ServerName));
+		}
+		
+		ConfigAttributes getWSBGroupAttributes(String WSBGroup) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.WARMSTANDBYGROUP_LIST,WSBGroup,ConfigManager.WarmStandbyChannelName));
+		}
+		
+		ConfigAttributes getWSBServerInfoAttributes(String WSBServerInfo) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.WARMSTANDBYSERVER_LIST,WSBServerInfo,ConfigManager.WarmStandbyServerName));
 		}
 		
 		ConfigAttributes getGlobalConfig(){

@@ -19,14 +19,14 @@ public interface LoginWarmStandbyInfo
 {
     /**
      *
-     * The desired Warm Standby Mode. Populated by RDMLoginServerTypes.
+     * The desired Warm Standby Mode. Populated by {@link com.refinitiv.eta.rdm.Login.ServerTypes}.
      * 
      * @return warmStandbyMode
      */
     public long warmStandbyMode();
 
     /**
-     * The desired Warm Standby Mode. Populated by RDMLoginServerTypes.
+     * The desired Warm Standby Mode. Populated by {@link com.refinitiv.eta.rdm.Login.ServerTypes}.
      *
      * @param warmStandbyMode the warm standby mode
      */

@@ -510,7 +510,7 @@ class ReactorTokenSession implements RestCallback
 						
 						if (reactorChannel.state() == State.EDP_RT)
 						{
-							ReactorConnectInfo reactorConnectInfo = reactorChannel.getReactorConnectInfo();
+							ReactorConnectInfo reactorConnectInfo = reactorChannel.getCurrentReactorConnectInfo();
 							
 							/* Checks whether to get a host and port from the RDP (fomerly EDP-RT) service discovery */
 							if(Reactor.requestServiceDiscovery(reactorConnectInfo))

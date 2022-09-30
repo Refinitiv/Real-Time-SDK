@@ -368,7 +368,7 @@ typedef struct
 	RsslReactorWarmStandbyMode        warmStandbyMode; /*!< Specifies a warm standby mode. */
 	/* End */
 
-	RsslHashTable               _perServiceById; /* This hash table provides mapping between service ID and ReactorChannel. */
+	RsslHashTable               _perServiceById; /* This hash table provides mapping between service ID and current active ReactorChannel. */
 	RsslQueue	                _serviceList; /* Keeps a list of full services which belong to this group. */
 	RsslQueue	                _updateServiceList; /* Keeps a list of update service list which belong to this group.  */
 	RsslHashTable               *pActiveServiceConfig; /* This is used to select an active service from a server. */
@@ -523,7 +523,7 @@ struct _RsslReactorChannelImpl
 	/* For Warm Standby by feature */
 	RsslReactorWarmStandByHandlerImpl *pWarmStandByHandlerImpl; /* Keeps a list of RsslChannel(s) for connected server(s). */
 	RsslQueueLink					  warmstandbyChannelLink; /* Keeps in the RsslQueue of RsslWarmStandByHandlerImpl */
-	RsslBool                          isActiveServer; /* This indicates whether this channel is used to connect with the active server. */
+	RsslBool                          isActiveServer; /* This indicates whether this channel is used to connect with the active server for Login-based warm standby */
 	RsslUInt32						  standByServerListIndex; /* Keeps the index of the standby server list in a RsslReactorWarmStandByGroup. */
 	RsslBool						  isStartingServerConfig; /* This is used to indicate that this channel uses the starting server configuration. */
 	RsslInt64						  lastSubmitOptionsTime; /* Keeps the timestamp when handling the last submit options. */

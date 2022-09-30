@@ -57,6 +57,7 @@ public class WatchlistStreamInfo
         _userSpecObject = userSpecObject;
     }
     
+    
     /**
      * Clears this object for reuse.
      */
@@ -67,3 +68,8 @@ public class WatchlistStreamInfo
     }
 }
 
+class WlStreamStatusFlags
+{
+	static int NONE = 0x0;
+	static int SEND_STATUS = 0x1;
+}

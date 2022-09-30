@@ -45,6 +45,9 @@ public class LoginSupportFeaturesFlags
     /** (0x100) Indicates presence of the supportEnhancedSymbolList member. */
     public static final int HAS_SUPPORT_ENH_SL = 0x100;
     
+    /** (0x200) Indicates presence of the supportStandbyMode member. */
+    public static final int HAS_SUPPORT_STANDBY_MODE = 0x200;
+    
     private LoginSupportFeaturesFlags()
     {
         throw new AssertionError();

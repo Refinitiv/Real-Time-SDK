@@ -168,7 +168,7 @@ public interface Msg extends XMLDecoder
      * are not provided, they will be created.
      * 
      * @param destMsg Msg to copy Msg structure into. It cannot be null.
-     * @param copyMsgFlags controls which parameters of message are copied to destination message
+     * @param copyMsgFlags controls which parameters of message are copied to destination message.  See {@link CopyMsgFlags}
      * 
      * @return {@link CodecReturnCodes#SUCCESS}, if the message is copied successfully,
      *         {@link CodecReturnCodes#FAILURE} if the source message is invalid

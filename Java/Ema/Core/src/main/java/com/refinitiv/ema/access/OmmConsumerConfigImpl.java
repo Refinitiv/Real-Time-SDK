@@ -263,6 +263,21 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		return channelName;
 	}
 	
+	String warmStandbyChannelSet(String channelSet)
+	{
+		String warmStandbyChannelSet = null;
+
+		if ( _programmaticConfigure != null )
+		{
+			warmStandbyChannelSet = _programmaticConfigure.activeEntryNames(channelSet, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
+			if (warmStandbyChannelSet != null)
+				return warmStandbyChannelSet;
+		}
+	
+		warmStandbyChannelSet = (String) xmlConfig().getConsumerAttributeValue(channelSet, ConfigManager.ConsumerWarmStandbyChannelSet);
+		return warmStandbyChannelSet;
+	}
+	
 	String dictionaryName(String instanceName)
 	{
 		String dictionaryName = null;

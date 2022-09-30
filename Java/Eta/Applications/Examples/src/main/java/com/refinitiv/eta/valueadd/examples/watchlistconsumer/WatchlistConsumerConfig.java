@@ -56,6 +56,13 @@ public class WatchlistConsumerConfig
 
 	private ArrayList<ItemInfo> itemList = new ArrayList<ItemInfo>();
 	private ArrayList<ItemInfo> providedItemList = new ArrayList<ItemInfo>();
+	
+	private String startingHostName;
+	private String startingPort;
+	private String standbyHostName;
+	private String standbyPort;
+	private String warmStandbyMode;
+	private boolean enableWarmStandby;
 
 	class ItemInfo
 	{
@@ -288,6 +295,19 @@ public class WatchlistConsumerConfig
 			{
 				connectionArg.connectionType(ConnectionTypes.WEBSOCKET);
 			}
+			
+			if (CommandLine.hasArg("startingHostName") && (CommandLine.hasArg("startingPort") && CommandLine.hasArg("standbyHostName")
+					&& CommandLine.hasArg("standbyPort") && CommandLine.hasArg("warmStandbyMode")))
+			{
+				startingHostName = CommandLine.value("startingHostName");
+				startingPort = CommandLine.value("startingPort");
+				standbyHostName = CommandLine.value("standbyHostName");
+				standbyPort = CommandLine.value("standbyPort");
+				warmStandbyMode = CommandLine.value("warmStandbyMode");
+				enableWarmStandby = true;
+			}
+			else
+				enableWarmStandby = false;
 
 			if(CommandLine.hasArg("encryptedConnectionType"))
 			{
@@ -645,6 +665,36 @@ public class WatchlistConsumerConfig
 	{
 		return itemList;
 	}
+	
+	String startingHostName()
+	{
+		return startingHostName;
+	}
+	
+	String startingPort()
+	{
+		return startingPort;
+	}
+	
+	String standbyHostName()
+	{
+		return standbyHostName;
+	}
+	
+	String standbyPort()
+	{
+		return standbyPort;
+	}
+	
+	String warmStandbyMode()
+	{
+		return warmStandbyMode;
+	}
+	
+	boolean enableWarmStandby()
+	{
+		return enableWarmStandby;
+	}
 
 	private void parseItems(List<String> itemNames, int domain, boolean isPrivateStream, boolean isSymbollistData, List<ItemArg> itemList)
 	{
@@ -724,6 +774,12 @@ public class WatchlistConsumerConfig
 
 		CommandLine.addOption("rtt", false, "(optional) Enable RTT support in the WatchList");
 		CommandLine.addOption("takeExclusiveSignOnControl", "true", "Specifies the exclusive sign on control to force sign-out for the same credentials., default is true");
+	
+		CommandLine.addOption("startingHostName", "", "Specifies the hostname of the starting server in a Warm Standby environment.");
+		CommandLine.addOption("startingPort", "", "Specifies the port of the starting server in a Warm Standby environment.");
+		CommandLine.addOption("standbyHostName", "", "Specifies the hostname of the standby server in a Warm Standby environment.");
+		CommandLine.addOption("standbyPort", "", "Specifies the port of the standby server in a Warm Standby environment.");
+		CommandLine.addOption("warmStandbyMode", "", "Specifies the Warm Standby Connection Mode, set either to Login or Service.");
 	}
 }
 

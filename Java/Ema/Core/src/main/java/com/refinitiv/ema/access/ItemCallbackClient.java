@@ -1469,6 +1469,8 @@ TunnelStreamStatusEventCallback
 		
 		Msg msg = event.msg();
 		ChannelInfo channelInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+		if (channelInfo.getParentChannel() != null)
+			channelInfo = channelInfo.getParentChannel();
         if (msg == null)
         {
         	com.refinitiv.eta.transport.Error error = event.errorInfo().error();

@@ -126,6 +126,11 @@ public class ItemDecoder
 	/* Decodes the payload of a message according to its domain. */
 	int decodeDataBody(ReactorChannel channel, Msg msg)
 	{
+		if(msg.containerType() == DataTypes.NO_DATA)
+        {
+        	return CodecReturnCodes.SUCCESS;
+        }
+		
 		switch (msg.domainType())
 		{
 			case DomainTypes.MARKET_PRICE:

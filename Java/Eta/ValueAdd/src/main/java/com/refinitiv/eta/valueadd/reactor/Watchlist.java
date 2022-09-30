@@ -24,6 +24,7 @@ import com.refinitiv.eta.codec.MsgClasses;
 import com.refinitiv.eta.codec.MsgKey;
 import com.refinitiv.eta.codec.MsgKeyFlags;
 import com.refinitiv.eta.codec.RequestMsg;
+import com.refinitiv.eta.codec.StatusMsg;
 import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.valueadd.common.VaNode;
@@ -67,6 +68,7 @@ class Watchlist extends VaNode
         _reactor = _reactorChannel.reactor();
         _role = consumerRole;
         _watchlistOptions = _role.watchlistOptions();
+        
         if (_watchlistOptions.itemCountHint() > 0)
         {
             _streamIdtoWlRequestTable = new HashMap<WlInteger,WlRequest>(_watchlistOptions.itemCountHint() + 10, 1);
@@ -297,7 +299,66 @@ class Watchlist extends VaNode
     {
         assert (wlStream != null);
 
-        return wlStream.handler().readMsg(wlStream, dIter, msg, errorInfo);
+        return wlStream.handler().readMsg(wlStream, dIter, msg, false, errorInfo);
+    }
+    
+    /* Watchlist read message method for warm standby.  Additional fanout if the response is closed. */
+    int readMsgWSB(WlStream wlStream, ReactorChannel channel, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
+    {
+        assert (wlStream != null);
+        int ret;
+        boolean isActiveServer = false;
+        
+        ret = wlStream.handler().readMsg(wlStream, dIter, msg, false, errorInfo);
+        if(ret != ReactorCallbackReturnCodes.SUCCESS)
+        	return ret;
+        
+        if(wlStream.domainType() >= DomainTypes.MARKET_PRICE)
+        {
+        	if(channel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl().warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
+        	{
+        		isActiveServer = channel.isActiveServer;
+        	}
+        	else
+        	{
+        		if(wlStream.wlService() != null && wlStream.wlService().rdmService() != null)
+        		{
+        			isActiveServer = (channel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl()._perServiceById.get(wlStream.wlService().tableKey())) != null;
+        		}
+        	}
+        }
+        
+        if(isActiveServer)
+        {
+        	if(msg.msgClass() == MsgClasses.STATUS && msg.domainType() != DomainTypes.SYMBOL_LIST)
+        	{
+        		StatusMsg status = (StatusMsg)msg;
+        		
+        		if(status.checkHasState())
+        		{
+        			if(status.state().streamState() == StreamStates.CLOSED)
+        			{
+        				wlStream._closeMsg.clear();
+        				wlStream._closeMsg.streamId(msg.streamId());
+        				
+        				for(int i = 0; i < channel.warmStandByHandlerImpl.channelList().size(); ++i)
+        				{
+        					ReactorChannel chnl = channel.warmStandByHandlerImpl.channelList().get(i);
+            				
+            				if(chnl == channel)
+            					continue;
+            				
+            				wlStream._submitOptions.clear();
+            				
+            				chnl.watchlist().submitMsg(wlStream._closeMsg, wlStream._submitOptions, errorInfo);
+        				}
+        				
+        			}
+        		}
+        	}
+        }
+        
+        return ret;
     }
     
     int dispatch(ReactorErrorInfo errorInfo)

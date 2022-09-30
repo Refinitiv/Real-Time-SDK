@@ -119,6 +119,12 @@
 			<Channel value="C3"/>
 			<ChannelSet value="CS2"/>
 		</Consumer>
+		<Consumer>
+			<Name value="Consumer_8"/>
+			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
+			<Dictionary value="Dictionary_2"/>
+			<XmlTraceToStdout value="0" />
+		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
 
@@ -706,6 +712,38 @@
 	</DirectoryList>
 	
 </DirectoryGroup>
+
+<WarmStandbyServerInfoGroup>
+	<WarmStandbyServerInfoList>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_1"/>
+			<Channel value="Channel_1"/>
+			<PerServiceNameSet value="DIRECT_FEED"/>
+		</WarmStandbyServerInfo>
+		<WarmStandbyServerInfo>
+			<Name value="Server_Info_2"/>
+			<Channel value="Channel_4"/>
+			<PerServiceNameSet value="DIRECT_FEED2, DIRECT_FEED3"/>
+		</WarmStandbyServerInfo>
+	</WarmStandbyServerInfoList>
+</WarmStandbyServerInfoGroup>
+
+<WarmStandbyGroup>
+	<WarmStandbyList>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_1"/>
+			<StartingActiveServer value="Server_Info_1"/>
+			<StandbyServerSet value="Server_Info_2"/>
+			<WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+		</WarmStandbyChannel>
+		<WarmStandbyChannel>
+			<Name value="WarmStandbyChannel_2"/>
+			<StartingActiveServer value="Server_Info_2"/>
+			<StandbyServerSet value="Server_Info_1"/>
+			<WarmStandbyMode value="WarmStandbyMode::SERVICE_BASED"/>
+		</WarmStandbyChannel>
+	</WarmStandbyList>
+</WarmStandbyGroup>
 
 <DictionaryGroup>
 	<DictionaryList>

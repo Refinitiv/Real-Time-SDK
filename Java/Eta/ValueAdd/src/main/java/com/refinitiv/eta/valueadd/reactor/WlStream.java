@@ -387,6 +387,25 @@ class WlStream extends VaNode
         return ret;
     }
     
+    
+    /* Wrapper for sendMsg, used when looping through the pending item queue. Can return SUCCESS, FAILURE, or NO_BUFFERS, allowing the loop to stop if NO_BUFFERS is received */
+    int sendMsgOnLoop(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
+    {
+    	int ret = sendMsg(msg, submitOptions, errorInfo);
+    	
+    	return ret;
+    }
+    
+    /* Wrapper for sendMsg, used when just sending a message. Can return SUCCESS, or FAILURE */
+    int sendMsgOutOfLoop(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
+    {
+    	int ret = sendMsg(msg, submitOptions, errorInfo);
+    	
+    	if(ret == ReactorReturnCodes.NO_BUFFERS)
+    		return ReactorReturnCodes.SUCCESS;
+    	return ret;
+    }
+    
     /* Sends a message to the stream. */
     int sendMsg(Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo)
     {
@@ -455,6 +474,62 @@ class WlStream extends VaNode
 	            		}                	
 	            	}
 	            }
+	            /* If this is a request and not admin domain, warm standby is on, and the warm standby group mode is LOGIN, and this isn't the 
+	             * current active connection for the group:
+	             * 
+	             * Check to see if the current active connection has the requested service.  If it doesn't(or is down or not accepting requests),
+	             * add this request to the pending list.
+	             */
+	            if (msg.msgClass() == MsgClasses.REQUEST && msg.domainType() != DomainTypes.LOGIN && msg.domainType() != DomainTypes.DICTIONARY && msg.domainType() != DomainTypes.SOURCE)
+                {
+	            	if(_watchlist.reactor().reactorHandlesWarmStandby(_watchlist.reactorChannel()))
+	            	{
+            			ReactorWarmStandbyHandler wsbHandler = _watchlist.reactorChannel().warmStandByHandlerImpl;
+            		
+            			if(wsbHandler.currentWarmStandbyGroupImpl().warmStandbyMode() == ReactorWarmStandbyMode.LOGIN_BASED)
+            			{
+	            			if(wsbHandler.activeReactorChannel() == null)
+	            			{
+	            				if (msg != requestMsg())
+									requestMsg((RequestMsg)msg);
+			            		handler().addPendingRequest(this);
+	
+			            		return ReactorReturnCodes.SUCCESS;
+	            			}
+		            		
+		            		if(_watchlist.reactorChannel().isActiveServer == false)
+		            		{
+		            			_watchlist._tempWlInteger.value(msg.msgKey().serviceId());
+		            			
+		            			WlService wlService = wsbHandler.activeReactorChannel().watchlist()._directoryHandler._serviceCache._servicesByIdTable.get(_watchlist._tempWlInteger);
+		            			
+		            			if(wlService != null)
+		            			{
+		            				if(wlService.rdmService().state().serviceState() == 0 || wlService.rdmService().state().acceptingRequests() == 0)
+		            				{
+		            					// service is down or not accepting requests.
+		            					if (msg != requestMsg())
+		    								requestMsg((RequestMsg)msg);
+		    		            		handler().addPendingRequest(this);
+	
+		    		            		return ReactorReturnCodes.SUCCESS;
+		            				}
+		            			}
+		            			else
+		            			{
+	            					// service does not yet exist in the active.
+		            				if (msg != requestMsg())
+										requestMsg((RequestMsg)msg);
+				            		handler().addPendingRequest(this);
+	
+				            		return ReactorReturnCodes.SUCCESS;
+		            			}
+		            			
+		            		}
+            			}
+	            	}
+                }
+                
 	                     
 	            ret = encodeIntoBufferAndWrite(msg, submitOptions, errorInfo);	
 	            	
@@ -506,7 +581,7 @@ class WlStream extends VaNode
 								requestMsg((RequestMsg)msg);
 		            		handler().addPendingRequest(this);
 	            	  }
-	                 return ReactorReturnCodes.SUCCESS;
+	                 return ReactorReturnCodes.NO_BUFFERS;
 	            }
             }
             else // close message

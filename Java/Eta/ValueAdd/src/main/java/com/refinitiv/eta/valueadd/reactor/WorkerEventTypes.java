@@ -51,7 +51,9 @@ enum WorkerEventTypes
     // sent from Reactor to Worker
     TOKEN_MGNT,
     // sent from Reactor to itself for dispatching to the application
-	TOKEN_CREDENTIAL_RENEWAL;
+	TOKEN_CREDENTIAL_RENEWAL,
+	// sent from Worker to Reactor
+	WARM_STANDBY;
     
     
     /* Returns a String representation of the specified WorkerEventTypes type. */

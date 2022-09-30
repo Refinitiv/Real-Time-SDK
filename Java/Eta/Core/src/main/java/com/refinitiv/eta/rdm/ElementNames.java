@@ -54,12 +54,15 @@ public class ElementNames
     // Warm Standby - Well known Element Names
     /** SupportStandby */
     public static final Buffer SUPPORT_STANDBY = CodecFactory.createBuffer();
+    /** SupportStandbyMode */
+    public static final Buffer SUPPORT_STANDBY_MODE = CodecFactory.createBuffer();
     /** WarmStandbyInfo */
     public static final Buffer WARMSTANDBY_INFO = CodecFactory.createBuffer();
     /** WarmStandbyMode */
     public static final Buffer WARMSTANDBY_MODE = CodecFactory.createBuffer();
     /** ConsumerConnectionStatus */
     public static final Buffer CONS_CONN_STATUS = CodecFactory.createBuffer();
+
 
     // Connection Load Balancing - Well known Element Names
     /** DownloadConnectionConfig */
@@ -288,6 +291,8 @@ public class ElementNames
         // Warm Standby - Well known Element Names
         /** SupportStandby */
         SUPPORT_STANDBY.data("SupportStandby");
+        /** SupportStandbyMode */
+        SUPPORT_STANDBY_MODE.data("SupportStandbyMode");
         /** WarmStandbyInfo */
         WARMSTANDBY_INFO.data("WarmStandbyInfo");
         /** WarmStandbyMode */

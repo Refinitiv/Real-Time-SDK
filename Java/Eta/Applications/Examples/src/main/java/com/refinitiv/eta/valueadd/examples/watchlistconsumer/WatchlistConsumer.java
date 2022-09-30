@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.*;
@@ -251,7 +252,7 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 	{
 		error = TransportFactory.createError();
 
-		dispatchOptions.maxMessages(1);
+		dispatchOptions.maxMessages(1000);
 		_finalStatusEvent = true;
 
 		closetime = 10; // 10 sec
@@ -404,35 +405,15 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			// nothing to read
 			if (keySet != null)
 			{
-				Iterator<SelectionKey> iter = keySet.iterator();
-				int ret = ReactorReturnCodes.SUCCESS;
-				while (iter.hasNext())
+				int ret;
+				do
 				{
-					SelectionKey key = iter.next();
-					iter.remove();
-					try
+					ret = reactor.dispatchAll(keySet, dispatchOptions, errorInfo);
+					if (ret == ReactorReturnCodes.FAILURE)
 					{
-						if (key.isReadable())
-						{
-							// retrieve associated reactor channel and dispatch on that channel
-							ReactorChannel reactorChnl = (ReactorChannel)key.attachment();
-
-							// dispatch until no more messages
-							while ((ret = reactorChnl.dispatch(dispatchOptions, errorInfo)) > 0) {}
-							if (ret == ReactorReturnCodes.FAILURE)
-							{
-								if (reactorChnl.state() != ReactorChannel.State.CLOSED &&
-									reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
-								{
-									System.out.println("ReactorChannel dispatch failed: " + ret + "(" + errorInfo.error().text() + ")");
-								}
-							}
-						}
+						System.out.println("ReactorChannel dispatch failed: " + ret + "(" + errorInfo.error().text() + ")");
 					}
-					catch (CancelledKeyException e)
-					{
-					} // key can be canceled during shutdown
-				}
+				} while(ret > 0);				
 			}
 
 			if (System.currentTimeMillis() >= runtime && !closeHandled)
@@ -633,21 +614,46 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 					System.out.println("Channel Up Event");
 				// register selector with channel event's reactorChannel
 
-				// define socket fd value
-				final int fdSocketId =
-						ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
-				socketFdValueMap.put(event.reactorChannel(), fdSocketId);
-				try
+				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 				{
-					event.reactorChannel().selectableChannel().register(selector,
-							SelectionKey.OP_READ,
-							event.reactorChannel());
+					/* Add all the current selectable channels */
+					for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+					{
+						// define socket fd value
+						final int fdSocketId =
+								ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i));
+						socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+						try
+						{
+							event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).register(selector,
+									SelectionKey.OP_READ,
+									event.reactorChannel());
+						}
+						catch (ClosedChannelException e)
+						{
+							System.out.println("selector register failed: " + e.getLocalizedMessage());
+						}
+						
+					}
 				}
-				catch (ClosedChannelException e)
+				else
 				{
-					System.out.println("selector register failed: " + e.getLocalizedMessage());
-					return ReactorCallbackReturnCodes.SUCCESS;
-				}
+					// define socket fd value
+					final int fdSocketId =
+							ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
+					socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+					try
+					{
+						event.reactorChannel().selectableChannel().register(selector,
+								SelectionKey.OP_READ,
+								event.reactorChannel());
+					}
+					catch (ClosedChannelException e)
+					{
+						System.out.println("selector register failed: " + e.getLocalizedMessage());
+						return ReactorCallbackReturnCodes.SUCCESS;
+					}
+				}	
 
 				break;
 			}
@@ -656,28 +662,69 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 				System.out.println("Channel Change - Old Channel: "
 								   + event.reactorChannel().oldSelectableChannel() + " New Channel: "
 								   + event.reactorChannel().selectableChannel());
-
-				// cancel old reactorChannel select
-				SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
-				if (key != null)
-					key.cancel();
-
-				// define new socket fd value
-				final int fdSocketId =
-						ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
-				socketFdValueMap.put(event.reactorChannel(), fdSocketId);
-
-				// register selector with channel event's new reactorChannel
-				try
+				
+				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 				{
-					event.reactorChannel().selectableChannel().register(selector,
-							SelectionKey.OP_READ,
-							event.reactorChannel());
+					event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().forEach((oldSelectChannel) -> {
+						// cancel old reactorChannel select if it's not in the current list
+						if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
+						{
+							SelectionKey key = oldSelectChannel.keyFor(selector);
+							System.out.println("Removing socket from list" + oldSelectChannel);
+							if (key != null)
+								key.cancel();
+						}
+					});
+					
+					/* Add all the current selectable channels */
+					for(int i = 0; i < event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+					{
+						// define socket fd value
+						final int fdSocketId =
+								ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i));
+						socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+						try
+						{
+							if(event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).keyFor(selector) == null)
+							{
+								System.out.println("Adding socket to list" + event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i));
+								event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i).register(selector,
+										SelectionKey.OP_READ,
+										event.reactorChannel());
+							}
+						}
+						catch (ClosedChannelException e)
+						{
+							System.out.println("selector register failed: " + e.getLocalizedMessage());
+						}
+						
+					}
 				}
-				catch (Exception e)
+				else
 				{
-					System.out.println("selector register failed: " + e.getLocalizedMessage());
-					return ReactorCallbackReturnCodes.SUCCESS;
+
+					// cancel old reactorChannel select
+					SelectionKey key = event.reactorChannel().oldSelectableChannel().keyFor(selector);
+					if (key != null)
+						key.cancel();
+	
+					// define new socket fd value
+					final int fdSocketId =
+							ChannelHelper.defineFdValueOfSelectableChannel(event.reactorChannel().channel().selectableChannel());
+					socketFdValueMap.put(event.reactorChannel(), fdSocketId);
+	
+					// register selector with channel event's new reactorChannel
+					try
+					{
+						event.reactorChannel().selectableChannel().register(selector,
+								SelectionKey.OP_READ,
+								event.reactorChannel());
+					}
+					catch (Exception e)
+					{
+						System.out.println("selector register failed: " + e.getLocalizedMessage());
+						return ReactorCallbackReturnCodes.SUCCESS;
+					}
 				}
 				break;
 			}
@@ -717,22 +764,28 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 
 				if (event.errorInfo() != null && event.errorInfo().error().text() != null)
 					System.out.println("	Error text: " + event.errorInfo().error().text() + "\n");
-
+				
 				// unregister selectableChannel from Selector
-				if (event.reactorChannel().selectableChannel() != null)
+				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 				{
-					SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-					if (key != null)
-						key.cancel();
+					/* Remove all the old keys from the selectable key list */
+					event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().forEach((oldSelectChannel) -> {
+						// cancel old reactorChannel select if it's not in the current list
+						if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
+						{
+							SelectionKey key = oldSelectChannel.keyFor(selector);
+							if (key != null)
+								key.cancel();
+						}
+					});
 				}
-
-				// reset dictionary if not loaded from file
-				if (itemDecoder.fieldDictionaryLoadedFromFile == false &&
-					itemDecoder.enumTypeDictionaryLoadedFromFile == false)
+				else
 				{
-					if (chnlInfo.dictionary != null)
+					if (event.reactorChannel().selectableChannel() != null)
 					{
-						chnlInfo.dictionary.clear();
+						SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
+						if (key != null)
+							key.cancel();
 					}
 				}
 
@@ -752,11 +805,27 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 					System.out.println("    Error text: " + event.errorInfo().error().text() + "\n");
 
 				// unregister selectableChannel from Selector
-				if (event.reactorChannel().selectableChannel() != null)
+				if(event.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
 				{
-					SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
-					if (key != null)
-						key.cancel();
+					/* Remove all the old keys from the selectable key list */
+					event.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().forEach((oldSelectChannel) -> {
+						// cancel old reactorChannel select if it's not in the current list
+						if(!event.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(oldSelectChannel))
+						{
+							SelectionKey key = oldSelectChannel.keyFor(selector);
+							if (key != null)
+								key.cancel();
+						}
+					});
+				}
+				else
+				{
+					if (event.reactorChannel().selectableChannel() != null)
+					{
+						SelectionKey key = event.reactorChannel().selectableChannel().keyFor(selector);
+						if (key != null)
+							key.cancel();
+					}
 				}
 
 				// close ReactorChannel
@@ -1696,6 +1765,104 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		// handler encrypted or http connection
 		chnlInfo.shouldEnableEncrypted = watchlistConsumerConfig.enableEncrypted();
 		chnlInfo.shouldEnableHttp = watchlistConsumerConfig.enableHttp();
+		
+		// handle warm standby
+		if (watchlistConsumerConfig.enableWarmStandby())
+		{
+			ReactorWarmStandbyGroup reactorWarmStandbyGroup = ReactorFactory.createReactorWarmStandbyGroup();
+			ReactorWarmStandbyServerInfo standbyServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(watchlistConsumerConfig.connectionList.get(0).connectionType());
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(watchlistConsumerConfig.startingHostName());
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(watchlistConsumerConfig.startingPort());
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(chnlInfo);
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().guaranteedOutputBuffers(1000);
+			reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().enableSessionManagement(watchlistConsumerConfig.enableSessionManagement());
+			standbyServerInfo.reactorConnectInfo().connectOptions().connectionType(watchlistConsumerConfig.connectionList.get(0).connectionType());
+			standbyServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address(watchlistConsumerConfig.standbyHostName());
+			standbyServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(watchlistConsumerConfig.standbyPort());
+			standbyServerInfo.reactorConnectInfo().connectOptions().userSpecObject(chnlInfo);
+			standbyServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+			standbyServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+			standbyServerInfo.reactorConnectInfo().connectOptions().guaranteedOutputBuffers(1000);
+			standbyServerInfo.reactorConnectInfo().enableSessionManagement(watchlistConsumerConfig.enableSessionManagement());
+			if (watchlistConsumerConfig.warmStandbyMode().toLowerCase().equals("login"))
+				reactorWarmStandbyGroup.warmStandbyMode(ReactorWarmStandbyMode.LOGIN_BASED);
+			else if (watchlistConsumerConfig.warmStandbyMode().toLowerCase().equals("service"))
+				reactorWarmStandbyGroup.warmStandbyMode(ReactorWarmStandbyMode.SERVICE_BASED);
+			
+			if (chnlInfo.shouldEnableEncrypted)
+			{
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().encryptionOptions().connectionType(chnlInfo.connectionArg.encryptedConnectionType());
+				setEncryptedConfiguration(reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions());
+				
+				standbyServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.ENCRYPTED);
+				standbyServerInfo.reactorConnectInfo().connectOptions().encryptionOptions().connectionType(chnlInfo.connectionArg.encryptedConnectionType());
+				setEncryptedConfiguration(standbyServerInfo.reactorConnectInfo().connectOptions());
+
+			}
+			else if (chnlInfo.shouldEnableHttp)
+			{
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.HTTP);
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().tunnelingType("http");
+				setHTTPConfiguration(reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions());
+				
+				standbyServerInfo.reactorConnectInfo().connectOptions().connectionType(ConnectionTypes.HTTP);
+				standbyServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().tunnelingType("http");
+				setHTTPConfiguration(standbyServerInfo.reactorConnectInfo().connectOptions());
+			}
+			
+			if(watchlistConsumerConfig.connectionList.get(0).connectionType() == ConnectionTypes.WEBSOCKET || chnlInfo.connectionArg.encryptedConnectionType() == ConnectionTypes.WEBSOCKET )
+			{
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(watchlistConsumerConfig.protocolList());
+				standbyServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(watchlistConsumerConfig.protocolList());
+			}
+			
+			/* Setup proxy info */
+			if (watchlistConsumerConfig.enableProxy())
+			{
+				String proxyHostName = watchlistConsumerConfig.proxyHostname();
+				if ( proxyHostName == null)
+				{
+					System.err.println("Error: Proxy hostname not provided.");
+					System.exit(CodecReturnCodes.FAILURE);
+				}
+				String proxyPort = watchlistConsumerConfig.proxyPort();
+				if ( proxyPort == null)
+				{
+					System.err.println("Error: Proxy port number not provided.");
+					System.exit(CodecReturnCodes.FAILURE);
+				}
+
+
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().HTTPproxy(true);
+				reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().HTTPproxyHostName(proxyHostName);
+				
+				standbyServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().HTTPproxy(true);
+				standbyServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().HTTPproxyHostName(proxyHostName);
+				try
+				{
+					reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions().tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
+					standbyServerInfo.reactorConnectInfo().connectOptions().tunnelingInfo().HTTPproxyPort(Integer.parseInt(proxyPort));
+
+				}
+				catch(Exception e)
+				{
+					System.err.println("Error: Proxy port number not provided.");
+					System.exit(CodecReturnCodes.FAILURE);
+				}
+				
+				setCredentials(reactorWarmStandbyGroup.startingActiveServer().reactorConnectInfo().connectOptions());
+				
+				setCredentials(standbyServerInfo.reactorConnectInfo().connectOptions());
+			}
+
+			reactorWarmStandbyGroup.standbyServerList().add(standbyServerInfo);
+
+			chnlInfo.connectOptions.reactorWarmStandbyGroupList().add(reactorWarmStandbyGroup);
+		}
 
 		ConnectOptions cOpt = chnlInfo.connectOptions.connectionList().get(0).connectOptions();
 

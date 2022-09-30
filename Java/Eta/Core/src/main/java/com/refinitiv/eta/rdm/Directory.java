@@ -199,4 +199,21 @@ public class Directory
 	     */
 	    public static final int STANDBY = 2;
 	}
+	
+	/**
+	 *  Indicates the warm standby service type 
+	 */
+	public static class WarmStandbyDirectoryServiceTypes
+	{
+		/**
+		 * Indicates that the provider for this service is the active server.
+		 */
+		public static final int ACTIVE = 0;
+		
+		/**
+		 * Indicates that the provider for this service is the standby server.
+		 */
+		public static final int STANDBY = 1;
+		
+	}
 }

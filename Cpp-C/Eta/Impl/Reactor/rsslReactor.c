@@ -5134,7 +5134,9 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 							pWarmStandByHandlerImpl->pNextActiveReactorChannel->isActiveServer = RSSL_TRUE;
 							pWarmStandByHandlerImpl->pActiveReactorChannel = pWarmStandByHandlerImpl->pNextActiveReactorChannel;
 
+							/* Notify the user for all of the items that the current active cannot support */
 							_reactorWSNotifyStatusMsg(pWarmStandByHandlerImpl->pNextActiveReactorChannel);
+							/* Reset the next active pointer, this will be set at the next time a channel goes down */
 							pWarmStandByHandlerImpl->pNextActiveReactorChannel = NULL;
 						}
 
@@ -12938,6 +12940,8 @@ RsslRet copyWlItemRequest(RsslReactorImpl *pReactorImpl, RsslReactorSubmitMsgOpt
 	return RSSL_RET_SUCCESS;
 }
 
+/* Checks to see if all reactor channels associated with this warm standby handler have been closed.
+Returns RSSL_TRUE if everything has been closed, otherwise returns RSSL_FALSE if any channels have an rsslChannel in an ACTIVE state, and the reactor channel is not in reconnecting or inactive */
 static RsslBool isWarmStandbyChannelClosed(RsslReactorWarmStandByHandlerImpl* pWarmStandbyHandler, RsslReactorChannelImpl* pReactorChannelImpl)
 {
 	RsslQueueLink* pLink = NULL;
@@ -13317,6 +13321,8 @@ RsslBool _isActiveServiceForWSBChannelByName(RsslReactorWarmStandbyGroupImpl *pW
 	return RSSL_TRUE;
 }
 
+
+// TODO: Refactor this into _warmStandbyCallbackChecks
 static RsslBool _isActiveServerForWSBChannel(RsslReactorWarmStandbyGroupImpl *pWarmStandByGroupImpl, RsslReactorChannelImpl *pReactorChannel, ReactorProcessMsgOptions *pOpts)
 {
 	if (_reactorHandlesWarmStandby(pReactorChannel))
@@ -13512,6 +13518,9 @@ static RsslRet _reactorWSReadWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslRea
 	return ret;
 }
 
+
+// This function will be called when a secondary channel receives responses.  If the status is CLOSED< CLOSED_RECOVER, or REDIRECTED, the stream response will be cached
+// to bse sent if the current channel becomes the active in the future.
 static RsslRet _reactorWSHandleRecoveryStatusMsg(RsslReactorChannelImpl *pReactorChannel, ReactorProcessMsgOptions *pOpts)
 {
 	RsslReactorWarmStandByHandlerImpl *pWarmStandbyHandleImpl = pReactorChannel->pWarmStandByHandlerImpl;
@@ -13853,6 +13862,9 @@ static RsslRet _reactorWSWriteWatchlistMsg(RsslReactorImpl *pReactorImpl, RsslRe
 	return ret;
 }
 
+
+// This function fans out any cached closed/closed_recover/redirect status messages received as a standby channel.
+// In addition, it will also fan out any close messages to make sure that the items have been closed to the other connections, so the user can re-request them.
 static RsslRet _reactorWSNotifyStatusMsg(RsslReactorChannelImpl *pReactorChannel)
 {
 	RsslRet ret = RSSL_RET_SUCCESS;

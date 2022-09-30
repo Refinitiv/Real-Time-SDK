@@ -8,8 +8,10 @@
 package com.refinitiv.ema.access;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.refinitiv.ema.access.DataType.DataTypes;
 import com.refinitiv.ema.access.DirectoryServiceStore.ServiceIdInteger;
@@ -24,6 +26,7 @@ import com.refinitiv.eta.transport.CompressionTypes;
 import com.refinitiv.eta.transport.ConnectionTypes;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode;
 
 class ProgrammaticConfigure
 {
@@ -38,6 +41,7 @@ class ProgrammaticConfigure
 		final static int CHANNELSET_FLAG =		0x008;
 		final static int DIRECTORY_FLAG =		0x010;
 		final static int SERVER_FLAG =			0x020;
+		final static int WARM_STANDBY_CHANNELSET_FLAG = 0x040;
 	}
 	
 	/** @class ChannelEntryFlag
@@ -117,6 +121,16 @@ class ProgrammaticConfigure
 		final static int WS_MAX_MSG_SIZE_FLAG = 	0x002;
 	}
 	
+	/**
+	 * @class WarmStandbyGroupFlag
+	 * An enumeration representing warm standby group config variables.
+	 */
+	class WarmStandbyGroupFlag {
+		final static int WS_PROTOCOLS_FLAG =		0x001;
+		final static int WS_MAX_MSG_SIZE_FLAG = 	0x002;
+	}
+	
+	
 	final static int MAX_UNSIGNED_INT16	= 0xFFFF;
 	final static long MAX_UNSIGNED_INT32 = 0xFFFFFFFFL;
 	
@@ -131,6 +145,7 @@ class ProgrammaticConfigure
 	private String	_dictionaryName;
 	private String	_directoryName;
 	private String	_channelSet;
+	private String  _warmStandbyChannelSetName;
 	
 	private	boolean		_overrideConsName;
 	private	boolean		_overrideNiProvName;
@@ -186,6 +201,7 @@ class ProgrammaticConfigure
 		_dictionaryName = null;
 		_directoryName = null;
 		_channelSet = null;
+		_warmStandbyChannelSetName = null;
 		
 		_overrideConsName = false;
 		_overrideNiProvName = false;
@@ -340,6 +356,10 @@ class ProgrammaticConfigure
 			{
 				return _directoryName;
 			}
+			else if ( (InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG & flag) != 0 )
+			{
+				return _warmStandbyChannelSetName;
+			}
 		}
 		
 		return null;
@@ -463,6 +483,11 @@ class ProgrammaticConfigure
 														_directoryName = instanceEntry.ascii().ascii();
 														_nameflags |= InstanceEntryFlag.DIRECTORY_FLAG;
 													}
+													else if ( instanceEntry.name().equals("WarmStandbyChannelSet") )
+													{
+														_warmStandbyChannelSetName  = instanceEntry.ascii().ascii();
+														_nameflags |= InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG;
+													}
 													break;
 												default:
 													break;
@@ -581,6 +606,19 @@ class ProgrammaticConfigure
 	{
 		 for (Map map : _configList)
 			retrieveChannel(map, channelName, activeConfig, hostFnCalled, fileCfg);
+	}
+	
+	void retrieveWSBChannelConfig(String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
+	{
+		for (Map map : _configList)
+			retrieveWSBChannel(map, wsbChannelName, activeConfig, fileCfg);
+	}
+
+	void retrieveWSBServerInfoConfig(String serverName, ActiveConfig activeConfig,WarmStandbyServerInfoConfig currentCfg,
+									 WarmStandbyServerInfoConfig fileCfg)
+	{
+		for (Map map : _configList)
+			retrieveWSBServer(map, serverName, activeConfig, currentCfg, fileCfg);
 	}
 	
 	void  retrieveServerConfig(String serverName, ActiveServerConfig activeServerConfig, int portFnCalled, ServerConfig fileCfg)
@@ -1280,6 +1318,49 @@ class ProgrammaticConfigure
 			}
 		}
 	}
+	
+	void retrieveWSBChannel(Map map, String wsbChannelName, ActiveConfig activeConfig, WarmStandbyChannelConfig fileCfg)
+	{
+		for (MapEntry mapEntry : map)
+		{
+			if ( mapEntry.key().dataType() == DataTypes.ASCII &&
+				 mapEntry.key().ascii().ascii().equals("WarmStandbyGroup") &&
+				 mapEntry.loadType() == DataTypes.ELEMENT_LIST )
+			{
+				for (ElementEntry elementEntry : mapEntry.elementList())
+				{
+					if ( elementEntry.loadType() == DataTypes.MAP && elementEntry.name().equals("WarmStandbyList"))
+					{
+						for (MapEntry mapListEntry : elementEntry.map())
+						{
+							if ( mapListEntry.key().dataType() == DataTypes.ASCII  &&
+								mapListEntry.key().ascii().ascii().equals(wsbChannelName) &&
+								mapListEntry.loadType() == DataTypes.ELEMENT_LIST )
+							{
+								retrieveWSBChannelInfo( mapListEntry, wsbChannelName, activeConfig, fileCfg);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void retrieveWSBServer(Map map, String wsbServerName, ActiveConfig activeConfig, WarmStandbyServerInfoConfig currentConfig,
+						   WarmStandbyServerInfoConfig fileCfg)
+	{
+		map.stream()
+				.filter(filterMapEntry("WarmStandbyServerInfoGroup"))
+				.map(MapEntry::elementList)
+				.flatMap(Collection::stream)
+				.filter(elementEntry -> elementEntry.loadType() == DataTypes.MAP &&
+						elementEntry.name().equalsIgnoreCase("WarmStandbyServerInfoList"))
+				.map(ElementEntry::map)
+				.flatMap(Collection::stream)
+				.filter(filterMapEntry(wsbServerName))
+				.forEach(mapEntry -> retrieveWSBServerInfo(mapEntry, wsbServerName, activeConfig, currentConfig, fileCfg));
+	}
+
 	
 	void retrieveServer(Map map, String serverName,
 		ActiveServerConfig activeServerConfig, int portFnCalled, ServerConfig fileCfg)
@@ -2189,6 +2270,7 @@ class ProgrammaticConfigure
 		}
 	}
 	
+
 	
 	void retrieveDictionary( Map map, String dictionaryName, DictionaryConfig dictionaryConfig )
 	{
@@ -2359,6 +2441,267 @@ class ProgrammaticConfigure
 				}
 			}
 		}
+	}
+	
+	void retrieveWSBChannelInfo(MapEntry mapEntry, String wsbChannelName, ActiveConfig activeConfig,
+			WarmStandbyChannelConfig fileCfg)
+	{
+		String startingActiveServer = "";
+		String standbyServerSet = "";
+		long downloadConnectionConfig = 0;
+		int warmStandbyMode = 0;
+		int flags = 0;
+		
+		WarmStandbyServerInfoConfig wsbCurrentServerInfoConfig = null;
+		
+		for(ElementEntry channelEntry : mapEntry.elementList())
+		{
+		switch (channelEntry.loadType())
+		{
+			case DataTypes.ASCII:
+			if(channelEntry.name().equalsIgnoreCase("StartingActiveServer"))
+			{
+				startingActiveServer = channelEntry.ascii().ascii();
+				flags |= 0x01;
+			}
+			else if(channelEntry.name().equalsIgnoreCase("StandbyServerSet"))
+			{
+				standbyServerSet = channelEntry.ascii().ascii();
+				flags |= 0x02;
+			}
+			break;
+			case DataTypes.UINT:
+			if(channelEntry.name().equalsIgnoreCase("DownloadConnectionConfig"))
+			{
+				downloadConnectionConfig = channelEntry.uintValue();
+				flags |= 0x04;
+			}
+			break;
+			case DataTypes.ENUM:
+			if(channelEntry.name().equalsIgnoreCase("WarmStandbyMode"))
+			{
+				warmStandbyMode = channelEntry.enumValue();
+			
+				switch (warmStandbyMode)
+				{
+					case ReactorWarmStandbyMode.LOGIN_BASED:
+					case ReactorWarmStandbyMode.SERVICE_BASED:
+						flags |= 0x08;
+						break;
+					default:
+						StringBuilder text = new StringBuilder("Invalid WarmStandbyMode [");
+						text.append(warmStandbyMode);
+						text.append("] in Programmatic Configuration. Use default WarmStandbyMode [");
+						text.append(ActiveConfig.DEFAULT_WSB_MODE);
+						text.append("]");
+						//TODO: EmaConfigError need to add
+						break;
+				}
+			}
+			break;
+			}
+		}
+		
+		WarmStandbyChannelConfig wsbChannelConfig = new WarmStandbyChannelConfig(wsbChannelName);
+		
+		if(flags != 0)
+		{
+			if((flags & 0x01) != 0)
+			{
+				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(startingActiveServer);
+				wsbChannelConfig.startingActiveServer = wsbCurrentServerInfoConfig;
+				
+				retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, null);
+			}
+			else if (fileCfg != null)
+			{
+				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileCfg.startingActiveServer.name);
+				wsbChannelConfig.startingActiveServer = wsbCurrentServerInfoConfig;
+			}
+			
+			if((flags & 0x02) != 0)
+			{
+				List<String> standbyServerList = new ArrayList<>();
+				
+				for(String standbySrv: standbyServerSet.split(","))
+				{
+					standbyServerList.add(standbySrv.trim());
+				}
+				
+				for(String serverName : standbyServerList)
+				{
+					wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(serverName);
+					retrieveWSBServerInfoConfig(serverName,activeConfig, wsbCurrentServerInfoConfig, null);
+					
+					wsbChannelConfig.standbyServerSet.add(wsbCurrentServerInfoConfig);
+				}
+			}
+			else if(fileCfg != null)
+			{
+				for(WarmStandbyServerInfoConfig fileWsbServerInfoCfg  :  fileCfg.standbyServerSet)
+				{
+					wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileWsbServerInfoCfg.name);
+					
+					retrieveWSBServerInfoConfig(fileWsbServerInfoCfg.name, activeConfig, wsbCurrentServerInfoConfig,
+							fileWsbServerInfoCfg);
+					
+					wsbChannelConfig.standbyServerSet.add(wsbCurrentServerInfoConfig);
+				}
+			}
+			
+			if((flags & 0x04) != 0)
+			{
+				wsbChannelConfig.downloadConnectionConfig = downloadConnectionConfig != 0;
+			}
+			else if(fileCfg != null)
+			{
+				wsbChannelConfig.downloadConnectionConfig = fileCfg.downloadConnectionConfig;
+			}
+			
+			if((flags & 0x08) != 0)
+			{
+				wsbChannelConfig.warmStandbyMode = warmStandbyMode;
+			}
+			else if(fileCfg != null)
+			{
+				wsbChannelConfig.warmStandbyMode = fileCfg.warmStandbyMode;
+			}
+		}
+		else if(fileCfg != null)
+		{
+			wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileCfg.startingActiveServer.name);
+			wsbChannelConfig.startingActiveServer = wsbCurrentServerInfoConfig;
+			
+			retrieveWSBServerInfoConfig(startingActiveServer, activeConfig, wsbCurrentServerInfoConfig, fileCfg.startingActiveServer);
+			
+			for(WarmStandbyServerInfoConfig fileWsbServerInfoCfg : fileCfg.standbyServerSet)
+			{
+				wsbCurrentServerInfoConfig = new WarmStandbyServerInfoConfig(fileWsbServerInfoCfg.name);
+				
+				retrieveWSBServerInfoConfig(fileWsbServerInfoCfg.name, activeConfig, wsbCurrentServerInfoConfig, fileWsbServerInfoCfg);
+				
+				wsbChannelConfig.standbyServerSet.add(wsbCurrentServerInfoConfig);
+			}
+			
+			wsbChannelConfig.downloadConnectionConfig = fileCfg.downloadConnectionConfig;
+			wsbChannelConfig.warmStandbyMode = fileCfg.warmStandbyMode;
+		}
+		
+		activeConfig.configWarmStandbySet.add(wsbChannelConfig);
+	}
+	
+	@SuppressWarnings("static-access")
+	void retrieveWSBServerInfo(MapEntry mapEntry, String serverInfoName, ActiveConfig activeConfig,
+			   WarmStandbyServerInfoConfig currentCfg, WarmStandbyServerInfoConfig fileCfg)
+	{
+		String channelName = "";
+		String perServiceNameSet = "";
+		int flags = 0;
+		int pos = 0;
+		ChannelConfig fileChannelConfig = null;
+		
+		for(ElementEntry channelEntry : mapEntry.elementList())
+		{
+			if(channelEntry.loadType() == DataTypes.ASCII)
+			{
+				if(channelEntry.name().equalsIgnoreCase("Channel"))
+				{
+					channelName = channelEntry.ascii().ascii();
+					flags |= 0x01;
+				} 
+				else if(channelEntry.name().equalsIgnoreCase("PerServiceNameSet"))
+				{
+					perServiceNameSet = channelEntry.ascii().ascii();
+					flags |= 0x02;
+				}
+			}
+		}
+		
+		if(flags != 0)
+		{
+			String queryName = "";
+			if((flags & 0x01) != 0)
+			{
+				queryName = channelName;
+			}
+			else if(fileCfg != null && fileCfg.channelConfig != null)
+			{
+				queryName = fileCfg.channelConfig.name;
+			}
+			
+			if(!queryName.isEmpty())
+			{
+				
+				/* Find the channel name from the file config to merge */
+				if (activeConfig.findChannelConfig(activeConfig.configChannelSetForWSB, queryName, pos))
+				{
+					fileChannelConfig = activeConfig.configChannelSetForWSB.get(pos);
+				}
+				
+				int orgSize = activeConfig.channelConfigSet.size();
+				
+				/* Get channel config from programmatic configuration instead */
+				retrieveChannelConfig(queryName, activeConfig, pos, fileChannelConfig);
+				
+				currentCfg.channelConfig = activeConfig.channelConfigSet.get(orgSize);
+				activeConfig.channelConfigSet.remove(orgSize);
+			}
+			
+			if((flags & 0x02) != 0)
+			{
+				for(String pServerName : perServiceNameSet.split(","))
+					currentCfg.perServiceNameSet.add(pServerName.trim());
+			}
+			else if(fileCfg != null && fileCfg.perServiceNameSet.size() > 0)
+			{
+				currentCfg.perServiceNameSet.addAll(fileCfg.perServiceNameSet);
+			}
+		} 
+		else if(fileCfg != null)
+		{
+			if(fileCfg.channelConfig != null)
+			{
+				String queryName = fileCfg.channelConfig.name;
+				
+				if(activeConfig.findChannelConfig(activeConfig.channelConfigSet, queryName, pos))
+				{
+					currentCfg.channelConfig = activeConfig.channelConfigSet.get(pos);
+				}
+				else
+				{
+					/* Get channel config from programmatic configuration instead */
+					retrieveChannelConfig(queryName, activeConfig, pos, fileCfg.channelConfig);
+				
+					if(activeConfig.findChannelConfig(activeConfig.channelConfigSet, queryName, pos))
+					{
+						currentCfg.channelConfig = activeConfig.channelConfigSet.get(pos);
+					}
+				}
+			}
+			
+			if(fileCfg.perServiceNameSet.size() > 0)
+			{
+				currentCfg.perServiceNameSet.addAll(fileCfg.perServiceNameSet);
+			}
+		}
+		
+		}
+		
+		boolean getActiveWSBChannelSetName(String instanceName, String wsbChannelName)
+		{
+		if(!_dependencyNamesLoaded)
+		{
+			_configList.forEach(map -> retrieveDependencyNames(map, instanceName));
+			_dependencyNamesLoaded = true;
+		}
+		
+		if((_nameflags & InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG) != 0)
+		{
+			wsbChannelName = _warmStandbyChannelSetName;
+			return true;
+		}
+		else
+			return false;
 	}
 	
 	boolean retrieveServiceInfo(Service service, ElementList serviceInfo, 
@@ -3228,5 +3571,11 @@ class ProgrammaticConfigure
 			return Integer.MAX_VALUE;
 		}
 		return (int) jsonConverterPoolsSize;
+	}
+	
+	private Predicate<MapEntry> filterMapEntry(String name) {
+		return mapEntry -> mapEntry.key().dataType() == DataTypes.ASCII &&
+				mapEntry.key().ascii().ascii().equalsIgnoreCase(name) &&
+				mapEntry.loadType() == DataTypes.ELEMENT_LIST;
 	}
 }

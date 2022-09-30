@@ -479,10 +479,12 @@ public class DirectoryJunit
         serviceId.value(1);
 
         long sourceMirroringMode = 1;
+        long warmStandbyMode = 5;
 
         ConsumerStatusService consumerStatusService1 = DirectoryMsgFactory.createConsumerStatusService();
         consumerStatusService1.sourceMirroringMode(sourceMirroringMode);
         consumerStatusService1.action(MapEntryActions.UPDATE);
+        consumerStatusService1.warmStandbyMode(warmStandbyMode);
 
         System.out.println("DirectoryConsumerStatus copy tests...");
         directoryConnStatusMsg1.consumerServiceStatusList().add(consumerStatusService1);
@@ -497,6 +499,8 @@ public class DirectoryJunit
         assertEquals(directoryConnStatusMsg1.consumerServiceStatusList().size(), directoryConnStatusMsg2.consumerServiceStatusList().size());
         ConsumerStatusService consStatusService1 = directoryConnStatusMsg1.consumerServiceStatusList().get(0);
         assertEquals(consumerStatusService1.sourceMirroringMode(), consStatusService1.sourceMirroringMode());
+        assertEquals(consumerStatusService1.warmStandbyMode(), consStatusService1.warmStandbyMode());
+
 
         System.out.println("Done.");
     }
@@ -1755,9 +1759,11 @@ public class DirectoryJunit
         int serviceId = 1;
         long sourceMirroringMode = 1;
         int action = MapEntryActions.UPDATE;
+        long warmStandbyMode = 5;
         consumerStatusService1.serviceId(serviceId);
         consumerStatusService1.sourceMirroringMode(sourceMirroringMode);
         consumerStatusService1.action(action);
+        consumerStatusService1.warmStandbyMode(warmStandbyMode);
 
         System.out.println("ConsumerStatusService copy tests...");
         int ret = consumerStatusService1.copy(consumerStatusService2);
@@ -1768,6 +1774,7 @@ public class DirectoryJunit
         assertEquals(consumerStatusService1.action(), consumerStatusService2.action());
         assertEquals(consumerStatusService1.serviceId(), consumerStatusService2.serviceId());
         assertEquals(consumerStatusService1.sourceMirroringMode(), consumerStatusService2.sourceMirroringMode());
+        assertEquals(consumerStatusService1.warmStandbyMode(), consumerStatusService2.warmStandbyMode());
 
         System.out.println("Done.");
     }

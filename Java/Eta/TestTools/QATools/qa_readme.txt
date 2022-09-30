@@ -149,6 +149,8 @@ Further extended to add event "-e4", for reissue on an item expressing View chan
       -e4 -Reissue event
       10::1:1,P send reissue after 10 updates on item indexed 1 which is 'TRI.N' in the above example. (because end index is also 1 '1:1'.
       ',' after comma the reissue action V3 -View change V3, P pause, R resume. In the above example reissue action is P i.e pause.
+	  
+wlconsumer-ConsFunc-002: Extended wlconsumer-ConsFunc-001 to add options for warmstandby.
 
 wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and market price streams. 
 GenericMsg contains ElementList with one ElementEntry. 

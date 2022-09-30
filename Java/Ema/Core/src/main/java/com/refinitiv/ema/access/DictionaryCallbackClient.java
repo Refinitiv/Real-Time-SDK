@@ -369,7 +369,15 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 		if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
 		{
 			if (_rsslLocalDictionary != null && _rsslLocalDictionary.numberOfEntries() > 0)
-				directory.channelInfo().rsslDictionary(_rsslLocalDictionary);
+			{
+				if (directory.channelInfo().getParentChannel() != null)
+				{
+					directory.channelInfo().getParentChannel().rsslDictionary(_rsslLocalDictionary);
+				}
+				else
+					directory.channelInfo().rsslDictionary(_rsslLocalDictionary);
+			}
+				
 			return true;
 		}
 		

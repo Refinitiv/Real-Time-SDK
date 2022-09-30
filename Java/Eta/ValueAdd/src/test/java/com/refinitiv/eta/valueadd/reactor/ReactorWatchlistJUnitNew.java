@@ -3176,7 +3176,7 @@ public class ReactorWatchlistJUnitNew
         // dispatch all events (login, directory, directory, msg, channel)
         consumer.testReactor().dispatch(4);
         
-        // ignore first 3 events which are chanel down and login/directory recovery messages
+        // ignore first 3 events which are login/directory recovery messages and channel down 
         event = consumerReactor.pollEvent();
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         chnlEvent = (ReactorChannelEvent)event.reactorEvent();
@@ -3204,6 +3204,9 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(msgEvent.streamInfo());
         assertNotNull(msgEvent.streamInfo().serviceName());
         assertTrue(msgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
+        
+
+        
         
         TestReactorComponent.closeSession(consumer, provider);
         tearDownConsumerAndProvider(consumerReactor, providerReactor, consumer, provider);
@@ -6256,14 +6259,14 @@ public class ReactorWatchlistJUnitNew
        /* Disconnect provider. */
        provider.closeChannel();
 
-       /* Consumer receives Channel Event, Login Status, Directory Update, nothing else (symbol list and items were snapshots, and
+       /* Consumer receives Login Status, Directory Update,  Channel Event, and nothing else (symbol list and items were snapshots, and
         * so should not be re-requested). */
        consumerReactor.dispatch(3);
        event = consumer.testReactor().pollEvent();
        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+       
        RDMLoginMsgEvent loginMsgEvent;                
        event = consumer.testReactor().pollEvent();
        assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -6275,6 +6278,8 @@ public class ReactorWatchlistJUnitNew
        assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
        directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
        assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+       
+
 
        /* Reconnect and reestablish login/directory streams. */
        TestReactor.openSession(consumer, provider, opts, true);
@@ -6593,11 +6598,12 @@ public class ReactorWatchlistJUnitNew
         
         /* Consumer receives Login Status, Directory Update, and item status for SYM_LIST, FB.O & AAPL.O. */
         consumerReactor.dispatch(6);
+        
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
         assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+        
         RDMLoginMsgEvent loginMsgEvent;                
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -6609,7 +6615,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
         directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
         assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
-
+        
         /* SYM_LIST */
         event = consumerReactor.pollEvent();
         assertEquals(TestReactorEventTypes.MSG, event.type());
@@ -13014,6 +13020,8 @@ public class ReactorWatchlistJUnitNew
                assertEquals ((singleOpen ? StreamStates.OPEN : StreamStates.CLOSED_RECOVER),
                              recvStatusMsg.state().streamState());
            }
+           
+           
                   
            startTimeNano = System.nanoTime();
            
@@ -20075,7 +20083,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
             ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+            
             RDMLoginMsgEvent loginMsgEvent;                
             event = consumer.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -20361,7 +20369,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
         assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+        
         RDMLoginMsgEvent loginMsgEvent;                
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -20817,7 +20825,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
         assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+        
         RDMDirectoryMsgEvent directoryMsgEvent;                
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
@@ -21256,7 +21264,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
         assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+        
         RDMLoginMsgEvent loginMsgEvent;                
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -21280,6 +21288,8 @@ public class ReactorWatchlistJUnitNew
         assertEquals(DataStates.SUSPECT, receivedStatusMsg.state().dataState());
         assertNotNull(msgEvent.streamInfo());
         assertEquals(5, receivedStatusMsg.streamId());
+
+
 
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.openSession(consumer, provider, opts, true);
@@ -21422,7 +21432,7 @@ public class ReactorWatchlistJUnitNew
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
         assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+        
         RDMLoginMsgEvent loginMsgEvent;                
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -21517,11 +21527,12 @@ public class ReactorWatchlistJUnitNew
         
         /* Consumer receives channel event, Login Status, Directory Update, and closed-recover/suspect status for the dictionary. */
         consumerReactor.dispatch(4);
+        
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
         channelEvent = (ReactorChannelEvent)event.reactorEvent();
         assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-              
+        
         event = consumer.testReactor().pollEvent();
         assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
         loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
@@ -21544,7 +21555,7 @@ public class ReactorWatchlistJUnitNew
         assertNotNull(dictionaryMsgEvent.streamInfo());
         assertNotNull(dictionaryMsgEvent.streamInfo().serviceName());
         assertTrue(dictionaryMsgEvent.streamInfo().serviceName().equals(Provider.defaultService().info().serviceName().toString()));
-
+              
         /* Reconnect and reestablish login/directory streams. */
         TestReactor.openSession(consumer, provider, opts, true);
 
@@ -22543,6 +22554,7 @@ public class ReactorWatchlistJUnitNew
     		assertEquals(TestReactorEventTypes.LOGIN_MSG, consumerReactor.pollEvent().type());
     		assertEquals(TestReactorEventTypes.DIRECTORY_MSG, consumerReactor.pollEvent().type());
     		assertEquals(TestReactorEventTypes.MSG, consumerReactor.pollEvent().type());
+
 
     		/* Consumer closes requests. */
     		for (TestData td : requestData )
@@ -23631,7 +23643,7 @@ public class ReactorWatchlistJUnitNew
             assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
             ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+            
             System.out.println(test + " X.2) Consumer receives status disconnect");
             event = consumer.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -23641,6 +23653,7 @@ public class ReactorWatchlistJUnitNew
             System.out.println(test + " X.3) Consumer receives DIRECTORY_MSG");
             event = consumer.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+            
 
             System.out.println(test + " 5) User creating login request[1]");
             consumerRole.initDefaultRDMLoginRequest();
@@ -23942,12 +23955,13 @@ public class ReactorWatchlistJUnitNew
             provider.closeChannel();
 
             consumerReactor.dispatch(3);
+            
             System.out.println(test + " X.1) Consumer receives channel disconnect");
             event = consumer.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
             ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
             assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-
+            
             System.out.println(test + " X.2) Consumer receives status disconnect");
             event = consumer.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
@@ -23957,6 +23971,10 @@ public class ReactorWatchlistJUnitNew
             System.out.println(test + " X.3) Consumer receives DIRECTORY_MSG");
             event = consumer.testReactor().pollEvent();
             assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+            
+           
+
+
 
 
             provider.testReactor().dispatch(0);

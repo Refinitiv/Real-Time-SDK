@@ -200,7 +200,7 @@ class WlDirectoryHandler implements WlHandler
 				    msg.streamId(wlRequest.stream().streamId());
                     
 	                // send message
-	                ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+	                ret = _stream.sendMsgOutOfLoop(msg, submitOptions, errorInfo);
 	                
 	                // reset service id if necessary
 	                if (resetServiceId)
@@ -287,6 +287,7 @@ class WlDirectoryHandler implements WlHandler
     	}
     	else
     	{
+    		// Copy the service services here.
     		for (int i = 0; i < serviceList().size(); ++i)
     		{
     	    	if (_servicePool.isEmpty())
@@ -555,7 +556,7 @@ class WlDirectoryHandler implements WlHandler
     }
 
     @Override
-    public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
+    public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, boolean wsbSendClosedRecover, ReactorErrorInfo errorInfo)
     {
         assert (_stream == wlStream);
         assert (msg.streamId() == _directoryRequest.streamId());
@@ -683,6 +684,7 @@ class WlDirectoryHandler implements WlHandler
     	{
         	_servicePool.add(_directoryUpdate.serviceList().get(i));	
     	}
+    	
     	_serviceCache.clearCache(false);
     }
     
@@ -692,7 +694,7 @@ class WlDirectoryHandler implements WlHandler
      	   
     	WlRequest usrRequest = null;
     	Service service = null;
-
+    	
         _stream.channelDown();
         if (_stream.state().streamState() == StreamStates.OPEN)
         {
@@ -728,6 +730,7 @@ class WlDirectoryHandler implements WlHandler
                         }
                         serviceList().get(i).rdmService().copy(service);
                         service.action(MapEntryActions.DELETE);
+                        
                         _directoryUpdate.serviceList().add(service);
                     }
                 }
@@ -786,9 +789,9 @@ class WlDirectoryHandler implements WlHandler
     
         if (((RefreshMsg)msg).checkClearCache())
         {
-            // clear service cache
+        	// clear service cache
             _serviceCache.clearCache(false);
-
+            
             // if refresh is unsolicited, notify item handler all services deleted
             if (!((RefreshMsg)msg).checkSolicited())
             {
@@ -912,9 +915,9 @@ class WlDirectoryHandler implements WlHandler
     
         if (((RefreshMsg)msg).checkClearCache())
         {
-            // clear service cache
+        	// clear service cache
             _serviceCache.clearCache(false);
-
+            
             // if refresh is unsolicited, notify item handler all services deleted
             if (!((RefreshMsg)msg).checkSolicited())
             {
@@ -1034,7 +1037,7 @@ class WlDirectoryHandler implements WlHandler
         
         if (((StatusMsg)msg).checkClearCache())
         {
-            // clear service cache
+        	// clear service cache
             _serviceCache.clearCache(false);
             
             // if stream state is OPEN, notify item handler all services deleted
@@ -1155,7 +1158,7 @@ class WlDirectoryHandler implements WlHandler
                         _watchlist.reactorChannel(),
                         null,
                         msg,
-                        (wlRequest != null ? wlRequest.streamInfo() : null),
+                        wlRequest,
                         errorInfo)) < ReactorCallbackReturnCodes.SUCCESS)
                 {
                     // break out of loop for error
@@ -1177,7 +1180,7 @@ class WlDirectoryHandler implements WlHandler
 	        _hasPendingRequest = false;
 	        _tempMsg.clear();
             _watchlist.convertRDMToCodecMsg(_directoryRequest, _tempMsg);
-            ret = _stream.sendMsg(_tempMsg, _submitOptions, errorInfo);
+            ret = _stream.sendMsgOutOfLoop(_tempMsg, _submitOptions, errorInfo);
 			if (ret != ReactorReturnCodes.SUCCESS)
             {
             	return ret;
@@ -1301,7 +1304,7 @@ class WlDirectoryHandler implements WlHandler
         {
             _tempMsg.clear();
             _watchlist.convertRDMToCodecMsg(_directoryRequest, _tempMsg);
-            int ret = _stream.sendMsg(_tempMsg, _submitOptions, errorInfo);
+            int ret = _stream.sendMsgOutOfLoop(_tempMsg, _submitOptions, errorInfo);
             if (ret < ReactorReturnCodes.SUCCESS)
             {
                 return ret;
@@ -1325,7 +1328,7 @@ class WlDirectoryHandler implements WlHandler
                 _stream.state().streamState(StreamStates.CLOSED_RECOVER);
                 _stream.state().dataState(DataStates.SUSPECT);
                 
-                // clear service cache
+             // clear service cache
                 _serviceCache.clearCache(false);
             }
             
@@ -1426,7 +1429,7 @@ class WlDirectoryHandler implements WlHandler
                                                                  null,
                                                                  msg,
                                                                  (DirectoryMsg)rdmMsg,
-                                                                 (wlRequest != null ? wlRequest.streamInfo() : null),
+                                                                 wlRequest,
                                                                  errorInfo);
 
         if (ret == ReactorCallbackReturnCodes.RAISE)
@@ -1435,7 +1438,7 @@ class WlDirectoryHandler implements WlHandler
                                                                        _watchlist.reactorChannel(),
                                                                        null,
                                                                        msg,
-                                                                       (wlRequest != null ? wlRequest.streamInfo() : null),
+                                                                       wlRequest,
                                                                        errorInfo);
         }
 
@@ -1463,7 +1466,7 @@ class WlDirectoryHandler implements WlHandler
         // re-send directory request
         _tempMsg.clear();
         _watchlist.convertRDMToCodecMsg(_directoryRequest, _tempMsg);
-        return _stream.sendMsg(_tempMsg, _submitOptions, errorInfo);
+        return _stream.sendMsgOutOfLoop(_tempMsg, _submitOptions, errorInfo);
     }
     
     /* Retrieve service id from service name. */

@@ -919,12 +919,36 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.CloseChannelFromConverterFailure)) != null) {
 				_activeConfig.closeChannelFromFailure = ce.intLongValue() > 0;
 			}
+			
+			// WarmStandbyChannel
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerWarmStandbyChannelSet)) != null) {
+				
+				String[] pieces = ce.asciiValue().split(",");
+				for (int i = 0; i < pieces.length; i++)
+				{
+					_activeConfig.configWarmStandbySet.add( readWSBChannelConfig(config,  pieces[i].trim()));
+				}
+			}
+		}
+		
+		// .........................................................................
+		// WarmStandby
+		//
+		
+		String warmStandbyChannelSet = config.warmStandbyChannelSet(_activeConfig.configuredName);
+		if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
+		{
+			String[] pieces = warmStandbyChannelSet.split(",");
+			for (int i = 0; i < pieces.length; i++)
+			{
+				readWSBChannelConfig(config,  pieces[i].trim());
+			}
 		}
 
 		// .........................................................................
 		// Channel
 		//
-
+		
 		String channelName = config.channelName(_activeConfig.configuredName);
 		if (channelName != null  && channelName.trim().length() > 0)
 		{
@@ -1004,7 +1028,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if(globalConfig != null){
 				_activeConfig.globalConfig = globalConfig;
 			}
-			
+
 			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
 			if (channelOrChannelSet == null)
 				channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNELSET_FLAG );
@@ -1061,6 +1085,141 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 		_activeConfig.userDispatch = config.operationModel();
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
+	}
+	
+	WarmStandbyChannelConfig readWSBChannelConfig(EmaConfigImpl configImpl, String wsbChannelName)
+	{	
+		ConfigElement ce = null;
+		WarmStandbyChannelConfig newWSBChannelConfig = new WarmStandbyChannelConfig();
+		ConfigAttributes attributes = null;
+
+		attributes = configImpl.xmlConfig().getWSBGroupAttributes(wsbChannelName);
+		
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.StartingActiveServer)) != null)
+			newWSBChannelConfig.startingActiveServer = readWSBServerInfoConfig(configImpl, ce.asciiValue());
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.StandbyServerSet)) != null)
+		{
+			for (String part : ce.asciiValue().split(","))
+			{
+				newWSBChannelConfig.standbyServerSet.add(readWSBServerInfoConfig(configImpl, part.trim()));
+			}
+		}
+		
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.WarmStandbyMode)) != null)
+		{
+			switch (ce.asciiValue())
+			{
+				case "WarmStandbyMode::LOGIN_BASED":
+					newWSBChannelConfig.warmStandbyMode = ReactorWarmStandbyMode.LOGIN_BASED;
+					break;
+				case "WarmStandbyMode::SERVICE_BASED":
+					newWSBChannelConfig.warmStandbyMode = ReactorWarmStandbyMode.SERVICE_BASED;
+					break;
+				default:
+					newWSBChannelConfig.warmStandbyMode = ReactorWarmStandbyMode.LOGIN_BASED;
+						break;
+			}
+		}
+		
+		ProgrammaticConfigure pc = configImpl.programmaticConfigure();
+		if ( pc != null)
+		{
+			pc .retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
+
+			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
+			if(globalConfig != null){
+				_activeConfig.globalConfig = globalConfig;
+			}
+			
+			String warmStandbyChannelSet = pc.activeEntryNames(_activeConfig.configuredName, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
+			if (warmStandbyChannelSet != null && !warmStandbyChannelSet.isEmpty())
+			{
+				pc.retrieveWSBChannelConfig(wsbChannelName.trim(), _activeConfig, newWSBChannelConfig);
+			}
+
+			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
+			if (channelOrChannelSet == null)
+				channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNELSET_FLAG );
+
+			if ( channelOrChannelSet != null && !channelOrChannelSet.isEmpty() )
+			{
+				_activeConfig.channelConfigSet.clear();
+				String[] pieces = channelOrChannelSet.split(",");
+				for (int i = 0; i < pieces.length; i++)
+				{
+					ChannelConfig fileChannelConfig = readChannelConfig( configImpl,  pieces[i].trim());
+
+					int chanConfigByFuncCall = 0;
+					if (configImpl.getUserSpecifiedHostname() != null && configImpl.getUserSpecifiedHostname().length() > 0)
+						chanConfigByFuncCall = ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+					else
+					{
+						HttpChannelConfig tunnelingConfig = configImpl.tunnelingChannelCfg();
+						if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+						if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+						if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+					}
+					
+					pc .retrieveChannelConfig( pieces[i].trim(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
+					if ( _activeConfig.channelConfigSet.size() == i )
+						_activeConfig.channelConfigSet.add( fileChannelConfig );
+					else
+						fileChannelConfig = null;
+				}
+			}
+		}
+
+		newWSBChannelConfig.name = wsbChannelName;
+
+		return newWSBChannelConfig;
+	}
+	
+	WarmStandbyServerInfoConfig readWSBServerInfoConfig(EmaConfigImpl configImpl, String wsbServerName)
+	{
+		ConfigElement ce = null;
+		WarmStandbyServerInfoConfig wsbServerInfoConfig = new WarmStandbyServerInfoConfig();
+		ConfigAttributes attributes = null;
+
+		attributes = configImpl.xmlConfig().getWSBServerInfoAttributes(wsbServerName);
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.WarmStandbyServerName)) != null)
+		{
+			String channelName = readChannelNameFromWSBServerInfo(configImpl, ce.asciiValue());
+			
+			wsbServerInfoConfig.channelConfig = readChannelConfig(configImpl, channelName);
+			
+			_activeConfig.configChannelSetForWSB.add(wsbServerInfoConfig.channelConfig);
+		}
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.PerServiceNameSet)) != null)
+		{
+			for (String part : ce.asciiValue().split(","))
+			{
+				wsbServerInfoConfig.perServiceNameSet.add(part);
+			}
+		}
+
+		wsbServerInfoConfig.name = wsbServerName;
+
+		return wsbServerInfoConfig;
+	}
+	
+	String readChannelNameFromWSBServerInfo(EmaConfigImpl configImpl, String serverInfoName)
+	{
+		ConfigAttributes attributes = null;
+		ConfigElement ce = null;
+		
+		attributes = configImpl.xmlConfig().getWSBServerInfoAttributes(serverInfoName);
+		if (attributes != null) 
+		{
+			ce = attributes.getPrimitiveValue(ConfigManager.WarmStandbyServerChannel);
+		}
+		
+		return ce.asciiValue();
 	}
 	
 	ChannelConfig readChannelConfig(EmaConfigImpl configImpl, String channelName)
@@ -1593,39 +1752,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				int selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
-					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
-					while (iter.hasNext())
+					SelectionKey key = _selector.selectedKeys().iterator().next();
+					ReactorChannel reactorChannel = ((ReactorChannel) key.attachment());
+					ret = reactorChannel.reactor().dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
+					if (ret == ReactorReturnCodes.FAILURE)
 					{
-						SelectionKey key = iter.next();
-						iter.remove();
-						try
-						{
-							if (!key.isValid()) continue;
-							
-							if (key.isReadable())
-							{
-								if (_pipeSelectKey == key) pipeRead();
-								
-								loopCount = 0;
-								do {
-									_userLock.lock();
-									try{
-										ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions,	_rsslErrorInfo);
-									}
-									finally
-									{
-										if (_userLock.isLocked()) {
-											_userLock.unlock();
-										}
-									}
-								}
-								while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT);
-							}
-						}
-						catch (CancelledKeyException e)
-						{
-							continue;
-						}
+						System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _rsslErrorInfo.error().text() + ")");
 					}
 					
 					if (_eventReceived) return true;

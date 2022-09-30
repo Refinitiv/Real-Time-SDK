@@ -16,10 +16,12 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import com.refinitiv.eta.codec.Codec;
@@ -74,7 +76,6 @@ public class TestReactor {
 	{
 
 		ReactorOptions reactorOptions = ReactorFactory.createReactorOptions();
-		
 		_eventQueue = new LinkedList<TestReactorEvent>();
 		_componentList = new LinkedList<TestReactorComponent>();
 		_errorInfo = ReactorFactory.createReactorErrorInfo();
@@ -212,9 +213,28 @@ public class TestReactor {
 					_reactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, _reactor.reactorChannel());
 				   
 					for (TestReactorComponent component : _componentList)
-						if (component.reactorChannel() != null && component.reactorChannelIsUp() &&
-							component.reactorChannel().selectableChannel() != null )
-							component.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, component.reactorChannel());
+					{
+						if(component.reactorChannel() != null && component.reactorChannelIsUp() )
+						{
+							if(component.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+							{
+								for(int i = 0; i < component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+								{
+									SelectableChannel tmpSelector = component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i);
+									
+									if(tmpSelector != null)
+									{
+										tmpSelector.register(_selector,  SelectionKey.OP_READ, component.reactorChannel());
+									}
+										
+								}
+							}
+							else if (component.reactorChannel().selectableChannel() != null )
+							{
+								component.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, component.reactorChannel());
+							}
+						}
+					}
 	
 					selectTime = (stopTimeUsec - currentTimeUsec)/1000;
 					
@@ -274,6 +294,263 @@ public class TestReactor {
         	assertEquals(expectedEventCount, _eventQueue.size());
     }
 	
+	/** Waits for notification on the component's Reactor, and calls dispatch when triggered. It will
+	 * store any received events for later review.
+	 * Will only dispatch a single event.
+	 * Waiting for notification stops once the expected number of events is received (unless that number is zero, in which case it waits for the full specified time).
+	 * Used for forced close connection from client, use {@link #dispatch(int)} for ordinary scenarios
+	 * @param timeoutMsec The maximum time to wait for all events.
+	 * @param channelWasClosed true if client forcible have closed channel
+	 */
+	public void dispatchSingleEvent(long timeoutMsec, boolean channelWasClosed)
+	{
+        int selectRet = 0;
+        long currentTimeUsec, stopTimeUsec;
+        int lastDispatchRet = 0;
+
+        /* Ensure no events were missed from previous calls to dispatch.
+           But don't check event queue size when expectedEventCount is set to -1 */
+       	assertEquals(0, _eventQueue.size());
+
+        currentTimeUsec = System.nanoTime()/1000;
+        
+        stopTimeUsec =  (timeoutMsec);
+        stopTimeUsec *= 1000;
+        stopTimeUsec += currentTimeUsec;
+
+        do
+        {
+            if (lastDispatchRet == 0)
+            {
+                try
+				{
+                    long selectTime;
+
+					//check if channel still exists and opened
+					if(_reactor.reactorChannel()==null || _reactor.reactorChannel().selectableChannel()==null || !_reactor.reactorChannel().selectableChannel().isOpen()) {
+						if (channelWasClosed) {
+							return;
+						} else {
+							fail("No selectable channel exists");
+						}
+					}
+
+					_reactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, _reactor.reactorChannel());
+				   
+					for (TestReactorComponent component : _componentList)
+					{
+						if(component.reactorChannel() != null && component.reactorChannelIsUp() )
+						{
+							if(component.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+							{
+								for(int i = 0; i < component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+								{
+									SelectableChannel tmpSelector = component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i);
+									
+									if(tmpSelector != null)
+									{
+										tmpSelector.register(_selector,  SelectionKey.OP_READ, component.reactorChannel());
+									}
+										
+								}
+							}
+							else if (component.reactorChannel().selectableChannel() != null )
+							{
+								component.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, component.reactorChannel());
+							}
+						}
+					}
+	
+					selectTime = (stopTimeUsec - currentTimeUsec)/1000;
+					
+					if (selectTime > 0)
+					{
+						selectRet = _selector.select(selectTime);
+					}
+					else
+					{
+						selectRet = _selector.selectNow();
+					}
+				}
+				catch (ClosedChannelException e)
+				{
+					e.printStackTrace();
+					fail("Caught ClosedChannelException.");
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					fail("Caught IOException.");
+				}
+            }
+            else
+                selectRet = 1;
+
+            if (selectRet > 0)
+            {
+                ReactorDispatchOptions dispatchOpts = ReactorFactory.createReactorDispatchOptions();
+
+                do
+                {
+	                dispatchOpts.clear();
+	                dispatchOpts.maxMessages(1);
+	                lastDispatchRet = _reactor.dispatchAll(_selector.selectedKeys(), dispatchOpts, _errorInfo);
+	                assertTrue("Dispatch failed: " + lastDispatchRet + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")", 
+	                		lastDispatchRet >= 0);
+                } while (lastDispatchRet > 0);
+            }
+
+            currentTimeUsec = System.nanoTime()/1000;
+            
+            /* If we've hit our expected number of events, drop the stopping time to at most 100ms from now.  
+             * Keep dispatching a short time to ensure no unexpected events are received, and that any internal flush events are processed. */
+            if (_eventQueue.size() == 1)
+            {
+                long stopTimeUsecNew = currentTimeUsec + 100000;
+                if ((stopTimeUsec - stopTimeUsecNew) > 0)
+                {
+                    stopTimeUsec = stopTimeUsecNew;
+                }
+            }
+
+        } while(currentTimeUsec < stopTimeUsec);
+        
+        /* Don't check event queue size when expectedEventCount is set to -1 */
+       	assertEquals(1, _eventQueue.size());
+    }
+	
+	
+	/** Waits for notification on the component's Reactor, and calls dispatch when triggered. 
+	 * This method expects dispatch to fail
+	 *  It will store any received events for later review.
+	 * Waiting for notification stops once the expected number of events is received (unless that number is zero, in which case it waits for the full specified time).
+	 * Used for forced close connection from client, use {@link #dispatch(int)} for ordinary scenarios
+	 * @param expectedEventCount The exact number of events that should be received.
+	 * @param timeoutMsec The maximum time to wait for all events.
+	 * @param channelWasClosed true if client forcible have closed channel
+	 */
+	public void dispatchFailure(int expectedEventCount, long timeoutMsec, boolean channelWasClosed)
+	{
+		int selectRet = 0;
+        long currentTimeUsec, stopTimeUsec;
+        int lastDispatchRet = 0;
+
+        /* Ensure no events were missed from previous calls to dispatch.
+           But don't check event queue size when expectedEventCount is set to -1 */
+        if(expectedEventCount != -1 )
+        	assertEquals(0, _eventQueue.size());
+
+        currentTimeUsec = System.nanoTime()/1000;
+        
+        stopTimeUsec =  (timeoutMsec);
+        stopTimeUsec *= 1000;
+        stopTimeUsec += currentTimeUsec;
+
+        do
+        {
+            if (lastDispatchRet == 0)
+            {
+                try
+				{
+                    long selectTime;
+
+					//check if channel still exists and opened
+					if(_reactor.reactorChannel()==null || _reactor.reactorChannel().selectableChannel()==null || !_reactor.reactorChannel().selectableChannel().isOpen()) {
+						if (channelWasClosed) {
+							return;
+						} else {
+							fail("No selectable channel exists");
+						}
+					}
+
+					_reactor.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, _reactor.reactorChannel());
+				   
+					for (TestReactorComponent component : _componentList)
+					{
+						if(component.reactorChannel() != null && component.reactorChannelIsUp() )
+						{
+							if(component.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+							{
+								for(int i = 0; i < component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().size(); i++)
+								{
+									SelectableChannel tmpSelector = component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().get(i);
+									
+									if(tmpSelector != null)
+									{
+										tmpSelector.register(_selector,  SelectionKey.OP_READ, component.reactorChannel());
+									}
+										
+								}
+							}
+							else if (component.reactorChannel().selectableChannel() != null )
+							{
+								component.reactorChannel().selectableChannel().register(_selector, SelectionKey.OP_READ, component.reactorChannel());
+							}
+						}
+					}
+	
+					selectTime = (stopTimeUsec - currentTimeUsec)/1000;
+					
+					if (selectTime > 0)
+					{
+						selectRet = _selector.select(selectTime);
+					}
+					else
+					{
+						selectRet = _selector.selectNow();
+					}
+				}
+				catch (ClosedChannelException e)
+				{
+					e.printStackTrace();
+					fail("Caught ClosedChannelException.");
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+					fail("Caught IOException.");
+				}
+            }
+            else
+                selectRet = 1;
+
+            if (selectRet > 0)
+            {
+                ReactorDispatchOptions dispatchOpts = ReactorFactory.createReactorDispatchOptions();
+
+                do
+                {
+	                dispatchOpts.clear();
+	                lastDispatchRet = _reactor.dispatchAll(_selector.selectedKeys(), dispatchOpts, _errorInfo);
+	                
+                } while (lastDispatchRet > 0);
+
+            }
+
+            currentTimeUsec = System.nanoTime()/1000;
+            
+            /* If we've hit our expected number of events, drop the stopping time to at most 100ms from now.  
+             * Keep dispatching a short time to ensure no unexpected events are received, and that any internal flush events are processed. */
+            if (expectedEventCount > 0 && _eventQueue.size() == expectedEventCount)
+            {
+                long stopTimeUsecNew = currentTimeUsec + 100000;
+                if ((stopTimeUsec - stopTimeUsecNew) > 0)
+                {
+                    stopTimeUsec = stopTimeUsecNew;
+                }
+            }
+
+        } while(currentTimeUsec < stopTimeUsec && lastDispatchRet >= 0);
+        
+        /* Check for dispatch failure here */
+        assertTrue(lastDispatchRet < 0);
+        
+        /* Don't check event queue size when expectedEventCount is set to -1 */
+        if(expectedEventCount != -1 )
+        	assertEquals(expectedEventCount, _eventQueue.size());
+    }
+	
+	
 	public int handleServiceEndpointEvent(ReactorServiceEndpointEvent event)
 	{
 		_eventQueue.add(new TestReactorEvent(TestReactorEventTypes.SERVICE_DISC_ENDPOINT, event));
@@ -297,20 +574,55 @@ public class TestReactor {
 		case ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING:
             if (component.reactorChannelIsUp())
             {
-                /* If channel was up, the selectableChannel should be present. */
-                assertNotNull(component.reactorChannel().selectableChannel());
-                assertNotNull(component.reactorChannel().selectableChannel().keyFor(_selector));
+            	
+            	if(component.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+    			{
+    				for(int i = 0; i < component.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().size(); ++i)
+    				{
+    					SelectableChannel fdChangeChannel = component.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i);
+    					
+    					if(fdChangeChannel != null && !component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(fdChangeChannel))
+    					{
+    						fdChangeChannel.keyFor(_selector).cancel();
+    					}
+    				}
+    			}
+    			else if (component.reactorChannel().selectableChannel() != null )
+    			{
+    				/* If channel was up, the selectableChannel should be present. */
+                    assertNotNull(component.reactorChannel().selectableChannel());
+                    assertNotNull(component.reactorChannel().selectableChannel().keyFor(_selector));
 
-                /* Cancel key. */
-                component.reactorChannel().selectableChannel().keyFor(_selector).cancel();
+                    /* Cancel key. */
+                    component.reactorChannel().selectableChannel().keyFor(_selector).cancel();
+    			}
             }
 
 			component.reactorChannelIsUp(false);
 			break;
-		case ReactorChannelEventTypes.CHANNEL_READY:
 		case ReactorChannelEventTypes.FD_CHANGE:
-		case ReactorChannelEventTypes.WARNING:
 			assertNotNull(component.reactorChannel());
+			if(component.reactorChannel().reactorChannelType() == ReactorChannelType.WARM_STANDBY)
+			{
+				for(int i = 0; i < component.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().size(); ++i)
+				{
+					SelectableChannel fdChangeChannel = component.reactorChannel().warmStandbyChannelInfo().oldSelectableChannelList().get(i);
+					
+					if(fdChangeChannel != null && !component.reactorChannel().warmStandbyChannelInfo().selectableChannelList().contains(fdChangeChannel))
+					{
+						fdChangeChannel.keyFor(_selector).cancel();
+					}
+				}
+			}
+			else if (component.reactorChannel().selectableChannel() != null )
+			{
+				 /* Cancel old key. */
+                component.reactorChannel().oldSelectableChannel().keyFor(_selector).cancel();
+			}
+				
+			break;
+		case ReactorChannelEventTypes.CHANNEL_READY:
+		case ReactorChannelEventTypes.WARNING:
 			break;
 		default:
 			fail("Unhandled ReactorChannelEventType.");
@@ -469,6 +781,136 @@ public class TestReactor {
             connectOpts.connectionList().get(0).connectOptions().sysSendBufSize(64);
             connectOpts.connectionList().get(0).connectOptions().sysRecvBufSize(64);
         }
+        
+        ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
+        assertEquals("Connect failed: " + ret + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")",
+        		ReactorReturnCodes.SUCCESS, ret);
+
+        /* Clear ReactorConnectOptions after connecting -- this tests whether the Reactor is properly saving the options. */
+        connectOpts.clear();
+
+    }
+	
+	/** Associates a component with this reactor and opens a connection. */
+	void connectWsb(ConsumerProviderSessionOptions opts, TestReactorComponent component, List<Provider> wsbGroup1, List<Provider> wsbGroup2, Provider channelList)
+	{
+        ReactorConnectOptions connectOpts = ReactorFactory.createReactorConnectOptions();
+        ReactorWarmStandbyGroup wsbGroup;
+        ReactorWarmStandbyServerInfo wsbServerInfo;
+        int ret;
+        
+        connectOpts.reconnectAttemptLimit(opts.reconnectAttemptLimit());
+        connectOpts.reconnectMinDelay(opts.reconnectMinDelay());
+        connectOpts.reconnectMaxDelay(opts.reconnectMaxDelay());
+        
+
+        if(channelList != null)
+        {
+	        ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+	        connectOpts.clear();
+	        connectOpts.connectionList().add(connectInfo);
+	        connectOpts.connectionList().get(0).connectOptions().majorVersion(Codec.majorVersion());
+	        connectOpts.connectionList().get(0).connectOptions().minorVersion(Codec.minorVersion());
+	        connectOpts.connectionList().get(0).connectOptions().connectionType(opts.connectionType());
+	        connectOpts.connectionList().get(0).connectOptions().userSpecObject(component);
+	        connectOpts.connectionList().get(0).connectOptions().compressionType(opts.compressionType());
+	        connectOpts.connectionList().get(0).connectOptions().numInputBuffers(20);
+	        connectOpts.connectionList().get(0).initTimeout(opts.consumerChannelInitTimeout());
+
+	        connectOpts.connectionList().get(0).connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				connectOpts.connectionList().get(0).connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().address("localhost");
+	        connectOpts.connectionList().get(0).connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(channelList.serverPort()));
+        }
+        
+        if(wsbGroup1 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(0).serverPort()));
+	        
+	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup1.get(i).serverPort()));
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+        if(wsbGroup2 != null)
+        {
+        	wsbGroup = ReactorFactory.createReactorWarmStandbyGroup();
+        	
+        	wsbGroup.warmStandbyMode(opts.wsbMode());
+        	
+        	wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().userSpecObject(component);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().numInputBuffers(20);
+	        wsbGroup.startingActiveServer().reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+	        
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+	        if (opts.getProtocolList() != null)
+				wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+	        wsbGroup.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(0).serverPort()));
+	        
+	        for(int i = 1; i < wsbGroup1.size(); i++)
+	        {
+	        	wsbServerInfo = ReactorFactory.createReactorWarmStandbyServerInfo();
+	        	wsbServerInfo.reactorConnectInfo().connectOptions().majorVersion(Codec.majorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().minorVersion(Codec.minorVersion());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().connectionType(opts.connectionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().userSpecObject(component);
+		        wsbServerInfo.reactorConnectInfo().connectOptions().compressionType(opts.compressionType());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().numInputBuffers(20);
+		        wsbServerInfo.reactorConnectInfo().initTimeout(opts.consumerChannelInitTimeout());
+		        
+		        wsbServerInfo.reactorConnectInfo().connectOptions().pingTimeout(opts.pingTimeout());
+		        if (opts.getProtocolList() != null)
+					wsbServerInfo.reactorConnectInfo().connectOptions().wSocketOpts().protocols(opts.getProtocolList());
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address("localhost");
+		        wsbServerInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName(String.valueOf(wsbGroup2.get(i).serverPort()));
+		        
+		        wsbGroup.standbyServerList().add(wsbServerInfo);
+	        }
+	        
+	        connectOpts._reactorWarmStandyGroupList.add(wsbGroup);
+        }
+        
+
         
         ret = _reactor.connect(connectOpts, component.reactorRole(), _errorInfo);
         assertEquals("Connect failed: " + ret + "(" + _errorInfo.location() + " -- "+ _errorInfo.error().text() + ")",
