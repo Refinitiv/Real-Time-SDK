@@ -1,0 +1,88 @@
+Transport API Non-Interactive Provider (NIP) Training Application Description
+
+Module 1a: Establish network communication
+
+--------
+Summary:
+--------
+
+A Non-Interactive Provider (NIP) writes a provider application that
+connects to Refinitiv Real-Time Distribution System and sends a specific
+set (non-interactive) of information (services, domains, and capabilities).
+NIPs act like clients in a client-server relationship. Multiple NIPs can
+connect to the same Refinitiv Real-Time Distribution System and publish
+the same items and content.
+
+In this module, the OMM NIP application initializes the Transport API
+and establish a connection to an ADH server. Once connected, an OMM NIP
+can publish information into the ADH cache without needing to handle
+requests for the information. The ADH can cache the information and
+along with other Refinitiv Real-Time Distribution System components,
+provide the information to any NIProvider applications that indicate interest.
+
+Detailed Descriptions:
+
+The first step of any Transport API NIP application is to establish network
+communication with an ADH server. To do so, the OMM NIP typically creates
+an outbound connection to the well-known hostname and port of an ADH.
+The consumer uses the rsslConnect function to initiate the connection
+process and then performs connection initialization processes as needed.
+
+-----------------
+Application Name:
+-----------------
+
+NIProvMod1a
+
+------------------
+Setup Environment:
+------------------
+
+No additional files are necessary to run this application.
+
+-------------------
+Command line usage:
+-------------------
+
+dotnet run
+
+Runs with a default set of parameters (-h localhost -p 14003 -i "")
+
+or
+
+dotnet run -- [-h <SrvrHostname>] [-p <SrvrPortNo>] [-i <InterfaceName>]
+
+To view all command-line options, run:
+
+dotnet run -- -?
+
+Pressing the Ctrl+C buttons terminates the program.
+
+-----------------
+Compiling Source:
+-----------------
+
+The included project file is set up to run from the file locations as presented
+through the distribution package.
+
+To compile, run the `dotnet build` command with desired parameters
+(configuration, architecture, etc.)
+
+For windows platform, using Visual Studio, open the main ETA.NET.sln solution
+file and build the NIProvMod1a project.
+
+----------------
+Example Content:
+----------------
+
+Included for this application are:
+
+- Source files.
+
+- This document.
+
+--------------------
+Detailed Description
+--------------------
+
+Module_1a_Connect.cs - The main file for the Transport API Non-Interactive Provider (NIP) Training application.

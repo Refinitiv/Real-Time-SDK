@@ -1,0 +1,72 @@
+{
+  "Environments": {
+    "Debug": {
+      "Connections": [
+        {
+          "ConnectionName": "MarketFeed",
+          "ServerAddress": "132.88.65.120",
+          "ServerPort": "14002",
+          "UserName": "trep1",
+          "ServiceId": "957",
+          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+        },
+        {
+          "ConnectionName": "TestHiSpeed",
+          "ServerAddress": "10.91.160.16",
+          "ServerPort": "14999",
+          "UserName": "username",
+          "ServiceId": "1",
+          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+        },
+        {
+          "ConnectionName": "TestLoSpeed",
+          "ServerAddress": "10.91.160.16",
+          "ServerPort": "15001",
+          "UserName": "username",
+          "ServiceId": "1",
+          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+        },
+        {
+          "ConnectionName": "TestEta",
+          "ServerAddress": "127.0.0.1",
+          "ServerPort": "14002",
+          "Handler": "Refinitiv.Eta.Example.Consumer.TestBufferParser"
+        }
+      ]
+    },
+    "Release": {
+      "Connections": [
+        {
+          "ConnectionName": "MarketFeed",
+          "ServerAddress": "132.88.65.120",
+          "ServerPort": "14002",
+          "UserName": "trep1",
+          "ServiceId": "957",
+          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+        },
+        {
+          "ConnectionName": "TestHiSpeed",
+          "ServerAddress": "10.91.160.16",
+          "ServerPort": "14999",
+          "UserName": "username",
+          "ServiceId": "1",
+          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+        },
+        {
+          "ConnectionName": "TestLoSpeed",
+          "ServerAddress": "10.91.160.16",
+          "ServerPort": "15001",
+          "UserName": "username",
+          "ServiceId": "1",
+          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+        },
+        {
+          "ConnectionName": "TestEta",
+          "ServerAddress": "127.0.0.1",
+          "ServerPort": "14002",
+          "Handler": "Refinitiv.Eta.Example.Consumer.TestBufferParser"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Src\Transport\Transport.csproj" />
+    <ProjectReference Include="..\..\EtaAppCommon\EtaAppCommon.csproj" />
+    <ProjectReference Include="..\Common\EtaPerfToolsCommon.csproj" />
+  </ItemGroup>
+
+</Project>

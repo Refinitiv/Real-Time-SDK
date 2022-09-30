@@ -1,0 +1,110 @@
+VAProvider Application Description
+
+--------
+Summary:
+--------
+
+The purpose of this application is to demonstrate interactively providing data
+to OMM Consumer applications using ValueAdd components. It is a single-threaded
+server application.
+
+The provider application implements callbacks that process requests received by
+the consumer. It creates an Server and an Reactor and waits for connections. It
+accepts these connections into the Reactor and responds to messages through its
+Login, Directory, Dictionary, and default message callbacks.
+
+This provider supports providing Level I Market Price, Level II Market By Order,
+Level II Market By Price, and Symbol List data.
+
+Level II Market By Price refresh messages are sent as multi-part messages. An
+update message is sent between each part of the multi-part refresh message.
+
+Batch requests are supported by this application. The login response message
+indicates that batch support is present. Batch requests are accepted and a
+stream is opened for each item in the batch request.
+
+Posting requests are supported by this application for items that have already
+been opened by a consumer. On-stream and off-stream posts are accepted and sent
+out to any consumer that has the item open. Off-stream posts for items that have
+not already been opened by a consumer are rejected (in this example).
+
+Symbol List requests are expected to use a symbol list name of
+"_ETA_ITEM_LIST". The symbol list name is provided in the source directory
+response for the consumer to use.
+
+This application is intended as a basic usage example. Some of the design
+choices were made to favor simplicity and readability over performance. This
+application is not intended to be used for measuring performance.
+
+-----------------
+Application Name:
+-----------------
+
+VAProvider
+
+------------------
+Setup Environment:
+------------------
+
+The RDMFieldDictionary and enumtype.def files located in the etc directory must
+be located in the directory of execution. If the dictionary files cannot be
+found, the provider application exits.
+
+-------------------
+Command line usage:
+-------------------
+
+dotnet run
+
+Runs with a default set of parameters (-p 14002 -s DIRECT_FEED -id 1)
+
+or
+
+dotnet run -- [ -p <PortNo> ] [ -s <ServiceName> ] [ -id <ServiceId> ] [-runtime <seconds>]
+
+Specifying the -runtime option controls the time the application will run before
+exiting, in seconds.
+
+To view all command-line options, run:
+
+dotnet run -- -?
+
+Pressing the Ctrl+C buttons terminates the program.
+
+-----------------
+Compiling Source:
+-----------------
+
+The included project file is set up to run from the file locations as presented
+through the distribution package.
+
+To compile, run the `dotnet build` command with desired parameters
+(configuration, architecture, etc.)
+
+For windows platform, using Visual Studio, open the main ETA.NET.sln solution
+file and build the VAProvider project.
+
+----------------
+Example Content:
+----------------
+
+Included for this application are:
+
+- Source files.
+
+- This document.
+
+--------------------
+Detailed Description
+--------------------
+
+VAProvider.cs - The main file for the VAProvider application. Provides the default message callback.
+
+DictionaryHandler.cs - Provides the Dictionary domain message callback function and handles responding to requests.
+
+DirectoryHandler.cs - Provides the Directory domain message callback function and and handles responding to requests.
+
+LoginHandler.cs - Provides the Login domain message callback function and handles responding to requests.
+
+ItemHandler.cs - The handler for item requests. Supports Market Price, Market By Order,
+                 Market By Price, and Symbol List domains.
