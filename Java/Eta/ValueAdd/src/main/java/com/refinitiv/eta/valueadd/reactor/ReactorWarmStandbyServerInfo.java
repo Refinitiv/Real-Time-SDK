@@ -54,7 +54,7 @@ public class ReactorWarmStandbyServerInfo
 	
 	/**
 	 * Deep copies the provided reactorConnectInfo
-	 * @return ReactorConnectInfo object
+	 * @param reactorConnectInfo ReactorConnectInfo object
 	 */
 	public void reactorConnectInfo(ReactorConnectInfo reactorConnectInfo)
 	{
@@ -72,6 +72,7 @@ public class ReactorWarmStandbyServerInfo
 	
 	/**
 	 * Deep copies the perServiceBasedOptions object, which contains per service configuration for this connection.
+	 * @param perServiceBasedOptions ReactorPerServiceBasedOptions object
 	 */
 	public void perServiceBasedOptions(ReactorPerServiceBasedOptions perServiceBasedOptions)
 	{
@@ -80,6 +81,7 @@ public class ReactorWarmStandbyServerInfo
 
 	/**
 	 * Deep copies this object to destServer
+	 * @param destServer ReactorWarmStandbyServerInfo object
 	 */
 	public void copy(ReactorWarmStandbyServerInfo destServer) {
 		destServer.clear();

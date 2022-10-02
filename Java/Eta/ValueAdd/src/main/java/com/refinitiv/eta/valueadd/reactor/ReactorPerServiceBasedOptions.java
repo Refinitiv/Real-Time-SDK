@@ -50,7 +50,7 @@ public class ReactorPerServiceBasedOptions {
 	 * This list will be used on service-based connections to determine which service is preferred for this connection.
 	 * If another connection in the warm standby group provides this service, that connection will be registered as a 
 	 * standby for that service. 
-	 * @param serviceNameList input list of buffers to be copied
+	 * @return the list of buffers for service name list
 	 */
 	public List<Buffer> serviceNameList()
 	{
