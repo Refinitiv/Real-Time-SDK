@@ -24,7 +24,7 @@ The Refinitiv Real-Time-SDK will support multiple languages across different com
 
 - [C++](Cpp-C)
 - [Java](Java)
-- CSharp: coming soon
+- [C# (Preview Only)](https://github.com/Refinitiv/Real-Time-SDK/tree/preview/CSharp)
 
 
 # Documentation
