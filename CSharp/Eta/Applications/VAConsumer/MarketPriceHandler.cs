@@ -438,6 +438,12 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
         private ReactorReturnCode RedirectToPrivateStream(int streamId, out ReactorErrorInfo? errorInfo)
         {
             var wle = m_WatchList.Get(streamId);
+            if (wle == null)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = "No such entry in watchlist";
+                return ReactorReturnCode.FAILURE;
+            }
 
             /* remove non-private stream entry from list */
             RemoveMarketPriceItemEntry(streamId);
@@ -477,6 +483,12 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             }
 
             var wle = m_WatchList.Get(msg.StreamId);
+            if (wle == null)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = "No such entry in watchlist";
+                return ReactorReturnCode.FAILURE;
+            }
 
             /* check if this response should be on private stream but is not */
             /* if this is the case, close the stream */

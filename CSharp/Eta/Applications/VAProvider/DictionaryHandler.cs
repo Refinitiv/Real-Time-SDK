@@ -26,7 +26,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
         private const string ENUM_TYPE_DICTIONARY_NAME = "RWFEnum";
 
         private const string FIELD_DICTIONARY_FILE_NAME = "RDMFieldDictionary";
-        private const string ENUM_TABLE_FILE_NAME = "enumtype.Def";
+        private const string ENUM_TABLE_FILE_NAME = "enumtype.def";
 
         public static Buffer FieldDictionaryDownloadName { get; set; }
         public static Buffer EnumTypeDictionaryDownloadName { get; set; }

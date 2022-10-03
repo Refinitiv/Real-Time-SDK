@@ -64,7 +64,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
         private System.DateTime m_NextPostTime = System.DateTime.MinValue;
         private bool m_PostWithMsg;
-        private bool m_ShouldOffstreamPost, m_ShouldOnstreamPost, m_HasInputPrincipalIdentitity;
+        private bool m_HasInputPrincipalIdentitity;
         private string m_PublisherId = String.Empty;
         private string m_PublisherAddress = String.Empty;
         private bool m_PostRefresh;
@@ -85,8 +85,6 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
         public PostHandler()
         {
             m_PostWithMsg = true;
-            m_ShouldOffstreamPost = false;
-            m_ShouldOnstreamPost = false;
             m_HasInputPrincipalIdentitity = false;
             m_NextPostId = 1;
             m_NextSeqNum = 1;
@@ -142,7 +140,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
             if (currentTime >= m_NextPostTime)
             {
-                if (m_ShouldOnstreamPost)
+                if (EnableOnstreamPost)
                 {
                     ReactorReturnCode ret = SendOnstreamPostMsg(chnl, m_PostWithMsg, out errorInfo);
                     if (ret != ReactorReturnCode.SUCCESS)
@@ -150,7 +148,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                         return ret;
                     }
                 }
-                if (m_ShouldOffstreamPost)
+                if (EnableOffstreamPost)
                 {
                     ReactorReturnCode ret = SendOffstreamPostMsg(chnl, out errorInfo);
                     if (ret != ReactorReturnCode.SUCCESS)

@@ -71,11 +71,13 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             return thisStreamId;
         }
 
-        public WatchListEntry Get(int streamId)
+        public WatchListEntry? Get(int streamId)
         {
-            return m_WatchList[streamId];
+            if (m_WatchList.TryGetValue(streamId, out var entry))
+                return entry;
+            else
+                return null;
         }
-
 
         public int GetFirstItem(Codec.Buffer mpItemName)
         {
