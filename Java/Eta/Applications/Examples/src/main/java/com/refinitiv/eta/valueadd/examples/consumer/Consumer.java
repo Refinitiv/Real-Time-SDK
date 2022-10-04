@@ -149,9 +149,15 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * <li>-passwd changes the password used when logging into the provider
  *
- * <li>-clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator
+ * <li>-clientId Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.
+ * 
+ * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
  *
  * <li>-sessionMgnt enables the session management in the Reactor
+ * 
+ * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
+ * 
+ * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
  *
  * <li>-view specifies each request using a basic dynamic view
  *

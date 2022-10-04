@@ -190,7 +190,12 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * application will run before exiting, in seconds.
  * <li>-keyfile keystore file for encryption.
  * <li>-keypasswd keystore password for encryption.
+ * <li>-u Login user name. Default is system user name.
+ * <li>-passwd Password for the user name.
  * <li>-clientId Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+ * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
+ * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
+ * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
  * </ul>
  */
 public class wsbConsumer implements ConsumerCallback,
