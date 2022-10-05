@@ -344,7 +344,7 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_10|DirectWrite from EmaConfigTest.xml";
 	uintValue = 0;
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_11|DirectWrite", uintValue);
-	EXPECT_FALSE(debugResult& & uintValue == 0) << "extracting Channel_11|DirectWrite from EmaConfigTest.xml";
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_11|DirectWrite from EmaConfigTest.xml";
 	uintValue = 0;
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_12|DirectWrite", uintValue);
 	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_12|DirectWrite from EmaConfigTest.xml";

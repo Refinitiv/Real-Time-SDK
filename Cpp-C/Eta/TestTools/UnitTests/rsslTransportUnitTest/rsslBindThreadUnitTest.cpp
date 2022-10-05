@@ -92,7 +92,7 @@ RSSL_THREAD_DECLARE(runBindProcessTestThreadStr, pArg)
 		// A lot of different topologies for the the processor core.
 		// At least, one of them must be correct.
 		// P:X C:Y T:Z
-		for (unsigned k = 0; k < cpuCoreArgs->n; ++k)
+		for (unsigned long long k = 0; k < cpuCoreArgs->n; ++k)
 		{
 			cpuString = (cpuCoreArgs->strCpuCore + k*MAXLEN);
 			//printf("runBindProcessTestThreadStr: %s\n", cpuString);
@@ -1308,7 +1308,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresNumericElem
 	char outStr[128];
 	int n;
 	int i;
-	unsigned nTestProcessors;
+	int nTestProcessors;
 
 	RsslBuffer outputResult;
 	char textResult[256];
