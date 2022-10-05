@@ -484,6 +484,7 @@ public class DirectoryJunit
         ConsumerStatusService consumerStatusService1 = DirectoryMsgFactory.createConsumerStatusService();
         consumerStatusService1.sourceMirroringMode(sourceMirroringMode);
         consumerStatusService1.action(MapEntryActions.UPDATE);
+        consumerStatusService1.applyHasWarmStandbyMode();
         consumerStatusService1.warmStandbyMode(warmStandbyMode);
 
         System.out.println("DirectoryConsumerStatus copy tests...");
@@ -1763,6 +1764,7 @@ public class DirectoryJunit
         consumerStatusService1.serviceId(serviceId);
         consumerStatusService1.sourceMirroringMode(sourceMirroringMode);
         consumerStatusService1.action(action);
+        consumerStatusService1.applyHasWarmStandbyMode();
         consumerStatusService1.warmStandbyMode(warmStandbyMode);
 
         System.out.println("ConsumerStatusService copy tests...");
