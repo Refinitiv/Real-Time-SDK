@@ -2626,7 +2626,7 @@ void ProgrammaticConfigure::retrieveWSBChannelInfo(const MapEntry& mapEntry, con
 
 		if (flags & WSBDownloadConnectionConfig)
 		{
-			wsbChannelConfig->downloadConnectionConfig = downloadConnectionConfig;
+			wsbChannelConfig->downloadConnectionConfig = downloadConnectionConfig == 1 ? true : false;
 		}
 		else if(fileConfig)
 		{
