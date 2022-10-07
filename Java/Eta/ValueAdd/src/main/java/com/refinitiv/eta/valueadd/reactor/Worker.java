@@ -223,11 +223,11 @@ class Worker implements Runnable
                             continue;
 
                         Channel channel = null;
-                        reactorChannel._reconnectAttempts++;
                         ReactorWarmStandbyServerInfo wsbServerImpl;
 
                         if(_reactor.reactorHandlesWarmStandby(reactorChannel))
                         {
+                        	reactorChannel._reconnectAttempts++;
                         	ReactorWarmStandbyGroupImpl wsbGroup = reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
                         	if(reactorChannel.isStartingServerConfig)
                         	{
@@ -260,13 +260,19 @@ class Worker implements Runnable
 
                         }
                         else
-                        {                        
-	                        if (++reactorChannel._listIndex == reactorChannel.getReactorConnectOptions().connectionList().size())
-	                        {
-	                        	reactorChannel. _listIndex = 0;
-	                        }
-	                        reactorChannel.setCurrentReactorConnectInfo(reactorChannel.getReactorConnectOptions().connectionList().get(reactorChannel._listIndex));
-	                        reactorChannel.setCurrentConnectOptionsInfo(reactorChannel._connectOptionsInfoList.get(reactorChannel._listIndex));
+                        {   
+                        	 if (reactorChannel.state() != State.EDP_RT &&
+                                     reactorChannel.state() != State.EDP_RT_DONE &&
+                                     reactorChannel.state() != State.EDP_RT_FAILED)
+                             {
+                        		 reactorChannel._reconnectAttempts++;
+                        		 if (++reactorChannel._listIndex == reactorChannel.getReactorConnectOptions().connectionList().size())
+                        		 {
+                        			 reactorChannel. _listIndex = 0;
+                        		 }
+                        		 reactorChannel.setCurrentReactorConnectInfo(reactorChannel.getReactorConnectOptions().connectionList().get(reactorChannel._listIndex));
+                        		 reactorChannel.setCurrentConnectOptionsInfo(reactorChannel._connectOptionsInfoList.get(reactorChannel._listIndex));
+                            }
                         }
 
 

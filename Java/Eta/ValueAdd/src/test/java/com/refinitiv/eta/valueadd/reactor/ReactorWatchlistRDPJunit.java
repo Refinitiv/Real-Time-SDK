@@ -1510,6 +1510,14 @@ public class ReactorWatchlistRDPJunit
 			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
 			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
 			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
+			assertTrue(chnlEvent.errorInfo().error().text().contains("Failed REST request for the token service from HTTP status code 400"));
+			
+			// Consumer receives CHANNEL_DOWN_RECONNECTING event
+			event = getTestEvent(consumerReactor, 10);
+			assertNotNull("Did not receive CHANNEL_EVENT", event);
+			assertEquals("Expected TestReactorEventTypes.CHANNEL_EVENT, received: " + event.type(), TestReactorEventTypes.CHANNEL_EVENT, event.type());
+			chnlEvent = (ReactorChannelEvent)event.reactorEvent();
+			assertEquals("Expected ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, received: " + chnlEvent.eventType(), ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, chnlEvent.eventType());
 			assertTrue(chnlEvent.errorInfo().error().text().contains("Connection refused: no further information"));
 			
 			event = getTestEvent(consumerReactor, 10);
