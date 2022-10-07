@@ -67,7 +67,7 @@ RTSDK Java Release 2.0.6.G1 (Sep 16, 2022)
 --------------------------------------------
 This is a rapid release with a critical fix. 
 
-EMA Java 3.6.6.L1 Issues Resolved
+EMA Java 3.6.6.G1 Issues Resolved
 ---------------------------------
 - [RTSDK-6411] - Memory leak upon repeated init and un-init of OMMConsumer due to a growing global pool [Case Number: 11444081] 
 
