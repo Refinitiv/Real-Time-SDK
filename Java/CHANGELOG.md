@@ -29,7 +29,7 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK Java Release 2.0.7.L1 (Oct 6, 2022)
+RTSDK Java Release 2.0.7.L1 (Oct 7, 2022)
 --------------------------------------------
 This release introduces Warm Standby consumer feature in ETA-Reactor and EMA. It also include maintenance/fixes for issues. 
 
