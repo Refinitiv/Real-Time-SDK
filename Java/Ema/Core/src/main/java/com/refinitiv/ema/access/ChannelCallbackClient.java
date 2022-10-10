@@ -844,18 +844,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		return tempBlder.toString();
 	}
 
-	private ReactorConnectInfo channelConfigToReactorConnectInfo(int connectionListIndex, ChannelConfig channelConfig, List<ChannelConfig> activeConfigChannelSet)
+	private ReactorConnectInfo channelConfigToReactorConnectInfo(ChannelConfig channelConfig, List<ChannelConfig> activeConfigChannelSet)
 	{
-		int channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
-		StringBuilder temp = new StringBuilder();
-		if( activeConfigChannelSet.size() > 1 )
-			temp.append("Attempt to connect using the following list");
-		else
-			temp.append("Attempt to connect using ");
-
-		String channelParams = "";
-		
-		
 		int connectionType = channelConfig.rsslConnectionType;
 		ReactorConnectInfo reactorConnectInfo = ReactorFactory.createReactorConnectInfo();
 
@@ -1000,14 +990,6 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			reactorConnectInfo.connectOptions().wSocketOpts().protocols(channelConfig.wsProtocols);
 			reactorConnectInfo.connectOptions().wSocketOpts().maxMsgSize(channelConfig.wsMaxMsgSize);
 		}
-		
-		if (_baseImpl.loggerClient().isTraceEnabled())
-		{
-			channelParams = channelParametersToString( _baseImpl.activeConfig(), activeConfigChannelSet.get( connectionListIndex ) );
-			temp.append( OmmLoggerClient.CR ).append( connectionListIndex + 1 ).append( "] " ).append( channelParams );
-			if ( connectionListIndex == ( channelCfgSetLastIndex ) )				
-				_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
-		}	
 
 		return reactorConnectInfo;
 	}
@@ -1018,6 +1000,16 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 		List<ChannelConfig>	activeConfigChannelSet = activeConfig.channelConfigSet;
 		String channelNames = "";
 		int supportedConnectionTypeChannelCount = 0;
+		
+		StringBuilder temp = new StringBuilder();
+		if( activeConfigChannelSet.size() > 1 )
+			temp.append("Attempt to connect using the following list");
+		else
+			temp.append("Attempt to connect using ");
+		
+		int channelCfgSetLastIndex = activeConfigChannelSet.size() - 1;
+
+		String channelParams = "";
 
 		StringBuilder errorStrUnsupportedConnectionType = new StringBuilder();		
 		errorStrUnsupportedConnectionType.append( "Unsupported connection type. Passed in type is ");
@@ -1050,7 +1042,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					activeChannelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED ||
 					activeChannelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
 			{	
-				reactorConnectInfo = channelConfigToReactorConnectInfo(i, activeChannelConfig, activeConfigChannelSet);
+				reactorConnectInfo = channelConfigToReactorConnectInfo(activeChannelConfig, activeConfigChannelSet);
 				supportedConnectionTypeChannelCount++;
 				channelNames += activeChannelConfig.name;	
 				rsslReactorConnListSize = _rsslReactorConnOptions.connectionList().size();
@@ -1071,6 +1063,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					_rsslReactorConnOptions.connectionList().get(i).initTimeout(activeChannelConfig.initializationTimeout);
 					_rsslReactorConnOptions.connectionList().get(i).serviceDiscoveryRetryCount(activeChannelConfig.serviceDiscoveryRetryCount);
 				}
+				
+				if (_baseImpl.loggerClient().isTraceEnabled())
+				{
+					channelParams = channelParametersToString( _baseImpl.activeConfig(), activeConfigChannelSet.get( i ) );
+					temp.append( OmmLoggerClient.CR ).append( i + 1 ).append( "] " ).append( channelParams );
+					if ( i == ( channelCfgSetLastIndex ) )				
+						_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, temp.toString(), Severity.TRACE));
+				}	
 			}
 			else
 			{
@@ -1098,7 +1098,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 					warmStandbyChannelConfig.startingActiveServer.channelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED ||
 					warmStandbyChannelConfig.startingActiveServer.channelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
 				{
-					wsbStartingActiveServerReactorConnectInfo = channelConfigToReactorConnectInfo(i, warmStandbyChannelConfig.startingActiveServer.channelConfig, activeConfigChannelSet);
+					wsbStartingActiveServerReactorConnectInfo = channelConfigToReactorConnectInfo(warmStandbyChannelConfig.startingActiveServer.channelConfig, activeConfigChannelSet);
 					supportedConnectionTypeChannelCount++;
 					channelNames += warmStandbyChannelConfig.startingActiveServer.channelConfig.name;	
 				}
@@ -1149,7 +1149,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 						warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED ||
 						warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.WEBSOCKET)
 					{
-						wsbStandbyChannelReactorConnectInfo = channelConfigToReactorConnectInfo(i, warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig, activeConfigChannelSet);
+						wsbStandbyChannelReactorConnectInfo = channelConfigToReactorConnectInfo(warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig, activeConfigChannelSet);
 						supportedConnectionTypeChannelCount++;
 						channelNames += warmStandbyChannelConfig.standbyServerSet.get(j).channelConfig.name;
 					}

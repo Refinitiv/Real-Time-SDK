@@ -29,7 +29,7 @@ FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK Java Release 2.0.7.L1 (Oct 6, 2022)
+RTSDK Java Release 2.0.7.L1 (Oct 7, 2022)
 --------------------------------------------
 This release introduces Warm Standby consumer feature in ETA-Reactor and EMA. It also include maintenance/fixes for issues. 
 
@@ -67,7 +67,7 @@ RTSDK Java Release 2.0.6.G1 (Sep 16, 2022)
 --------------------------------------------
 This is a rapid release with a critical fix. 
 
-EMA Java 3.6.6.L1 Issues Resolved
+EMA Java 3.6.6.G1 Issues Resolved
 ---------------------------------
 - [RTSDK-6411] - Memory leak upon repeated init and un-init of OMMConsumer due to a growing global pool [Case Number: 11444081] 
 

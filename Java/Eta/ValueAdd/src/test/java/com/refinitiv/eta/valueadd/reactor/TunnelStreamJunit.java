@@ -535,7 +535,7 @@ public class TunnelStreamJunit
         long runTimeSec = 0;
         int minRunCount = 3;
         int tunnelStreamCount = 6;
-
+        
         int runCount;
         TunnelStream consTunnels[] = new TunnelStream[tunnelStreamCount];
         TunnelStream provTunnels[] = new TunnelStream[tunnelStreamCount];
@@ -649,6 +649,27 @@ public class TunnelStreamJunit
             provider.closeChannel();
             consumerReactor.dispatch(1 /* Channel down event */ + (_enableWatchlist ? 2 : 0)+ tunnelStreamCount /* Tunnel Stream Status Events */);
             
+            if(_enableWatchlist)
+            {	            
+
+            	event = consumer.testReactor().pollEvent();
+     	        assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+     	        ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+     	        assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+	            
+     	        RDMLoginMsgEvent loginMsgEvent;                
+	            event = consumer.testReactor().pollEvent();
+                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
+
+                RDMDirectoryMsgEvent directoryMsgEvent;                
+                event = consumer.testReactor().pollEvent();
+                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType()); 
+            }
+            
             for (int i = 0; i < tunnelStreamCount; ++i)
             {
                 event = consumerReactor.pollEvent();
@@ -665,28 +686,13 @@ public class TunnelStreamJunit
                 assertEquals(ReactorReturnCodes.SUCCESS, tsStatusEvent.tunnelStream().close(false, _errorInfo));
             }
             
-            event = consumer.testReactor().pollEvent();
-            assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
-            
-            if (_enableWatchlist)
+            if(!_enableWatchlist)
             {
-                RDMLoginMsgEvent loginMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
-                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
-                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
-
-                RDMDirectoryMsgEvent directoryMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
-                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+				event = consumer.testReactor().pollEvent();
+				assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
             }
-
-            
-
             
             System.gc();
 
@@ -723,6 +729,28 @@ public class TunnelStreamJunit
             provider.closeChannel();
             consumerReactor.dispatch(1 + /* Channel down event */ + (_enableWatchlist ? 2 : 0)+ tunnelStreamCount /* Tunnel Stream Status Events */);
 
+            if (_enableWatchlist)
+            {
+				event = consumer.testReactor().pollEvent();
+				assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
+                 
+                RDMLoginMsgEvent loginMsgEvent;                
+                event = consumer.testReactor().pollEvent();
+                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
+                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
+                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
+
+                RDMDirectoryMsgEvent directoryMsgEvent;                
+                event = consumer.testReactor().pollEvent();
+                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
+                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
+                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+            }
+            
+           
+            
             for (int i = 0; i < tunnelStreamCount; ++i)
             {
                 event = consumerReactor.pollEvent();
@@ -738,26 +766,14 @@ public class TunnelStreamJunit
             }
             
            
-            
-            if (_enableWatchlist)
+            if(!_enableWatchlist)
             {
-                RDMLoginMsgEvent loginMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.LOGIN_MSG, event.type());
-                loginMsgEvent = (RDMLoginMsgEvent)event.reactorEvent();
-                assertEquals(LoginMsgType.STATUS, loginMsgEvent.rdmLoginMsg().rdmMsgType());  
-
-                RDMDirectoryMsgEvent directoryMsgEvent;                
-                event = consumer.testReactor().pollEvent();
-                assertEquals(TestReactorEventTypes.DIRECTORY_MSG, event.type());
-                directoryMsgEvent = (RDMDirectoryMsgEvent)event.reactorEvent();
-                assertEquals(DirectoryMsgType.UPDATE, directoryMsgEvent.rdmDirectoryMsg().rdmMsgType());   
+				event = consumer.testReactor().pollEvent();
+				assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
+				ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
+				assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
             }
             
-            event = consumer.testReactor().pollEvent();
-            assertEquals(TestReactorEventTypes.CHANNEL_EVENT, event.type());
-            ReactorChannelEvent channelEvent = (ReactorChannelEvent)event.reactorEvent();
-            assertEquals(ReactorChannelEventTypes.CHANNEL_DOWN_RECONNECTING, channelEvent.eventType());
 
             System.gc();
 
@@ -774,7 +790,6 @@ public class TunnelStreamJunit
             assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamList.count());
             assertEquals(0, provider.reactorChannel().tunnelStreamManager()._tunnelStreamTimeoutList.count());
             assertEquals(0, provider.reactorChannel().streamIdtoTunnelStreamTable().size());
-
 
         }
         while (++runCount < minRunCount || System.nanoTime() < startTime + 1000000000 * runTimeSec);

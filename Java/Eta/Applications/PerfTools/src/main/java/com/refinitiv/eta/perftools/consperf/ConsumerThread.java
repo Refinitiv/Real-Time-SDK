@@ -1474,7 +1474,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 			break;
 		case PING_STR:
 		{
-			System.out.println("Ping");
 			TransportBuffer buffer = _channel.getBuffer(JSON_PONG_MESSAGE.length(), false, _error);
 			if(Objects.nonNull(buffer))
 			{
@@ -1497,7 +1496,6 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
 			return null;
 		}
 		case PONG_STR:
-			System.out.println("Pong");
 			return null;
 		default:
 			System.out.println("Bad MsgType: " + typeNode.textValue());

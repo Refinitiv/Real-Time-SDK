@@ -1703,7 +1703,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		_eventReceived = false;
 		_rsslDispatchOptions.maxMessages(count);
 		int ret = ReactorReturnCodes.SUCCESS;
-		int loopCount = 0;
 		long startTime = System.nanoTime();
 		long endTime = 0;
 		
@@ -1752,9 +1751,12 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				int selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
-					SelectionKey key = _selector.selectedKeys().iterator().next();
-					ReactorChannel reactorChannel = ((ReactorChannel) key.attachment());
-					ret = reactorChannel.reactor().dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
+					if(_selector.selectedKeys().contains(_pipeSelectKey))
+					{
+						pipeRead();
+					}
+					
+					ret = _rsslReactor.dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
 					if (ret == ReactorReturnCodes.FAILURE)
 					{
 						System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _rsslErrorInfo.error().text() + ")");

@@ -684,8 +684,8 @@ public class wsbConsumerConfig
 		
 		CommandLine.addOption("u", "Login user name. Default is system user name.");
 		CommandLine.addOption("passwd", "Password for the user name.");
-		CommandLine.addOption("clientId", "Specifies a unique ID for application making the request to EDP token service, also known as AppKey generated using an AppGenerator.");
-		CommandLine.addOption("clientSecret", "Specifies the associted client Secret with a provided clientId for V2 logins.");
+		CommandLine.addOption("clientId", "Specifies the client Id for Refinitiv login V2, or specifies a unique ID for application making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.");
+		CommandLine.addOption("clientSecret", "Specifies the associated client Secret with a provided clientId for V2 logins.");
 		CommandLine.addOption("tokenURLV1", "Specifies the token URL for V1 token oauthpasswd grant type.");
 		CommandLine.addOption("tokenURLV2", "Specifies the token URL for V2 token oauthclientcreds grant type.");
 		CommandLine.addOption("tokenScope", "", "Specifies the token scope.");

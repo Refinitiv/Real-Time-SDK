@@ -668,7 +668,7 @@ void* LoginRdmReqMsgImpl::getClosure()
 
 bool LoginRdmReqMsgImpl::hasLoginClient()
 {
-	return _hasLoginClient;
+	return _hasLoginClient == RSSL_TRUE;
 }
 
 UInt8 LoginRdmReqMsgImpl::getArrayIndex()

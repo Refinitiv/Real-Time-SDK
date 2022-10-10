@@ -960,8 +960,8 @@ public class Reactor
 			Channel channel = Transport.connect(connectOptions, errorInfo.error());
 			reactorChannel.selectableChannelFromChannel(channel);
 			
-			// call channelOpenCallback if callback defined
-			if (((ConsumerRole) role).watchlistOptions().channelOpenCallback() != null)
+			// call channelOpenCallback if callback defined in the consumer role
+			if (role.type() == ReactorRoleTypes.CONSUMER && ((ConsumerRole) role).watchlistOptions().enableWatchlist() && ((ConsumerRole) role).watchlistOptions().channelOpenCallback() != null)
 			{
 				sendAndHandleChannelEventCallback("Reactor.connect", ReactorChannelEventTypes.CHANNEL_OPENED,
 						reactorChannel, errorInfo);

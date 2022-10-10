@@ -185,7 +185,10 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-sessionMgnt (optional) Enable Session Management in the reactor.
  * <li>-l (optional) Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.
  * <li>-query (optional) Queries RDP service discovery to get an endpoint according to a specified connection type and location.
- * <li>-clientId Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+ * <li>-clientId Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.
+ * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
+ * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
+ * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
  * <li>-rtt enables rtt support by a consumer. If provider make distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.
  * </ul>
  */

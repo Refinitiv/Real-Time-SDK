@@ -1503,6 +1503,7 @@ public class ReactorWatchlistRDPJunit
 			ReactorAuthTokenEvent authTokenEvent = (ReactorAuthTokenEvent)event.reactorEvent();
 			assertTrue(authTokenEvent.errorInfo().error().text().contains("\"error_description\":\"Invalid username or password.\""));
 			
+			
 			// Consumer receives CHANNEL_DOWN_RECONNECTING event
 			event = getTestEvent(consumerReactor, 10);
 			assertNotNull("Did not receive CHANNEL_EVENT", event);
