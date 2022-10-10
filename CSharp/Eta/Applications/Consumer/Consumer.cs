@@ -970,7 +970,7 @@ namespace Refinitiv.Eta.Example.Consumer
 
         private void FlushChannel()
         {
-            TransportReturnCode retval = TransportReturnCode.FAILURE;
+            TransportReturnCode retval = (TransportReturnCode)1; 
 
             while (retval > TransportReturnCode.SUCCESS)
             {

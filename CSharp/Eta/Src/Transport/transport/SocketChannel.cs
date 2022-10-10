@@ -507,7 +507,14 @@ namespace Refinitiv.Eta.Transports
                     resultObject.Buffer.Capacity - resultObject.Buffer.WritePosition);
 
                 if (retResult > 0)
+		{
                     resultObject.Buffer.WritePosition += retResult;
+		}
+		else
+		{
+                    retResult = -1; // End of stream
+		}
+ 		    
             }
             catch (SocketException socketException)
             {
@@ -579,7 +586,13 @@ namespace Refinitiv.Eta.Transports
                     dstBuffer.Capacity - dstBuffer.WritePosition);
 
                 if (retResult > 0)
+		{
                     dstBuffer.WritePosition += retResult;
+		}
+		else
+		{
+                    retResult = -1; // End of stream
+		}
             }
             catch (SocketException socketException)
             {
@@ -587,6 +600,7 @@ namespace Refinitiv.Eta.Transports
                     socketException.SocketErrorCode != SocketError.TryAgain)
                 {
                     socketError = socketException.SocketErrorCode;
+                    retResult = -1; // End of stream
                 }
             }
             catch (IOException ioException)
@@ -597,12 +611,14 @@ namespace Refinitiv.Eta.Transports
                         socketException.SocketErrorCode != SocketError.TryAgain)
                     {
                         socketError = socketException.SocketErrorCode;
+                        retResult = -1; // End of stream
                     }
                 }
             }
             catch (Exception)
             {
                 socketError = SocketError.SocketError;
+                retResult = -1; // End of stream
             }
 
             return retResult;

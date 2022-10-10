@@ -23,7 +23,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
         // client sessions over this limit gets rejected with NAK mount
         const int NUM_CLIENT_SESSIONS = 5;
 
-        private const int UPDATE_INTERVAL = 500000;
+        private const int UPDATE_INTERVAL = 1000000;
 
         private BindOptions m_BindOptions = new BindOptions();        
         private ReactorOptions m_ReactorOptions = new ReactorOptions();

@@ -10,16 +10,26 @@ using System.Diagnostics;
 
 namespace Refinitiv.Eta.ValueAdd.Reactor
 {
-    internal class ReactorUtil
+    internal static class ReactorUtil
     {
+	static ReactorUtil()
+	{
+		TicksPerSecond = Stopwatch.Frequency;
+            	TicksPerMilliSecond = Stopwatch.Frequency / 1000.0;
+	}	
+
+	public static double TicksPerSecond { get; private set; }
+
+	public static double TicksPerMilliSecond { get; private set; }
+
         public static long GetCurrentTimeMilliSecond()
         {
-            return (Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond);
+            return (long)(Stopwatch.GetTimestamp() / TicksPerMilliSecond);
         }
 
         public static long GetCurrentTimeSecond()
         {
-            return (Stopwatch.GetTimestamp() / TimeSpan.TicksPerSecond);
+            return (long)(Stopwatch.GetTimestamp() / TicksPerSecond);
         }
     }
 }
