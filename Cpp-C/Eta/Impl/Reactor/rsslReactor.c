@@ -2251,6 +2251,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		if (!pWatchlist) goto reactorConnectFail;
 
 		pReactorChannel->pWatchlist = pWatchlist;
+		pWatchlist->pUserSpec = pReactorChannel;
 
 		if (watchlistCreateOpts.enableWarmStandby)
 		{
@@ -2441,8 +2442,6 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		if (pWatchlist)
 		{
 			RsslWatchlistProcessMsgOptions processOpts;
-
-			pWatchlist->pUserSpec = pReactorChannel;
 
 			/* Add consumer requests, if provided. */
 			if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
