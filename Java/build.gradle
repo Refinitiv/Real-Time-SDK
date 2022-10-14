@@ -191,12 +191,12 @@ task uploadAll ( ) {
 	description 'Uploads All artifacts to maven central, run with -Pmavencentral'
 	if (project.hasProperty("mavencentral"))
 	{
-		dependsOn ':Eta:AnsiPage:uploadArchives'
-		dependsOn ':Eta:Core:uploadArchives'
-		dependsOn ':Eta:ValueAdd:uploadArchives'
-		dependsOn ':Eta:ValueAddCache:uploadArchives'
-		dependsOn ':Eta:Converter:uploadArchives'
-		dependsOn ':Ema:Core:uploadArchives'
+		dependsOn ':Eta:AnsiPage:publish'
+		dependsOn ':Eta:Core:publish'
+		dependsOn ':Eta:ValueAdd:publish'
+		dependsOn ':Eta:ValueAddCache:publish'
+		dependsOn ':Eta:Converter:publish'
+		dependsOn ':Ema:Core:publish'
 	}
 	else
 	{

@@ -8,6 +8,11 @@ group = "com.refinitiv.eta.valueadd.cache"
 archivesBaseName = "etaValueAddCache"
 version "$SpecificationVersion"
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 publishing {
     publications{
         mavenJava(MavenPublication){
@@ -47,25 +52,20 @@ publishing {
 
     repositories {
         maven {
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
             name = "repository"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            credentials {
-                username = findProperty('ossrhUsername')
-                password = findProperty('ossrhPassword')
-            }
-        }
-        maven {
-            name = "snapshotRepository"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-            credentials {
-                username = findProperty('ossrhUsername')
-                password = findProperty('ossrhPassword')
-            }
+            def releaseRepository = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepository = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository
         }
     }
 }
 
 signing {
+    sign configurations.archives
     sign publishing.publications.mavenJava
 }
 
@@ -127,26 +127,4 @@ task cleanJar (type: Delete) {
         delete "${jar.archivePath}"
 }
 clean.dependsOn cleanJar
-
-task javadocJar (type: Jar) {
-        archiveClassifier.convention('javadoc');
-        archiveClassifier.set('javadoc');
-        from javadoc.destinationDir
-        destinationDirectory.set(jar.destinationDirectory)
-
-        manifest {
-		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
-                from sharedManifest
-        }
-}
-
-task sourcesJar(type: Jar) {
-        archiveClassifier.convention('sources');
-        archiveClassifier.set('sources');
-        from sourceSets.main.allSource
-}
-
-artifacts {
-        archives javadocJar, sourcesJar
-}
 
