@@ -2,6 +2,7 @@ apply plugin: 'net.saliman.cobertura'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'application'
+apply plugin: 'java-library'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -81,10 +82,10 @@ eclipse {
 }
 
 dependencies {
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.13'
-    implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
-    implementation group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
+    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    api group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.13'
+    api group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
+    api group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
 
     testImplementation('org.mockito:mockito-all:1.9.0'){
         exclude group: 'org.hamcrest'
