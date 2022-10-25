@@ -1,6 +1,7 @@
 apply plugin: 'net.saliman.cobertura'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'java-library'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -80,11 +81,11 @@ eclipse {
 }
 
 dependencies {
-    implementation group: 'org.json', name: 'json', version: '20210307'
-    implementation group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.13'
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-    implementation group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+    api group: 'org.json', name: 'json', version: '20210307'
+    api group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.13'
+    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
+    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito
@@ -103,8 +104,8 @@ dependencies {
         }
 	}
 
-    implementation project(':Eta:Core')
-    implementation project(':Eta:Converter')
+    api project(':Eta:Core')
+    api project(':Eta:Converter')
 
     testImplementation project(':Eta:Core').sourceSets.test.output
 

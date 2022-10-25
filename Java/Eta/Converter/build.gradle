@@ -2,6 +2,7 @@ apply plugin: 'net.saliman.cobertura'
 apply plugin: 'net.saliman.cobertura'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'java-library'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -81,11 +82,11 @@ eclipse {
 }
 
 dependencies {
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.7'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.7'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7'
 
-    implementation project(':Eta:Core')
-    implementation project(':Eta:AnsiPage')
+    api project(':Eta:Core')
+    api project(':Eta:AnsiPage')
 
     // needed for cobertura
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'

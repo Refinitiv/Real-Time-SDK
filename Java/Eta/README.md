@@ -121,19 +121,19 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.6.7.0.jar               eta3.6.7.L1       The ETA - Java Edition library.  Includes
+    eta-3.6.7.1.jar               eta3.6.7.G1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.6.7.0.jar       eta3.6.7.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.6.7.1.jar       eta3.6.7.G1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.6.7.0.jar  eta3.6.7.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.6.7.1.jar  eta3.6.7.G1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.6.7.0.jar     eta3.6.7.L1       The RWF/JSON Converter library.
+    etajConverter-3.6.7.1.jar     eta3.6.7.G1       The RWF/JSON Converter library.
 
-    jDacsEtalib.jar               dacs7.7           The ETA Java DACS library.
+    jDacsEtalib.jar               dacs7.8           The ETA Java DACS library.
 
     ansipage-3.6.7.0.jar          eta3.6.7.L1       The ANSI decoders and encoders.
                   
