@@ -123,7 +123,7 @@ typedef unsigned __int32 AFFINITY_MASK;
 
 #define MAX_CPUS_ARRAY 64
 #define MAX_LEAFS 80
-#define MAX_CACHE_SUBLEAFS  16  // max allocation limit of data structure per sub leaf of cpuid leaf 4 enumerated results
+#define MAX_CACHE_SUBLEAFS  32  // max allocation limit of data structure per sub leaf of cpuid leaf 4 enumerated results
 #define MAX_LEAFS_EXT MAX_LEAFS
 
 typedef struct dcache_str {
