@@ -25,6 +25,8 @@ ext.sharedManifest = manifest {
 }
 
 task packageTests(type: Jar) {
+	group = 'Build'
+	description 'Assembles a jar archive containing the unit test classes and test utilities.'
     archiveVersion.convention("$SpecificationVersion");
     archiveVersion.set("$SpecificationVersion");
     destinationDirectory.set(file("../Libs/"));
