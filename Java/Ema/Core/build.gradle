@@ -14,6 +14,44 @@ java {
     withSourcesJar()
 }
 
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': emaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+task packageTests(type: Jar) {
+    archiveVersion.convention("$SpecificationVersion");
+    archiveVersion.set("$SpecificationVersion");
+    destinationDirectory.set(file("../Libs/"));
+    archiveClassifier.convention('tests');
+    archiveClassifier.set('tests');
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Message API (EMA) Tests Java Edition'
+        from sharedManifest
+    }
+    from sourceSets.test.output
+}
+packageTests.dependsOn compileTestJava
+tasks.build.dependsOn tasks.packageTests
+
+compileTestJava {
+    options.compilerArgs += ["-Xlint:cast"]
+    options.compilerArgs += ["-Xlint:deprecation"]
+    options.compilerArgs += ["-Xlint:divzero"]
+    options.compilerArgs += ["-Xlint:empty"]
+    options.compilerArgs += ["-Xlint:fallthrough"]
+    options.compilerArgs += ["-Xlint:finally"]
+    options.compilerArgs += ["-Xlint:overrides"]
+    options.compilerArgs += ["-Xlint:path"]
+    options.compilerArgs += ["-Xlint:serial"]
+    options.compilerArgs += ["-Xlint:unchecked"]
+}
+
 publishing {
     publications{
         mavenJava(MavenPublication){
@@ -22,6 +60,41 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
+
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Message API (EMA) Java Edition'
+
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
+
+                developers {
+                    developer {
+                        organization = 'Refinitiv'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+
+        publishTestJar(MavenPublication){
+
+            groupId = group
+            artifactId = "$archivesBaseName"
+            version = "$SpecificationVersion"
+
+            artifact packageTests
 
             pom {
                 name = "$archivesBaseName"
@@ -72,6 +145,7 @@ signing {
     }
     sign configurations.archives
     sign publishing.publications.mavenJava
+	sign publishing.publications.publishTestJar
 }
 
 cobertura {
@@ -94,16 +168,6 @@ dependencies {
     api project(':Eta:Core')
 
     testRuntimeOnly 'org.hamcrest:hamcrest-core:1.3'
-}
-
-ext.sharedManifest = manifest {
-		attributes( 'Sealed': 'true',
-			'Build-Date': BuildDate,
-			'Specification-Version': SpecificationVersion,
-			'Specification-Vendor': vendor,
-			'Implementation-Title': group,
-			'Implementation-Version': emaImplementationVersion,
-			'Implementation-Vendor': vendor )
 }
 
 jar {

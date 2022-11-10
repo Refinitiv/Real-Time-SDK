@@ -3751,7 +3751,7 @@ public void testLoadCfgFromProgrammaticConfigForIProvEncrypted()
 			TestUtilities.checkResult("Port == 14010", chanPort.contentEquals("14010"));
 			
 			// Check the remaining encryption values.
-			OmmIProviderImpl iprovImpl = (OmmIProviderImpl) prov;
+			OmmIProviderImpl iprovImpl = prov;
 			ActiveServerConfig activeConfig = iprovImpl._activeServerConfig;
 			SocketServerConfig serverConfig = ((SocketServerConfig)activeConfig.serverConfig);
 		

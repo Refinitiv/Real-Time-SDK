@@ -35,6 +35,7 @@ import com.refinitiv.eta.codec.Codec;
 
 public class LoginHelperTest {
 	
+	@SuppressWarnings("deprecation")
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
