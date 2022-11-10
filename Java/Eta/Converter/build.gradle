@@ -82,8 +82,8 @@ eclipse {
 }
 
 dependencies {
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.7'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.2'
 
     api project(':Eta:Core')
     api project(':Eta:AnsiPage')
