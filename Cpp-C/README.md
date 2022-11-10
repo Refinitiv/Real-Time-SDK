@@ -134,8 +134,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.1
-- ADH 3.6.1
+- ADS 3.6.2
+- ADH 3.6.2
 - DACS 7.8
 
 # Documentation

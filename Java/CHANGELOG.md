@@ -9,13 +9,34 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.7.G1 aka EMA/ETA 3.6.7.G1 aka 3.6.7.1 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.7.L2 aka EMA/ETA 3.6.7.L2 aka 3.6.7.2 
 ----------------------------------------------------------------------------------------
-This is a rapid release with a fix for maven central upload due to gradle version update. 
+This is a maintenance release with fixes.
+
+Customer Issues Resolved
+----------------------------------------------------------------------------------------
+- [GitHub #197] - [RTSDK-6614] Ability to create test utilities jar using "gradlew packageTests"; also available on Maven Central
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.7.L2 (Nov 11, 2022)
+--------------------------------------------
+
+EMA Java 3.6.7.L2 Issues Resolved
+---------------------------------
+- [RTSDK-6614] - Ability to create test utilities jar using "gradlew packageTests"; also available on Maven Central [GitHub #197]
+
+ETA Java 3.6.7.L2 Issues Resolved
+---------------------------------
+- [RTSDK-5853] - Fix msgCount increment in Reactor.dispatchAll method
+
+Both ETA Java and EMA Java 3.6.7.L2 Issues Resolved
+---------------------------------------------------
+- [RTSDK-6672] - Update jackson-databind, commons-text, commons-codec jars with fixes to vulnerabilities
+- [RTSDK-6756] - Gradle build failure
 
 --------------------------------------------
 RTSDK Java Release 2.0.7.G1 (Oct 24, 2022)
@@ -30,14 +51,6 @@ Both ETA Java and EMA Java 3.6.7.G1 Issues Resolved
 RTSDK Java Release 2.0.7.L1 (Oct 7, 2022)
 --------------------------------------------
 This release introduces Warm Standby consumer feature in ETA-Reactor and EMA. It also include maintenance/fixes for issues. 
-
-Customer Issues
-- [Case Number: 11147646] - [RTSDK-6167] - Uncaught NPE in EMA due to race condition in cleanup after timeout
-- [Case Number: 11444081] - [RTSDK-6411] - Memory leak upon repeated OMMConsumer initialize and un-intialize
-- [Github #201] - [RTSDK-6395] - Apache commons-configuration2 version 2.7 vulnerability in EMAJ
-- [GitHub #204] - [RTSDK-6412] - Documentation: Fix EMAJ configuration guide, section 4.5.3: add innerElementList.clear() 
-- [GitHub #207] - [RTSDK-6531] - JSON Converter unexpected value with date of 2022-11
-
 
 EMA Java 3.6.7.L1 Issues Resolved
 ---------------------------------

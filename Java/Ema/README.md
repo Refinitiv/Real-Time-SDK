@@ -76,7 +76,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.6.7.1.jar         ema3.6.7.G1
+    ema-3.6.7.2.jar         ema3.6.7.L2
+
+    NOTE: ema-3.6.7.2-test.jar containing test utilities is also available for build (gradlew packageTests) and published to Maven Central
 
 # EMA Java Issues and Workarounds
  
@@ -100,9 +102,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
     Release Number: 3.6.7
-    Load Number: 1
-    Load ID: ema3.6.7.L1.java
-        Supersedes: ema3.6.6.L1.java
+    Load Number: 2
+    Load ID: ema3.6.7.L2.java
+        Supersedes: ema3.6.7.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
@@ -115,7 +117,6 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Veracode, Refinitiv Standard v21, https://www.veracode.com/.
     Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
 
 # Notes
