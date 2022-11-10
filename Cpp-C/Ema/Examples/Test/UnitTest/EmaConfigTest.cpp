@@ -4843,3 +4843,102 @@ TEST_F(EmaConfigTest, testLoadFilterValueOverflowProgrammaticConfigForIProv)
 		}
 	}
 }
+
+class EmaConfigTestNotExist : public ::testing::Test {
+public:
+	void SetUp() {
+		// The default path uses when creating Config instance
+		// and was set an empty path to EmaConfigTest.xml or a directory
+		EmaConfigBaseImpl::setDefaultConfigFileName(defaultFileNameNotExist);
+		
+		errorMsgText.append("configuration path [").append(userDefinedFileNameNotExist).append("] does not exist;");
+	}
+
+	void TearDown() {
+	}
+
+	static const char* defaultFileNameNotExist;
+	static const char* userDefinedFileNameNotExist;
+	EmaString errorMsgText;
+};
+
+const char* EmaConfigTestNotExist::defaultFileNameNotExist = "EmaConfigFileNotExist.xml";
+const char* EmaConfigTestNotExist::userDefinedFileNameNotExist = "EmaConfigUserFileNotExist.xml";
+
+TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
+{
+	try {
+		OmmConsumerConfig config( EmaConfigTestNotExist::userDefinedFileNameNotExist );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist.";
+	}
+	catch ( const OmmInvalidConfigurationException& exp )
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgText.length() );
+		ASSERT_STREQ( errorMsgText.c_str(), expErrorText.c_str() );
+	}
+	catch (...)
+	{
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+}
+
+TEST_F(EmaConfigTestNotExist, OmmConsumerConfigDefaultShouldNoException)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmConsumerConfig config;
+		}
+	) << "When the default EmaConfig file is not available OmmConsumerConfig does not throw any exception.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmIProviderConfigShouldThrowException)
+{
+	try {
+		OmmIProviderConfig config( EmaConfigTestNotExist::userDefinedFileNameNotExist );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist.";
+	}
+	catch ( const OmmInvalidConfigurationException& exp )
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgText.length() );
+		ASSERT_STREQ( errorMsgText.c_str(), expErrorText.c_str() );
+	}
+	catch (...)
+	{
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+}
+
+TEST_F(EmaConfigTestNotExist, OmmIProviderConfigDefaultShouldNoException)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmIProviderConfig config;
+		}
+	) << "When the default EmaConfig file is not available OmmIProviderConfig does not throw any exception.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigShouldThrowException)
+{
+	try {
+		OmmNiProviderConfig config( EmaConfigTestNotExist::userDefinedFileNameNotExist );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist.";
+	}
+	catch (const OmmInvalidConfigurationException& exp)
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgText.length() );
+		ASSERT_STREQ( errorMsgText.c_str(), expErrorText.c_str() );
+	}
+	catch (...)
+	{
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+}
+
+TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigDefaultShouldNoException)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmNiProviderConfig config;
+		}
+	) << "When the default EmaConfig file is not available OmmNiProviderConfig does not throw any exception.";
+}
