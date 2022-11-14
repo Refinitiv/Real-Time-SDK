@@ -16,6 +16,7 @@ This is a maintenance release with fixes.
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
 - [GitHub #197] - [RTSDK-6614] Ability to create test utilities jar using "gradlew packageTests"; also available on Maven Central
+- [Case Number: 11755349] - [RTSDK-6672] Update jackson-databind, commons-text, commons-codec jars with fixes to vulnerabilities
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
@@ -24,6 +25,8 @@ FULL CHANGELOG
 --------------------------------------------
 RTSDK Java Release 2.0.7.L2 (Nov 11, 2022)
 --------------------------------------------
+
+This is a maintenance release with fixes.
 
 EMA Java 3.6.7.L2 Issues Resolved
 ---------------------------------
@@ -35,7 +38,7 @@ ETA Java 3.6.7.L2 Issues Resolved
 
 Both ETA Java and EMA Java 3.6.7.L2 Issues Resolved
 ---------------------------------------------------
-- [RTSDK-6672] - Update jackson-databind, commons-text, commons-codec jars with fixes to vulnerabilities
+- [RTSDK-6672] - Update jackson-databind, commons-text, commons-codec jars with fixes to vulnerabilities [Case Number: 11755349]
 - [RTSDK-6756] - Gradle build failure
 
 --------------------------------------------
