@@ -9,23 +9,31 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.7.L1 aka EMA/ETA 3.6.7.Ll aka 3.6.7.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.7.L2 aka EMA/ETA 3.6.7.L2 aka 3.6.7.2
 ----------------------------------------------------------------------------------------
 
-New Features Added
-----------------------------------------------------------------------------------------
-
-This is a maintenance release with fixes
+This is a maintenance release with fixes.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #194] - [RTSDK-6108] - Service Discovery doesn't return an error when an incorrect password is provided.
-- [GitHub #199] - [RTSDK-6339] - Document curl/openSSL dependency in README
-- [Case Number: 11340239] - [RTSDK-6396] ETAC Server sends wrong fin/opcode flags over websocket transport in boundary case when sending single fragement
+- [Case Number: 11677751] - [RTSDK-6665] Crash when binding cores beyond limit 
+- [GitHub #213] - [RTSDK-6739] - Out of memory error when not supplying an XML config file
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.7.L2 (Nov 11, 2022)
+--------------------------------------------
+
+EMA C++ 3.6.7.L2 Issues Resolved
+--------------------------------
+- [RTSDK-6739] - Out of memory error when not supplying an XML config file [GitHub #213]
+
+Both ETA C and EMA C++ 3.6.7.L2 Issues Resolved
+----------------------------------------------
+- [RTSDK-6665] Crash when binding cores beyond limit [Case Number: 11677751] 
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.7.L1 (Oct 7, 2022)

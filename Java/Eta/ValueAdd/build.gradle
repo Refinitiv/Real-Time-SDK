@@ -66,6 +66,10 @@ publishing {
 }
 
 signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+    }
     sign configurations.archives
     sign publishing.publications.mavenJava
 }
@@ -78,6 +82,11 @@ eclipse {
     project {
         name = 'RTSDK-Eta-ValueAdd'
     }
+}
+
+eclipse.classpath.file.whenMerged {
+    entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+            .each { it.entryAttributes['without_test_code'] = 'false' }
 }
 
 dependencies {

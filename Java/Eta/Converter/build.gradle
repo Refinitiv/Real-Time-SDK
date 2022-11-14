@@ -67,6 +67,10 @@ publishing {
 }
 
 signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+    }
     sign configurations.archives
     sign publishing.publications.mavenJava
 }
@@ -82,8 +86,8 @@ eclipse {
 }
 
 dependencies {
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.7'
-    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.7'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.2'
 
     api project(':Eta:Core')
     api project(':Eta:AnsiPage')

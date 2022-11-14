@@ -67,13 +67,13 @@ public final class TestUtilities extends TestCase
 	private static String fieldDictionaryFileName = "./src/test/resources/com/refinitiv/ema/unittest/DataDictionaryTest/RDMTestDictionary";
 	private static String enumTableFileName = "./src/test/resources/com/refinitiv/ema/unittest/DataDictionaryTest/testenumtype.def";
 	
-	static class EncodingTypeFlags
+	public static class EncodingTypeFlags
 	{
-		static final int PRIMITIVE_TYPES = 1;
+		public static final int PRIMITIVE_TYPES = 1;
 
-		static final int CONTAINER_TYPES = 2;
+		public static final int CONTAINER_TYPES = 2;
 
-		static final int MESSAGE_TYPES = 4;
+		public static final int MESSAGE_TYPES = 4;
 	}
 	
 	// These are user defined FIDs to be used so that we can show types that are not in the standard dictionary.
@@ -109,6 +109,8 @@ public final class TestUtilities extends TestCase
 	
 	static
 	{
+		fieldDictionaryFileName = TestDictionaries.fieldDictionaryFileName;
+		enumTableFileName = TestDictionaries.enumTableFileName;
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 	}
 	
