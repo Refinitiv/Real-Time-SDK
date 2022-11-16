@@ -11,8 +11,47 @@ archivesBaseName = "etajConverter"
 version "$SpecificationVersion"
 
 java {
-    withJavadocJar()
     withSourcesJar()
+}
+
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for ETA Converter"
+    }
+
+    exclude '**/*Impl.java'
+    exclude '**/JUnit*.java'
+
+    destinationDir = file('../Docs/refman/etajconverter/')
+    title = "ETA Converter JAVA " +  "${SpecificationVersion}"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('ETA Converter')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition Converter Classes'
+        from sharedManifest
+    }
 }
 
 publishing {
@@ -23,6 +62,7 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
+            artifact javadocJar
 
             pom {
                 name = "$archivesBaseName"
@@ -96,16 +136,6 @@ dependencies {
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
 }
 
-ext.sharedManifest = manifest {
-    attributes( 'Sealed': 'true',
-            'Build-Date': BuildDate,
-            'Specification-Version': SpecificationVersion,
-            'Specification-Vendor': vendor,
-            'Implementation-Title': group,
-            'Implementation-Version': etaImplementationVersion,
-            'Implementation-Vendor': vendor )
-}
-
 jar {
     doFirst { println 'Creating ETA jar file' }
 
@@ -124,24 +154,6 @@ jar {
     archiveBaseName.set('etajConverter');
 }
 
-javadoc {
-    doFirst {
-        println "Generating javadoc for ETA Converter"
-    }
-
-    exclude '**/*Impl.java'
-    exclude '**/JUnit*.java'
-
-    destinationDir = file('../Docs/refman/etajconverter/')
-    title = "ETA Converter JAVA " +  "${SpecificationVersion}"
-
-    options.footer ("${javadoc_footer}")
-    options.header ("${javadoc_header}")
-    options.bottom ("${javadoc_bottom}")
-
-    options.setWindowTitle ('ETA Converter')
-}
-
 task cleanJar (type: Delete) {
     delete "${jar.archiveFile}"
 }
@@ -154,5 +166,3 @@ test {
     testLogging.showStandardStreams = false
     maxParallelForks = 1
 }
-
-

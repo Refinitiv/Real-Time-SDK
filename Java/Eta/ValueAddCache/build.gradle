@@ -9,8 +9,46 @@ archivesBaseName = "etaValueAddCache"
 version "$SpecificationVersion"
 
 java {
-    withJavadocJar()
     withSourcesJar()
+}
+
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for ValueAddCache"
+    }
+
+    destinationDir = file('../Docs/refman/etajvalueaddcache/')
+    title = "ETA ValueAddCache JAVA " +  "${SpecificationVersion}"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.group ('Cache', 'com.refinitiv.eta.valueadd.cache')
+
+    options.setWindowTitle ('ETA ValueAddCache')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
+        from sharedManifest
+    }
 }
 
 publishing {
@@ -21,6 +59,7 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
+            artifact javadocJar
 
             pom {
                 name = "$archivesBaseName"
@@ -88,16 +127,6 @@ dependencies {
     api project(':Eta:ValueAdd')
 }
 
-ext.sharedManifest = manifest {
-        attributes( 'Sealed': 'true',
-                'Build-Date': BuildDate,
-                'Specification-Version': SpecificationVersion,
-                'Specification-Vendor': vendor,
-                'Implementation-Title': group,
-                'Implementation-Version': etaImplementationVersion,
-                'Implementation-Vendor': vendor )
-}
-
 jar {
 	doFirst { println 'Creating ValueAddCache jar file' }
 
@@ -108,23 +137,6 @@ jar {
     destinationDirectory.set(file("../Libs/"))
     archiveBaseName.convention('etaValueAddCache');
     archiveBaseName.set('etaValueAddCache');
-}
-
-javadoc {
-        doFirst {
-                println "Generating javadoc for ValueAddCache"
-        }
-
-        destinationDir = file('../Docs/refman/etajvalueaddcache/')
-        title = "ETA ValueAddCache JAVA " +  "${SpecificationVersion}"
-
-        options.footer ("${javadoc_footer}")
-        options.header ("${javadoc_header}")
-        options.bottom ("${javadoc_bottom}")
-
-        options.group ('Cache', 'com.refinitiv.eta.valueadd.cache')
-
-        options.setWindowTitle ('ETA ValueAddCache')
 }
 
 task cleanJar (type: Delete) {
