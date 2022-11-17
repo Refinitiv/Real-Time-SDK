@@ -125,13 +125,57 @@ RSSL_THREAD_DECLARE(runBindProcessTestThreadStr, pArg)
 	return RSSL_THREAD_RETURN();
 }
 
+bool isThreadAffinityIncludeCpuId(RsslThreadId rsslThread, RsslInt32 CpuCoreId)
+{
+#ifdef WIN32
+	DWORD_PTR cpuMask = 1ULL << CpuCoreId;
+	DWORD_PTR oldMask = 0;
+
+	// This test has a potential post-effect under Windows.
+	// SetThreadAffinityMask is able to bind other Cpu core for the thread
+	// when cpuMask is different to oldMask.
+	// Therefore, the thread will reschedule to other Cpu core.
+	// Be careful with it on real application.
+	oldMask = SetThreadAffinityMask(rsslThread.handle, cpuMask);
+	if (oldMask)
+	{
+		if (oldMask != cpuMask)
+			SetThreadAffinityMask(rsslThread.handle, oldMask); // restore original
+		//printf("isThreadAffinityIncludeCpuId. CpuCoreId=%d. oldMask=%llu, cpuMask=%llu\n", CpuCoreId, oldMask, cpuMask);
+		return ((oldMask & cpuMask) != 0);
+	}
+
+#else	// Linux
+	cpu_set_t cpuSet;
+	bool res = false;
+	CPU_ZERO(&cpuSet);
+
+	if (pthread_getaffinity_np(rsslThread, sizeof(cpu_set_t), &cpuSet) == 0)
+	{
+		res = (CPU_ISSET(CpuCoreId, &cpuSet));
+
+		//long i;
+		//long nproc = sysconf(_SC_NPROCESSORS_ONLN);
+		//printf("pthread_getaffinity_np = ");
+		//for (i = 0; i < nproc; i++) {
+		//	printf("%d ", CPU_ISSET(i, &cpuSet));
+		//}
+		//printf("\n");
+
+		return res;
+	}
+
+#endif
+	return false;
+}
+
 class ThreadBindProcessorCoreTest : public ::testing::Test {
 protected:
 	RsslErrorInfo errorInfo;
 
 	virtual void SetUp()
 	{
-		ASSERT_EQ(rsslBindThreadInitialize(), RSSL_RET_SUCCESS);
+		ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
 	}
 
 	virtual void TearDown()
@@ -139,51 +183,6 @@ protected:
 		rsslClearBindings();
 		rsslBindThreadUninitialize();
 	}
-
-	bool isThreadAffinityIncludeCpuId(RsslThreadId rsslThread, RsslInt32 CpuCoreId)
-	{
-#ifdef WIN32
-		DWORD_PTR cpuMask = 1ULL << CpuCoreId;
-		DWORD_PTR oldMask = 0;
-
-		// This test has a potential post-effect under Windows.
-		// SetThreadAffinityMask is able to bind other Cpu core for the thread
-		// when cpuMask is different to oldMask.
-		// Therefore, the thread will reschedule to other Cpu core.
-		// Be careful with it on real application.
-		oldMask = SetThreadAffinityMask(rsslThread.handle, cpuMask);
-		if (oldMask)
-		{
-			if (oldMask != cpuMask)
-				SetThreadAffinityMask(rsslThread.handle, oldMask); // restore original
-			//printf("isThreadAffinityIncludeCpuId. CpuCoreId=%d. oldMask=%llu, cpuMask=%llu\n", CpuCoreId, oldMask, cpuMask);
-			return ((oldMask & cpuMask) != 0);
-		}
-
-#else	// Linux
-		cpu_set_t cpuSet;
-		bool res = false;
-		CPU_ZERO(&cpuSet);
-
-		if (pthread_getaffinity_np(rsslThread, sizeof(cpu_set_t), &cpuSet) == 0)
-		{
-			res = (CPU_ISSET(CpuCoreId, &cpuSet));
-
-			//long i;
-			//long nproc = sysconf(_SC_NPROCESSORS_ONLN);
-			//printf("pthread_getaffinity_np = ");
-			//for (i = 0; i < nproc; i++) {
-			//	printf("%d ", CPU_ISSET(i, &cpuSet));
-			//}
-			//printf("\n");
-
-			return res;
-		}
-
-#endif
-		return false;
-	}
-
 };
 
 TEST_F(ThreadBindProcessorCoreTest, GetNumberOfProcessorCoreShouldReturnPositive)
@@ -1884,4 +1883,188 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOu
 
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
+}
+
+
+class ThreadBindProcessorCoreTestChangeAffinity : public ::testing::Test {
+protected:
+	RsslErrorInfo errorInfo;
+
+	virtual void SetUp()
+	{
+		//ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
+	}
+
+	virtual void TearDown()
+	{
+		rsslClearBindings();
+		rsslBindThreadUninitialize();
+	}
+
+	RsslRet testBindThread(RsslInt32 cpuId, RsslInt32 cpuId1 = -1)
+	{
+#if defined(WIN32)
+		DWORD cpuMask = 1 << cpuId;
+		if (cpuId1 >= 0)
+		{
+			DWORD cpuMask1 = 1 << cpuId1;
+			cpuMask |= cpuMask1;
+		}
+		return (SetThreadAffinityMask(GetCurrentThread(), cpuMask) != 0) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE;
+#elif defined(Linux)
+		cpu_set_t cpuSet;
+		CPU_ZERO(&cpuSet);
+		CPU_SET(cpuId, &cpuSet);
+		if (cpuId1 >= 0)
+		{
+			CPU_SET(cpuId1, &cpuSet);
+		}
+
+		return (sched_setaffinity(0, sizeof(cpu_set_t), &cpuSet) == 0) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE;
+#else /* Solaris */
+		return (processor_bind(P_LWPID, P_MYID, cpuId, NULL) == 0) ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE;
+#endif
+	}
+};
+
+TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore0_CheckAfterInitialization)
+{
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslInt32 CpuCoreId0 = 0;
+	RsslInt32 CpuCoreId1 = 1;
+
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Bind the current thread by not using rsslBindThread method - system API
+	ASSERT_EQ(RSSL_RET_SUCCESS, testBindThread(CpuCoreId0));
+
+	// Check that CPU Core #0 bound to the current thread
+	// But the CPU Core #1 did not bind to the current thread
+#ifdef WIN32
+	RsslThreadId threadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+#else	// Linux
+
+	pthread_t threadMain = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
+
+	// Initialize ETA Bind API
+	ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
+
+	// Check that CPU Core #0 bound to the current thread
+	// But the CPU Core #1 did not bind to the current thread
+#ifdef WIN32
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+#else	// Linux
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
+}
+
+TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore1_CheckAfterInitialization)
+{
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslInt32 CpuCoreId0 = 0;
+	RsslInt32 CpuCoreId1 = 1;
+
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Bind the current thread by not using rsslBindThread method - system API
+	ASSERT_EQ(RSSL_RET_SUCCESS, testBindThread(CpuCoreId1));
+
+	// Check that CPU Core #1 bound to the current thread
+	// But the CPU Core #0 did not bind to the current thread
+#ifdef WIN32
+	RsslThreadId threadId = { 0, GetCurrentThread() };
+
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+#else	// Linux
+
+	pthread_t threadMain = pthread_self();
+
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
+
+	// Initialize ETA Bind API
+	ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
+
+	// Check that CPU Core #1 bound to the current thread
+	// But the CPU Core #0 did not bind to the current thread
+#ifdef WIN32
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+#else	// Linux
+	ASSERT_FALSE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
+}
+
+TEST_F(ThreadBindProcessorCoreTestChangeAffinity, SystemBindThreadCore01_CheckAfterInitialization)
+{
+	RsslUInt32 nProcessors = rsslGetNumberOfProcessorCore();
+	RsslRet ret = RSSL_RET_SUCCESS;
+
+	RsslInt32 CpuCoreId0 = 0;
+	RsslInt32 CpuCoreId1 = 1;
+
+	// If one processor core is available in this system then return.
+	// This test is required two cores.
+	if (nProcessors <= 1)
+	{
+		ASSERT_TRUE(1);
+		return;
+	}
+
+	// Bind the current thread by not using rsslBindThread method - system API only
+	ASSERT_EQ(RSSL_RET_SUCCESS, testBindThread(CpuCoreId0, CpuCoreId1));
+
+	// Check that both CPU Core #0 and #1 bound to the current thread
+#ifdef WIN32
+	RsslThreadId threadId = { 0, GetCurrentThread() };
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+#else	// Linux
+
+	pthread_t threadMain = pthread_self();
+
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
+
+	// Initialize ETA Bind API
+	ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
+
+	// Check that both CPU Core #0 and #1 bound to the current thread
+#ifdef WIN32
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadId, CpuCoreId1));
+#else	// Linux
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId0));
+	ASSERT_TRUE(isThreadAffinityIncludeCpuId(threadMain, CpuCoreId1));
+#endif
 }

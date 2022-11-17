@@ -7,6 +7,7 @@
  */
 
 #include "rtr/rsslBindThread.h"
+#include "rtr/rsslErrors.h"
 #include "rtr/rsslThread.h"
 #include "rtr/bindthread.h"
 #include "rtr/rtratomic.h"
@@ -534,7 +535,7 @@ RSSL_API RsslRet rsslBindThreadEx(const char* cpuString, RsslBuffer* outputResul
 	return rsslBindThreadImpl(cpuString, outputResult, pError);
 }
 
-RSSL_API RsslRet rsslBindThreadInitialize()
+RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 {
 	if (!initializedCpuTopology)
 	{
@@ -544,8 +545,39 @@ RSSL_API RsslRet rsslBindThreadInitialize()
 
 		initCpuTopologyMutex();
 
+		/* Get CPU affinity of the thread */
+#ifdef WIN32
+		DWORD_PTR cpuMask = (DWORD_PTR)(-1LL);
+		DWORD_PTR oldMask = 0ULL;
+
+		oldMask = SetThreadAffinityMask(GetCurrentThread(), cpuMask);
+		if (!oldMask)
+		{
+			// SetThreadAffinityMask retruns an error
+			// If the thread affinity mask requests a processor that is not selected for the process affinity mask,
+			// the last error code is ERROR_INVALID_PARAMETER.
+		}
+#else	// Linux
+		RsslBool restoreAffinity = RSSL_TRUE;
+		cpu_set_t cpuSet;
+		CPU_ZERO(&cpuSet);
+
+		if (pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuSet) != 0)
+		{
+			// pthread_getaffinity_np returns an error so don't restore the process affinity mask.
+			restoreAffinity = RSSL_FALSE;
+		}
+#endif
+
 		if (initializeCpuTopology(&rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s> %s\n", rsslErrorInfo.errorLocation, rsslErrorInfo.rsslError.text);
+
+			destroyCpuTopologyMutex();
+			RTR_ATOMIC_SET(initializedCpuTopology, 0);
 			return RSSL_RET_FAILURE;
+		}
 
 		rsslCPUTopology.cpu_topology_ptr = getCpuTopology();
 		rsslCPUTopology.logicalCpuCount = getLogicalCpuCount();
@@ -554,7 +586,40 @@ RSSL_API RsslRet rsslBindThreadInitialize()
 		if (rsslCPUTopology.cpu_topology_ptr != NULL)
 			dumpCpuTopology();
 #endif
-		rsslClearBindings();
+
+		/* Restore CPU affinity for the thread */
+#ifdef WIN32
+		if (oldMask != 0)
+		{
+			cpuMask = SetThreadAffinityMask(GetCurrentThread(), oldMask);
+			if (!cpuMask)
+			{
+				RsslInt32 errorCode = GetLastError();
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errorCode);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> rsslBindThreadInitialize() Unable to restore processor affinity for cpu mask 0x%llX.\n", __FILE__, __LINE__, oldMask);
+
+				unInitializeCpuTopology();
+				destroyCpuTopologyMutex();
+				rsslCPUTopology.cpu_topology_ptr = NULL;
+				RTR_ATOMIC_SET(initializedCpuTopology, 0);
+				return RSSL_RET_FAILURE;
+			}
+		}
+#else	// Linux
+		if ( (restoreAffinity == RSSL_TRUE) && (sched_setaffinity(0, sizeof(cpu_set_t), &cpuSet) < 0) )
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> rsslBindThreadInitialize() Unable to restore processor affinity.\n", __FILE__, __LINE__);
+
+			unInitializeCpuTopology();
+			destroyCpuTopologyMutex();
+			rsslCPUTopology.cpu_topology_ptr = NULL;
+			RTR_ATOMIC_SET(initializedCpuTopology, 0);
+			return RSSL_RET_FAILURE;
+		}
+#endif
 	}
 	return RSSL_RET_SUCCESS;
 }
@@ -563,10 +628,10 @@ RSSL_API RsslRet rsslBindThreadUninitialize()
 {
 	if (initializedCpuTopology)
 	{
-		RTR_ATOMIC_SET(initializedCpuTopology, 0);
 		unInitializeCpuTopology();
 		destroyCpuTopologyMutex();
 		rsslCPUTopology.cpu_topology_ptr = NULL;
+		RTR_ATOMIC_SET(initializedCpuTopology, 0);
 	}
 
 	return RSSL_RET_SUCCESS;
