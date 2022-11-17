@@ -10,7 +10,6 @@ archivesBaseName = "ema"
 version "$SpecificationVersion"
 
 java {
-    withJavadocJar()
     withSourcesJar()
 }
 
@@ -54,6 +53,40 @@ compileTestJava {
     options.compilerArgs += ["-Xlint:unchecked"]
 }
 
+javadoc {
+    doFirst {
+        println "Generating javadoc for EMA"
+    }
+
+    exclude '**/*Impl.java'
+    exclude '**/JUnit*.java'
+
+    destinationDir = file('../Docs/refman/emajava/')
+    title = "Enterprise Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.group ('Access', 'com.refinitiv.ema.access')
+    options.group ('RDM', 'com.refinitiv.ema.rdm')
+    options.group ('Login', 'com.refinitiv.ema.domain.login')
+
+    options.setWindowTitle ('EMA')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Message API (EMA) Java Edition'
+        from sharedManifest
+    }
+}
+
 publishing {
     publications{
         mavenJava(MavenPublication){
@@ -62,40 +95,7 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
-
-            pom {
-                name = "$archivesBaseName"
-                packaging = 'jar'
-                url = 'https://github.com/Refinitiv/Real-Time-SDK'
-                description = 'Enterprise Message API (EMA) Java Edition'
-
-                scm {
-                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                }
-
-                developers {
-                    developer {
-                        organization = 'Refinitiv'
-                    }
-                }
-
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-        }
-
-        publishTestJar(MavenPublication){
-
-            groupId = group
-            artifactId = "$archivesBaseName"
-            version = "$SpecificationVersion"
-
+            artifact javadocJar
             artifact packageTests
 
             pom {
@@ -147,7 +147,6 @@ signing {
     }
     sign configurations.archives
     sign publishing.publications.mavenJava
-	sign publishing.publications.publishTestJar
 }
 
 cobertura {
@@ -210,29 +209,6 @@ test {
     maxParallelForks = 1
 }
 
-javadoc {
-    doFirst {
-        println "Generating javadoc for EMA"
-    }
-
-    exclude '**/*Impl.java'
-    exclude '**/JUnit*.java'
-
-    destinationDir = file('../Docs/refman/emajava/')
-    title = "Enterprise Message API (EMA) " +  "${SpecificationVersion}" + " - Java Edition"
-
-    options.footer ("${javadoc_footer}")
-    options.header ("${javadoc_header}")
-    options.bottom ("${javadoc_bottom}")
-
-    options.group ('Access', 'com.refinitiv.ema.access')
-    options.group ('RDM', 'com.refinitiv.ema.rdm')
-    options.group ('Login', 'com.refinitiv.ema.domain.login')
-
-    options.setWindowTitle ('EMA')
-}
-
 repositories {
     mavenCentral()
 }
-

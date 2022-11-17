@@ -8,8 +8,44 @@ archivesBaseName = "ansipage"
 version "$SpecificationVersion"
 
 java {
-    withJavadocJar()
     withSourcesJar()
+}
+
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for ANSI"
+    }
+
+    destinationDir = file('../Docs/refman/ansipage/')
+    title = "ANSI JAVA " +  "${SpecificationVersion}"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('ANSI')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ANSI Classes'
+        from sharedManifest
+    }
 }
 
 publishing {
@@ -20,6 +56,7 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
+            artifact javadocJar
 
             pom {
                 name = "$archivesBaseName"
@@ -78,16 +115,6 @@ eclipse {
     }
 }
 
-ext.sharedManifest = manifest {
-    attributes( 'Sealed': 'true',
-            'Build-Date': BuildDate,
-            'Specification-Version': SpecificationVersion,
-            'Specification-Vendor': vendor,
-            'Implementation-Title': group,
-            'Implementation-Version': etaImplementationVersion,
-            'Implementation-Vendor': vendor )
-}
-
 jar {
 	doFirst { println 'Creating ANSI jar file' }
 
@@ -105,18 +132,3 @@ task cleanJar (type: Delete) {
         delete "${jar.archiveFile}"
 }
 clean.dependsOn cleanJar
-
-javadoc {
-        doFirst {
-                println "Generating javadoc for ANSI"
-        }
-
-        destinationDir = file('../Docs/refman/ansipage/')
-        title = "ANSI JAVA " +  "${SpecificationVersion}"
-
-        options.footer ("${javadoc_footer}")
-        options.header ("${javadoc_header}")
-        options.bottom ("${javadoc_bottom}")
-
-        options.setWindowTitle ('ANSI')
-}

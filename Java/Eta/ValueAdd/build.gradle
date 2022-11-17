@@ -10,8 +10,47 @@ archivesBaseName = "etaValueAdd"
 version "$SpecificationVersion"
 
 java {
-    withJavadocJar()
     withSourcesJar()
+}
+
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for ValueAdd"
+    }
+
+    exclude '**/*Impl.java'
+    exclude '**/JUnit*.java'
+
+    destinationDir = file('../Docs/refman/etajvalueadd/')
+    title = "ETA ValueAdd JAVA " +  "${SpecificationVersion}"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('ETA ValueAdd')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAdd Classes'
+        from sharedManifest
+    }
 }
 
 publishing {
@@ -22,6 +61,7 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
+            artifact javadocJar
 
             pom {
                 name = "$archivesBaseName"
@@ -126,16 +166,6 @@ dependencies {
 
 }
 
-ext.sharedManifest = manifest {
-        attributes( 'Sealed': 'true',
-                'Build-Date': BuildDate,
-                'Specification-Version': SpecificationVersion,
-                'Specification-Vendor': vendor,
-                'Implementation-Title': group,
-                'Implementation-Version': etaImplementationVersion,
-                'Implementation-Vendor': vendor )
-}
-
 jar {
 
 	doFirst { println 'Creating ValueAdd jar file' }
@@ -148,24 +178,6 @@ jar {
     destinationDirectory.set(file("../Libs/"))
     archiveBaseName.convention('etaValueAdd');
     archiveBaseName.set('etaValueAdd');
-}
-
-javadoc {
-        doFirst {
-                println "Generating javadoc for ValueAdd"
-        }
-
-        exclude '**/*Impl.java'
-        exclude '**/JUnit*.java'
-
-        destinationDir = file('../Docs/refman/etajvalueadd/')
-        title = "ETA ValueAdd JAVA " +  "${SpecificationVersion}"
-
-        options.footer ("${javadoc_footer}")
-        options.header ("${javadoc_header}")
-        options.bottom ("${javadoc_bottom}")
-
-        options.setWindowTitle ('ETA ValueAdd')
 }
 
 task cleanJar (type: Delete) {
@@ -183,4 +195,3 @@ test {
 repositories {
     mavenCentral()
 }
-

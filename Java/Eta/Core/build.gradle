@@ -11,8 +11,47 @@ archivesBaseName = "eta"
 version "$SpecificationVersion"
 
 java {
-    withJavadocJar()
     withSourcesJar()
+}
+
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
+
+javadoc {
+    doFirst {
+        println "Generating javadoc for ETA"
+    }
+
+    exclude '**/*Impl.java'
+    exclude '**/JUnit*.java'
+
+    destinationDir = file('../Docs/refman/etaj/')
+    title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " Java Edition"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('ETA')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
+        from sharedManifest
+    }
 }
 
 publishing {
@@ -23,6 +62,7 @@ publishing {
             artifactId = archivesBaseName
             version = "$SpecificationVersion"
             from components.java
+            artifact javadocJar
 
             pom {
                 name = "$archivesBaseName"
@@ -99,16 +139,6 @@ dependencies {
     testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
 }
 
-ext.sharedManifest = manifest {
-        attributes( 'Sealed': 'true',
-                'Build-Date': BuildDate,
-                'Specification-Version': SpecificationVersion,
-                'Specification-Vendor': vendor,
-                'Implementation-Title': group,
-                'Implementation-Version': etaImplementationVersion,
-                'Implementation-Vendor': vendor )
-}
-
 jar {
     doFirst { println 'Creating ETA jar file' }
 
@@ -125,24 +155,6 @@ jar {
     destinationDirectory.set(file("../Libs/"))
     archiveBaseName.convention('eta');
     archiveBaseName.set('eta');
-}
-
-javadoc {
-    doFirst {
-        println "Generating javadoc for ETA"
-    }
-
-    exclude '**/*Impl.java'
-    exclude '**/JUnit*.java'
-
-    destinationDir = file('../Docs/refman/etaj/')
-    title = "Enterprise Transport API (ETA) " +  "${SpecificationVersion}" + " Java Edition"
-
-    options.footer ("${javadoc_footer}")
-    options.header ("${javadoc_header}")
-    options.bottom ("${javadoc_bottom}")
-
-    options.setWindowTitle ('ETA')
 }
 
 task cleanJar (type: Delete) {
