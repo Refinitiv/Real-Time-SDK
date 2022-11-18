@@ -9,18 +9,22 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.7.L2 aka EMA/ETA 3.6.7.L2 aka 3.6.7.2 
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.7.G2 aka EMA/ETA 3.6.7.G2 aka 3.6.7.3
 ----------------------------------------------------------------------------------------
-This is a maintenance release with fixes.
-
-Customer Issues Resolved
-----------------------------------------------------------------------------------------
-- [GitHub #197] - [RTSDK-6614] Ability to create test utilities jar using "gradlew packageTests"; also available on Maven Central
-- [Case Number: 11755349] - [RTSDK-6672] Update jackson-databind, commons-text, commons-codec jars with fixes to vulnerabilities
+This is a maintenance release with a fix.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.7.G2 (Nov 17, 2022)
+--------------------------------------------
+This is a maintenance release with a fix.
+
+EMA Java 3.6.7.G2 Issues Resolved
+---------------------------------
+- [RTSDK-6835] - Fix to gradle build to address specifying ema dependencies and target javadoc jar directory 
 
 --------------------------------------------
 RTSDK Java Release 2.0.7.L2 (Nov 11, 2022)
