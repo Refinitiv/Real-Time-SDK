@@ -7723,9 +7723,11 @@ public class Reactor
 
 						while (isReactorChannelReady(reactorChnl) && msgCount < maxMessages && retval > 0)
 						{
+							int bytesReadBefore = dispatchOptions.readArgs().uncompressedBytesRead();
 							if ((retval = performChannelRead(reactorChnl, dispatchOptions.readArgs(),
 									errorInfo)) < ReactorReturnCodes.SUCCESS)
 							{
+								
 								if (reactorChnl.state() != ReactorChannel.State.CLOSED
 										&& reactorChnl.state() != ReactorChannel.State.DOWN_RECONNECTING)
 								{
@@ -7738,7 +7740,7 @@ public class Reactor
 								}
 							}
 							// only increment msgCount if bytes are actually read
-							if (dispatchOptions.readArgs().uncompressedBytesRead() > 0)
+							if ((dispatchOptions.readArgs().uncompressedBytesRead() - bytesReadBefore) > 0)
 							{
 								msgCount++;
 							}
