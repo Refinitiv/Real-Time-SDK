@@ -49,7 +49,7 @@ RSSL_API void rsslClearBindings();
 * @return RSSL_RET_SUCCESS when initialization was successful.
 * @return RSSL_RET_FAILURE on critical error: memory allocation error.
 */
-RSSL_API RsslRet rsslBindThreadInitialize();
+RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error);
 
 /**
 * @brief Uninitialize all the resources: mutex, cpuid library.

@@ -779,7 +779,7 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 		/* Initialize All transports here */
 
 		/* initialize cpuid library */
-		retVal = rsslBindThreadInitialize();
+		retVal = rsslBindThreadInitialize(error);
 
 		if (retVal < RSSL_RET_SUCCESS)
 		{

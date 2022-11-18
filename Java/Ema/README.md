@@ -76,9 +76,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.6.7.2.jar         ema3.6.7.L2
+    ema-3.6.7.3.jar         ema3.6.7.G2
 
-    NOTE: ema-3.6.7.2-test.jar containing test utilities is also available for build (gradlew packageTests) and published to Maven Central
+    NOTE: ema-3.6.7.3-test.jar containing test utilities is also available for build (gradlew packageTests) and published to Maven Central
 
 # EMA Java Issues and Workarounds
  

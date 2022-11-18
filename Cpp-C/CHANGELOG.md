@@ -9,23 +9,29 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.7.L2 aka EMA/ETA 3.6.7.L2 aka 3.6.7.2
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.7.G2 aka EMA/ETA 3.6.7.G2 aka 3.6.7.3
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes.
-
-Customer Issues Resolved
-----------------------------------------------------------------------------------------
-- [Case Number: 11677751] - [RTSDK-6665] Crash when binding cores beyond limit 
-- [GitHub #213] - [RTSDK-6739] - Out of memory error when not supplying an XML config file
+This is a maintenance release.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.0.7.G2 (Nov 17, 2022)
+--------------------------------------------
+This is a maintenance release with a fix.
+
+Both ETA C and EMA C++ 3.6.7.G2 Issues Resolved
+----------------------------------------------
+- [RTSDK-6828] - rssBindInitialize saves process affinity and restores it after analyzed CPU Topology. 
+
+--------------------------------------------
 RTSDK C++/C Release 2.0.7.L2 (Nov 11, 2022)
 --------------------------------------------
+
+This is a maintenance release with fixes.
 
 EMA C++ 3.6.7.L2 Issues Resolved
 --------------------------------
