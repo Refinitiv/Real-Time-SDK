@@ -1630,48 +1630,120 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 					return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 				}
 
-				if (restResponse.statusCode != 200)
+				RsslBuffer* uri;
+
+				switch (restResponse.statusCode)
 				{
-					rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-						"Failed to get token information from the token service. Text: %s", restResponse.dataBody.data);
+					case 200: /* OK */
+						if (pRsslReactorImpl->tokenInformationBuffer.length < restResponse.dataBody.length)
+						{
+							if (pRsslReactorImpl->tokenInformationBuffer.data)
+							{
+								free(pRsslReactorImpl->tokenInformationBuffer.data);
+							}
 
-					reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
-					reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
-					(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
+							pRsslReactorImpl->tokenInformationBuffer.length = restResponse.dataBody.length;
+							pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
+						}
 
-					return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+						if (pRsslReactorImpl->tokenInformationBuffer.data == 0) goto memoryAllocationFailed;
+
+						if (rsslRestParseAccessTokenV1(&restResponse.dataBody, &tokenInformation.accessToken, &tokenInformation.refreshToken,
+							&tokenInformation.expiresIn, &tokenInformation.tokenType, &tokenInformation.scope,
+							&pRsslReactorImpl->tokenInformationBuffer, &errorInfo.rsslError) != RSSL_RET_SUCCESS)
+						{
+							rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+								"Failed to parse authentication token information. Text: %s", restResponse.dataBody.data);
+
+							reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
+							reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
+							(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
+
+							return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+						}
+						break;
+					case 301: /* Moved Permanently */
+					case 308: /* Permanent Redirect */
+						uri = getHeaderValue(&restResponse.headers, &rssl_rest_location_header_text);
+
+						if (uri != NULL)
+						{
+							/* Copy the new URL to the rsslReactorImpl */
+							if (uri->length > pRsslReactorImpl->tokenInformationBuffer.length)
+							{
+								free(pRsslReactorImpl->tokenInformationBuffer.data);
+								pRsslReactorImpl->tokenInformationBuffer.length = uri->length + 1;
+								pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
+								if (pRsslReactorImpl->tokenInformationBuffer.data == 0)
+								{
+									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+										"Failed to copy the redirect URL for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+									return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
+								}
+							}
+
+							memset(pRsslReactorImpl->tokenInformationBuffer.data, 0, pRsslReactorImpl->tokenInformationBuffer.length);
+							pRsslReactorImpl->tokenInformationBuffer.length = uri->length - 1;
+							memcpy(pRsslReactorImpl->tokenInformationBuffer.data, uri->data + 1, pRsslReactorImpl->tokenInformationBuffer.length);
+
+							reactorUnlockInterface(pRsslReactorImpl);
+							return rsslReactorQueryServiceDiscovery(pReactor, pOpts, pError);
+						}
+
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+							"The redirect URL does not exist in the Location header for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+						break;
+					case 302: /* Found (Previously "Moved temporarily") */
+					case 307: /* Temporary Redirect */
+						uri = getHeaderValue(&restResponse.headers, &rssl_rest_location_header_text);
+
+						if (uri)
+						{
+							/* Using the redirect URL */
+							if (uri->length > pRsslReactorImpl->tokenInformationBuffer.length)
+							{
+								free(pRsslReactorImpl->tokenInformationBuffer.data);
+								pRsslReactorImpl->tokenInformationBuffer.length = uri->length + 1;
+								pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
+								if (pRsslReactorImpl->tokenInformationBuffer.data == 0)
+								{
+									rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+										"Failed to copy the temporary redirect URL for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+									return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
+								}
+							}
+
+							memset(pRsslReactorImpl->tokenInformationBuffer.data, 0, pRsslReactorImpl->tokenInformationBuffer.length);
+							pRsslReactorImpl->tokenInformationBuffer.data = pRsslReactorImpl->tokenInformationBuffer.data;
+							pRsslReactorImpl->tokenInformationBuffer.length = uri->length - 1;
+							memcpy(pRsslReactorImpl->tokenInformationBuffer.data, uri->data + 1, pRsslReactorImpl->tokenInformationBuffer.length);
+
+							reactorUnlockInterface(pRsslReactorImpl);
+							return rsslReactorQueryServiceDiscovery(pReactor, pOpts, pError);
+						}
+
+						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+							"The redirect URL does not exist in the Location header for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+						break;
+					default:
+						rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+							"Failed to get token information from the token service. Text: %s", restResponse.dataBody.data);
+
+						reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
+						reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
+						(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
+
+						return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+						break;
 				}
 			}
 			else
 			{
 				return (reactorUnlockInterface(pRsslReactorImpl), pError->rsslError.rsslErrorId);
-			}
-
-			if (pRsslReactorImpl->tokenInformationBuffer.length < restResponse.dataBody.length)
-			{
-				if (pRsslReactorImpl->tokenInformationBuffer.data)
-				{
-					free(pRsslReactorImpl->tokenInformationBuffer.data);
-				}
-
-				pRsslReactorImpl->tokenInformationBuffer.length = restResponse.dataBody.length;
-				pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
-			}
-
-			if (pRsslReactorImpl->tokenInformationBuffer.data == 0) goto memoryAllocationFailed;
-
-			if (rsslRestParseAccessTokenV1(&restResponse.dataBody, &tokenInformation.accessToken, &tokenInformation.refreshToken,
-				&tokenInformation.expiresIn, &tokenInformation.tokenType, &tokenInformation.scope,
-				&pRsslReactorImpl->tokenInformationBuffer, &errorInfo.rsslError) != RSSL_RET_SUCCESS)
-			{
-				rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-					"Failed to parse authentication token information. Text: %s", restResponse.dataBody.data);
-
-				reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
-				reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
-				(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
-
-				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
 			}
 		}
 	}
@@ -1716,48 +1788,119 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 			}
 
-			if (restResponse.statusCode != 200)
+			RsslBuffer * uri;
+			switch (restResponse.statusCode)
 			{
-				rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-					"Failed to get token information from the token service. Text: %s", restResponse.dataBody.data);
+				case 200: /* OK */
+					if (pRsslReactorImpl->tokenInformationBuffer.length < restResponse.dataBody.length)
+					{
+						if (pRsslReactorImpl->tokenInformationBuffer.data)
+						{
+							free(pRsslReactorImpl->tokenInformationBuffer.data);
+						}
 
-				reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
-				reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
-				(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
+						pRsslReactorImpl->tokenInformationBuffer.length = restResponse.dataBody.length;
+						pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
+					}
 
-				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+					if (pRsslReactorImpl->tokenInformationBuffer.data == 0) goto memoryAllocationFailed;
+
+					if (rsslRestParseAccessTokenV2(&restResponse.dataBody, &tokenInformation.accessToken, &tokenInformation.refreshToken,
+						&tokenInformation.expiresIn, &tokenInformation.tokenType, &tokenInformation.scope,
+						&pRsslReactorImpl->tokenInformationBuffer, &errorInfo.rsslError) != RSSL_RET_SUCCESS)
+					{
+						rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+							"Failed to parse authentication token information. Text: %s", restResponse.dataBody.data);
+
+						reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
+						reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
+						(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
+
+						return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+					}
+					break;
+				case 301: /* Moved Permanently */
+				case 308: /* Permanent Redirect */
+					uri = getHeaderValue(&restResponse.headers, &rssl_rest_location_header_text);
+
+					if (uri != NULL)
+					{
+						/* Copy the new URL to the rsslReactorImpl */
+						if (uri->length > pRsslReactorImpl->tokenInformationBuffer.length)
+						{
+							free(pRsslReactorImpl->tokenInformationBuffer.data);
+							pRsslReactorImpl->tokenInformationBuffer.length = uri->length + 1;
+							pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
+							if (pRsslReactorImpl->tokenInformationBuffer.data == 0)
+							{
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+									"Failed to copy the redirect URL for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+								return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
+							}
+						}
+
+						memset(pRsslReactorImpl->tokenInformationBuffer.data, 0, pRsslReactorImpl->tokenInformationBuffer.length);
+						pRsslReactorImpl->tokenInformationBuffer.length = uri->length - 1;
+						memcpy(pRsslReactorImpl->tokenInformationBuffer.data, uri->data + 1, pRsslReactorImpl->tokenInformationBuffer.length);
+
+						reactorUnlockInterface(pRsslReactorImpl);
+						return rsslReactorQueryServiceDiscovery(pReactor, pOpts, pError);
+					}
+
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						"The redirect URL does not exist in the Location header for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+					break;
+				case 302: /* Found (Previously "Moved temporarily") */
+				case 307: /* Temporary Redirect */
+					uri = getHeaderValue(&restResponse.headers, &rssl_rest_location_header_text);
+
+					if (uri)
+					{
+						/* Using the redirect URL */
+						if (uri->length > pRsslReactorImpl->tokenInformationBuffer.length)
+						{
+							free(pRsslReactorImpl->tokenInformationBuffer.data);
+							pRsslReactorImpl->tokenInformationBuffer.length = uri->length + 1;
+							pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
+							if (pRsslReactorImpl->tokenInformationBuffer.data == 0)
+							{
+								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+									"Failed to copy the temporary redirect URL for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+								return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
+							}
+						}
+
+						memset(pRsslReactorImpl->tokenInformationBuffer.data, 0, pRsslReactorImpl->tokenInformationBuffer.length);
+						pRsslReactorImpl->tokenInformationBuffer.data = pRsslReactorImpl->tokenInformationBuffer.data;
+						pRsslReactorImpl->tokenInformationBuffer.length = uri->length - 1;
+						memcpy(pRsslReactorImpl->tokenInformationBuffer.data, uri->data + 1, pRsslReactorImpl->tokenInformationBuffer.length);
+
+						reactorUnlockInterface(pRsslReactorImpl);
+						return rsslReactorQueryServiceDiscovery(pReactor, pOpts, pError);
+					}
+
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						"The redirect URL does not exist in the Location header for the token service from HTTP error %u. Text: %s", restResponse.statusCode, restResponse.dataBody.data);
+
+					break;
+				default:
+					rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+						"Failed to get token information from the token service. Text: %s", restResponse.dataBody.data);
+
+					reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
+					reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
+					(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
+
+					return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+					break;
 			}
 		}
 		else
 		{
 			return (reactorUnlockInterface(pRsslReactorImpl), pError->rsslError.rsslErrorId);
-		}
-
-		if (pRsslReactorImpl->tokenInformationBuffer.length < restResponse.dataBody.length)
-		{
-			if (pRsslReactorImpl->tokenInformationBuffer.data)
-			{
-				free(pRsslReactorImpl->tokenInformationBuffer.data);
-			}
-
-			pRsslReactorImpl->tokenInformationBuffer.length = restResponse.dataBody.length;
-			pRsslReactorImpl->tokenInformationBuffer.data = (char*)malloc(pRsslReactorImpl->tokenInformationBuffer.length);
-		}
-
-		if (pRsslReactorImpl->tokenInformationBuffer.data == 0) goto memoryAllocationFailed;
-
-		if (rsslRestParseAccessTokenV2(&restResponse.dataBody, &tokenInformation.accessToken, &tokenInformation.refreshToken,
-			&tokenInformation.expiresIn, &tokenInformation.tokenType, &tokenInformation.scope,
-			&pRsslReactorImpl->tokenInformationBuffer, &errorInfo.rsslError) != RSSL_RET_SUCCESS)
-		{
-			rsslSetErrorInfo(&errorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Failed to parse authentication token information. Text: %s", restResponse.dataBody.data);
-
-			reactorServiceEndpointEvent.pErrorInfo = &errorInfo;
-			reactorServiceEndpointEvent.statusCode = restResponse.statusCode;
-			(*pOpts->pServiceEndpointEventCallback)(pReactor, &reactorServiceEndpointEvent);
-
-			return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
 		}
 	}
 	
