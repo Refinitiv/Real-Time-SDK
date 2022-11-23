@@ -11,7 +11,6 @@ package com.refinitiv.eta.perftools.consperf;
 import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.transport.ConnectionTypes;
-import com.refinitiv.eta.valueadd.reactor.ReactorWarmStandbyMode;
 
 /** Provides configuration that is not specific to any particular handler. */
 public class ConsPerfConfig
@@ -50,13 +49,6 @@ public class ConsPerfConfig
 	private int _highWaterMark;				/* sets the point which will cause ETA to automatically flush */
 	private boolean _tcpNoDelay;			/* Enable/Disable Nagle's algorithm. */
 	
-	private String _startingHostName;		/* Initial active connection hostname for warm standby connections */
-	private String _startingPort;			/* Initial active conneciton port for warm standby connections */
-	private String _standbyHostName;		/* Initial standby connection hostname for warm standby connections */
-	private String _standbyPort;			/* Initial standby conneciton port for warm standby connections */
-	private int _wsbMode;
-	
-
 	private boolean _requestSnapshots;		/* Whether to request all items as snapshots. */
 
 	private String _username;				/* Username used when logging in. */
@@ -134,13 +126,6 @@ public class ConsPerfConfig
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'socket', 'websocket' or 'http'");
      	CommandLine.addOption("calcRWFJSONConversionLatency", false, "Enable calculation of time which spent on rwf-json conversion for WebSocket Transport + RWF");
      	CommandLine.addOption("addConversionOverhead", false, "Enable JSON to RWF conversion");
-     	
-     	CommandLine.addOption("warmStandbyMode", "", "Specifies the warm standby mode. This can either be \"login\" or \"service\".");
-     	CommandLine.addOption("startingHostName", "", "Specifies the starting server hostname for warm standby.");
-     	CommandLine.addOption("startingPort", "", "Specifies the starting server port for warm standby.");
-     	CommandLine.addOption("standbyHostName", "", "Specifies the standby server hostname for warm standby.");
-     	CommandLine.addOption("standbyPort", "", "Specifies the standby server port for warm standby.");
-
     }
 	
     /**
@@ -188,35 +173,6 @@ public class ConsPerfConfig
         _busyRead = CommandLine.booleanValue("busyRead");
         _tunnelStreamOutputBuffers = CommandLine.intValue("tunnelStreamOutputBufs");
         _tunnelStreamBufsUsed = CommandLine.booleanValue("tunnelStreamBuffersUsed");
-        
-        _startingHostName = CommandLine.value("startingHostName");
-        _startingPort = CommandLine.value("startingPort");
-        _standbyHostName = CommandLine.value("standbyHostName");
-        _standbyPort = CommandLine.value("standbyPort");
-
-        if(!CommandLine.value("warmStandbyMode").isEmpty())
-        {
-        	if(CommandLine.value("warmStandbyMode").equalsIgnoreCase("login"))
-        	{
-                _wsbMode = ReactorWarmStandbyMode.LOGIN_BASED;
-        	} 
-        	else if(CommandLine.value("warmStandbyMode").equalsIgnoreCase("service"))
-        	{
-        		_wsbMode = ReactorWarmStandbyMode.SERVICE_BASED;
-        	}
-        	else
-        	{
-        		System.err.println("Config Error: Only login or service warm standby modes are supported.\n");
-            	System.out.println(CommandLine.optionHelpString());
-            	System.exit(-1);
-        	}
-        		
-        }
-        else
-        {
-        	_wsbMode = ReactorWarmStandbyMode.LOGIN_BASED;
-        }
-        
         try
         {
         	_steadyStateTime = CommandLine.intValue("steadyStateTime");
@@ -974,56 +930,6 @@ public class ConsPerfConfig
 	 */
 	public boolean calcRWFJSONConversionLatency() {
 		return _calcRWFJSONConversionLatency;
-	}
-	
-    /**
-	 * The warm standby starting host name
-	 * 
-	 * @return the warm standby starting host name
-	 */
-	public String startingHostName()
-	{
-		return _startingHostName;
-	}
-	
-	/**
-	 * The warm standby starting port
-	 * 
-	 * @return the warm standby starting port
-	 */
-	public String startingPort()
-	{
-		return _startingPort;
-	}
-	
-    /**
-	 * The warm standby standby host name
-	 * 
-	 * @return the warm standby standby host name
-	 */
-	public String standbyHostName()
-	{
-		return _standbyHostName;
-	}
-	
-	/**
-	 * The warm standby standby port
-	 * 
-	 * @return the warm standby standby port
-	 */
-	public String standbyPort()
-	{
-		return _standbyPort;
-	}
-	
-	/**
-	 * The warm standby standby mode
-	 * 
-	 * @return the warm standby standby mode
-	 */
-	public int wsbMode()
-	{
-		return _wsbMode;
 	}
 
 	/**
