@@ -20,8 +20,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class FieldListTests_Negative {
 
@@ -91,5 +90,36 @@ public class FieldListTests_Negative {
         containerHandler.encodeRWF(wrongNode, "", iter, convError);
         assertTrue(convError.isFailed());
         assertEquals(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_VALUE, convError.getCode());
+    }
+
+    @Test
+    public void testRwfToJson_UnexpectedFid() {
+        DecodeIterator decIter = CodecFactory.createDecodeIterator();
+        EncodeIterator encIter = CodecFactory.createEncodeIterator();
+        Buffer buffer = CodecFactory.createBuffer();
+        buffer.data(ByteBuffer.allocate(100));
+        JsonBuffer outBuffer = new JsonBuffer();
+        outBuffer.data = new byte[100];
+        FieldList fieldList = CodecFactory.createFieldList();
+        FieldEntry fieldEntry = CodecFactory.createFieldEntry();
+        Buffer rmtes = CodecFactory.createBuffer();
+        rmtes.data("rmtes string");
+
+        encIter.setBufferAndRWFVersion(buffer, Codec.majorVersion(), Codec.minorVersion());
+
+        fieldList.applyHasStandardData();
+        fieldList.encodeInit(encIter, null, 0);
+        fieldEntry.clear();
+        fieldEntry.dataType(DataTypes.RMTES_STRING);
+        fieldEntry.fieldId(-32766);
+        fieldEntry.encode(encIter, rmtes);
+        fieldList.encodeComplete(encIter, true);
+
+        decIter.setBufferAndRWFVersion(buffer, Codec.majorVersion(), Codec.minorVersion());
+
+        assertFalse(converter.getContainerHandler(DataTypes.FIELD_LIST).encodeJson(decIter, outBuffer, false, null, convError));
+        assertFalse(convError.isSuccessful());
+        assertEquals(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_FID, convError.getCode());
+        assertTrue(convError.getText().contains("-32766"));
     }
 }

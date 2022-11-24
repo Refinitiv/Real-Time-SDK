@@ -77,6 +77,12 @@ class JsonFieldListConverter extends AbstractContainerTypeConverter {
                 converter.getContainerHandler(def.rwfType()).encodeJson(decIter, outBuffer, false, localSetDb, error);
             }
         }
+        else
+        {
+            error.setError(JsonConverterErrorCodes.JSON_ERROR_UNEXPECTED_FID,
+                    "encountered unexpected fid = " + fieldEntry.fieldId() + " while writing FieldEntry");
+            return false;
+        }
 
         return error.isSuccessful();
     }
