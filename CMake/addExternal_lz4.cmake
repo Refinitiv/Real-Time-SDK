@@ -12,13 +12,13 @@ if(NOT lz4_url)
 	# This is the latest build. However, until deprecated interfaces updates can 
 	# be applied to the rtsdk code in esdk repository, the older, compatible source will be used
 	#set(lz4_url "https://github.com/lz4/lz4/archive/r131.tar.gz")
-	set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.9.3.tar.gz")
+	set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz")
 endif()
 if(NOT lz4_hash)
-	set(lz4_hash "MD5=3a1ab1684e14fc1afc66228ce61b2db3")
+	set(lz4_hash "MD5=e9286adb64040071c5e23498bf753261")
 endif()
 if(NOT lz4_version)
-	set(lz4_version "1.9.3")
+	set(lz4_version "1.9.4")
 endif()
 
 # If the option for using the system installed package is not defined
