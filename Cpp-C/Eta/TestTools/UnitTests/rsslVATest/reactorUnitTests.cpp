@@ -5361,24 +5361,49 @@ protected:
 #ifndef WIN32   // Linux
 	RsslBool checkProcessorIdByPS(RsslUInt32 proccessorForReactorWorker)
 	{
-		const char* cmd = "ps -e -T -o psr,comm | grep VATes-RWT";
-		char psBuf[512] = { '\0' };
-		FILE* psFile = popen(cmd, "r");
+		const char* cmd = "ps -e -T -o psr,comm | grep \"RWT.\"";
+		char psBuf[1024] = { '\0' };
+		size_t lenBuf = sizeof(psBuf);
 
+		size_t n = 0, nStr = 0;
+		unsigned k = 0;
+		char* psRes[100];
+
+		FILE* psFile = popen(cmd, "r");
 		if (psFile != NULL)
 		{
-			char* ps = fgets(psBuf, 512, psFile);
+			while (n < lenBuf && k < 100 && !feof(psFile) && !ferror(psFile))
+			{
+				if (fgets(psBuf + n, (lenBuf - n), psFile) != NULL)
+				{
+					nStr = strlen(psBuf + n);
+					psRes[k] = (psBuf + n);
+
+					//printf("checkProcessorIdByPS: %u str = [%s] %u\n", k, (psBuf+n), nStr);
+					n += (nStr + 1);
+					++k;
+				}
+			}
+
+			//printf("checkProcessorIdByPS: n=%u:  k=%u feof=%d ferror=%d\n", n, k, feof(psFile), ferror(psFile));
 			pclose(psFile);
 
-			if (ps)
+			for (unsigned i = 0; i < k; ++i)
 			{
-				while (isspace(*ps))
-					++ps;
-
-				if (ps && isdigit(*ps))
+				char* ps = psRes[i];
+				if (ps)
 				{
-					int processorId = atoi(ps);
-					return (processorId >= 0 && (unsigned)processorId == proccessorForReactorWorker ? RSSL_TRUE : RSSL_FALSE);
+					while (isspace(*ps))
+						++ps;
+
+					if (ps && isdigit(*ps))
+					{
+						int processorId = atoi(ps);
+						if (processorId >= 0 && (unsigned)processorId == proccessorForReactorWorker)
+						{
+							return RSSL_TRUE;
+						}
+					}
 				}
 			}
 		}

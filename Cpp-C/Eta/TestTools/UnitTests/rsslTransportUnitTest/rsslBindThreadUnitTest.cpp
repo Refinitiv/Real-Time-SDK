@@ -47,6 +47,7 @@ static bool threadBreak = false;
 const unsigned MAXLEN = 32;
 
 const char* STR_ERROR_CPU_IS_NOT_SET = "cpuString is not set.";
+const char* STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE = "Cpu topology information is unavailable.";
 
 typedef struct {
 	unsigned n;
@@ -175,6 +176,7 @@ protected:
 
 	virtual void SetUp()
 	{
+		memset((void*)&errorInfo, 0, sizeof(RsslErrorInfo));
 		ASSERT_EQ(rsslBindThreadInitialize(&errorInfo.rsslError), RSSL_RET_SUCCESS);
 	}
 
@@ -1766,9 +1768,32 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCT1_Failed
 	ASSERT_STREQ(outputResult.data, outStr);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+TEST_F(ThreadBindProcessorCoreTest, BindThreadExShouldReturnFailOnBadFormatCoreStringTest)
+{
+	const char* pCoreStrBad[3] = { "P", "C", "T" };
+	char outStr[256];
 
-const char* strCpuTopologyUnavailableError = "Cpu topology information is unavailable.";
+	RsslBuffer outputResult;
+	char textResult[256];
+
+	for (unsigned i = 0; i < 3; ++i)
+	{
+		outputResult.length = sizeof(textResult);
+		outputResult.data = textResult;
+
+		snprintf(outStr, sizeof(outStr), "Syntax for cpu binding for string (eos) is invalid. (%s)", pCoreStrBad[i]);
+
+		// Setup stage
+		ASSERT_EQ(rsslBindThreadEx(pCoreStrBad[i], &outputResult, &errorInfo), RSSL_RET_FAILURE) << "outputResult: " << outputResult.data;
+
+		ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+		ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+		ASSERT_STREQ(errorInfo.rsslError.text, outStr);
+		ASSERT_STREQ(outputResult.data, outStr);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 TEST(ThreadBindProcessorCoreTestInit, BindThreadBeforeInitializationShouldReturnError)
 {
@@ -1780,7 +1805,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadBeforeInitializationShouldReturn
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
 TEST(ThreadBindProcessorCoreTestInit, BindThreadPCTBeforeInitializationShouldReturnError)
@@ -1793,7 +1818,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadPCTBeforeInitializationShouldRet
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
 TEST(ThreadBindProcessorCoreTestInit, BindProcessorCoreThreadBeforeInitializationShouldReturnError)
@@ -1806,7 +1831,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindProcessorCoreThreadBeforeInitializatio
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
 TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationShouldReturnError)
@@ -1824,8 +1849,8 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationShouldRetu
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
-	ASSERT_STREQ(outputResult.data, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
 TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationShouldReturnError)
@@ -1843,8 +1868,8 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationShouldR
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
-	ASSERT_STREQ(outputResult.data, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+	ASSERT_STREQ(outputResult.data, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 }
 
 TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationEmptyOutputResultShouldReturnError)
@@ -1860,7 +1885,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExBeforeInitializationEmptyOutpu
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 	
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
@@ -1879,7 +1904,7 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOu
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
 	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
-	ASSERT_STREQ(errorInfo.rsslError.text, strCpuTopologyUnavailableError);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
 
 	ASSERT_EQ(NULL, outputResult.data);
 	ASSERT_EQ(0, outputResult.length);
