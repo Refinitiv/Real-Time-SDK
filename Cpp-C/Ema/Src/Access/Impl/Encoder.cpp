@@ -39,7 +39,7 @@ void Encoder::releaseEncIterator()
 {
 	if ( _pEncodeIter )
 	{
-		if ( _iteratorOwner == this )
+		if ( _iteratorOwner == this && !GlobalPool::isFinalState() )
 			g_pool._encodeIteratorPool.returnItem( _pEncodeIter );
 	
 		_pEncodeIter = 0;

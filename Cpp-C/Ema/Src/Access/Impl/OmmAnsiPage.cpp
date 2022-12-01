@@ -28,7 +28,8 @@ OmmAnsiPage::~OmmAnsiPage()
 
 	if ( _pEncoder )
 	{
-		g_pool._ommAnsiPageEncoderPool.returnItem( _pEncoder );
+		if ( !GlobalPool::isFinalState() )
+			g_pool._ommAnsiPageEncoderPool.returnItem( _pEncoder );
 		_pEncoder = 0;
 	}
 }
