@@ -292,7 +292,10 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 	/* Update the login index when the channel supports the session management */
 	if (_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE)
 	{
-		pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
+		if (pReactorChannelImpl->supportSessionMgnt || pReactorChannelImpl->channelRole.ommConsumerRole.pLoginRequestList)
+		{
+			pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
+		}
 	}
 	else
 	{
@@ -4118,7 +4121,8 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				/* Update the login index when the channel supports the session management */
 				if (_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE)
 				{
-					pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
+					if (pReactorChannelImpl->supportSessionMgnt || pReactorChannelImpl->channelRole.ommConsumerRole.pLoginRequestList)
+						pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
 				}
 				else
 				{

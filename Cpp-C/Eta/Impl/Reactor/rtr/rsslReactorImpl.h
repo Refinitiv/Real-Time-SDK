@@ -493,6 +493,7 @@ struct _RsslReactorChannelImpl
 	TunnelManager *pTunnelManager;
 
 	/* Support session management and RDP service discovery. */
+	RsslBool				supportSessionMgnt; /* This indicates this ReactorChannel support session managment in one of its RsslReactorConnectInfo */
 	RsslUInt32				httpStausCode; /* the latest HTTP status code */
 	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from RDP service discovery */
 
@@ -1948,6 +1949,7 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 
 	/* Reset all buffers for the session management */
+	pReactorChannel->supportSessionMgnt = RSSL_FALSE;
 	pReactorChannel->pRestHandle = NULL;
 
 	/* The channel statistics */
@@ -2201,8 +2203,6 @@ RsslBool _reactorHandlesWarmStandby(RsslReactorChannelImpl *pReactorChannelImpl)
 RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pReactorWoker);
 
 void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfo, RsslReactorWorker *pReactorWoker);
-
-RsslBool _reactorHandlesWarmStandby(RsslReactorChannelImpl *pReactorChannelImpl);
 
 RsslBool _isActiveServiceForWSBChannelByID(RsslReactorWarmStandbyGroupImpl *pWarmStandByGroupImpl, RsslReactorChannelImpl *pReactorChannel, RsslUInt serviceId);
 

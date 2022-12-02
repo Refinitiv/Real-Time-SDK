@@ -2135,6 +2135,8 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 	}
 
+	pReactorChannel->supportSessionMgnt = enableSessionMgnt;
+
 	/* Only need to check the connection list, as the warm standby groups will be verified after this. */
 	if (pReactorChannel->connectionOptList != 0)
 	{
@@ -2219,7 +2221,7 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 		watchlistCreateOpts.requestTimeout = pRole->ommConsumerRole.watchlistOptions.requestTimeout;
 		watchlistCreateOpts.ticksPerMsec = pReactorImpl->ticksPerMsec;
 		watchlistCreateOpts.enableWarmStandby = pWarmStandByHandlerImpl != NULL ? RSSL_TRUE : RSSL_FALSE;
-		watchlistCreateOpts.loginRequestCount = (enableSessionMgnt || pRole->ommConsumerRole.pLoginRequestList != NULL) ? pReactorChannel->connectionListCount : 1; /* Account from switching from WSB group to channel list. */
+		watchlistCreateOpts.loginRequestCount = (pReactorChannel->supportSessionMgnt || pRole->ommConsumerRole.pLoginRequestList != NULL) ? pReactorChannel->connectionListCount : 1; /* Account from switching from WSB group to channel list. */
 		pWatchlist = rsslWatchlistCreate(&watchlistCreateOpts, pError);
 		if (!pWatchlist) goto reactorConnectFail;
 
