@@ -410,6 +410,8 @@ rtr_msgb_t *rwsGetSimpleBuffer(size_t );
 RsslInt32 checkInputBufferSpace(RsslSocketChannel *, size_t );
 RsslInt32 rwsIntTotalUsedOutputBuffers(RsslSocketChannel *rsslSocketChannel, RsslError *error);
 
+RsslInt32 calculateNextReadSize(RsslSocketChannel*, size_t);
+
 rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t*, size_t, size_t, RsslError *);
 rtr_msgb_t *doubleSizeAndRealloc(rtr_msgb_t*, size_t, size_t, RsslError *);
 

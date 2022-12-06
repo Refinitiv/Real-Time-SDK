@@ -1086,6 +1086,23 @@ RsslInt32 checkInputBufferSpace(RsslSocketChannel *rsslSocketChannel, size_t len
 	return 0;
 }
 
+// Calculate next read size into the input buffer and ensure that there is sufficient space
+//  for reading addtinal websocket frames.
+RsslInt32 calculateNextReadSize(RsslSocketChannel* rsslSocketChannel, size_t length)
+{
+	size_t remaingReadSize = (rsslSocketChannel->inputBuffer->maxLength - rsslSocketChannel->inputBuffer->length) / 2;
+
+	if (remaingReadSize >= length + 4)
+	{
+		if (remaingReadSize >= rsslSocketChannel->readSize)
+			return rsslSocketChannel->readSize;
+		else
+			return (RsslInt32)remaingReadSize;
+	}
+
+	return 0;
+}
+
 /* This function returns the number of free guaranteed buffers 
  * available to a user for writing. It is not very efficient.
  * Was done as a quick solution.
@@ -4562,11 +4579,24 @@ RsslInt32 rwsReadPrependTransportHdr(void* transport, char* buffer, int bufferLe
 	RsslSocketChannel	*rsslSocketChannel = (RsslSocketChannel *)transport;
 	rwsSession_t *wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
 	rwsFrameHdr_t           *frame = &wsSess->frameHdr;
+	int readSize;
 
 	rwflags |= RIPC_RW_WAITALL;
 
+	/* Get the maximum read size to ensure that addtional websocket frames can be read into the remaining input buffer. */
+	if ((readSize = calculateNextReadSize(rsslSocketChannel, 2)) == 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> rwsReadPrependTransportHdr() internal error, Unable to read more data into the input buffer",
+			__FILE__, __LINE__);
+
+		*ret = RSSL_RET_FAILURE;
+		return RSSL_RET_FAILURE;
+	}
+
 	cc = rwsReadTransportMsg((void*)rsslSocketChannel, buffer,
-		bufferLen, rwflags, error);
+		readSize, rwflags, error);
 
 	if (cc >= 0)
 	{
