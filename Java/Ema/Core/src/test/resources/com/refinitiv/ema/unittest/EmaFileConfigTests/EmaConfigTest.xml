@@ -42,7 +42,6 @@
 			<DispatchTimeoutApiThread value="90"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
-			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			
 			<ReconnectAttemptLimit value="10"/>
