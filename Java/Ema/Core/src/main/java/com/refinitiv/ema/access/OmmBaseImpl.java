@@ -1958,8 +1958,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			if (_loggerClient.isErrorEnabled())
 			{
-				_userLock.lock();
-
 				strBuilder().append("Failed to close reactor channel (rsslReactorChannel).")
 						.append("' RsslChannel='")
 						.append(Integer.toHexString(_rsslErrorInfo.error().channel() != null ? _rsslErrorInfo.error().channel().hashCode() : 0))
@@ -1971,7 +1969,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				_loggerClient.error(
 						formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
 
-				_userLock.unlock();
 			}
 		}
 
