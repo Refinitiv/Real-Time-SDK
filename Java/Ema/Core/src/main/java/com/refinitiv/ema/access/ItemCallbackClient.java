@@ -2490,8 +2490,16 @@ TunnelStreamStatusEventCallback
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
 
-		_itemMap.remove(item.itemIdObj());
-		_streamIdMap.remove(item.streamIdObj());
+		if(item.itemIdObj() != null)
+		{
+			_itemMap.remove(item.itemIdObj());
+		}
+
+		if(item.streamIdObj() != null)
+		{
+			_streamIdMap.remove(item.streamIdObj());
+		}
+
 		item.backToPool();
 	}
 
