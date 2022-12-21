@@ -139,10 +139,6 @@ public abstract class ProviderThread extends Thread {
     }
 
     private void dispatchApplication(long nextTime) throws InterruptedException {
-        /* TODO try to dispatch one per tick
-        2) try to provide exclusive lock for writing
-        3)
-         */
         long dispatchTime = nextTime - currentTime();
         if (dispatchTime > 0) {
             if (this.baseConfig.useUserDispatch()) {
