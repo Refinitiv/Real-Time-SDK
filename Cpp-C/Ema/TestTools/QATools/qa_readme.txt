@@ -131,7 +131,7 @@ Series100Consumer112-PConfig-001
 Series100Consumer113-ConsFunc-001
    Alters consumer added addition arguments -tokenServiceUrl and -serviceDiscoveryUrl to set config.tokenServiceUrl or config.serviceDiscoveryUrl. 
    
-Series100Consumer113-ConsFunc-001
+Series100Consumer113-ConsFunc-002
 	Alters consumer to request about 240K rics from Asian region to reproduce customer issue RTSDK-5292.
 	Cons113.exe -username <> -password <> -clientId <> -fileName preload_ubs1
 
