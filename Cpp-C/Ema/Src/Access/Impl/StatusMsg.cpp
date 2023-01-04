@@ -88,7 +88,7 @@ StatusMsg::StatusMsg(const StatusMsg& other)
 
 StatusMsg::~StatusMsg()
 {
-	if ( _pEncoder )
+	if ( _pEncoder && !GlobalPool::isFinalState() )
 		g_pool._statusMsgEncoderPool.returnItem( static_cast<StatusMsgEncoder*>( _pEncoder ) );
 
 	if (_pDecoder)
@@ -96,7 +96,8 @@ StatusMsg::~StatusMsg()
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		g_pool._statusMsgDecoderPool.returnItem(static_cast<StatusMsgDecoder*>(_pDecoder));
+		if ( !GlobalPool::isFinalState() )
+			g_pool._statusMsgDecoderPool.returnItem( static_cast<StatusMsgDecoder*>( _pDecoder ) );
 	}
 }
 

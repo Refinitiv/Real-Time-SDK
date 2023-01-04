@@ -37,7 +37,7 @@ MapDecoder::MapDecoder() :
 
 MapDecoder::~MapDecoder()
 {
-	if ( _atExit )
+	if ( _atExit || GlobalPool::isFinalState() )
 	{
 		if ( _elementListSetDef ) 
 			delete _elementListSetDef;
@@ -45,6 +45,7 @@ MapDecoder::~MapDecoder()
 		if ( _fieldListSetDef )
 			delete _fieldListSetDef;
 	}
+	// when the global pool is in final state operations with g_pool are prohibited
 	else
 	{
 		if ( _elementListSetDef ) 

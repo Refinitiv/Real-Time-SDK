@@ -9,8 +9,10 @@ package com.refinitiv.ema.access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.ema.access.DirectoryServiceStore.ServiceIdInteger;
@@ -1029,8 +1031,8 @@ TunnelStreamStatusEventCallback
 	private static final int  PROVIDER_STARTING_STREAM_ID = 0;
 	private static final int CONSUMER_MAX_STREAM_ID_MINUSONE = Integer.MAX_VALUE -1;
 	
-	private HashMap<LongObject, Item<T>>	_itemMap;
-	private HashMap<IntObject, Item<T>> _streamIdMap;
+	private Map<LongObject, Item<T>>	_itemMap;
+	private Map<IntObject, Item<T>> _streamIdMap;
 	private LongObject _longObjHolder;
 	private IntObject _intObjHolder;
 	protected LoginMsg _rsslRDMLoginMsg;
@@ -1041,9 +1043,17 @@ TunnelStreamStatusEventCallback
 	ItemCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
-		
-		_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
-		_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+
+		if(baseImpl.activeConfig().userDispatch == OmmConsumerConfig.OperationModel.API_DISPATCH)
+		{
+			_itemMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
+		else
+		{
+			_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
 
 		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 		
@@ -1065,9 +1075,17 @@ TunnelStreamStatusEventCallback
 	ItemCallbackClient(OmmServerBaseImpl baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
-		
-		_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
-		_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+
+		if(baseImpl.activeConfig().userDispatch == OmmConsumerConfig.OperationModel.API_DISPATCH)
+		{
+			_itemMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
+		else
+		{
+			_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
 
 		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 		
@@ -2471,19 +2489,18 @@ TunnelStreamStatusEventCallback
 			
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
-		
-		try
+
+		if(item.itemIdObj() != null)
 		{
-			_baseImpl.userLock().lock();
-			
 			_itemMap.remove(item.itemIdObj());
-			_streamIdMap.remove(item.streamIdObj());
-			item.backToPool();
 		}
-		finally
+
+		if(item.streamIdObj() != null)
 		{
-			_baseImpl.userLock().unlock();
+			_streamIdMap.remove(item.streamIdObj());
 		}
+
+		item.backToPool();
 	}
 
 	boolean isStreamIdInUse(int nextStreamId)

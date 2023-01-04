@@ -24,7 +24,7 @@
 #undef _DUMP_DEBUG_
 
 static RsslCPUTopology rsslCPUTopology;
-static rtr_atomic_val initializedCpuTopology = 0;
+static rtr_atomic_val initializedCpuTopology = 0L;
 
 RSSL_API RsslUInt32 rsslGetNumberOfProcessorCore(void)
 {
@@ -213,7 +213,7 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 			if (*stringIter == '\0')
 			{
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-					"Syntax for cpu binding for string (eos) is invalid. (%s)", stringIter, cpuString);
+					"Syntax for cpu binding for string (eos) is invalid. (%s)", cpuString);
 				return RSSL_RET_FAILURE;
 			}
 
@@ -540,6 +540,7 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 	if (!initializedCpuTopology)
 	{
 		RsslErrorInfo rsslErrorInfo;
+		memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
 
 		RTR_ATOMIC_SET(initializedCpuTopology, 1);
 

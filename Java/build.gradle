@@ -44,19 +44,19 @@ repositories {
 
 ext.YEAR = '2022'
 
-ext.BuildDate = 'Thu Nov 17 22:20:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.6.7.3'
-ext.SpecificationVersionShort = '3.6.7'
+ext.BuildDate = 'Thu Dec 29 22:20:22 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.6.8.0'
+ext.SpecificationVersionShort = '3.6.8'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
 
 // Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.G2.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.G2.all.rrg'
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
-ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.0.7.L2'
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.0.8.L1'
 
 //=========================================================================================
 //

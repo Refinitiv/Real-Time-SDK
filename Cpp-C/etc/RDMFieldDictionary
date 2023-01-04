@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.54_RealTimeDistributionSystem_22.71		08/22/2022
-!	* Modified 08/22/2022 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.54.
+!   Version	 4.20.55_RealTimeDistributionSystem_23.01		12/07/2022
+!	* Modified 12/07/2022 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.55.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.54_RealTimeDistributionSystem
+!   Version: 4.20.55_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.54
-!tag Build     1
-!tag Date      27-Jul-2022
+!tag Version   4.20.55
+!tag Build     6
+!tag Date      18-Nov-2022
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -7123,7 +7123,7 @@ RATING_ID5 "CRD RAT AGENCY 5"    2998  NULL        ENUMERATED    2 ( 3 )  ENUM  
 !
 RDM_AMT    "REDEMPTION AMNT"     2999  NULL        PRICE              17  REAL64           7
 !
-! Redemption Amount.
+! The redemption amount for the same instrument from the previous auction.
 !
 RDM_CUR    "REDEMPTION CURR"     3000  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -19942,8 +19942,14 @@ BIN_NUMMOV "BUYIN NUM MOVES"     7168  NULL        INTEGER            15  INT64 
 !
 ! Number of buy-in trades
 !
-PRE_INT290 "PRED INTEGER 290"    7169  NULL        INTEGER            15  INT64            6
-PRE_INT291 "PRED INTEGER 291"    7170  NULL        INTEGER            15  INT64            6
+MAX_ORD_S2 "MAX ORDER SIZE 2"    7169  NULL        INTEGER            15  INT64            6
+!
+! Additional Maximum Order Size
+!
+MAX_ORD_V2 "MAX ORDER VALUE 2"   7170  NULL        INTEGER            15  INT64            6
+!
+! Additional Maximum Order Value
+!
 PRE_INT292 "PRED INTEGER 292"    7171  NULL        INTEGER            15  INT64            6
 PRE_INT293 "PRED INTEGER 293"    7172  NULL        INTEGER            15  INT64            6
 PRE_INT294 "PRED INTEGER 294"    7173  NULL        INTEGER            15  INT64            6
@@ -24522,7 +24528,10 @@ RFQ_COND_N "RFQ COND NATIVE"     8608  NULL        ALPHANUMERIC       16  RMTES_
 !
 ! Native Condition code associated with the most recent RFQ update.
 !
-PRE_16T042 "PRED 16 TXT 042"     8609  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+CNTRDT_TPN "CONTRACT DATE TYPE"  8609  NULL        ALPHANUMERIC       16  RMTES_STRING    16
+!
+! Native date qualifier for the field CONT_DATE (#1712)
+!
 PRE_16T043 "PRED 16 TXT 043"     8610  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T044 "PRED 16 TXT 044"     8611  NULL        ALPHANUMERIC       16  RMTES_STRING    16
 PRE_16T045 "PRED 16 TXT 045"     8612  NULL        ALPHANUMERIC       16  RMTES_STRING    16
@@ -36469,7 +36478,7 @@ OR_INV_CCY "ORIG INAV CCY"      13590  NULL        ENUMERATED    5 ( 3 )  ENUM  
 !
 LMT_STS_2  "PRC LMT STATUS 2"   13591  NULL        ENUMERATED    5 ( 6 )  ENUM             2
 !
-! Secondary Price Limit Status indicators
+! Second Price Limits status indicator.
 !
 BASE_CURR  "BASE CURR"          13592  NULL        ENUMERATED    5 ( 3 )  ENUM             2
 !
@@ -36584,12 +36593,30 @@ PRIMACT_TP "PRIM ACT 1 TP"      13621  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Price qualifier for the value in PRIMACT_1.
 !
-PRE_2ET301 "PRED 2 ET 301"      13622  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET302 "PRED 2 ET 302"      13623  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET303 "PRED 2 ET 303"      13624  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET304 "PRED 2 ET 304"      13625  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET305 "PRED 2 ET 305"      13626  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET306 "PRED 2 ET 306"      13627  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+TNOV_UN2TP "TRNOVR UNS 2 TP"    13622  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Indicates the type of turnover held in TRNOVR_UN2.
+!
+TNOV_UN3TP "TRNOVR UNS 3 TP"    13623  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Indicates the type of turnover held in TRNOVR_UN3.
+!
+CLS_B_EXID "CLOSE BID EXCH ID"  13624  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Closing Bid Exchange ID
+!
+CLS_A_EXID "CLOSE ASK EXCH ID"  13625  NULL        ENUMERATED    5 ( 3 )  ENUM             2
+!
+! Closing Ask Exchange ID
+!
+ORD_SZ_QL  "ORDER SIZE QUAL"    13626  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Qualifier associated with order size and value, i.e., MAX_ORD_SZ.
+!
+ORD_SZ_Q2  "ORDER SIZE 2 QUAL"  13627  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! Qualifier associated with secondary order size and value, i.e., MAX_ORD_S2.
+!
 PRE_2ET307 "PRED 2 ET 307"      13628  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET308 "PRED 2 ET 308"      13629  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET309 "PRED 2 ET 309"      13630  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -37598,8 +37625,7 @@ TIMACT_NS  "TIMEACT NS"         14269  NULL        INTEGER            15  TIME  
 !
 TRD_TYP_NS "TRD TP UPT TIM NS"  14270  NULL        INTEGER            15  TIME             8
 !
-! Update time of the native instrument status code - self describing timestamp 
-! supporting up to nanosecond granularity
+! Update time of the native instrument status code field TRD_TYPE (#3984).
 !
 IRGTIM_NS  "IRGTIM NS"          14271  NULL        INTEGER            15  TIME             8
 !
@@ -38204,7 +38230,7 @@ ORIG_TM_NS "ORIG TRD TIM NS"    14529  NULL        INTEGER            15  TIME  
 !
 PD_CDE_NS  "PERIOD CODE TM NS"  14530  NULL        INTEGER            15  TIME             8
 !
-! Start Time of the Current Period for the market segment
+! Update time of the native instrument phase code field PERIOD_CD2 (#8647).
 !
 PRTY_TM_NS "PARITY TIME NS"     14531  NULL        INTEGER            15  TIME             8
 !
@@ -41601,8 +41627,16 @@ CAN_RPNOTL "CAN RPT NOTL VAL"   32609  NULL        PRICE              17  REAL64
 !
 ! Reported notional value for a cancelled trade.
 !
-PRE_LRL052 "PRED LRG REAL 052"  32610  NULL        PRICE              17  REAL64           8
-PRE_LRL053 "PRED LRG REAL 053"  32611  NULL        PRICE              17  REAL64           8
+TRNOVR_UN2 "TRNOVR UNS 2"       32610  NULL        PRICE              17  REAL64           8
+!
+! The second unscaled turnover value (summation of the value of all trades during the 
+! market day) for a particular instrument.
+!
+TRNOVR_UN3 "TRNOVR UNS 3"       32611  NULL        PRICE              17  REAL64           8
+!
+! The third unscaled turnover value (summation of the value of all trades during the 
+! market day) for a particular instrument.
+!
 PRE_LRL054 "PRED LRG REAL 054"  32612  NULL        PRICE              17  REAL64           8
 PRE_LRL055 "PRED LRG REAL 055"  32613  NULL        PRICE              17  REAL64           8
 PRE_LRL056 "PRED LRG REAL 056"  32614  NULL        PRICE              17  REAL64           8

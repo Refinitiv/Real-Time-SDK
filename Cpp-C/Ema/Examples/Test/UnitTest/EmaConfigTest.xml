@@ -40,7 +40,6 @@
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
 			<MaxEventsInPool value="200"/>
-			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />
@@ -196,7 +195,6 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
-			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />

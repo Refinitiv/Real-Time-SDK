@@ -26,7 +26,7 @@ OmmXml::~OmmXml()
 {
 	_pDecoder->~OmmXmlDecoder();
 
-	if ( _pEncoder )
+	if ( _pEncoder && !GlobalPool::isFinalState() )
 	{
 		g_pool._ommXmlEncoderPool.returnItem( _pEncoder );
 	}

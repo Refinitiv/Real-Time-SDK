@@ -29,7 +29,10 @@ Vector::Vector() :
 
 Vector::~Vector()
 {
-	if ( _pEncoder ) 
+	if ( GlobalPool::isFinalState() )
+		return;
+
+	if ( _pEncoder )
 		g_pool._vectorEncoderPool.returnItem( _pEncoder );
 
 	if ( _pDecoder )

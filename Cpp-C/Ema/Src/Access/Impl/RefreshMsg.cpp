@@ -128,7 +128,7 @@ RefreshMsg::RefreshMsg(const RefreshMsg& other)
 
 RefreshMsg::~RefreshMsg()
 {
-	if ( _pEncoder )
+	if ( _pEncoder && !GlobalPool::isFinalState() )
 		g_pool._refreshMsgEncoderPool.returnItem( static_cast<RefreshMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
@@ -136,7 +136,8 @@ RefreshMsg::~RefreshMsg()
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		g_pool._refreshMsgDecoderPool.returnItem(static_cast<RefreshMsgDecoder*>( _pDecoder ) );
+		if ( !GlobalPool::isFinalState() )
+			g_pool._refreshMsgDecoderPool.returnItem( static_cast<RefreshMsgDecoder*>( _pDecoder ) );
 	}
 }
 

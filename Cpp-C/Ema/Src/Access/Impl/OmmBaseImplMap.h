@@ -12,6 +12,7 @@
 #include "EmaVector.h"
 #include "Mutex.h"
 #include "ActiveConfig.h"
+#include "GlobalPool.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -283,6 +284,10 @@ private:
 
 	static void atExit()
 	{
+		// set the global pool state as final
+		// stop all operations with the global pool
+		refinitiv::ema::access::GlobalPool::setFinalState();
+
 		_cleanupLock.lock();
 		_listLock.lock();
 

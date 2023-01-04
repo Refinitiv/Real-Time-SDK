@@ -62,9 +62,13 @@ public class NIProviderThread extends ProviderThread {
                 if (!updates.isEmpty()) {
                     sendUpdateMessages();
                 }
-                if (!this.refreshes().isEmpty()) {
-                    sendRefreshMessages();
-                }
+                do {
+                    if (!this.refreshes.isEmpty()) {
+                        sendRefreshMessages();
+                    } else {
+                        break;
+                    }
+                } while (currentTime() < nextTime);
             } catch (OmmInvalidUsageException e) {
                 closeChannel();
             }

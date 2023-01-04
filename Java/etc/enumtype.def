@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.54
-!tag Build_RDMD  4.20.54
-!tag DT_Version  22.71
-!tag Date        23-Aug-2022
+!tag RT_Version  4.20.55
+!tag Build_RDMD  4.20.55
+!tag DT_Version  23.01
+!tag Date        6-Dec-2022
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -995,6 +995,7 @@ BIDXID      3298
     232        "LTE"   Long-Term Stock Exchange (LTSE)
     233        "MPE"   MIAX Pearl Exchange
     234        "MMX"   Members Exchange
+    235        "CES"   CSE Secondary Book - CSE2
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5539,6 +5540,9 @@ RATING_ID6 12894
      46        "TRC"   Taiwan Ratings Corp (TRC)
      47        "EGJ"   Egan-Jones Ratings Co.
      48        "BWR"   Brickwork Ratings India Pvt. Ltd.
+     49        "ARR"   Acuite Ratings and Research Limited
+     50        "IVR"   Infomerics Valuation and Rating Pvt. Ltd
+     51        "SRL"   Smera Ratings Limited
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7121,6 +7125,8 @@ LEG3_EXCH  13572
 LEG4_EXCH  13574
 ORDER_EXID 13603
 DRK_EXID   13610
+CLS_B_EXID 13624
+CLS_A_EXID 13625
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8850,6 +8856,10 @@ DRK_EXID   13610
    1723        "OVT"   OVET
    1724        "PAD"   Peters Agrardaten
    1725        "SCH"   SHANGHAI CLEARING HOUSE
+   1726        "AFB"   Africa Tea Brokers Limited
+   1727        "KPL"   Kuwait Petroleum Corporation
+   1728        "ZNH"   ZeroNorth
+   1729        "HMS"   HAMMERSMITH MARKETING LTD
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13442,6 +13452,8 @@ REFPRC_TP4 13491
      68   "GBP/KG  "   Pound Sterling per kilogramme
      69   "CalcClos"   Refinitiv Calculated Close
      70   "UVWAP   "   VWAP of the underlying asset
+     71   "POS IMB "   Positive Imbalance Price
+     72   "NEG IMB "   Negative Imbalance Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17472,6 +17484,7 @@ AVGPRC_TP2 13082
      12   "BID AVG "   Average of BID High and BID Low
      13   " MTDAvg "   Month To Date
      14   "DAY AVG "   Day Average
+     15   "CNT AVG "   Average price of the contract since launch
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18756,6 +18769,7 @@ EXCHCD_TP2 13415
       3        "OCX"   OCX Code
       4        "GTA"   Group Ticker Plant ID -- Turquoise Lit Auction Book
       5        "BSC"   BSE Scrip Code
+      6        "IER"   ICE Europe Rolling Market ID
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18957,6 +18971,20 @@ MET_TYP22  13605
     157   "Lambda2 "   Second Lambda Value
     158   "OLD_S_OI"   Old season open interest
     159   "NEW_S_OI"   New season open interest
+    160   "BSPD PY "   Benchmark Spread - Par Yield
+    161   "BSPD ZY "   Benchmark Spread - Zero Coupon Yield
+    162   "PYLD    "   Par Yield
+    163   "Demand  "   Total Demand
+    164   "SUPPLY  "   Supply
+    165   "GEN     "   Generation
+    166   "ISSWHRCP"   Issued Warehouse Receipts
+    167   "CANWHRCP"   Cancelled Warehouse Receipts
+    168   "ASKBCKT "   Ask Bucket
+    169   "BIDBCKT "   Bid Bucket
+    170   "ASKDECIL"   Ask Decile
+    171   "BIDDECIL"   Bid Decile
+    172   "ASKPCTLE"   Ask Percentile
+    173   "BIDPCTLE"   Bid Percentile
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18972,6 +19000,10 @@ SC_REGU_CD 13607
       3      "EFEVD"   Extension of Feverish (Volatility) Designation/Delay in lifting
       4      "IRGIS"   Irregular Issue
       5      "APM  "   Abnormal Price Movement
+      6      "ATTN "   Attention Security designation
+      7      "RST  "   Restricted Security designation
+      8      "RST_R"   Restricted Security designation (Recurrence)
+      9      "RST_O"   Restricted Security designation  (Other)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23187,16 +23219,55 @@ PRIMACT_TP 13621
      33   "FD AREA "   Field Area
      34   "WHS RCPT"   Warehouse Receipt
      35   "THRPUT  "   Throughput
+     36   "PSTNS   "   Number of Positions
 !
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET301 13622
-PRE_2ET302 13623
-PRE_2ET303 13624
-PRE_2ET304 13625
-PRE_2ET305 13626
-PRE_2ET306 13627
+TNOV_UN2TP 13622
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "DVP     "   Delivery versus payment
+      2   "FOP     "   Free of payment
+!
+! ACRONYM    FID
+! -------    ---
+!
+TNOV_UN3TP 13623
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "DVP     "   Delivery versus payment
+      2   "FOP     "   Free of payment
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORD_SZ_QL  13626
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "T       "   Continuous Trading
+      2   "AUC     "   Auctions
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORD_SZ_Q2  13627
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "T       "   Continuous Trading
+      2   "AUC     "   Auctions
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET307 13628
 PRE_2ET308 13629
 PRE_2ET309 13630

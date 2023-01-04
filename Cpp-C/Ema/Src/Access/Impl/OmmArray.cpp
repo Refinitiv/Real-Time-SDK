@@ -29,6 +29,9 @@ OmmArray::OmmArray() :
 
 OmmArray::~OmmArray()
 {
+	if ( GlobalPool::isFinalState() )
+		return;
+
 	if ( _pEncoder )
 		g_pool._arrayEncoderPool.returnItem( _pEncoder );
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
@@ -187,6 +187,7 @@ if(NOT TARGET GTest::GTest)
 		  RELEASE build type.
 		#]========================================================]
 
+if (CMAKE_VERSION VERSION_LESS 3.20)
 		get_property(_pval TARGET GTest::GTest PROPERTY IMPORTED_LOCATION_RELEASE SET)
 		if (NOT _pval)
 			if (EXISTS "${GTEST_LIBRARY}") 
@@ -226,9 +227,58 @@ if(NOT TARGET GTest::GTest)
 			endif()
 		endif()
 		unset(_pval)
+
 		# Will Map Release => Release_MD, Debug => Debug_Mdd
+
 		rcdev_map_imported_ep_types(GTest::GTest)
 		rcdev_map_imported_ep_types(GTest::Main)
+else()
+		get_property(_pval TARGET GTest::gtest PROPERTY IMPORTED_LOCATION_RELEASE SET)
+		if (NOT _pval)
+			if (EXISTS "${GTEST_LIBRARY}") 
+				set(GTEST_LIBRARY_RELEASE "${GTEST_LIBRARY}" CACHE FILEPATH "")
+			endif()
+			set_target_properties(GTest::gtest PROPERTIES 
+												IMPORTED_LOCATION_RELEASE ${GTEST_LIBRARY_RELEASE})
+		endif()
+		unset(_pval)
+
+		get_property(_pval TARGET GTest::gtest_main PROPERTY IMPORTED_LOCATION_RELEASE SET)
+		if (NOT _pval)
+			if (EXISTS "${GTEST_MAIN_LIBRARY}") 
+				set(GTEST_MAIN_LIBRARY_RELEASE "${GTEST_MAIN_LIBRARY}" CACHE FILEPATH "")
+			endif()
+			set_target_properties(GTest::gtest_main PROPERTIES 
+												IMPORTED_LOCATION_RELEASE ${GTEST_MAIN_LIBRARY_RELEASE})
+		endif()
+		unset(_pval)
+
+		get_property(_pval TARGET GTest::gtest PROPERTY IMPORTED_CONFIGURATIONS SET)
+		if (_pval)
+			get_target_property(_pval GTest::gtest IMPORTED_CONFIGURATIONS)
+			if (NOT (("Release" IN_LIST _pval) OR ("RELEASE" IN_LIST _pval)) ) 
+				set_property(TARGET GTest::gtest APPEND PROPERTY 
+										 				IMPORTED_CONFIGURATIONS RELEASE)
+			endif()
+		endif()
+		unset(_pval)
+
+		get_property(_pval TARGET GTest::gtest_main PROPERTY IMPORTED_CONFIGURATIONS SET)
+		if (_pval)
+			get_target_property(_pval GTest::gtest_main IMPORTED_CONFIGURATIONS)
+			if (NOT (("Release" IN_LIST _pval) OR ("RELEASE" IN_LIST _pval)) ) 
+				set_property(TARGET GTest::gtest_main APPEND PROPERTY 
+										 				IMPORTED_CONFIGURATIONS RELEASE)
+			endif()
+		endif()
+		unset(_pval)
+
+		# Will Map Release => Release_MD, Debug => Debug_Mdd
+
+		rcdev_map_imported_ep_types(GTest::gtest)
+		rcdev_map_imported_ep_types(GTest::gtest_main)
+		add_library(GTest::Main ALIAS GTest::gtest)
+endif()
 	endif()
 
 	# If the gtest CMake find module starts to set a version number
@@ -242,7 +292,11 @@ if(NOT TARGET GTest::GTest)
 	endif()
 	#]==================================================]
 
+if (CMAKE_VERSION VERSION_LESS 3.20)
 	rcdev_add_external_target(GTest::GTest GTest::Main)
+else()
+	rcdev_add_external_target(GTest::gtest GTest::gtest_main)
+endif()
 
 endif()
 DEBUG_PRINT(GTEST_LIBRARY)

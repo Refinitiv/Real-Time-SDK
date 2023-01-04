@@ -133,7 +133,7 @@ AckMsg::AckMsg(const AckMsg& other)
 
 AckMsg::~AckMsg()
 {
-	if ( _pEncoder )
+	if ( _pEncoder  &&  !GlobalPool::isFinalState() )
 		g_pool._ackMsgEncoderPool.returnItem( static_cast<AckMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
@@ -141,7 +141,8 @@ AckMsg::~AckMsg()
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		g_pool._ackMsgDecoderPool.returnItem( static_cast<AckMsgDecoder*>( _pDecoder ) );
+		if ( !GlobalPool::isFinalState() )
+			g_pool._ackMsgDecoderPool.returnItem( static_cast<AckMsgDecoder*>( _pDecoder ) );
 	}
 }
 

@@ -29,6 +29,9 @@ Map::Map() :
 
 Map::~Map()
 {
+	if ( GlobalPool::isFinalState() )
+		return;
+
 	if ( _pEncoder )
 		g_pool._mapEncoderPool.returnItem( _pEncoder );
 

@@ -28,6 +28,9 @@ FieldList::FieldList() :
 
 FieldList::~FieldList()
 {
+	if ( GlobalPool::isFinalState() )
+		return;
+
 	if ( _pEncoder ) 
 		g_pool._fieldListEncoderPool.returnItem( _pEncoder );
 

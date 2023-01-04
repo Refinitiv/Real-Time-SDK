@@ -30,6 +30,9 @@ ElementList::ElementList() :
 
 ElementList::~ElementList()
 {
+	if ( GlobalPool::isFinalState() )
+		return;
+
 	if ( _pEncoder )
 		g_pool._elementListEncoderPool.returnItem( _pEncoder );
 

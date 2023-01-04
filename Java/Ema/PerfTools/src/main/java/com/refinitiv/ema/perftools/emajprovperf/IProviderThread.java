@@ -130,9 +130,13 @@ public class IProviderThread extends ProviderThread {
         if (!this.closedClients.isEmpty()) {
             processClosedClients();
         }
-        if (!this.refreshes.isEmpty()) {
-            sendRefreshMessages();
-        }
+        do {
+            if (!this.refreshes.isEmpty()) {
+                sendRefreshMessages();
+            } else {
+                break;
+            }
+        } while (currentTime() < nextTime);
     }
 
     @Override
