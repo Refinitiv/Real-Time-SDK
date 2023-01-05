@@ -118,6 +118,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>	ProxyPassword : String password for proxy authentication.
  * <li>	ProxyDomain : String domain for proxy authentication.
  * </li>
+ * </ul>
  * <p>
  * Example config:
  * </p>
@@ -141,7 +142,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *	],
  *	"ConnectionList" : [
  *	{
- *		"Host" : "<CONNECTION 3>",
+ *		"Host" : "CONNECTION 3",
  *		"Port" : "14002",
  *		"SessionMgnt" : false,
  *		"ConnType": 0
@@ -155,7 +156,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *	}
  *	]
  * }
- *</p>
+ * </p>
  * 
  * <H2>Setup Environment</H2>
  * <p>
@@ -166,11 +167,13 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <H2>Running the application:</H2>
  * <p>
  * Change directory to the <i>Java</i> directory and issue the following <i>Gradle</i> command.
+ * </p>
  * <p>
  * Linux: ./gradlew runWsbConsumer -PcommandLineArgs="arguments"<br>
  * Windows: gradlew.bat runWsbConsumer -PcommandLineArgs="arguments"<br>
  * </p>
  * <br>
+ * <p>
  * Arguments are listed below.
  * </p>
  * <ul>
@@ -178,7 +181,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * specify multiple -mp instances, where each occurrence is associated with a
  * single item. For example, specifying -mp TRI -mp GOOG will provide content
  * for two MarketPrice items. A service can be specified for each item with:
- * <li>	<service_name>:<item_name>
+ * <li>	service_name:item_name
  * <li>-mbo Market By Order domain item name. No default. The user can specify
  * multiple -mbo instances, where each occurrence is associated with a single
  * item.
