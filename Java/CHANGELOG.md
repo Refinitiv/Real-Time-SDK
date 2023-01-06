@@ -9,13 +9,38 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.7.G2 aka EMA/ETA 3.6.7.G2 aka 3.6.7.3
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.8.L1 aka EMA/ETA 3.6.8.L1 aka 3.6.8.0
 ----------------------------------------------------------------------------------------
-This is a maintenance release with a fix.
+This is a maintenance release with fixes and support for Visual Studio 2022 (JNI).
+
+Customer Issues Resolved
+----------------------------------------------------------------------------------------
+- [GitHub #218, Case Number: 11919895, Case Number: 11919122] - [RTSDK-6794, RTSDK-6894, RTSDK-6902] - EMA Java | Deadlock in OmmConsumer
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.0.8.L1 (Jan 6, 2022)
+--------------------------------------------
+
+This is a maintenance release with fixes.
+
+EMA Java 3.6.8.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6585] - Documentation: EMA Java Config Guide global parameters
+- [RTSDK-6794, RTSDK-6894, RTSDK-6902] - EMA Java | Deadlock in OmmConsumer [GitHub #218, Case Number: 11919895, Case Number: 11919122]
+- [RTSDK-6896] - Fix to EMAJ Provider PerfTools to send message burst in allotted time slice
+
+ETA Java 3.6.8.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6416] - Json Converter provides ill formatted Json message when invalid fieldID (FID) is provided
+
+Both ETA Java and EMA Java 3.6.8.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-6258] - Support Visual Studio 2022
+- [RTSDK-6765] - Documentaion: Correct default value of HighWaterMark from EMA C/J ConfigGuide and ETA C/J PerfToolsGuide
 
 --------------------------------------------
 RTSDK Java Release 2.0.7.G2 (Nov 17, 2022)

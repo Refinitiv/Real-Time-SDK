@@ -10,7 +10,7 @@ ETA provides the necessary libraries and information to allow for OMM/RWF encodi
 
 This repository depends on a binary pack consisting of closed source dependent libraries. The BinaryPack is available in the [release section on GitHub](https://github.com/Refinitiv/Real-Time-SDK/releases) and is auto pulled by RTSDK build via CMake.
 
-Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 
 # ETA C-Edition Documentation
 
@@ -140,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.6.7.G2
-    librsslVA.lib             eta3.6.7.G2
-    librsslVACache.lib        eta3.6.7.G2
-    libansi.lib               eta3.6.7.G2
-    libdacs.lib               eta3.6.7.G2
+    librssl.lib*              eta3.6.8.L1
+    librsslVA.lib             eta3.6.8.L1
+    librsslVACache.lib        eta3.6.8.L1
+    libansi.lib               eta3.6.8.L1
+    libdacs.lib               eta3.6.8.L1
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +152,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.6.7.G2
-    librssl.lib               eta3.6.7.G2
-    librssl.pdb               eta3.6.7.G2
-    librsslVA.dll             eta3.6.7.G2
-    librsslVA.lib             eta3.6.7.G2
-    librsslVA.pdb             eta3.6.7.G2
-    librsslVACache.dll        eta3.6.7.G2
-    librsslVACache.lib        eta3.6.7.G2
-    librsslVACache.pdb        eta3.6.7.G2
-    librsslJsonConverter.dll  eta3.6.7.G2
-    librsslJsonConverter.lib  eta3.6.7.G2
-    librsslJsonConverter.pdb  eta3.6.7.G2
+    librssl.dll               eta3.6.8.L1
+    librssl.lib               eta3.6.8.L1
+    librssl.pdb               eta3.6.8.L1
+    librsslVA.dll             eta3.6.8.L1
+    librsslVA.lib             eta3.6.8.L1
+    librsslVA.pdb             eta3.6.8.L1
+    librsslVACache.dll        eta3.6.8.L1
+    librsslVACache.lib        eta3.6.8.L1
+    librsslVACache.pdb        eta3.6.8.L1
+    librsslJsonConverter.dll  eta3.6.8.L1
+    librsslJsonConverter.lib  eta3.6.8.L1
+    librsslJsonConverter.pdb  eta3.6.8.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -181,22 +181,22 @@ The Transport API provides a helpful script that will create soft links for the 
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.6.7.G2
-    librsslVA.a                        eta3.6.7.G2
-    librsslVACache.a                   eta3.6.7.G2
-    libansi.lib                        eta3.6.7.G2
-    libdacs.lib                        eta3.6.7.G2
+    librssl.a                          eta3.6.8.L1
+    librsslVA.a                        eta3.6.8.L1
+    librsslVACache.a                   eta3.6.8.L1
+    libansi.lib                        eta3.6.8.L1
+    libdacs.lib                        eta3.6.8.L1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.6.7.3                 librssl.so.18                   eta3.6.7.G2
-    librsslVA.so.3.6.7.3               librsslVA.so.20                 eta3.6.7.G2
-    librsslJsonConverter.so.3.6.7.3    librsslJsonConverter.so.2       eta3.6.7.G2
+    librssl.so.3.6.8.0                 librssl.so.19                   eta3.6.8.L1
+    librsslVA.so.3.6.8.0               librsslVA.so.20                 eta3.6.8.L1
+    librsslJsonConverter.so.3.6.8.0    librsslJsonConverter.so.2       eta3.6.8.L1
 
-    librsslVACache.so.3.6.7.3          librsslVACache.so.4             eta3.6.7.G2
-    librsslRelMcast.so.3.6.7.3         librsslRelMcast.so.2            eta3.6.7.G2
+    librsslVACache.so.3.6.8.0          librsslVACache.so.4             eta3.6.8.L1
+    librsslRelMcast.so.3.6.8.0         librsslRelMcast.so.2            eta3.6.8.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -225,25 +225,26 @@ The Transport API provides a helpful script that will create soft links for the 
     I-COS Questionnaire: 6211
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
-    Release Number: 3.6.7
-    Load Number: 2
-    Windows Load ID: eta3.6.7.L2.win
-        Supersedes: eta3.6.7.L1.win.rrg
-    Linux Load ID: eta3.6.7.L2.linux
-        Supersedes: eta3.6.7.L1.linux.rrg
+    Release Number: 3.6.8
+    Load Number: 1
+    Windows Load ID: eta3.6.8.L1.win
+        Supersedes: eta3.6.7.L2.win.rrg
+    Linux Load ID: eta3.6.8.L1.linux
+        Supersedes: eta3.6.7.L2.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.54_RealTimeDistributionSystem_22.71 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.55_RealTimeDistributionSystem_23.01 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
+    Black Duck by Synopsis, 2021.10.0.939, https://www.blackducksoftware.com/
+    SemGrep 1.2.1, https://semgrep.dev/
 
 # Notes:
 - This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the top level README.md files for clarification.

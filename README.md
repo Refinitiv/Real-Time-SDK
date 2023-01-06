@@ -86,7 +86,6 @@ License details can be found in the LICENSE.md file contained in this section. T
 Any source code, header files not specified above (even if included by header files in the locations above), libraries, and underlying dependencies continue to be governed by the licensing and agreements per the [MyRefinitiv](https://my.refinitiv.com/content/mytr/en/signin.html) site and RDC Program.
 
 
-
 # Notes:
 - This section contains APIs that are subject to proprietary and open source licenses.  Please make sure to read the readme files within each API flavor directory for clarification.
 - Please make sure to review the LICENSE.md file.

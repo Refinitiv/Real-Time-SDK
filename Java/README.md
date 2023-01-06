@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -75,6 +75,7 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
+	Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
 
 NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
 
@@ -85,7 +86,6 @@ Platforms:
 	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
         Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1 (JNI Libraries)
         CentOS 7.X Release 64-bit Qualification 
-        CentOS 8.X Release 64-bit Qualification
 
 #### Tested Versions
 
@@ -129,8 +129,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.2
-- ADH 3.6.2
+- ADS 3.6.3
+- ADH 3.6.3
 - DACS 7.8
 
 # Documentation
@@ -213,40 +213,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.7.3</version>
+		<version>3.6.8.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.7.3</version>
+		<version>3.6.8.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.7.3</version>
+		<version>3.6.8.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.7.3</version>
+		<version>3.6.8.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.7.3</version>
+		<version>3.6.8.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.7.3'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.7.3'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.7.3'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.7.3'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.7.3'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.8.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.8.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.8.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.8.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.8.0'
 
 # Developing 
 

@@ -9,14 +9,53 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.7.G2 aka EMA/ETA 3.6.7.G2 aka 3.6.7.3
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.8.L1 aka EMA/ETA 3.6.8.L1 aka 3.6.8.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release.
+This is a maintenance release with fixes and support for Visual Studio 2022.
+
+Customer Issues Resolved
+----------------------------------------------------------------------------------------
+- [Case Number: 11639977] - [RTSDK-6655] - Example provider application with EMA C++ is crashing at exit
+- [GitHub #205] - [RTSDK-6596] - RSSL_INIT_ENCODE_ITERATOR missing initializer
+- [GitHub #208] - [RTSDK-6597] - Memory issue in ETA 3.6.6.L1 (valgrind)
+- [GitHub #214] - [RTSDK-6793] - Removed unused parameter 'ReactorEventFdPort' from application
+- [GitHub #215] - [RTSDK-6747] - GitHub #215: Erroneous documentation for Logger
+- [GitHub #220] - [RTSDK-6834] - SEGV during reconnection in cold standby (ChannelSet)
+- [GitHub #231] - [RTSDK-6607] - Update libxml2 version
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK C++/C Release 2.0.8.L1 (Jan 6, 2023)
+--------------------------------------------
+
+EMA C++ 3.6.8.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6655] - EMA C++ provider example is crashing at exit [Case Number: 11639977]
+- [RTSDK-6747] - Documentation: Erroneous documentation for Logger [GitHub #215]
+- [RTSDK-6793] - Removed unused parameter 'ReactorEventFdPort' from application [GitHub #214]
+
+ETA C 3.6.8.L1 Issues Resolved
+------------------------------
+- [RTSDK-5924] - ETA C Reactor does not handle redirect when get HTTP response with redirect host (3XX) from TokenUrl
+- [RTSDK-6596] - RSSL_INIT_ENCODE_ITERATOR missing initializer [GitHub #205]
+- [RTSDK-6597] - Memory issue in ETA 3.6.6.L1 (valgrind) [GitHub #208]
+
+Both ETA C and EMA C++ 3.6.8.L1 Issues Resolved
+----------------------------------------------
+- [RTSDK-5693] - Support latest version of CMake and update minimum CMake version to use for buiding RTSDK
+- [RTSDK-5880] - EmaCppConsPerf gets Segmentation fault core dump during terminate at UDR=250K websocket RWF
+- [RTSDK-6258] - Support Visual Studio 2022
+- [RTSDK-6600] - Update CURL version
+- [RTSDK-6606] - Update LZ4 version 
+- [RTSDK-6607] - Update libxml2 version [GitHub #231]
+- [RTSDK-6765] - Documentation: Correct default value of HighWaterMark from EMA C/J ConfigGuide and ETA C/J PerfToolsGuide
+- [RTSDK-6834] - SEGV during reconnection in cold standby (ChannelSet) [GitHub #220]
+- [RTSDK-6840] - Documentation: Clarify cmake build instructions in readme and installation guide
+- [RTSDK-6874] - Segmentation fault with Websocket transport due to buffer overflow
 
 --------------------------------------------
 RTSDK C++/C Release 2.0.7.G2 (Nov 17, 2022)

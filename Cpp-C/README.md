@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -20,10 +20,10 @@ External modules used by this version of RTSDK C/C++:
 	openSSL 		1.0.1e
 	openSSL			1.1.1a
 	cJSON			1.7.15
-	curl			7.84.0
+	curl			7.86.0
 	googletest		release-1.8.1
-	libxml2			2.9.12
-	lz4			1.9.3
+	libxml2			2.10.3
+	lz4			1.9.4
 	zlib			1.2.12
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
@@ -68,6 +68,7 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.0 (2015) 64-bit
 	Microsoft Visual Studio 14.1 (2017) 64-bit 
 	Microsoft Visual Studio 14.2 (2019) 64-bit 
+	Microsoft Visual Studio 14.3 (2022) 64-bit 
 
 Notes: 
 - User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
@@ -134,8 +135,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.2
-- ADH 3.6.2
+- ADS 3.6.3
+- ADH 3.6.3
 - DACS 7.8
 
 # Documentation
@@ -159,9 +160,9 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.14 or greater. Please note that gtest version included for unit testing is not compatible with later versions of CMake such as 3.21.4; this will be addressed in a future release.
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.10.3 or higher. 
 
-Refer to the RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
+Refer to RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
 
 **For Linux**:
 
@@ -171,35 +172,33 @@ Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linu
 
 At the same directory level as the resulting RTSDK directory, issue the following command to build the optimized Makefile files:
 
-	cmake -HRTSDK -BbuildDir
-	# Refinitiv Real-Time SDK is the RTSDK directory 
-	# buildDir is the directory where all build output is placed 
-	# Note: buildDir, or anything your specify in place of it in above command, is automatically created
+	cmake -HsourceDir -BbuildDir
+	# sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
+	# buildDir is the directory where all build output is placed. This directory is automatically created.
 
 Issue the following command to build debug Makefile files:
 
 	cmake -HRTSDK -BbuildDir –DCMAKE_BUILD_TYPE=Debug
 
-The cmake command builds all needed Makefile files (and related dependencies) in the buildDir directory. 
-Go to the buildDir directory and type "make" to create the RTSDK libraries. Note that the libraries are sent to the RTSDK directory (i.e., not the buildDir directory).
+The cmake command builds all needed Makefile files (and related dependencies) in the buildDir directory. Go to the buildDir directory and type "make" or "gmake" to create the RTSDK libraries. Note that the libraries and sample application executables are sent to the RTSDK directory under sourceDir.
 
 **For Windows**:
 
 At the same directory level as the resulting RTSDK directory, issue the following command to build the Solution and vcxproj files:
 
-	cmake -HRTSDK -BbuildDir -G <VisualStudioVersion>
-	# RTDK is the directory with the source code 
-	# buildDir is the directory where all build output is placed; this is where the built binaries are placed 
-	# Note: buildDir, or anything your specify in place of it in above command, is automatically created
+	cmake -HsourceDir -BbuildDir -G <VisualStudioVersion>
+	# sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
+	# buildDir is the directory where all build output is placed. This directory is automatically created
 	# "VisualStudioVersion" is the visual studio version to use for build on windows.
 	# Valid values for VisualStudioVersion are 
+                # "Visual Studio 17 2022" -A x64
 		# "Visual Studio 16 2019" -A x64 
 		# "Visual Studio 15 2017 Win64"
 		# "Visual Studio 14 2015 Win64" 
 	# Note: A list of visual studio versions can be obtained by typing "cmake -help". 
 	# Note: CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
-The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the build output is sent to the RTSDK directory (i.e., not the buildDir directory).
+The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the libraries and sample application executables are sent to an RTSDK directory under sourceDir.
 
 Note that your installation of Visual Studio needs to be updated to add Microsoft Foundation Classes per Microsoft when encountering this build error: fatal error RC105: cannot open include file 'afxres.h'.
 
