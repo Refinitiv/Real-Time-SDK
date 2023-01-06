@@ -167,10 +167,6 @@ public class wsbConsumerConfig
 			return null;
 	}
 
-	/**
-	 * @param args
-	 * @return
-	 */
 	public boolean parseArgs(String[] args, ChannelInfo chnlInfo)
 	{
 		reactorConnectOpts.clear();
