@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>LSEG.Eta.ValueAdd</AssemblyName>
+    <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
+    <Version>3.0.0.0</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <Company>Refinitiv</Company>
+    <Authors />
+    <Product>Enterprise Transport API (ETA) C# Edition</Product>
+    <Copyright>Copyright @ 2023 Refinitiv. All Rights Reserved.</Copyright>
+    <NeutralLanguage>en-UM</NeutralLanguage>
+  </PropertyGroup>
+  
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.23.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>$(SolutionDir)Eta\Libs\$(Configuration)\$(TargetFramework)\LSEG.Eta.ValueAdd.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>$(SolutionDir)Eta\Libs\$(Configuration)\$(TargetFramework)\LSEG.Eta.ValueAdd.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core_NET6.0.csproj" />
+  </ItemGroup>
+
+</Project>

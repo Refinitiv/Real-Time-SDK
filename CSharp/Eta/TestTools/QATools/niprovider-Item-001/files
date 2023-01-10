@@ -1,0 +1,3 @@
+# file,location
+ChannelSession.cs,Applications/EtaAppCommon/ChannelSession.cs
+NIProvider.cs,Applications/NIProvider/NIProvider.cs

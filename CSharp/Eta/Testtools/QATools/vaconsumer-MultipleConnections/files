@@ -1,0 +1,8 @@
+#file,location
+VAConsumer.cs,\Applications\VAConsumer\VAConsumer.cs
+ConsumerCmdLineParser.cs,\Applications\VAConsumer\ConsumerCmdLineParser.cs
+ConnectionArgsParser.cs,\Applications\VACommon\ConnectionArgsParser.cs
+ConnectionCredentials.cs,\Applications\VACommon\
+ConnectionCredentialsParser.cs,\Applications\VACommon\
+ConnectionTypeItem.cs,\Applications\VACommon\
+ConnectionTypeParser.cs,\Applications\VACommon\

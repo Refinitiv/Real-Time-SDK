@@ -1,0 +1,6 @@
+#file,location
+Consumer.cs,Applications/Consumer/Consumer.cs
+DictionaryHandler.cs,Applications/EtaAppCommon/ConsumerHandlers/DictionaryHandler.cs
+DirectoryHandler.cs,Applications/EtaAppCommon/ConsumerHandlers/DirectoryHandler.cs
+LoginHandler.cs,Applications/EtaAppCommon/ConsumerHandlers/LoginHandler.cs
+MarketPriceHandler.cs,Applications/EtaAppCommon/ConsumerHandlers/MarketPriceHandler.cs

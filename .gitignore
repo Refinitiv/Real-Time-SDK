@@ -24,6 +24,7 @@
 **/OptimizedAssertShared
 **/OptimizedAssertStatic
 **/refman
+**/RefMan
 Cpp-C/Eta/Applications/Training/Consumer/Module_1a_Connect/CMakeLists.txt
 */Eta/Applications/Training/*/*/CMakeLists.txt
 */Ema/Examples/Training/*/*/*/CMakeLists.txt

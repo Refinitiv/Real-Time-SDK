@@ -1,0 +1,5 @@
+# file,location
+ItemHandler.cs,Applications/Provider/ItemHandler.cs
+ItemRejectReason.cs,Applications/EtaAppCommon/ItemRejectReason.cs
+MarketPriceItems.cs,Applications/EtaAppCommon/rdm/item/marketprice/MarketPriceItems.cs
+ProviderDirectoryHandler.cs,Applications/EtaAppCommon/ConsumerHandlers/ProviderDirectoryHandler.cs

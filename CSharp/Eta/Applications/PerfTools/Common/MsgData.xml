@@ -1,0 +1,291 @@
+<!-- Sample XML Message Data -->
+
+<!--
+This file is used to customize the messages that are encoded.
+One refreshMsg and at least one updateMsg is needed.  If posting, at least one post message is needed.
+-->
+
+<msgFormat>
+
+<marketPriceMsgList updateMsgCount="2" postMsgCount="2" genMsgCount="2">
+<refreshMsg>
+	<dataBody>
+		<fieldList entryCount="70">
+			<fieldEntry fieldId="1" dataType="RSSL_DT_UINT" data="6560"/>
+			<fieldEntry fieldId="2" dataType="RSSL_DT_UINT" data="66"/>
+			<fieldEntry fieldId="3853" dataType="RSSL_DT_UINT" data="75601000"/>
+			<fieldEntry fieldId="3854" dataType="RSSL_DT_UINT" data="84514000"/>
+			<fieldEntry fieldId="4" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="84932000"/>
+			<fieldEntry fieldId="6" dataType="RSSL_DT_REAL" data="398.15"/>
+			<fieldEntry fieldId="3856" dataType="RSSL_DT_UINT" data="137197144"/>
+			<fieldEntry fieldId="3297" dataType="RSSL_DT_ENUM" data="3"/>
+			<fieldEntry fieldId="77" dataType="RSSL_DT_REAL" data="16844"/>
+			<fieldEntry fieldId="3298" dataType="RSSL_DT_ENUM" data="3"/>
+			<fieldEntry fieldId="78" dataType="RSSL_DT_RMTES_STRING" data=""/>
+			<fieldEntry fieldId="79" dataType="RSSL_DT_DATE" data="11/15/2005"/>
+			<fieldEntry fieldId="11" dataType="RSSL_DT_REAL" data="5.35"/>
+			<fieldEntry fieldId="12" dataType="RSSL_DT_REAL" data="398.85"/>
+			<fieldEntry fieldId="293" dataType="RSSL_DT_RMTES_STRING" data="BOS"/>
+			<fieldEntry fieldId="13" dataType="RSSL_DT_REAL" data="394.11"/>
+			<fieldEntry fieldId="14" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="15" dataType="RSSL_DT_ENUM" data="840"/>
+			<fieldEntry fieldId="296" dataType="RSSL_DT_RMTES_STRING" data="BOS"/>
+			<fieldEntry fieldId="16" dataType="RSSL_DT_DATE" data="11/16/2005"/>
+			<fieldEntry fieldId="1067" dataType="RSSL_DT_TIME" data=" 21:00:01:000"/>
+			<fieldEntry fieldId="19" dataType="RSSL_DT_REAL" data="396.50"/>
+			<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data="-"/>
+			<fieldEntry fieldId="21" dataType="RSSL_DT_REAL" data="392.8"/>
+			<fieldEntry fieldId="372" dataType="RSSL_DT_REAL" data="398.85"/>
+			<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="0.01"/>
+			<fieldEntry fieldId="373" dataType="RSSL_DT_REAL" data="144"/>
+			<fieldEntry fieldId="374" dataType="RSSL_DT_ENUM" data="132"/>
+			<fieldEntry fieldId="375" dataType="RSSL_DT_TIME" data=" 21:00:01:000"/>
+			<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="9000.00"/>
+			<fieldEntry fieldId="376" dataType="RSSL_DT_REAL" data=""/>
+			<fieldEntry fieldId="377" dataType="RSSL_DT_REAL" data=""/>
+			<fieldEntry fieldId="378" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="1709" dataType="RSSL_DT_ENUM" data="560"/>
+			<fieldEntry fieldId="379" dataType="RSSL_DT_TIME" data=" 23:28:34:000"/>
+			<fieldEntry fieldId="869" dataType="RSSL_DT_ENUM" data="4"/>
+			<fieldEntry fieldId="100" dataType="RSSL_DT_REAL" data="392.8"/>
+			<fieldEntry fieldId="1080" dataType="RSSL_DT_UINT" data="2254"/>
+			<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+			<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+			<fieldEntry fieldId="32" dataType="RSSL_DT_REAL" data="8719016"/>
+			<fieldEntry fieldId="3256" dataType="RSSL_DT_REAL" data="3.70"/>
+			<fieldEntry fieldId="1018" dataType="RSSL_DT_ENUM" data="4"/>
+			<fieldEntry fieldId="178" dataType="RSSL_DT_REAL" data="26506"/>
+			<fieldEntry fieldId="39" dataType="RSSL_DT_DATE" data="11/15/2005"/>
+			<fieldEntry fieldId="40" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="1021" dataType="RSSL_DT_REAL" data="1266750"/>
+			<fieldEntry fieldId="42" dataType="RSSL_DT_REAL" data="5"/>
+			<fieldEntry fieldId="1023" dataType="RSSL_DT_REAL" data="968902"/>
+			<fieldEntry fieldId="43" dataType="RSSL_DT_REAL" data="116195"/>
+			<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data=""/>
+			<fieldEntry fieldId="44" dataType="RSSL_DT_ENUM" data="43"/>
+			<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data=" 23:35:32:000"/>
+			<fieldEntry fieldId="115" dataType="RSSL_DT_ENUM" data="2"/>
+			<fieldEntry fieldId="117" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="1379" dataType="RSSL_DT_REAL" data="397.9481"/>
+			<fieldEntry fieldId="259" dataType="RSSL_DT_UINT" data="113"/>
+			<fieldEntry fieldId="53" dataType="RSSL_DT_ENUM" data="2"/>
+			<fieldEntry fieldId="56" dataType="RSSL_DT_REAL" data="1.36"/>
+			<fieldEntry fieldId="199" dataType="RSSL_DT_ENUM" data="5"/>
+			<fieldEntry fieldId="60" dataType="RSSL_DT_REAL" data="398.01"/>
+			<fieldEntry fieldId="131" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="61" dataType="RSSL_DT_REAL" data="398.10"/>
+			<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=""/>
+			<fieldEntry fieldId="3422" dataType="RSSL_DT_RMTES_STRING" data="GOOG"/>
+			<fieldEntry fieldId="1465" dataType="RSSL_DT_REAL" data="392.8"/>
+			<fieldEntry fieldId="207" dataType="RSSL_DT_REAL" data=""/>
+			<fieldEntry fieldId="208" dataType="RSSL_DT_DATE" data="11/15/2005"/>
+			<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="S"/>
+			<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="S"/>
+			<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="31721"/>
+			<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100229"/>
+			<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="2"/>
+			<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="3"/>
+			<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:003:007:001"/>
+			<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data="S"/>
+			<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2848.560003"/>
+			<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:000:000:003"/>
+		</fieldList>
+	</dataBody>
+</refreshMsg>
+
+<updateMsg>
+	<dataBody>
+		<fieldList entryCount="23">
+			<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="2848.560000"/>
+			<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="2849.610000"/>
+			<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+			<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+			<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+			<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+			<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data="13.340000"/>
+			<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="31701"/>
+			<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100330"/>
+			<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="4"/>
+			<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="57132000"/>
+			<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data="15:52:12:000:000:000"/>
+			<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:000:000:000"/>
+			<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2848.560000"/>
+			<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:000:000:000"/>
+		</fieldList>
+	</dataBody>
+</updateMsg>
+
+<updateMsg>
+	<dataBody>
+		<fieldList entryCount="23">
+			<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="2948.560000"/>
+			<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="2949.610000"/>
+			<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+			<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+			<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+			<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+			<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data="14.340000"/>
+			<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="32701"/>
+			<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="0"/>
+			<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100331"/>
+			<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="1"/>
+			<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="4"/>
+			<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="57132001"/>
+			<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data="15:52:12:000:000:001"/>
+			<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:000:001:000"/>
+			<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+			<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2948.560001"/>
+			<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:001:000:000"/>
+		</fieldList>
+	</dataBody>
+</updateMsg>
+
+<postMsg>
+	<updateMsg>
+		<dataBody>
+			<fieldList entryCount="23">
+				<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="3048.560000"/>
+				<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="3049.610000"/>
+				<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data="15.340000"/>
+				<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="33701"/>
+				<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100332"/>
+				<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="1"/>
+				<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="4"/>
+				<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="57132002"/>
+				<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data="15:52:12:000:000:020"/>
+				<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:000:020:000"/>
+				<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2848.560002"/>
+				<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:200:000:000"/>
+			</fieldList>
+		</dataBody>
+	</updateMsg>
+</postMsg>
+
+<postMsg>
+	<updateMsg>
+		<dataBody>
+			<fieldList entryCount="23">
+				<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="3148.560000"/>
+				<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="3149.610000"/>
+				<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data="16.340000"/>
+				<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="34701"/>
+				<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100333"/>
+				<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="1"/>
+				<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="4"/>
+				<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="57132003"/>
+				<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data="15:52:12:000:000:300"/>
+				<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:000:030:000"/>
+				<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2848.560003"/>
+				<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:300:000:000"/>
+			</fieldList>
+		</dataBody>
+	</updateMsg>
+</postMsg>
+
+<genMsg>
+	<!--updateMsg-->
+		<dataBody>
+			<fieldList entryCount="23">
+				<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="3248.560000"/>
+				<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="3249.610000"/>
+				<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data="17.340000"/>
+				<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="35701"/>
+				<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100334"/>
+				<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="1"/>
+				<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="4"/>
+				<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="57132004"/>
+				<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data="15:52:12:000:000:004"/>
+				<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:000:004:000"/>
+				<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2848.560004"/>
+				<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:400:000:000"/>
+			</fieldList>
+		</dataBody>
+	<!--/updateMsg-->
+</genMsg>
+
+<genMsg>
+	<!--updateMsg-->
+		<dataBody>
+			<fieldList entryCount="23">
+				<fieldEntry fieldId="22" dataType="RSSL_DT_REAL" data="3348.560000"/>
+				<fieldEntry fieldId="25" dataType="RSSL_DT_REAL" data="3349.610000"/>
+				<fieldEntry fieldId="30" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="31" dataType="RSSL_DT_REAL" data="1"/>
+				<fieldEntry fieldId="6579" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="6580" dataType="RSSL_DT_RMTES_STRING" data="R"/>
+				<fieldEntry fieldId="114" dataType="RSSL_DT_REAL" data="18.340000"/>
+				<fieldEntry fieldId="1000" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="8937" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="211" dataType="RSSL_DT_REAL" data="36701"/>
+				<fieldEntry fieldId="118" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3264" dataType="RSSL_DT_ENUM" data="0"/>
+				<fieldEntry fieldId="3887" dataType="RSSL_DT_REAL" data="39100335"/>
+				<fieldEntry fieldId="8935" dataType="RSSL_DT_ENUM" data="1"/>
+				<fieldEntry fieldId="1501" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="12783" dataType="RSSL_DT_ENUM" data="4"/>
+				<fieldEntry fieldId="3855" dataType="RSSL_DT_UINT" data="57132005"/>
+				<fieldEntry fieldId="1025" dataType="RSSL_DT_TIME" data="15:52:12:000:000:050"/>
+				<fieldEntry fieldId="5" dataType="RSSL_DT_TIME" data="15:52:00:000:050:000"/>
+				<fieldEntry fieldId="8406" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="1041" dataType="RSSL_DT_RMTES_STRING" data=" "/>
+				<fieldEntry fieldId="203" dataType="RSSL_DT_REAL" data="2848.560005"/>
+				<fieldEntry fieldId="14238" dataType="RSSL_DT_TIME" data="15:52:12:500:000:000"/>
+			</fieldList>
+		</dataBody>
+	<!--/updateMsg-->
+</genMsg>
+
+</marketPriceMsgList>
+
+</msgFormat>

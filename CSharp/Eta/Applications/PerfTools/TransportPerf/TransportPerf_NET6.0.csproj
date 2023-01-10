@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>$(SolutionDir)Eta\Executables\TransportPerf</BaseOutputPath>
+    <AssemblyName>TransportPerf</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\EtaAppCommon\EtaAppCommon_NET6.0.csproj" />
+    <ProjectReference Include="..\Common\EtaPerfToolsCommon_NET6.0.csproj" />
+  </ItemGroup>
+
+</Project>
