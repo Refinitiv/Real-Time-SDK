@@ -27,8 +27,8 @@ namespace LSEG.Eta.Example.Common
         // item information list
         private List<MarketByPriceItem> m_MarketByPriceList = new List<MarketByPriceItem>(MAX_MARKET_PRICE_ITEM_LIST_SIZE);
 
-        private static Enum USD_ENUM;
-        private static Enum BBO_ENUM;
+        private static Codec.Enum USD_ENUM;
+        private static Codec.Enum BBO_ENUM;
 
         protected const int MAX_ORDERS = 3; //Number of order in a single message
 
@@ -39,9 +39,9 @@ namespace LSEG.Eta.Example.Common
 
         static MarketByPriceItems()
         {
-            USD_ENUM = new Enum();
+            USD_ENUM = new Codec.Enum();
             USD_ENUM.Value(840);
-            BBO_ENUM = new Enum();
+            BBO_ENUM = new Codec.Enum();
             BBO_ENUM.Value(20);
         }
 

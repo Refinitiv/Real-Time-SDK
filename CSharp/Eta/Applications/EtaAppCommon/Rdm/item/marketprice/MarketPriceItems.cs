@@ -21,7 +21,7 @@ namespace LSEG.Eta.Example.Common
         public List<MarketPriceItem> MarketPriceList { get; private set; } = new List<MarketPriceItem>(MAX_MARKET_PRICE_ITEM_LIST_SIZE);
 
         private Real m_TempReal = new Real();
-        private Enum m_TempEnum = new Enum();
+        private Codec.Enum m_TempEnum = new Codec.Enum();
         private UInt m_TempUInt = new UInt();
         private FieldList m_TempFieldList = new FieldList();
         private FieldEntry m_TempFieldEntry = new FieldEntry();

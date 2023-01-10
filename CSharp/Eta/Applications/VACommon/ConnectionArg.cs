@@ -6,7 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Rdm;
+using System;
+using System.Collections.Generic;
+
 using LSEG.Eta.Transports;
 
 namespace LSEG.Eta.Example.VACommon

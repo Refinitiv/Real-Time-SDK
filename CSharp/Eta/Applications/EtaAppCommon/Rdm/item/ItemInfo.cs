@@ -16,7 +16,7 @@ namespace LSEG.Eta.Example.Common
     public class ItemInfo
     {
         public bool IsRefreshRequired { get; set; }
-        public Buffer ItemName { get; private set; }
+        public Codec.Buffer ItemName { get; private set; }
         public int InterestCount { get; set; }
         public int DomainType { get; set; }
         public bool IsPrivateStream { get; set; }
@@ -29,7 +29,7 @@ namespace LSEG.Eta.Example.Common
         public ItemInfo()
         {
             IsRefreshRequired = true;
-            ItemName = new Buffer();
+            ItemName = new Codec.Buffer();
             InterestCount = 0;
             DomainType = 0;
             IsPrivateStream = false;
