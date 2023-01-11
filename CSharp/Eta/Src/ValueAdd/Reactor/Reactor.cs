@@ -1982,14 +1982,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
             var writeStatus = channel.Write(msgBuf, m_WriteArgs, out var writeError);
 
-            // TODO: implement real code
-            // Aggregate number of bytes written
-            //if(m_ReactorOptions.WriteStatSet == true)
-            //{
-            //    ((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(),_writeArgs.bytesWritten()));
-            //    ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(),_writeArgs.uncompressedBytesWritten()));
-            //}
-
             if (writeStatus > TransportReturnCode.SUCCESS)
             {
                 SendFlushRequest(reactorChannel, "Reactor.EncodeAndWriteLoginRequest", out errorInfo);
@@ -2565,13 +2557,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
 
             TransportReturnCode transportReturnCode = channel.Write(msgBuf, m_WriteArgs, out transportError);
-
-            /* // TODO: Aggregate number of bytes written
-            if (m_ReactorOptions.WriteStatSet == true)
-            {
-                ((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(), _writeArgs.bytesWritten()));
-                ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(), _writeArgs.uncompressedBytesWritten()));
-            } */
 
             if (transportReturnCode > TransportReturnCode.SUCCESS)
             {
