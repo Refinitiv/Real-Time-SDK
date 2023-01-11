@@ -72,7 +72,7 @@ namespace LSEG.Eta.Codec
 		internal int ReadShort()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _position + 2 > _buffer.WritePosition || _position + 2 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _position + 2 > _buffer.WritePosition || _position + 2 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 			ushort value = 0;
@@ -86,7 +86,7 @@ namespace LSEG.Eta.Codec
 		internal int ReadUShort()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _position + 2 > _buffer.WritePosition || _position + 2 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _position + 2 > _buffer.WritePosition || _position + 2 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 			ushort value = 0;
@@ -106,7 +106,7 @@ namespace LSEG.Eta.Codec
 		internal int ReadInt()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _position + 4 > _buffer.WritePosition || _position + 4 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _position + 4 > _buffer.WritePosition || _position + 4 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 			int value = 0;
@@ -124,7 +124,7 @@ namespace LSEG.Eta.Codec
 		internal long ReadLong()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _position + 8 > _buffer.WritePosition || _position + 8 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _position + 8 > _buffer.WritePosition || _position + 8 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 
@@ -180,7 +180,7 @@ namespace LSEG.Eta.Codec
 		internal ushort ReadUnsignedShort()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _position + 2 > _buffer.WritePosition || _position + 2 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _position + 2 > _buffer.WritePosition || _position + 2 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 
@@ -195,7 +195,7 @@ namespace LSEG.Eta.Codec
 		internal uint ReadUnsignedInt()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _position + 4 > _buffer.WritePosition || _position + 4 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _position + 4 > _buffer.WritePosition || _position + 4 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 
@@ -231,7 +231,7 @@ namespace LSEG.Eta.Codec
 		internal uint ReadRelativeUnsignedInt()
 		{
 #if DEBUG
-			if (_buffer._mode == ByteBuffer.Mode.Read && _buffer.ReadPosition + 4 > _buffer.WritePosition || _buffer.ReadPosition + 4 > _buffer.BufferLimit())
+			if (_buffer.Mode == ByteBuffer.BufferMode.Read && _buffer.ReadPosition + 4 > _buffer.WritePosition || _buffer.ReadPosition + 4 > _buffer.BufferLimit())
 				throw new EndOfStreamException();
 #endif
 
@@ -478,7 +478,7 @@ namespace LSEG.Eta.Codec
 			if (val == 0xFE)
 			{
 #if DEBUG
-				if (_buffer._mode == ByteBuffer.Mode.Read && _buffer.ReadPosition + 2 > _buffer.WritePosition || _buffer.ReadPosition + 2 > _buffer.BufferLimit())
+				if (_buffer.Mode == ByteBuffer.BufferMode.Read && _buffer.ReadPosition + 2 > _buffer.WritePosition || _buffer.ReadPosition + 2 > _buffer.BufferLimit())
 					throw new EndOfStreamException();
 #endif
 				val |= pointer[_buffer.ReadPosition++];

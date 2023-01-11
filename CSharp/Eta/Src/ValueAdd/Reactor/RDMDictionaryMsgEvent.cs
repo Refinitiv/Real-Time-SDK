@@ -1,4 +1,4 @@
-﻿/*|------------------------------------------get; set;-----------------------------------
+﻿/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
@@ -21,7 +21,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public DictionaryMsg? DictionaryMsg { get; internal set; }
 
         /// <summary>
-        /// 
+        /// Clears to default values
         /// </summary>
         public override void Clear()
         {
@@ -30,7 +30,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// 
+        /// Returns back to the pool.
         /// </summary>
         public override void ReturnToPool()
         {

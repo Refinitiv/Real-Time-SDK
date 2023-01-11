@@ -8,15 +8,14 @@
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
-    /**
- * Callback used for processing all interactive provider events and messages.
- * 
- * @see ReactorChannelEventCallback
- * @see DefaultMsgCallback
- * @see RDMLoginMsgCallback
- * @see RDMDirectoryMsgCallback
- * @see RDMDictionaryMsgCallback
- */
+    /// <summary>
+    /// Callback used for processing all interactive provider events and messages.
+    /// </summary>
+    /// <seealso cref="IReactorChannelEventCallback"/>
+    /// <seealso cref="IDefaultMsgCallback"/>
+    /// <seealso cref="IRDMLoginMsgCallback"/>
+    /// <seealso cref="IDirectoryMsgCallback"/>
+    /// <seealso cref="IDictionaryMsgCallback"/>
     public interface IProviderCallback : IReactorChannelEventCallback, IDefaultMsgCallback,
         IRDMLoginMsgCallback, IDirectoryMsgCallback, IDictionaryMsgCallback
     {

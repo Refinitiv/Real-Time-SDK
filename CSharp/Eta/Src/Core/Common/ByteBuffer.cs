@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -27,14 +27,25 @@ namespace LSEG.Eta.Common
         internal Guid BufferId { get; } = Guid.NewGuid();
 #endif
 
+        /// <summary>
         /// Represents the mode of ByteBuffer
-        internal enum Mode
+        /// </summary>
+        public enum BufferMode
         {
+            /// <summary>
+            /// Indicates that the ByteBuffer is in read mode.
+            /// </summary>
             Read,
+            /// <summary>
+            /// Indicates that the ByteBuffer is in write mode.
+            /// </summary>
             Write
         }
 
-        internal Mode _mode;
+        /// <summary>
+        /// Gets the current mode of this object.
+        /// </summary>
+        public BufferMode Mode { get; private set; }
 
         private bool _isDataExternal;
 
@@ -61,7 +72,7 @@ namespace LSEG.Eta.Common
             WritePosition = 0;
             _readPosition = 0;
             _limit = -1;
-            _mode = Mode.Write;
+            Mode = BufferMode.Write;
         }
 
         /// <summary>
@@ -84,7 +95,7 @@ namespace LSEG.Eta.Common
             else
                 WritePosition = 0;
 
-            _mode = Mode.Write;
+            Mode = BufferMode.Write;
             _limit = -1;
         }
 
@@ -125,7 +136,7 @@ namespace LSEG.Eta.Common
         {
             get
             {
-                if (_mode == Mode.Write)
+                if (Mode == BufferMode.Write)
                 {
                     if (_limit == -1) // Checks whether the limit is set
                         return Capacity;
@@ -138,7 +149,7 @@ namespace LSEG.Eta.Common
 
             set
             {
-                if (_mode == Mode.Write)
+                if (Mode == BufferMode.Write)
                 {
                     if (value >= 0)
                         _limit = value;
@@ -153,11 +164,11 @@ namespace LSEG.Eta.Common
         /// <summary>
         /// Gets the current ByteBuffer limit
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The limit of this buffer according to <see cref="BufferMode"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public int BufferLimit()
         {
-            if (_mode == Mode.Write)
+            if (Mode == BufferMode.Write)
             {
                 if (_limit == -1) // Checks whether the limit is set
                     return Capacity;
@@ -173,11 +184,11 @@ namespace LSEG.Eta.Common
         /// </summary>
         public int Position
         {
-            get => (_mode == Mode.Read) ? ReadPosition : WritePosition;
+            get => (Mode == BufferMode.Read) ? ReadPosition : WritePosition;
 
             private set
             {
-                if (_mode == Mode.Read)
+                if (Mode == BufferMode.Read)
                     ReadPosition = value;
                 else
                     WritePosition = value;
@@ -191,7 +202,7 @@ namespace LSEG.Eta.Common
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public int BufferPosition()
         {
-            return (_mode == Mode.Read) ? ReadPosition : WritePosition;
+            return (Mode == BufferMode.Read) ? ReadPosition : WritePosition;
         }
 
         int _readPosition;
@@ -234,10 +245,11 @@ namespace LSEG.Eta.Common
         /// <summary>
         /// Reset to initial state.
         /// </summary>
+        /// <returns>This object instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ByteBuffer Clear()
         {
-            _mode = Mode.Write;
+            Mode = BufferMode.Write;
             ReadPosition = 0;
             WritePosition = 0;
             _data.Initialize();
@@ -253,6 +265,7 @@ namespace LSEG.Eta.Common
         ///          R    W
         /// </code>
         /// </summary>
+        /// <returns>This object instance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ByteBuffer Compact()
         {
@@ -262,7 +275,7 @@ namespace LSEG.Eta.Common
             Buffer.BlockCopy(_data, ReadPosition, _data, 0, dataSize);
             ReadPosition = Begin;
 
-            _mode = Mode.Write;
+            Mode = BufferMode.Write;
 
             return this;
         }
@@ -270,8 +283,8 @@ namespace LSEG.Eta.Common
         /// <summary>
         /// Reserve additional bytes in underlying data without advancing Position.
         /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="count">The number of bytes to reserve</param>
+        /// <returns>The limit of this buffer</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public long Reserve(long count)
         {
@@ -309,13 +322,13 @@ namespace LSEG.Eta.Common
         #endregion
 
         /// <summary>
-        /// Flip this buffer to the <see cref="Mode.Read"/> state for reading data at the beginning position.
+        /// Flip this buffer to the <see cref="BufferMode.Read"/> state for reading data at the beginning position.
         /// </summary>
-        /// <returns>This object</returns>
+        /// <returns>This object instance</returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ByteBuffer Flip()
         {
-            _mode = Mode.Read;
+            Mode = BufferMode.Read;
             ReadPosition = Begin;
             return this;
         }
@@ -327,7 +340,7 @@ namespace LSEG.Eta.Common
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ByteBuffer Rewind()
         {
-            if (_mode == Mode.Read)
+            if (Mode == BufferMode.Read)
             {
                 _readPosition = 0;
             }
@@ -340,12 +353,12 @@ namespace LSEG.Eta.Common
         }
 
         /// <summary>
-        /// 
+        /// Gets the number of remaining bytes.
         /// </summary>
         public int Remaining { get => BufferLimit() - BufferPosition(); }
 
         /// <summary>
-        /// 
+        /// Checks whether this buffer has remaining number of bytes.
         /// </summary>
         public bool HasRemaining
         {
@@ -365,18 +378,15 @@ namespace LSEG.Eta.Common
         }
 
         #region IDataBufferReader
-        /// --------------------------------------------------------------------------
-        /// ReadXXX  :  Deserializes data from the Contents at the ReadPointer and
-        ///             advances the ReadPointer.
-        /// ReadXXXAt:  Deserializes data from the Contents at the given offset, but 
-        ///             does not advance the ReadPointer.
-        /// --------------------------------------------------------------------------
-        
+        /// <summary>
+        /// Read current postion as byte.
+        /// </summary>
+        /// <returns><see cref="byte"/></returns>
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public byte ReadByte()
         {
 #if DEBUG
-            if (_mode == Mode.Read && ReadPosition + 1 > WritePosition || ReadPosition + 1 > BufferLimit())
+            if (Mode == BufferMode.Read && ReadPosition + 1 > WritePosition || ReadPosition + 1 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
             return _pointer[ReadPosition++];
@@ -391,7 +401,7 @@ namespace LSEG.Eta.Common
         public int ReadByteAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 1 > WritePosition || index + 1 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 1 > WritePosition || index + 1 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
             return _pointer[index];
@@ -499,7 +509,7 @@ namespace LSEG.Eta.Common
         public int ReadInt()
         {
 #if DEBUG
-            if (_mode == Mode.Read && ReadPosition + 4 > WritePosition || ReadPosition + 4 > BufferLimit())
+            if (Mode == BufferMode.Read && ReadPosition + 4 > WritePosition || ReadPosition + 4 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -524,7 +534,7 @@ namespace LSEG.Eta.Common
         public int ReadIntAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 4 > WritePosition || index + 4 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 4 > WritePosition || index + 4 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -561,7 +571,7 @@ namespace LSEG.Eta.Common
         public uint ReadUIntAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 4 > WritePosition || index + 4 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 4 > WritePosition || index + 4 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -598,7 +608,7 @@ namespace LSEG.Eta.Common
         public long ReadLongAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 8 > WritePosition || index + 8 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 8 > WritePosition || index + 8 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -632,7 +642,7 @@ namespace LSEG.Eta.Common
         public long ReadLongAt(int index, int size)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + size > WritePosition || index + size > BufferLimit())
+            if (Mode == BufferMode.Read && index + size > WritePosition || index + size > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -654,7 +664,7 @@ namespace LSEG.Eta.Common
         public ulong ReadULongAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 8 > WritePosition || index + 8 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 8 > WritePosition || index + 8 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -676,7 +686,7 @@ namespace LSEG.Eta.Common
         public short ReadShort()
         {
 #if DEBUG
-            if (_mode == Mode.Read && ReadPosition + 2 > WritePosition || ReadPosition + 2 > BufferLimit())
+            if (Mode == BufferMode.Read && ReadPosition + 2 > WritePosition || ReadPosition + 2 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
             ushort value = 0;
@@ -696,7 +706,7 @@ namespace LSEG.Eta.Common
         public short ReadShortAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 2 > WritePosition || index + 2 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 2 > WritePosition || index + 2 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
 
@@ -729,7 +739,7 @@ namespace LSEG.Eta.Common
         public ushort ReadUShortAt(int index)
         {
 #if DEBUG
-            if (_mode == Mode.Read && index + 2 > WritePosition || index + 2 > BufferLimit())
+            if (Mode == BufferMode.Read && index + 2 > WritePosition || index + 2 > BufferLimit())
                 throw new EndOfStreamException();
 #endif
             ushort value = 0;

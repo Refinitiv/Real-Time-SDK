@@ -767,7 +767,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// </summary>
         /// <param name="serviceDiscoveryOptions"></param>
         /// <param name="errorInfo"></param>
-        /// <returns></returns>
+        /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
         public ReactorReturnCode QueryServiceDiscovery(ReactorServiceDiscoveryOptions serviceDiscoveryOptions, out ReactorErrorInfo? errorInfo)
         {
             errorInfo = null;

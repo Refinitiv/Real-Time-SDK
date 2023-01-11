@@ -23,7 +23,7 @@ namespace LSEG.Eta.ValueAdd.Common
         /// <summary>
         /// Indicates whether the event's Socket can be read from
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if this event is readable</returns>
         public bool IsReadable()
         {
             return (NotifiedFlags & NotifierEventFlag.READ) != 0;
@@ -32,7 +32,7 @@ namespace LSEG.Eta.ValueAdd.Common
         /// <summary>
         /// Indicates whether the event's Socket can be written to
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if this event is writeable</returns>
         public bool IsWriteable()
         {
             return (NotifiedFlags & NotifierEventFlag.WRITE) != 0;
@@ -41,7 +41,7 @@ namespace LSEG.Eta.ValueAdd.Common
         /// <summary>
         /// Indicates whether the event's Socket may be invalid.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if this event is bad socket</returns>
         public bool IsBadSocket()
         {
             return (NotifiedFlags & NotifierEventFlag.BAD_SOCKET) != 0;

@@ -309,7 +309,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Populates information about the <see cref="ReactorChannel"/> into <see cref="ReactorChannelInfo"/>.
         /// </summary>
         /// <param name="info"><see cref="ReactorChannelInfo"/> structure to be populated with information</param>
-        /// <param name="errorInfo"><see cref="ReactorErrorInfo"/> is set in the event of failure</param>
+        /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> is set in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> indicating sucess or failure.</returns>
         public ReactorReturnCode Info(ReactorChannelInfo info, out ReactorErrorInfo? errorInfo)
         {
@@ -506,7 +506,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Packs current buffer to allow another message to be written
         /// </summary>
         /// <param name="buffer">the buffer to be packed</param>
-        /// <param name="errorInfo"><see cref="ReactorErrorInfo"/> structure filled with error information in case of failure</param>
+        /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> structure filled with error information in case of failure</param>
         /// <returns>value greater than 0 indicating the number of bytes left in the buffer in case of success,
         /// <see cref="ReactorReturnCode"/> value indicating the status operation otherwise. </returns>
         public ReactorReturnCode PackBuffer(ITransportBuffer buffer, out ReactorErrorInfo? errorInfo)
@@ -546,7 +546,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Returns an unwritten buffer to the ReactorChannel.
         /// </summary>
         /// <param name="buffer">the buffer to release</param>
-        /// <param name="errorInfo"><see cref="ReactorErrorInfo"/> to be set in the event of failure</param>
+        /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> to be set in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
         public ReactorReturnCode ReleaseBuffer(ITransportBuffer buffer, out ReactorErrorInfo? errorInfo)
         {

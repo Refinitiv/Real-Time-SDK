@@ -19,14 +19,9 @@ using System.Text;
 namespace LSEG.Eta.Transports
 {
     /// <summary>
-    /// The ETA Transports Namespace contains the methods and classes that enable users to establish connections to OMM Providers.
-    /// </summary>
-    internal class NamespaceDoc
-    {
-    }
-
-    /// <summary>
-    /// ETA transport is used by OMM consumer and to establish outbound connections to a listening socket.
+    /// ETA transport is used by an OMM Interactive Provider to create listening
+    /// sockets and by OMM consumer and NIP applications to establish outbound
+    /// connections to a listening socket.
     /// </summary>
     public static class Transport
     {
@@ -82,10 +77,10 @@ namespace LSEG.Eta.Transports
         /// Initialize the ETA transport API and all internal members.
         /// 
         /// This is the first method called when using the ETA. It initializes internal data structures.
+        /// </summary>
         /// <param name="initArgs">Arguments for initialize</param>
         /// <param name="error">ETA Error, to be set and populated in event of an error</param>
         /// <returns><see cref="TransportReturnCode"/></returns> 
-        /// </summary>
         public static TransportReturnCode Initialize(InitArgs initArgs, out Error error)
         {
             TransportReturnCode ret = TransportReturnCode.SUCCESS;
@@ -259,7 +254,7 @@ namespace LSEG.Eta.Transports
         /// </remarks>
         /// <param name="bindOptions">Options used when binding</param>
         /// <param name="error">ETA Error, to be set in event of an error</param>
-        /// <returns></returns>
+        /// <returns><see cref="IServer"/> if a server is created successfully otherwise <c>null</c></returns>
         public static IServer Bind(BindOptions bindOptions, out Error error)
         {
             error = null;

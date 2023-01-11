@@ -374,8 +374,9 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Returns the latency difference in TimeUnit.     
+        /// Returns the latency difference in TimeUnit.
         /// </summary>
+        /// <param name="timeUnit">The <see cref="TimeUnit"/> to calculate latency</param>
         /// <returns>The time difference.</returns>
         public long CalculateRTTLatency(TimeUnit timeUnit)
         {

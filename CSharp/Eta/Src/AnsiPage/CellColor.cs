@@ -34,8 +34,8 @@ public sealed class CellColor
         return m_Name;
     }
 
-    /// Returns a byte representing this CellColor.
-    ///
+    /// <summary>Returns a byte representing this CellColor.
+    /// </summary>
     /// <returns>a byte representation of the color of this CellColor</returns>
     public byte ToByte()
     {

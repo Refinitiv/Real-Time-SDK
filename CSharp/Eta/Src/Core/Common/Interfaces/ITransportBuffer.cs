@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -27,19 +27,20 @@ public interface ITransportBuffer
     /// of the Buffer's ByteBuffer data.
     /// </para>
     /// </summary>
-    /// <value>The length of the buffer</value>
+    /// <returns>The length of the buffer</returns>
     int Length();
 
     /// <summary>
     /// Copies the buffer contents into memory passed by the user.
     /// </summary>
+    /// <param name="destination">The destination buffer</param>
     /// <returns>The status of this operation</returns> 
     int Copy(ByteBuffer destination);
 
     /// <summary>
     /// This is maximum number of bytes ETA fills in to the buffer.
     /// </summary>
-    /// <value>The capacity</value>
+    /// <returns>The capacity</returns>
     int Capacity();
 
     /// <summary>

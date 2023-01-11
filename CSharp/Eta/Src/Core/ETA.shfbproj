@@ -47,7 +47,7 @@
     <Preliminary>False</Preliminary>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <WarnOnMissingSourceContext>False</WarnOnMissingSourceContext>
-    <CopyrightText>&amp;#169%3b LSEG 2022. All Rights Reserved.</CopyrightText>
+    <CopyrightText>&amp;#169%3b LSEG 2023. All Rights Reserved.</CopyrightText>
     <BuildLogFile>out.txt</BuildLogFile>
     <RootNamespaceTitle>
     </RootNamespaceTitle>
@@ -67,20 +67,15 @@
       <NamespaceSummaryItem name="LSEG.Eta.Ansi" isDocumented="True">LSEG.Eta.Ansi contains classes and interfaces for encoding and decoding ANSI page data.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.AnsiPage" isDocumented="True">LSEG.Eta.AnsiPage contains classes and interfaces for encoding and decoding ANSI page data.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.Common (Group)" isGroup="True" isDocumented="True">Eta.Common contains helper methods and classes used by the rest of the Transport API.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="LSEG.Eta.Common.Interfaces" isDocumented="False">
-      </NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.ValueAdd.Reactor" isDocumented="True">LSEG.Eta.Reactor contains methods and classes that implements the Reactor functionality.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.Codec" isDocumented="True">Eta.Codec contains the methods and classes that encode and decode OMM data.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.Common" isDocumented="True">Eta.Common contains helper methods and classes used by the rest of the Transport API.</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="LSEG.Eta.Interfaces" isDocumented="False">
-      </NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.Rdm" isDocumented="True">Eta.Rdm contains helper methods and classes that contain LSEG defined enumerations used by the RDM Administrative Domains(Login, Source Directory, and Dictionary domains).</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.Transports (Group)" isGroup="True" isDocumented="True">Eta.Transports conains methods and classes that implement the Transport API's Socket transport functionality.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.Transports" isDocumented="True">Eta.Transports conains methods and classes that implement the Transport API's Socket transport functionality.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.ValueAdd (Group)" isGroup="True" isDocumented="True">Eta.ValueAdd contains methods and classes that implement the Value Added Reactor and RDM helper functionality.</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.ValueAdd.Common" isDocumented="True">Eta.ValueAdd.Rdm contains helper methods and classes used by the Reactor package</NamespaceSummaryItem>
       <NamespaceSummaryItem name="LSEG.Eta.ValueAdd.Rdm" isDocumented="True">Eta.Rdm contains helper methods and classes that encode and decode the RDM Administrative Domains(Login, Source Directory, and Dictionary domains).</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="LSEG.Eta.Transports.Interfaces" isDocumented="False" />
     </NamespaceSummaries>
     <ProjectSummary>&amp;lt%3bp&amp;gt%3bThis is the Enterprise Transport API %28ETA%29, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available through the Enterprise Transport API.  &amp;lt%3b/p&amp;gt%3b
 
@@ -88,7 +83,7 @@
 
 &amp;lt%3bp&amp;gt%3bETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products. &amp;lt%3b/p&amp;gt%3b
 
-&amp;lt%3bp&amp;gt%3bCopyright %28C%29 2022 LSEG. All rights reserved. &amp;lt%3b/p&amp;gt%3b
+&amp;lt%3bp&amp;gt%3bCopyright %28C%29 2023 LSEG. All rights reserved. &amp;lt%3b/p&amp;gt%3b
 </ProjectSummary>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform

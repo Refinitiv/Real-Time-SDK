@@ -67,6 +67,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// Internal virtual function to initialize the toString functionality.
         /// </summary>
+        /// <returns>The <see cref="StringBuilder"/> object</returns>
         protected virtual StringBuilder PrepareStringBuilder()
         {
             stringBuf.Clear();

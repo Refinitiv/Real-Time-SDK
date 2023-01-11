@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -62,11 +62,11 @@ namespace LSEG.Eta.Transports
         ITransportBuffer Read(ReadArgs readArgs, out Error error);
 
         /// <summary>
-        /// Retrieves a <see cref="TransportBuffer"/> for use.
+        /// Retrieves a <see cref="ITransportBuffer"/> for use.
         /// <para>
         /// Typical use: <para />
         /// This is called when a buffer is needed to write data to. Generally, the
-        /// user will populate the <see cref="TransportBuffer"/> structure and then pass
+        /// user will populate the <see cref="ITransportBuffer"/> structure and then pass
         /// it to the <see cref="IChannel.Write(ITransportBuffer, WriteArgs, out Error)"/> method.
         /// </para>
         /// </summary>
@@ -77,7 +77,7 @@ namespace LSEG.Eta.Transports
         ITransportBuffer GetBuffer(int size, bool packedBuffer, out Error error);
 
         /// <summary>
-        /// Releases a <see cref="TransportBuffer"/> after use.
+        /// Releases a <see cref="ITransportBuffer"/> after use.
         /// <para>
         /// A buffer obtained through <see cref="IChannel.GetBuffer(int, bool, out Error)"/> call is returned 
         /// to the buffer pool by <see cref="IChannel.Write(ITransportBuffer, WriteArgs, out Error)"/> method or

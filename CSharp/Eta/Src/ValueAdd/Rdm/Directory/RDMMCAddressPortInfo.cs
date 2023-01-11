@@ -6,7 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using LSEG.Eta.Common;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.ValueAdd.Rdm
@@ -39,6 +38,8 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// Adds a <see cref="Buffer"/> containing the address information to <c>location</c>
         /// </summary>
+        /// <param name="addr">The address information</param>
+        /// <param name="location">The location</param>
         public void AddAddress(Buffer addr, int location)
         {
             Buffer newAddr = new Buffer();
@@ -49,6 +50,8 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// Adds a port <c>long</c> to <c>location</c>
         /// </summary>
+        /// <param name="port">The set port</param>
+        /// <param name="location">The location</param>
         public void SetPort(long port, int location)
         {
             Port.Insert(location, port);
@@ -57,6 +60,8 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// Adds a domain type to <c>location</c>
         /// </summary>
+        /// <param name="domain">The set domain</param>
+        /// <param name="location">The location</param>
         public void SetDomain(long domain, int location)
         {
             Domain.Insert(location, domain);

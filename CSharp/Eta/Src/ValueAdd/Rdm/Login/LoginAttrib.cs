@@ -302,6 +302,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// Performs deep copy into <c>destAttrib</c>
         /// </summary>
         /// <param name="destAttrib">LoginAttrib that will be copied into from this object.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginAttrib destAttrib)
         {
             Debug.Assert(destAttrib != null);
@@ -417,6 +418,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// Returns a printable string of the contents of this stucture.
         /// </summary>
+        /// <returns>The string representation of this object</returns>
         public override string ToString()
         {
             stringBuf.Clear();

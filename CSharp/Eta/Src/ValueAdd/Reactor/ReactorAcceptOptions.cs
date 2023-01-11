@@ -20,7 +20,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         int m_Timeout = DEFAULT_TIME;
 
         /// <summary>
-        /// 
+        /// Gets ETA AcceptOptions.
         /// </summary>
         public AcceptOptions AcceptOptions { get; private set; }
 

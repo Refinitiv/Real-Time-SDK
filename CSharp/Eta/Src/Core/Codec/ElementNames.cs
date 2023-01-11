@@ -111,19 +111,19 @@ namespace LSEG.Eta.Rdm
 		/// SystemID </summary>
 		public static readonly Buffer SYSTEM_ID = new Buffer();
 
-        // Authentication Support Feature - Well known Element Names
-        /** AUTHN_TOKEN */
-        public static readonly Buffer AUTHN_TOKEN = new Buffer();
-        /** AUTHN_EXTENDED */
-        public static readonly Buffer AUTHN_EXTENDED = new Buffer();
-        /** AUTHN_TT_REISSUE  */
-        public static readonly Buffer AUTHN_TT_REISSUE  = new Buffer();
-        /** AUTHN_EXTENDED_RESP */
-        public static readonly Buffer AUTHN_EXTENDED_RESP = new Buffer();
-        /** AUTHN_ERROR_CODE */
-        public static readonly Buffer AUTHN_ERROR_CODE = new Buffer();
-        /** AUTHN_ERROR_TEXT */
-        public static readonly Buffer AUTHN_ERROR_TEXT = new Buffer();
+		// Authentication Support Feature - Well known Element Names
+		/// <summary> AUTHN_TOKEN </summary>
+		public static readonly Buffer AUTHN_TOKEN = new Buffer();
+		/// <summary> AUTHN_EXTENDED </summary>
+		public static readonly Buffer AUTHN_EXTENDED = new Buffer();
+		/// <summary> AUTHN_TT_REISSUE  </summary>
+		public static readonly Buffer AUTHN_TT_REISSUE  = new Buffer();
+		/// <summary> AUTHN_EXTENDED_RESP </summary>
+		public static readonly Buffer AUTHN_EXTENDED_RESP = new Buffer();
+		/// <summary> AUTHN_ERROR_CODE </summary>
+		public static readonly Buffer AUTHN_ERROR_CODE = new Buffer();
+		/// <summary> AUTHN_ERROR_TEXT </summary>
+		public static readonly Buffer AUTHN_ERROR_TEXT = new Buffer();
 
 		// RDMService - Well known Element Names
 		/// <summary>
