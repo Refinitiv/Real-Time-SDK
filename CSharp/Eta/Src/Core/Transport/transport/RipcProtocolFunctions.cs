@@ -223,7 +223,7 @@ namespace LSEG.Eta.Transports
             else if (bytesRead == -1)
             {
                 m_ChannelBase.InitChannelState = ChannelBase.InitChnlState.RECONNECTING;
-                m_ChannelBase.SocketChannel.Socket.Disconnect(true);
+                m_ChannelBase.SocketChannel.Socket.Disconnect(false);
             }
 
             // we don't have a complete message, or no bytes were read.

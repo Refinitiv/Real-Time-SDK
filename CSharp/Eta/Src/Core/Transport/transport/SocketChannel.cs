@@ -308,7 +308,7 @@ namespace LSEG.Eta.Transports
                 if (m_socket != null && m_socket.Connected)
                 {
                     m_socket.Shutdown(SocketShutdown.Both);
-                    m_socket.Disconnect(true);
+                    m_socket.Disconnect(false);
                 }
             }
             catch (Exception exp)
@@ -808,12 +808,13 @@ namespace LSEG.Eta.Transports
 
                             CancellationTokenSource cs = new (m_AuthTimeout);
 
-                            var authenTask = m_sslStream.AuthenticateAsServerAsync(sslServerAuthenticationOptions, cs.Token);
+                            var authenTask = m_sslStream.AuthenticateAsServerAsync(sslServerAuthenticationOptions);
 
-                            authenTask.GetAwaiter().OnCompleted(() =>
-                            {
-                                if (authenTask.IsCompleted)
+                            Task.Run(() => {
+                                try
                                 {
+                                    authenTask.Wait(cs.Token);
+
                                     if (m_sslStream.IsAuthenticated && m_sslStream.IsEncrypted)
                                     {
                                         SetReadWriteHandlers(true);
@@ -824,24 +825,19 @@ namespace LSEG.Eta.Transports
                                     {
                                         AuthenFailureMessage = ExtractExceptionMessageFromTask(authenTask);
                                         IsAuthenFailure = true;
+                                        m_socket.Disconnect(false);
                                     }
                                 }
-                                else if (authenTask.IsFaulted)
+                                catch (Exception ex)
                                 {
-                                    AuthenFailureMessage = ExtractExceptionMessageFromTask(authenTask);
+                                    AuthenFailureMessage = ex.Message;
                                     IsAuthenFailure = true;
-                                }
-                                else if (authenTask.IsCanceled)
-                                {
-                                    AuthenFailureMessage = ExtractExceptionMessageFromTask(authenTask);
-                                    IsAuthenFailure = true;
-                                }
 
-                                try
-                                {
-                                    m_socket.Disconnect(true);
+                                    try
+                                    {
+                                        m_socket.Disconnect(false);
+                                    } catch(Exception) {}
                                 }
-                                catch (Exception) { }
                             });
 
                             m_socket.Blocking = blockingMode;
