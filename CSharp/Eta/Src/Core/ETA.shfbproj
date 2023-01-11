@@ -29,8 +29,8 @@
       <DocumentationSource sourceFile="..\..\Libs\Release\net6.0\LSEG.Eta.AnsiPage.xml" />
     </DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
-    <SyntaxFilters>C#</SyntaxFilters>
-    <PresentationStyle>Default2022</PresentationStyle>
+    <SyntaxFilters>C#, F#</SyntaxFilters>
+    <PresentationStyle>VS2013</PresentationStyle>
     <CleanIntermediates>True</CleanIntermediates>
     <KeepLogFile>True</KeepLogFile>
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
