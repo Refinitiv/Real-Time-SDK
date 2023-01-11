@@ -175,7 +175,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 		/// <summary>
 		/// At startup, prime the Just-In-Time compiler to optimize code by requesting a snapshot of all items before opening the streaming items
 		/// </summary>
-		public bool PrimeJIT { get; set; }
+		public bool PrimeJIT { get; set; } = false;
 
         /// <summary>
         /// Use the VA Reactor instead of the ETA Channel for sending and receiving.
@@ -223,7 +223,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 			CommandLine.AddOption("postingLatencyRate", 0, "Rate at which to send latency post messages");
 			CommandLine.AddOption("genericMsgRate", 0, "Rate at which to send generic messages");
 			CommandLine.AddOption("genericMsgLatencyRate", 0, "Rate at which to send latency generic messages");
-			CommandLine.AddOption("primeJIT", false, "At startup, prime the JIT to optimize code by requesting a snapshot of all items before opening the streaming items");
             CommandLine.AddOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
 			CommandLine.AddOption("busyRead", false, "If set, the application will continually read rather than using notification.");
 
@@ -266,7 +265,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 			DisplayStats = !CommandLine.BoolValue("noDisplayStats");
 			TcpNoDelay = !CommandLine.BoolValue("tcpDelay");
 			RequestSnapshots = CommandLine.BoolValue("snapshot");
-			PrimeJIT = CommandLine.BoolValue("primeJIT");
             UseReactor = CommandLine.BoolValue("reactor");
 			BusyRead = CommandLine.BoolValue("busyRead");
 
@@ -479,7 +477,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 				"                 Stats File: " + StatsFilename + "\n" +
 				"           Latency Log File: " + (LatencyLogFilename != null && LatencyLogFilename.Length > 0 ? LatencyLogFilename : "(none)") + "\n" +
 				"                  Tick Rate: " + TicksPerSec + "\n" +
-				"                  Prime JIT: " + (PrimeJIT ? "Yes" : "No") + "\n" +
                 "              Reactor Usage: " + reactorWatchlistUsageString + "\n" +
 				"                  Busy Read: " + (BusyRead ? "Yes" : "No") + "\n";
 		}
