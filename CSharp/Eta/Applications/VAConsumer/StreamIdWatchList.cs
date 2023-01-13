@@ -36,16 +36,6 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
         public int Add(int domainType, string itemName, bool isPrivateStream = false)
         {
-            // check if item is already in list before adding
-            foreach (var entry in m_WatchList)
-            {
-                if (entry.Value.ItemName.Equals(itemName))
-                {
-                    // return stream id for matching item
-                    return entry.Key;
-                }
-            }
-
             // add new entry
             WatchListEntry wle = new WatchListEntry()
             {
