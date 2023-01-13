@@ -4631,6 +4631,7 @@ public class Module_5_HandleItemRequest
             refreshMsg.applyRefreshComplete();
             refreshMsg.applyHasQos();
             refreshMsg.applyClearCache();
+            refreshMsg.applySolicited();
             stateText = "Item Refresh Completed";
             refreshMsg.state().text().data(stateText);
 

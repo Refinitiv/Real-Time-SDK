@@ -4730,6 +4730,7 @@ namespace LSEG.Eta.Training.Provider
                 refreshMsg.ApplyRefreshComplete();
                 refreshMsg.ApplyHasQos();
                 refreshMsg.ApplyClearCache();
+                refreshMsg.ApplySolicited();
                 stateText = "Item Refresh Completed";
                 refreshMsg.State.Text().Data(stateText);
 
