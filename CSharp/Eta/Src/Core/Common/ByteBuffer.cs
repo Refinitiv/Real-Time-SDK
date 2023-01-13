@@ -781,9 +781,9 @@ namespace LSEG.Eta.Common
             else
             {
                 length = limit - WritePosition;
+                Buffer.BlockCopy(source, offset, _data, WritePosition, length);
             }
 
-            Buffer.BlockCopy(source, offset, _data, WritePosition, length);
             WritePosition += length;
 
             return this;
