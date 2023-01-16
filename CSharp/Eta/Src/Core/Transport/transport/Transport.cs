@@ -53,10 +53,20 @@ namespace LSEG.Eta.Transports
             }
             catch (Exception) { }
 
-            if(m_FileVersionInfo != null)
+            if(m_FileVersionInfo != null && m_FileVersionInfo.ProductVersion != null)
             {
                 m_LibVersionInfo.m_ProductVersion = m_FileVersionInfo.ProductVersion;
-                m_LibVersionInfo.m_ProductInternalVersion = $"etanet{m_LibVersionInfo.m_ProductVersion}.L1.all.rrg";
+
+                string[] versionNumbers = m_FileVersionInfo.ProductVersion.Split('.');
+
+                string productVersion = string.Empty;
+
+                if(versionNumbers.Length >= 3)
+                {
+                    productVersion = $"{versionNumbers[0]}.{versionNumbers[1]}.{versionNumbers[2]}";
+                }
+
+                m_LibVersionInfo.m_ProductInternalVersion = $"etacsharp{productVersion}.L1.all.rrg";
             }
             else
             {

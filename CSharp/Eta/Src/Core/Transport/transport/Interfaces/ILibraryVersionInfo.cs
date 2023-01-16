@@ -21,6 +21,12 @@ namespace LSEG.Eta.Transports
         string ProductVersion();
 
         /// <summary>
+        /// Gets product internal version, useful for raising questions or reporting issues.
+        /// </summary>
+        /// <returns>The internal product version</returns>
+        string ProductInternalVersion();
+
+        /// <summary>
         /// Gets date library was produced for product release.
         /// </summary>
         /// <returns>The product date</returns>

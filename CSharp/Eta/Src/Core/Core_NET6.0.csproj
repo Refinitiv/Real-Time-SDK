@@ -5,8 +5,8 @@
 	  <RootNamespace>LSEG.Eta</RootNamespace>
 	  <OutputType>Library</OutputType>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <AssemblyVersion>3.0.0.0</AssemblyVersion>
-	  <FileVersion>3.0.0.0</FileVersion>
+	  <AssemblyVersion>3.0.0.1</AssemblyVersion>
+	  <FileVersion>3.0.0.1</FileVersion>
 	  <Company>Refinitiv</Company>
 	  <Authors />
 	  <Product>Enterprise Transport API (ETA) C# Edition</Product>
@@ -17,7 +17,7 @@
 	  <AssemblyName>LSEG.Eta.Core</AssemblyName>
 	  <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
 	  <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-	  <Version>3.0.0.0</Version>
+	  <Version>3.0.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

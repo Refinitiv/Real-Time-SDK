@@ -15,7 +15,6 @@ using Xunit.Abstractions;
 using Xunit.Categories;
 
 using LSEG.Eta.Internal;
-using LSEG.Eta.Transports;
 using LSEG.Eta.Internal.Interfaces;
 using LSEG.Eta.Tests;
 using System.Text;
@@ -25,6 +24,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace LSEG.Eta.Transports.Tests
 {
@@ -89,6 +89,48 @@ namespace LSEG.Eta.Transports.Tests
             Transport.Uninitialize();
             Transport.Uninitialize();
             Assert.True(TransportReturnCode.INIT_NOT_INITIALIZED == Transport.Uninitialize());
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Transport")]
+        public void TransportLibraryVersionTest()
+        {
+            ILibraryVersionInfo libraryInfo = Transport.QueryVersion();
+
+            Assert.NotNull(libraryInfo);
+
+            FileVersionInfo fileVersionInfo = null;
+
+            try
+            {
+                fileVersionInfo = FileVersionInfo.GetVersionInfo("LSEG.Eta.Core.dll");
+            }
+            catch (Exception) { }
+
+            if (fileVersionInfo != null && fileVersionInfo.ProductVersion != null)
+            {
+                string fileProductVersion = fileVersionInfo.ProductVersion;
+
+                string[] versionNumbers = fileProductVersion.Split('.');
+
+                string productVersion = string.Empty;
+
+                if (versionNumbers.Length >= 3)
+                {
+                    productVersion = $"{versionNumbers[0]}.{versionNumbers[1]}.{versionNumbers[2]}";
+                }
+
+                string productInternalVersion = $"etacsharp{productVersion}.L1.all.rrg";
+
+                Assert.Equal(fileProductVersion, libraryInfo.ProductVersion());
+                Assert.Equal(productInternalVersion, libraryInfo.ProductInternalVersion());
+            }
+            else
+            {
+                Assert.Equal("ETA C# Edition", libraryInfo.ProductVersion());
+                Assert.Equal("ETA C# Edition", libraryInfo.ProductInternalVersion());
+            }
         }
 
     }
