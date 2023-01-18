@@ -225,10 +225,13 @@ namespace LSEG.Eta.Codec
 		}
 
         /// <summary>
-		/// Sets date time from a number equal to milliseconds since the January 1, 1970 (midnight UTC/GMT) epoch.
-		/// Must be a positive number.
+		/// Converts a String representation of a date and time to a DateTime. This method
+		/// supports Date values following "%d %b %Y" format (e.g., 30 NOV 2010) or "%m/%d/%y"
+		/// format (e.g., 11/30/2010) format. This method supports Time values that conform to
+		/// "%H:%M" (e.g., 15:24) or "%H:%M:%S" (e.g., 15:24:54) or "hour:minute:second:milli:micro:nano"
+		/// (e.g., 15:24:54:627:529:436) formats.
 		/// </summary>
-		/// <param name="value"> number equal to milliseconds since epoch
+		/// <param name="value"> string containing an appropriately formatted string to convert from
 		/// </param>
 		/// <returns> <c>CodecReturnCode.SUCCESS</c> on success,
 		///         <c>CodecReturnCode.INVALID_ARGUMENT</c> if value is invalid.

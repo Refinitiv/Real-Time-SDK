@@ -16,7 +16,7 @@ namespace LSEG.Eta.Codec
     /// <see cref="RmtesCacheBuffer"/>
     /// <see cref="RmtesDecoder"/>
     /// </summary>
-    public class RmtesBuffer
+    sealed public class RmtesBuffer
     {
         /// <summary>
         /// The ByteBuffer containing data

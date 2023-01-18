@@ -15,7 +15,7 @@ namespace LSEG.Eta.Transports
     /// Options used for configuring an encrypted tunneled connection with the <see cref="ConnectionType.ENCRYPTED"/> connection type.
     /// </summary>
     /// <seealso cref="ConnectOptions"/>
-    public class EncryptionOptions
+    sealed public class EncryptionOptions
     {
         /// <summary>
         /// Default constructor

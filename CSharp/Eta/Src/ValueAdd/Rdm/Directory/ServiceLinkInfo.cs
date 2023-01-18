@@ -17,7 +17,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Service Link Info. 
     /// Contains information provided by the Source Directory Link filter.
     /// </summary>
-    public class ServiceLinkInfo
+    sealed public class ServiceLinkInfo
     {
 
         private const string eol = "\n";

@@ -23,7 +23,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// create connections by calling <see cref="Reactor.Connect(ReactorConnectOptions, ReactorRole, out ReactorErrorInfo?)"/> and process events 
     /// by calling <see cref="Reactor.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/>
     /// </summary>
-    public class Reactor
+    sealed public class Reactor
     {
         internal const int DEFAULT_INIT_EVENT_POOLS = 10;
 

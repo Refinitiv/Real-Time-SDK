@@ -20,7 +20,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// Connection config is representation of login response payload
     /// and contains standby configuration information.
     /// </summary>
-    public class LoginConnectionConfig
+    sealed public class LoginConnectionConfig
     {
         private List<ServerInfo> _serverList;
 

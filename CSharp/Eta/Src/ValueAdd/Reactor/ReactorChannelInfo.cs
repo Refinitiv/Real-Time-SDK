@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// Information returned by the <see cref="ReactorChannel.Info(ReactorChannelInfo, out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorChannelInfo
+    sealed public class ReactorChannelInfo
     {
         /// <summary>
         /// Gets Channel information.

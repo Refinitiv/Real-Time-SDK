@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// token information
     /// <seealso cref="ReactorAuthTokenInfo"/>
     /// </summary>
-    public class ReactorAuthTokenEvent : ReactorEvent
+    sealed public class ReactorAuthTokenEvent : ReactorEvent
     {
         internal ReactorAuthTokenEvent()
         {

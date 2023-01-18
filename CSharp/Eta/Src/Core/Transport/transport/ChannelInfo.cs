@@ -17,7 +17,7 @@ namespace LSEG.Eta.Transports
     /// ETA Channel Info available through <see cref="IChannel.Info(ChannelInfo, out Error)"/> method call.
     /// </summary>
     /// <seealso cref="IChannel"/>
-    public class ChannelInfo
+    sealed public class ChannelInfo
     {
         /// <summary>
         /// The default constructor

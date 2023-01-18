@@ -8,12 +8,12 @@
 
 namespace LSEG.Eta.Codec
 {
-    /// <summary>
-    /// Combination of bit values to indicate special behaviors and the presence of
-    /// optional <see cref="IRequestMsg"/> content.
-    /// </summary>
-    /// <seealso cref="IRequestMsg"/>
-    public class RequestMsgFlags
+	/// <summary>
+	/// Combination of bit values to indicate special behaviors and the presence of
+	/// optional <see cref="IRequestMsg"/> content.
+	/// </summary>
+	/// <seealso cref="IRequestMsg"/>
+	sealed public class RequestMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

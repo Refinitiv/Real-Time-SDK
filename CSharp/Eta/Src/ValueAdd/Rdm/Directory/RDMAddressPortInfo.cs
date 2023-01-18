@@ -15,7 +15,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// RDM Address and Port information structure used for TCP-based connections.
     /// </summary>
-    public class RDMAddressPortInfo
+    sealed public class RDMAddressPortInfo
     {
         private Buffer _address;
 

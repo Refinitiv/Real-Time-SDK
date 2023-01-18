@@ -14,7 +14,7 @@ namespace LSEG.Eta.Codec
 	/// The Ack Message nakCodes, used to indicate a reason for a negative acknowledgment.
 	/// </summary>
 	/// <seealso cref="IAckMsg"/>
-	public class NakCodes
+	sealed public class NakCodes
 	{
 		/// <summary>
 		/// This class is not instantiated

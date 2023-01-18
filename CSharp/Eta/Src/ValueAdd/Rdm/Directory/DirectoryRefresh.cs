@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Directory Refresh. 
     /// Used by a Provider application to provide information about available services.
     /// </summary>
-    public class DirectoryRefresh : MsgBase
+    sealed public class DirectoryRefresh : MsgBase
     {
         private IRefreshMsg m_RefreshMsg = new Msg();
         private List<Service> m_ServiceList = new List<Service>(); 

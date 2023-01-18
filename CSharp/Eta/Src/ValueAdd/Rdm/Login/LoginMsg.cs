@@ -24,7 +24,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <seealso cref="LoginRequest"/>
     /// <seealso cref="LoginStatus"/>
     /// <seealso cref="LoginConsumerConnectionStatus"/>
-    public class LoginMsg
+    sealed public class LoginMsg
     {
         private LoginClose? m_LoginClose;
         private LoginRefresh? m_LoginRefresh;

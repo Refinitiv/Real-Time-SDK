@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// Event provided to <see cref="IDirectoryMsgCallback"/> methods.
     /// </summary>
-    public class RDMDirectoryMsgEvent : ReactorMsgEvent
+    sealed public class RDMDirectoryMsgEvent : ReactorMsgEvent
     {
         /// <summary>
         /// Gets DirectoryMsg associated with this message event.

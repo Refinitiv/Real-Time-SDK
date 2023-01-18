@@ -21,7 +21,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Login Refresh.
     /// This message is used to respond to a Login Request message after the user's login is accepted.
     /// </summary>
-    public class LoginRefresh : MsgBase
+    sealed public class LoginRefresh : MsgBase
     {
         #region Private Fields
 

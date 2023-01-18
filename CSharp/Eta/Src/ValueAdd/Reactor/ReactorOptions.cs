@@ -11,7 +11,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// This is the option to be used in the <see cref="Reactor.CreateReactor(ReactorOptions, out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorOptions
+    sealed public class ReactorOptions
     {
         string m_ServiceDiscoveryUrl = string.Empty;
         string m_TokenServiceUrl = string.Empty;

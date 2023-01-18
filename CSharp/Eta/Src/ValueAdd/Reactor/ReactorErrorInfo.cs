@@ -15,7 +15,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// information to the user. If the <see cref="ReactorReturnCode"/> is <see cref="ReactorReturnCode.SUCCESS"/>,
     /// then there is no error. Otherwise, the user should inspect the code, <see cref="Transports.Error"/> and location.
     /// </summary>
-    public class ReactorErrorInfo
+    sealed public class ReactorErrorInfo
     {
         /// <summary>
         /// Create <see cref="ReactorErrorInfo"/>.

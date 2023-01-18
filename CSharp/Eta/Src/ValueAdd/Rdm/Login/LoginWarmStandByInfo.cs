@@ -17,7 +17,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// Warm Standby Information for the RDM Login Consumer Connection Status.
     /// </summary>
-    public class LoginWarmStandByInfo
+    sealed public class LoginWarmStandByInfo
     {
         #region Private Fields
 

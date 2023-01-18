@@ -14,7 +14,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// Represents Dictionary Close message.
     /// </summary>
-    public class DictionaryClose : MsgBase
+    sealed public class DictionaryClose : MsgBase
     {
 
         ICloseMsg m_CloseMsg = (ICloseMsg)new Msg();

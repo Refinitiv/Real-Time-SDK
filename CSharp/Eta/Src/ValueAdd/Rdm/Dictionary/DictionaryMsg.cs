@@ -21,18 +21,8 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <seealso cref="DictionaryRefresh"/>
     /// <seealso cref="DictionaryRequest"/>
     /// <seealso cref="DictionaryStatus"/>
-    public class DictionaryMsg
+    sealed public class DictionaryMsg
     {
-        /// <summary>
-        /// eol character
-        /// </summary>
-        protected const string eol = "\n";
-
-        /// <summary>
-        /// tab character
-        /// </summary>
-        protected const string tab = "\t";
-
         private DictionaryClose? m_DictionaryClose = new DictionaryClose();
         private DictionaryStatus? m_DictionaryStatus = new DictionaryStatus();
         private DictionaryRequest? m_DictionaryRequest = new DictionaryRequest();

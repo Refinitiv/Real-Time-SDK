@@ -12,7 +12,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// Represents authentication token information.
     /// <seealso cref="ReactorAuthTokenEvent"/>
     /// </summary>
-    public class ReactorAuthTokenInfo
+    sealed public class ReactorAuthTokenInfo
     {
         /// <summary>
         /// Gets an access token information provided by the authentication service.

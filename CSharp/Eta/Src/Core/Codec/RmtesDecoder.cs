@@ -16,7 +16,7 @@ namespace LSEG.Eta.Codec
     /// RmtesDecoder class provides functionality for converting RMTES byte sequences 
     /// to UCS2 of UTF8 byte sequences
     /// </summary>
-    public class RmtesDecoder
+    sealed public class RmtesDecoder
     {
         const byte ESC_CHAR = 0x1B;
         const byte LBRKT_CHAR = 0x5B;

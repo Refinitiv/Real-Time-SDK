@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Service Group State. 
     /// Contains information provided by the Source Directory Group filter.
     /// </summary>
-    public class ServiceGroup
+    sealed public class ServiceGroup
     {
         private Buffer _group;
         private Buffer _mergedToGroup;

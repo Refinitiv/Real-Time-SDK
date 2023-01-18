@@ -13,7 +13,7 @@ namespace LSEG.Eta.Codec
 	/// presence of optional content for a <see cref="ICloseMsg"/>.
 	/// </summary>
 	/// <seealso cref="ICloseMsg"/>
-	public class CloseMsgFlags
+	sealed public class CloseMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

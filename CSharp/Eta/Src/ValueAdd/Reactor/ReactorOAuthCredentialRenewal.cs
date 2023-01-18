@@ -15,7 +15,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// This class represents the OAuth credential renewal information.
     /// </summary>
-    public class ReactorOAuthCredentialRenewal
+    sealed public class ReactorOAuthCredentialRenewal
     {
         private Buffer m_ClientId = new Buffer();
         private Buffer m_ClientSecret = new Buffer();

@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// Event provided to <see cref="IDictionaryMsgCallback"/> methods.
     /// </summary>
-    public class RDMDictionaryMsgEvent : ReactorMsgEvent
+    sealed public class RDMDictionaryMsgEvent : ReactorMsgEvent
     {
         /// <summary>
         /// Gets the <see cref="DictionaryMsg"/> associated with this message event.

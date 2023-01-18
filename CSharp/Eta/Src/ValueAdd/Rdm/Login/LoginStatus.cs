@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Login Status. Used by an OMM Provider to indicate changes to the Login stream.
     /// </summary>
-    public class LoginStatus : MsgBase
+    sealed public class LoginStatus : MsgBase
     {
         #region Private Fields
 

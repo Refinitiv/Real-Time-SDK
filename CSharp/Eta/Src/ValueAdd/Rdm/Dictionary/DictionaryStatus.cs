@@ -16,7 +16,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Dictionary Status. 
     /// Used by a Provider application to indicate changes to the Dictionary stream.
     /// </summary>
-    public class DictionaryStatus : MsgBase
+    sealed public class DictionaryStatus : MsgBase
     {
         private IStatusMsg m_DictionaryStatus = new Msg();
         private State m_State = new State();

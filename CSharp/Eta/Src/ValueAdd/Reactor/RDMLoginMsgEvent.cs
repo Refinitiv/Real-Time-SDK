@@ -15,7 +15,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// Event provided to <see cref="IRDMLoginMsgCallback"/> methods.
     /// </summary>
     /// <seealso cref="ReactorMsgEvent"/>
-    public class RDMLoginMsgEvent : ReactorMsgEvent
+    sealed public class RDMLoginMsgEvent : ReactorMsgEvent
     {
         internal RDMLoginMsgEvent() : base()
         {

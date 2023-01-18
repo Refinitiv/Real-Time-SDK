@@ -14,7 +14,7 @@ namespace LSEG.Eta.Codec
 	/// Identifies the specific type of a message (For example, <see cref="IUpdateMsg"/>, <see cref="IRequestMsg"/> etc).
 	/// </summary>
 	/// <seealso cref="IMsg"/>
-	public class MsgClasses
+	sealed public class MsgClasses
 	{
 		/// <summary>
 		/// This class is not instantiated

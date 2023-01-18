@@ -13,7 +13,7 @@ namespace LSEG.Eta.Transports
     /// <summary>
     /// ETA Accept Options used in the <see cref="IServer.Accept(AcceptOptions, out Error)"/> call.
     /// </summary>
-    public class AcceptOptions
+    sealed public class AcceptOptions
     {
         /// <summary>
         /// The default constructor to clear all options to default values.

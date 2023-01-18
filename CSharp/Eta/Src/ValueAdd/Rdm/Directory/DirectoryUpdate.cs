@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Directory Update. 
     /// Used by a Provider application to provide updates about available services. 
     /// </summary>
-    public class DirectoryUpdate : MsgBase
+    sealed public class DirectoryUpdate : MsgBase
     {
         private IUpdateMsg m_UpdateMsg = new Msg();
         private List<Service> m_ServiceList = new List<Service>();

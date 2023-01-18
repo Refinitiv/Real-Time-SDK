@@ -12,7 +12,7 @@ namespace LSEG.Eta.Codec
 	/// Specifies a combination of bit values indicating how <see cref="IMsg"/> is copied.
 	/// </summary>
 	/// <seealso cref="IMsg.Copy(IMsg, int)"/>
-	public class CopyMsgFlags
+	sealed public class CopyMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

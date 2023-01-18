@@ -13,7 +13,7 @@ namespace LSEG.Eta.Transports
     /// <summary>
     /// ETA Bind Options used in the <see cref="Transport.Bind(BindOptions, out Error)"/> call.
     /// </summary>
-    public class BindOptions
+    sealed public class BindOptions
     {
         /// <summary>
         /// The default constructor to clear all options to default values.

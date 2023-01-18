@@ -12,7 +12,7 @@ namespace LSEG.Eta.Codec
 	/// Combination of bit values to indicate the presence of optional <see cref="IMsgKey"/> members.
 	/// </summary>
 	/// <seealso cref="IMsgKey"/>
-	public class MsgKeyFlags
+	sealed public class MsgKeyFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

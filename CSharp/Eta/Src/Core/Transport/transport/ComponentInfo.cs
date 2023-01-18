@@ -16,7 +16,7 @@ namespace LSEG.Eta.Transports
     /// Connected Component Information, used to identify components from across the connection.
     /// </summary>
     /// <seealso cref="ChannelInfo"/>
-    public class ComponentInfo
+    sealed public class ComponentInfo
     {
         /// <summary>
         /// Gets the buffer holding the component version

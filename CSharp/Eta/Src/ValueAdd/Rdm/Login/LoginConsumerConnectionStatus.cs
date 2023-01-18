@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Login Consumer Connection Status. Used by an OMM Consumer to send Warm Standby information.
     /// </summary>
-    public class LoginConsumerConnectionStatus : MsgBase
+    sealed public class LoginConsumerConnectionStatus : MsgBase
     {
         #region Private Fields
 

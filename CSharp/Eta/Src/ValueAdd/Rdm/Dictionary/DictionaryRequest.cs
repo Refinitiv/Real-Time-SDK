@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Dictionary Request. 
     /// Used by a Consumer application to request a dictionary from a service that provides it.
     /// </summary>
-    public class DictionaryRequest : MsgBase
+    sealed public class DictionaryRequest : MsgBase
     {
 
         private IRequestMsg m_DictionaryRequest = new Msg();

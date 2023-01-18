@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// </summary>
     /// <seealso cref="ReactorEvent"/>
     /// <seealso cref="ReactorServiceEndpointInfo"/>
-    public class ReactorServiceEndpointEvent : ReactorEvent
+    sealed public class ReactorServiceEndpointEvent : ReactorEvent
     {
         internal ReactorServiceEndpointEvent()
         {

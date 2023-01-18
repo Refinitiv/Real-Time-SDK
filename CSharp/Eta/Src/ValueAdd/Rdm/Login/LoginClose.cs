@@ -17,7 +17,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Login Close Message. Used by an OMM Consumer or OMM Non-Interactive Provider to close a Login stream.
     /// </summary>
-    public class LoginClose : MsgBase
+    sealed public class LoginClose : MsgBase
     {
         #region Private Fields
 

@@ -22,7 +22,7 @@ namespace LSEG.Eta.Codec
     /// <seealso cref="Msg"/>
     /// <seealso cref="MsgKeyFlags"/>
 	/// <seealso cref="Qos"/>
-	public class MsgKey : IMsgKey
+	sealed public class MsgKey : IMsgKey
 	{
 		private readonly Buffer _name = new Buffer();
 		private readonly Buffer _encodedAttrib = new Buffer();

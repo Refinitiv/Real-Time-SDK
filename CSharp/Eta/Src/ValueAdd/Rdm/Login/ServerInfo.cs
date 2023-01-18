@@ -22,7 +22,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// A list of ServerInfo is used by an LoginRefresh to list servers available for connecting
     /// to, and whether to use them as Standby servers.
     /// </summary>
-    public class ServerInfo
+    sealed public class ServerInfo
     {
         private const string eol = "\n";
         private const string tab = "\t";

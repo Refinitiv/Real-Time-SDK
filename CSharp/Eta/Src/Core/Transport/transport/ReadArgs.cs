@@ -13,7 +13,7 @@ namespace LSEG.Eta.Transports
     /// </summary>
     /// <seealso cref="IChannel"/>
 
-    public class ReadArgs
+    sealed public class ReadArgs
     {
         /// <summary>
         /// Default constructor sets all property to defaults.

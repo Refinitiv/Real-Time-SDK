@@ -19,7 +19,7 @@ namespace LSEG.Eta.Codec
 	/// 
 	/// This type allows a value ranging from 0 to 65,535.
 	/// </summary>
-	public class Enum : IEquatable<Enum>
+	sealed public class Enum : IEquatable<Enum>
 	{
 		internal int _enumValue;
 
@@ -58,7 +58,7 @@ namespace LSEG.Eta.Codec
 		///         <c>CodecReturnCode.INVALID_ARGUMENT</c> if the <paramref name="destEnum"/> is <c>null</c>.
 		/// </returns>
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		public virtual CodecReturnCode Copy(Enum destEnum)
+		public CodecReturnCode Copy(Enum destEnum)
 		{
 			if (null == destEnum)
 			{

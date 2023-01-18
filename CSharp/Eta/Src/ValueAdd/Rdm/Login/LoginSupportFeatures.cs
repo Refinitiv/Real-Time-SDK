@@ -17,7 +17,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// Set of features provider of the login refresh message supports.
     /// This is additional information sent between components.
     /// </summary>
-    public class LoginSupportFeatures
+    sealed public class LoginSupportFeatures
     {
         /// <summary>
         /// The login support features flags. Populated by <see cref="LoginSupportFeaturesFlags"/>

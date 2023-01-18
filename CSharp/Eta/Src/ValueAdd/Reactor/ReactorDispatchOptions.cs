@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// ReactorDispatchOptions is used in the <see cref="Reactor.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorDispatchOptions
+    sealed public class ReactorDispatchOptions
     {
         private ReadArgs m_ReadArgs = new ReadArgs();
         const int DEFAULT_MAX_MESSAGE = 100;

@@ -13,7 +13,7 @@ namespace LSEG.Eta.Transports
     /// (<see cref="ConnectionType.SOCKET"/>), (<see cref="ConnectionType.ENCRYPTED"/>)).
     /// <seealso cref="ConnectOptions"/>
     /// </summary>
-    public class TcpOpts
+    sealed public class TcpOpts
     {
         /// <summary>
         /// Only used with connectionType of <see cref="ConnectionType.SOCKET"/>. If true, disables Nagle's Algorithm. 

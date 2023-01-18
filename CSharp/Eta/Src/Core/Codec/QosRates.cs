@@ -13,7 +13,7 @@ namespace LSEG.Eta.Codec
 	/// <summary>
 	/// Quality of service rates enumerations convey information about the data's period of change.
 	/// </summary>
-	public class QosRates
+	sealed public class QosRates
 	{
 		// QosRates class cannot be instantiated
 		private QosRates()

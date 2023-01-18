@@ -14,7 +14,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// Helper class for handling operations with <see cref="Buffer"/> objects
     /// </summary>
-    public class BufferHelper
+    sealed public class BufferHelper
     {
         /// <summary>
         /// Copies data between two Buffer instances.

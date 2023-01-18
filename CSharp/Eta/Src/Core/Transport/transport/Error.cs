@@ -23,7 +23,7 @@ namespace LSEG.Eta.Transports
     /// Any specific transport related success or failure error handling is described
     /// along with the method that requires it.
     /// </summary>
-    public class Error
+    sealed public class Error
     {
         /// <summary>
         /// The <see cref="IChannel"/> the error occurred on.

@@ -15,7 +15,7 @@ namespace LSEG.Eta.Codec
 	/// the cache of record.
 	/// </summary>
 	/// <seealso cref="IPostMsg"/>
-	public class PostUserRights
+	sealed public class PostUserRights
 	{
 		/// <summary>
 		/// This class is not instantiated

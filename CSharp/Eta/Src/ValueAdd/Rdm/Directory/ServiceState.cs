@@ -17,7 +17,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Service State. Contains information provided by the Source Directory State filter.
     /// </summary>
-    public class ServiceState
+    sealed public class ServiceState
     {
         private long m_AcceptingRequests;
         private State m_Status;
