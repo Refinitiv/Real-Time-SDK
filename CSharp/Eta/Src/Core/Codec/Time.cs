@@ -377,6 +377,7 @@ namespace LSEG.Eta.Codec
 
                 if (matcher.Count > 0)
                 {
+                    bool foundBlankValue = false;
                     Match match = matcher[0];
                     GroupCollection group = match.Groups;
                     ret = Hour(int.Parse(group[1].ToString()));
@@ -384,30 +385,74 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if (_hour == BLANK_HOUR)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_second == BLANK_SECOND)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Millisecond(int.Parse(group[4].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_millisecond == BLANK_MILLI)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Microsecond(int.Parse(group[5].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_microsecond == BLANK_MICRO_NANO)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Nanosecond(int.Parse(group[6].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_nanosecond == BLANK_MICRO_NANO)
+					{
+						foundBlankValue = true;
+					}
+
+					if (foundBlankValue)
+					{
+						if(IsBlank == false)
+						{
+							Clear();
+							return CodecReturnCode.INVALID_DATA;
+						}
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -418,6 +463,7 @@ namespace LSEG.Eta.Codec
 
                 if (matcher.Count > 0)
                 {
+                    bool foundBlankValue = false;
                     Match match = matcher[0];
                     GroupCollection group = match.Groups;
                     ret = Hour(int.Parse(group[1].ToString()));
@@ -425,30 +471,74 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_second == BLANK_SECOND)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Millisecond(int.Parse(group[4].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_millisecond == BLANK_MILLI)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Microsecond(int.Parse(group[5].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_microsecond == BLANK_MICRO_NANO)
+					{
+						foundBlankValue = true;
+					}
+
 					ret = Nanosecond(int.Parse(group[6].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_nanosecond == BLANK_MICRO_NANO)
+					{
+						foundBlankValue = true;
+					}
+
+					if (foundBlankValue)
+					{
+						if (IsBlank == false)
+						{
+							Clear();
+							return CodecReturnCode.INVALID_DATA;
+						}
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -466,25 +556,59 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_second == BLANK_SECOND)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Millisecond(int.Parse(group[4].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_millisecond == BLANK_MILLI)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Microsecond(int.Parse(group[5].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_microsecond == BLANK_MICRO_NANO)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -502,25 +626,59 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_second == BLANK_SECOND)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Millisecond(int.Parse(group[4].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_millisecond == BLANK_MILLI)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Microsecond(int.Parse(group[5].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_microsecond == BLANK_MICRO_NANO)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -537,20 +695,47 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_second == BLANK_SECOND)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Millisecond(int.Parse(group[4].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_millisecond == BLANK_MILLI)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -567,20 +752,47 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_second == BLANK_SECOND)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Millisecond(int.Parse(group[4].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_millisecond == BLANK_MILLI)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -597,15 +809,35 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
 					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Second(int.Parse(group[3].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_second == BLANK_SECOND)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
 					}
 
 					return CodecReturnCode.SUCCESS;
@@ -622,10 +854,23 @@ namespace LSEG.Eta.Codec
 					{
 						return ret;
 					}
+
+					if(_hour == BLANK_HOUR)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
+					}
+
 					ret = Minute(int.Parse(group[2].ToString()));
 					if (ret != CodecReturnCode.SUCCESS)
 					{
 						return ret;
+					}
+
+					if(_minute == BLANK_MINUTE)
+					{
+						Clear();
+						return CodecReturnCode.INVALID_DATA;
 					}
 
 					return CodecReturnCode.SUCCESS;
