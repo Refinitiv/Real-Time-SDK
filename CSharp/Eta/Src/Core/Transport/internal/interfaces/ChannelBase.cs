@@ -443,6 +443,7 @@ namespace LSEG.Eta.Internal.Interfaces
             MinorVersion = m_ServerImpl.BindOptions.MinorVersion;
             ProtocolType = m_ServerImpl.BindOptions.ProtocolType;
             Blocking = m_ServerImpl.BindOptions.ChannelIsBlocking;
+            m_SessionCompLevel = (byte)m_ServerImpl.BindOptions.CompressionLevel;
 
             UserSpecObject = acceptOptions.UserSpecObject ?? m_ServerImpl.BindOptions.UserSpecObject;
             NakMount = acceptOptions.NakMount;
