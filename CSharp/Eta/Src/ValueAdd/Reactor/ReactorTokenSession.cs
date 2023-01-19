@@ -406,10 +406,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         }
                     }
 
-                    m_Reactor.SendAuthTokenEvent(ReactorChannel, this, ReactorChannel.ReactorErrorInfo);
-
-                    SessionMgntState = SessionState.REQUEST_TOKEN_FAILURE;
-
                     /* This is used to indicate that the token is no longer valid */
                     ReactorChannel.RDMLoginRequestRDP!.UserName.Data("");
 

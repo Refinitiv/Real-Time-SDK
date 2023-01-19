@@ -266,28 +266,22 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                 restConnetOptions.RestLoggingHandler.LogRestRequest(restConnetOptions, request);
 
-                response.GetAwaiter().OnCompleted(() =>
-                {
-                    if(response.IsCompleted)
+                Task.Run(() => {
+                    try
                     {
+                        response.Wait();
+
                         var restResponse = HandleTokenServiceHttpResponse(response.Result, oAuthCredential, restConnetOptions, authTokenInfo,
-                            tokenSession, true, out _);
+                                   tokenSession, true, out _);
 
                         restConnetOptions.RestLoggingHandler.LogRestResponse(response.Result, restResponse);
                     }
-                    else if(response.IsFaulted)
+                    catch (Exception ex)
                     {
                         RestEvent restEvent = new RestEvent();
                         restEvent.Type = RestEvent.EventType.FAILED;
-                        tokenSession.RestErrorCallback(restEvent, response.Exception?.Message);
+                        tokenSession.RestErrorCallback(restEvent, ex.Message);
                     }
-                    else if(response.IsCanceled)
-                    {
-                        RestEvent restEvent = new RestEvent();
-                        restEvent.Type = RestEvent.EventType.CANCELLED;
-                        tokenSession.RestErrorCallback(restEvent, "The request is cancelled.");
-                    }
-
                 });
 
             }
@@ -376,36 +370,34 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
             try
             {
+                tokenSession.SessionMgntState = ReactorTokenSession.SessionState.QUERYING_SERVICE_DISCOVERY;
                 var response = GetHttpClient(restConnetOptions).SendAsync(request);
 
                 restConnetOptions.RestLoggingHandler.LogRestRequest(restConnetOptions, request);
 
-                response.GetAwaiter().OnCompleted(() =>
-                {
-                    if (response.IsCompleted)
+                Task.Run(() => {
+                    try
                     {
+                        response.Wait();
+
                         var restResponse = HandleServiceDiscoveryHttpResponse(response.Result, restConnetOptions, authTokenInfo, tokenSession,
                             true, null, out _);
 
                         restConnetOptions.RestLoggingHandler.LogRestResponse(response.Result, restResponse);
                     }
-                    else if (response.IsFaulted)
+                    catch (Exception ex)
                     {
                         RestEvent restEvent = new RestEvent();
+                        restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                         restEvent.Type = RestEvent.EventType.FAILED;
-                        tokenSession.RestErrorCallback(restEvent, response.Exception?.Message);
-                    }
-                    else if (response.IsCanceled)
-                    {
-                        RestEvent restEvent = new RestEvent();
-                        restEvent.Type = RestEvent.EventType.CANCELLED;
-                        tokenSession.RestErrorCallback(restEvent, "The request is cancelled.");
+                        tokenSession.RestErrorCallback(restEvent, ex.Message);
                     }
                 });
             }
             catch (Exception ex)
             {
                 RestEvent restEvent = new RestEvent();
+                restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                 restEvent.Type = RestEvent.EventType.FAILED;
                 tokenSession.RestErrorCallback(restEvent, $"Failed to perform a REST request to the service discovery. Text: {ex.Message}");
             }
@@ -623,6 +615,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.COMPLETED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
@@ -678,6 +671,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.FAILED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
@@ -703,6 +697,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.STOPPED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
@@ -724,6 +719,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.FAILED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }

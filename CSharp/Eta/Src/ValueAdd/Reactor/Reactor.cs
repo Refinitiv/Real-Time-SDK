@@ -1714,9 +1714,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                 case ReactorEventImpl.ImplType.WARNING:
                     /* Override the error code as this is not a failure */
+
                     PopulateErrorInfo(out errorInfo, ReactorReturnCode.SUCCESS,
-                            "Reactor.ProcessReactorEventImpl",
-                            "received a Warning, not a failure");
+                            string.IsNullOrEmpty(eventImpl.ReactorErrorInfo.Location) ? 
+                            "Reactor.ProcessReactorEventImpl" : eventImpl.ReactorErrorInfo.Location,
+                            string.IsNullOrEmpty(eventImpl.ReactorErrorInfo.Error.Text) ? 
+                            "received a Warning, not a failure" : eventImpl.ReactorErrorInfo.Error.Text);
 
                     SendChannelEventCallback(ReactorChannelEventType.WARNING, reactorChannel!, errorInfo);
                     break;
@@ -2939,11 +2942,25 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     errorInfo = null;
                     return ReactorReturnCode.SUCCESS;
                 }
+                else
+                {
+                    if (tokenSession.SessionMgntState == ReactorTokenSession.SessionState.REQUEST_SERVICE_DISCOVERY_FAILURE
+                        || tokenSession.SessionMgntState == ReactorTokenSession.SessionState.REQUEST_TOKEN_FAILURE)
+                    {
+                        reactorChannel.State = ReactorChannelState.RDP_RT_FAILED;
+                        tokenSession.SessionMgntState = ReactorTokenSession.SessionState.UNKNOWN;
+
+                        errorInfo = null;
+                        return ReactorReturnCode.SUCCESS;
+                    }
+                }
 
                 if (!tokenSession.HasAccessToken())
                 {
                     if (isAsysncReq)
                     {
+                        tokenSession.SessionMgntState = ReactorTokenSession.SessionState.AUTHENTICATE_USING_CLIENT_CRED;
+
                         tokenSession.HandleTokenRequest();
 
                         errorInfo = null;

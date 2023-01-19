@@ -210,7 +210,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         
                         if(reactorChannel.State != ReactorChannelState.RDP_RT &&
                             reactorChannel.State != ReactorChannelState.RDP_RT_DONE &&
-                            reactorChannel.State != ReactorChannelState.RDP_RT_DONE)
+                            reactorChannel.State != ReactorChannelState.RDP_RT_FAILED)
                         {
                             channel = reactorChannel.Reconnect(out error);
                         }
