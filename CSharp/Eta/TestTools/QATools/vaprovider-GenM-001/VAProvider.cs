@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -32,7 +32,7 @@ namespace LSEG.Eta.ValueAdd.Provider
         // client sessions over this limit gets rejected with NAK mount
         const int NUM_CLIENT_SESSIONS = 5;
 
-        private const int UPDATE_INTERVAL = 1000000;
+        private const int UPDATE_INTERVAL = 1_000_000; // 1 second in microseconds
 
         private BindOptions m_BindOptions = new BindOptions();        
         private ReactorOptions m_ReactorOptions = new ReactorOptions();
@@ -61,7 +61,7 @@ namespace LSEG.Eta.ValueAdd.Provider
         private string? portNo;
         private string? serviceName;
         private int serviceId;
-        private long runtime;
+        private System.DateTime runtime;
 
         private long m_CloseTime;
         private long m_CloseRunTime;
@@ -422,16 +422,18 @@ namespace LSEG.Eta.ValueAdd.Provider
                     break;
                 case LoginMsgType.RTT:
                     LoginRTT? loginRTT = loginMsg.LoginRTT!;
-                    Console.WriteLine($"Received login RTT message from Consumer {m_SocketFdValueMap[reactorEvent.ReactorChannel!]}.\n");
-                    Console.WriteLine($"\tRTT Tick value is {loginRTT.Ticks}\n");
+                    Console.WriteLine($"Received login RTT message from Consumer {m_SocketFdValueMap[reactorEvent.ReactorChannel!]}.");
+                    // nanoseconds to microseconds
+                    Console.WriteLine("\tRTT Tick value is {0}us", (long)((double)loginRTT.Ticks / 1000.0));
                     if (loginRTT.HasTCPRetrans) 
                     {
-                        Console.WriteLine($"\tConsumer side TCP retransmissions: {loginRTT.TCPRetrans}\n");
+                        Console.WriteLine($"\tConsumer side TCP retransmissions: {loginRTT.TCPRetrans}");
                     }
                     long calculatedRtt = loginRTT.CalculateRTTLatency();
                     LoginRTT storedLoginRtt = m_LoginHandler.GetLoginRtt(reactorChannel!)!.LoginRtt;
                     loginRTT.Copy(storedLoginRtt);
-                    Console.WriteLine($"\tLast RTT message latency is {calculatedRtt}.\n\n");
+                    // nanoseconds to microseconds
+                    Console.WriteLine("\tLast RTT message latency is {0}us.\n", (long)((double)calculatedRtt / 1000.0));
                     break;
                 default:
                     Console.WriteLine($"\nReceived unhandled login msg type: {loginMsg.LoginMsgType}");
@@ -619,8 +621,13 @@ namespace LSEG.Eta.ValueAdd.Provider
                 m_DirectoryHandler.CloseStream(reactorChannel);
                 m_LoginHandler.CloseStream(reactorChannel);
                 m_ItemHandler.CloseStream(reactorChannel);
-                m_SocketChannelMap.Remove(reactorChannel.Socket!);
-                m_SocketList.Remove(reactorChannel.Socket!);
+
+                if (reactorChannel.Socket is not null)
+                {
+                    m_SocketChannelMap.Remove(reactorChannel.Socket);
+                    m_SocketList.Remove(reactorChannel.Socket);
+                }
+
                 reactorChannel.Close(out ReactorErrorInfo? errorInfo);
                 if (errorInfo != null)
                 {
@@ -636,7 +643,7 @@ namespace LSEG.Eta.ValueAdd.Provider
             // shutdown reactor
             if (m_Reactor!.Shutdown(out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Error shutting down Reactor: {(error != null ? error.Text : "")}");
+                Console.WriteLine($"Reactor shutdown failed, error: {error?.Text}");
             }
         }
 
@@ -667,7 +674,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                     CleanupAndExit();
                 }
 
-                // nothing to read
+                // nothing to read: UPDATE_INTERVAL expired
                 if (m_CurrentSocketList.Count == 0)
                 {
                     // Send market price updates for each connected channel
@@ -740,7 +747,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                             // retrieve associated reactor channel and dispatch on that channel
                             ReactorChannel ?reactorChnl = null;
 
-                            if (m_SocketChannelMap.TryGetValue(socket,  out reactorChnl))
+                            if (m_SocketChannelMap.TryGetValue(socket, out reactorChnl))
                             {
                                 m_DispatchOptions.ReactorChannel = reactorChnl;
                                 // dispatch until no more messages
@@ -760,7 +767,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                 }
 
                 // Handle run-time
-                if ((System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) >= runtime && !m_CloseHandled)
+                if (System.DateTime.Now >= runtime && !m_CloseHandled)
                 {
                     Console.WriteLine("Provider run-time expired, closing the application...");
                     SendCloseStatusMessages();
@@ -769,6 +776,10 @@ namespace LSEG.Eta.ValueAdd.Provider
                 else if ((System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) >= m_CloseRunTime)
                 {
                     Console.WriteLine("Provider run-time expired...");
+                    break;
+                }
+                if(m_CloseHandled)
+                {
                     break;
                 }
             }

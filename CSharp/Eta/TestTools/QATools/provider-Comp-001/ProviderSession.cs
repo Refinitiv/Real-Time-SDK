@@ -2,15 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
 using System.Collections.Generic;
 using System.Text;
-using LSEG.Eta.Codec;
 using LSEG.Eta.Transports;
+using LSEG.Eta.Codec;
 using System.Net.Sockets;
 using LSEG.Eta.Common;
 
@@ -274,7 +274,14 @@ namespace LSEG.Eta.Example.Common
             error = null;
             ITransportBuffer tempBuf = msgBuf;
             if (channel is null)
+            {
+                error = new Error()
+                {
+                    Text = "Channel is null",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
+            }
 
             if (shouldXmlTrace)
             {
@@ -511,10 +518,10 @@ namespace LSEG.Eta.Example.Common
             {
                 if (clientSessionInfo.ClientChannel != null && clientSessionInfo.ClientChannel.State == ChannelState.ACTIVE)
                 {
-                    TransportReturnCode ret = clientSessionInfo.PingHandler.HandlePings(clientSessionInfo.ClientChannel, out Error error);
+                    TransportReturnCode ret = clientSessionInfo.PingHandler.HandlePings(clientSessionInfo.ClientChannel, out Error? error);
                     if (ret != TransportReturnCode.SUCCESS)
                     {
-                        Console.WriteLine(error.Text);
+                        Console.WriteLine(error?.Text);
                         RemoveClientSession(clientSessionInfo);
                     }
                 }

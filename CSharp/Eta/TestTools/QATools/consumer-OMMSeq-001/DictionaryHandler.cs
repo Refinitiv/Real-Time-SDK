@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -422,7 +422,7 @@ namespace LSEG.Eta.Example.Common
             {
                 error = new Error()
                 {
-                    Text = "Error decoding dictionary refresh: " + ret + ".",
+                    Text = $"Error decoding dictionary refresh, return code: {ret.GetAsString()}",
                     ErrorId = TransportReturnCode.FAILURE
                 };
                 return TransportReturnCode.FAILURE;
@@ -462,7 +462,7 @@ namespace LSEG.Eta.Example.Common
                 {
                     error = new Error()
                     {
-                        Text = "Failed to decode FieldDictionary"
+                        Text = $"Failed to decode FieldDictionary, return code: {ret.GetAsString()}, error: {codecError?.Text}"
                     };
                     return TransportReturnCode.FAILURE;
                 }
@@ -487,7 +487,7 @@ namespace LSEG.Eta.Example.Common
                 {
                     error = new Error()
                     {
-                        Text = "Failed to decode EnumType Dictionary"
+                        Text = $"Failed to decode EnumType Dictionary, return code: {ret.GetAsString()}, error: {codecError?.Text}"
                     };
                     return TransportReturnCode.FAILURE;
                 }
@@ -541,7 +541,7 @@ namespace LSEG.Eta.Example.Common
             {
                 error = new Error()
                 {
-                    Text = "Encode DictionaryClose failed :  code " + ret + ".",
+                    Text = $"Encode DictionaryClose failed, return code {ret.GetAsString()}",
                     ErrorId = TransportReturnCode.FAILURE
                 };
                 return TransportReturnCode.FAILURE;

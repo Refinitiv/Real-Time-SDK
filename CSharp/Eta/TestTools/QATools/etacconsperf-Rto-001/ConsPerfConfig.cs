@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -191,7 +191,13 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 		/// <summary>
 		/// At startup, prime the Just-In-Time compiler to optimize code by requesting a snapshot of all items before opening the streaming items
 		/// </summary>
-		public bool PrimeJIT { get; set; }
+		public bool PrimeJIT { get; set; } = false;
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving.
+        /// </summary>
+        public bool UseReactor;
+
 		/// <summary>
 		/// If set, the application will continually read rather than using notification
 		/// </summary>
@@ -290,7 +296,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 			DisplayStats = !CommandLine.BoolValue("noDisplayStats");
 			TcpNoDelay = !CommandLine.BoolValue("tcpDelay");
 			RequestSnapshots = CommandLine.BoolValue("snapshot");
-			PrimeJIT = CommandLine.BoolValue("primeJIT");
 			BusyRead = CommandLine.BoolValue("busyRead");
 			//APIQA
 			UseReactor = CommandLine.BoolValue("reactor");
@@ -396,6 +401,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 
 			//END APIQA
 
+
 			if (ConnectionType != ConnectionType.SOCKET && ConnectionType != ConnectionType.ENCRYPTED)
 			{
 				Console.Error.WriteLine("Config Error: Application only supports SOCKET, ENCRYPTED connection types.\n");
@@ -444,7 +450,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 				Console.WriteLine(CommandLine.OptionHelpString());
 				Environment.Exit((int)PerfToolsReturnCode.FAILURE);
 			}
-			
+
 			if (GenMsgsPerSec < TicksPerSec && GenMsgsPerSec != 0)
 			{
 				Console.Error.WriteLine("Config Error: Generic Msg Rate cannot be less than tick rate(unless it is zero).\n");
@@ -517,6 +523,17 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 
 		private void CreateConfigString()
 		{
+            string reactorWatchlistUsageString;
+
+            if (UseReactor)
+            {
+                reactorWatchlistUsageString = "Reactor";
+            }
+            else
+            {
+                reactorWatchlistUsageString = "None";
+            }
+
 			ConfigString = "--- TEST INPUTS ---\n\n" +
 				"          Steady State Time: " + SteadyStateTime + " sec\n" +
 				"    Delay Steady State Time: " + DelaySteadyStateCalc + " msec\n" +
@@ -556,7 +573,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 				"                 Stats File: " + StatsFilename + "\n" +
 				"           Latency Log File: " + (LatencyLogFilename != null && LatencyLogFilename.Length > 0 ? LatencyLogFilename : "(none)") + "\n" +
 				"                  Tick Rate: " + TicksPerSec + "\n" +
-				"                  Prime JIT: " + (PrimeJIT ? "Yes" : "No") + "\n" +
 				"                  Busy Read: " + (BusyRead ? "Yes" : "No") + "\n";
 		}
 

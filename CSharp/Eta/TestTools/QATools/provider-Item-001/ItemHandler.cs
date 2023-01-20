@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -240,7 +240,7 @@ namespace LSEG.Eta.Example.Provider
 
                     while ((ret = m_ArrayEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
                     {
-                        if (ret<CodecReturnCode.SUCCESS)
+                        if (ret < CodecReturnCode.SUCCESS)
                         {
                             error = new Error
                             {
@@ -272,8 +272,15 @@ namespace LSEG.Eta.Example.Provider
                         msg.MsgKey.Name = m_ArrayEntry.EncodedData;
 
                         ItemRequestInfo? itemReqInfo = GetMatchingItemReqInfo(chnl, msg, itemStream, rejectReasonSet);
-                        ItemRejectReason rejectReason = rejectReasonSet.GetEnumerator().MoveNext() ?
-                            rejectReasonSet.GetEnumerator().Current : ItemRejectReason.NONE;
+                        ItemRejectReason rejectReason = ItemRejectReason.NONE;
+
+                        var enumerator = rejectReasonSet.GetEnumerator();
+
+                        if (enumerator.MoveNext())
+                        {
+                            rejectReason = enumerator.Current;
+                        }
+
                         if (itemReqInfo == null && rejectReason != ItemRejectReason.NONE)
                         {
                             SendItemRequestReject(chnl, itemStream, msg.DomainType, rejectReason, isPrivateStream, out error);
@@ -786,7 +793,8 @@ namespace LSEG.Eta.Example.Provider
         {
             foreach (ItemRequestInfo itemRequestInfo in m_ItemRequestWatchList)
             {
-                if (itemRequestInfo.IsInUse && object.ReferenceEquals(itemRequestInfo.Channel,channel))
+                if (itemRequestInfo.IsInUse && (itemRequestInfo.Channel != null &&
+                    itemRequestInfo.Channel.Socket.Handle.Equals(channel.Socket.Handle)))
                 {
                     if (itemRequestInfo.DomainType == msg.DomainType
                             && (itemRequestInfo.MsgKey.Equals(msg.MsgKey)))
@@ -1051,7 +1059,7 @@ namespace LSEG.Eta.Example.Provider
             ITransportBuffer msgBuf = chnl.GetBuffer(SymbolListItems.MAX_SYMBOL_LIST_SIZE, false, out Error? error);
             if (msgBuf is null)
             {
-                Console.Write($"IChanel.GetBuffer(): Failed {error.Text}");
+                Console.Write($"IChanel.GetBuffer() failed, error: {error?.Text}");
                 return;
             }
 
@@ -1063,7 +1071,7 @@ namespace LSEG.Eta.Example.Provider
             }
 
             if (m_ProviderSession.Write(chnl, msgBuf, out error) == TransportReturnCode.FAILURE)
-                Console.WriteLine($"Error writing message: {error!.Text}");
+                Console.WriteLine($"Failed writing message, error: {error?.Text}");
         }
 
         public CodecReturnCode SendItemUpdates(IChannel channel, out Error? error)
@@ -1363,7 +1371,7 @@ namespace LSEG.Eta.Example.Provider
                         m_NestedMsg.PostUserInfo.UserId = postMsg.PostUserInfo.UserId;
                         if (UpdateItemInfoFromPost(itemInfo, m_NestedMsg, dIter, out error) != CodecReturnCode.SUCCESS)
                         {
-                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error!.Text, out error);
+                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error != null ? error!.Text : "", out error);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -1381,7 +1389,7 @@ namespace LSEG.Eta.Example.Provider
                         m_NestedMsg.PostUserInfo.UserId = postMsg.PostUserInfo.UserId;
                         if (UpdateItemInfoFromPost(itemInfo, m_NestedMsg, dIter, out error) != CodecReturnCode.SUCCESS)
                         {
-                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error!.Text, out error);
+                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error != null ? error!.Text : "", out error);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -1434,7 +1442,7 @@ namespace LSEG.Eta.Example.Provider
 
                 if (UpdateItemInfoFromPost(itemInfo, msg, dIter, out error) != CodecReturnCode.SUCCESS)
                 {
-                    ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error!.Text, out error);
+                    ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error != null ? error.Text : "", out error);
                     if (ret != CodecReturnCode.SUCCESS)
                     {
                         return ret;

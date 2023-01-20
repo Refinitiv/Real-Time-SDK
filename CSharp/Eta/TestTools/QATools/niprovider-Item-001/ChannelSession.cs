@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -152,7 +152,18 @@ namespace LSEG.Eta.Example.Common
         public ITransportBuffer? GetTransportBuffer(int size, bool packedBuffer, out Error? error)
         {
             error = null;
-            return (Channel != null) ? Channel.GetBuffer(size, packedBuffer, out error) : null;
+            if (Channel != null)
+            {
+                return Channel.GetBuffer(size, packedBuffer, out error);
+            } else
+            {
+                error = new Error()
+                {
+                    ErrorId = TransportReturnCode.FAILURE,
+                    Text = "Failed getting TransportBuffer: Channel is null"
+                };
+                return null;
+            }
         }
 
         /// <summary>
@@ -263,9 +274,12 @@ namespace LSEG.Eta.Example.Common
                     }
                     break;
                 default:
-                    UnInit(out error);
+                    error = new Error()
+                    {
+                        Text = $"Unexpected return code during channel initialization: {ret}"
+                    };
+                    if (UnInit(out var initError) != TransportReturnCode.SUCCESS) Console.WriteLine($"Uninitialization failure: {initError?.Text}");
                     return TransportReturnCode.FAILURE;
-
             }
 
             return ret;
@@ -316,7 +330,7 @@ namespace LSEG.Eta.Example.Common
             Channel = Transport.Connect(ConnectOptions, out error);
             if (Channel == null)
             {
-                Console.WriteLine("Connection failure" + (error != null ? (": " + error.Text) : "" + ". Will retry shortly."));
+                Console.WriteLine($"Connection failure, error: {error?.Text} . Will retry shortly.");
                 return RecoverConnection(out error);
             }
 
@@ -390,8 +404,7 @@ namespace LSEG.Eta.Example.Common
                 else
                 {
                     // write failed, release buffer
-                    Error err;
-                    Channel.ReleaseBuffer(tempBuf, out err);
+                    Channel.ReleaseBuffer(tempBuf, out _);
                     return ret;
                 }
             } 
@@ -468,6 +481,10 @@ namespace LSEG.Eta.Example.Common
                                 return TransportReturnCode.SUCCESS;
                             } else
                             {
+                                error = new Error()
+                                {
+                                    Text = "Failed reading from the channel that is not closed"
+                                };
                                 return TransportReturnCode.FAILURE;
                             }
                         case TransportReturnCode.READ_FD_CHANGE:
@@ -512,7 +529,7 @@ namespace LSEG.Eta.Example.Common
                             ret = Channel.Flush(out error);
                             if (ret < TransportReturnCode.SUCCESS)
                             {
-                                Console.WriteLine("Channel flush failed with return code: " + ret + (error != null ? (" - " + error.Text) : ""));
+                                Console.WriteLine($"Channel flush failed with return code: {ret}. Error: {error?.Text}");
                             }
                         }
                     }                   
@@ -528,7 +545,8 @@ namespace LSEG.Eta.Example.Common
                 {
                     error = new Error()
                     {
-                        Text = "Error while closing channel: " + e.ToString()
+                        Text = "Error while closing channel: " + e.ToString(),
+                        ErrorId = TransportReturnCode.FAILURE
                     };
                     return TransportReturnCode.FAILURE;
                 }
