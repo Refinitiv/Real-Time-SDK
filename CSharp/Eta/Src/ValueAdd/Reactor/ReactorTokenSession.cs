@@ -327,6 +327,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                         $"Text: {errorText}");
 
                                     m_Reactor.SendChannelWarningEvent(ReactorChannel, ReactorChannel.ReactorErrorInfo);
+
+                                    if (ReactorChannel.State == ReactorChannelState.RDP_RT)
+                                    {
+                                        ReactorChannel.State = ReactorChannelState.RDP_RT_FAILED;
+                                    }
                                 }
                                 else
                                 {

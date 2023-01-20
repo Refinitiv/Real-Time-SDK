@@ -2942,18 +2942,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     errorInfo = null;
                     return ReactorReturnCode.SUCCESS;
                 }
-                else
-                {
-                    if (tokenSession.SessionMgntState == ReactorTokenSession.SessionState.REQUEST_SERVICE_DISCOVERY_FAILURE
-                        || tokenSession.SessionMgntState == ReactorTokenSession.SessionState.REQUEST_TOKEN_FAILURE)
-                    {
-                        reactorChannel.State = ReactorChannelState.RDP_RT_FAILED;
-                        tokenSession.SessionMgntState = ReactorTokenSession.SessionState.UNKNOWN;
-
-                        errorInfo = null;
-                        return ReactorReturnCode.SUCCESS;
-                    }
-                }
 
                 if (!tokenSession.HasAccessToken())
                 {
