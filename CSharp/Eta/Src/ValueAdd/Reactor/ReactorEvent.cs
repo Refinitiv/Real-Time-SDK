@@ -42,6 +42,9 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public override void ReturnToPool()
         {
             ReactorChannel = null;
+            ReactorErrorInfo.Code = ReactorReturnCode.SUCCESS;
+            ReactorErrorInfo.Location = null;
+            ReactorErrorInfo.Error.Text = null;
             base.ReturnToPool();
         }
 
