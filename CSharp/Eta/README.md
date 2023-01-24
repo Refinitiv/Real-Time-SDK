@@ -118,7 +118,7 @@ The distribution contains several DLL files (libraries), intended to allow for e
 
 # Reference Information
 
-    I-COS Questionnaire: <TBD>
+    I-COS Questionnaire: 6212 
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - CSharp Edition
     Release Number: 3.0.0

@@ -222,7 +222,7 @@ The Transport API provides a helpful script that will create soft links for the 
             
 # Reference Information
 
-    I-COS Questionnaire: 6211
+    I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
     Release Number: 3.6.8

@@ -98,7 +98,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 # Reference Information
 
-    I-COS Questionnaire: 6313
+    I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
     Release Number: 3.6.8
