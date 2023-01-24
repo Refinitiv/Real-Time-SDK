@@ -1,2 +1,2 @@
 #file,location
-DictionaryHandler.cs,Applications/EtaAppCommon/DictionaryHandler.cs
+DictionaryHandler.cs,Applications/EtaAppCommon/ConsumerHandlers/DictionaryHandler.cs

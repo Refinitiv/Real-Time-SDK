@@ -12,7 +12,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// ReactorConnectOptions to be used in the <see cref="Reactor.Connect(ReactorConnectOptions, ReactorRole,
     /// out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorConnectOptions
+    sealed public class ReactorConnectOptions
     {
         private const int DEFAULT_DELAY = 1000;
 

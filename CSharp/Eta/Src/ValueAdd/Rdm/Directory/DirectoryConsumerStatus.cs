@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The Directory Consumer Status is sent by OMM Consumer applications to inform a service of how it is 
     /// being used for Source Mirroring.This message is primarily informational.
     /// </summary>
-    public class DirectoryConsumerStatus : MsgBase
+    sealed public class DirectoryConsumerStatus : MsgBase
     {
         private List<ConsumerStatusService> m_ConsumerServiceStatusList;
         private IGenericMsg m_GenericMsg;

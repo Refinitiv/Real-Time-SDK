@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// ReactorSubmitOptions class is used while submitting a message
     /// </summary>
-    public class ReactorSubmitOptions
+    sealed public class ReactorSubmitOptions
     {
         /// <summary>
         /// Service name to be associated with the message, 

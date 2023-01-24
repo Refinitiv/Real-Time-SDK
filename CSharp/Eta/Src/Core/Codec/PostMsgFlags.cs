@@ -12,7 +12,7 @@ namespace LSEG.Eta.Codec
 	/// The Post Message flags.
 	/// </summary>
 	/// <seealso cref="IPostMsg"/>
-	public class PostMsgFlags
+	sealed public class PostMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

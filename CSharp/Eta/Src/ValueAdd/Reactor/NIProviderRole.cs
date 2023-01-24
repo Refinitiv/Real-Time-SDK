@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// </summary>
     /// <see cref="ReactorRole"/>
     /// <see cref="ReactorRoleType"/>
-    public class NIProviderRole : ReactorRole
+    sealed public class NIProviderRole : ReactorRole
     {
         const int OPEN_LIMIT = 5;
         const string VENDOR = "Refinitiv";

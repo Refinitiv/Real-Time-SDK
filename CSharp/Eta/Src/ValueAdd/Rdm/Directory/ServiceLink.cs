@@ -20,7 +20,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Service Link. 
     /// Contains information about an upstream source associated with the service.
     /// </summary>
-    public class ServiceLink
+    sealed public class ServiceLink
     {
         private Buffer m_Name = new Buffer();
         private Buffer m_Text = new Buffer();

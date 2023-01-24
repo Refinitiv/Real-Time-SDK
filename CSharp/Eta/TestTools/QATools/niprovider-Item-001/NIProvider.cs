@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -184,7 +184,7 @@ namespace LSEG.Eta.Example.NiProvider
 
                 if (channelSession.InitChannel(inProg, out error) < TransportReturnCode.SUCCESS)
                 {
-                    Console.WriteLine($"Error initializing channel: {error!.Text}");
+                    Console.WriteLine($"Failed initializing channel, error: {error?.Text}");
                 }
 
                 if (channelSession.Channel == null || channelSession.GetChannelState() == ChannelState.ACTIVE)
@@ -236,6 +236,7 @@ namespace LSEG.Eta.Example.NiProvider
                             //END APIQA
                         }
                         else // send refreshes first
+
                         {
                             SendItemRefreshes(channelSession, out error);
                             refreshesSent = true;
@@ -248,7 +249,7 @@ namespace LSEG.Eta.Example.NiProvider
                 if (pingHandler.HandlePings(channelSession.Channel!, out error) != TransportReturnCode.SUCCESS)
                 {
                     CloseChannel();
-                    Console.WriteLine("Error handling pings: " + error!.Text);
+                    Console.WriteLine($"Failed handling pings, error: {error?.Text}");
                     Environment.Exit((int)TransportReturnCode.FAILURE);
                 }
 
@@ -258,7 +259,7 @@ namespace LSEG.Eta.Example.NiProvider
                     channelSession.IsLoginReissue = true;
                     if (loginHandler.SendRequest(channelSession, out error) != TransportReturnCode.SUCCESS)
                     {
-                        Console.WriteLine($"Login reissue failed. Error: {(error != null ? error.Text : "")}");
+                        Console.WriteLine($"Login reissue failed. Error: {error?.Text}");
                     }
                     else
                     {
@@ -389,9 +390,7 @@ namespace LSEG.Eta.Example.NiProvider
             CodecReturnCode ret = incomingMsg.Decode(dIter);
             if (ret != CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("\nDecodeMsg(): Error " + ret + " on SessionData Channel="
-                            + chnl.Channel + "  Size "
-                            + (buffer.Data.Limit - buffer.Data.Position));
+                Console.WriteLine($"\nDecodeMsg(): Error {ret.GetAsString()} on SessionData Channel={chnl.Channel}, Size {(buffer.Data.Limit - buffer.Data.Position)}");
                 CloseChannel();
                 Environment.Exit((int)TransportReturnCode.FAILURE);
             }
@@ -404,7 +403,7 @@ namespace LSEG.Eta.Example.NiProvider
             ITransportBuffer? msgBuf = chnl.GetTransportBuffer(TRANSPORT_BUFFER_SIZE_STATUS_MSG, false, out error);
             if (msgBuf == null)
             {
-                Console.WriteLine($"Channel.GetBuffer() Failed: {(error != null ? error.Text : "")}");
+                Console.WriteLine($"Channel.GetBuffer() failed: {error?.Text}");
                 return TransportReturnCode.FAILURE;
             }
 
@@ -421,7 +420,7 @@ namespace LSEG.Eta.Example.NiProvider
             ret = chnl.Write(msgBuf, out error);
             if (ret != TransportReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Channel.Write() Failed: {(error != null ? error.Text : "")}");
+                Console.WriteLine($"Channel.Write() failed: {error?.Text}");
                 return TransportReturnCode.FAILURE;
             }
 
@@ -507,7 +506,7 @@ namespace LSEG.Eta.Example.NiProvider
                     ret = srcDirHandler.SendRefresh(chnl, out error);
                     if (ret != TransportReturnCode.SUCCESS)
                     {
-                        Console.WriteLine($"Error sending directory request: {(error != null ? error.Text : "")}");
+                        Console.WriteLine($"Error sending directory request: {error?.Text}");
                         CloseChannel();
                         Environment.Exit((int)TransportReturnCode.FAILURE);
                     }
@@ -526,7 +525,7 @@ namespace LSEG.Eta.Example.NiProvider
                 ret = channelSession.RecoverConnection(out error);
                 if (ret != TransportReturnCode.SUCCESS)
                 {
-                    Console.WriteLine($"Error recovering connection: {(error != null ? error.Text : "")}");
+                    Console.WriteLine($"Error recovering connection: {error?.Text}");
                     Environment.Exit((int)TransportReturnCode.FAILURE);
                 }
             }
@@ -543,7 +542,7 @@ namespace LSEG.Eta.Example.NiProvider
                     ret = srcDirHandler.CloseStream(channelSession, out error);
                     if (ret != TransportReturnCode.SUCCESS)
                     {
-                        Console.WriteLine($"Error closing directory stream: {(error != null ? error.Text : "")}");
+                        Console.WriteLine($"Error closing directory stream: {error?.Text}");
                         CloseChannel();
                         Environment.Exit((int)TransportReturnCode.FAILURE);
                     }
@@ -553,7 +552,7 @@ namespace LSEG.Eta.Example.NiProvider
                         ret = srcDirHandler.SendRefresh(chnl, out error);
                         if (ret != TransportReturnCode.SUCCESS)
                         {
-                            Console.WriteLine($"Error sending directory request: {(error != null ? error.Text : "")}");
+                            Console.WriteLine($"Error sending directory request: {error?.Text}");
                             CloseChannel();
                             Environment.Exit((int)TransportReturnCode.FAILURE);
                         }
@@ -590,7 +589,7 @@ namespace LSEG.Eta.Example.NiProvider
                     }
                     else
                     {
-                        Console.WriteLine($"Dictionary could not be downloaded, unable to send request to the connection: {(error != null ? error.Text : "")}");
+                        Console.WriteLine($"Dictionary could not be downloaded, unable to send request to the connection: {error?.Text}");
                         CloseChannel();
                         Environment.Exit((int)TransportReturnCode.FAILURE);
                     }
@@ -657,7 +656,7 @@ namespace LSEG.Eta.Example.NiProvider
 
             if (retval < TransportReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Flush() failed with return code {retval} {(error != null ? error.Text : "")}");
+                Console.WriteLine($"Flush() failed with return code {retval}, error: {error?.Text}");
             }
         }
 

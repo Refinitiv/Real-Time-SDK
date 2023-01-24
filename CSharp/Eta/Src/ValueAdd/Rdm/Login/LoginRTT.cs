@@ -24,7 +24,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// is set by the provider before sending the message to a consumer that supports RTT
     /// functionality.
     /// </remarks>
-    public class LoginRTT : MsgBase
+    sealed public class LoginRTT : MsgBase
     {
         #region Private Fields
 

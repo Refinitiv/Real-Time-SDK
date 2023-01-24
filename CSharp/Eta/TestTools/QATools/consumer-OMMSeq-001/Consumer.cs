@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 using LSEG.Eta.Common;
@@ -266,7 +266,7 @@ namespace LSEG.Eta.Example.Consumer
             {
                 if (channelSession.InitChannel(inProg, out error) < TransportReturnCode.SUCCESS)
                 {
-                    Console.WriteLine("Error initializing channel, will retry" + (error != null ? (": " + error.Text) : ""));
+                    Console.WriteLine($"Error initializing channel, will retry. Error: {error?.Text}");
                 }
                 if (channelSession.Channel == null || channelSession.GetChannelState() == ChannelState.ACTIVE)
                     break;
@@ -977,7 +977,7 @@ namespace LSEG.Eta.Example.Consumer
                 Environment.Exit((int)TransportReturnCode.FAILURE);
             }
 
-            if (responseMsg.MsgClass == MsgClasses.GENERIC && responseMsg.ContainerType == Codec.DataTypes.ELEMENT_LIST)
+            if (responseMsg.MsgClass == MsgClasses.GENERIC && responseMsg.ContainerType == DataTypes.ELEMENT_LIST)
             {
                 loginHandler.SendRttMessage(chnl, out error);
                 return;

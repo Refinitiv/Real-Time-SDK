@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -239,7 +239,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
             // display product version information
             Console.WriteLine("Consumer initializing...");
-            Console.WriteLine($"Codec version: {Codec.Codec.MajorVersion()}.{Codec.Codec.MajorVersion()}");
+            Console.WriteLine($"Codec version: {Codec.Codec.MajorVersion()}.{Codec.Codec.MinorVersion()}");
 
             m_Runtime = System.DateTime.Now + m_ConsumerCmdLineParser.Runtime;
             m_CloseRuntime = System.DateTime.Now + (m_ConsumerCmdLineParser.Runtime + m_Closetime);
@@ -1254,9 +1254,9 @@ namespace LSEG.Eta.ValueAdd.Consumer
                 }
             }
 
-            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.ClientJwk))
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.TokenScope))
             {
-                oAuthCredential.ClientJwk.Data(m_ConsumerCmdLineParser.ClientJwk);
+                oAuthCredential.TokenScope.Data(m_ConsumerCmdLineParser.TokenScope);
             }
 
             oAuthCredential.UserSpecObj = oAuthCredential;
@@ -1340,8 +1340,8 @@ namespace LSEG.Eta.ValueAdd.Consumer
                 chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
             }
 
-            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.ServiceName = chnlInfo.ConnectionArg.Port;
-            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.Address = chnlInfo.ConnectionArg.Hostname;
+            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.ServiceName = chnlInfo.ConnectionArg.Port ?? String.Empty;
+            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.Address = chnlInfo.ConnectionArg.Hostname ?? String.Empty;
 
             chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UserSpecObject = chnlInfo;
             chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.GuaranteedOutputBuffers = 1000;

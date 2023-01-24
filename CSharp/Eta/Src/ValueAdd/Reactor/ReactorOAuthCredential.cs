@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <seealso cref="ConsumerRole"/>
     /// <seealso cref="IReactorOAuthCredentialEventCallback"/>
     /// </summary>
-    public class ReactorOAuthCredential
+    sealed public class ReactorOAuthCredential
     {
         /// <summary>
         /// Instantiates ReactorOAuthCredential.

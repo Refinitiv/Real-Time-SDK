@@ -15,7 +15,7 @@ namespace LSEG.Eta.Transports
     /// Bind options used for configurating an encrypted tunneled connection with the <see cref="ConnectionType.ENCRYPTED"/> connection type.
     /// </summary>
     /// <seealso cref="BindOptions"/>
-    public class BindEncryptionOptions
+    sealed public class BindEncryptionOptions
     {
         /// <summary>
         /// Default constructor

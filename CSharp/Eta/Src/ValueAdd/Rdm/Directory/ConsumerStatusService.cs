@@ -16,7 +16,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// This class represents information for how a consumer is using a paticular service in regards to source mirroring.
     /// </summary>
-    public class ConsumerStatusService
+    sealed public class ConsumerStatusService
     {
         /// <summary>
         /// The ID of the service 

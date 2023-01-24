@@ -23,7 +23,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// create connections by calling <see cref="Reactor.Connect(ReactorConnectOptions, ReactorRole, out ReactorErrorInfo?)"/> and process events 
     /// by calling <see cref="Reactor.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/>
     /// </summary>
-    public class Reactor
+    sealed public class Reactor
     {
         internal const int DEFAULT_INIT_EVENT_POOLS = 10;
 
@@ -1714,9 +1714,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                 case ReactorEventImpl.ImplType.WARNING:
                     /* Override the error code as this is not a failure */
+
                     PopulateErrorInfo(out errorInfo, ReactorReturnCode.SUCCESS,
-                            "Reactor.ProcessReactorEventImpl",
-                            "received a Warning, not a failure");
+                            string.IsNullOrEmpty(eventImpl.ReactorErrorInfo.Location) ? 
+                            "Reactor.ProcessReactorEventImpl" : eventImpl.ReactorErrorInfo.Location,
+                            string.IsNullOrEmpty(eventImpl.ReactorErrorInfo.Error.Text) ? 
+                            "received a Warning, not a failure" : eventImpl.ReactorErrorInfo.Error.Text);
 
                     SendChannelEventCallback(ReactorChannelEventType.WARNING, reactorChannel!, errorInfo);
                     break;
@@ -2944,6 +2947,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 {
                     if (isAsysncReq)
                     {
+                        tokenSession.SessionMgntState = ReactorTokenSession.SessionState.AUTHENTICATE_USING_CLIENT_CRED;
+
                         tokenSession.HandleTokenRequest();
 
                         errorInfo = null;

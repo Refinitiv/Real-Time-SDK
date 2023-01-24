@@ -15,7 +15,7 @@ namespace LSEG.Eta.Codec
 	/// </summary>
 	/// <seealso cref="LocalFieldSetDefDb"/>
 	/// <seealso cref="FieldSetDefEntry"/>
-	public class FieldSetDef
+	sealed public class FieldSetDef
 	{
         /// <summary>
 		/// Creates <see cref="FieldSetDef"/>.

@@ -22,7 +22,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// Channel representing a connection handled by a <see cref="Reactor"/>
     /// </summary>
-    public class ReactorChannel : VaNode
+    sealed public class ReactorChannel : VaNode
     {
         private long m_InitializationTimeout;
         private long m_InitializationEndTimeMs;

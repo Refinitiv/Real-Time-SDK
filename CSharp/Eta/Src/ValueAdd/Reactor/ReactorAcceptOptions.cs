@@ -14,7 +14,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// ReactorAcceptOptions to be used in the <see cref="Reactor.Accept(IServer, 
     /// ReactorAcceptOptions, ReactorRole, out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorAcceptOptions
+    sealed public class ReactorAcceptOptions
     {
         private const int DEFAULT_TIME = 60;
         int m_Timeout = DEFAULT_TIME;

@@ -17,7 +17,7 @@ namespace LSEG.Eta.Transports
     /// <seealso cref="WritePriorities"/>
     /// <seealso cref="WriteFlags"/>
     /// </summary>
-    public class WriteArgs
+    sealed public class WriteArgs
     {
         /// <summary>
         /// Priority to flush the message for <see cref="IChannel.Write(ITransportBuffer, WriteArgs, out Error)"/>.

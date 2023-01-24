@@ -12,7 +12,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// An event that has occurred on a token session to get sensitive information from the application.
     /// </summary>
     /// <seealso cref="ReactorEvent"/>
-    public class ReactorOAuthCredentialEvent : ReactorEvent
+    sealed public class ReactorOAuthCredentialEvent : ReactorEvent
     {
         /// <summary>
         /// Gets the OAuth credential renewal information associated with this event.

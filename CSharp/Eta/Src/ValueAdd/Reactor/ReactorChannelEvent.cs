@@ -12,7 +12,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// An event that has occurred on an RsslReactorChannel.
     /// </summary>
     /// <see cref="ReactorChannel"/>
-    public class ReactorChannelEvent : ReactorEvent
+    sealed public class ReactorChannelEvent : ReactorEvent
     {
         /// <summary>
         /// Gets the event type.

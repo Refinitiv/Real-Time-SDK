@@ -11,7 +11,7 @@ namespace LSEG.Eta.Transports
     /// <summary>
     /// ETA Server Info returned by the <see cref="IServer.Info(ServerInfo, out Error)"/> call.
     /// </summary>
-    public class ServerInfo
+    sealed public class ServerInfo
     {
         /// <summary>
         /// The default constructor to clear to default values.

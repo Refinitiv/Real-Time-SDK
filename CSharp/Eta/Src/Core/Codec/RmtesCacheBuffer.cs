@@ -15,7 +15,7 @@ namespace LSEG.Eta.Codec
     /// This buffer is used by the RMTES Decoding interface to store data that needs 
     /// to be decoded, and used for partial data storage.
     /// </summary>
-    public class RmtesCacheBuffer
+    sealed public class RmtesCacheBuffer
     {
         /// <summary>
         /// The ByteBuffer containing data

@@ -23,7 +23,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <seealso cref="DirectoryStatus"/>
     /// <seealso cref="DirectoryUpdate"/>
 
-    public class DirectoryMsg
+    sealed public class DirectoryMsg
     {
         private DirectoryClose? m_DirectoryClose = new DirectoryClose();
         private DirectoryStatus? m_DirectoryStatus = new DirectoryStatus();

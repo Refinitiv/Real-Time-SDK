@@ -14,7 +14,7 @@ namespace LSEG.Eta.Transports
     ///  Options used for configuring a unified/fully connected mesh network.
     /// <seealso cref="ConnectOptions"/>
     /// </summary>
-    public class UnifiedNetworkInfo
+    sealed public class UnifiedNetworkInfo
     {
         private string _serviceName;
 

@@ -14,7 +14,7 @@ namespace LSEG.Eta.Codec
 	/// State Codes provide additional details about the current state.
 	/// </summary>
 	/// <seealso cref="State"/>
-	public class StateCodes
+	sealed public class StateCodes
 	{
 		// StateCodes class cannot be instantiated
 		private StateCodes()

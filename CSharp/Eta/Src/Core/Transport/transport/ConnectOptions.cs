@@ -14,7 +14,7 @@ namespace LSEG.Eta.Transports
     /// <summary>
     /// ETA Connect Options used in the <see cref="Transport.Connect(ConnectOptions, out Error)"/> call
     /// </summary>
-    public class ConnectOptions
+    sealed public class ConnectOptions
     {
         /// <summary>
         /// The default constructor

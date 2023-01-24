@@ -24,7 +24,7 @@ The Refinitiv Real-Time-SDK will support multiple languages across different com
 
 - [C++](Cpp-C)
 - [Java](Java)
-- [C# (Preview Only)](https://github.com/Refinitiv/Real-Time-SDK/tree/preview/CSharp)
+- [C#](CSharp)
 
 
 # Documentation
@@ -36,11 +36,13 @@ GitHub PDF format docs per API:
 - [Enterprise Transport API - C Edition](Cpp-C/Eta/Docs)
 - [Enterprise Message API - Java Edition](Java/Ema/Docs)
 - [Enterprise Transport API - Java Edition](Java/Eta/Docs)
+- [Enterprise Transport API - CSharp Edition](CSharp/Eta/Docs)
 
 Refinitiv Developer Portal documentation section contains docs in PDF format for both C++ and Java:
 
 - [C++/C](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/documentation)
 - [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation)
+- [CSharp](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/documentation)
 
 Documentation is also available in **HTML format** on a package or Refinitiv Developer Portal. 
 
@@ -82,6 +84,10 @@ License details can be found in the LICENSE.md file contained in this section. T
 - Java/Eta/TestTools
 - Java/Eta/ValueAdd
 - Java/Eta/ValueAddCache
+- CSharp/Eta/Src/Core
+- CSharp/Eta/Src/ValueAdd
+- CSharp/Eta/Applications
+- CSharp/Eta/TestTools
 
 Any source code, header files not specified above (even if included by header files in the locations above), libraries, and underlying dependencies continue to be governed by the licensing and agreements per the [MyRefinitiv](https://my.refinitiv.com/content/mytr/en/signin.html) site and RDC Program.
 

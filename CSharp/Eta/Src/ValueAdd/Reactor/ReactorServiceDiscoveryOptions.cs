@@ -15,7 +15,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// This is the service discovery options to be used in the <see cref="Reactor.QueryServiceDiscovery(ReactorServiceDiscoveryOptions, out ReactorErrorInfo?)"/>
     /// to get endpoint informaton from the service discovery.
     /// </summary>
-    public class ReactorServiceDiscoveryOptions
+    sealed public class ReactorServiceDiscoveryOptions
     {
         private Buffer m_ClientId = new Buffer();
         private Buffer m_ClientSecret = new Buffer();

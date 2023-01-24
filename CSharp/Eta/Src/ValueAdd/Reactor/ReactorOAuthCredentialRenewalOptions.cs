@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <see cref="Reactor.SubmitOAuthCredentialRenewal(ReactorOAuthCredentialRenewalOptions,
     /// ReactorOAuthCredentialRenewal, out ReactorErrorInfo?)"/> method.
     /// </summary>
-    public class ReactorOAuthCredentialRenewalOptions
+    sealed public class ReactorOAuthCredentialRenewalOptions
     {
         /// <summary>
         /// Creates <see cref="ReactorOAuthCredentialRenewalOptions"/>.

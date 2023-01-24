@@ -13,7 +13,7 @@ namespace LSEG.Eta.Codec
 	/// <summary>
 	/// Quality Timeliness enumerations describe the age of the data.
 	/// </summary>
-	public class QosTimeliness
+	sealed public class QosTimeliness
 	{
 		// QosTimeliness class cannot be instantiated
 		private QosTimeliness()

@@ -14,7 +14,7 @@ namespace LSEG.Eta.Codec
 	/// State Stream States provide information on the health of the stream.
 	/// </summary>
 	/// <seealso cref="State"/>
-	public class StreamStates
+	sealed public class StreamStates
 	{
 		// StreamStates class cannot be instantiated
 		private StreamStates()

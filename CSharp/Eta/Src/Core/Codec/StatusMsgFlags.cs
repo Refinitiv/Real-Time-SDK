@@ -12,7 +12,7 @@ namespace LSEG.Eta.Codec
 	/// Specifies a combination of bit values indicating special behaviors and the presence of optional content.
 	/// </summary>
 	/// <seealso cref="IStatusMsg"/>
-	public class StatusMsgFlags
+	sealed public class StatusMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

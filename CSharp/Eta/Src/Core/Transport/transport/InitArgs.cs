@@ -13,7 +13,7 @@ namespace LSEG.Eta.Transports
     /// 
     /// <seealso cref="Transport"/>
     /// </summary>
-    public class InitArgs
+    sealed public class InitArgs
     {
         /// <summary>
         /// The default constructor to clear all options to default values.

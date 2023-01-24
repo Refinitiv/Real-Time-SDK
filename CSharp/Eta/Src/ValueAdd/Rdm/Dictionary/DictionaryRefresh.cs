@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// Represents Dictionary Refresh message.
     /// </summary>
-    public class DictionaryRefresh : MsgBase
+    sealed public class DictionaryRefresh : MsgBase
     {
         private IRefreshMsg m_DictionaryRefresh = new Msg();
         private Int tmpInt = new Int();

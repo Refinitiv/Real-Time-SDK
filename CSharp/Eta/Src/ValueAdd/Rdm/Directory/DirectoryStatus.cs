@@ -16,7 +16,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Directory Status. 
     /// Used by a Provider application to indicate changes to the Directory stream.
     /// </summary>
-    public class DirectoryStatus : MsgBase
+    sealed public class DirectoryStatus : MsgBase
     {
         private IStatusMsg m_StatusMsg = new Msg();
         private State m_State = new State();

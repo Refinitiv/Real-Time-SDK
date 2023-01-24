@@ -13,7 +13,7 @@ namespace LSEG.Eta.Codec
     /// presence of optional content for an <see cref="IAckMsg"/>.
     /// </summary>
     /// <seealso cref="LSEG.Eta.Codec.IAckMsg"/>
-    public class AckMsgFlags
+    sealed public class AckMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

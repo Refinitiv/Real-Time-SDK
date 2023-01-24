@@ -13,7 +13,7 @@ namespace LSEG.Eta.Codec
 	/// of optional <see cref="IRefreshMsg"/> content.
 	/// </summary>
 	/// <seealso cref="IRefreshMsg"/>
-	public class RefreshMsgFlags
+	sealed public class RefreshMsgFlags
 	{
 		/// <summary>
 		/// This class is not instantiated

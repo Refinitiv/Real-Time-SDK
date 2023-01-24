@@ -14,12 +14,12 @@ using System.Text;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.ValueAdd.Rdm
-{ 
+{
     /// <summary>
     /// The RDM login attrib. LoginAttrib be used
     /// to send additional authentication information and user preferences between the components.
     /// </summary>
-    public class LoginAttrib
+    sealed public class LoginAttrib
     {
         private LoginAttribFlags flags;
         private Buffer _applicationId = new();

@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// Reactor connection information for use in <see cref="ReactorConnectOptions"/>
     /// </summary>
-    public class ReactorConnectInfo
+    sealed public class ReactorConnectInfo
     {
         const int DEFAULT_TIMEOUT = 60;
 

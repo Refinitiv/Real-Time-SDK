@@ -36,7 +36,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// allows for simplified use in OMM applications that leverage RDMs.</para>
     ///
     /// </remarks>
-    public class LoginRequest : MsgBase
+    sealed public class LoginRequest : MsgBase
     {
         #region Private Fields
 

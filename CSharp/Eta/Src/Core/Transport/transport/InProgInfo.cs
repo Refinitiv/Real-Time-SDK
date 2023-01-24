@@ -16,7 +16,7 @@ namespace LSEG.Eta.Transports
     /// This is how that information is relayed.
     /// </summary>
     /// <seealso cref="InProgFlags"/>
-    public class InProgInfo
+    sealed public class InProgInfo
     {
         /// <summary>
         /// Combination of bit values to indicate special behaviors and presence of optional <see cref="InProgInfo"/> content.

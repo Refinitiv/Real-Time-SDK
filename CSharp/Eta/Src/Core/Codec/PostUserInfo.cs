@@ -20,7 +20,7 @@ namespace LSEG.Eta.Codec
     /// <seealso cref="IRefreshMsg"/>
     /// <seealso cref="IStatusMsg"/>
     /// <seealso cref="IUpdateMsg"/>
-	public class PostUserInfo
+	sealed public class PostUserInfo
 	{
 		private StringBuilder _strBldr = new StringBuilder();
 

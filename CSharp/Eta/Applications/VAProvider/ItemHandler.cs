@@ -540,7 +540,7 @@ namespace LSEG.Eta.ValueAdd.Provider
             foreach (ItemRequestInfo itemReqInfo in m_ItemRequestWatchList)
             {
                 if (itemReqInfo.IsInUse &&
-                        itemReqInfo.Channel == chnl &&
+                        itemReqInfo.Channel == chnl.Channel &&
                         itemReqInfo.StreamId == streamId)
                 {
                     if (itemReqInfo.MsgKey.Equals(key))

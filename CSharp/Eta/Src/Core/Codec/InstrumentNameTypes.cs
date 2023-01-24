@@ -12,7 +12,7 @@ namespace LSEG.Eta.Rdm
 	/// RDM Instrument Name Types.
 	/// 
 	/// </summary>
-	public class InstrumentNameTypes
+	sealed public class InstrumentNameTypes
 	{
 		// InstrumentNameTypes class cannot be instantiated
 		private InstrumentNameTypes()

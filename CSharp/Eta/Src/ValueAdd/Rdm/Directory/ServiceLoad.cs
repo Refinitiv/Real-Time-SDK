@@ -18,7 +18,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Service Load. 
     /// Contains information provided by the Source Directory Load filter.
     /// </summary>
-    public class ServiceLoad
+    sealed public class ServiceLoad
     {
         private long m_OpenLimit;
         private long m_OpenWindow;

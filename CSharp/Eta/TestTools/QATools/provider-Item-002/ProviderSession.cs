@@ -2,15 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
 using System.Collections.Generic;
 using System.Text;
-using LSEG.Eta.Codec;
 using LSEG.Eta.Transports;
+using LSEG.Eta.Codec;
+
 using System.Net.Sockets;
 using LSEG.Eta.Common;
 //APIQA
@@ -48,9 +49,9 @@ namespace LSEG.Eta.Example.Common
         private ReadArgs m_ReadArgs = new ReadArgs();
         private ChannelInfo m_ChannelInfo = new ChannelInfo();
         public bool EnableChannelWriteLocking { get; set; }
-
+		//API QA
         private string XmlLogFileName = "RsslProvider_.xml";
-
+        //END API QA
         public List<SelectElement> ClientSessionSocketList { get; private set; } = new List<SelectElement>(CLIENT_SESSIONS_LIMIT);
         private Dictionary<Socket, IChannel> m_ClientChannelDict { get; set; } = new Dictionary<Socket, IChannel>(CLIENT_SESSIONS_LIMIT);
 
@@ -279,7 +280,14 @@ namespace LSEG.Eta.Example.Common
             error = null;
             ITransportBuffer tempBuf = msgBuf;
             if (channel is null)
+            {
+                error = new Error()
+                {
+                    Text = "Channel is null",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
+            }
 
             if (shouldXmlTrace)
             {

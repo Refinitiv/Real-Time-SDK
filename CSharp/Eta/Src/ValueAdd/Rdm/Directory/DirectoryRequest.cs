@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// A consumer can request information about all services by omitting serviceId information, 
     /// or specify a serviceId to request information about only that service.
     /// </summary>
-    public class DirectoryRequest : MsgBase
+    sealed public class DirectoryRequest : MsgBase
     {
         private IRequestMsg m_RequestMsg = new Msg();
         private int m_ServiceId = 0;

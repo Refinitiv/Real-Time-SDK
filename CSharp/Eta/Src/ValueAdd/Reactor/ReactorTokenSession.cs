@@ -327,6 +327,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                         $"Text: {errorText}");
 
                                     m_Reactor.SendChannelWarningEvent(ReactorChannel, ReactorChannel.ReactorErrorInfo);
+
+                                    if (ReactorChannel.State == ReactorChannelState.RDP_RT)
+                                    {
+                                        ReactorChannel.State = ReactorChannelState.RDP_RT_FAILED;
+                                    }
                                 }
                                 else
                                 {
@@ -405,10 +410,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                             m_Reactor.SendChannelWarningEvent(ReactorChannel, ReactorChannel.ReactorErrorInfo);
                         }
                     }
-
-                    m_Reactor.SendAuthTokenEvent(ReactorChannel, this, ReactorChannel.ReactorErrorInfo);
-
-                    SessionMgntState = SessionState.REQUEST_TOKEN_FAILURE;
 
                     /* This is used to indicate that the token is no longer valid */
                     ReactorChannel.RDMLoginRequestRDP!.UserName.Data("");

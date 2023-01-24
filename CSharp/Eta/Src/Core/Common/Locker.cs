@@ -43,7 +43,7 @@ namespace LSEG.Eta.Common
     /// <summary>
     /// Allows 1 or more Readers into C-S; no Writers.
     /// </summary>
-    public class ReadLocker : Locker
+    sealed public class ReadLocker : Locker
     {
         /// <summary>
         /// Constructor
@@ -79,7 +79,7 @@ namespace LSEG.Eta.Common
     /// <summary>
     /// Allows at most 1 Writer into C-S; no Readers.
     /// </summary>
-    public class WriteLocker : Locker
+    sealed public class WriteLocker : Locker
     {
         /// <summary>
         /// Constructor
@@ -115,7 +115,7 @@ namespace LSEG.Eta.Common
     /// <summary>
     /// Allows anybody into anything.
     /// </summary>
-    public class NoLocker : Locker
+    sealed public class NoLocker : Locker
     {
         /// <summary>
         /// Constructor

@@ -1,3 +1,0 @@
-#file,location
-Consumer.cs,Applications/Consumer/Consumer.cs
-ChannelSession.cs,Applications/EtaAppCommon/ChannelSession.cs

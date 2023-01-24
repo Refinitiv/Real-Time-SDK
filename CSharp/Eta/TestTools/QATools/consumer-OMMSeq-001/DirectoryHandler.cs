@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -145,7 +145,7 @@ namespace LSEG.Eta.Example.Common
             {
                 error = new Error()
                 {
-                    Text = "Encode DirectoryRequest failed: code " + ret + ".\n"
+                    Text = $"Encode DirectoryRequest failed, return code {ret.GetAsString()}\n"
                 };
                 return TransportReturnCode.FAILURE;
             }

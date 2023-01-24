@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Service Data. Contains information provided by the Source Directory Data filter.
     /// </summary>
-    public class ServiceData
+    sealed public class ServiceData
     {
         private Buffer m_Data = new Buffer();
 

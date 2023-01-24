@@ -15,7 +15,7 @@ namespace LSEG.Eta.Transports
     /// <summary>
     /// Helper class that provides some useful functionality for dumping data to XML
     /// </summary>
-    public class XmlTraceDump
+    sealed public class XmlTraceDump
     {
 
         DecodeIterator xmlDumpIterator = new DecodeIterator();

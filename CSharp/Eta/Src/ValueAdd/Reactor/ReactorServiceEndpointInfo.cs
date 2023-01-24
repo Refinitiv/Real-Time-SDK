@@ -11,7 +11,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// <summary>
     /// This class represents endpoint information from the service discovery.
     /// </summary>
-    public class ReactorServiceEndpointInfo
+    sealed public class ReactorServiceEndpointInfo
     {
         internal ReactorServiceEndpointInfo()
         {

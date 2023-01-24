@@ -11,7 +11,7 @@ namespace LSEG.Eta.Transports
     /// <summary>
     /// ETA Proxy Options used in <see cref="ConnectOptions"/>
     /// </summary>
-    public class ProxyOptions
+    sealed public class ProxyOptions
     {
         /// <summary>
         /// Clears to default values

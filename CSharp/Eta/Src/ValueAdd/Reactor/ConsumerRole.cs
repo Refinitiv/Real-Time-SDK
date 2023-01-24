@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// </summary>
     /// <see cref="ReactorRole"/>
     /// <see cref="ReactorRoleType"/>
-    public class ConsumerRole : ReactorRole
+    sealed public class ConsumerRole : ReactorRole
     {
         private LoginRequest? m_LoginRequest;
         DirectoryRequest? m_DirectoryRequest = null;

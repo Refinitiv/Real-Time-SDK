@@ -16,7 +16,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// The RDM Directory Close.  
     /// Used by a Consumer application to close an open Source Directory stream.
     /// </summary>
-    public class  DirectoryClose : MsgBase
+    sealed public class  DirectoryClose : MsgBase
     {
         ICloseMsg m_CloseMsg = new Msg();
 

@@ -155,7 +155,7 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 # Reference Information
 
-    I-COS Questionnaire: 6032
+    I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
     Release Number: 3.6.8

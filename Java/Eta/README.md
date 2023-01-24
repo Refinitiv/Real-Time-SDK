@@ -178,7 +178,7 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
 # Reference Information
 
-    I-COS Questionnaire: 6314
+    I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
     Release Number: 3.6.8

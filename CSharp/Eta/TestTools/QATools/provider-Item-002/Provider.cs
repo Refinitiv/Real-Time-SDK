@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -191,7 +191,7 @@ namespace LSEG.Eta.Example.Provider
             TransportReturnCode ret = m_ProviderSession.Init(false, out Error? error);
             if (ret != TransportReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Error initializing server: {error!.Text}");
+                Console.WriteLine($"Failed initializing server, error: {error?.Text}");
                Environment.Exit((int)TransportReturnCode.FAILURE);
             }
 
@@ -253,17 +253,17 @@ namespace LSEG.Eta.Example.Provider
                         // send close status messages to all item streams
                         CodecReturnCode ret = m_ItemHandler.SendCloseStatusMsgs(clientSessionInfo.ClientChannel, out Error? error);
                         if (ret != CodecReturnCode.SUCCESS)
-                            Console.WriteLine($"Error sending item close: {error!.Text}");
+                            Console.WriteLine($"Failed sending item close, error: {error?.Text}");
 
                         // send close status message to source directory stream
                         ret = m_DirectoryHandler.SendCloseStatus(clientSessionInfo.ClientChannel, out error);
                         if (ret != CodecReturnCode.SUCCESS)
-                            Console.WriteLine($"Error sending directory close: {error!.Text}");
+                            Console.WriteLine($"Failed sending directory close, error: {error?.Text}");
 
                         // send close status messages to dictionary streams
                         ret = m_DictionaryHandler.SendCloseStatusMsgs(clientSessionInfo.ClientChannel, out error);
                         if (ret != CodecReturnCode.SUCCESS)
-                            Console.WriteLine($"Error sending dictionary close: {error!.Text}");
+                            Console.WriteLine($"Failed sending dictionary close: {error?.Text}");
 
                         // flush before exiting
                         if (clientSessionInfo.ClientChannel != null && clientSessionInfo.ClientChannel.Socket != null)
@@ -279,7 +279,7 @@ namespace LSEG.Eta.Example.Provider
                                 }
                                 if (flushRet < (int)TransportReturnCode.SUCCESS)
                                 {
-                                    Console.WriteLine($"ClientChannel.Flush() failed with return code {ret} and text {error!.Text}");
+                                    Console.WriteLine($"ClientChannel.Flush() failed with return code {ret} and text {error?.Text}");
                                 }
                             }
                         }
@@ -399,7 +399,7 @@ namespace LSEG.Eta.Example.Provider
                             TransportReturnCode transportRet = m_ProviderSession.HandleNewClientSession(m_ProviderSession.Server!, out error);
                             if (transportRet != TransportReturnCode.SUCCESS)
                             {
-                                Console.WriteLine($"accept error, text: {error!.Text}");
+                                Console.WriteLine($"accept error, text: {error?.Text}");
                                 continue;
                             }
                         }
@@ -411,7 +411,7 @@ namespace LSEG.Eta.Example.Provider
                                 TransportReturnCode transportRet = m_ProviderSession.Read(channel, out error, this);
                                 if (transportRet != TransportReturnCode.SUCCESS)
                                 {
-                                   Console.WriteLine($"read error, text: {error!.Text}");
+                                   Console.WriteLine($"read error, text: {error?.Text}");
                                     continue;
                                 }
                             }
@@ -488,7 +488,7 @@ namespace LSEG.Eta.Example.Provider
                     {
                         if (m_LoginHandler.ProcessRequest(channel, m_ReceivedMsg, m_DIter, out error) != 0)
                         {
-                            Console.WriteLine($"Error processing login request: {error!.Text}");
+                            Console.WriteLine($"Failed processing login request, error: {error?.Text}");
                             ProcessChannelClose(channel);
                             m_ProviderSession.RemoveClientSessionForChannel(channel);
                             RemoveInactiveSessions();
@@ -512,7 +512,7 @@ namespace LSEG.Eta.Example.Provider
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"Dictionary could not be downloaded, unable to send the request to the connection {error!.Text}");
+                                        Console.WriteLine($"Dictionary could not be downloaded, unable to send the request to the connection, error: {error?.Text}");
                                         ProcessChannelClose(channel);
                                         m_ProviderSession.RemoveClientSessionForChannel(channel);
                                         RemoveInactiveSessions();
@@ -540,7 +540,7 @@ namespace LSEG.Eta.Example.Provider
                 case (int)DomainType.SOURCE:
                     if (m_DirectoryHandler.ProcessRequest(channel, m_ReceivedMsg, m_DIter, out error) != 0)
                     {
-                        Console.WriteLine($"Error processing directory request: {error!.Text}");
+                        Console.WriteLine($"Failed processing directory request, error: {error?.Text}");
                         ProcessChannelClose(channel);
                         m_ProviderSession.RemoveClientSessionForChannel(channel);
                         RemoveInactiveSessions();
@@ -549,7 +549,7 @@ namespace LSEG.Eta.Example.Provider
                 case (int)DomainType.DICTIONARY:
                     if (m_DictionaryHandler.ProcessMessage(channel, m_ReceivedMsg, m_DIter, out error) != 0)
                     {
-                        Console.WriteLine($"Error processing dictionary message: {error!.Text}");
+                        Console.WriteLine($"Failed processing dictionary message, error: {error?.Text}");
                         ProcessChannelClose(channel);
                         m_ProviderSession.RemoveClientSessionForChannel(channel);
                         RemoveInactiveSessions();
@@ -562,7 +562,7 @@ namespace LSEG.Eta.Example.Provider
                 case (int)DomainType.SYMBOL_LIST:
                     if (m_ItemHandler.ProcessRequest(channel, m_ReceivedMsg, m_DIter, out error) != 0)
                     {
-                        Console.WriteLine($"Error processing item request: {error!.Text}");
+                        Console.WriteLine($"Failed processing item request, error: {error?.Text}");
                         ProcessChannelClose(channel);
                         m_ProviderSession.RemoveClientSessionForChannel(channel);
                         RemoveInactiveSessions(); ;
@@ -571,7 +571,7 @@ namespace LSEG.Eta.Example.Provider
                 default:
                     if (m_UnSupportedMsgHandler.ProcessRequest(channel, m_ReceivedMsg, out error) != 0)
                     {
-                        Console.WriteLine($"Error processing unhandled request message: {error!.Text}");
+                        Console.WriteLine($"Failed processing unhandled request message. error: {error?.Text}");
                         ProcessChannelClose(channel);
                         m_ProviderSession.RemoveClientSessionForChannel(channel);
                         RemoveInactiveSessions();

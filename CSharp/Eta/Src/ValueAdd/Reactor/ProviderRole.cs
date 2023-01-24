@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     /// </summary>
     /// <see cref="ReactorRole"/>
     /// <see cref="ReactorRoleType"/>
-    public class ProviderRole : ReactorRole
+    sealed public class ProviderRole : ReactorRole
     {
         private IDirectoryMsgCallback? m_DirectoryMsgCallback = null;
         private IDictionaryMsgCallback? m_DictionaryMsgCallback = null;

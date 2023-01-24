@@ -16,7 +16,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Service. Contains information about a particular service.
     /// </summary>
-    public class Service
+    sealed public class Service
     {
         private ServiceInfo _info = new ServiceInfo();
         private ServiceState _state = new ServiceState();

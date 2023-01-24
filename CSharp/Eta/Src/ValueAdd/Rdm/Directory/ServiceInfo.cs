@@ -19,7 +19,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// The RDM Service Info. Contains information provided by the Source Directory Info filter.
     /// </summary>
-    public class ServiceInfo
+    sealed public class ServiceInfo
     {
         private Buffer _serviceName;
         private Buffer _vendor;

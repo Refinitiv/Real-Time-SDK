@@ -13,7 +13,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <summary>
     /// RDM Address and Port information structure used for Multicast-based connections.
     /// </summary>
-    public class RDMMCAddressPortInfo
+    sealed public class RDMMCAddressPortInfo
     {
         /// <summary>
         /// List of <see cref="Buffer"/> containing the address information.
