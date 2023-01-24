@@ -133,20 +133,21 @@ NOTE: Specify -? as an argument to get a list of possible arguments
 
 The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this GitHub repo under `CSharp/etc`. In addition, the most current version can be downloaded from [MyRefinitiv.com](https://my.refinitiv.com/content/mytr/en/downloadcenter.html). Search for "Service Pack" and choose the latest version of Refinitiv Template Service Pack.
 
-# NuGet 
+# NuGet
 
 For ease of product use, Refinitiv maintains its RTSDK CSharp libraries on NuGet.
 
-You can download RTSDK libraries and dependencies from NuGet. Below is *sample* code to build applications. 
+You can download RTSDK libraries and dependencies from NuGet. Below is *sample* code to build applications.
 
-<dependency>
-  <ItemGroup>
-    <PackageReference Include="LSEG.Eta.Core" Version="3.0.0" />
-    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.0" />
-    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.0" />
-    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.0" />
-  </ItemGroup>
-</dependency>
+        <dependency>
+                <ItemGroup>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.0.0"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.0"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.0"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.0"/>
+                </ItemGroup/>
+        </dependency>
+
 
 # Developing 
 
