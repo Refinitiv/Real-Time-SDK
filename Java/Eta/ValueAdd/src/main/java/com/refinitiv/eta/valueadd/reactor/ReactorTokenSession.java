@@ -95,6 +95,8 @@ class ReactorTokenSession implements RestCallback
     	_restAuthRequest.password(_reactorOAuthCredential.password().toString());
     	_restAuthRequest.clientId(_reactorOAuthCredential.clientId().toString());
     	_restAuthRequest.clientSecret(_reactorOAuthCredential.clientSecret().toString());
+    	_restAuthRequest.audience(_reactorOAuthCredential.audience().toString());
+    	_restAuthRequest.clientJwk(_reactorOAuthCredential.clientJwk().toString());
     	_restAuthRequest.tokenScope(_reactorOAuthCredential.tokenScope().toString());
     	
     	_resultClosure = new RestResultClosure(this, this);
@@ -358,7 +360,7 @@ class ReactorTokenSession implements RestCallback
 		}
 	}
 	
-	int sendAuthRequestWithSensitiveInfo(String password, String newPassword, String clientSecret)
+	int sendAuthRequestWithSensitiveInfo(String password, String newPassword, String clientSecret, String clientJwk)
 	{
 		int ret = 0;
 		_sessionState = SessionState.REQ_AUTH_TOKEN_USING_PASSWORD;
@@ -367,6 +369,7 @@ class ReactorTokenSession implements RestCallback
 		_restAuthRequest.password(password);
 		_restAuthRequest.newPassword(newPassword);
 		_restAuthRequest.clientSecret(clientSecret);
+		_restAuthRequest.clientJwk(clientJwk);
 		
 		ret = _restReactor.submitAuthRequest(_restAuthRequest, _restConnectOptions, _authTokenInfo, _errorInfo);
 		

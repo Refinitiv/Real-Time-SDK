@@ -70,6 +70,15 @@ public interface OAuth2CredentialRenewal {
     public OAuth2CredentialRenewal clientSecret(String clientSecret);
     
     /**
+     * Sets the private JWK used to authorize with the token service. Required for V2 oAuthClientJWT
+     *
+     * @param clientJwk the client JWK string, encoded in  JSON format.
+     * 
+     * @return - reference to this object
+     */
+    public OAuth2CredentialRenewal clientJWK(String clientJwk);
+    
+    /**
      * Sets token scope to limit the scope of generated token. Optional
      *
      * @param tokenScope the token scope
@@ -77,6 +86,15 @@ public interface OAuth2CredentialRenewal {
      * @return - reference to this object
      */
     public OAuth2CredentialRenewal tokenScope(String tokenScope);
+    
+    /**
+     * Sets the audience for for V2 oAuthClientJWT. This is optional.
+     *
+     * @param audience the audience string
+     * 
+     * @return - reference to this object
+     */
+    public OAuth2CredentialRenewal audience(String audience);
     
     /**
      * Sets the exclusive sign on control to force sign-out of other applications using the same credentials. Not used with V2.

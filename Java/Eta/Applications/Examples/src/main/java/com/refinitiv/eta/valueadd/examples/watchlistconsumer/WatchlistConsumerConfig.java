@@ -537,6 +537,11 @@ public class WatchlistConsumerConfig
 		return CommandLine.value("clientSecret");
 	}
 	
+	String jwkFile()
+	{
+		return CommandLine.value("jwkFile");
+	}
+	
 	String tokenUrlV1()
 	{
 		return CommandLine.value("tokenURLV1");
@@ -550,6 +555,11 @@ public class WatchlistConsumerConfig
 	String tokenScope()
 	{
 		return CommandLine.value("tokenScope");
+	}
+	
+	String audience()
+	{
+		return CommandLine.value("audience");
 	}
 	
 	String serviceDiscoveryURL()
@@ -767,9 +777,11 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("query", "", "(optional) Queries EDP service discovery to get an endpoint according to a specified connection type and location.");
 		CommandLine.addOption("clientId", "Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.");
 		CommandLine.addOption("clientSecret", "Specifies the associated client Secret with a provided clientId for V2 logins.");
+		CommandLine.addOption("jwkFile", "Specifies the file location containing the JWK encoded private key for V2 logins.");
 		CommandLine.addOption("tokenURLV1", "Specifies the token URL for V1 token oauthpasswd grant type.");
 		CommandLine.addOption("tokenURLV2", "Specifies the token URL for V2 token oauthclientcreds grant type.");
 		CommandLine.addOption("tokenScope", "", "Specifies the token scope.");
+		CommandLine.addOption("audience", "", "Optionally specifies the audience used with V2 JWT logins");
 		CommandLine.addOption("serviceDiscoveryURL", "Specifies the service discovery URL.");
 
 		CommandLine.addOption("rtt", false, "(optional) Enable RTT support in the WatchList");

@@ -925,6 +925,16 @@ void EmaConfigImpl::clientSecret( const EmaString& clientSecret )
 	_oAuthCredential.clientSecret(clientSecret);
 }
 
+void EmaConfigImpl::clientJWK(const EmaString& clientJWK)
+{
+	_oAuthCredential.clientJWK(clientJWK);
+}
+
+void EmaConfigImpl::audience(const EmaString& audience)
+{
+	_oAuthCredential.audience(audience);
+}
+
 void EmaConfigImpl::tokenScope(const EmaString& tokenScope)
 {
 	_oAuthCredential.tokenScope(tokenScope);

@@ -25,6 +25,7 @@ ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::clear()
 	_password.clear();
 	_clientId.clear();
 	_clientSecret.clear();
+	_audience.clear();
 	_tokenScope.clear();
 	_proxyHostName.clear();
 	_proxyPort.clear();
@@ -58,6 +59,18 @@ ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::clientId(const E
 ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::clientSecret(const EmaString& clientSecret)
 {
 	_clientSecret = clientSecret;
+	return *this;
+}
+
+ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::clientJWK(const EmaString& clientJWK)
+{
+	_clientJWK = clientJWK;
+	return *this;
+}
+
+ServiceEndpointDiscoveryOption& ServiceEndpointDiscoveryOption::audience(const EmaString& audience)
+{
+	_audience = audience;
 	return *this;
 }
 

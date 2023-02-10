@@ -107,6 +107,8 @@ vaconsumer-OAuthV2-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st
 
 vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st, 2nd and 3rd connection are for STS. And 4th, 5th, and 6th connection are for OAuth V2.
 
+vaconsumer-Jwt-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 JWT but can identify either same / diff credential.
+
 Module:  Watchlist Consumer 
 ---------------------------
 

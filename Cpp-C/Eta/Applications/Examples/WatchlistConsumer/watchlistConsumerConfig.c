@@ -61,8 +61,10 @@ void printUsageAndExit(int argc, char **argv)
 			" -if          Specifies the address of a specific network interface to use.\n"
 			" -clientId    Specifies an unique ID for application making the request to RDP token service, or the client Id for Refinitiv login version 2 (mandatory).\n"
 			" -clientSecret Specifies the client secret associated with the client id.\n"
+			" -jwkFile		Specifies the file location of the private JWK for use with V2 JWT authentication. \n"
+			" -audience		Specifies the audience claim for V2 JWT authentication.\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
-			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.\n"
+			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
 			" -takeExclusiveSignOnControl Specifies true or false to set the exclusive sign on control to force sign-out for the same credentials.\n"
 			" -query       Quries RDP service discovery to get an endpoint according the specified connection type and location.\n"
 			" -mp          For each occurance, requests item using Market Price domain.\n"
@@ -161,6 +163,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 {
 	int i;
 	int configFlags = 0;
+	FILE* pFile;		// For JWK file
 	int readSize = 0;
 	int wsConfigFlags = 0;
 	char warmStandbyMode[255];
@@ -197,6 +200,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
 	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
 	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+
+	snprintf(watchlistConsumerConfig._clientJwkMem, 2048, "");
+	snprintf(watchlistConsumerConfig._audienceMem, 255, "");
+
 
 	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "");
 	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
@@ -556,6 +563,35 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 			watchlistConsumerConfig.clientSecret.length =
 				(RsslUInt32)snprintf(watchlistConsumerConfig._clientSecretMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.clientSecret.data = watchlistConsumerConfig._clientSecretMem;
+		}
+		else if (0 == strcmp(argv[i], "-jwkFile"))
+		{
+			/* As this is an example program showing API, this handling of the JWK is not secure. */
+			if (++i == argc) printUsageAndExit(argc, argv);
+			pFile = fopen(argv[i], "rb");
+			if (pFile == NULL)
+			{
+				printf("Cannot load jwk file.\n");
+				printUsageAndExit(argc, argv);
+			}
+			/* Read the JWK contents into a pre-allocated buffer*/
+			readSize = (int)fread(watchlistConsumerConfig._clientJwkMem, sizeof(char), 2048, pFile);
+			if (readSize == 0)
+			{
+				printf("Cannot load jwk file.\n");
+				printUsageAndExit(argc, argv);
+			}
+			watchlistConsumerConfig.clientJWK.data = watchlistConsumerConfig._clientJwkMem;
+			watchlistConsumerConfig.clientJWK.length = readSize;
+
+			fclose(pFile);
+		}
+		else if (0 == strcmp(argv[i], "-audience"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.audience.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._audienceMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.audience.data = watchlistConsumerConfig._audienceMem;
 		}
 		else if (0 == strcmp(argv[i], "-tokenURLV1"))
 		{

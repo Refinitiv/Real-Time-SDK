@@ -91,6 +91,18 @@ public:
 	*/
 	ServiceEndpointDiscoveryOption & clientSecret(const EmaString& clientSecret);
 
+	/** Specifies the clientJWK.  This is used for login V2
+	@param[in] clientJWK specifies the client JWK for oAuth2 interactions.
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption& clientJWK(const EmaString& clientJWK);
+
+	/** Specifies the audience claim used by OAuth client to authenticate to the Authorization Server. This is optional for OAuth V2 JWT interactions.
+	@param[in] audience specifies the client audience claim
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption& audience(const EmaString& audience = "https://login.ciam.refinitiv.com/as/token.oauth2");
+
 	/** Specifies optionally token scope to limit the scope of generated token from the token service.
 		@param[in] tokenScope specifies a token scope
 		@return reference to this object
@@ -171,6 +183,8 @@ private:
 	EmaString			_password;
 	EmaString			_clientId;
 	EmaString			_clientSecret;
+	EmaString			_clientJWK;
+	EmaString			_audience;
 	EmaString			_tokenScope;
 	bool				_takeExclusiveSignOnControl;
 	EmaString			_proxyHostName;

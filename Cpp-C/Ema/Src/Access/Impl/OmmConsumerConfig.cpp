@@ -83,6 +83,18 @@ OmmConsumerConfig& OmmConsumerConfig::clientSecret(const EmaString& clientSecret
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::clientJWK(const EmaString& clientJWK)
+{
+	_pImpl->clientJWK(clientJWK);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::audience(const EmaString& audience)
+{
+	_pImpl->audience(audience);
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::tokenScope(const EmaString& tokenScope)
 {
 	_pImpl->tokenScope(tokenScope);

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10.3)
+cmake_minimum_required (VERSION 3.11.4)
 # The minimum version was chosen from a combination of the need for
 # critical bug fixes by CMake, the idea of taking advantage of future
 # CMake fixes soon to be released and wanting to fully embrace the
@@ -19,6 +19,8 @@ include(rcdevSupport)
 include(rtsdkOptions)
 include(rtsdkInfo)
 
+include(rtsdkAdditionalCompilerOptions)
+
 
 if(BUILD_RTSDK-BINARYPACK)
 	include(addExternal_rtsdk-binarypack)
@@ -34,6 +36,9 @@ include(addExternal_lz4)
 include(addExternal_libxml2)
 include(addExternal_curl)
 include(addExternal_cjson)
+if(BUILD_ETA_JWT)
+include(addExternal_l8w8jwt)
+endif()
 
 #
 # Set up default build paths if not already defined

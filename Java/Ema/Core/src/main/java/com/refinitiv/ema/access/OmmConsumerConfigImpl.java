@@ -86,11 +86,25 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		clientSecretInt(clientSecret);
 		return this;
 	}
+	
+	@Override
+	public OmmConsumerConfig clientJWK(String clientJwk)
+	{
+		clientJwkInt(clientJwk);
+		return this;
+	}
 
 	@Override
 	public OmmConsumerConfig tokenScope(String tokenScope)
 	{
 		tokenScopeInt(tokenScope);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig audience(String audience)
+	{
+		audienceInt(audience);
 		return this;
 	}
 

@@ -1201,6 +1201,8 @@ public:
 
 	void clientId( const EmaString& );
 	void clientSecret(const EmaString& );
+	void clientJWK (const EmaString&);
+	void audience(const EmaString&);
 	void tokenScope( const EmaString& );
 	void takeExclusiveSignOnControl( bool );
 	void tokenServiceUrl( const EmaString& );

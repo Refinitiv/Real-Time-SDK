@@ -181,6 +181,8 @@ typedef struct
 																				 *   The Reactor will not copy password and client secret if the function pointer is specified.*/
 	RsslBool									takeExclusiveSignOnControl;		/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional and only used for V1 logins */
 	void*										userSpecPtr;					/*!< user specified pointer that will be referenced in any instances of pOAuthCredentialEventCallback */
+	RsslBuffer									clientJWK;						/*!< Client JWK used for client credential. Mandatory for V2 logins with client JWT login type */
+	RsslBuffer									audience;						/*!< Optional Audience claim for the JWK. If set, the string in this buffer will be used for the audience claim in the JWK generation. */
 } RsslReactorOAuthCredential;
 
 
@@ -489,6 +491,8 @@ typedef struct
 	RsslBuffer                              proxyPasswd;   /*!< specifies a password to perform authorization with a proxy server. */
 	RsslBuffer                              proxyDomain;   /*!< specifies a proxy domain of the user to authenticate.
 															Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols. */
+	RsslBuffer								clientJWK;		/*!< Client JWK used for client credential. Optional, used for V2 logins with a V2 client JWK login */
+	RsslBuffer								audience;		/*!< Optional Audience claim for the JWK. If set, the string in this buffer will be used for the audience claim in the JWK generation. */
 
 } RsslReactorServiceDiscoveryOptions;
 
@@ -1058,8 +1062,8 @@ typedef struct
 } RsslReactorLoginCredentialRenewalOptions;
 
 /**
- * @brief Clears an RsslReactorOAuthCredentialRenewalOptions object.
- * @see RsslReactorOAuthCredentialRenewalOptions
+ * @brief Clears an RsslReactorLoginCredentialRenewalOptions object.
+ * @see RsslReactorLoginCredentialRenewalOptions
  */
 RTR_C_INLINE void rsslClearReactorLoginCredentialRenewalOptions(RsslReactorLoginCredentialRenewalOptions* pOpts)
 {
@@ -1070,7 +1074,7 @@ RTR_C_INLINE void rsslClearReactorLoginCredentialRenewalOptions(RsslReactorLogin
  * @brief Submit Login Msg renewal with updated credentials. This function can only be called during a RsslReactorLoginMsgRenewalEventCallback function. Any further updates to the login message should be done through rsslSubmitMsg.
  * @param pReactor The reactor handling the login renewal.
  * @param pReactorChannel the channel that will have it's login updated.
- * @param pNewLoginMsg new Login request message.
+ * @param pOptions new Login request options.
  * @param pError Error structure to be populated in the event of failure.
  * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
  * @see RsslReactor

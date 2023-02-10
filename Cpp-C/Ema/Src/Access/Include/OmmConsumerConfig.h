@@ -123,11 +123,23 @@ public :
 	*/
 	OmmConsumerConfig& clientId( const EmaString& clientId );
 
-	/** Specifies optionally a secret used by OAuth client to authenticate to the Authorization Server.
+	/** Specifies a secret used by OAuth client to authenticate to the Authorization Server. This is required for OAuth V2 ClientSecret interactions.
 		@param[in] clientSecret specifies a client secret.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& clientSecret( const EmaString& clientSecret );
+
+	/** Specifies a JWK used by OAuth client to authenticate to the Authorization Server. This is required for OAuth V2 JWT interactions.
+	@param[in] clientJWK specifies the client private JWK.
+	@return reference to this object
+	*/
+	OmmConsumerConfig& clientJWK(const EmaString& clientJWK);
+
+	/** Specifies the audience claim used by OAuth client to authenticate to the Authorization Server. This is optional for OAuth V2 JWT interactions.
+	@param[in] audience specifies the client audience claim
+	@return reference to this object
+	*/
+	OmmConsumerConfig& audience(const EmaString& audience = "https://login.ciam.refinitiv.com/as/token.oauth2");
 
 	/** Specifies optionally token scope to limit the scope of generated token from the token service.
 		@param[in] tokenScope specifies a token scope

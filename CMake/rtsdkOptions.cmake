@@ -41,8 +41,19 @@ CMAKE_DEPENDENT_OPTION(BUILD_32_BIT_ETA			"Build the ETA project as 32-bit" OFF
 CMAKE_DEPENDENT_OPTION(BUILD_RTSDK-BINARYPACK "Find the RTSDK-BinaryPack Distribution" ON
 						"NOT BUILD_32_BIT_ETA" OFF)
 
+if(CMAKE_HOST_UNIX)
+# The default value of BUILD_RTSDK-BINARYPACK is ON 
+#      if this is a not a 32-bit build 
+#         ELSE default value of BUILD_RTSDK-BINARYPACK is OFF
+CMAKE_DEPENDENT_OPTION(BUILD_ETA_JWT "Build JWT functionality" ON
+						"NOT ${RCDEV_HOST_SYSTEM_FLAVOR_REL} EQUAL 6" OFF)
+else()
+option(BUILD_ETA_JWT   "Build JWT functionality" ON)
+endif()
+
 mark_as_advanced(BUILD_32_BIT_ETA
 				 BUILD_RTSDK-BINARYPACK
+				 BUILD_ETA_JWT
 				)
 
 # The default value of BUILD_EMA_LIBRARY is ON 

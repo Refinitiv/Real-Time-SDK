@@ -98,12 +98,28 @@ public interface ServiceEndpointDiscoveryOption
 	ServiceEndpointDiscoveryOption clientSecret(String clientSecret);
 	
 	/**
+	 * Specifies optionally a client JWK string used to authenticate to the Authorization Server.
+	 * 
+	 * @param clientJwk specifies a client Jwk string.
+	 * @return reference to this object
+	 */
+	ServiceEndpointDiscoveryOption clientJWK(String clientJwk);
+	
+	/**
 	 * Specifies optionally a token scope to limit the scope of generated token from the token service.
 	 * 
 	 * @param tokenScope specifies a token scope
 	 * @return reference to this object
 	 */
 	ServiceEndpointDiscoveryOption tokenScope(String tokenScope);
+	
+	/**
+	 * Specifies optionally an audience string used with JWT authentication.
+	 * 
+	 * @param audience specifies a token scope
+	 * @return reference to this object
+	 */
+	ServiceEndpointDiscoveryOption audience(String audience);
 	
 	/**
      * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.

@@ -92,6 +92,14 @@ public :
 		@return reference to this object
 	*/
 	OAuth2CredentialRenewal& clientSecret( EmaString& clientSecret );
+
+
+	/** Specifies the clientJWK.  This is used for login V2
+
+		@param[in] clientJWK specifies the client JWK for oAuth2 interactions.
+		@return reference to this object
+	*/
+	OAuth2CredentialRenewal& clientJWK(EmaString& clientJWK);
 	
 	/** Specifies the tokenScope.  This is optionally used for login V1 and login V2
 		
@@ -140,6 +148,12 @@ public :
 	*/
 	const EmaString& getClientSecret();
 	
+	/** Gets the clientJWK.  This is used for login V2
+
+	@return client JWK
+	*/
+	const EmaString& getClientJWK();
+
 	/** Gets the tokenScope.  This is optionally used for login V1 and login V2
 		
 		@return token scope
@@ -166,6 +180,7 @@ private :
 															 *   Both current and new passwords will be required in order to authenticate and change password. Optional.*/
 	EmaString					_clientId;					/*!< A unique ID defined for an application marking the request. Optional */
 	EmaString					_clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
+	EmaString					_clientJWK;					/*!< The JWK used for V2 JWT authentication. Required for V2 JWT interactions. */
 	EmaString					_tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
 	bool						_takeExclusiveSignOnControl;	/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
 	

@@ -83,6 +83,20 @@ public :
 		@return reference to this object
 	*/
 	OAuth2Credential& clientSecret(const EmaString& clientSecret );
+
+	/** Specifies the client JWK.  This is used for login V2
+
+		@param[in] clientJWK specifies the client JWK for oAuth2 interactions.
+		@return reference to this object
+	*/
+	OAuth2Credential& clientJWK(const EmaString& clientJWK);
+
+	/** Optionally specifies the audience claim for the JWT usage.  This is used for login V2
+
+		@param[in] audience specifies the audience claim string for JWT oAuth2 interactions.
+		@return reference to this object
+	*/
+	OAuth2Credential& audience(const EmaString& audience);
 	
 	/** Specifies the tokenScope.  This is optionally used for login V1 and login V2
 		
@@ -132,6 +146,18 @@ public :
 		@return client secret
 	*/
 	const EmaString& getClientSecret();
+
+	/** Gets the client JWK.  This is used for login V2
+
+		@return client WJK
+	*/
+	const EmaString& getClientJWK();
+
+	/** Gets the audience.  This is used for login V2
+
+		@return audience
+	*/
+	const EmaString& getAudience();
 	
 	/** Gets the tokenScope.  This is optionally used for login V1 and login V2
 		
@@ -166,6 +192,9 @@ private :
 	EmaString					_clientId;					/*!< A unique ID defined for an application marking the request. Optional */
 	EmaString					_clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	EmaString					_tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
+
+	EmaString					_clientJWK;
+	EmaString					_audience;
 	
 	EmaString					_channelList;				/* Comma separated list of configured channel names that this set of credentials is associated with*/
 

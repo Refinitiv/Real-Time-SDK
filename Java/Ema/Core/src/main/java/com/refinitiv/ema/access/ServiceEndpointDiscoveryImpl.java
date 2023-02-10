@@ -161,7 +161,9 @@ class ServiceEndpointDiscoveryImpl implements ServiceEndpointDiscovery, ReactorS
 			_reactorServiceDiscoveryOptions.password(serviceEndpointDiscoveryOptionImpl._password);
 			_reactorServiceDiscoveryOptions.clientId(serviceEndpointDiscoveryOptionImpl._clientId);
 			_reactorServiceDiscoveryOptions.clientSecret(serviceEndpointDiscoveryOptionImpl._clientSecret);
+			_reactorServiceDiscoveryOptions.clientJWK(serviceEndpointDiscoveryOptionImpl._clientJwk);
 			_reactorServiceDiscoveryOptions.tokenScope(serviceEndpointDiscoveryOptionImpl._tokenScope);
+			_reactorServiceDiscoveryOptions.audience(serviceEndpointDiscoveryOptionImpl._audience);
 			_reactorServiceDiscoveryOptions.transport(serviceEndpointDiscoveryOptionImpl._transport);
 			_reactorServiceDiscoveryOptions.dataFormat(serviceEndpointDiscoveryOptionImpl._dataFormat);
 			_reactorServiceDiscoveryOptions.takeExclusiveSignOnControl(serviceEndpointDiscoveryOptionImpl._takeExclusiveSignOnControl);

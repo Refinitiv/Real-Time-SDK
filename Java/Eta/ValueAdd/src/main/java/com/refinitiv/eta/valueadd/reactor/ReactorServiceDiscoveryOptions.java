@@ -19,6 +19,8 @@ public class ReactorServiceDiscoveryOptions
 	private Buffer _password = CodecFactory.createBuffer(); 
 	private Buffer _clientId = CodecFactory.createBuffer();
 	private Buffer _clientSecret = CodecFactory.createBuffer();
+	private Buffer _audience = CodecFactory.createBuffer();
+	private Buffer _clientJWK = CodecFactory.createBuffer();
 	private Buffer _tokenScope = CodecFactory.createBuffer();
 	private int    _transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
 	private int    _dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
@@ -44,6 +46,8 @@ public class ReactorServiceDiscoveryOptions
 		_password.clear();
 		_clientId.clear();
 		_clientSecret.clear();
+		_clientJWK.clear();
+		_audience.data("https://login.ciam.refinitiv.com/as/token.oauth2");
 		_tokenScope.data("trapi.streaming.pricing.read");
 		_transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
 		_dataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
@@ -86,6 +90,18 @@ public class ReactorServiceDiscoveryOptions
         	ByteBuffer byteBuffer = ByteBuffer.allocate(_clientSecret.length());
         	_clientSecret.copy(byteBuffer);
         	dest.clientSecret().data(byteBuffer);  
+        } 
+        
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(_audience.length());
+        	_audience.copy(byteBuffer);
+        	dest.audience().data(byteBuffer);  
+        } 
+        
+        {
+        	ByteBuffer byteBuffer = ByteBuffer.allocate(_clientJWK.length());
+        	_clientJWK.copy(byteBuffer);
+        	dest.clientJWK().data(byteBuffer);  
         } 
         
         {
@@ -185,6 +201,49 @@ public class ReactorServiceDiscoveryOptions
 	{
 		return _clientSecret;
 	}
+	
+	/**
+     * Specifies the client JWK defined for an application making a request to the token service.
+     * 
+     * @param clientJWK the client JWK
+     */			
+	public void clientJWK(Buffer clientJWK)
+	{
+		assert(clientJWK != null) : "clientSecret can not be null";
+		clientJWK().data(clientJWK.data(), clientJWK.position(), clientJWK.length());
+	}
+	
+	/**
+     * Returns the client JWK for application making the request to RDP token service.
+     * 
+     * @return clientJWK.
+     */		
+	public Buffer clientJWK()
+	{
+		return _clientJWK;
+	}
+	
+	/**
+     * Specifies the audience claim defined for an application making a request to the token service.
+     * 
+     * @param audience the audience claim
+     */			
+	public void audience(Buffer audience)
+	{
+		assert(audience != null) : "clientSecret can not be null";
+		audience().data(audience.data(), audience.position(), audience.length());
+	}
+	
+	/**
+     * Returns the audience claim for application making the request to RDP token service.
+     * 
+     * @return audience.
+     */		
+	public Buffer audience()
+	{
+		return _audience;
+	}
+	
 	
 	/**
      * Specifies an optional token scope defined for an application making a request to the token service.

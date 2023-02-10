@@ -868,6 +868,9 @@ RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl 
 					if (pConsRole->pOAuthCredentialList[j]->clientSecret.data)
 						memset((void*)(pConsRole->pOAuthCredentialList[j]->clientSecret.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->clientSecret.length));
 
+					if (pConsRole->pOAuthCredentialList[j]->clientJWK.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->clientJWK.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->clientJWK.length));
+
 					if (pConsRole->pOAuthCredentialList[j]->password.data)
 						memset((void*)(pConsRole->pOAuthCredentialList[j]->password.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->password.length));
 
@@ -2184,7 +2187,8 @@ RsslRestRequestArgs* _reactorCreateTokenRequestV1(RsslReactorImpl *pReactorImpl,
 	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBool takeExclusiveSignOnContorl, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
 
 /* Populates the request for v2 token handling */
-RsslRestRequestArgs* _reactorCreateTokenRequestV2(RsslReactorImpl* pReactorImpl, RsslBuffer* pTokenServiceURL, RsslBuffer* pClientId, RsslBuffer* pClientSecret, RsslBuffer* pTokenScope, RsslBuffer* pHeaderAndDataBodyBuf, void* pUserSpecPtr, RsslErrorInfo* pError);
+RsslRestRequestArgs* _reactorCreateTokenRequestV2(RsslReactorImpl* pReactorImpl, RsslBuffer* pTokenServiceURL, RsslBuffer* pClientId, RsslBuffer* pClientSecret, RsslBuffer* pJWK, RsslBuffer* pAud,
+	RsslBuffer* pTokenScope, RsslBuffer* pHeaderAndDataBodyBuf, void* pUserSpecPtr, RsslErrorInfo* pError);
 
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImpl *pReactorImpl, RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,

@@ -347,6 +347,8 @@ RsslRet parseJsonInput(char* fileName)
 	char* inputBuffer = NULL;
 	size_t bytesRead;
 	FILE* fp = NULL;
+	FILE* jwkFile = NULL;
+	int readSize;
 	int i = 0;
 	int j = 0;
 #ifdef WIN32
@@ -381,7 +383,7 @@ RsslRet parseJsonInput(char* fileName)
 	}
 	fclose(fp);
 
-	root  = cJSON_Parse(inputBuffer);
+	root  = cJSON_ParseWithLength(inputBuffer, bytesRead);
 
 	if (root == NULL)
 	{
@@ -399,6 +401,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (loginList == NULL)
 		{
 			printf("Unable to allocated login request structures.\n");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 		loginCount = cJSON_GetArraySize(node);
@@ -412,6 +416,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (loginList[i].requestMsgCredential.loginRequestMsg == NULL)
 			{
 				printf("Failed to allocated login request message.\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -424,6 +430,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("Failed to get Login message array.\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -467,6 +475,8 @@ RsslRet parseJsonInput(char* fileName)
 			else
 			{
 				printf("All login array members need to have a Name\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -483,6 +493,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (oAuthCredentialList == NULL)
 		{
 			printf("Unable to allocated login request structures.\n");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 		oAuthCredentialCount = cJSON_GetArraySize(node);
@@ -496,6 +508,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("Unable to find oauth credential array index\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -509,6 +523,8 @@ RsslRet parseJsonInput(char* fileName)
 			else
 			{
 				printf("All oAuth array members need to have a Name\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -544,6 +560,44 @@ RsslRet parseJsonInput(char* fileName)
 				oAuthCredentialList[i].oAuthCredential.clientSecret.length = (RsslUInt32)strlen(itemValue->valuestring);
 			}
 
+			itemValue = cJSON_GetObjectItem(item, "jwkFile");
+			if (itemValue != NULL)
+			{
+				jwkFile = NULL;
+				readSize = 0;
+				/* As this is an example program showing API, this handling of the JWK is not secure. */
+				jwkFile = fopen(itemValue->valuestring, "rb");
+				if (jwkFile == NULL)
+				{
+					printf("Cannot open jwk file: %s\n", itemValue->valuestring);
+					cJSON_Delete(root);
+
+					return RSSL_RET_FAILURE;
+				}
+				/* Read the JWK contents into a pre-allocated buffer*/
+				readSize = (int)fread(oAuthCredentialList[i]._clientJWKBuffer, sizeof(char), 2047, jwkFile);
+				if (readSize == 0)
+				{
+					printf("Cannot read jwk file: %s\n", itemValue->valuestring);
+					cJSON_Delete(root);
+
+					return RSSL_RET_FAILURE;
+				}
+
+				fclose(jwkFile);
+
+				oAuthCredentialList[i].oAuthCredential.clientJWK.data = oAuthCredentialList[i]._clientJWKBuffer;
+				oAuthCredentialList[i].oAuthCredential.clientJWK.length = readSize;
+			}
+
+			itemValue = cJSON_GetObjectItem(item, "audience");
+			if (itemValue != NULL)
+			{
+				memcpy(oAuthCredentialList[i]._audienceBuffer, itemValue->valuestring, strlen(itemValue->valuestring));
+				oAuthCredentialList[i].oAuthCredential.audience.data = oAuthCredentialList[i]._audienceBuffer;
+				oAuthCredentialList[i].oAuthCredential.audience.length = (RsslUInt32)strlen(itemValue->valuestring);
+			}
+
 			itemValue = cJSON_GetObjectItem(item, "tokenScope");
 			if (itemValue != NULL)
 			{
@@ -558,6 +612,8 @@ RsslRet parseJsonInput(char* fileName)
 				if (cJSON_IsBool(itemValue) == 0)
 				{
 					printf("takeExclusiveSignOn value is not a boolean.");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -584,6 +640,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (warmStandbyGroupList == NULL)
 		{
 			printf("Unable to allocate warmStandby group list.");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 		
@@ -595,6 +653,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (subNode == NULL)
 			{
 				printf("No array for WSB group\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -609,6 +669,8 @@ RsslRet parseJsonInput(char* fileName)
 				else
 				{
 					printf("Invalid WSB Mode specified\n");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 			}
@@ -618,6 +680,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("No active config for WSB group\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -639,6 +703,8 @@ RsslRet parseJsonInput(char* fileName)
 				if (warmStandbyGroupList[i].standbyConnectionInfoList == NULL)
 				{
 					printf("Unable to allocated memory for standby connection info list\n");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -647,6 +713,8 @@ RsslRet parseJsonInput(char* fileName)
 				if (warmStandbyGroupList[i].warmStandbyGroup.standbyServerList == NULL)
 				{
 					printf("Unable to allocated memory for standby server info list.\n");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -659,11 +727,15 @@ RsslRet parseJsonInput(char* fileName)
 					if (itemValue == NULL)
 					{
 						printf("Unable to get standby connection.\n");
+						cJSON_Delete(root);
+
 						return RSSL_RET_FAILURE;
 					}
 
 					if (parseJsonChannelInfo(itemValue, &warmStandbyGroupList[i].standbyConnectionInfoList[j]) != RSSL_RET_SUCCESS)
 					{
+						cJSON_Delete(root);
+
 						return RSSL_RET_FAILURE;
 					}
 
@@ -683,6 +755,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (connectionList == NULL)
 		{
 			printf("Unable to allocate connection list.\n");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 
@@ -692,16 +766,21 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("Unable to get connection list array item\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 			clearConnectionInfoConfig(&connectionList[i]);
 			if (parseJsonChannelInfo(item, &connectionList[i]) != RSSL_RET_SUCCESS)
 			{
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 		}
 
 	}
+	cJSON_Delete(root);
 
 	return RSSL_RET_SUCCESS;
 }

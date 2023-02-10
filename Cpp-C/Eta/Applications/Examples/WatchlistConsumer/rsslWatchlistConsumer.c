@@ -163,11 +163,25 @@ int main(int argc, char **argv)
 			serviceDiscoveryOpts.clientId = watchlistConsumerConfig.clientId;
 	}
 
-	/* Set login password if specified. */
+	/* Set client Secret if specified. */
 	if (watchlistConsumerConfig.clientSecret.length)
 	{
 		if (watchlistConsumerConfig.queryEndpoint)
 			serviceDiscoveryOpts.clientSecret = watchlistConsumerConfig.clientSecret;
+	}
+
+	/* Set JWK if specified. */
+	if (watchlistConsumerConfig.clientJWK.length)
+	{
+		if (watchlistConsumerConfig.queryEndpoint)
+			serviceDiscoveryOpts.clientJWK = watchlistConsumerConfig.clientJWK;
+	}
+
+	/* Set JWK if specified. */
+	if (watchlistConsumerConfig.audience.length)
+	{
+		if (watchlistConsumerConfig.queryEndpoint)
+			serviceDiscoveryOpts.audience = watchlistConsumerConfig.audience;
 	}
 	
 	/* If the authentication Token is specified, set it and authenticationExtended(if present) to the loginRequest */
@@ -222,6 +236,10 @@ int main(int argc, char **argv)
 		oauthCredential.clientId = watchlistConsumerConfig.clientId;
 		if (watchlistConsumerConfig.clientSecret.data)
 			oauthCredential.clientSecret = watchlistConsumerConfig.clientSecret;
+		if (watchlistConsumerConfig.clientJWK.data)
+			oauthCredential.clientJWK = watchlistConsumerConfig.clientJWK;
+		if (watchlistConsumerConfig.audience.data)
+			oauthCredential.audience = watchlistConsumerConfig.audience;
 		oauthCredential.takeExclusiveSignOnControl = watchlistConsumerConfig.takeExclusiveSignOnControl;
 		if (watchlistConsumerConfig.tokenScope.data)
 			oauthCredential.tokenScope = watchlistConsumerConfig.tokenScope;

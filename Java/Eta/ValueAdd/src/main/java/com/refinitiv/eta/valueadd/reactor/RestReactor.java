@@ -81,6 +81,12 @@ import com.refinitiv.eta.codec.Buffer;
 import com.refinitiv.eta.codec.CodecFactory;
 import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
 
+import org.jose4j.lang.*;
+import org.jose4j.jwt.*;
+import org.jose4j.jwk.*;
+import org.jose4j.jws.*;
+
+
 class RestReactor
 {
 	static final String AUTH_GRANT_TYPE = "grant_type";
@@ -101,6 +107,9 @@ class RestReactor
 	static final String AUTH_REQUEST_USER_AGENT = "HTTP/1.1";
 	static final String AUTH_CLIENT_ASSERTION = "client_assertion";
 	static final String AUTH_CLIENT_ASSERTION_TYPE = "client_assertion_type";
+	static final String AUTH_CLIENT_ASSERTION_VALUE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+	
+	static final String AUTH_DEFAULT_AUDIENCE = "https://login.ciam.refinitiv.com/as/token.oauth2";
 	
 	static final int AUTH_HANDLER = 1;
 	static final int DISCOVERY_HANDLER = 2;
@@ -209,6 +218,81 @@ class RestReactor
         return reactorReturnCode;
     }
     
+    private String getClientJwt(String clientId, String clientJwk, String endpointUrl, String audience, final ReactorErrorInfo errorInfo)
+    {
+		Date currentDate = new Date( System.currentTimeMillis() );
+		// Set expiry time as current time plus 15 minutes.
+	    long expTime = (currentDate.getTime() / 1000) + 900L;
+	    long iatTime = currentDate.getTime() / 1000;
+	    PublicJsonWebKey parsedJwkKeyPair = null;
+	    JsonWebKey webkey = null;
+	    
+	    String tmpAudience = null;
+	    
+	    /* Get the Json Web Key out of the JWK JSON string */
+	    try {
+	    	webkey = JsonWebKey.Factory.newJwk(clientJwk);
+	    	if(webkey == null)
+	    	{
+	    		populateErrorInfo(errorInfo,
+	                     ReactorReturnCodes.FAILURE,
+	                     "RestReactor.getClientAssertion", "Unable to parse the clientJwk string.");
+	    		return null;
+	    	}
+	    	/* Get the JWK as a string from the webkey object */
+	    	String jwkAsString = webkey.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE);
+	    	parsedJwkKeyPair = PublicJsonWebKey.Factory.newPublicJwk(jwkAsString);
+	    	
+	    } catch (JoseException e) {
+	    	populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.FAILURE,
+                    "RestReactor.getClientAssertion", "Jose4j exception: " + e.getMessage());
+		    return null;
+		} catch (Exception e) {
+			populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.FAILURE,
+                    "RestReactor.getClientAssertion", "Exception: " + e.getMessage());
+		    return null;
+		}
+	    
+	    if(audience == null || audience.isEmpty())
+	    {
+	    	tmpAudience = AUTH_DEFAULT_AUDIENCE;
+	    }
+	    else
+	    {
+	    	tmpAudience = audience;
+	    }
+	    
+	    JwtClaims claims = new JwtClaims();
+		claims.setClaim("iss", clientId);
+		claims.setClaim("sub", clientId);
+		claims.setClaim("aud", tmpAudience);
+		claims.setClaim("exp", expTime);
+		claims.setClaim("iat", iatTime);
+		
+		// Create the JWT based on the claims above and the webkey.
+		try {
+			JsonWebSignature jws = new JsonWebSignature();
+			jws.setPayload(claims.toJson()); 
+			jws.setKey(parsedJwkKeyPair.getPrivateKey()); 
+			jws.setHeader("alg", webkey.getAlgorithm()); 
+			jws.setHeader("typ", "JWT"); 
+			jws.setHeader("kid", webkey.getKeyId()); 
+			
+			// Sign the JWT with our private key
+			jws.sign();
+			
+			// Convert to text
+			String sResult = jws.getCompactSerialization();
+			return sResult;
+		} catch (JoseException e) {
+			populateErrorInfo(errorInfo,
+                    ReactorReturnCodes.FAILURE,
+                    "RestReactor.getClientAssertion", "Exception from JWT signing: " + e.getMessage());
+		    return null;
+		}
+    }
 
     public int submitAuthRequest(RestAuthOptions authOptions, final RestConnectOptions restConnectOptions, 
    		 ReactorAuthTokenInfo authTokenInfo, final ReactorErrorInfo errorInfo,
@@ -280,22 +364,39 @@ class RestReactor
     	}
     	else
     	{
-			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, AUTH_CLIENT_CREDENTIALS_GRANT));
-			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
-			
-			params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET,  authOptions.clientSecret()));
-			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
-			
-			if(url == null)
+    		if(url == null)
 	    	{
-				if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
+	    		if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
 					url = restConnectOptions.authRedirectLocation();
 				} else {
 					url = restConnectOptions.tokenServiceURLV2();
 				}
 	    	}
+    		
+			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, AUTH_CLIENT_CREDENTIALS_GRANT));
+			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
+			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
+
+			if(authOptions.clientJwk().isEmpty())
+			{
+				params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET,  authOptions.clientSecret()));
+			}
+			else
+			{
+				
+				String jwt = getClientJwt(authOptions.clientId(), authOptions.clientJwk(), url, authOptions.audience(), errorInfo);
+				
+				if(jwt == null)
+				{
+					return ReactorReturnCodes.FAILURE;
+				}
+				
+				params.add(new BasicNameValuePair(AUTH_CLIENT_ASSERTION_TYPE, AUTH_CLIENT_ASSERTION_VALUE));
+				params.add(new BasicNameValuePair(AUTH_CLIENT_ASSERTION, jwt));
+			}
     	}
-		
+    	
+
 		final RestHandler restHandler = new RestHandler(this, authOptions, restConnectOptions, authTokenInfo, errorInfo);
 		
 		if( (restConnectOptions.proxyHost() == null ||restConnectOptions.proxyHost().isEmpty() ) || (restConnectOptions.proxyPort() == -1) )
@@ -622,19 +723,36 @@ class RestReactor
     	{
 			params.add(new BasicNameValuePair(AUTH_GRANT_TYPE, AUTH_CLIENT_CREDENTIALS_GRANT));
 			params.add(new BasicNameValuePair(AUTH_CLIENT_ID,  authOptions.clientId()));
-			params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET,  authOptions.clientSecret()));
 			params.add(new BasicNameValuePair(AUTH_SCOPE, authOptions.tokenScope())); 
 			
+			if(authOptions.clientJwk().isEmpty())
+			{
+				params.add(new BasicNameValuePair(AUTH_CLIENT_SECRET,  authOptions.clientSecret()));
+			}
+			else
+			{
+				
+				String jwt = getClientJwt(authOptions.clientId(), authOptions.clientJwk(), url, authOptions.audience(), errorInfo);
+				
+				if(jwt == null)
+				{
+					return ReactorReturnCodes.FAILURE;
+				}
+				
+				params.add(new BasicNameValuePair(AUTH_CLIENT_ASSERTION_TYPE, AUTH_CLIENT_ASSERTION_VALUE));
+				params.add(new BasicNameValuePair(AUTH_CLIENT_ASSERTION, jwt));
+			}
+			
 			if(url == null)
-	    	{
+			{
 				if ((restConnectOptions.authRedirect()) && (restConnectOptions.authRedirectLocation() != null)) {
 					url = restConnectOptions.authRedirectLocation();
 				} else {
 					url = restConnectOptions.tokenServiceURLV2();
 				}
-	    	}
-	    	
+			}
     	}
+	    			
    		try
    		{
    			final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, Consts.UTF_8);

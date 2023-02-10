@@ -135,6 +135,7 @@ dependencies {
     api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
     api group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
     api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.1'
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito

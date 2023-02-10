@@ -659,6 +659,7 @@ OmmBaseImpl::~OmmBaseImpl()
 		for (i = 0; i < _oAuth2Credentials.size(); i++)
 		{
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientSecret()).secureClear();
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientJWK()).secureClear();
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getPassword()).secureClear();
 
 			if (_OAuthReactorConfig[i] != NULL)
@@ -746,6 +747,7 @@ void OmmBaseImpl::clearSensitiveInfo()
 		for (i = 0; i < _oAuth2Credentials.size(); i++)
 		{
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientSecret()).secureClear();
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientJWK()).secureClear();
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getPassword()).secureClear();
 
 			if (_OAuthReactorConfig[i] != NULL)
@@ -1323,6 +1325,18 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 			{
 				pOAuthCredential->clientSecret.data = const_cast<char*>(_oAuth2Credentials[i]->getClientSecret().c_str());
 				pOAuthCredential->clientSecret.length = _oAuth2Credentials[i]->getClientSecret().length();
+			}
+
+			if (_oAuth2Credentials[i]->getClientJWK().length())
+			{
+				pOAuthCredential->clientJWK.data = const_cast<char*>(_oAuth2Credentials[i]->getClientJWK().c_str());
+				pOAuthCredential->clientJWK.length = _oAuth2Credentials[i]->getClientJWK().length();
+			}
+
+			if (_oAuth2Credentials[i]->getAudience().length())
+			{
+				pOAuthCredential->audience.data = const_cast<char*>(_oAuth2Credentials[i]->getAudience().c_str());
+				pOAuthCredential->audience.length = _oAuth2Credentials[i]->getAudience().length();
 			}
 
 			if (_oAuth2Credentials[i]->getTokenScope().length())
@@ -3273,6 +3287,12 @@ RsslReactorCallbackRet OmmBaseImpl::oAuthCredentialCallback(RsslReactor* pRsslRe
 		{
 			credentialRenewal.clientSecret.data = (char*)oAuthCredentialImpl->getClientSecret().c_str();
 			credentialRenewal.clientSecret.length = oAuthCredentialImpl->getClientSecret().length();
+		}
+
+		if (!oAuthCredentialImpl->getClientJWK().empty())
+		{
+			credentialRenewal.clientJWK.data = (char*)oAuthCredentialImpl->getClientJWK().c_str();
+			credentialRenewal.clientJWK.length = oAuthCredentialImpl->getClientJWK().length();
 		}
 
 		if (!oAuthCredentialImpl->getTokenScope().empty())

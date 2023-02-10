@@ -25,6 +25,8 @@ public class ReactorOAuthCredentialRenewal
 	Buffer _newPassword = CodecFactory.createBuffer();
 	Buffer _clientId = CodecFactory.createBuffer();
 	Buffer _clientSecret = CodecFactory.createBuffer();
+	Buffer _audience = CodecFactory.createBuffer();
+	Buffer _clientJwk = CodecFactory.createBuffer();
 	Buffer _tokenScope = CodecFactory.createBuffer();
 	private boolean	_takeExclusiveSignOnControl = true;
 
@@ -43,6 +45,8 @@ public class ReactorOAuthCredentialRenewal
 		_newPassword.clear();
 		_clientId.clear();
 		_clientSecret.clear();
+		_audience.clear();
+		_clientJwk.clear();
 		_tokenScope.clear();
 		_takeExclusiveSignOnControl = true;
 	}
@@ -148,6 +152,47 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
+     * The Java Web Key used to with the Client Id authenticate with the token service. 
+     * 
+     * @return - Client JWK buffer.
+     */
+    public Buffer clientJWK()
+    {
+    	return _clientJwk;
+    }
+    
+    /**
+     * Sets client public Java Web Key that will be used to create and sign the JWT with the token service. Optional
+     *
+     * @param clientJwk the client JWK
+     */
+    public void clientJWK(Buffer clientJwk)
+    {
+    	clientJwk.copy(_clientJwk);
+    }
+    
+    
+    /**
+     * The audience claim for V2 JWT authentication.
+     * 
+     * @return - audience buffer.
+     */
+    public Buffer audience()
+    {
+    	return _audience;
+    }
+    
+    /**
+     * Sets the audience claim to authorize with the V2 JWT token service. Optional
+     *
+     * @param audience the audience claim.
+     */
+    public void audience(Buffer audience)
+    {
+    	audience.copy(_audience);
+    }
+    
+    /**
      * The token scope that was used to limit the scope of generated token. 
      * 
      * @return - Token Scope buffer.
@@ -235,6 +280,13 @@ public class ReactorOAuthCredentialRenewal
     		ByteBuffer byteBuffer = ByteBuffer.allocate(_clientSecret.length());
     		_clientSecret.copy(byteBuffer);
     		destReactorOAuthCredentialRenewal.clientSecret().data(byteBuffer);
+    	}
+    	
+    	if(_clientJwk.length() != 0)
+    	{
+    		ByteBuffer byteBuffer = ByteBuffer.allocate(_clientJwk.length());
+    		_clientJwk.copy(byteBuffer);
+    		destReactorOAuthCredentialRenewal.clientJWK().data(byteBuffer);
     	}
     	
     	if(_tokenScope.length() != 0)

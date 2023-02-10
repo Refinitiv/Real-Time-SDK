@@ -25,6 +25,8 @@ public class ReactorOAuthCredential
 	private Buffer _password = CodecFactory.createBuffer();
 	private Buffer _clientId = CodecFactory.createBuffer();
 	private Buffer _clientSecret = CodecFactory.createBuffer();
+	private Buffer _audience = CodecFactory.createBuffer();
+	private Buffer _clientJwk = CodecFactory.createBuffer();
 	private Buffer _tokenScope = CodecFactory.createBuffer();
 	private boolean	_takeExclusiveSignOnControl = true;
 	private ReactorOAuthCredentialEventCallback _oAuthCredentialEventCallback;
@@ -47,6 +49,8 @@ public class ReactorOAuthCredential
 		_password.clear();
 		_clientId.clear();
 		_clientSecret.clear();
+		_audience.clear();
+		_clientJwk.clear();
 		_tokenScope.data("trapi.streaming.pricing.read");
 		_takeExclusiveSignOnControl = true;
 		_oAuthCredentialEventCallback = null;
@@ -128,6 +132,7 @@ public class ReactorOAuthCredential
     	return _clientSecret;
     }
     
+    
     /**
      * Sets client secret to authorize with the token service. Optional
      *
@@ -138,6 +143,50 @@ public class ReactorOAuthCredential
     	assert(clientSecret != null) : "clientSecret can not be null";
     	_clientSecret.data(clientSecret.data(), clientSecret.position(),
     			clientSecret.length());
+    }
+    
+    /**
+     * The JWK that was used by OAuth Client to authenticate with the token service. 
+     * 
+     * @return - Client JWK buffer.
+     */
+    public Buffer clientJwk()
+    {
+    	return _clientJwk;
+    }
+    
+    /**
+     * Sets client JWK to authorize with the token service. Optional
+     *
+     * @param clientJwk the client JWK
+     */
+    public void clientJwk(Buffer clientJwk)
+    {
+    	assert(clientJwk != null) : "clientJwk can not be null";
+    	_clientJwk.data(clientJwk.data(), clientJwk.position(),
+    			clientJwk.length());
+    }
+    
+    /**
+     * The audience claim used by V2 JWT authentication.
+     * 
+     * @return - Client Secret buffer.
+     */
+    public Buffer audience()
+    {
+    	return _audience;
+    }
+    
+    /**
+     * Sets audience claim for V2 JWT authentication. Optional.
+     *
+     * @param audience the audience claim
+     */
+    public void audience(Buffer audience)
+    {
+    	assert(audience != null) : "clientJwk can not be null";
+    	_audience.data(audience.data(), audience.position(),
+    			audience.length());
     }
     
     /**
@@ -274,6 +323,20 @@ public class ReactorOAuthCredential
     		ByteBuffer byteBuffer = ByteBuffer.allocate(_clientSecret.length());
     		_clientSecret.copy(byteBuffer);
     		destReactorOAuthCredential.clientSecret().data(byteBuffer);
+    	}
+    	
+    	if(_clientJwk.length() != 0)
+    	{
+    		ByteBuffer byteBuffer = ByteBuffer.allocate(_clientJwk.length());
+    		_clientJwk.copy(byteBuffer);
+    		destReactorOAuthCredential.clientJwk().data(byteBuffer);
+    	}
+    	
+    	if(_audience.length() != 0)
+    	{
+    		ByteBuffer byteBuffer = ByteBuffer.allocate(_audience.length());
+    		_audience.copy(byteBuffer);
+    		destReactorOAuthCredential.audience().data(byteBuffer);
     	}
     	
     	if(_tokenScope.length() != 0)

@@ -10,8 +10,6 @@ package com.refinitiv.ema.examples.training.consumer.series400.ex451_MP_OAuth2Ca
 import com.refinitiv.ema.access.Msg;
 import com.refinitiv.ema.access.OAuth2CredentialRenewal;
 
-import java.util.List;
-
 import com.refinitiv.ema.access.AckMsg;
 import com.refinitiv.ema.access.ElementList;
 import com.refinitiv.ema.access.GenericMsg;
@@ -28,10 +26,7 @@ import com.refinitiv.ema.access.OmmConsumerConfig;
 import com.refinitiv.ema.access.OmmConsumerEvent;
 import com.refinitiv.ema.access.OmmException;
 import com.refinitiv.ema.access.OmmOAuth2ConsumerClient;
-import com.refinitiv.ema.access.ServiceEndpointDiscoveryClient;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryEvent;
-import com.refinitiv.ema.access.ServiceEndpointDiscoveryOption;
-import com.refinitiv.ema.access.ServiceEndpointDiscoveryResp;
 
 class AppClient implements OmmConsumerClient
 {

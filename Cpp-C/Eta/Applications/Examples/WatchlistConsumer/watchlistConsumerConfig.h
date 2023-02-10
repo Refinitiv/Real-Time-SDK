@@ -127,6 +127,8 @@ typedef struct
 	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
 	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service, or client ID */  
 	RsslBuffer			clientSecret;					/* Client secret with associated clientId */
+	RsslBuffer			clientJWK;						/* Client JWK with associated clientId */
+	RsslBuffer			audience;						/* Optional audience claim for use with JWT */
 	RsslBuffer			location;						/* Location to get an endpoint from RDP Service discovery */
 	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */
 	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
@@ -144,6 +146,8 @@ typedef struct
 	char 			_appIdMem[255];
 	char 			_clientIdMem[255];
 	char 			_clientSecretMem[255];
+	char			_clientJwkMem[2048];
+	char			_audienceMem[255];
 	char 			_locationMem[255];
 	char			_tokenUrlV1[255];
 	char			_tokenUrlV2[255];

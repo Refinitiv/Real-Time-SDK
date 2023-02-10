@@ -13,6 +13,8 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import com.refinitiv.eta.codec.AckMsg;
@@ -197,6 +199,7 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * <li>-passwd Password for the user name.
  * <li>-clientId Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
  * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
+ * <li>-jwkFile Specifies the file containing the JWK encoded private key for V2 JWT logins.
  * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
  * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
  * </ul>
@@ -1276,7 +1279,31 @@ public class wsbConsumer implements ConsumerCallback,
 		if (watchlistConsumerConfig.clientId() != null && !watchlistConsumerConfig.clientId().isEmpty())
 		{
 			reactorOAuthCredential.clientId().data(watchlistConsumerConfig.clientId());
-			reactorOAuthCredential.clientSecret().data(watchlistConsumerConfig.clientSecret());
+			if (watchlistConsumerConfig.clientSecret() != null && !watchlistConsumerConfig.clientSecret().isEmpty())
+			{
+				reactorOAuthCredential.clientSecret().data(watchlistConsumerConfig.clientSecret());
+			}
+			
+			if(watchlistConsumerConfig.jwkFile() != null && !watchlistConsumerConfig.jwkFile().isEmpty())
+			{
+				try
+				{
+					// Get the full contents of the JWK file.
+					byte[] jwkFile = Files.readAllBytes(Paths.get(watchlistConsumerConfig.jwkFile()));
+					String jwkText = new String(jwkFile);
+					
+					reactorOAuthCredential.clientJwk().data(jwkText);
+				}
+				catch(Exception e)
+				{
+					System.err.println("Error loading JWK file: " + e.getMessage());
+					System.err.println();
+					System.err.println(CommandLine.optionHelpString());
+					System.out.println("Consumer exits...");
+					System.exit(CodecReturnCodes.FAILURE);
+				}
+			}
+			
 			reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 		}
@@ -1284,6 +1311,12 @@ public class wsbConsumer implements ConsumerCallback,
 		if (watchlistConsumerConfig.tokenScope() != null && !watchlistConsumerConfig.tokenScope().isEmpty())
 		{
 			reactorOAuthCredential.tokenScope().data(watchlistConsumerConfig.tokenScope());
+			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
+		}
+		
+		if (watchlistConsumerConfig.audience() != null && !watchlistConsumerConfig.audience().isEmpty())
+		{
+			reactorOAuthCredential.audience().data(watchlistConsumerConfig.audience());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 		}
 

@@ -582,6 +582,12 @@ void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credential
 		credentialRenewal.clientSecret.length = credentials.getClientSecret().length();
 	}
 
+	if (!credentials.getClientJWK().empty())
+	{
+		credentialRenewal.clientJWK.data = (char*)credentials.getClientJWK().c_str();
+		credentialRenewal.clientJWK.length = credentials.getClientJWK().length();
+	}
+
 	if (!credentials.getTokenScope().empty())
 	{
 		credentialRenewal.tokenScope.data = (char*)credentials.getTokenScope().c_str();

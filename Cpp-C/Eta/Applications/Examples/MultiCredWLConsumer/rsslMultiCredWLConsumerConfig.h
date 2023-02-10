@@ -106,6 +106,8 @@ typedef struct
 	char _clientIdBuffer[255];
 	char _clientSecretBuffer[255];
 	char _tokenScopeBuffer[255];
+	char _clientJWKBuffer[2048];
+	char _audienceBuffer[255];
 }OAuthRequestCredential;
 
 typedef struct

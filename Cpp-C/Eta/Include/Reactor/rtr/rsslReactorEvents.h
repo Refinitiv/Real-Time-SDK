@@ -272,6 +272,9 @@ typedef struct
 	RsslBuffer					clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	RsslBuffer					tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
 	RsslBool					takeExclusiveSignOnControl;	/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
+	RsslBuffer					clientJWK;					/*!< Client JWK used for client credential. Optional, used for V2 logins with a V2 client JWK login */
+	RsslBuffer					audience;					/*!< Optional Audience claim for the JWK. If set, the string in this buffer will be used for the audience claim in the JWK generation. */
+
 } RsslReactorOAuthCredentialRenewal;
 
 /**
@@ -308,9 +311,8 @@ RTR_C_INLINE void rsslClearReactorOAuthCredentialEvent(RsslReactorOAuthCredentia
 	memset(pEvent, 0, sizeof(RsslReactorOAuthCredentialEvent));
 }
 
-// TDOO DOC
 /**
- * @brief An token information event that has occurred on an RsslReactorChannel.
+ * @brief A token information event that has occurred on an RsslReactorChannel.
  * @see RsslReactorChannel
  */
 typedef struct

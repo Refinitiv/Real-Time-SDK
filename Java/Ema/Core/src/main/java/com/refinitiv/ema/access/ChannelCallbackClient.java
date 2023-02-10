@@ -1275,6 +1275,17 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			oAuthCredential.tokenScope(configImpl.tokenScope());
 		}
 		
+		if(configImpl.clientJwk().length() != 0 )
+		{				
+			oAuthCredential.clientJwk(configImpl.clientJwk());
+		}
+		
+		if(configImpl.audience().length() != 0 )
+		{				
+			oAuthCredential.audience(configImpl.audience());
+		}
+		
+		
 		oAuthCredential.reactorOAuthCredentialEventCallback(credentialCallback);
 		
 		consumerRole.reactorOAuthCredential(oAuthCredential);

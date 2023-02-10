@@ -110,12 +110,28 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig clientSecret(String clientSecret);
 	
 	/**
+	 * Specifies optionally a client JWK used by OAuth client to authenticate to the Authorization Server.
+	 * 
+	 * @param clientJWK specifies the full JSON encoded JWK string 
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig clientJWK(String clientJWK);
+	
+	/**
 	 * Specifies optionally a token scope to limit the scope of generated token from the token service.
 	 * 
 	 * @param tokenScope specifies a token scope
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig tokenScope(String tokenScope);
+	
+	/**
+	 * Specifies optionally an audience used with JWT authentication from the token service.
+	 * 
+	 * @param audience specifies a token scope
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig audience(String audience);
 	
 	/**
      * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.

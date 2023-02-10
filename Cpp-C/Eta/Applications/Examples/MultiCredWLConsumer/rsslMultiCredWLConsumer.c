@@ -1028,8 +1028,11 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor* pReactor, RsslR
 	/* For a V1 credential, only the password requires updating.  For a V2 credential, the clientSecret needs to be updated. */
 	if (pRequestCredential->oAuthCredential.password.length != 0)
 		reactorOAuthCredentialRenewal.password = pRequestCredential->oAuthCredential.password; /* Specified password as needed */
-	else
+	else if(pRequestCredential->oAuthCredential.clientSecret.length != 0)
 		reactorOAuthCredentialRenewal.clientSecret = pRequestCredential->oAuthCredential.clientSecret;
+	else
+		reactorOAuthCredentialRenewal.clientJWK = pRequestCredential->oAuthCredential.clientJWK;
+
 
 	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 

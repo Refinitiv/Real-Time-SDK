@@ -292,6 +292,11 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 						unsigned char*, int, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPrivateKey");
 		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPrivateKey_10, dlErr))
 			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.PEM_write_bio_RSAPublicKey_10 = (int (*)(OPENSSL_BIO*, OPENSSL_10_rsa*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPublicKey");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPublicKey_10, dlErr))
+			return ripcSSLInitError();
 	}
 	
 	/* These funtions are only defined on the OpenSSL 1.1.X interface */
@@ -367,7 +372,12 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		RSSL_LI_RESET_DLERROR;
 		cryptoFuncs.PEM_write_bio_RSAPrivateKey_11 = (int (*)(OPENSSL_BIO*, OPENSSL_11_rsa*, const OPENSSL_EVP_CIPHER*, 
 					unsigned char*, int, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPrivateKey");
-		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_set0_pqg_11, dlErr))
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPrivateKey_11, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.PEM_write_bio_RSAPublicKey_11 = (int (*)(OPENSSL_BIO*, OPENSSL_11_rsa*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPublicKey");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPublicKey_11, dlErr))
 			return ripcSSLInitError();
 
 		RSSL_LI_RESET_DLERROR;
@@ -773,18 +783,28 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		return ripcSSLInitError();
 	
 	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.EC_KEY_set_public_key = (int (*)(OPENSSL_EC_KEY * key, const OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_set_public_key");
+	cryptoFuncs.EC_KEY_set_public_key_affine_coordinates = (int (*)(OPENSSL_EC_KEY*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_set_public_key_affine_coordinates");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_KEY_set_public_key_affine_coordinates, dlErr))
+		return ripcSSLInitError();
+
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.EC_KEY_set_public_key = (int (*)(OPENSSL_EC_KEY*, const OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_set_public_key");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_KEY_set_public_key, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.EC_POINT_free = (void (*)(OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_POINT_free");
-	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_POINT_free, dlErr))
+	cryptoFuncs.EC_POINT_clear_free = (void (*)(OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_POINT_clear_free");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_POINT_clear_free, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
 	cryptoFuncs.PEM_write_bio_ECPrivateKey = (int (*)(OPENSSL_BIO*, OPENSSL_EC_KEY*, const OPENSSL_EVP_CIPHER*, unsigned char*, int, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_ECPrivateKey");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_ECPrivateKey, dlErr))
+		return ripcSSLInitError();
+
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.PEM_write_bio_EC_PUBKEY = (int (*)(OPENSSL_BIO*, OPENSSL_EC_KEY*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_EC_PUBKEY");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_EC_PUBKEY, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
@@ -795,6 +815,11 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 	RSSL_LI_RESET_DLERROR;
 	cryptoFuncs.bn_free = (void(*)(OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "BN_free");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.bn_free, dlErr))
+		return ripcSSLInitError();
+
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.bn_clear = (void(*)(OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "BN_clear");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.bn_clear, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;

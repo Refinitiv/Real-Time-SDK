@@ -55,6 +55,7 @@ extern RsslBuffer rssl_rest_application_form_urlencoded_text;
 extern RsslBuffer rssl_rest_location_header_text;
 extern RsslBuffer rssl_rest_token_url_v1;
 extern RsslBuffer rssl_rest_token_url_v2;
+extern RsslBuffer rssl_rest_default_audience;
 extern RsslBuffer rssl_rest_user_agent_text;
 extern RsslBuffer rssl_rest_user_agent_rtsdk_text;
 
@@ -536,6 +537,9 @@ RsslBuffer* rsslRestResponseDumpBuffer(RsslRestResponse* pRestResponse, RsslErro
 */
 RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput);
 
+#ifndef NO_JWT_BUILD
+RsslRet rsslGenerateSignedJWT(RsslBuffer* JWK, RsslBuffer* aud, RsslBuffer* out, RsslBuffer* clientId, RsslError* error);
+#endif
 /**
  *	@}
  */

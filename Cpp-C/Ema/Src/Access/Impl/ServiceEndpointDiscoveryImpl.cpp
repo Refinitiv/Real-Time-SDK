@@ -133,6 +133,18 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 		_serviceDiscoveryOpts.clientSecret.length = params._clientSecret.length();
 	}
 
+	if (!params._clientJWK.empty())
+	{
+		_serviceDiscoveryOpts.clientJWK.data = const_cast<char*>(params._clientJWK.c_str());
+		_serviceDiscoveryOpts.clientJWK.length = params._clientJWK.length();
+	}
+
+	if (!params._audience.empty())
+	{
+		_serviceDiscoveryOpts.audience.data = const_cast<char*>(params._audience.c_str());
+		_serviceDiscoveryOpts.audience.length = params._audience.length();
+	}
+
 	if (!params._tokenScope.empty() && params._tokenScope != _serviceDiscoveryOpts.tokenScope.data)
 	{
 		_serviceDiscoveryOpts.tokenScope.data = const_cast<char*>(params._tokenScope.c_str());

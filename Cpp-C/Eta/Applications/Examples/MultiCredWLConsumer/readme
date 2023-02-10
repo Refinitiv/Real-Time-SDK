@@ -68,6 +68,7 @@ oAuthCredentials values:
 	Password : String V1 password associated with the machine Id.
 	clientId : String V1 clientId retrieved from Eikon.  For V2, this is the service account.
 	clientSecret : String client secreted associated with a V2 service account.
+	clientJWK : File location of the client public JWK associated with a V2 service account.
 	takeExclusiveSignOn : boolean value for the take Exclusive Sign On functionality of V1 logins.
 	scope : String scope for this token.
 		

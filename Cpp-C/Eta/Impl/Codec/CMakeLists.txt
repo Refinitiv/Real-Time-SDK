@@ -302,6 +302,7 @@ else()
 		target_compile_options(librssl_tmp 
 						PRIVATE 
 							${RCDEV_DEBUG_TYPE_FLAGS_STATIC} 
+                            ${RTSDK_EXTRA_FLAGS}
 							"/D REAL_SHA1_INIT")
 
 	else()
@@ -311,6 +312,7 @@ else()
 								)
 		target_compile_options(librssl_tmp 
 						PRIVATE
+                            ${RTSDK_EXTRA_FLAGS}
 							"-DREAL_SHA1_INIT")
 	endif()
 
@@ -427,6 +429,7 @@ else()
 					"/D REAL_SHA1_INIT"
                                         ${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
                                         ${RCDEV_TYPE_CHECK_FLAG}
+                                        ${RTSDK_EXTRA_FLAGS}
                                         $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
                                 )
                                                
@@ -452,7 +455,8 @@ else()
 		
 	target_compile_options(librssl_shared 
 					PRIVATE
-						"-DREAL_SHA1_INIT")
+						"-DREAL_SHA1_INIT"
+                        ${RTSDK_EXTRA_FLAGS} )
 
         set_target_properties( librssl_shared 
                                 PROPERTIES 

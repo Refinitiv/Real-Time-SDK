@@ -383,6 +383,11 @@ public class wsbConsumerConfig
 		return CommandLine.value("clientSecret");
 	}
 	
+	String jwkFile()
+	{
+		return CommandLine.value("jwkFile");
+	}
+	
 	String tokenUrlV1()
 	{
 		return CommandLine.value("tokenURLV1");
@@ -396,6 +401,11 @@ public class wsbConsumerConfig
 	String tokenScope()
 	{
 		return CommandLine.value("tokenScope");
+	}
+	
+	String audience()
+	{
+		return CommandLine.value("audience");
 	}
 	
 	String serviceDiscoveryURL()
@@ -682,9 +692,11 @@ public class wsbConsumerConfig
 		CommandLine.addOption("passwd", "Password for the user name.");
 		CommandLine.addOption("clientId", "Specifies the client Id for Refinitiv login V2, or specifies a unique ID for application making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.");
 		CommandLine.addOption("clientSecret", "Specifies the associated client Secret with a provided clientId for V2 logins.");
+		CommandLine.addOption("jwkFile", "Specifies the file location containing the JWK encoded private key for V2 logins.");
 		CommandLine.addOption("tokenURLV1", "Specifies the token URL for V1 token oauthpasswd grant type.");
 		CommandLine.addOption("tokenURLV2", "Specifies the token URL for V2 token oauthclientcreds grant type.");
 		CommandLine.addOption("tokenScope", "", "Specifies the token scope.");
+		CommandLine.addOption("audience", "", "Optionally specifies the audience used with V2 JWT logins");
 		CommandLine.addOption("serviceDiscoveryURL", "Specifies the service discovery URL.");
 		CommandLine.addOption("takeExclusiveSignOnControl", "true", "Specifies the exclusive sign on control to force sign-out for the same credentials., default is true");
 		
