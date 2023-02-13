@@ -280,7 +280,7 @@ DEBUG_PRINT(librsslVA_tmp)
                             )
 
     else()
-    arget_compile_options( librsslVA_shared 
+		target_compile_options( librsslVA_shared 
                                         PRIVATE 
                                             ${RTSDK_EXTRA_FLAGS}
                            )
