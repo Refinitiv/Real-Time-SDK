@@ -18,15 +18,18 @@ import java.util.Optional;
 public class DiscoveredEndpointSettingsModel {
 
     public static final String DEFAULT_TOKEN_SERVICE_URL_V1 = "https://api.refinitiv.com/auth/oauth2/v1/token";
-    public static final String DEFAULT_TOKEN_SERVICE_URL_V2 = "https://api.ppe.refinitiv.com/auth/oauth2/v2/token";
+    public static final String DEFAULT_TOKEN_SERVICE_URL_V2 = "https://api.refinitiv.com/auth/oauth2/v2/token";
 
     public static final String DEFAULT_DISCOVERY_ENDPOINT_URL = "https://api.refinitiv.com/streaming/pricing/v1/";
+
+    public static final String DEFAULT_TOKEN_SERVICE_AUD_V2 = "https://login.ciam.refinitiv.com/as/token.oauth2";
 
     private String username;
     private String password;
     private String clientId;
     private String clientSecret;
     private String jwkPath;
+    private String audience;
 
     private boolean useV1 = true;
     private boolean useClientSecret = true;
@@ -45,7 +48,7 @@ public class DiscoveredEndpointSettingsModel {
 
     private DiscoveredEndpointSettingsModel(String username, String password, String clientId, DiscoveredEndpointConnectionTypes connectionType,
                                             EncryptionDataModel encryptionData, ProxyDataModel proxyData, String tokenServiceUrl,
-                                            String discoveryEndpointUrl, EmaConfigModel emaConfigModel, boolean useV1, String clientSecret, String jwkPath, boolean useClientSecret) {
+                                            String discoveryEndpointUrl, EmaConfigModel emaConfigModel, boolean useV1, String clientSecret, String jwkPath, String audience, boolean useClientSecret) {
         this.username = username;
         this.password = password;
         this.clientId = clientId;
@@ -57,7 +60,9 @@ public class DiscoveredEndpointSettingsModel {
         this.emaConfigModel = emaConfigModel;
         this.useV1 = useV1;
         this.clientSecret = clientSecret;
+        this.useClientSecret = useClientSecret;
         this.jwkPath = jwkPath;
+        this.audience = audience;
     }
 
     public String getUsername() {
@@ -117,6 +122,10 @@ public class DiscoveredEndpointSettingsModel {
         return jwkPath;
     }
 
+    public String getAudience() {
+        return audience;
+    }
+
     public boolean useV1() {
         return useV1;
     }
@@ -142,6 +151,7 @@ public class DiscoveredEndpointSettingsModel {
         private String clientSecret;
         private boolean useV1;
         private String jwkPath;
+        private String audience;
         private boolean useClientSecret;
 
         public DiscoveredEndpointSettingsModelBuilder clientSecret(String clientSecret) {
@@ -151,6 +161,11 @@ public class DiscoveredEndpointSettingsModel {
 
         public DiscoveredEndpointSettingsModelBuilder jwkPath(String jwkPath) {
             this.jwkPath = jwkPath;
+            return this;
+        }
+
+        public DiscoveredEndpointSettingsModelBuilder audience(String audience) {
+            this.audience = audience;
             return this;
         }
 
@@ -211,7 +226,7 @@ public class DiscoveredEndpointSettingsModel {
 
         public DiscoveredEndpointSettingsModel build() {
             return new DiscoveredEndpointSettingsModel(username, password, clientId, connectionType, encryptionData, proxyData,
-                    tokenServiceUrl, serviceEndpointUrl, emaConfigModel, useV1, clientSecret, jwkPath, useClientSecret);
+                    tokenServiceUrl, serviceEndpointUrl, emaConfigModel, useV1, clientSecret, jwkPath, audience, useClientSecret);
         }
     }
 }

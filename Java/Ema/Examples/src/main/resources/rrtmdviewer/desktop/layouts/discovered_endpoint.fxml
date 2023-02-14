@@ -95,7 +95,7 @@
                                           </HBox>
                                           <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
                                              <children>
-                                                <Label styleClass="optionslabel" text="Client Secret:" userData="CLIENTSECRET">
+                                                <Label fx:id="clientSecretLabel" styleClass="optionslabel" text="Client Secret:" userData="CLIENTSECRET">
                                                    <font>
                                                       <Font size="13.0" />
                                                    </font>
@@ -104,8 +104,30 @@
                                              </children>
                                           </HBox>
                                           <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <CheckBox fx:id="jwtAuthCheckbox" mnemonicParsing="false" onAction="#handleJwtAuthCheckbox" text="Use JWT authentication"/>
+                                             </children>
                                           </HBox>
-                                       </children>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <Label fx:id="jwkLabel" disable="true" styleClass="optionslabel" text="Client JWK:" userData="CLIENTJWK">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
+                                                <FilePickerComponent fx:id="jwkFilePicker" disable="true"/>
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="TOP_LEFT" styleClass="area-without-frame" minHeight="50" maxHeight="50">
+                                             <children>
+                                                <Label fx:id="jwtAudienceLabel" disable="true" styleClass="optionslabel" text="JWT Audience:" userData="JWTAUDIENCE">
+                                                   <font>
+                                                      <Font size="13.0" />
+                                                   </font>
+                                                </Label>
+                                                <ScrollableTextField fx:id="jwtAudience" disable="true" focusTraversable="false"/>
+                                             </children>
+                                          </HBox>                                                                                                                         </children>
                                     </VBox>
                                  </children>
                               </StackPane>

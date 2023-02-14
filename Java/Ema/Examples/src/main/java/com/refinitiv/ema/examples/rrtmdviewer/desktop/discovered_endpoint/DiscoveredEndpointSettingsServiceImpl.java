@@ -20,11 +20,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpointSettingsService {
 
     private static final String SERVICE_DISCOVERY_ERROR_HEADER = "Error during retrieving service endpoints";
 
     private static final String OMM_CONSUMER_INIT_ERROR_HEADER = "Error during OMM consumer initialization";
+
+    private static final String JWK_FILE_ERROR_HEADER = "Error loading JWK file";
 
     private ServiceEndpointDiscovery customServiceDiscovery;
     private OAuthCallback oAuthCallback = new OAuthCallback();
@@ -62,9 +67,22 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                     .password(discoveredEndpointSettings.getPassword())
                     .clientId(discoveredEndpointSettings.getClientId());
         } else {
-            serviceDiscoveryOpt
-                    .clientId(discoveredEndpointSettings.getClientId())
-                    .clientSecret(discoveredEndpointSettings.getClientSecret());
+            if (discoveredEndpointSettings.useClientSecret()) {
+                serviceDiscoveryOpt
+                        .clientId(discoveredEndpointSettings.getClientId())
+                        .clientSecret(discoveredEndpointSettings.getClientSecret());
+            } else {
+                try {
+                    serviceDiscoveryOpt
+                            .clientId(discoveredEndpointSettings.getClientId())
+                            .clientJWK(getJwkFile(discoveredEndpointSettings.getJwkPath()))
+                            .audience(discoveredEndpointSettings.getAudience());
+                } catch (Exception e) {
+                    responseListener.setResponse(JWK_FILE_ERROR_HEADER + " " + e.getMessage());
+                    responseListener.setResponseStatus(AsyncResponseStatuses.FAILED);
+                    return;
+                }
+            }
         }
         serviceDiscoveryOpt.transport(discoveredEndpointSettings.getConnectionType().getTransportProtocol());
         serviceDiscoveryOpt.tokenScope("trapi.streaming.pricing.read");
@@ -113,8 +131,14 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                         .password(discoveredEndpointSettingsModel.getPassword())
                         .clientId(discoveredEndpointSettingsModel.getClientId());
             } else {
-                config.clientId(discoveredEndpointSettingsModel.getClientId())
-                        .clientSecret(discoveredEndpointSettingsModel.getClientSecret());
+                if (discoveredEndpointSettingsModel.useClientSecret()) {
+                    config.clientId(discoveredEndpointSettingsModel.getClientId())
+                            .clientSecret(discoveredEndpointSettingsModel.getClientSecret());
+                } else {
+                    config.clientId(discoveredEndpointSettingsModel.getClientId())
+                            .clientJWK(getJwkFile(discoveredEndpointSettingsModel.getJwkPath()))
+                            .audience(discoveredEndpointSettingsModel.getAudience());
+                }
             }
 
 
@@ -154,6 +178,9 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             } else {
                 credentials.clientId = discoveredEndpointSettingsModel.getClientId();
                 credentials.clientSecret = discoveredEndpointSettingsModel.getClientSecret();
+                credentials.clientJwk = getJwkFile(discoveredEndpointSettingsModel.getJwkPath());
+                credentials.audience = discoveredEndpointSettingsModel.getAudience();
+                credentials.useClientSecret = discoveredEndpointSettingsModel.useClientSecret();
                 consumer = EmaFactory.createOmmConsumer(config.tokenServiceUrlV2(discoveredEndpointSettingsModel.getTokenServiceUrl()), channelInformationClient, oAuthCallback, credentials);
             }
             ApplicationSingletonContainer.addBean(OmmConsumer.class, consumer);
@@ -161,6 +188,11 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             viewerError.clear();
             viewerError.setFailed(true);
             viewerError.appendErrorText(OMM_CONSUMER_INIT_ERROR_HEADER);
+            viewerError.appendErrorText(e.getMessage());
+        } catch (Exception e) {
+            viewerError.clear();
+            viewerError.setFailed(true);
+            viewerError.appendErrorText(JWK_FILE_ERROR_HEADER);
             viewerError.appendErrorText(e.getMessage());
         }
     }
@@ -271,6 +303,12 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
         return channelBuilder.toString();
     }
 
+    private String getJwkFile(String jwkPath) throws java.io.IOException {
+        byte[] jwkBuffer = Files.readAllBytes(Paths.get(jwkPath));
+        String jwkText = new String(jwkBuffer);
+        return jwkText;
+    }
+
     private List<DiscoveredEndpointInfoModel> mapToServiceDiscoveryInfoModel(List<ServiceEndpointDiscoveryInfo> serviceEndpointDiscoveries) {
         final List<DiscoveredEndpointInfoModel> seds = new ArrayList<>();
         for (ServiceEndpointDiscoveryInfo serviceEndpointDiscoveryInfo : serviceEndpointDiscoveries) {
@@ -293,7 +331,12 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
             OAuth2CredentialRenewal renewal = EmaFactory.createOAuth2CredentialRenewal();
 
             renewal.clientId(credentials.clientId);
-            renewal.clientSecret(credentials.clientSecret);
+            if (credentials.useClientSecret) {
+                renewal.clientSecret(credentials.clientSecret);
+            } else {
+                renewal.clientJWK(credentials.clientJwk);
+                renewal.audience(credentials.audience);
+            }
 
             credentials.consumer.renewOAuthCredentials(renewal);
         }
@@ -304,6 +347,9 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
     {
         public String clientSecret;
         public String clientId;
+        public String clientJwk;
+        public String audience;
+        public boolean useClientSecret;
         public OmmConsumer consumer;
     }
 }
