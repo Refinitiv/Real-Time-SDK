@@ -1596,7 +1596,13 @@ class DictionaryItem<T> extends SingleItem<T> implements TimeoutClient
 			return;
 		}
 	}
-	
+
+	@Override
+	public ReentrantLock userLock()
+	{
+		return _baseImpl.userLock();
+	}
+
 	int currentFid()
 	{
 		return _currentFid;
@@ -2057,6 +2063,12 @@ class NiProviderDictionaryItem<T> extends SingleItem<T> implements ProviderItem
 	{
 		return _specifiedServiceInReq;
 	}
+
+	@Override
+	public ReentrantLock userLock()
+	{
+		return _baseImpl.userLock();
+	}
 }
 
 class IProviderDictionaryItem extends IProviderSingleItem
@@ -2111,6 +2123,12 @@ class IProviderDictionaryItem extends IProviderSingleItem
 		}
 		
 		return result;
+	}
+
+	@Override
+	public ReentrantLock userLock()
+	{
+		return _baseImpl.userLock();
 	}
 }
 	

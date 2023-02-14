@@ -1689,14 +1689,20 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	{
 		if (_state == OmmImplState.NOT_INITIALIZED)
 		{
-			if (_loggerClient.isErrorEnabled() && _logError)
-			{
-				_logError = false;
-				_dispatchStrBuilder.setLength(0);
-				_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. The _state is set to OmmImplState.NOT_INITIALIZED");
+			_userLock.lock();
+			try {
+				if (_loggerClient.isErrorEnabled() && _logError)
+				{
+					_logError = false;
+					_dispatchStrBuilder.setLength(0);
+					_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. The _state is set to OmmImplState.NOT_INITIALIZED");
 
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
-			}		
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+				}
+			} finally {
+				_userLock.unlock();
+			}
+
 			return false;
 		}		
 		
@@ -1755,8 +1761,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					{
 						pipeRead();
 					}
-					
-					ret = _rsslReactor.dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
+
+					_userLock.lock();
+					try {
+						ret = _rsslReactor.dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
+					} finally {
+						_userLock.unlock();
+					}
+
 					if (ret == ReactorReturnCodes.FAILURE)
 					{
 						System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _rsslErrorInfo.error().text() + ")");
@@ -1784,12 +1796,16 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				
 				if (Thread.currentThread().isInterrupted())
 				{
+					_userLock.lock();
 					_threadRunning = false;
-	
-					if (_loggerClient.isTraceEnabled())
-					{
-						_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
-								"Call to rsslReactorDispatchLoop() received thread interruption signal.", Severity.TRACE));
+					try {
+						if (_loggerClient.isTraceEnabled())
+						{
+							_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+									"Call to rsslReactorDispatchLoop() received thread interruption signal.", Severity.TRACE));
+						}
+					} finally {
+						_userLock.unlock();
 					}
 				}
 			}
@@ -1799,35 +1815,46 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		} //end of Try		
 		catch (CancelledKeyException e)
 		{
-			if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
-			{
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
-						"Call to rsslReactorDispatchLoop() received cancelled key exception.", Severity.TRACE));
+			_userLock.lock();
+			try {
+				if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
+				{
+					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+							"Call to rsslReactorDispatchLoop() received cancelled key exception.", Severity.TRACE));
+				}
+			} finally {
+				_userLock.unlock();
 			}
-
 			return true;
 		} 
 		catch (ClosedSelectorException e)
 		{
-			if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
-			{
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
-						"Call to rsslReactorDispatchLoop() received closed selector exception.", Severity.TRACE));
+			_userLock.lock();
+			try {
+				if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
+				{
+					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+							"Call to rsslReactorDispatchLoop() received closed selector exception.", Severity.TRACE));
+				}
+			} finally {
+				_userLock.unlock();
 			}
-
 			return true;
 		} 
 		catch (IOException e)
 		{
-			if (_loggerClient.isErrorEnabled())
-			{
-				_dispatchStrBuilder.setLength(0);
-				_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Received exception,")
-						.append(" exception text= ").append(e.getLocalizedMessage()).append(". ");
+			_userLock.lock();
+			try {
+				if (_loggerClient.isErrorEnabled()) {
+					_dispatchStrBuilder.setLength(0);
+					_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Received exception,")
+							.append(" exception text= ").append(e.getLocalizedMessage()).append(". ");
 
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+				}
+			} finally {
+				_userLock.unlock();
 			}
-
 			uninitialize();
 
 			return false;

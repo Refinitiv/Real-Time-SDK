@@ -9,11 +9,14 @@ package com.refinitiv.ema.access;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.refinitiv.eta.valueadd.common.VaNode;
 
 interface TimeoutClient 
 {
 	void handleTimeoutEvent();
+	ReentrantLock userLock();
 }
 
 class TimeoutEvent extends VaNode
@@ -95,11 +98,20 @@ class TimeoutEvent extends VaNode
 			event = iter.next();
 	    	if (System.nanoTime() >= event.timeoutInNanoSerc())
 	    	{
-	    		 iter.remove();
+	    		iter.remove();
 	    		 
-	        	if (!event.cancelled() && event.client() != null)
-	        		event.client().handleTimeoutEvent();
-	        		
+	        	if (!event.cancelled() && event.client() != null) {
+					event.client().userLock().lock();
+					try
+					{
+						event.client().handleTimeoutEvent();
+					}
+					finally
+					{
+						event.client().userLock().unlock();
+					}
+				}
+
 	    		event.returnToPool();
 	    	}
 	    	else

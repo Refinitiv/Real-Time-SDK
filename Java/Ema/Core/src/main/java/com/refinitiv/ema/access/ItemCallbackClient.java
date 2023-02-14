@@ -3425,6 +3425,8 @@ interface ProviderItem
 	void cancelReqTimerEvent();
 	
 	boolean requestWithService();
+
+	ReentrantLock userLock();
 }
 
 abstract class IProviderSingleItem extends Item<OmmProviderClient> implements ProviderItem
@@ -4160,6 +4162,12 @@ class ClosedStatusClient<T> implements TimeoutClient
 		else
 			((ItemCallbackClient<T>)_client).removeFromMap(_item);
 	}
+
+	@Override
+	public ReentrantLock userLock()
+	{
+		return _client._baseImpl.userLock();
+	}
 }
 
 class ItemWatchList
@@ -4344,6 +4352,11 @@ class ItemTimeOut implements TimeoutClient
 		
 		_providerItem.sendCloseMsg();
 		_providerItem.scheduleItemClosedRecoverableStatus("request is timeout", false);
+	}
+
+	@Override
+	public ReentrantLock userLock() {
+		return _providerItem.userLock();
 	}
 }
 
