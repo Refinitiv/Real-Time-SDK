@@ -120,7 +120,7 @@ else()
 	if(BUILD_ETA_JWT)
 		set(l8w8jwt_lib "l8w8jwt::libl8w8jwt")
 		set(l8w8jwt_target "$<TARGET_FILE:l8w8jwt::libl8w8jwt>")
-		set(l8w8jwt_command "COMMAND ${CMAKE_AR} -x $<TARGET_FILE:l8w8jwt::libl8w8jwt>")
+		set(l8w8jwt_command COMMAND ${CMAKE_AR} -x $<TARGET_FILE:l8w8jwt::libl8w8jwt>)
 	endif()
 		
 	#
@@ -199,19 +199,35 @@ DEBUG_PRINT(librsslVA_tmp)
 		set_target_properties( librssl PROPERTIES PREFIX "" )
 
 		file(MAKE_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch")
-		add_custom_command(TARGET librsslVA POST_BUILD
-							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
-							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
-							COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
-							${l8w8jwt_command}
-							COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
-							WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
-							DEPENDS $<TARGET_FILE:librsslVA_tmp>
-									$<TARGET_FILE:LibXml2::LibXml2>
-									$<TARGET_FILE:CJSON::CJSON>
-									${l8w8jwt_target}
-							COMMENT "Archiving objects for librsslVA ..."
-							)
+		
+		if(BUILD_ETA_JWT)
+			add_custom_command(TARGET librsslVA POST_BUILD
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:l8w8jwt::libl8w8jwt>
+								COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
+								WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
+								DEPENDS $<TARGET_FILE:librsslVA_tmp>
+										$<TARGET_FILE:LibXml2::LibXml2>
+										$<TARGET_FILE:CJSON::CJSON>
+										$<TARGET_FILE:l8w8jwt::libl8w8jwt>
+								COMMENT "Archiving objects for librsslVA ..."
+								)
+		else()
+		
+			add_custom_command(TARGET librsslVA POST_BUILD
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:librsslVA_tmp>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:LibXml2::LibXml2>
+								COMMAND ${CMAKE_AR} -x $<TARGET_FILE:CJSON::CJSON>
+								COMMAND ${CMAKE_AR} -qcs $<TARGET_FILE:librsslVA> *.o
+								WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/librsslVA_tmp.arch
+								DEPENDS $<TARGET_FILE:librsslVA_tmp>
+										$<TARGET_FILE:LibXml2::LibXml2>
+										$<TARGET_FILE:CJSON::CJSON>
+								COMMENT "Archiving objects for librsslVA ..."
+								)
+		endif()
 
 	endif()
 	unset(_rsslVA_tmp_dir)
