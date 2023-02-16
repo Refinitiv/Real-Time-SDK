@@ -627,6 +627,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
             if(reactorConnectInfo.EnableSessionManagement)
             {
+                if(RedoServiceDiscoveryForCurrentChannel())
+                {
+                    reactorConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = string.Empty;
+                    reactorConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = string.Empty;
+                    ResetCurrentChannelRetryCount();
+                }
+
                 if (Reactor!.SessionManagementStartup(TokenSession!, reactorConnectInfo, Role!, this, true,
                     out ReactorErrorInfo? reactorErrorInfo) != ReactorReturnCode.SUCCESS)
                 {
@@ -689,6 +696,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private IChannel? Reconnect(ReactorConnectInfo reactorConnectInfo, out Error error)
         {
+            IncreaseRetryCountForCurrentChannel();
             UserSpecObj = reactorConnectInfo.ConnectOptions.UserSpecObject;
             reactorConnectInfo.ConnectOptions.ChannelReadLocking = true;
             reactorConnectInfo.ConnectOptions.ChannelWriteLocking = true;
@@ -791,6 +799,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 ConnectOptions = new ReactorConnectOptions();
 
             reactorConnectOptions.Copy(ConnectOptions);
+
+            foreach(var connectInfo in ConnectOptions.ConnectionList)
+            {
+                connectInfo.HostAndPortProvided = (!string.IsNullOrEmpty(connectInfo.ConnectOptions.UnifiedNetworkInfo.Address)
+                    && !string.IsNullOrEmpty(connectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName));
+                connectInfo.ReconnectAttempts = 0;
+            }
+
             m_ReconnectDelay = 0;
             NextRecoveryTime = 0;
         }
@@ -955,6 +971,44 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                 // Don't send the password
                 RDMLoginRequestRDP.Flags &= ~LoginRequestFlags.HAS_PASSWORD;
+            }
+        }
+
+        bool RedoServiceDiscoveryForCurrentChannel()
+        {
+            if (ConnectOptions != null)
+            {
+                ReactorConnectInfo connectInfo = ConnectOptions.ConnectionList![m_ListIndex];
+
+                return (connectInfo.ServiceDiscoveryRetryCount != 0
+                        && !connectInfo.HostAndPortProvided
+                        && connectInfo.ReconnectAttempts == connectInfo.ServiceDiscoveryRetryCount);
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        void IncreaseRetryCountForCurrentChannel()
+        {
+            if (ConnectOptions != null)
+            {
+                ReactorConnectInfo connectInfo = ConnectOptions.ConnectionList![m_ListIndex];
+                if (connectInfo.EnableSessionManagement && connectInfo.ServiceDiscoveryRetryCount != 0)
+                {
+                    connectInfo.ReconnectAttempts++;
+                }
+            }
+        }
+
+        internal void ResetCurrentChannelRetryCount()
+        {
+            if (ConnectOptions != null)
+            {
+                ReactorConnectInfo connectInfo = ConnectOptions.ConnectionList![m_ListIndex];
+                connectInfo.ReconnectAttempts = 0;
             }
         }
     }

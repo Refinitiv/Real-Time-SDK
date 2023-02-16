@@ -76,7 +76,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
             else
             {
                 Assert.NotNull(serviceEndpointEvent.ReactorErrorInfo);
-                Assert.Equal(expectedErrorTextFromCallback, serviceEndpointEvent.ReactorErrorInfo.Error.Text);
+
+                bool foundExpectedMsg = serviceEndpointEvent.ReactorErrorInfo.Error.Text.
+                    StartsWith(expectedErrorTextFromCallback);
+
+                Assert.True(foundExpectedMsg);
             }
 
             return ReactorCallbackReturnCode.SUCCESS;
@@ -85,7 +89,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-        public void RequestQueryServiceDiscoveryNotSpecifyClientSecrectTest()
+        public void RequestQueryServiceDiscoveryNotSpecifyClientSecrectAndClientJwkTest()
         {
             ReactorOptions reactorOptions = new ReactorOptions();
             reactorOptions.UserSpecObj = this;
@@ -99,7 +103,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ReactorErrorInfo errorInfo;
             Assert.Equal(ReactorReturnCode.PARAMETER_INVALID, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out errorInfo));
             Assert.NotNull(errorInfo);
-            Assert.Equal("Required parameter ClientSecret is not set", errorInfo.Error.Text);
+            Assert.Equal("Required parameter ClientSecret or ClientJwk is not set", errorInfo.Error.Text);
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
         }
 
@@ -123,6 +127,60 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ReactorErrorInfo errorInfo;
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out errorInfo));
             Assert.Null(errorInfo);
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscoveryUnauthorized_JWT_Test()
+        {
+            ReactorOptions reactorOptions = new ReactorOptions();
+
+            if(!string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            reactorOptions.UserSpecObj = this;
+            Reactor reactor = Reactor.CreateReactor(reactorOptions, out _);
+
+            Assert.NotNull(reactor);
+
+            ReactorServiceDiscoveryOptions serviceDiscoveryOptions = new ReactorServiceDiscoveryOptions();
+            serviceDiscoveryOptions.ClientId.Data("InvalidClientID");
+            serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+            serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
+            expectedNumOfEndpoint = 0;
+            expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error_description\":\"Client not found in client database for JWT's sub claim value 'InvalidClientID'.\",\"error\":\"invalid_client\"}";
+            ReactorErrorInfo errorInfo;
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out errorInfo));
+            Assert.Null(errorInfo);
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscoveryInvalid_JWK_Test()
+        {
+            ReactorOptions reactorOptions = new ReactorOptions();
+            reactorOptions.UserSpecObj = this;
+            Reactor reactor = Reactor.CreateReactor(reactorOptions, out _);
+
+            Assert.NotNull(reactor);
+
+            ReactorServiceDiscoveryOptions serviceDiscoveryOptions = new ReactorServiceDiscoveryOptions();
+            serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
+            serviceDiscoveryOptions.ClientJwk.Data("invalidClientJwkFile");
+            serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
+            expectedNumOfEndpoint = 0;
+            ReactorErrorInfo errorInfo;
+            Assert.Equal(ReactorReturnCode.FAILURE, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out errorInfo));
+            Assert.NotNull(errorInfo);
+            Assert.Equal(ReactorReturnCode.FAILURE, errorInfo.Code);
+            Assert.Equal("Can't open JWK file: invalidClientJwkFile", errorInfo.Error.Text);
+
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
         }
 
@@ -206,10 +264,16 @@ namespace LSEG.Eta.ValuedAdd.Tests
             {
                 serviceDiscoveryOptions.ClientId.Data(CLIENT_ID);
                 serviceDiscoveryOptions.ClientSecret.Data(CLIENT_SECRET);
+                expectedNumOfEndpoint = 30;
+            }
+            else
+            {
+                serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
+                serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+                expectedNumOfEndpoint = 6;
             }
 
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
-            expectedNumOfEndpoint = 30;
             expectedTransports = new[] { "tcp", "websocket" };
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out _));
 
@@ -231,6 +295,72 @@ namespace LSEG.Eta.ValuedAdd.Tests
             RequestQueryServiceDiscovery(false, false, false);
         }
 
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscovery_JWK_Test()
+        {
+            RequestQueryServiceDiscovery(true, false, false);
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscovery_JWK_Audience_Valid_Test()
+        {
+            RequestQueryServiceDiscovery_JWK_Audience(false, false, ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE);
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscovery_JWK_Audience_InvalidValid_Test()
+        {
+            RequestQueryServiceDiscovery_JWK_Audience(true, true, "InvalidAudience");
+        }
+
+        private void RequestQueryServiceDiscovery_JWK_Audience(bool overrideTokenService, bool overrideDiscoveryURL, string audience)
+        {
+            ReactorOptions reactorOptions = new ReactorOptions();
+
+            if (overrideTokenService && !string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            if (overrideDiscoveryURL && !string.IsNullOrEmpty(SERVICE_DISCOVERY_URL))
+            {
+                reactorOptions.SetServiceDiscoveryURL(SERVICE_DISCOVERY_URL);
+            }
+
+            reactorOptions.UserSpecObj = this;
+            Reactor reactor = Reactor.CreateReactor(reactorOptions, out _);
+
+            Assert.NotNull(reactor);
+
+            ReactorServiceDiscoveryOptions serviceDiscoveryOptions = new ReactorServiceDiscoveryOptions();
+
+            serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
+            serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+            serviceDiscoveryOptions.Audience.Data(audience);
+
+            if (audience.Equals(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE))
+            {
+                expectedNumOfEndpoint = 6;
+            }
+            else // Invalid audience
+            {
+                expectedNumOfEndpoint = 0;
+                expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error_description\":\"Client not found in client database for JWT's sub claim value";
+            }
+
+            serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
+            expectedTransports = new[] { "tcp", "websocket" };
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out _));
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
+        }
 
         void RequestQueryServiceDiscovery_TP_TCP(bool isPingJwt, bool overrideTokenService, bool overrideDiscoveryURL)
         {
@@ -258,10 +388,16 @@ namespace LSEG.Eta.ValuedAdd.Tests
             {
                 serviceDiscoveryOptions.ClientId.Data(CLIENT_ID);
                 serviceDiscoveryOptions.ClientSecret.Data(CLIENT_SECRET);
+                expectedNumOfEndpoint = 15;
+            }
+            else
+            {
+                serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
+                serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+                expectedNumOfEndpoint = 3;
             }
 
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
-            expectedNumOfEndpoint = 15;
             expectedTransports = new[] { "tcp" };
 
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out _));
@@ -275,6 +411,14 @@ namespace LSEG.Eta.ValuedAdd.Tests
         public void RequestQueryServiceDiscovery_TP_TCP_Test()
         {
             RequestQueryServiceDiscovery_TP_TCP(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscovery_TP_TCP_JWT_Test()
+        {
+            RequestQueryServiceDiscovery_TP_TCP(true, false, false);
         }
 
         void RequestQueryServiceDiscovery_DP_JSON2(bool isPingJwt, bool overrideTokenService, bool overrideDiscoveryURL)
@@ -301,11 +445,15 @@ namespace LSEG.Eta.ValuedAdd.Tests
             {
                 serviceDiscoveryOptions.ClientId.Data(CLIENT_ID);
                 serviceDiscoveryOptions.ClientSecret.Data(CLIENT_SECRET);
+                expectedNumOfEndpoint = 15;
             }
-            
-
+            else
+            {
+                serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
+                serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+                expectedNumOfEndpoint = 3;
+            }
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
-            expectedNumOfEndpoint = 15;
             expectedTransports = new[] { "websocket" };
 
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out _));
@@ -319,6 +467,13 @@ namespace LSEG.Eta.ValuedAdd.Tests
         public void RequestQueryServiceDiscovery_DP_JSON2_Test()
         {
             RequestQueryServiceDiscovery_DP_JSON2(false, false, false);
+        }
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void RequestQueryServiceDiscovery_DP_JSON2_JWT_Test()
+        {
+            RequestQueryServiceDiscovery_DP_JSON2(true, false, false);
         }
     }
 }

@@ -634,11 +634,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 loopCount--;
             }while (loopCount > 0);
 
-            Assert.Equal(3, serverComponentTest.ReactorChannel.GetPingHandler().GetPingReceived());
-            Assert.Equal(3, serverComponentTest.ReactorChannel.GetPingHandler().GetPingSent());
+            Assert.True(serverComponentTest.ReactorChannel.GetPingHandler().GetPingReceived() >= 9);
+            Assert.True(serverComponentTest.ReactorChannel.GetPingHandler().GetPingSent() >= 9);
 
-            Assert.Equal(3, clientComponentTest.ReactorChannel.GetPingHandler().GetPingReceived());
-            Assert.Equal(3, clientComponentTest.ReactorChannel.GetPingHandler().GetPingSent());
+            Assert.True(clientComponentTest.ReactorChannel.GetPingHandler().GetPingReceived() >= 9);
+            Assert.True(clientComponentTest.ReactorChannel.GetPingHandler().GetPingSent() >= 9);
 
             Assert.Equal(TransportReturnCode.SUCCESS, server.Close(out error));
 

@@ -241,6 +241,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     }
 
                     reactorChannel.TokenSession = new ReactorTokenSession(this, oAuthCredential);
+
+                    if(ReactorRestClient.ValidateJWKFile(reactorChannel.TokenSession.ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
+                    {
+                        reactorChannel.ReturnToPool();
+                        reactorChannel.TokenSession = null;
+                        return errorInfo!.Code;
+                    }
                 }
 
                 if(reactorConnectOptions.ConnectionList[0].EnableSessionManagement)
@@ -802,12 +809,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
                             "Required parameter ClientId is not set");
                 }
 
-                if(serviceDiscoveryOptions.ClientSecret.Length == 0)
+                if(serviceDiscoveryOptions.ClientSecret.Length == 0 && serviceDiscoveryOptions.ClientJwk.Length == 0)
                 {
                     return PopulateErrorInfo(out errorInfo,
                                ReactorReturnCode.PARAMETER_INVALID,
                                "Reactor.QueryServiceDiscovery",
-                               "Required parameter ClientSecret is not set");
+                               "Required parameter ClientSecret or ClientJwk is not set");
                 }
 
                 ReactorRestConnectOptions connOptions = new ReactorRestConnectOptions(m_ReactorOptions);
@@ -858,6 +865,17 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                 m_ReactorOAuthCredential.ClientSecret.Data(new ByteBuffer(serviceDiscoveryOptions.ClientSecret.Length));
                 serviceDiscoveryOptions.ClientSecret.Copy(m_ReactorOAuthCredential.ClientSecret);
+
+                m_ReactorOAuthCredential.ClientJwk.Data(new ByteBuffer(serviceDiscoveryOptions.ClientJwk.Length));
+                serviceDiscoveryOptions.ClientJwk.Copy(m_ReactorOAuthCredential.ClientJwk);
+
+                m_ReactorOAuthCredential.Audience.Data(new ByteBuffer(serviceDiscoveryOptions.Audience.Length));
+                serviceDiscoveryOptions.Audience.Copy(m_ReactorOAuthCredential.Audience);
+
+                if (ReactorRestClient.ValidateJWKFile(m_ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
+                {
+                    return errorInfo!.Code;
+                }
 
                 if (m_ReactorRestClient!.SendTokenRequest(m_ReactorOAuthCredential, connOptions, authTokenInfo, 
                     out errorInfo) != ReactorReturnCode.SUCCESS)
@@ -942,6 +960,15 @@ namespace LSEG.Eta.ValueAdd.Reactor
                             {
                                 return PopulateErrorInfo(out errorInfo, ReactorReturnCode.PARAMETER_INVALID, "Reactor.SubmitOAuthCredentialRenewal",
                                     "ReactorOAuthCredentialRenewal.ClientSecret not provided, aborting.");
+                            }
+                            break;
+                        }
+                    case ReactorOAuthCredentialRenewalModes.CLIENT_JWK:
+                        {
+                            if (oAuthCredentialRenewal.ClientJwk is null || oAuthCredentialRenewal.ClientJwk.IsBlank)
+                            {
+                                return PopulateErrorInfo(out errorInfo, ReactorReturnCode.PARAMETER_INVALID, "Reactor.SubmitOAuthCredentialRenewal",
+                                    "ReactorOAuthCredentialRenewal.ClientJwk not provided, aborting.");
                             }
                             break;
                         }
@@ -2853,10 +2880,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return null;
             }
 
-            if (oauthCredential.ClientSecret.Length == 0)
+            if (oauthCredential.ClientSecret.Length == 0 && oauthCredential.ClientJwk.Length == 0)
             {
                 PopulateErrorInfo(out errorInfo, ReactorReturnCode.INVALID_USAGE, "Reactor.RetrieveOAuthCredentialFromRole",
-                $"Failed to copy OAuth credential for enabling the session management; OAuth client secret does not exist.");
+                        $"Failed to copy OAuth credential for enabling the session management; OAuth client secret and client JSON Web Key do not exist.");
                 return null;
             }
 
@@ -2956,6 +2983,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     }
                     else
                     {
+                        tokenSession.ReactorAuthTokenInfo.Clear();
                         if (m_ReactorRestClient!.SendTokenRequest(tokenSession.ReactorOAuthCredential, tokenSession.ReactorRestConnectOptions,
                             tokenSession.ReactorAuthTokenInfo, out errorInfo) != ReactorReturnCode.SUCCESS)
                         {
@@ -2981,6 +3009,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 }
                 else
                 {
+                    reactorChannel.ServiceEndpointInfoList.Clear();
                     if (m_ReactorRestClient!.SendServiceDirectoryRequest(tokenSession.ReactorRestConnectOptions, tokenSession.ReactorAuthTokenInfo,
                         reactorChannel.ServiceEndpointInfoList, out errorInfo) != ReactorReturnCode.SUCCESS)
                     {

@@ -102,6 +102,12 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 credential.ClientSecret.Data(CLIENT_SECRET);
                 credential.ClientId.Data(CLIENT_ID);
             }
+            else
+            {
+                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientId.Data(CLIENT_ID_JWT);
+                credential.Audience.Data(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.InitDefaultRDMLoginRequest();
@@ -160,6 +166,14 @@ namespace LSEG.Eta.ValuedAdd.Tests
         {
             ConnectSuccessWithOneConnection_usingDefaultLocation(false, false, false);
         }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectSuccessWithOneConnection_usingDefaultLocation_JWT_Test()
+        {
+            ConnectSuccessWithOneConnection_usingDefaultLocation(true, false, false);
+        }
 
         void ConnectSuccessWithOneConnection_SpecifyLocation(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
         {
@@ -188,7 +202,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             connectInfo.ConnectOptions.MinorVersion = Codec.Codec.MinorVersion();
             connectInfo.EnableSessionManagement = true;
             connectInfo.ReactorAuthTokenEventCallback = this;
-            connectInfo.Location = "us-east-2"; // Specify a location
+            connectInfo.Location = "us-east-1"; // Specify a location
 
             ReactorConnectOptions connectOptions = new ReactorConnectOptions();
             connectOptions.ConnectionList.Add(connectInfo);
@@ -199,6 +213,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
             {
                 credential.ClientSecret.Data(CLIENT_SECRET);
                 credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
             ConsumerRole consumerRole = new ConsumerRole();
@@ -235,6 +254,14 @@ namespace LSEG.Eta.ValuedAdd.Tests
         public void ConnectSuccessWithOneConnection_SpecifyLocationTest()
         {
             ConnectSuccessWithOneConnection_SpecifyLocation(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectSuccessWithOneConnection_SpecifyLocation_JWT_Test()
+        {
+            ConnectSuccessWithOneConnection_SpecifyLocation(true, false, false);
         }
 
         void ConnectSuccessWithOneConnection_InvalidLocation(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
@@ -274,6 +301,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 credential.ClientSecret.Data(CLIENT_SECRET);
                 credential.ClientId.Data(CLIENT_ID);
             }
+            else
+            {
+                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientId.Data(CLIENT_ID_JWT);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.ReactorOAuthCredential = credential;
@@ -293,6 +325,14 @@ namespace LSEG.Eta.ValuedAdd.Tests
         public void ConnectSuccessWithOneConnection_InvalidLocationTest()
         {
             ConnectSuccessWithOneConnection_InvalidLocation(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectSuccessWithOneConnection_InvalidLocation_JWT_Test()
+        {
+            ConnectSuccessWithOneConnection_InvalidLocation(true, false, false);
         }
 
         void ConnectionList_FirstFailed_SecondRDPConnection(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryUrl)
@@ -346,6 +386,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
             {
                 credential.ClientSecret.Data(CLIENT_SECRET);
                 credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
             ConsumerRole consumerRole = new ConsumerRole();
@@ -432,6 +477,14 @@ namespace LSEG.Eta.ValuedAdd.Tests
         {
             ConnectionList_FirstFailed_SecondRDPConnection(false, false, false);
         }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectionList_FirstFailed_SecondRDPConnection_JWT_Test()
+        {
+            ConnectionList_FirstFailed_SecondRDPConnection(true, false, false);
+        }
 
         void ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
         {
@@ -484,6 +537,11 @@ namespace LSEG.Eta.ValuedAdd.Tests
             {
                 credential.ClientSecret.Data(CLIENT_SECRET);
                 credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
             ConsumerRole consumerRole = new ConsumerRole();
@@ -572,6 +630,13 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback(false, false, false);
         }
 
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback_JWT_Test()
+        {
+            ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback(true, false, false);
+        }
 
         [Fact]
         [Category("Unit")]
@@ -611,7 +676,50 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ReactorReturnCode returnCode = reactor.Connect(connectOptions, consumerRole, out errorInfo);
             Assert.Equal(ReactorReturnCode.INVALID_USAGE, returnCode);
             Assert.NotNull(errorInfo);
-            Assert.Equal("Failed to copy OAuth credential for enabling the session management; OAuth client secret does not exist.", errorInfo.Error.Text);
+            Assert.Equal("Failed to copy OAuth credential for enabling the session management; OAuth client secret and client JSON Web Key do not exist.", errorInfo.Error.Text);
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void Connect_ClientJWKWithInvalidAudience_Test()
+        {
+            ReactorOptions reactorOptions = new ReactorOptions();
+
+            reactorOptions.UserSpecObj = this;
+            Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
+
+            Assert.NotNull(reactor);
+
+            ReactorDispatchOptions dispatchOpts = new ReactorDispatchOptions();
+            ReactorConnectInfo connectInfo = new ReactorConnectInfo();
+            connectInfo.ConnectOptions.ConnectionType = Transports.ConnectionType.ENCRYPTED;
+            connectInfo.ConnectOptions.MajorVersion = Codec.Codec.MajorVersion();
+            connectInfo.ConnectOptions.MinorVersion = Codec.Codec.MinorVersion();
+            connectInfo.EnableSessionManagement = true;
+            connectInfo.ReactorAuthTokenEventCallback = this;
+
+            ReactorConnectOptions connectOptions = new ReactorConnectOptions();
+            connectOptions.ConnectionList.Add(connectInfo);
+
+            ReactorOAuthCredential credential = new ReactorOAuthCredential();
+
+            credential.ClientId.Data(CLIENT_ID);
+            credential.ClientJwk.Data(CLIENT_JWK);
+            credential.Audience.Data("InvalidJWTAudience");
+
+            ConsumerRole consumerRole = new ConsumerRole();
+            consumerRole.InitDefaultRDMLoginRequest();
+            consumerRole.ReactorOAuthCredential = credential;
+            consumerRole.ChannelEventCallback = this;
+            consumerRole.DefaultMsgCallback = this;
+
+            ReactorReturnCode returnCode = reactor.Connect(connectOptions, consumerRole, out errorInfo);
+            Assert.Equal(ReactorReturnCode.FAILURE, returnCode);
+            Assert.NotNull(errorInfo);
+            Assert.Equal("Failed to perform a REST request to the token service. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid client or client credentials.\" }", errorInfo.Error.Text);
 
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
         }
@@ -663,8 +771,16 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             if (reactorOAuthCredential is not null)
             {
-                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
-                reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                if (reactorOAuthCredential.ClientJwk.Length == 0)
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
+                    reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                }
+                else
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_JWK;
+                    reactorOAuthCredentialRenewal.ClientJwk.Data(reactorOAuthCredential.ClientJwk.ToString());
+                }
 
                 reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
             }

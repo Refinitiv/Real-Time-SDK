@@ -19,6 +19,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
     {
         private Buffer m_ClientId = new Buffer();
         private Buffer m_ClientSecret = new Buffer();
+        private Buffer m_ClientJwk = new Buffer();
+        private Buffer m_Audience = new Buffer();
         private Buffer m_ProxyHostName = new Buffer();
         private Buffer m_ProxyPort = new Buffer();
         private Buffer m_ProxyUserName = new Buffer();
@@ -39,6 +41,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             m_ClientId.Clear();
             m_ClientSecret.Clear();
+            m_ClientJwk.Clear();
+            m_Audience.Data(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE);
             Transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
             DataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
             m_ProxyHostName.Clear();
@@ -65,6 +69,27 @@ namespace LSEG.Eta.ValueAdd.Reactor
             get { return m_ClientSecret; }
 
             set { m_ClientSecret.Data(value.Data(), value.Position, value.Length); }
+        }
+
+        /// <summary>
+        /// Gets or sets the client JSON Web Key defined for an application making a request to the token service.
+        /// </summary>
+        public Buffer ClientJwk
+        {
+            get { return m_ClientJwk; }
+
+            set { m_ClientJwk.Data(value.Data(), value.Position, value.Length); }
+        }
+
+        /// <summary>
+        /// Gets or sets the audience claim string for JWT OAuth2 interactions.
+        /// Optionally specifies the audience for the JWT usage.
+        /// </summary>
+        public Buffer Audience
+        {
+            get { return m_Audience; }
+
+            set { m_Audience.Data(value.Data(), value.Position, value.Length); }
         }
 
         /// <summary>

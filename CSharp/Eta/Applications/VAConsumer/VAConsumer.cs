@@ -253,6 +253,11 @@ namespace LSEG.Eta.ValueAdd.Consumer
                 m_ReactorOptions.SetTokenServiceURL(m_ConsumerCmdLineParser.TokenURL);
             }
 
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.serviceDiscoveryURL))
+            {
+                m_ReactorOptions.SetServiceDiscoveryURL(m_ConsumerCmdLineParser.serviceDiscoveryURL);
+            }
+
             if (m_ConsumerCmdLineParser.EnableRestLogging)
             {
                 m_ReactorOptions.EnableRestLogStream = m_ConsumerCmdLineParser.EnableRestLogging;
@@ -1209,6 +1214,16 @@ namespace LSEG.Eta.ValueAdd.Consumer
                     /* Specified the IReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
                     oAuthCredential.ReactorOAuthCredentialEventCallback = this;
                 }
+            }
+
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.JwkFile))
+            {
+                oAuthCredential.ClientJwk.Data(m_ConsumerCmdLineParser.JwkFile);
+            }
+
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.Audience))
+            {
+                oAuthCredential.Audience.Data(m_ConsumerCmdLineParser.Audience);
             }
 
             if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.TokenScope))

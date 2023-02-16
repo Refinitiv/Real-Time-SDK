@@ -21,6 +21,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
     sealed public class ReactorOAuthCredential
     {
         /// <summary>
+        /// The default value for the audience claim string for JWT OAuth2 interactions.
+        /// </summary>
+        public static readonly string DEFAULT_JWT_AUDIENCE = "https://login.ciam.refinitiv.com/as/token.oauth2";
+
+        /// <summary>
         /// Instantiates ReactorOAuthCredential.
         /// </summary>
         public ReactorOAuthCredential()
@@ -35,6 +40,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             ClientId.Clear();
             ClientSecret.Clear();
+            ClientJwk.Clear();
+            Audience.Data(DEFAULT_JWT_AUDIENCE);
             TokenScope.Data("trapi.streaming.pricing.read");
             ReactorOAuthCredentialEventCallback = null;
             UserSpecObj = null;
@@ -49,6 +56,17 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Gets or sets a client secret that was used by OAuth Client to authenticate with the token service.
         /// </summary>
         public Buffer ClientSecret { get; private set; } = new Buffer();
+
+        /// <summary>
+        /// Gets or sets a client json web key used by OAuth authentication to the token service.
+        /// </summary>
+        public Buffer ClientJwk { get; private set; } = new Buffer();
+
+        /// <summary>
+        /// Gets or sets the audience claim string for JWT OAuth2 interactions.
+        /// Optionally specifies the audience for the JWT usage.
+        /// </summary>
+        public Buffer Audience { get; private set; } = new Buffer();
 
         /// <summary>
         /// Gets or sets a list of token scope that is used to limit the scope of generated token.
@@ -99,6 +117,22 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 TokenScope.Copy(byteBuffer);
                 byteBuffer.Flip();
                 destReactorOAuthCredential.TokenScope.Data(byteBuffer);
+            }
+
+            if(ClientJwk.Length != 0)
+            {
+                ByteBuffer byteBuffer = new(ClientJwk.Length);
+                ClientJwk.Copy(byteBuffer);
+                byteBuffer.Flip();
+                destReactorOAuthCredential.ClientJwk.Data(byteBuffer);
+            }
+
+            if (Audience.Length != 0)
+            {
+                ByteBuffer byteBuffer = new(Audience.Length);
+                Audience.Copy(byteBuffer);
+                byteBuffer.Flip();
+                destReactorOAuthCredential.Audience.Data(byteBuffer);
             }
 
             destReactorOAuthCredential.ReactorOAuthCredentialEventCallback = ReactorOAuthCredentialEventCallback;

@@ -22,5 +22,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// Renew access token for clientSecret only
         /// </summary>
         CLIENT_SECRET = 1,
+
+        /// <summary>
+        /// Renew access token for clientJwk only
+        /// </summary>
+        CLIENT_JWK = 2,
     }
 }

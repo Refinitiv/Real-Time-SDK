@@ -103,10 +103,25 @@ namespace LSEG.Eta.ValueAdd.Reactor
             if (renewalModes == ReactorOAuthCredentialRenewalModes.CLIENT_SECRET)
             {
                 ReactorOAuthCredential.ClientSecret.Data(reactorOAuthCredRenewal.ClientSecret.ToString());
-                m_RestClient.SendTokenRequestAsync(ReactorOAuthCredential, ReactorRestConnectOptions, ReactorAuthTokenInfo, this);
+            }
+            else if (renewalModes == ReactorOAuthCredentialRenewalModes.CLIENT_JWK)
+            {
+                ReactorOAuthCredential.ClientJwk.Data(reactorOAuthCredRenewal.ClientJwk.ToString());
+                ReactorOAuthCredential.JsonWebKey = null;
+
+                if ( ReactorRestClient.ValidateJWKFile(ReactorOAuthCredential, out ReactorErrorInfo? errorInfo) != ReactorReturnCode.SUCCESS)
+                {
+                    RestEvent restEvent = new RestEvent();
+                    restEvent.Type = RestEvent.EventType.FAILED;
+                    RestErrorCallback(restEvent, errorInfo!.Error.Text);
+                    return;
+                }
             }
 
+            m_RestClient.SendTokenRequestAsync(ReactorOAuthCredential, ReactorRestConnectOptions, ReactorAuthTokenInfo, this);
+
             ReactorOAuthCredential.ClientSecret.Clear();
+            ReactorOAuthCredential.ClientJwk.Clear();
         }
 
         public void HandleTokenRequest()
@@ -210,6 +225,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                                 if (Reactor.RequestServiceDiscovery(reactorConnectInfo))
                                                 {
                                                     SessionMgntState = SessionState.QUERYING_SERVICE_DISCOVERY;
+                                                    ReactorChannel.ServiceEndpointInfoList.Clear();
                                                     if (m_RestClient.SendServiceDirectoryRequest(ReactorRestConnectOptions, ReactorAuthTokenInfo,
                                                         ReactorChannel.ServiceEndpointInfoList, out ReactorErrorInfo? errorInfo) != ReactorReturnCode.SUCCESS)
                                                     {

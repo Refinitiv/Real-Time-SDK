@@ -16,6 +16,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
     sealed public class ReactorConnectInfo
     {
         const int DEFAULT_TIMEOUT = 60;
+        const int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT = 3;
 
         private int m_InitTimeout;
 
@@ -28,6 +29,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_InitTimeout = DEFAULT_TIMEOUT;
             EnableSessionManagement = false;
             Location = "us-east-1";
+            ServiceDiscoveryRetryCount = DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
         }
 
         /// <summary>
@@ -87,6 +89,13 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public string Location {get; set; }
 
         /// <summary>
+        /// Gets or sets the number of times the Reactor will try to reconnect before performing
+        /// Service Discovery again. Takes effect only when Session Management is enabled and
+        /// host and port are not set for the given connection. Defaults to 3.
+        /// </summary>
+        public int ServiceDiscoveryRetryCount { get; set; }
+
+        /// <summary>
         /// Clears this object for resuse
         /// </summary>
         public void Clear()
@@ -96,6 +105,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             EnableSessionManagement = false;
             Location = "us-east-1";
             ReactorAuthTokenEventCallback = null;
+            ServiceDiscoveryRetryCount = DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
         }
 
         /// <summary>
@@ -115,7 +125,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
             destInfo.EnableSessionManagement = EnableSessionManagement;
             destInfo.Location = Location;
             destInfo.ReactorAuthTokenEventCallback = ReactorAuthTokenEventCallback;
+            destInfo.ServiceDiscoveryRetryCount = ServiceDiscoveryRetryCount;
             return ReactorReturnCode.SUCCESS;
         }
+
+        // Internal variables to redo the service discovery if needed.
+        internal int ReconnectAttempts { get; set; }
+        internal bool HostAndPortProvided { get; set; }
     }
 }

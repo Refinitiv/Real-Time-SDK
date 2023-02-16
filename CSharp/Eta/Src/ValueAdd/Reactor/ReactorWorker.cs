@@ -15,7 +15,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 {
     internal class ReactorWorker
     {
-        private const int DEFAULT_WAIT_TIME = 3000; // milliseconds
+        private const int DEFAULT_WAIT_TIME = 100; // milliseconds
 
         Thread? m_Thread;
         private ReactorEventQueue m_WorkerEventQueue; /* Worker's event quque */
@@ -543,6 +543,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     // channel.init is complete,
                     // save the channel's negotiated ping timeout
                     reactorChannel.GetPingHandler().InitPingHandler(channel.PingTimeOut);
+                    reactorChannel.ResetCurrentChannelRetryCount();
 
                     // move the channel from the initQueue to the activeQueue
                     m_InitChannelQueue.Remove(reactorChannel);

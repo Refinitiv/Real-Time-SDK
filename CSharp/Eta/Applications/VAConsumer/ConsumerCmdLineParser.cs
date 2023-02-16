@@ -33,7 +33,13 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
         internal string? ClientSecret { get; private set; }
 
+        internal string? JwkFile { get; private set; }
+
+        internal string? Audience { get; private set; }
+
         internal string? TokenURL { get; private set; }
+
+        internal string? serviceDiscoveryURL { get; private set; }
 
         internal string? TokenScope { get; private set; }
 
@@ -151,9 +157,24 @@ namespace LSEG.Eta.ValueAdd.Consumer
                     ClientSecret = args[++argsCount];
                     ++argsCount;
                 }
+                else if ("-jwkFile".Equals(args[argsCount]))
+                {
+                    JwkFile = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-audience".Equals(args[argsCount]))
+                {
+                    Audience = args[++argsCount];
+                    ++argsCount;
+                }
                 else if ("-tokenURL".Equals(args[argsCount]))
                 {
                     TokenURL = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-serviceDiscoveryURL".Equals(args[argsCount]))
+                {
+                    serviceDiscoveryURL = args[++argsCount];
                     ++argsCount;
                 }
                 else if ("-tokenScope".Equals(args[argsCount]))
@@ -324,8 +345,11 @@ namespace LSEG.Eta.ValueAdd.Consumer
                                "\n -passwd changes the password used when logging into the provider\n" +
                                "\n -clientId specifies a unique ID for application making the request to RDP token service\n" +
                                "\n -clientSecret specifies the associated secret with the client ID\n" +
+                               "\n -jwkFile specifies a file containing the JWK encoded private key for V2 JWT logins.\n" +
+                               "\n -audience audience claim for v2 JWT logins.\n" +
                                "\n -sessionMgnt enables the session management in the Reactor\n" +
                                "\n -tokenURL specifies the URL for the token service to override the default value.\n" +
+                               "\n -serviceDiscoveryURL specifies the RDP Service Discovery URL to override the default value.\n" +
                                "\n -tokenScope specifies a scope for the token service.\n" +
                                "\n -view specifies each request using a basic dynamic view\n" +
                                "\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +

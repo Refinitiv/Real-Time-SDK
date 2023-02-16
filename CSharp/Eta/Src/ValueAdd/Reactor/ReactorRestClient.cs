@@ -126,7 +126,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             Dictionary<string, string> encodedDict;
             if (oAuthCredential.JsonWebKey != null)
             {
-                string? clientAssertion = GenerateClientAssertion(url, oAuthCredential, out errorInfo);
+                string? clientAssertion = GenerateClientAssertion(oAuthCredential, out errorInfo);
 
                 if(clientAssertion is null)
                 {
@@ -173,6 +173,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 if (errorInfo != null)
                 {
                     return errorInfo.Code;
+                }
+                else if(restConnetOptions.AuthRedirect && !string.IsNullOrEmpty(authTokenInfo.AccessToken))
+                {
+                    restConnetOptions.ClearAuthRedirectParamerters();
+                    return ReactorReturnCode.SUCCESS;
                 }
                 
                 AccessTokenInformation? tokenInfo = JsonSerializer.Deserialize<AccessTokenInformation>(restResponse.Content!);
@@ -235,7 +240,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
             else
             {
-                string? clientAssertion = GenerateClientAssertion(url, oAuthCredential, out ReactorErrorInfo? errorInfo);
+                string? clientAssertion = GenerateClientAssertion(oAuthCredential, out ReactorErrorInfo? errorInfo);
 
                 if (clientAssertion is null)
                 {
@@ -328,6 +333,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 if (errorInfo != null)
                 {
                     return errorInfo.Code;
+                }
+                else if(restConnetOptions.DiscoveryRedirect && endpointInfoList.Count > 0)
+                {
+                    restConnetOptions.ClearDiscoveryRedirectParameters();
+                    return ReactorReturnCode.SUCCESS;
                 }
 
                 if (ParserServiceDiscoveryEndpoint(restResponse, endpointInfoList, out errorInfo) != ReactorReturnCode.SUCCESS)
@@ -820,7 +830,36 @@ namespace LSEG.Eta.ValueAdd.Reactor
             GC.SuppressFinalize(this);
         }
 
-        string? GenerateClientAssertion(string tokenUrl, ReactorOAuthCredential oAuthCredential, out ReactorErrorInfo? errorInfo)
+        public static ReactorReturnCode ValidateJWKFile(ReactorOAuthCredential reactorOAuthCredential, out ReactorErrorInfo? errorInfo)
+        {
+            errorInfo = null;
+
+            if(reactorOAuthCredential.ClientJwk.Length > 0)
+            {
+                var jsonWebKeyFile = reactorOAuthCredential.ClientJwk.ToString();
+
+                if (!File.Exists(jsonWebKeyFile))
+                {
+                    return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
+                        "ReactorRestClient.ValidateJWKFile()", $"Can't open JWK file: {jsonWebKeyFile}");
+                }
+
+                try
+                {
+                    reactorOAuthCredential.JsonWebKey = new JsonWebKey(File.ReadAllText(jsonWebKeyFile));
+                }
+                catch(Exception ex)
+                {
+                    return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
+                    "ReactorRestClient.ValidateJWKFile", $"Failed to retrieve Json Web Key information {jsonWebKeyFile}. Text: {ex.Message}");
+                }
+
+            }
+
+            return ReactorReturnCode.SUCCESS;
+        }
+
+        string? GenerateClientAssertion(ReactorOAuthCredential oAuthCredential, out ReactorErrorInfo? errorInfo)
         {
             string? clientAssertion = null;
             long epocSeconds = DateTimeOffset.Now.ToUnixTimeSeconds();
@@ -832,7 +871,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 {
                         new Claim(JwtRegisteredClaimNames.Iss, oAuthCredential.ClientId.ToString()),
                         new Claim(JwtRegisteredClaimNames.Sub, oAuthCredential.ClientId.ToString()),
-                        new Claim(JwtRegisteredClaimNames.Aud, tokenUrl),
+                        new Claim(JwtRegisteredClaimNames.Aud, oAuthCredential.Audience.ToString()),
                         new Claim(JwtRegisteredClaimNames.Iat, epocSeconds.ToString(), ClaimValueTypes.Integer),
                         new Claim(JwtRegisteredClaimNames.Exp, epocSecondsExpired.ToString(), ClaimValueTypes.Integer),
                 };
