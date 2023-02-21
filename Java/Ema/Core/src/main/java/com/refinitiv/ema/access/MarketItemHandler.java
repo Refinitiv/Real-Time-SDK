@@ -109,13 +109,18 @@ class MarketItemHandler implements DefaultMsgCallback
 		}
 		
 		ItemInfo itemInfo = clientSession.getItemInfo(_streamId.value(msg.streamId()));
+		
+		// Ensure the rsslMsg of all relevant message types contain the same flags of the message event
+		int messageFlags = msg.flags();
+
 		switch (msg.msgClass())
 		{
 			case MsgClasses.REQUEST:
 			{
 				logReceivedMessage(msg, clientSession, "request");
-				
+
 				ReqMsgImpl reqMsg = _ommServerBaseImpl.reqMsg();
+				reqMsg._rsslMsg.flags(messageFlags);
 				int flags = msg.msgKey().flags();
 				
 				if ( (flags & MsgKeyFlags.HAS_SERVICE_ID) == MsgKeyFlags.HAS_SERVICE_ID )
@@ -328,6 +333,9 @@ class MarketItemHandler implements DefaultMsgCallback
 			}
 			case MsgClasses.POST:
 			{
+				if (itemInfo != null)
+					_ommServerBaseImpl.postMsg()._rsslMsg.flags(messageFlags);
+				
 				processPost(msg, reactorChannel, clientSession, itemInfo);
 				break;
 			}
@@ -338,6 +346,7 @@ class MarketItemHandler implements DefaultMsgCallback
 				{
 					GenericMsgImpl genericMsg = _ommServerBaseImpl.genericMsg();
 
+					genericMsg._rsslMsg.flags(messageFlags);
 					genericMsg.decode(msg, reactorChannel.majorVersion(),
 							reactorChannel.minorVersion(), getDataDictionary(itemInfo, msg));
 
