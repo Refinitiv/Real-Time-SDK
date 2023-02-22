@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
+ *|         Copyright (C) 2020-2023 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -41,7 +41,7 @@
 
 const char* pServerKey = "localhost.key";
 const char* pServerCert = "localhost.crt";
-
+const char* pOpenSSLCAStore = "RootCA.crt";
 
 class ServerStartStopTests : public ::testing::Test {
 protected:
@@ -81,7 +81,7 @@ TEST_F(ServerStartStopTests, ServerTCPStartStopTest)
 
 	_testConnectionType = RSSL_CONN_TYPE_SOCKET;
 
-	clearTUConfig(&serverConfig);
+	clearTUServerConfig(&serverConfig);
 	serverConfig.blocking = _testBlockingIO;
 	serverConfig.connType = _testConnectionType;
 	strncpy(serverConfig.portNo, "15010", sizeof(serverConfig.portNo));
@@ -126,7 +126,7 @@ TEST_F(ServerStartStopTests, ServerTCPStartStop100Test)
 	// RsslServerSocketChannel -> FreeServerSocketChannelList
 	for (i = 0; i < 10; ++i)
 	{
-		clearTUConfig(&serverConfig[i]);
+		clearTUServerConfig(&serverConfig[i]);
 		serverConfig[i].blocking = _testBlockingIO;
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
@@ -149,7 +149,7 @@ TEST_F(ServerStartStopTests, ServerTCPStartStop100Test)
 	// and will create when a server run
 	for (i = 10; i < NumConfigs; ++i)
 	{
-		clearTUConfig(&serverConfig[i]);
+		clearTUServerConfig(&serverConfig[i]);
 		serverConfig[i].blocking = _testBlockingIO;
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
@@ -196,6 +196,11 @@ const char* getPathServerCert()
 	return pServerCert;
 }
 
+const char* getOpenSSLCAStore()
+{
+	return pOpenSSLCAStore;
+}
+
 bool checkCertificateFiles()
 {
 	struct stat buffer;
@@ -204,6 +209,12 @@ bool checkCertificateFiles()
 	return (isExistServerKey && isExistServerCert);
 }
 
+bool checkClientCertificateFiles()
+{
+	struct stat buffer;
+	bool isExistOpenSSLCAStore = (stat(pOpenSSLCAStore, &buffer) == 0);
+	return (isExistOpenSSLCAStore);
+}
 
 /* Run Server on a encrypted socket
  * Test should verify:
@@ -234,7 +245,7 @@ TEST_F(ServerStartStopTests, ServerSSLStartStopTest)
 
 	rsslInitialize(RSSL_LOCK_NONE, &err);
 
-	clearTUConfig(&serverConfig);
+	clearTUServerConfig(&serverConfig);
 	serverConfig.blocking = _testBlockingIO;
 	serverConfig.connType = _testConnectionType;
 	strncpy(serverConfig.portNo, "15020", sizeof(serverConfig.portNo));
@@ -291,7 +302,7 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 	// RsslServerSocketChannel -> FreeServerSocketChannelList
 	for (i = 0; i < 10; ++i)
 	{
-		clearTUConfig(&serverConfig[i]);
+		clearTUServerConfig(&serverConfig[i]);
 		serverConfig[i].blocking = _testBlockingIO;
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
@@ -319,7 +330,7 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 	// and will create when a server run
 	for (i = 10; i < NumConfigs; ++i)
 	{
-		clearTUConfig(&serverConfig[i]);
+		clearTUServerConfig(&serverConfig[i]);
 		serverConfig[i].blocking = _testBlockingIO;
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
@@ -390,7 +401,7 @@ TEST_F(ServerStartStopTests, ServerSHMemStartStopTest)
 
 	rsslInitialize(RSSL_LOCK_NONE, &err);
 
-	clearTUConfig(&serverConfig);
+	clearTUServerConfig(&serverConfig);
 	serverConfig.blocking = _testBlockingIO;
 	serverConfig.connType = _testConnectionType;
 	strncpy(serverConfig.portNo, "15037", sizeof(serverConfig.portNo));
@@ -442,7 +453,7 @@ TEST_F(ServerStartStopTests, ServerSHMemStartStop100Test)
 	// rsslServerImpl -> FreeServerList
 	for (i = 0; i < 10; ++i)
 	{
-		clearTUConfig(&serverConfig[i]);
+		clearTUServerConfig(&serverConfig[i]);
 		serverConfig[i].blocking = _testBlockingIO;
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
@@ -467,7 +478,7 @@ TEST_F(ServerStartStopTests, ServerSHMemStartStop100Test)
 	// and will create when a server run
 	for (i = 10; i < NumConfigs; ++i)
 	{
-		clearTUConfig(&serverConfig[i]);
+		clearTUServerConfig(&serverConfig[i]);
 		serverConfig[i].blocking = _testBlockingIO;
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));

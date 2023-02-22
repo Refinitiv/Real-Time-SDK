@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.              --
+ *|         Copyright (C) 2020-2023 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -4371,9 +4371,12 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 			}
 			else
 			{
-				/* Updates the length for partial read if any. */
-				rsslSocketChannel->inputBuffer->length += totalCC;
-				return(RSSL_RET_READ_WOULD_BLOCK);
+				/* This is a non-blocking read and we should break loop */
+				if (cc == 0)
+				{
+					return(RSSL_RET_READ_WOULD_BLOCK);
+				}
+				break;
 			}
 
 			totalCC += cc;
@@ -4389,7 +4392,8 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 
 	bytesRead = (RsslInt32)(wsSess->actualInBuffLen - wsSess->inputReadCursor);
 	// See if we have the 2 bytes so we can calculate the length of the WS Frame Header
-	if (bytesRead >= 2)
+	// when we have only 1 byte it sets frame partial
+	if (bytesRead >= 1)
 	{
 		_decodeWSFrame(frame, buffer, bytesRead);
 

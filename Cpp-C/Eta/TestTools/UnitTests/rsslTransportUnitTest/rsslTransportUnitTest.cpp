@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
  
@@ -27,6 +27,7 @@
 #include "rtr/ripcutils.h"
 #include "rtr/rsslEventSignal.h"
 #include "rtr/ripcsslutils.h"
+#include "rtr/rsslGetTime.h"
 
 #include "TransportUnitTest.h"
 
@@ -158,12 +159,27 @@ public:
 	RsslThreadId* pThreadId;		/* Current Thread Id.  Useful for debugging */
 	RsslChannel* pChnl;				/* Channel to be created.  This should be NULL when calling startServerChannel */
 	RsslServer* pServer;			/* Server for channel creation */
+	TUServerConfig* pServerConfig;	/* Configuration options for creating server */
 
 	ServerChannel()
 	{
 		pThreadId = NULL;
 		pChnl = NULL;
 		pServer = NULL;
+		pServerConfig = NULL;
+	}
+
+	ServerChannel(TUServerConfig* pTUConfig) :
+		pThreadId(NULL),
+		pChnl(NULL),
+		pServer(NULL),
+		pServerConfig(pTUConfig)
+	{
+	}
+
+	void setTUServerConfig(TUServerConfig* pTUConfig)
+	{
+		pServerConfig = pTUConfig;
 	}
 
 	/* If blocking is set to RSSL_TRUE, accept is set to block.  Otherwise, wait on notification for a new incomming channel, then accept and initialize. */
@@ -186,7 +202,7 @@ public:
 
 		if (blocking == RSSL_TRUE)
 		{
-			while (shutdownTest != true && serverChnl == NULL)
+			while (shutdownTest != true && serverChnl == NULL && !failTest)
 			{
 				serverChnl = rsslAccept(pServer, &acceptOpts, &err);
 
@@ -213,12 +229,15 @@ public:
 		}
 		else
 		{
-			while (shutdownTest != true && serverChnl == NULL)
+			selectTime.tv_sec = 0L;
+			selectTime.tv_usec = 0L;
+			while (shutdownTest != true && serverChnl == NULL && !failTest)
 			{
-				selectTime.tv_sec = 0L;
-				selectTime.tv_usec = 0L;
 				FD_SET(pServer->socketId, &readfds);
 				selRet = select(FD_SETSIZE, &readfds, NULL, NULL, &selectTime);
+
+				selectTime.tv_sec = 0L;
+				selectTime.tv_usec = 10L;
 
 				ASSERT_GE(selRet, 0) << "Select failed, system errno: " << errno;
 				if (FD_ISSET(pServer->socketId, &readfds))
@@ -245,7 +264,7 @@ public:
 			}
 
 			/* Hard looping on select and initChannel for this testing */
-			while (shutdownTest != true && serverChnl->state != RSSL_CH_STATE_ACTIVE)
+			while (shutdownTest != true && serverChnl->state != RSSL_CH_STATE_ACTIVE && !failTest)
 			{
 				RsslInProgInfo inProg;
 				rsslClearInProgInfo(&inProg);
@@ -280,11 +299,25 @@ class ClientChannel
 public:
 	RsslThreadId* pThreadId;		/* Current Thread Id.  Useful for debugging */
 	RsslChannel* pChnl;				/* Channel to be created.  This should be NULL when calling startServerChannel */
+	TUClientConfig* pClientConfig;	/* Configuration options for creating client */
 
 	ClientChannel()
 	{
 		pThreadId = NULL;
 		pChnl = NULL;
+		pClientConfig = NULL;
+	}
+
+	ClientChannel(TUClientConfig* pTUConfig) :
+		pThreadId(NULL),
+		pChnl(NULL),
+		pClientConfig(pTUConfig)
+	{
+	}
+
+	void setTUClientConfig(TUClientConfig* pTUConfig)
+	{
+		pClientConfig = pTUConfig;
 	}
 
 	/* If blocking is set to RSSL_TRUE, attempt to connect using rsslConnect.  This will either return an active channel or error out.
@@ -298,12 +331,38 @@ public:
 
 		ASSERT_EQ(pChnl, (RsslChannel*)NULL) << "Client channel already exists, this is not supported";
 
-		connectOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
-		connectOpts.connectionInfo.unified.address = (char*)"localhost";
-		connectOpts.connectionInfo.unified.serviceName = (char*)"15000";
-		connectOpts.protocolType = TEST_PROTOCOL_TYPE;
-		connectOpts.tcp_nodelay = true;
-		connectOpts.blocking = blocking;
+		if (pClientConfig == NULL)
+		{
+			connectOpts.connectionType = RSSL_CONN_TYPE_SOCKET;
+			connectOpts.connectionInfo.unified.address = (char*)"localhost";
+			connectOpts.connectionInfo.unified.serviceName = (char*)"15000";
+			connectOpts.protocolType = TEST_PROTOCOL_TYPE;
+			connectOpts.tcp_nodelay = true;
+			connectOpts.blocking = blocking;
+		}
+		else
+		{
+			connectOpts.connectionType = pClientConfig->connType;
+			connectOpts.connectionInfo.unified.address = (char*)"localhost";
+			connectOpts.connectionInfo.unified.serviceName = pClientConfig->portNo;
+			connectOpts.protocolType = RSSL_RWF_PROTOCOL_TYPE;
+			connectOpts.tcp_nodelay = true;
+			connectOpts.blocking = blocking;
+			connectOpts.compressionType = pClientConfig->compressionType;
+
+			if (connectOpts.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+			{
+				connectOpts.encryptionOpts.encryptionProtocolFlags = pClientConfig->encryptionProtocolFlags;
+				connectOpts.encryptionOpts.encryptedProtocol = pClientConfig->encryptedProtocol;
+				connectOpts.encryptionOpts.openSSLCAStore = pClientConfig->openSSLCAStore;
+			}
+
+			if (connectOpts.connectionType == RSSL_CONN_TYPE_ENCRYPTED && pClientConfig->encryptedProtocol == RSSL_CONN_TYPE_WEBSOCKET
+				|| connectOpts.connectionType == RSSL_CONN_TYPE_WEBSOCKET)
+			{
+				connectOpts.wsOpts.protocols = pClientConfig->wsProtocolList;
+			}
+		}
 
 		pClientChnl = rsslConnect(&connectOpts, &err);
 
@@ -315,7 +374,7 @@ public:
 		if (blocking == RSSL_FALSE)
 		{
 			/* Hard looping on rsslInitChannel */
-			while (shutdownTest != true && pClientChnl->state != RSSL_CH_STATE_ACTIVE)
+			while (shutdownTest != true && pClientChnl->state != RSSL_CH_STATE_ACTIVE && !failTest)
 			{
 
 				RsslInProgInfo inProg;
@@ -380,7 +439,10 @@ public:
 	RsslThreadId* pThreadId;
 	RsslChannel* pChnl;
 	int* readCount;
-	RsslMutex* lock;
+	RsslMutex* lock;           // Protect access to the read counter: readCount
+	RsslMutex* lockReadWrite;  // Protect access to whole read section, if need
+
+	EventSignal* signalForWrite; // This is an event-signal to write-loop that read-lop is ready for reading next chunk
 
 	ReadChannel()
 	{
@@ -388,6 +450,8 @@ public:
 		pChnl = NULL;
 		readCount = NULL;
 		lock = NULL;
+		lockReadWrite = NULL;
+		signalForWrite = NULL;
 	}
 
 	/*	Read from pChnl.  Increments the read counter whenever rsslRead returns a buffer.
@@ -413,9 +477,16 @@ public:
 		struct timeval selectTime;
 		int selRet;
 
+		if (pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE)
+		{
+			failTest = true;
+			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
+		}
+
 		FD_SET(pChnl->socketId, &readfds);
 
-		while (!shutdownTest)
+		while ( !shutdownTest && !failTest )
 		{
 			if (blocking == RSSL_FALSE)
 			{
@@ -426,10 +497,25 @@ public:
 
 				ASSERT_GE(selRet, 0) << "Reader select failed.";
 
+				/* We're shutting down, so there is no failure case here */
+				if ( shutdownTest || failTest )
+				{
+					break;
+				}
 				if (!FD_ISSET(pChnl->socketId, &useread))
 				{
 					continue;
 				}
+			}
+
+			/* Special tests use an additional lock on entire read operation */
+			/* It allows read and write operations to be performed step by step */
+			if (lockReadWrite != NULL)
+			{
+				RSSL_MUTEX_LOCK(lockReadWrite);
+
+				if (shutdownTest || failTest)
+					break;
 			}
 
 			do
@@ -447,14 +533,50 @@ public:
 				{
 					if (readRet < RSSL_RET_SUCCESS && readRet != RSSL_RET_READ_PING && readRet != RSSL_RET_READ_IN_PROGRESS && readRet != RSSL_RET_READ_WOULD_BLOCK)
 					{
+						if (lockReadWrite != NULL)
+						{
+							RSSL_MUTEX_UNLOCK(lockReadWrite);
+						}
+
 						/* We're shutting down, so there is no failure case here */
 						if (shutdownTest)
 							return;
 						failTest = true;
-						ASSERT_TRUE(false) << "rsslRead failed. Return code:" << readRet << " Error info: " << err.text;
+						ASSERT_TRUE(false) << "rsslRead failed. Return code:" << readRet << " Error info: " << err.text << " readCount: " << *(readCount);
 					}
 				}
-			} while (readRet > 0);
+
+				/* Checks the error case */
+				if ( pChnl-> connectionType == RSSL_CONN_TYPE_WEBSOCKET
+					&& (readRet == RSSL_RET_READ_WOULD_BLOCK || readRet > 0) )
+				{
+					rsslChannelImpl* rsslChnlImpl = (rsslChannelImpl*)pChnl;
+					RsslSocketChannel* rsslSocketChannel = (RsslSocketChannel*)rsslChnlImpl->transportInfo;
+					if (rsslSocketChannel->inputBufCursor > rsslSocketChannel->inputBuffer->length)
+					{
+						if (lockReadWrite != NULL)
+						{
+							RSSL_MUTEX_UNLOCK(lockReadWrite);
+						}
+
+						/* We're shutting down, so there is no failure case here */
+						if (shutdownTest)
+							return;
+						failTest = true;
+						ASSERT_TRUE(false) << "rsslRead: error case. Return code:" << readRet << " Error info: " << err.text << " readCount: " << *(readCount);
+					}
+				}
+			} while ( readRet > 0 && !shutdownTest && !failTest );
+
+			/* Special tests use an additional lock on entire read operation */
+			/* It allows read and write operations to be performed step by step */
+			if (lockReadWrite != NULL)
+			{
+				RSSL_MUTEX_UNLOCK(lockReadWrite);
+
+				/* Sets the event-signal for a write loop: the read loop is ready for reading next chunk */
+				signalForWrite->setSignal();
+			}
 
 			/* readIncrement stops us from resetting the deadlock timer more than once per readCount */
 			if (*(readCount) % 10000 == 1 && readIncrement == true)
@@ -653,6 +775,499 @@ public:
 	}
 };
 
+class AbstractTransportBuffer {
+public:
+	virtual const unsigned char* getTestBuffer(
+		RsslUInt32 requiredMsgLength, int configIndex,
+		RsslUInt32* bufferLength, RsslUInt32* numMessagesInBuffer,
+		char* errorText, size_t szErrorText) = 0;
+
+	virtual size_t getChunkLengths(int configIndex, int writeCount, unsigned* arrChunkLengths, size_t szArrChunkLengths)
+	{
+		return 0;
+	}
+};
+
+#define TB_ERR_FILE_NOT_OPEN "File is not open:"
+#define TB_ERR_MEM_ALLOC_FAIL "Memory allocation failed."
+#define TB_ERR_FILE_READ_FAIL "Read buffer failed."
+
+class MsgFileBuffer : public AbstractTransportBuffer
+{
+	const char* fileName;
+	unsigned char* testBuffer;
+
+public:
+	MsgFileBuffer(const char* fName) : fileName(fName), testBuffer(NULL)
+	{}
+
+	~MsgFileBuffer()
+	{
+		if (testBuffer)
+			delete[] testBuffer;
+		testBuffer = NULL;
+	}
+
+	const unsigned char* getTestBuffer(
+		RsslUInt32 requiredMsgLength, int configIndex,
+		RsslUInt32* bufferLength, RsslUInt32* numMessagesInBuffer,
+		char* errorText, size_t szErrorText)
+	{
+		int statResult;
+#ifdef WIN32
+		struct _stat statBuffer;
+		statResult = _stat(fileName, &statBuffer);
+#else
+		struct stat statBuffer;
+		statResult = stat(fileName, &statBuffer);
+#endif
+		if (statResult < 0)
+		{
+			*bufferLength = 0U;
+			*numMessagesInBuffer = 0U;
+			if (errorText != NULL && szErrorText > 0)
+				snprintf(errorText, szErrorText, "%s %s", TB_ERR_FILE_NOT_OPEN, fileName);
+			return NULL;
+		}
+
+		size_t fileSize = statBuffer.st_size;
+
+		testBuffer = new unsigned char[fileSize+32];
+		if (testBuffer == NULL)
+		{
+			*bufferLength = 0U;
+			*numMessagesInBuffer = 0U;
+			if (errorText != NULL && szErrorText > 0)
+				snprintf(errorText, szErrorText, "%s fileSize: %llu", TB_ERR_MEM_ALLOC_FAIL, fileSize);
+			return NULL;
+		}
+
+		FILE* finp = fopen(fileName, "rb");
+		if (finp == NULL)
+		{
+			*bufferLength = 0U;
+			*numMessagesInBuffer = 0U;
+			if (errorText != NULL && szErrorText > 0)
+				snprintf(errorText, szErrorText, "%s %s", TB_ERR_FILE_NOT_OPEN, fileName);
+			return NULL;
+		}
+		else
+		{
+
+			size_t sizeToRead = (0 < requiredMsgLength && requiredMsgLength <= fileSize ? requiredMsgLength : fileSize);
+			size_t sz = fread(testBuffer, sizeof(unsigned char), sizeToRead, finp);
+			if (sz > 0)
+			{
+				*bufferLength = ((RsslUInt32)sz);
+				*numMessagesInBuffer = 4;
+			}
+			else
+			{
+				*bufferLength = 0U;
+				*numMessagesInBuffer = 0;
+				if (errorText != NULL && szErrorText > 0)
+					snprintf(errorText, szErrorText, "%s %s", TB_ERR_FILE_READ_FAIL, fileName);
+			}
+			fclose(finp);
+		}
+
+		return testBuffer;
+	}
+
+	size_t getChunkLengths(int configIndex, int writeCount, unsigned* arrChunkLengths, size_t szArrChunkLengths)
+	{
+		int ind = writeCount % 50000;
+		int k;
+
+		switch (configIndex) {
+		case 0:
+			{
+				// "inpbuf_01.bin". 4 messages inside. size: 14673
+				// size of mess: 5668 2430 5804 771
+				// 0..5667, 5668..8097, 8098..13901, 13902..14672
+				// 
+				//memset(arrChunkLengths, 0, szArrChunkLengths);
+				if (writeCount >= 50000)
+				{
+					if (ind <= 40)
+					{
+						k = ind / 4;
+						arrChunkLengths[0] = (k + 1);
+						arrChunkLengths[1] = 14673 - (k + 1);
+						return 2;
+					}
+					else if (100 <= ind && ind <= 140)
+					{
+						k = (ind - 100) / 4;
+						arrChunkLengths[0] = (k + 1);
+						arrChunkLengths[1] = 5668 - (k + 1);
+						arrChunkLengths[2] = (k + 1);
+						arrChunkLengths[3] = 2430 - (k + 1);
+						arrChunkLengths[4] = (k + 1);
+						arrChunkLengths[5] = 5804 - (k + 1);
+						arrChunkLengths[6] = (k + 1);
+						arrChunkLengths[7] = 771 - (k + 1);
+						return 8;
+					}
+					if (1000 <= ind && ind <= 1040)
+					{
+						k = (ind - 1000) / 4;
+						arrChunkLengths[0] = 14673 - (k + 1);
+						arrChunkLengths[1] = (k + 1);
+						return 2;
+					}
+					else if (2000 <= ind && ind <= 2040)
+					{
+						k = (ind - 2000) / 4;
+						arrChunkLengths[0] = 5668 - (k + 1);
+						arrChunkLengths[1] = (k + 1);
+						arrChunkLengths[2] = 2430 - (k + 1);
+						arrChunkLengths[3] = (k + 1);
+						arrChunkLengths[4] = 5804 - (k + 1);
+						arrChunkLengths[5] = (k + 1);
+						arrChunkLengths[6] = 771 - (k + 1);
+						arrChunkLengths[7] = (k + 1);
+						return 8;
+					}
+					else if (3000 <= ind && ind <= 3040)
+					{
+						k = (ind - 3000) / 4;
+						arrChunkLengths[0] = (k + 1);
+						arrChunkLengths[1] = 5668;    // {0..k}, {(k+1)..5667, 2-nd: 0..k}
+						arrChunkLengths[2] = (k + 1);
+						arrChunkLengths[3] = 2430;
+						arrChunkLengths[4] = (k + 1);
+						arrChunkLengths[5] = 5804;
+						arrChunkLengths[6] = (k + 1);
+						arrChunkLengths[7] = 771 - 4 * (k + 1);
+						return 8;
+					}
+					else if (4000 <= ind && ind <= 4040)
+					{
+						k = (ind - 4000) / 4;
+						arrChunkLengths[0] = 5668 - (k + 1);
+						arrChunkLengths[1] = 2430 - (k + 1);
+						arrChunkLengths[2] = 5804 - (k + 1);
+						arrChunkLengths[3] = 771 - (k + 1);
+						arrChunkLengths[4] = 4 * (k + 1);
+						return 5;
+					}
+				}
+			}
+			break;
+		case 1:
+			{
+				k = ind / 4;
+				arrChunkLengths[0] = (k + 1);
+				arrChunkLengths[1] = 14673 - (k + 1);
+				return 2;
+			}
+			break;
+		case 2:
+			{
+				k = ind / 4;
+				arrChunkLengths[0] = (k + 1);
+				arrChunkLengths[1] = 5668 - (k + 1);
+				arrChunkLengths[2] = (k + 1);
+				arrChunkLengths[3] = 2430 - (k + 1);
+				arrChunkLengths[4] = (k + 1);
+				arrChunkLengths[5] = 5804 - (k + 1);
+				arrChunkLengths[6] = (k + 1);
+				arrChunkLengths[7] = 771 - (k + 1);
+				return 8;
+			}
+			break;
+		case 3:
+			{
+				k = ind / 4;
+				arrChunkLengths[0] = 14673 - (k + 1);
+				arrChunkLengths[1] = (k + 1);
+				return 2;
+			}
+			break;
+		case 4:
+			{
+				k = ind / 4;
+				arrChunkLengths[0] = 5668 - (k + 1);
+				arrChunkLengths[1] = (k + 1);
+				arrChunkLengths[2] = 2430 - (k + 1);
+				arrChunkLengths[3] = (k + 1);
+				arrChunkLengths[4] = 5804 - (k + 1);
+				arrChunkLengths[5] = (k + 1);
+				arrChunkLengths[6] = 771 - (k + 1);
+				arrChunkLengths[7] = (k + 1);
+				return 8;
+			}
+			break;
+		case 5:
+			{
+				k = ind / 4;
+				arrChunkLengths[0] = (k + 1);
+				arrChunkLengths[1] = 5668;    // {0..k}, {(k+1)..5667, 2-nd: 0..k}
+				arrChunkLengths[2] = (k + 1);
+				arrChunkLengths[3] = 2430;
+				arrChunkLengths[4] = (k + 1);
+				arrChunkLengths[5] = 5804;
+				arrChunkLengths[6] = (k + 1);
+				arrChunkLengths[7] = 771 - 4 * (k + 1);
+				return 8;
+			}
+			break;
+		case 6:
+			{
+				k = ind / 4;
+				arrChunkLengths[0] = 5668 - (k + 1);
+				arrChunkLengths[1] = 2430 - (k + 1);
+				arrChunkLengths[2] = 5804 - (k + 1);
+				arrChunkLengths[3] = 771 - (k + 1);
+				arrChunkLengths[4] = 4 * (k + 1);
+				return 5;
+			}
+			break;
+		}
+
+		return 0;
+	}
+};
+
+class AbstractTransportBufferFactory
+{
+public:
+	static AbstractTransportBuffer* getAbstractTransportBuffer(int configIndex)
+	{
+		switch (configIndex)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+			// "inpbuf_01.bin". 4 messages inside.
+			return new MsgFileBuffer("inpbuf_01.bin");
+		default:
+			return NULL;
+		}
+	}
+};
+
+class WriteChannelSystem
+{
+public:
+	RsslThreadId*	pThreadId;
+	RsslChannel*	pChnl;
+	int				writeCount;					/* Counter of write operations. See writeLoop(). */
+
+	RsslUInt32		requiredMsgLength;			/* Length of each separated message that packed into the buffer. */
+	RsslUInt32		msgWriteCount;				/* Count of writing messages in this test, 0 - default, MAX_MSG_WRITE_COUNT */
+
+	int				configIndex;				/* Configuration index - for getting test buffer */
+
+	RsslMutex*		lockReadWrite;				/* Protect access to whole read section, if need */
+
+	EventSignal*	eventSignalReadWrite;		/* Synchronization signal to wait for Read-loop is ready */
+
+	WriteChannelSystem(RsslUInt32 msgLength, RsslUInt32 msgWriteCount, int cfgIndex, RsslMutex* lockRW, EventSignal* eventSignalRW) :
+		pThreadId(NULL),
+		pChnl(NULL),
+		writeCount(0),
+		requiredMsgLength(msgLength),
+		msgWriteCount(msgWriteCount),
+		configIndex(cfgIndex),
+		lockReadWrite(lockRW),
+		eventSignalReadWrite(eventSignalRW)
+	{
+	}
+
+	/* Waits on select during a timeout.
+	*  Checks that the socket is ready for write.
+	*/
+	void waitReadyForWrite(int totalSend, int bufferlen)
+	{
+		fd_set writefds;
+		struct timeval selectTime;
+
+		FD_ZERO(&writefds);
+		FD_SET(pChnl->socketId, &writefds);
+
+		selectTime.tv_sec = 0L;
+		selectTime.tv_usec = 200000;
+
+		int selRet = select(FD_SETSIZE, NULL, &writefds, NULL, &selectTime);
+
+		if (selRet > 0 && FD_ISSET(pChnl->socketId, &writefds))
+		{
+			FD_CLR(pChnl->socketId, &writefds);
+		}
+		else if (selRet < 0)
+		{
+			failTest = true;
+			ASSERT_TRUE(false) << "Select failed. errno=" << errno << "; writeCount=" << writeCount << " totalSend=" << totalSend << " (" << bufferlen << ")";
+		}
+		else
+		{
+			failTest = true;
+			ASSERT_TRUE(false) << "Select timeout (the socket is not ready to write) or unexpected socket. writeCount=" << writeCount << " totalSend=" << totalSend << " (" << bufferlen << ")";
+		}
+		return;
+	}
+
+	/*	Write to the system socket.
+	*/
+	void writeLoop(RsslBool blocking)
+	{
+		int writeCountRetZeroBytes = 0;
+		const int MAX_LIMIT_SEND_RET_ZERO = 1;
+
+		int numBytes;
+		int totalSend = 0;
+
+		int writeMax = (msgWriteCount != 0 ? msgWriteCount : MAX_MSG_WRITE_COUNT);
+
+
+		if (pChnl == NULL || pChnl->state != RSSL_CH_STATE_ACTIVE)
+		{
+			failTest = true;
+			ASSERT_NE(pChnl, (RsslChannel*)NULL) << "Channel should not equal to NULL";
+			ASSERT_EQ(pChnl->state, RSSL_CH_STATE_ACTIVE) << "Channel state is not active";
+		}
+
+		// Getter - returns a test buffer
+		AbstractTransportBuffer* pTransportBuffer = AbstractTransportBufferFactory::getAbstractTransportBuffer(configIndex);
+		if (pTransportBuffer == NULL)
+		{
+			failTest = true;
+			ASSERT_TRUE(false) << "Write failed. Absent getter of test buffer. configIndex=" << configIndex;
+		}
+
+		// Gets the test buffer
+		RsslUInt32 numMessagesInBuffer = 0;
+		RsslUInt32 testbuflen = 0;
+		char errorText[256] = "";
+		char* testBuffer = (char*)pTransportBuffer->getTestBuffer(
+					requiredMsgLength, configIndex, &testbuflen, &numMessagesInBuffer, errorText, sizeof(errorText));
+		if (testBuffer == NULL || testbuflen == 0 || numMessagesInBuffer == 0)
+		{
+			failTest = true;
+			ASSERT_TRUE(false) << "Write failed. Test buffer is NULL or test-config error. [" << errorText << "] configIndex=" << configIndex << "; testbuflen=" << testbuflen << "; numMessagesInBuffer=" << numMessagesInBuffer;
+		}
+
+		int bufferlen = testbuflen;
+
+		int chunkLength = 0;
+		int chunkSend = 0;
+		unsigned chunkIndex = 0;
+
+		// Gets the length for each chunk, i.e. when it sends the test buffer chunk by chunk.
+		unsigned arrChunkLengths[10];
+		size_t nChunkLengths = 0;
+
+		/* Write messages until the maximum. */
+		while ( !shutdownTest && writeCount < writeMax && !failTest )
+		{
+			// Sends message buffer
+			totalSend = 0;
+
+			nChunkLengths = pTransportBuffer->getChunkLengths(configIndex, writeCount, arrChunkLengths, 10);
+			if (nChunkLengths > 0 && arrChunkLengths[0] == 0)
+				nChunkLengths = 0;
+
+			chunkLength = bufferlen;
+			chunkIndex = 0;
+
+			if (blocking == RSSL_FALSE)
+			{
+				waitReadyForWrite(totalSend, bufferlen);
+			}
+
+			// Sends the message buffer by chunks
+			while ( totalSend < bufferlen && !shutdownTest && !failTest )
+			{
+				// Calculate the length of this chunk
+				if (nChunkLengths > 0)
+				{
+					chunkLength = arrChunkLengths[(chunkIndex % nChunkLengths)];
+				}
+				if (chunkLength == 0)
+				{
+					chunkLength = bufferlen;
+				}
+
+				chunkSend = 0;
+				// Sends a chunk (next part of the message buffer)
+				while ( chunkSend < chunkLength && (totalSend + chunkSend) < bufferlen && !shutdownTest && !failTest )
+				{
+					// Special tests use an additional lock on entire read operation
+					// It allows read and write operations to be performed step by step
+					if (lockReadWrite != NULL)
+					{
+						RSSL_MUTEX_LOCK(lockReadWrite);
+						
+						if (shutdownTest || failTest)
+							break;
+					}
+
+					numBytes = send(pChnl->socketId, (testBuffer + (totalSend + chunkSend)), (chunkLength - chunkSend), 0);
+
+					if (lockReadWrite != NULL)
+					{
+						RSSL_MUTEX_UNLOCK(lockReadWrite);
+
+						if (numBytes > 0)
+						{
+							// Waits for an event-signal that a read loop is ready for reading next chunk
+							eventSignalReadWrite->waitSignal(0, 50000);
+						}
+					}
+
+					if (numBytes > 0)
+					{
+						chunkSend += numBytes;
+						writeCountRetZeroBytes = 0;
+					}
+					else if (numBytes <= 0)
+					{
+						if (numBytes < 0) // send return an error
+						{
+							if (!((errno == _IPC_WOULD_BLOCK) || (errno == EINTR)))
+							{
+								failTest = true;
+								ASSERT_TRUE(false) << "Write failed. errno=" << errno << "; writeCount=" << writeCount << " totalSend=" << (totalSend + chunkSend) << " (" << bufferlen << ")";
+							}
+							std::cout << "Write failed!!!" << std::endl;
+						}
+
+						if (writeCountRetZeroBytes++ > MAX_LIMIT_SEND_RET_ZERO)
+						{
+							failTest = true;
+							ASSERT_TRUE(false) << "Write failed. send returned zero bytes more than " << MAX_LIMIT_SEND_RET_ZERO << " times" << "; writeCount=" << writeCount << " totalSend=" << (totalSend + chunkSend) << " (" << bufferlen << ")";
+						}
+
+						if (blocking == RSSL_FALSE)
+						{
+							waitReadyForWrite(chunkSend, chunkLength);
+						}
+					}
+				}  // while ( chunkSend < chunkLength )
+
+				if (chunkSend > 0)
+				{
+					totalSend += chunkSend;
+				}
+				chunkIndex++;
+
+			}  // while ( totalSend < bufferlen )
+
+			writeCount += numMessagesInBuffer;
+
+			if (writeCount % 10000 == 1)
+				resetDeadlockTimer();
+		}
+		return;
+	}
+};
+
 class ManyThreadChannel
 {
 public:
@@ -793,15 +1408,18 @@ RsslServer* startupServer(RsslBool blocking)
 
 	server = rsslBind(&bindOpts, &err);
 
-	if(server == NULL)
+	if (server == NULL)
+	{
+		failTest = true;
 		std::cout << "Could not start rsslServer.  Error text: " << err.text << std::endl;
+	}
 
 	return server;
 
 }
 
 /* This function starts up the RsslServer. */
-RsslServer* bindRsslServer(TUServerConfig* serverConfig)
+RsslServer* bindRsslServer(TUServerConfig* pServerConfig)
 {
 	RsslServer* server;
 	RsslError err;
@@ -814,7 +1432,7 @@ RsslServer* bindRsslServer(TUServerConfig* serverConfig)
 	bindOpts.interfaceName = (char*)"localhost";
 
 	bindOpts.maxOutputBuffers = 5000;
-	bindOpts.serviceName = serverConfig->portNo;
+	bindOpts.serviceName = pServerConfig->portNo;
 
 	bindOpts.majorVersion = RSSL_RWF_MAJOR_VERSION;
 	bindOpts.minorVersion = RSSL_RWF_MINOR_VERSION;
@@ -822,37 +1440,154 @@ RsslServer* bindRsslServer(TUServerConfig* serverConfig)
 	bindOpts.tcp_nodelay = RSSL_TRUE;
 	bindOpts.sysSendBufSize = 0;
 	bindOpts.sysRecvBufSize = 0;
-	bindOpts.maxFragmentSize = 6144;
-	bindOpts.wsOpts.protocols = (char*)"";
+	bindOpts.maxFragmentSize = pServerConfig->maxFragmentSize;
+	bindOpts.wsOpts.protocols = pServerConfig->wsProtocolList;
 
-	bindOpts.channelsBlocking = serverConfig->blocking;
-	bindOpts.serverBlocking = serverConfig->blocking;
+	bindOpts.channelsBlocking = pServerConfig->blocking;
+	bindOpts.serverBlocking = pServerConfig->blocking;
 
-	bindOpts.connectionType = serverConfig->connType;
+	bindOpts.connectionType = pServerConfig->connType;
 
 	if (bindOpts.connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
-		bindOpts.encryptionOpts.serverCert = serverConfig->serverCert;
-		bindOpts.encryptionOpts.serverPrivateKey = serverConfig->serverKey;
-		bindOpts.encryptionOpts.cipherSuite = serverConfig->cipherSuite;
+		bindOpts.encryptionOpts.serverCert = pServerConfig->serverCert;
+		bindOpts.encryptionOpts.serverPrivateKey = pServerConfig->serverKey;
+		bindOpts.encryptionOpts.cipherSuite = pServerConfig->cipherSuite;
 	}
+
+	bindOpts.compressionType = pServerConfig->compressionType;
+	bindOpts.compressionLevel = pServerConfig->compressionLevel;
 
 	server = rsslBind(&bindOpts, &err);
 
-	if (server == NULL)
-		std::cout << "Could not start rsslServer. Port: " << serverConfig->portNo << std::endl << "Error text: " << err.text << std::endl;
+	if ( server == NULL )
+	{
+		failTest = true;
+		std::cout << "Could not start rsslServer. Port: " << pServerConfig->portNo << std::endl << "Error text: " << err.text << std::endl;
+	}
 
 	return server;
 }
 
-void clearTUConfig(TUServerConfig* serverConfig)
+void clearTUServerConfig(TUServerConfig* pServerConfig)
 {
-	serverConfig->blocking = RSSL_FALSE;
-	snprintf(serverConfig->portNo, sizeof(serverConfig->portNo), "");
-	serverConfig->connType = RSSL_CONN_TYPE_INIT;
-	snprintf(serverConfig->serverCert, sizeof(serverConfig->serverCert), "");
-	snprintf(serverConfig->serverKey, sizeof(serverConfig->serverKey), "");
-	snprintf(serverConfig->cipherSuite, sizeof(serverConfig->cipherSuite), "");
+	pServerConfig->blocking = RSSL_FALSE;
+	pServerConfig->maxFragmentSize = RSSL_MAX_MSG_SIZE;
+	snprintf(pServerConfig->portNo, sizeof(pServerConfig->portNo), "");
+	pServerConfig->connType = RSSL_CONN_TYPE_INIT;
+	snprintf(pServerConfig->wsProtocolList, sizeof(pServerConfig->wsProtocolList), "");
+
+	snprintf(pServerConfig->serverCert, sizeof(pServerConfig->serverCert), "");
+	snprintf(pServerConfig->serverKey, sizeof(pServerConfig->serverKey), "");
+	snprintf(pServerConfig->cipherSuite, sizeof(pServerConfig->cipherSuite), "");
+
+	pServerConfig->compressionType = RSSL_COMP_NONE;
+	pServerConfig->compressionLevel = 0U;
+}
+
+void clearTUClientConfig(TUClientConfig* pClientConfig)
+{
+	pClientConfig->blocking = RSSL_FALSE;
+	pClientConfig->maxFragmentSize = RSSL_MAX_MSG_SIZE;
+	snprintf(pClientConfig->portNo, sizeof(pClientConfig->portNo), "");
+	pClientConfig->connType = RSSL_CONN_TYPE_INIT;
+	snprintf(pClientConfig->wsProtocolList, sizeof(pClientConfig->wsProtocolList), "");
+
+	pClientConfig->encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
+	pClientConfig->encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
+
+	snprintf(pClientConfig->openSSLCAStore, sizeof(pClientConfig->openSSLCAStore), "");
+
+	pClientConfig->compressionType = RSSL_COMP_NONE;
+}
+
+void constructTUServerConfig(
+	int configIndex,
+	TUServerConfig& serverConfig,
+	RsslBool blocking,
+	RsslConnectionTypes connType,
+	RsslCompTypes compressType,
+	RsslUInt32 compressLevel
+)
+{
+	clearTUServerConfig(&serverConfig);
+
+	serverConfig.blocking = blocking;
+	serverConfig.connType = connType;
+	if (configIndex == 0)
+	{
+		strncpy(serverConfig.portNo, "15000", sizeof(serverConfig.portNo));
+	}
+	else
+	{
+		strncpy(serverConfig.portNo, "15001", sizeof(serverConfig.portNo));
+	}
+	snprintf(serverConfig.wsProtocolList, sizeof(serverConfig.wsProtocolList), "rssl.json.v2, rssl.rwf, tr_json2");
+
+	if (connType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), getPathServerKey());
+		snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), getPathServerCert());
+		snprintf(serverConfig.cipherSuite, sizeof(serverConfig.cipherSuite), "");
+	}
+
+	serverConfig.compressionType = compressType;
+	serverConfig.compressionLevel = compressLevel;
+
+	return;
+}
+
+void constructTUClientConfig(
+	int configIndex,
+	TUClientConfig& clientConfig,
+	RsslBool blocking,
+	RsslConnectionTypes connType,
+	RsslConnectionTypes encryptedConnType,
+	RsslUInt8 wsProtocolType,
+	RsslCompTypes compressType
+)
+{
+	clearTUClientConfig(&clientConfig);
+
+	clientConfig.blocking = blocking;
+	clientConfig.connType = connType;
+	if (configIndex == 0)
+	{
+		strncpy(clientConfig.portNo, "15000", sizeof(clientConfig.portNo));
+	}
+	else
+	{
+		strncpy(clientConfig.portNo, "15001", sizeof(clientConfig.portNo));
+	}
+
+	if (connType == RSSL_CONN_TYPE_ENCRYPTED)
+	{
+		clientConfig.encryptedProtocol = encryptedConnType;
+		snprintf(clientConfig.openSSLCAStore, sizeof(clientConfig.openSSLCAStore), getOpenSSLCAStore());
+	}
+
+	if (connType == RSSL_CONN_TYPE_WEBSOCKET
+		|| connType == RSSL_CONN_TYPE_ENCRYPTED && encryptedConnType == RSSL_CONN_TYPE_WEBSOCKET)
+	{
+		if (wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
+		{
+			snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "rssl.json.v2");
+		}
+		else
+		{
+			snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "rssl.rwf");
+		}
+	}
+
+	clientConfig.compressionType = compressType;
+	return;
+}
+
+void clearTUConnection(TUConnection* pConnection)
+{
+	pConnection->pServerChannel = NULL;
+	pConnection->pClientChannel = NULL;
+	pConnection->pServer = NULL;
 }
 
 
@@ -880,6 +1615,13 @@ RSSL_THREAD_DECLARE(nonBlockingReadThread, pArg)
 RSSL_THREAD_DECLARE(nonBlockingWriteThread, pArg)
 {
 	((WriteChannel*)pArg)->writeLoop(RSSL_FALSE);
+
+	return 0;
+}
+
+RSSL_THREAD_DECLARE(nonBlockingWriteSystemThread, pArg)
+{
+	((WriteChannelSystem*)pArg)->writeLoop(RSSL_FALSE);
 
 	return 0;
 }
@@ -1124,6 +1866,251 @@ TEST_F(GlobalLockTests, BlockingTwoWayClientServer)
 	ASSERT_FALSE(failTest) << "Test failed.";
 
 }
+
+
+class SystemTests : public ::testing::Test {
+protected:
+	// one-way client-server connections
+	TUConnection connectionA;  // Server-channel for writing : Client-channel for reading
+
+	int msgsRead;
+	RsslMutex readLock;       // Protect access to the read counter: readCount
+	RsslMutex readwriteLock;  // Protect access to whole read section, if need
+	
+	EventSignal eventSignalRW;	// The signal sends from Read-loop to Write-loop when it is ready for reading next chunk. Uses in step-by-step tests.
+
+	RsslTimeValue startTime;
+	RsslTimeValue curTime;
+
+	virtual void SetUp()
+	{
+		RsslError err;
+
+		shutdownTest = false;
+		failTest = false;
+
+		clearTUConnection(&connectionA);
+
+		RSSL_MUTEX_INIT(&readLock);
+		RSSL_MUTEX_INIT(&readwriteLock);
+
+		msgsRead = 0;
+
+		startTime = 0;
+		curTime = 0;
+
+		rsslInitialize(RSSL_LOCK_GLOBAL, &err);
+
+		eventSignalRW.init();
+	}
+
+	virtual void TearDown()
+	{
+		RsslError err;
+		rsslCloseServer(connectionA.pServer, &err);
+
+		rsslUninitialize();
+
+		clearTUConnection(&connectionA);
+
+		RSSL_MUTEX_DESTROY(&readwriteLock);
+		RSSL_MUTEX_DESTROY(&readLock);
+		resetDeadlockTimer();
+	}
+
+	void startupServerAndConections(
+		int configIndex,
+		RsslBool blocking,
+		RsslConnectionTypes connType,
+		RsslConnectionTypes encryptedProtocol,
+		RsslUInt8 wsProtocolType,
+		RsslCompTypes compressType,
+		RsslUInt32 compressLevel,
+		TUConnection* pConnection
+	)
+	{
+		RsslThreadId serverThread, clientThread;
+		ClientChannel clientChnl;
+		ServerChannel serverChnl;
+		RsslServer* server;
+		serverChnl.pThreadId = &serverThread;
+		clientChnl.pThreadId = &clientThread;
+
+		TUServerConfig serverConfig;
+		constructTUServerConfig(configIndex, serverConfig, blocking, connType, compressType, compressLevel);
+
+		server = bindRsslServer(&serverConfig);
+
+		ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed!";
+
+		serverChnl.pServer = server;
+		serverChnl.setTUServerConfig(&serverConfig);
+
+		TUClientConfig clientConfig;
+		constructTUClientConfig(configIndex, clientConfig, blocking, connType, encryptedProtocol, wsProtocolType, compressType);
+		clientChnl.setTUClientConfig(&clientConfig);
+
+		if (blocking == RSSL_FALSE)
+		{
+			RSSL_THREAD_START(&serverThread, nonBlockingServerConnectThread, &serverChnl);
+			RSSL_THREAD_START(&clientThread, nonBlockingClientConnectThread, &clientChnl);
+		}
+		else
+		{
+			RSSL_THREAD_START(&serverThread, blockingServerConnectThread, &serverChnl);
+			RSSL_THREAD_START(&clientThread, blockingClientConnectThread, &clientChnl);
+		}
+
+		RSSL_THREAD_JOIN(serverThread);
+		RSSL_THREAD_JOIN(clientThread);
+
+		RSSL_THREAD_DETACH(&serverThread);
+		RSSL_THREAD_DETACH(&clientThread);
+
+		pConnection->pServer = server;
+		pConnection->pServerChannel = serverChnl.pChnl;
+		pConnection->pClientChannel = clientChnl.pChnl;
+
+		if (!(pConnection->pServerChannel) || !(pConnection->pClientChannel)
+			|| (pConnection->pServerChannel)->state != RSSL_CH_STATE_ACTIVE || (pConnection->pClientChannel)->state != RSSL_CH_STATE_ACTIVE)
+		{
+			ASSERT_TRUE(false) << "Channel creation failed!";
+		}
+	}
+
+	bool checkLongTimeNoRead(int& readCountPrev, int readCount)
+	{
+		bool isCheckLongTimeNoRead = false;
+		if (readCountPrev < readCount)
+		{
+			readCountPrev = readCount;
+			startTime = 0;
+		}
+		else
+		{
+			curTime = rsslGetTimeMilli();
+			if (startTime == 0)
+			{
+				startTime = curTime;
+			}
+			else if ((curTime - startTime) > 1000)
+			{
+				failTest = true;
+				isCheckLongTimeNoRead = true;
+			}
+		}
+		return isCheckLongTimeNoRead;
+	}
+};
+
+class SystemTestsFixture
+	: public SystemTests, public ::testing::WithParamInterface<GLobalLockSystemTestParams>
+{
+};
+
+
+TEST_P(SystemTestsFixture, NonBlockingClientServer)
+{
+	RsslThreadId serverWriteThread, clientReadThread;
+	ReadChannel clientReadOpts;
+
+	const GLobalLockSystemTestParams& testParams = GetParam();
+
+	RsslMutex* pReadWriteLock = NULL;
+	EventSignal* pReadWriteSignal = NULL;
+	if (1 <= testParams.configIndex && testParams.configIndex <= 6)
+	{   // all the tests 1 .. 6 are: step-by-step
+		// i.e. after each send the test waits for read is completed
+		// and only then sends a next chunk 
+		pReadWriteLock = &readwriteLock;
+		pReadWriteSignal = &eventSignalRW;
+	}
+
+	WriteChannelSystem serverWriteOpts(testParams.msgLength, testParams.msgWriteCount, testParams.configIndex, pReadWriteLock, pReadWriteSignal);
+
+	RsslError err;
+	int readCount = 0;
+	int readCountPrev = 0;
+	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+
+	startupServerAndConections(0, RSSL_FALSE,
+		testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType,
+		testParams.compressionType, testParams.compressionLevel, &connectionA);
+
+	serverWriteOpts.pThreadId = &serverWriteThread;
+	serverWriteOpts.pChnl = connectionA.pServerChannel;
+
+	clientReadOpts.pThreadId = &clientReadThread;
+	clientReadOpts.pChnl = connectionA.pClientChannel;
+	clientReadOpts.readCount = &msgsRead;
+	clientReadOpts.lock = &readLock;
+	clientReadOpts.lockReadWrite = pReadWriteLock;
+	clientReadOpts.signalForWrite = pReadWriteSignal;
+
+	RSSL_THREAD_START(&serverWriteThread, nonBlockingWriteSystemThread, (void*)&serverWriteOpts);
+
+	RSSL_THREAD_START(&clientReadThread, nonBlockingReadThread, (void*)&clientReadOpts);
+
+	do
+	{
+		time_sleep(200);
+		RSSL_MUTEX_LOCK(&readLock);
+		readCount = msgsRead;
+		RSSL_MUTEX_UNLOCK(&readLock);
+
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+	} while (readCount < (msgWriteCount) && !failTest);
+
+	shutdownTest = true;
+	//std::cout << "SystemTestsFragmentedFixture  Loop finished. failTest: " << failTest << " readCount/writeCount: " << readCount << "/" << msgWriteCount << std::endl;
+
+	time_sleep(50);
+
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&serverWriteThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(serverWriteThread);
+	}
+
+	rsslCloseChannel(connectionA.pServerChannel, &err);
+	rsslCloseChannel(connectionA.pClientChannel, &err);
+
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&clientReadThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(clientReadThread);
+	}
+
+	ASSERT_FALSE(failTest) << "Test failed.";
+}
+
+INSTANTIATE_TEST_CASE_P(
+	MsgLengthWebSockJSONFile,
+	SystemTestsFixture,
+	::testing::Values(
+		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 2000000, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_CASE_P(
+	ReadWriteStepsWebSockJSON,
+	SystemTestsFixture,
+	::testing::Values(
+		GLobalLockSystemTestParams( 1, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 2, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 3, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 4, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 5, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 6, RSSL_CONN_TYPE_WEBSOCKET, 14673, 0, 20, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+	)
+);
+
 
 class AllLockTests : public ::testing::Test {
 protected:
