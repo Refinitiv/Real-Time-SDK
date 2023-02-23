@@ -2778,7 +2778,7 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 		respLen += sprintfRet;
 		remaining -= sprintfRet;
 
-		if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB && wsSess->deflate)
+		if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB && wsSess->deflate && wsSess->protocol != RWS_SP_RWF)
 		{
 			sprintfRet = snprintf(resp + respLen, remaining, "Sec-WebSocket-Extensions: permessage-deflate");
 
