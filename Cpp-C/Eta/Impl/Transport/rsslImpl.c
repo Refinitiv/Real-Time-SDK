@@ -1080,6 +1080,15 @@ RsslServer* rsslBind(RsslBindOptions *opts, RsslError *error)
 	if (RSSL_NULL_PTR(opts->serviceName, "rsslBind", "opts->serviceName", error))
 		return NULL;
 
+	if (opts->protocolType == RSSL_JSON_PROTOCOL_TYPE)
+	{
+		/* error */
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslBind() Error: 0006 JSON protocol Type not supported on SOCKET servers.\n", __FILE__, __LINE__);
+
+		return NULL;
+	}
+
 	/* create rssl server */
 	if ((rsslSrvrImpl = _rsslNewServer()) == 0)
 	{
