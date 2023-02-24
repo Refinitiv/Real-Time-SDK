@@ -22,8 +22,9 @@
 #include "OmmInvalidUsageException.h"
 #include "OmmJsonConverterException.h"
 #include "OmmNiProviderImpl.h"
-
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
+#endif
 #include "GetTime.h"
 
 #ifdef WIN32
@@ -3147,12 +3148,22 @@ void OmmBaseImpl::run()
 	_dispatchLock.lock();
 	_bApiDispatchThreadStarted = true;
 
+
 	/* Bind cpu for the API thread. */
 	if ( !_cpuApiThreadBind.empty() )
 	{
+#ifndef NO_ETA_CPU_BIND
+		_dispatchLock.unlock();
+		EmaString temp("CPU Binding is not supported by this EMA library build. OmmBaseImpl::run().");
+		
+		if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+		setAtExit();
+		return;
+#else
 		RsslRet ret;
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo(&rsslErrorInfo);
+
 		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
 		{
 			_dispatchLock.unlock();
@@ -3174,6 +3185,7 @@ void OmmBaseImpl::run()
 
 			if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::SuccessEnum, temp );
 		}
+#endif
 	}
 
 	while ( !Thread::isStopping() && !_atExit )

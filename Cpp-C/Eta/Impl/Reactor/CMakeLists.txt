@@ -150,6 +150,10 @@ else()
 											ARCHIVE_OUTPUT_DIRECTORY
 												"${_rsslVA_tmp_dir}/lib"
 								)
+								
+		target_compile_options(librsslVA_tmp PRIVATE 
+                                            ${RTSDK_EXTRA_FLAGS}
+                                )
 	endif()
 
     target_include_directories(librsslVA_tmp

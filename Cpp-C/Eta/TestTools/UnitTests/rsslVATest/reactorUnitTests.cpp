@@ -22,8 +22,10 @@
 #include <ctype.h>
 #include "rtr/rsslThread.h"
 #include "rtr/rsslGetTime.h"
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
 #include "rtr/bindthread.h"
+#endif
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -5333,6 +5335,7 @@ void reactorUnitTests_InvalidNetworkInterface(RsslConnectionTypes connectionType
 const unsigned MAXLEN = 32;
 const unsigned MAXERRLEN = 256;
 
+#ifndef NO_ETA_CPU_BIND
 class ReactorThreadBindProcessorCoreTest : public ::testing::Test {
 protected:
 
@@ -5639,3 +5642,6 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCorePCTForReactorWorkerTest)
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
 #endif // !WIN32
+
+#endif // NO_ETA_CPU_BIND
+

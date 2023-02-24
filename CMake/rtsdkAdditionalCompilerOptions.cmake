@@ -10,7 +10,15 @@ if(CMAKE_HOST_WIN32)
 	if(NOT BUILD_ETA_JWT)
 		set(_jwtBuildFlags "/D NO_ETA_JWT_BUILD ")
 		
-		set(_rtsdk_flags "${RTSDK_EXTRA_FLAGS} ${_jwtBuildFlags} ")
+		set(_rtsdk_flags ${RTSDK_EXTRA_FLAGS} ${_jwtBuildFlags})
+		set(RTSDK_EXTRA_FLAGS "${_rtsdk_flags}" CACHE STRING "Internal RTSDK build flags" FORCE)
+		unset(_rtsdk_flags)
+	endif()
+	
+	if(NOT BUILD_ETA_CPU_BIND)
+		set(_cpuBindFlags "/D NO_ETA_CPU_BIND ")
+		
+		set(_rtsdk_flags ${RTSDK_EXTRA_FLAGS} ${_cpuBindFlags})
 		set(RTSDK_EXTRA_FLAGS "${_rtsdk_flags}" CACHE STRING "Internal RTSDK build flags" FORCE)
 		unset(_rtsdk_flags)
 	endif()
@@ -18,10 +26,19 @@ else()
 	if(NOT BUILD_ETA_JWT)
 		set(_jwtBuildFlags "-DNO_ETA_JWT_BUILD ")
 		
-		set(_rtsdk_flags "${RTSDK_EXTRA_FLAGS} ${_jwtBuildFlags} ")
+		set(_rtsdk_flags ${RTSDK_EXTRA_FLAGS} ${_jwtBuildFlags})
+		set(RTSDK_EXTRA_FLAGS "${_rtsdk_flags}" CACHE STRING "Internal RTSDK build flags" FORCE)
+		unset(_rtsdk_flags)
+	endif()
+	
+	if(NOT BUILD_ETA_CPU_BIND)
+		set(_cpuBindFlags "-DNO_ETA_CPU_BIND ")
+		
+		set(_rtsdk_flags ${RTSDK_EXTRA_FLAGS} ${_cpuBindFlags})
 		set(RTSDK_EXTRA_FLAGS "${_rtsdk_flags}" CACHE STRING "Internal RTSDK build flags" FORCE)
 		unset(_rtsdk_flags)
 	endif()
 endif()
 
 unset(_jwtBuildFlags)
+unset(_cpuBindFlags)

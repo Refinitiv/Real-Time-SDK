@@ -18,6 +18,7 @@ include(rcdevSupport)
 
 include(rtsdkOptions)
 include(rtsdkInfo)
+include(rtsdkAdditionalCompilerOptions)
 
 include(rtsdkAdditionalCompilerOptions)
 

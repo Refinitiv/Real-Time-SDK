@@ -79,7 +79,7 @@ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
 */
 
 
-#include "rtr/cputopology.h"
+#include "eta/cputopology.h"
 #include "rtr/rsslThread.h"
 
 #ifdef __linux__

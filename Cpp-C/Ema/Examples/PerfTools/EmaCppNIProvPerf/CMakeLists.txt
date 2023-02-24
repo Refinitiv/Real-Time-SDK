@@ -80,6 +80,7 @@ if ( CMAKE_HOST_WIN32 )
 								PRIVATE 
 									${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
 									${RCDEV_TYPE_CHECK_FLAG}
+                                    ${RTSDK_EXTRA_FLAGS}
 									$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
 						)
 	target_link_libraries( EmaCppNIProvPerf_shared psapi.lib )
@@ -87,6 +88,7 @@ if ( CMAKE_HOST_WIN32 )
 								PRIVATE 
 									${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
 									${RCDEV_TYPE_CHECK_FLAG}
+                                    ${RTSDK_EXTRA_FLAGS}
 									$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
 						)
 	
@@ -110,6 +112,15 @@ if ( CMAKE_HOST_WIN32 )
                                     ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared
                         )
 else()
+    target_compile_options( EmaCppNIProvPerf
+								PRIVATE 
+									${RTSDK_EXTRA_FLAGS}
+						)
+
+    target_compile_options( EmaCppNIProvPerf_shared	 
+								PRIVATE 
+									${RTSDK_EXTRA_FLAGS}
+						)
 	set_target_properties( EmaCppNIProvPerf_shared 
                                 PROPERTIES 
                                     RUNTIME_OUTPUT_DIRECTORY 

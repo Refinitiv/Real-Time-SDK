@@ -17,7 +17,9 @@
 #include "rtr/rsslVAUtils.h"
 
 #include "rtr/rsslQueue.h"
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
+#endif
 #include "rtr/rsslThread.h"
 #include "rtr/rsslReactorUtils.h"
 #include "rtr/tunnelManager.h"

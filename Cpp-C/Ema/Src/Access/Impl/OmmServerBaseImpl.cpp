@@ -29,8 +29,9 @@
 #include "DirectoryServiceStore.h"
 
 #include "OmmIProviderImpl.h"
-
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
+#endif
 
 #include "GetTime.h"
 
@@ -1796,6 +1797,14 @@ void OmmServerBaseImpl::run()
 		RsslRet ret;
 		RsslErrorInfo rsslErrorInfo;
 		clearRsslErrorInfo(&rsslErrorInfo);
+#ifndef NO_ETA_CPU_BIND
+		_dispatchLock.unlock();
+		EmaString temp("CPU Binding is not supported by this EMA library build. OmmBaseImpl::run().");
+
+		if (_pLoggerClient) _pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+		setAtExit();
+		return;
+#else
 		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
 		{
 			_dispatchLock.unlock();
@@ -1818,6 +1827,7 @@ void OmmServerBaseImpl::run()
 
 			if ( _pLoggerClient ) _pLoggerClient->log( _activeServerConfig.instanceName, OmmLoggerClient::SuccessEnum, temp );
 		}
+#endif
 	}
 
 	while (!Thread::isStopping() && !_atExit)

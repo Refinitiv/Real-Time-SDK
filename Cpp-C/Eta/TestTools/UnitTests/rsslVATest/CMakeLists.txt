@@ -56,10 +56,16 @@ if( CMAKE_HOST_WIN32 )
 								PRIVATE 
 									${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
 									${RCDEV_TYPE_CHECK_FLAG}
+									${RTSDK_EXTRA_FLAGS}
 									$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
 						)
 	set_target_properties( rsslVATest 
 							PROPERTIES 
 								PROJECT_LABEL "rsslVATest" 
 							)
+else()
+	target_compile_options( rsslVATest	 
+								PRIVATE 
+									${RTSDK_EXTRA_FLAGS}
+						)
 endif()
