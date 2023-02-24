@@ -16,7 +16,9 @@
 #include "rtr/rsslTransport.h"
 #include "rtr/rsslMessagePackage.h"
 #include "rtr/rsslDataPackage.h"
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2160,6 +2162,7 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 		initTunnel(pConsumerThread);
 	}
 
+#ifndef NO_ETA_CPU_BIND
 	// Cpu core bind for the consumer thread.
 	// The application should invoke rsslBindThread() after rsslInitialize() has invoked.
 	// rsslInitialize analyzed Cpu Topology.
@@ -2171,6 +2174,7 @@ static RsslRet initialize(ConsumerThread* pConsumerThread, LatencyRandomArray* p
 			exit(-1);
 		}
 	}
+#endif
 
 #ifdef ENABLE_XML_TRACE
 	rsslClearTraceOptions(&traceOptions);

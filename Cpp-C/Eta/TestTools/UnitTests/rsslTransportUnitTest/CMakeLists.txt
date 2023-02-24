@@ -1,12 +1,20 @@
 set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
-	rsslBindThreadUnitTest.cpp
 	rsslTransportUnitTest.cpp
 
 	TransportUnitTest.h
 )
 
-add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} )
+set ( rsslTransportBindThreadSrcFiles
+		rsslBindThreadUnitTest.cpp
+)
+
+
+if(${RCDEV_HOST_SYSTEM_BITS} STREQUAL "64")
+	add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} ${rsslTransportBindThreadSrcFiles} )
+else()
+	add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} )
+endif()
 target_link_libraries( rsslTransportUnitTest 
 							librssl 
 							GTest::Main 
@@ -17,7 +25,12 @@ set_target_properties( rsslTransportUnitTest
 								OUTPUT_NAME rsslTransportUnitTest 
 						)
 
-add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} )
+if(${RCDEV_HOST_SYSTEM_BITS} STREQUAL "64")
+	add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} ${rsslTransportBindThreadSrcFiles} )
+else()
+	add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} )
+endif()
+
 target_link_libraries( rsslTransportUnitTest_shared 
 							librssl_shared 
 							GTest::Main 

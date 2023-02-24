@@ -20,7 +20,9 @@
 #include <ctype.h>
 #include <assert.h>
 #include <signal.h>
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,6 +125,7 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 	RsslInt32 currentTicks = 0;
 	RsslConnectOptions copts;
 
+#ifndef NO_ETA_CPU_BIND
 	if (pProviderThread->cpuId.length > 0 && pProviderThread->cpuId.data != NULL)
 	{
 		if (rsslBindThread(pProviderThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
@@ -131,6 +134,7 @@ RSSL_THREAD_DECLARE(runNIProvChannelConnection, pArg)
 			exit(-1);
 		}
 	}
+#endif
 
 	/* Configure connection options. */
 	rsslClearConnectOpts(&copts);
@@ -584,6 +588,7 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 		exit(-1);
 	}
 
+#ifndef NO_ETA_CPU_BIND
 	// Cpu core bind for the NI provider thread thread.
 	// The application should invoke rsslBindThread() after rsslInitialize() has invoked.
 	// rsslInitialize analyzed Cpu Topology.
@@ -595,6 +600,7 @@ RSSL_THREAD_DECLARE(runNIProvReactorConnection, pArg)
 			exit(-1);
 		}
 	}
+#endif
 
 	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors 
 	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */

@@ -697,6 +697,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 
 	if (pReactorOpts->cpuBindWorkerThread.length > 0 && pReactorOpts->cpuBindWorkerThread.data != NULL)
 	{
+#ifndef NO_ETA_CPU_BIND
 		if (pReactorOpts->cpuBindWorkerThread.length < MAX_CPU_STRING_LEN)
 		{
 			if (rsslIsStrProcessorCoreBindValid(pReactorOpts->cpuBindWorkerThread.data) != RSSL_TRUE)
@@ -716,6 +717,11 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 				pReactorOpts->cpuBindWorkerThread.length);
 			return NULL;
 		}
+#else
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"CPU binding is not suported in this build of the ETA library.");
+		return NULL;
+#endif
 	}
 
 	/* Create internal reactor object */

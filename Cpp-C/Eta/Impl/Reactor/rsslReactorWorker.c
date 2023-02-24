@@ -1149,6 +1149,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 #endif
 	pReactorWorker->sleepTimeMs = 3000;
 
+#ifndef NO_ETA_CPU_BIND
 	/* Bind cpu for the worker thread. */
 	if (pReactorWorker->cpuBindWorkerThread.length > 0 && pReactorWorker->cpuBindWorkerThread.data != NULL)
 	{
@@ -1161,6 +1162,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 			return RSSL_THREAD_RETURN();
 		}
 	}
+#endif
 
 	RTR_ATOMIC_SET(pReactorWorker->threadStarted, RSSL_REACTOR_WORKER_THREAD_STARTED);
 

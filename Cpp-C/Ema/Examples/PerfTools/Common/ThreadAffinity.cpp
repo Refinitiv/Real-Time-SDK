@@ -8,9 +8,9 @@
 #include "ThreadAffinity.h"
 #include "Mutex.h"
 #include "AppUtil.h"
-
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
-
+#endif
 #include <iostream>
 #include <list>
 
@@ -171,7 +171,9 @@ bool bindThisThread(
 	const EmaString& cpuString)
 {
 	bool bound = false;
-
+#ifdef NO_ETA_CPU_BIND
+	return true;
+#else
 	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslErrorInfo rsslErrorInfo;
 
@@ -194,6 +196,7 @@ bool bindThisThread(
 		_collection.push_back(info);
 	}
 	return bound;
+#endif
 }
 
 void addThisThread(

@@ -77,6 +77,14 @@ target_link_libraries( ProvPerf
 						)
 
 if ( CMAKE_HOST_UNIX )
+	target_compile_options( ProvPerf	 
+								PRIVATE 
+									${RTSDK_EXTRA_FLAGS}
+						)
+	target_compile_options( ProvPerf_shared	 
+								PRIVATE 
+									${RTSDK_EXTRA_FLAGS}
+						)
 	set_target_properties( ProvPerf_shared 
 							PROPERTIES 
 								RUNTIME_OUTPUT_DIRECTORY 
@@ -120,6 +128,7 @@ else() # if ( CMAKE_HOST_WIN32 )
 								PRIVATE 
 									${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
 									${RCDEV_TYPE_CHECK_FLAG}
+									${RTSDK_EXTRA_FLAGS}
 									$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
 						)
 

@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#include "rtr/cputopology.h"
+#include "eta/cputopology.h"
 #include "rtr/rsslErrorInfo.h"
 #include "rtr/rsslTypes.h"
 

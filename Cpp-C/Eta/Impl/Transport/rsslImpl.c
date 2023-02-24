@@ -19,8 +19,9 @@
 
 #include "rtr/rsslErrors.h"
 #include "rtr/rsslAlloc.h"
-
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/bindthread.h"
+#endif
 #include "rtr/rwfNetwork.h"
 #include "curl/curl.h"
 #include "rtr/ripcssljit.h"
@@ -779,6 +780,7 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 		/* Initialize All transports here */
 
 		/* initialize cpuid library */
+#ifndef NO_ETA_CPU_BIND
 		retVal = rsslBindThreadInitialize(error);
 
 		if (retVal < RSSL_RET_SUCCESS)
@@ -786,6 +788,7 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 			mutexFuncs.staticMutexUnlock();
 			return retVal;
 		}
+#endif
 
 		/* initialize debug dump functions */
 		rsslClearDebugFunctionsEx();
@@ -2281,8 +2284,10 @@ RsslRet rsslUninitialize()
 		_rsslCleanUp();
 		rsslUnloadTransport();
 
+#ifndef NO_ETA_CPU_BIND
 		/* Uninitialize cpuid library */
 		rsslBindThreadUninitialize();
+#endif
 
 		/* uninitialize various transports */
 		rsslSocketUninitialize();

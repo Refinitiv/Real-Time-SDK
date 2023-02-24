@@ -33,7 +33,7 @@ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
  *
  *  Written by Patrick Fay and Shihjong Kuo
  */
-#include "rtr/cputopology.h"
+#include "eta/cputopology.h"
 
 #ifdef __linux__
 

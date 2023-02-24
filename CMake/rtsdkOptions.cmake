@@ -40,6 +40,12 @@ CMAKE_DEPENDENT_OPTION(BUILD_32_BIT_ETA			"Build the ETA project as 32-bit" OFF
 #         ELSE default value of BUILD_RTSDK-BINARYPACK is OFF
 CMAKE_DEPENDENT_OPTION(BUILD_RTSDK-BINARYPACK "Find the RTSDK-BinaryPack Distribution" ON
 						"NOT BUILD_32_BIT_ETA" OFF)
+						
+# The default value of BUILD_ETA_CPU_BIND is ON 
+#      if this is a not a 32-bit build 
+#         ELSE default value of BUILD_ETA_CPU_BIND is OFF
+CMAKE_DEPENDENT_OPTION(BUILD_ETA_CPU_BIND			"Build the ETA CPU Binding code" ON
+						"NOT ${RCDEV_HOST_SYSTEM_BITS} EQUAL 32" OFF)
 
 if(CMAKE_HOST_UNIX)
 # The default value of BUILD_RTSDK-BINARYPACK is ON 
@@ -54,6 +60,7 @@ endif()
 mark_as_advanced(BUILD_32_BIT_ETA
 				 BUILD_RTSDK-BINARYPACK
 				 BUILD_ETA_JWT
+				 BUILD_ETA_CPU_BIND
 				)
 
 # The default value of BUILD_EMA_LIBRARY is ON 
