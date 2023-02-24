@@ -1654,12 +1654,13 @@ RSSL_API void rsslQueryTransportLibraryVersion(RsslLibraryVersionInfo *pVerInfo)
 typedef enum {
 	RSSL_TRACE_READ					= 0x00000001, /*< (0x00000001) Trace incoming data */
 	RSSL_TRACE_WRITE				= 0x00000002, /*< (0x00000002) Trace outgoing data */
-	RSSL_TRACE_PING					= 0x00000004, /*< (0x00000004) Trace Pings */
+	RSSL_TRACE_PING					= 0x00000004, /*< (0x00000004) Trace Pings. Works only if RSSL_TRACE_READ or RSSL_TRACE_WRITE are enabled. */
 	RSSL_TRACE_HEX					= 0x00000008, /*< (0x00000008) Display hex values of all messages */
 	RSSL_TRACE_TO_FILE_ENABLE		= 0x00000010, /*< (0x00000010) Enables tracing to a file*/ 
-	RSSL_TRACE_TO_MULTIPLE_FILES    = 0x00000020, /*< (0x00000020) If set, starts writing to a new file if traceMsgMaxFileSize is reached. If disabled, file writing stops when traceMsgMaxFileSize is reached*/
+	RSSL_TRACE_TO_MULTIPLE_FILES	= 0x00000020, /*< (0x00000020) If set, starts writing to a new file if traceMsgMaxFileSize is reached. If disabled, file writing stops when traceMsgMaxFileSize is reached*/
 	RSSL_TRACE_TO_STDOUT			= 0x00000040, /*< (0x00000040) Writes the xml trace to stdout. If a non-null value is also provided for traceMsgFileName, writing will be done to stdout and the specified file*/
-	RSSL_TRACE_DUMP					= 0x00000080  /*< (0x00000080) Trace dump to enable the rsslDumpBuffer() method to dump RWF or JSON messages. */
+	RSSL_TRACE_DUMP					= 0x00000080, /*< (0x00000080) Trace dump to enable the rsslDumpBuffer() method to dump RWF or JSON messages. */
+	RSSL_TRACE_PING_ONLY			= 0x00000100, /*< (0x00000100) Trace Pings. Traces all inbound and outbound PING messages regardless of other flags. */
 } RsslTraceCodes;
 
 /**
