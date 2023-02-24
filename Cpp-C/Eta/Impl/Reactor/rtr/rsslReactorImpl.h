@@ -2105,6 +2105,8 @@ struct _RsslReactorImpl
 
 	RsslInt32 maxEventsInPool; /* To control size of memory */
 
+	RsslBool sendJsonConvError; /* To enable sending JSON conversion error. */
+
 	/* Used on each interface in the reactor to ensure thread-safety and that calling interfaces in callbacks is prevented. */
 	RsslMutex interfaceLock; /* Ensures function calls are thread-safe */
 	RsslBool inReactorFunction; /* Ensures functions are not called inside callbacks */

@@ -284,6 +284,7 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
         jsonConverterOptions.serviceNameToIdCallback(this);
         jsonConverterOptions.jsonConversionEventCallback(this);
         jsonConverterOptions.defaultServiceId(serviceId);
+        jsonConverterOptions.sendJsonConvError(providerCmdLineParser.sendJsonConvError());
 
         // Initialize the JSON converter
         if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)

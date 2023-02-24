@@ -129,7 +129,12 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("Dictionary value == Dictionary_1", ConsDictionary.contentEquals("Dictionary_1") );
 		intLongValue = JUnitTestConnect.configGetIntLongValue(testConfig, "Consumer_1", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.EnableRtt);
 		TestUtilities.checkResult("EnableRtt value == 0", intLongValue == 0 );
-		
+
+		// Check SendJsonConvError in Consumer_2
+		System.out.println("\nCheck SendJsonConvError in Consumer_2 ");
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, "Consumer_2", JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError);
+		TestUtilities.checkResult("SendJsonConvError == 1", boolValue);
+
 		// Check values of Consumer_3
 		System.out.println("\nRetrieving Consumer_3 configuration values "); 
 
@@ -1269,7 +1274,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 500));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 1));
-			
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("SendJsonConvError", 1));
+
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -1361,7 +1367,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
-			
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError, -1);
+			TestUtilities.checkResult("SendJsonConvError == 1", boolValue == true);
 			
 			// Check values of Consumer_1
 			System.out.println("\nRetrieving Consumer_1 configuration values "); 
@@ -1474,6 +1481,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptInterval", 9000));
 			innerElementList.add(EmaFactory.createElementEntry().doubleValue("TokenReissueRatio", 0.9));
 			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
+			innerElementList.add(EmaFactory.createElementEntry().uintValue( "SendJsonConvError", 1 ));
 
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -1567,6 +1575,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError, -1);
+			TestUtilities.checkResult("SendJsonConvError == 1", boolValue == true);
 
 			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestRequestTimeout, -1);
 			TestUtilities.checkResult("RestRequestTimeout == 65000", intValue == 65000);
@@ -1690,7 +1700,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 70));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 7000));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 7000));
-			
+			innerElementList.add(EmaFactory.createElementEntry().uintValue("SendJsonConvError", 0));
+
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -1793,7 +1804,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 0", boolValue == false);
-			
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError, -1);
+			TestUtilities.checkResult("SendJsonConvError == 0", boolValue == false);
 			
 			// Check values of Consumer_2
 			System.out.println("\nRetrieving Consumer_1 configuration values "); 

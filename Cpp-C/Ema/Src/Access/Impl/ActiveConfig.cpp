@@ -165,6 +165,7 @@ BaseConfig::BaseConfig() :
 	enableRtt(DEFAULT_ENABLE_RTT),
 	restEnableLog(DEFAULT_REST_ENABLE_LOG),
 	restEnableLogViaCallback(DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK),
+	sendJsonConvError(DEFAULT_SEND_JSON_CONV_ERROR),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -225,6 +226,7 @@ void BaseConfig::clear()
 	catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 	closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 	outputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
+	sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
 }
 
 EmaString BaseConfig::configTrace()
@@ -260,7 +262,8 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t closeChannelFromFailure : ").append(closeChannelFromFailure)
 		.append("\n\t outputBufferSize : ").append(outputBufferSize)
 		.append("\n\t restEnableLog : ").append(restEnableLog)
-		.append("\n\t restLogFileName : ").append(restLogFileName);
+		.append("\n\t restLogFileName : ").append(restLogFileName)
+		.append("\n\t sendJsonConvError : ").append(sendJsonConvError);
 
 	return traceStr;
 }

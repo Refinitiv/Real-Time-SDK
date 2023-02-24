@@ -312,6 +312,8 @@
 
 			<RefreshFirstRequired value="1" />
 
+			<SendJsonConvError value="1" />
+
 		</IProvider>
 		<!-- Performance tools provider -->
 		<IProvider>

@@ -21,6 +21,7 @@ abstract class BaseConfig
 	final static boolean DEFAULT_CATCH_UNKNOWN_JSON_KEYS		= false;
 	final static boolean DEFAULT_CATCH_UNKNOWN_JSON_FIDS		= true;
 	final static boolean DEFAULT_CLOSE_CHANNEL_FROM_FAILURE		= true;
+	final static boolean DEFAULT_SEND_JSON_CONV_ERROR			= false;
 
 	BaseConfig()
 	{
@@ -39,6 +40,7 @@ abstract class BaseConfig
 		catchUnknownJsonKeys = DEFAULT_CATCH_UNKNOWN_JSON_KEYS;
 		catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
+		sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
 	}
 	
 	void clear()
@@ -60,6 +62,7 @@ abstract class BaseConfig
 		catchUnknownJsonKeys = DEFAULT_CATCH_UNKNOWN_JSON_KEYS;
 		catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 		closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
+		sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
 	}
 	
 	StringBuilder configTrace()
@@ -79,6 +82,7 @@ abstract class BaseConfig
 		.append("\n\t catchUnknownJsonKeys: ").append(catchUnknownJsonKeys)
 		.append("\n\t catchUnknownJsonFids: ").append(catchUnknownJsonFids)
 		.append("\n\t closeChannelFromFailure: ").append(closeChannelFromFailure)
+		.append("\n\t sendJsonConvError: ").append(sendJsonConvError)
 		.append("\n\t globalConfig.reactorChannelEventPoolLimit: ").append(globalConfig.reactorChannelEventPoolLimit)
 		.append("\n\t globalConfig.reactorMsgEventPoolLimit: ").append(globalConfig.reactorMsgEventPoolLimit)
 		.append("\n\t globalConfig.workerEventPoolLimit: ").append(globalConfig.workerEventPoolLimit)
@@ -105,4 +109,5 @@ abstract class BaseConfig
 	boolean					catchUnknownJsonKeys;
 	boolean					catchUnknownJsonFids;
 	boolean					closeChannelFromFailure;
+	boolean 				sendJsonConvError;
 }

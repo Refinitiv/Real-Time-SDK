@@ -29,6 +29,7 @@ class ProviderCmdLineParser implements CommandLineParser
 
 	private int debuggingLevels = ReactorDebuggerLevels.LEVEL_NONE;
 	private int debugInfoInterval = 50;
+	private boolean sendJsonConvError;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -117,6 +118,11 @@ class ProviderCmdLineParser implements CommandLineParser
 					debugInfoInterval = Math.max(50, Integer.parseInt(args[++argsCount]));
 					++argsCount;
 				}
+				else if ("-sendJsonConvError".equals(args[argsCount]))
+				{
+					sendJsonConvError = true;
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
 					System.out.println("\nUnrecognized command line argument...\n");
@@ -153,7 +159,8 @@ class ProviderCmdLineParser implements CommandLineParser
 						   "\n -debugEventQ turn on debugging events in Event Queue" +
 						   "\n -debugTunnelStream turn on debugging TunnelStream events" +
 						   "\n -debugAll turn on all debugging levels" +
-						   "\n -debugInfoInterval interval (in milliseconds) for printing out debugging info");
+						   "\n -debugInfoInterval interval (in milliseconds) for printing out debugging info" +
+						   "\n -sendJsonConvError enable send json conversion error to consumer ");
 	}
 
 	String portNo()
@@ -194,6 +201,11 @@ class ProviderCmdLineParser implements CommandLineParser
 	boolean enableRtt()
 	{
 		return enableRtt;
+	}
+
+	boolean sendJsonConvError() 
+	{ 
+		return sendJsonConvError;
 	}
 
 	int connectionType()

@@ -67,6 +67,7 @@ public class JUnitTestConnect
 	public static final int EnableSessionMgnt = ConfigManager.ChannelEnableSessionMgnt;
 	public static final int Location = ConfigManager.ChannelLocation;
 	public static final int EnableRtt = ConfigManager.EnableRtt;
+	public static final int SendJsonConvError = ConfigManager.SendJsonConvError;
 	
 	// Consumer Parameters:
 	public static final int ConsumerDefaultConsumerName  = ConfigManager.DefaultConsumer; 	
@@ -910,6 +911,8 @@ public class JUnitTestConnect
 				return activeConfig.xmlTraceEnable;
 			else if (configParam == ConsumerMsgKeyInUpdates)
 				return activeConfig.msgKeyInUpdates;
+			else if (configParam == SendJsonConvError)
+				return activeConfig.sendJsonConvError;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{

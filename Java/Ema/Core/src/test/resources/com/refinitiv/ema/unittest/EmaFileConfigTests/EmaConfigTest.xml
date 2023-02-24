@@ -54,6 +54,7 @@
 			<ReissueTokenAttemptInterval value="7000"/>
 			<TokenReissueRatio value="0.5"/>
 			<EnableRtt value="1" />
+			<SendJsonConvError value="1"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>

@@ -70,6 +70,7 @@ static RsslUInt restEnableLogViaCallback = 0U;  // 0: disabled, 1: enabled from 
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
 static time_t nextDebugTimeMS = 0;
+static RsslBool sendJsonConvError = RSSL_FALSE;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -199,6 +200,7 @@ void printUsageAndExit(char *appName)
 			"\n -debugTunnelStream set 'tunnelstream' debug info level"
 			"\n -debugAll enable all levels of debug info"
 			"\n -debugInfoInterval set time interval for debug log"
+			"\n -sendJsonConvError enable send json conversion error to provider"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -461,6 +463,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				restEnableLogViaCallback = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-sendJsonConvError", argv[i]) == 0)
+			{
+				i++;
+				sendJsonConvError = RSSL_TRUE;
 			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) ||
 					(strcmp("-webSocket", argv[i]) == 0) || 
@@ -2086,6 +2093,7 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+	jsonConverterOptions.sendJsonConvError = sendJsonConvError;
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

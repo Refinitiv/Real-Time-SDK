@@ -845,6 +845,9 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "SendJsonConvError", tmp))
+		_activeConfig.sendJsonConvError = tmp > 0 ? true : false;
 	
 	Int64 tmp1;
 	
@@ -2300,6 +2303,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeConfig.catchUnknownJsonFids;
 			jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeConfig.closeChannelFromFailure;
 			jsonConverterOptions.outputBufferSize = _activeConfig.outputBufferSize;
+			jsonConverterOptions.sendJsonConvError = _activeConfig.sendJsonConvError;
 
 			if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{

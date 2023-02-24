@@ -63,6 +63,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean enableRtt;
 	private boolean takeExclusiveSignOnControl = true;
 	private String protocolList = "tr_json2";
+	private boolean sendJsonConvError;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -343,6 +344,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 					protocolList = args[++argsCount];
 					++argsCount;
 				}
+				else if ("-sendJsonConvError".equals(args[argsCount]))
+				{
+					sendJsonConvError = true;
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
 					System.out.println("\nUnrecognized command line argument...\n");
@@ -573,6 +579,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return protocolList;
 	}
 
+	boolean sendJsonConvError()
+	{ 
+		return sendJsonConvError;
+	}
+	
 	@Override
 	public void printUsage()
 	{
@@ -630,7 +641,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 						   "\n -ax Specifies the Authentication Extended information" +
 						   "\n -aid Specifies the Application ID" +
-						   "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.");
+						   "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them." +
+						   "\n -sendJsonConvError enable send json conversion error to provider ");
 	}
 }
 

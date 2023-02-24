@@ -119,6 +119,8 @@ class ConfigManager
 	public static final int CatchUnknownJsonKeys = 53;
 	public static final int CloseChannelFromConverterFailure = 54;
 
+	public static final int SendJsonConvError = 55;
+
 	// Channel: Global
 	public static final int ChannelGroup = 100;
 	public static final int ChannelList = 101;
@@ -372,6 +374,7 @@ class ConfigManager
 		ConsumerTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		ConsumerTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		ConsumerTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+		ConsumerTagDict.add("SendJsonConvError", SendJsonConvError);
 
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -479,6 +482,7 @@ class ConfigManager
 		NiProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		NiProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		NiProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+		NiProviderTagDict.add("SendJsonConvError", SendJsonConvError);
 
 		
 		DirectoryTagDict.add( "DirectoryGroup", DirectoryGroup);
@@ -559,6 +563,7 @@ class ConfigManager
 		IProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		IProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		IProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+		IProviderTagDict.add("SendJsonConvError", SendJsonConvError);
 
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
@@ -853,7 +858,8 @@ class ConfigManager
 		"OpenLimit",
 		"OpenWindow",
 		"LoadFactor",
-		"JsonConverterPoolsSize"
+		"JsonConverterPoolsSize",
+		"SendJsonConvError"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

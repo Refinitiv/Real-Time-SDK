@@ -55,6 +55,7 @@ static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
 static RsslBool rttSupport = RSSL_FALSE;
+static RsslBool sendJsonConvError = RSSL_FALSE;
 
 static RsslUInt32 maxFragmentSize = 0;
 static RsslUInt32 guaranteedOutputBuffers = 0;
@@ -100,6 +101,7 @@ void exitWithUsage()
 	printf(" -debugTunnelStream set 'tunnelstream' debug info level");
 	printf(" -debugAll enable all levels of debug info");
 	printf(" -debugInfoInterval set time interval for debug log");
+	printf(" -sendJsonConvError enable send json conversion error to consumer");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -398,6 +400,10 @@ int main(int argc, char **argv)
 			++iargs;
 			debugInfoIntervalMS = (time_t)atoi(argv[iargs]);
 		}
+		else if (0 == strcmp("-sendJsonConvError", argv[iargs]))
+		{
+			sendJsonConvError = RSSL_TRUE;
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -491,6 +497,7 @@ int main(int argc, char **argv)
 	jsonConverterOptions.defaultServiceId = (RsslUInt16)getServiceId();
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+	jsonConverterOptions.sendJsonConvError = sendJsonConvError;
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

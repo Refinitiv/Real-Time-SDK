@@ -640,6 +640,8 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
 	}
 
 	pReactorImpl->closeChannelFromFailure = pReactorJsonConverterOptions->closeChannelFromFailure;
+
+	pReactorImpl->sendJsonConvError = pReactorJsonConverterOptions->sendJsonConvError;
 	
 	pReactorImpl->jsonConverterInitialized = RSSL_TRUE;
 
@@ -8212,22 +8214,25 @@ static RsslRet _reactorDispatchFromChannel(RsslReactorImpl *pReactorImpl, RsslRe
 				{
 					if ( (ret = rsslGetJsonSimpleErrorParams(pReactorImpl->pJsonConverter, &decodeOptions,
 						&rjcError, &errorParams, pMsgBuf, jsonMsg.jsonRsslMsg.rsslMsg.msgBase.streamId)) == RSSL_RET_SUCCESS )
-					{
-						RsslBuffer *pBuffer = NULL;
+					{	
 						rsslJsonGetErrorMessage(pReactorImpl->pJsonConverter, &errorParams, &outputBuffer);
 
-						pBuffer = rsslReactorGetBuffer(&pReactorChannel->reactorChannel, outputBuffer.length, RSSL_FALSE, pError);
-
-						if (pBuffer)
+						if (pReactorImpl->sendJsonConvError)
 						{
-							memcpy(pBuffer->data, outputBuffer.data, outputBuffer.length);
+							RsslBuffer *pBuffer = NULL;
+							pBuffer = rsslReactorGetBuffer(&pReactorChannel->reactorChannel, outputBuffer.length, RSSL_FALSE, pError);
 
-							/* Reply with JSON ERROR message to the sender */
-							ret = _reactorSendJSONMessage(pReactorImpl, pReactorChannel, pBuffer, pError);
-						}
-						else
-						{
-							ret = RSSL_RET_FAILURE;
+							if (pBuffer)
+							{
+								memcpy(pBuffer->data, outputBuffer.data, outputBuffer.length);
+
+								/* Reply with JSON ERROR message to the sender */
+								ret = _reactorSendJSONMessage(pReactorImpl, pReactorChannel, pBuffer, pError);
+							}
+							else
+							{
+								ret = RSSL_RET_FAILURE;
+							}
 						}
 					}
 				}

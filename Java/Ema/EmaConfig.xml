@@ -218,6 +218,7 @@
 			<MaxDispatchCountUserThread value="500" />
 			<PipePort value="9009" />
 			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
 		</IProvider>
 		<IProvider>
 			<!-- Name is mandatory   -->

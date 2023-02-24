@@ -27,6 +27,7 @@ public class ReactorJsonConverterOptions
 	private boolean catchUnknownJsonFids;
 	private boolean closeChannelFromFailure;
 	private int jsonConverterPoolsSize = JsonFactory.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
+	private boolean sendJsonConvError;
 	
 	ReactorJsonConverterOptions()
 	{
@@ -47,6 +48,7 @@ public class ReactorJsonConverterOptions
 		catchUnknownJsonFids(true);
 		closeChannelFromFailure(true);
 		jsonConverterPoolsSize = JsonFactory.JSON_CONVERTER_DEFAULT_POOLS_SIZE;
+		sendJsonConvError(false);
 	}
 	
 	/**
@@ -224,6 +226,16 @@ public class ReactorJsonConverterOptions
 	}
 
 	/**
+	 * Checks whether to send parse JSON convertor error.
+	 *
+	 * @return true to send parse JSON error; false otherwise.
+	 */
+	public boolean sendJsonConvError()
+	{
+		return sendJsonConvError;
+	}
+
+	/**
 	 * Specifies true to close the channel when the Reactor failed to parse JSON message or received JSON error message.
 	 * <p>Defaults to true.</p>
 	 * 
@@ -252,5 +264,15 @@ public class ReactorJsonConverterOptions
 	public void jsonConverterPoolsSize(int jsonConverterPoolsSize)
 	{
 		this.jsonConverterPoolsSize = jsonConverterPoolsSize;
+	}
+
+	/**
+	 * Specifies the value that enable/disable sending parse JSON converter error.
+	 *
+	 * @param sendJsonConvError specifies the new value of sendJsonConvError.
+	 */
+	public void sendJsonConvError(boolean sendJsonConvError)
+	{
+		this.sendJsonConvError = sendJsonConvError;
 	}
 }

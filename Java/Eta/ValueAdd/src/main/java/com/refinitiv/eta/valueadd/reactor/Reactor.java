@@ -217,6 +217,8 @@ public class Reactor
 	ReactorJsonConversionEventCallback JsonConversionEventCallback;
 	private ReactorJsonConversionEvent jsonConversionEvent = new ReactorJsonConversionEvent();
 	private boolean closeChannelFromFailure = false;
+
+	private boolean sendJsonConvError = false;
 	private ParseJsonOptions parseJsonOptions = ConverterFactory.createParseJsonOptions();
 	JsonConverterError converterError = ConverterFactory.createJsonConverterError();
 	JsonConverterError getMessageError = ConverterFactory.createJsonConverterError();
@@ -4940,7 +4942,7 @@ public class Reactor
 
 						getMessageError.clear();
 						if ((retval = jsonConverter.getErrorMessage(jsonErrorOutputBuffer, jsonErrorParams,
-								getMessageError)) == CodecReturnCodes.SUCCESS)
+								getMessageError)) == CodecReturnCodes.SUCCESS && sendJsonConvError)
 						{
 							TransportBuffer msgBuffer = reactorChannel.getBuffer(jsonErrorOutputBuffer.length(), false,
 									errorInfo);
@@ -7883,6 +7885,7 @@ public class Reactor
 			serviceNameToIdCallback = jsonConverterOptions.serviceNameToIdCallback();
 			JsonConversionEventCallback = jsonConverterOptions.jsonConversionEventCallback();
 			closeChannelFromFailure = jsonConverterOptions.closeChannelFromFailure();
+			sendJsonConvError = jsonConverterOptions.sendJsonConvError();
 		} finally
 		{
 			_reactorLock.unlock();

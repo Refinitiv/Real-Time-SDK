@@ -118,6 +118,7 @@
 #define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			  false
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
+#define DEFAULT_SEND_JSON_CONV_ERROR		  		  false
 #define DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT		  3
 #define DEFAULT_WS_MAXMSGSIZE						  61440
 #define DEFAULT_WS_PROTOCLOS						  EmaString( "tr_json2, rssl.rwf, rssl.json.v2" )
@@ -471,6 +472,7 @@ public:
 	bool					enableRtt;
 	bool					restEnableLog;
 	bool					restEnableLogViaCallback;
+	bool					sendJsonConvError;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.

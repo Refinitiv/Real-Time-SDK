@@ -182,7 +182,8 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"MaxFragmentSize",
 	"OpenLimit",
 	"OpenWindow",
-	"LoadFactor"
+	"LoadFactor",
+	"SendJsonConvError",
 };
 
 refinitiv::ema::access::EmaString DoubleValues[] = {

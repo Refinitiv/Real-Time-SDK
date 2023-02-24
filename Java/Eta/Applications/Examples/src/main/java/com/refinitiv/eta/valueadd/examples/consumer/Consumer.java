@@ -371,7 +371,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		{
 			reactorOptions.tokenServiceURL_V2().data(consumerCmdLineParser.tokenURLV2());
 		}
-
+		
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
@@ -420,6 +420,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		jsonConverterOptions.dataDictionary(dictionary);
 		jsonConverterOptions.serviceNameToIdCallback(this);
 		jsonConverterOptions.jsonConversionEventCallback(this);
+		jsonConverterOptions.sendJsonConvError(consumerCmdLineParser.sendJsonConvError());
 
 		// Initialize the JSON converter
 		if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)

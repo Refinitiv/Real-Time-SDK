@@ -495,6 +495,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
 	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
+	EXPECT_EQ(baseConfig.sendJsonConvError, DEFAULT_SEND_JSON_CONV_ERROR);
 }
 
 TEST_F(EmaActiveConfigTest, BaseConfigTest)
@@ -599,6 +600,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.outputBufferSize = 23;
 	baseConfig.restEnableLog = true;
 	baseConfig.restEnableLogViaCallback = true;
+	baseConfig.sendJsonConvError = true;
 
 	// Tests clear method
 	baseConfig.clear();

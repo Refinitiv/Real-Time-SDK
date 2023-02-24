@@ -919,6 +919,10 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.CloseChannelFromConverterFailure)) != null) {
 				_activeConfig.closeChannelFromFailure = ce.intLongValue() > 0;
 			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.SendJsonConvError)) != null) {
+				_activeConfig.sendJsonConvError = ce.intLongValue() > 0;
+			}
 			
 			// WarmStandbyChannel
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerWarmStandbyChannelSet)) != null) {

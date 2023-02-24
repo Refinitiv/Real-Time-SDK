@@ -985,6 +985,11 @@ class ProgrammaticConfigure
 											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
 										}
 										break;
+									case DataTypes.UINT:
+										if (eentry.name().equals("SendJsonConvError")) {
+											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
+										}
+										break;
 									default:
 										break;
 									}
@@ -1057,6 +1062,11 @@ class ProgrammaticConfigure
 											activeConfig.catchUnknownJsonKeys = eentry.intValue() > 0 ? true : false ;
 										} else if (eentry.name().equals("CloseChannelFromConverterFailure")) {
 											activeConfig.closeChannelFromFailure = eentry.intValue() > 0 ? true : false;
+										}
+										break;
+									case DataTypes.UINT:
+										if (eentry.name().equals("SendJsonConvError")) {
+											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
 										}
 										break;
 									default:
