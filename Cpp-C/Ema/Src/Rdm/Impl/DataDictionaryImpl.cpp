@@ -1043,7 +1043,7 @@ const refinitiv::ema::access::EmaString&  DataDictionaryImpl::toString() const
 	RsslDictionaryEntry* rsslDictionaryEntry = 0;
 	DictionaryEntry	dictionaryEntry;
 
-	for (Int32 index = 0; index <= _pRsslDataDictionary->maxFid; index++)
+	for (Int32 index = _pRsslDataDictionary->minFid; index <= _pRsslDataDictionary->maxFid; index++)
 	{
 		rsslDictionaryEntry = *(_pRsslDataDictionary->entriesArray + index);
 
