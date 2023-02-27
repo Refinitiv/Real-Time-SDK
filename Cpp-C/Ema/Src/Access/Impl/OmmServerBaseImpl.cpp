@@ -1798,10 +1798,7 @@ void OmmServerBaseImpl::run()
 	/* Bind cpu for the API thread. */
 	if ( !_cpuApiThreadBind.empty() )
 	{
-		RsslRet ret;
-		RsslErrorInfo rsslErrorInfo;
-		clearRsslErrorInfo(&rsslErrorInfo);
-#ifndef NO_ETA_CPU_BIND
+#ifdef NO_ETA_CPU_BIND
 		_dispatchLock.unlock();
 		EmaString temp("CPU Binding is not supported by this EMA library build. OmmBaseImpl::run().");
 
@@ -1809,6 +1806,10 @@ void OmmServerBaseImpl::run()
 		setAtExit();
 		return;
 #else
+		RsslRet ret;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+
 		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
 		{
 			_dispatchLock.unlock();

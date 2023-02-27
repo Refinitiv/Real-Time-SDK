@@ -3156,7 +3156,7 @@ void OmmBaseImpl::run()
 	/* Bind cpu for the API thread. */
 	if ( !_cpuApiThreadBind.empty() )
 	{
-#ifndef NO_ETA_CPU_BIND
+#ifdef NO_ETA_CPU_BIND
 		_dispatchLock.unlock();
 		EmaString temp("CPU Binding is not supported by this EMA library build. OmmBaseImpl::run().");
 		
