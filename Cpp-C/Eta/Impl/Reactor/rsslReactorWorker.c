@@ -1249,9 +1249,10 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													/* Close the channel */
 													/* TODO: Error check? */
 													rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &(pReactorChannel->channelWorkerCerr.rsslError));
-													pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
 													pReactorChannel->reactorChannel.pRsslChannel = 0;
 												}
+
+												pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
 
 												/* If the channel is using session V2 and has connected, clear out the access token, forcing the reconnection to get a new access token. */
 												if (pReactorChannel->hasConnected == RSSL_TRUE && pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
