@@ -15,29 +15,30 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 External modules used by this version of RTSDK Java:
 
-	Dependency		Version
-	----------		-------
-	commons-codec 		1.11
-	commons-configuration2  2.7	
-	commons-collections4    4.4	
-	commons-lang3	 	3.9
-	commons-logging		1.2
-	commons-text		1.9
-	jackson-annotations     2.13.4
-	jackson-core            2.13.4  
-	jackson-databind        2.13.4.2  
-	junit			4.12
-	json			20210307
-	httpclient		4.5.13
-	httpclient-cache	4.5.13
-	httpcore		4.4.13
-	httpcore-nio		4.4.13
-	httpmime		4.5.13
-        lz4-java                1.8.0
-	mockito-all		1.9.0
-	slf4j-api		1.7.32
-	slf4j-jdk14		1.7.32
-	xpp3			1.1.4c
+	Dependency				Version
+	----------				-------
+	commons-codec			1.11
+	commons-configuration2	2.7	
+	commons-collections4	4.4	
+	commons-lang3			3.9
+	commons-logging			1.2
+	commons-text			1.9
+	jackson-annotations		2.13.4
+	jackson-core			2.13.4  
+	jackson-databind		2.13.4.2
+	jose4j					0.9.1
+	junit					4.12
+	json					20210307
+	httpclient				4.5.13
+	httpclient-cache		4.5.13
+	httpcore				4.4.13
+	httpcore-nio			4.4.13
+	httpmime				4.5.13
+	lz4-java				1.8.0
+	mockito-all				1.9.0
+	slf4j-api				1.7.32
+	slf4j-jdk14				1.7.32
+	xpp3					1.1.4c
 
 
 ### Supported Platforms, OSs, Compilers

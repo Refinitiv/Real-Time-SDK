@@ -42,7 +42,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the unique identifier that was used when sending the authorization request.
+        /// Gets or sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
         /// </summary>
         public Buffer ClientId
         {
@@ -52,7 +52,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the secret that was used by OAuth Client to authenticate with the token service. 
+        /// Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
         /// </summary>
         public Buffer ClientSecret
         {
@@ -62,7 +62,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the token scope that was used to limit the scope of generated token.
+        /// Gets or sets the token scope to limit the scope of generated token. Optional.
         /// </summary>
         public Buffer TokenScope
         {
@@ -72,7 +72,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the JSON Web Key to authenticate with the token service.
+        /// Gets or sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
         /// </summary>
         public Buffer ClientJwk
         {

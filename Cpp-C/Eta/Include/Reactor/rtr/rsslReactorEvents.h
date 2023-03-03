@@ -264,16 +264,20 @@ RTR_C_INLINE void rsslClearReactorServiceEndpointEvent(RsslReactorServiceEndpoin
 typedef struct
 {
 	RsslBuffer					userName;					/*!< The user name to authorize with the RDP token service. This is used to get sensitive information
-															 *   for the user name in the RsslReactorOAuthCredentialEventCallback. */
-	RsslBuffer					password;					/*!< The password for user name used to get an access token and a refresh token. */
+															 *   for the user name in the RsslReactorOAuthCredentialEventCallback for V1 oAuth Password Credential logins. */
+	RsslBuffer					password;					/*!< The password for user name used to get an access token and a refresh token. Mandatory, used for V1 oAuth Password Credential logins. */
 	RsslBuffer					newPassword;				/*!< The new password to change the password associated with this user name.
-															 *   Both current and new passwords will be required in order to authenticate and change password. Optional.*/
-	RsslBuffer					clientId;					/*!< A unique ID defined for an application marking the request. Optional */
-	RsslBuffer					clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
-	RsslBuffer					tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
-	RsslBool					takeExclusiveSignOnControl;	/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
-	RsslBuffer					clientJWK;					/*!< Client JWK used for client credential. Optional, used for V2 logins with a V2 client JWK login */
-	RsslBuffer					audience;					/*!< Optional Audience claim for the JWK. If set, the string in this buffer will be used for the audience claim in the JWK generation. */
+															 *   Both current and new passwords will be required in order to authenticate and change password. Optional, used only for for V1 oAuth Password Credential logins.*/
+	RsslBuffer					clientId;					/*!< The clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 
+															 *   oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins. */
+	RsslBuffer					clientSecret;				/*!< The clientSecret, also known as the Service Account password, used to authenticate with RDP token service. 
+															 *   Mandatory for V2 Client Credentials Logins and used in conjunction with clientID. */
+	RsslBuffer					tokenScope;					/*!< The scope of generated token. Optional. */
+	RsslBool					takeExclusiveSignOnControl;	/*!< The exclusive sign on control value. If set to RSSL_TRUE, other applications using the same credentials will be force logged-out. Optional and only 
+															 *   used for V1 oAuth Password Credentials logins */
+	RsslBuffer					clientJWK;					/*!< The JWK formatted private key used to create the JWT. The JWT is used to authenticate with RDP token service. 
+																				 *   Mandatory for V2 Client Credentials with JWT Logins. */
+	RsslBuffer					audience;					/*!< The audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT Logins. */
 
 } RsslReactorOAuthCredentialRenewal;
 

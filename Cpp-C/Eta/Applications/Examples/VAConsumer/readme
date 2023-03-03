@@ -106,7 +106,7 @@ In addition, the following options are used to retrieve a token from the authent
 For a password grant(Machine ID) V1 login: -uname <Machine ID> -passwd <password> -clientId <Client ID>
 The client ID can be retrieved from Eikon by To generate clientID and search for App Key Generator. The App Key is the Client ID.
 
-For a client credentials grant(Service Account) V2 login: -clientId <service account> -clientSecret <client secret>. 
+For a client credentials grant(Service Account) V2 login: -clientId <service account> -clientSecret <client secret> OR -jwkFile <location of the JWK formatted private key file>
 
 Specifying the -takeExclusiveSignOnControl <true/false> option will set exclusive sign on control to force sign-out
 for the same credentials when enabling the session management. This only applies to a password grant V1 login. Defaults to true.

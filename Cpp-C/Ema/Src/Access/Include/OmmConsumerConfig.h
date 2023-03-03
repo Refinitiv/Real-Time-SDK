@@ -92,13 +92,13 @@ public :
 	*/
 	OmmConsumerConfig& clear();
 
-	/** Specifies the username. Overrides a value specified in Login domain via the addAdminMsg(..) method.
+	/** Specifies the username. Mandatory for V1 oAuth Password Credentials logins with session management turned on. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] username specifies name used on login request
 		@return reference to this object
 	*/
 	OmmConsumerConfig& username( const EmaString& username );
 
-	/** Specifies the password. Overrides a value specified in Login domain via the addAdminMsg(..) method.
+	/** Specifies the password. Mandatory for V1 oAuth Password Credentials logins with session management turned on. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] password specifies respective login request attribute
 		@return reference to this object
 	*/
@@ -117,37 +117,37 @@ public :
 	*/
 	OmmConsumerConfig& applicationId( const EmaString& applicationId );
 
-	/** Specifies an unique identifier defined for making an authentication request to the token service.
-		@param[in] clientId specifies an unique identifier.
+	/** Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+		@param[in] clientId specifies the clientId.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& clientId( const EmaString& clientId );
 
-	/** Specifies a secret used by OAuth client to authenticate to the Authorization Server. This is required for OAuth V2 ClientSecret interactions.
+	/** Specifies the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
 		@param[in] clientSecret specifies a client secret.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& clientSecret( const EmaString& clientSecret );
 
-	/** Specifies a JWK used by OAuth client to authenticate to the Authorization Server. This is required for OAuth V2 JWT interactions.
-	@param[in] clientJWK specifies the client private JWK.
+	/** Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+	@param[in] clientJWK specifies the JWK formatted private key
 	@return reference to this object
 	*/
 	OmmConsumerConfig& clientJWK(const EmaString& clientJWK);
 
-	/** Specifies the audience claim used by OAuth client to authenticate to the Authorization Server. This is optional for OAuth V2 JWT interactions.
+	/** Specifies the audience claim for the JWT. Optional, used for V2 Client Credentials with JWT.
 	@param[in] audience specifies the client audience claim
 	@return reference to this object
 	*/
 	OmmConsumerConfig& audience(const EmaString& audience = "https://login.ciam.refinitiv.com/as/token.oauth2");
 
-	/** Specifies optionally token scope to limit the scope of generated token from the token service.
+	/** Specifies the token scope to limit the scope of generated token from the token service. Optional.
 		@param[in] tokenScope specifies a token scope
 		@return reference to this object
 	*/
 	OmmConsumerConfig& tokenScope( const EmaString& tokenScope = "trapi.streaming.pricing.read" );
 
-	/** Specifies optionally the exclusive sign on control to force sign-out of other applications using the same credentials.
+	/** Specifies the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
 		@param[in] takeExclusiveSignOnControl the exclusive sign on control.
 		@return reference to this object
 	*/

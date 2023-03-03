@@ -94,7 +94,7 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig applicationId(String applicationId);
 	
 	/**
-	 * Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+	 * Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 	 * 
 	 * @param clientId specifies an unique identifier.
 	 * @return reference to this object

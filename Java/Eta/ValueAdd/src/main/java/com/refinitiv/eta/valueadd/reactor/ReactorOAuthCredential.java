@@ -57,7 +57,7 @@ public class ReactorOAuthCredential
 	}
 	
 	 /**
-     * The user name that was used when sending the authorization request.
+     * Gets user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
      * 
      * @return - User name buffer.
      */
@@ -67,7 +67,7 @@ public class ReactorOAuthCredential
     }
 
     /**
-     * Sets userName to authorize with the token service. Mandatory
+     * Sets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
      *
      * @param userName the user name
      */
@@ -79,7 +79,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * The password that was used when sending the authorization request.
+     * Gets the password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins
      * 
      * @return - Password buffer.
      */
@@ -89,7 +89,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets password to authorize with the token service. Mandatory
+     * Sets the password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins
      *
      * @param password the password associated with the user name
      */
@@ -101,7 +101,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * The unique identifier that was used when sending the authorization request.
+     * Gets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @return - Client ID buffer.
      */
@@ -111,7 +111,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets unique identifier defined for the application or user making a request to the token service. Mandatory
+     * Sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      *
      * @param clientId the unique identifier for the application
      */
@@ -123,7 +123,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * The secret that was used by OAuth Client to authenticate with the token service. 
+     * Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @return - Client Secret buffer.
      */
@@ -134,7 +134,7 @@ public class ReactorOAuthCredential
     
     
     /**
-     * Sets client secret to authorize with the token service. Optional
+     * Sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      *
      * @param clientSecret the client secret
      */
@@ -146,7 +146,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * The JWK that was used by OAuth Client to authenticate with the token service. 
+     * JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins.
      * 
      * @return - Client JWK buffer.
      */
@@ -156,9 +156,9 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets client JWK to authorize with the token service. Optional
+     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins.
      *
-     * @param clientJwk the client JWK
+     * @param clientJwk the JWK formatted private key 
      */
     public void clientJwk(Buffer clientJwk)
     {
@@ -168,7 +168,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * The audience claim used by V2 JWT authentication.
+     * Gets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
      * 
      * @return - Client Secret buffer.
      */
@@ -178,19 +178,19 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets audience claim for V2 JWT authentication. Optional.
+     * Sets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
      *
      * @param audience the audience claim
      */
     public void audience(Buffer audience)
     {
-    	assert(audience != null) : "clientJwk can not be null";
+    	assert(audience != null) : "audience can not be null";
     	_audience.data(audience.data(), audience.position(),
     			audience.length());
     }
     
     /**
-     * The token scope that was used to limit the scope of generated token. 
+     * Gets the token scope to limit the scope of generated token from the token service. Optional.
      * 
      * @return - Token Scope buffer.
      */
@@ -200,7 +200,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets token scope to limit the scope of generated token. Optional
+     * Sets the token scope to limit the scope of generated token from the token service. Optional.
      *
      * @param tokenScope the token scope
      */
@@ -212,7 +212,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * The exclusive sign on control to force sign-out.
+     * Gets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
      * 
      * @return - true to force sign-out using the same credential otherwise false.
      */
@@ -222,7 +222,7 @@ public class ReactorOAuthCredential
     }
     
     /**
-     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * Sets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
      *
      * @param takeExclusiveSignOnControl the exclusive sign on control.
      */

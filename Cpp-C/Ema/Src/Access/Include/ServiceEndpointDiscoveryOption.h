@@ -79,13 +79,13 @@ public:
 	*/
 	ServiceEndpointDiscoveryOption& password(const EmaString& password);
 
-	/** Specifies the a unique identifier for an application making the request.
+	/** Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 		@param[in] clientId specifies the client ID
 		@return reference to this object
 	*/
 	ServiceEndpointDiscoveryOption& clientId(const EmaString& clientId);
 
-	/** Specifies optionally a secret used by OAuth client to authenticate to the Authorization Server.
+	/** Specifies the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
 		@param[in] clientSecret specifies a client secret.
 		@return reference to this object
 	*/

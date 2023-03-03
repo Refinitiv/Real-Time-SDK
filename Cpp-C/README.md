@@ -17,13 +17,14 @@ External modules used by this version of RTSDK C/C++:
 
 	Dependency		Version
 	----------		-------
-	openSSL 		1.0.1e
+	openSSL			1.0.1e
 	openSSL			1.1.1a
 	cJSON			1.7.15
 	curl			7.86.0
 	googletest		release-1.8.1
+	l8w8jwt			2.1.6
 	libxml2			2.10.3
-	lz4			1.9.4
+	lz4				1.9.4
 	zlib			1.2.12
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
@@ -73,6 +74,7 @@ Compilers (only on OSs supported by Microsoft):
 Notes: 
 - User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
 - CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) to build these deprecated Visual Studio versions at your own risk as changes to BinaryPacks will not be available for deprecated compilers. 
+- For V2 authentication with RTO, RTSDK introduced the l8w8jwt library.  When building with Visual Studio 2019 or above, this library only works with Windows 10 SDK for October 2018 Update, version 1809 or later.
 
 ##### Linux
 
@@ -95,14 +97,14 @@ This release has been tested with supported valid OS/compiler combinations.
 ##### Linux
 This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
-	OS						GCC Version	Use-Prebuilt Library	Use-Natively Build Library
-	--------------------------------		------------	----------------------	----------------------------		
-	CentOS 7.0 64-bit                		GCC 4.8.2	OL7_64_GCC482		CENTOS7_64_GCC482
-	Oracle Linux Server 7.7 64-bit 			GCC 4.8.5	OL7_64_GCC482		OL7_64_GCC485
-	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 4.8.5 	OL7_64_GCC482		RHEL7_64_GCC485
-	Oracle Linux Server 7.7 64-bit     		GCC 7.4.0	n/a           		OL7_64_GCC740
-	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 	n/a			RHEL7_64_GCC740
-	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 	n/a			RHEL8_64_GCC831
+	OS											GCC Version		Use-Prebuilt Library	Use-Natively Build Library
+	--------------------------------			------------	----------------------	----------------------------		
+	CentOS 7.0 64-bit							GCC 4.8.2		OL7_64_GCC482			CENTOS7_64_GCC482
+	Oracle Linux Server 7.7 64-bit 				GCC 4.8.5		OL7_64_GCC482			OL7_64_GCC485
+	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 4.8.5 		OL7_64_GCC482			RHEL7_64_GCC485
+	Oracle Linux Server 7.7 64-bit     			GCC 7.4.0		n/a           			OL7_64_GCC740
+	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 		n/a						RHEL7_64_GCC740
+	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 		RHEL8_64_GCC831			RHEL8_64_GCC831
 
 	n/a = This is not a tested combination
 
@@ -161,6 +163,8 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 **Using CMake**:
 
 Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.10.3 or higher. 
+
+In addition, Python 3 is required. This can be installed either through yum or a windows installer.
 
 Refer to RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/Docs for more detailed CMake build instructions than what is described below.
 
