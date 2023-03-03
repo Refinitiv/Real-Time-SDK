@@ -7944,6 +7944,12 @@ public class Reactor
 
 			reactorChannel.tunnelStreamManager().close();
 
+			if (reactorChannel.watchlist() != null)
+			{
+				reactorChannel.watchlist().close();
+				reactorChannel.watchlist(null);	
+			}
+			
 		} finally
 		{
 			_reactorLock.unlock();

@@ -533,6 +533,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         _cachedConnectOptions = null;
         _cachedInetSocketAddress = null;
         _cachedBindInetSocketAddress = null;
+        _userSpecObject = null;
 
         if (DEFAULT_PRIORITY_FLUSH_ORDER.equals(_channelInfo._priorityFlushStrategy) == false)
             flushOrder(DEFAULT_PRIORITY_FLUSH_ORDER);

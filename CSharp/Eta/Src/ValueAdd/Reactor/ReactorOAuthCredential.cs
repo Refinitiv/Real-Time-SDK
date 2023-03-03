@@ -48,28 +48,28 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets an unique identifier defined for the application or user making a request to the token service.
+        /// Gets or sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
         /// </summary>
         public Buffer ClientId { get; private set; } = new Buffer();
 
         /// <summary>
-        /// Gets or sets a client secret that was used by OAuth Client to authenticate with the token service.
+        /// Gets or sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
         /// </summary>
         public Buffer ClientSecret { get; private set; } = new Buffer();
 
         /// <summary>
-        /// Gets or sets a client json web key used by OAuth authentication to the token service.
+        /// Gets or sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
         /// </summary>
         public Buffer ClientJwk { get; private set; } = new Buffer();
 
         /// <summary>
-        /// Gets or sets the audience claim string for JWT OAuth2 interactions.
+        /// Gets or sets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
         /// Optionally specifies the audience for the JWT usage.
         /// </summary>
         public Buffer Audience { get; private set; } = new Buffer();
 
         /// <summary>
-        /// Gets or sets a list of token scope that is used to limit the scope of generated token.
+        /// Gets or sets the token scope to limit the scope of generated token. Optional.
         /// </summary>
         public Buffer TokenScope { get; private set; } = new Buffer();
 

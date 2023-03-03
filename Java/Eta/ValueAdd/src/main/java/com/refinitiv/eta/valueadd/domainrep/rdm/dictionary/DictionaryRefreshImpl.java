@@ -52,7 +52,7 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     private int startEnumTableCount;
     
     private Int tmpInt = CodecFactory.createInt();
-    private DataDictionary dictionary = CodecFactory.createDataDictionary();
+    private DataDictionary dictionary = null;
     private Error error = TransportFactory.createError();
     private Series series = CodecFactory.createSeries();
     private ElementList elementList = CodecFactory.createElementList();
@@ -64,6 +64,8 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     
     private final static String eol = "\n";
     private final static String tab = "\t";
+    
+    private boolean userSetDictionary = false;
     
     public int flags()
     {
@@ -163,6 +165,9 @@ class DictionaryRefreshImpl extends MsgBaseImpl
         startEnumTableCount = 0;
         dataBody.clear();
         version.clear();
+        if (dictionary != null && !userSetDictionary)
+        	dictionary.clear();
+        userSetDictionary = false;
     }
 
     @Override
@@ -212,6 +217,9 @@ class DictionaryRefreshImpl extends MsgBaseImpl
             case Dictionary.Types.FIELD_DEFINITIONS:
             {
                 tmpInt.value(startFid);
+                
+            	if (dictionary == null)
+            		dictionary = CodecFactory.createDataDictionary();
                 int dictEncodeRet = dictionary.encodeFieldDictionary(encodeIter, tmpInt, verbosity, error);
                 if (dictEncodeRet != CodecReturnCodes.SUCCESS)
                 {
@@ -507,12 +515,17 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     
     public DataDictionary dictionary()
     {
+    	if (userSetDictionary)
+    		return dictionary;
+    	else if (dictionary == null)
+    		dictionary = CodecFactory.createDataDictionary();
         return dictionary;
     }
 
     public void dictionary(DataDictionary dictionary)
     {
         this.dictionary = dictionary;
+        userSetDictionary = true;
     }
 
     public String toString()

@@ -119,7 +119,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Specifies the user name for authorization with the token service
+     * Sets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.
      * 
      * @param userName the username.
      */	
@@ -130,7 +130,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Returns the user name for authorization with the token service
+     * Gets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.
      * 
      * @return the userName
      */		
@@ -140,7 +140,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Specifies the password for authorization with the token service.
+     * Sets the password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins 
      * 
      * @param password the password.
      */		
@@ -151,7 +151,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Returns the password for authorization with the token service
+     * Gets the password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins 
      * 
      * @return the password
      */			
@@ -161,7 +161,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Specifies the unique ID defined for an application making a request to the token service.
+     * Sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @param clientId the client Id
      */			
@@ -172,7 +172,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Returns a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+     * Gets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @return clientId.
      */		
@@ -182,7 +182,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the client secret defined for an application making a request to the token service.
+     * Sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @param clientSecret the client secret
      */			
@@ -193,7 +193,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Returns the client secret for application making the request to RDP token service.
+     * Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @return clientSecret.
      */		
@@ -203,7 +203,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the client JWK defined for an application making a request to the token service.
+     * Sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
      * 
      * @param clientJWK the client JWK
      */			
@@ -214,7 +214,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Returns the client JWK for application making the request to RDP token service.
+     * Gets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
      * 
      * @return clientJWK.
      */		
@@ -224,7 +224,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the audience claim defined for an application making a request to the token service.
+     * Sets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
      * 
      * @param audience the audience claim
      */			
@@ -235,7 +235,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Returns the audience claim for application making the request to RDP token service.
+     * Gets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
      * 
      * @return audience.
      */		
@@ -246,7 +246,7 @@ public class ReactorServiceDiscoveryOptions
 	
 	
 	/**
-     * Specifies an optional token scope defined for an application making a request to the token service.
+     * Sets the token scope to limit the scope of generated token from the token service. Optional.
      * 
      * @param tokenScope the token scope
      */			
@@ -257,7 +257,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 
     /**
-     * Returns the token scope for application making the request to RDP token service.
+     * Gets the token scope to limit the scope of generated token from the token service. Optional.
      * 
      * @return tokenScope.
      */		
@@ -344,7 +344,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Returns the Port Number of the HTTP proxy server.
+     * Gets the Port Number of the HTTP proxy server.
      * 
      * @return the proxy port
      */		
@@ -354,7 +354,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the proxy user name to authenticate.
+     * Sets the proxy user name to authenticate.
      * 
      * @param proxyUserName the proxy user name.
      */	
@@ -365,7 +365,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Returns the proxy user name to authenticate.
+     * Gets the proxy user name to authenticate.
      * 
      * @return the proxy user name.
      */		
@@ -375,7 +375,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the proxy password to authenticate.
+     * Sets the proxy password to authenticate.
      * 
      * @param proxyPassword the proxy password.
      */	
@@ -407,7 +407,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Returns the proxy domain of the user to authenticate.
+     * Gets the proxy domain of the user to authenticate.
      * 
      * @return the proxy domain.
      */		
@@ -417,7 +417,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the local hostname of the user to authenticate. 
+     * Sets the local hostname of the user to authenticate. 
      * 
      * @param proxyLocalHostName the local hostname.
      */	
@@ -438,7 +438,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
 	/**
-     * Specifies the complete path of the Keberos5 configuration file.
+     * Sets the complete path of the Keberos5 configuration file.
      * <p>Needed for Negotiate/Kerberos and Kerberos authentications.</p> 
      * 
      * @param proxyKRB5ConfigFile the Keberos5 configuration file.
@@ -450,7 +450,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Returns the complete path of the Keberos5 configuration file.
+     * Gets the complete path of the Keberos5 configuration file.
      * 
      * @return the Keberos5 configuration file.
      */		
@@ -460,7 +460,7 @@ public class ReactorServiceDiscoveryOptions
 	}
 	
     /**
-     * Specifies a Reactor Service Endpoint Event Callback.
+     * Sets the Reactor Service Endpoint Event Callback.
      * 
      * @param callback the reactor service endpoint event callback.
      * 
@@ -477,7 +477,7 @@ public class ReactorServiceDiscoveryOptions
     }
 
     /**
-     * A user specified object.
+     * Gets the user specified object.
      * 
      * @return the ReactorServiceEndpointEventCallback
      */
@@ -487,7 +487,7 @@ public class ReactorServiceDiscoveryOptions
     }	
 	
     /**
-     * Specifies a user defined object.
+     * Sets the user defined object.
      * 
      * @param userSpecObj the userSpecObj
      * 
@@ -514,7 +514,7 @@ public class ReactorServiceDiscoveryOptions
     }
 	
     /**
-     * The exclusive sign on control to force sign-out.
+     * Gets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
      * 
      * @return - true to force sign-out using the same credential otherwise false.
      */
@@ -524,7 +524,7 @@ public class ReactorServiceDiscoveryOptions
     }
     
     /**
-     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * Sets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
      *
      * @param takeExclusiveSignOnControl the exclusive sign on control.
      */

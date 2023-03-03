@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.55_RealTimeDistributionSystem_23.01		12/07/2022
-!	* Modified 12/07/2022 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.55.
+!   Version	 4.20.56_RealTimeDistributionSystem_23.21		02/19/2023
+!	* Modified 02/19/2023 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.56.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.55_RealTimeDistributionSystem
+!   Version: 4.20.56_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -24,14 +24,14 @@
 !     * RWF field type (RWF_DT_)
 !     * RWF maximum field length (for caching)
 !
-! Copyright Refinitiv 2022
+! Copyright Refinitiv 2023
 !
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.55
-!tag Build     6
-!tag Date      18-Nov-2022
+!tag Version   4.20.56
+!tag Build     2
+!tag Date      31-Jan-2023
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -6887,7 +6887,8 @@ ST_FRAG    "AC STANDARDS FLG"    2941  NULL        ENUMERATED    3 ( 3 )  ENUM  
 !
 ACVOL_DATE "ACVOL_1 DATE"        2942  NULL        DATE               11  DATE             4
 !
-! The date when volume held in the ACVOL_1 field occurred.
+! The date when the accumulated volume in the relevant FID - ACVOL_UNS (#32743) or 
+! ACVOL_DEC (#9940) - was updated
 !
 OPINT_DAT2 "OPINT_2 DATE"        2943  NULL        DATE               11  DATE             4
 !
@@ -31872,11 +31873,26 @@ PCT_TOT_OI "PCT TOT OI"         11080  NULL        PRICE              17  REAL64
 !
 ! Percentage of total open interest.
 !
-PRERL2090  "PRED REAL 2090"     11081  NULL        PRICE              17  REAL64           9
-PRERL2091  "PRED REAL 2091"     11082  NULL        PRICE              17  REAL64           9
-PRERL2092  "PRED REAL 2092"     11083  NULL        PRICE              17  REAL64           9
-PRERL2093  "PRED REAL 2093"     11084  NULL        PRICE              17  REAL64           9
-PRERL2094  "PRED REAL 2094"     11085  NULL        PRICE              17  REAL64           9
+ATMIV_CALL "ATM IV CALL"        11081  NULL        PRICE              17  REAL64           9
+!
+! Call Option ATM Implied Volatility
+!
+ATMIV_PUT  "ATM IV PUT"         11082  NULL        PRICE              17  REAL64           9
+!
+! Put Option ATM Implied Volatility
+!
+ORDER_PCTP "ORDER PCT PAR"      11083  NULL        PRICE              17  REAL64           9
+!
+! The percentage of par value (% par) of the order
+!
+FIX_UPQRTL "FIX UPPER QRTL"     11084  NULL        PRICE              17  REAL64           9
+!
+! Upper quartile of the benchmark rate.
+!
+FIX_LWQRTL "FIX LOWER QRTL"     11085  NULL        PRICE              17  REAL64           9
+!
+! Lower quartile of the benchmark rate.
+!
 PRERL2095  "PRED REAL 2095"     11086  NULL        PRICE              17  REAL64           9
 PRERL2096  "PRED REAL 2096"     11087  NULL        PRICE              17  REAL64           9
 PRERL2097  "PRED REAL 2097"     11088  NULL        PRICE              17  REAL64           9
@@ -38483,7 +38499,7 @@ GRK_VAL_NS "GREEKS VAL UPT NS"  14598  NULL        INTEGER            15  TIME  
 !
 EFPTIM_NS  "EFPTIM NS"          14599  NULL        INTEGER            15  TIME             8
 !
-! Date of last Exchange for Physical trade
+! Time of the last Exchange for Physical (EFP) trade.
 !
 SES_STA_NS "SESSION STA TM NS"  14600  NULL        INTEGER            15  TIME             8
 !
@@ -38848,8 +38864,14 @@ CAN_REC_NS "CAN TRD REC TM NS"  14701  NULL        INTEGER            15  TIME  
 !
 ! Trade received time for a cancelled trade.
 !
-PRE_272_NS "PRED TIME NS 272"   14702  NULL        INTEGER            15  TIME             8
-PRE_273_NS "PRED TIME NS 273"   14703  NULL        INTEGER            15  TIME             8
+MAXAFIL_NS "MAX ASK ORD FIL NS" 14702  NULL        INTEGER            15  TIME             8
+!
+! Maximum time taken to fill an ask order.
+!
+MAXBFIL_NS "MAX BID ORD FIL NS" 14703  NULL        INTEGER            15  TIME             8
+!
+! Maximum time taken to fill a bid order.
+!
 PRE_274_NS "PRED TIME NS 274"   14704  NULL        INTEGER            15  TIME             8
 PRE_275_NS "PRED TIME NS 275"   14705  NULL        INTEGER            15  TIME             8
 PRE_276_NS "PRED TIME NS 276"   14706  NULL        INTEGER            15  TIME             8
@@ -39488,7 +39510,10 @@ EVENT_VAL3 "EVENT VALUE 3"      15226  NULL        PRICE              17  REAL64
 !
 ! Tertiary price or value of an event on the feed
 !
-PRE_LRL158 "PRED LRG REAL 158"  15227  NULL        PRICE              17  REAL64           9
+L_ACVL_DEC "LARGE ACVOL DEC"    15227  NULL        PRICE              17  REAL64           9
+!
+! An 8-byte variant of the field ACVOL_DEC (#9940).
+!
 PRE_LRL159 "PRED LRG REAL 159"  15228  NULL        PRICE              17  REAL64           9
 PRE_LRL160 "PRED LRG REAL 160"  15229  NULL        PRICE              17  REAL64           9
 PRE_LRL161 "PRED LRG REAL 161"  15230  NULL        PRICE              17  REAL64           9
