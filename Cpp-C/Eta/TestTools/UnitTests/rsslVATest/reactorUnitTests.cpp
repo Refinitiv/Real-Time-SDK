@@ -185,7 +185,8 @@ typedef struct
 	RsslBuffer memoryBuffer;
 	RsslInt64 lastRecordedTimeMs;
 	RsslInt32 channelCount;			
-	RsslInt32 maxEventsInPool; 
+	RsslInt32 maxEventsInPool;
+	RsslBool sendJsonConvError;
 	RsslMutex interfaceLock; 
 	RsslBool inReactorFunction;
 	MyReactorEventQueueGroup activeEventQueueGroup;
@@ -5076,6 +5077,10 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 	mOpts.maxEventsInPool = 1;
 	initReactors(&mOpts, RSSL_FALSE);
 
+	MyReactorImpl* pMyConsReactorImpl = (MyReactorImpl*)pConsMon->pReactor;
+	MyRsslReactorWorker* myConsReacotrWorker = &(pMyConsReactorImpl->reactorWorker);
+	RsslQueue* evtPoolCons = &(myConsReacotrWorker->workerQueue.eventPool);
+
 	/* Create notifiers. */
 	pProvMon->pNotifier = rsslCreateNotifier(1024);
 	ASSERT_TRUE(pProvMon->pNotifier != NULL);
@@ -5092,9 +5097,7 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(rsslNotifierAddEvent(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent, pProvMon->pReactor->eventFd, pProvMon) == 0);
 	ASSERT_TRUE(rsslNotifierRegisterRead(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent) == 0);
 
-	MyReactorImpl *pMyConsReactorImpl = (MyReactorImpl*)pConsMon->pReactor;
-	MyRsslReactorWorker *myConsReacotrWorker = &(pMyConsReactorImpl->reactorWorker);
-	RsslQueue *evtPoolCons = &(myConsReacotrWorker->workerQueue.eventPool);
+
 
 	/*Check pool size before connection*/
 	ASSERT_TRUE((RsslInt32)evtPoolCons->count > mOpts.maxEventsInPool);
