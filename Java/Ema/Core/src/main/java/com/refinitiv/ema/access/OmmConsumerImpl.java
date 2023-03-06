@@ -347,8 +347,21 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 	@Override
 	void readCustomConfig(EmaConfigImpl config)
 	{
-		_activeConfig.dictionaryConfig = new DictionaryConfig(false);
-		
+		if(((OmmConsumerConfigImpl) config).dataDictionary() == null)
+			_activeConfig.dictionaryConfig = new DictionaryConfig(false);
+		else
+		{
+			_activeConfig.dictionaryConfig = new DictionaryConfig(true);
+			_activeConfig.dictionaryConfig.dataDictionary = ((OmmConsumerConfigImpl) config).dataDictionary();
+
+			if (loggerClient().isTraceEnabled())
+			{
+				strBuilder().append("The user specified DataDictionary object is used for dictionary information. ")
+						    .append("EMA ignores the DictionaryGroup configuration in either file and programmatic configuration database.");
+				loggerClient().trace(formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.TRACE));
+			}
+		}
+
 		_activeConfig.dictionaryConfig.dictionaryName = ((OmmConsumerConfigImpl)config).dictionaryName(_activeConfig.configuredName);
 		
 		ConfigAttributes attributes = config.xmlConfig().getConsumerAttributes(_activeConfig.configuredName);
@@ -387,53 +400,56 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 					_activeConfig.maxOutstandingPosts = value > maxInt ? maxInt : value;
 			}
 		}
-		
-		if (_activeConfig.dictionaryConfig.dictionaryName == null)
+
+		if(_activeConfig.dictionaryConfig.dataDictionary == null)
 		{
-			_activeConfig.dictionaryConfig.dictionaryName = "Dictionary";
-			_activeConfig.dictionaryConfig.isLocalDictionary = false;
-			_activeConfig.dictionaryConfig.enumtypeDefFileName = null;
-			_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = null;
-		} else
-		{
-			attributes = config.xmlConfig().getDictionaryAttributes(_activeConfig.dictionaryConfig.dictionaryName);
-			if (attributes == null)
+			if (_activeConfig.dictionaryConfig.dictionaryName == null)
 			{
-				config.errorTracker().append("no configuration exists in the config file for consumer dictionary [")
-						.append(ConfigManager.DICTIONARY_LIST.toString()).append("]. Will use dictionary defaults if not config programmatically.").create(Severity.INFO);
-			}
-			else
+				_activeConfig.dictionaryConfig.dictionaryName = "Dictionary";
+				_activeConfig.dictionaryConfig.isLocalDictionary = false;
+				_activeConfig.dictionaryConfig.enumtypeDefFileName = null;
+				_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = null;
+			} else
 			{
-				ce = attributes.getPrimitiveValue(ConfigManager.DictionaryType);
-				if ( ce != null && ce.booleanValue() == true)
+				attributes = config.xmlConfig().getDictionaryAttributes(_activeConfig.dictionaryConfig.dictionaryName);
+				if (attributes == null)
 				{
-					_activeConfig.dictionaryConfig.isLocalDictionary = true;
-					
-					if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRDMFieldDictFileName)) == null)
-						_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
-					else
-						_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = ce.asciiValue();
-	
-					if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryEnumTypeDefFileName)) == null)
-						_activeConfig.dictionaryConfig.enumtypeDefFileName = "./enumtype.def";
-					else
-						_activeConfig.dictionaryConfig.enumtypeDefFileName = ce.asciiValue();
+					config.errorTracker().append("no configuration exists in the config file for consumer dictionary [")
+							.append(ConfigManager.DICTIONARY_LIST.toString()).append("]. Will use dictionary defaults if not config programmatically.").create(Severity.INFO);
+				}
+				else
+				{
+					ce = attributes.getPrimitiveValue(ConfigManager.DictionaryType);
+					if ( ce != null && ce.booleanValue() == true)
+					{
+						_activeConfig.dictionaryConfig.isLocalDictionary = true;
+
+						if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryRDMFieldDictFileName)) == null)
+							_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = "./RDMFieldDictionary";
+						else
+							_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName = ce.asciiValue();
+
+						if ((ce = attributes.getPrimitiveValue(ConfigManager.DictionaryEnumTypeDefFileName)) == null)
+							_activeConfig.dictionaryConfig.enumtypeDefFileName = "./enumtype.def";
+						else
+							_activeConfig.dictionaryConfig.enumtypeDefFileName = ce.asciiValue();
+					}
 				}
 			}
+
+			ProgrammaticConfigure pc = null;
+			if ( (pc = config.programmaticConfigure()) != null )
+				pc.retrieveDictionaryConfig( _activeConfig.dictionaryConfig.dictionaryName, _activeConfig );
+
+			_activeConfig.rsslDirectoryRequest = config.directoryReq();
+			_activeConfig.rsslFldDictRequest = config.rdmFldDictionaryReq();
+			_activeConfig.rsslEnumDictRequest = config.enumDefDictionaryReq();
+			_activeConfig.fldDictReqServiceName = config.fidDictReqServiceName();
+			_activeConfig.enumDictReqServiceName = config.enumDictReqServiceName();
+
+			if ( pc != null )
+				pc.retrieveCustomConfig( _activeConfig.configuredName, _activeConfig );
 		}
-		
-		ProgrammaticConfigure pc = null;
-		if ( (pc = config.programmaticConfigure()) != null )
-			pc.retrieveDictionaryConfig( _activeConfig.dictionaryConfig.dictionaryName, _activeConfig );
-		
-		_activeConfig.rsslDirectoryRequest = config.directoryReq();
-		_activeConfig.rsslFldDictRequest = config.rdmFldDictionaryReq();
-		_activeConfig.rsslEnumDictRequest = config.enumDefDictionaryReq();
-		_activeConfig.fldDictReqServiceName = config.fidDictReqServiceName();
-		_activeConfig.enumDictReqServiceName = config.enumDictReqServiceName();
-		
-		if ( pc != null )
-			pc.retrieveCustomConfig( _activeConfig.configuredName, _activeConfig );
 	}
 
 	void loadDirectory()

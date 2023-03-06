@@ -7,6 +7,8 @@
 
 package com.refinitiv.ema.access;
 
+import com.refinitiv.ema.rdm.DataDictionary;
+
 /**
  * OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.
  * <p>OmmConsumerConfig provides a default basic OmmConsumer configuration.</p>
@@ -363,4 +365,18 @@ public interface OmmConsumerConfig
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig addAdminMsg(ReqMsg reqMsg);
+
+	/**
+	 * Specifies the DataDictionary object.
+	 * Overrides DataDictionary object that is provided via EmaConfig.xml or
+	 * Programmatic configure.
+	 * 
+	 * If shouldCopyIntoAPI is true, the DataDictionary object will be copied
+	 * into the application space, otherwise it will be passed in as a reference.
+	 *
+	 * @param dataDictionary specifies the DataDictionary object.
+	 * @param shouldCopyIntoAPI specifies whether to copy dataDictionary into API or pass in as reference.
+	 * @return reference to this object.
+	 */
+	public OmmConsumerConfig dataDictionary(DataDictionary dataDictionary, boolean shouldCopyIntoAPI);
 }

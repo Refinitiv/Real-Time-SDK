@@ -377,6 +377,20 @@ public interface DataDictionary
      * @return the enumerated type if it exists
      */
     public EnumType enumType(int fieldId, int value);
+
+    /**
+     * Check whether the FieldDictionary has been loaded or not.
+     *
+     * @return true if FieldDictionary has been loaded, otherwise false.
+     */
+    public boolean isFieldDictionaryLoaded();
+
+    /**
+     * Check whether the EnumTypeDef has been loaded or not.
+     *
+     * @return true if EnumTypeDef has been loaded, otherwise false.
+     */
+    public boolean isEnumTypeDefLoaded();
     
     /**
      * Convert information contained in the data dictionary to a string.

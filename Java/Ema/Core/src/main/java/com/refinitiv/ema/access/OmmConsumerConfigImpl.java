@@ -10,10 +10,12 @@ package com.refinitiv.ema.access;
 
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
+import com.refinitiv.ema.rdm.DataDictionary;
 
 class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 {
 	private int 				_operationModel;
+	private DataDictionary 		dataDictionary;
 	
 	OmmConsumerConfigImpl()
 	{
@@ -36,6 +38,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	{
 		clearInt();
 		_operationModel = OperationModel.API_DISPATCH;
+		dataDictionary = null;
 		return this;
 	}
 
@@ -410,4 +413,30 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		encryptionCfg().TrustManagerAlgorithm = trustManagerAlgorithm;
 		return this;
 	}
+
+	@Override
+	public OmmConsumerConfig dataDictionary(DataDictionary dataDictionary, boolean shouldCopyIntoAPI)
+	{
+		if(dataDictionary != null && dataDictionary.isFieldDictionaryLoaded() && dataDictionary.isEnumTypeDefLoaded())
+		{
+			if (shouldCopyIntoAPI)
+			{
+				this.dataDictionary = EmaFactory.createDataDictionary(dataDictionary);
+				return this;
+			}
+			else
+			{
+				this.dataDictionary = dataDictionary;
+				return this;
+			}
+		}
+			throw ommIUExcept().message("The dictionary information is not fully loaded in the passed DataDictionary object.",
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+	}
+	
+	DataDictionary dataDictionary()
+	{
+		return dataDictionary;
+	}
+	
 }

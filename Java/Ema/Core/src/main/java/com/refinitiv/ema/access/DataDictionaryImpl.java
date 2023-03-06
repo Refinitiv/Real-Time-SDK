@@ -892,6 +892,16 @@ class DataDictionaryImpl implements DataDictionary
 	}
 
 	@Override
+	public boolean isFieldDictionaryLoaded() {
+		return loadedFieldDictionary;
+	}
+
+	@Override
+	public boolean isEnumTypeDefLoaded() {
+		return loadedEnumTypeDef;
+	}
+
+	@Override
 	public boolean hasEntry(int fieldId) {
 		try {
 			dictionaryLock.lock();
@@ -1002,6 +1012,10 @@ class DataDictionaryImpl implements DataDictionary
 		} finally {
 			dictionaryLock.unlock();
 		}
+	}
+
+	com.refinitiv.eta.codec.DataDictionary rsslDataDictionary() {
+		return rsslDataDictionary;
 	}
 	
 	
