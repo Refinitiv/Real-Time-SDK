@@ -9,15 +9,15 @@
 include(rcdevExternalUtils)
 
 if(NOT l8w8jwt_url)
-	set(l8w8jwt_url "https://github.com/GlitchedPolygons/l8w8jwt.git")
+	set(l8w8jwt_url "https://github.com/GlitchedPolygons/l8w8jwt.git" CACHE STRING "l8w8jwt url")
 endif()
 
 if(NOT l8w8jwt_tag)
-	set(l8w8jwt_tag "2.1.6")
+	set(l8w8jwt_tag "2.1.6" CACHE STRING "l8w8jwt tag")
 endif()
 
 if(NOT l8w8jwt_version)
-	set(l8w8jwt_version "2.1.6")
+	set(l8w8jwt_version "2.1.6" CACHE STRING "l8w8jwt version")
 endif()
 
 unset(_cfg_type)
