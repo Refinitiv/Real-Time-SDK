@@ -102,8 +102,14 @@ class DictionaryCallbackClient<T> extends CallbackClient<T> implements RDMDictio
 
 			throw (_ommBaseImpl.ommIUExcept().message(temp.toString(), OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT));
 		}
-		
-		if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
+
+		com.refinitiv.ema.rdm.DataDictionary dictionary = _ommBaseImpl.activeConfig().dictionaryConfig.dataDictionary;
+		if((dictionary instanceof DataDictionaryImpl) &&
+				((DataDictionaryImpl) dictionary).rsslDataDictionary() != null)
+		{
+			_rsslLocalDictionary = ((DataDictionaryImpl) dictionary).rsslDataDictionary();
+		}
+		else if (_ommBaseImpl.activeConfig().dictionaryConfig.isLocalDictionary)
 			loadDictionaryFromFile();
 		else
 		{
