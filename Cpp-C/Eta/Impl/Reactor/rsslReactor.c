@@ -12,8 +12,10 @@
 #include "rtr/tunnelStreamImpl.h"
 #include "rtr/msgQueueEncDec.h"
 
+#ifndef NO_ETA_JWT_BUILD
 #include "l8w8jwt/encode.h"
 #include "l8w8jwt/version.h"
+#endif
 
 #include <assert.h>
 #include <stdint.h>
@@ -11498,7 +11500,12 @@ RsslRestRequestArgs* _reactorCreateTokenRequestV2(RsslReactorImpl* pReactorImpl,
 	}
 	else
 	{
-#ifndef NO_ETA_JWT_BUILD
+#ifdef NO_ETA_JWT_BUILD
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"JWT functionality has not been built into this library.");
+
+		return 0;
+#else 
 
 		hasClientSecret = RSSL_FALSE;
 
