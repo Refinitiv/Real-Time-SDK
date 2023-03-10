@@ -472,7 +472,10 @@ else()
                             )
         target_compile_options( libema_shared 
                                 PUBLIC 
-                                    "-D__EMA_COPY_ON_SET__")
+                                    "-D__EMA_COPY_ON_SET__"
+                                    PRIVATE
+									${RTSDK_EXTRA_FLAGS}
+									)
     endif()
 
 	rcdev_add_target(rtsdk libema libema_shared)
