@@ -28,10 +28,10 @@ RTSDK CSharp Release 2.1.0.L1 (Mar 15, 2023)
 
 ETA CSharp 3.0.1.L1  
 -------------------
-[RTSDK-6441] - Support V2 authentication: Support client credential and client credential with JWT flow in ETA Reactor
-[RTSDK-6730] - V2 authentication: Add a separate string called "Audience" with ability to override value for JWT flow
-[RTSDK-6748] - Addition of ANSI page codec library 
-[RTSDK-7057] - ETA.NET: Added RDMUsage guide and made fixes to Install Guide
+- [RTSDK-6441] - Support V2 authentication: Support client credential and client credential with JWT flow in ETA Reactor
+- [RTSDK-6730] - V2 authentication: Add a separate string called "Audience" with ability to override value for JWT flow
+- [RTSDK-6748] - Addition of ANSI page codec library 
+- [RTSDK-7057] - ETA.NET: Added RDMUsage guide and made fixes to Install Guide
 
 ---------------------------------------------
 RTSDK CSharp Release 2.0.8.L1 (Jan 23, 2023)
