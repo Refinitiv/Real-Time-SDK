@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.55
-!tag Build_RDMD  4.20.55
-!tag DT_Version  23.01
-!tag Date        6-Dec-2022
+!tag RT_Version  4.20.56
+!tag Build_RDMD  4.20.56
+!tag DT_Version  23.21
+!tag Date        21-Feb-2023
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8860,6 +8860,10 @@ CLS_A_EXID 13625
    1727        "KPL"   Kuwait Petroleum Corporation
    1728        "ZNH"   ZeroNorth
    1729        "HMS"   HAMMERSMITH MARKETING LTD
+   1730        "ANI"   ANBIMA
+   1731        "JKL"   John Keells PLC
+   1732        "CBZ"   Cboe FX Markets
+   1733        "JOG"   Japan Organization for Metals and Energy Security
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15812,6 +15816,7 @@ MRGN_RES   12799
       4          "Y"   Margin buying restriction
       5          "A"   Margin buying Restriction Activated (Duplicated, Not To Be Used)
       6          "D"   Margin buying Restriction Deactivated (Duplicated, Not To Be Used)
+      7          "S"   Margin buying is suspended
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18985,6 +18990,7 @@ MET_TYP22  13605
     171   "BIDDECIL"   Bid Decile
     172   "ASKPCTLE"   Ask Percentile
     173   "BIDPCTLE"   Bid Percentile
+    174   "kBPD    "   Thousands of barrels per day
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23023,6 +23029,7 @@ CMD_TYPE   13618
    3090   "LEADCON "   Lead Concentrates
    3091   "COPPANO "   Copper Anodes
    3092   "COPPCATH"   Copper Cathodes
+   3093   "SCRPSTL "   Scrap Steel
    4000   "ABSPLAST"   Acrylonitrile Butadiene Styrene
    4001   "ACRYLONI"   Acrylonitrile
    4002   "ALPHMETH"   Alpha-Methylstyrene (Commodity)
@@ -23220,6 +23227,11 @@ PRIMACT_TP 13621
      34   "WHS RCPT"   Warehouse Receipt
      35   "THRPUT  "   Throughput
      36   "PSTNS   "   Number of Positions
+     37   "CNTRT   "   Estimated net number of futures contracts bought or sold
+     38   "CAP FCST"   Capacity Forecast
+     39   "CON ACTL"   Consumption Actual
+     40   "PRD ACTL"   Production Actual
+     41   "CON FCST"   Consumption Forecast
 !
 ! ACRONYM    FID
 ! -------    ---

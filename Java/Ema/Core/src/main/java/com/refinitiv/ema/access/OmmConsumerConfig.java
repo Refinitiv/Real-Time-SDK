@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -377,6 +377,7 @@ public interface OmmConsumerConfig
 	 * @param dataDictionary specifies the DataDictionary object.
 	 * @param shouldCopyIntoAPI specifies whether to copy dataDictionary into API or pass in as reference.
 	 * @return reference to this object.
+	 * @throws OmmInvalidUsageException if dataDictionary object instance does not contain entire dictionary information.
 	 */
 	public OmmConsumerConfig dataDictionary(DataDictionary dataDictionary, boolean shouldCopyIntoAPI);
 }

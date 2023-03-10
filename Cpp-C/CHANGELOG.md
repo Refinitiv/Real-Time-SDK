@@ -9,28 +9,49 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.0.8.L1 aka EMA/ETA 3.6.8.L1 aka 3.6.8.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.0.L1 aka EMA/ETA 3.7.0.L1 aka 3.7.0.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes and support for Visual Studio 2022.
+This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 11639977] - [RTSDK-6655] - Example provider application with EMA C++ is crashing at exit
-- [GitHub #205] - [RTSDK-6596] - RSSL_INIT_ENCODE_ITERATOR missing initializer
-- [GitHub #208] - [RTSDK-6597] - Memory issue in ETA 3.6.6.L1 (valgrind)
-- [GitHub #214] - [RTSDK-6793] - Removed unused parameter 'ReactorEventFdPort' from application
-- [GitHub #215] - [RTSDK-6747] - GitHub #215: Erroneous documentation for Logger
-- [GitHub #220] - [RTSDK-6834] - SEGV during reconnection in cold standby (ChannelSet)
-- [GitHub #231] - [RTSDK-6607] - Update libxml2 version
+- [GitHub #225] - [RTSDK-6963] - EMAC++ DataDictionary outputs only positive FIDs
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.1.0.L1 (Mar 15, 2023)
+--------------------------------------------
+
+EMA C++ 3.7.0.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6963] - EMAC++ DataDictionary outputs only positive FIDs [GitHub #225] 
+
+ETA C 3.7.0.L1 Issues Resolved
+------------------------------
+- [RTSDK-7000] - Fix to a partial Websocket message read causing high CPU usage on channel reading thread
+- [RTSDK-7006] - Added RSSL_TRACE_PING_ONLY flag to trace ping messages independently
+- [RTSDK-7065] - Added cmake option, BUILD_ETA_CPU_BIND=OFF, to exclude cpu bind from library for 32-bit builds 
+- [RTSDK-7113] - ETAC server using protocol-type=2 crashes upon incoming socket+json connection
+- [RTSDK-7116] - Websocket RWF Server: Reject compression on ws hndshke since RIPC handles compression for RWF
+- [RTSDK-7183, RTSDK-7199] - Cache the l8w8jwt strings for packaging use and add compiler flag for JWT build
+
+Both ETA C and EMA C++ 3.7.0.L1 Issues Resolved
+----------------------------------------------
+- [RTSDK-6021] - Conversion issues result in error sent over the wire if configured to do so
+- [RTSDK-6041] - Support V2 authentication: Support client credential and client credential with JWT flow
+- [RTSDK-6727] - V2 authentication: Add a separate string called "Audience" with ability to override value
+- [RTSDK-6982] - Update ZLIB to version 1.2.13
+- [RTSDK-7076] - Fix to token renewal upon token expiration during recovery attempts from channel_down 
+
+--------------------------------------------
 RTSDK C++/C Release 2.0.8.L1 (Jan 6, 2023)
 --------------------------------------------
+
+This is a maintenance release with fixes and support for Visual Studio 2022.
 
 EMA C++ 3.6.8.L1 Issues Resolved
 --------------------------------
@@ -120,6 +141,8 @@ Both ETA C and EMA C++ 3.6.7.L1 Issues Resolved
 RTSDK C++/C Release 2.0.6.L1 (Jun 20, 2022)
 --------------------------------------------
 
+This release introduces Multi-Credential feature which permits ability for different authentication mechanisms/credentials to be associated with a channel or group of channels. The features provides additional flexibility when using connection recovery (ETA) or channelset (EMA) and warm standby features.
+
 EMA C++ 3.6.6.L1 Issues Resolved
 --------------------------------
 - [RTSDK-1486] - Fix to EMA examples to account for MapEntry key which can be Buffer, Ascii or Rmtes
@@ -160,6 +183,8 @@ Both ETA C and EMA C++ 3.6.6.L1 Issues Resolved
 RTSDK C++/C Release 2.0.5.G1 (Mar 31, 2022)
 --------------------------------------------
 
+This release updates the zlib dependency library for RTSDK.
+
 ETA C 3.6.5.G1 Issues Resolved
 --------------------------------
 - [RTSDK-6101] - Updated ZLIB library to version 1.2.12
@@ -167,6 +192,8 @@ ETA C 3.6.5.G1 Issues Resolved
 --------------------------------------------
 RTSDK C++/C Release 2.0.5.L1 (Mar 10, 2022)
 --------------------------------------------
+
+This release introduces oAuthClientCredentials authentication in Early Access. This feature is available for preview only with ability to obtain credentials and use it, forthcoming. In addition, this release contains a couple of enhancement requests dynamic REST interaction logging and Reactor worker thread binding. Also included are fixes and documentation clarifications.
 
 EMA C++ 3.6.5.L1 Issues Resolved
 --------------------------------

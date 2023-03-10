@@ -24,8 +24,8 @@ External modules used by this version of RTSDK C/C++:
 	googletest		release-1.8.1
 	l8w8jwt			2.1.6
 	libxml2			2.10.3
-	lz4				1.9.4
-	zlib			1.2.12
+	lz4			1.9.4
+	zlib			1.2.13
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
 - Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available. 
@@ -97,14 +97,14 @@ This release has been tested with supported valid OS/compiler combinations.
 ##### Linux
 This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
-	OS											GCC Version		Use-Prebuilt Library	Use-Natively Build Library
+	OS							GCC Version	Use-Prebuilt Library	Use-Natively Build Library
 	--------------------------------			------------	----------------------	----------------------------		
-	CentOS 7.0 64-bit							GCC 4.8.2		OL7_64_GCC482			CENTOS7_64_GCC482
+	CentOS 7.0 64-bit					GCC 4.8.2		OL7_64_GCC482			CENTOS7_64_GCC482
 	Oracle Linux Server 7.7 64-bit 				GCC 4.8.5		OL7_64_GCC482			OL7_64_GCC485
-	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 4.8.5 		OL7_64_GCC482			RHEL7_64_GCC485
+	Red Hat Enterprise Linux Server 7.7 64-bit 		GCC 4.8.5 		OL7_64_GCC482			RHEL7_64_GCC485
 	Oracle Linux Server 7.7 64-bit     			GCC 7.4.0		n/a           			OL7_64_GCC740
-	Red Hat Enterprise Linux Server 7.7 64-bit 	GCC 7.4.0 		n/a						RHEL7_64_GCC740
-	Red Hat Enterprise Linux Server 8.0 64-bit 	GCC 8.3.1 		RHEL8_64_GCC831			RHEL8_64_GCC831
+	Red Hat Enterprise Linux Server 7.7 64-bit 		GCC 7.4.0 		n/a				RHEL7_64_GCC740
+	Red Hat Enterprise Linux Server 8.0 64-bit 		GCC 8.3.1 		RHEL8_64_GCC831			RHEL8_64_GCC831
 
 	n/a = This is not a tested combination
 

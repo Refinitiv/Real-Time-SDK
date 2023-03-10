@@ -9,23 +9,51 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.0.8.L1 aka EMA/ETA 3.6.8.L1 aka 3.6.8.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.0.L1 aka EMA/ETA 3.7.0.L1 aka 3.7.0.0
 ----------------------------------------------------------------------------------------
-This is a maintenance release with fixes and support for Visual Studio 2022 (JNI).
+
+This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #218, Case Number: 11919895, Case Number: 11919122] - [RTSDK-6794, RTSDK-6894, RTSDK-6902] - EMA Java | Deadlock in OmmConsumer
+- [Case Number: 10894282] - [RTSDK-5931] - Enhancement to pass in Dictionary object upon OMMConsumer creation
+- [Case Number: 11979617] - [RTSDK-7074] - EMA Deadlock fix: OmmConsumers stop wroking without any error message
+- [Case Number: 12263752] - [RTSDK-7111] - EMA Java DataDictionaryImpl memory leak issue
+- [GitHub #221] [RTSDK-6839, RTSDK-7200] - Flags from request are not copied into response resulting in invalid snapshot response
+
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
-RTSDK Java Release 2.0.8.L1 (Jan 6, 2022)
+RTSDK Java Release 2.1.0.L1 (Mar 15, 2023)
 --------------------------------------------
 
-This is a maintenance release with fixes.
+EMA Java 3.7.0.L1 Issues Resolved
+---------------------------------
+- [RTSDK-5352] - Update to RT Viewer to support V2 authentication for JWT flow
+- [RTSDK-5931] - Enhancement to pass in Dictionary object upon OMMConsumer creation [Case Number: 10894282]
+- [RTSDK-6839, RTSDK-7200] - Flags from request are not copied into response resulting in invalid snapshot response [GitHub #221] 
+- [RTSDK-7042] - EMAJ NIProvPerf Example: missing latency information during startup time
+- [RTSDK-7074] - EMA Deadlock fix: OmmConsumers stop wroking without any error message [Case Number: 11979617] 
+- [RTSDK-7111] - EMA Java DataDictionaryImpl memory leak issue [Case Number: 12263752]
+
+ETA Java 3.7.0.L1 Issues Resolved
+---------------------------------
+- [RTSDK-7113] - ETAC server using protocol-type=2 crashes upon incoming socket+json connection
+
+Both ETA Java and EMA Java 3.7.0.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-4986] - Support V2 authentication: Support client credential and client credential with JWT flow
+- [RTSDK-6728] - V2 authentication: Add a separate string called "Audience" with ability to override value for JWT flow
+- [RTSDK-7026] - Update jackson-core to version 2.14.1
+
+--------------------------------------------
+RTSDK Java Release 2.0.8.L1 (Jan 6, 2023)
+--------------------------------------------
+
+This is a maintenance release with fixes and support for Visual Studio 2022 (JNI).
 
 EMA Java 3.6.8.L1 Issues Resolved
 ---------------------------------

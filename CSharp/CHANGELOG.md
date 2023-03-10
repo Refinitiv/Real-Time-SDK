@@ -10,18 +10,28 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.0.8.L1 aka EMA/ETA 3.0.0.L1 aka 3.0.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.0.L1 aka EMA/ETA 3.0.1.L1 aka 3.0.1.0
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
-This is the first official RTSDK CSharp release with support for Enterprise Transport API. This initial release includes transport and value add Reactor layers with both client and server side implemenation. The transport layer API supports TCP/IP transport, buffer management (such as read, write), fragmentation, packing, compression, a codec to implement open message model (OMM). Transport layer supports socket and encrypted socket connections. In addition, the value add layer handles adminitrative messages and implements a dispatching/callback mechanism to simplify the application. Also included in the API at Reactor Layer are Session Management (authentication) and Service Discovery (discovering host/port information based on Cloud region and type of connection) features. Documentation is available for all supported features in two formats: HTML (reference manuals) and PDF. 
 
-NOTE: Session management feature which enables connectivity to Refinitiv Real-Time - Optimized (RTO) is supported for oAuthClientCredentials authentication. This feature is considered Early Access and is available for preview-only. Ability to obtain credentials and use them to connect to RTO is forthcoming.
+This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+---------------------------------------------
+RTSDK CSharp Release 2.1.0.L1 (Mar 15, 2023)
+---------------------------------------------
+
+ETA CSharp 3.0.1.L1  
+-------------------
+[RTSDK-6441] - Support V2 authentication: Support client credential and client credential with JWT flow in ETA Reactor
+[RTSDK-6730] - V2 authentication: Add a separate string called "Audience" with ability to override value for JWT flow
+[RTSDK-6748] - Addition of ANSI page codec library 
+[RTSDK-7057] - ETA.NET: Added RDMUsage guide and made fixes to Install Guide
 
 ---------------------------------------------
 RTSDK CSharp Release 2.0.8.L1 (Jan 23, 2023)
@@ -30,7 +40,6 @@ RTSDK CSharp Release 2.0.8.L1 (Jan 23, 2023)
 New Features Added
 ------------------
 This is the first official RTSDK CSharp release with support for Enterprise Transport API. This initial release includes transport and value add Reactor layers with both client and server side implemenation. The transport layer API supports TCP/IP transport, buffer management (such as read, write), fragmentation, packing, compression, a codec to implement open message model (OMM). Transport layer supports socket and encrypted socket connections. In addition, the value add layer handles adminitrative messages and implements a dispatching/callback mechanism to simplify the application. Also included in the API at Reactor Layer are Session Management (authentication) and Service Discovery (discovering host/port information based on Cloud region and type of connection) features. Documentation is available for all supported features in two formats: HTML (reference manuals) and PDF. 
-
 
 ETA CSharp 3.0.0.L1  
 -------------------

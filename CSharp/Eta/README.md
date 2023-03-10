@@ -101,14 +101,14 @@ Users can use Transport API to write non-interactive applications that start up 
 The distribution contains several DLL files (libraries), intended to allow for ease of integration into both production and development environments.
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    LSEG.Eta.Core.dll             eta3.0.0.L1       The ETA - CSharp Edition library.  Includes
+    LSEG.Eta.Core.dll             eta3.0.1.L1       The ETA - CSharp Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    LSEG.Eta.ValueAdd.dll         eta3.0.0.L1       The Value Add library for ETA CSharp Edition.
+    LSEG.Eta.ValueAdd.dll         eta3.0.1.L1       The Value Add library for ETA CSharp Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    LSEG.Eta.Ansi.dll             eta3.0.0.L1       The ANSI decoders and encoders.
+    LSEG.Eta.Ansi.dll             eta3.0.1.L1       The ANSI decoders and encoders.
     LSEG.Eta.AnsiPage.dll     
 
                   
@@ -121,22 +121,23 @@ The distribution contains several DLL files (libraries), intended to allow for e
     I-COS Questionnaire: 6212 
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - CSharp Edition
-    Release Number: 3.0.0
+    Release Number: 3.0.1
     Load Number: 1
-    Load ID: etacsharp3.0.0.L1.all
+    Load ID: etacsharp3.0.1.L1.all
+        Supersedes: etacsharp3.0.0.L1.all
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.55_RealTimeDistributionSystem_23.01 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.56_RealTimeDistributionSystem_23.21 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Black Duck by Synopsis, 2021.10.0.939, https://www.blackducksoftware.com/.
+    Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
     SemGrep 1.2.1, https://semgrep.dev/
 
 # Notes:
