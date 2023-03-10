@@ -333,9 +333,6 @@ class MarketItemHandler implements DefaultMsgCallback
 			}
 			case MsgClasses.POST:
 			{
-				if (itemInfo != null)
-					_ommServerBaseImpl.postMsg()._rsslMsg.flags(messageFlags);
-				
 				processPost(msg, reactorChannel, clientSession, itemInfo);
 				break;
 			}
@@ -346,7 +343,6 @@ class MarketItemHandler implements DefaultMsgCallback
 				{
 					GenericMsgImpl genericMsg = _ommServerBaseImpl.genericMsg();
 
-					genericMsg._rsslMsg.flags(messageFlags);
 					genericMsg.decode(msg, reactorChannel.majorVersion(),
 							reactorChannel.minorVersion(), getDataDictionary(itemInfo, msg));
 
