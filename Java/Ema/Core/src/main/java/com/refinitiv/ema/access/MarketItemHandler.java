@@ -117,10 +117,14 @@ class MarketItemHandler implements DefaultMsgCallback
 		{
 			case MsgClasses.REQUEST:
 			{
+				Msg rsslMsg = msg;
+
 				logReceivedMessage(msg, clientSession, "request");
 
 				ReqMsgImpl reqMsg = _ommServerBaseImpl.reqMsg();
-				reqMsg._rsslMsg.flags(messageFlags);
+
+				rsslMsg.flags(messageFlags);
+
 				int flags = msg.msgKey().flags();
 				
 				if ( (flags & MsgKeyFlags.HAS_SERVICE_ID) == MsgKeyFlags.HAS_SERVICE_ID )
