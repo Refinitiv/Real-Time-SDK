@@ -45,6 +45,8 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 	set(_EPA_NAME "l8w8jwt")
 
 	find_package(Git)
+	
+	find_package(Python3 REQUIRED)
 
 	# Initialize the directory variables for the external project
 	# default:
