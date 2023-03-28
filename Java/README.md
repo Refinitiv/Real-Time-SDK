@@ -51,7 +51,9 @@ External modules used by this version of RTSDK Java:
 #### Supported Java Version 
 The Refinitiv Real-Time-SDK supports Oracle JDK 1.8, 1.11 & 1.17, OpenJDK 1.8, 1.11 & 1.17, Amazon Corretto 8 & 11.
 
-NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8.
+NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8. 
+
+NOTE: Full JWT support requires at least Java 1.8u251.
 
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
