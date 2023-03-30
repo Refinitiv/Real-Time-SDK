@@ -53,10 +53,10 @@ RTSDK CSharp supports connectivity to the following platforms:
 - Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions
 - Refinitiv Real-Time: Refinitiv Real-Time Deployed
 - Refinitiv Real-Time Hosted
-- Refinitiv Real-Time - Optimized
+- Refinitiv Real-Time - Optimized (RTO)
 - Refinitiv Direct Feed
 
-NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
+NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Connectivity to RTO is supported with V2 Authentication that requires Service account creation. The ability to create Service credentials is forthcoming. 
 
 This release has been tested with the following:
 
