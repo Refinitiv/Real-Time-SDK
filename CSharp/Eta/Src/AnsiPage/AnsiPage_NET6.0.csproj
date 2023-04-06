@@ -6,14 +6,21 @@
     <Nullable>enable</Nullable>
     <AssemblyName>LSEG.Eta.AnsiPage</AssemblyName>
     <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
-    <AssemblyVersion>3.0.1.0</AssemblyVersion>
-    <FileVersion>3.0.1.0</FileVersion>
+    <Version>3.0.1</Version>
+    <AssemblyVersion>3.0.1</AssemblyVersion>
+    <FileVersion>3.0.1</FileVersion>
     <Company>Refinitiv</Company>
-    <Authors />
+    <Authors>LSEG</Authors>
     <Product>Enterprise Transport API (ETA) C# Edition</Product>
     <Copyright>Copyright @ 2023 Refinitiv. All Rights Reserved.</Copyright>
-    <Version>3.0.1.0</Version>
-    <NeutralLanguage>en-UM</NeutralLanguage>
+    <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageDescription>The AnsiPage API offers an easy to use programming interface that has the ability to interpret data received from ANSI page sources, as well as the ability to generate page data suitable for publishing.</PackageDescription>
+	<PackageTags>ANSI; terminal; console</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <NeutralLanguage>en-US</NeutralLanguage>
+	<PackageReleaseNotes>https://github.com/Refinitiv/Real-Time-SDK/blob/master/CSharp/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -26,6 +33,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ansi\Ansi_NET6.0.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
 </Project>

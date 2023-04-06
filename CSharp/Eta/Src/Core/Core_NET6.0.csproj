@@ -4,20 +4,25 @@
 	  <TargetFramework>net6.0</TargetFramework>
 	  <RootNamespace>LSEG.Eta</RootNamespace>
 	  <OutputType>Library</OutputType>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <AssemblyVersion>3.0.1.0</AssemblyVersion>
-	  <FileVersion>3.0.1.0</FileVersion>
-	  <Company>Refinitiv</Company>
-	  <Authors />
-	  <Product>Enterprise Transport API (ETA) C# Edition</Product>
-	  <Copyright>Copyright @ 2023 Refinitiv. All Rights Reserved.</Copyright>
-	  <NeutralLanguage>en-UM</NeutralLanguage>
-	  <PackageReleaseNotes></PackageReleaseNotes>
-	  <PackageTags></PackageTags>
 	  <AssemblyName>LSEG.Eta.Core</AssemblyName>
 	  <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
 	  <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-	  <Version>3.0.1.0</Version>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <Version>3.0.1</Version>
+      <AssemblyVersion>3.0.1</AssemblyVersion>
+      <FileVersion>3.0.1</FileVersion>
+	  <Company>Refinitiv</Company>
+	  <Authors>LSEG</Authors>
+	  <Product>Enterprise Transport API (ETA) C# Edition</Product>
+	  <Copyright>Copyright @ 2023 Refinitiv. All Rights Reserved.</Copyright>
+      <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+      <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
+      <RepositoryType>git</RepositoryType>
+      <PackageDescription>The ETA - CSharp Edition library. Includes the ETA transport package and the RWF codec.</PackageDescription>
+	  <PackageTags>binary; serialization; protocol; stock</PackageTags>
+      <PackageReadmeFile>readme.md</PackageReadmeFile>
+	  <NeutralLanguage>en-US</NeutralLanguage>
+	  <PackageReleaseNotes>https://github.com/Refinitiv/Real-Time-SDK/blob/master/CSharp/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -30,6 +35,10 @@
 
   <ItemGroup>
 	  <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
