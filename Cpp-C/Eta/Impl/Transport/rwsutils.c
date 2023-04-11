@@ -1132,20 +1132,46 @@ RsslInt32 rwsIntTotalUsedOutputBuffers(RsslSocketChannel *rsslSocketChannel, Rss
 	return(num);
 }
 
+/* Reallocates the memory object. */
+/**/
+/* The reallocation is done: */
+/* allocating a new memory block of size at least newLength bytes, */
+/* copying memory area with size equal the lesser of the new and the old sizes, */
+/* and freeing the old block. */
+/**/
+/* If there is not enough memory, the old memory block is not freed and null pointer is returned. */
+/* When the new required memory size newLength is greater than the maximum allowed size maxLength, */
+/* the old memory block is not freed and null pointer is returned. */
+/* When a null pointer is returned, the error parameter will populate detailed error information. */
 rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t* bufferObj, size_t newLength, size_t maxLength, RsslError *error)
 {
+	/* bufferObj is the pointer to the memory area to be reallocated */
+	/* bufferObj->maxLength is currently allocated memory size */
+	/* newLength is the new required memory size */
+	/* maxLength is the threshould maximum available memory size */
+
 	rtr_msgb_t* tempBufferObj;
+	/* When earlier allocated memory is enough then we return only */
 	if (bufferObj->maxLength < newLength)
 	{
+		/* When maximum limit is not set */
 		if (maxLength == 0)
 		{
 			size_t allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
 			tempBufferObj = ipcAllocGblMsg(allocatedSize);
 		}
-		else if (bufferObj->maxLength * 2 <= maxLength)
-			tempBufferObj = ipcAllocGblMsg(bufferObj->maxLength * 2);
-		else if (bufferObj->maxLength < maxLength)
-			tempBufferObj = ipcAllocGblMsg(maxLength);
+		/* Checks the limit on the maximum memory size */
+		else if (newLength <= maxLength)
+		{
+			/* Try to increase memory twice */
+			size_t allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
+			
+			/* And checks the limit on the maximum memory size */
+			if (maxLength < allocatedSize)
+				allocatedSize = maxLength;
+
+			tempBufferObj = ipcAllocGblMsg(allocatedSize);
+		}
 		else
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -1164,7 +1190,8 @@ rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t* bufferObj, size_t newLength, size_t 
 			return(0);
 		}
 	
-			
+		/* Copy the memory to the new allocated area */
+		/* bufferObj->length is the size of using memory space */
 		memcpy(tempBufferObj->buffer, bufferObj->buffer, bufferObj->length);
 		tempBufferObj->length = bufferObj->length;
 		rtr_smplcFreeMsg(bufferObj);
