@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2020-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -129,6 +129,7 @@
 #define DEFAULT_SERVICE_ID_FOR_CONVERTER			  1
 #define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  (RWF_MAX_16)
+#define DEFAULT_JSON_TOKEN_INCREMENT_SIZE			  500
 #define DEFAULT_ENABLE_RTT							  false
 #define DEFAULT_REST_ENABLE_LOG						  false
 #define DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK		  false
@@ -495,6 +496,7 @@ public:
 	bool					catchUnknownJsonFids;
 	bool					closeChannelFromFailure;
 	UInt32					outputBufferSize;
+	UInt32					jsonTokenIncrementSize;
 };
 
 class ActiveConfig : public BaseConfig

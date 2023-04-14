@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -33,7 +33,7 @@ DEV_THREAD_LOCAL rwfToJsonSimple::SetDefDbMem rwfToJsonSimple::_setDefDbMem;
 //
 //////////////////////////////////////////////////////////////////////
 rwfToJsonSimple::rwfToJsonSimple(int bufSize, u_16 convFlags)
-	: rwfToJsonBase(bufSize, MAX_MSG_SIMPLIFIED_PREQUEL, convFlags)
+	: rwfToJsonBase(bufSize, MAX_MSG_SIMPLIFIED_PREQUEL, convFlags, DEFAULT_NUM_TOKENS, DEFAULT_NUM_TOKENS)
 {
 }
 //////////////////////////////////////////////////////////////////////

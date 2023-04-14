@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
 */
 
@@ -257,6 +257,11 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "OutputBufferSize", tmp))
 	{
 		_activeServerConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
+	}
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "JsonTokenIncrementSize", tmp))
+	{
+		_activeServerConfig.jsonTokenIncrementSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
 	pConfigServerImpl->get<Int64>(instanceNodeName + "PipePort", _activeServerConfig.pipePort);
@@ -829,6 +834,7 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeServerConfig.catchUnknownJsonFids;
 		jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeServerConfig.closeChannelFromFailure;
 		jsonConverterOptions.outputBufferSize = _activeServerConfig.outputBufferSize;
+		jsonConverterOptions.jsonTokenIncrementSize = _activeServerConfig.jsonTokenIncrementSize;
 		jsonConverterOptions.sendJsonConvError = _activeServerConfig.sendJsonConvError;
 
 		if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2020-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -493,6 +493,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.catchUnknownJsonFids, DEFAULT_CATCH_UNKNOWN_JSON_FIDS);
 	EXPECT_EQ(baseConfig.closeChannelFromFailure, DEFAULT_CLOSE_CHANNEL_FROM_FAILURE);
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
+	EXPECT_EQ(baseConfig.jsonTokenIncrementSize, DEFAULT_JSON_TOKEN_INCREMENT_SIZE);
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
 	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
 	EXPECT_EQ(baseConfig.sendJsonConvError, DEFAULT_SEND_JSON_CONV_ERROR);
@@ -598,6 +599,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.catchUnknownJsonFids = false;
 	baseConfig.closeChannelFromFailure = false;
 	baseConfig.outputBufferSize = 23;
+	baseConfig.jsonTokenIncrementSize = 42;
 	baseConfig.restEnableLog = true;
 	baseConfig.restEnableLogViaCallback = true;
 	baseConfig.sendJsonConvError = true;

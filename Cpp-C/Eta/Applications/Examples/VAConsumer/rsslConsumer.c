@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 */
 
 /*
@@ -71,6 +71,9 @@ static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
 static time_t nextDebugTimeMS = 0;
 static RsslBool sendJsonConvError = RSSL_FALSE;
+
+static RsslUInt32 jsonOutputBufferSize = 0;
+static RsslUInt32 jsonTokenIncrementSize = 0;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -200,6 +203,8 @@ void printUsageAndExit(char *appName)
 			"\n -debugTunnelStream set 'tunnelstream' debug info level"
 			"\n -debugAll enable all levels of debug info"
 			"\n -debugInfoInterval set time interval for debug log"
+			"\n -jsonOutputBufferSize size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
+			"\n -jsonTokenIncrementSize number of json token increment size for parsing JSON messages"
 			"\n -sendJsonConvError enable send json conversion error to provider"
 			, appName, appName);
 
@@ -1301,6 +1306,16 @@ void parseCommandLine(int argc, char **argv)
 					takeExclusiveSignOnControl = RSSL_FALSE;
 				}
 			}
+			else if (strcmp("-jsonOutputBufferSize", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				jsonOutputBufferSize = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-jsonTokenIncrementSize", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				jsonTokenIncrementSize = atoi(argv[i - 1]);
+			}
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -2094,6 +2109,15 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
 	jsonConverterOptions.sendJsonConvError = sendJsonConvError;
+
+	if (jsonOutputBufferSize > 0)
+	{
+		jsonConverterOptions.outputBufferSize = jsonOutputBufferSize;
+	}
+	if (jsonTokenIncrementSize > 0)
+	{
+		jsonConverterOptions.jsonTokenIncrementSize = jsonTokenIncrementSize;
+	}
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

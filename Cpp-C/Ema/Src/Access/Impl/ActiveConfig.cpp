@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -179,7 +179,8 @@ BaseConfig::BaseConfig() :
 	catchUnknownJsonKeys(DEFAULT_CATCH_UNKNOWN_JSON_KEYS),
 	catchUnknownJsonFids(DEFAULT_CATCH_UNKNOWN_JSON_FIDS),
 	closeChannelFromFailure(DEFAULT_CLOSE_CHANNEL_FROM_FAILURE),
-	outputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE)
+	outputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE),
+	jsonTokenIncrementSize(DEFAULT_JSON_TOKEN_INCREMENT_SIZE)
 {
 }
 
@@ -226,6 +227,7 @@ void BaseConfig::clear()
 	catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 	closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 	outputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
+	jsonTokenIncrementSize = DEFAULT_JSON_TOKEN_INCREMENT_SIZE;
 	sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
 }
 
@@ -261,6 +263,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t catchUnknownJsonFids : ").append(catchUnknownJsonFids)
 		.append("\n\t closeChannelFromFailure : ").append(closeChannelFromFailure)
 		.append("\n\t outputBufferSize : ").append(outputBufferSize)
+		.append("\n\t jsonTokenIncrementSize : ").append(jsonTokenIncrementSize)
 		.append("\n\t restEnableLog : ").append(restEnableLog)
 		.append("\n\t restLogFileName : ").append(restLogFileName)
 		.append("\n\t sendJsonConvError : ").append(sendJsonConvError);

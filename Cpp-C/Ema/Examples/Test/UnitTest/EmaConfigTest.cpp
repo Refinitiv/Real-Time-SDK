@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -207,6 +207,8 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting JsonExpandedEnumFields from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|OutputBufferSize", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 99999) << "extracting OutputBufferSize from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|JsonTokenIncrementSize", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 999992) << "extracting JsonTokenIncrementSize from EmaConfig.xml";
 
 	/*Check sendJsonConvError in Consumer group*/
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|SendJsonConvError", uintValue);
@@ -683,6 +685,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addUInt("DefaultServiceID", 1)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
+			.addUInt("JsonTokenIncrementSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700)
 			.addUInt("SendJsonConvError", 1).complete()).complete();
 
@@ -795,6 +798,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
 		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
+		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
@@ -871,6 +875,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addUInt("DefaultServiceID", 1)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
+			.addUInt("JsonTokenIncrementSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -983,6 +988,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
 		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
+		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";

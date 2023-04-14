@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -49,9 +49,9 @@ RSSL_RJC_API RsslJsonConverter rsslCreateRsslJsonConverter(RsslCreateJsonConvert
 
 	/*The purpose of this option is to optimize performance of rmdstestclient*/
 	if (pOptions->skipEncodingPayload)
-		pConverterImpl->_jsonToRwfSimple = new jsonToRsslMsgDecoder(pOptions->bufferSize, 0);
+		pConverterImpl->_jsonToRwfSimple = new jsonToRsslMsgDecoder(pOptions->bufferSize, 0, DEFAULT_NUM_TOKENS, pOptions->jsonTokenIncrementSize);
 	else
-		pConverterImpl->_jsonToRwfSimple = new jsonToRwfSimple(pOptions->bufferSize, 0);
+		pConverterImpl->_jsonToRwfSimple = new jsonToRwfSimple(pOptions->bufferSize, 0, DEFAULT_NUM_TOKENS, pOptions->jsonTokenIncrementSize);
 
 	if (!pConverterImpl->_jsonToRwfSimple)
 	{

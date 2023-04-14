@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -29,7 +29,7 @@ DEV_THREAD_LOCAL char* rwfToJsonConverter::_fieldSetDefDbMem = NULL;
 //
 //////////////////////////////////////////////////////////////////////
 rwfToJsonConverter::rwfToJsonConverter(int bufSize, RsslUInt16 convFlags)
-	: rwfToJsonBase(bufSize, MAX_MSG_PREQUEL, convFlags)
+	: rwfToJsonBase(bufSize, MAX_MSG_PREQUEL, convFlags, DEFAULT_NUM_TOKENS, DEFAULT_NUM_TOKENS)
 {
 	if (_fieldSetDefDbMem == 0)
 	{

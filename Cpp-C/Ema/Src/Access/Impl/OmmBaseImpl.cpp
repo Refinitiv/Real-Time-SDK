@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -963,6 +963,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "OutputBufferSize", tmp))
 	{
 		_activeConfig.outputBufferSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
+	}
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "JsonTokenIncrementSize", tmp))
+	{
+		_activeConfig.jsonTokenIncrementSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
 	}
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnableRtt", tmp))
@@ -2304,6 +2309,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeConfig.catchUnknownJsonFids;
 			jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeConfig.closeChannelFromFailure;
 			jsonConverterOptions.outputBufferSize = _activeConfig.outputBufferSize;
+			jsonConverterOptions.jsonTokenIncrementSize = _activeConfig.jsonTokenIncrementSize;
 			jsonConverterOptions.sendJsonConvError = _activeConfig.sendJsonConvError;
 
 			if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)

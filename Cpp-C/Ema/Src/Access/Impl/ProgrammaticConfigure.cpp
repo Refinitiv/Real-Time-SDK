@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1169,6 +1169,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.outputBufferSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
 												}
+												else if (eentry.getName() == "JsonTokenIncrementSize")
+												{
+													activeConfig.jsonTokenIncrementSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
+												}
 												else if (eentry.getName() == "EnableRtt")
 												{
 													activeConfig.enableRtt = eentry.getUInt() ? true : false;
@@ -1381,6 +1385,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "OutputBufferSize")
 									{
 										activeConfig.outputBufferSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
+									}
+									else if (eentry.getName() == "JsonTokenIncrementSize")
+									{
+										activeConfig.jsonTokenIncrementSize = eentry.getUInt() <= RWF_MAX_32 ? (RsslUInt32)eentry.getUInt() : RWF_MAX_32;
 									}
 									else if (eentry.getName() == "SendJsonConvError")
 									{

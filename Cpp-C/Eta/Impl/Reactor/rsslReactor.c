@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 */
 
 #include "rtr/rsslReactorImpl.h"
@@ -480,6 +480,9 @@ RSSL_VA_API RsslRet rsslReactorInitJsonConverter(RsslReactor *pReactor, RsslReac
 
 	/* Set the maximum output buffer size for the converter. */
 	rjcOptions.bufferSize = pReactorJsonConverterOptions->outputBufferSize;
+
+	/* Set the number of json token increment size for the converter. */
+	rjcOptions.jsonTokenIncrementSize = pReactorJsonConverterOptions->jsonTokenIncrementSize;
 
 	pReactorImpl->pJsonConverter = rsslCreateRsslJsonConverter(&rjcOptions, &rjcError);
 	if (pReactorImpl->pJsonConverter == NULL)

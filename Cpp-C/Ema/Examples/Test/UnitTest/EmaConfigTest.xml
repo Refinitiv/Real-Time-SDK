@@ -64,6 +64,7 @@
 			<DefaultServiceID value="1"/>
 			<JsonExpandedEnumFields value="1"/>
 			<OutputBufferSize value="99999"/>
+			<JsonTokenIncrementSize value="999992"/>
 			<SendJsonConvError value="1"/>
 		</Consumer>
 		<Consumer>

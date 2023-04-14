@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
 */
 
 /*
@@ -118,7 +118,10 @@ void printUsageAndExit(int argc, char **argv)
 			"-tokenScope scope for the login token\n"
 			"-serviceDiscoveryURL URL the service discovery"
 			"\n"
-			, argv[0], argv[0]);
+			"-jsonOutputBufferSize <size>   Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
+			"-jsonTokenIncrementSize <increment> Number of json token increment size for parsing JSON messages"
+			"\n"
+		, argv[0], argv[0]);
 	exit(-1);
 }
 
@@ -224,6 +227,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	/* Set login based warm standby as default. */
 	watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+
+	/* Use default values for JSON Converter buffers. */
+	watchlistConsumerConfig.jsonOutputBufferSize = 0;
+	watchlistConsumerConfig.jsonTokenIncrementSize = 0;
 
 	for(i = 1; i < argc; ++i)
 	{
@@ -662,6 +669,16 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			watchlistConsumerConfig.restEnableLogViaCallback = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-jsonOutputBufferSize"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.jsonOutputBufferSize = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-jsonTokenIncrementSize"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.jsonTokenIncrementSize = atoi(argv[i]);
 		}
 		else
 		{

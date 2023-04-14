@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2023 Refinitiv. All rights reserved.
 */
 
 /*
@@ -493,6 +493,15 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pDictionary = &dictionary;
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+	if (watchlistConsumerConfig.jsonOutputBufferSize > 0)
+	{
+		jsonConverterOptions.outputBufferSize = watchlistConsumerConfig.jsonOutputBufferSize;
+	}
+	if (watchlistConsumerConfig.jsonTokenIncrementSize > 0)
+	{
+		jsonConverterOptions.jsonTokenIncrementSize = watchlistConsumerConfig.jsonTokenIncrementSize;
+	}
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

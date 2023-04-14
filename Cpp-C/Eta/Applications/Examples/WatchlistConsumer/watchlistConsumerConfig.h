@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -136,6 +136,9 @@ typedef struct
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
 	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
 	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
+
+	RsslUInt32			jsonOutputBufferSize;			/* JSON Converter output buffer size. */
+	RsslUInt32			jsonTokenIncrementSize;			/* JSON Converter number of json token increment size for parsing JSON messages. */
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];
