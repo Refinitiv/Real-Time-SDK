@@ -391,7 +391,7 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 			_rsslRestClearError(pError);
 			pError->rsslErrorId = RSSL_RET_FAILURE;
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: failed to allocate memory.", __FILE__, __LINE__);
+				"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed to allocate memory.", __FILE__, __LINE__);
 			return pHeaderList;
 		}
 
@@ -422,7 +422,7 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 		_rsslRestClearError(pError);
 		pError->rsslErrorId = RSSL_RET_FAILURE;
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: %s", __FILE__, __LINE__,
+			"<%s:%d> Error: _rsslRestExtractHeaderInfo() Curl failed with text: %s", __FILE__, __LINE__,
 			(*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
 
 		return pHeaderList;
@@ -1153,7 +1153,7 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 					_rsslRestClearError(&pRestHandleImpl->rsslError);
 					pRestHandleImpl->rsslError.rsslErrorId = RSSL_RET_FAILURE;
 					snprintf(pRestHandleImpl->rsslError.text, MAX_RSSL_ERROR_TEXT,
-						"<%s:%d> Error: The REST request failed with text: %s",
+						"<%s:%d> Error: rsslRestClientDispatch() Curl failed to perform the request with text: %s",
 						__FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(pCurlMsg->data.result));
 
 					rsslRestResponseEvent.closure = pRestHandleImpl->userPtr;
@@ -1412,7 +1412,7 @@ RsslRestHandle* rsslRestClientNonBlockingRequest(RsslRestClient* restClient, Rss
 		{
 			error->rsslErrorId = RSSL_RET_FAILURE;
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: Failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
+				"<%s:%d> Error: rsslRestClientNonBlockingRequest() Curl failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
 		}
 
 		goto Failed;
@@ -1501,7 +1501,7 @@ Failed:
 	{
 		error->rsslErrorId = RSSL_RET_FAILURE;
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: Failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
+			"<%s:%d> Error: rsslRestClientNonBlockingRequest() Curl failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
 	}
 
 	(*(rssl_rest_CurlJITFuncs->curl_easy_cleanup))(curl);
@@ -1555,7 +1555,7 @@ RsslRet _rsslRestClientBlockingRequest(
 		{
 			error->rsslErrorId = RSSL_RET_FAILURE;
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: Failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
+				"<%s:%d> Error: _rsslRestClientBlockingRequest() Curl failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
 		}
 
 		(*(rssl_rest_CurlJITFuncs->curl_easy_cleanup))(curl);
@@ -1629,7 +1629,7 @@ Failed:
 	{
 		error->rsslErrorId = RSSL_RET_FAILURE;
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: Failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
+			"<%s:%d> Error: _rsslRestClientBlockingRequest() Curl failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
 	}
 
 	(*(rssl_rest_CurlJITFuncs->curl_slist_free_all))(restHandleImpl->pCurlHeaderList);
