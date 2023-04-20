@@ -15,6 +15,7 @@
 #include "Access/Include/ServiceEndpointDiscoveryResp.h"
 #include "Access/Include/ServiceEndpointDiscoveryInfo.h"
 #include "Access/Include/ServiceEndpointDiscoveryEvent.h"
+#include "Access/Include/ServiceEndpointDiscoveryConfig.h"
 #include "rtr/rsslReactor.h"
 #include "Mutex.h"
 
@@ -30,8 +31,7 @@ class ServiceEndpointDiscoveryImpl
 {
 public:
 
-	ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery* pServiceEndpointDiscovery, const EmaString* pTokenServiceURLV1, const EmaString* pTokenServiceURLV2, const EmaString* pServiceDiscoveryURL);
-
+	ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery* pServiceEndpointDiscovery, const ServiceEndpointDiscoveryConfig* pServiceEndpointDiscoveryConfig);
 
 	void registerClient(const ServiceEndpointDiscoveryOption& params, ServiceEndpointDiscoveryClient& client, void *closure);
 

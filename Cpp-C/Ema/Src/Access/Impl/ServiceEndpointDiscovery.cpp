@@ -10,6 +10,7 @@
 #include "ServiceEndpointDiscoveryClient.h"
 #include "ServiceEndpointDiscoveryOption.h"
 #include "ServiceEndpointDiscoveryImpl.h"
+#include "ServiceEndpointDiscoveryConfig.h"
 #include "ExceptionTranslator.h"
 
 using namespace refinitiv::ema::access;
@@ -19,7 +20,20 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery()
 {
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, NULL, NULL, NULL);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, NULL);
+	}
+	catch (std::bad_alloc&)
+	{
+		throwMeeException("Failed to allocate memory for ServiceEndpointDiscoveryImpl in ServiceEndpointDiscovery( const EmaString&, const EmaString& ).");
+	}
+}
+
+ServiceEndpointDiscovery::ServiceEndpointDiscovery(const ServiceEndpointDiscoveryConfig& serviceEndpointDiscoveryConfig)
+	: _pImpl(0)
+{
+	try
+	{
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, &serviceEndpointDiscoveryConfig);
 	}
 	catch (std::bad_alloc&)
 	{
@@ -30,16 +44,12 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery()
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1)
 	: _pImpl(0)
 {
-	const EmaString* pTempTokenURLV1;
-
-	if (tokenServiceURLV1.empty())
-		pTempTokenURLV1 = NULL;
-	else
-		pTempTokenURLV1 = &tokenServiceURLV1;
+	ServiceEndpointDiscoveryConfig* config = new ServiceEndpointDiscoveryConfig;
+	config->tokenServiceUrlV1(tokenServiceURLV1);
 
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, pTempTokenURLV1, NULL, NULL);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, config);
 	}
 	catch (std::bad_alloc&)
 	{
@@ -50,22 +60,13 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenService
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1, const EmaString& serviceDiscoveryURL)
 : _pImpl(0)
 {
-	const EmaString* pTempTokenURLV1;
-	const EmaString* pTempDiscoveryURL;
-
-	if (tokenServiceURLV1.empty())
-		pTempTokenURLV1 = NULL;
-	else
-		pTempTokenURLV1 = &tokenServiceURLV1;
-
-	if (serviceDiscoveryURL.empty())
-		pTempDiscoveryURL = NULL;
-	else
-		pTempDiscoveryURL = &serviceDiscoveryURL;
+	ServiceEndpointDiscoveryConfig* config = new ServiceEndpointDiscoveryConfig;
+	config->tokenServiceUrlV1(tokenServiceURLV1);
+	config->serviceDiscoveryUrl(serviceDiscoveryURL);
 
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, pTempTokenURLV1, NULL, pTempDiscoveryURL);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, config);
 	}
 	catch (std::bad_alloc&)
 	{
@@ -76,28 +77,15 @@ ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenService
 ServiceEndpointDiscovery::ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1, const EmaString& tokenServiceURLV2, const EmaString& serviceDiscoveryURL)
 	: _pImpl(0)
 {
-	const EmaString* pTempTokenURLV1;
-	const EmaString* pTempTokenURLV2;
-	const EmaString* pTempDiscoveryURL;
+	ServiceEndpointDiscoveryConfig* config = new ServiceEndpointDiscoveryConfig;
+	config->tokenServiceUrlV1(tokenServiceURLV1);
+	config->tokenServiceUrlV2(tokenServiceURLV2);
+	config->serviceDiscoveryUrl(serviceDiscoveryURL);
 
-	if (tokenServiceURLV1.empty())
-		pTempTokenURLV1 = NULL;
-	else
-		pTempTokenURLV1 = &tokenServiceURLV1;
-
-	if (tokenServiceURLV2.empty())
-		pTempTokenURLV2 = NULL;
-	else
-		pTempTokenURLV2 = &tokenServiceURLV2;
-
-	if (serviceDiscoveryURL.empty())
-		pTempDiscoveryURL = NULL;
-	else
-		pTempDiscoveryURL = &serviceDiscoveryURL;
 
 	try
 	{
-		_pImpl = new ServiceEndpointDiscoveryImpl(this, pTempTokenURLV1, pTempTokenURLV2, pTempDiscoveryURL);
+		_pImpl = new ServiceEndpointDiscoveryImpl(this, config);
 	}
 	catch (std::bad_alloc&)
 	{

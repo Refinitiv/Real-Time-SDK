@@ -205,6 +205,7 @@ else()
             Impl/ServiceEndpointDiscovery.cpp
             Impl/ServiceEndpointDiscoveryImpl.cpp Impl/ServiceEndpointDiscoveryImpl.h
             Impl/ServiceEndpointDiscoveryClient.cpp
+            Impl/ServiceEndpointDiscoveryConfig.cpp
             Impl/ServiceEndpointDiscoveryEvent.cpp
             Impl/ServiceEndpointDiscoveryInfo.cpp
             Impl/ServiceEndpointDiscoveryOption.cpp
@@ -318,6 +319,7 @@ else()
             Include/SeriesEntry.h
             Include/ServiceEndpointDiscovery.h
             Include/ServiceEndpointDiscoveryClient.h
+            Include/ServiceEndpointDiscoveryConfig.h
             Include/ServiceEndpointDiscoveryEvent.h
             Include/ServiceEndpointDiscoveryInfo.h
             Include/ServiceEndpointDiscoveryOption.h

@@ -54,6 +54,7 @@ namespace access {
 class ServiceEndpointDiscoveryOption;
 class ServiceEndpointDiscoveryClient;
 class ServiceEndpointDiscoveryImpl;
+class ServiceEndpointDiscoveryConfig;
 
 class EMA_ACCESS_API ServiceEndpointDiscovery
 {
@@ -69,9 +70,17 @@ public:
 
 	///@name Constructor
 	//@{
+	/** Create an ServiceEndpointDiscovery from a ServiceEndpointDiscoveryConfig.
+		@param[in] serviceEndpointDiscoveryConfig specifies the configuration object containing configurations for service discovery.
+		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
+	 */
+	ServiceEndpointDiscovery(const ServiceEndpointDiscoveryConfig& serviceEndpointDiscoveryConfig);
+	//@}
+
+	///@name Constructor
+	//@{
 	/** Create an ServiceEndpointDiscovery.
 		@param[in] tokenServiceURLV1 specifies the token service URL V1 to override the default value.
-		@param[in] serviceDiscoveryURL specifies the service discovery URL to override the default value.
 		\remark This affects exceptions thrown from ServiceEndpointDiscovery methods
 	 */
 	ServiceEndpointDiscovery(const EmaString& tokenServiceURLV1);
