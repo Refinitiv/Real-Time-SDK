@@ -2076,7 +2076,6 @@ static RsslRet applyConnectionOptions(RsslReactorChannelImpl* pReactorChannel, R
 	pReactorChannel->initializationTimeout = pReactorChannel->currentConnectionOpts->base.initializationTimeout;
 	pReactorChannel->reactorChannel.pRsslChannel = NULL;
 	pReactorChannel->reactorChannel.pRsslServer = NULL;
-	pReactorChannel->reactorChannel.userSpecPtr = pOpts->rsslConnectOptions.userSpecPtr;
 	pReactorChannel->reactorChannel.userSpecPtr = pReactorChannel->currentConnectionOpts->base.rsslConnectOptions.userSpecPtr;
 
 	pReactorChannel->readRet = 0;
