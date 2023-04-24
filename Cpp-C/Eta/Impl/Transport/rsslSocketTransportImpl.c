@@ -1247,7 +1247,8 @@ rtr_msgb_t *ipcReadSession( RsslSocketChannel *rsslSocketChannel, RsslRet *readr
 		/* message buffers we don't notify the user until we have received both msg buffers */
 		*moreData = (RsslInt32)ipcOpcode;
 
-		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) && (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT))
+		if ((rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_COMP) &&
+			(rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_IN))
 		{
 			ripcDumpInFuncImpl(__FUNCTION__, rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor,
 				ipcLen, rsslSocketChannel->stream, rsslSocketChannel->protocolType);

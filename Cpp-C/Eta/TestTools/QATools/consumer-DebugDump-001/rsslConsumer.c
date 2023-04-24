@@ -489,6 +489,7 @@ int main(int argc, char **argv)
 			//API QA
 			else if (strcmp("-testCompressionZlib", argv[i]) == 0)
 			{
+				i++;
 				testCompressionZlib = RSSL_TRUE;
 				break;
 			}
@@ -526,16 +527,19 @@ int main(int argc, char **argv)
 			}
 			else if (0 == strcmp("-debugDumpGeneral", argv[i]))
 			{
+				i++;
 				debugDumpGeneral = RSSL_TRUE;
 				printf("Debug dumping functions for %s Protocol enabled.\n", "General");
 			}
 			else if (0 == strcmp("-debugDumpProtocolRWF", argv[i]))
 			{
+				i++;
 				debugDumpProtocol[DUMP_DEBUG_RWF] = RSSL_TRUE;
 				printf("Debug dumping functions for %s Protocol enabled.\n", "RWF");
 			}
 			else if (0 == strcmp("-debugDumpProtocolJSON", argv[i]))
 			{
+				i++;
 				debugDumpProtocol[DUMP_DEBUG_JSON] = RSSL_TRUE;
 				printf("Debug dumping functions for %s Protocol enabled.\n", "JSON");
 			}
