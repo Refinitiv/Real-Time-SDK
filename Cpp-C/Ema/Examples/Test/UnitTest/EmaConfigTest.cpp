@@ -209,10 +209,15 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 99999) << "extracting OutputBufferSize from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|JsonTokenIncrementSize", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 999992) << "extracting JsonTokenIncrementSize from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ShouldInitializeCPUIDlib", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting ShouldInitializeCPUIDlib from EmaConfig.xml";
 
 	/*Check sendJsonConvError in Consumer group*/
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|SendJsonConvError", uintValue);
 	EXPECT_TRUE(debugResult == true && uintValue == 1) << "extracting  SendJsonConvError from EmaConfig.xml";
+
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_3|ShouldInitializeCPUIDlib", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting ShouldInitializeCPUIDlib from EmaConfig.xml";
 
 	// Checks all values from Consumer_8
 	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_8|WarmStandbyChannelSet", retrievedValue);
@@ -587,6 +592,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.restLogFileName == "Rest.log" ) << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE( activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE( activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
+		EXPECT_TRUE( activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE( activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE( activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -657,6 +663,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
 			.addUInt("SendJsonConvError", 1)
+			.addUInt("ShouldInitializeCPUIDlib", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -769,6 +776,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
+		EXPECT_TRUE(activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -959,6 +967,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
 		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
+		EXPECT_TRUE(activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";

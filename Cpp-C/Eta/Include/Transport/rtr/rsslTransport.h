@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -225,12 +225,13 @@ typedef struct
 	void*			 initConfig;			/*!< private config init */			
 	size_t			 initConfigSize;		/*!< private size of config init */	
 	RsslBool		 initCurlDebug;			/*!< curl debug (verbose) mode enable */
+	RsslBool		 shouldInitializeCPUIDlib;	/*!< Should ETA initialize CpuID lib, it identifies CPU topology */
 }RsslInitializeExOpts;
 
 /**
  * @brief Static initializer for RsslInitializeExOpts
  */
-#define RSSL_INIT_INITIALIZE_EX_OPTS { RSSL_LOCK_NONE, RSSL_INIT_SSL_LIB_JIT_OPTS, NULL, 0, RSSL_FALSE }
+#define RSSL_INIT_INITIALIZE_EX_OPTS { RSSL_LOCK_NONE, RSSL_INIT_SSL_LIB_JIT_OPTS, NULL, 0, RSSL_FALSE, RSSL_TRUE }
 
 /**
  * @brief Initializes the RSSL API and all internal members

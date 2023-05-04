@@ -207,3 +207,9 @@ OmmNiProviderConfig& OmmNiProviderConfig::apiThreadBind(const EmaString& cpuStri
 	_pImpl->setCpuApiThreadBind(cpuString);
 	return *this;
 }
+
+OmmNiProviderConfig& OmmNiProviderConfig::shouldInitializeCPUIDlib(bool shouldInitCPUIDlib)
+{
+	_pImpl->setShouldInitializeCPUIDlib(shouldInitCPUIDlib);
+	return *this;
+}

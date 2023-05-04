@@ -1166,6 +1166,22 @@ public:
 
 	void setCpuApiThreadBind(const EmaString&);
 
+	bool isUserSetShouldInitializeCPUIDlib()
+	{
+		return _userSetShouldInitializeCPUIDlib;
+	}
+
+	bool getShouldInitializeCPUIDlib()
+	{
+		return _shouldInitializeCPUIDlib;
+	}
+
+	void setShouldInitializeCPUIDlib(bool shouldInitializeCPUIDlib)
+	{
+		_shouldInitializeCPUIDlib = shouldInitializeCPUIDlib;
+		_userSetShouldInitializeCPUIDlib = true;
+	}
+
 protected:
 
 	XMLnode*				_pEmaConfig;
@@ -1176,6 +1192,9 @@ protected:
 
 	EmaString				_cpuWorkerThreadBind;
 	EmaString				_cpuApiThreadBind;
+
+	bool					_userSetShouldInitializeCPUIDlib;
+	bool					_shouldInitializeCPUIDlib;
 
 private:
 

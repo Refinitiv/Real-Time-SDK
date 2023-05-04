@@ -154,6 +154,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"ServiceDiscoveryRetryCount",
 	"ServiceId",
 	"ServiceState",
+	"ShouldInitializeCPUIDlib",
 	"SupportsOutOfBandSnapshots",
 	"SupportsQoSRange",
 	"SysRecvBufSize",

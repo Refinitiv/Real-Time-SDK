@@ -497,6 +497,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
 	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
 	EXPECT_EQ(baseConfig.sendJsonConvError, DEFAULT_SEND_JSON_CONV_ERROR);
+	EXPECT_EQ(baseConfig.shouldInitializeCPUIDlib, DEFAULT_SHOULD_INIT_CPUID_LIB);
 }
 
 TEST_F(EmaActiveConfigTest, BaseConfigTest)
@@ -603,6 +604,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.restEnableLog = true;
 	baseConfig.restEnableLogViaCallback = true;
 	baseConfig.sendJsonConvError = true;
+	baseConfig.shouldInitializeCPUIDlib = false;
 
 	// Tests clear method
 	baseConfig.clear();

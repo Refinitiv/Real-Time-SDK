@@ -45,7 +45,9 @@ EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 	_pEmaConfig(new XMLnode("EmaConfig", 0, 0)),
 	_pProgrammaticConfigure(0),
 	_instanceNodeName(),
-	_configSessionName()
+	_configSessionName(),
+	_userSetShouldInitializeCPUIDlib(false),
+	_shouldInitializeCPUIDlib(true)
 {
 	createNameToValueHashTable();
 
@@ -62,6 +64,11 @@ void EmaConfigBaseImpl::clear()
 {
 	_instanceNodeName.clear();
 	_configSessionName.clear();
+
+	_cpuWorkerThreadBind.clear();
+	_cpuApiThreadBind.clear();
+	_userSetShouldInitializeCPUIDlib = false;
+	_shouldInitializeCPUIDlib = true;
 }
 
 const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const

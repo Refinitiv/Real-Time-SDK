@@ -540,9 +540,10 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 	if (!initializedCpuTopology)
 	{
 		RsslErrorInfo rsslErrorInfo;
-		memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
 
 		RTR_ATOMIC_SET(initializedCpuTopology, 1);
+
+		memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
 
 		initCpuTopologyMutex();
 

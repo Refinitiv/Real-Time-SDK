@@ -289,3 +289,5 @@ provperf-DebugDump-001: Alter ProvPerf to print debug dumps and add options -dum
 	Sample usage for sending Websocket+JSON packed messages:
 	./ProvPerf -pl "rssl.json.v2,rssl.rwf" -tickRate 1 -updateRate 3 -latencyUpdateRate 0 -maxPackCount 3 -dumpRsslOut
 	./ConsPerf -connType websocket -pl "rssl.json.v2" -tickRate 1 -itemCount 3
+
+provperf-InitCpuIdLib-001: Alter ProvPerf control initialization CpuId library and add option -shouldInitCpuIdLib.

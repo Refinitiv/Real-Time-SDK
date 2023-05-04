@@ -849,7 +849,17 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "SendJsonConvError", tmp))
 		_activeConfig.sendJsonConvError = tmp > 0 ? true : false;
-	
+
+	if (pConfigImpl->isUserSetShouldInitializeCPUIDlib())
+	{
+		_activeConfig.shouldInitializeCPUIDlib = pConfigImpl->getShouldInitializeCPUIDlib();
+	}
+	else
+	{
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "ShouldInitializeCPUIDlib", tmp))
+			_activeConfig.shouldInitializeCPUIDlib = tmp > 0 ? true : false;
+	}
+
 	Int64 tmp1;
 	
 	if (pConfigImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
@@ -2162,6 +2172,8 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			rsslInitOpts.jitOpts.libcryptoName = (char*)_activeConfig.libCryptoName.c_str();
 		if (_activeConfig.libcurlName.length() > 0)
 			rsslInitOpts.jitOpts.libcurlName = (char*)_activeConfig.libcurlName.c_str();
+		if (_activeConfig.shouldInitializeCPUIDlib != DEFAULT_SHOULD_INIT_CPUID_LIB)
+			rsslInitOpts.shouldInitializeCPUIDlib = _activeConfig.shouldInitializeCPUIDlib;
 
 		RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 		if ( retCode != RSSL_RET_SUCCESS )

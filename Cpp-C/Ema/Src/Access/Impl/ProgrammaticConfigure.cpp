@@ -1189,6 +1189,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.restEnableLogViaCallback = eentry.getUInt() ? true : false;
 												}
+												else if (eentry.getName() == "ShouldInitializeCPUIDlib")
+												{
+													activeConfig.shouldInitializeCPUIDlib = eentry.getUInt() ? true : false;
+												}
 
 												break;
 
@@ -1393,6 +1397,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig(const Map& map, const E
 									else if (eentry.getName() == "SendJsonConvError")
 									{
 										activeConfig.sendJsonConvError = eentry.getUInt() ? true : false;
+									}
+									else if (eentry.getName() == "ShouldInitializeCPUIDlib")
+									{
+										activeConfig.shouldInitializeCPUIDlib = eentry.getUInt() ? true : false;
 									}
 
 									break;

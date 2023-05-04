@@ -66,6 +66,7 @@
 			<OutputBufferSize value="99999"/>
 			<JsonTokenIncrementSize value="999992"/>
 			<SendJsonConvError value="1"/>
+			<ShouldInitializeCPUIDlib value="0"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -93,6 +94,7 @@
 			<XmlTracePing value="1"/>
 			<XmlTraceHex value="1"/>
 			<MsgKeyInUpdates value="1"/>
+			<ShouldInitializeCPUIDlib value="1"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_4"/>

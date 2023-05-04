@@ -291,6 +291,13 @@ public :
 		@return reference to this object
 	*/
 	OmmNiProviderConfig& apiThreadBind( const EmaString& cpuString );
+
+	/** Specifies should ETA initialize CpuID library. It will analyze CPU topology.
+		Application may call multiple times prior to initialization.
+		@param[in] shouldInitCPUIDlib true ETA should initialize CpuID library; otherwise ETA will not initialize CpuID library.
+		@return reference to this object
+	*/
+	OmmNiProviderConfig& shouldInitializeCPUIDlib(bool shouldInitCPUIDlib);
 	//@}
 
 private:

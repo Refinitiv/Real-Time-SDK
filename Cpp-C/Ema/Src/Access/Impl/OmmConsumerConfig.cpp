@@ -286,3 +286,9 @@ OmmConsumerConfig& OmmConsumerConfig::apiThreadBind(const EmaString& cpuString)
 	_pImpl->setCpuApiThreadBind(cpuString);
 	return *this;
 }
+
+OmmConsumerConfig& OmmConsumerConfig::shouldInitializeCPUIDlib(bool shouldInitCPUIDlib)
+{
+	_pImpl->setShouldInitializeCPUIDlib(shouldInitCPUIDlib);
+	return *this;
+}

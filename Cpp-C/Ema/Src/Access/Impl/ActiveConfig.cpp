@@ -180,7 +180,8 @@ BaseConfig::BaseConfig() :
 	catchUnknownJsonFids(DEFAULT_CATCH_UNKNOWN_JSON_FIDS),
 	closeChannelFromFailure(DEFAULT_CLOSE_CHANNEL_FROM_FAILURE),
 	outputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE),
-	jsonTokenIncrementSize(DEFAULT_JSON_TOKEN_INCREMENT_SIZE)
+	jsonTokenIncrementSize(DEFAULT_JSON_TOKEN_INCREMENT_SIZE),
+	shouldInitializeCPUIDlib(DEFAULT_SHOULD_INIT_CPUID_LIB)
 {
 }
 
@@ -229,6 +230,7 @@ void BaseConfig::clear()
 	outputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
 	jsonTokenIncrementSize = DEFAULT_JSON_TOKEN_INCREMENT_SIZE;
 	sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
+	shouldInitializeCPUIDlib = DEFAULT_SHOULD_INIT_CPUID_LIB;
 }
 
 EmaString BaseConfig::configTrace()
@@ -266,7 +268,8 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t jsonTokenIncrementSize : ").append(jsonTokenIncrementSize)
 		.append("\n\t restEnableLog : ").append(restEnableLog)
 		.append("\n\t restLogFileName : ").append(restLogFileName)
-		.append("\n\t sendJsonConvError : ").append(sendJsonConvError);
+		.append("\n\t sendJsonConvError : ").append(sendJsonConvError)
+		.append("\n\t shouldInitializeCPUIDlib : ").append(shouldInitializeCPUIDlib);
 
 	return traceStr;
 }

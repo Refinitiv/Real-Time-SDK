@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -781,12 +781,15 @@ RsslRet rsslInitializeEx(RsslInitializeExOpts *rsslInitOpts, RsslError *error)
 
 		/* initialize cpuid library */
 #ifndef NO_ETA_CPU_BIND
-		retVal = rsslBindThreadInitialize(error);
-
-		if (retVal < RSSL_RET_SUCCESS)
+		if (rsslInitOpts->shouldInitializeCPUIDlib)
 		{
-			mutexFuncs.staticMutexUnlock();
-			return retVal;
+			retVal = rsslBindThreadInitialize(error);
+
+			if (retVal < RSSL_RET_SUCCESS)
+			{
+				mutexFuncs.staticMutexUnlock();
+				return retVal;
+			}
 		}
 #endif
 

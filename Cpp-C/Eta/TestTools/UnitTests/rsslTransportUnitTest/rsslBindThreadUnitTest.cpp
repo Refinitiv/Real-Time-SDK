@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|          Copyright (C) 2022-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1900,6 +1900,54 @@ TEST(ThreadBindProcessorCoreTestInit, BindThreadExPCTBeforeInitializationEmptyOu
 	rsslClearBuffer(&outputResult);
 
 	// Setup stage
+	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+
+	ASSERT_EQ(NULL, outputResult.data);
+	ASSERT_EQ(0, outputResult.length);
+}
+
+TEST(ThreadBindProcessorCoreTestInit, BindThreadWhenSkipCpuIDTopoInitShouldReturnError)
+{
+	char cpuIdThreadPCT[MAXLEN] = "0";
+	RsslErrorInfo errorInfo;
+	RsslError error;
+	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+
+	// Setup stage
+	// Set the flag to skip CpuID Topology initialization
+	rsslInitExOpts.shouldInitializeCPUIDlib = RSSL_FALSE;
+
+	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
+
+	// Test stage
+	ASSERT_EQ(rsslBindThread(cpuIdThreadPCT, &errorInfo), RSSL_RET_FAILURE);
+
+	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);
+	ASSERT_EQ(errorInfo.rsslError.rsslErrorId, RSSL_RET_INVALID_ARGUMENT);
+	ASSERT_STREQ(errorInfo.rsslError.text, STR_ERROR_CPU_TOPOLOGY_UNAVAILABLE);
+}
+
+TEST(ThreadBindProcessorCoreTestInit, BindThreadExWhenSkipCpuIDTopoInitShouldReturnError)
+{
+	char sCpuCorePCT[MAXLEN] = "P:0 C:0 T:0";  // P:X C:Y T:Z
+	RsslErrorInfo errorInfo;
+	RsslError error;
+	RsslInitializeExOpts rsslInitExOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
+	RsslBuffer outputResult;
+
+	rsslClearBuffer(&outputResult);
+
+	// Setup stage
+	// Set the flag to skip CpuID Topology initialization
+	rsslInitExOpts.shouldInitializeCPUIDlib = RSSL_FALSE;
+
+	ASSERT_EQ(rsslInitializeEx(&rsslInitExOpts, &error), RSSL_RET_SUCCESS);
+
+	// Test stage
 	ASSERT_EQ(rsslBindThreadEx(sCpuCorePCT, &outputResult, &errorInfo), RSSL_RET_FAILURE);
 
 	ASSERT_EQ(errorInfo.rsslErrorInfoCode, RSSL_EIC_FAILURE);

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020-2023 Refinitiv. All rights reserved.            --
+ *|          Copyright (C) 2020-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -135,6 +135,7 @@
 #define DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK		  false
 #define DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG		  false;
 #define DEFAULT_WSB_MODE							  RSSL_RWSB_MODE_LOGIN_BASED
+#define DEFAULT_SHOULD_INIT_CPUID_LIB				  true
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -488,6 +489,7 @@ public:
 	EmaString				traceStr;
 	Double					tokenReissueRatio;
 	EmaString				restLogFileName;
+	bool					shouldInitializeCPUIDlib;
 
 	/* Configure the  RsslReactorJsonConverterOptions */
 	UInt16					defaultServiceIDForConverter;
