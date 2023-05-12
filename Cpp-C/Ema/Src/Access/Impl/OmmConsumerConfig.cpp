@@ -292,3 +292,9 @@ OmmConsumerConfig& OmmConsumerConfig::shouldInitializeCPUIDlib(bool shouldInitCP
 	_pImpl->setShouldInitializeCPUIDlib(shouldInitCPUIDlib);
 	return *this;
 }
+
+OmmConsumerConfig& OmmConsumerConfig::dataDictionary(const refinitiv::ema::rdm::DataDictionary& dataDictionary, bool shouldCopyIntoAPI)
+{
+	_pImpl->dataDictionary(dataDictionary, shouldCopyIntoAPI);
+	return *this;
+}

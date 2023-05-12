@@ -22,6 +22,7 @@
 #include "ReqMsg.h"
 #include "ReqMsgEncoder.h"
 #include "ExceptionTranslator.h"
+#include "OmmInvalidUsageException.h"
 #include "OmmConsumerConfigImpl.h"
 #include "StaticDecoder.h"
 
@@ -38,6 +39,8 @@ OmmConsumerConfigImpl::OmmConsumerConfigImpl(const EmaString & path) :
 	_pEmaConfig->verifyDefaultConsumer();
 	_reactorOAuthCredentialList = NULL;
 	_reactorOAuthCredentialCount = 0;
+	_dataDictionary = NULL;
+	_shouldCopyIntoAPI = false;
 }
 
 OmmConsumerConfigImpl::~OmmConsumerConfigImpl()
@@ -46,6 +49,13 @@ OmmConsumerConfigImpl::~OmmConsumerConfigImpl()
 	if (_reactorOAuthCredentialList != NULL)
 	{
 
+	}
+
+	if (_dataDictionary && _shouldCopyIntoAPI)
+	{
+		_dataDictionary->_pImpl->decDataDictionaryRefCount();
+		if (!_dataDictionary->_pImpl->getDataDictionaryRefCount())
+			delete _dataDictionary;
 	}
 }
 
@@ -184,3 +194,47 @@ void* OmmConsumerConfigImpl::getRestLoggingClosure() const
 {
 	return _pRestLoggingClosure;
 }
+
+void OmmConsumerConfigImpl::dataDictionary(const refinitiv::ema::rdm::DataDictionary& dataDictionary, bool shouldCopyIntoAPI)
+{
+	if (dataDictionary.isFieldDictionaryLoaded() && dataDictionary.isEnumTypeDefLoaded())
+	{
+		if (shouldCopyIntoAPI)
+		{
+			_dataDictionary = new DataDictionary(dataDictionary);
+			_dataDictionary->_pImpl->incDataDictionaryRefCount();
+			_shouldCopyIntoAPI = shouldCopyIntoAPI;
+		}
+		else
+			_dataDictionary = const_cast<DataDictionary*>(&dataDictionary);
+
+	}
+	else
+	{
+		EmaString errorMsg("The dictionary information is not fully loaded in the passed DataDictionary object.");
+		throwIueException(errorMsg, OmmInvalidUsageException::InvalidArgumentEnum);
+	}
+}
+
+refinitiv::ema::rdm::DataDictionary* OmmConsumerConfigImpl::dataDictionary() const
+{
+	return (refinitiv::ema::rdm::DataDictionary*)_dataDictionary;
+}
+
+bool OmmConsumerConfigImpl::isShouldCopyIntoAPI()
+{
+	return _shouldCopyIntoAPI;
+}
+
+void OmmConsumerConfigImpl::clear()
+{
+	if (_dataDictionary && _shouldCopyIntoAPI)
+	{
+		_dataDictionary->_pImpl->decDataDictionaryRefCount();
+		if (!_dataDictionary->_pImpl->getDataDictionaryRefCount())
+			delete _dataDictionary;
+	}
+	_shouldCopyIntoAPI = false;
+	_dataDictionary = NULL;
+}
+

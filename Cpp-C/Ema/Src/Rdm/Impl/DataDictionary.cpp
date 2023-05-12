@@ -229,6 +229,16 @@ UInt32 DataDictionary::extractDictionaryType(const Series& series)
 	return _pImpl->extractDictionaryType(series);
 }
 
+bool DataDictionary::isFieldDictionaryLoaded() const
+{
+	return _pImpl->isFieldDictionaryLoaded();
+}
+
+bool DataDictionary::isEnumTypeDefLoaded() const
+{
+	return _pImpl->isEnumTypeDefLoaded();
+}
+
 const EmaString& DataDictionary::toString() const
 {
 	return _pImpl->toString();

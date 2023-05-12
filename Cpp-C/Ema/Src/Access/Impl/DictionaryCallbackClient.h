@@ -14,6 +14,7 @@
 #include "EmaList.h"
 #include "EmaVector.h"
 #include "ItemCallbackClient.h"
+#include "DataDictionaryImpl.h"
 
 namespace refinitiv {
 
@@ -67,6 +68,8 @@ public :
 
 	static LocalDictionary* create( OmmCommonImpl&, BaseConfig& );
 
+	static LocalDictionary* create(OmmCommonImpl&, BaseConfig&, RsslDataDictionary*);
+
 	static void destroy( LocalDictionary*& );
 
 	const RsslDataDictionary* getRsslDictionary() const;
@@ -80,6 +83,7 @@ public :
 private :
 
 	LocalDictionary( OmmCommonImpl&, BaseConfig& );
+	LocalDictionary( OmmCommonImpl&, BaseConfig&, RsslDataDictionary*);
 	virtual ~LocalDictionary();
 
 	static const EmaString		_clientName;
@@ -87,6 +91,7 @@ private :
 	BaseConfig&					_baseConfig;
 	RsslDataDictionary			_rsslDictionary;
 	bool						_isLoaded;
+	bool						_deleteRsslDictionary;
 
 	LocalDictionary( const LocalDictionary& );
 	LocalDictionary& operator=( const LocalDictionary& );

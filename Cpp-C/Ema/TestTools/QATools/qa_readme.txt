@@ -438,6 +438,15 @@ Series400Consumer450-RestLogCallback-001
    -restLogFilename: File name for printing the REST logging messages.
    ./Cons450 -username <> -password <> -clientId <> -restLogCallback -restLogFilename "filename.log"
 
+Module:  Series400Consumer490
+-----------------------------
+    Alters consumer to test a dictionary loading from object
+    Added command line options:
+    -loadLocalDictTwoConsSeq: load local dictionary to object then use this object to run 2 consumers sequntially
+    -loadChannelDictTwoConsSeq: load channel dictionary to object then use this object to run 2 consumers sequntially
+    -loadLocalDictTwoConsConcur: load local dictionary to object then use this object to run 2 consumers concurrently
+    -loadChannelDictTwoConsConcur: load channel dictionary to object then use this object to run 2 consumers concurrently
+    -shouldCopyIntoAPI: enable deep copy dictionary object into API
 
 Module:  Series100Provider100 
 -------------------------------
