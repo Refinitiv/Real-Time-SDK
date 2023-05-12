@@ -1437,6 +1437,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 	int sessionVersion;
 	RsslBuffer tokenURL;
 	RsslBuffer audience;
+	RsslBool acquiredTokenSessionMutex = RSSL_FALSE; /* This is used to indicate whether the token session mutex is acquired for V1. */
 
 	rsslClearReactorServiceEndpointEvent(&reactorServiceEndpointEvent);
 	rsslClearTokenInformation(&tokenInformation);
@@ -1549,6 +1550,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		pTokenManagementImpl = &pRsslReactorImpl->reactorWorker.reactorTokenManagement;
 
 		RSSL_MUTEX_LOCK(&pTokenManagementImpl->tokenSessionMutex);
+		acquiredTokenSessionMutex = RSSL_TRUE;
 
 		if(pTokenManagementImpl->sessionByNameAndClientIdHt.elementCount != 0)
 			pHashLink = rsslHashTableFind(&pTokenManagementImpl->sessionByNameAndClientIdHt, &pOpts->userName, NULL);
@@ -1559,6 +1561,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 			pTokenSessionImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, hashLinkNameAndClientId, pHashLink);
 
 			/* Checks whether the token session stops sending token reissue requests. */
+			RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 			if (pTokenSessionImpl->stopTokenRequest == 0)
 			{
 				pOAuthCredential = pTokenSessionImpl->pOAuthCredential;
@@ -1568,6 +1571,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 					if ((pOAuthCredential->clientSecret.length != pOpts->clientSecret.length) ||
 						(memcmp(pOAuthCredential->clientSecret.data, pOpts->clientSecret.data, pOAuthCredential->clientSecret.length) != 0))
 					{
+						RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 							"The Client secret of RsslReactorServiceDiscoveryOptions is not equal with the existing token session of the same user name.");
 						return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
@@ -1576,6 +1581,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 					if ((pOAuthCredential->password.length != pOpts->password.length) ||
 						(memcmp(pOAuthCredential->password.data, pOpts->password.data, pOAuthCredential->password.length) != 0))
 					{
+						RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 							"The password of RsslReactorServiceDiscoveryOptions is not equal with the existing token session of the same user name.");
 						return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
@@ -1585,12 +1592,13 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 				if ((pOAuthCredential->clientId.length != pOpts->clientId.length) ||
 					(memcmp(pOAuthCredential->clientId.data, pOpts->clientId.data, pOAuthCredential->clientId.length) != 0))
 				{
+					RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+
 					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 						"The Client ID of RsslReactorServiceDiscoveryOptions is not equal with the existing token session of the same user name.");
 					return (RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex), reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 				}
 
-				RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 				/* Uses the access token from the token session if it is valid */
 				if (pTokenSessionImpl->tokenInformation.accessToken.data != 0)
 				{
@@ -1608,15 +1616,18 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 			}
 			else
 			{
+				RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+
 				/* Send the token request by itself as the reactor worker stops updating the access token */
 				pTokenSessionImpl = NULL;
 			}
 		}
 
-		RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
-
 		if (pTokenSessionImpl == NULL) /* Checks whether there is an existing token session for the same user */
 		{
+			RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+			acquiredTokenSessionMutex = RSSL_FALSE;
+
 			pRestRequestArgs = _reactorCreateTokenRequestV1(pRsslReactorImpl, &tokenURL,
 				&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope, 
 				pOpts->takeExclusiveSignOnControl, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
@@ -1935,6 +1946,12 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 	pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pRsslReactorImpl, &pRsslReactorImpl->serviceDiscoveryURL,
 		pOpts->transport, pOpts->dataFormat, &tokenInformation.tokenType,
 		&tokenInformation.accessToken, &pRsslReactorImpl->argumentsAndHeaders, NULL, pError);
+
+	/* Release the session lock after the token information is copied for the service discovery request. */
+	if (acquiredTokenSessionMutex)
+	{
+		RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+	}
 
 	if (pRestRequestArgs)
 	{
@@ -9606,7 +9623,7 @@ RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel *pReactorChannel,
 		RSSL_QUEUE_FOR_EACH_LINK(&pReactorWarmStandByHandlerImpl->rsslChannelQueue, pLink)
 		{
 			pApplyReactorChannelImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, warmstandbyChannelLink, pLink);
-			if (code != RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE)
+			if (code != RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE && pApplyReactorChannelImpl->reactorChannel.pRsslChannel != NULL)
 			{
 				ret = rsslIoctl(pApplyReactorChannelImpl->reactorChannel.pRsslChannel, (RsslIoctlCodes)code, value, &pError->rsslError);
 				if (ret != RSSL_RET_SUCCESS)
@@ -11991,7 +12008,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 	RTR_ATOMIC_SET(pTokenSessionImpl->requestingAccessToken, 1);
 	RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
-	if (pTokenSessionImpl->tokenInformation.accessToken.data != 0)
+	if (pTokenSessionImpl->tokenInformation.accessToken.data != 0 && pTokenSessionImpl->stopTokenRequest == 0)
 	{
 		/* Specify RDM_LOGIN_USER_AUTHN_TOKEN for handling session management when the login request is specified */
 		if (pReactorChannelRole->ommConsumerRole.pLoginRequest)

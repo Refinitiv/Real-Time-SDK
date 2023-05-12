@@ -491,8 +491,6 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 {
 	RsslReactorTokenSessionImpl* pTokenSessionImpl = pChannelInfo->pSessionImpl;
 
-	RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
-
 	if (pChannelInfo->tokenSessionLink.next != NULL && pChannelInfo->tokenSessionLink.prev != NULL)
 	{
 		rsslQueueRemoveLink(&pTokenSessionImpl->reactorChannelList, &pChannelInfo->tokenSessionLink);
@@ -521,11 +519,15 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 			pTokenSessionImpl->pRestHandle = NULL;
 			if (rsslRestCloseHandle(pRestHandle, &(pReactorImpl->reactorWorker.workerCerr.rsslError)) != RSSL_RET_SUCCESS)
 			{
-				RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 				return RSSL_RET_FAILURE;
 			}
+
+			/* Release the access token mutex as the new token request to the token service is canceled */
+			RTR_ATOMIC_SET(pTokenSessionImpl->stopTokenRequest, 1);
+			RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 		}
 
+		RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
 		{
 			rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
@@ -536,9 +538,9 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 			rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
 
 		rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
-	}
 
-	RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+		RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+	}
 
 	return RSSL_RET_SUCCESS;
 }
@@ -1609,8 +1611,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												{
 													/* Clears sensitive information */
 													rsslClearReactorOAuthCredentialRenewal(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal);
-
-													RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 
 													RSSL_QUEUE_FOR_EACH_LINK(&pTokenSessionImpl->reactorChannelList, pLink)
 													{

@@ -183,6 +183,9 @@ the following command line inputs.
     "-maxDelay"  input that permits user to specify ReconnectMaxDelay
 Sample usage: -h2 localhost -p2 14025 -h3 localhost -p3 14026 -attempLimit -1 -numConnections 3 -minDelay 5000 -maxDelay 30000
 
+wlconsumer-RtoRecovery-001: Alters WLConsumer to get use the RTSDK apigateway test tool to delay the response of the token reissue at least 5 seconds
+before calling the rsslReactorQueryServiceDiscovery() method to establish a reactor channel after closing the previous one.
+
 Module:  Provider 
 -----------------
 
