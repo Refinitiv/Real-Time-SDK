@@ -29,6 +29,7 @@
 
 #include "Access/Include/EmaString.h"
 #include "Access/Include/OmmLoginCredentialConsumerClient.h"
+#include "DataDictionary.h"
 
 namespace refinitiv {
 
@@ -381,6 +382,16 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& shouldInitializeCPUIDlib(bool shouldInitCPUIDlib);
+
+    /** Specifies the DataDictionary object.
+        Overrides DataDictionary object that is provided via EmaConfig.xml or
+        Programmatic configure.
+        @param[in] dataDictionary specifies the DataDictionary object.
+        @param[in] shouldCopyIntoAPI specifies whether to copy dataDictionary into API or pass it in as a reference.
+        @throw OmmInvalidUsageException if application passes not fully loaded DataDictionary object
+        @return reference to this object.
+    */
+	OmmConsumerConfig& dataDictionary(const refinitiv::ema::rdm::DataDictionary& dataDictionary, bool shouldCopyIntoAPI = false);
 	//@}
 
 private :

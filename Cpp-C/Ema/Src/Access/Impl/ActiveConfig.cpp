@@ -18,7 +18,9 @@ DictionaryConfig::DictionaryConfig() :
 	enumtypeDefFileName(),
 	rdmFieldDictionaryItemName(),
 	enumTypeDefItemName(),
-	dictionaryType( DEFAULT_DICTIONARY_TYPE )
+	dictionaryType(DEFAULT_DICTIONARY_TYPE),
+	dataDictionary(NULL),
+	shouldCopyIntoAPI(false)
 {
 }
 
@@ -34,6 +36,8 @@ void DictionaryConfig::clear()
 	rdmFieldDictionaryItemName.clear();
 	enumTypeDefItemName.clear();
 	dictionaryType = DEFAULT_DICTIONARY_TYPE;
+	dataDictionary = NULL;
+	shouldCopyIntoAPI = false;
 }
 
 ServiceDictionaryConfig::ServiceDictionaryConfig() :

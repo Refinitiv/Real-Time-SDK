@@ -2407,7 +2407,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		loadDirectory();
-		loadDictionary();
+
+		if (!getDictionaryCallbackClient().getDefaultDictionary()->isLoaded())
+			loadDictionary();
 
 		clearSensitiveInfo();
 		_isInitialized = true;

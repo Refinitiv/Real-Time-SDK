@@ -37,6 +37,8 @@ DataDictionaryImpl::DataDictionaryImpl(bool ownRsslDataDictionary) :
 	_dictionaryEntry(false),
 	_dataAccessMutex()
 {
+	RTR_ATOMIC_SET(_dataDictionaryRefConuter, 0);
+
 	_errorText.length = MAX_ERROR_TEXT_SIZE;
 	_errorText.data = (char*)malloc(sizeof(char) * _errorText.length);
 
@@ -70,6 +72,8 @@ DataDictionaryImpl::DataDictionaryImpl(const DataDictionaryImpl& other) :
 	_dictionaryEntry(false),
 	_dataAccessMutex()
 {
+	RTR_ATOMIC_SET(_dataDictionaryRefConuter, 0);
+
 	_errorText.length = MAX_ERROR_TEXT_SIZE;
 	_errorText.data = (char*)malloc(sizeof(char) * _errorText.length);
 
@@ -1006,6 +1010,36 @@ void DataDictionaryImpl::throwIueForQueryOnly()
 {
 	throwIueException( "This DataDictionary instance is used for query data dictionary information only", OmmInvalidUsageException::InvalidOperationEnum );
 }
+
+bool DataDictionaryImpl::isFieldDictionaryLoaded()
+{
+	return _loadedFieldDictionary;
+}
+
+bool DataDictionaryImpl::isEnumTypeDefLoaded()
+{
+	return _loadedEnumTypeDef;
+}
+
+RsslDataDictionary* DataDictionaryImpl::rsslDataDictionary()
+{
+	return _pRsslDataDictionary;
+}
+
+void DataDictionaryImpl::incDataDictionaryRefCount()
+{
+	RTR_ATOMIC_INCREMENT(_dataDictionaryRefConuter);
+};
+
+void DataDictionaryImpl::decDataDictionaryRefCount()
+{
+	RTR_ATOMIC_DECREMENT(_dataDictionaryRefConuter);
+};
+
+rtr_atomic_val DataDictionaryImpl::getDataDictionaryRefCount()
+{
+	return _dataDictionaryRefConuter;
+};
 
 const refinitiv::ema::access::EmaString&  DataDictionaryImpl::toString() const
 {	  

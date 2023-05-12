@@ -15,6 +15,7 @@
 #include "OmmIProviderConfig.h"
 #include "OAuth2Credential.h"
 #include "OmmOAuth2CredentialImpl.h"
+#include "DataDictionary.h"
 
 #include "LoginRdmReqMsgImpl.h"
 
@@ -254,6 +255,8 @@ public:
 	EmaString						rdmFieldDictionaryItemName;
 	EmaString						enumTypeDefItemName;
 	Dictionary::DictionaryType		dictionaryType;
+	DataDictionary*					dataDictionary;
+	bool							shouldCopyIntoAPI;
 };
 
 class ServiceDictionaryConfig : public ListLinks<ServiceDictionaryConfig>

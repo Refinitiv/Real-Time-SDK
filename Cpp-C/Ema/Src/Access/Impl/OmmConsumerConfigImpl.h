@@ -19,6 +19,7 @@
 #include "ProgrammaticConfigure.h"
 #include "OAuth2Credential.h"
 #include "OmmOAuth2CredentialImpl.h"
+#include "DataDictionary.h"
 
 namespace refinitiv {
 
@@ -54,14 +55,23 @@ public:
 
 	void* getRestLoggingClosure() const;
 
-private:
+	void dataDictionary(const refinitiv::ema::rdm::DataDictionary&, bool);
 
+	refinitiv::ema::rdm::DataDictionary* dataDictionary() const;
+
+	bool isShouldCopyIntoAPI();
+
+	void clear();
+
+private:
 	OmmConsumerConfig::OperationModel		_operationModel;
 	EmaString								_oAuthPassword;
 	RsslReactorOAuthCredential**			_reactorOAuthCredentialList;
 	RsslUInt8								_reactorOAuthCredentialCount;
 	OmmRestLoggingClient*					_pOmmRestLoggingClient;
 	void*									_pRestLoggingClosure;
+	DataDictionary*						    _dataDictionary;
+	bool									_shouldCopyIntoAPI;
 };
 
 }
