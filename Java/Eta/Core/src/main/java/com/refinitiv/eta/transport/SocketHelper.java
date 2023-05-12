@@ -195,6 +195,12 @@ public class SocketHelper
     {
         return _socket;
     }
+    
+    public void copy(SocketHelper dstSocket)
+    {
+    	dstSocket._socket = _socket;
+    	dstSocket._completedProxy = _completedProxy;
+    }
 
     public void initialize(ConnectOptions options) throws IOException
     {

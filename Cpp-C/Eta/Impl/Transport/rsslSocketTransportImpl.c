@@ -2477,7 +2477,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 										char outBuf[255];
 
 										rsslSocketChannel->sentControlAck = 0;
-										outLen = sprintf(outBuf, "%x\r\n\r\n", 0);
+										outLen = sprintf(outBuf, "0\r\n\r\n");
 										/* we may need to send this footer instead of just the second \r\n */
 										//outLen += snprintf(outBuf + outLen,(255-outLen), "%s", "Connection: close\r\n");
 
@@ -2504,16 +2504,17 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 												if (!rsslSocketChannel->isJavaTunnel)
 												{
 													rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSSLSession*)rsslSocketChannel->tunnelTransportInfo)->socket);
+													ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
 												}
-												ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
+												
 											}
 											else
 											{
 												if (!rsslSocketChannel->isJavaTunnel)
 												{
 													rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSocketSession*)rsslSocketChannel->tunnelTransportInfo)->fd);
+													ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 												}
-												ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 											}
 
 											rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->newTunnelTransportInfo;
@@ -2822,7 +2823,7 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 							char outBuf[255];
 
 							rsslSocketChannel->sentControlAck = 0;
-							outLen = sprintf(outBuf, "%x\r\n\r\n", 0);
+							outLen = sprintf(outBuf, "0\r\n\r\n");
 
 							writtenLen = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelTransportInfo, outBuf, outLen, rwflags, error);
 
@@ -2847,16 +2848,17 @@ RsslRet ipcWriteSession(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *rs
 									if (!rsslSocketChannel->isJavaTunnel)
 									{
 										rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSSLSession*)rsslSocketChannel->tunnelTransportInfo)->socket);
+										ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
 									}
-									ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
+									
 								}
 								else
 								{
 									if (!rsslSocketChannel->isJavaTunnel)
 									{
 										rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSocketSession*)rsslSocketChannel->tunnelTransportInfo)->fd);
+										ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 									}
-									ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 								}
 
 								rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->newTunnelTransportInfo;
@@ -3106,7 +3108,7 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 					char outBuf[255];
 
 					rsslSocketChannel->sentControlAck = 0;
-					outLen = sprintf(outBuf, "%x\r\n\r\n", 0);
+					outLen = sprintf(outBuf, "0\r\n\r\n");
 
 					writtenLen = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelTransportInfo, outBuf, outLen, rwflags, error);
 
@@ -3131,16 +3133,17 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 							if (!rsslSocketChannel->isJavaTunnel)
 							{
 								rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSSLSession*)rsslSocketChannel->tunnelTransportInfo)->socket);
+								ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
+
 							}
-							ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
 						}
 						else
 						{
 							if (!rsslSocketChannel->isJavaTunnel)
 							{
 								rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSocketSession*)rsslSocketChannel->tunnelTransportInfo)->fd);
+								ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 							}
-							ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 						}
 
 						rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->newTunnelTransportInfo;
@@ -3231,7 +3234,7 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 						char outBuf[255];
 
 						rsslSocketChannel->sentControlAck = 0;
-						outLen = sprintf(outBuf, "%x\r\n\r\n", 0);
+						outLen = sprintf(outBuf, "0\r\n\r\n");
 
 						writtenLen = (*(rsslSocketChannel->transportFuncs->writeTransport))(rsslSocketChannel->tunnelTransportInfo, outBuf, outLen, rwflags, error);
 
@@ -3256,16 +3259,17 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 								if (!rsslSocketChannel->isJavaTunnel)
 								{
 									rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSSLSession*)rsslSocketChannel->tunnelTransportInfo)->socket);
+									ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
+
 								}
-								ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
 							}
 							else
 							{
 								if (!rsslSocketChannel->isJavaTunnel)
 								{
 									rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSocketSession*)rsslSocketChannel->tunnelTransportInfo)->fd);
+									ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 								}
-								ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 							}
 
 							rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->newTunnelTransportInfo;
@@ -3548,7 +3552,7 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 					char outBuf[255];
 
 					rsslSocketChannel->sentControlAck = 0;
-					outLen = sprintf(outBuf, "%x\r\n\r\n", 0);
+					outLen = sprintf(outBuf, "0\r\n\r\n");
 					/* we may need to send this footer instead of just the second \r\n */
 					//outLen += snprintf(outBuf + outLen,(255-outLen), "%s", "Connection: close\r\n");
 
@@ -3569,22 +3573,24 @@ RsslRet ipcFlushSession(RsslSocketChannel *rsslSocketChannel, RsslError *error)
 
 						/* success - switch file descriptors */
 						/* Only store the old FD when this is a WinInet-based tunnel.
-						* Otherwise the shutdown() call will have already closed the socket properly. */
+						* Otherwise the shutdown() call will have already closed the socket properly. 
+						  For Java, just switch the tunnel transport info */
 						if (rsslSocketChannel->connType == RSSL_CONN_TYPE_ENCRYPTED)
 						{
 							if (!rsslSocketChannel->isJavaTunnel)
 							{
 								rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSSLSession*)rsslSocketChannel->tunnelTransportInfo)->socket);
+								ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
+
 							}
-							ripcShutdownSSLSocket(rsslSocketChannel->tunnelTransportInfo);
 						}
 						else
 						{
 							if (!rsslSocketChannel->isJavaTunnel)
 							{
 								rsslSocketChannel->oldTunnelStreamFd = (RsslSocket)(((ripcSocketSession*)rsslSocketChannel->tunnelTransportInfo)->fd);
+								ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 							}
-							ipcShutdownSckt(rsslSocketChannel->tunnelTransportInfo);
 						}
 
 						rsslSocketChannel->tunnelTransportInfo = rsslSocketChannel->newTunnelTransportInfo;
@@ -5098,6 +5104,7 @@ ripcSessInit ipcProcessHdr(RsslSocketChannel *rsslSocketChannel, ripcSessInProg 
 				{
 					/* 1st */
 					oldSession->newTunnelTransportInfo = rsslSocketChannel->transportInfo;
+					oldSession->newTransportInfo = rsslSocketChannel->transportInfo;
 
 					/* 2nd */
 					oldSession->newStream = rsslSocketChannel->stream;
@@ -12406,6 +12413,12 @@ void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
 				(*(rsslSocketChannel->transportFuncs->shutdownTransport))(rsslSocketChannel->newTransportInfo);
 
 			rsslSocketChannel->newStream = RIPC_INVALID_SOCKET;
+			/* Handle the Java HTTP Tunnelling case, where newTransportInfo may be the same as tunnelTransportInfo and/or newTunnelTransportInfo 
+				because the channel has not completely transitioned the connection on reconnect*/
+			if (rsslSocketChannel->newTransportInfo == rsslSocketChannel->tunnelTransportInfo)
+				rsslSocketChannel->tunnelTransportInfo = NULL;
+			if (rsslSocketChannel->newTransportInfo == rsslSocketChannel->newTunnelTransportInfo)
+				rsslSocketChannel->newTunnelTransportInfo = NULL;
 			rsslSocketChannel->newTransportInfo = NULL;
 			rsslSocketChannel->workState |= RIPC_INT_SOCK_CLOSED;
 		}
