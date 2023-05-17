@@ -7881,10 +7881,6 @@ public class Reactor
 						converterError.getText());
 			}
 
-			jsonConverterUserSpec = jsonConverterOptions.userSpec();
-			serviceNameToIdCallback = jsonConverterOptions.serviceNameToIdCallback();
-			JsonConversionEventCallback = jsonConverterOptions.jsonConversionEventCallback();
-			closeChannelFromFailure = jsonConverterOptions.closeChannelFromFailure();
 			sendJsonConvError = jsonConverterOptions.sendJsonConvError();
 		} finally
 		{
