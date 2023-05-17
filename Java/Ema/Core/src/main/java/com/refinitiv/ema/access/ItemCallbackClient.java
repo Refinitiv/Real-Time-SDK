@@ -2570,6 +2570,8 @@ TunnelStreamStatusEventCallback
 
 class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 {
+	private static final String CLIENT_NAME = "ItemCallbackClientConsumer";
+	
 	ItemCallbackClientConsumer(OmmBaseImpl<OmmConsumerClient> baseImpl) {
 		super(baseImpl);
 	}
@@ -2577,36 +2579,84 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 	@Override
 	void notifyOnAllMsg(com.refinitiv.ema.access.Msg msg)
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming Msg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
 	}
 	
 	@Override
     void notifyOnRefreshMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming RefreshMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onRefreshMsg(_refreshMsg, _eventImpl);
 	}
 	
 	@Override
 	void notifyOnUpdateMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming UpdateMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onUpdateMsg(_updateMsg, _eventImpl);
 	}
 	
 	@Override
 	void notifyOnStatusMsg() 
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming StatusMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onStatusMsg(_statusMsg, _eventImpl);
 	}
 	
 	@Override
 	void notifyOnGenericMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming GenericMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onGenericMsg(_genericMsg, _eventImpl);
 	} 
 	
 	@Override
 	void notifyOnAckMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming AckMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onAckMsg(_ackMsg, _eventImpl);
 	}
 }
