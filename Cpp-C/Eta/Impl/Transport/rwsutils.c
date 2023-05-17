@@ -3805,7 +3805,7 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 				}
 				else
 				{
-					*uncompBytesRead = (RsslInt32)(frame->payloadLen + rsslSocketChannel->inputBufCursor);
+					*uncompBytesRead = (RsslInt32)(frame->payloadLen + rsslSocketChannel->inBufProtOffset);
 
 					// Just point to the message in the input buffer
 					rsslSocketChannel->curInputBuf->buffer = rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor;
@@ -3949,6 +3949,7 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 			if ((wsSess->actualInBuffLen - wsSess->inputReadCursor) >= frame->hdrLen && (frame->advancedInputCursor == RSSL_FALSE))
 			{
 				rsslSocketChannel->inputBufCursor += frame->hdrLen;
+				rsslSocketChannel->inBufProtOffset += frame->hdrLen;
 				frame->advancedInputCursor = RSSL_TRUE;
 			}
 
