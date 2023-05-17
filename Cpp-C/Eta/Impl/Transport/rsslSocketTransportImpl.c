@@ -435,7 +435,8 @@ RsslRet getSSLProtocolTransFuncs(RsslSocketChannel* rsslSocketChannel, ripcSSLPr
 		return RSSL_RET_FAILURE;
 	if ((protocolBitmap & RIPC_PROTO_SSL_TLS) != 0)
 	{
-        rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS;
+		/* Used for OpenSSLv1.1.X to undicate actual TLS_V1_2 */
+		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_2;
 		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS];
 		return RSSL_RET_SUCCESS;
 	}
