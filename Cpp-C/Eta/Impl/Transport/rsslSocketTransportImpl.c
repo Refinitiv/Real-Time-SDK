@@ -8577,7 +8577,7 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 	_DEBUG_TRACE_CONN("connType %d intState %d\n", rsslSocketChannel->connType, rsslSocketChannel->intState)
 	if (rsslSocketChannel->blocking)
 	{
-		ripcSessInProg inPr;
+		ripcSessInProg inPr = RSSL_INIT_IN_PROG_INFO;
 		ripcSessInit ret = RIPC_CONN_IN_PROGRESS;
 
 		while (ret == RIPC_CONN_IN_PROGRESS)
@@ -8646,6 +8646,14 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 
 		/* set shared key */
 		rsslChnlImpl->shared_key = rsslSocketChannel->shared_key;
+
+		if (rsslSocketChannel->protocolType == RIPC_JSON_PROTOCOL_TYPE)
+		{
+			// This set up needs to be done for reading/writting JSON from WS.
+			// All other transport channel function was already set up in rsslImpl.c: rsslConnect ()
+			rsslChnlImpl->channelFuncs = rsslGetTransportChannelFunc(RSSL_WEBSOCKET_TRANSPORT);
+		}
+
 		IPC_MUTEX_UNLOCK(rsslSocketChannel);
 	}
 

@@ -87,6 +87,8 @@ vaconsumer-Ws-004: Alter VAConsumer to test handle error case when it sends requ
 
 vaconsumer-Ws-005: Alter VAConsumer to send Post Key Attribute as FieldList and Domain Contribution.
 
+vaconsumer-Ws-006: Alter VAConsumer to works with Websocket json blocking mode. Test option: -socketBlockingMode
+
 vaconsumer-OAuthV2-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 but can identify either same / diff credential.
 
 vaconsumer-OAuthV2-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st connection is for STS and 2nd connection is for OAuth V2.
@@ -104,6 +106,8 @@ vaconsumer-CpuBind-001: Alter VAConsumer to add command-line options for testing
 -workerThreadCPU specifies the CPU to bind for Reactor worker thread: Cpu core id or P:X C:Y T:Z format.
 
 consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
+
+consumer-Ws-002: Alter Consumer to works with Websocket json blocking mode. Test option: -socketBlockingMode
 
 Module:  Watchlist Consumer
 ---------------------------
@@ -211,6 +215,8 @@ provider-Multi-001: Alters Provider to enable serverSharedSocket = RSSL_TRUE.
 
 provider-Ws-001: Alter Provider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel
 
+provider-Ws-002: Alter Provider to work with Websocket json blocking mode. Test option: -serverBlockingMode, -channelsBlockingMode
+
 provider-DebugDump-001: Alter Provider to print debug dumps and add options -dumpIpcIn, -dumpIpcOut, -dumpIpcComp, -dumpIpcInit, -dumpRsslIn, -dumpRsslOut.
 	Sample usage for sending source directory response.
 	./Provider -pl "rssl.json.v2,rssl.rwf" -dumpRsslOut
@@ -249,6 +255,10 @@ vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream mess
 vaprovider-Ws-001: Alter VAProvider to add test options for Websocket transport which are; -testCompressionZlib, -compressionLevel, -sendGenericMessage and -jsonExpandEnum
 
 vaprovider-Ws-002: Alter VAProvider to add test options for Websocket transport -catchUnknownJsonKeys and decode FieldList data
+
+vaprovider-Ws-003: Alter VAProvider to work with Websocket json blocking mode. Test option: -serverBlockingMode, -channelsBlockingMode
+
+
 
 Module:  NIProvider 
 -----------------

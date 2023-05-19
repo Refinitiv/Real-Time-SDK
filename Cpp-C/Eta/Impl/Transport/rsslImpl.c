@@ -59,6 +59,7 @@ void rsslClearDebugFunctionsEx();
 
 RTR_C_INLINE void rsslDumpInFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
 RTR_C_INLINE void rsslDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 length, RsslSocket socketId, RsslChannel* pChannel);
+RTR_C_INLINE RsslRet rsslInitComponentVersion(rsslChannelImpl* componentInfo, RsslError *error);
 
 /* 33 additional chars to hold time stamps (when needed) */
 #define TIME_STAMP_SIZE 33
@@ -997,6 +998,78 @@ void rsslDumpOutFuncImpl(const char* functionName, char* buffer, RsslUInt32 leng
 	}
 }
 
+RsslRet rsslInitComponentVersion(rsslChannelImpl *rsslChnlImpl, RsslError *error)
+{
+	RsslChannel* chnl = (RsslChannel*)rsslChnlImpl;
+	rtrUInt32 length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
+
+	if (rsslChnlImpl->connOptsCompVer.componentVersion.data == NULL)
+	{
+		/* use our product version information */
+		/* build it first */
+		size_t rsslLinkTypeLen = strlen(rsslLinkType);
+
+		if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(length + RSSL_ComponentVersionEnd_Len + Rssl_ComponentVersionPlatform_Len + Rssl_Bits_Len + rsslLinkTypeLen)) == NULL)
+		{
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
+			rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
+			return RSSL_RET_FAILURE;
+		}
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionPlatform, Rssl_ComponentVersionPlatform_Len);
+		length += (rtrUInt32)Rssl_ComponentVersionPlatform_Len;
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionEnd, RSSL_ComponentVersionEnd_Len);
+		length += (rtrUInt32)RSSL_ComponentVersionEnd_Len;
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslBits, Rssl_Bits_Len);
+		length += (rtrUInt32)Rssl_Bits_Len;
+		MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslLinkType, rsslLinkTypeLen);
+		length += (rtrUInt32)rsslLinkTypeLen;
+	}
+	else
+	{
+		/* the user passed in component version data via connect opts*/
+		/* since the string rsslComponentVersionEnd, ".rrg", begins with a period and we don't want to include that char in our
+		component version string because it's redundant in this case, subtract it from the default length */
+		rtrUInt32 defaultLength = (rtrUInt32)(RSSL_ComponentVersionStart_Len + RSSL_ComponentVersionEnd_Len - __RSZI8);
+		rtrUInt32 totalLength = rsslChnlImpl->connOptsCompVer.componentVersion.length + __RSZI8 + defaultLength;
+		rtrUInt32 userInfoLength = 0;
+
+		if (totalLength > 253)
+		{
+			/* the total component data length is too long, so truncate the user defined data */
+			totalLength = 253;
+			userInfoLength = 253 - defaultLength - __RSZI8;
+		}
+		else
+		{
+			userInfoLength = rsslChnlImpl->connOptsCompVer.componentVersion.length;
+		}
+
+		if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(totalLength)) == NULL)
+		{
+			_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
+			rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
+			return RSSL_RET_FAILURE;
+		}
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
+		length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
+		/* see explanation above the declaration of defaultLength to understand the pointer arithmetic below */
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslComponentVersionEnd + __RSZI8, RSSL_ComponentVersionEnd_Len - __RSZI8);
+		length += (rtrUInt32)RSSL_ComponentVersionEnd_Len - __RSZI8;
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, "|", __RSZI8);
+		length += __RSZI8;
+		MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslChnlImpl->connOptsCompVer.componentVersion.data, userInfoLength);
+		length += userInfoLength;
+	}
+
+	/* dont include null terminator, this will be done by layer below so it is consistent whether user gives us value or we use our own */
+	rsslChnlImpl->componentVer.componentVersion.length = length;
+	rsslChnlImpl->ownCompVer = RSSL_TRUE;
+	return RSSL_RET_SUCCESS;
+}
+
 
 /* returned ipAddr in host byte order */
 RsslRet rsslHostByName(RsslBuffer *hostName, RsslUInt32 *ipAddr)
@@ -1337,6 +1410,21 @@ RsslChannel* rsslConnect(RsslConnectOptions *opts, RsslError *error)
 		return NULL;
 	}
 
+	if (opts->blocking)
+	{
+		/* if we have connected component versioning, bridge it through on channel here */
+		if ((!rsslChnlImpl->componentVer.componentVersion.length) && (!rsslChnlImpl->componentVer.componentVersion.data))
+		{
+			retVal = rsslInitComponentVersion(rsslChnlImpl, error);
+
+			if (retVal < RSSL_RET_SUCCESS)
+			{
+				_rsslReleaseChannel(rsslChnlImpl);
+				return NULL;
+			}
+		}
+	}
+
 	/* add rsslChannelImpl to activeChannelList */
 	mutexFuncs.staticMutexLock();
 	rsslInitQueueLink(&(rsslChnlImpl->link1));
@@ -1406,72 +1494,7 @@ RsslRet rsslInitChannel(RsslChannel *chnl, RsslInProgInfo *inProg, RsslError *er
 	/* if we have connected component versioning, bridge it through on channel here */
 	if ((!rsslChnlImpl->componentVer.componentVersion.length) && (!rsslChnlImpl->componentVer.componentVersion.data))
 	{
-		rtrUInt32 length = (rtrUInt32) RSSL_ComponentVersionStart_Len;
-
-		if (rsslChnlImpl->connOptsCompVer.componentVersion.data == NULL)
-		{
-			/* use our product version information */
-			/* build it first */
-			size_t rsslLinkTypeLen = strlen(rsslLinkType);
-
-			if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(length + RSSL_ComponentVersionEnd_Len + Rssl_ComponentVersionPlatform_Len + Rssl_Bits_Len + rsslLinkTypeLen)) == NULL)
-			{
-				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
-				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
-				return RSSL_RET_FAILURE;
-			}
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionPlatform, Rssl_ComponentVersionPlatform_Len);
-			length += (rtrUInt32)Rssl_ComponentVersionPlatform_Len;
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslComponentVersionEnd, RSSL_ComponentVersionEnd_Len);
-			length += (rtrUInt32)RSSL_ComponentVersionEnd_Len;
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslBits, Rssl_Bits_Len);
-			length += (rtrUInt32)Rssl_Bits_Len;
-			MemCopyByInt((rsslChnlImpl->componentVer.componentVersion.data + length), rsslLinkType, rsslLinkTypeLen);
-			length += (rtrUInt32)rsslLinkTypeLen;
-		}
-		else
-		{
-			/* the user passed in component version data via connect opts*/
-			/* since the string rsslComponentVersionEnd, ".rrg", begins with a period and we don't want to include that char in our
-			component version string because it's redundant in this case, subtract it from the default length */
-			rtrUInt32 defaultLength = (rtrUInt32)(RSSL_ComponentVersionStart_Len + RSSL_ComponentVersionEnd_Len - __RSZI8);
-			rtrUInt32 totalLength = rsslChnlImpl->connOptsCompVer.componentVersion.length + __RSZI8 + defaultLength;
-			rtrUInt32 userInfoLength = 0;
-
-			if (totalLength > 253)
-			{
-				/* the total component data length is too long, so truncate the user defined data */
-				totalLength = 253;
-				userInfoLength = 253 - defaultLength - __RSZI8;
-			}
-			else
-			{
-				userInfoLength = rsslChnlImpl->connOptsCompVer.componentVersion.length;
-			}
-
-			if ((rsslChnlImpl->componentVer.componentVersion.data = _rsslMalloc(totalLength)) == NULL)
-			{
-				_rsslSetError(error, chnl, RSSL_RET_FAILURE, 0);
-				snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslInitChannel() Error: 0005 Memory allocation failed", __FILE__, __LINE__);
-				rsslChnlImpl->Channel.state = RSSL_CH_STATE_CLOSED;
-				return RSSL_RET_FAILURE;
-			}
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data, rsslComponentVersionStart, RSSL_ComponentVersionStart_Len);
-			length = (rtrUInt32)RSSL_ComponentVersionStart_Len;
-			/* see explanation above the declaration of defaultLength to understand the pointer arithmetic below */
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslComponentVersionEnd + __RSZI8, RSSL_ComponentVersionEnd_Len - __RSZI8);
-			length += (rtrUInt32)RSSL_ComponentVersionEnd_Len - __RSZI8;
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, "|", __RSZI8);
-			length += __RSZI8;
-			MemCopyByInt(rsslChnlImpl->componentVer.componentVersion.data + length, rsslChnlImpl->connOptsCompVer.componentVersion.data, userInfoLength);
-			length += userInfoLength;
-		}
-
-		/* dont include null terminator, this will be done by layer below so it is consistent whether user gives us value or we use our own */
-		rsslChnlImpl->componentVer.componentVersion.length = length;
-		rsslChnlImpl->ownCompVer = RSSL_TRUE;
+		if (rsslInitComponentVersion(rsslChnlImpl, error) != RSSL_RET_SUCCESS) return RSSL_RET_FAILURE;
 	}
 
 	ret = ((*(rsslChnlImpl->channelFuncs->initChannel))(rsslChnlImpl, inProg, error));
