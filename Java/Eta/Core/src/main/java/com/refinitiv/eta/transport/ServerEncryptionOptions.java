@@ -4,8 +4,7 @@ public interface ServerEncryptionOptions {
 	
 	/**
      * Type of keystore for certificate file.
-     * Defaults to the property keystore.type in the JDK security properties file (java.security).
-     * Sun JDK default = JKS
+     * RTSDK Default = JKS
      *
      * @param keystoreType the keystore type
      */
@@ -13,8 +12,7 @@ public interface ServerEncryptionOptions {
 
     /**
      * Type of keystore for certificate file.
-     * Defaults to the property keystore.type in the JDK security properties file (java.security).
-     * Sun JDK default = JKS
+     * RTSDK Default = JKS
      * 
      * @return the KeystoreType
      */

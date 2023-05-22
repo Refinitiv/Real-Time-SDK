@@ -286,8 +286,7 @@ public interface OmmConsumerConfig
 	
 	/**
 	 * The type of the key store for certificate file.
-     * Defaults to the property keystore.type in the JDK security properties file (java.security).
-     * Sun JDK default = JKS
+     * RTSDK Default = JKS
      * 
 	 * @param keyStoreType specifies the type of key store for tunneling connection.
 	 * @return reference to this object
