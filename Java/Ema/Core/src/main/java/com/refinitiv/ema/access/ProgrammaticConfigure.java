@@ -1442,7 +1442,7 @@ class ProgrammaticConfigure
 				location = null, wsProtocols = null;
 		int flags = ChannelEntryFlag.CHANNELTYPE_FLAG | ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG,
 				channelType = ConnectionTypes.SOCKET, compressionType = 0, tunnelingFlags = 0,
-				encryptedProtocol = ConnectionTypes.HTTP, webSocketFlags = 0, result = 0;
+				encryptedProtocol = ConnectionTypes.SOCKET, webSocketFlags = 0, result = 0;
 		long guaranteedOutputBuffers= 0;
 		long compressionThreshold= 0;
 		long connectionPingTimeout= 0;
@@ -1510,7 +1510,7 @@ class ProgrammaticConfigure
 					if (result == INVALID_RETVAL) {
 						_emaConfigErrList.append( "Unsupported EncryptedProtocolType [")
 						.append( channelEntry.ascii().ascii())
-						.append( "] in Programmatic Configuration. Use default EncryptedProtocolType [ChannelType::RSSL_HTTP]").create(Severity.ERROR);
+						.append( "] in Programmatic Configuration. Use default EncryptedProtocolType [ChannelType::RSSL_SOCKET]").create(Severity.ERROR);
 					} else {
 						encryptedProtocol = result;
 					}
@@ -1745,7 +1745,7 @@ class ProgrammaticConfigure
 			} else if (channelType == ConnectionTypes.ENCRYPTED) {
 				/* Default the encrypted protocol if it was not set here */
 				if ((flags & ChannelEntryFlag.ENCRYPTED_PROTOCOL_FLAG) == 0) {
-					encryptedProtocol = ConnectionTypes.HTTP;
+					encryptedProtocol = ConnectionTypes.SOCKET;
 				}
 
 				switch (encryptedProtocol) {

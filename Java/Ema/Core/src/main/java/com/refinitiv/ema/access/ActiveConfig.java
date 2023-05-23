@@ -26,7 +26,7 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_COMPRESSION_THRESHOLD_LZ4          = 300;
 	final static int DEFAULT_COMPRESSION_TYPE					= CompressionTypes.NONE;
 	final static int DEFAULT_CONNECTION_TYPE					= ConnectionTypes.SOCKET;
-	final static int DEFAULT_ENCRYPTED_PROTOCOL_TYPE			= ConnectionTypes.HTTP;
+	final static int DEFAULT_ENCRYPTED_PROTOCOL_TYPE			= ConnectionTypes.SOCKET;
 	final static int DEFAULT_CONNECTION_PINGTIMEOUT				= 30000;
 	final static int DEFAULT_INITIALIZATION_TIMEOUT				= 5;
 	final static int DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT		= 60;

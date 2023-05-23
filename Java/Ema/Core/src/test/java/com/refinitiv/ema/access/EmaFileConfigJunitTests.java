@@ -2418,8 +2418,6 @@ public class EmaFileConfigJunitTests extends TestCase
 					TestUtilities.checkResult("ProxyHost == proxyHost", chanHost.contentEquals("proxyHost"));
 					String chanPort = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ProxyPort, 0);
 					TestUtilities.checkResult("ProxyPort == 14032", chanPort.contentEquals("14032"));
-					String chanObj = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 0);
-					TestUtilities.checkResult("ObjectName == objectName", chanObj.contentEquals("objectName"));
 				}
 				
 				cons = null;
@@ -2555,8 +2553,6 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ProxyHost == proxyHost", chanHost.contentEquals("proxyHost"));
 			String chanPort = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ProxyPort, 0);
 			TestUtilities.checkResult("ProxyPort == 14032", chanPort.contentEquals("14032"));
-			String chanObj = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 0);
-			TestUtilities.checkResult("ObjectName == objectName", chanObj.contentEquals("objectName"));
 			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelInitTimeout, 0);
 			TestUtilities.checkResult("InitializationTimeout == 99", intLongValue == 99);
 			
@@ -2799,8 +2795,6 @@ public class EmaFileConfigJunitTests extends TestCase
 					TestUtilities.checkResult("ProxyHost == proxyHost", chanHost.contentEquals("proxyHost"));
 					String chanPort = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ProxyPort, 0);
 					TestUtilities.checkResult("ProxyPort == 14032", chanPort.contentEquals("14032"));
-					String chanObj = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 0);
-					TestUtilities.checkResult("ObjectName == objectName", chanObj.contentEquals("objectName"));
 				}
 				else if (testCase == ChannelTypeHttp)
 				{
@@ -2965,8 +2959,6 @@ public void testLoadChannelSetBwteenFileProgrammaticForNiProv()
 				TestUtilities.checkResult("ProxyHost == proxyhost3", strValue.contentEquals("proxyhost3"));
 				strValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ProxyPort, 1);
 				TestUtilities.checkResult("ProxyPort == proxyport3", strValue.contentEquals("proxyport3"));
-				strValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ObjectName, 1);
-				TestUtilities.checkResult("ObjectName == objectname3", strValue.contentEquals("objectname3"));
 			}
 			else if (testCase == 1)
 			{

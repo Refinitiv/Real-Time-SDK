@@ -1262,7 +1262,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					encrypedProtocol = pc.retrieveEncryptedProtocolConfig(channelName);
 				
 				if(encrypedProtocol < 0)
-					encrypedProtocol = (ep == null) ? ConnectionTypes.HTTP : ep.intValue();
+					encrypedProtocol = (ep == null) ? ConnectionTypes.SOCKET : ep.intValue();
 			}
 		}
 		
