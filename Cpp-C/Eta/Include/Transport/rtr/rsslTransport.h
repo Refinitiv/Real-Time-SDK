@@ -935,7 +935,7 @@ typedef struct {
 	char*				serverCert;					/*!< Path to this server's certificate.   */
 	char*				serverPrivateKey;			/*!< Path to the server's key file */
 	char*				cipherSuite;				/*!< Optional OpenSSL formatted cipher suite string.  ETA's default configuration is OWASP's "B" tier recommendations, which are the following:
-														DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ECDSA:!ADH:!IDEA:!3DES */
+														ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!DSS:!RC4:!SEED:!ADH:!IDEA:!3DES */
 	char*				dhParams;					/*!< Optional Diffie-Hellman parameter file.  If this is not present, RSSL will load it's default DH parameters */
 } RsslBindEncryptionOpts;
 
