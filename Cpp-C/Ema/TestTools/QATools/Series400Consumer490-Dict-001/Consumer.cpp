@@ -158,9 +158,9 @@ int main(int argc, char **argv)
 			}
 			else if (strcmp("-loadChannelDictRunTwoConsumerConcurrently", argv[iargs]) == 0)
 			{
-				loadChannelDictRunTwoConsumerConcurrently = true;
+				loadChannelDictTwoConsConcur = true;
 			}
-            else if (strcmp("-shouldCopyIntoAPI", argv[iargs]) == 0)}
+            else if (strcmp("-shouldCopyIntoAPI", argv[iargs]) == 0)
             {
                 shouldCopyIntoAPI = true;
             }
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
 			sleep(6000);				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 		
 		}
-		else if (loadChannelDictRunTwoConsumerConcurrently)
+		else if (loadChannelDictTwoConsConcur)
 		{
 			{
 				/*Load Dictionary from channel */
