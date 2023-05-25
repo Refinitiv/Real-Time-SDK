@@ -181,16 +181,17 @@ int main(int argc, char **argv)
 
 			{
 				OmmConsumerConfig config1;
-
 				OmmConsumer consumer1(config1.dataDictionary(localDictionary, shouldCopyIntoAPI));
+				if (shouldCopyIntoAPI) config1.clear();
 				consumer1.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), client1);
-				sleep(60000);
+				sleep(6000);
 			}
 			{
 				OmmConsumerConfig  config2;
 				OmmConsumer consumer2(config2.dataDictionary(localDictionary, shouldCopyIntoAPI));
+				if (shouldCopyIntoAPI) config2.clear();
 				consumer2.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("TRI.N"), client2);
-				sleep(60000);				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+				sleep(6000);
 			}
 		}
 		else if (loadChannelDictTwoConsSeq)
@@ -210,20 +211,22 @@ int main(int argc, char **argv)
 
 				UInt64 itemHandle = consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), client, closure);
 
-				sleep(6000);			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+				sleep(6000);
 			}
 			{
 				AppClient client1;
 				/*Dictionary loaded from channel, so use it now*/
 				OmmConsumer consumer1(config1.dataDictionary(channelDictionary, shouldCopyIntoAPI));
+				if (shouldCopyIntoAPI) config1.clear();
 				consumer1.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), client1);
-				sleep(6000);				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+				sleep(6000);
 			}
 			{
 				AppClient client2;
 				OmmConsumer consumer2(config2.dataDictionary(channelDictionary, shouldCopyIntoAPI));
+				if (shouldCopyIntoAPI) config2.clear();
 				consumer2.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("TRI.N"), client2);
-				sleep(6000);				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+				sleep(6000);
 			}
 		}
 		else if (loadLocalDictTwoConsConcur)
@@ -236,11 +239,13 @@ int main(int argc, char **argv)
 			localDictionary.loadEnumTypeDictionary("enumtype.def");
 
 			OmmConsumer consumer1(config1.dataDictionary(localDictionary, shouldCopyIntoAPI));
+			if (shouldCopyIntoAPI) config1.clear();
 			consumer1.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), client1);
 		
 			OmmConsumer consumer2(config2.dataDictionary(localDictionary, shouldCopyIntoAPI));
+			if (shouldCopyIntoAPI) config2.clear();
 			consumer2.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("TRI.N"), client2);
-			sleep(6000);				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+			sleep(6000);
 		
 		}
 		else if (loadChannelDictTwoConsConcur)
@@ -258,7 +263,7 @@ int main(int argc, char **argv)
 
 				UInt64 itemHandle = consumer.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), client, closure);
 
-				sleep(6000);			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+				sleep(6000);
 			}
 
 			AppClient client1, client2;
@@ -266,13 +271,14 @@ int main(int argc, char **argv)
 
 			/*Dictionary loaded from channel, so use it now*/
 			OmmConsumer consumer1(config1.dataDictionary(channelDictionary, shouldCopyIntoAPI));
+			if (shouldCopyIntoAPI) config1.clear();
 			consumer1.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("IBM.N"), client1);
-				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
 
 
 			OmmConsumer consumer2(config2.dataDictionary(channelDictionary, shouldCopyIntoAPI));
+			if (shouldCopyIntoAPI) config2.clear();
 			consumer2.registerClient(ReqMsg().serviceName("DIRECT_FEED").name("TRI.N"), client2);
-			sleep(60000);				// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
+			sleep(60000);
 		}
 		//END APIQA
 	} catch ( const OmmException& excp ) {
