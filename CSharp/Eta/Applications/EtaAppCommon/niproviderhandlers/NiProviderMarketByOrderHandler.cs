@@ -83,13 +83,26 @@ namespace LSEG.Eta.Example.Common
         protected override TransportReturnCode SendRefreshes(ChannelSession chnl, List<string> itemNames, out Error? error)
         {
             TransportReturnCode ret;
+            NiWatchListEntry? wlEntry;
             foreach (string itemName in itemNames)
             {
                 int streamId = watchList!.Add(domainType, itemName);
 
                 marketByOrderRefresh.ItemName.Data(itemName);
                 marketByOrderRefresh.StreamId = streamId;
-                marketByOrderRefresh.MboInfo = watchList.Get(streamId).MarketByOrderItem!;
+
+                wlEntry = watchList!.Get(streamId);
+
+                if (wlEntry == null)
+                {
+                    error = new Error()
+                    {
+                        Text = "Non existing stream id: " + streamId
+                    };
+                    return TransportReturnCode.FAILURE;
+                }
+
+                marketByOrderRefresh.MboInfo = wlEntry.MarketByOrderItem!;
 
                 ret = EncodeAndSendContent(chnl, marketByOrderRefresh, out error);
                 if (ret < TransportReturnCode.SUCCESS)

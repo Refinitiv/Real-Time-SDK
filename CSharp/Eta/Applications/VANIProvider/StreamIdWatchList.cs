@@ -72,9 +72,10 @@ namespace LSEG.Eta.ValueAdd.VANiProvider
                 watchList.Remove(key);
         }
 
-        public WatchListEntry Get(int streamId)
+        public WatchListEntry? Get(int streamId)
         {
-            return watchList[streamId];
+            watchList.TryGetValue(streamId, out var wle);
+            return wle;
         }
 
         public void Clear()
