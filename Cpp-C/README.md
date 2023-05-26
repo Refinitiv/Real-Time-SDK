@@ -32,6 +32,29 @@ External modules used by this version of RTSDK C/C++:
 - Please note that the default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - Check installation guide for details regarding including external dependencies for build 
    
+### System Libraries Dependencies
+
+Windows system libraries used by RTSDK C/C++:
+
+	Dependency
+	----------
+	wininet.lib
+	ws2_32.lib
+	crypt32.lib
+	cryptui.lib
+	bcrypt.lib
+	Iphlpapi.lib
+
+Linux system libraries used by RTSDK C/C++:
+
+	Dependency
+	----------
+	rt
+	dl
+	pthread
+	m
+	stdc++
+
 
 ### Supported Platforms, OSs, Compilers
 
