@@ -867,8 +867,16 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
             if (reactorOAuthCredential is not null)
             {
-                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
-                reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                if (reactorOAuthCredentialRenewal.ClientSecret.Length > 0)
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
+                    reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                }
+                else
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_JWK;
+                    reactorOAuthCredentialRenewal.ClientJwk.Data(reactorOAuthCredential.ClientJwk.ToString());
+                }
 
                 reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
             }
@@ -1218,7 +1226,16 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
             if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.JwkFile))
             {
-                oAuthCredential.ClientJwk.Data(m_ConsumerCmdLineParser.JwkFile);
+                if (!File.Exists(m_ConsumerCmdLineParser.JwkFile))
+                {
+                    Console.Error.WriteLine($"Cannot load jwk file: {m_ConsumerCmdLineParser.JwkFile}");
+                    Environment.Exit((int)CodecReturnCode.FAILURE);
+                }
+
+                oAuthCredential.ClientJwk.Data(File.ReadAllText(m_ConsumerCmdLineParser.JwkFile));
+
+                /* Specified the IReactorOAuthCredentialEventCallback to get JWK */
+                oAuthCredential.ReactorOAuthCredentialEventCallback = this;
             }
 
             if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.Audience))
@@ -1354,7 +1371,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
             }
 
             /* Setup proxy if configured */
-            if (m_ConsumerCmdLineParser.EnableProxy)
+                if (m_ConsumerCmdLineParser.EnableProxy)
             {
                 string? proxyHostName = m_ConsumerCmdLineParser.ProxyHostname;
                 if (String.IsNullOrEmpty(proxyHostName))

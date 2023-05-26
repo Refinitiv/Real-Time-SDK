@@ -109,7 +109,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 ReactorOAuthCredential.ClientJwk.Data(reactorOAuthCredRenewal.ClientJwk.ToString());
                 ReactorOAuthCredential.JsonWebKey = null;
 
-                if ( ReactorRestClient.ValidateJWKFile(ReactorOAuthCredential, out ReactorErrorInfo? errorInfo) != ReactorReturnCode.SUCCESS)
+                if ( ReactorRestClient.ValidateJWK(ReactorOAuthCredential, out ReactorErrorInfo? errorInfo) != ReactorReturnCode.SUCCESS)
                 {
                     RestEvent restEvent = new RestEvent();
                     restEvent.Type = RestEvent.EventType.FAILED;
@@ -142,6 +142,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     ReactorOAuthCredentialRenewal.Clear();
                     ReactorOAuthCredentialRenewal.ClientId.Data(ReactorOAuthCredential.ClientId.ToString());
                     ReactorOAuthCredentialRenewal.TokenScope.Data(ReactorOAuthCredential.TokenScope.ToString());
+                    ReactorOAuthCredentialRenewal.Audience.Data(ReactorOAuthCredential.Audience.ToString());
 
                     /* Creates the token renewal event to the Reactor's queue for the application to submit sensitive information */
                     m_Reactor.SendCredentialRenewalEvent(ReactorChannel!, this, null);

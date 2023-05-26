@@ -21,6 +21,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private Buffer m_ClientSecret = new Buffer();
         private Buffer m_TokenScope = new Buffer();
         private Buffer m_ClientJwk = new Buffer();
+        private Buffer m_Audience = new Buffer();
 
         /// <summary>
         /// Creates <see cref="ReactorOAuthCredentialRenewal"/>
@@ -39,6 +40,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_ClientSecret.Clear();
             m_TokenScope.Clear();
             m_ClientJwk.Clear();
+            m_Audience.Clear();
         }
 
         /// <summary>
@@ -79,6 +81,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
             get { return m_ClientJwk; }
 
             set { ClientJwk.Copy(value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the audience claim for the JWT.
+        /// </summary>
+        public Buffer Audience
+        {
+            get { return m_Audience; }
+
+            set { Audience.Copy(value); }
         }
 
         /// <summary>
@@ -124,6 +136,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 m_ClientJwk.Copy(byteBuffer);
                 byteBuffer.Flip();
                 destReactorOAuthCredentialRenewal.ClientJwk.Data(byteBuffer);
+            }
+
+            if (m_Audience.Length != 0)
+            {
+                ByteBuffer byteBuffer = new ByteBuffer(m_Audience.Length);
+                m_Audience.Copy(byteBuffer);
+                byteBuffer.Flip();
+                destReactorOAuthCredentialRenewal.Audience.Data(byteBuffer);
             }
 
             return ReactorReturnCode.SUCCESS;

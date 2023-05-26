@@ -15,6 +15,7 @@ using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.Codec;
 using System;
 using Buffer = LSEG.Eta.Codec.Buffer;
+using System.IO;
 
 namespace LSEG.Eta.ValuedAdd.Tests
 {
@@ -104,7 +105,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             else
             {
-                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 credential.ClientId.Data(CLIENT_ID_JWT);
                 credential.Audience.Data(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE);
             }
@@ -216,7 +217,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             else
             {
-                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
@@ -303,7 +304,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             else
             {
-                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
@@ -389,7 +390,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             else
             {
-                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
@@ -540,7 +541,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             }
             else
             {
-                credential.ClientJwk.Data(CLIENT_JWK);
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 credential.ClientId.Data(CLIENT_ID_JWT);
             }
 
@@ -707,7 +708,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ReactorOAuthCredential credential = new ReactorOAuthCredential();
 
             credential.ClientId.Data(CLIENT_ID);
-            credential.ClientJwk.Data(CLIENT_JWK);
+            credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
             credential.Audience.Data("InvalidJWTAudience");
 
             ConsumerRole consumerRole = new ConsumerRole();
@@ -771,6 +772,8 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             if (reactorOAuthCredential is not null)
             {
+                Assert.True(reactorOAuthCredentialEvent.ReactorOAuthCredentialRenewal.ClientId.Equals(reactorOAuthCredential.ClientId));
+                Assert.True(reactorOAuthCredentialEvent.ReactorOAuthCredentialRenewal.Audience.Equals(reactorOAuthCredential.Audience));
                 if (reactorOAuthCredential.ClientJwk.Length == 0)
                 {
                     renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
@@ -783,6 +786,10 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 }
 
                 reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
+            }
+            else
+            {
+                Assert.NotNull(reactorOAuthCredential);
             }
 
             return ReactorCallbackReturnCode.SUCCESS;

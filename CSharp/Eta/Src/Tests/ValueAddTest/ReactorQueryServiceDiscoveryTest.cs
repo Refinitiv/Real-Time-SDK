@@ -149,7 +149,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             ReactorServiceDiscoveryOptions serviceDiscoveryOptions = new ReactorServiceDiscoveryOptions();
             serviceDiscoveryOptions.ClientId.Data("InvalidClientID");
-            serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+            serviceDiscoveryOptions.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
             expectedNumOfEndpoint = 0;
             expectedErrorTextFromCallback = "Failed to perform a REST request to the token service. Text: {\"error_description\":\"Client not found in client database for JWT's sub claim value 'InvalidClientID'.\",\"error\":\"invalid_client\"}";
@@ -172,14 +172,15 @@ namespace LSEG.Eta.ValuedAdd.Tests
 
             ReactorServiceDiscoveryOptions serviceDiscoveryOptions = new ReactorServiceDiscoveryOptions();
             serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
-            serviceDiscoveryOptions.ClientJwk.Data("invalidClientJwkFile");
+            serviceDiscoveryOptions.ClientJwk.Data("invalidClientJwk");
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;
             expectedNumOfEndpoint = 0;
             ReactorErrorInfo errorInfo;
             Assert.Equal(ReactorReturnCode.FAILURE, reactor.QueryServiceDiscovery(serviceDiscoveryOptions, out errorInfo));
             Assert.NotNull(errorInfo);
             Assert.Equal(ReactorReturnCode.FAILURE, errorInfo.Code);
-            Assert.Equal("Can't open JWK file: invalidClientJwkFile", errorInfo.Error.Text);
+            string expectedText = "Failed to retrieve Json Web Key information invalidClientJwk.";
+            Assert.StartsWith(expectedText, errorInfo.Error.Text);
 
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
         }
@@ -269,7 +270,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             else
             {
                 serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
-                serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+                serviceDiscoveryOptions.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 expectedNumOfEndpoint = 6;
             }
 
@@ -341,7 +342,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             ReactorServiceDiscoveryOptions serviceDiscoveryOptions = new ReactorServiceDiscoveryOptions();
 
             serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
-            serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+            serviceDiscoveryOptions.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
             serviceDiscoveryOptions.Audience.Data(audience);
 
             if (audience.Equals(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE))
@@ -393,7 +394,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             else
             {
                 serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
-                serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+                serviceDiscoveryOptions.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 expectedNumOfEndpoint = 3;
             }
 
@@ -450,7 +451,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             else
             {
                 serviceDiscoveryOptions.ClientId.Data(CLIENT_ID_JWT);
-                serviceDiscoveryOptions.ClientJwk.Data(CLIENT_JWK);
+                serviceDiscoveryOptions.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
                 expectedNumOfEndpoint = 3;
             }
             serviceDiscoveryOptions.ReactorServiceEndpointEventCallback = this;

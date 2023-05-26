@@ -242,7 +242,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                     reactorChannel.TokenSession = new ReactorTokenSession(this, oAuthCredential);
 
-                    if(ReactorRestClient.ValidateJWKFile(reactorChannel.TokenSession.ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
+                    if(ReactorRestClient.ValidateJWK(reactorChannel.TokenSession.ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
                     {
                         reactorChannel.ReturnToPool();
                         reactorChannel.TokenSession = null;
@@ -872,7 +872,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 m_ReactorOAuthCredential.Audience.Data(new ByteBuffer(serviceDiscoveryOptions.Audience.Length));
                 serviceDiscoveryOptions.Audience.Copy(m_ReactorOAuthCredential.Audience);
 
-                if (ReactorRestClient.ValidateJWKFile(m_ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
+                if (ReactorRestClient.ValidateJWK(m_ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
                 {
                     return errorInfo!.Code;
                 }
