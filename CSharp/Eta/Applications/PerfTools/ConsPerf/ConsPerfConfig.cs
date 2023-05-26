@@ -172,11 +172,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 		/// </summary>
 		public int RequestsPerTickRemainder { get; set; }
 
-		/// <summary>
-		/// At startup, prime the Just-In-Time compiler to optimize code by requesting a snapshot of all items before opening the streaming items
-		/// </summary>
-		public bool PrimeJIT { get; set; } = false;
-
         /// <summary>
         /// Use the VA Reactor instead of the ETA Channel for sending and receiving.
         /// </summary>

@@ -59,9 +59,10 @@ namespace LSEG.Eta.Example.Common
             return watchList.ContainsKey(streamId) && watchList.Remove(streamId);
         }
 
-        public NiWatchListEntry Get(int streamId)
+        public NiWatchListEntry? Get(int streamId)
         {
-            return watchList[streamId];
+            watchList.TryGetValue(streamId, out var wle);
+            return wle;
         }
 
         public void clear()

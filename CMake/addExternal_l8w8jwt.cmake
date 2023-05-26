@@ -58,30 +58,48 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 	#        install/
 	rcdev_init_ep_add(${_EPA_NAME})
 
-	if(NOT EXISTS ${l8w8jwt_source}/l8w8jwt/.git)
-		file(MAKE_DIRECTORY ${l8w8jwt_source})
+	if(WIN32)
+		set(_LIB_PATH_NAME "${l8w8jwt_install}/lib/libl8w8jwt.lib")
+	else()
+		set(_LIB_PATH_NAME "${l8w8jwt_install}/${_libdir}/${_l8w8jwt_libname}")
+	endif()
 
-		execute_process(COMMAND ${GIT_EXECUTABLE} clone --recursive  ${l8w8jwt_url}
-									RESULT_VARIABLE _ret_val
-									WORKING_DIRECTORY ${l8w8jwt_source}
-									ERROR_VARIABLE _cmd_out
-									)
+	if(NOT EXISTS ${_LIB_PATH_NAME})
+
+		if (EXISTS "${l8w8jwt_download}/l8w8jwt-${l8w8jwt_tag}.tar.gz")
+			# Do the archive
+			file(MAKE_DIRECTORY ${l8w8jwt_source})
+			execute_process(COMMAND "${CMAKE_COMMAND}" -E tar x "${l8w8jwt_download}/l8w8jwt-${l8w8jwt_tag}.tar.gz"
+										RESULT_VARIABLE _ret_val
+										WORKING_DIRECTORY ${l8w8jwt_source}
+										ERROR_VARIABLE _cmd_out
+										)
+		else()
+			# Clone the GitHub
+			file(MAKE_DIRECTORY ${l8w8jwt_source})
+
+			execute_process(COMMAND ${GIT_EXECUTABLE} clone --recursive  ${l8w8jwt_url}
+										RESULT_VARIABLE _ret_val
+										WORKING_DIRECTORY ${l8w8jwt_source}
+										ERROR_VARIABLE _cmd_out
+										)
+
+			if(_ret_val)
+				message(WARNING 
+					"Git pull of l8w8jwt failed!"
+						"    gitcmd:${GIT_EXECUTABLE}\n"
+						"     dir:${_src}\n"
+						"     ret:${_ret_val}\n"
+						"     out:${_cmd_out}")
+			endif()
+
+			execute_process(COMMAND ${GIT_EXECUTABLE} checkout --recurse-submodules ${l8w8jwt_tag}
+										RESULT_VARIABLE _ret_val
+										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
+										ERROR_VARIABLE _cmd_out
+										)
 									
-		if(_ret_val)
-			message(WARNING 
-				"Git pull of l8w8jwt failed!"
-					"    gitcmd:${GIT_EXECUTABLE}\n"
-					"     dir:${_src}\n"
-					"     ret:${_ret_val}\n"
-					"     out:${_cmd_out}")
 		endif()
-					
-		execute_process(COMMAND ${GIT_EXECUTABLE} checkout --recurse-submodules ${l8w8jwt_tag}
-									RESULT_VARIABLE _ret_val
-									WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
-									ERROR_VARIABLE _cmd_out
-									)
-									
 									
 		file(MAKE_DIRECTORY ${l8w8jwt_build})
 		

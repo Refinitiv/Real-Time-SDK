@@ -380,7 +380,7 @@ namespace LSEG.Eta.Example.Common
             else
             // cached item name
             {
-                WatchListEntry wle = watchList!.Get(msg.StreamId);
+                WatchListEntry? wle = watchList!.Get(msg.StreamId);
 
                 if (wle != null)
                 {
@@ -413,7 +413,7 @@ namespace LSEG.Eta.Example.Common
             State state = statusMsg.State;
             Console.WriteLine("	" + state);
 
-            WatchListEntry wle = watchList!.Get(msg.StreamId);
+            WatchListEntry? wle = watchList!.Get(msg.StreamId);
             if (wle != null)
             {
                 // update our state table with the new state
@@ -488,11 +488,19 @@ namespace LSEG.Eta.Example.Common
                 Console.WriteLine(" Received RefreshMsg for stream " + refreshMsg.StreamId + " from publisher with user ID: " + pu.UserId + " at user address: " + pu.UserAddrToString(pu.UserAddr));
             }
 
-            WatchListEntry wle = watchList!.Get(msg.StreamId);
+            WatchListEntry? wle = watchList!.Get(msg.StreamId);
 
+            if (wle == null)
+            {
+                error = new Error()
+                {
+                    Text = "Non existing stream id: " + msg.StreamId
+                };
+                return TransportReturnCode.FAILURE;
+            }
             // check if this response should be on private stream but is not
             // if this is the case, close the stream 
-            if (!refreshMsg.CheckPrivateStream() && wle.IsPrivateStream)
+            if (!refreshMsg.CheckPrivateStream() && wle!.IsPrivateStream)
             {
                 Console.WriteLine("Received non-private response for stream " + msg.StreamId +
                         " that should be private - closing stream");
@@ -511,8 +519,8 @@ namespace LSEG.Eta.Example.Common
                 return TransportReturnCode.FAILURE;
             }
             // update our item state list if its a refresh, then process just like update
-            wle.ItemState!.DataState(refreshMsg.State.DataState());
-            wle.ItemState.StreamState(refreshMsg.State.StreamState());
+            wle!.ItemState!.DataState(refreshMsg.State.DataState());
+            wle!.ItemState.StreamState(refreshMsg.State.StreamState());
 
             error = null;
             if (Decode(msg, dIter, dictionary) == CodecReturnCode.SUCCESS)
@@ -567,10 +575,19 @@ namespace LSEG.Eta.Example.Common
         
         private TransportReturnCode RedirectToPrivateStream(int streamId, out Error? error)
         {
-            WatchListEntry wle = watchList!.Get(streamId);
+            WatchListEntry? wle = watchList!.Get(streamId);
+
+            if (wle == null)
+            {
+                error = new Error()
+                {
+                    Text = "Non existing stream id: " + streamId
+                };
+                return TransportReturnCode.FAILURE;
+            }
 
             RemoveMarketPriceItemEntry(streamId);
-            int psStreamId = watchList.Add(domainType, wle.ItemName!, true);
+            int psStreamId = watchList.Add(domainType, wle!.ItemName!, true);
 
             GenerateRequest(marketRequest, true, redirectSrcDirInfo!, redirectLoginInfo!);
             marketRequest.ItemNames.Add(wle.ItemName!);

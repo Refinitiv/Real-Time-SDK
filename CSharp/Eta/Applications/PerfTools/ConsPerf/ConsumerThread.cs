@@ -88,7 +88,6 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         private MarketPriceItem? m_MpItem;                           // market price item
         private IMsgKey? m_MsgKey;                                   // message key
         private ItemInfo? m_ItemInfo;                                // item information
-        private int m_JITWarmupRefreshCount;                        // used to determine when JIT warmup is complete
         private IChannel? m_Channel;                                 // ETA Channel
 
         private Buffer m_PostBuffer;
@@ -1214,52 +1213,15 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                             return;
                         }
 
-                        if (responseMsg.CheckRefreshComplete())
+                        if (responseMsg.CheckRefreshComplete()
+                            && responseMsg.State.DataState() == DataStates.OK)
                         {
-                            if (m_ConsPerfConfig.PrimeJIT == false)
+                            m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.HAS_REFRESH;
+                            m_ConsThreadInfo.Stats.RefreshCompleteCount.Increment();
+                            if (m_ConsThreadInfo.Stats.RefreshCompleteCount.GetTotal() == (m_RequestListSize - ITEM_STREAM_ID_START))
                             {
-                                if (responseMsg.State.DataState() == DataStates.OK)
-                                {
-                                    m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.HAS_REFRESH;
-                                    m_ConsThreadInfo.Stats.RefreshCompleteCount.Increment();
-                                    if (m_ConsThreadInfo.Stats.RefreshCompleteCount.GetTotal() == (m_RequestListSize - ITEM_STREAM_ID_START))
-                                    {
-                                        m_ConsThreadInfo.Stats.ImageRetrievalEndTime = (long)GetTime.GetNanoseconds();
-                                        m_ConsThreadInfo.Stats.SteadyStateLatencyTime = m_ConsThreadInfo.Stats.ImageRetrievalEndTime + m_ConsPerfConfig.DelaySteadyStateCalc * 1000000L;
-                                    }
-                                }
-                            }
-                            else // JIT priming enabled
-                            {
-                                // Count snapshot images used for priming, ignoring state
-                                if (m_JITWarmupRefreshCount < (m_RequestListSize - ITEM_STREAM_ID_START))
-                                {
-                                    m_JITWarmupRefreshCount++;
-                                    // reset request state so items can be re-requested
-                                    m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.NOT_REQUESTED;
-                                    if (m_JITWarmupRefreshCount == (m_RequestListSize - ITEM_STREAM_ID_START))
-                                    {
-                                        // reset request count and _requestListIndex so items can be re-requested
-                                        //set the image retrieval start time
-                                        m_ConsThreadInfo.Stats.RequestCount.Init();
-                                        m_ConsThreadInfo.Stats.RefreshCompleteCount.Init();
-                                        m_ConsThreadInfo.Stats.RefreshCount.Init();
-                                        m_RequestListIndex = ITEM_STREAM_ID_START;
-                                    }
-                                }
-                                else // the streaming image responses after priming
-                                {
-                                    if (responseMsg.State.DataState() == DataStates.OK)
-                                    {
-                                        m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.HAS_REFRESH;
-                                        m_ConsThreadInfo.Stats.RefreshCompleteCount.Increment();
-                                        if (m_ConsThreadInfo.Stats.RefreshCompleteCount.GetTotal() == (m_RequestListSize - ITEM_STREAM_ID_START))
-                                        {
-                                            m_ConsThreadInfo.Stats.ImageRetrievalEndTime = (long)GetTime.GetNanoseconds();
-                                            m_ConsThreadInfo.Stats.SteadyStateLatencyTime = m_ConsThreadInfo.Stats.ImageRetrievalEndTime + m_ConsPerfConfig.DelaySteadyStateCalc * 1000000L;
-                                        }
-                                    }
-                                }
+                                m_ConsThreadInfo.Stats.ImageRetrievalEndTime = (long)GetTime.GetNanoseconds();
+                                m_ConsThreadInfo.Stats.SteadyStateLatencyTime = m_ConsThreadInfo.Stats.ImageRetrievalEndTime + m_ConsPerfConfig.DelaySteadyStateCalc * 1000000L;
                             }
                         }
                     }
@@ -1334,10 +1296,8 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 //Encode request msg.
                 m_RequestMsg!.MsgClass = MsgClasses.REQUEST;
 
-                //don't apply streaming for JIT Compiler priming and snapshot
                 if (!m_ConsPerfConfig.RequestSnapshots
-                    && (itemRequest.ItemInfo.ItemFlags & (int)ItemFlags.IS_STREAMING_REQ) > 0
-                    && (!m_ConsPerfConfig.PrimeJIT || (m_ConsPerfConfig.PrimeJIT && m_JITWarmupRefreshCount == (m_RequestListSize - ITEM_STREAM_ID_START))))
+                    && (itemRequest.ItemInfo.ItemFlags & (int)ItemFlags.IS_STREAMING_REQ) > 0)
                 {
                     m_RequestMsg.ApplyStreaming();
                 }
@@ -1468,10 +1428,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 }
                 if (m_ConsThreadInfo.Stats.ImageRetrievalStartTime == 0)
                 {
-                    if (!m_ConsPerfConfig.PrimeJIT || m_JITWarmupRefreshCount == (m_RequestListSize - ITEM_STREAM_ID_START))
-                    {
-                        m_ConsThreadInfo.Stats.ImageRetrievalStartTime = (long)GetTime.GetNanoseconds();
-                    }
+                    m_ConsThreadInfo.Stats.ImageRetrievalStartTime = (long)GetTime.GetNanoseconds();
                 }
                 if ((ret = SendItemRequestBurst(requestBurstCount, service)) < TransportReturnCode.SUCCESS)
                 {

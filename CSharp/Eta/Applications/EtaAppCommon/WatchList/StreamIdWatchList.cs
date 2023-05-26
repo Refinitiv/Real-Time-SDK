@@ -54,11 +54,12 @@ namespace LSEG.Eta.Example.Common
             return thisStreamId;
         }
 
-        public WatchListEntry Get(int streamId)
+        public WatchListEntry? Get(int streamId)
         {
             StreamIdKey key = new StreamIdKey();
             key.StreamId = streamId;
-            return watchList[key];
+            watchList.TryGetValue(key, out var wle);
+            return wle;
         }
 
         public void RemoveAll()

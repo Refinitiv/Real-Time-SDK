@@ -217,15 +217,27 @@ namespace LSEG.Eta.ValueAdd.VANiProvider
         private ReactorReturnCode SendRefreshes(ReactorChannel chnl, List<string> itemNames, out ReactorErrorInfo? errorInfo)
         {
             ReactorReturnCode ret;
+            WatchListEntry? wlEntry;
             foreach (string itemName in itemNames)
             {
                 int streamId = m_WatchList.Add(m_DomainType, itemName);
 
                 m_MarketPriceRefresh.ItemName.Data(itemName);
                 m_MarketPriceRefresh.StreamId = streamId;
-                m_MarketPriceRefresh.MarketPriceItem = m_WatchList.Get(streamId).MarketPriceItem!;
 
-                ret = EncodeAndSendContent(chnl, m_MarketPriceRefresh, m_WatchList.Get(streamId), true, out errorInfo);
+                wlEntry = m_WatchList!.Get(streamId);
+
+                if (wlEntry == null)
+                {
+                    errorInfo = new ReactorErrorInfo();
+                    errorInfo.Error.Text = "Non existing stream id: " + streamId;
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                m_MarketPriceRefresh.MarketPriceItem = wlEntry.MarketPriceItem!;
+
+
+                ret = EncodeAndSendContent(chnl, m_MarketPriceRefresh, m_WatchList.Get(streamId)!, true, out errorInfo);
                 if (ret < ReactorReturnCode.SUCCESS)
                     return ret;
             }

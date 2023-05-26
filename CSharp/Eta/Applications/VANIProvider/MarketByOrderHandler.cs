@@ -11,6 +11,7 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Transports;
 
 namespace LSEG.Eta.ValueAdd.VANiProvider
 {
@@ -212,15 +213,28 @@ namespace LSEG.Eta.ValueAdd.VANiProvider
         private ReactorReturnCode SendRefreshes(ReactorChannel chnl, List<string> itemNames, out ReactorErrorInfo? errorInfo)
         {
             ReactorReturnCode ret = ReactorReturnCode.SUCCESS;
+            WatchListEntry? wlEntry;
             foreach (string itemName in itemNames)
             {
                 int streamId = m_WatchList.Add(m_DomainType, itemName);
 
                 m_MarketByOrderRefresh.ItemName.Data(itemName);
                 m_MarketByOrderRefresh.StreamId = streamId;
-                m_MarketByOrderRefresh.MboInfo = m_WatchList.Get(streamId).MarketByOrderItem!;
 
-                ret = EncodeAndSendContent(chnl, m_MarketByOrderRefresh, m_WatchList.Get(streamId), true, out errorInfo);
+                wlEntry = m_WatchList!.Get(streamId);
+
+                if (wlEntry == null)
+                {
+                    errorInfo = new ReactorErrorInfo();
+                    errorInfo.Error.Text = "Non existing stream id: " + streamId;
+                    errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                m_MarketByOrderRefresh.MboInfo = wlEntry.MarketByOrderItem!;
+
+
+                ret = EncodeAndSendContent(chnl, m_MarketByOrderRefresh, m_WatchList.Get(streamId)!, true, out errorInfo);
                 if (ret < ReactorReturnCode.SUCCESS)
                     return ret;
             }

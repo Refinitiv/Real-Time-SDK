@@ -308,7 +308,7 @@ namespace LSEG.Eta.Example.Common
 			State state = statusMsg.State;
 			Console.WriteLine("	" + state);
 
-			WatchListEntry wle = watchList.Get(msg.StreamId);
+			WatchListEntry? wle = watchList.Get(msg.StreamId);
 			if (wle != null)
 			{
 				// update our state table with the new state
@@ -363,11 +363,20 @@ namespace LSEG.Eta.Example.Common
 		{
 			error = null;
 			IRefreshMsg refreshMsg = msg;
-			WatchListEntry wle = watchList.Get(msg.StreamId);
+			WatchListEntry? wle = watchList!.Get(msg.StreamId);
 
-			// Check if this response should be on private stream but is not 
-			// if this is the case, close the stream 
-			if (!refreshMsg.CheckPrivateStream() && wle.IsPrivateStream)
+			if (wle == null)
+			{
+				error = new Error()
+				{
+					Text = "Non existing stream id: " + msg.StreamId
+				};
+				return TransportReturnCode.FAILURE;
+			}
+
+			// Check if this response should be on private stream but is not
+			// if this is the case, close the stream
+			if (!refreshMsg.CheckPrivateStream() && wle!.IsPrivateStream)
 			{
 				Console.WriteLine("Received non-private response for stream "
 						+ msg.StreamId
@@ -388,8 +397,8 @@ namespace LSEG.Eta.Example.Common
 			}
 		
 			// update our item state list if its a refresh, then process just like update
-			wle.ItemState!.DataState(refreshMsg.State.DataState());
-			wle.ItemState.StreamState(refreshMsg.State.StreamState());
+			wle!.ItemState!.DataState(refreshMsg.State.DataState());
+			wle!.ItemState.StreamState(refreshMsg.State.StreamState());
 
 			CodecReturnCode ret;
 			if ((ret = Decode(msg, dIter, dictionary)) == CodecReturnCode.SUCCESS)
@@ -452,7 +461,7 @@ namespace LSEG.Eta.Example.Common
 			}
 			else
 			{
-				WatchListEntry wle = watchList.Get(msg.StreamId);
+				WatchListEntry? wle = watchList.Get(msg.StreamId);
 
 				if (wle != null)
 				{
@@ -859,9 +868,9 @@ namespace LSEG.Eta.Example.Common
 
 		private TransportReturnCode RedirectToPrivateStream(int streamId, out Error? error)
 		{
-			WatchListEntry wle = watchList.Get(streamId);
+			WatchListEntry? wle = watchList.Get(streamId);
 			RemoveYieldCurveItemEntry(streamId);
-			int psStreamId = watchList.Add(domainType, wle.ItemName!, true);
+			int psStreamId = watchList.Add(domainType, wle!.ItemName!, true);
 
 			GenerateRequest(yieldCurveRequest, true, redirectSrcDirInfo!, redirectLoginInfo!);
 			yieldCurveRequest.ItemNames.Add(wle.ItemName!);
