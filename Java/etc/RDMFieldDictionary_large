@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.56_RealTimeDistributionSystem_23.21		02/19/2023
-!	* Modified 02/19/2023 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.56.
+!   Version	 4.20.57_RealTimeDistributionSystem_23.41		05/08/2023
+!	* Modified 05/08/2023 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.57.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.56_RealTimeDistributionSystem
+!   Version: 4.20.57_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.56
+!tag Version   4.20.57
 !tag Build     2
-!tag Date      31-Jan-2023
+!tag Date      04-May-2023
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -19951,7 +19951,10 @@ MAX_ORD_V2 "MAX ORDER VALUE 2"   7170  NULL        INTEGER            15   INT64
 !
 ! Additional Maximum Order Value
 !
-PRE_INT292 "PRED INTEGER 292"    7171  NULL        INTEGER            15   INT64           8
+EX_NUMMOV  "EXCHANGE NUM MOVES"  7171  NULL        INTEGER            15   INT64           8
+!
+! Number of trades reported by the exchange/source.
+!
 PRE_INT293 "PRED INTEGER 293"    7172  NULL        INTEGER            15   INT64           8
 PRE_INT294 "PRED INTEGER 294"    7173  NULL        INTEGER            15   INT64           8
 PRE_INT295 "PRED INTEGER 295"    7174  NULL        INTEGER            15   INT64           8
@@ -26865,9 +26868,18 @@ IMP_RT_DT  "IMP RATE DATE"       9400  NULL        DATE               11  DATE  
 !
 ! Implied Rate Date.
 !
-PRE_DT290  "PRED DATE 290"       9401  NULL        DATE               11  DATE             4
-PRE_DT291  "PRED DATE 291"       9402  NULL        DATE               11  DATE             4
-PRE_DT292  "PRED DATE 292"       9403  NULL        DATE               11  DATE             4
+NDOR_2     "SEC DT OF RELEASE"   9401  NULL        DATE               11  DATE             4
+!
+! To display the second event date of release.
+!
+NDOR_3     "THRD DT OF RELEASE"  9402  NULL        DATE               11  DATE             4
+!
+! To display the third event date of release.
+!
+PDOR_1     "PREV DT OF RELEASE"  9403  NULL        DATE               11  DATE             4
+!
+! To display the previous date of release.
+!
 PRE_DT293  "PRED DATE 293"       9404  NULL        DATE               11  DATE             4
 PRE_DT294  "PRED DATE 294"       9405  NULL        DATE               11  DATE             4
 PRE_DT295  "PRED DATE 295"       9406  NULL        DATE               11  DATE             4
@@ -31893,9 +31905,20 @@ FIX_LWQRTL "FIX LOWER QRTL"     11085  NULL        PRICE              17  REAL64
 !
 ! Lower quartile of the benchmark rate.
 !
-PRERL2095  "PRED REAL 2095"     11086  NULL        PRICE              17  REAL64           9
-PRERL2096  "PRED REAL 2096"     11087  NULL        PRICE              17  REAL64           9
-PRERL2097  "PRED REAL 2097"     11088  NULL        PRICE              17  REAL64           9
+EST_LO_RNG "ESTI LOWER RANGE"   11086  NULL        PRICE              17  REAL64           9
+!
+! Estimated - Lower range. When estimates are provided as a value range, this field 
+! shows the lower range value.
+!
+EST_UP_RNG "ESTI UPPER RANGE"   11087  NULL        PRICE              17  REAL64           9
+!
+! Estimated - Upper range. When estimates are provided as a value range, this field 
+! shows the upper range value.
+!
+MAX_CAP    "MAXIMUM CAPACITY"   11088  NULL        PRICE              17  REAL64           9
+!
+! The maximum capacity that a storage facility can hold.
+!
 PRERL2098  "PRED REAL 2098"     11089  NULL        PRICE              17  REAL64           9
 PRERL2099  "PRED REAL 2099"     11090  NULL        PRICE              17  REAL64           9
 PRERL2100  "PRED REAL 2100"     11091  NULL        PRICE              17  REAL64           9
@@ -33134,8 +33157,14 @@ DRK_P_XID  "DRK TRD PRC XID"    11887  NULL        ALPHANUMERIC       10  RMTES_
 ! MIC segment code or other identifiers of the venue where the last update of DRK_PRC 
 ! originated from
 !
-PRE_10T163 "PRED 10 TXT 163"    11888  NULL        ALPHANUMERIC       10  RMTES_STRING    10
-PRE_10T164 "PRED 10 TXT 164"    11889  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+REF_PRD_2  "SEC REFPRC PERIOD"  11888  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Reference Period associated with the Second Date of Release
+!
+REF_PRD_3  "THRD REFPRC PERIOD" 11889  NULL        ALPHANUMERIC       10  RMTES_STRING    10
+!
+! Reference Period associated with the Third Date of Release
+!
 PRE_10T165 "PRED 10 TXT 165"    11890  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T166 "PRED 10 TXT 166"    11891  NULL        ALPHANUMERIC       10  RMTES_STRING    10
 PRE_10T167 "PRED 10 TXT 167"    11892  NULL        ALPHANUMERIC       10  RMTES_STRING    10
@@ -36633,8 +36662,14 @@ ORD_SZ_Q2  "ORDER SIZE 2 QUAL"  13627  NULL        ENUMERATED    5 ( 8 )  ENUM  
 !
 ! Qualifier associated with secondary order size and value, i.e., MAX_ORD_S2.
 !
-PRE_2ET307 "PRED 2 ET 307"      13628  NULL        ENUMERATED    5 ( 8 )  ENUM             2
-PRE_2ET308 "PRED 2 ET 308"      13629  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+FIXPTL1_TP "FIX PCTL 1 TP"      13628  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! The percentile of the benchmark rate in the field FIX_PCTL1.
+!
+FIXPTL2_TP "FIX PCTL 2 TP"      13629  NULL        ENUMERATED    5 ( 8 )  ENUM             2
+!
+! The percentile of the benchmark rate in the field FIX_PCTL2.
+!
 PRE_2ET309 "PRED 2 ET 309"      13630  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET310 "PRED 2 ET 310"      13631  NULL        ENUMERATED    5 ( 8 )  ENUM             2
 PRE_2ET311 "PRED 2 ET 311"      13632  NULL        ENUMERATED    5 ( 8 )  ENUM             2
@@ -38872,7 +38907,10 @@ MAXBFIL_NS "MAX BID ORD FIL NS" 14703  NULL        INTEGER            15  TIME  
 !
 ! Maximum time taken to fill a bid order.
 !
-PRE_274_NS "PRED TIME NS 274"   14704  NULL        INTEGER            15  TIME             8
+MID_TIM_NS "MID TIME NS"        14704  NULL        INTEGER            15  TIME             8
+!
+! Time of update for the mid price field MID_PRICE (#4990).
+!
 PRE_275_NS "PRED TIME NS 275"   14705  NULL        INTEGER            15  TIME             8
 PRE_276_NS "PRED TIME NS 276"   14706  NULL        INTEGER            15  TIME             8
 PRE_277_NS "PRED TIME NS 277"   14707  NULL        INTEGER            15  TIME             8
@@ -39962,8 +40000,14 @@ STRIPRLEG2 "STRIKE PRC LEG 2"   15469  NULL        ALPHANUMERIC       20  RMTES_
 !
 ! Strike price Leg 2
 !
-PRERL2461  "PRED REAL 2461"     29450  NULL        PRICE              17  REAL64           9
-PRERL2462  "PRED REAL 2462"     29451  NULL        PRICE              17  REAL64           9
+FIX_PCTL1  "FIX PCTL 1"         29450  NULL        PRICE              17  REAL64           9
+!
+! The NNth percentile benchmark rate. Qualified by the field FIXPTL1_TP.
+!
+FIX_PCTL2  "FIX PCTL 2"         29451  NULL        PRICE              17  REAL64           9
+!
+! The NNth percentile benchmark rate. Qualified by the field FIXPTL2_TP.
+!
 PRERL2463  "PRED REAL 2463"     29452  NULL        PRICE              17  REAL64           9
 PRERL2464  "PRED REAL 2464"     29453  NULL        PRICE              17  REAL64           9
 PRERL2465  "PRED REAL 2465"     29454  NULL        PRICE              17  REAL64           9
