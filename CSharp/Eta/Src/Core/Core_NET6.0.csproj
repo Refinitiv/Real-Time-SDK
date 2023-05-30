@@ -8,9 +8,9 @@
 	  <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
 	  <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <Version>3.0.1</Version>
-      <AssemblyVersion>3.0.1</AssemblyVersion>
-      <FileVersion>3.0.1</FileVersion>
+      <Version>3.0.2</Version>
+      <AssemblyVersion>3.0.2</AssemblyVersion>
+      <FileVersion>3.0.2</FileVersion>
 	  <Company>Refinitiv</Company>
 	  <Authors>LSEG</Authors>
 	  <Product>Enterprise Transport API (ETA) C# Edition</Product>
