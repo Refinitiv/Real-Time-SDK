@@ -239,9 +239,9 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( !clientId.length() || !jwkFile.length() )
+		if ( !clientId.length() || !jwkFile.length() || !host.length() || !port.length() )
 		{
-			cout << "User name, password and client Id must be specified on the command line. Exiting...";
+			cout << "clientId, jwkFile, host and port must be specified on the command line. Exiting...";
 			printHelp();
 			return -1;
 		}
@@ -257,7 +257,7 @@ int main( int argc, char* argv[] )
 		readSize = (int)fread(_clientJwkMem, sizeof(char), 2048, pFile);
 		if (readSize == 0)
 		{
-			printf("Cannot load jwk file.\n");
+			printf("Cannot load jwk file or file size is zero.\n");
 			return 0;
 		}
 		
