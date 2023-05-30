@@ -228,6 +228,8 @@ bool OmmConsumerConfigImpl::isShouldCopyIntoAPI()
 
 void OmmConsumerConfigImpl::clear()
 {
+	EmaConfigImpl::clear();
+
 	if (_dataDictionary && _shouldCopyIntoAPI)
 	{
 		_dataDictionary->_pImpl->decDataDictionaryRefCount();
