@@ -2408,8 +2408,15 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		loadDirectory();
 
-		if (!getDictionaryCallbackClient().getDefaultDictionary()->isLoaded())
+		if (getImplType() == OmmCommonImpl::ConsumerEnum)
+		{
+			if (!getDictionaryCallbackClient().getDefaultDictionary()->isLoaded())
+				loadDictionary();
+		}
+		else
+		{
 			loadDictionary();
+		}
 
 		clearSensitiveInfo();
 		_isInitialized = true;
