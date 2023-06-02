@@ -177,9 +177,12 @@ public class DiscoveredEndpointSettingsServiceImpl implements DiscoveredEndpoint
                 consumer = EmaFactory.createOmmConsumer(config, channelInformationClient);
             } else {
                 credentials.clientId = discoveredEndpointSettingsModel.getClientId();
-                credentials.clientSecret = discoveredEndpointSettingsModel.getClientSecret();
-                credentials.clientJwk = getJwkFile(discoveredEndpointSettingsModel.getJwkPath());
-                credentials.audience = discoveredEndpointSettingsModel.getAudience();
+                if (discoveredEndpointSettingsModel.useClientSecret()) {
+                    credentials.clientSecret = discoveredEndpointSettingsModel.getClientSecret();
+                } else {
+                    credentials.clientJwk = getJwkFile(discoveredEndpointSettingsModel.getJwkPath());
+                    credentials.audience = discoveredEndpointSettingsModel.getAudience();
+                }
                 credentials.useClientSecret = discoveredEndpointSettingsModel.useClientSecret();
                 consumer = EmaFactory.createOmmConsumer(config.tokenServiceUrlV2(discoveredEndpointSettingsModel.getTokenServiceUrl()), channelInformationClient, oAuthCallback, credentials);
             }
