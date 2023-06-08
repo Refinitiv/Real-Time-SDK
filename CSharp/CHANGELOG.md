@@ -10,21 +10,36 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.0.L1 aka EMA/ETA 3.0.1.L1 aka 3.0.1.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.1.L1 aka ETA 3.0.2.L1 aka 3.0.2.0
 ----------------------------------------------------------------------------------------
 
 New Features Added
 ------------------
 
-This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming.
+This is a maintenance release with fixes. In addition, this release introduces a self-contained RRG package that contains external dependencies required for builds. This is in contrast to last release where dependencies were auto-downloaded from NuGet. Note that building GitHub source will continue to auto-download external dependencies. 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.1.1.L1 (Jun 9, 2023)
+---------------------------------------------
+
+ETA CSharp 3.0.2.L1  
+-------------------
+- [RTSDK-7333] - Minor edits to Perftools Guide
+- [RTSDK-7169] - Self-contained RRG Package for CSharp
+- [RTSDK-7316] - Consumer application cannot decode ACK message on streamId=1
+- [RTSDK-7352] - VAProvider sends STATUS msg with domainType MARKET_PRICE for SYMBOL_LIST
+- [RTSDK-7421] - ConsPerf code cleanup
+- [RTSDK-7495] - Modified Reactor to support setting JWK string for ReactorOAuthCredential.ClientJwk
+
+---------------------------------------------
 RTSDK CSharp Release 2.1.0.L1 (Mar 15, 2023)
 ---------------------------------------------
+
+This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming.
 
 ETA CSharp 3.0.1.L1  
 -------------------

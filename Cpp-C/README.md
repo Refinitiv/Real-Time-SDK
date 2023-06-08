@@ -84,7 +84,6 @@ Platforms:
 	Microsoft Windows Server 2012 R2 Standard Edition or later 64-bit
 	Microsoft Windows Server 2016 Standard Edition or later 64-bit
 	Microsoft Windows Server 2019 Standard Edition or later 64-bit
-	Microsoft Windows 8.1 Professional or later 64-bit
 	Microsoft Windows 10 Professional 64-bit 
 
 Compilers (only on OSs supported by Microsoft): 
@@ -160,8 +159,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.3
-- ADH 3.6.3
+- ADS 3.7.0
+- ADH 3.7.0
 - DACS 7.8
 
 # Documentation
@@ -185,7 +184,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using CMake**:
 
-Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.10.3 or higher. 
+Cmake is required to create the Linux Makefile files and Windows Solution and vcxproj files. To build examples or re-build libraries, user must download [CMake](https://cmake.org) version 3.12.4 (cmake_minimum_required) or later. 
 
 In addition, Python 3 is required. This can be installed either through yum or a windows installer.
 

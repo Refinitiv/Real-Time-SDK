@@ -9,22 +9,62 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.0.L1 aka EMA/ETA 3.7.0.L1 aka 3.7.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.1.L1 aka EMA/ETA 3.7.1.L1 aka 3.7.1.0
 ----------------------------------------------------------------------------------------
 
-This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
+This is a maintenance release with fixes for customer issues and minor enhancements
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #225] - [RTSDK-6963] - EMAC++ DataDictionary outputs only positive FIDs
+- [Case Number: 10894282] - [RTSDK-6139] - Enhancement to pass in a dictionary into OMMConsumer 
+- [Case Number: 11689662] - [RTSDK-6670] - ETA crash due to submitting login reissue with WL enabled prior to ReactorConnection 
+- [Case Number: 11823373] - [RTSDK-6805] - ETA C Reactor crash in FD change upon reconnect with http connections 
+- [Case Number: 12319259] - [RTSDK-7201] - Option to skip CpuID Topology initialization added 
+- [GitHub #219] - [RTSDK-6809] - Misaligned EmaString objects in OmmException 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.1.1.L1 (Jun 9, 2023)
+--------------------------------------------
+
+EMA C++ 3.7.1.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6139] - Enhancement to pass in a dictionary into OMMConsumer [Case Number: 10894282]
+- [RTSDK-6809] - Misaligned EmaString objects in OmmException [GitHub #219]
+- [RTSDK-6830] - Enhancement to add config option, restEnableLog, to ServiceEndpointDiscovery
+- [RTSDK-7448] - EMAC++ Cons452 example output cleanup
+
+ETA C 3.7.1.L1 Issues Resolved
+------------------------------
+- [RTSDK-6615] - RSSL_DEBUG_IPC_DUMP_COMP on read side doesn't print compressed data-in
+- [RTSDK-6670] - ETA C Reactor crash due to submitting login reissue with WL enabled prior to ReactorConnection [Case Number: 11689662]
+- [RTSDK-6847] - UserSpecPtr in ETAC Reactor is set multiple times
+- [RTSDK-7055] - With Compression turned off, uncompressedBytesRead does not match bytesRead
+- [RTSDK-7230] - ETAC Package build with JWT requires internet access for example build: package should be self-contained
+- [RTSDK-7248] - Update error text in ETAC VA to be clear that the error is coming from curl
+- [RTSDK-7257] - Fix to 'checkSizeandRealloc' method to grow buffer as needed to avoid crash
+- [RTSDK-7355] - Fix to Reactor worker thread to release token mutex upon channel close and token session awaiting response
+
+
+Both ETA C and EMA C++ 3.7.1.L1 Issues Resolved
+----------------------------------------------
+- [RTSDK-5570] - RTSDK fails to establish a websocket connection properly with blocking mode
+- [RTSDK-5886] - Expose correct TLS version for OpenSSL1.1 usage
+- [RTSDK-6143] - Update supported Cipher Suites
+- [RTSDK-6351] - Enhance ETAC to send large messages over Websocket/JSON Transport
+- [RTSDK-6805] - ETA C Reactor crash in FD change upon reconnect with http connections [Case Number: 11823373]
+- [RTSDK-7201] - Option to skip CpuID Topology initialization added [Case Number: 12319259]
+- [RTSDK-7247] - Performance Improvement: Implement generate random value by using Microsoft CNG Cryptography API
+- [RTSDK-7405] - Unresolved external symbol BCryptGenRandom  
+
+--------------------------------------------
 RTSDK C++/C Release 2.1.0.L1 (Mar 15, 2023)
 --------------------------------------------
+
+This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
 
 EMA C++ 3.7.0.L1 Issues Resolved
 --------------------------------

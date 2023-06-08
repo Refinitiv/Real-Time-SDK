@@ -14,12 +14,22 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 External modules used by this version of RTSDK CSharp:
 
-        Dependency                             Version
-        ----------                             -------
-        K4os.Compression.LZ4                   1.2.16
-        Microsoft.IdentityModel.Tokens         6.23.1
-        System.IdentityModel.Tokens.Jwt        6.23.1
-
+        Dependency                                 Version
+        ----------                                 -------
+        K4os.Compression.LZ4                       1.2.16
+        Microsoft.Csharp                           4.5.0
+        Microsoft.IdentityModel.Abstractions       6.23.1
+        Microsoft.IdentityModel.Jsonwebtokends     6.23.1
+        Microsoft.IdentityModel.Logging            6.23.1
+        Microsoft.IdentityModel.Tokens             6.23.1
+        Microsoft.Netcore.Platforms                1.1.0
+        Microsoft.Netcore.Targets                  1.1.0
+        System.IdentityModel.Tokens.Jwt            6.23.1
+        System.Runtime                             4.3.0
+        System.Security.Cryptography.Cng           4.5.0 
+        System.Text.Encodings                      4.3.0
+        System.Text.Encodings.Web                  4.7.2
+        System.Text.Json                           4.7.2
 
 
 # Software Requirements
@@ -29,12 +39,12 @@ External modules used by this version of RTSDK CSharp:
 
 ### Platforms and Compilers used in Test
 
-	Windows Server 2016 Enterprise Edition or later 64-bit
-	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
-	Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1
-	CentOS 7.X Release 64-bit Qualification 
+        Windows Server 2016 Enterprise Edition or later 64-bit
+        Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
+        Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1
+        CentOS 7.X Release 64-bit Qualification 
 
-	Microsoft Visual Studio 2022 64-bit 
+        Microsoft Visual Studio 2022 64-bit 
 
 ### Encryption Support
 
@@ -60,8 +70,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.6.3
-- ADH 3.6.3
+- ADS 3.7.0
+- ADH 3.7.0
 - DACS 7.8
 
 # Documentation
@@ -86,14 +96,32 @@ Use the provided solution (or `sln`) file to build in **Visual Studio**.
 
 **Using dotnet**
 
-Navigate to `RTSDK/CSharp` and issue the appropriate dotnet command as follows to build libraries and/or examples:
+The RRG package contains all required external dependencies in the CSharp/Eta/NuGetPackages directory. In an environment without internet access, you must add this directory as a nuget source and disable other nuget sources for a build to succeed. Here are some dotnet commands to do so:
+
+        To check existing NuGet sources:   
+               dotnet nuget list source
+
+        To add a new NuGet source:
+              dotnet nuget add source <full path to your RRG package/CSharp/Eta/NuGetPackages>.
+
+        To disable certain NuGet sources:
+              dotnet nuget disable source <specify a source show in the list>.
+              Example: dotnet nuget disable source "nuget.org"
+
+
+To build, navigate to `RTSDK/CSharp` and issue the appropriate dotnet command as follows to build libraries and/or examples:
 
         dotnet build --configuration <Release|Debug> ETA_NET6.0.sln
 
-        NOTE: In a GitHub build, this builds libraries and places them into Eta/Libs and examples into Eta/Executables
-              In RRG package, this builds only libraries and places them into a custom directory: Eta/Custom/Libs
+        NOTE: 
+              - In a GitHub build, the command above builds libraries and places them into Eta/Libs and examples into Eta/Executables
+              - In RRG package, it builds only libraries and places them into a custom directory: Eta/Custom/Libs
+
+        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> ETA_NET6.0.sln
 
 To build just libraries:
+
+Building RTSDK using dotnet command lines is platform agnostic; i.e., it works the same way on Linux and Windows platforms. To build using Visual Studio is applicable to only Windows.
 
         dotnet build --configuration Release Eta/Src/Core/Core_NET6.0.csproj
         dotnet build --configuration Release Eta/Src/ValueAdd/ValueAdd_NET6.0.csproj
@@ -141,10 +169,10 @@ You can download RTSDK libraries and dependencies from NuGet. Below is *sample* 
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.0.1"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.1"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.1"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.1"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.0.2"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.2"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.2"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.2"/>
                 </ItemGroup/>
         </dependency>
 

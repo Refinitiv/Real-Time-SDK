@@ -68,9 +68,9 @@ The Refinitiv Real-Time-SDK provides support for multicast connections using JNI
 
 Platforms:
 
-	Windows Server 2012 Enterprise Edition or later 64-bit
-	Windows Server 2016 Enterprise Edition or later 64-bit
-	Microsoft Windows 8.1 Professional or later 64-bit
+	Microsoft Windows Server 2012 Enterprise Edition or later 64-bit
+	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
+	Microsoft Windows Server 2019 Standard Edition or later 64-bit
 	Microsoft Windows 10 Professional 64-bit
 
 Compilers (only on OSs supported by Microsoft):
@@ -132,8 +132,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.3
-- ADH 3.6.3
+- ADS 3.7.0
+- ADH 3.7.0
 - DACS 7.8
 
 # Documentation
@@ -216,40 +216,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.7.0.0</version>
+		<version>3.7.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.7.0.0</version>
+		<version>3.7.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.7.0.0</version>
+		<version>3.7.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.7.0.0</version>
+		<version>3.7.1.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.7.0.0</version>
+		<version>3.7.1.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.0.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.0.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.0.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.0.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.0.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.1.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.1.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.1.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.1.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.1.0'
 
 # Developing 
 

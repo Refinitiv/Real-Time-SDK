@@ -9,26 +9,44 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.0.L1 aka EMA/ETA 3.7.0.L1 aka 3.7.0.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.1.L1 aka EMA/ETA 3.7.1.L1 aka 3.7.1.0
 ----------------------------------------------------------------------------------------
 
-This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
+This is a maintenance release with fixes for customer issues.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 10894282] - [RTSDK-5931] - Enhancement to pass in Dictionary object upon OMMConsumer creation
-- [Case Number: 11979617] - [RTSDK-7074] - EMA Deadlock fix: OmmConsumers stop wroking without any error message
-- [Case Number: 12263752] - [RTSDK-7111] - EMA Java DataDictionaryImpl memory leak issue
-- [GitHub #221] [RTSDK-6839, RTSDK-7200] - Flags from request are not copied into response resulting in invalid snapshot response
-
+- [GitHub #128, Case Number:  12360452] - [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions
+- [GitHub #234] - [RTSDK-7060] - Update to ETAJ documentation about JKS keystore file
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.1.1.L1 (Jun 9, 2023)
+--------------------------------------------
+
+EMA Java 3.7.1.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6143] - Update supported Cipher Suites
+- [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions [GitHub #128, Case Number:  12360452]
+- [RTSDK-7506] - Error in rrtviewer that JWK file is missing upon specifying service credentials
+
+ETA Java 3.7.1.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6846] - ETAJ code duplication in Reactor
+- [RTSDK-7060] - Update to ETAJ documentation about JKS keystore file [GitHub #234]
+
+Both ETA Java and EMA Java 3.7.1.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-7239] - Change default subprotocol to be socket instead of HTTP on encrypted connections
+
+--------------------------------------------
 RTSDK Java Release 2.1.0.L1 (Mar 15, 2023)
 --------------------------------------------
+
+This release introduces client credentials with jwt authentication for connectivity to Refinitiv Real-Time Optimized. Ability to obtain service accounts to use this authentication mechanism is forthcoming. In addition, this release serves as a maintenance release with fixes.
 
 EMA Java 3.7.0.L1 Issues Resolved
 ---------------------------------
