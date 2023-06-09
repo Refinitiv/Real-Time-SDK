@@ -936,14 +936,14 @@ TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: _rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: _rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 }
 
 TEST_F(ReactorSessionMgntTest, EmptyServiceDiscoveryURL)
@@ -982,14 +982,14 @@ TEST_F(ReactorSessionMgntTest, InvalidServiceDiscoveryURL)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "_rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "_rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 }
 
 TEST_F(ReactorSessionMgntTest, InvalidConnectionType)
