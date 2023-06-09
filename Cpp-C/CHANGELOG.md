@@ -53,7 +53,6 @@ Both ETA C and EMA C++ 3.7.1.L1 Issues Resolved
 ----------------------------------------------
 - [RTSDK-5570] - RTSDK fails to establish a websocket connection properly with blocking mode
 - [RTSDK-5886] - Expose correct TLS version for OpenSSL1.1 usage
-- [RTSDK-6143] - Update supported Cipher Suites
 - [RTSDK-6351] - Enhance ETAC to send large messages over Websocket/JSON Transport
 - [RTSDK-6805] - ETA C Reactor crash in FD change upon reconnect with http connections [Case Number: 11823373]
 - [RTSDK-7201] - Option to skip CpuID Topology initialization added [Case Number: 12319259]
