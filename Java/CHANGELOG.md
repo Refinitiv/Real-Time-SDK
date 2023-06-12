@@ -16,7 +16,7 @@ This is a maintenance release with fixes for customer issues.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #128, Case Number:  12360452] - [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions
+- [GitHub #198, Case Number:  12360452] - [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions
 - [GitHub #234] - [RTSDK-7060] - Update to ETAJ documentation about JKS keystore file
 
 ----------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ RTSDK Java Release 2.1.1.L1 (Jun 9, 2023)
 
 EMA Java 3.7.1.L1 Issues Resolved
 ---------------------------------
-- [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions [GitHub #128, Case Number:  12360452]
+- [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions [GitHub #198, Case Number:  12360452]
 - [RTSDK-7506] - Error in rrtviewer that JWK file is missing upon specifying service credentials
 
 ETA Java 3.7.1.L1 Issues Resolved
