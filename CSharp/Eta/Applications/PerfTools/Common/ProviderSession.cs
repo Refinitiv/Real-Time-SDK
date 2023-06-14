@@ -212,7 +212,7 @@ namespace LSEG.Eta.PerfTools.Common
         public PerfToolsReturnCode PrintEstimatedMsgSizes(out Error? error)
         {
             MsgKey msgKey = new MsgKey();
-            msgKey.Flags = MsgKeyFlags.HAS_NAME_TYPE | MsgKeyFlags.HAS_SERVICE_ID;
+            msgKey.Flags = MsgKeyFlags.HAS_NAME_TYPE | MsgKeyFlags.HAS_SERVICE_ID | MsgKeyFlags.HAS_NAME;
             msgKey.NameType = InstrumentNameTypes.RIC;
             msgKey.Name.Data("RDT0");
             msgKey.ServiceId = 0;

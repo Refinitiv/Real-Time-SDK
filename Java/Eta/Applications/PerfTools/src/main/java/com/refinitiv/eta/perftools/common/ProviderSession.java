@@ -181,7 +181,7 @@ public class ProviderSession
     public int printEstimatedMsgSizes(Error error)
     {
         MsgKey msgKey = CodecFactory.createMsgKey();
-        msgKey.flags(MsgKeyFlags.HAS_NAME_TYPE | MsgKeyFlags.HAS_SERVICE_ID);
+        msgKey.flags(MsgKeyFlags.HAS_NAME_TYPE | MsgKeyFlags.HAS_SERVICE_ID | MsgKeyFlags.HAS_NAME);
         msgKey.nameType(InstrumentNameTypes.RIC);
         msgKey.name().data("RDT0");
         msgKey.serviceId(0);

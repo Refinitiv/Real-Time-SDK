@@ -120,6 +120,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
                             // deep copy item name buffer
                             ByteBuffer nameBytes = new ByteBuffer(msgKey.Name.Length);
                             msgKey.Name.Copy(nameBytes);
+                            nameBytes.Flip();
                             itemAttributes.MsgKey.Name.Data(nameBytes);
                         }
 
@@ -128,6 +129,7 @@ namespace LSEG.Eta.PerfTools.ProvPerf
                             // deep copy attrib buffer
                             ByteBuffer attribBytes = new ByteBuffer(msgKey.EncodedAttrib.Length);
                             msgKey.EncodedAttrib.Copy(attribBytes);
+                            attribBytes.Flip();
                             itemAttributes.MsgKey.EncodedAttrib.Data(attribBytes);
                         }
 
