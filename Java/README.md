@@ -159,9 +159,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using Gradle**:
 
-Gradle is now used to build RTSDK.
-Gradle can be downloaded from https://gradle.org
-NOTE: Starting with SDK version 1.3.1, please use Gradle version 5.X which supports JDK1.11 and no longer supports JDK1.7.
+Gradle is used to build RTSDK and may be downloaded from https://gradle.org. For a minimum version of gradle required by gradle wrapper, please check [build.gradle](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/build.gradle#L186).
 
 Refer to the RTSDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
 
