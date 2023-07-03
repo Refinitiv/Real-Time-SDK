@@ -725,6 +725,15 @@ namespace LSEG.Eta.ValueAdd.Rdm
                         return ret;
                 }
 
+                if (SupportedFeatures.HasSupportStandbyMode)
+                {
+                    element.DataType = DataTypes.UINT;
+                    element.Name = ElementNames.SUPPORT_STANDBY_MODE;
+                    tmpUInt.Value(SupportedFeatures.SupportStandbyMode);
+                    if ((ret = element.Encode(EncodeIter, tmpUInt)) != CodecReturnCode.SUCCESS)
+                        return ret;
+                }
+
                 if (SupportedFeatures.HasSupportOptimizedPauseResume)
                 {
                     element.DataType = DataTypes.UINT;
@@ -739,6 +748,15 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     element.DataType = DataTypes.UINT;
                     element.Name = ElementNames.SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD;
                     tmpUInt.Value(SupportedFeatures.SupportProviderDictionaryDownload);
+                    if ((ret = element.Encode(EncodeIter, tmpUInt)) != CodecReturnCode.SUCCESS)
+                        return ret;
+                }
+
+                if(SupportedFeatures.HasSupportEnhancedSymbolList)
+                {
+                    element.DataType = DataTypes.UINT;
+                    element.Name = ElementNames.SUPPORT_ENH_SL;
+                    tmpUInt.Value(SupportedFeatures.SupportEnhancedSymbolList);
                     if ((ret = element.Encode(EncodeIter, tmpUInt)) != CodecReturnCode.SUCCESS)
                         return ret;
                 }
@@ -962,6 +980,17 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     SupportedFeatures.HasSupportStandby = true;
                     SupportedFeatures.SupportStandby = tmpUInt.ToLong();
                 }
+                else if (element.Name.Equals(ElementNames.SUPPORT_STANDBY_MODE))
+                {
+                    if (element.DataType != DataTypes.UINT)
+                        return CodecReturnCode.FAILURE;
+                    ret = tmpUInt.Decode(dIter);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+                    HasFeatures = true;
+                    SupportedFeatures.HasSupportStandbyMode = true;
+                    SupportedFeatures.SupportStandbyMode = tmpUInt.ToLong();
+                }
                 else if (element.Name.Equals(ElementNames.SUPPORT_BATCH))
                 {
                     if (element.DataType != DataTypes.UINT)
@@ -1018,6 +1047,17 @@ namespace LSEG.Eta.ValueAdd.Rdm
                     HasFeatures = true;
                     SupportedFeatures.HasSupportProviderDictionaryDownload = true;
                     SupportedFeatures.SupportProviderDictionaryDownload = tmpUInt.ToLong();
+                }
+                else if (element.Name.Equals(ElementNames.SUPPORT_ENH_SL))
+                {
+                    if (element.DataType != DataTypes.UINT)
+                        return CodecReturnCode.FAILURE;
+                    ret = tmpUInt.Decode(dIter);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+                    HasFeatures = true;
+                    SupportedFeatures.HasSupportEnhancedSymbolList = true;
+                    SupportedFeatures.SupportEnhancedSymbolList = tmpUInt.ToLong();
                 }
                 else if (element.Name.Equals(ElementNames.AUTHN_TT_REISSUE))
                 {

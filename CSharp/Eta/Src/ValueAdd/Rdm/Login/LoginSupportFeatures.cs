@@ -75,6 +75,14 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public long SupportEnhancedSymbolList { get; set; }
 
         /// <summary>
+        /// Indicates support standby modes for the warm standby feature.
+        /// 0 - Unknown warm standby mode.
+        /// 1 - Login based warm standby mode.
+        /// 2 - Service based warm standby mode.
+        /// </summary>
+        public long SupportStandbyMode { get; set; }
+
+        /// <summary>
         /// Checks the presence of supportBatchRequests field.
         /// </summary>
         public bool HasSupportBatchRequests
@@ -209,6 +217,20 @@ namespace LSEG.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Checks the presence of supportStandbyMode field.
+        /// </summary>
+        public bool HasSupportStandbyMode
+        {
+            get => (Flags & LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE) != 0;
+            set
+            {
+                if (value)
+                    Flags |= LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE;
+                else
+                    Flags &= ~LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE;
+            }
+        }
 
         private StringBuilder stringBuf = new StringBuilder();
         private const string eol = "\n";
@@ -361,6 +383,13 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportEnhancedSymbolList: ");
                 stringBuf.Append(SupportEnhancedSymbolList);
+                stringBuf.Append(eol);
+            }
+            if (HasSupportStandbyMode)
+            {
+                stringBuf.Append(tab);
+                stringBuf.Append("SupportStandbyMode: ");
+                stringBuf.Append(SupportStandbyMode);
                 stringBuf.Append(eol);
             }
 

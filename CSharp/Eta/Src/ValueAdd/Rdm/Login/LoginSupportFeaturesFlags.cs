@@ -63,6 +63,11 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// (0x100) Indicates presence of the supportEnhancedSymbolList member.
         /// </summary>
-        HAS_SUPPORT_ENH_SL = 0x100
+        HAS_SUPPORT_ENH_SL = 0x100,
+
+        /// <summary>
+        /// (0x200) Indicates presence of the supportStandbyMode member.
+        /// </summary>
+        HAS_SUPPORT_STANDBY_MODE = 0x200
     }
 }

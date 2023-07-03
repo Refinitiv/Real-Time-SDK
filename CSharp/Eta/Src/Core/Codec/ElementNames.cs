@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -65,6 +65,9 @@ namespace LSEG.Eta.Rdm
 		/// SupportProviderDictionaryDownload </summary>
 		public static readonly Buffer SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD = new Buffer();
 		/// <summary>
+		/// SupportEnhancedSymbolList/// </summary>
+		public static readonly Buffer SUPPORT_ENH_SL = new Buffer();
+		/// <summary>
 		/// InstanceId </summary>
 		public static readonly Buffer INST_ID = new Buffer();
 		/// <summary>
@@ -87,6 +90,9 @@ namespace LSEG.Eta.Rdm
 		/// <summary>
 		/// ConsumerConnectionStatus </summary>
 		public static readonly Buffer CONS_CONN_STATUS = new Buffer();
+		/// <summary>
+		/// SupportStandbyMode/// </summary>
+		public static readonly Buffer SUPPORT_STANDBY_MODE = new Buffer();
 
 		// Connection Load Balancing - Well known Element Names
 		/// <summary>
@@ -393,6 +399,9 @@ namespace LSEG.Eta.Rdm
 			
             // SupportProviderDictionaryDownload
 			SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD.Data("SupportProviderDictionaryDownload");
+
+			// SupportEnhancedSymbolList
+			SUPPORT_ENH_SL.Data("SupportEnhancedSymbolList");
 			
             // InstanceId
 			INST_ID.Data("InstanceId");
@@ -414,6 +423,9 @@ namespace LSEG.Eta.Rdm
 			
             // ConsumerConnectionStatus
 			CONS_CONN_STATUS.Data("ConsumerConnectionStatus");
+
+			// SupportStandbyMode
+			SUPPORT_STANDBY_MODE.Data("SupportStandbyMode");
 
 			// Connection Load Balancing - Well known Element Names
 			DOWNLOAD_CON_CONFIG.Data("DownloadConnectionConfig");
