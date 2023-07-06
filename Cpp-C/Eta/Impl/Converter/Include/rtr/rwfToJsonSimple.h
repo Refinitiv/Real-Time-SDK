@@ -12,7 +12,7 @@
 #include "rtr/rwfToJsonBase.h"
 
 #define JSON_FIXED_SIMPLFIED_PREQUEL 6  //   {"Id":
-#define MAX_MSG_SIMPLIFIED_PREQUEL 16 // FIXED PREQUEL + 10 char possible streamId
+#define MAX_MSG_SIMPLIFIED_PREQUEL 17 // FIXED PREQUEL + 10 char possible streamId + 1 char sign '-'
 
 class rwfToJsonSimple : public rwfToJsonBase
 {
