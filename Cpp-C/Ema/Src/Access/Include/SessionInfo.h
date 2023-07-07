@@ -34,6 +34,8 @@ public:
 		@return the channel information for this session
 	*/
 	virtual const ChannelInformation& getChannelInformation() const = 0;
+
+	virtual ~SessionInfo() {}
 };
 
 }
