@@ -2145,7 +2145,7 @@ struct _RsslReactorImpl
 	RsslBool			doNotNotifyWorkerOnCredentialChange;
 	RsslBool			rsslWorkerStarted;
 	RsslUInt32			restRequestTimeout; /* Keeps the request timeout */
-
+	RsslProxyOpts		restProxyOptions;   /* Keeps proxy settings for Rest requests: service discovery and auth. */
 	
 	RsslBool			jsonConverterInitialized; 	/* This is used to indicate whether the RsslJsonConverter is initialized */
 	RsslJsonConverter	*pJsonConverter; 
@@ -2184,7 +2184,7 @@ RTR_C_INLINE RsslBool isReactorDebugEnabled(RsslReactorImpl *pReactorImpl)
 	return (pReactorImpl->debugLevel != RSSL_RC_DEBUG_LEVEL_NONE);
 }
 
-void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
+void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs);
 
 /* Populates the request for v1 token handling */
 RsslRestRequestArgs* _reactorCreateTokenRequestV1(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,

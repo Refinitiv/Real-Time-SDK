@@ -124,6 +124,11 @@ static char tokenURLNameV2[255];
 static char serviceDiscoveryURLName[255];
 static char tokenScopeName[255];
 
+static char restProxyHost[256];
+static char restProxyPort[256];
+static char restProxyUserName[128];
+static char restProxyPasswd[128];
+static char restProxyDomain[128];
 
 static char sslCAStore[255];
 /* default sub-protocol list */
@@ -198,7 +203,12 @@ void printUsageAndExit(char *appName)
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
 			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
-		    "\n -debugConn set 'connection' rector debug info level"
+			"\n -restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth\n"
+			"\n -debugConn set 'connection' rector debug info level"
 			"\n -debugEventQ set 'eventqueue' rector debug info level"
 			"\n -debugTunnelStream set 'tunnelstream' debug info level"
 			"\n -debugAll enable all levels of debug info"
@@ -1316,6 +1326,31 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				jsonTokenIncrementSize = atoi(argv[i - 1]);
 			}
+			else if (strcmp("-restProxyHost", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyHost, sizeof(restProxyHost), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyPort", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyPort, sizeof(restProxyPort), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyUserName", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyUserName, sizeof(restProxyUserName), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyPasswd", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyPasswd, sizeof(restProxyPasswd), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyDomain", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyDomain, sizeof(restProxyDomain), "%s", argv[i - 1]);
+			}
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -2068,6 +2103,31 @@ int main(int argc, char **argv)
 	if (serviceDiscoveryURL.length != 0)
 	{
 		reactorOpts.serviceDiscoveryURL = serviceDiscoveryURL;
+	}
+
+	if (restProxyHost[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyHostName = restProxyHost;
+	}
+
+	if (restProxyPort[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPort = restProxyPort;
+	}
+
+	if (restProxyUserName[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyUserName = restProxyUserName;
+	}
+
+	if (restProxyPasswd[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPasswd = restProxyPasswd;
+	}
+
+	if (restProxyDomain[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyDomain = restProxyDomain;
 	}
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))

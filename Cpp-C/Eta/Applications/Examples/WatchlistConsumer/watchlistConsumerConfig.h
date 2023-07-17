@@ -156,7 +156,14 @@ typedef struct
 	char			_tokenUrlV2[255];
 	char			_serviceDiscoveryUrl[255];
 	char			_tokenScope[255];
-	
+
+	/* Proxy configuration settings for Rest requests */
+	char			restProxyHost[255];					/* Proxy host name */
+	char			restProxyPort[255];					/* Proxy port */
+	char			restProxyUserName[255];				/* Proxy user name */
+	char			restProxyPasswd[255];				/* Proxy password */
+	char			restProxyDomain[255];				/* Proxy domain */
+
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 

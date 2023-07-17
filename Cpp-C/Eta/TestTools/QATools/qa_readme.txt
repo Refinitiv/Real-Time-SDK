@@ -271,6 +271,8 @@ Module: Reactor
 
 etareactor-001: Alters reactor worker thread to print calculated reconnect delay for connection recovery
 
+etareactor-curlparams-001: Alter reactor rest client to print curl proxy settings for rest requests
+
 etacconsperf-Rto-001
     Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
     Alters consPerfConfig.c, consPerfConfig.h, consumerThreads.c to connect to RTO, requires CLI credentials.

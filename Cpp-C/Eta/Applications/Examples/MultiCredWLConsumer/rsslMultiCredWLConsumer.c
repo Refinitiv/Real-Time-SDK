@@ -2,11 +2,11 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2023 Refinitiv. All rights reserved.
 */
 
 /*
- * This is the main file for the rsslWatchlistConsumer application.  It is a single-threaded
+ * This is the main file for the rsslMultiCredWLConsumer application.  It is a single-threaded
  * client application that utilizes the ETA Reactor's watchlist to provide recovery of data.
  * 
  * The main consumer file provides the callback for channel events and 
@@ -156,6 +156,31 @@ int main(int argc, char **argv)
 		{
 			reactorOpts.pRestLoggingCallback = restLoggingCallback;
 		}
+	}
+
+	if (watchlistConsumerConfig.restProxyHost[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyHostName = watchlistConsumerConfig.restProxyHost;
+	}
+
+	if (watchlistConsumerConfig.restProxyPort[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPort = watchlistConsumerConfig.restProxyPort;
+	}
+
+	if (watchlistConsumerConfig.restProxyUserName[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyUserName = watchlistConsumerConfig.restProxyUserName;
+	}
+
+	if (watchlistConsumerConfig.restProxyPasswd[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPasswd = watchlistConsumerConfig.restProxyPasswd;
+	}
+
+	if (watchlistConsumerConfig.restProxyDomain[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyDomain = watchlistConsumerConfig.restProxyDomain;
 	}
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
