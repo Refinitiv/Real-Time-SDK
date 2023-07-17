@@ -116,7 +116,12 @@ void printUsageAndExit(int argc, char **argv)
 			"-tokenURLV1 URL of token service V1\n"
 			"-tokenURLV2 URL of token service V2\n"
 			"-tokenScope scope for the login token\n"
-			"-serviceDiscoveryURL URL the service discovery"
+			"-serviceDiscoveryURL URL the service discovery\n"
+			"-restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth"
 			"\n"
 			"-jsonOutputBufferSize <size>   Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
 			"-jsonTokenIncrementSize <increment> Number of json token increment size for parsing JSON messages"
@@ -212,6 +217,12 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
 	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
 	snprintf(watchlistConsumerConfig._tokenScope, 255, "");
+
+	snprintf(watchlistConsumerConfig.restProxyHost, 255, "");
+	snprintf(watchlistConsumerConfig.restProxyPort, 255, "");
+	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "");
+	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "");
+	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "");
 
 	snprintf(watchlistConsumerConfig.protocolList, 255, "tr_json2");
 
@@ -679,6 +690,31 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			watchlistConsumerConfig.jsonTokenIncrementSize = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyHost"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyHost, sizeof(watchlistConsumerConfig.restProxyHost), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPort, sizeof(watchlistConsumerConfig.restProxyPort), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyUserName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyUserName, sizeof(watchlistConsumerConfig.restProxyUserName), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPasswd"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPasswd, sizeof(watchlistConsumerConfig.restProxyPasswd), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyDomain"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyDomain, sizeof(watchlistConsumerConfig.restProxyDomain), "%s", argv[i]);
 		}
 		else
 		{

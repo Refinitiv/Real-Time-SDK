@@ -399,6 +399,7 @@ typedef struct {
 												 * discovery and subscribing data from RDP. */
 	RsslBuffer	tokenServiceURL_V2;				/*!< Specifies a URL of the token service to get an access token from the Refinitiv Login V2. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
+	RsslProxyOpts	restProxyOptions;			/*!< Specifies proxy settings for Rest requests: service discovery and auth token service. This proxy is used when both proxyHostName and proxyPort are specified to override the proxy settings in the RsslReactorConnectOptions (RsslConnectOptions.proxyOpts) and RsslReactorServiceDiscoveryOptions (proxyHostName, proxyPort, proxyUserName, proxyPasswd, proxyDomain).> */
 	RsslUInt32   debugLevel;						/*!< Configure level of debugging info> */
 	RsslUInt32	 debugBufferSize;				/*!< Configure size of debug buffer> */
 } RsslCreateReactorOptions;

@@ -468,6 +468,8 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		}
 	}
 
+	rsslFreeProxyOpts(&pReactorImpl->restProxyOptions);
+
 	/* For RDP token management and service discovery */
 	free(pReactorImpl->accessTokenRespBuffer.data);
 	free(pReactorImpl->tokenInformationBuffer.data);
@@ -653,7 +655,8 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 				if (pRestRequestArgs)
 				{
-					_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
+					_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
+						&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 					if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 						(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError);
@@ -863,7 +866,8 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
-			_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+			_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+				&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 			if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 				(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
@@ -1549,7 +1553,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 													RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
-													_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
+													_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
+														&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 
 													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
@@ -1681,7 +1686,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 														RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
-														_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
+														_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
+															&pReactorImpl->restProxyOptions, pRestRequestArgs);
 													}
 													else
 													{
@@ -2441,7 +2447,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 							if (pRestRequestArgs)
 							{
-								_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts, pRestRequestArgs);
+								_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts,
+									&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 								if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 									(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -2530,7 +2537,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 						if (pRestRequestArgs)
 						{
-							_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts, pRestRequestArgs);
+							_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts,
+								&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -3346,7 +3354,8 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 					goto RequestFailed;
 				}
 
-				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+					&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
@@ -3423,7 +3432,8 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 					goto RequestFailed;
 				}
 
-				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+					&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
@@ -3819,7 +3829,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 								}
 							}
 
-							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+								&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
@@ -3962,7 +3973,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 					if (pRestRequestArgs)
 					{
-						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts, pRestRequestArgs);
+						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts,
+							&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -4074,7 +4086,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					}
 					if (pRestRequestArgs)
 					{
-						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts, pRestRequestArgs);
+						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts,
+							&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);

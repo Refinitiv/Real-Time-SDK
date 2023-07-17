@@ -915,6 +915,13 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 		return NULL;
 	}
 
+	if (rsslDeepCopyProxyOpts(&pReactorImpl->restProxyOptions, &pReactorOpts->restProxyOptions) != RSSL_RET_SUCCESS)
+	{
+		_reactorWorkerCleanupReactor(pReactorImpl);
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed to allocate memory for the Rest proxy options.");
+		return NULL;
+	}
 
 	pReactorImpl->state = RSSL_REACTOR_ST_ACTIVE;
 
@@ -1388,36 +1395,77 @@ RSSL_VA_API RsslRet rsslReactorCreateRestClient(RsslReactorImpl *pRsslReactorImp
 	return RSSL_RET_SUCCESS;
 }
 
-void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslRestRequestArgs* pRestRequestArgs)
+void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs)
 {
-	if (pOpts->proxyDomain.data && *pOpts->proxyDomain.data != '\0')
+	/* Select the set of the proxy options that will assign to pRestRequestArgs. */
+	/* When pReactorRestProxyOpts (RsslCreateReactorOptions.restProxyOptions) is specified we will use it, */
+	/* otherwise we will assign proxy settings from pOpts, see rsslReactorQueryServiceDiscovery(). */
+	if (pReactorRestProxyOpts->proxyHostName != 0 && *pReactorRestProxyOpts->proxyHostName != '\0'
+		&& pReactorRestProxyOpts->proxyPort != 0 && *pReactorRestProxyOpts->proxyPort != '\0')
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.data = pOpts->proxyDomain.data;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.length = pOpts->proxyDomain.length;
-	}
+		RsslProxyOpts* proxyOpts = pReactorRestProxyOpts;
 
-	if (pOpts->proxyHostName.data && *pOpts->proxyHostName.data != '\0')
-	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.data = pOpts->proxyHostName.data;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.length = pOpts->proxyHostName.length;
-	}
+		if (proxyOpts->proxyHostName && *proxyOpts->proxyHostName != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.data = proxyOpts->proxyHostName;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.length = (RsslUInt32)strlen(proxyOpts->proxyHostName);
+		}
 
-	if (pOpts->proxyPasswd.data && *pOpts->proxyPasswd.data != '\0')
-	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.data = pOpts->proxyPasswd.data;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.length = pOpts->proxyPasswd.length;
-	}
+		if (proxyOpts->proxyPort && *proxyOpts->proxyPort != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPort.data = proxyOpts->proxyPort;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPort.length = (RsslUInt32)strlen(proxyOpts->proxyPort);
+		}
 
-	if (pOpts->proxyPort.data && *pOpts->proxyPort.data != '\0')
-	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPort.data = pOpts->proxyPort.data;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPort.length = pOpts->proxyPort.length;
-	}
+		if (proxyOpts->proxyUserName && *proxyOpts->proxyUserName != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.data = proxyOpts->proxyUserName;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = (RsslUInt32)strlen(proxyOpts->proxyUserName);
+		}
 
-	if (pOpts->proxyUserName.data && *pOpts->proxyUserName.data != '\0')
+		if (proxyOpts->proxyPasswd && *proxyOpts->proxyPasswd != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.data = proxyOpts->proxyPasswd;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.length = (RsslUInt32)strlen(proxyOpts->proxyPasswd);
+		}
+
+		if (proxyOpts->proxyDomain && *proxyOpts->proxyDomain != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.data = proxyOpts->proxyDomain;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.length = (RsslUInt32)strlen(proxyOpts->proxyDomain);
+		}
+	}
+	else
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.data = pOpts->proxyUserName.data;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = pOpts->proxyUserName.length;
+		if (pOpts->proxyDomain.data && *pOpts->proxyDomain.data != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.data = pOpts->proxyDomain.data;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.length = pOpts->proxyDomain.length;
+		}
+
+		if (pOpts->proxyHostName.data && *pOpts->proxyHostName.data != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.data = pOpts->proxyHostName.data;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.length = pOpts->proxyHostName.length;
+		}
+
+		if (pOpts->proxyPasswd.data && *pOpts->proxyPasswd.data != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.data = pOpts->proxyPasswd.data;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.length = pOpts->proxyPasswd.length;
+		}
+
+		if (pOpts->proxyPort.data && *pOpts->proxyPort.data != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPort.data = pOpts->proxyPort.data;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyPort.length = pOpts->proxyPort.length;
+		}
+
+		if (pOpts->proxyUserName.data && *pOpts->proxyUserName.data != '\0')
+		{
+			pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.data = pOpts->proxyUserName.data;
+			pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = pOpts->proxyUserName.length;
+		}
 	}
 }
 
@@ -1441,7 +1489,6 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 	rsslClearReactorServiceEndpointEvent(&reactorServiceEndpointEvent);
 	rsslClearTokenInformation(&tokenInformation);
-	reactorServiceEndpointEvent.userSpecPtr = pOpts->userSpecPtr;
 
 	pRsslReactorImpl = (RsslReactorImpl *)pReactor;
 
@@ -1465,6 +1512,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "RsslReactorServiceDiscoveryOptions not provided.");
 		return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_INVALID_ARGUMENT);
 	}
+
+	reactorServiceEndpointEvent.userSpecPtr = pOpts->userSpecPtr;
 
 	if ((!pOpts->userName.data) || (!pOpts->userName.length) && (!pOpts->password.data) || (!pOpts->password.length) && (!pOpts->clientId.data) || (!pOpts->clientId.length))
 	{
@@ -1642,7 +1691,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 				if (!pRsslReactorImpl->accessTokenRespBuffer.data) goto memoryAllocationFailed;
 
-				_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
+				_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
+					&pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
 
 				rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
@@ -1800,7 +1850,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 			if (!pRsslReactorImpl->accessTokenRespBuffer.data) goto memoryAllocationFailed;
 
-			_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
+			_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
+				&pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
 
 			rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
@@ -1966,7 +2017,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 			goto memoryAllocationFailed;
 		}
 
-		_assignServiceDiscoveryOptionsToRequestArgs(pOpts, pRestRequestArgs);
+		_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
+			&pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
 
 		rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
@@ -12047,7 +12099,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 
 			if (pRestRequestArgs)
 			{
-				_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
+				_assignConnectionArgsToRequestArgs(pConnOptions, &pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
 
 				rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
@@ -12379,7 +12431,7 @@ RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReact
 				}
 			}
 
-			_assignConnectionArgsToRequestArgs(pConnOptions, pRestRequestArgs);
+			_assignConnectionArgsToRequestArgs(pConnOptions, &pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
 
 			rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
@@ -12647,36 +12699,51 @@ memoryAllocationFailed:
 	return RSSL_RET_FAILURE;
 }
 
-void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs)
+void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs)
 {
-	if (pConnOptions->proxyOpts.proxyDomain && *pConnOptions->proxyOpts.proxyDomain != '\0')
+	RsslProxyOpts* proxyOpts = NULL;
+
+	/* Select the set of the proxy options that will assign to pRestRequestArgs. */
+	/* When pReactorRestProxyOpts (RsslCreateReactorOptions.restProxyOptions) is specified we will use it, */
+	/* otherwise we will assign proxy settings from pConnOptions (pReactorConnectInfoImpl->base.rsslConnectOptions). */
+	if (pReactorRestProxyOpts->proxyHostName != 0 && *pReactorRestProxyOpts->proxyHostName != '\0'
+		&& pReactorRestProxyOpts->proxyPort != 0 && *pReactorRestProxyOpts->proxyPort != '\0')
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.data = pConnOptions->proxyOpts.proxyDomain;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.length = (RsslUInt32)strlen(pConnOptions->proxyOpts.proxyDomain);
+		proxyOpts = pReactorRestProxyOpts;
+	}
+	else
+	{
+		proxyOpts = &pConnOptions->proxyOpts;
 	}
 
-	if (pConnOptions->proxyOpts.proxyHostName && *pConnOptions->proxyOpts.proxyHostName != '\0')
+	if (proxyOpts->proxyHostName && *proxyOpts->proxyHostName != '\0')
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.data = pConnOptions->proxyOpts.proxyHostName;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.length = (RsslUInt32)strlen(pConnOptions->proxyOpts.proxyHostName);
+		pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.data = proxyOpts->proxyHostName;
+		pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.length = (RsslUInt32)strlen(proxyOpts->proxyHostName);
 	}
 
-	if (pConnOptions->proxyOpts.proxyPasswd && *pConnOptions->proxyOpts.proxyPasswd != '\0')
+	if (proxyOpts->proxyPort && *proxyOpts->proxyPort != '\0')
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.data = pConnOptions->proxyOpts.proxyPasswd;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.length = (RsslUInt32)strlen(pConnOptions->proxyOpts.proxyPasswd);
+		pRestRequestArgs->networkArgs.proxyArgs.proxyPort.data = proxyOpts->proxyPort;
+		pRestRequestArgs->networkArgs.proxyArgs.proxyPort.length = (RsslUInt32)strlen(proxyOpts->proxyPort);
 	}
 
-	if (pConnOptions->proxyOpts.proxyPort && *pConnOptions->proxyOpts.proxyPort != '\0')
+	if (proxyOpts->proxyUserName && *proxyOpts->proxyUserName != '\0')
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPort.data = pConnOptions->proxyOpts.proxyPort;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyPort.length = (RsslUInt32)strlen(pConnOptions->proxyOpts.proxyPort);
+		pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.data = proxyOpts->proxyUserName;
+		pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = (RsslUInt32)strlen(proxyOpts->proxyUserName);
 	}
 
-	if (pConnOptions->proxyOpts.proxyUserName && *pConnOptions->proxyOpts.proxyUserName != '\0')
+	if (proxyOpts->proxyPasswd && *proxyOpts->proxyPasswd != '\0')
 	{
-		pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.data = pConnOptions->proxyOpts.proxyUserName;
-		pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = (RsslUInt32)strlen(pConnOptions->proxyOpts.proxyUserName);
+		pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.data = proxyOpts->proxyPasswd;
+		pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.length = (RsslUInt32)strlen(proxyOpts->proxyPasswd);
+	}
+
+	if (proxyOpts->proxyDomain && *proxyOpts->proxyDomain != '\0')
+	{
+		pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.data = proxyOpts->proxyDomain;
+		pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.length = (RsslUInt32)strlen(proxyOpts->proxyDomain);
 	}
 
 	if (pConnOptions->connectionInfo.unified.interfaceName && *pConnOptions->connectionInfo.unified.interfaceName != '\0')
