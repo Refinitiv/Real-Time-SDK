@@ -59,29 +59,12 @@ RsslPostUserInfo postUserInfo;
 RsslBool shutdownThreads = RSSL_FALSE;
 
 #ifdef _WIN32
-#define CJSON_TLS_INDEX_PTR 1
-#define CJSON_TLS_INDEX_SIZE 2
-void RTR_C_INLINE SET_CJSON_ALLOCATOR(void * ptr, size_t sz)
-{
-	TlsSetValue(CJSON_TLS_INDEX_PTR, ptr);
-	TlsSetValue(CJSON_TLS_INDEX_SIZE, (LPVOID)sz);
-}
-
-static void * cJSON_malloc_fn(size_t sz)
-{
-	void * lpvData = TlsGetValue(CJSON_TLS_INDEX_PTR);
-	size_t size = (size_t)TlsGetValue(CJSON_TLS_INDEX_SIZE);
-	if (sz > size)
-		return NULL;
-	char * new_ptr = (char*)(lpvData);
-	new_ptr += sz;
-	size -= sz;
-	SET_CJSON_ALLOCATOR(new_ptr, size);
-	return lpvData;
-}
+__declspec(thread) static void* jsonTlsPtr = NULL;
+__declspec(thread) static size_t jsonTlsSize = 0;
 #else
 static __thread void* jsonTlsPtr = NULL;
 static __thread size_t jsonTlsSize = 0;
+#endif
 void RTR_C_INLINE SET_CJSON_ALLOCATOR(void * ptr, size_t sz)
 {
 	jsonTlsPtr = ptr;
@@ -100,7 +83,6 @@ static void * cJSON_malloc_fn(size_t sz)
 	SET_CJSON_ALLOCATOR(new_ptr, size);
 	return lpvData;
 }
-#endif
 
 static void cJSON_free_fn(void *ptr)
 {
