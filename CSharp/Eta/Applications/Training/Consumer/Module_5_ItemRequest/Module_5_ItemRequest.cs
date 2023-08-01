@@ -2526,14 +2526,6 @@ namespace LSEG.Eta.Training.Consumer
                                     Console.Write("\nReceived Source Directory Update for Decoded Service Id: {0}",
                                         serviceId.ToLong());
 
-                                /* if this is the current serviceId we are interested in */
-                                if ((serviceId.Equals(serviceDiscoveryInfo_serviceId))
-                                    && (serviceDiscoveryInfo_serviceNameFound == true))
-                                {
-                                    /* this is the current serviceId we are interested in and requested by the ETA Consumer application */
-                                    Console.Write(" ({0})\n", serviceDiscoveryInfo_serviceName);
-                                }
-
                                 /* decode contents into the filter list structure */
                                 if ((retval = filterList.Decode(dIter)) < CodecReturnCode.SUCCESS)
                                 {
@@ -2656,7 +2648,7 @@ namespace LSEG.Eta.Training.Consumer
 
                                                                     Console.Write("\tService name: {0} ({1}) is discovered by the OMM consumer. \n",
                                                                         serviceName, serviceId.ToLong());
-                                                                    serviceDiscoveryInfo_serviceId = serviceId;
+                                                                    serviceId.Copy(serviceDiscoveryInfo_serviceId);
                                                                     serviceDiscoveryInfo_serviceNameFound = true;
                                                                 }
                                                             }
