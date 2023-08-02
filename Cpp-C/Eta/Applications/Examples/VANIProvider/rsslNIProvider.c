@@ -244,7 +244,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 		{
 			i++;
 			xmlTrace = RSSL_TRUE;
-			snprintf(traceOutputFile, 128, "RsslNIVAProvider\0");
+			snprintf(traceOutputFile, 128, "RsslNIVAProvider");
 		}
 		else if(strcmp("-maxEventsInPool", argv[i]) == 0)
 		{

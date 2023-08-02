@@ -209,7 +209,7 @@ void _rsslRestClearError(RsslError* rsslError)
 	rsslError->channel = 0;
 	rsslError->rsslErrorId = RSSL_RET_SUCCESS;
 	rsslError->sysError = 0;
-	memset(rsslError->text, 0, MAX_RSSL_ERROR_TEXT+1);
+	memset(rsslError->text, 0, MAX_RSSL_ERROR_TEXT);
 }
 
 void _rsslClearRestHandleImpl(RsslRestHandleImpl* rsslRestHandleImpl)
@@ -2534,7 +2534,7 @@ RsslBuffer* rsslRestRequestDumpBuffer(RsslRestRequestArgs* pRestRequest, RsslErr
 	}
 
 	//fprintf(pOutputStream, "\n--- REST REQUEST ---\n\n");
-	pos += snprintf(data + pos, (sizeRestRequest - pos), headerRestRequest.data);
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s", headerRestRequest.data);
 
 	//xmlDumpTimestamp(pOutputStream);
 	pos += dumpTimestamp(data + pos, (sizeRestRequest - pos));
@@ -2703,13 +2703,13 @@ RsslBuffer* rsslRestResponseDumpBuffer(RsslRestResponse* pRestResponse, RsslErro
 	}
 
 	//fprintf(pOutputStream, "\n--- REST RESPONSE ---\n\n");
-	pos += snprintf(data + pos, (sizeRestResponse - pos), headerRestResponse.data);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s", headerRestResponse.data);
 
 	//xmlDumpTimestamp(pOutputStream);
 	pos += dumpTimestamp(data + pos, (sizeRestResponse - pos));
 
 	//fprintf(pOutputStream, "HTTP header data:\n");
-	pos += snprintf(data + pos, (sizeRestResponse - pos), sHttpHeaderData.data);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s", sHttpHeaderData.data);
 	
 	httpHeaders = &(pRestResponse->headers);
 	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
@@ -2788,7 +2788,7 @@ RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput)
 	}
 
 	//fprintf(pOutputStream, "\n--- REST RESPONSE ERROR---\n\n");
-	pos += snprintf(data + pos, (sizeRestResponseErr - pos), headerRestErr.data);
+	pos += snprintf(data + pos, (sizeRestResponseErr - pos), "%s", headerRestErr.data);
 
 	//xmlDumpTimestamp(pOutputStream);
 	pos += dumpTimestamp(data + pos, (sizeRestResponseErr - pos));

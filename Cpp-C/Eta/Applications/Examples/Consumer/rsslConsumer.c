@@ -407,7 +407,7 @@ int main(int argc, char **argv)
 			{
 				i++;
 				xmlTrace = RSSL_TRUE;
-				snprintf(traceOutputFile, 128, "RsslConsumer\0");
+				snprintf(traceOutputFile, 128, "RsslConsumer");
 			}
 			else if (strcmp("-td", argv[i]) == 0)
 			{

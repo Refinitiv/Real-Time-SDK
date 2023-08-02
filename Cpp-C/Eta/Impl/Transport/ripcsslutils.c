@@ -943,7 +943,7 @@ void ripcSSLErrors(RsslError *error, RsslInt32 initPos)
 
 	while ((l=(*(cryptoFuncs.get_error_line_data))(&file, &line, &data, &flags)) != 0)
 	{
-		if ((strlen(buf) + strlen(file) + cUrl + 30 ) > MAX_RSSL_ERROR_TEXT)
+		if ((strlen(buf) + strlen(file) + cUrl + 30 ) >= MAX_RSSL_ERROR_TEXT)
 			break;
 
 		if (data != NULL && flags & RSSL_SSL_ERR_TXT_STRING)

@@ -10,8 +10,6 @@
 #include "rtr/shmem.h"
 #include "rtr/custmem.h"
 
-#define __ERROR_LEN 255
-
 #ifdef _WIN32
 #else
 #include <sys/types.h>

@@ -152,7 +152,7 @@ typedef struct {
 	RsslChannel			*channel;					/*!< @brief The RSSL channel the error occurred on. */
 	RsslRet				rsslErrorId;				/*!< @brief The RSSL Error value. */ 
 	RsslUInt32			sysError;					/*!< @brief The system error number.  */ 
-	char				text[MAX_RSSL_ERROR_TEXT+1];/*!< @brief Detailed text describing the error. */
+	char				text[MAX_RSSL_ERROR_TEXT];	/*!< @brief Detailed text describing the error. */
 } RsslError;
 
 

@@ -17,6 +17,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE STATIC
                           LANGUAGE C
+						  LINKDEPENDS ${SYSTEM_LIBRARIES}
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
@@ -29,6 +30,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE SHARED
                           LANGUAGE C
+						  LINKDEPENDS ${SYSTEM_LIBRARIES}
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
@@ -363,7 +365,7 @@ else()
     if (CMAKE_HOST_WIN32)
 		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib bcrypt.lib ZLIB::ZLIB LZ4::LZ4 Iphlpapi.lib )
 	else()
-		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4 )
+		target_link_libraries( librssl_tmp rt dl ZLIB::ZLIB LZ4::LZ4 )
 	endif()
 
 
@@ -505,7 +507,7 @@ else()
                                         ${librssl_SO_VERSION} 
                             )
 
-		target_link_libraries( librssl_shared ZLIB::ZLIB LZ4::LZ4 )
+		target_link_libraries( librssl_shared rt dl ZLIB::ZLIB LZ4::LZ4 )
 
     endif()
 

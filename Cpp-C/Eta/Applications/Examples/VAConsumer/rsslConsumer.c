@@ -1212,7 +1212,7 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				xmlTrace = RSSL_TRUE;
-				snprintf(traceOutputFile, 128, "RsslVAConsumer\0");
+				snprintf(traceOutputFile, 128, "RsslVAConsumer");
 			}
 			else if (strcmp("-runtime", argv[i]) == 0)
 			{

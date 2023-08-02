@@ -40,8 +40,6 @@ extern "C" {
 #include <tcpmib.h>
 #endif
 
-#define RIPC_MAX_CONN_HDR_LEN  V10_MIN_CONN_HDR + MAX_RSSL_ERROR_TEXT 
-
 #define RSSL_RSSL_SOCKET_IMPL_FAST(ret)		ret RTR_FASTCALL
 
 #define RIPC_RWF_PROTOCOL_TYPE 0 /* must match definition for RWF in RSSL */
