@@ -4393,13 +4393,13 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 
 					if (maxRead <= 0)
 					{
-						break;
+						canRead = 0;
 					}
 				}
 			}
 			else
 			{
-				/* This is a non-blocking read and we should break loop */
+				/* This is a blocking and non-blocking read and we should break loop */
 				if (cc == 0)
 				{
 					return(RSSL_RET_READ_WOULD_BLOCK);
