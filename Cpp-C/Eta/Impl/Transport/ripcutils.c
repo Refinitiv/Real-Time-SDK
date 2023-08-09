@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019, 2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -120,6 +120,9 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	char* curlOptProxyUserPwd = NULL;
 
 	CURLcode curlret;
+
+	rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ACTIVE;
+
 	if ((curlFuncs = rsslGetCurlFuncs()) == NULL)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -158,6 +161,7 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 			"<%s:%d> Error: 1001 Could not initialize memory for Curl Error.\n",
 			__FILE__, __LINE__);
 		_rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+		rsslSocketChannel->curlThreadInfo.curlError = 0;
 		rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
 		/* trigger select for error condition */
 		rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);

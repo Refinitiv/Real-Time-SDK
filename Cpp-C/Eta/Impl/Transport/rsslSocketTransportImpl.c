@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -6771,7 +6771,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Error: 1002 Pipe Read failed.  System errno: %i\n",
 			__FILE__, __LINE__, errno );
-		ripcRelSocketChannel(rsslSocketChannel);
+		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
 		return RSSL_RET_FAILURE;
 	}
 
@@ -6781,7 +6781,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Error: 1002 Curl not initialized.\n",
 			__FILE__, __LINE__);
-		ripcRelSocketChannel(rsslSocketChannel);
+		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
 		return RSSL_RET_FAILURE;
 	}
 
@@ -6791,7 +6791,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"%s", rsslSocketChannel->curlThreadInfo.error.text);
-		ripcRelSocketChannel(rsslSocketChannel);
+		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
 		return RSSL_RET_FAILURE;
 	}
 
@@ -6805,7 +6805,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Error: 1000 Curl failed. %i\n",
 			__FILE__, __LINE__, curlret);
-		ripcRelSocketChannel(rsslSocketChannel);
+		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
 		return RSSL_RET_FAILURE;
 	}
 	rsslSocketChannel->stream = inPr->newSocket.stream;
@@ -6820,8 +6820,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 				"<%s:%d> Error: 0012 Out of available SSL/TLS connection protocol options.\n",
 				__FILE__, __LINE__);
 
-			ripcRelSocketChannel(rsslSocketChannel);
-
+			/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
 			return(RIPC_CONN_ERROR);
 		}
 	}
@@ -6837,8 +6836,7 @@ ripcSessInit ipcWaitProxyAck(RsslSocketChannel *rsslSocketChannel, ripcSessInPro
 			"<%s:%d> Error: 0012 Error on new client connection.\n",
 			__FILE__, __LINE__);*/
 
-		ripcRelSocketChannel(rsslSocketChannel);
-
+		/* Return with failure. Both rsslSocketChannel and rsslChannelImpl will clear when call rsslCloseChannel(). */
 		return(RIPC_CONN_ERROR);
 	}
 
@@ -10533,6 +10531,18 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslInt32) rsslSocketBufferUsage(rsslChannelImpl *rss
 		return RSSL_RET_FAILURE;
 	}
 
+	if (rsslSocketChannel->state != RSSL_CH_STATE_ACTIVE || rsslSocketChannel->guarBufPool == NULL)
+	{
+		_rsslSetError(error, (RsslChannel*)(&rsslChnlImpl->Channel), RSSL_RET_FAILURE, 0);
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: 1003 rsslSocketBufferUsage() failed due to socket channel is not active. state=%d, guarBufPool?=%s\n",
+				__FILE__, __LINE__, rsslSocketChannel->state, (rsslSocketChannel->guarBufPool == NULL ? "(null)" : "ok"));
+
+		IPC_MUTEX_UNLOCK(rsslSocketChannel);
+
+		return RSSL_RET_FAILURE;
+	}
+
 	/* Return the number of guaranteed buffers used + pool buffers used */
 	retVal = rsslSocketChannel->guarBufPool->numRegBufsUsed + rsslSocketChannel->guarBufPool->numPoolBufs;
 
@@ -12441,7 +12451,10 @@ void rsslSocketChannelClose(RsslSocketChannel *rsslSocketChannel)
 				Join the CURL thread and close out the CURL channel, then close the pipe */
 			if (rsslSocketChannel->intState == RIPC_INT_ST_PROXY_CONNECTING || rsslSocketChannel->intState == RIPC_INT_ST_CLIENT_WAIT_PROXY_ACK)
 			{
-				RSSL_THREAD_JOIN(rsslSocketChannel->curlThreadInfo.curlThreadId);
+				if (rsslSocketChannel->curlThreadInfo.curlThreadState == RSSL_CURL_ACTIVE)
+				{
+					RSSL_THREAD_JOIN(rsslSocketChannel->curlThreadInfo.curlThreadId);
+				}
 				rssl_pipe_close(&rsslSocketChannel->sessPipe);
 			}
 			

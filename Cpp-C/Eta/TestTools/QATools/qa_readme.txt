@@ -105,6 +105,15 @@ vaconsumer-CpuBind-001: Alter VAConsumer to add command-line options for testing
 -mainThreadCPU specifies the CPU to bind for main VAConsumer thread: Cpu core id or P:X C:Y T:Z format;
 -workerThreadCPU specifies the CPU to bind for Reactor worker thread: Cpu core id or P:X C:Y T:Z format.
 
+vaConsumer-ExtConn-001: Alter VAConsumer to test reconnect.
+ Added special monitoring thread to check inconsistent state of RsslSocketChannels.
+ Enhanced channel commands to support connection list from 2 or 3 options: (1)direct, (2)via proxy and (3)additonal proxy.
+ By default, use two connection options: (1) and (2). (2)Proxy server specifies via command line options -ph, -pp.
+ Added command-line options to add the additional proxy server to the connection list.
+    -connectlist3 - if it specifies then connection list has 3 options.
+    -ph2 <proxy host> specifies proxy host name for case (3), by default: webproxy.pln.colo.services.
+    -pp2 <proxy port> specifies proxy port for case (3), by default: 80.
+
 consumer-Ws-001: Alter Consumer to add test options for Websocket transport which are; -testCompressionZlib
 
 consumer-Ws-002: Alter Consumer to works with Websocket json blocking mode. Test option: -socketBlockingMode
@@ -224,6 +233,7 @@ provider-DebugDump-001: Alter Provider to print debug dumps and add options -dum
 
 provider-TracePing-001: Alters Provider to trace Ping messages. Add option -xping, -x1, -xnowrite, -xnoread.
 
+provider-ExtConn-001: Alters Provider to support 32 connections.
 
 Module:  VA Provider 
 -----------------
