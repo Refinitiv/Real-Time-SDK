@@ -365,6 +365,20 @@ Series400Consumer421-PConfig-003
     instead of ( "DictionaryType", 1 ). 
     In functional configuration for consumerName as Consumer_3 and  host("localhost:14002")
 
+Series400Consumer421-PTimeout-001
+    Alters consumer such that Channel_1 added configuration settings for proxy connections.
+    Under Windows:
+	.addAscii("ProxyHost", "webproxy.pln.colo.services")
+	.addAscii("ProxyPort", "80")
+	.addUInt("ProxyConnectionTimeout", 7)
+    Under Linux:
+	.addAscii("ProxyHost", "google.com")
+	.addAscii("ProxyPort", "102")
+	.addUInt("ProxyConnectionTimeout", 7)
+    Also added configuration option for Reactor initialization timeout:
+	.addUInt("InitializationTimeout", 10)
+    Note: to display the curl_easy_setopt's parameters in runBlockingLibcurlProxyConnection use eta-PTimeout-001
+
 
 Module:  Series400Consumer430
 -----------------------------

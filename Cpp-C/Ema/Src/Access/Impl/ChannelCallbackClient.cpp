@@ -490,6 +490,7 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("ObjectName ").append(pTempChannelCfg->objectName).append(CR)
 			.append("ProxyHost ").append(pTempChannelCfg->proxyHostName).append(CR)
 			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR)
+			.append("ProxyConnectionTimeout ").append(pTempChannelCfg->proxyConnectionTimeout).append(CR)
 			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR);
 
 		if (pChannelCfg->connectionType == RSSL_CONN_TYPE_WEBSOCKET)
@@ -513,6 +514,7 @@ void ChannelCallbackClient::channelParametersToString(ActiveConfig& activeConfig
 			.append("ObjectName ").append(pTempChannelCfg->objectName).append(CR)
 			.append("ProxyHost ").append(pTempChannelCfg->proxyHostName).append(CR)
 			.append("ProxyPort ").append(pTempChannelCfg->proxyPort).append(CR)
+			.append("ProxyConnectionTimeout ").append(pTempChannelCfg->proxyConnectionTimeout).append(CR)
 			.append("SecurityProtocol ").append(pTempChannelCfg->securityProtocol).append(CR)
 			.append("EnableSessionManagement ").append(pTempChannelCfg->enableSessionMgnt).append(CR)
 			.append("Location ").append(pTempChannelCfg->location).append(CR)
@@ -649,6 +651,7 @@ Channel* ChannelCallbackClient::channelConfigToReactorConnectInfo(ChannelConfig*
 			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyUserName = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyUserName.c_str());
 			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyPasswd = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyPasswd.c_str());
 			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyDomain = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyDomain.c_str());
+			reactorConnectInfo->rsslConnectOptions.proxyOpts.proxyConnectionTimeout = static_cast<SocketChannelConfig*>(activeChannelConfig)->proxyConnectionTimeout;
 
 			if (RSSL_CONN_TYPE_WEBSOCKET == reactorConnectInfo->rsslConnectOptions.connectionType)
 			{

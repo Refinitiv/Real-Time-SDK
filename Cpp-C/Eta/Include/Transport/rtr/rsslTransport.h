@@ -516,15 +516,22 @@ typedef struct {
 } RsslSeqMCastOpts;
 
 #define RSSL_INIT_SEQ_MCAST_OPTS { 3000, 0 }
+
+/**
+ * @brief Options used for configuring a connection via proxy.
+ * see rsslConnect
+ * see RsslConnectOptions
+ */
 typedef struct {
 	char* proxyHostName;				/*!<  @brief Proxy host name. */
 	char* proxyPort;					/*!<  @brief Proxy port. */
 	char* proxyUserName;				/*!<  @brief User Name for authenticated proxies. */
 	char* proxyPasswd;					/*!<  @brief Password for authenticated proxies. */
 	char* proxyDomain;					/*!<  @brief Domain for authenticated proxies. */
+	RsslUInt32 proxyConnectionTimeout;	/*!<  @brief Maximum time a connection is allowed to be established. */
 } RsslProxyOpts;
 
-#define RSSL_INIT_PROXY_OPTS {0, 0, 0, 0, 0}
+#define RSSL_INIT_PROXY_OPTS { 0, 0, 0, 0, 0, 40 }
 
 typedef enum {
 	RSSL_ENC_NONE    = 0x00,			/*!< @brief (0x00) No encryption. */
@@ -702,7 +709,7 @@ typedef struct {
 	RsslMCastOpts		multicastOpts;			/*!< @brief Multicast transport specific options (used by ::RSSL_CONN_TYPE_RELIABLE_MCAST). */
 	RsslShmemOpts		shmemOpts;				/*!< @brief shmem transport specific options (used by ::RSSL_CONN_TYPE_UNIDIR_SHMEM). */
 	RsslSeqMCastOpts	seqMulticastOpts;		/*!< @brief Sequenced Multicast transport specific options (used by ::RSSL_CONN_TYPE_SEQ_MCAST). */
-	RsslProxyOpts		proxyOpts;
+	RsslProxyOpts		proxyOpts;				/*!< @brief Proxy configuration options. */
 	char*				componentVersion;		/*!< @brief User defined component version information*/
 	RsslEncryptionOpts  encryptionOpts;
 	RsslELOpts			extLineOptions;			/* Extended Line specific options */
@@ -772,8 +779,6 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->sysRecvBufSize = 0;
 	opts->seqMulticastOpts.maxMsgSize = 3000;
 	opts->seqMulticastOpts.instanceId = 0;
-	opts->proxyOpts.proxyHostName = 0;
-	opts->proxyOpts.proxyPort = 0;
 	opts->componentVersion = NULL;
 	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
 #ifdef _WIN32
@@ -788,6 +793,7 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyUserName = NULL;
 	opts->proxyOpts.proxyPasswd = NULL;
 	opts->proxyOpts.proxyDomain = NULL;
+	opts->proxyOpts.proxyConnectionTimeout = 40;
 	opts->wsOpts.maxMsgSize = 61440;
 	opts->wsOpts.protocols = NULL;
 	opts->wsOpts.httpCallback = NULL;

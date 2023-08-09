@@ -104,6 +104,13 @@ void EmaActiveConfigTest::SocketChannelConfigTestDefaultValues(SocketChannelConf
 	EXPECT_TRUE(socketChannelConfig.objectName.empty());
 	EXPECT_TRUE(socketChannelConfig.sslCAStore.empty());
 
+	EXPECT_TRUE(socketChannelConfig.proxyHostName.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyPort.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyUserName.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyPasswd.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyDomain.empty());
+	EXPECT_EQ(socketChannelConfig.proxyConnectionTimeout, DEFAULT_PROXY_CONNECTION_TIMEOUT);
+
 	EXPECT_EQ(socketChannelConfig.encryptedConnectionType, RSSL_CONN_TYPE_INIT);
 	EXPECT_EQ(socketChannelConfig.securityProtocol, RSSL_ENC_TLSV1_2);
 
@@ -125,6 +132,14 @@ TEST_F(EmaActiveConfigTest, SocketChannelConfigTest)
 	SocketChannelConfigTestDefaultValues(socketChannelConfig);
 
 	const int midValue = 120;
+	// proxyConnectionTimeout
+	socketChannelConfig.setProxyConnectionTimeout((RWF_MAX_32)+1ULL);
+	EXPECT_EQ((RWF_MAX_32), socketChannelConfig.proxyConnectionTimeout) << "Should be equal to RWF_MAX_32 - maximum allowed value";
+	socketChannelConfig.setProxyConnectionTimeout(midValue);
+	EXPECT_EQ(midValue, socketChannelConfig.proxyConnectionTimeout) << "Should be equal to " << midValue;
+	socketChannelConfig.setProxyConnectionTimeout(0);
+	EXPECT_EQ(0, socketChannelConfig.proxyConnectionTimeout) << "Should be equal to 0";
+
 	// serviceDiscoveryRetryCount
 	socketChannelConfig.setServiceDiscoveryRetryCount((RWF_MAX_32)+1ULL);
 	EXPECT_EQ((RWF_MAX_32), socketChannelConfig.serviceDiscoveryRetryCount) << "Should be equal to RWF_MAX_32 - maximum allowed value";
@@ -148,6 +163,13 @@ TEST_F(EmaActiveConfigTest, SocketChannelConfigTest)
 	socketChannelConfig.tcpNodelay = RSSL_FALSE;
 	socketChannelConfig.objectName = "ooo";
 	socketChannelConfig.sslCAStore = "ccc";
+
+	socketChannelConfig.proxyHostName = "non def proxyHostName";
+	socketChannelConfig.proxyPort = "non def proxyHostPort";
+	socketChannelConfig.proxyUserName = "non def proxyUserName";
+	socketChannelConfig.proxyPasswd = "non def proxyPasswd";
+	socketChannelConfig.proxyDomain = "non def proxyDomain";
+	socketChannelConfig.proxyConnectionTimeout = 420;
 
 	//socketChannelConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
 	socketChannelConfig.securityProtocol = RSSL_ENC_NONE;

@@ -8481,6 +8481,8 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 			}
 		}
 
+		rsslSocketChannel->proxyConnectionTimeout = opts->proxyOpts.proxyConnectionTimeout;
+
 		/* If we are not using winInet, check if libcurl has been loaded and initialized.  If it has, load it */
 		if (rsslSocketChannel->usingWinInet == 0 && rsslCurlIsInitialized() == RSSL_FALSE)
 		{
@@ -12363,6 +12365,8 @@ RSSL_RSSL_SOCKET_IMPL_FAST(void) ripcRelSocketChannel(RsslSocketChannel *rsslSoc
 		_rsslFree((void*)rsslSocketChannel->curlOptProxyDomain);
 		rsslSocketChannel->curlOptProxyDomain = 0;
 	}
+	rsslSocketChannel->proxyConnectionTimeout = RSSL_CURL_PROXY_CONNECTION_TIMEOUT;
+
     if (rsslSocketChannel->outComponentVer)
 	{
 		/* we created and own memory for this, free it */

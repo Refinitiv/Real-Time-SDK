@@ -1782,6 +1782,11 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			socketChannelCfg->proxyDomain = pConfigImpl->getUserSpecifiedProxyDomain();
 		}
 
+		if (pConfigImpl->get<UInt64>(channelNodeName + "ProxyConnectionTimeout", tempUInt))
+		{
+			socketChannelCfg->setProxyConnectionTimeout(tempUInt);
+		}
+
 		if (pConfigImpl->getUserSpecifiedSslCAStore().length())
 		{
 			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();

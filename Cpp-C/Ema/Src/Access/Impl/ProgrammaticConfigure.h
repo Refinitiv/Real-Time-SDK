@@ -112,7 +112,8 @@ public:
 		SecurityProtocolEnum			= 0x0400000,
 		ServiceDiscoveryRetryCountEnum	= 0x0800000,
 		WsMaxMsgSizeEnum				= 0x1000000,
-		DirectWriteEnum					= 0x2000000
+		DirectWriteEnum					= 0x2000000,
+		ProxyConnectionTimeoutEnum		= 0x4000000
 	};
 
 	enum MultcastEntryFlagEnum

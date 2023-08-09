@@ -315,6 +315,14 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|InitializationTimeout", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 55) << "extracting InitializationTimeout from EmaConfig.xml";
 
+	// Checks proxy settings
+	debugResult = config.get<EmaString>("ChannelGroup|ChannelList|Channel.Channel_4|ProxyHost", retrievedValue);
+	EXPECT_TRUE( debugResult && retrievedValue == "proxylocalhost" ) << "extracting ProxyHost from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ChannelGroup|ChannelList|Channel.Channel_4|ProxyPort", retrievedValue);
+	EXPECT_TRUE( debugResult && retrievedValue == "9018" ) << "extracting ProxyPort from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_4|ProxyConnectionTimeout", uintValue);
+	EXPECT_TRUE( debugResult && uintValue == 17 ) << "extracting ProxyConnectionTimeout from EmaConfig.xml";
+
 	// Checks ChannelType == RSSL_CONN_TYPE_WEBSOCKET values from Channel_11
 	channelType = RSSL_CONN_TYPE_INIT;
 	debugResult = config.get<RsslConnectionTypes>("ChannelGroup|ChannelList|Channel.Channel_11|ChannelType", channelType);
@@ -2063,6 +2071,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 					.addAscii("Port", "14008")
 					.addAscii("ProxyHost", "proxyhost2")
 					.addAscii("ProxyPort", "proxyport2")
+					.addUInt("ProxyConnectionTimeout", 32)
 					.addAscii("ObjectName", "objectname2")
 					.addUInt("TcpNodelay", 0).complete())
 				.addKeyAscii("Channel_3", MapEntry::AddEnum,
@@ -2073,6 +2082,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 					.addAscii("Port", "14009")
 					.addAscii("ProxyHost", "proxyhost3")
 					.addAscii("ProxyPort", "proxyport3")
+					.addUInt("ProxyConnectionTimeout", 33)
 					.addAscii("ObjectName", "objectname3")
 					.addUInt("TcpNodelay", 0).complete())
 				.complete();
@@ -2135,6 +2145,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "Connection type , \"RSSL_CONN_TYPE_HTTP\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 32) << "Proxy connection timeout , \"32\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectname2") << "Object name , \"objectname2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost2") << "hostname , \"localhost2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14008") << "serviceName , \"14009\"";
@@ -2144,6 +2155,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 				EXPECT_TRUE(activeConfig.configChannelSet[1]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyHostName == "proxyhost3") << "Proxy hostname , \"proxyhost3\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyPort == "proxyport3") << "Proxy port , \"proxyport3\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyConnectionTimeout == 33) << "Proxy connection timeout , \"33\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->objectName == "objectname3") << "Object name , \"objectname3\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->hostName == "localhost3") << "hostname , \"localhost3\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->serviceName == "14009") << "serviceName , \"14009\"";
@@ -2250,6 +2262,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 					.addAscii("Port", "14008")
 					.addAscii("ProxyHost", "proxyhost2")
 					.addAscii("ProxyPort", "proxyport2")
+					.addUInt("ProxyConnectionTimeout", 22)
 					.addAscii("ObjectName", "objectname2")
 					.addUInt("TcpNodelay", 0).complete()).complete();
 			}
@@ -2263,6 +2276,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 					.addAscii("Port", "14009")
 					.addAscii("ProxyHost", "proxyhost6")
 					.addAscii("ProxyPort", "proxyport6")
+					.addUInt("ProxyConnectionTimeout", 26)
 					.addAscii("ObjectName", "objectname6")
 					.addUInt("TcpNodelay", 0).complete())
 					.complete();
@@ -2336,6 +2350,9 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhostFC") << "hostname , \"localhostFC\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14022") << "serviceName , \"14022\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 22) << "proxyConnectionTimeout , 22";
 			}
 			else if (testCase == 1)
 			{
@@ -2344,6 +2361,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "Connection type , \"RSSL_CONN_TYPE_SOCKET\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 26) << "proxyConnectionTimeout , 26";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
@@ -2391,6 +2409,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 			.addAscii("Port", "14009")
 			.addAscii("ProxyHost", "proxyhost6")
 			.addAscii("ProxyPort", "proxyport6")
+			.addUInt("ProxyConnectionTimeout", 30)
 			.addAscii("ObjectName", "objectname6")
 			.addUInt("TcpNodelay", 0).complete())
 			.complete();
@@ -2441,6 +2460,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 30) << "proxyConnectionTimeout , 30";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";

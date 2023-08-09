@@ -420,6 +420,9 @@
 			<Host value="localhost"/>
 			<Port value="14002"/>
 			<DirectWrite value="1"/>
+			<ProxyHost value="proxylocalhost"/>
+			<ProxyPort value="9018"/>
+			<ProxyConnectionTimeout value="17"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_5"/>

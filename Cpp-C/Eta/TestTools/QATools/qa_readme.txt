@@ -38,6 +38,8 @@ consumer-DebugDump-001: Alter Consumer to print debug dumps and add options -dum
 
 consumer-TracePing-001: Alter Consumer to trace Ping messages. Add option -xping, -x1, -xnowrite, -xnoread.
 
+consumer-PTimeout-001: Alter Consumer to add proxy connection timeout. Add option -ptimeout.
+    Note: to display the curl_easy_setopt's parameters in runBlockingLibcurlProxyConnection use eta-PTimeout-001.
 
 Module:  Value Add Consumer
 ---------------------------
@@ -306,6 +308,7 @@ eta-rsslWrite-001: Alters ETA methods rsslWrite and rsslWriteEx to display that 
 	- on the first usage of the method;
 	- every time from call to call when the writeFlags parameter changes its value.
 
+eta-PTimeout-001: Alters ETA runBlockingLibcurlProxyConnection to display curl_easy_setopt's parameters.
 
 Module: Provider Performance tool
 -----------------

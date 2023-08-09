@@ -82,6 +82,7 @@
 #define DEFAULT_PIPE_PORT							    9001
 #define DEFAULT_SERVER_PIPE_PORT					    9009
 #define DEFAULT_POST_ACK_TIMEOUT					    15000
+#define DEFAULT_PROXY_CONNECTION_TIMEOUT			    40
 #define DEFAULT_REACTOR_EVENTFD_PORT				    55000
 #define DEFAULT_RECONNECT_ATTEMPT_LIMIT				    -1
 #define DEFAULT_RECONNECT_MAX_DELAY					    5000
@@ -294,6 +295,7 @@ public :
 
 	virtual ~SocketChannelConfig();
 
+	void setProxyConnectionTimeout(UInt64 value);
 	void setServiceDiscoveryRetryCount(UInt64 value);
 	void setWsMaxMsgSize(UInt64 value);
 	void clear();
@@ -309,6 +311,7 @@ public :
 	EmaString				proxyUserName;
 	EmaString				proxyPasswd;
 	EmaString				proxyDomain;
+	UInt32					proxyConnectionTimeout;
 	EmaString				sslCAStore;
 	int						securityProtocol;
 	EmaString				location;

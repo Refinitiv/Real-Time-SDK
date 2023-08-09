@@ -368,6 +368,8 @@ typedef enum
 	RSSL_CURL_DONE = 2
 } RsslLibCurlStatus;
 
+/* Default timeout for Proxy connection */
+#define RSSL_CURL_PROXY_CONNECTION_TIMEOUT 40
 
 typedef struct
 {
@@ -408,6 +410,7 @@ typedef struct
 	char				*curlOptProxyUser;		/* username used for tunneling connection */
 	char				*curlOptProxyPasswd;	/* password used for tunneling connection */
 	char				*curlOptProxyDomain;	/* domain used for tunneling connection */
+	RsslUInt32			proxyConnectionTimeout;	/* the maximum time during which a connection to the proxy can be established. */
 	RsslBool			blocking : 1;			/* Perform blocking operations */
 	RsslBool			tcp_nodelay : 1;		/* Disable Nagle Algorithm */
 	RsslUInt32			compression;			/* Use compression defined by server, otherwise none */
@@ -617,6 +620,7 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->curlOptProxyUser = 0;
 	rsslSocketChannel->curlOptProxyPasswd = 0;
 	rsslSocketChannel->curlOptProxyDomain = 0;
+	rsslSocketChannel->proxyConnectionTimeout = RSSL_CURL_PROXY_CONNECTION_TIMEOUT;
 	rsslSocketChannel->server = 0;
 	rsslSocketChannel->serverName = 0;
 	rsslSocketChannel->hostName = 0;

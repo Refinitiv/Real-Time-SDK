@@ -1842,7 +1842,7 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 	EmaString name, interfaceName, host, port, objectName, tunnelingProxyHost, tunnelingProxyPort, location, sslCAStore, wsProtocols;
 	UInt16 channelType, compressionType, encryptedProtocolType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize, directWrite;
+	       tcpNodelay, enableSessionMgnt, encryptedSslProtocolVer, initializationTimeout, wsMaxMsgSize, directWrite, proxyConnectionTimeout;
 	UInt64 serviceDiscoveryRetryCount;
 
 	UInt64 flags = 0;
@@ -2155,6 +2155,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				directWrite = channelEntry.getUInt();
 				flags |= DirectWriteEnum;
 			}
+			else if (channelEntry.getName() == "ProxyConnectionTimeout")
+			{
+				proxyConnectionTimeout = channelEntry.getUInt();
+				flags |= ProxyConnectionTimeoutEnum;
+			}
 			break;
 		}
 	}
@@ -2276,6 +2281,11 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 
 				if ((setByFnCalled & PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL) && fileCfgSocket)
 					socketChannelConfig->proxyDomain = fileCfgSocket->proxyDomain;
+
+				if (flags & ProxyConnectionTimeoutEnum)
+					socketChannelConfig->setProxyConnectionTimeout(proxyConnectionTimeout);
+				else if (fileCfgSocket)
+					socketChannelConfig->proxyConnectionTimeout = fileCfgSocket->proxyConnectionTimeout;
 
 				if (flags & EnableSessionManagementEnum)
 					socketChannelConfig->enableSessionMgnt = (RsslBool)enableSessionMgnt;

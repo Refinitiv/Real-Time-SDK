@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019, 2023 Refinitiv. All rights reserved.         --
+ *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -235,6 +235,16 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	if (rsslSocketChannel->proxyConnectionTimeout > 0)
 		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_TIMEOUT, (long)rsslSocketChannel->proxyConnectionTimeout);
 
+	// API QA
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_URL=%s\n", curlOptUrl);
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_PORT=%d\n", (long)portnum);
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_PROXY=%s\n", rsslSocketChannel->proxyHostName);
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_PROXYPORT=%d\n", (long)proxyPortNum);
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_TIMEOUT=%d\n", (long)rsslSocketChannel->proxyConnectionTimeout);
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_TCP_NODELAY=%d\n", (long)rsslSocketChannel->tcp_nodelay);
+	printf("runBlockingLibcurlProxyConnection. CURLOPT_INTERFACE=%s\n", (rsslSocketChannel->interfaceName ? rsslSocketChannel->interfaceName : "(nil)"));
+	// END API QA
+
 	// Set interface, if specified in connectopts
 	if (rsslSocketChannel->interfaceName != NULL)
 		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_INTERFACE, rsslSocketChannel->interfaceName);
@@ -283,7 +293,7 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	if (rsslSocketChannel->proxyConnectionTimeout > 0)
 		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_TIMEOUT, 0L);
 
-    /* Free the allocated memory */
+	/* Free the allocated memory */
 	_rsslFree(curlOptProxy);
 	_rsslFree(curlOptUrl);
 	if (curlOptProxyUserPwd)

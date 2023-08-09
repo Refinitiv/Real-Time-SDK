@@ -142,6 +142,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"OutputBufferSize",
 	"PacketTTL",
 	"PostAckTimeout",
+	"ProxyConnectionTimeout",
 	"RecoverUserSubmitSourceDirectory",
 	"RefreshFirstRequired",
 	"RemoveItemsOnDisconnect",

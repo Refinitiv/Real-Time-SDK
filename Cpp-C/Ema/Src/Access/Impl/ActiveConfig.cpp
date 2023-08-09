@@ -851,6 +851,12 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	defaultServiceName(defaultServiceName),
 	tcpNodelay(DEFAULT_TCP_NODELAY),
 	objectName(DEFAULT_OBJECT_NAME),
+	proxyHostName(),
+	proxyPort(),
+	proxyUserName(),
+	proxyPasswd(),
+	proxyDomain(),
+	proxyConnectionTimeout(DEFAULT_PROXY_CONNECTION_TIMEOUT),
 	sslCAStore(DEFAULT_SSL_CA_STORE),
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
 	securityProtocol(RSSL_ENC_TLSV1_2),
@@ -874,6 +880,12 @@ void SocketChannelConfig::clear()
 	serviceName = defaultServiceName;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
 	objectName = DEFAULT_OBJECT_NAME;
+	proxyHostName.clear();
+	proxyPort.clear();
+	proxyUserName.clear();
+	proxyPasswd.clear();
+	proxyDomain.clear();
+	proxyConnectionTimeout = DEFAULT_PROXY_CONNECTION_TIMEOUT;
 	sslCAStore = DEFAULT_SSL_CA_STORE;
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
@@ -886,6 +898,14 @@ void SocketChannelConfig::clear()
 ChannelConfig::ChannelType SocketChannelConfig::getType() const
 {
 	return ChannelConfig::SocketChannelEnum;
+}
+
+void SocketChannelConfig::setProxyConnectionTimeout(UInt64 value)
+{
+	if (value >= 0)
+	{
+		proxyConnectionTimeout = value > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)value;
+	}
 }
 
 void SocketChannelConfig::setServiceDiscoveryRetryCount(UInt64 value)
