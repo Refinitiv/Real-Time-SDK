@@ -3879,6 +3879,49 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 	} while (1);
 }
 
+// When the part of the internal buffer contains already processed data,
+// we will move the raw data to the beginning of the buffer.
+static RsslBool _movePartialFrameToBeginningOfInputBuffer(RsslSocketChannel* rsslSocketChannel, rwsSession_t* wsSess)
+{
+	_DEBUG_TRACE_WS_READ("inputBufCursor:%u inputBuffer->length:%llu\n",
+		rsslSocketChannel->inputBufCursor, rsslSocketChannel->inputBuffer->length);
+
+	// The data before inputBufCursor has already been processed.
+	if (rsslSocketChannel->inputBufCursor > 0 && rsslSocketChannel->inputBufCursor < rsslSocketChannel->inputBuffer->length)
+	{
+		rwsFrameHdr_t* frame = &(wsSess->frameHdr);
+		size_t actualInBuffLen = rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor;
+
+		// Check that buffer has only 1 byte of unhandled data.
+		// The byte is a start of a new frame
+		if (rsslSocketChannel->inputBufCursor + 1 == rsslSocketChannel->inputBuffer->length)
+		{
+			// Copy 1 byte only to the beginning of the buffer.
+			*rsslSocketChannel->inputBuffer->buffer = *(rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor);
+		}
+		else
+		{
+			// Copy the partial fragment to the beginning of the buffer.
+			memmove(rsslSocketChannel->inputBuffer->buffer,
+				rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor,
+				actualInBuffLen);
+		}
+
+		// Reset pointers
+		rsslSocketChannel->inputBufCursor = 0;
+		rsslSocketChannel->inputBuffer->length = actualInBuffLen;
+
+		wsSess->inputReadCursor = 0;
+		wsSess->actualInBuffLen = actualInBuffLen;
+
+		// Sync frame (wsSess->frameHdr)
+		_resetWSFrame(frame, rsslSocketChannel->inputBuffer->buffer);
+		_decodeWSFrame(frame, rsslSocketChannel->inputBuffer->buffer, actualInBuffLen);
+		return RSSL_TRUE;
+	}
+	return RSSL_FALSE;
+}
+
 rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *readret, int *moreData, RsslInt32* bytesRead, RsslInt32* uncompBytesRead, RsslInt32 *packing, RsslError *error)
 {
 	RsslInt32		cc = 0, hdrLen = 0;
@@ -3902,8 +3945,24 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 		RsslInt32 readSize;
 		// Make sure we either have 2 bytes already read or room to read at least 2 bytes
 		// to determine the header length and opcode.
+		readSize = checkInputBufferSpace(rsslSocketChannel, 2);
+		if (readSize == 0)
+		{
+			// This is a case when the internal buffer is (almost) full.
+			// The several messages has already processed.
+			// There is a partial frame at the end of the buffer.
+			// And we don't have enough space inside the internal buffer to read the whole frame.
+			// 
+			// Move unhandled data to the beginning of the inputBuffer.
+			if (_movePartialFrameToBeginningOfInputBuffer(rsslSocketChannel, wsSess) > 0)
+			{
+				readSize = checkInputBufferSpace(rsslSocketChannel, 2);
 
-		if ( (readSize = checkInputBufferSpace(rsslSocketChannel, 2)) == 0)
+				inputBufferLength = rsslSocketChannel->inputBuffer->length;
+			}
+		}
+
+		if (readSize == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,

@@ -53,6 +53,52 @@ const char* getPathServerKey();   // describes the path to Server key for creati
 const char* getPathServerCert();  // describes the path to Server certificate for creating a server on an encrypted connection
 const char* getOpenSSLCAStore();  // describes the path to the CAStore: certificate for creating a client on an encrypted connection
 
+class GLobalLockFragmentedTestParams {
+protected:
+	GLobalLockFragmentedTestParams() {};
+
+public:
+	RsslConnectionTypes		connType;		// the connection type
+	RsslUInt32				msgLength;		// the specific value for length of each separated message
+	RsslUInt32				maxFragmentSize;// the max fragment size before fragmentation, 0 - default
+	RsslUInt32				msgWriteCount;	// the count of writing messages in this test, 0 - default, MAX_MSG_WRITE_COUNT
+	RsslConnectionTypes		encryptedProtocol;
+	RsslUInt8				wsProtocolType;
+	RsslCompTypes			compressionType;	// the compression type for the connection.
+	RsslUInt32				compressionLevel;	// the compression level. Currently only zlib supports.
+
+	GLobalLockFragmentedTestParams(
+		RsslConnectionTypes cnType, RsslUInt32 msgLen, RsslUInt32 maxFragSz, RsslUInt32 msgCount,
+		RsslConnectionTypes encrProt, RsslUInt8 wsProt,
+		RsslCompTypes compressType = RSSL_COMP_NONE, RsslUInt32 compressLevel = 0U)
+		:
+		connType(cnType),
+		msgLength(msgLen),
+		maxFragmentSize(maxFragSz),
+		msgWriteCount(msgCount),
+		encryptedProtocol(encrProt),
+		wsProtocolType(wsProt),
+		compressionType(compressType),
+		compressionLevel(compressLevel)
+	{};
+
+	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+	friend std::ostream& operator<<(std::ostream& out, const GLobalLockFragmentedTestParams& params)
+	{
+		out << "["
+			"connType:" << params.connType << ","
+			"msgLength:" << params.msgLength << ","
+			"maxFragmentSize:" << params.maxFragmentSize << ","
+			"msgWriteCount:" << params.msgWriteCount << ","
+			"encryptedProtocol:" << params.encryptedProtocol << ","
+			"wsProtocolType:" << (unsigned)params.wsProtocolType << ","
+			"compressionType:" << params.compressionType << ","
+			"compressionLevel:" << params.compressionLevel
+			<< "]";
+		return out;
+	}
+};
+
 class GLobalLockSystemTestParams {
 public:
 	int						configIndex;		// test buffer configuartion index
