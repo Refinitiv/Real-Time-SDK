@@ -261,6 +261,7 @@ static void _saxEndElement(void *pData, const xmlChar *name)
 XmlItemInfoList *createXmlItemList(const char *filename, unsigned int count)
 {
 	XmlItemInfoList *pItemInfoList = NULL;
+	xmlParserCtxtPtr pParserCtxt = NULL;
 	xmlSAXHandler saxHandler;
 	XmlItemListParser xmlItemListParser;
 
@@ -288,22 +289,33 @@ XmlItemInfoList *createXmlItemList(const char *filename, unsigned int count)
 	saxHandler.startElement = _saxStartElement;
 	saxHandler.endElement = _saxEndElement;
 
-	if (xmlSAXUserParseFile(&saxHandler, &xmlItemListParser, filename) < 0)
+	pParserCtxt = xmlNewSAXParserCtxt(&saxHandler, (void*)&xmlItemListParser);
+	if (pParserCtxt == NULL)
 	{
-		printf("xmlSAXUserParseFile() failed with parsing state: %d.\n", xmlItemListParser.saxParsingState);
+		printf("xmlNewSAXParserCtxt() failed to allocate parser context.");
 		goto createXmlItemList_failure;
 	}
-	else if	(xmlItemListParser.saxParsingState != XML_PARSE_ST_COMPLETE)
+
+	(void)xmlCtxtReadFile(pParserCtxt, filename, NULL, XML_PARSE_COMPACT | XML_PARSE_BIG_LINES);
+	if (pParserCtxt->myDoc != NULL)
 	{
-		printf("xmlSAXUserParseFile() returned with unexpected parsing state: %d\n", xmlItemListParser.saxParsingState);
+		printf("xmlCtxtReadFile() failed with parsing state:  %d.\n", xmlItemListParser.saxParsingState);
 		goto createXmlItemList_failure;
 	}
+	else if (xmlItemListParser.saxParsingState != XML_PARSE_ST_COMPLETE)
+	{
+		printf("xmlCtxtReadFile() returned with unexpected parsing state: %d\n", xmlItemListParser.saxParsingState);
+		goto createXmlItemList_failure;
+	}
+
+	xmlFreeParserCtxt(pParserCtxt);
 
 	return pItemInfoList;
 
 	createXmlItemList_failure:
 	free(pItemInfoList->itemInfoList);
 	free(pItemInfoList);
+	if (pCtxt != NULL) xmlFreeParserCtxt(pCtxt);
 	return NULL;
 }
 
