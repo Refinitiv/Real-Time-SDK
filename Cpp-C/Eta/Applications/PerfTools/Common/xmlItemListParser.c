@@ -312,10 +312,11 @@ XmlItemInfoList *createXmlItemList(const char *filename, unsigned int count)
 
 	return pItemInfoList;
 
-	createXmlItemList_failure:
+createXmlItemList_failure:
+
 	free(pItemInfoList->itemInfoList);
 	free(pItemInfoList);
-	if (pCtxt != NULL) xmlFreeParserCtxt(pCtxt);
+	if (pParserCtxt != NULL) xmlFreeParserCtxt(pParserCtxt);
 	return NULL;
 }
 
