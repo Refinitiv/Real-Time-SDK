@@ -2477,36 +2477,33 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorConnectInfoImpl->base.loginReqIndex]->loginRequestMsg;
 		}
 
-	if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
-	{
-		if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
+		if (isReactorDebugLevelEnabled(pReactorImpl, RSSL_RC_DEBUG_LEVEL_CONNECTION))
 		{
-			if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+			if (pReactorImpl->pReactorDebugInfo == NULL || pReactorChannel->pChannelDebugInfo == NULL)
 			{
-				_reactorShutdown(pReactorImpl, pError);
-				_reactorSendShutdownEvent(pReactorImpl, pError);
-				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				if (_initReactorAndChannelDebugInfo(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+				{
+					_reactorShutdown(pReactorImpl, pError);
+					_reactorSendShutdownEvent(pReactorImpl, pError);
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
 			}
+
+			pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_SESSION_STARTUP_DONE;
+
+			_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") connection EXECUTED on channel fd = "RSSL_REACTOR_SOCKET_PRINT_TYPE"..]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
 		}
 
-		pReactorChannel->pChannelDebugInfo->debugInfoState |= RSSL_RC_DEBUG_INFO_CHANNEL_SESSION_STARTUP_DONE;
-
-		_writeDebugInfo(pReactorImpl, "Reactor("RSSL_REACTOR_POINTER_PRINT_TYPE"), Reactor channel("RSSL_REACTOR_POINTER_PRINT_TYPE") connection EXECUTED on channel fd = "RSSL_REACTOR_SOCKET_PRINT_TYPE"..]\n", pReactorImpl, pReactorChannel, pReactorChannel->reactorChannel.socketId);
-	}
-
-	if ((pReactorChannel->pTunnelManager = tunnelManagerOpen((RsslReactor*)pReactorChannel->pParentReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
-		return RSSL_RET_FAILURE;
-	
-	/* Keeps the original login request */
-	if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
-	{
-		pReactorChannel->userName = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName;
-		pReactorChannel->flags = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags;
-		pReactorChannel->userNameType = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType;
-	}
+		/* Keeps the original login request */
+		if (pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
+		{
+			pReactorChannel->userName = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName;
+			pReactorChannel->flags = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags;
+			pReactorChannel->userNameType = pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType;
+		}
 
 		if ((pReactorChannel->pTunnelManager = tunnelManagerOpen((RsslReactor*)pReactorChannel->pParentReactor, (RsslReactorChannel*)pReactorChannel, pError)) == NULL)
-			return RSSL_RET_FAILURE;
+			goto reactorConnectFail;
 
 		if (pWatchlist)
 		{
