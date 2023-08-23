@@ -18,7 +18,7 @@ import com.refinitiv.eta.transport.TransportFactory;
 public class ReactorConnectInfo
 {
 
-    private final int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT	= 3;
+    private final static int DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT	= 3;    //investigate this
 
     private boolean _enableSessionManagement;
     private String _location;

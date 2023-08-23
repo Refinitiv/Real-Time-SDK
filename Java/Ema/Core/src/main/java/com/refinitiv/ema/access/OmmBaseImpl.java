@@ -14,7 +14,6 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,7 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.valueadd.reactor.*;
-import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredentialRenewalOptions.RenewalModes;
 
 import org.slf4j.Logger;
 
@@ -262,8 +260,21 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if (_loggerClient.isTraceEnabled())
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, "Successfully open Selector.", Severity.TRACE));
 			
-			if (_activeConfig.xmlTraceEnable)
-				_rsslReactorOpts.enableXmlTracing();
+			if (_activeConfig.xmlTraceEnable || _activeConfig.xmlTraceToFileEnable){
+				if ( _activeConfig.xmlTraceEnable) _rsslReactorOpts.enableXmlTracing();
+				if ( _activeConfig.xmlTraceToFileEnable ) _rsslReactorOpts.enableXmlTraceToFile();
+
+				_rsslReactorOpts.setXmlTraceMaxFileSize(_activeConfig.xmlTraceMaxFileSize);
+				_rsslReactorOpts.setXmlTraceFileName(_activeConfig.xmlTraceFileName);
+				if (_activeConfig.xmlTraceToMultipleFilesEnable) _rsslReactorOpts.enableXmlTraceToMultipleFiles();
+				if (_activeConfig.xmlTraceWriteEnable) _rsslReactorOpts.enableXmlTraceWrite();
+				if (_activeConfig.xmlTraceReadEnable) _rsslReactorOpts.enableXmlTraceRead();
+				if (  _activeConfig.xmlTracePingEnable &&  //ping flag must be enabled
+						(_activeConfig.xmlTraceReadEnable || _activeConfig.xmlTraceWriteEnable ) ) { // and at least one of write or read must be enabled
+					_rsslReactorOpts.enableXmlTracePing();
+				}
+			}
+
 
 			_rsslReactorOpts.userSpecObj(this);
 			
@@ -871,6 +882,34 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 			{
 				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToFile)) != null)
+			{
+				_activeConfig.xmlTraceToFileEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_FILE_ENABLE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceMaxFileSize)) != null)
+			{
+				_activeConfig.xmlTraceMaxFileSize = ce.intLongValue() == 0 ? ActiveConfig.DEFAULT_XML_TRACE_MAX_FILE_SIZE : ce.intLongValue();
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceFileName)) != null)
+			{
+				_activeConfig.xmlTraceFileName = (String) ce.value();
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToMultipleFiles)) != null)
+			{
+				_activeConfig.xmlTraceToMultipleFilesEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_MULTIPLE_FILES;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceWrite)) != null)
+			{
+				_activeConfig.xmlTraceWriteEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_WRITE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceRead)) != null)
+			{
+				_activeConfig.xmlTraceReadEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_READ;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
+			{
+				_activeConfig.xmlTracePingEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_PING;
 			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptLimit)) != null)

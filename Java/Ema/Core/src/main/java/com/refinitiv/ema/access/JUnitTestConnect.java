@@ -33,7 +33,14 @@ public class JUnitTestConnect
 	// Common Parameters:
 	public static final int ChannelSet  = ConfigManager.ChannelSet; 
 	public static final int XmlTraceToStdout  = ConfigManager.XmlTraceToStdout; 
-	public static final int ItemCountHint  = ConfigManager.ItemCountHint ; 
+	public static final int XmlTraceToFile  = ConfigManager.XmlTraceToFile;
+	public static final int XmlTraceMaxFileSize  = ConfigManager.XmlTraceMaxFileSize;
+	public static final int XmlTraceFileName  = ConfigManager.XmlTraceFileName;
+	public static final int XmlTraceToMultipleFiles  = ConfigManager.XmlTraceToMultipleFiles;
+	public static final int XmlTraceWrite  = ConfigManager.XmlTraceWrite;
+	public static final int XmlTraceRead  = ConfigManager.XmlTraceRead;
+	public static final int XmlTracePing  = ConfigManager.XmlTracePing;
+	public static final int ItemCountHint  = ConfigManager.ItemCountHint ;
 	public static final int DispatchTimeoutApiThread  = ConfigManager.DispatchTimeoutApiThread; 
 	public static final int MaxDispatchCountApiThread  = ConfigManager.MaxDispatchCountApiThread; 
 	public static final int MaxDispatchCountUserThread  = ConfigManager.MaxDispatchCountUserThread; 
@@ -909,6 +916,16 @@ public class JUnitTestConnect
 		{
 			if (configParam == XmlTraceToStdout)
 				return activeConfig.xmlTraceEnable;
+			else if (configParam == XmlTraceToFile)
+				return activeConfig.xmlTraceToFileEnable;
+			else if (configParam == XmlTraceToMultipleFiles)
+				return activeConfig.xmlTraceToMultipleFilesEnable;
+			else if (configParam == XmlTraceWrite)
+				return activeConfig.xmlTraceWriteEnable;
+			else if (configParam == XmlTraceRead)
+				return activeConfig.xmlTraceReadEnable;
+			else if (configParam == XmlTracePing)
+				return activeConfig.xmlTracePingEnable;
 			else if (configParam == ConsumerMsgKeyInUpdates)
 				return activeConfig.msgKeyInUpdates;
 			else if (configParam == SendJsonConvError)
@@ -985,6 +1002,8 @@ public class JUnitTestConnect
 				return activeConfig.reissueTokenAttemptLimit;
 			else if (configParam == ReissueTokenAttemptInterval)
 				return activeConfig.reissueTokenAttemptInterval;
+			else if (configParam == XmlTraceMaxFileSize)
+				return (int) activeConfig.xmlTraceMaxFileSize;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -1016,6 +1035,8 @@ public class JUnitTestConnect
 				return chanConfig.wsMaxMsgSize;
 			else if (configParam == ServiceDiscoveryRetryCount)
 				return chanConfig.serviceDiscoveryRetryCount;
+			else if (configParam == XmlTraceMaxFileSize)
+				return (int) activeConfig.xmlTraceMaxFileSize;
 		}
 		else if (type == ConfigGroupTypeDictionary)
 		{
@@ -1171,8 +1192,11 @@ public class JUnitTestConnect
 		{
 			if (configParam == ConsumerDefaultConsumerName)
 				return activeConfig.configuredName;
-			if (configParam == EnableRtt) {
+			else if (configParam == EnableRtt) {
 				return String.valueOf(activeConfig.rsslRDMLoginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
+			}
+			else if (configParam == XmlTraceFileName){
+				return activeConfig.xmlTraceFileName;
 			}
 		}
 		else if (type == ConfigGroupTypeChannel)
@@ -1220,6 +1244,9 @@ public class JUnitTestConnect
 				if (chanConfig.rsslConnectionType == ConnectionTypes.WEBSOCKET) {
 					return chanConfig.wsProtocols;
 				}
+			}
+			else if (configParam == XmlTraceFileName){
+				return activeConfig.xmlTraceFileName;
 			}
 		}
 		else if (type == ConfigGroupTypeDictionary)
@@ -1304,6 +1331,16 @@ public class JUnitTestConnect
 		{
 			if (configParam == XmlTraceToStdout)
 				return activeConfig.xmlTraceEnable;
+			else if (configParam == XmlTraceToFile)
+				return activeConfig.xmlTraceToFileEnable;
+			else if (configParam == XmlTraceToMultipleFiles)
+				return activeConfig.xmlTraceToMultipleFilesEnable;
+			else if (configParam == XmlTraceWrite)
+				return activeConfig.xmlTraceWriteEnable;
+			else if (configParam == XmlTraceRead)
+				return activeConfig.xmlTraceReadEnable;
+			else if (configParam == XmlTracePing)
+				return activeConfig.xmlTracePingEnable;
 			else if (configParam == NiProviderMergeSourceDirectoryStreams)
 				return ((OmmNiProviderActiveConfig)activeConfig).mergeSourceDirectoryStreams;
 			else if (configParam == NiProviderRefreshFirstRequired)
@@ -1367,6 +1404,8 @@ public class JUnitTestConnect
 				return activeConfig.reconnectMaxDelay;
 			else if (configParam == LoginRequestTimeOut)
 				return activeConfig.loginRequestTimeOut;
+			else if (configParam == XmlTraceMaxFileSize)
+				return (int) activeConfig.xmlTraceMaxFileSize;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -1422,6 +1461,8 @@ public class JUnitTestConnect
 				return activeConfig.configuredName;
 			else if (configParam == DirectoryName)
 				return ((OmmNiProviderDirectoryStore)niprovImpl.directoryServiceStore()).getApiControlDirectory().directoryName;
+			else if (configParam == XmlTraceFileName)
+				return activeConfig.xmlTraceFileName;
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{
@@ -1460,6 +1501,8 @@ public class JUnitTestConnect
 				if (chanConfig.rsslConnectionType == ConnectionTypes.HTTP || chanConfig.rsslConnectionType == ConnectionTypes.ENCRYPTED)
 					return ((HttpChannelConfig)chanConfig).httpProxyPort;
 			}
+			else if (configParam == XmlTraceFileName)
+				return activeConfig.xmlTraceFileName;
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");  
@@ -1480,6 +1523,16 @@ public class JUnitTestConnect
 		{
 			if (configParam == XmlTraceToStdout)
 				return activeConfig.xmlTraceEnable;
+			else if (configParam == XmlTraceToFile)
+				return activeConfig.xmlTraceToFileEnable;
+			else if (configParam == XmlTraceToMultipleFiles)
+				return activeConfig.xmlTraceToMultipleFilesEnable;
+			else if (configParam == XmlTraceWrite)
+				return activeConfig.xmlTraceWriteEnable;
+			else if (configParam == XmlTraceRead)
+				return activeConfig.xmlTraceReadEnable;
+			else if (configParam == XmlTracePing)
+				return activeConfig.xmlTracePingEnable;
 			else if (configParam == IProviderRefreshFirstRequired)
 				return ((OmmIProviderActiveConfig)activeConfig).refreshFirstRequired;
 			else if (configParam == IProviderAcceptDirMessageWithoutMinFilters)
@@ -1542,6 +1595,8 @@ public class JUnitTestConnect
 				return ((OmmIProviderActiveConfig)activeConfig).maxEnumTypeFragmentSize;
 			else if (configParam == DictionaryFieldDictFragmentSize)
 				return ((OmmIProviderActiveConfig)activeConfig).maxFieldDictFragmentSize;
+			else if (configParam == XmlTraceMaxFileSize)
+				return (int) activeConfig.xmlTraceMaxFileSize;
 		}
 		else if (type == ConfigGroupTypeServer)
 		{
@@ -1569,7 +1624,8 @@ public class JUnitTestConnect
 				return activeConfig.serverConfig.initializationTimeout;
 			else if (configParam == ServerMaxFragmentSize) {
 				return activeConfig.serverConfig.maxFragmentSize;
-			}
+			} else if (configParam == XmlTraceMaxFileSize)
+				return (int) activeConfig.xmlTraceMaxFileSize;
 		}
 		
 		throw new IllegalArgumentException("Invalid Input");   
@@ -1593,6 +1649,8 @@ public class JUnitTestConnect
 				return activeConfig.serverConfig.name;
 			else if (configParam == DirectoryName)
 				return iprovImpl.directoryServiceStore().getDirectoryCache().directoryName;
+			else if (configParam == XmlTraceFileName)
+				return activeConfig.xmlTraceFileName;
 		}
 		else if (type == ConfigGroupTypeServer)
 		{

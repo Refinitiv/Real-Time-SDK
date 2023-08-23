@@ -918,6 +918,30 @@ class ProgrammaticConfigure
 										{
 											activeConfig.xmlTraceEnable = eentry.intValue() > 0 ? true : false;
 										}
+										else if (eentry.name().equals("XmlTraceToFile"))
+										{
+											activeConfig.xmlTraceToFileEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceToMultipleFiles"))
+										{
+											activeConfig.xmlTraceToMultipleFilesEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceWrite"))
+										{
+											activeConfig.xmlTraceWriteEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceRead"))
+										{
+											activeConfig.xmlTraceReadEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTracePing"))
+										{
+											activeConfig.xmlTracePingEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceMaxFileSize"))
+										{
+											activeConfig.xmlTraceMaxFileSize = eentry.intValue();
+										}
 										else if ( eentry.name().equals("ItemCountHint") )
 										{
 											if (eentry.intValue() >= 0)
@@ -990,6 +1014,13 @@ class ProgrammaticConfigure
 											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
 										}
 										break;
+										case DataTypes.ASCII:
+											if (eentry.name().equals("XmlTraceFileName"))
+											{
+												activeConfig.xmlTraceFileName = eentry.ascii().ascii();
+											}
+
+											break;
 									default:
 										break;
 									}
@@ -1020,6 +1051,30 @@ class ProgrammaticConfigure
 										if (eentry.name().equals("XmlTraceToStdout"))
 										{
 											activeConfig.xmlTraceEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceToFile"))
+										{
+											activeConfig.xmlTraceToFileEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceToMultipleFiles"))
+										{
+											activeConfig.xmlTraceToMultipleFilesEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceWrite"))
+										{
+											activeConfig.xmlTraceWriteEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceRead"))
+										{
+											activeConfig.xmlTraceReadEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTracePing"))
+										{
+											activeConfig.xmlTracePingEnable = eentry.intValue() > 0 ? true : false;
+										}
+										else if (eentry.name().equals("XmlTraceMaxFileSize"))
+										{
+											activeConfig.xmlTraceMaxFileSize = eentry.intValue();
 										}
 										else if ( eentry.name().equals("ItemCountHint") )
 										{
@@ -1069,6 +1124,13 @@ class ProgrammaticConfigure
 											activeConfig.sendJsonConvError = eentry.uintValue() > 0 ? true : false;
 										}
 										break;
+										case DataTypes.ASCII:
+											if (eentry.name().equals("XmlTraceFileName"))
+											{
+												activeConfig.xmlTraceFileName = eentry.ascii().ascii();
+											}
+
+											break;
 									default:
 										break;
 									}

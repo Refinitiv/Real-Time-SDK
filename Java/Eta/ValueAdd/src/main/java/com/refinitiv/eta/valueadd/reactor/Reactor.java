@@ -150,6 +150,7 @@ public class Reactor
 	ReactorOptions _reactorOptions = ReactorFactory.createReactorOptions();
 	ReactorChannel _reactorChannel = null;
 	ReactorChannelInfo _reactorChannelInfo = ReactorFactory.createReactorChannelInfo();
+	FileDumper _fileDumper;
 
 	// queue between reactor and worker
 	SelectableBiDirectionalQueue _workerQueue = null;
@@ -286,6 +287,11 @@ public class Reactor
 			_reactorOptions.copy(options);
 			debugger = ReactorFactory.createReactorDebugger(_reactorOptions.debuggerOptions().outputStream(),
 					_reactorOptions.debuggerOptions().capacity());
+
+			if (options.xmlTraceToFile()){
+			_fileDumper = new FileDumper(options.xmlTraceFileName(), options.xmlTraceToMultipleFiles(), options.xmlTraceMaxFileSize());
+		}
+
 		} else
 		{
 			populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE, "Reactor.constructor",
@@ -4344,7 +4350,7 @@ public class Reactor
 					}
 				}
 
-				if (_reactorOptions.xmlTracing())
+				if (_reactorOptions.xmlTraceWrite())
 				{
 					xmlString.setLength(0);
 					xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -4352,7 +4358,14 @@ public class Reactor
 							.append(new java.util.Date()).append(" -->\n");
 					xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(),
 							writeBuffer, null, xmlString, errorInfo.error());
-					System.out.println(xmlString);
+					if (_reactorOptions.xmlTracing()){
+						System.out.println(xmlString);
+					}
+					if (_reactorOptions.xmlTraceToFile()) {
+
+						_fileDumper.dump(xmlString.toString());
+
+					}
 				}
 
 				ret = reactorChannel.channel().write(writeBuffer, submitOptions.writeArgs(), errorInfo.error());
@@ -4776,7 +4789,7 @@ public class Reactor
 
 		if (msgBuf != null)
 		{
-			if (_reactorOptions.xmlTracing())
+			if (_reactorOptions.xmlTracePing())
 			{
 				xmlString.setLength(0);
 				xmlString.append("\n<!-- Incoming Reactor message -->\n").append("<!-- ")
@@ -4784,7 +4797,12 @@ public class Reactor
 						.append(new java.util.Date()).append(" -->\n");
 				xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 						xmlString, errorInfo.error());
-				System.out.println(xmlString);
+				if (_reactorOptions.xmlTracing()){
+					System.out.println(xmlString);
+				}
+				if (_reactorOptions.xmlTraceToFile()) {
+					_fileDumper.dump(xmlString.toString());
+				}
 			}
 
 			// update ping handler
@@ -4842,7 +4860,7 @@ public class Reactor
 						{
 							failedToConvertJSONMsg = false;
 
-							if (_reactorOptions.xmlTracing())
+							if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile())
 							{
 								xmlString.setLength(0);
 								xmlString.append("\n<!-- Dump Reactor message -->\n").append("<!-- ")
@@ -4851,7 +4869,12 @@ public class Reactor
 								xmlDumpTrace.dumpBuffer(reactorChannel.majorVersion(), reactorChannel.minorVersion(),
 										Codec.RWF_PROTOCOL_TYPE, jsonMsg.rwfMsg().encodedMsgBuffer(), null, xmlString,
 										errorInfo.error());
-								System.out.println(xmlString);
+								if (_reactorOptions.xmlTracing()){
+									System.out.println(xmlString);
+								}
+								if (_reactorOptions.xmlTraceToFile()) {
+									_fileDumper.dump(xmlString.toString());
+								}
 							}
 
 							// inspect the converted message and dispatch it to the application.
@@ -4875,7 +4898,7 @@ public class Reactor
 							{
 								msgBuffer.data().put(JSON_PONG_MESSAGE.getBytes());
 
-								if (_reactorOptions.xmlTracing())
+								if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceToFile())
 								{
 									xmlString.setLength(0);
 									xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -4883,7 +4906,12 @@ public class Reactor
 											.append("<!-- ").append(new java.util.Date()).append(" -->\n");
 									xmlDumpTrace.dumpBuffer(reactorChannel.channel(), Codec.JSON_PROTOCOL_TYPE,
 											msgBuffer, null, xmlString, errorInfo.error());
-									System.out.println(xmlString);
+									if (_reactorOptions.xmlTracing()){
+										System.out.println(xmlString);
+									}
+									if (_reactorOptions.xmlTraceToFile()) {
+										_fileDumper.dump(xmlString.toString());
+									}
 								}
 
 								/* Reply with JSON PONG message to the sender */
@@ -6407,7 +6435,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing())
+		if (_reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6416,6 +6444,12 @@ public class Reactor
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
 			System.out.println(xmlString);
+			if (_reactorOptions.xmlTracing()){
+				System.out.println(xmlString);
+			}
+			if (_reactorOptions.xmlTraceToFile()) {
+				_fileDumper.dump(xmlString.toString());
+			}
 		}
 		retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
 
@@ -6615,7 +6649,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing())
+		if (_reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6624,6 +6658,12 @@ public class Reactor
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
 			System.out.println(xmlString);
+			if (_reactorOptions.xmlTracing()){
+				System.out.println(xmlString);
+			}
+			if (_reactorOptions.xmlTraceToFile()) {
+				_fileDumper.dump(xmlString.toString());
+			}
 		}
 
 		retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
@@ -6762,7 +6802,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing())
+		if (_reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6771,6 +6811,12 @@ public class Reactor
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
 			System.out.println(xmlString);
+			if (_reactorOptions.xmlTracing()){
+				System.out.println(xmlString);
+			}
+			if (_reactorOptions.xmlTraceToFile()) {
+				_fileDumper.dump(xmlString.toString());
+			}
 		}
 		retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
 
@@ -6907,7 +6953,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing())
+		if (_reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6916,6 +6962,12 @@ public class Reactor
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
 			System.out.println(xmlString);
+			if (_reactorOptions.xmlTracing()){
+				System.out.println(xmlString);
+			}
+			if (_reactorOptions.xmlTraceToFile()) {
+				_fileDumper.dump(xmlString.toString());
+			}
 		}
 		retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
 
@@ -7055,7 +7107,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTracing())
+		if (_reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -7064,6 +7116,12 @@ public class Reactor
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
 			System.out.println(xmlString);
+			if (_reactorOptions.xmlTracing()){
+				System.out.println(xmlString);
+			}
+			if (_reactorOptions.xmlTraceToFile()) {
+				_fileDumper.dump(xmlString.toString());
+			}
 		}
 		retval = channel.write(msgBuf, _writeArgs, errorInfo.error());
 

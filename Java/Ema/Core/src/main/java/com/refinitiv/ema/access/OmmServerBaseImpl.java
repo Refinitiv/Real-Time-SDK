@@ -233,6 +233,21 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 			if (_activeServerConfig.xmlTraceEnable)
 				_rsslReactorOpts.enableXmlTracing();
 
+			if (_activeServerConfig.xmlTraceEnable || _activeServerConfig.xmlTraceToFileEnable){
+				if ( _activeServerConfig.xmlTraceEnable) _rsslReactorOpts.enableXmlTracing();
+				if ( _activeServerConfig.xmlTraceToFileEnable ) _rsslReactorOpts.enableXmlTraceToFile();
+
+				_rsslReactorOpts.setXmlTraceMaxFileSize(_activeServerConfig.xmlTraceMaxFileSize);
+				_rsslReactorOpts.setXmlTraceFileName(_activeServerConfig.xmlTraceFileName);
+				if (_activeServerConfig.xmlTraceToMultipleFilesEnable) _rsslReactorOpts.enableXmlTraceToMultipleFiles();
+				if (_activeServerConfig.xmlTraceWriteEnable) _rsslReactorOpts.enableXmlTraceWrite();
+				if (_activeServerConfig.xmlTraceReadEnable) _rsslReactorOpts.enableXmlTraceRead();
+				if (  _activeServerConfig.xmlTracePingEnable &&  //ping flag must be enabled
+						(_activeServerConfig.xmlTraceReadEnable || _activeServerConfig.xmlTraceWriteEnable ) ) { // and at least one of write or read must be enabled
+					_rsslReactorOpts.enableXmlTracePing();
+				}
+			}
+
 			_rsslReactorOpts.userSpecObj(this);
 
 			_rsslReactor = ReactorFactory.createReactor(_rsslReactorOpts, _rsslErrorInfo);
@@ -673,6 +688,34 @@ abstract class OmmServerBaseImpl implements OmmCommonImpl, Runnable, TimeoutClie
 				
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToStdout)) != null)
 				_activeServerConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToFile)) != null)
+			{
+				_activeServerConfig.xmlTraceToFileEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_FILE_ENABLE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceMaxFileSize)) != null)
+			{
+				_activeServerConfig.xmlTraceMaxFileSize = ce.intLongValue() == 0 ? ActiveConfig.DEFAULT_XML_TRACE_MAX_FILE_SIZE : ce.intLongValue();
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceFileName)) != null)
+			{
+				_activeServerConfig.xmlTraceFileName = (String) ce.value();
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToMultipleFiles)) != null)
+			{
+				_activeServerConfig.xmlTraceToMultipleFilesEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_MULTIPLE_FILES;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceWrite)) != null)
+			{
+				_activeServerConfig.xmlTraceWriteEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_WRITE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceRead)) != null)
+			{
+				_activeServerConfig.xmlTraceReadEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_READ;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
+			{
+				_activeServerConfig.xmlTracePingEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_PING;
+			}
 		}
 
 		// .........................................................................

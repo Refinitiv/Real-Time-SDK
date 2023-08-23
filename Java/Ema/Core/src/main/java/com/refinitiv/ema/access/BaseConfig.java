@@ -33,6 +33,13 @@ abstract class BaseConfig
 		maxDispatchCountUserThread = DEFAULT_MAX_DISPATCH_COUNT_USER_THREAD;
 		userDispatch = DEFAULT_USER_DISPATCH;
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+		xmlTraceToFileEnable = ActiveConfig.DEFAULT_XML_TRACE_TO_FILE_ENABLE;
+		xmlTraceMaxFileSize = ActiveConfig.DEFAULT_XML_TRACE_MAX_FILE_SIZE;
+		xmlTraceFileName = ActiveConfig.DEFAULT_XML_TRACE_FILE_NAME;
+		xmlTraceToMultipleFilesEnable = ActiveConfig.DEFAULT_XML_TRACE_TO_MULTIPLE_FILES;
+		xmlTraceWriteEnable = ActiveConfig.DEFAULT_XML_TRACE_WRITE;
+		xmlTraceReadEnable = ActiveConfig.DEFAULT_XML_TRACE_READ;
+		xmlTracePingEnable = ActiveConfig.DEFAULT_XML_TRACE_PING;
 		traceStr = new StringBuilder(500);
 		globalConfig = new GlobalConfig();
 		defaultConverterServiceId = DEFAULT_CONVERTER_SERVICE_ID;
@@ -55,6 +62,13 @@ abstract class BaseConfig
 		configuredName = null;
 		instanceName = null;
 		xmlTraceEnable = ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
+		xmlTraceToFileEnable = ActiveConfig.DEFAULT_XML_TRACE_TO_FILE_ENABLE;
+		xmlTraceMaxFileSize = ActiveConfig.DEFAULT_XML_TRACE_MAX_FILE_SIZE;
+		xmlTraceFileName = ActiveConfig.DEFAULT_XML_TRACE_FILE_NAME;
+		xmlTraceToMultipleFilesEnable = ActiveConfig.DEFAULT_XML_TRACE_TO_MULTIPLE_FILES;
+		xmlTraceWriteEnable = ActiveConfig.DEFAULT_XML_TRACE_WRITE;
+		xmlTraceReadEnable = ActiveConfig.DEFAULT_XML_TRACE_READ;
+		xmlTracePingEnable = ActiveConfig.DEFAULT_XML_TRACE_PING;
 		globalConfig.clear();
 		traceStr.setLength(0);
 		defaultConverterServiceId = DEFAULT_CONVERTER_SERVICE_ID;
@@ -74,9 +88,16 @@ abstract class BaseConfig
 		.append("\n\t maxDispatchCountApiThread: ").append(maxDispatchCountApiThread) 
 		.append("\n\t maxDispatchCountUserThread: ").append(maxDispatchCountUserThread) 
 		.append("\n\t userDispatch: ").append(userDispatch) 
-		.append("\n\t configuredName: ").append(configuredName) 
+		.append("\n\t configuredName: ").append(configuredName)
 		.append("\n\t instanceName: ").append(instanceName) 
 		.append("\n\t xmlTraceEnable: ").append(xmlTraceEnable)
+		.append("\n\t xmlTraceToFileEnable: ").append(xmlTraceToFileEnable)
+		.append("\n\t xmlTraceMaxFileSize: ").append(xmlTraceMaxFileSize)
+		.append("\n\t xmlTraceFileName: ").append(xmlTraceFileName)
+		.append("\n\t xmlTraceToMultipleFiles: ").append(xmlTraceToMultipleFilesEnable)
+		.append("\n\t xmlTraceWriteEnable: ").append(xmlTraceWriteEnable)
+		.append("\n\t xmlTraceReadEnable: ").append(xmlTraceReadEnable)
+		.append("\n\t xmlTracePingEnable: ").append(xmlTracePingEnable)
 		.append("\n\t defaultConverterServiceId: ").append(defaultConverterServiceId)
 		.append("\n\t jsonExpandedEnumFields: ").append(jsonExpandedEnumFields)
 		.append("\n\t catchUnknownJsonKeys: ").append(catchUnknownJsonKeys)
@@ -102,6 +123,14 @@ abstract class BaseConfig
 	int						maxDispatchCountUserThread;
 	int		    			userDispatch;
 	boolean 				xmlTraceEnable;
+	boolean 				xmlTraceToFileEnable;
+	long 					xmlTraceMaxFileSize;
+	String					xmlTraceFileName;
+	boolean 				xmlTraceToMultipleFilesEnable;
+	boolean 				xmlTraceReadEnable;
+	boolean 				xmlTraceWriteEnable;
+	boolean 				xmlTracePingEnable;
+
 	StringBuilder			traceStr;
 	GlobalConfig            globalConfig;
 	int 					defaultConverterServiceId;

@@ -26,7 +26,6 @@
 			<Dictionary value="Dictionary_1"/>
 			
 			<XmlTraceFileName value="EmaMyTrace"/>
-			<XmlTraceToFile value="1"/>
 			<EnableRtt value="0" />
 		</Consumer>
 		<Consumer>
@@ -48,6 +47,13 @@
 			<ReconnectMinDelay value="123" />
 			<ReconnectMaxDelay value="456" />
 			<XmlTraceToStdout value="0" />
+			<XmlTraceToFile value="0" />
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
 			<MsgKeyInUpdates value="1"/>
 			<RestRequestTimeOut value="60000"/>
 			<ReissueTokenAttemptLimit value="5"/>
@@ -70,6 +76,13 @@
 			<ReconnectMinDelay value="330" />
 			<ReconnectMaxDelay value="450" />
 			<XmlTraceToStdout value="0" />
+			<XmlTraceToFile value="0" />
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
 			<MsgKeyInUpdates value="1"/>
 		</Consumer>
 		<Consumer>
@@ -124,6 +137,13 @@
 			<WarmStandbyChannelSet value="WarmStandbyChannel_1, WarmStandbyChannel_2"/>
 			<Dictionary value="Dictionary_2"/>
 			<XmlTraceToStdout value="0" />
+			<XmlTraceToFile value="0" />
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
 		</Consumer>
 	</ConsumerList>
 </ConsumerGroup>
@@ -153,6 +173,13 @@
 			<Directory value="Directory_1"/>
 			
 			<XmlTraceToStdout value="0"/>
+			<XmlTraceToFile value="0"/>
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
 		</NiProvider>
 		
 		<NiProvider>
@@ -163,6 +190,13 @@
 			<Directory value="Directory_2"/>
 			
 			<XmlTraceToStdout value="0"/>
+			<XmlTraceToFile value="0"/>
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
 		</NiProvider>
 		
 		<NiProvider>
@@ -179,8 +213,9 @@
 			<ReconnectMaxDelay value="450" />
 			<XmlTraceFileName value="EmaMyTrace3"/>
 			<XmlTraceMaxFileSize value="66666666" />
-			<XmlTraceToFile value="1" />
 			<XmlTraceToStdout value="0" />
+			<XmlTraceToFile value="0" />
+			<XmlTraceFileName value="log_test_server"/>
 			<XmlTraceToMultipleFiles value="1" />
 			<XmlTraceWrite value="1"/>
 			<XmlTraceRead value="1"/>
@@ -244,6 +279,13 @@
 			<MaxDispatchCountUserThread value="5"/>
 			<PipePort value="7001"/>
 			<XmlTraceToStdout value="0" />
+			<XmlTraceToFile value="0" />
+			<XmlTraceMaxFileSize value="40000"/>
+			<XmlTraceFileName value="log_test_server"/>
+			<XmlTraceToMultipleFiles value="0"/>
+			<XmlTraceWrite value="0"/>
+			<XmlTraceRead value="0"/>
+			<XmlTracePing value="0"/>
         </IProvider>
 		<IProvider>
             <!-- Name is mandatory                                                                       -->

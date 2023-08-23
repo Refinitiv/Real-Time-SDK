@@ -74,6 +74,13 @@ abstract class ActiveConfig extends BaseConfig
 	final static int DEFAULT_REISSUE_TOKEN_ATTEMPT_INTERVAL		= 5000;
 	final static double DEFAULT_TOKEN_REISSUE_RATIO				= 0.8;
 	final static boolean DEFAULT_XML_TRACE_ENABLE				= false;
+	final static boolean DEFAULT_XML_TRACE_TO_FILE_ENABLE		= false;
+	final static long DEFAULT_XML_TRACE_MAX_FILE_SIZE			= 100000000;
+	final static String DEFAULT_XML_TRACE_FILE_NAME				= "EmaTrace";
+	final static boolean DEFAULT_XML_TRACE_TO_MULTIPLE_FILES	= false;
+	final static boolean DEFAULT_XML_TRACE_WRITE				= true;
+	final static boolean DEFAULT_XML_TRACE_READ					= true;
+	final static boolean DEFAULT_XML_TRACE_PING					= false;
 	final static boolean DEFAULT_DIRECT_SOCKET_WRITE			= false;
 	final static boolean DEFAULT_HTTP_PROXY					    = false;
 	final static String DEFAULT_CONS_NAME						= "EmaConsumer";

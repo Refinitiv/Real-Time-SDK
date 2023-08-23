@@ -555,6 +555,7 @@ class ConfigManager
 		IProviderTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
 		IProviderTagDict.add( "XmlTracePing", XmlTracePing );
 		IProviderTagDict.add( "XmlTraceRead", XmlTraceRead );
+		IProviderTagDict.add( "XmlTraceWrite", XmlTraceWrite );
 		IProviderTagDict.add( "XmlTraceToFile", XmlTraceToFile );
 		IProviderTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
 		IProviderTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );

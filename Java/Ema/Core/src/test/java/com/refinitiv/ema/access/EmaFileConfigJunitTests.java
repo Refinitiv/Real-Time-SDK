@@ -111,6 +111,21 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReconnectMaxDelay == 450", intValue == 456);
 		boolean boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout);
 		TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile);
+		TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+		long longValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize);
+		TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+		String stringValue = JUnitTestConnect.configGetStringValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName);
+		TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles);
+		TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite);
+		TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead);
+		TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing);
+		TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates);
 		TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 		
@@ -542,6 +557,21 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReconnectMaxDelay == 450", intValue == 456);
 		boolean boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout);
 		TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile);
+		TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+		long longValue = JUnitTestConnect.configGetIntLongValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize);
+		TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+		String stringValue = JUnitTestConnect.configGetStringValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName);
+		TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles);
+		TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite);
+		TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead);
+		TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
+		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing);
+		TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 		boolValue = JUnitTestConnect.configGetBooleanValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates);
 		TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 
@@ -1044,6 +1074,13 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 4444));
@@ -1157,6 +1194,21 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReconnectMaxDelay == 7777", intValue == 7777);
 			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == true);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
+
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 
@@ -1280,6 +1332,13 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 500));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMaxDelay", 500));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 1));
 			innerElementList.add(EmaFactory.createElementEntry().uintValue("SendJsonConvError", 1));
 
@@ -1372,6 +1431,21 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReconnectMaxDelay == 500", intValue == 500);
 			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 1", boolValue == true);
+			intLongValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", intLongValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
+
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError, -1);
@@ -1479,6 +1553,13 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 10));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 4444));
@@ -1580,6 +1661,21 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReconnectMaxDelay == 7777", intValue == 7777);
 			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == true);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons,  JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
+
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError, -1);
@@ -1703,6 +1799,13 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 0));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 70));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 7000));
@@ -1809,6 +1912,21 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("ReconnectMaxDelay == 7000", intValue == 7000);
 			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons,  JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 			TestUtilities.checkResult("MsgKeyInUpdates == 0", boolValue == false);
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.SendJsonConvError, -1);
@@ -1917,6 +2035,13 @@ public class EmaFileConfigJunitTests extends TestCase
 					innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 900));
 					innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 900));
 					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 0));
+					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 0));
+					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+					innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 0));
+					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 0));
+					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
+					innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
 					innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 0));
 					innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 70));
 					innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 7000));
@@ -2052,6 +2177,21 @@ public class EmaFileConfigJunitTests extends TestCase
 					TestUtilities.checkResult("ReconnectMaxDelay == 7000", intValue == 7000);
 					boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 					TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+					TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+					long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons,  JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+					TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+					String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+					TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+					TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+					TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+					TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+					TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 					TestUtilities.checkResult("MsgKeyInUpdates == 0", boolValue == false);
 				}
@@ -2085,6 +2225,21 @@ public class EmaFileConfigJunitTests extends TestCase
 					TestUtilities.checkResult("ReconnectMaxDelay == 456", intValue == 456);
 					boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 					TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+					TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+					long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons,  JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+					TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+					String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+					TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+					TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+					TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+					TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+					TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 					boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 					TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 				}
@@ -2351,6 +2506,21 @@ public class EmaFileConfigJunitTests extends TestCase
 				TestUtilities.checkResult("ReconnectMaxDelay == 456", intValue == 456);
 				boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 				TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+				TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+				long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons,  JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+				TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+				String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+				TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+				TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+				TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+				TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+				TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 				TestUtilities.checkResult("MsgKeyInUpdates == 1", boolValue == true);
 				
@@ -2516,6 +2686,21 @@ public class EmaFileConfigJunitTests extends TestCase
 			String NiProvChannelVal = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelName, 0);
 			boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(niProv,  JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(niProv, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
 			
 			// Check values of Provider_2
 			System.out.println("\nRetrieving Provider_1 configuration values "); 
@@ -2607,6 +2792,13 @@ public class EmaFileConfigJunitTests extends TestCase
 				innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 900));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 900));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+				innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
+				innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("MsgKeyInUpdates", 0));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectAttemptLimit", 70));
 				innerElementList.add(EmaFactory.createElementEntry().intValue("ReconnectMinDelay", 7000));
@@ -2719,6 +2911,21 @@ public class EmaFileConfigJunitTests extends TestCase
 				TestUtilities.checkResult("ReconnectMaxDelay == 7000", intValue == 7000);
 				boolean boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToStdout, -1);
 				TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToFile, -1);
+				TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+				long longValue = JUnitTestConnect.activeConfigGetIntLongValue(cons,  JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+				TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+				String stringValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceFileName, -1);
+				TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+				TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceWrite, -1);
+				TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTraceRead, -1);
+				TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
+				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.XmlTracePing, -1);
+				TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
+
 				boolValue = JUnitTestConnect.activeConfigGetBooleanValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.ConsumerMsgKeyInUpdates, -1);
 				TestUtilities.checkResult("MsgKeyInUpdates == 0", boolValue == false);
 				
@@ -3080,6 +3287,13 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -3326,6 +3540,20 @@ public void testLoadCfgFromProgrammaticConfigForIProv()
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout);
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToFile);
+			TestUtilities.checkResult("XmlTraceToFile == 1", boolValue == true);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceMaxFileSize );
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceFileName );
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToMultipleFiles);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceWrite);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceRead);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
 
 			// Check Global configuration:
 			int value = prov.activeConfig().globalConfig.reactorMsgEventPoolLimit;
@@ -3828,6 +4056,13 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 300));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 700));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -4045,6 +4280,20 @@ public void testLoadCfgFromProgrammaticConfigForNiProv()
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 1", boolValue == true);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == true);
 			
 			// Check Channel configuration:
 			// Check Channel_1 configuration.
@@ -4268,6 +4517,13 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 1));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 1));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("EnforceAckIDValidation", 1));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -4461,6 +4717,20 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForIProv()
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout);
 			TestUtilities.checkResult("XmlTraceToStdout == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToFile);
+			TestUtilities.checkResult("XmlTraceToFile == 1", boolValue == true);
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceMaxFileSize);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceFileName);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToMultipleFiles);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceWrite);
+			TestUtilities.checkResult("XmlTraceWrite == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceRead);
+			TestUtilities.checkResult("XmlTraceRead == 1", boolValue == true);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing);
+			TestUtilities.checkResult("XmlTracePing == 1", boolValue == true);
 			
 			// Check Server configuration:
 			// Check Server_2 configuration.
@@ -4648,6 +4918,13 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForNiProv()
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountApiThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("MaxDispatchCountUserThread", 900));
 			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToStdout", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToFile", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
+			innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Provider_2", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
 			
@@ -4798,6 +5075,21 @@ public void testMergCfgBetweenFileAndProgrammaticConfigForNiProv()
 
 			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToStdout, -1);
 			TestUtilities.checkResult("XmlTraceToStdout == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToFile, -1);
+			TestUtilities.checkResult("XmlTraceToFile == 0", boolValue == false);
+
+			long longValue = JUnitTestConnect.activeConfigGetIntLongValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceMaxFileSize, -1);
+			TestUtilities.checkResult("XmlTraceMaxFileSize == 40000", longValue == 40000);
+			String stringValue = JUnitTestConnect.activeConfigGetStringValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceFileName, -1);
+			TestUtilities.checkResult("XmlTraceFileName == log_test_server", stringValue.equals("log_test_server"));
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceToMultipleFiles, -1);
+			TestUtilities.checkResult("XmlTraceToMultipleFiles == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceWrite, -1);
+			TestUtilities.checkResult("XmlTraceWrite == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTraceRead, -1);
+			TestUtilities.checkResult("XmlTraceRead == 0", boolValue == false);
+			boolValue = JUnitTestConnect.activeConfigGetBooleanValue(prov, JUnitTestConnect.ConfigGroupTypeProvider, JUnitTestConnect.XmlTracePing, -1);
+			TestUtilities.checkResult("XmlTracePing == 0", boolValue == false);
 			
 			// Check Channel configuration:
 			// Check Channel_1 configuration.
@@ -5408,6 +5700,13 @@ public void testLoadConfigFromProgrammaticForWarmStandby()
 		
 		innerElementList.add(EmaFactory.createElementEntry().ascii("WarmStandbyChannelSet", "WarmStandbyChannel_1, WarmStandbyChannel_2"));
 		innerElementList.add(EmaFactory.createElementEntry().uintValue("XmlTraceToStdout", 0));
+		innerElementList.add(EmaFactory.createElementEntry().uintValue("XmlTraceToFile", 0));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceMaxFileSize", 40000));
+		innerElementList.add(EmaFactory.createElementEntry().ascii("XmlTraceFileName", "log_test_server"));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceToMultipleFiles", 0));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceWrite", 0));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTraceRead", 0));
+		innerElementList.add(EmaFactory.createElementEntry().intValue("XmlTracePing", 0));
 
 		innerMap.add(EmaFactory.createMapEntry().keyAscii("Consumer_8", MapEntry.MapAction.ADD, innerElementList));
 
