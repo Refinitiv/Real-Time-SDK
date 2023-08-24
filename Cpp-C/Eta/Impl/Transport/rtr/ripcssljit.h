@@ -307,7 +307,8 @@ typedef enum
 {
 	RSSL_OPENSSL_VNONE = 0,
 	RSSL_OPENSSL_V1_0 = 1,
-	RSSL_OPENSSL_V1_1 = 2
+	RSSL_OPENSSL_V1_1 = 2,
+	RSSL_OPENSSL_V3 = 3
 } RsslOpenSSLAPIVersion;
 
 typedef struct
