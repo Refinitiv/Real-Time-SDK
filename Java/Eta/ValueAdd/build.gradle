@@ -130,12 +130,12 @@ eclipse.classpath.file.whenMerged {
 }
 
 dependencies {
-    api group: 'org.json', name: 'json', version: '20210307'
-    api group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.13'
-    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.32'
-    api group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
-	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.1'
+    api group: 'org.json', name: 'json', version: '20230618'
+    api group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.16'
+    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
+    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.7'
+    api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
+	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.3'
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito
@@ -143,13 +143,13 @@ dependencies {
 	// needs to be executed with the -Pmavencentral
 	if (project.hasProperty("mavencentral"))
 	{
-        testImplementation('org.mockito:mockito-all:1.9.0'){
+        testImplementation('org.mockito:mockito-all:1.10.19'){
             exclude group: 'org.hamcrest'
         }
 	}
 	else
 	{
-        implementation('org.mockito:mockito-all:1.9.0'){
+        implementation('org.mockito:mockito-all:1.10.19'){
             exclude group: 'org.hamcrest'
         }
 	}
@@ -163,7 +163,7 @@ dependencies {
     testRuntimeOnly project(':Eta:Core').sourceSets.main.output
 
 	// needed for cobertura
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
 
 }
 

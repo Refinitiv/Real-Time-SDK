@@ -126,17 +126,17 @@ eclipse {
 }
 
 dependencies {
-    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-    api group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.13'
-    api group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
+    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
+    api group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.14'
+    api group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
     api group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
 
-    testImplementation('org.mockito:mockito-all:1.9.0'){
+    testImplementation('org.mockito:mockito-all:1.10.19'){
         exclude group: 'org.hamcrest'
     }
 
     // needed for cobertura
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
 }
 
 jar {
