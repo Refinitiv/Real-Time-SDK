@@ -45,8 +45,8 @@ repositories {
 ext.YEAR = '2023'
 
 ext.BuildDate = 'Thu May 31 22:00:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.7.1.0'
-ext.SpecificationVersionShort = '3.7.1'
+ext.SpecificationVersion = '3.7.2.0'
+ext.SpecificationVersionShort = '3.7.2'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
@@ -56,7 +56,7 @@ ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.
 ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
-ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.1.1.L1'
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.1.2.L1'
 
 //=========================================================================================
 //
