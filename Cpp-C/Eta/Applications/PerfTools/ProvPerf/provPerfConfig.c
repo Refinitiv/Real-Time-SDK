@@ -34,17 +34,17 @@ static void clearProvPerfConfig()
 	provPerfConfig.recvBufSize = 0;
 	provPerfConfig.tcpNoDelay = RSSL_TRUE;
 	provPerfConfig.highWaterMark = 0;
-	snprintf(provPerfConfig.interfaceName, sizeof(provPerfConfig.interfaceName), "");
+	snprintf(provPerfConfig.interfaceName, sizeof(provPerfConfig.interfaceName), "%s", "");
 	snprintf(provPerfConfig.portNo, sizeof(provPerfConfig.portNo), "%s", "14002");
 	snprintf(provPerfConfig.summaryFilename, sizeof(provPerfConfig.summaryFilename), "ProvSummary.out");
 	provPerfConfig.writeStatsInterval = 5;
 	provPerfConfig.displayStats = RSSL_TRUE;
 	provPerfConfig.connType = RSSL_CONN_TYPE_SOCKET;
-	snprintf(provPerfConfig.serverKey, sizeof(provPerfConfig.serverKey), "");
-	snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), "");
-	snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), "");
+	snprintf(provPerfConfig.serverKey, sizeof(provPerfConfig.serverKey), "%s", "");
+	snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), "%s", "");
+	snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), "%s", "");
 
-	snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), "");
+	snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), "%s", "");
 	provPerfConfig.guaranteedOutputTunnelBuffers = 15000;
 	provPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
 	provPerfConfig.compressionType = 0;
@@ -218,7 +218,7 @@ void initProvPerfConfig(int argc, char **argv)
 		else if (0 == strcmp("-serviceName", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(directoryConfig.serviceName, sizeof(directoryConfig.serviceName), argv[iargs]);
+			snprintf(directoryConfig.serviceName, sizeof(directoryConfig.serviceName), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-serviceId", argv[iargs]))
 		{
@@ -236,7 +236,7 @@ void initProvPerfConfig(int argc, char **argv)
 		else if (0 == strcmp("-msgFile", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(providerThreadConfig.msgFilename, sizeof(providerThreadConfig.msgFilename), argv[iargs]);
+			snprintf(providerThreadConfig.msgFilename, sizeof(providerThreadConfig.msgFilename), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-updateRate", argv[iargs]))
 		{
@@ -336,22 +336,22 @@ void initProvPerfConfig(int argc, char **argv)
 		else if (0 == strcmp("-keyfile", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(provPerfConfig.serverKey, sizeof(provPerfConfig.serverKey), argv[iargs]);
+			snprintf(provPerfConfig.serverKey, sizeof(provPerfConfig.serverKey), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-cert", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), argv[iargs]);
+			snprintf(provPerfConfig.serverCert, sizeof(provPerfConfig.serverCert), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-cipher", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), argv[iargs]);
+			snprintf(provPerfConfig.cipherSuite, sizeof(provPerfConfig.cipherSuite), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-pl", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), argv[iargs]);
+			snprintf(provPerfConfig.protocolList, sizeof(provPerfConfig.protocolList), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-tunnelStreamOutputBufs", argv[iargs]))
 		{

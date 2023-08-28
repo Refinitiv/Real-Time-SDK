@@ -812,20 +812,20 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 	watchlistConsumerConfig.itemCount = 0;
 	watchlistConsumerConfig.runTime = 300;
 
-	snprintf(watchlistConsumerConfig.libsslName, 255, "");
-	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
-	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
-	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+	snprintf(watchlistConsumerConfig.libsslName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "");
-	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
-	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
+	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig.restProxyHost, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyPort, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "");
+	snprintf(watchlistConsumerConfig.restProxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "%s", "");
 
 	snprintf(watchlistConsumerConfig.configJsonFileName, 255, "WSBConfig.json");
 

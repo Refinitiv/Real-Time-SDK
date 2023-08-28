@@ -36,14 +36,30 @@ static RsslRet _rsslJsonSessionSendJsonMessage(RsslChannel *pChannel, RsslBuffer
 	{
 		if ((ret = rsslFlush(pChannel, &error)) < RSSL_RET_SUCCESS)
 		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "rsslFlush() failed with return code %d - <%s>\n", ret, error.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 			return ret;
 		}
 		ret = rsslWrite(pChannel, pBuffer, RSSL_HIGH_PRIORITY, wrtFlags, &bWritten, &ucbWritten, &error);
 	}
 
 	if (ret != RSSL_RET_SUCCESS)
+	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "rsslWrite() failed with return code %d - <%s>\n", ret, error.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
+	}
 
 	return ret;
 }
@@ -76,9 +92,16 @@ RsslRet rsslJsonSessionResetState(RsslJsonSession *sess, RsslBuffer *pBuffer, Rs
 	ret = rsslParseJsonBuffer(sess->pJsonConverter, &sess->state.parseOptions, 
 								sess->state.buffer, &error);
 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 	if (ret != RSSL_RET_SUCCESS)
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "rjcError: %s", error.text);
-	
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
+
 	return ret;
 }
 
@@ -115,7 +138,14 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 	rjcSession->pJsonConverter = rsslCreateRsslJsonConverter(&rjcOptions, &rjcError);
 	if (rjcSession->pJsonConverter == NULL)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to create RsslJsonConverter: %s", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
 	
@@ -140,8 +170,15 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 			RSSL_JSON_CPC_SERVICE_NAME_TO_ID_CALLBACK,
 			&svcNameToIdCbProperty, &rjcError) != RSSL_RET_SUCCESS)
 		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: service name to ID callback [%s]",
 				rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 			return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 		}
@@ -152,7 +189,14 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 								RSSL_JSON_CPC_DEFAULT_SERVICE_ID, 
 								&rjcSession->options.defaultServiceId, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: default service ID [%s]", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
@@ -163,7 +207,14 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 								RSSL_JSON_CPC_USE_DEFAULT_DYNAMIC_QOS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: add default QoS range [%s]", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
@@ -175,7 +226,14 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 								RSSL_JSON_CPC_EXPAND_ENUM_FIELDS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: expand enum fields [%s]", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
@@ -186,7 +244,14 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 								RSSL_JSON_CPC_CATCH_UNKNOWN_JSON_KEYS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: catch unknown JSON keys [%s]", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
@@ -197,8 +262,15 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 								RSSL_JSON_CPC_CATCH_UNKNOWN_JSON_FIDS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: catch unknown JSON fields [%s]",
 		rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
@@ -212,8 +284,15 @@ RsslRet rsslJsonSessionInitialize(RsslJsonSession *rjcSession, RsslError *pError
 								RSSL_JSON_CPC_ALLOW_ENUM_DISPLAY_STRINGS, 
 								&flag, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: blank on enum display error [%s]",
 		rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return (rsslJsonSessionUninitialize(rjcSession), RSSL_RET_FAILURE);
 	}
@@ -247,7 +326,14 @@ RsslRet rsslJsonSessionSetDictionary(RsslJsonSession *rjcSession, RsslDataDictio
 								RSSL_JSON_CPC_DICTIONARY_LIST, 
 								&dlProperty, &rjcError) != RSSL_RET_SUCCESS)
 	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed setting RsslJsonConverter property: dictionary list [%s]", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		return RSSL_RET_FAILURE;
 	}
@@ -282,7 +368,14 @@ RsslBuffer *rsslJsonSessionMsgConvertToJson(RsslJsonSession *rjcSession, RsslCha
 		rjcOptions.jsonProtocolType = RSSL_JSON_JPT_JSON2;
 		if ((rsslConvertRsslMsgToJson(rjcSession->pJsonConverter, &rjcOptions, &rsslMsg, &rjcError)) != RSSL_RET_SUCCESS)
 		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to convert RWF to JSON protocol. Error text: %s", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 			return NULL;
 		}
 
@@ -294,7 +387,14 @@ RsslBuffer *rsslJsonSessionMsgConvertToJson(RsslJsonSession *rjcSession, RsslCha
 		if ((ret = rsslGetConverterJsonMsg(rjcSession->pJsonConverter, &getJsonMsgOptions,
 										&jsonBuffer, &rjcError)) != RSSL_RET_SUCCESS)
 		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to get converted JSON message. Error text: %s", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 			return NULL;
 		}
 
@@ -306,8 +406,16 @@ RsslBuffer *rsslJsonSessionMsgConvertToJson(RsslJsonSession *rjcSession, RsslCha
 			memcpy(pMsgBuffer->data, jsonBuffer.data, jsonBuffer.length);
 		}
 		else
+		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "Failed to get buffer for converted msg. (%d) %s", error.rsslErrorId, error.text);
-
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
+		}
 	}
 
 	return pMsgBuffer;
@@ -388,7 +496,14 @@ RsslRet rsslJsonSessionMsgConvertFromJson(RsslJsonSession *rjcSession, RsslChann
 		} // if == _RET_SUCCESS 
 		else
 		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT, "%s", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 		}
 	}
 

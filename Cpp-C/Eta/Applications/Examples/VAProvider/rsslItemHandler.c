@@ -316,7 +316,7 @@ static RsslRet getItemInfo(RsslReactor *pReactor, RsslReactorChannel *pReactorCh
 		{
 			if (itemInfoList[i].InterestCount == 0)
 			{
-				snprintf(itemInfoList[i].Itemname, 128, "%s", itemName);
+				snprintf(itemInfoList[i].Itemname, MAX_ITEM_INFO_STRLEN + 1, "%s", itemName);
 				rsslItemInfo = &itemInfoList[i];
 				rsslItemInfo->domainType = itemReqInfo->domainType;
 				rsslItemInfo->IsPrivateStream = itemReqInfo->IsPrivateStreamRequest;
@@ -583,7 +583,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 		errText = (char *)"Received a post message request from client before login\n";
 		if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 			return RSSL_RET_FAILURE;
-		printf(errText);
+		printf("%s", errText);
 		return RSSL_RET_SUCCESS;
 	}
 
@@ -596,7 +596,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			errText = (char *)"Received an off-stream post message request from client without a msgkey\n";
 			if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
-			printf(errText);
+			printf("%s", errText);
 			return RSSL_RET_SUCCESS;
 		}
 		printf("Received an off-stream item post (item=%.*s)\n", postMsg->msgBase.msgKey.name.length, postMsg->msgBase.msgKey.name.data);
@@ -608,7 +608,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			errText = (char *)"Received an off-stream post message for an item that doesnt exist\n";
 			if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_SYMBOL_UNKNOWN, errText) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
-			printf(errText);
+			printf("%s", errText);
 			return RSSL_RET_SUCCESS;
 		}
 	}
@@ -621,7 +621,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 			errText = (char *)"Received an on-stream post message on a stream that does not have an item open\n";
 			if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 				return RSSL_RET_FAILURE;
-			printf(errText);
+			printf("%s", errText);
 			return RSSL_RET_SUCCESS;
 		}
 
@@ -669,7 +669,7 @@ RsslRet processPost(RsslReactor *pReactor, RsslReactorChannel* chnl, RsslMsg* ms
 					errText = (char *)"client has insufficient rights to close/delete an item";
 					if (sendAck(pReactor, chnl, postMsg, RSSL_NAKC_INVALID_CONTENT, errText) != RSSL_RET_SUCCESS)
 						return RSSL_RET_FAILURE;
-					printf(errText);
+					printf("%s", errText);
 					return RSSL_RET_SUCCESS;
 				}
 			}

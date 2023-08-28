@@ -608,7 +608,14 @@ static RsslRet sendDictionaryRequestReject(RsslReactor *pReactor, RsslReactorCha
 				break;
 			case DICTIONARY_RDM_DECODER_FAILED:
 				dictionaryStatus.state.code = RSSL_SC_USAGE_ERROR;
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 				snprintf(stateText, sizeof(stateText), "Dictionary request rejected for stream id %d - decoding failure: %s", streamId, pError->rsslError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 				dictionaryStatus.state.text.data = stateText;
 				dictionaryStatus.state.text.length = (RsslUInt32)strlen(stateText) + 1;
 				break;

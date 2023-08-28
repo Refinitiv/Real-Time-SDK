@@ -574,7 +574,14 @@ RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 		if (initializeCpuTopology(&rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s> %s\n", rsslErrorInfo.errorLocation, rsslErrorInfo.rsslError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic pop
+#endif
 
 			destroyCpuTopologyMutex();
 			RTR_ATOMIC_SET(initializedCpuTopology, 0);

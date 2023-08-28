@@ -226,7 +226,7 @@ int qa_encode( pageptr , str, maxstrlen, len, fade_enable, u_list )
 			sizeof(ESCFADEOFF) + sizeof(ESCPLAIN) + 1 +
 			sizeof(ESC_G0_SET) + 2 + MAX_SINGLE_ANSI_SEQUENCE) {
 		if (stderr != NULL)
-			fprintf(stderr, "encode_ansi: maxstrlen %d  not long enough \n",
+			fprintf(stderr, "encode_ansi: maxstrlen %ld  not long enough \n",
 		     maxstrlen);
 		str[0] = '\0';
 		return(ERROR);
@@ -357,7 +357,7 @@ if (stdout != NULL)
             {
 #ifdef TRACE
 if (stdout != NULL)
-            fprintf (stdout, " ran out of buffer space after %d chars\n",
+            fprintf (stdout, " ran out of buffer space after %lu chars\n",
                 (str - start_str));
 #endif
                     stop = TRUE;
@@ -370,7 +370,7 @@ if (stdout != NULL)
             {
 #ifdef TRACE
 if (stdout != NULL)
-            fprintf (stdout, " ran out of buffer space after %d chars\n",
+            fprintf (stdout, " ran out of buffer space after %lu chars\n",
                 (str - start_str));
 #endif
                     stop = TRUE;
@@ -465,7 +465,7 @@ if (stderr != NULL)
 			} else {
 				str += _ansi_addstr(str, attr_map[0]);
 				if (stderr != NULL)
-					fprintf (stderr, "bad attr 0x%x at pos %d\n",
+					fprintf (stderr, "bad attr 0x%x at pos %ld\n",
 				    cur_attr, page_pos);
 			}
 	
@@ -513,7 +513,7 @@ if (stdout != NULL)
 		else {
 			str += _ansi_addstr(str, attr_map[0]);
 			if (stderr != NULL)
-				fprintf (stderr, "bad attr 0x%x at pos %d\n",
+				fprintf (stderr, "bad attr 0x%x at pos %ld\n",
 			    chptr->fade_attr, page_pos);
 		}
 

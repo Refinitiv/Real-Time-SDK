@@ -20,7 +20,7 @@ TEST(OmmExceptionTests, testOmmExcpWithTextMoreThanInternalMemSize)
 		try {
 			char largeText[LARGE_TEXT_SIZE + 1];
 			for( int i = 0; i < LARGE_TEXT_SIZE; i++)
-				snprintf(largeText + i, 1, "%c", 'l');
+				largeText[i] = 'l';
 			largeText[LARGE_TEXT_SIZE] = '\0';
 	
 			try {			

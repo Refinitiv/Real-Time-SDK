@@ -250,9 +250,9 @@ TEST_F(ServerStartStopTests, ServerSSLStartStopTest)
 	serverConfig.connType = _testConnectionType;
 	strncpy(serverConfig.portNo, "15020", sizeof(serverConfig.portNo));
 
-	snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), pServerKey);
-	snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), pServerCert);
-	snprintf(serverConfig.cipherSuite, sizeof(serverConfig.cipherSuite), "");
+	snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), "%s", pServerKey);
+	snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), "%s", pServerCert);
+	snprintf(serverConfig.cipherSuite, sizeof(serverConfig.cipherSuite), "%s", "");
 
 	server = bindRsslServer(&serverConfig);
 	ASSERT_NE(server, (RsslServer*)NULL) << "Server creation failed! Creation of server on an encrypted connection"
@@ -307,9 +307,9 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
 
-		snprintf(serverConfig[i].serverKey, sizeof(serverConfig[i].serverKey), pServerKey);
-		snprintf(serverConfig[i].serverCert, sizeof(serverConfig[i].serverCert), pServerCert);
-		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "");
+		snprintf(serverConfig[i].serverKey, sizeof(serverConfig[i].serverKey), "%s", pServerKey);
+		snprintf(serverConfig[i].serverCert, sizeof(serverConfig[i].serverCert), "%s",  pServerCert);
+		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "%s", "");
 
 		server[i] = NULL;
 		server[i] = bindRsslServer(&(serverConfig[i]));
@@ -335,9 +335,9 @@ TEST_F(ServerStartStopTests, ServerSSLStartStop100Test)
 		serverConfig[i].connType = _testConnectionType;
 		snprintf(serverConfig[i].portNo, sizeof(serverConfig[i].portNo), "%d", (basePortIndex + i));
 
-		snprintf(serverConfig[i].serverKey, sizeof(serverConfig[i].serverKey), pServerKey);
-		snprintf(serverConfig[i].serverCert, sizeof(serverConfig[i].serverCert), pServerCert);
-		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "");
+		snprintf(serverConfig[i].serverKey, sizeof(serverConfig[i].serverKey), "%s", pServerKey);
+		snprintf(serverConfig[i].serverCert, sizeof(serverConfig[i].serverCert), "%s", pServerCert);
+		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "%s", "");
 
 		server[i] = NULL;
 		server[i] = bindRsslServer(&(serverConfig[i]));
@@ -460,7 +460,7 @@ TEST_F(ServerStartStopTests, ServerSHMemStartStop100Test)
 
 		snprintf(serverConfig[i].serverKey, sizeof(serverConfig[i].serverKey), "localhost.key");
 		snprintf(serverConfig[i].serverCert, sizeof(serverConfig[i].serverCert), "localhost.crt");
-		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "");
+		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "%s", "");
 
 		server[i] = NULL;
 		server[i] = bindRsslServer(&(serverConfig[i]));
@@ -485,7 +485,7 @@ TEST_F(ServerStartStopTests, ServerSHMemStartStop100Test)
 
 		snprintf(serverConfig[i].serverKey, sizeof(serverConfig[i].serverKey), "localhost.key");
 		snprintf(serverConfig[i].serverCert, sizeof(serverConfig[i].serverCert), "localhost.crt");
-		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "");
+		snprintf(serverConfig[i].cipherSuite, sizeof(serverConfig[i].cipherSuite), "%s", "");
 
 		server[i] = NULL;
 		server[i] = bindRsslServer(&(serverConfig[i]));

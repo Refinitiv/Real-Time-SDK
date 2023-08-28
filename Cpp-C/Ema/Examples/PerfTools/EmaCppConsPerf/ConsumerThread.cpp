@@ -252,7 +252,7 @@ void ConsumerThread::dumpConsumerItemList()
 void ConsumerThread::consumerThreadInit( ConsPerfConfig& consPerfConfig, Int32 consThreadId)
 {
 	consumerThreadIndex = consThreadId;
-	char tmpFilename[sizeof(consPerfConfig.statsFilename) + 8];
+	char tmpFilename[sizeof(consPerfConfig.statsFilename) + 24];
 
 	snprintf(tmpFilename, sizeof(tmpFilename), "%s%d.csv", 
 		consPerfConfig.statsFilename.c_str(), consThreadId);

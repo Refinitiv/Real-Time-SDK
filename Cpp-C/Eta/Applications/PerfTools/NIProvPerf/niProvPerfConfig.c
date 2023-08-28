@@ -26,26 +26,26 @@ static void clearNIProvPerfConfig()
 	niProvPerfConfig.guaranteedOutputBuffers = 5000;
 	niProvPerfConfig.sendBufSize = 0;
 	niProvPerfConfig.recvBufSize = 0;
-	snprintf(niProvPerfConfig.interfaceName, sizeof(niProvPerfConfig.interfaceName), "");
+	snprintf(niProvPerfConfig.interfaceName, sizeof(niProvPerfConfig.interfaceName), "%s", "");
 	snprintf(niProvPerfConfig.hostName, sizeof(niProvPerfConfig.hostName), "%s", "localhost");
 	snprintf(niProvPerfConfig.portNo, sizeof(niProvPerfConfig.portNo), "%s", "14003");
 	snprintf(niProvPerfConfig.summaryFilename, sizeof(niProvPerfConfig.summaryFilename), "NIProvSummary.out");
-	snprintf(niProvPerfConfig.username, sizeof(niProvPerfConfig.username), "");
+	snprintf(niProvPerfConfig.username, sizeof(niProvPerfConfig.username), "%s", "");
 	niProvPerfConfig.writeStatsInterval = 5;
 	niProvPerfConfig.displayStats = RSSL_TRUE;
 	niProvPerfConfig.tcpNoDelay = RSSL_TRUE;
-	snprintf(niProvPerfConfig.sendAddr, sizeof(niProvPerfConfig.sendAddr), "");
-	snprintf(niProvPerfConfig.recvAddr, sizeof(niProvPerfConfig.recvAddr), "");
-	snprintf(niProvPerfConfig.sendPort, sizeof(niProvPerfConfig.sendPort), "");
-	snprintf(niProvPerfConfig.recvPort, sizeof(niProvPerfConfig.recvPort), "");
-	snprintf(niProvPerfConfig.unicastPort, sizeof(niProvPerfConfig.unicastPort), "");
+	snprintf(niProvPerfConfig.sendAddr, sizeof(niProvPerfConfig.sendAddr), "%s", "");
+	snprintf(niProvPerfConfig.recvAddr, sizeof(niProvPerfConfig.recvAddr), "%s", "");
+	snprintf(niProvPerfConfig.sendPort, sizeof(niProvPerfConfig.sendPort), "%s", "");
+	snprintf(niProvPerfConfig.recvPort, sizeof(niProvPerfConfig.recvPort), "%s", "");
+	snprintf(niProvPerfConfig.unicastPort, sizeof(niProvPerfConfig.unicastPort), "%s", "");
 	niProvPerfConfig.sAddr = RSSL_FALSE;
 	niProvPerfConfig.rAddr = RSSL_FALSE;
 
 	niProvPerfConfig.itemPublishCount = 100000;
 	niProvPerfConfig.commonItemCount = 0;
 
-	snprintf(niProvPerfConfig.caStore, sizeof(niProvPerfConfig.caStore), "");
+	snprintf(niProvPerfConfig.caStore, sizeof(niProvPerfConfig.caStore), "%s", "");
 	niProvPerfConfig.tlsProtocolFlags = 0;
 }
 
@@ -204,7 +204,7 @@ void initNIProvPerfConfig(int argc, char **argv)
 			else if (strcmp("http", argv[iargs]) == 0)
 			{
 #ifdef Linux  
-				printf("Config Error: Encrypted HTTP connection type not supported on Linux.\n", argv[iargs]);
+				printf("Config Error: Encrypted HTTP connection type not supported on Linux \"%s\".\n", argv[iargs]);
 				exitConfigError(argv);
 #else // HTTP connnections spported only through Windows WinInet 
 				niProvPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
@@ -285,7 +285,7 @@ void initNIProvPerfConfig(int argc, char **argv)
 		else if (0 == strcmp("-serviceName", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(directoryConfig.serviceName, sizeof(directoryConfig.serviceName), argv[iargs]);
+			snprintf(directoryConfig.serviceName, sizeof(directoryConfig.serviceName), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-serviceId", argv[iargs]))
 		{
@@ -296,12 +296,12 @@ void initNIProvPerfConfig(int argc, char **argv)
 		else if (0 == strcmp("-itemFile", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(providerThreadConfig.itemFilename, sizeof(providerThreadConfig.itemFilename), argv[iargs]);
+			snprintf(providerThreadConfig.itemFilename, sizeof(providerThreadConfig.itemFilename), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-msgFile", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(providerThreadConfig.msgFilename, sizeof(providerThreadConfig.msgFilename), argv[iargs]);
+			snprintf(providerThreadConfig.msgFilename, sizeof(providerThreadConfig.msgFilename), "%s", argv[iargs]);
 		}
 		else if (0 == strcmp("-itemCount", argv[iargs]))
 		{
@@ -380,7 +380,7 @@ void initNIProvPerfConfig(int argc, char **argv)
 		else if (0 == strcmp("-castore", argv[iargs]))
 		{
 			++iargs; if (iargs == argc) exitMissingArgument(argv, iargs - 1);
-			snprintf(niProvPerfConfig.caStore, sizeof(niProvPerfConfig.caStore), argv[iargs]);
+			snprintf(niProvPerfConfig.caStore, sizeof(niProvPerfConfig.caStore), "%s", argv[iargs]);
 		}
 		else
 		{

@@ -548,11 +548,11 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 
 	// setCatchUnhandledException
 	baseConfig.setCatchUnhandledException( 333 );
-	EXPECT_EQ(true, baseConfig.catchUnhandledException) << "Should be equal to true when set non 0";
+	EXPECT_TRUE(baseConfig.catchUnhandledException) << "Should be equal to true when set non 0";
 	baseConfig.setCatchUnhandledException( midValue );
-	EXPECT_EQ(true, baseConfig.catchUnhandledException) << "Should be equal to true";
+	EXPECT_TRUE(baseConfig.catchUnhandledException) << "Should be equal to true";
 	baseConfig.setCatchUnhandledException( 0 );
-	EXPECT_EQ(false, baseConfig.catchUnhandledException) << "Should be equal to false";
+	EXPECT_FALSE(baseConfig.catchUnhandledException) << "Should be equal to false";
 
 	// setMaxDispatchCountApiThread
 	baseConfig.setMaxDispatchCountApiThread( (RWF_MAX_32) + 1ULL );
@@ -846,11 +846,11 @@ TEST_F(EmaActiveConfigTest, OmmIProviderActiveConfigTest)
 
 	// setRefreshFirstRequired
 	ommIProvideractiveServerConfig.setRefreshFirstRequired( (RWF_MAX_32) + 1ULL );
-	EXPECT_EQ(true, ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
+	EXPECT_TRUE(ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
 	ommIProvideractiveServerConfig.setRefreshFirstRequired( midValue );
-	EXPECT_EQ(true, ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
+	EXPECT_TRUE(ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
 	ommIProvideractiveServerConfig.setRefreshFirstRequired( 0 );
-	EXPECT_EQ(false, ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to false";
+	EXPECT_FALSE(ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to false";
 
 	// Make some changes...
 	ommIProvideractiveServerConfig.setRefreshFirstRequired(false);

@@ -4942,7 +4942,7 @@ void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType)
 		numConnections = rlimit.rlim_cur / 2 - 50;
 	}
 
-	printf("  File descriptor limit is %d. Test will open %d reactor connections between consumer & provider.\n", rlimit.rlim_cur, numConnections);
+	printf("  File descriptor limit is %lu. Test will open %d reactor connections between consumer & provider.\n", rlimit.rlim_cur, numConnections);
 #else
 	numConnections > MAX_REACTOR_CONS ? MAX_REACTOR_CONS : numConnections;
 	printf("  FD_SETSIZE is %d. Test will open %d reactor connections between consumer & provider.\n", FD_SETSIZE, numConnections);
@@ -5456,7 +5456,7 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectChar1ForReactorWo
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), badCpuCoreStr);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", badCpuCoreStr);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
@@ -5480,7 +5480,7 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectChar2ForReactorWo
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), badCpuCoreStr);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", badCpuCoreStr);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 

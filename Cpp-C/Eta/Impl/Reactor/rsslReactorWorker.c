@@ -4559,7 +4559,14 @@ static RsslRet _reactorWorkerBuildName(RsslReactorWorker* pReactorWorker, rtr_at
 				bufTitle[lenTitle] = '\0';
 			}
 		}
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pReactorWorker->nameReactorWorker, MAX_THREADNAME_STRLEN, "%s-%s", bufTitle, rwtBuf);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic pop
+#endif
 	}
 	else
 	{

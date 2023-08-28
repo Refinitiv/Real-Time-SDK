@@ -1145,7 +1145,7 @@ TEST_F(ThreadBindProcessorCoreTest, BindCurrentThreadExToListCpuCoresPCTElements
 	// P:X C:Y T:Z
 	char sCpuCore1PCT[3][MAXLEN] = { "P:0 C:0 T:1", "P:0 C:1 T:0", "P:1 C:0 T:0" };
 
-	char bufCpuIdThreadsPCT[128];
+	char bufCpuIdThreadsPCT[256];
 
 	unsigned indCpu;
 	RsslInt32 CpuCoreId0 = 0;

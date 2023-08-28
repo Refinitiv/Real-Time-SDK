@@ -58,6 +58,11 @@
 
 #endif
 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+
 #include "dictionaries.h"
 
 /* precalculated hash values */
@@ -7634,7 +7639,7 @@ TEST(stringConversionTest, stringToDoubleConversionTest)
 
 	sVal = "-9223372036854775808.";
 	testDouble = -9223372036854775808.;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testDoubleOut, testDouble);
@@ -7646,59 +7651,59 @@ TEST(stringConversionTest, stringToDoubleConversionTest)
 
 	sVal = "0.02150940715085";
 	testDouble = 0.02150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "0.00150940715085";
 	testDouble = 0.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "0.001509407150852";
 	testDouble = 0.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "0.021509407150852";
 	testDouble = 0.02150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "7.02150940715085";
 	testDouble = 7.02150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "120.00150940715085";
 	testDouble = 120.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "42.001509407150852";
 	testDouble = 42.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "529.021509407150852";
 	testDouble = 529.0215094071509;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "0.00000000000015094";
 	testDouble = 0.00000000000015;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 }

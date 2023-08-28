@@ -203,16 +203,16 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 				userNameBuf.length = sizeof(userName);
 				if (rsslGetUserName(&userNameBuf) == RSSL_RET_SUCCESS)
 				{
-					snprintf(loginReqInfo.Username, 128, "%s", userName);
+					snprintf(loginReqInfo.Username, MAX_LOGIN_INFO_STRLEN, "%s", userName);
 				}
 				else
 				{
-					snprintf(loginReqInfo.Username, 128, "%s", defaultUsername);
+					snprintf(loginReqInfo.Username, MAX_LOGIN_INFO_STRLEN, "%s", defaultUsername);
 				}
 			}
 			else /* use command line username */
 			{
-				snprintf(loginReqInfo.Username, 128, "%s", cmdLineUsername);
+				snprintf(loginReqInfo.Username, MAX_LOGIN_INFO_STRLEN, "%s", cmdLineUsername);
 			}
 			/* If an authentication token is present, set the login request's name type to RDM_LOGIN_USER_AUTHN_TOKEN and use the authentication token */
 			if (strlen(cmdLineAuthenticationToken) != 0)
@@ -228,14 +228,14 @@ RsslRet sendLoginRequest(RsslChannel* chnl, const char *appName, RsslUInt64 role
 			/* If the application Id is present, set on the request */
 			if (strlen(cmdLineApplicationId) != 0)
 			{
-				snprintf(loginReqInfo.ApplicationId, 128, "%s", cmdLineApplicationId);
+				snprintf(loginReqInfo.ApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", cmdLineApplicationId);
 			}
 			else /* Use default AppId */
 			{
-				snprintf(loginReqInfo.ApplicationId, 128, "%s", applicationId);
+				snprintf(loginReqInfo.ApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", applicationId);
 			}
 			/* ApplicationName */
-			snprintf(loginReqInfo.ApplicationName, 128, "%s", appName);
+			snprintf(loginReqInfo.ApplicationName, MAX_LOGIN_INFO_STRLEN, "%s", appName);
 			/* Position */
 			if (gethostname(hostName, sizeof(hostName)) != 0)
 			{

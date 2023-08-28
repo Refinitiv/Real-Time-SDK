@@ -266,13 +266,13 @@ static RsslRet sendLoginResponse(RsslChannel* chnl, RsslLoginRequestInfo* loginR
 		/* StreamId */
 		loginRespInfo.StreamId = loginReqInfo->StreamId;
 		/* Username */
-		snprintf(loginRespInfo.Username, 128, "%s", loginReqInfo->Username);
+		snprintf(loginRespInfo.Username, MAX_LOGIN_INFO_STRLEN, "%s", loginReqInfo->Username);
 		/* ApplicationId */
-		snprintf(loginRespInfo.ApplicationId, 128, "%s", applicationId);
+		snprintf(loginRespInfo.ApplicationId, MAX_LOGIN_INFO_STRLEN, "%s", applicationId);
 		/* ApplicationName */
-		snprintf(loginRespInfo.ApplicationName, 128, "%s", applicationName);
+		snprintf(loginRespInfo.ApplicationName, MAX_LOGIN_INFO_STRLEN, "%s", applicationName);
 		/* Position */
-		snprintf(loginRespInfo.Position, 128, "%s", loginReqInfo->Position);
+		snprintf(loginRespInfo.Position, MAX_LOGIN_INFO_STRLEN, "%s", loginReqInfo->Position);
 		
 		loginRespInfo.SingleOpen = 0;				/* this provider does not support SingleOpen behavior */
 		loginRespInfo.SupportBatchRequests = RDM_LOGIN_BATCH_SUPPORT_REQUESTS | RDM_LOGIN_BATCH_SUPPORT_CLOSES;		/* this provider supports batch requests and batch close */

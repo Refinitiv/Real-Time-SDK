@@ -385,6 +385,10 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 		loginStatus.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
 		loginStatus.state.dataState = RSSL_DATA_SUSPECT;
 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		/* set-up message */
 		switch(reason)
 		{
@@ -410,6 +414,9 @@ static RsslRet sendLoginRequestReject(RsslReactor *pReactor, RsslReactorChannel*
 			default:
 				break;
 		}
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		/* encode message */
 		rsslClearEncodeIterator(&encodeIter);

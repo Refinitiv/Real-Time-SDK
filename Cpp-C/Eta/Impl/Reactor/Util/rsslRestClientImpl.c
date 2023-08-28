@@ -1038,8 +1038,16 @@ RsslRestClient* rsslCreateRestClient(RsslCreateRestClientOptions *pRestClientOpt
 
 		_rsslRestClearError(pError);
 		pError->rsslErrorId = RSSL_RET_FAILURE;
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Error: rsslHashTableInit() failed with text: %s", __FILE__, __LINE__, rsslErrorInfo.rsslError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic pop
+#endif
+
 		return 0;
 	}
 

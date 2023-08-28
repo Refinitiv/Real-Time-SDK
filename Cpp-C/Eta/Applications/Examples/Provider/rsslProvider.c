@@ -136,9 +136,9 @@ int main(int argc, char **argv)
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(protocolList, 128, "%s", defaultProtocols);
-	snprintf(certFile, 128, "");
-	snprintf(keyFile, 128, "");
-	snprintf(cipherSuite, 128, "");
+	snprintf(certFile, 128, "%s", "");
+	snprintf(keyFile, 128, "%s", "");
+	snprintf(cipherSuite, 128, "%s", "");
 	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
 	for(iargs = 1; iargs < argc; ++iargs)

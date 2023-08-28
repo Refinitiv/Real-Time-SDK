@@ -182,7 +182,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
 
 	/* Set defaults. */
-	snprintf(watchlistConsumerConfig.interface, 255, "");
+	snprintf(watchlistConsumerConfig.interface, 255, "%s", "");
 
 	watchlistConsumerConfig.serviceName = defaultServiceName;
 	rsslClearBuffer(&watchlistConsumerConfig.userName);
@@ -193,36 +193,36 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	watchlistConsumerConfig.enableHostStatMessages = RSSL_FALSE;
 	watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_TRUE;
-	snprintf(watchlistConsumerConfig.hsmAddress, 255, "");
-	snprintf(watchlistConsumerConfig.hsmPort, 255, "");
-	snprintf(watchlistConsumerConfig.hsmInterface, 255, "");
+	snprintf(watchlistConsumerConfig.hsmAddress, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.hsmPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.hsmInterface, 255, "%s", "");
 	watchlistConsumerConfig.hsmInterval = 5;
 
-	snprintf(watchlistConsumerConfig.proxyHost, 255, "");
-	snprintf(watchlistConsumerConfig.proxyPort, 255, "");
-	snprintf(watchlistConsumerConfig.proxyUserName, 255, "");
-	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "");
-	snprintf(watchlistConsumerConfig.proxyDomain, 255, "");
+	snprintf(watchlistConsumerConfig.proxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig.libsslName, 255, "");
-	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
-	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
-	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+	snprintf(watchlistConsumerConfig.libsslName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig._clientJwkMem, 2048, "");
-	snprintf(watchlistConsumerConfig._audienceMem, 255, "");
+	snprintf(watchlistConsumerConfig._clientJwkMem, 2048, "%s", "");
+	snprintf(watchlistConsumerConfig._audienceMem, 255, "%s", "");
 
 
-	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "");
-	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
-	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
-	snprintf(watchlistConsumerConfig._tokenScope, 255, "");
+	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenScope, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig.restProxyHost, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyPort, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "");
-	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "");
+	snprintf(watchlistConsumerConfig.restProxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "%s", "");
 
 	snprintf(watchlistConsumerConfig.protocolList, 255, "tr_json2");
 

@@ -106,8 +106,8 @@ void initMarketByOrderItemFields(RsslMarketByOrderItem* mboItem)
 	{
 		RsslOrderInfo *order = &mboItem->orders[i];
 
-		snprintf(order->ORDER_ID, 128, "%d", i + 100);
-		snprintf(order->MKT_MKR_ID, 128, "%d", 1+i);
+		snprintf(order->ORDER_ID, MAX_ORDER_ID_STRLEN, "%d", i + 100);
+		snprintf(order->MKT_MKR_ID, MAX_MKT_MKR_ID_STRLEN, "%d", 1+i);
 
 		order->ORDER_PRC.hint = RSSL_RH_EXPONENT_2;
 		order->ORDER_PRC.value = 3459 + 100*i;

@@ -136,7 +136,7 @@ RsslRet sendSourceDirectoryResponse(RsslChannel* chnl)
 		srcDirRespInfo.ServiceGeneralInfo.QoS[0].rate = RSSL_QOS_RATE_TICK_BY_TICK;
 		srcDirRespInfo.ServiceGeneralInfo.QoS[0].timeliness = RSSL_QOS_TIME_REALTIME;
 		/* ItemList */
-		snprintf(srcDirRespInfo.ServiceGeneralInfo.ItemList, 256, "");
+		snprintf(srcDirRespInfo.ServiceGeneralInfo.ItemList, 256, "%s", "");
 		/* Service StateInfo Status */
 		srcDirRespInfo.ServiceStateInfo.Status.streamState = RSSL_STREAM_OPEN;
 		srcDirRespInfo.ServiceStateInfo.Status.dataState = RSSL_DATA_OK;

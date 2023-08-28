@@ -43,11 +43,11 @@ static void clearConsPerfConfig()
 	consPerfConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
 	consPerfConfig.guaranteedOutputBuffers = 5000;
 	consPerfConfig.numInputBuffers = 15;
-	snprintf(consPerfConfig.interfaceName, sizeof(consPerfConfig.interfaceName), "");
+	snprintf(consPerfConfig.interfaceName, sizeof(consPerfConfig.interfaceName), "%s", "");
 	snprintf(consPerfConfig.hostName, sizeof(consPerfConfig.hostName), "localhost");
 	snprintf(consPerfConfig.portNo, sizeof(consPerfConfig.portNo), "14002");
 	snprintf(consPerfConfig.serviceName, sizeof(consPerfConfig.serviceName), "DIRECT_FEED");
-	snprintf(consPerfConfig.username, sizeof(consPerfConfig.username), "");
+	snprintf(consPerfConfig.username, sizeof(consPerfConfig.username), "%s", "");
 
 	consPerfConfig.ticksPerSec = 1000;
 	consPerfConfig.itemRequestCount = 100000;
@@ -65,23 +65,23 @@ static void clearConsPerfConfig()
 	snprintf(consPerfConfig.itemFilename, sizeof(consPerfConfig.itemFilename), "%s", "350k.xml");
 	snprintf(consPerfConfig.msgFilename, sizeof(consPerfConfig.msgFilename), "%s", "MsgData.xml");
 
-	snprintf(consPerfConfig.caStore, sizeof(consPerfConfig.caStore), "");
+	snprintf(consPerfConfig.caStore, sizeof(consPerfConfig.caStore), "%s", "");
 	consPerfConfig.tlsProtocolFlags = 0;
 
-	snprintf(consPerfConfig.protocolList, sizeof(consPerfConfig.protocolList), "");
+	snprintf(consPerfConfig.protocolList, sizeof(consPerfConfig.protocolList), "%s", "");
 
 	consPerfConfig.tunnelMessagingEnabled = RSSL_FALSE;
-	snprintf(consPerfConfig.tunnelStreamServiceName, sizeof(consPerfConfig.tunnelStreamServiceName), "");
+	snprintf(consPerfConfig.tunnelStreamServiceName, sizeof(consPerfConfig.tunnelStreamServiceName), "%s", "");
 	consPerfConfig.tunnelUseAuthentication = RSSL_FALSE;
 	consPerfConfig.tunnelDomainType = RSSL_DMT_SYSTEM;
 	consPerfConfig.guaranteedOutputTunnelBuffers = 15000;
 	consPerfConfig.tunnelStreamBufsUsed = RSSL_FALSE;
 	consPerfConfig.compressionType = 0;
 
-	snprintf(consPerfConfig.startingHostName, sizeof(consPerfConfig.startingHostName), "");
-	snprintf(consPerfConfig.startingPort, sizeof(consPerfConfig.startingPort), "");
-	snprintf(consPerfConfig.standbyHostName, sizeof(consPerfConfig.standbyHostName), "");
-	snprintf(consPerfConfig.standbyPort, sizeof(consPerfConfig.standbyPort), "");
+	snprintf(consPerfConfig.startingHostName, sizeof(consPerfConfig.startingHostName), "%s", "");
+	snprintf(consPerfConfig.startingPort, sizeof(consPerfConfig.startingPort), "%s", "");
+	snprintf(consPerfConfig.standbyHostName, sizeof(consPerfConfig.standbyHostName), "%s", "");
+	snprintf(consPerfConfig.standbyPort, sizeof(consPerfConfig.standbyPort), "%s", "");
 	consPerfConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
 
 	consPerfConfig.convertJSON = RSSL_FALSE;
@@ -297,7 +297,7 @@ void initConsPerfConfig(int argc, char **argv)
 			else if (strcmp("http", argv[iargs]) == 0)
 			{
 #ifdef Linux  
-				printf("Config Error: Encrypted HTTP connection type not supported on Linux.\n", argv[iargs]);
+				printf("Config Error: Encrypted HTTP connection type not supported on Linux \"%s\".\n", argv[iargs]);
 				exitConfigError(argv);
 #else // HTTP connnections spported only through Windows WinInet 
 				consPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
@@ -638,7 +638,7 @@ void initConsPerfConfig(int argc, char **argv)
 	/* If service not specified for tunnel stream, use the service given for other items instead. */
 	if (consPerfConfig.tunnelMessagingEnabled == RSSL_TRUE && consPerfConfig.tunnelStreamServiceName[0] == '\0')
 	{
-		snprintf(consPerfConfig.tunnelStreamServiceName, sizeof(consPerfConfig.tunnelStreamServiceName), consPerfConfig.serviceName);
+		snprintf(consPerfConfig.tunnelStreamServiceName, sizeof(consPerfConfig.tunnelStreamServiceName), "%s", consPerfConfig.serviceName);
 	}
 }
 

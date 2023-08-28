@@ -67,7 +67,7 @@ private:
 
 	static refinitiv::ema::access::EmaString				_appName;
 	static refinitiv::ema::access::EmaString				_sysTimeStr;
-	static const refinitiv::ema::access::Int32				_SIZE = 26;
+	static const refinitiv::ema::access::Int32				_SIZE = 42;
 	static char													_sysTimeBuf[_SIZE];
 	static time_t*												_pTime;
 	static tm*													_pTm;

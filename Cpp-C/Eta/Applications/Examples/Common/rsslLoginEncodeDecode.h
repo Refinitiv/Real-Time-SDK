@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#define MAX_LOGIN_INFO_STRLEN 128
+#define MAX_LOGIN_INFO_STRLEN 256
 #define AUTH_TOKEN_LENGTH 1024
 
 /* login request information */
@@ -56,7 +56,7 @@ typedef enum {
 /* login response information */
 typedef struct {
 	RsslInt32	StreamId;
-	char		Username[MAX_LOGIN_INFO_STRLEN];
+	char		Username[AUTH_TOKEN_LENGTH];
 	char		ApplicationId[MAX_LOGIN_INFO_STRLEN];
 	char		ApplicationName[MAX_LOGIN_INFO_STRLEN];
 	char		Position[MAX_LOGIN_INFO_STRLEN];

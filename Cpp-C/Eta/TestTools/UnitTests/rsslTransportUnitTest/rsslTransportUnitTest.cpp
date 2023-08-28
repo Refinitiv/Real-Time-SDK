@@ -1429,7 +1429,11 @@ public:
 			*bufferLength = 0U;
 			*numMessagesInBuffer = 0U;
 			if (errorText != NULL && szErrorText > 0)
+#ifdef WIN32
 				snprintf(errorText, szErrorText, "%s fileSize: %llu", TB_ERR_MEM_ALLOC_FAIL, fileSize);
+#else
+				snprintf(errorText, szErrorText, "%s fileSize: %lu", TB_ERR_MEM_ALLOC_FAIL, fileSize);
+#endif
 			return NULL;
 		}
 
@@ -2064,13 +2068,13 @@ void clearTUServerConfig(TUServerConfig* pServerConfig)
 {
 	pServerConfig->blocking = RSSL_FALSE;
 	pServerConfig->maxFragmentSize = RSSL_MAX_MSG_SIZE;
-	snprintf(pServerConfig->portNo, sizeof(pServerConfig->portNo), "");
+	snprintf(pServerConfig->portNo, sizeof(pServerConfig->portNo), "%s", "");
 	pServerConfig->connType = RSSL_CONN_TYPE_INIT;
-	snprintf(pServerConfig->wsProtocolList, sizeof(pServerConfig->wsProtocolList), "");
+	snprintf(pServerConfig->wsProtocolList, sizeof(pServerConfig->wsProtocolList), "%s", "");
 
-	snprintf(pServerConfig->serverCert, sizeof(pServerConfig->serverCert), "");
-	snprintf(pServerConfig->serverKey, sizeof(pServerConfig->serverKey), "");
-	snprintf(pServerConfig->cipherSuite, sizeof(pServerConfig->cipherSuite), "");
+	snprintf(pServerConfig->serverCert, sizeof(pServerConfig->serverCert), "%s", "");
+	snprintf(pServerConfig->serverKey, sizeof(pServerConfig->serverKey), "%s", "");
+	snprintf(pServerConfig->cipherSuite, sizeof(pServerConfig->cipherSuite), "%s", "");
 
 	pServerConfig->compressionType = RSSL_COMP_NONE;
 	pServerConfig->compressionLevel = 0U;
@@ -2080,14 +2084,14 @@ void clearTUClientConfig(TUClientConfig* pClientConfig)
 {
 	pClientConfig->blocking = RSSL_FALSE;
 	pClientConfig->maxFragmentSize = RSSL_MAX_MSG_SIZE;
-	snprintf(pClientConfig->portNo, sizeof(pClientConfig->portNo), "");
+	snprintf(pClientConfig->portNo, sizeof(pClientConfig->portNo), "%s", "");
 	pClientConfig->connType = RSSL_CONN_TYPE_INIT;
-	snprintf(pClientConfig->wsProtocolList, sizeof(pClientConfig->wsProtocolList), "");
+	snprintf(pClientConfig->wsProtocolList, sizeof(pClientConfig->wsProtocolList), "%s", "");
 
 	pClientConfig->encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
 	pClientConfig->encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
 
-	snprintf(pClientConfig->openSSLCAStore, sizeof(pClientConfig->openSSLCAStore), "");
+	snprintf(pClientConfig->openSSLCAStore, sizeof(pClientConfig->openSSLCAStore), "%s", "");
 
 	pClientConfig->compressionType = RSSL_COMP_NONE;
 }
@@ -2119,9 +2123,9 @@ void constructTUServerConfig(
 
 	if (connType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
-		snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), getPathServerKey());
-		snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), getPathServerCert());
-		snprintf(serverConfig.cipherSuite, sizeof(serverConfig.cipherSuite), "");
+		snprintf(serverConfig.serverKey, sizeof(serverConfig.serverKey), "%s", getPathServerKey());
+		snprintf(serverConfig.serverCert, sizeof(serverConfig.serverCert), "%s", getPathServerCert());
+		snprintf(serverConfig.cipherSuite, sizeof(serverConfig.cipherSuite), "%s", "");
 	}
 
 	serverConfig.compressionType = compressType;
@@ -2156,7 +2160,7 @@ void constructTUClientConfig(
 	if (connType == RSSL_CONN_TYPE_ENCRYPTED)
 	{
 		clientConfig.encryptedProtocol = encryptedConnType;
-		snprintf(clientConfig.openSSLCAStore, sizeof(clientConfig.openSSLCAStore), getOpenSSLCAStore());
+		snprintf(clientConfig.openSSLCAStore, sizeof(clientConfig.openSSLCAStore), "%s", getOpenSSLCAStore());
 	}
 
 	if (connType == RSSL_CONN_TYPE_WEBSOCKET
@@ -2164,11 +2168,11 @@ void constructTUClientConfig(
 	{
 		if (wsProtocolType == RSSL_JSON_PROTOCOL_TYPE)
 		{
-			snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "rssl.json.v2");
+			snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "%s", "rssl.json.v2");
 		}
 		else
 		{
-			snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "rssl.rwf");
+			snprintf(clientConfig.wsProtocolList, sizeof(clientConfig.wsProtocolList), "%s", "rssl.rwf");
 		}
 	}
 

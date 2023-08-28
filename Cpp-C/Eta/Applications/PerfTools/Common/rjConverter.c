@@ -27,16 +27,32 @@ static RsslRet _rjcSendJsonMessage(RsslChannel *pChannel, RsslBuffer *pBuffer, R
 	{
 		if ((ret = rsslFlush(pChannel, &error)) < RSSL_RET_SUCCESS)
 		{
-			snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+			snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT,
 						"rsslFlush() failed with return code %d - <%s>\n", ret, error.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 			return ret;
 		}
 		ret = rsslWrite(pChannel, pBuffer, RSSL_HIGH_PRIORITY, wrtFlags, &bWritten, &ucbWritten, &error);
 	}
 
 	if (ret != RSSL_RET_SUCCESS)
-		snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
+	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+		snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT,
 					"rsslWrite() failed with return code %d - <%s>\n", ret, error.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
+	}
 
 	return ret;
 }
@@ -70,7 +86,16 @@ RsslRet rjcResetConverterState(rjConverterSession *sess, RsslBuffer *pBuffer, Rs
 								sess->state.buffer, &error);
 
 	if (ret != RSSL_RET_SUCCESS)
+	{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, "rjcError: %s", error.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
+	}
 	
 	return ret;
 }
@@ -422,8 +447,15 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 				else
 				{
 					ret = RSSL_RET_FAILURE;
-					snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+					snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT,
 						"Failed to get buffer for Ping response :%s", err.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 				}
 
 				break;
@@ -452,7 +484,16 @@ RsslRet rjcMsgConvertFromJson(rjConverterSession *rjcSession, RsslChannel *pChan
 			}
 		} // if == _RET_SUCCESS 
 		else
+		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pError->rsslError.text, MAX_RSSL_ERROR_TEXT, "%s", rjcError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
+		}
 	}
 
 	return ret;

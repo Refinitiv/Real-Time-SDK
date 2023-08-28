@@ -347,7 +347,7 @@ char* OmmLoggerClient::timeString( bool includeDate )
 		next = strftime( timeString, sizeof timeString, "%Y/%m/%d %H:%M:%S", localtime(&tp.tv_sec));
 	else
 		next = strftime( timeString, sizeof timeString, "%H:%M:%S", localtime(&tp.tv_sec));
-	 snprintf(timeString + next, sizeof timeString - next, ".%03d", tp.tv_nsec/static_cast<long>(1E6));
+	 snprintf(timeString + next, sizeof timeString - next, ".%03ld", tp.tv_nsec/static_cast<long>(1E6));
 #endif
 
 	return timeString;

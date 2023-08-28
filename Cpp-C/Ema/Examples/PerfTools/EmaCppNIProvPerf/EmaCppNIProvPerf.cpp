@@ -560,7 +560,7 @@ void EmaCppNIProvPerf::printNIProvPerfConfig(FILE* file)
 	if (niProvPerfConfig.useServiceId)
 	{
 		fprintf(file,
-		"              Service ID: %lu\n",
+		"              Service ID: %u\n",
 		niProvPerfConfig.serviceId);
 	}
 

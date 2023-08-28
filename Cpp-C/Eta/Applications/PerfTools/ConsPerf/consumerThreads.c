@@ -2806,8 +2806,15 @@ static RsslRet processDefaultMsgRespJson(ConsumerThread* pConsumerThread, RsslDo
 		}
 		else
 		{
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 			snprintf(pConsumerThread->threadErrorInfo.rsslError.text, MAX_RSSL_ERROR_TEXT,
 				"Failed to get buffer for Ping response :%s", err.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 			return RSSL_RET_FAILURE;
 		}
 		return RSSL_RET_READ_PING;
@@ -3763,7 +3770,7 @@ RsslBool consumerThreadCheckPings(ConsumerThread* pConsumerThread)
 void consumerThreadInit(ConsumerThread *pConsumerThread, RsslInt32 consThreadId)
 {
 
-	char tmpFilename[sizeof(consPerfConfig.statsFilename) + 8];
+	char tmpFilename[sizeof(consPerfConfig.statsFilename) + 24];
 
 	timeRecordQueueInit(&pConsumerThread->latencyRecords);
 	timeRecordQueueInit(&pConsumerThread->postLatencyRecords);

@@ -246,11 +246,11 @@ void parseCommandLine(int argc, char **argv)
 		RsslUInt8 tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
 		snprintf(protocolList, 128, "%s", defaultProtocols);
-		snprintf(proxyHost, sizeof(proxyHost), "");
-		snprintf(proxyPort, sizeof(proxyPort), "");
-		snprintf(proxyUserName, sizeof(proxyUserName), "");
-		snprintf(proxyPasswd, sizeof(proxyPasswd), "");
-		snprintf(proxyDomain, sizeof(proxyDomain), "");
+		snprintf(proxyHost, sizeof(proxyHost), "%s", "");
+		snprintf(proxyPort, sizeof(proxyPort), "%s", "");
+		snprintf(proxyUserName, sizeof(proxyUserName), "%s", "");
+		snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", "");
+		snprintf(proxyDomain, sizeof(proxyDomain), "%s", "");
 		for (i = 1; i < argc; i++)
 		{
 			if (strcmp("-sessionMgnt", argv[i]) == 0)
@@ -260,10 +260,10 @@ void parseCommandLine(int argc, char **argv)
 			}
 		}
 
-		snprintf(libcryptoName, sizeof(libcryptoName), "");
-		snprintf(libsslName, sizeof(libsslName), "");
-		snprintf(libcurlName, sizeof(libcurlName), "");
-		snprintf(sslCAStore, sizeof(sslCAStore), "");
+		snprintf(libcryptoName, sizeof(libcryptoName), "%s", "");
+		snprintf(libsslName, sizeof(libsslName), "%s", "");
+		snprintf(libcurlName, sizeof(libcurlName), "%s", "");
+		snprintf(sslCAStore, sizeof(sslCAStore), "%s", "");
 
 		i = 1;
 
@@ -558,13 +558,13 @@ void parseCommandLine(int argc, char **argv)
 					/* Hostname */
 					pToken = strtok(argv[i], ":");
 					if (!pToken && !enableSessionMgnt) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-					snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+					snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", pToken);
 					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
 					/* Port */
 					pToken = strtok(NULL, ":");
 					if (!pToken && !enableSessionMgnt) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-					snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+					snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", pToken);
 					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
 					pToken = strtok(NULL, ":");
@@ -575,7 +575,7 @@ void parseCommandLine(int argc, char **argv)
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -784,13 +784,13 @@ void parseCommandLine(int argc, char **argv)
 				/* Hostname */
 				pToken = strtok(argv[i], ":");
 				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
 				/* Port */
 				pToken = strtok(NULL, ":");
 				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
 				pToken = strtok(NULL, ":");
@@ -800,7 +800,7 @@ void parseCommandLine(int argc, char **argv)
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -1015,13 +1015,13 @@ void parseCommandLine(int argc, char **argv)
 				/* Hostname */
 				pToken = strtok(argv[i], ":");
 				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
 				/* Port */
 				pToken = strtok(NULL, ":");
 				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
 				pToken = strtok(NULL, ":");
@@ -1031,7 +1031,7 @@ void parseCommandLine(int argc, char **argv)
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -1261,7 +1261,7 @@ void parseCommandLine(int argc, char **argv)
 
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				hasTunnelStreamServiceName = RSSL_TRUE;
-				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), argv[i-1]);
+				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", argv[i-1]);
 			}
 			else if (strcmp("-tunnel", argv[i]) == 0)
 			{
@@ -1363,7 +1363,7 @@ void parseCommandLine(int argc, char **argv)
 				/* If service not specified for tunnel stream, use the service given for other items instead. */
 				if (pCommand->tunnelMessagingEnabled && hasTunnelStreamServiceName == RSSL_FALSE)
 				{
-					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), pCommand->serviceName);
+					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", pCommand->serviceName);
 				}
 
 				/* Check whether the session management is enable */

@@ -108,7 +108,7 @@ void ProviderThread::providerThreadInit()
 		EmaString text("Error: Failed to open file '");
 		text += tmpFilename;
 		text += "'.\n";
-		printf(text.c_str());
+		printf("%s", text.c_str());
 		AppUtil::logError(text);
 		exit(-1);
 	}
@@ -126,7 +126,7 @@ void ProviderThread::providerThreadInit()
 			EmaString text("Failed to open latency log file: ");
 			text += tmpFilename;
 			text += "\n";
-			printf(text.c_str());
+			printf("%s", text.c_str());
 			AppUtil::logError(text);
 			exit(-1);
 		}
