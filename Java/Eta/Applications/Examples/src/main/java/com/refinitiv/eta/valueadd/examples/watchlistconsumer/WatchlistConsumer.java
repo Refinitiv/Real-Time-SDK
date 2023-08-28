@@ -1630,15 +1630,15 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		{
 			reactorOAuthCredential.clientId().data(watchlistConsumerConfig.clientId());
 			reactorOAuthCredential.takeExclusiveSignOnControl(watchlistConsumerConfig.takeExclusiveSignOnControl());
-			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 			reactorServiceDiscoveryOptions.clientId().data(watchlistConsumerConfig.clientId());
-			reactorServiceDiscoveryOptions.clientSecret().data(watchlistConsumerConfig.clientSecret());
 			
 			if (watchlistConsumerConfig.clientSecret() != null && !watchlistConsumerConfig.clientSecret().isEmpty())
 			{
 				reactorOAuthCredential.clientSecret().data(watchlistConsumerConfig.clientSecret());
 				reactorServiceDiscoveryOptions.clientSecret().data(watchlistConsumerConfig.clientSecret());
 			}
+			
+			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 		}
 		
 		if(watchlistConsumerConfig.jwkFile() != null && !watchlistConsumerConfig.jwkFile().isEmpty())
