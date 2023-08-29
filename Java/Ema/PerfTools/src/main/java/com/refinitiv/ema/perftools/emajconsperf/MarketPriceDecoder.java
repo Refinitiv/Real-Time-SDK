@@ -106,7 +106,7 @@ public class MarketPriceDecoder
 		{
     		
 			/* decode field list */
-	        Iterator<FieldEntry> iter = fieldList.iterator();
+	        Iterator<FieldEntry> iter = fieldList.iteratorByRef();
 	        
 	        if (downcastDecoding)
 	        {

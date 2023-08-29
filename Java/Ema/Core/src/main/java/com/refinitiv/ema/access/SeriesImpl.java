@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -27,6 +27,7 @@ class SeriesImpl extends CollectionDataImpl implements Series
 	private PayloadAttribSummaryImpl _summaryData;
 	private int _summaryDataType = com.refinitiv.eta.codec.DataTypes.NO_DATA;
 	private boolean _summaryDataTypeSet = false;
+	private SeriesIterImpl _seriesIterImpl = null;
 	
 	SeriesImpl() 
 	{
@@ -138,6 +139,16 @@ class SeriesImpl extends CollectionDataImpl implements Series
 			fillCollection();
 		
 		return new EmaIterator<SeriesEntry>(_seriesCollection.iterator());
+	}
+	
+	@Override
+	public Iterator<SeriesEntry> iteratorByRef()
+	{
+		if (_seriesIterImpl == null)
+			_seriesIterImpl = new SeriesIterImpl(this);
+		else
+			_seriesIterImpl.clear();
+		return _seriesIterImpl;
 	}
 
 	@Override

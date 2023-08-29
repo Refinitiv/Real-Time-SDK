@@ -2,12 +2,13 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -103,4 +104,17 @@ public interface ElementList extends ComplexType, Collection<ElementEntry>
 	 * @return reference to this object
 	 */
 	public ElementList info(int elementListNum);
+	
+	/**
+	 * A more efficient and performant iterator call, which eliminates using a collection and
+	 * having an iterator over the collection.
+	 * 
+	 * Returns an iterator over a single decoded ElementList. This does not return a copy of this data,
+	 * but rather a reference to it that can be read and used before being moved to the next decoded ElementEntry
+	 * when hasNext() is called, and returning the entry with next() on this iterator. hasNext() is required to be called
+	 * before each next() call to return the following entry.
+	 * 
+	 * @return iterator for a reference of a single decoded ElementEntry.
+	 */
+	public Iterator<ElementEntry> iteratorByRef();
 }

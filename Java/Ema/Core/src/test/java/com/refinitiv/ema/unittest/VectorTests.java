@@ -187,6 +187,46 @@ public class VectorTests extends TestCase
 		}	
 	}
 	
+	public void testVectorEntryWithNoPayload_Encode_Decode_Efficient()
+	{
+		TestUtilities.printTestHead("testVectorEntryWithNoPayload_Encode_Decode_Efficient","Encode multiple Vector entry with no payload, Decode with EMA using Efficient methods for iteration");
+		
+		try
+		{
+		ByteBuffer permissionData = ByteBuffer.allocate(5);
+		permissionData.putInt(12345).flip();
+		
+		Vector vector = EmaFactory.createVector();
+		vector.add(EmaFactory.createVectorEntry().noData(1, VectorEntry.VectorAction.INSERT));
+		vector.add(EmaFactory.createVectorEntry().noData(2, VectorEntry.VectorAction.SET, permissionData));
+		
+		Vector vectorDec = JUnitTestConnect.createVector();
+		JUnitTestConnect.setRsslData(vectorDec, vector, Codec.majorVersion(), Codec.minorVersion(), null, null);
+		
+		Iterator<VectorEntry> vectorIt = vectorDec.iteratorByRef();
+		
+		TestUtilities.checkResult( vectorIt.hasNext(), "Check that next entry exists in Vector and iterates to it");
+		VectorEntry vectorEntry = vectorIt.next();
+		TestUtilities.checkResult( vectorEntry.position() == 1, "Check the position of the first entry");
+		TestUtilities.checkResult( vectorEntry.action() == VectorEntry.VectorAction.INSERT, "Check the action of the first entry");
+		
+		TestUtilities.checkResult( vectorIt.hasNext(), "Check that next entry exists in Vector and iterates to it");
+		vectorEntry = vectorIt.next();
+		TestUtilities.checkResult( vectorEntry.position() == 2, "Check the position of the second entry");
+		TestUtilities.checkResult( vectorEntry.action() == VectorEntry.VectorAction.SET, "Check the action of the second entry");
+		TestUtilities.checkResult( vectorEntry.hasPermissionData() , "Check has permission data for second entry");
+		TestUtilities.checkResult( vectorEntry.permissionData().equals(permissionData) , "Check the permission data for the second entry");
+		
+		TestUtilities.checkResult( vectorIt.hasNext() == false , "Check to make sure there is no more entry");
+		
+		}
+		catch( OmmException excp)
+		{
+			TestUtilities.checkResult( false, "Fails to Encode multiple Vector entry with no payload - exception not expected with text : " +  excp.getMessage()  );
+			return;
+		}	
+	}
+	
 	public void testVectorClear_Encode_Decode()
 	{
 		TestUtilities.printTestHead("testVectorClear_Encode_Decode","Test Clear Vector before encoding");

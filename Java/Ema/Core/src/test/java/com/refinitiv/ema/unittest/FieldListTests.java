@@ -1302,7 +1302,7 @@ public class FieldListTests extends TestCase
 				.createDataDictionary();
 		TestUtilities.eta_encodeDictionaryMsg(dictionary);
 		
-		FieldList flEnc= EmaFactory.createFieldList();;
+		FieldList flEnc= EmaFactory.createFieldList();
 		flEnc.info( dictionary.infoDictionaryId(), 65 );
 
 		try { 
@@ -1455,6 +1455,138 @@ public class FieldListTests extends TestCase
 
 
 			TestUtilities.checkResult("FieldList with primitives and ElementList - tenth hasNext()", !iter.hasNext());
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - exception not expected", true);
+			
+			dictionary = null;
+
+		} catch ( OmmException excp  ) {
+			TestUtilities.checkResult( "FieldList with primitives and ElementList - exception not expected" , false);
+			System.out.println(excp);
+		}
+
+	}
+	
+	public void testFieldList_EncodeEMA_DecodeEMA_Efficient_EncodeDecodeAll()
+	{
+		
+		TestUtilities.printTestHead("testFieldList_EncodeEMA_DecodeEMA_Efficient_DecodeAll", "Encode FieldList with EMA and Decode FieldList with EMA using Efficient methods");
+
+		// load dictionary
+		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
+		
+		FieldList flEnc= EmaFactory.createFieldList();
+		flEnc.info( dictionary.infoDictionaryId(), 65 );
+
+		try { 
+			//EMA Encoding
+			// encoding order:  ERROR, UINT, REAL, INT, DATE, TIME, DATETIME, ElementList, UINT
+
+			//first entry (fid not found case)
+			flEnc.add(EmaFactory.createFieldEntry().uintValue( -100, 64));
+
+			//second entry
+			flEnc.add(EmaFactory.createFieldEntry().uintValue( 1, 64));
+
+			//third entry
+			flEnc.add(EmaFactory.createFieldEntry().real( 6, 11, OmmReal.MagnitudeType.EXPONENT_NEG_2));
+
+			//fourth entry
+			flEnc.add(EmaFactory.createFieldEntry().intValue( -2, 32));
+
+			//fifth entry
+			flEnc.add(EmaFactory.createFieldEntry().date( 16, 1999, 11, 7));
+
+			//sixth entry
+			flEnc.add(EmaFactory.createFieldEntry().time( 18, 02, 03, 04, 005));
+
+			//seventh entry
+			flEnc.add(EmaFactory.createFieldEntry().dateTime( -3, 1999, 11, 7, 01, 02, 03, 000));
+
+			//Now do EMA decoding of FieldList
+			FieldList flDec = JUnitTestConnect.createFieldList();
+			JUnitTestConnect.setRsslData(flDec, flEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+
+			System.out.println(flDec);
+
+			TestUtilities.checkResult("FieldList with primitives and FieldList - hasInfo()" , flDec.hasInfo() );
+			TestUtilities.checkResult("FieldList with primitives and FieldList - infoDictionaryId()",  flDec.infoDictionaryId() == dictionary.infoDictionaryId() );
+			TestUtilities.checkResult("FieldList with primitives and FieldList - infoFieldListNum()" ,  flDec.infoFieldListNum() == 65);
+
+			Iterator<FieldEntry> iter = flDec.iteratorByRef();
+			
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe1 = iter.next();
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.ERROR", fe1.loadType() == DataTypes.ERROR );
+			TestUtilities.checkResult("FieldEntry.ErrorCode() == FieldIdNotFound" , fe1.error().errorCode() == OmmError.ErrorCode.FIELD_ID_NOT_FOUND );
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe2 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()",  fe2.fieldId() == 1 );
+			TestUtilities.checkResult("FieldEntry.name()", fe2.name().equals( "PROD_PERM") );
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.UINT", fe2.loadType() == DataTypes.UINT);
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.UINT", fe2.load().dataType()== DataTypes.UINT );
+			TestUtilities.checkResult("FieldEntry.uintValue()", fe2.uintValue() == 64 );
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe3 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()",  fe3.fieldId() == 6 );
+			TestUtilities.checkResult( fe3.name().equals( "TRDPRC_1"));
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.REAL",  fe3.loadType() == DataTypes.REAL );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.REAL", fe3.load().dataType()== DataTypes.REAL );
+			TestUtilities.checkResult("FieldEntry.real().mantissa()", fe3.real().mantissa() == 11 );
+			TestUtilities.checkResult("FieldEntry.real().magnitudeType()", fe3.real().magnitudeType() == 12 );
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe4 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()", fe4.fieldId() == -2 );
+			TestUtilities.checkResult( fe4.name().equals( "INTEGER"));
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.INT", fe4.loadType() == DataTypes.INT );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.INT", fe4.load().dataType()== DataTypes.INT );
+			TestUtilities.checkResult("FieldEntry.code() ==Data.DataCode.NO_CODE", fe4.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("FieldEntry.intValue()" ,  fe4.intValue() == 32);
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe5 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()", fe5.fieldId() == 16 );
+			TestUtilities.checkResult( fe5.name().equals( "TRADE_DATE"));
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.DATE", fe5.loadType() == DataTypes.DATE );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.DATE", fe5.load().dataType()== DataTypes.DATE );
+			TestUtilities.checkResult("FieldEntry.code() ==Data.DataCode.NO_CODE", fe5.code() ==Data.DataCode.NO_CODE);
+					TestUtilities.checkResult("FieldEntry.date().day()", fe5.date().day() == 7 );
+		TestUtilities.checkResult("FieldEntry.date().month()()", fe5.date().month()== 11 );
+			TestUtilities.checkResult("FieldEntry.date().year()", fe5.date().year() == 1999 );
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe6 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()",  fe6.fieldId() == 18 );
+			TestUtilities.checkResult( fe6.name().equals( "TRDTIM_1"));
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.TIME", fe6.loadType() == DataTypes.TIME );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.TIME", fe6.load().dataType()== DataTypes.TIME );
+			TestUtilities.checkResult("FieldEntry.code() ==Data.DataCode.NO_CODE", fe6.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("FieldEntry.time().hour()", fe6.time().hour() == 02 );
+			TestUtilities.checkResult("FieldEntry.time().minute()", fe6.time().minute() == 03 );
+			TestUtilities.checkResult("FieldEntry.time().second()", fe6.time().second() == 04 );
+			TestUtilities.checkResult("FieldEntry.time().millisecond()", fe6.time().millisecond() == 005 );
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - first entry", iter.hasNext());
+			FieldEntry fe7 = iter.next();
+			TestUtilities.checkResult("FieldEntry.fieldId()",  fe7.fieldId() == -3 );
+			TestUtilities.checkResult( fe7.name().equals( "TRADE_DATE"));
+			TestUtilities.checkResult("FieldEntry.loadType() == DataTypes.DATETIME", fe7.loadType() == DataTypes.DATETIME );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.DATETIME", fe7.load().dataType()== DataTypes.DATETIME );
+			TestUtilities.checkResult("FieldEntry.code() ==Data.DataCode.NO_CODE", fe7.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("FieldEntry.dateTime().day()", fe7.dateTime().day() == 7 );
+			TestUtilities.checkResult("FieldEntry.dateTime().month()()",  fe7.dateTime().month()== 11 );
+			TestUtilities.checkResult("FieldEntry.dateTime().year()", fe7.dateTime().year() == 1999 );
+			TestUtilities.checkResult("FieldEntry.dateTime().hour()", fe7.dateTime().hour() == 01 );
+			TestUtilities.checkResult("FieldEntry.dateTime().minute()", fe7.dateTime().minute() == 02 );
+			TestUtilities.checkResult("FieldEntry.dateTime().second()", fe7.dateTime().second() == 03 );
+			TestUtilities.checkResult("FieldEntry.dateTime().millisecond()", fe7.dateTime().millisecond() == 000 );
+
+			TestUtilities.checkResult("FieldList with primitives and ElementList - eigth hasNext()", !iter.hasNext());
 
 			TestUtilities.checkResult("FieldList with primitives and ElementList - exception not expected", true);
 			

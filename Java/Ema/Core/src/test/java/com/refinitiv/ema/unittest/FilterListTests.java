@@ -250,6 +250,75 @@ public class FilterListTests extends TestCase
 		}
 	}
 	
+	public void testFilterListContainsFieldListsElementLists_EfficientDecode_EncodeDecodeAll()
+	{
+		TestUtilities.printTestHead("testFilterListContainsFieldListsElementLists_EfficientDecode_EncodeDecodeAll","Encode FilterList that contains FieldLists, ElementLists with EMA and Decode FilterList with EMA using efficient methods for iterating");
+		
+		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
+
+		try {
+			//EMA Encoding
+
+			FilterList filterListEnc = EmaFactory.createFilterList();
+			TestUtilities.EmaEncodeFilterListAllWithFieldListElementList( filterListEnc);
+
+			//Now do EMA decoding of FilterList
+			FilterList filterListDec = JUnitTestConnect.createFilterList();
+			JUnitTestConnect.setRsslData(filterListDec, filterListEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+
+			System.out.println(filterListDec);
+
+			Iterator<FilterEntry> filterListIter = filterListDec.iteratorByRef();
+			
+			TestUtilities.checkResult( filterListDec.hasTotalCountHint(), "FilterList contains FieldList - hasTotalCountHint()" );
+			TestUtilities.checkResult( filterListDec.totalCountHint() == 3, "FilterList contains FieldList - getTotalCountHint()" );
+			
+			TestUtilities.checkResult( filterListIter.hasNext(), "FilterList contains FieldList - first FilterList hasNext()" );
+
+			FilterEntry fe1 = filterListIter.next();
+
+			TestUtilities.checkResult( fe1.action() == FilterEntry.FilterAction.CLEAR, "FilterEntry.action() == FilterEntry.FilterAction.CLEAR" );
+			TestUtilities.checkResult( fe1.load().dataType() == DataTypes.NO_DATA, "FilterEntry.load().dataType() == DataTypes.NO_DATA" );
+
+
+			filterListIter = filterListDec.iteratorByRef();
+			{
+				TestUtilities.checkResult( filterListIter.hasNext(), "FilterList contains FieldList - first FilterList hasNext() after regenerating iterator" );
+
+				fe1 = filterListIter.next();
+
+				TestUtilities.checkResult( fe1.action() == FilterEntry.FilterAction.CLEAR, "FilterEntry.action() == FilterEntry.FilterAction.CLEAR" );
+				TestUtilities.checkResult( fe1.load().dataType() == DataTypes.NO_DATA, "FilterEntry.load().dataType() == DataTypes.NO_DATA" );
+			}
+
+
+			TestUtilities.checkResult( filterListIter.hasNext(), "FilterList contains FieldList - second FilterList hasNext()" );
+
+			FilterEntry fe2 = filterListIter.next();
+
+			TestUtilities.checkResult( fe2.action() == FilterEntry.FilterAction.SET, "FilterEntry.action() == FilterEntry.FilterAction.SET" );
+			TestUtilities.checkResult( fe2.load().dataType() == DataType.DataTypes.FIELD_LIST, "FilterEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+			TestUtilities.EmaDecodeFieldListAll( fe2.fieldList() );
+
+			TestUtilities.checkResult( filterListIter.hasNext(), "FilterList contains FieldList - third FilterList hasNext()" );
+
+			FilterEntry fe3 = filterListIter.next();
+
+			TestUtilities.checkResult( fe3.action() == FilterEntry.FilterAction.UPDATE, "FilterEntry.action() == FilterEntry.FilterAction.UPDATE" );
+			TestUtilities.checkResult( fe3.load().dataType() == DataType.DataTypes.ELEMENT_LIST, "FilterEntry.load().dataType() == DataTypes.ELEMENT_LIST" );
+			TestUtilities.EmaDecodeElementListAll( fe3.elementList() );
+			
+			TestUtilities.checkResult( !filterListIter.hasNext(), "FilterList contains FieldList - final FilterList hasNext()" );
+
+			TestUtilities.checkResult( true, "FilterList contains FieldList - exception not expected" );
+		} catch ( OmmException excp  ) {
+			TestUtilities.checkResult( false, "FilterList contains FieldList - exception not expected" );
+			System.out.println(excp.getMessage());
+		}
+	}
+	
 	 public void testFilterList_EncodeETAFilterListWithContainerTypes_EncodeEMA_ToAnotherFilterList_EMADecode() 
 	 {
 		 int retVal;
