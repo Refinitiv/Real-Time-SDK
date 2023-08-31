@@ -10,8 +10,8 @@ dependencies {
 	// version 1.1.3_8 not available on mavencentral
     implementation group: 'xpp3', name: 'xpp3', version: '1.1.4c'
 
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.4'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
 
     implementation project(':Eta:Applications:Shared')
     implementation project(':Eta:Core')
