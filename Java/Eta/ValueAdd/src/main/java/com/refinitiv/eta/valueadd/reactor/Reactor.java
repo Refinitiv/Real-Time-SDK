@@ -4350,7 +4350,7 @@ public class Reactor
 					}
 				}
 
-				if (_reactorOptions.xmlTraceWrite())
+				if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
 				{
 					xmlString.setLength(0);
 					xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -4789,7 +4789,7 @@ public class Reactor
 
 		if (msgBuf != null)
 		{
-			if (_reactorOptions.xmlTracePing())
+			if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTracePing())
 			{
 				xmlString.setLength(0);
 				xmlString.append("\n<!-- Incoming Reactor message -->\n").append("<!-- ")
@@ -6435,7 +6435,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTraceWrite())
+		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6649,7 +6649,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTraceWrite())
+		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6802,7 +6802,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTraceWrite())
+		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -6953,7 +6953,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTraceWrite())
+		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
@@ -7107,7 +7107,7 @@ public class Reactor
 			}
 		}
 
-		if (_reactorOptions.xmlTraceWrite())
+		if (_reactorOptions.xmlTracing() || _reactorOptions.xmlTraceWrite())
 		{
 			xmlString.setLength(0);
 			xmlString.append("\n<!-- Outgoing Reactor message -->\n").append("<!-- ")
