@@ -26,7 +26,10 @@ public class FileDumper {
     }
 
     private Path createNewFile() {
-        String fileName = xmlTraceFileName + "_" + ProcessHandle.current().pid() + "_" + Instant.now().toEpochMilli() + ".xml";
+        String[] Ids = ManagementFactory.getRuntimeMXBean().getName().split("@");
+        String processId = Ids.length > 0 ? "_" + Ids[0] + "_" : "_";
+        String fileName = xmlTraceFileName + processId + Instant.now().toEpochMilli() + ".xml";
+
         Path filePath = Paths.get(fileName);
         try {
             Files.createFile(filePath);
