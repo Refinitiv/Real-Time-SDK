@@ -39,12 +39,12 @@ External modules used by this version of RTSDK CSharp:
 
 ### Platforms and Compilers used in Test
 
-        Windows Server 2016 Enterprise Edition or later 64-bit
-        Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
-        Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1
-        CentOS 7.X Release 64-bit Qualification 
-
-        Microsoft Visual Studio 2022 64-bit 
+        Windows Server 2016 Enterprise Edition or later 64-bit, VS2022
+        Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.402
+        Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.402
+        Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.402
+        CentOS 7.X Release 64-bit, .NET SDK 6.0.402
+        Ubuntu 20.04 64-bit, .NET SDK 6.0.402
 
 ### Encryption Support
 
@@ -70,8 +70,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.7.0
-- ADH 3.7.0
+- ADS 3.7.1
+- ADH 3.7.1
 - DACS 7.8
 
 # Documentation
@@ -169,10 +169,10 @@ You can download RTSDK libraries and dependencies from NuGet. Below is *sample* 
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.0.2"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.2"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.2"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.2"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.0.3"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.3"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.3"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.3"/>
                 </ItemGroup/>
         </dependency>
 

@@ -18,26 +18,26 @@ External modules used by this version of RTSDK Java:
 	Dependency				Version
 	----------				-------
 	commons-codec				1.11
-	commons-configuration2			2.7	
+	commons-configuration2			2.9.0
 	commons-collections4			4.4	
-	commons-lang3				3.9
+	commons-lang3				3.3.2
 	commons-logging				1.2
-	commons-text		 		1.9
-	jackson-annotations	 		2.13.4
-	jackson-core	 			2.14.1  
-	jackson-databind 			2.13.4.2
-	jose4j					0.9.1
+	commons-text		 		1.10.0
+	jackson-annotations	 		2.15.2
+	jackson-core	 			2.15.2  
+	jackson-databind 			2.15.2
+	jose4j					0.9.3
 	junit					4.12
 	json					20210307
-	httpclient				4.5.13
-	httpclient-cache 			4.5.13
+	httpclient				4.5.14
+	httpclient-cache 			4.5.14
 	httpcore				4.4.13
-	httpcore-nio	 			4.4.13
-	httpmime				4.5.13
+	httpcore-nio	 			4.4.16
+	httpmime				4.5.14
 	lz4-java				1.8.0
 	mockito-all				1.9.0
-	slf4j-api				1.7.32
-	slf4j-jdk14				1.7.32
+	slf4j-api				2.0.7
+	slf4j-jdk14				2.0.7
 	xpp3					1.1.4c
 
 
@@ -49,9 +49,9 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports Oracle JDK 1.8, 1.11 & 1.17, OpenJDK 1.8, 1.11 & 1.17, Amazon Corretto 8 & 11.
+The Refinitiv Real-Time-SDK supports 1.11 & 1.17, OpenJDK 1.11 & 1.17, Amazon Corretto 11.
 
-**IMPORTANT NOTE** Starting with Q3 2023, with version RTSDK-2.1.2.L1, RTSDK drop support for OpenJDK/JDK 1.8. Please plan to upgrade your JDK version.
+**IMPORTANT NOTE** Starting with Q3 2023, with version RTSDK-2.1.2.L1, RTSDK drops support for OpenJDK/JDK 1.8 and RTSDK Jars are built with Open JDK 1.11. Please plan to upgrade your JDK version.
 
 NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8. 
 
@@ -60,7 +60,7 @@ NOTE: Full JWT support requires at least Java 1.8u251.
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
 Refinitiv will extend support to other platforms based on the following criteria:
-- EMA Java is used with a J2SE 8 compliant JVM
+- EMA Java is used with a J2SE 11 compliant JVM
 - All problems must be reproducible on one of the core platforms listed below. Refinitiv support teams will only be able to reproduce problems on the core platforms.
 
 #### Supported Platforms
@@ -88,19 +88,19 @@ NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, plea
 
 Platforms:
 
-	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
-        Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1 (JNI Libraries)
-        CentOS 7.X Release 64-bit Qualification 
+	Oracle Linux Server 7.X 64-bit
+        Red Hat Enterprise Server 7.X Release 64-bit
+        Red Hat Enterprise Server 8.X Release 64-bit
+        CentOS 7.X Release 64-bit Qualification
+	Ubuntu 20.04 64-bit Qualification
 
 #### Tested Versions
 
 This release has been tested with the following:
 
-	Oracle Java SE 8 (JDK1.8)
 	Oracle Java SE 11 (JDK1.11)
-	Oracle Open JDK (1.8) -- Linux-only
 	Oracle Open JDK (1.11)
-	Amazon Corretto 8
+	Oracle Open JDK (1.17)
 	Amazon Corretto 11
 
 #### Proxy Authentication Support
@@ -127,15 +127,18 @@ The **keystore** file can contain custom private keys and public key certificate
 
 RTSDK Java supports connectivity to the following platforms:
 
-- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS version 2.6 and higher, ADH version 2.6 and higher.
-- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Real-Time - Optimized, Refinitiv Direct Feed
+- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions 
+- Refinitiv Real-Time: Refinitiv Real-Time Deployed
+- Refinitiv Real-Time Hosted
+- Refinitiv Real-Time - Optimized (RTO)
+- Refinitiv Direct Feed
 
 NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.7.0
-- ADH 3.7.0
+- ADS 3.7.1
+- ADH 3.7.1
 - DACS 7.8
 
 # Documentation
@@ -216,40 +219,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.7.1.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.7.1.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.7.1.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.7.1.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.7.1.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.1.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.1.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.1.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.1.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.1.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.2.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.2.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.2.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.2.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.2.0'
 
 # Developing 
 

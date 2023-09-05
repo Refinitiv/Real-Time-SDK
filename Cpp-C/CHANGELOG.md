@@ -9,26 +9,51 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.1.L1 aka EMA/ETA 3.7.1.L1 aka 3.7.1.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.2.L1 aka EMA/ETA 3.7.2.L1 aka 3.7.2.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes for customer issues and minor enhancements
+This is a maintenance release with fixes and minor enhancements
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 10894282] - [RTSDK-6139] - Enhancement to pass in a dictionary into OMMConsumer 
-- [Case Number: 11689662] - [RTSDK-6670] - ETA crash due to submitting login reissue with WL enabled prior to ReactorConnection 
-- [Case Number: 11823373] - [RTSDK-6805] - ETA C Reactor crash in FD change upon reconnect with http connections 
-- [Case Number: 12319259] - [RTSDK-7201] - Option to skip CpuID Topology initialization added 
-- [GitHub #219] - [RTSDK-6809] - Misaligned EmaString objects in OmmException 
+- [Case Number: 12767436] - [RTSDK-7622] - Memory leak fix in ETAC Reactor introduced with RTSDK-6136 
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.1.2.L1 (Sep 7, 2023)
+--------------------------------------------
+
+ETA C 3.7.2.L1 Issues Resolved
+------------------------------
+- [RTSDK-7252] - Added libcurl.so.4 as a default libcurl library along with error handling
+- [RTSDK-7435] - Update CURL to 8.2.0
+- [RTSDK-7436] - Update l8w8jwt 2.1.7
+- [RTSDK-7437] - Update libxml2 2.11.4
+- [RTSDK-7313] - Set channel state to close earlier to mitigate race condition between accessing channel statistics and closing channel
+- [RTSDK-7513] - Fix to WebSocket blocking connection when buffer is full
+- [RTSDK-7539] - Fix to a rare libcurl crash upon closing the channel (follow up to RTSDK-7313)
+- [RTSDK-7576] - Fix to error upon Websocket (JSON) read with only one byte of WS head available in read
+- [RTSDK-7590] - ETAC JSON Converter issue with large streamID: -1000000000
+- [RTSDK-7591] - ETAC Reactor enhancement for ability to specify proxy separately for REST requests and reactor channels
+- [RTSDK-7616] - ConsPerf example fix to print OVERALL SUMMERY when shutting down (affects only Windows)
+- [RTSDK-7622] - Memory leak fix in ETAC Reactor introduced with RTSDK-6136 [Case Number: 12767436]
+
+Both ETA C and EMA C++ 3.7.2.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-6261] - Qualify RTSDK API on Ubuntu Kylin
+- [RTSDK-6771] - Investigate & Add Support for OpenSSL 3.X
+- [RTSDK-7106] - ETA/EMA: Copy required files for unit testing into working directory via CMake
+- [RTSDK-7272] - Qualify RTSDK API on Ubuntu
+- [RTSDK-7610] - Ubuntu qualification: fix to warnings
+
+--------------------------------------------
 RTSDK C++/C Release 2.1.1.L1 (Jun 9, 2023)
 --------------------------------------------
+
+This is a maintenance release with fixes for customer issues and minor enhancements
 
 EMA C++ 3.7.1.L1 Issues Resolved
 --------------------------------

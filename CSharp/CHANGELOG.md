@@ -10,21 +10,32 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.1.L1 aka ETA 3.0.2.L1 aka 3.0.2.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.2.L1 aka ETA 3.0.3.L1 aka 3.0.3.0
 ----------------------------------------------------------------------------------------
 
-New Features Added
-------------------
-
-This is a maintenance release with fixes. In addition, this release introduces a self-contained RRG package that contains external dependencies required for builds. This is in contrast to last release where dependencies were auto-downloaded from NuGet. Note that building GitHub source will continue to auto-download external dependencies. 
+This is a maintenance release with fixes
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.1.2.L1 (Sep 7, 2023)
+---------------------------------------------
+
+ETA CSharp 3.0.3.L1  
+-------------------
+- [RTSDK-6261] - Qualify RTSDK API on Ubuntu Kylin
+- [RTSDK-7272] - Qualify RTSDK API on Ubuntu
+- [RTSDK-7505] - ProvPerf example does not include name in message key for item refresh messages
+- [RTSDK-7517] - Training example ConsMod5 decodes Source Directory incorrectly
+- [RTSDK-7574] - VAProvider does NOT set Login Element for SupportEnhancedSymbolList
+
+---------------------------------------------
 RTSDK CSharp Release 2.1.1.L1 (Jun 9, 2023)
 ---------------------------------------------
+
+This is a maintenance release with fixes. In addition, this release introduces a self-contained RRG package that contains external dependencies required for builds. This is in contrast to last release where dependencies were auto-downloaded from NuGet. Note that building GitHub source will continue to auto-download external dependencies. 
 
 ETA CSharp 3.0.2.L1  
 -------------------

@@ -121,24 +121,24 @@ The distribution contains several JAR files and other non-Java libraries, intend
 
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    eta-3.7.1.0.jar               eta3.7.1.L1       The ETA - Java Edition library.  Includes
+    eta-3.7.2.0.jar               eta3.7.2.L1       The ETA - Java Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    etaValueAdd-3.7.1.0.jar       eta3.7.1.L1       The Value Add library for ETA Java Edition.
+    etaValueAdd-3.7.2.0.jar       eta3.7.2.L1       The Value Add library for ETA Java Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    etaValueAddCache-3.7.1.0.jar  eta3.7.1.L1       The Value Add payload cache library for ETA
+    etaValueAddCache-3.7.2.0.jar  eta3.7.2.L1       The Value Add payload cache library for ETA
                                                     Java Edition.
 
-    etajConverter-3.7.1.0.jar     eta3.7.1.L1       The RWF/JSON Converter library.
+    etajConverter-3.7.2.0.jar     eta3.7.2.L1       The RWF/JSON Converter library.
 
     jDacsEtalib.jar               dacs7.8           The ETA Java DACS library.
 
-    ansipage-3.7.1.0.jar          eta3.7.1.L1       The ANSI decoders and encoders.
+    ansipage-3.7.2.0.jar          eta3.7.2.L1       The ANSI decoders and encoders.
                   
 
-    ETAC/ETA/RSSL JNI Libs        eta3.7.1.L1       The JNI libraries for Reliable Multicast
+    ETAC/ETA/RSSL JNI Libs        eta3.7.2.L1       The JNI libraries for Reliable Multicast
                                                     Transport, Shared Memory Transport and 
                                                     ValueAdd cache.  
 
@@ -183,17 +183,17 @@ The distribution contains several JAR files and other non-Java libraries, intend
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - Java Edition
-    Release Number: 3.7.1
+    Release Number: 3.7.2
     Load Number: 1
-    Load ID: etaj3.7.1.L1.all
-        Supersedes: etaj3.7.0.L1.all.rrg
+    Load ID: etaj3.7.2.L1.all
+        Supersedes: etaj3.7.1.L1.all.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.57_RealTimeDistributionSystem_23.41 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.71 for RWF and Marketfeed Record Templates
 
 # Security
 

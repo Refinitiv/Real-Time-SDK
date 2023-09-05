@@ -9,23 +9,45 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.1.L1 aka EMA/ETA 3.7.1.L1 aka 3.7.1.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.2.L1 aka EMA/ETA 3.7.2.L1 aka 3.7.2.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes for customer issues.
+This is a maintenance release with fixes
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #198, Case Number:  12360452] - [RTSDK-6357] - Thread executor main loop is broken by unchecked exceptions
-- [GitHub #234] - [RTSDK-7060] - Update to ETAJ documentation about JKS keystore file
+- [GitHub #223] - [RTSDK-7034] - ETAJ Concurrence issue in SelectableBiDirectionalQueue
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK Java Release 2.1.2.L1 (Sep 7, 2023)
+--------------------------------------------
+
+EMA Java 3.7.2.L1 Issues Resolved
+---------------------------------
+- [RTSDK-7311] - Performance improvement to EMA Java decoding with an added, more efficient iterator by reference that avoids java collection creation 
+
+ETA Java 3.7.2.L1 Issues Resolved
+---------------------------------
+- [RTSDK-7034] - Concurrence issue in SelectableBiDirectionalQueue [GitHub #223]
+- [RTSDK-7505] - ProvPerf example does not include name in message key for item refresh messages
+- [RTSDK-7761] - WatchlistConsumer example error with servicediscovery using clientId and clientSecret (OAuth2_V2)
+
+Both ETA Java and EMA Java 3.7.2.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-6242] - Support for XmlTrace to file parameters in ETA & EMA Java
+- [RTSDK-6261] - Qualify RTSDK API on Ubuntu Kylin 
+- [RTSDK-7272] - Qualify RTSDK API on Ubuntu
+- [RTSDK-7440] - Update to Java Dependencies to address vulnerabilities
+- [RTSDK-7629] - Pre-built libraries use Open JDK 1.11 (updated from 1.8)
+
+--------------------------------------------
 RTSDK Java Release 2.1.1.L1 (Jun 9, 2023)
 --------------------------------------------
+This is a maintenance release with fixes for customer issues.
 
 EMA Java 3.7.1.L1 Issues Resolved
 ---------------------------------

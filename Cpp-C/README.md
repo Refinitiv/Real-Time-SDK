@@ -15,20 +15,23 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 External modules used by this version of RTSDK C/C++:
 
-	Dependency		Version
-	----------		-------
-	openSSL			1.0.1e
-	openSSL			1.1.1a
-	cJSON			1.7.15
-	curl			7.86.0
-	googletest		release-1.8.1
-	l8w8jwt			2.1.6
-	libxml2			2.10.3
-	lz4			1.9.4
-	zlib			1.2.13
+     Dependency          Version
+     ----------          -------
+     openSSL               1.0.1e
+     openSSL               1.1.1a
+     openSSL               3.0.X  * 
+     openSSL               3.1.X  ** 
+     cJSON                 1.7.15
+     curl                  8.2.0
+     googletest            release-1.8.1
+     l8w8jwt               2.1.6
+     libxml2               2.11.4
+     lz4                   1.9.4
+     zlib                  1.2.13
+\* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
-- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available. 
+- Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available.  
 - Please note that the default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
 - Check installation guide for details regarding including external dependencies for build 
    
@@ -36,24 +39,24 @@ External modules used by this version of RTSDK C/C++:
 
 Windows system libraries used by RTSDK C/C++:
 
-	Dependency
-	----------
-	wininet.lib
-	ws2_32.lib
-	crypt32.lib
-	cryptui.lib
-	bcrypt.lib
-	Iphlpapi.lib
+     Dependency
+     ----------
+     wininet.lib
+     ws2_32.lib
+     crypt32.lib
+     cryptui.lib
+     bcrypt.lib
+     Iphlpapi.lib
 
 Linux system libraries used by RTSDK C/C++:
 
-	Dependency
-	----------
-	rt
-	dl
-	pthread
-	m
-	stdc++
+     Dependency
+     ----------
+     rt
+     dl
+     pthread
+     m
+     stdc++
 
 
 ### Supported Platforms, OSs, Compilers
@@ -64,8 +67,10 @@ Linux system libraries used by RTSDK C/C++:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 - Oracle Linux Server 7.X Release 64-bit
+- Red Hat Enterprise Server 7.X Release 64-bit
 - Red Hat Enterprise Server 8.X Release 64-bit
 - CentOS 7.X Release 64-bit
+- Ubuntu 20.04 Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
 - UDP Multicast networking support if using Reliable Multicast connection type
@@ -81,17 +86,17 @@ Users are welcome to migrate open source code to the platforms they prefer, howe
 
 Platforms:
 
-	Microsoft Windows Server 2012 R2 Standard Edition or later 64-bit
-	Microsoft Windows Server 2016 Standard Edition or later 64-bit
-	Microsoft Windows Server 2019 Standard Edition or later 64-bit
-	Microsoft Windows 10 Professional 64-bit 
+     Microsoft Windows Server 2012 R2 Standard Edition or later 64-bit
+     Microsoft Windows Server 2016 Standard Edition or later 64-bit
+     Microsoft Windows Server 2019 Standard Edition or later 64-bit
+     Microsoft Windows 10 Professional 64-bit 
 
 Compilers (only on OSs supported by Microsoft): 
 
-	Microsoft Visual Studio 14.0 (2015) 64-bit
-	Microsoft Visual Studio 14.1 (2017) 64-bit 
-	Microsoft Visual Studio 14.2 (2019) 64-bit 
-	Microsoft Visual Studio 14.3 (2022) 64-bit 
+     Microsoft Visual Studio 14.0 (2015) 64-bit
+     Microsoft Visual Studio 14.1 (2017) 64-bit 
+     Microsoft Visual Studio 14.2 (2019) 64-bit 
+     Microsoft Visual Studio 14.3 (2022) 64-bit 
 
 Notes: 
 - User has the option to use pre-built libraries for the compilers listed above and use them on different Windows operating systems that have support for those compilers to build their applications. User may also choose to build source and applications. 
@@ -102,10 +107,11 @@ Notes:
 
 Platforms & Compilers:
 
-	GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
-	GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
-	GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
-	Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
+     GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
+     GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
+     GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
+     Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
+     GCC compiler suite version 9.3.0 or higher for Ubuntu 20.04, 64-bit, qualification with RH8 library build
 
 * Eta VACache library built 
 
@@ -119,16 +125,17 @@ This release has been tested with supported valid OS/compiler combinations.
 ##### Linux
 This release has been tested with the following on supported platform/OS combinations. Please note that the list of tested platforms and compiler combination below reflects test of two use cases: using pre-built libraries to build applications _and_ natively building source and using those libraries to build applications.
 
-	OS							GCC Version	Use-Prebuilt Library	Use-Natively Build Library
-	--------------------------------			------------	----------------------	----------------------------		
-	CentOS 7.0 64-bit					GCC 4.8.2		OL7_64_GCC482			CENTOS7_64_GCC482
-	Oracle Linux Server 7.7 64-bit 				GCC 4.8.5		OL7_64_GCC482			OL7_64_GCC485
-	Red Hat Enterprise Linux Server 7.7 64-bit 		GCC 4.8.5 		OL7_64_GCC482			RHEL7_64_GCC485
-	Oracle Linux Server 7.7 64-bit     			GCC 7.4.0		n/a           			OL7_64_GCC740
-	Red Hat Enterprise Linux Server 7.7 64-bit 		GCC 7.4.0 		n/a				RHEL7_64_GCC740
-	Red Hat Enterprise Linux Server 8.0 64-bit 		GCC 8.3.1 		RHEL8_64_GCC831			RHEL8_64_GCC831
+     OS                                           GCC Version     Use-Prebuilt Library     Use-Natively Build Library
+     --------------------------------             ------------    --------------------     ----------------------------          
+     CentOS 7.0 64-bit                            GCC 4.8.2       OL7_64_GCC482            CENTOS7_64_GCC482
+     Oracle Linux Server 7.7 64-bit               GCC 4.8.5       OL7_64_GCC482            OL7_64_GCC485
+     Red Hat Enterprise Linux Server 7.7 64-bit   GCC 4.8.5       OL7_64_GCC482            RHEL7_64_GCC485
+     Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
+     Red Hat Enterprise Linux Server 7.7 64-bit   GCC 7.4.0       n/a                      RHEL7_64_GCC740
+     Red Hat Enterprise Linux Server 8.0 64-bit   GCC 8.3.1       RHEL8_64_GCC831          RHEL8_64_GCC831
+     Ubuntu 20.04 64-bit                          GCC 9.4.0       RHEL8_64_GCC831          RHEL8_64_GCC831
 
-	n/a = This is not a tested combination
+     n/a = This is not a tested combination
 
 #### Proxy Authentication Support
 
@@ -152,15 +159,19 @@ This release supports encryption using TLS 1.2.
 
 RTSDK Cpp-C supports connectivity to the following platforms:
 
-- Refinitiv Real-Time Distribution System (RSSL/RWF connections) : ADS version 2.6 and higher, ADH version 2.6 and higher. 
-- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Direct Feed
+- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions
+- Refinitiv Real-Time: Refinitiv Real-Time Deployed
+- Refinitiv Real-Time Hosted
+- Refinitiv Real-Time - Optimized (RTO)
+- Refinitiv Direct Feed
+
 
 NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.7.0
-- ADH 3.7.0
+- ADS 3.7.1
+- ADH 3.7.1
 - DACS 7.8
 
 # Documentation
@@ -194,17 +205,17 @@ Refer to RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/D
 
 Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command (this will require root access to the machine):
 
-	yum install redhat-lsb-core
+     yum install redhat-lsb-core
 
 At the same directory level as the resulting RTSDK directory, issue the following command to build the optimized Makefile files:
 
-	cmake -HsourceDir -BbuildDir
-	# sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
-	# buildDir is the directory where all build output is placed. This directory is automatically created.
+     cmake -HsourceDir -BbuildDir
+     # sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
+     # buildDir is the directory where all build output is placed. This directory is automatically created.
 
 Issue the following command to build debug Makefile files:
 
-	cmake -HRTSDK -BbuildDir –DCMAKE_BUILD_TYPE=Debug
+     cmake -HRTSDK -BbuildDir –DCMAKE_BUILD_TYPE=Debug
 
 The cmake command builds all needed Makefile files (and related dependencies) in the buildDir directory. Go to the buildDir directory and type "make" or "gmake" to create the RTSDK libraries. Note that the libraries and sample application executables are sent to the RTSDK directory under sourceDir.
 
@@ -212,17 +223,17 @@ The cmake command builds all needed Makefile files (and related dependencies) in
 
 At the same directory level as the resulting RTSDK directory, issue the following command to build the Solution and vcxproj files:
 
-	cmake -HsourceDir -BbuildDir -G <VisualStudioVersion>
-	# sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
-	# buildDir is the directory where all build output is placed. This directory is automatically created
-	# "VisualStudioVersion" is the visual studio version to use for build on windows.
-	# Valid values for VisualStudioVersion are 
+     cmake -HsourceDir -BbuildDir -G <VisualStudioVersion>
+     # sourceDir is is the directory in which the top-level CMake entry point (CMakeLists.txt) resides. By default, when you build using the Solution and vcxproj files, output is sent to directory specified in sourceDir. 
+     # buildDir is the directory where all build output is placed. This directory is automatically created
+     # "VisualStudioVersion" is the visual studio version to use for build on windows.
+     # Valid values for VisualStudioVersion are 
                 # "Visual Studio 17 2022" -A x64
-		# "Visual Studio 16 2019" -A x64 
-		# "Visual Studio 15 2017 Win64"
-		# "Visual Studio 14 2015 Win64" 
-	# Note: A list of visual studio versions can be obtained by typing "cmake -help". 
-	# Note: CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
+          # "Visual Studio 16 2019" -A x64 
+          # "Visual Studio 15 2017 Win64"
+          # "Visual Studio 14 2015 Win64" 
+     # Note: A list of visual studio versions can be obtained by typing "cmake -help". 
+     # Note: CMake supports VS 2013 and VS 2012 builds although libraries are no longer shipped. If closed source from BinaryPack is required to build, please use a BinaryPack prior to Real-Time-SDK-2.0.3.L1 to build these deprecated Visual Studio versions at your own risk. Changes to BinaryPacks will not be available for deprecated compilers.
 
 The cmake command builds all needed Solution and vcxproj files (and other related files) in the buildDir directory. User must open these files and build all libraries and examples in the same manner as with prior RTSDK versions. Note that the libraries and sample application executables are sent to an RTSDK directory under sourceDir.
 

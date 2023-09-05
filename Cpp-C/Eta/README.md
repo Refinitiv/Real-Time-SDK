@@ -140,11 +140,11 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    librssl.lib*              eta3.7.1.L1
-    librsslVA.lib             eta3.7.1.L1
-    librsslVACache.lib        eta3.7.1.L1
-    libansi.lib               eta3.7.1.L1
-    libdacs.lib               eta3.7.1.L1
+    librssl.lib*              eta3.7.2.L1
+    librsslVA.lib             eta3.7.2.L1
+    librsslVACache.lib        eta3.7.2.L1
+    libansi.lib               eta3.7.2.L1
+    libdacs.lib               eta3.7.2.L1
 
     *librssl.lib includes JsonConverter
 
@@ -152,18 +152,18 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     -------------             ---------------
-    librssl.dll               eta3.7.1.L1
-    librssl.lib               eta3.7.1.L1
-    librssl.pdb               eta3.7.1.L1
-    librsslVA.dll             eta3.7.1.L1
-    librsslVA.lib             eta3.7.1.L1
-    librsslVA.pdb             eta3.7.1.L1
-    librsslVACache.dll        eta3.7.1.L1
-    librsslVACache.lib        eta3.7.1.L1
-    librsslVACache.pdb        eta3.7.1.L1
-    librsslJsonConverter.dll  eta3.7.1.L1
-    librsslJsonConverter.lib  eta3.7.1.L1
-    librsslJsonConverter.pdb  eta3.7.1.L1
+    librssl.dll               eta3.7.2.L1
+    librssl.lib               eta3.7.2.L1
+    librssl.pdb               eta3.7.2.L1
+    librsslVA.dll             eta3.7.2.L1
+    librsslVA.lib             eta3.7.2.L1
+    librsslVA.pdb             eta3.7.2.L1
+    librsslVACache.dll        eta3.7.2.L1
+    librsslVACache.lib        eta3.7.2.L1
+    librsslVACache.pdb        eta3.7.2.L1
+    librsslJsonConverter.dll  eta3.7.2.L1
+    librsslJsonConverter.lib  eta3.7.2.L1
+    librsslJsonConverter.pdb  eta3.7.2.L1
     
 #### Linux    
 Shared library use is similar to static library use, however there are several key differences. The shared library can be stored in a different location on the machine than the application using it. Ensure that the shared library location is present in the LD_LIBRARY_PATH being used by the application. The library use can be confirmed by using the ldd command on the application. This will show the shared library dependencies and where they are being resolved to.  
@@ -174,29 +174,29 @@ To help with this, Transport API provides several versioning mechanisms for its 
 
 The Transport API provides a helpful script that will create soft links for the appropriate library names, allowing for applications to link against a consistent name, but still leverage product and binary compatibility versioning. For example, librssl.so.1.2.3.L1 is the file; librssl.so.1 and librssl.so are symlinks to librssl.so.1.2.3.L1. Similarly for closed source example, librsslVACache.so.1 is the file; librsslVACache.so.1.2.3.L1 and librsslVACache.so are symlinks to librsslVACache.so.1.  The following script located at the base level of the package, creates the appropriate symlinks, and can be run as follows: 
 
-	./LinuxSoLink
+    ./LinuxSoLink
     
 
 ##### Static Library Manifest
 
     Library                            Package Version
     ------------                       ---------------
-    librssl.a                          eta3.7.1.L1
-    librsslVA.a                        eta3.7.1.L1
-    librsslVACache.a                   eta3.7.1.L1
-    libansi.lib                        eta3.7.1.L1
-    libdacs.lib                        eta3.7.1.L1
+    librssl.a                          eta3.7.2.L1
+    librsslVA.a                        eta3.7.2.L1
+    librsslVACache.a                   eta3.7.2.L1
+    libansi.lib                        eta3.7.2.L1
+    libdacs.lib                        eta3.7.2.L1
 
 ##### Shared Library Manifest
 
     Library                            Binary Version                  Package Version
     -------------                      --------------                  ----------------
-    librssl.so.3.7.1.0                 librssl.so.21                   eta3.7.1.L1
-    librsslVA.so.3.7.1.0               librsslVA.so.22                 eta3.7.1.L1
-    librsslJsonConverter.so.3.7.1.0    librsslJsonConverter.so.2       eta3.7.1.L1
+    librssl.so.3.7.2.0                 librssl.so.22                   eta3.7.2.L1
+    librsslVA.so.3.7.2.0               librsslVA.so.23                 eta3.7.2.L1
+    librsslJsonConverter.so.3.7.2.0    librsslJsonConverter.so.2       eta3.7.2.L1
 
-    librsslVACache.so.3.7.1.0          librsslVACache.so.4             eta3.7.1.L1
-    librsslRelMcast.so.3.7.1.0         librsslRelMcast.so.2            eta3.7.1.L1
+    librsslVACache.so.3.7.2.0          librsslVACache.so.4             eta3.7.2.L1
+    librsslRelMcast.so.3.7.2.0         librsslRelMcast.so.3            eta3.7.2.L1
 
 
 # ETA C-Edition Issues and Workarounds
@@ -225,19 +225,19 @@ The Transport API provides a helpful script that will create soft links for the 
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - C Edition
-    Release Number: 3.7.1
+    Release Number: 3.7.2
     Load Number: 1
-    Windows Load ID: eta3.7.1.L1.win
-        Supersedes: eta3.7.0.L1.win.rrg
-    Linux Load ID: eta3.7.1.L1.linux
-        Supersedes: eta3.7.0.L1.linux.rrg
+    Windows Load ID: eta3.7.2.L1.win
+        Supersedes: eta3.7.1.L1.win.rrg
+    Linux Load ID: eta3.7.2.L1.linux
+        Supersedes: eta3.7.1.L1.linux.rrg
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.57_RealTimeDistributionSystem_23.41 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.71 for RWF and Marketfeed Record Templates
 
 # Security
 
