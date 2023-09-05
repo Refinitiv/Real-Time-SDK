@@ -24,7 +24,7 @@ External modules used by this version of RTSDK C/C++:
      cJSON                 1.7.15
      curl                  8.2.0
      googletest            release-1.8.1
-     l8w8jwt               2.1.6
+     l8w8jwt               2.2.0
      libxml2               2.11.4
      lz4                   1.9.4
      zlib                  1.2.13

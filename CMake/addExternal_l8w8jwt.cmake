@@ -13,11 +13,11 @@ if(NOT l8w8jwt_url)
 endif()
 
 if(NOT l8w8jwt_tag)
-	set(l8w8jwt_tag "2.1.7" CACHE STRING "l8w8jwt tag")
+	set(l8w8jwt_tag "2.2.0" CACHE STRING "l8w8jwt tag")
 endif()
 
 if(NOT l8w8jwt_version)
-	set(l8w8jwt_version "2.1.7" CACHE STRING "l8w8jwt version")
+	set(l8w8jwt_version "2.2.0" CACHE STRING "l8w8jwt version")
 endif()
 
 unset(_cfg_type)
@@ -93,11 +93,24 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 						"     out:${_cmd_out}")
 			endif()
 
-			execute_process(COMMAND ${GIT_EXECUTABLE} checkout --recurse-submodules ${l8w8jwt_tag}
+			if(GIT_VERSION_STRING VERSION_LESS 2.14.0)
+				execute_process(COMMAND ${GIT_EXECUTABLE} checkout ${l8w8jwt_tag}
 										RESULT_VARIABLE _ret_val
 										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
 										ERROR_VARIABLE _cmd_out
 										)
+				execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --recursive
+										RESULT_VARIABLE _ret_val
+										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
+										ERROR_VARIABLE _cmd_out
+										)
+			else()
+				execute_process(COMMAND ${GIT_EXECUTABLE} checkout --recurse-submodules ${l8w8jwt_tag}
+										RESULT_VARIABLE _ret_val
+										WORKING_DIRECTORY ${l8w8jwt_source}/l8w8jwt
+										ERROR_VARIABLE _cmd_out
+										)
+			endif()
 									
 		endif()
 									
@@ -132,6 +145,8 @@ if((NOT l8w8jwt_USE_INSTALLED) AND
 										"-DCMAKE_PREFIX_PATH:PATH=${CMAKE_PREFIX_PATH_TMP}"
 										"-DCMAKE_SIZEOF_VOID_P=${CMAKE_SIZEOF_VOID_P}"
 										"-DLIBDIR:STRING=${_libdir}"
+										"-DGEN_FILES:BOOL=OFF"
+										"-DMBEDTLS_FATAL_WARNINGS:BOOL=OFF"
 										)
 		endif()
 										
