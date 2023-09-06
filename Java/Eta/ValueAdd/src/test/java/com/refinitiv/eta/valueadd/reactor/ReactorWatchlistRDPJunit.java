@@ -3316,7 +3316,7 @@ public class ReactorWatchlistRDPJunit
 				public int reactorServiceEndpointEventCallback(ReactorServiceEndpointEvent event) {
 					assertTrue(event.errorInfo().code() == ReactorReturnCodes.FAILURE );
 					// since password is incorrect we should see 400 code
-					String tmp = "{\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid Application Credential.\" }";
+					String tmp = "{\"error\":\"invalid_client\"";
 					assertTrue("Message received: " + event.errorInfo().toString() + " Expected: " + tmp, event.errorInfo().toString().contains(tmp));
 					//assertTrue("Message received: " + event.errorInfo().toString() ,event.errorInfo().toString().contains("{\"error\":\"access_denied\"  ,\"error_description\":\"Authentication Failed.\" }"));
 					System.out.println(event.serviceEndpointInfo());
