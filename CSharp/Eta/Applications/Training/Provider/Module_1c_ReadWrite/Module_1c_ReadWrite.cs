@@ -418,9 +418,9 @@ namespace LSEG.Eta.Training.Provider
                          ***************************************************************************/
 
                         /* Internally, the ETA initialization process includes several actions. The
-                         * initialization includes any necessary ETA connection handshake exchanges, including
-                         * any HTTP or HTTPS negotiation.  Compression, ping timeout, and versioning related
-                         * negotiations also take place during the initialization process.
+                         * initialization includes any necessary ETA connection handshake exchanges.
+                         * Compression, ping timeout, and versioning related negotiations  also take
+                         * place during the initialization process.
                          *
                          * This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.State will transition.

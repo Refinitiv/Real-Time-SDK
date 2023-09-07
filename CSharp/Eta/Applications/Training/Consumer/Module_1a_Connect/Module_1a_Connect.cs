@@ -178,7 +178,7 @@ namespace LSEG.Eta.Training.Consumer
             /*********************************************************
              * Client/Consumer Application life cycle Major Step 2: Connect using Connect
              * (OS connection establishment handshake) Connect call Establishes an
-             * outbound connection, which can leverage standard sockets, HTTP, or HTTPS.
+             * outbound connection, which can leverage standard sockets.
              *
              * Returns an Channel that represents the connection to the user. In the event
              * of an error, NULL is returned and additional information can be found in
@@ -232,9 +232,8 @@ namespace LSEG.Eta.Training.Consumer
                          * Internally, the ETA initialization process includes several actions.
                          *
                          * The initialization includes any necessary ETA connection handshake
-                         * exchanges, including any HTTP or HTTPS negotiation.  Compression, ping
-                         * timeout, and versioning related negotiations also take place during the
-                         * initialization process.
+                         * exchanges.  Compression, ping timeout, and versioning related negotiations
+                         * also take place during the initialization process.
                          *
                          * This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.State will

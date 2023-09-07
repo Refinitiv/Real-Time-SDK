@@ -424,10 +424,10 @@ namespace LSEG.Eta.Training.NiProvider
              * Client/NIProv Application Life Cycle Major Step 2: Connect using
              * Connect (OS connection establishment handshake) Connect call
              * Establishes an outbound connection, which can leverage standard
-             * sockets, HTTP, or HTTPS. Returns an Channel that represents the
-             * connection to the user. In the event of an error, NULL is returned
-             * and additional information can be found in the Error structure.
-             * Connection options are passed in via an ConnectOptions structure.
+             * sockets. Returns an Channel that represents the connection to the
+             * user. In the event of an error, NULL is returned and additional
+             * information can be found in the Error structure. Connection
+             * options are passed in via an ConnectOptions structure.
              *********************************************************/
 
             if ((channel = Transport.Connect(cOpts, out error)) == null)

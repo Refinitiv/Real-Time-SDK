@@ -194,7 +194,7 @@ namespace LSEG.Eta.Training.Provider
             /*********************************************************
              * Server/Provider Application Life Cycle Major Step 2: Create listening
              * socket using Bind Establishes a listening socket connection, which
-             * supports connections from standard socket and HTTP Connect users.
+             * supports connections from standard socket users.
              *
              * Returns an Server that represents the listening socket connection to
              * the user. In the event of an error, NULL is returned and additional
