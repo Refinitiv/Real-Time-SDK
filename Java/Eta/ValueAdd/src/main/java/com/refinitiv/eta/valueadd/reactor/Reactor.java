@@ -6443,7 +6443,6 @@ public class Reactor
 					.append(new java.util.Date()).append(" -->\n");
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
-			System.out.println(xmlString);
 			if (_reactorOptions.xmlTracing()){
 				System.out.println(xmlString);
 			}
@@ -6657,7 +6656,6 @@ public class Reactor
 					.append(new java.util.Date()).append(" -->\n");
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
-			System.out.println(xmlString);
 			if (_reactorOptions.xmlTracing()){
 				System.out.println(xmlString);
 			}
@@ -6810,7 +6808,6 @@ public class Reactor
 					.append(new java.util.Date()).append(" -->\n");
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
-			System.out.println(xmlString);
 			if (_reactorOptions.xmlTracing()){
 				System.out.println(xmlString);
 			}
@@ -6961,7 +6958,6 @@ public class Reactor
 					.append(new java.util.Date()).append(" -->\n");
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
-			System.out.println(xmlString);
 			if (_reactorOptions.xmlTracing()){
 				System.out.println(xmlString);
 			}
@@ -7115,7 +7111,6 @@ public class Reactor
 					.append(new java.util.Date()).append(" -->\n");
 			xmlDumpTrace.dumpBuffer(reactorChannel.channel(), reactorChannel.channel().protocolType(), msgBuf, null,
 					xmlString, errorInfo.error());
-			System.out.println(xmlString);
 			if (_reactorOptions.xmlTracing()){
 				System.out.println(xmlString);
 			}
