@@ -49,9 +49,7 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports 1.11 & 1.17, OpenJDK 1.11 & 1.17, Amazon Corretto 11.
-
-**IMPORTANT NOTE** Starting with Q3 2023, with version RTSDK-2.1.2.L1, RTSDK drops support for OpenJDK/JDK 1.8 and RTSDK Jars are built with Open JDK 1.11. Please plan to upgrade your JDK version.
+The Refinitiv Real-Time-SDK supports Oracle JDK 1.8, 1.11 & 1.17, OpenJDK 1.8, 1.11 & 1.17, Amazon Corretto 8 & 11.
 
 NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8. 
 
@@ -98,9 +96,12 @@ Platforms:
 
 This release has been tested with the following:
 
+	Oracle Java SE 8 (JDK1.8)
 	Oracle Java SE 11 (JDK1.11)
+	Oracle Open JDK (1.8)
 	Oracle Open JDK (1.11)
 	Oracle Open JDK (1.17)
+	Amazon Corretto 8
 	Amazon Corretto 11
 
 #### Proxy Authentication Support
