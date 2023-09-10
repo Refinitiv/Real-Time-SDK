@@ -10,6 +10,7 @@ Copyright (C) 2022-2023 Refinitiv. All rights reserved.
 
 # ETA CSharp Documentation
 - DevGuide
+- ValueAddDevGuide
 - RDMUsageGuide
 - API_ConceptsGuide
 - TrainingToolGuide
