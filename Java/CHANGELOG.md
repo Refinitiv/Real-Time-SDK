@@ -42,7 +42,6 @@ Both ETA Java and EMA Java 3.7.2.L1 Issues Resolved
 - [RTSDK-6261] - Qualify RTSDK API on Ubuntu Kylin 
 - [RTSDK-7272] - Qualify RTSDK API on Ubuntu
 - [RTSDK-7440] - Update to Java Dependencies to address vulnerabilities
-- [RTSDK-7629] - Pre-built libraries use Open JDK 1.11 (updated from 1.8)
 
 --------------------------------------------
 RTSDK Java Release 2.1.1.L1 (Jun 9, 2023)
