@@ -7,13 +7,13 @@ buildscript {
         }
 
         dependencies {
-                classpath "net.saliman:gradle-cobertura-plugin:2.5.1"
+                classpath "net.saliman:gradle-cobertura-plugin:4.0.0"
         }
 }
 
 plugins {
-        id 'net.saliman.cobertura' version '2.5.1'
-		id "de.undercouch.download" version "3.4.3"
+        id 'net.saliman.cobertura' version '4.0.0'
+		id "de.undercouch.download" version "4.1.2"
 }
 
 apply plugin: 'net.saliman.cobertura'
@@ -31,6 +31,10 @@ subprojects {
 	}
 }
 
+repositories {
+	mavenCentral()
+}
+
 //=========================================================================================
 //
 // RELEASE VERSION, RELEASE DATE AND BINARY PACK INFORMATION ARE 
@@ -38,21 +42,21 @@ subprojects {
 //
 //=========================================================================================
 
-ext.YEAR = '2022'
+ext.YEAR = '2023'
 
-ext.BuildDate = 'Tue Mar 1 16:20:22 CDT ' + "$YEAR"
-ext.SpecificationVersion = '3.6.6.1'
-ext.SpecificationVersionShort = '3.6.6'
+ext.BuildDate = 'Thu May 31 22:00:22 CDT ' + "$YEAR"
+ext.SpecificationVersion = '3.7.2.0'
+ext.SpecificationVersionShort = '3.7.2'
 
 // Comment out line below to publish offical release
 // ext.SpecificationVersion = "$SpecificationVersion" + "-SNAPSHOT"
 
 // Update below to L1.all.rrg, G1.all.gload, or E1.all.eload when needed
-ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
-ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.G1.all.rrg'
+ext.etaImplementationVersion = 'etaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
+ext.emaImplementationVersion = 'emaj' + "$SpecificationVersionShort" + '.L1.all.rrg'
 
 // NOTE! update with new asset version
-ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.0.6.L1'
+ext.BINARY_PACK_VERSION_TO_DOWNLOAD = '2.1.2.L1'
 
 //=========================================================================================
 //
@@ -109,10 +113,11 @@ task getBinaryPack () {
 
 allprojects {
 	dependencies {
-		testCompile ('junit:junit:4.12') {
+		testImplementation ('junit:junit:4.12') {
 			exclude group: 'org.hamcrest'
 		}
-		testCompile 'org.hamcrest:hamcrest-core:1.3'
+		testImplementation 'org.hamcrest:hamcrest-core:1.3'
+		testImplementation 'org.mockito:mockito-all:1.10.19'
 	}
 
 	compileJava {
@@ -178,7 +183,7 @@ allprojects {
 }
 
 wrapper {
-	gradleVersion = '5.4.1'
+	gradleVersion = '7.3.3'
 }
 
 task uploadAll ( ) {
@@ -186,12 +191,12 @@ task uploadAll ( ) {
 	description 'Uploads All artifacts to maven central, run with -Pmavencentral'
 	if (project.hasProperty("mavencentral"))
 	{
-		dependsOn ':Eta:AnsiPage:uploadArchives'
-		dependsOn ':Eta:Core:uploadArchives'
-		dependsOn ':Eta:ValueAdd:uploadArchives'
-		dependsOn ':Eta:ValueAddCache:uploadArchives'
-		dependsOn ':Eta:Converter:uploadArchives'
-		dependsOn ':Ema:Core:uploadArchives'
+		dependsOn ':Eta:AnsiPage:publish'
+		dependsOn ':Eta:Core:publish'
+		dependsOn ':Eta:ValueAdd:publish'
+		dependsOn ':Eta:ValueAddCache:publish'
+		dependsOn ':Eta:Converter:publish'
+		dependsOn ':Ema:Core:publish'
 	}
 	else
 	{

@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.54
-!tag Build_RDMD  4.20.54
-!tag DT_Version  22.71
-!tag Date        23-Aug-2022
+!tag RT_Version  4.20.59
+!tag Build_RDMD  4.20.59
+!tag DT_Version  23.71
+!tag Date        21-Aug-2023
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -995,6 +995,7 @@ BIDXID      3298
     232        "LTE"   Long-Term Stock Exchange (LTSE)
     233        "MPE"   MIAX Pearl Exchange
     234        "MMX"   Members Exchange
+    235        "CES"   CSE Secondary Book - CSE2
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -1852,8 +1853,11 @@ YR_LYIND   12932
 ! -------    ---
 !
 RATING_ID    113
+RATING_ID2   966
+RATING_ID3  1655
 RATING_ID4  2997
 RATING_ID5  2998
+RATING_ID6 12894
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -1873,6 +1877,42 @@ RATING_ID5  2998
      13        "CLH"   China Lianhe Credit Rating Co Ltd
      14        "XSJ"   Shanghai Brilliance Credit Rating & Investors Service Co Ltd
      15        "PYR"   Pengyuan Credit Rating Co Ltd
+     16        "NIC"   National Information and Credit Evaluation Inc (NICE)
+     17        "SCI"   Seoul Credit Rating and Information Inc
+     18        "PEF"   PT Pemeringkat Efek Indonesia (PEFINDO)
+     19        "PRS"   Philippine Rating Services Corporation
+     20        "CRL"   CRISIL Ltd
+     21        "CAR"   CARE Ratings
+     22        "ICR"   ICRA Ltd
+     23        "RAM"   Rating Agency Malaysia Berhad
+     24        "MAR"   Malaysian Rating Corporation Berhad (MARC)
+     25        "AUS"   Austin
+     26        "CTV"   Clasificadora de Titulos Valores
+     27        "COM"   Comision Clasificadora
+     28        "ELA"   Evaluadora Latinoamericana
+     29        "FLR"   Feller-Rate
+     30        "HLR"   HR's
+     31        "HMF"   Humphreys&Calfivar S.A.
+     32        "RNR"   National Rating Agency
+     33        "NRA"   Nile Rating Agency
+     34        "PBC"   People's Bank of China
+     35        "RAX"   RA Expert
+     36        "RUR"   RusRating
+     37        "SCR"   Sociedad Clasificadora de Riesgo
+     38        "TBW"   Thomson BankWatch
+     39        "AKM"   AK&M
+     40        "GCR"   Golden Credit Rating International Co Ltd
+     41        "CCR"   China Credit Rating Co Ltd
+     42        "IRR"   India Ratings & Research
+     43        "MLN"   Moody's National Scale Rating
+     44        "SLN"   Standard and Poor's National Scale Rating
+     45        "FLN"   Fitch's National Scale Rating
+     46        "TRC"   Taiwan Ratings Corp (TRC)
+     47        "EGJ"   Egan-Jones Ratings Co.
+     48        "BWR"   Brickwork Ratings India Pvt. Ltd.
+     49        "ARR"   Acuite Ratings and Research Limited
+     50        "IVR"   Infomerics Valuation and Rating Pvt. Ltd
+     51        "SRL"   Smera Ratings Limited
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -5480,65 +5520,7 @@ CLOSE_TYPE   964
      57         "AD"   amended close
      58         "NB"   Night Session Base price
      59         "DB"   Day Session Base price
-!
-! ACRONYM    FID
-! -------    ---
-!
-RATING_ID2   966
-RATING_ID3  1655
-RATING_ID6 12894
-!
-! VALUE      DISPLAY   MEANING
-! -----      -------   -------
-      0        "   "   no rating provided
-      1        "S&P"   Standard and Poor
-      2        "MDY"   Moody
-      3        "FCH"   Fitch
-      4        "TRS"   TRIS Rating Co Ltd
-      5        "KIS"   Korea Investors Service Inc
-      6        "JCR"   JCR
-      7        "R&I"   Rating and Investment Information, Inc.
-      8        "KMC"   Korea Ratings
-      9        "DBR"   Dominion
-     10        "CCX"   China Chengxin International Credit Rating Co Ltd
-     11        "DGR"   Dagong Global Credit Rating Co Ltd
-     12        "SFR"   Shanghai Far East Credit Rating Co Ltd
-     13        "CLH"   China Lianhe Credit Rating Co Ltd
-     14        "XSJ"   Shanghai Brilliance Credit Rating & Investors Service Co Ltd
-     15        "PYR"   Pengyuan Credit Rating Co Ltd
-     16        "NIC"   National Information and Credit Evaluation Inc (NICE)
-     17        "SCI"   Seoul Credit Rating and Information Inc
-     18        "PEF"   PT Pemeringkat Efek Indonesia (PEFINDO)
-     19        "PRS"   Philippine Rating Services Corporation
-     20        "CRL"   CRISIL Ltd
-     21        "CAR"   CARE Ratings
-     22        "ICR"   ICRA Ltd
-     23        "RAM"   Rating Agency Malaysia Berhad
-     24        "MAR"   Malaysian Rating Corporation Berhad (MARC)
-     25        "AUS"   Austin
-     26        "CTV"   Clasificadora de Titulos Valores
-     27        "COM"   Comision Clasificadora
-     28        "ELA"   Evaluadora Latinoamericana
-     29        "FLR"   Feller-Rate
-     30        "HLR"   HR's
-     31        "HMF"   Humphreys&Calfivar S.A.
-     32        "RNR"   National Rating Agency
-     33        "NRA"   Nile Rating Agency
-     34        "PBC"   People's Bank of China
-     35        "RAX"   RA Expert
-     36        "RUR"   RusRating
-     37        "SCR"   Sociedad Clasificadora de Riesgo
-     38        "TBW"   Thomson BankWatch
-     39        "AKM"   AK&M
-     40        "GCR"   Golden Credit Rating International Co Ltd
-     41        "CCR"   China Credit Rating Co Ltd
-     42        "IRR"   India Ratings & Research
-     43        "MLN"   Moody's National Scale Rating
-     44        "SLN"   Standard and Poor's National Scale Rating
-     45        "FLN"   Fitch's National Scale Rating
-     46        "TRC"   Taiwan Ratings Corp (TRC)
-     47        "EGJ"   Egan-Jones Ratings Co.
-     48        "BWR"   Brickwork Ratings India Pvt. Ltd.
+     60         "IB"   Indicative Bid
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -7121,6 +7103,8 @@ LEG3_EXCH  13572
 LEG4_EXCH  13574
 ORDER_EXID 13603
 DRK_EXID   13610
+CLS_B_EXID 13624
+CLS_A_EXID 13625
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -8186,7 +8170,7 @@ DRK_EXID   13610
    1059        "DLT"   DELTA 
    1060        "ICB"   Interconnector Bacton (Gas Flows from UK) 
    1061        "TBS"   BONDSPOT
-   1062        "HMT"   HI-MTF
+   1062        "HMT"   Vorvel
    1063        "AST"   ASEAN Exchanges
    1064        "GCL"   GLOBALCOAL
    1065        "TFC"   TOKYO FINANCIAL EXCHANGE (CFD)
@@ -8850,6 +8834,29 @@ DRK_EXID   13610
    1723        "OVT"   OVET
    1724        "PAD"   Peters Agrardaten
    1725        "SCH"   SHANGHAI CLEARING HOUSE
+   1726        "AFB"   Africa Tea Brokers Limited
+   1727        "KPL"   Kuwait Petroleum Corporation
+   1728        "ZNH"   ZeroNorth
+   1729        "HMS"   HAMMERSMITH MARKETING LTD
+   1730        "ANI"   ANBIMA
+   1731        "JKL"   John Keells PLC
+   1732        "CBZ"   Cboe FX Markets
+   1733        "JOG"   Japan Organization for Metals and Energy Security
+   1734        "AZG"   AZ Global Consulting Limited
+   1735        "TRM"   Trumid
+   1736        "ACU"   The EU Agency for Cooperation of Energy Regulators
+   1737        "XME"   MEMX Options
+   1738        "AIC"   AIPC (National Assn. of Cocoa Processing Industry)
+   1739        "CAC"   Cameco Corporation
+   1740        "CAR"   CARB (The California Air Resources Board)
+   1741        "GWL"   Gatun Water Level Indicators
+   1742        "BAZ"   Bazan Group
+   1743        "NNB"   NATIONAL BROKERS LIMITED
+   1744        "ZME"   Zhejiang Mercantile Exchange
+   1745        "EAL"   Energy Aspects Ltd
+   1746        "TSJ"   Trade Statistics of Japan.
+   1747        "ALE"   Albanian Power Exchange
+   1748        "CAX"   Container xChange
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11194,9 +11201,9 @@ PR_RNK_RUL  3423
       0        "   "   undefined
       1        "NOR"   Normal Market
       2        "INV"   Inverted Market
-      3        "SQX"   Firm Quote, Limit Order (LSE SETSqx)
-      4        "PON"   Price, Order Type, Time Priority Sequence Number
-      5        "DCB"   Debit and Credit Book - Ranked from lowest to highest values on both sides of the book.  When in Contango, BID side shows Debit and ASK side shows Credit Transaction.  The reverse is true when the instrument is in Backwardation.
+      3        "SQX"   Firm Quote, Limit Order (LSE SETSqx) (DO NOT USE)
+      4        "PON"   Price, Order Type, Time Priority Sequence Number (DO NOT USE)
+      5        "DCB"   Debit and Credit Book - Ranked from lowest to highest values on both sides of the book. (DO NOT USE)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11218,6 +11225,10 @@ OR_RNK_RUL  3425
      10       "T   "   Time
      11       "  11"   Not allocated (was Price, Visibility, Time)
      12       "POT "   Price, Order Type, Time
+     13       "PD  "   Price, Order ID
+     14       "M   "   Market Maker ID
+     15       "PM  "   Price, Market Maker ID
+     16       "PSM "   Price, Size, Market Maker ID
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -11656,6 +11667,7 @@ IMB_SIDE2  13083
       2         "B "   Buy imbalance
       3         "S "   Sell imbalance
       4         "O "   Insufficient orders to calculate
+      5         "P "   Paused
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -12880,6 +12892,7 @@ OFFBK_H_RN 14142
      80         "ME"   Merger Effective
      81         "EC"   ETF Component Prices Not Available (Regulatory)
      82         "NE"   New Security Offering (Regulatory)
+     83         "SF"   System Failover
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13442,6 +13455,8 @@ REFPRC_TP4 13491
      68   "GBP/KG  "   Pound Sterling per kilogramme
      69   "CalcClos"   Refinitiv Calculated Close
      70   "UVWAP   "   VWAP of the underlying asset
+     71   "POS IMB "   Positive Imbalance Price
+     72   "NEG IMB "   Negative Imbalance Price
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -13736,6 +13751,7 @@ LIST_STAT   8975
       7   "ISSUED  "   Issued, not yet available for trading
       8   "ACT-OFF "   Active, for off book trading only.
       9   "ACT-NSTG"   Active, but no longer used in spreads and other trading strategies
+     10   "INACTIVE"   Inactive
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -14120,6 +14136,8 @@ SEC_STATUS  9000
      33   "  PAR   "   Partially Prerefunded
      34   "  TBL   "   To Be Liquidated
      35   "  TBM   "   To be Removed
+     36   "DLN     "   Direct Listing - not eligible to be released for trading
+     37   "DLY     "   Direct Listing - eligible to be released for trading
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -15800,6 +15818,7 @@ MRGN_RES   12799
       4          "Y"   Margin buying restriction
       5          "A"   Margin buying Restriction Activated (Duplicated, Not To Be Used)
       6          "D"   Margin buying Restriction Deactivated (Duplicated, Not To Be Used)
+      7          "S"   Margin buying is suspended
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -16150,6 +16169,7 @@ IPOPRC_IND 12846
       0        "   "   undefined
       1        "F  "   First Trade Price
       2        "W  "   Underwriter Price
+      3        "DPO"   Direct Public Offering
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17472,6 +17492,7 @@ AVGPRC_TP2 13082
      12   "BID AVG "   Average of BID High and BID Low
      13   " MTDAvg "   Month To Date
      14   "DAY AVG "   Day Average
+     15   "CNT AVG "   Average price of the contract since launch
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18756,6 +18777,7 @@ EXCHCD_TP2 13415
       3        "OCX"   OCX Code
       4        "GTA"   Group Ticker Plant ID -- Turquoise Lit Auction Book
       5        "BSC"   BSE Scrip Code
+      6        "IER"   ICE Europe Rolling Market ID
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18794,6 +18816,9 @@ MET_TYP19  13561
 MET_TYP20  13562
 MET_TYP21  13604
 MET_TYP22  13605
+MET_TYP23  13630
+MET_TYP24  13631
+MET_TYP25  13632
 !
 ! VALUE      DISPLAY   MEANING
 ! -----      -------   -------
@@ -18939,16 +18964,16 @@ MET_TYP22  13605
     139   "TNSV    "   Today's net short position value. The value of the new short position opened minus the value of the existing short position closed.
     140   "TALB    "   Total amount of loan balance.
     141   "TALBNC  "   Total amount of loan balance net change.
-    142   "05-<10% "   LME Banding 5-<10%
-    143   "10-<20% "   LME Banding 10-<20%
-    144   "20-<30% "   LME Banding 20-<30%
-    145   "30-<40% "   LME Banding 30-<40%
-    146   ">40%    "   LME Banding >40%
-    147   "40-<50% "   LME Banding 40-<50%
-    148   "50-<80% "   LME Banding 50-<80%
-    149   "80-<90% "   LME Banding 80-<90%
-    150   ">90%    "   LME Banding >90%
-    151   "Unrept  "   LME Banding Unreported %
+    142   "05-<10% "   LME Banding 5-<10% - DO NOT USE
+    143   "10-<20% "   LME Banding 10-<20% - DO NOT USE
+    144   "20-<30% "   LME Banding 20-<30% - DO NOT USE
+    145   "30-<40% "   LME Banding 30-<40% - DO NOT USE
+    146   ">40%    "   LME Banding >40% - DO NOT USE
+    147   "40-<50% "   LME Banding 40-<50% - DO NOT USE
+    148   "50-<80% "   LME Banding 50-<80% - DO NOT USE
+    149   "80-<90% "   LME Banding 80-<90% - DO NOT USE
+    150   ">90%    "   LME Banding >90% - DO NOT USE
+    151   "Unrept  "   LME Banding Unreported % - DO NOT USE
     152   "Beta1   "   First Beta Value
     153   "Beta2   "   Second Beta Value
     154   "Beta3   "   Third Beta Value
@@ -18957,6 +18982,68 @@ MET_TYP22  13605
     157   "Lambda2 "   Second Lambda Value
     158   "OLD_S_OI"   Old season open interest
     159   "NEW_S_OI"   New season open interest
+    160   "BSPD PY "   Benchmark Spread - Par Yield
+    161   "BSPD ZY "   Benchmark Spread - Zero Coupon Yield
+    162   "PYLD    "   Par Yield
+    163   "Demand  "   Total Demand
+    164   "SUPPLY  "   Supply
+    165   "GEN     "   Generation
+    166   "ISSWHRCP"   Issued Warehouse Receipts
+    167   "CANWHRCP"   Cancelled Warehouse Receipts
+    168   "ASKBCKT "   Ask Bucket
+    169   "BIDBCKT "   Bid Bucket
+    170   "ASKDECIL"   Ask Decile
+    171   "BIDDECIL"   Bid Decile
+    172   "ASKPCTLE"   Ask Percentile
+    173   "BIDPCTLE"   Bid Percentile
+    174   "kBPD    "   Thousands of barrels per day
+    175   "HTV_MNP "   Minimum Price of the highest accumulated trade volume price block of the trading session(s).
+    176   "2HTV_MNP"   Minimum Price of the 2nd highest accumulated trade volume price block of the trading session(s).
+    177   "3HTV_MNP"   Minimum Price of the 3rd highest accumulated trade volume price block of the trading session(s).
+    178   "4HTV_MNP"   Minimum Price of the 4th highest accumulated trade volume price block of the trading session(s).
+    179   "5HTV_MNP"   Minimum Price of the 5th highest accumulated trade volume price block of the trading session(s).
+    180   "HTV_BTO "   Buy To Open trade volume that associated with the highest accumulated trade volume price block of the trading session(s).
+    181   "2HTV_BTO"   Buy To Open trade volume that associated with the 2nd highest accumulated trade volume price block of the trading session(s).
+    182   "3HTV_BTO"   Buy To Open trade volume that associated with the 3rd highest accumulated trade volume price block of the trading session(s).
+    183   "4HTV_BTO"   Buy To Open trade volume that associated with the 4th highest accumulated trade volume price block of the trading session(s).
+    184   "5HTV_BTO"   Buy To Open trade volume that associated with the 5th highest accumulated trade volume price block of the trading session(s).
+    185   "HTV_BTC "   Buy To Close trade volume that associated with the highest accumulated trade volume price block of the trading session(s).
+    186   "2HTV_BTC"   Buy To Close trade volume that associated with the 2nd highest accumulated trade volume price block of the trading session(s).
+    187   "3HTV_BTC"   Buy To Close trade volume that associated with the 3rd highest accumulated trade volume price block of the trading session(s).
+    188   "4HTV_BTC"   Buy To Close trade volume that associated with the 4th highest accumulated trade volume price block of the trading session(s).
+    189   "5HTV_BTC"   Buy To Close trade volume that associated with the 5th highest accumulated trade volume price block of the trading session(s).
+    190   "HTV_STO "   Sell To Open trade volume that associated with the highest accumulated trade volume price block of the trading session(s).
+    191   "2HTV_STO"   Sell To Open trade volume that associated with the 2nd highest accumulated trade volume price block of the trading session(s).
+    192   "3HTV_STO"   Sell To Open trade volume that associated with the 3rd highest accumulated trade volume price block of the trading session(s).
+    193   "4HTV_STO"   Sell To Open trade volume that associated with the 4th highest accumulated trade volume price block of the trading session(s).
+    194   "5HTV_STO"   Sell To Open trade volume that associated with the 5th highest accumulated trade volume price block of the trading session(s).
+    195   "HTV_STC "   Sell To Close trade volume that associated with the highest accumulated trade volume price block of the trading session(s).
+    196   "2HTV_STC"   Sell To Close trade volume that associated with the 2nd highest accumulated trade volume price block of the trading session(s).
+    197   "3HTV_STC"   Sell To Close trade volume that associated with the 3rd highest accumulated trade volume price block of the trading session(s).
+    198   "4HTV_STC"   Sell To Close trade volume that associated with the 4th highest accumulated trade volume price block of the trading session(s).
+    199   "5HTV_STC"   Sell To Close trade volume that associated with the 5th highest accumulated trade volume price block of the trading session(s).
+    200   "30_40PC "   30-<40% banding
+    201   "40_50PC "   40-<50% banding
+    202   "50_80PC "   50-<80% banding
+    203   "80_90PC "   80-<90% banding
+    204   "90_100PC"   >90% banding
+    205   "UNRPT   "   Unreported banding
+    206   "L5_9PC  "   5-9% long banding
+    207   "L10_19PC"   10-19% long banding
+    208   "L20_29PC"   20-29% long banding
+    209   "L30_39PC"   30-39% long banding
+    210   "L40pPC  "   40%+ long banding
+    211   "S5_9PC  "   5-9% short banding
+    212   "S10_19PC"   10-19% short banding
+    213   "S20_29PC"   20-29% short banding
+    214   "S30_39PC"   30-39% short banding
+    215   "S40pPC  "   40%+ short banding
+    216   "WTRL03  "   Water Level at 03:00
+    217   "WTRL05  "   Water Level at 05:00
+    218   "WTRL11  "   Water Level at 11:00
+    219   "WTRL19  "   Water Level at 19:00
+    220   "$/T     "   US Dollars per Tonne
+    221   "$/mmBTU "   US Dollars per Million British Thermal Units
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -18972,6 +19059,10 @@ SC_REGU_CD 13607
       3      "EFEVD"   Extension of Feverish (Volatility) Designation/Delay in lifting
       4      "IRGIS"   Irregular Issue
       5      "APM  "   Abnormal Price Movement
+      6      "ATTN "   Attention Security designation
+      7      "RST  "   Restricted Security designation
+      8      "RST_R"   Restricted Security designation (Recurrence)
+      9      "RST_O"   Restricted Security designation  (Other)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19516,6 +19607,11 @@ CNTR_SZ_UT 13611
     433      "kg/d "   Kilogram per day
     434      "psi  "   Pounds Per Square Inch
     435      " Nm3 "   Normal Cubic Metre
+    436      "WC   "   Weight case (glass)
+    437      "K HA "   Thousand Hectare
+    438      "M HA "   Million Hectares
+    439      "mt/ha"   Tonne per Hectare
+    440      "COP  "   Colombian peso
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19720,6 +19816,10 @@ TRDSHM_EL2 13569
      12   "SZHK_BSN"   Eligible under SZ-HK connect scheme, but neither buy nor sell allowed.
      13   "SHHK_SFN"   Eligible under SH-HK connect scheme, both buy and sell allowed. Buy orders suspend due to aggregate foreign shareholdings restriction.
      14   "SZHK_SFN"   Eligible under SZ-HK connect scheme, both buy and sell allowed, Buy orders suspend due to aggregate foreign shareholdings restriction.
+     15   "Vff-Y   "   Classified by NMFA as mutual fund
+     16   "Vff-N   "   Classified by NMFA as not mutual fund
+     17   "NCR-Y   "   Only allows for investment in Govt bonds/bills
+     18   "NCR-N   "   Does not only allow for investment in Govt bonds/bills
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -20045,6 +20145,7 @@ ORDBK_DEPH 13490
      12     "25_OL "   25 Order Levels
      13     "30_OL "   30 Order Levels
      14     "3_PL  "   3 Price Levels
+     15     "1_PL  "   1 Price Level
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -21617,6 +21718,15 @@ ORGN_PORT  13579
     729   "US  LMJ "   Lemont
     730   "UA RNI  "   Reni
     731   "UA IZM  "   Izmail
+    732   "AR COU  "   Concepcion del Uruguay
+    733   "AR SFN  "   Santa Fe
+    734   "AR DME  "   Diamante
+    735   "AR VCN  "   Villa Constitucion
+    736   "AR SNP  "   San Pedro
+    737   "AR IBY  "   Ibicuy
+    738   "AR LIM  "   Lima
+    739   "AR LPS  "   Las Palmas
+    740   "AR CMP  "   Campana
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -22991,6 +23101,7 @@ CMD_TYPE   13618
    3090   "LEADCON "   Lead Concentrates
    3091   "COPPANO "   Copper Anodes
    3092   "COPPCATH"   Copper Cathodes
+   3093   "SCRPSTL "   Scrap Steel
    4000   "ABSPLAST"   Acrylonitrile Butadiene Styrene
    4001   "ACRYLONI"   Acrylonitrile
    4002   "ALPHMETH"   Alpha-Methylstyrene (Commodity)
@@ -23187,21 +23298,80 @@ PRIMACT_TP 13621
      33   "FD AREA "   Field Area
      34   "WHS RCPT"   Warehouse Receipt
      35   "THRPUT  "   Throughput
+     36   "PSTNS   "   Number of Positions
+     37   "CNTRT   "   Estimated net number of futures contracts bought or sold
+     38   "CAP FCST"   Capacity Forecast
+     39   "CON ACTL"   Consumption Actual
+     40   "PRD ACTL"   Production Actual
+     41   "CON FCST"   Consumption Forecast
+     42   "VOL HC  "   Volume Headcount
+     43   "AVG WGHT"   Avg Weight
 !
 ! ACRONYM    FID
 ! -------    ---
 !
-PRE_2ET301 13622
-PRE_2ET302 13623
-PRE_2ET303 13624
-PRE_2ET304 13625
-PRE_2ET305 13626
-PRE_2ET306 13627
-PRE_2ET307 13628
-PRE_2ET308 13629
-PRE_2ET309 13630
-PRE_2ET310 13631
-PRE_2ET311 13632
+TNOV_UN2TP 13622
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "DVP     "   Delivery versus payment
+      2   "FOP     "   Free of payment
+!
+! ACRONYM    FID
+! -------    ---
+!
+TNOV_UN3TP 13623
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "DVP     "   Delivery versus payment
+      2   "FOP     "   Free of payment
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORD_SZ_QL  13626
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "T       "   Continuous Trading
+      2   "AUC     "   Auctions
+!
+! ACRONYM    FID
+! -------    ---
+!
+ORD_SZ_Q2  13627
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+      1   "T       "   Continuous Trading
+      2   "AUC     "   Auctions
+!
+! ACRONYM    FID
+! -------    ---
+!
+FIXPTL1_TP 13628
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
+FIXPTL2_TP 13629
+!
+! VALUE      DISPLAY   MEANING
+! -----      -------   -------
+      0   "        "   Undefined
+!
+! ACRONYM    FID
+! -------    ---
+!
 PRE_2ET312 13633
 PRE_2ET313 13634
 PRE_2ET314 13635

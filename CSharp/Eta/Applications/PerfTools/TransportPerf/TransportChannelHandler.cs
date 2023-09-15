@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,14 +10,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using SelectMode = Refinitiv.Eta.Example.Common.SelectMode;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
+using SelectMode = LSEG.Eta.Example.Common.SelectMode;
 
-namespace Refinitiv.Eta.PerfTools.TransportPerf
+namespace LSEG.Eta.PerfTools.TransportPerf
 {
     /// <summary>
     /// Performs the associated with setting up and using ETA Transport Channels, such as
@@ -42,12 +41,12 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
         /// <summary>
         /// Gets a list of channels that are active.
         /// </summary>
-        public ConcurrentBag<ClientChannelInfo> ActiveChannelList { get; private set; } = new ConcurrentBag<ClientChannelInfo>();
+        public ConcurrentDictionary<Guid, ClientChannelInfo> ActiveChannelList { get; private set; } = new ();
 
         /// <summary>
         /// Gets a list of initializing channels.
         /// </summary>
-        public ConcurrentBag<ClientChannelInfo> InitializingChannelList { get; private set; } = new ConcurrentBag<ClientChannelInfo>();
+        public ConcurrentDictionary<Guid, ClientChannelInfo> InitializingChannelList { get; private set; } = new ();
 
         /// <summary>
         /// Gets a provider thread for the channel handler.
@@ -85,7 +84,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
         /// <param name="error">the error</param>
         public void Cleanup(Error error)
         {
-            foreach (ClientChannelInfo channelInfo in ActiveChannelList)
+            foreach (ClientChannelInfo channelInfo in ActiveChannelList.Values)
             {
                 CloseChannel(channelInfo, error);
             }
@@ -94,9 +93,9 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
         internal void CloseChannel(ClientChannelInfo clientChannelInfo, Error? error)
         {
             TransportThread!.ProcessInactiveChannel(this, clientChannelInfo, error);
-            clientChannelInfo.Channel!.Close(out error);
-            clientChannelInfo.ParentQueue!.TryTake(out clientChannelInfo!);
 
+            clientChannelInfo.Channel!.Close(out error);
+            clientChannelInfo.ParentQueue!.TryRemove(clientChannelInfo.ID, out _);
             m_SelectElementDictionary.Remove(clientChannelInfo.Channel!.Socket);
 
             // if there is no more channels, reset atLeastOneChannel variable.
@@ -121,7 +120,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
             channelInfo.Channel = channel;
             channelInfo.NeedRead = false;
             channelInfo.UserSpec = new TransportSession(channelInfo);
-            InitializingChannelList.Add(channelInfo);
+            InitializingChannelList.TryAdd(channelInfo.ID, channelInfo);
 
             SelectElement selectElement = new()
             {
@@ -154,7 +153,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
 
                 if ((readReturn < PerfToolsReturnCode.SUCCESS && channelInfo.Channel!.State == ChannelState.ACTIVE))
                 {
-                    Console.WriteLine("ReadFromChannel() failed with return code {0} <{1}>, exiting...", readReturn, error!.Text);
+                    Console.WriteLine("ReadFromChannel() failed with return code {0} <{1}>, exiting...", readReturn, error?.Text);
                     return false;
                 }
                 else if (readReturn > PerfToolsReturnCode.SUCCESS)
@@ -233,7 +232,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
             // Add active channels to the descriptor sets.
             try
             {
-                foreach (ClientChannelInfo channelInfo in ActiveChannelList)
+                foreach (ClientChannelInfo channelInfo in ActiveChannelList.Values)
                 {
                     if (channelInfo.NeedFlush)
                     {
@@ -252,7 +251,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                 }
 
                 // Add initializing channels to the descriptor sets.
-                foreach (ClientChannelInfo channelInfo in InitializingChannelList)
+                foreach (ClientChannelInfo channelInfo in InitializingChannelList.Values)
                 {
                     if (channelInfo.NeedFlush)
                     {
@@ -380,7 +379,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
             if (!m_IsShutdown)
             {
                 double currentTime = GetTime.GetMilliseconds();
-                foreach (ClientChannelInfo channelInfo in ActiveChannelList)
+                foreach (ClientChannelInfo channelInfo in ActiveChannelList.Values)
                 {
                     if (!channelInfo.CheckPings)
                         continue;
@@ -524,10 +523,10 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                 return;
             }
 
-            if (InitializingChannelList.TryTake(out clientChannelInfo!))
+            if (InitializingChannelList.TryRemove(clientChannelInfo.ID, out _))
             {
                 clientChannelInfo.ParentQueue = ActiveChannelList;
-                clientChannelInfo.ParentQueue.Add(clientChannelInfo);
+                clientChannelInfo.ParentQueue.TryAdd(clientChannelInfo.ID, clientChannelInfo);
             }
         }
     }

@@ -2,14 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System.Text;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// Base class for RDM message classes.
@@ -17,7 +17,15 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
     public abstract class MsgBase
     {
         private StringBuilder stringBuf = new StringBuilder();
-        protected const string eol = "\n";
+
+        /// <summary>
+        /// Defines end of line character.
+        /// </summary>
+        protected string eol = System.Environment.NewLine;
+
+        /// <summary>
+        /// Define tabulation character.
+        /// </summary>
         protected const string tab = "\t";
 
         /// <summary>
@@ -44,18 +52,22 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// <summary>
         /// Encode an RDM message.
         /// </summary>
-        /// <param name="encIter"><see cref="EncodeIterator"/> instance that performs the encoding.</param>
+        /// <param name="encodeIter"><see cref="EncodeIterator"/> instance that performs the encoding.</param>
         /// <returns><see cref="CodecReturnCode"/> value indicating the status of the operation.</returns>
-        public abstract CodecReturnCode Encode(EncodeIterator encIter);
+        public abstract CodecReturnCode Encode(EncodeIterator encodeIter);
 
         /// <summary>
         /// Decode a ETA message into an RDM message.
         /// </summary>
-        /// <param name="encIter"><see cref="DecodeIterator"/> instance that performs the decoding.</param>
+        /// <param name="decodeIter"><see cref="DecodeIterator"/> instance that performs the decoding.</param>
         /// <param name="msg">Partially decoded message.</param>
         /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation</returns>
-        public abstract CodecReturnCode Decode(DecodeIterator encIter, Msg msg);
+        public abstract CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg);
 
+        /// <summary>
+        /// Internal virtual function to initialize the toString functionality.
+        /// </summary>
+        /// <returns>The <see cref="StringBuilder"/> object</returns>
         protected virtual StringBuilder PrepareStringBuilder()
         {
             stringBuf.Clear();

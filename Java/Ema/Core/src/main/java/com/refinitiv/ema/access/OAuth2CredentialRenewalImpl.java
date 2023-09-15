@@ -54,10 +54,22 @@ class OAuth2CredentialRenewalImpl implements OAuth2CredentialRenewal {
 		credentials.clientSecret().data(clientSecret);
 		return this;
 	}
+	
+	@Override
+	public OAuth2CredentialRenewal clientJWK(String clientJwk) {
+		credentials.clientJWK().data(clientJwk);
+		return this;
+	}
 
 	@Override
 	public OAuth2CredentialRenewal tokenScope(String tokenScope) {
 		credentials.tokenScope().data(tokenScope);
+		return this;
+	}
+	
+	@Override
+	public OAuth2CredentialRenewal audience(String audience) {
+		credentials.audience().data(audience);
 		return this;
 	}
 

@@ -2,36 +2,36 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.Codec;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Refinitiv.Eta.Rdm;
-using static Refinitiv.Eta.Rdm.Directory;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using LSEG.Eta.Rdm;
+using static LSEG.Eta.Rdm.Directory;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// Class representing the role of an OMM Non-Interactive Provider.
     /// </summary>
     /// <see cref="ReactorRole"/>
     /// <see cref="ReactorRoleType"/>
-    public class NIProviderRole : ReactorRole
+    sealed public class NIProviderRole : ReactorRole
     {
         const int OPEN_LIMIT = 5;
         const string VENDOR = "Refinitiv";
         const string LINK_NAME = "NI_PUB";
         const string FIELD_DICTIONARY_NAME = "RWFFld";
         const string ENUM_TYPE_DICTIONARY_NAME = "RWFEnum";
-        public const int LOGIN_STREAM_ID = 1;
-        public const int DIRECTORY_STREAM_ID = -1;
-        public const int FIELD_DICTIONARY_STREAM_ID = -2;
-        public const int ENUM_DICTIONARY_STREAM_ID = -3;
+        internal const int LOGIN_STREAM_ID = 1;
+        internal const int DIRECTORY_STREAM_ID = -1;
+        internal const int FIELD_DICTIONARY_STREAM_ID = -2;
+        internal const int ENUM_DICTIONARY_STREAM_ID = -3;
 
-        public const long FILTER_TO_REFRESH = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE | ServiceFilterFlags.LOAD | ServiceFilterFlags.LINK;
+        internal const long FILTER_TO_REFRESH = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE | ServiceFilterFlags.LOAD | ServiceFilterFlags.LINK;
 
         private LoginRequest? m_LoginRequest = null;
         private DirectoryRefresh? m_DirectoryRefresh = null;
@@ -55,6 +55,11 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </remarks>
         public LoginRequest? RdmLoginRequest { get => m_LoginRequest; set { CopyLoginRequest(value); } }
 
+        /// <summary>
+        /// Gets or sets a class which implements the <see cref="IRDMLoginMsgCallback"/> interface for processing
+        /// <see cref="RDMLoginMsgEvent"/>s received. If not present, the received message will be passed
+        /// to the <see cref="IDefaultMsgCallback"/>.
+        /// </summary>
         public IRDMLoginMsgCallback? LoginMsgCallback { get; set; }
 
         /// <summary>

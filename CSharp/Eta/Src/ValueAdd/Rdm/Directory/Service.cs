@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System.Diagnostics;
 using System.Text;
-using static Refinitiv.Eta.Rdm.Directory;
+using static LSEG.Eta.Rdm.Directory;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Service. Contains information about a particular service.
     /// </summary>
-    public class Service
+    sealed public class Service
     {
         private ServiceInfo _info = new ServiceInfo();
         private ServiceState _state = new ServiceState();
@@ -29,18 +29,22 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// Service flags.
         /// </summary>
         public ServiceFlags Flags { get; set; }
+
         /// <summary>
         /// The number identifying this service.
         /// </summary>
         public int ServiceId { get; set; }
+
         /// <summary>
         /// The info filter for this service.
         /// </summary>
         public ServiceInfo Info { get => _info; set { Debug.Assert(value != null); value.Copy(_info); } }
+
         /// <summary>
         /// The state filter for this service.
         /// </summary>
         public ServiceState State { get => _state; set { Debug.Assert(value != null); value.Copy(_state); } }
+
         /// <summary>
         /// The list of group filters for this service.
         /// </summary>
@@ -53,23 +57,21 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 _groupStateList.AddRange(value);
             } 
         }
+
         /// <summary>
         /// The load filter for this service.
         /// </summary>
         public ServiceLoad Load { get => _load; set { Debug.Assert(value != null); value.Copy(_load); } }
+
         /// <summary>
         /// The data filter for this service.
         /// </summary>
         public ServiceData Data { get => _data; set { Debug.Assert(value != null); value.Copy(_data); } }
+
         /// <summary>
         /// The link filter for this service.
         /// </summary>
         public ServiceLinkInfo Link { get => _link; set { Debug.Assert(value != null); value.Copy(_link); } }
-        /// <summary>
-        /// Information about Sequenced Multicast connections with regards to EDF connections 
-        /// to Snapshot server, Reference Data Server, Gap Fill and Request servers, and multicast groups.
-        /// </summary>
-        public ServiceSeqMcastInfo SeqMcast { get; set; } = new ServiceSeqMcastInfo();
         
         /// <summary>
         /// Action associated with this service.
@@ -87,31 +89,97 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// Checks the presence of the info field.
         /// </summary>
         public bool HasInfo { get => (Flags & ServiceFlags.HAS_INFO) != 0; set { if (value) Flags |= ServiceFlags.HAS_INFO; else Flags &= ~ServiceFlags.HAS_INFO; } }
+
         /// <summary>
         /// Checks the presence of the data field.
         /// </summary>
         public bool HasData { get => (Flags & ServiceFlags.HAS_DATA) != 0; set { if (value) Flags |= ServiceFlags.HAS_DATA; else Flags &= ~ServiceFlags.HAS_DATA; } }
+
         /// <summary>
         /// Checks the presence of the load field.
         /// </summary>
         public bool HasLoad { get => (Flags & ServiceFlags.HAS_LOAD) != 0; set { if (value) Flags |= ServiceFlags.HAS_LOAD; else Flags &= ~ServiceFlags.HAS_LOAD; } }
+
         /// <summary>
         /// Checks the presence of the link field.
         /// </summary>
         public bool HasLink { get => (Flags & ServiceFlags.HAS_LINK) != 0; set { if (value) Flags |= ServiceFlags.HAS_LINK; else Flags &= ~ServiceFlags.HAS_LINK; } }
+
         /// <summary>
         /// Checks the presence of the state field.
         /// </summary>
         public bool HasState { get => (Flags & ServiceFlags.HAS_STATE) != 0; set { if (value) Flags |= ServiceFlags.HAS_STATE; else Flags &= ~ServiceFlags.HAS_STATE; } }
 
+        /// <summary>
+        /// Performs an update of this Service object to the destination object. 
+        /// Only updated filter entries are copied to the destination.
+        /// </summary>
+        /// <param name="destService">Service object to be updated by this object. It cannot be null.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation.</returns>
+        public CodecReturnCode ApplyUpdate(Service destService)
+        {
+            Debug.Assert(destService != null);
+            CodecReturnCode ret = CodecReturnCode.SUCCESS;
+            destService.Action = Action;
+            destService.ServiceId = ServiceId;
+            destService.HasInfo = HasInfo;
+            if (HasInfo)
+            {
+                ret = Info.Update(destService.Info);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasData = HasData;
+            if (HasData)
+            {
+                ret = Data.Update(destService.Data);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
 
+            foreach (ServiceGroup group in GroupStateList)
+            {
+                ServiceGroup destGroup = new ServiceGroup();
+                destService.GroupStateList.Add(destGroup);
+                ret = group.Copy(destGroup);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasLink = HasLink;
+            if (HasLink)
+            {
+                ret = Link.Update(destService.Link);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasLoad = HasLoad;
+            if (HasLoad)
+            {
+                ret = Load.Update(destService.Load);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasState = HasState;
+            if (HasState)
+            {
+                ret = State.Update(destService.State);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            return CodecReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Directory Service constructor.
+        /// </summary>
         public Service()
         {
             Clear();
         }
 
         /// <summary>
-        /// Clears the current Service instance.
+        /// Clears the current contents of the Service object and prepares it for re-use.
         /// </summary>
         public void Clear()
         {
@@ -123,64 +191,122 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             Load.Clear();
             Data.Clear();
             Link.Clear();
-            SeqMcast.Clear();
+        }
+
+        /// <summary>
+        /// Performs deep copy of the current Service instance into the destination object.
+        /// </summary>
+        /// <param name="destService">The Service which the current instance is copied to.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation.</returns>
+        public CodecReturnCode Copy(Service destService)
+        {
+            Debug.Assert(destService != null);
+            CodecReturnCode ret = CodecReturnCode.SUCCESS;
+            destService.Clear();
+            destService.Action = Action;
+            destService.ServiceId = ServiceId;
+
+            destService.HasInfo = HasInfo;
+            if (HasInfo)
+            {
+                ret = Info.Copy(destService.Info);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasData = HasData;
+            if (HasData)
+            {
+                ret = Data.Copy(destService.Data);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            foreach (ServiceGroup group in GroupStateList)
+            {
+                ServiceGroup destGroup = new ServiceGroup();
+                destService.GroupStateList.Add(destGroup);
+                ret = group.Copy(destGroup);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasLink = HasLink;
+            if (HasLink)
+            {
+                ret = Link.Copy(destService.Link);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasLoad = HasLoad;
+            if (HasLoad)
+            {
+                ret = Load.Copy(destService.Load);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            destService.HasState = HasState;
+            if (HasState)
+            {
+                ret = State.Copy(destService.State);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+            return CodecReturnCode.SUCCESS;
         }
 
         /// <summary>
         /// Encode an RDM Service entry.
         /// </summary>
-        /// <param name="encIter"><see cref="EncodeIterator"/> which is used to encode the Serivce instance.</param>
+        /// <param name="encodeIter"><see cref="EncodeIterator"/> which is used to encode the Serivce instance.</param>
         /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation.</returns>
-        public CodecReturnCode Encode(EncodeIterator encIter)
+        public CodecReturnCode Encode(EncodeIterator encodeIter)
         {
             filterList.Clear();
             filterList.Flags = (int)FilterEntryFlags.NONE;
             filterList.ContainerType = Codec.DataTypes.ELEMENT_LIST;
-            CodecReturnCode ret = filterList.EncodeInit(encIter);
+            CodecReturnCode ret = filterList.EncodeInit(encodeIter);
             if (ret != CodecReturnCode.SUCCESS)
                 return ret;
             if (HasInfo)
             {
-                ret = ServiceFilterEncode(encIter, ServiceFilterIds.INFO);
+                ret = ServiceFilterEncode(encodeIter, ServiceFilterIds.INFO);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
 
             if (HasData)
             {
-                ret = ServiceFilterEncode(encIter, ServiceFilterIds.DATA);
+                ret = ServiceFilterEncode(encodeIter, ServiceFilterIds.DATA);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
 
             if (HasLink)
             {
-                ret = ServiceFilterEncode(encIter, ServiceFilterIds.LINK);
+                ret = ServiceFilterEncode(encodeIter, ServiceFilterIds.LINK);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
 
             if (HasLoad)
             {
-                ret = ServiceFilterEncode(encIter, ServiceFilterIds.LOAD);
+                ret = ServiceFilterEncode(encodeIter, ServiceFilterIds.LOAD);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
 
             if (HasState)
             {
-                ret = ServiceFilterEncode(encIter, ServiceFilterIds.STATE);
+                ret = ServiceFilterEncode(encodeIter, ServiceFilterIds.STATE);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
 
             if (GroupStateList.Count > 0)
             {
-                ret = ServiceFilterEncode(encIter, (int)ServiceFilterIds.GROUP);
+                ret = ServiceFilterEncode(encodeIter, (int)ServiceFilterIds.GROUP);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
-            return filterList.EncodeComplete(encIter, true);
+            return filterList.EncodeComplete(encodeIter, true);
         }
 
         private CodecReturnCode ServiceFilterEncode(EncodeIterator encIter, int filterId)
@@ -409,14 +535,8 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     }
                     linkFilter.Action = filterEntry.Action;
                     break;
-                case ServiceFilterIds.SEQ_MCAST:
-                    ServiceSeqMcastInfo SeqMcastFilter = SeqMcast;
-                    HasLink = true;
-                    if (filterEntry.Action != FilterEntryActions.CLEAR)
-                    {
-                        returnCode = SeqMcast.Decode(dIter);
-                    }
-                    SeqMcast.Action = filterEntry.Action;
+                case 7: /* This is the filter ID for the Sequenced Multicast */
+                    /* Ignores the Sequenced Multicast Filter as it is deprecated. */
                     break;
                 default:
                     return CodecReturnCode.FAILURE;
@@ -426,124 +546,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Performs deep copy of the current Service instance into the destination object.
+        /// Returns a human readable string representation of the Service.
         /// </summary>
-        /// <param name="destService">The Service which the current instance is copied to.</param>
-        /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation.</returns>
-        public CodecReturnCode Copy(Service destService)
-        {
-            Debug.Assert(destService != null);
-            CodecReturnCode ret = CodecReturnCode.SUCCESS;
-            destService.Clear();
-            destService.Action = Action;
-            destService.ServiceId = ServiceId;
-
-            destService.HasInfo = HasInfo;
-            if (HasInfo)
-            {
-                ret = Info.Copy(destService.Info);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasData = HasData;
-            if (HasData)
-            {
-                ret = Data.Copy(destService.Data);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            foreach (ServiceGroup group in GroupStateList)
-            {
-                ServiceGroup destGroup = new ServiceGroup();
-                destService.GroupStateList.Add(destGroup);
-                ret = group.Copy(destGroup);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasLink = HasLink;
-            if (HasLink)
-            {
-                ret = Link.Copy(destService.Link);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasLoad = HasLoad;
-            if (HasLoad)
-            {
-                ret = Load.Copy(destService.Load);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasState = HasState;
-            if (HasState)
-            {
-                ret = State.Copy(destService.State);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            return CodecReturnCode.SUCCESS;
-        }
-
-        /// <summary>
-        /// Performs an update of this  object to the destination object. 
-        /// Only updated filter entries are copied to the destination.
-        /// </summary>
-        /// <param name="destService">Service object to be updated by this object. It cannot be null.</param>
-        /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation.</returns>
-        public CodecReturnCode ApplyUpdate(Service destService)
-        {
-            Debug.Assert(destService != null);
-            CodecReturnCode ret = CodecReturnCode.SUCCESS;
-            destService.Action = Action;
-            destService.ServiceId = ServiceId;
-            destService.HasInfo = HasInfo;
-            if (HasInfo)
-            {
-                ret = Info.Update(destService.Info);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasData = HasData;
-            if (HasData)
-            {
-                ret = Data.Update(destService.Data);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            foreach (ServiceGroup group in GroupStateList)
-            {
-                ServiceGroup destGroup = new ServiceGroup();
-                destService.GroupStateList.Add(destGroup);
-                ret = group.Copy(destGroup);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasLink = HasLink;
-            if (HasLink)
-            {
-                ret = Link.Update(destService.Link);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasLoad = HasLoad;
-            if (HasLoad)
-            {
-                ret = Load.Update(destService.Load);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-            destService.HasState = HasState;
-            if (HasState)
-            {
-                ret = State.Update(destService.State);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
-
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             stringBuf.Clear();

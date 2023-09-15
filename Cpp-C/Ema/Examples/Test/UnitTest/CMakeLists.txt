@@ -50,4 +50,41 @@ if (CMAKE_HOST_WIN32)
 
 endif()
 
+if ( CMAKE_HOST_UNIX )
 
+    add_custom_command(
+                    TARGET EmaUnitTest POST_BUILD
+
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/EmaConfigTest.xml
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different enumtypeTest.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/enumtypeTest.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RDMFieldDictionaryTest
+
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Copying EmaConfigTest.xml, enumtypeTest.def and RDMFieldDictionaryTest for Ema Unit Tests .... "
+                    )
+else()
+
+    add_custom_command(
+                    TARGET EmaUnitTest POST_BUILD
+
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/EmaConfigTest.xml
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different enumtypeTest.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/enumtypeTest.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/RDMFieldDictionaryTest
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different EmaConfigTest.xml
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/EmaConfigTest.xml
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different enumtypeTest.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/enumtypeTest.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different RDMFieldDictionaryTest
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/RDMFieldDictionaryTest
+
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Copying EmaConfigTest.xml, enumtypeTest.def and RDMFieldDictionaryTest for Ema Unit Tests .... "
+                    )
+                    
+endif()

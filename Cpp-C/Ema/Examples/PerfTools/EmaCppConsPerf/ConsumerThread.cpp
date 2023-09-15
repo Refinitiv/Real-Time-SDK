@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 #include "ConsumerThread.h"
@@ -37,8 +37,6 @@ ConsumerThread::ConsumerThread( ConsPerfConfig& consPerfCfg) :
 	consumerThreadIndex( 0 ),
 	itemListUniqueIndex(0),
 	itemListCount(0),
-	cpuId(-1),
-	apiThreadCpuId(-1),
 	running(false),
 	stopThread(false),
 	statsFile( NULL ),
@@ -254,7 +252,7 @@ void ConsumerThread::dumpConsumerItemList()
 void ConsumerThread::consumerThreadInit( ConsPerfConfig& consPerfConfig, Int32 consThreadId)
 {
 	consumerThreadIndex = consThreadId;
-	char tmpFilename[sizeof(consPerfConfig.statsFilename) + 8];
+	char tmpFilename[sizeof(consPerfConfig.statsFilename) + 24];
 
 	snprintf(tmpFilename, sizeof(tmpFilename), "%s%d.csv", 
 		consPerfConfig.statsFilename.c_str(), consThreadId);
@@ -328,27 +326,20 @@ void ConsumerThread::run()
 
 	AppUtil::log("Running Thread %s\n", consumerName.c_str());
 
-	EmaString conThreadName("EmaThread for ");
-	conThreadName += consumerName;
-	if( !pConsPerfCfg->useUserDispatch )
-	{
-		if( apiThreadCpuId != -1 && apiThreadCpuId == cpuId )
-		{
-			testPassed = false;
-			failureLocation = "ConsumerThread::run() - apiThreadCpuId[";
-			failureLocation.append(apiThreadCpuId);
-			failureLocation += "] == cpuId[";
-			failureLocation.append(cpuId);
-			failureLocation += "] ";
-			running = false;
-			return;
-		}
-		if( !pConsPerfCfg->useUserDispatch && cpuId  != -1 )
-			firstThreadSnapshot();
-	}
-
 	try {
-		pEmaOmmConsumer = new  OmmConsumer( OmmConsumerConfig().consumerName( consumerName ).username( pConsPerfCfg->username ).operationModel( (pConsPerfCfg->useUserDispatch ? OmmConsumerConfig::UserDispatchEnum :OmmConsumerConfig::ApiDispatchEnum) ) );
+		OmmConsumerConfig consumerConfig;
+		consumerConfig.consumerName(consumerName).username(pConsPerfCfg->username);
+		consumerConfig.operationModel(pConsPerfCfg->useUserDispatch ? OmmConsumerConfig::UserDispatchEnum : OmmConsumerConfig::ApiDispatchEnum);
+
+		if ( !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+			consumerConfig.apiThreadBind(apiThreadCpuId);
+		if ( !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1") )
+			consumerConfig.workerThreadBind(workerThreadCpuId);
+
+		//if (!pConsPerfCfg->useUserDispatch)
+		//	firstThreadSnapshot();
+
+		pEmaOmmConsumer = new OmmConsumer( consumerConfig );
 	}
 	catch ( const OmmException& excp )
 	{
@@ -358,13 +349,44 @@ void ConsumerThread::run()
 		running = false;
 		return;
 	}
-	
-	if( !pConsPerfCfg->useUserDispatch && apiThreadCpuId != -1  && cpuId  != -1)
+
+	if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1") )
 	{
-		EmaString consumerApiThread(BASECONSUMER_NAME);
-		consumerApiThread += consumerThreadIndex;
-		consumerApiThread += "_Api";
-		secondThreadSnapshot(consumerApiThread, apiThreadCpuId);
+		EmaString conThreadName("EmaThread for ");
+		conThreadName.append(consumerName);
+
+		// bind cpuId for the consumer thread
+		if (!bindThisThread(conThreadName, cpuId))
+		{
+			testPassed = false;
+			failureLocation = "ConsumerThread::run() bindThisThread failed!";
+			failureLocation += " cpuId[";
+			failureLocation.append(cpuId);
+			failureLocation += "] ";
+			running = false;
+			return;
+		}
+	}
+	if (!workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1"))
+	{
+		EmaString workerThreadName(consumerName);
+		workerThreadName.append("_RW");
+		// Add information about Reactor worker thread
+		addThisThread(workerThreadName, workerThreadCpuId, 0);
+	}
+	if ( !pConsPerfCfg->useUserDispatch
+		&& !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+	{
+		EmaString consumerApiThreadName(consumerName);
+		consumerApiThreadName.append("_Api");
+		// Add information about API internal thread
+		addThisThread(consumerApiThreadName, apiThreadCpuId, 0);
+	}
+
+	if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1")
+		|| !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1")
+		|| !pConsPerfCfg->useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+	{
 		printAllThreadBinding();
 	}
 	

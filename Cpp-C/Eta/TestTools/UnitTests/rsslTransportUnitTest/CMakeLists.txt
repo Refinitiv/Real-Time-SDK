@@ -1,12 +1,20 @@
 set ( rsslTransportUnitTestSrcFiles
 	rsslAllocateUnitTest.cpp
-	rsslBindThreadUnitTest.cpp
 	rsslTransportUnitTest.cpp
 
 	TransportUnitTest.h
 )
 
-add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} )
+set ( rsslTransportBindThreadSrcFiles
+		rsslBindThreadUnitTest.cpp
+)
+
+
+if(${RCDEV_HOST_SYSTEM_BITS} STREQUAL "64")
+	add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} ${rsslTransportBindThreadSrcFiles} )
+else()
+	add_executable( rsslTransportUnitTest ${rsslTransportUnitTestSrcFiles} )
+endif()
 target_link_libraries( rsslTransportUnitTest 
 							librssl 
 							GTest::Main 
@@ -17,7 +25,12 @@ set_target_properties( rsslTransportUnitTest
 								OUTPUT_NAME rsslTransportUnitTest 
 						)
 
-add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} )
+if(${RCDEV_HOST_SYSTEM_BITS} STREQUAL "64")
+	add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} ${rsslTransportBindThreadSrcFiles} )
+else()
+	add_executable( rsslTransportUnitTest_shared ${rsslTransportUnitTestSrcFiles} )
+endif()
+
 target_link_libraries( rsslTransportUnitTest_shared 
 							librssl_shared 
 							GTest::Main 
@@ -97,4 +110,86 @@ else()
 								${RCDEV_TYPE_CHECK_FLAG}
 								$<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
 							)
+endif()
+
+if ( CMAKE_HOST_UNIX )
+
+    add_custom_command(
+                    TARGET rsslTransportUnitTest POST_BUILD
+
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/enumtype.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RDMFieldDictionary
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary_large
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RDMFieldDictionary_large
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_01.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/inpbuf_01.bin
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Copying inpbuf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Unit Tests .... "
+                    )
+
+    add_custom_command(
+                    TARGET rsslTransportUnitTest_shared POST_BUILD
+
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/enumtype.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/RDMFieldDictionary
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary_large
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/RDMFieldDictionary_large
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_01.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shared/inpbuf_01.bin
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Copying inpbuf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Shared Unit Tests .... "
+                    )
+else()
+
+    add_custom_command(
+                    TARGET rsslTransportUnitTest POST_BUILD
+
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/enumtype.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/RDMFieldDictionary
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary_large
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/RDMFieldDictionary_large
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_01.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/inpbuf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/enumtype.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/RDMFieldDictionary
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary_large
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/RDMFieldDictionary_large
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_01.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/inpbuf_01.bin
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Copying inpbuf_01.bin, enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Unit Tests .... "     
+                    )
+                    
+    add_custom_command(
+                    TARGET rsslTransportUnitTest_shared POST_BUILD
+                    
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/enumtype.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/RDMFieldDictionary
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary_large
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/RDMFieldDictionary_large
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_01.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE_MD}/Shared/inpbuf_01.bin
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/enumtype.def
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/enumtype.def
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/RDMFieldDictionary
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../../../../etc/RDMFieldDictionary_large
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/RDMFieldDictionary_large
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inpbuf_01.bin
+                            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG_MDD}/Shared/inpbuf_01.bin
+
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    COMMENT "Copying enumtype.def, RDMFieldDictionary and RDMFieldDictionary_large for Eta Transport Shared Unit Tests .... "
+                    )
+
 endif()

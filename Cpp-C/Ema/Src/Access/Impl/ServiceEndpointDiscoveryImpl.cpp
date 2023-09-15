@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,11 +10,11 @@
 #include "ExceptionTranslator.h"
 #include "Utilities.h"
 #include "OmmInvalidUsageException.h"
+#include "ServiceEndpointDiscoveryConfig.h"
 
 using namespace refinitiv::ema::access;
 
-ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery* pServiceEndpointDiscovery, const EmaString* pTokenServiceURLV1, const EmaString* pTokenServiceURLV2,
-	const EmaString* pServiceDiscoveryURL) :
+ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscovery* pServiceEndpointDiscovery, const ServiceEndpointDiscoveryConfig* pServiceEndpointDiscoveryConfig) :
 	_pServiceEndpointDiscovery(0),
 	_pClient(0)
 {
@@ -23,22 +23,32 @@ ServiceEndpointDiscoveryImpl::ServiceEndpointDiscoveryImpl(ServiceEndpointDiscov
 	clearRsslErrorInfo(&rsslErrorInfo);
 
 	rsslClearCreateReactorOptions(&reactorOpts);
-	if (pTokenServiceURLV1 != NULL)
+	if (pServiceEndpointDiscoveryConfig->tokenServiceURL_V1 != NULL)
 	{
-		reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pTokenServiceURLV1->c_str());
-		reactorOpts.tokenServiceURL_V1.length = pTokenServiceURLV1->length();
+		reactorOpts.tokenServiceURL_V1.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->tokenServiceURL_V1->c_str());
+		reactorOpts.tokenServiceURL_V1.length = pServiceEndpointDiscoveryConfig->tokenServiceURL_V1->length();
 	}
 
-	if (pTokenServiceURLV2 != NULL)
+	if (pServiceEndpointDiscoveryConfig->tokenServiceURL_V2 != NULL)
 	{
-		reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pTokenServiceURLV2->c_str());
-		reactorOpts.tokenServiceURL_V2.length = pTokenServiceURLV2->length();
+		reactorOpts.tokenServiceURL_V2.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->tokenServiceURL_V2->c_str());
+		reactorOpts.tokenServiceURL_V2.length = pServiceEndpointDiscoveryConfig->tokenServiceURL_V2->length();
 	}
 
-	if (pServiceDiscoveryURL != NULL)
+	if (pServiceEndpointDiscoveryConfig->serviceDiscoveryURL != NULL)
 	{
-		reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceDiscoveryURL->c_str());
-		reactorOpts.serviceDiscoveryURL.length = pServiceDiscoveryURL->length();
+		reactorOpts.serviceDiscoveryURL.data = const_cast<char*>(pServiceEndpointDiscoveryConfig->serviceDiscoveryURL->c_str());
+		reactorOpts.serviceDiscoveryURL.length = pServiceEndpointDiscoveryConfig->serviceDiscoveryURL->length();
+	}
+	
+	if (pServiceEndpointDiscoveryConfig->restEnableLogValue)
+	{
+		reactorOpts.restEnableLog = pServiceEndpointDiscoveryConfig->restEnableLogValue;
+	}
+	
+	if (pServiceEndpointDiscoveryConfig->restLogOutputStreamFile != NULL)
+	{
+		reactorOpts.restLogOutputStream = pServiceEndpointDiscoveryConfig->restLogOutputStreamFile;
 	}
 	reactorOpts.userSpecPtr = this;
 
@@ -131,6 +141,18 @@ void ServiceEndpointDiscoveryImpl::registerClient(const ServiceEndpointDiscovery
 	{
 		_serviceDiscoveryOpts.clientSecret.data = const_cast<char*>(params._clientSecret.c_str());
 		_serviceDiscoveryOpts.clientSecret.length = params._clientSecret.length();
+	}
+
+	if (!params._clientJWK.empty())
+	{
+		_serviceDiscoveryOpts.clientJWK.data = const_cast<char*>(params._clientJWK.c_str());
+		_serviceDiscoveryOpts.clientJWK.length = params._clientJWK.length();
+	}
+
+	if (!params._audience.empty())
+	{
+		_serviceDiscoveryOpts.audience.data = const_cast<char*>(params._audience.c_str());
+		_serviceDiscoveryOpts.audience.length = params._audience.length();
 	}
 
 	if (!params._tokenScope.empty() && params._tokenScope != _serviceDiscoveryOpts.tokenScope.data)

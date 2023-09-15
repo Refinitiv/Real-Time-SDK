@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
 */
 
 #include "marketPriceDecoder.h"
@@ -12,6 +12,14 @@
 #define TIM_TRK_1_FID 3902
 #define TIM_TRK_2_FID 3903
 #define TIM_TRK_3_FID 3904
+
+#define TIM_TRK_1_NAME "TIM_TRK_1"
+#define TIM_TRK_2_NAME "TIM_TRK_2"
+#define TIM_TRK_3_NAME "TIM_TRK_3"
+
+#define TIM_TRK_1_LEN 9
+#define TIM_TRK_2_LEN 9
+#define TIM_TRK_3_LEN 9
 
 RTR_C_INLINE RsslBool checkPostUserInfo(RsslMsg *pMsg)
 {
@@ -190,3 +198,81 @@ RsslRet decodeMPUpdate(RsslDecodeIterator *pIter, RsslMsg *msg, ConsumerThread* 
 	return RSSL_RET_SUCCESS;
 }
 
+
+RTR_C_INLINE RsslBool checkPostUserInfoJson(cJSON* json)
+{
+	/* If post user info is present, make sure it matches our info.
+	 * Otherwise, assume any posted information present came from us anyway(return true). */
+	return RSSL_TRUE;
+}
+
+
+RsslRet decodeMPUpdateJson(ConsumerThread* pConsumerThread, RsslMsgClasses rsslMsgClass, cJSON* json)
+{
+	cJSON *jsonFieldsNode, *jsonEntry;
+
+	const char* fieldName = NULL;
+	double numberValue = 0.;
+	const char* stringValue = NULL;
+	RsslBool nullValue = RSSL_FALSE;
+
+	RsslUInt timeTracker = 0;
+	RsslUInt postTimeTracker = 0;
+	RsslUInt genMsgTimeTracker = 0;
+
+	/* decode field list */
+	jsonFieldsNode = cJSON_GetObjectItem(json, "Fields");
+	if (jsonFieldsNode == NULL || !cJSON_IsObject(jsonFieldsNode))
+		return RSSL_RET_FAILURE;
+
+	cJSON_ArrayForEach(jsonEntry, jsonFieldsNode)
+	{
+		fieldName = jsonEntry->string;
+		if (fieldName == NULL || strlen(fieldName) == 0)
+		{
+			printf("Error: Cannot get JSON field name.\n");
+			return RSSL_RET_FAILURE;
+		}
+
+		if (cJSON_IsNumber(jsonEntry))
+		{
+			numberValue = cJSON_GetNumberValue(jsonEntry);
+		}
+		else if (cJSON_IsString(jsonEntry))
+		{
+			stringValue = cJSON_GetStringValue(jsonEntry);
+		}
+		else if (cJSON_IsNull(jsonEntry))
+		{
+			nullValue = RSSL_TRUE;
+		}
+		else
+		{
+			printf("Error: Unhandled JSON data type %i in JSON field %s.\n",
+				jsonEntry->type, fieldName);
+			return RSSL_RET_FAILURE;
+		}
+
+		if (rsslMsgClass == RSSL_MC_UPDATE && nullValue != RSSL_TRUE)
+		{
+			if (strncmp(fieldName, TIM_TRK_1_NAME, TIM_TRK_1_LEN) == 0)
+				timeTracker = (RsslUInt)numberValue;
+			if (strncmp(fieldName, TIM_TRK_2_NAME, TIM_TRK_2_LEN) == 0)
+				postTimeTracker = (RsslUInt)numberValue;
+		}
+		else if (rsslMsgClass == RSSL_MC_GENERIC && nullValue != RSSL_TRUE)
+		{
+			if (strncmp(fieldName, TIM_TRK_3_NAME, TIM_TRK_3_LEN) == 0)
+				genMsgTimeTracker = (RsslUInt)numberValue;
+		}
+	}
+
+	if (timeTracker)
+		updateLatencyStats(pConsumerThread, timeTracker, RSSL_MC_UPDATE);
+	if (postTimeTracker && checkPostUserInfoJson(json))
+		updateLatencyStats(pConsumerThread, postTimeTracker, RSSL_MC_POST);
+	if (genMsgTimeTracker)
+		updateLatencyStats(pConsumerThread, genMsgTimeTracker, RSSL_MC_GENERIC);
+
+	return RSSL_RET_SUCCESS;
+}

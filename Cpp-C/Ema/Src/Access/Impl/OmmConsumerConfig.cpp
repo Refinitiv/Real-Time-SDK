@@ -83,6 +83,18 @@ OmmConsumerConfig& OmmConsumerConfig::clientSecret(const EmaString& clientSecret
 	return *this;
 }
 
+OmmConsumerConfig& OmmConsumerConfig::clientJWK(const EmaString& clientJWK)
+{
+	_pImpl->clientJWK(clientJWK);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::audience(const EmaString& audience)
+{
+	_pImpl->audience(audience);
+	return *this;
+}
+
 OmmConsumerConfig& OmmConsumerConfig::tokenScope(const EmaString& tokenScope)
 {
 	_pImpl->tokenScope(tokenScope);
@@ -260,5 +272,29 @@ OmmConsumerConfig& OmmConsumerConfig::addLoginMsgCredential(const ReqMsg& reqMsg
 OmmConsumerConfig& OmmConsumerConfig::restLoggingCallback(OmmRestLoggingClient& ommRestLoggingClient, void* closure)
 {
 	_pImpl->setOmmRestLoggingClient(&ommRestLoggingClient, closure);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::workerThreadBind(const EmaString& cpuString)
+{
+	_pImpl->setCpuWorkerThreadBind(cpuString);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::apiThreadBind(const EmaString& cpuString)
+{
+	_pImpl->setCpuApiThreadBind(cpuString);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::shouldInitializeCPUIDlib(bool shouldInitCPUIDlib)
+{
+	_pImpl->setShouldInitializeCPUIDlib(shouldInitCPUIDlib);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::dataDictionary(const refinitiv::ema::rdm::DataDictionary& dataDictionary, bool shouldCopyIntoAPI)
+{
+	_pImpl->dataDictionary(dataDictionary, shouldCopyIntoAPI);
 	return *this;
 }

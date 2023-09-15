@@ -52,7 +52,7 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     private int startEnumTableCount;
     
     private Int tmpInt = CodecFactory.createInt();
-    private DataDictionary dictionary = CodecFactory.createDataDictionary();
+    private DataDictionary dictionary = null;
     private Error error = TransportFactory.createError();
     private Series series = CodecFactory.createSeries();
     private ElementList elementList = CodecFactory.createElementList();
@@ -60,9 +60,12 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     private DecodeIterator seriesDecodeIter = CodecFactory.createDecodeIterator();
     private UInt tmpUInt = CodecFactory.createUInt();
     private RefreshMsg refreshMsg = (RefreshMsg)CodecFactory.createMsg();
+    private Buffer version = CodecFactory.createBuffer();
     
     private final static String eol = "\n";
     private final static String tab = "\t";
+    
+    private boolean userSetDictionary = false;
     
     public int flags()
     {
@@ -161,6 +164,10 @@ class DictionaryRefreshImpl extends MsgBaseImpl
         startFid = -32768; // MIN_FID
         startEnumTableCount = 0;
         dataBody.clear();
+        version.clear();
+        if (dictionary != null && !userSetDictionary)
+        	dictionary.clear();
+        userSetDictionary = false;
     }
 
     @Override
@@ -210,6 +217,9 @@ class DictionaryRefreshImpl extends MsgBaseImpl
             case Dictionary.Types.FIELD_DEFINITIONS:
             {
                 tmpInt.value(startFid);
+                
+            	if (dictionary == null)
+            		dictionary = CodecFactory.createDataDictionary();
                 int dictEncodeRet = dictionary.encodeFieldDictionary(encodeIter, tmpInt, verbosity, error);
                 if (dictEncodeRet != CodecReturnCodes.SUCCESS)
                 {
@@ -391,6 +401,8 @@ class DictionaryRefreshImpl extends MsgBaseImpl
             if (elementEntry.name().equals(ElementNames.DICT_VERSION))
             {
                 foundVersion = true;
+                Buffer versionString = elementEntry.encodedData();
+                version.data(versionString.data(), versionString.position(), versionString.length());
             }
             if (elementEntry.name().equals(ElementNames.DICT_TYPE))
             {
@@ -470,6 +482,11 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     {
         this.dictionaryName.data(dictionaryName.data(), dictionaryName.position(), dictionaryName.length());
     }
+    
+    public Buffer version()
+    {
+    	return version;
+    }
 
     public Buffer dataBody()
     {
@@ -498,12 +515,17 @@ class DictionaryRefreshImpl extends MsgBaseImpl
     
     public DataDictionary dictionary()
     {
+    	if (userSetDictionary)
+    		return dictionary;
+    	else if (dictionary == null)
+    		dictionary = CodecFactory.createDataDictionary();
         return dictionary;
     }
 
     public void dictionary(DataDictionary dictionary)
     {
         this.dictionary = dictionary;
+        userSetDictionary = true;
     }
 
     public String toString()

@@ -27,6 +27,13 @@ consumer-Ws-002: Alters Consumer to test compression Zlib -testCompressionZlib.
 Module:  Value Add Provider 
 ---------------------------
 
+vaprovider-TsPost-001: Alters VAProvider to handle incoming tunnel stream Post message. Sends back Ack message if the flag "applyAck" has been set on Post message. Added additional command line options/arguments:
+	-sendNack: sends negative acks if post message is received (defaults to false);
+	-rejectLogin: rejects main login request (defaults to false);
+	-rejectTsLogin: rejects the tunnel stream login request (defaults to false).
+
+	Example: ./gradlew runVAProvider -PcommandLineArgs="-p 14002 -s DIRECT_FEED -sendNack -x"
+
 vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
@@ -100,6 +107,8 @@ vaconsumer-OAuthV2-002: Alter VAConsumer to create 1 reactor, 2 connections, 1st
 
 vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st, 2nd and 3rd connection are for STS. And 4th, 5th, and 6th connection are for OAuth V2.
 
+vaconsumer-Jwt-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 JWT but can identify either same / diff credential.
+
 Module:  Watchlist Consumer 
 ---------------------------
 
@@ -142,6 +151,8 @@ Further extended to add event "-e4", for reissue on an item expressing View chan
       -e4 -Reissue event
       10::1:1,P send reissue after 10 updates on item indexed 1 which is 'TRI.N' in the above example. (because end index is also 1 '1:1'.
       ',' after comma the reissue action V3 -View change V3, P pause, R resume. In the above example reissue action is P i.e pause.
+	  
+wlconsumer-ConsFunc-002: Extended wlconsumer-ConsFunc-001 to add options for warmstandby.
 
 wlconsumer-GenM-001:  Alters WLConsumer to send genericMsg on login, directory and market price streams. 
 GenericMsg contains ElementList with one ElementEntry. 

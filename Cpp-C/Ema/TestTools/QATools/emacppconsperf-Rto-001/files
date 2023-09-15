@@ -1,0 +1,7 @@
+#file,location
+ConsPerfConfig.cpp,Examples/PerfTools/EmaCppConsPerf
+ConsPerfConfig.h,Examples/PerfTools/EmaCppConsPerf
+ConsumerThread.cpp,Examples/PerfTools/EmaCppConsPerf
+EmaCppConsPerf.cpp,Examples/PerfTools/EmaCppConsPerf
+350k.xml,Examples/PerfTools/Common
+EmaConfig.xml,Ema

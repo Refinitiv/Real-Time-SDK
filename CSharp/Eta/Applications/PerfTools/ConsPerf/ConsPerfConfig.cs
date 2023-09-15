@@ -2,15 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.PerfTools.ConsPerf
+namespace LSEG.Eta.PerfTools.ConsPerf
 {
 	/// <summary>
 	/// Provides configuration that is not specific to any particular handler.
@@ -18,7 +18,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 	public class ConsPerfConfig
     {
 		public const int DEFAULT_THREAD_COUNT = 1;
-		public string? ConfigString { get; set; }		
+		public string? ConfigString { get; set; }
 		public int MaxThreads { get; set; }
 
 		/* APPLICATION configuration */
@@ -110,6 +110,14 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 		/// </summary>
 		public int RecvBufSize { get; set; }
 		/// <summary>
+		/// System Send timeout
+		/// </summary>
+		public int SendTimeout { get; set; }
+		/// <summary>
+		/// System Receive timeout
+		/// </summary>
+		public int RecvTimeout { get; set; }
+		/// <summary>
 		/// Sets the point which will cause ETA to automatically flush
 		/// </summary>
 		public int HighWaterMark { get; set; }
@@ -164,10 +172,11 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 		/// </summary>
 		public int RequestsPerTickRemainder { get; set; }
 
-		/// <summary>
-		/// At startup, prime the Just-In-Time compiler to optimize code by requesting a snapshot of all items before opening the streaming items
-		/// </summary>
-		public bool PrimeJIT { get; set; }
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving.
+        /// </summary>
+        public bool UseReactor;
+
 		/// <summary>
 		/// If set, the application will continually read rather than using notification
 		/// </summary>
@@ -196,18 +205,20 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 			CommandLine.AddOption("inputBufs", 15, "Number of input buffers(configures numInputBufs in ETA connection)");
 			CommandLine.AddOption("sendBufSize", 0, "System Send Buffer Size(configures sysSendBufSize in ConnectOptions)");
 			CommandLine.AddOption("recvBufSize", 0, "System Receive Buffer Size(configures sysRecvBufSize in ConnectOptions)");
+			CommandLine.AddOption("sendTimeout", 0, "System Send timeout (configures sendTimeout in ConnectOptions)");
+			CommandLine.AddOption("recvTimeout", 0, "System Receive timeout (configures receiveTimeout in ConnectOptions)");
 			CommandLine.AddOption("highWaterMark", 0, "Sets the point that causes ETA to automatically flush");
 			CommandLine.AddOption("tcpDelay", false, "Turns off tcp_nodelay in BindOptions, enabling Nagle's");
 			CommandLine.AddOption("snapshot", false, "Snapshot test, request all items as non-streaming");
 			CommandLine.AddOption("uname", "", "Username to use in login request");
 			CommandLine.AddOption("serviceName", "DIRECT_FEED", "Name of service to request items from");
-			CommandLine.AddOption("itemCount", 1000, "Number of items to request");
+			CommandLine.AddOption("itemCount", 100_000, "Number of items to request");
 			CommandLine.AddOption("commonItemCount", 0, "Number of items common to all consumers, if using multiple connections");
 			CommandLine.AddOption("postingRate", 0, "Rate at which to send post messages");
 			CommandLine.AddOption("postingLatencyRate", 0, "Rate at which to send latency post messages");
 			CommandLine.AddOption("genericMsgRate", 0, "Rate at which to send generic messages");
 			CommandLine.AddOption("genericMsgLatencyRate", 0, "Rate at which to send latency generic messages");
-			CommandLine.AddOption("primeJIT", false, "At startup, prime the JIT to optimize code by requesting a snapshot of all items before opening the streaming items");
+            CommandLine.AddOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
 			CommandLine.AddOption("busyRead", false, "If set, the application will continually read rather than using notification.");
 
 		}
@@ -249,8 +260,9 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 			DisplayStats = !CommandLine.BoolValue("noDisplayStats");
 			TcpNoDelay = !CommandLine.BoolValue("tcpDelay");
 			RequestSnapshots = CommandLine.BoolValue("snapshot");
-			PrimeJIT = CommandLine.BoolValue("primeJIT");
+            UseReactor = CommandLine.BoolValue("reactor");
 			BusyRead = CommandLine.BoolValue("busyRead");
+
 			try
 			{
 				SteadyStateTime = CommandLine.IntValue("steadyStateTime");
@@ -277,6 +289,8 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 				NumInputBuffers = CommandLine.IntValue("inputBufs");
 				SendBufSize = CommandLine.IntValue("sendBufSize");
 				RecvBufSize = CommandLine.IntValue("recvBufSize");
+				SendTimeout = CommandLine.IntValue("sendTimeout");
+				RecvTimeout = CommandLine.IntValue("recvTimeout");
 				HighWaterMark = CommandLine.IntValue("highWaterMark");
 				ItemRequestCount = CommandLine.IntValue("itemCount");
 				CommonItemCount = CommandLine.IntValue("commonItemCount");
@@ -342,7 +356,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 				Console.WriteLine(CommandLine.OptionHelpString());
 				Environment.Exit((int)PerfToolsReturnCode.FAILURE);
 			}
-			
+
 			if (GenMsgsPerSec < TicksPerSec && GenMsgsPerSec != 0)
 			{
 				Console.Error.WriteLine("Config Error: Generic Msg Rate cannot be less than tick rate(unless it is zero).\n");
@@ -415,6 +429,17 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 
 		private void CreateConfigString()
 		{
+            string reactorWatchlistUsageString;
+
+            if (UseReactor)
+            {
+                reactorWatchlistUsageString = "Reactor";
+            }
+            else
+            {
+                reactorWatchlistUsageString = "None";
+            }
+
 			ConfigString = "--- TEST INPUTS ---\n\n" +
 				"          Steady State Time: " + SteadyStateTime + " sec\n" +
 				"    Delay Steady State Time: " + DelaySteadyStateCalc + " msec\n" +
@@ -427,6 +452,8 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 				"              Input Buffers: " + NumInputBuffers + "\n" +
 				"           Send Buffer Size: " + SendBufSize + ((SendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
 				"           Recv Buffer Size: " + RecvBufSize + ((RecvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+				"               Send Timeout: " + SendTimeout + ((SendTimeout > 0) ? " ms" : "(use default)") + "\n" +
+				"            Receive Timeout: " + RecvTimeout + ((RecvTimeout > 0) ? " ms" : "(use default)") + "\n" +
 				"            High Water Mark: " + HighWaterMark + ((HighWaterMark > 0) ? " bytes" : "(use default)") + "\n" +
 				"             Interface Name: " + (InterfaceName != null && InterfaceName.Length > 0 ? InterfaceName : "(use default)") + "\n" +
 				"                Tcp_NoDelay: " + (TcpNoDelay ? "Yes" : "No") + "\n" +
@@ -445,7 +472,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 				"                 Stats File: " + StatsFilename + "\n" +
 				"           Latency Log File: " + (LatencyLogFilename != null && LatencyLogFilename.Length > 0 ? LatencyLogFilename : "(none)") + "\n" +
 				"                  Tick Rate: " + TicksPerSec + "\n" +
-				"                  Prime JIT: " + (PrimeJIT ? "Yes" : "No") + "\n" +
+                "              Reactor Usage: " + reactorWatchlistUsageString + "\n" +
 				"                  Busy Read: " + (BusyRead ? "Yes" : "No") + "\n";
 		}
 

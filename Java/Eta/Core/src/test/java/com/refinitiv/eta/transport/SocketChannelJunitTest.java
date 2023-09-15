@@ -7529,9 +7529,6 @@ public class SocketChannelJunitTest
         bOpts.serviceName(DEFAULT_LISTEN_PORT_AS_STRING);
         bOpts.connectionType(ConnectionTypes.SOCKET);
 
-        // set the interface name on provider
-        bOpts.interfaceName("localhost");
-
         bOpts.sysRecvBufSize(recvBufSize);
         AcceptOptions aOpts = TransportFactory.createAcceptOptions();
         aOpts.sysSendBufSize(sendBufSize);

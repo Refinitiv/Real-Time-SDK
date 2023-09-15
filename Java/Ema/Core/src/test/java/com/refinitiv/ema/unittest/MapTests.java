@@ -1407,6 +1407,108 @@ public class MapTests extends TestCase
 		}
 	}
 	
+	public void testMapContainsFieldLists_EfficientDecode_EncodeDecodeAll()
+	{
+		TestUtilities.printTestHead("testMapContainsFieldLists_EfficientDecode_EncodeDecodeAll","Encode Map that contains FieldLists with EMA and Decode Map with EMA using Efficient methods for iteration");
+		
+		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
+
+		try {
+			//EMA Encoding
+			// encoding order:  SummaryData(with FieldList), Delete, FieldList-Add, FieldList-Add, FieldList-Update
+
+			Map mapEnc = EmaFactory.createMap();
+			TestUtilities.EmaEncodeMapAllWithFieldList( mapEnc);
+
+			//Now do EMA decoding of Map
+			Map mapDec = JUnitTestConnect.createMap();
+			JUnitTestConnect.setRsslData(mapDec, mapEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+
+			System.out.println(mapDec);
+
+			Iterator<MapEntry> mapIter = mapDec.iteratorByRef();
+			
+			TestUtilities.checkResult( mapDec.hasKeyFieldId(), "Map contains FieldList - hasKeyFieldId()" );
+			TestUtilities.checkResult( mapDec.keyFieldId() == 3426, "Map contains FieldList - getKeyFieldId()" );
+			TestUtilities.checkResult( mapDec.hasTotalCountHint(), "Map contains FieldList - hasTotalCountHint()" );
+			TestUtilities.checkResult( mapDec.totalCountHint() == 5, "Map contains FieldList - getTotalCountHint()" );
+			
+			switch ( mapDec.summaryData().dataType() )
+			{
+				case DataType.DataTypes.FIELD_LIST :
+				{
+					FieldList fl = mapDec.summaryData().fieldList();
+					TestUtilities.EmaDecodeFieldListAll(fl);
+				}
+				break;
+				default :
+					TestUtilities.checkResult( false, "Map Decode Summary FieldList - map.summaryType() not expected" );
+				break;
+			}
+
+			TestUtilities.checkResult( mapIter.hasNext(), "Map contains FieldList - first maphasNext()" );
+
+			MapEntry me1 = mapIter.next();
+
+			TestUtilities.checkResult( me1.key().dataType() == DataType.DataTypes.BUFFER, "MapEntry.key().dataType() == DataType.DataTypes.BUFFER" );
+			TestUtilities.checkResult( Arrays.equals( me1.key().buffer().buffer().array() , new String("ABCD").getBytes()), "MapEntry.key().buffer()" );
+			TestUtilities.checkResult( me1.action() == MapEntry.MapAction.DELETE, "MapEntry.action() == MapEntry.MapAction.DELETE" );
+			TestUtilities.checkResult( me1.load().dataType() == DataTypes.NO_DATA, "MapEntry.load().dataType() == DataTypes.NO_DATA" );
+
+
+			mapIter = mapDec.iteratorByRef();
+			{
+				TestUtilities.checkResult( mapIter.hasNext(), "Map contains FieldList - maphasNext() after regenerating iterator" );
+
+				me1 = mapIter.next();
+
+				TestUtilities.checkResult( me1.key().dataType() == DataType.DataTypes.BUFFER, "MapEntry.key().dataType() == DataType.DataTypes.BUFFER" );
+				TestUtilities.checkResult( Arrays.equals( me1.key().buffer().buffer().array() , new String("ABCD").getBytes()), "MapEntry.key().buffer()" );
+				TestUtilities.checkResult( me1.action() == MapEntry.MapAction.DELETE, "MapEntry.action() == MapEntry.MapAction.DELETE" );
+				TestUtilities.checkResult( me1.load().dataType() == DataTypes.NO_DATA, "MapEntry.load().dataType() == DataTypes.NO_DATA" );
+			}
+
+
+			TestUtilities.checkResult( mapIter.hasNext(), "Map contains FieldList - second maphasNext()" );
+
+			MapEntry me2 = mapIter.next();
+
+			TestUtilities.checkResult( me2.key().dataType() == DataType.DataTypes.BUFFER, "MapEntry.key().dataType() == DataType.DataTypes.BUFFER" );
+			TestUtilities.checkResult( Arrays.equals( me1.key().buffer().buffer().array() , new String("ABCD").getBytes()), "MapEntry.key().buffer()" );
+			TestUtilities.checkResult( me2.action() == MapEntry.MapAction.ADD, "MapEntry.action() == MapEntry.MapAction.ADD" );
+			TestUtilities.checkResult( me2.load().dataType() == DataType.DataTypes.FIELD_LIST, "MapEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+			TestUtilities.EmaDecodeFieldListAll( me2.fieldList() );
+
+			TestUtilities.checkResult( mapIter.hasNext(), "Map contains FieldList - third maphasNext()" );
+
+			MapEntry me3 = mapIter.next();
+
+			TestUtilities.checkResult( me3.key().dataType() == DataType.DataTypes.BUFFER, "MapEntry.key().dataType() == DataType.DataTypes.BUFFER" );
+			TestUtilities.checkResult( Arrays.equals( me3.key().buffer().buffer().array() , new String("EFGHI").getBytes()), "MapEntry.key().buffer()" );
+			TestUtilities.checkResult( me3.action() == MapEntry.MapAction.ADD, "MapEntry.action() == MapEntry.MapAction.ADD" );
+			TestUtilities.checkResult( me3.load().dataType() == DataType.DataTypes.FIELD_LIST, "MapEntry.load().dataType() == DataTypes.NO_DATA" );
+			TestUtilities.EmaDecodeFieldListAll( me3.fieldList() );
+			
+			TestUtilities.checkResult( mapIter.hasNext(), "Map contains FieldList - fourth maphasNext()" );
+
+			MapEntry me4 = mapIter.next();
+
+			TestUtilities.checkResult( me4.key().dataType() == DataType.DataTypes.BUFFER, "MapEntry.key().dataType() == DataType.DataTypes.BUFFER" );
+			TestUtilities.checkResult( Arrays.equals( me4.key().buffer().buffer().array() , new String("JKLMNOP").getBytes()), "MapEntry.key().buffer()" );
+			TestUtilities.checkResult( me4.action() == MapEntry.MapAction.UPDATE, "MapEntry.action() == MapEntry.MapAction.UPDATE" );
+			TestUtilities.checkResult( me4.load().dataType() == DataType.DataTypes.FIELD_LIST, "MapEntry.load().dataType() == DataType.DataTypes.FIELD_LIST" );
+
+			TestUtilities.checkResult( !mapIter.hasNext(), "Map contains FieldList - final maphasNext()" );
+
+			TestUtilities.checkResult( true, "Map contains FieldList - exception not expected" );
+		} catch ( OmmException excp  ) {
+			TestUtilities.checkResult( false, "Map contains FieldList - exception not expected" );
+			System.out.println(excp.getMessage());
+		}
+	}
+	
 	public void testMapKeyUtf8String_EncodeDecodeAll()
 	{
 		TestUtilities.printTestHead("testMapKeyUtf8String_EncodeDecodeAll","Encode Map (key is UTF8) that contains FieldLists with EMA and Decode Map with EMA");

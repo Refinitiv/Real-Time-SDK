@@ -2,28 +2,27 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
-using ProviderSession = Refinitiv.Eta.PerfTools.Common.ProviderSession;
+using ProviderSession = LSEG.Eta.PerfTools.Common.ProviderSession;
 
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
     /// <summary>
-    /// Performs operations associated with setting up and using ETA Channels, 
+    /// Performs operations associated with setting up and using ETA Channels,
     /// such as initializing channels, reading, flushing, and checking ping timeouts.
     /// </summary>
     public class ChannelHandler
     {
-        public ConcurrentBag<ClientChannelInfo> ActiveChannelList { get; set; }          // List of channels that are active.
-        public ConcurrentBag<ClientChannelInfo> InitializingChannelList { get; set; }    // List of initializing channels.
+        public ConcurrentDictionary<Guid, ClientChannelInfo> ActiveChannelList { get; set; }          // List of channels that are active.
+        public ConcurrentDictionary<Guid, ClientChannelInfo> InitializingChannelList { get; set; }    // List of initializing channels.
         public IProviderThread ProviderThread { get; set; }                     // Reference to application-specified data.
 
         private Dictionary<IChannel, Example.Common.SelectMode> _clientOperation = new Dictionary<IChannel, Example.Common.SelectMode>();
@@ -47,8 +46,8 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         /// <param name="providerThread">the provider thread</param>
         public ChannelHandler(IProviderThread providerThread)
         {
-            ActiveChannelList = new ConcurrentBag<ClientChannelInfo>();
-            InitializingChannelList = new ConcurrentBag<ClientChannelInfo>();
+            ActiveChannelList = new ();
+            InitializingChannelList = new ();
             m_Error = new Error();
             m_ReadArgs = new ReadArgs();
             m_WriteArgs = new WriteArgs();
@@ -62,12 +61,12 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         }
 
         /// <summary>
-        /// Iterates over new accepted client channel list and processes them 
+        /// Iterates over new accepted client channel list and processes them
         /// by initializing them and setting them up for read/write.
         /// </summary>
         public void ProcessNewChannels()
         {
-            foreach (var channelInfo in InitializingChannelList)
+            foreach (var channelInfo in InitializingChannelList.Values)
             {
                 InitializeChannel(channelInfo, out m_Error);
                 if (channelInfo.Channel!.State == ChannelState.ACTIVE && channelInfo.Channel.Socket != null)
@@ -89,12 +88,12 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             ClientChannelInfo channelInfo = new ClientChannelInfo();
             channelInfo.UserSpec = userSpec;
             userSpec.Init(channelInfo);
-            channelInfo.CheckPings = checkPings;          
+            channelInfo.CheckPings = checkPings;
             _clientOperation.Add(channel, Example.Common.SelectMode.NONE);
             channelInfo.Channel = channel;
             channelInfo.NeedRead = false;
             channelInfo.ParentQueue = InitializingChannelList;
-            InitializingChannelList.Add(channelInfo);            
+            InitializingChannelList.TryAdd(channelInfo.ID, channelInfo);
 
             if (channel.State == ChannelState.ACTIVE)
             {
@@ -120,7 +119,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         public TransportReturnCode WriteChannel(ClientChannelInfo clientChannelInfo, ITransportBuffer msgBuffer, WriteFlags writeFlags, out Error error)
         {
             m_WriteArgs.Clear();
-            m_WriteArgs.Priority = WritePriorities.HIGH;          
+            m_WriteArgs.Priority = WritePriorities.HIGH;
             m_WriteArgs.Flags = writeFlags;
 
             // write buffer
@@ -192,7 +191,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
             m_ReadArgs.Clear();
 
-            // Read until eta read() indicates that no more bytes are available in the queue.
+            // Read until eta Read() indicates that no more bytes are available in the queue.
             do
             {
                 double currentTime = ProviderThread.CurrentTime!();
@@ -203,7 +202,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                     {
                         error = null;
                         return ret;
-                    }                     
+                    }
                 }
 
                 ITransportBuffer msgBuffer = clientChannelInfo.Channel!.Read(m_ReadArgs, out error);
@@ -227,9 +226,13 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
             if (channelClosed)
             {
+                error = new Error()
+                {
+                    Text = "Failure reading from channel, channel closed"
+                };
                 return TransportReturnCode.FAILURE;
             }
-                
+
             switch (ret)
             {
                 case TransportReturnCode.SUCCESS:
@@ -244,6 +247,10 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                     return TransportReturnCode.SUCCESS;
                 default:
                     CloseChannel(clientChannelInfo, error!);
+                    error = new Error()
+                    {
+                        Text = "Failure reading from channel, channel closed"
+                    };
                     return TransportReturnCode.FAILURE;
             }
         }
@@ -264,14 +271,14 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             m_SocketReadList.Clear();
             try
             {
-                foreach (ClientChannelInfo channelInfo in ActiveChannelList)
+                foreach (ClientChannelInfo channelInfo in ActiveChannelList.Values)
                 {
                     if (channelInfo.Channel != null && channelInfo.Channel.State == ChannelState.ACTIVE && channelInfo.Channel.Socket.Connected)
                     {
                         if (channelInfo.NeedFlush)
                         {
                             m_SocketWriteList.Add(channelInfo.Channel.Socket);
-                        }                     
+                        }
                         if (channelInfo.NeedRead)
                         {
                             ReadChannel(channelInfo, stopTime, out error);
@@ -331,6 +338,11 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                     Environment.Exit((int)TransportReturnCode.FAILURE);
                 }
             }
+            else
+            {
+                // there are no consumer connections, pause a bit to yield processor
+                Thread.Sleep(1);
+            }
         }
 
         /// <summary>
@@ -371,7 +383,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         public void CheckPings()
         {
             long currentTime = (long)ProviderThread.CurrentTime!();
-            foreach (ClientChannelInfo channelInfo in ActiveChannelList)
+            foreach (ClientChannelInfo channelInfo in ActiveChannelList.Values)
             {
                 if (!channelInfo.CheckPings)
                 {
@@ -395,7 +407,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                         }
                         else if (ret < TransportReturnCode.SUCCESS)
                         {
-                            CloseChannel(channelInfo, m_Error); // Remove client if sending the message failed 
+                            CloseChannel(channelInfo, m_Error); // Remove client if sending the message failed
                             continue;
                         }
                     }
@@ -412,7 +424,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                         // reset flag for client message received
                         channelInfo.ReceivedMsg = false;
 
-                        // set time server should receive next message/ping from client 
+                        // set time server should receive next message/ping from client
                         channelInfo.NextReceivePingTime = currentTime + channelInfo.Channel!.PingTimeOut * 1000;
                     }
                     else // lost contact with client
@@ -430,13 +442,9 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         /// </summary>
         public void Cleanup()
         {
-            foreach (ClientChannelInfo channelInfo in ActiveChannelList)
+            foreach (ClientChannelInfo channelInfo in ActiveChannelList.Values)
             {
                 CloseChannel(channelInfo, m_Error!);
-                if (m_Error is not null)
-                {
-                    Console.WriteLine($"Error while closing channel {channelInfo.Channel!.Socket.Handle}: {m_Error.Text}");
-                }
             }
         }
 
@@ -447,14 +455,21 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         /// <param name="error">If channel becomes inactive because of an error, this object gives detailed information about the error.</param>
         public void CloseChannel(ClientChannelInfo clientChannelInfo, Error error)
         {
-            ProviderThread.ProcessInactiveChannel(this, clientChannelInfo, error);
-            Error closeError;
-            clientChannelInfo.Channel!.Close(out closeError);
-            if (closeError is not null)
+            if (clientChannelInfo.ReactorChannel == null)
             {
-                Console.WriteLine($"Error closing channel: {closeError.Text}");
+                ProviderThread.ProcessInactiveChannel(this, clientChannelInfo, error);
+
+                clientChannelInfo.Channel!.Close(out var closeError);
+                if (closeError != null)
+                {
+                    Console.WriteLine($"Error closing channel: {closeError.Text}");
+                }
             }
-            clientChannelInfo.ParentQueue!.TryTake(out clientChannelInfo!);
+            else
+            {
+                clientChannelInfo.ReactorChannel.Close(out _);
+            }
+            clientChannelInfo.ParentQueue!.TryRemove(clientChannelInfo.ID, out _);
         }
 
         private void ProcessActiveChannel(ClientChannelInfo clientChannelInfo)
@@ -468,17 +483,14 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             PerfToolsReturnCode ret = ProviderThread.ProcessActiveChannel(clientChannelInfo, out m_Error!);
             if (ret < PerfToolsReturnCode.SUCCESS)
             {
-                if (m_Error is not null)
-                {
-                    Console.WriteLine($"Processing channel {clientChannelInfo.Channel.Socket.Handle} failed: {m_Error.Text}");
-                }
+                Console.WriteLine($"Processing channel {clientChannelInfo.Channel.Socket.Handle} failed: {m_Error?.Text ?? ret.ToString()}");
                 CloseChannel(clientChannelInfo, m_Error!);
                 return;
             }
             ClientChannelInfo? activeChnl = clientChannelInfo;
-            InitializingChannelList.TryTake(out activeChnl);
+            InitializingChannelList.TryRemove(activeChnl.ID, out _);
             clientChannelInfo.ParentQueue = ActiveChannelList;
-            ActiveChannelList.Add(clientChannelInfo);
+            ActiveChannelList.TryAdd(activeChnl.ID, activeChnl);
         }
 
         /// <summary>
@@ -491,7 +503,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         }
 
         /// <summary>
-        /// Requests that the ChannelHandler begin calling eta flush() for a channel. 
+        /// Requests that the ChannelHandler begin calling eta flush() for a channel.
         /// Used when a call to eta write() indicates there is still data to be written to the network.
         /// </summary>
         /// <param name="clientChannelInfo">the client channel info</param>

@@ -56,44 +56,58 @@ public :
 	*/
 	OAuth2Credential& clear();
 	
-	/** Specifies the user name. This is only used for login V1
+	/** Specifies the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.
 		
-		@param[in] userName specifies the user name for oAuth2 interactions.
+		@param[in] userName specifies the user name
 		@return reference to this object
 	*/
 	OAuth2Credential& userName(const EmaString& userName );
 	
-	/** Specifies the password. This is only used for login V1
+	/** Specifies the password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins 
 		
-		@param[in] password specifies the password for oAuth2 interactions.
+		@param[in] password specifies the password 
 		@return reference to this object
 	*/
 	OAuth2Credential& password(const EmaString& password );
 	
-	/** Specifies the clientId.  This is used for login V1 and login V2
+	/**  Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 		
-		@param[in] clientId specifies the clientId  for oAuth2 interactions.
+		@param[in] clientId specifies the clientId
 		@return reference to this object
 	*/
 	OAuth2Credential& clientId(const EmaString& clientId );
 	
-	/** Specifies the clientSecret.  This is used for login V2
+	/** Specifies the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
 		
-		@param[in] clientSecret specifies the clientSecret for oAuth2 interactions.
+		@param[in] clientSecret specifies the clientSecret
 		@return reference to this object
 	*/
 	OAuth2Credential& clientSecret(const EmaString& clientSecret );
+
+	/** Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+
+		@param[in] clientJWK specifies the JWK formatted private key
+		@return reference to this object
+	*/
+	OAuth2Credential& clientJWK(const EmaString& clientJWK);
+
+	/** Specifies the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
+
+		@param[in] audience specifies the audience claim string
+		@return reference to this object
+	*/
+	OAuth2Credential& audience(const EmaString& audience);
 	
-	/** Specifies the tokenScope.  This is optionally used for login V1 and login V2
+	/** Specifies the token scope to limit the scope of generated token from the token service. Optional.
 		
-		@param[in] clientSecret specifies the clientSecret for oAuth2 interactions.
+		@param[in] clientSecret specifies the clientSecret
 		@return reference to this object
 	*/
 	OAuth2Credential& tokenScope(const EmaString& tokenScope );
 	
-	/** Specifies the takeExclusiveSignOnControl feature.  This is optionally used for login V1.
-		
-		@param[in] takeExclusiveSignOnControl specifies the takeExclusiveSignOnControl for oAuth2 interactions.
+	/** Specifies the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
+				
+		@param[in] takeExclusiveSignOnControl specifies the takeExclusiveSignOnControl value
 		@return reference to this object
 	*/
 	OAuth2Credential& takeExclusiveSignOnControl( bool takeExclusiveSignOnControl );
@@ -101,7 +115,7 @@ public :
 	/** Specifies the connections associated with this credential set.  This is a comma separated string with the name of the connections.
 		If this is blank, then these credentials will apply to all channels that have session management enabled that do not match with any other configured oAuth2 credentials.
 	
-		@param[in] connectionList specifies the clientSecret for oAuth2 interactions.
+		@param[in] connectionList specifies the list of connections associated with this set of credentials. 
 		@return reference to this object
 	*/
 	OAuth2Credential& channelList(const EmaString& channelList );
@@ -109,43 +123,56 @@ public :
 	
 	///@name Accessors
 	//@{
-	/** Gets the user name. This is only used for login V1
+	/** Gets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.
 	
 	@return user name
 	*/
 	const EmaString& getUserName();
 	
-	/** Gets the password. This is only used for login V1
+	/** Gets the password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins 
 		
 		@return password
 	*/
 	const EmaString& getPassword();
 	
-	/** Gets the clientId.  This is used for login V1 and login V2
+	/** Gets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 		
 		@return client id
 	*/
 	const EmaString& getClientId();
 	
-	/** Gets the clientSecret.  This is used for login V2
+	/** Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
 		
 		@return client secret
 	*/
 	const EmaString& getClientSecret();
+
+	/** Gets the JWK formatted private key used to create the JWT.  The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+
+		@return client WJK
+	*/
+	const EmaString& getClientJWK();
+
+	/** Gets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
+
+		@return audience
+	*/
+	const EmaString& getAudience();
 	
-	/** Gets the tokenScope.  This is optionally used for login V1 and login V2
+	/** Gets the token scope to limit the scope of generated token from the token service. Optional.
 		
 		@return token scope
 	*/
 	const EmaString& getTokenScope();
 
-	/** Gets the channelList.  This is optionally used for login V1 and login V2
+	/** Gets the connections associated with this credential set.  This is a comma separated string with the name of the connections.
+		If this is blank, then these credentials will apply to all channels that have session management enabled that do not match with any other configured oAuth2 credentials.
 
 		@return channe list
 	*/
 	const EmaString& getChannelList();
 	
-	/** Specifies the takeExclusiveSignOnControl feature.  This is optionally used for login V1.
+	/** Gets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
 		
 		@return takeExclusiveSignOnControl value
 	*/
@@ -163,9 +190,12 @@ private :
 															 *   for the user name in the RsslReactorOAuthCredentialEventCallback. */
 	EmaString					_password;					/*!< The password for user name used to get an access token and a refresh token. */
 	
-	EmaString					_clientId;					/*!< A unique ID defined for an application marking the request. Optional */
+	EmaString					_clientId;					/*!< The clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.*/
 	EmaString					_clientSecret;				/*!< A secret used by OAuth client to authenticate to the Authorization Server. Optional */
 	EmaString					_tokenScope;					/*!< A user can optionally limit the scope of generated token. Optional. */
+
+	EmaString					_clientJWK;
+	EmaString					_audience;
 	
 	EmaString					_channelList;				/* Comma separated list of configured channel names that this set of credentials is associated with*/
 

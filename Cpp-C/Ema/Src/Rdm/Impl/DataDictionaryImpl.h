@@ -18,6 +18,7 @@
 #include "EnumTypeTableImpl.h"
 #include "HashTable.h"
 #include "Mutex.h"
+#include "rtr/rtratomic.h"
 
 namespace refinitiv {
 
@@ -106,6 +107,18 @@ public:
 
 	void setRsslDataDictionary(const RsslDataDictionary* rsslDataDictionary);
 
+	bool isFieldDictionaryLoaded();
+
+	bool isEnumTypeDefLoaded();
+
+	RsslDataDictionary* rsslDataDictionary();
+
+	void incDataDictionaryRefCount();
+
+	void decDataDictionaryRefCount();
+
+	rtr_atomic_val getDataDictionaryRefCount();
+
 	const refinitiv::ema::access::EmaString& toString() const;
 
 private:
@@ -145,6 +158,7 @@ private:
 	bool _loadedFieldDictionary;
 	bool _loadedEnumTypeDef;
 	bool _ownRsslDataDictionary;
+	rtr_atomic_val _dataDictionaryRefConuter;
 
 	mutable refinitiv::ema::access::Mutex _dataAccessMutex;
 };

@@ -16,6 +16,11 @@ class WorkerEvent extends ReactorEvent
 	TunnelStream _tunnelStream;
 	RestClient _restClient;
 	ReactorTokenSession _tokenSession;
+	int _warmStandbyEventType;
+	ReactorWarmStandbyHandler _warmStandbyHandler;
+	ReactorWSBService _warmStandbyService;
+	int _serviceId;
+	int _streamId;
 
 	WorkerEventTypes eventType()
     {
@@ -46,6 +51,46 @@ class WorkerEvent extends ReactorEvent
     {
         _tunnelStream = tunnelStream;
     }    
+    
+    void warmStandbyEventType(int warmStandbyEventType)
+    {
+    	_warmStandbyEventType = warmStandbyEventType;
+    }
+    
+    int warmStandbyEventType()
+    {
+    	return _warmStandbyEventType;
+    }
+    
+    void warmStandbyService(ReactorWSBService warmStandbyService)
+    {
+    	_warmStandbyService = warmStandbyService;
+    }
+    
+    ReactorWSBService warmStandbyService()
+    {
+    	return _warmStandbyService;
+    }
+    
+    void serviceId(int serviceId)
+    {
+    	_serviceId = serviceId;
+    }
+    
+    int serviceId()
+    {
+    	return _serviceId;
+    }
+    
+    void streamId(int streamId)
+    {
+    	_streamId = streamId;
+    }
+    
+    int streamId()
+    {
+    	return _streamId;
+    }
 
     void clear()
     {
@@ -55,6 +100,10 @@ class WorkerEvent extends ReactorEvent
         _tunnelStream = null;
         _restClient = null;
         _tokenSession = null;
+        _warmStandbyService = null;
+        _streamId = 0;
+        _serviceId = 0;
+        
     }
     
     @Override
@@ -63,6 +112,7 @@ class WorkerEvent extends ReactorEvent
     	_tunnelStream = null;
         _restClient = null;
         _tokenSession = null;
+        _warmStandbyService = null;
     	
     	super.returnToPool();
     }

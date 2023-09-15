@@ -768,13 +768,15 @@ RsslRet wlLoginProcessConsumerMsg(WlLogin* pLogin, WlBase* pBase,
 
 				return RSSL_RET_INVALID_ARGUMENT;
 			}
-
-			if (pLoginMsg->rdmMsgBase.streamId != 
-				pLogin->pRequest[pLogin->index]->base.streamId)
+			if (pLogin->pRequest[pLogin->index] != NULL)
 			{
-				rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, 
+				if (pLoginMsg->rdmMsgBase.streamId !=
+					pLogin->pRequest[pLogin->index]->base.streamId)
+				{
+					rsslSetErrorInfo(pErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT,
 						__FILE__, __LINE__, "Stream ID does not match login stream.");
-				return RSSL_RET_INVALID_ARGUMENT;
+					return RSSL_RET_INVALID_ARGUMENT;
+				}
 			}
 
 			*pAction = WL_LGCA_CLOSE;

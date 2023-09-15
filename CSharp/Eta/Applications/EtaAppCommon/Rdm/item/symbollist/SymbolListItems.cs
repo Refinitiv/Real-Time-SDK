@@ -2,19 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System.Collections.Generic;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// Storage class for managing symbol list items.
@@ -87,10 +86,7 @@ namespace Refinitiv.Eta.Example.Common
         public void SymbolListItemName(Buffer itemName, int itemNum)
         {
             // copy item name buffer
-            ByteBuffer byteBuffer = new ByteBuffer(itemName.Length);
-            itemName.Copy(byteBuffer);
-            byteBuffer.Flip();
-            m_SymbolListItemList[itemNum].ItemName.Data(byteBuffer);
+            BufferHelper.CopyBuffer(itemName, m_SymbolListItemList[itemNum].ItemName);
             m_SymbolListItemList[itemNum].IsInUse = true;
         }
 

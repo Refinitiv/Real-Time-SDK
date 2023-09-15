@@ -2,27 +2,27 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
 
-using static Refinitiv.Eta.Rdm.Login;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using static LSEG.Eta.Rdm.Login;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// Information about available servers.
     /// A list of ServerInfo is used by an LoginRefresh to list servers available for connecting
     /// to, and whether to use them as Standby servers.
     /// </summary>
-    public class ServerInfo
+    sealed public class ServerInfo
     {
         private const string eol = "\n";
         private const string tab = "\t";
@@ -110,6 +110,24 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             ServerIndex = 0;
         }
 
+        /// <summary>
+        /// Clears the current contents of the login server info object and prepares it for re-use.
+        /// </summary>
+        public void Clear()
+        {
+            HostName.Clear();
+            Port = 0;
+            LoadFactor = 65535;
+            ServerType = ServerTypes.STANDBY;
+            ServerIndex = 0;
+            Flags = default;
+        }
+
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destServerInfo</c>.
+        /// </summary>
+        /// <param name="destServerInfo">ServerInfo object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(ServerInfo destServerInfo)
         {
             Debug.Assert(destServerInfo != null);
@@ -127,6 +145,37 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Shallow copies the information and references contained in <c>srcServerInfo</c> into this object.
+        /// </summary>
+        /// <param name="srcServerInfo">ServerInfo that will be copied from.</param>
+        public void CopyReferences(ServerInfo srcServerInfo)
+        {
+            Debug.Assert(srcServerInfo != null);
+
+            HostName = srcServerInfo.HostName;
+            Flags = srcServerInfo.Flags;
+            if (srcServerInfo.HasLoadFactor)
+            {
+                HasLoadFactor = true;
+                LoadFactor = srcServerInfo.LoadFactor;
+            }
+
+            if (srcServerInfo.HasType)
+            {
+                HasType = true;
+                ServerType = srcServerInfo.ServerType;
+            }
+
+            Port = srcServerInfo.Port;
+            ServerIndex = srcServerInfo.ServerIndex;
+        }
+
+
+        /// <summary>
+        /// Returns a human readable string representation of the ServerInfo object.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             stringBuf.Clear();
@@ -169,40 +218,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
 
             return stringBuf.ToString();
-        }
-
-        CodecReturnCode CopyReferences(ServerInfo srcServerInfo)
-        {
-            Debug.Assert(srcServerInfo != null);
-
-            HostName = srcServerInfo.HostName;
-            Flags = srcServerInfo.Flags;
-            if (srcServerInfo.HasLoadFactor)
-            {
-                HasLoadFactor = true;
-                LoadFactor = srcServerInfo.LoadFactor;
-            }
-
-            if (srcServerInfo.HasType)
-            {
-                HasType = true;
-                ServerType = srcServerInfo.ServerType;
-            }
-
-            Port = srcServerInfo.Port;
-            ServerIndex = srcServerInfo.ServerIndex;
-
-            return CodecReturnCode.SUCCESS;
-        }
-
-        public void Clear()
-        {
-            HostName.Clear();
-            Port = 0;
-            LoadFactor = 65535;
-            ServerType = ServerTypes.STANDBY;
-            ServerIndex = 0;
-            Flags = default;
-        }
+        }   
     }
 }

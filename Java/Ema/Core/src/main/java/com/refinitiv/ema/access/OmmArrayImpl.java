@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -21,6 +21,7 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 {
 	private com.refinitiv.eta.codec.Array	_rsslArray = com.refinitiv.eta.codec.CodecFactory.createArray();
 	private LinkedList<OmmArrayEntry> _ommArrayCollection = new LinkedList<OmmArrayEntry>(); 
+	private OmmArrayIterImpl _ommArrayIterImpl = null;
 
 	OmmArrayImpl() 
 	{
@@ -168,6 +169,16 @@ class OmmArrayImpl extends CollectionDataImpl implements OmmArray
 			fillCollection();
 		
 		return new EmaIterator<OmmArrayEntry>(_ommArrayCollection.iterator());
+	}
+	
+	@Override
+	public Iterator<OmmArrayEntry> iteratorByRef()
+	{
+		if (_ommArrayIterImpl == null)
+			_ommArrayIterImpl = new OmmArrayIterImpl(this);
+		else
+			_ommArrayIterImpl.clear();
+		return _ommArrayIterImpl;
 	}
 
 	@Override

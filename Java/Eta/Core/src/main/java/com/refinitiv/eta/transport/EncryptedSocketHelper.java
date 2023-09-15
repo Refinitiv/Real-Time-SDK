@@ -97,5 +97,15 @@ public class EncryptedSocketHelper extends SocketHelper
         if (_crypto == null)
             throw new IOException("Encryption engine is not set up, check configuration.");
     }
+    
+    
+    /* Assumption here is that the objects are both EncryptedSocketHelpers.  */
+    @Override
+    public void copy(SocketHelper dstSocket)
+    {
+    	super.copy(dstSocket);
+    	((EncryptedSocketHelper)dstSocket)._crypto = _crypto;
+    	((EncryptedSocketHelper)dstSocket)._completedHandshake = _completedHandshake;
+    }
 
 }

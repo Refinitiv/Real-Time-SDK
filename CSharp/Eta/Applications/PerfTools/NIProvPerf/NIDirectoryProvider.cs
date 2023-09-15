@@ -2,20 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 
-using static Refinitiv.Eta.Rdm.Directory;
+using static LSEG.Eta.Rdm.Directory;
 
-namespace Refinitiv.Eta.Perftools.NIProvPerf
+namespace LSEG.Eta.Perftools.NIProvPerf
 {
     /// <summary>
     /// The directory handler for the NIProvPerf. 
@@ -39,8 +38,8 @@ namespace Refinitiv.Eta.Perftools.NIProvPerf
         /// Initializes the directory refresh
         /// </summary>
         /// <param name="streamId">stream id of the refresh</param>
-        void InitRefresh(int streamId)
-    {
+        internal void InitRefresh(int streamId)
+        {
             m_DirectoryRefresh.Clear();
 
             m_DirectoryRefresh.ClearCache = true;

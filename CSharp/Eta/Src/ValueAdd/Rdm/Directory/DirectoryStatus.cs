@@ -2,30 +2,43 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System.Diagnostics;
 using System.Text;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Directory Status. 
     /// Used by a Provider application to indicate changes to the Directory stream.
     /// </summary>
-    public class DirectoryStatus : MsgBase
+    sealed public class DirectoryStatus : MsgBase
     {
         private IStatusMsg m_StatusMsg = new Msg();
         private State m_State = new State();
 
-        public DirectoryStatus()
-        {
-            Clear();
-        }
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
+        public override int StreamId { get => m_StatusMsg.StreamId; set { m_StatusMsg.StreamId = value; } }
 
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.SOURCE"/>.
+        /// </summary>
+        public override int DomainType { get => m_StatusMsg.DomainType; }
+
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.STATUS"/>
+        /// </summary>
+        public override int MsgClass { get => m_StatusMsg.MsgClass; }
+
+        /// <summary>
+        /// Flags for this message.  See <see cref="DirectoryStatusFlags"/>.
+        /// </summary>
         public DirectoryStatusFlags Flags { get; set; }
 
         /// <summary>
@@ -101,14 +114,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         }
         /// <summary>
         /// Filter indicating which filters may appear on this stream. 
-        /// Where possible, this should match the consumer's request. Populated by <see cref="Directory.ServiceFilterFlags"/>
+        /// Where possible, this should match the consumer's request. Populated by <see cref="Eta.Rdm.Directory.ServiceFilterFlags"/>
         /// </summary>
         public long Filter { get; set; }
         
-        public override int StreamId { get => m_StatusMsg.StreamId; set { m_StatusMsg.StreamId = value; } }
-        public override int DomainType { get => m_StatusMsg.DomainType; }
-        public override int MsgClass { get => m_StatusMsg.MsgClass; }
-
         /// <summary>
         /// The ID of the service whose information is provided by this stream 
         /// (if not present, all services should be provided). 
@@ -129,17 +138,105 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Directory Status Message constructor.
+        /// </summary>
+        public DirectoryStatus()
+        {
+            Clear();
+        }
+        
+        /// <summary>
+        /// Clears the current contents of the Directory Status object and prepares it for re-use.
+        /// </summary>
         public override void Clear()
         {
             Flags = 0;
             m_StatusMsg.Clear();
-            m_StatusMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.SOURCE;
+            m_StatusMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.SOURCE;
             m_StatusMsg.MsgClass = MsgClasses.STATUS;
             m_StatusMsg.ContainerType = DataTypes.NO_DATA;
             m_State.Clear();
         }
 
-        public override CodecReturnCode Decode(DecodeIterator decIter, Msg msg)
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destStatusMsg</c>.
+        /// </summary>
+        /// <param name="destStatusMsg">DirectoryStatus object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Copy(DirectoryStatus destStatusMsg)
+        {
+            Debug.Assert(destStatusMsg != null);
+            destStatusMsg.Clear();
+
+            destStatusMsg.StreamId = StreamId;
+            if (HasFilter)
+            {
+                destStatusMsg.HasFilter = true;
+                destStatusMsg.Filter = Filter;
+            }
+            if (HasServiceId)
+            {
+                destStatusMsg.HasServiceId = true;
+                destStatusMsg.ServiceId = ServiceId;
+            }
+
+            if (ClearCache)
+            {
+                destStatusMsg.ClearCache = true;
+            }
+
+            if (HasState)
+            {
+                destStatusMsg.HasState = true;
+                State.Copy(destStatusMsg.State);
+            }
+
+            return CodecReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Encodes this Directory Status message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            if (HasFilter)
+            {
+                m_StatusMsg.ApplyHasMsgKey();
+                m_StatusMsg.MsgKey.ApplyHasFilter();
+                m_StatusMsg.MsgKey.Filter = Filter;
+            }
+
+            if (HasServiceId)
+            {
+                m_StatusMsg.ApplyHasMsgKey();
+                m_StatusMsg.MsgKey.ApplyHasServiceId();
+                m_StatusMsg.MsgKey.ServiceId = ServiceId;
+            }
+
+            if (HasState)
+            {
+                m_StatusMsg.ApplyHasState();
+                m_State.Copy(m_StatusMsg.State);
+            }
+
+            if (ClearCache)
+            {
+                m_StatusMsg.ApplyClearCache();
+            }
+
+            return m_StatusMsg.Encode(encodeIter);
+        }
+
+        /// <summary>
+        /// Decodes this Directory Status using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this Directory Status message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             Clear();
             if (msg.MsgClass != MsgClasses.STATUS)
@@ -177,67 +274,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Encode(EncodeIterator encIter)
-        {
-            if (HasFilter)
-            {
-                m_StatusMsg.ApplyHasMsgKey();
-                m_StatusMsg.MsgKey.ApplyHasFilter();
-                m_StatusMsg.MsgKey.Filter = Filter;
-            }
-
-            if (HasServiceId)
-            {
-                m_StatusMsg.ApplyHasMsgKey();
-                m_StatusMsg.MsgKey.ApplyHasServiceId();
-                m_StatusMsg.MsgKey.ServiceId = ServiceId;
-            }
-
-            if (HasState)
-            {
-                m_StatusMsg.ApplyHasState();
-                m_State.Copy(m_StatusMsg.State);
-            }
-
-            if (ClearCache)
-            {
-                m_StatusMsg.ApplyClearCache();
-            }
-
-            return m_StatusMsg.Encode(encIter);
-        }
-
-        public CodecReturnCode Copy(DirectoryStatus destStatusMsg)
-        {
-            Debug.Assert(destStatusMsg != null);
-            destStatusMsg.Clear();
-
-            destStatusMsg.StreamId = StreamId;
-            if (HasFilter)
-            {
-                destStatusMsg.HasFilter = true;
-                destStatusMsg.Filter = Filter;
-            }
-            if (HasServiceId)
-            {
-                destStatusMsg.HasServiceId = true;
-                destStatusMsg.ServiceId = ServiceId;
-            }
-
-            if (ClearCache)
-            {
-                destStatusMsg.ClearCache = true;
-            }
-
-            if (HasState)
-            {
-                destStatusMsg.HasState = true;
-                State.Copy(destStatusMsg.State);
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
-
+        /// <summary>
+        /// Returns a human readable string representation of the Directory Status message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();

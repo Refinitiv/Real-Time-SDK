@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -152,7 +152,7 @@ typedef struct {
 	RsslChannel			*channel;					/*!< @brief The RSSL channel the error occurred on. */
 	RsslRet				rsslErrorId;				/*!< @brief The RSSL Error value. */ 
 	RsslUInt32			sysError;					/*!< @brief The system error number.  */ 
-	char				text[MAX_RSSL_ERROR_TEXT+1];/*!< @brief Detailed text describing the error. */
+	char				text[MAX_RSSL_ERROR_TEXT];	/*!< @brief Detailed text describing the error. */
 } RsslError;
 
 
@@ -225,12 +225,13 @@ typedef struct
 	void*			 initConfig;			/*!< private config init */			
 	size_t			 initConfigSize;		/*!< private size of config init */	
 	RsslBool		 initCurlDebug;			/*!< curl debug (verbose) mode enable */
+	RsslBool		 shouldInitializeCPUIDlib;	/*!< Should ETA initialize CpuID lib, it identifies CPU topology */
 }RsslInitializeExOpts;
 
 /**
  * @brief Static initializer for RsslInitializeExOpts
  */
-#define RSSL_INIT_INITIALIZE_EX_OPTS { RSSL_LOCK_NONE, RSSL_INIT_SSL_LIB_JIT_OPTS, NULL, 0, RSSL_FALSE }
+#define RSSL_INIT_INITIALIZE_EX_OPTS { RSSL_LOCK_NONE, RSSL_INIT_SSL_LIB_JIT_OPTS, NULL, 0, RSSL_FALSE, RSSL_TRUE }
 
 /**
  * @brief Initializes the RSSL API and all internal members
@@ -515,15 +516,22 @@ typedef struct {
 } RsslSeqMCastOpts;
 
 #define RSSL_INIT_SEQ_MCAST_OPTS { 3000, 0 }
+
+/**
+ * @brief Options used for configuring a connection via proxy.
+ * see rsslConnect
+ * see RsslConnectOptions
+ */
 typedef struct {
 	char* proxyHostName;				/*!<  @brief Proxy host name. */
 	char* proxyPort;					/*!<  @brief Proxy port. */
 	char* proxyUserName;				/*!<  @brief User Name for authenticated proxies. */
 	char* proxyPasswd;					/*!<  @brief Password for authenticated proxies. */
 	char* proxyDomain;					/*!<  @brief Domain for authenticated proxies. */
+	RsslUInt32 proxyConnectionTimeout;	/*!<  @brief Maximum time a connection is allowed to be established. */
 } RsslProxyOpts;
 
-#define RSSL_INIT_PROXY_OPTS {0, 0, 0, 0, 0}
+#define RSSL_INIT_PROXY_OPTS { 0, 0, 0, 0, 0, 40 }
 
 typedef enum {
 	RSSL_ENC_NONE    = 0x00,			/*!< @brief (0x00) No encryption. */
@@ -701,7 +709,7 @@ typedef struct {
 	RsslMCastOpts		multicastOpts;			/*!< @brief Multicast transport specific options (used by ::RSSL_CONN_TYPE_RELIABLE_MCAST). */
 	RsslShmemOpts		shmemOpts;				/*!< @brief shmem transport specific options (used by ::RSSL_CONN_TYPE_UNIDIR_SHMEM). */
 	RsslSeqMCastOpts	seqMulticastOpts;		/*!< @brief Sequenced Multicast transport specific options (used by ::RSSL_CONN_TYPE_SEQ_MCAST). */
-	RsslProxyOpts		proxyOpts;
+	RsslProxyOpts		proxyOpts;				/*!< @brief Proxy configuration options. */
 	char*				componentVersion;		/*!< @brief User defined component version information*/
 	RsslEncryptionOpts  encryptionOpts;
 	RsslELOpts			extLineOptions;			/* Extended Line specific options */
@@ -771,8 +779,6 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->sysRecvBufSize = 0;
 	opts->seqMulticastOpts.maxMsgSize = 3000;
 	opts->seqMulticastOpts.instanceId = 0;
-	opts->proxyOpts.proxyHostName = 0;
-	opts->proxyOpts.proxyPort = 0;
 	opts->componentVersion = NULL;
 	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
 #ifdef _WIN32
@@ -787,6 +793,7 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->proxyOpts.proxyUserName = NULL;
 	opts->proxyOpts.proxyPasswd = NULL;
 	opts->proxyOpts.proxyDomain = NULL;
+	opts->proxyOpts.proxyConnectionTimeout = 40;
 	opts->wsOpts.maxMsgSize = 61440;
 	opts->wsOpts.protocols = NULL;
 	opts->wsOpts.httpCallback = NULL;
@@ -1654,12 +1661,13 @@ RSSL_API void rsslQueryTransportLibraryVersion(RsslLibraryVersionInfo *pVerInfo)
 typedef enum {
 	RSSL_TRACE_READ					= 0x00000001, /*< (0x00000001) Trace incoming data */
 	RSSL_TRACE_WRITE				= 0x00000002, /*< (0x00000002) Trace outgoing data */
-	RSSL_TRACE_PING					= 0x00000004, /*< (0x00000004) Trace Pings */
+	RSSL_TRACE_PING					= 0x00000004, /*< (0x00000004) Trace Pings. Works only if RSSL_TRACE_READ or RSSL_TRACE_WRITE are enabled. */
 	RSSL_TRACE_HEX					= 0x00000008, /*< (0x00000008) Display hex values of all messages */
 	RSSL_TRACE_TO_FILE_ENABLE		= 0x00000010, /*< (0x00000010) Enables tracing to a file*/ 
-	RSSL_TRACE_TO_MULTIPLE_FILES    = 0x00000020, /*< (0x00000020) If set, starts writing to a new file if traceMsgMaxFileSize is reached. If disabled, file writing stops when traceMsgMaxFileSize is reached*/
+	RSSL_TRACE_TO_MULTIPLE_FILES	= 0x00000020, /*< (0x00000020) If set, starts writing to a new file if traceMsgMaxFileSize is reached. If disabled, file writing stops when traceMsgMaxFileSize is reached*/
 	RSSL_TRACE_TO_STDOUT			= 0x00000040, /*< (0x00000040) Writes the xml trace to stdout. If a non-null value is also provided for traceMsgFileName, writing will be done to stdout and the specified file*/
-	RSSL_TRACE_DUMP					= 0x00000080  /*< (0x00000080) Trace dump to enable the rsslDumpBuffer() method to dump RWF or JSON messages. */
+	RSSL_TRACE_DUMP					= 0x00000080, /*< (0x00000080) Trace dump to enable the rsslDumpBuffer() method to dump RWF or JSON messages. */
+	RSSL_TRACE_PING_ONLY			= 0x00000100, /*< (0x00000100) Trace Pings. Traces all inbound and outbound PING messages regardless of other flags. */
 } RsslTraceCodes;
 
 /**

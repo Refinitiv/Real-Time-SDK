@@ -2,16 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.VACommon;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.VACommon;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
     /// <summary>
     /// Contains information associated with each open channel

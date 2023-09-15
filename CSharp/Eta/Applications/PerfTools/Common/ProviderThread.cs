@@ -2,22 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
 using System;
 using System.IO;
 
-namespace Refinitiv.Eta.PerfTools.Common
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Reactor;
+
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
-    /// ProviderThreads are used to control individual threads. 
+    /// ProviderThreads are used to control individual threads.
     /// Each thread handles providing data to its open channels.
     /// </summary>
     public class ProviderThread
@@ -32,7 +32,7 @@ namespace Refinitiv.Eta.PerfTools.Common
         public long ProviderIndex { get; set; }
         /// <summary>
         /// Counts refreshes sent
-        /// </summary>        
+        /// </summary>
         public CountStat RefreshMsgCount { get; set; } = new CountStat();
         /// <summary>
         /// Counts updates sent
@@ -77,7 +77,7 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         WriteArgs m_WriteArgs = new WriteArgs();
 
-        protected XmlMsgData m_XmlMsgData;                          // Msgs from XML 
+        protected XmlMsgData m_XmlMsgData;                          // Msgs from XML
         protected ItemEncoder m_ItemEncoder;                        // item encoder
         private LatencyRandomArray m_UpdateLatencyRandomArray;      // Updates random latency array
         private LatencyRandomArray m_GenMsgLatencyRandomArray;      // Generic Messages random latency array
@@ -87,9 +87,15 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         private long m_CurrentTicks;                                // Current tick out of ticks per second.
 
-        protected long m_nsecPerTick; // nanoseconds per tick
+        /// <summary>Nanoseconds per <see cref="ProviderPerfConfig.TicksPerSec">tick</see></summary>
+        protected long m_nsecPerTick;
+        /// <summary>Microseconds per <see cref="ProviderPerfConfig.TicksPerSec">tick</see></summary>
         protected long m_usecPerTick;
-        protected long m_millisPerTick; // milliseconds per tick
+        /// <summary>Milliseconds per <see cref="ProviderPerfConfig.TicksPerSec">tick</see></summary>
+        protected long m_millisPerTick;
+
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        private ReactorSubmitOptions m_SubmitOptions;
 
         public ProviderThread(XmlMsgData xmlMsgData)
         {
@@ -100,9 +106,14 @@ namespace Refinitiv.Eta.PerfTools.Common
             m_RandomArrayOpts = new LatencyRandomArrayOptions();
             ProvThreadInfo = new ProviderThreadInfo();
 
-            m_usecPerTick = 1000000 / ProviderPerfConfig.TicksPerSec;
-            m_nsecPerTick = 1000000000 / ProviderPerfConfig.TicksPerSec;
+            m_usecPerTick = 1_000_000 / ProviderPerfConfig.TicksPerSec;
+            m_nsecPerTick = 1_000_000_000 / ProviderPerfConfig.TicksPerSec;
             m_millisPerTick = 1000 / ProviderPerfConfig.TicksPerSec;
+
+            m_SubmitOptions = new ReactorSubmitOptions();
+            m_SubmitOptions.WriteArgs.Clear();
+            m_SubmitOptions.WriteArgs.Priority = WritePriorities.HIGH;
+            m_SubmitOptions.WriteArgs.Flags = ProviderPerfConfig.DirectWrite ? WriteFlags.DIRECT_SOCKET_WRITE : 0;
         }
 
         /// <summary>
@@ -119,7 +130,7 @@ namespace Refinitiv.Eta.PerfTools.Common
             PostMsgCount.Init();
             OutOfBuffersCount.Init();
             MsgSentCount.Init();
-            BufferSentCount.Init();     
+            BufferSentCount.Init();
             ProviderIndex = providerIndex;
             m_CurrentTicks = 0;
 
@@ -190,10 +201,10 @@ namespace Refinitiv.Eta.PerfTools.Common
         public virtual void Run() { }
 
         /// <summary>
-        /// Gets a TransportBuffer for encoding a message. 
-        /// This method handles packing of messages, 
-        /// if packing is configured -- it will pack as long as appropriate, 
-        /// stopping to write if the present buffer is too full to accommodate 
+        /// Gets a TransportBuffer for encoding a message.
+        /// This method handles packing of messages,
+        /// if packing is configured -- it will pack as long as appropriate,
+        /// stopping to write if the present buffer is too full to accommodate
         /// the requested length.
         /// </summary>
         /// <param name="session">Channel session to get transport buffer from</param>
@@ -274,8 +285,8 @@ namespace Refinitiv.Eta.PerfTools.Common
         }
 
         /// <summary>
-        /// Sends a completed transport buffer. This method packs messages if packing is configured. 
-        /// The allowPack option may be used to prevent packing if needed 
+        /// Sends a completed transport buffer. This method packs messages if packing is configured.
+        /// The allowPack option may be used to prevent packing if needed
         /// (for example, we just encoded the last message of a burst so it is time to write to the transport).
         /// </summary>
         /// <param name="session">client channel session</param>
@@ -287,7 +298,7 @@ namespace Refinitiv.Eta.PerfTools.Common
             MsgSentCount.Increment();
 
             // Make sure we stop packing at the end of a burst of updates
-            // in case the next burst is for a different channel. 
+            // in case the next burst is for a different channel.
             // (This will also prevent any latency updates from sitting in the pack for a tick).
             if (session.PackedBufferCount == (ProviderPerfConfig.TotalBuffersPerPack - 1) || !allowPack)
             {
@@ -297,18 +308,35 @@ namespace Refinitiv.Eta.PerfTools.Common
             {
                 //Pack the buffer and continue using it.
                 session.PackedBufferCount = session.PackedBufferCount + 1;
-                IChannel channel = session.ClientChannelInfo!.Channel!;
-
-                int remainingLength;
-
-                if ((remainingLength = (int)channel.PackBuffer(session.WritingBuffer, out error)) < 0)
+                if (!NIProvPerfConfig.UseReactor && !ProviderPerfConfig.UseReactor) // use ETA Channel for sending and receiving
                 {
-                    return TransportReturnCode.FAILURE;
+                    IChannel channel = session.ClientChannelInfo!.Channel!;
+
+                    int remainingLength;
+
+                    if ((remainingLength = (int)channel.PackBuffer(session.WritingBuffer, out error)) < 0)
+                    {
+                        return TransportReturnCode.FAILURE;
+                    }
+
+                    session.RemaingPackedBufferLength = remainingLength;
+
+                    error = null;
+                }
+                else // use ETA VA Reactor for sending and receiving
+                {
+                    if (session.ClientChannelInfo!.ReactorChannel!.PackBuffer(session.WritingBuffer!, out var errorInfo) < ReactorReturnCode.SUCCESS)
+                    {
+                        error = new Error()
+                        {
+                            ErrorId = errorInfo?.Error.ErrorId ?? TransportReturnCode.FAILURE,
+                            Text = errorInfo?.Error.Text ?? "Failed to pack buffer"
+                        };
+                        return TransportReturnCode.FAILURE;
+                    }
+                    error = null;
                 }
 
-                session.RemaingPackedBufferLength = remainingLength;
-
-                error = null;
                 return TransportReturnCode.SUCCESS;
             }
         }
@@ -363,7 +391,7 @@ namespace Refinitiv.Eta.PerfTools.Common
 
                 RefreshMsgCount.Increment();
 
-                //If it's not a streaming request, don't add it to the update list. 
+                //If it's not a streaming request, don't add it to the update list.
                 if (!((itemInfo!.ItemFlags & (int)ItemFlags.IS_STREAMING_REQ) > 0))
                 {
                     continue;
@@ -387,7 +415,7 @@ namespace Refinitiv.Eta.PerfTools.Common
         {
             CodecReturnCode codecReturnCode;
             TransportReturnCode transportReturnCode = TransportReturnCode.SUCCESS;
-            //Determine updates to send out. Spread the remainder out over the first ticks 
+            //Determine updates to send out. Spread the remainder out over the first ticks
             int updatesLeft = ProviderPerfConfig.UpdatesPerTick;
             int updatesPerTickRemainder = ProviderPerfConfig.UpdatesPerTickRemainder;
             if (updatesPerTickRemainder > m_CurrentTicks)
@@ -470,7 +498,7 @@ namespace Refinitiv.Eta.PerfTools.Common
         /// <returns><see cref="TransportReturnCode"/> indicating the status of the operation</returns>
         protected TransportReturnCode SendGenMsgBurst(ProviderSession providerSession, out Error? error)
         {
-            //Determine generic messages to send out. Spread the remainder out over the first ticks 
+            //Determine generic messages to send out. Spread the remainder out over the first ticks
             int genMsgsLeft = ProviderPerfConfig.GenMsgsPerTick;
             int genMsgsPerTickRemainder = ProviderPerfConfig.GenMsgsPerTickRemainder;
             if (genMsgsPerTickRemainder > m_CurrentTicks)
@@ -509,24 +537,24 @@ namespace Refinitiv.Eta.PerfTools.Common
                     return transportReturnCode;
                 }
 
-                ProvThreadInfo!.Stats.GenMsgBufLenStats.Update(providerSession.WritingBuffer!.Length);
+                ProvThreadInfo!.Stats.GenMsgBufLenStats.Update(providerSession.WritingBuffer!.Length());
 
                 CodecReturnCode codecReturnCode = m_ItemEncoder.EncodeItemGenMsg(providerSession.ClientChannelInfo!.Channel!, nextItem, providerSession.WritingBuffer, latencyStartTime);
                 if (codecReturnCode < CodecReturnCode.SUCCESS)
                 {
                     error = new Error()
                     {
-                        Text = $"Failed encoding generic message: {codecReturnCode.GetAsString()}"
+                        Text = $"Failed encoding generic message, code {codecReturnCode.GetAsString()}"
                     };
                     return TransportReturnCode.FAILURE;
                 }
-                    
+
 
                 transportReturnCode = SendItemMsgBuffer(providerSession, genMsgsLeft > 1, out error);
                 if (transportReturnCode < TransportReturnCode.SUCCESS)
                 {
                     return transportReturnCode;
-                }                
+                }
 
                 ProvThreadInfo.Stats.GenMsgSentCount.Increment();
 
@@ -544,15 +572,43 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         private TransportReturnCode GetNewBuffer(ProviderSession session, int length, out Error error)
         {
-            ITransportBuffer msgBuf;
+            ITransportBuffer? msgBuf;
 
-            bool packedBuffer = ProviderPerfConfig.TotalBuffersPerPack > 1 ? true : false;
-            msgBuf = session.ClientChannelInfo!.Channel!.GetBuffer(length, packedBuffer, out error);
-
-            if (msgBuf == null)
+            if (!NIProvPerfConfig.UseReactor && !ProviderPerfConfig.UseReactor) // use ETA Channel for sending and receiving
             {
-                return TransportReturnCode.NO_BUFFERS;
+                bool packedBuffer = ProviderPerfConfig.TotalBuffersPerPack > 1 ? true : false;
+                if ((msgBuf = session.ClientChannelInfo!.Channel!.GetBuffer(length, packedBuffer, out error)) == null)
+                {
+                    return TransportReturnCode.NO_BUFFERS;
+                }
             }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                if (session.ClientChannelInfo!.ReactorChannel!.State == ReactorChannelState.READY)
+                {
+                    msgBuf = session.ClientChannelInfo.ReactorChannel.GetBuffer(length, ProviderPerfConfig.TotalBuffersPerPack > 1, out var errorInfo);
+                    if (msgBuf == null)
+                    {
+                        error = new Error
+                        {
+                            Text = $"ReactorChannel.GetBuffer() failed with error: <{errorInfo}>",
+                            ErrorId = errorInfo?.Error.ErrorId ?? TransportReturnCode.NO_BUFFERS
+                        };
+                        return TransportReturnCode.NO_BUFFERS;
+                    }
+                }
+                else
+                {
+                    error = new Error
+                    {
+                        Text = $"ReactorChannel is not ready",
+                        ErrorId = TransportReturnCode.NO_BUFFERS
+                    };
+                    return TransportReturnCode.NO_BUFFERS;
+                }
+                error = new Error();
+            }
+
             session.WritingBuffer = msgBuf;
 
             return TransportReturnCode.SUCCESS;
@@ -564,61 +620,102 @@ namespace Refinitiv.Eta.PerfTools.Common
             // so that packing can continue in the next buffer
             session.PackedBufferCount = 0;
 
-            IChannel? channel = session.ClientChannelInfo!.Channel;
-            TransportReturnCode ret;
-
-            m_WriteArgs.Clear();
-            m_WriteArgs.Priority = WritePriorities.HIGH;
-            m_WriteArgs.Flags = ProviderPerfConfig.DirectWrite ? WriteFlags.DIRECT_SOCKET_WRITE : 0;
-
-            ret = channel!.Write(session.WritingBuffer, m_WriteArgs, out error);
-
-            // call flush and write again
-            while (ret == TransportReturnCode.WRITE_CALL_AGAIN)
+            if (!NIProvPerfConfig.UseReactor && !ProviderPerfConfig.UseReactor) // use ETA Channel for sending and receiving
             {
-                ret = channel.Flush(out error);
-                if (ret < TransportReturnCode.SUCCESS)
+                IChannel? channel = session.ClientChannelInfo!.Channel;
+                TransportReturnCode ret;
+
+                m_WriteArgs.Clear();
+                m_WriteArgs.Priority = WritePriorities.HIGH;
+                m_WriteArgs.Flags = ProviderPerfConfig.DirectWrite ? WriteFlags.DIRECT_SOCKET_WRITE : 0;
+
+                ret = channel!.Write(session.WritingBuffer, m_WriteArgs, out error);
+
+                // call flush and write again
+                while (ret == TransportReturnCode.WRITE_CALL_AGAIN)
                 {
+                    ret = channel.Flush(out error);
+                    if (ret < TransportReturnCode.SUCCESS)
+                    {
+                        return ret;
+                    }
+                    ret = channel.Write(session.WritingBuffer, m_WriteArgs, out error);
+                }
+
+                if (ret >= TransportReturnCode.SUCCESS)
+                {
+                    session.WritingBuffer = null;
+                    BufferSentCount.Increment();
                     return ret;
                 }
-                ret = channel.Write(session.WritingBuffer, m_WriteArgs, out error);
-            }
 
-            if (ret >= TransportReturnCode.SUCCESS)
-            {
-                session.WritingBuffer = null;
-                BufferSentCount.Increment();
-                return ret;
-            }
-
-            switch (ret)
-            {
-                case TransportReturnCode.WRITE_FLUSH_FAILED:
-                    // If FLUSH_FAILED is received, check the channel state.
-                    // if it is still active, it's okay, just need to flush.
-                    if (channel.State == ChannelState.ACTIVE)
-                    {
-                        session.WritingBuffer = null;
-                        BufferSentCount.Increment();
-                        return TransportReturnCode.SUCCESS + 1;
-                    } 
-                    else
-                    {
+                switch (ret)
+                {
+                    case TransportReturnCode.WRITE_FLUSH_FAILED:
+                        // If FLUSH_FAILED is received, check the channel state.
+                        // if it is still active, it's okay, just need to flush.
+                        if (channel.State == ChannelState.ACTIVE)
+                        {
+                            session.WritingBuffer = null;
+                            BufferSentCount.Increment();
+                            return TransportReturnCode.SUCCESS + 1;
+                        }
+                        else
+                        {
+                            error = new Error()
+                            {
+                                Text = $"IChannel.Write() failed with return code: {ret}",
+                                ErrorId = ret
+                            };
+                            return TransportReturnCode.FAILURE;
+                        }
+                        // Otherwise treat as error, fall through to default.
+                    default:
                         error = new Error()
                         {
                             Text = $"IChannel.Write() failed with return code: {ret}",
                             ErrorId = ret
                         };
-                        return TransportReturnCode.FAILURE;
+                        return ret;
+                }
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                ReactorChannel reactorChannel = session.ClientChannelInfo!.ReactorChannel!;
+
+                ReactorReturnCode retval = reactorChannel.Submit(session.WritingBuffer!, m_SubmitOptions, out var submitErrorInfo);
+
+                if (retval == ReactorReturnCode.WRITE_CALL_AGAIN)
+                {
+                    //call flush and write again until there is data in the queue
+                    while (retval == ReactorReturnCode.WRITE_CALL_AGAIN)
+                    {
+                        retval = reactorChannel.Submit(session.WritingBuffer!, m_SubmitOptions, out _);
                     }
-                // Otherwise treat as error, fall through to default.
-                default:
+                }
+                else if (retval < ReactorReturnCode.SUCCESS)
+                {
+                    // write failed, release buffer and shut down
+                    if (reactorChannel.State != ReactorChannelState.CLOSED)
+                    {
+                        reactorChannel.ReleaseBuffer(session.WritingBuffer!, out _);
+                    }
                     error = new Error()
                     {
-                        Text = $"IChannel.Write() failed with return code: {ret}",
-                        ErrorId = ret
+                        Text = $"ReactorChannel.Submit() failed with return code: {retval} <{submitErrorInfo}>",
+                        ErrorId = (TransportReturnCode)retval
                     };
-                    return ret;
+
+                    return TransportReturnCode.FAILURE;
+                }
+
+                if(retval >= ReactorReturnCode.SUCCESS)
+                {
+                    session.WritingBuffer = null;
+                    BufferSentCount.Increment();
+                }
+                error = new Error();
+                return (TransportReturnCode)retval;
             }
         }
 
@@ -629,23 +726,35 @@ namespace Refinitiv.Eta.PerfTools.Common
                 CurrentTime = () => GetTime.GetMilliseconds();
                 InitNextTickTime = () => GetTime.GetMilliseconds() + m_millisPerTick;
                 NextTickTime = nextTime => nextTime + m_millisPerTick;
-                //select time should be in microseconds
-                SelectTime = nextTickTime => { double res = (nextTickTime - GetTime.GetMilliseconds()) * 1000; return res > 0 ? res : 0; }; 
+                // select time should be in microseconds
+                SelectTime = nextTickTime =>
+                {
+                    double res = (nextTickTime - GetTime.GetMilliseconds()) * 1000;
+                    return res > 0 ? res : 0;
+                };
             }
-            else if (ProviderPerfConfig.TicksPerSec >= 1000 && ProviderPerfConfig.TicksPerSec <= 1000000)
+            else if (ProviderPerfConfig.TicksPerSec <= 1_000_000)
             {
                 CurrentTime = () => GetTime.GetMicroseconds();
                 InitNextTickTime = () => GetTime.GetMicroseconds() + m_usecPerTick;
                 NextTickTime = nextTime => nextTime + m_usecPerTick;
-                SelectTime = nextTickTime => { double res = nextTickTime - GetTime.GetMicroseconds(); return res > 0 ? res : 0; };
+                SelectTime = nextTickTime =>
+                {
+                    double res = nextTickTime - GetTime.GetMicroseconds();
+                    return res > 0 ? res : 0;
+                };
             }
             else
             {
                 CurrentTime = () => GetTime.GetNanoseconds();
                 InitNextTickTime = () => GetTime.GetNanoseconds() + m_nsecPerTick;
                 NextTickTime = nextTime => nextTime + m_nsecPerTick;
-                //select time should be in microseconds
-                SelectTime = nextTickTime => { double res = nextTickTime / 1000 - GetTime.GetMicroseconds(); return res > 0 ? res : 0; };
+                // select time should be in microseconds
+                SelectTime = nextTickTime =>
+                {
+                    double res = nextTickTime / 1000 - GetTime.GetMicroseconds();
+                    return res > 0 ? res : 0;
+                };
             }
         }
 
@@ -653,8 +762,22 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         public Func<double>? InitNextTickTime;
 
+        /// <summary>Given the moment of the previous tick returns the moment when the
+        /// next tick should take place</summary>
+        ///
+        /// <remarks>Time unit depends on the <see cref="ProviderPerfConfig.TicksPerSec"/>
+        /// value: it is milliseconds, microseconds, or nanoseconds depending whethere
+        /// there are less than a thousand, a million or a billion ticks per
+        /// second.</remarks>
         public Func<double, double>? NextTickTime;
 
+        /// <summary>Returns number of microseconds left until next tick</summary>
+        ///
+        /// <remarks>Receives the moment when the next tick should take place and returns
+        /// the number of microseconds left, or 0 if that moment has passed.</remarks>
+        ///
+        /// <returns>A non-negative number of microseconds left before next benchmark tick
+        /// or 0 it has already passed.</returns>
         public Func<double, double>? SelectTime;
     }
 }

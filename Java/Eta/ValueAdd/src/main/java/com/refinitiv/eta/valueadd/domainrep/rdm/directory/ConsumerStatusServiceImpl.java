@@ -20,6 +20,7 @@ import com.refinitiv.eta.codec.Msg;
 import com.refinitiv.eta.codec.UInt;
 import com.refinitiv.eta.rdm.Directory;
 import com.refinitiv.eta.rdm.ElementNames;
+import com.refinitiv.eta.rdm.Directory.WarmStandbyDirectoryServiceTypes;
 
 
 class ConsumerStatusServiceImpl implements ConsumerStatusService
@@ -34,18 +35,34 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
     private ElementEntry elementEntry = CodecFactory.createElementEntry();
     private UInt tmpUInt = CodecFactory.createUInt();
     private StringBuilder stringBuffer = new StringBuilder();
+    private int _flags;
+    private long _wsbMode;
 
     
     ConsumerStatusServiceImpl()
     {
+    	clear();
     }
 
     public void clear()
     {
         action = MapEntryActions.ADD;
         serviceId = 0;
+        _flags = ConsumerStatusServiceFlags.HAS_SOURCE_MIRRORING_MODE;
         sourceMirroringMode = Directory.SourceMirroringMode.ACTIVE_NO_STANDBY;
+        _wsbMode = WarmStandbyDirectoryServiceTypes.ACTIVE;
     }
+    
+    public int flags()
+    {
+    	return _flags;
+    }
+    
+    public void flags(int flags)
+    {
+    	_flags = flags;
+    }
+
 
     public int copy(ConsumerStatusService destConsumerStatusService)
     {
@@ -53,7 +70,17 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
         
         destConsumerStatusService.serviceId(serviceId());
         destConsumerStatusService.action(action());
-        destConsumerStatusService.sourceMirroringMode(sourceMirroringMode());
+        if(checkHasSourceMirroringMode())
+        {
+        	destConsumerStatusService.applyHasSourceMirroringMode();
+        	destConsumerStatusService.sourceMirroringMode(sourceMirroringMode());
+        }
+        destConsumerStatusService.flags(flags());
+        if(checkHasWarmStandbyMode())
+        {
+        	destConsumerStatusService.applyHasWarmStandbyMode();
+        	destConsumerStatusService.warmStandbyMode(warmStandbyMode());
+        }
         return CodecReturnCodes.SUCCESS;
     }
     
@@ -68,6 +95,7 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
         }
         elementEntry.clear();
         boolean foundSourceMirroringMode = false;
+        boolean foundWarmStandbyMode = false;
         while ((ret = elementEntry.decode(dIter)) != CodecReturnCodes.END_OF_CONTAINER)
         {
             if (ret != CodecReturnCodes.SUCCESS)
@@ -88,11 +116,29 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
                     return ret;
                 }
                 sourceMirroringMode(tmpUInt.toLong());
+                _flags |= ConsumerStatusServiceFlags.HAS_SOURCE_MIRRORING_MODE;
                 foundSourceMirroringMode = true;
+            }
+            
+            if (elementEntry.name().equals(ElementNames.WARMSTANDBY_MODE))
+            {
+                if (elementEntry.dataType() != DataTypes.UINT)
+                {
+                    return ret;
+                }
+
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS && ret != CodecReturnCodes.BLANK_DATA)
+                {
+                    return ret;
+                }
+                warmStandbyMode(tmpUInt.toLong());
+                _flags |= ConsumerStatusServiceFlags.HAS_WARM_STANDY_MODE;
+                foundWarmStandbyMode = true;
             }
         }
 
-        if (!foundSourceMirroringMode)
+        if (!foundSourceMirroringMode && !foundWarmStandbyMode)
         {
             return ret;
         }
@@ -108,13 +154,27 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
         if (ret < CodecReturnCodes.SUCCESS)
             return ret;
 
-        elementEntry.clear();
-        elementEntry.name(ElementNames.SOURCE_MIRROR_MODE);
-        elementEntry.dataType(DataTypes.UINT);
-        tmpUInt.value(sourceMirroringMode);
-        ret = elementEntry.encode(encodeIter, tmpUInt);
-        if (ret < CodecReturnCodes.SUCCESS)
-            return ret;
+        if(checkHasSourceMirroringMode())
+        {
+	        elementEntry.clear();
+	        elementEntry.name(ElementNames.SOURCE_MIRROR_MODE);
+	        elementEntry.dataType(DataTypes.UINT);
+	        tmpUInt.value(sourceMirroringMode);
+	        ret = elementEntry.encode(encodeIter, tmpUInt);
+	        if (ret < CodecReturnCodes.SUCCESS)
+	            return ret;
+        }
+        
+        if(checkHasWarmStandbyMode())
+        {
+	        elementEntry.clear();
+	        elementEntry.name(ElementNames.WARMSTANDBY_MODE);
+	        elementEntry.dataType(DataTypes.UINT);
+	        tmpUInt.value(_wsbMode);
+	        ret = elementEntry.encode(encodeIter, tmpUInt);
+	        if (ret < CodecReturnCodes.SUCCESS)
+	            return ret;
+        }
     
         ret = elementList.encodeComplete(encodeIter, true);
         if (ret < CodecReturnCodes.SUCCESS)
@@ -145,12 +205,44 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
 
     public long sourceMirroringMode()
     {
+    	assert(checkHasSourceMirroringMode());
         return sourceMirroringMode;
     }
 
     public void sourceMirroringMode(long sourceMirroringMode)
     {
         this.sourceMirroringMode = sourceMirroringMode;
+    }
+    
+    public boolean checkHasSourceMirroringMode()
+    {
+    	return (this._flags & ConsumerStatusServiceFlags.HAS_SOURCE_MIRRORING_MODE) != 0;
+    }
+
+    public void applyHasSourceMirroringMode()
+    {
+    	_flags |= ConsumerStatusServiceFlags.HAS_SOURCE_MIRRORING_MODE;
+    }
+    
+    public long warmStandbyMode()
+    {
+    	assert(checkHasWarmStandbyMode());
+        return _wsbMode;
+    }
+
+    public void warmStandbyMode(long warmStandbyMode)
+    {
+        this._wsbMode = warmStandbyMode;
+    }
+    
+    public boolean checkHasWarmStandbyMode()
+    {
+    	return (this._flags & ConsumerStatusServiceFlags.HAS_WARM_STANDY_MODE) != 0;
+    }
+
+    public void applyHasWarmStandbyMode()
+    {
+    	_flags |= ConsumerStatusServiceFlags.HAS_WARM_STANDY_MODE;
     }
 
     StringBuilder buildStringBuf()
@@ -167,10 +259,22 @@ class ConsumerStatusServiceImpl implements ConsumerStatusService
         stringBuffer.append("serviceId: ");
         stringBuffer.append(serviceId());
         stringBuffer.append(eol);
-        stringBuffer.append(tab);
-        stringBuffer.append("sourceMirroringMode: ");
-        stringBuffer.append(sourceMirroringMode());
-        stringBuffer.append(eol);
+        if(checkHasSourceMirroringMode())
+        {
+	        stringBuffer.append(tab);
+	        stringBuffer.append("sourceMirroringMode: ");
+	        stringBuffer.append(sourceMirroringMode());
+	        stringBuffer.append(eol);
+        }
+        
+        if(checkHasWarmStandbyMode())
+        {
+	        stringBuffer.append(tab);
+	        stringBuffer.append("warmStandbyMode: ");
+	        stringBuffer.append(warmStandbyMode());
+	        stringBuffer.append(eol);
+        }
+        
 
         return stringBuffer;
     }

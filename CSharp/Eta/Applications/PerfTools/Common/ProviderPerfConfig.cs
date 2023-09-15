@@ -1,12 +1,12 @@
-﻿using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Transports;
+﻿using LSEG.Eta.Example.Common;
+using LSEG.Eta.Transports;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     public class ProviderPerfConfig
     {
@@ -14,10 +14,10 @@ namespace Refinitiv.Eta.PerfTools.Common
         private const int ALWAYS_SEND_LATENCY_GENMSG = -1;
 
         public static string? ConfigString { get; set; }
-        public static int TicksPerSec { get; set; }                 // Controls granularity of update bursts (how they must be sized to match the desired update rate).               
+        public static int TicksPerSec { get; set; }                 // Controls granularity of update bursts (how they must be sized to match the desired update rate).
         public static int TotalBuffersPerPack { get; set; }         // How many messages are packed into a given buffer.
         public static int PackingBufferLength { get; set; }         // Size of packable buffer, if packing.
-        public static int RefreshBurstSize { get; set; }            // Number of refreshes to send in a burst(controls granularity of time-checking) 
+        public static int RefreshBurstSize { get; set; }            // Number of refreshes to send in a burst(controls granularity of time-checking)
         public static int UpdatesPerSec { get; set; }               // Total update rate per second(includes latency updates).
         public static int UpdatesPerTick { get; set; }              // Updates per tick
         public static int UpdatesPerTickRemainder { get; set; }     // Updates per tick (remainder)
@@ -32,9 +32,9 @@ namespace Refinitiv.Eta.PerfTools.Common
         public static int ThreadCount { get; set; }                 // Number of provider threads to create.
         public static int RunTime { get; set; }                     // Time application runs before exiting
 
-        public static string? ServiceName { get; set; }              // Name of the provided service                
+        public static string? ServiceName { get; set; }              // Name of the provided service
         public static int ServiceId { get; set; }                   // ID of the provided service
-        public static int OpenLimit { get; set; }                   // Advertised OpenLimit (default is set to 0 to not use this) 
+        public static int OpenLimit { get; set; }                   // Advertised OpenLimit (default is set to 0 to not use this)
 
         public static string? PortNo { get; set; }                   // Port number
         public static string? InterfaceName { get; set; }            // Network interface to bind to
@@ -45,17 +45,24 @@ namespace Refinitiv.Eta.PerfTools.Common
         public static int HighWaterMark { get; set; }               // High water mark
         public static int SendBufSize { get; set; }                 // System send buffer size
         public static int RecvBufSize { get; set; }                 // System receive buffer size
+        public static int SendTimeout { get; set; }                 // System Send timeout
+        public static int RecvTimeout { get; set; }                 // System Receive timeout
         public static string? SummaryFilename { get; set; }          // Summary file
         public static string? StatsFilename { get; set; }            // Stats file
         public static string? LatencyFilename { get; set; }          // Latency file
-        public static bool LogLatencyToFile { get; set; }           // Whether to log update latency information to a file
-        public static int WriteStatsInterval { get; set; }          // Controls how often statistics are written 
+        public static int WriteStatsInterval { get; set; }          // Controls how often statistics are written
         public static bool DisplayStats { get; set; }               // Controls whether stats appear on the screen
         public static bool DirectWrite { get; set; }                // direct write enabled
+        public static bool UseReactor { get; set; }                 // Use the VA Reactor instead of the ETA Channel for sending and receiving.
         public static ConnectionType ConnectionType { get; set; }   // Connection Type, either ConnectionTypes.SOCKET or ConnectionTypes.ENCRYPTED
         public static string? KeyFile { get; set; }
         public static string? Cert { get; set; }
 
+        /// <summary>Whether to log update latency information to a file</summary>
+        public static bool LogLatencyToFile
+        {
+            get => !string.IsNullOrEmpty(LatencyFilename);
+        }
 
         static ProviderPerfConfig()
         {
@@ -66,6 +73,8 @@ namespace Refinitiv.Eta.PerfTools.Common
             CommandLine.AddOption("maxFragmentSize", 6144, " Max size of buffers(configures maxFragmentSize in BindOptions)");
             CommandLine.AddOption("sendBufSize", 0, "System Send Buffer Size(configures sysSendBufSize in BindOptions)");
             CommandLine.AddOption("recvBufSize", 0, "System Receive Buffer Size(configures sysRecvBufSize in BindOptions)");
+            CommandLine.AddOption("sendTimeout", 0, "System Send timeout (configures SendTimeout in AcceptOptions)");
+            CommandLine.AddOption("recvTimeout", 0, "System Receive timeout (configures ReceiveTimeout in AcceptOptions)");
             CommandLine.AddOption("tcpDelay", false, "Turns off tcp_nodelay in BindOptions, enabling Nagle's");
             CommandLine.AddOption("highWaterMark", 0, "Sets the point that causes ETA to automatically flush");
             CommandLine.AddOption("if", "", "Name of network interface to use");
@@ -90,6 +99,7 @@ namespace Refinitiv.Eta.PerfTools.Common
             CommandLine.AddOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
             CommandLine.AddOption("runTime", 360, "Runtime of the application, in seconds");
             CommandLine.AddOption("threads", 1, "Number of provider threads to create");
+            CommandLine.AddOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
             CommandLine.AddOption("pl", "", "List of supported WS sub-protocols in order of preference(',' | white space delineated)");
             CommandLine.AddOption("c", "", "Provider connection type.  Either \"socket\" or \"encrypted\"");
             CommandLine.AddOption("cert", defaultValue: "", "The server certificate file");
@@ -97,7 +107,7 @@ namespace Refinitiv.Eta.PerfTools.Common
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="args"></param>
         public static void Init(string[] args)
@@ -115,7 +125,6 @@ namespace Refinitiv.Eta.PerfTools.Common
                 Environment.Exit((int)PerfToolsReturnCode.FAILURE);
             }
 
-            LogLatencyToFile = false;
             LatencyFilename = CommandLine.Value("latencyFile");
             SummaryFilename = CommandLine.Value("summaryFile");
             StatsFilename = CommandLine.Value("statsFile");
@@ -141,6 +150,7 @@ namespace Refinitiv.Eta.PerfTools.Common
             string? latencyUpdateRate = CommandLine.Value("latencyUpdateRate");
             string? latencyGenMsgRate = CommandLine.Value("genericMsgLatencyRate");
             DirectWrite = CommandLine.BoolValue("directWrite");
+            UseReactor = CommandLine.BoolValue("reactor");
             try
             {
                 RunTime = CommandLine.IntValue("runTime");
@@ -171,6 +181,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                 HighWaterMark = CommandLine.IntValue("highWaterMark");
                 SendBufSize = CommandLine.IntValue("sendBufSize");
                 RecvBufSize = CommandLine.IntValue("recvBufSize");
+                SendTimeout = CommandLine.IntValue("sendTimeout");
+                RecvTimeout = CommandLine.IntValue("recvTimeout");
             }
             catch (FormatException ile)
             {
@@ -291,6 +303,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                 "          Max Fragment Size: " + MaxFragmentSize + "\n" +
                 "           Send Buffer Size: " + SendBufSize + ((SendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
                 "           Recv Buffer Size: " + RecvBufSize + ((RecvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+                "               Send Timeout: " + SendTimeout + ((SendTimeout > 0) ? " ms" : "(use default)") + "\n" +
+                "            Receive Timeout: " + RecvTimeout + ((RecvTimeout > 0) ? " ms" : "(use default)") + "\n" +
                 "             Interface Name: " + (InterfaceName != null && InterfaceName.Length > 0 ? InterfaceName : "(use default)") + "\n" +
                 "                Tcp_NoDelay: " + (TcpNoDelay ? "Yes" : "No") + "\n" +
                 "                  Tick Rate: " + TicksPerSec + "\n" +
@@ -310,7 +324,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                 "                    Packing: " + (TotalBuffersPerPack <= 1 ? "No" : "Yes(max " + TotalBuffersPerPack + " per pack, " + PackingBufferLength + " buffer size)") + "\n" +
                 "               Service Name: " + ServiceName + "\n" +
                 "                 Service ID: " + ServiceId + "\n" +
-                "                 Open Limit: " + OpenLimit + "\n";
+                "                 Open Limit: " + OpenLimit + "\n" +
+                "                Use Reactor: " + (UseReactor ? "Yes" : "No") + "\n";
         }
     }
 }

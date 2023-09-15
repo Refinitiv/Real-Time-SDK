@@ -2,22 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Text;
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
 
     /// <summary>
@@ -552,14 +552,14 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                 }
 
                 // print out fid name
-                Console.Write(INDENTS[m_IndentCount] + dictionaryEntry.Acronym.ToString());
-                for (int i = 0; i < 40 - INDENTS[m_IndentCount].Length - dictionaryEntry.Acronym.Length; i++)
+                Console.Write(INDENTS[m_IndentCount] + dictionaryEntry.GetAcronym().ToString());
+                for (int i = 0; i < 40 - INDENTS[m_IndentCount].Length - dictionaryEntry.GetAcronym().Length; i++)
                 {
                     Console.Write(" ");
                 }
 
                 // decode and print out fid value
-                int dataType = dictionaryEntry.RwfType;
+                int dataType = dictionaryEntry.GetRwfType();
 
                 switch (dataType)
                 {

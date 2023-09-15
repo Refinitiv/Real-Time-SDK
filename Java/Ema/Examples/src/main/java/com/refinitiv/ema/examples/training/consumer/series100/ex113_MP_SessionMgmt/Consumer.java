@@ -7,6 +7,9 @@
 
 package com.refinitiv.ema.examples.training.consumer.series100.ex113_MP_SessionMgmt;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import com.refinitiv.ema.access.AckMsg;
 import com.refinitiv.ema.access.EmaFactory;
 import com.refinitiv.ema.access.GenericMsg;
@@ -19,6 +22,7 @@ import com.refinitiv.ema.access.OmmException;
 import com.refinitiv.ema.access.RefreshMsg;
 import com.refinitiv.ema.access.StatusMsg;
 import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.eta.codec.CodecReturnCodes;
 
 class AppClient implements OmmConsumerClient
 {
@@ -48,6 +52,8 @@ public class Consumer {
 	static String password;
 	static String clientId;
 	static String clientSecret;
+	static String clientJwk;
+	static String audience;
 	static boolean connectWebSocket = false;
 
 	static String itemName = "IBM.N";
@@ -61,6 +67,8 @@ public class Consumer {
 						   + "\tservice (mandatory for V1 password credentials).\n"
 						   + "  -clientId client ID for application making the request to (mandatory) \r\n"
 						   + "  -clientSecret client secret for application making the request to (mandatory for V2 oAuth client credentials)\r\n"
+				    	   + "  -jwkFile file containing the private JWK encoded in JSON format. (mandatory for V2 client credentials grant with JWT)\n"
+				    	   + "  -audience Audience value for JWT (optional for V2 oAuth client credentials with JWT).\n"
 						   + "  -websocket Use the WebSocket transport protocol (optional) \r\n"
 						   + "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 						   + "  -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials(optional, only for V1 oAuth password credentials).\r\n"
@@ -117,6 +125,34 @@ public class Consumer {
 				{
 					clientSecret = argsCount < (args.length-1) ? args[++argsCount] : null;
 					config.clientSecret(clientSecret);
+					++argsCount;
+				}
+				else if ("-jwkFile".equals(args[argsCount]))
+    			{
+	            	String jwkFile = argsCount < (args.length-1) ? args[++argsCount] : null;
+	            	if(jwkFile != null)
+	            	{
+		            	try
+						{
+							// Get the full contents of the JWK file.
+							byte[] jwkBuffer = Files.readAllBytes(Paths.get(jwkFile));
+							clientJwk = new String(jwkBuffer);
+							config.clientJWK(clientJwk);
+						}
+						catch(Exception e)
+						{
+							System.err.println("Error loading JWK file: " + e.getMessage());
+							System.err.println();
+							System.out.println("Consumer exits...");
+							System.exit(CodecReturnCodes.FAILURE);
+						} 
+	            	}
+    				++argsCount;				
+    			}
+				else if ("-audience".equals(args[argsCount]))
+				{
+					audience = argsCount < (args.length-1) ? args[++argsCount] : null;
+					config.audience(audience);
 					++argsCount;
 				}
 				else if ("-keyfile".equals(args[argsCount]))
@@ -223,9 +259,9 @@ public class Consumer {
 				}
 			}
 
-			if ( (userName == null || password == null || clientId == null) && (clientId == null || clientSecret == null))
+			if ( (userName == null || password == null || clientId == null) && (clientId == null || (clientSecret == null && clientJwk == null)))
 			{
-				System.out.println("Username, password, and clientId or clientId and clientSecret must be specified on the command line. Exiting...");
+				System.out.println("Username, password, and clientId or clientId and clientSecret/jwkFile must be specified on the command line. Exiting...");
 				printHelp();
 				return false;
 			}

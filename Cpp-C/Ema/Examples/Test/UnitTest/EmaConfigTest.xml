@@ -40,7 +40,6 @@
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
 			<MaxEventsInPool value="200"/>
-			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />
@@ -65,6 +64,9 @@
 			<DefaultServiceID value="1"/>
 			<JsonExpandedEnumFields value="1"/>
 			<OutputBufferSize value="99999"/>
+			<JsonTokenIncrementSize value="999992"/>
+			<SendJsonConvError value="1"/>
+			<ShouldInitializeCPUIDlib value="0"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>
@@ -92,6 +94,7 @@
 			<XmlTracePing value="1"/>
 			<XmlTraceHex value="1"/>
 			<MsgKeyInUpdates value="1"/>
+			<ShouldInitializeCPUIDlib value="1"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_4"/>
@@ -196,7 +199,6 @@
 			<CatchUnhandledException value="0"/>
 			<MaxDispatchCountApiThread value="400"/>
 			<MaxDispatchCountUserThread value="5"/>
-			<!--ReactorEventFdPort value="75000" -->
 			<PipePort value="7001"/>
 			<ReconnectAttemptLimit value="10"/>
 			<ReconnectMinDelay value="123" />
@@ -402,6 +404,7 @@
 			<SysRecvBufSize value= "125000" />
 			<SysSendBufSize value= "550000" />
 			<ConnectionPingTimeout value="3555"/>
+			<DirectWrite value="0"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_4"/>
@@ -416,6 +419,10 @@
 			<TcpNodelay value="0"/>
 			<Host value="localhost"/>
 			<Port value="14002"/>
+			<DirectWrite value="1"/>
+			<ProxyHost value="proxylocalhost"/>
+			<ProxyPort value="9018"/>
+			<ProxyConnectionTimeout value="17"/>
 		</Channel>
 		<Channel>
 			<Name value="Channel_5"/>
@@ -482,6 +489,7 @@
             <TcpNodelay value="1"/>
             <Port value="14002"/>
             <ServerSharedSocket value="0"/>
+			<DirectWrite value="1"/>
         </Server>
 		<Server>
             <Name value="Server_2"/>
@@ -500,6 +508,7 @@
             <TcpNodelay value="1"/>
             <Port value="14005"/>
 			<InitializationTimeout value="44"/>
+			<DirectWrite value="0"/>
         </Server>
         <Server>
             <Name value="Server_11"/>

@@ -43,24 +43,24 @@ static void clearTransportPerfConfig()
 	transportPerfConfig.compressionType = RSSL_COMP_NONE;
 	transportPerfConfig.compressionLevel = 5;
 	transportPerfConfig.highWaterMark = 0;
-	snprintf(transportPerfConfig.interfaceName, sizeof(transportPerfConfig.interfaceName), "");
+	snprintf(transportPerfConfig.interfaceName, sizeof(transportPerfConfig.interfaceName), "%s", "");
 	snprintf(transportPerfConfig.hostName, sizeof(transportPerfConfig.hostName), "%s", "localhost");
 	snprintf(transportPerfConfig.portNo, sizeof(transportPerfConfig.portNo), "%s", "14002");
 	transportPerfConfig.tcpNoDelay = RSSL_TRUE;
-	snprintf(transportPerfConfig.sendAddr, sizeof(transportPerfConfig.sendAddr), "");
-	snprintf(transportPerfConfig.recvAddr, sizeof(transportPerfConfig.recvAddr), "");
-	snprintf(transportPerfConfig.sendPort, sizeof(transportPerfConfig.sendPort), "");
-	snprintf(transportPerfConfig.recvPort, sizeof(transportPerfConfig.recvPort), "");
-	snprintf(transportPerfConfig.unicastPort, sizeof(transportPerfConfig.unicastPort), "");
+	snprintf(transportPerfConfig.sendAddr, sizeof(transportPerfConfig.sendAddr), "%s", "");
+	snprintf(transportPerfConfig.recvAddr, sizeof(transportPerfConfig.recvAddr), "%s", "");
+	snprintf(transportPerfConfig.sendPort, sizeof(transportPerfConfig.sendPort), "%s", "");
+	snprintf(transportPerfConfig.recvPort, sizeof(transportPerfConfig.recvPort), "%s", "");
+	snprintf(transportPerfConfig.unicastPort, sizeof(transportPerfConfig.unicastPort), "%s", "");
 	transportPerfConfig.sAddr = RSSL_FALSE;
 	transportPerfConfig.rAddr = RSSL_FALSE;
 	transportPerfConfig.takeMCastStats = RSSL_FALSE;
 
-	snprintf(transportPerfConfig.caStore, sizeof(transportPerfConfig.caStore), "");
-	snprintf(transportPerfConfig.serverCert, sizeof(transportPerfConfig.serverCert), "");
-	snprintf(transportPerfConfig.serverKey, sizeof(transportPerfConfig.serverKey), "");
+	snprintf(transportPerfConfig.caStore, sizeof(transportPerfConfig.caStore), "%s", "");
+	snprintf(transportPerfConfig.serverCert, sizeof(transportPerfConfig.serverCert), "%s", "");
+	snprintf(transportPerfConfig.serverKey, sizeof(transportPerfConfig.serverKey), "%s", "");
 
-	snprintf(transportPerfConfig.protocolList, sizeof(transportPerfConfig.protocolList), "");
+	snprintf(transportPerfConfig.protocolList, sizeof(transportPerfConfig.protocolList), "%s", "");
 
 	transportPerfConfig.appType = APPTYPE_SERVER;
 	transportPerfConfig.busyRead = RSSL_FALSE;
@@ -185,7 +185,7 @@ void initTransportPerfConfig(int argc, char **argv)
 			else if (strcmp("http", argv[iargs]) == 0)
 			{
 #ifdef Linux  
-				printf("Config Error: Encrypted HTTP connection type not supported on Linux.\n", argv[iargs]);
+				printf("Config Error: Encrypted HTTP connection type not supported on Linux \"%s\".\n", argv[iargs]);
 				exitConfigError(argv);
 #else // HTTP connnections spported only through Windows WinInet 
 				transportPerfConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;

@@ -2,13 +2,15 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|         Copyright (C) 2019-2022 Refinitiv.  All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 #include "ThreadAffinity.h"
 #include "Mutex.h"
 #include "AppUtil.h"
-
+#ifndef NO_ETA_CPU_BIND
+#include "rtr/rsslBindThread.h"
+#endif
 #include <iostream>
 #include <list>
 
@@ -39,6 +41,8 @@ list< unsigned long >	_firstSnapshot;		// contains threadIds of all threads pres
 list< unsigned long >	_secondSnapshot;	// contains threadIds of all threads present at the second snapshot
 
 bool snapshot( list< unsigned long >& );
+
+long getThisThreadId();
 
 // if passed in cpuId is set to -1, then bind calling thread to all cpus or otherwise clear all previous binds
 //
@@ -130,6 +134,19 @@ bool bindThread( long& threadId, long& cpuId )
 #endif
 }
 
+long getThisThreadId()
+{
+	long threadId = 0;
+
+#ifdef WIN32
+	threadId = (long)GetCurrentThreadId();
+#else  // Linux
+	threadId = syscall(SYS_gettid);
+#endif
+
+	return threadId;
+}
+
 void bindThisThread( const EmaString& threadName, long cpuId, long threadId )
 {
 	_collectionLock.lock();
@@ -147,6 +164,56 @@ void bindThisThread( const EmaString& threadName, long cpuId, long threadId )
 	_collection.push_back( info );
 
 	_collectionLock.unlock();
+}
+
+bool bindThisThread(
+	const EmaString& threadName,
+	const EmaString& cpuString)
+{
+	bool bound = false;
+#ifdef NO_ETA_CPU_BIND
+	return true;
+#else
+	RsslRet ret = RSSL_RET_SUCCESS;
+	RsslErrorInfo rsslErrorInfo;
+
+	ret = rsslBindThread(cpuString.c_str(), &rsslErrorInfo);
+	if (ret != RSSL_RET_SUCCESS)
+	{
+		printf("bindThisThread failed! %s, cpuString=%s, err=%s\n",
+			threadName.c_str(), cpuString.c_str(), rsslErrorInfo.rsslError.text);
+	}
+	else
+	{
+		bound = true;
+		long threadId = getThisThreadId();
+
+		ThreadInfo info;
+		info.setBoundCPU(cpuString);
+		info.setThreadId(threadId);
+		info.setThreadName(threadName);
+
+		_collection.push_back(info);
+	}
+	return bound;
+#endif
+}
+
+void addThisThread(
+	const EmaString& threadName,
+	const EmaString& cpuString,
+	long threadId)
+{
+	if (threadId < 0)
+		threadId = getThisThreadId();
+
+	ThreadInfo info;
+
+	info.setBoundCPU(cpuString);
+	info.setThreadId(threadId);
+	info.setThreadName(threadName);
+
+	_collection.push_back(info);
 }
 
 void firstThreadSnapshot()
@@ -178,7 +245,10 @@ void secondThreadSnapshot( const EmaString& threadName, long cpu )
 	// note that the first thread is the actual EMA thread
 	for ( list< unsigned long >::iterator iter = _secondSnapshot.begin();
 		iter != _secondSnapshot.end(); ++iter )
-		bindThisThread( threadName, cpu, *iter );
+	{
+		//bindThisThread( threadName, cpu, *iter );
+		addThisThread( threadName, "-1", *iter );
+	}
 }
 
 long getCpuCount()
@@ -225,24 +295,28 @@ void printAllThreadBinding()
 		temp.append( (Int64) (*iter).getThreadId() );
 		temp.append( "\t" );
 
-		if ( ( *iter ).getBoundCPU() < 0 )
-			temp.append( "all" );
+		//if ( ( *iter ).getBoundCPU() < 0 )
+		//	temp.append( "all" );
+		//else
+		//	temp.append( (Int64)( *iter ).getBoundCPU() );
+		if ( (*iter).getBoundCPU().empty() )
+			temp.append("all");
 		else
-			temp.append( (Int64)( *iter ).getBoundCPU() );
+			temp.append((*iter).getBoundCPU());
 
 		temp.append( "\t" );
 		temp += (*iter).getThreadName();
 
-		if ( (*iter ).getBoundCPU() != ( *iter ).getRequestedCPU() )
-		{
-			temp.append( "\t" );
-			temp.append( "requested CPU was " );
+		//if ( (*iter ).getBoundCPU() != ( *iter ).getRequestedCPU() )
+		//{
+		//	temp.append( "\t" );
+		//	temp.append( "requested CPU was " );
 
-			if ( ( *iter ).getRequestedCPU() < 0 )
-				temp.append( "all" );
-			else
-				temp.append( (Int64) ( *iter ).getRequestedCPU() );
-		}
+		//	if ( ( *iter ).getRequestedCPU() < 0 )
+		//		temp.append( "all" );
+		//	else
+		//		temp.append( (Int64) ( *iter ).getRequestedCPU() );
+		//}
 	}
 
 	cout << temp << endl << endl;

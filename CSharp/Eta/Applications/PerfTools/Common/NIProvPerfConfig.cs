@@ -2,16 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
 
     /// <summary>
@@ -68,6 +68,9 @@ namespace Refinitiv.Eta.PerfTools.Common
         /// <summary>Type of connection.</summary>
         public static ConnectionType ConnectionType { get; private set; }
 
+        /// <summary>Type of encrypted connection.</summary>
+        public static ConnectionType EncryptedConnectionType { get; private set; }
+
         /// <summary>hostName, if using Channel.connect().</summary>
         public static string? HostName { get; private set; }
 
@@ -86,6 +89,12 @@ namespace Refinitiv.Eta.PerfTools.Common
         /// <summary>System Receive Buffer Size.</summary>
         public static int RecvBufSize { get; private set; }
 
+        /// <summary>System Send timeout</summary>
+		public static int SendTimeout { get; set; }
+
+        /// <summary>System Receive timeout</summary>
+        public static int RecvTimeout { get; set; }
+
         /// <summary>The point that causes ETA to automatically flush.</summary>
         public static int HighWaterMark { get; private set; }
 
@@ -103,6 +112,9 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         /// <summary>Number of items common to all connections, if using multiple connections.</summary>
         public static int CommonItemCount { get; private set; }
+
+        /// <summary>Use the VA Reactor instead of the ETA Channel for sending and receiving.</summary>
+        public static bool UseReactor;
 
         /// <summary>Number of updates to send per second.</summary>
         public static int UpdatesPerSec => ProviderPerfConfig.UpdatesPerSec;
@@ -131,6 +143,7 @@ namespace Refinitiv.Eta.PerfTools.Common
             CommandLine.AddOption("writeStatsInterval", 5, "Controls how often stats are written to the file");
             CommandLine.AddOption("noDisplayStats", false, "Stop printout of stats to screen");
             CommandLine.AddOption("connType", "socket", "Type of connection (\"socket\" or \"encrypted\")");
+            CommandLine.AddOption("encryptedConnectionType", "socket", "Type of encrypted connection (\"socket\")");
             CommandLine.AddOption("h", "localhost", "Name of host for socket connection");
             CommandLine.AddOption("p", "14003", "Port number for socket connection");
             CommandLine.AddOption("if", "", "Name of network interface to use");
@@ -140,16 +153,19 @@ namespace Refinitiv.Eta.PerfTools.Common
             CommandLine.AddOption("maxFragmentSize", 6144, "Maximum Fragment Size");
             CommandLine.AddOption("sendBufSize", 0, "System Send Buffer Size(configures sysSendBufSize in ConnectOptions)");
             CommandLine.AddOption("recvBufSize", 0, "System Receive Buffer Size(configures sysRecvBufSize in ConnectOptions)");
+            CommandLine.AddOption("sendTimeout", 0, "System Send timeout (configures SendTimeout in ConnectOptions)");
+            CommandLine.AddOption("recvTimeout", 0, "System Receive timeout (configures ReceiveTimeout in ConnectOptions)");
             CommandLine.AddOption("highWaterMark", 0, "Sets the point that causes ETA to automatically flush");
-            CommandLine.AddOption("itemCount", 100, "Number of items to publish non-interactively");
+            CommandLine.AddOption("itemCount", 100_000, "Number of items to publish non-interactively");
             CommandLine.AddOption("commonItemCount", 0, "Number of items common to all providers, if using multiple connections");
+            CommandLine.AddOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
 
             // ProviderPerfConfig
             CommandLine.AddOption("threads", DEFAULT_THREAD_COUNT, "Number of non-interactive provider threads to create");
             CommandLine.AddOption("statsFile", "NIProvStats", "Base name of file for logging periodic statistics");
             CommandLine.AddOption("itemFile", "350k.xml", "Name of the file to get item names from");
             CommandLine.AddOption("msgFile", "MsgData.xml", "Name of the file that specifies the data content in messages");
-            CommandLine.AddOption("updateRate", 1000, "Total update rate per second(includes latency updates)");
+            CommandLine.AddOption("updateRate", 100_000, "Total update rate per second(includes latency updates)");
             CommandLine.AddOption("refreshBurstSize", 10, "Number of refreshes to send in a burst(controls granularity of time-checking)");
             CommandLine.AddOption("latencyUpdateRate", 10, "Total latency update rate per second");
             CommandLine.AddOption("tickRate", 1000, "Ticks per second");
@@ -200,6 +216,22 @@ namespace Refinitiv.Eta.PerfTools.Common
             TcpNoDelay = !CommandLine.BoolValue("tcpDelay");
             ProviderPerfConfig.DirectWrite = CommandLine.BoolValue("directWrite");
             ProviderPerfConfig.ServiceName = CommandLine.Value("serviceName");
+            UseReactor = CommandLine.BoolValue("reactor");
+            string? encryptedConnectionType = CommandLine.Value("encryptedConnectionType");
+            if (!string.IsNullOrEmpty(encryptedConnectionType))
+            {
+                switch (encryptedConnectionType)
+                {
+                    case "socket" :
+                        EncryptedConnectionType = ConnectionType.SOCKET;
+                        break;
+                    default:
+                        Console.Error.WriteLine("Config Error: Only socket encrypted connection type is supported.");
+                        Console.WriteLine(CommandLine.OptionHelpString());
+                        Environment.Exit(-1);
+                        break;
+                }
+            }
 
             try
             {
@@ -237,6 +269,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                 MaxFragmentSize = CommandLine.IntValue("maxFragmentSize");
                 SendBufSize = CommandLine.IntValue("sendBufSize");
                 RecvBufSize = CommandLine.IntValue("recvBufSize");
+                SendTimeout = CommandLine.IntValue("sendTimeout");
+                RecvTimeout = CommandLine.IntValue("recvTimeout");
                 HighWaterMark = CommandLine.IntValue("highWaterMark");
                 ItemPublishCount = CommandLine.IntValue("itemCount");
                 CommonItemCount = CommandLine.IntValue("commonItemCount");
@@ -332,6 +366,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                 "      Max Fragment Size: " + MaxFragmentSize + "\n" +
                 "       Send Buffer Size: " + SendBufSize + ((SendBufSize > 0) ? " bytes" : "(use default)") + "\n" +
                 "       Recv Buffer Size: " + RecvBufSize + ((RecvBufSize > 0) ? " bytes" : "(use default)") + "\n" +
+                "           Send Timeout: " + SendTimeout + ((SendTimeout > 0) ? " ms" : "(use default)") + "\n" +
+                "           Recv Timeout: " + RecvTimeout + ((RecvTimeout > 0) ? " ms" : "(use default)") + "\n" +
                 "        High Water Mark: " + HighWaterMark + ((HighWaterMark > 0) ? " bytes" : "(use default)") + "\n" +
                 "         Interface Name: " + (InterfaceName != null && InterfaceName.Length > 0 ? InterfaceName : "(use default)") + "\n" +
                 "               Username: " + (Username != null && Username.Length > 0 ? Username : "(use system login name)") + "\n" +
@@ -351,7 +387,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                 "              Data File: " + ProviderPerfConfig.MsgFilename + "\n" +
                 "                Packing: " + ((ProviderPerfConfig.TotalBuffersPerPack > 1) ? "Yes(max " + ProviderPerfConfig.TotalBuffersPerPack + " per pack, " + ProviderPerfConfig.PackingBufferLength + " buffer size)" : "No") + "\n" +
                 "             Service ID: " + ProviderPerfConfig.ServiceId + "\n" +
-                "           Service Name: " + ProviderPerfConfig.ServiceName + "\n";
+                "           Service Name: " + ProviderPerfConfig.ServiceName + "\n" +
+                "            Use Reactor: " + (UseReactor ? "Yes" : "No") + "\n\n";
         }
     }
 }

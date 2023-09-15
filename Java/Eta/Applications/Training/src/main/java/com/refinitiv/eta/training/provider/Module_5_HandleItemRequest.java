@@ -3396,7 +3396,7 @@ public class Module_5_HandleItemRequest
                     /* get StreamId */
                     fieldDictionaryRequestInfo_StreamId = msg.streamId();
 
-                    if (fieldDictionaryRequestInfo_MsgKey.copy(requestKey) == CodecReturnCodes.FAILURE)
+                    if (requestKey.copy(fieldDictionaryRequestInfo_MsgKey) == CodecReturnCodes.FAILURE)
                     {
                         if (sendDictionaryRequestRejectStatusMsg(chnl, msg.streamId(), DictionaryRejectReason.MAX_DICTIONARY_REQUESTS_REACHED, maxSize) != CodecReturnCodes.SUCCESS)
                             return CodecReturnCodes.FAILURE;
@@ -3419,12 +3419,13 @@ public class Module_5_HandleItemRequest
                     /* get StreamId */
                     enumTypeDictionaryRequestInfo_StreamId = msg.streamId();
 
-                    if (enumTypeDictionaryRequestInfo_MsgKey.copy(requestKey) == CodecReturnCodes.FAILURE)
+                    if (requestKey.copy(enumTypeDictionaryRequestInfo_MsgKey) == CodecReturnCodes.FAILURE)
                     {
                         if (sendDictionaryRequestRejectStatusMsg(chnl, msg.streamId(), DictionaryRejectReason.MAX_DICTIONARY_REQUESTS_REACHED, maxSize) != CodecReturnCodes.SUCCESS)
                             return CodecReturnCodes.FAILURE;
                         break;
                     }
+                    enumTypeDictionaryRequestInfo_DictionaryName = enumTypeDictionaryRequestInfo_MsgKey.name().toString();
 
                     System.out.printf("\nReceived Dictionary Request for DictionaryName: %s\n", enumTypeDictionaryRequestInfo_DictionaryName);
 
@@ -4630,6 +4631,7 @@ public class Module_5_HandleItemRequest
             refreshMsg.applyRefreshComplete();
             refreshMsg.applyHasQos();
             refreshMsg.applyClearCache();
+            refreshMsg.applySolicited();
             stateText = "Item Refresh Completed";
             refreshMsg.state().text().data(stateText);
 

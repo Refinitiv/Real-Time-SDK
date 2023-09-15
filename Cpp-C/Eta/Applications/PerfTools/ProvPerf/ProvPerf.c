@@ -20,8 +20,9 @@
 #include <ctype.h>
 #include <assert.h>
 #include <signal.h>
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
-
+#endif
 //uncomment the following line for debugging only - this will greatly affect performance
 //#define ENABLE_XML_TRACE
 
@@ -93,6 +94,7 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 	RsslTimeValue nextTickTime;
 	RsslInt32 currentTicks = 0;
 
+#ifndef NO_ETA_CPU_BIND
 	if (pProvThread->cpuId.length > 0 && pProvThread->cpuId.data != NULL)
 	{
 		if (rsslBindThread(pProvThread->cpuId.data, &rsslErrorInfo) != RSSL_RET_SUCCESS)
@@ -101,6 +103,7 @@ RSSL_THREAD_DECLARE(runChannelConnectionHandler, pArg)
 			exit(-1);
 		}
 	}
+#endif
 
 	nextTickTime = rsslGetTimeNano() + nsecPerTick;
 
@@ -170,6 +173,7 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 		cleanUpAndExit();
 	}
 
+#ifndef NO_ETA_CPU_BIND
 	// Cpu core bind for the provider thread thread.
 	// The application should invoke rsslBindThread() after rsslInitialize() has invoked.
 	// rsslInitialize analyzed Cpu Topology.
@@ -181,6 +185,7 @@ RSSL_THREAD_DECLARE(runReactorConnectionHandler, pArg)
 			exit(-1);
 		}
 	}
+#endif
 
 	jsonConverterOptions.pDictionary = pProvThread->pDictionary;
 	jsonConverterOptions.defaultServiceId = (RsslUInt16)directoryConfig.serviceId;

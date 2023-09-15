@@ -26,7 +26,10 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String userName;
 	private String passwd;
 	private String clientId;
-	private String clientSecret;
+	private String clientSecret = "";
+	private String jwkFile = "";
+	private String tokenScope = "";
+	private String audience = "";
 	private boolean enableView;
 	private boolean enablePost;
 	private boolean enableOffpost;
@@ -60,6 +63,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean enableRtt;
 	private boolean takeExclusiveSignOnControl = true;
 	private String protocolList = "tr_json2";
+	private boolean sendJsonConvError;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -133,6 +137,21 @@ class ConsumerCmdLineParser implements CommandLineParser
 				else if ("-clientSecret".equals(args[argsCount]))
 				{
 					clientSecret = args[++argsCount];
+					++argsCount;
+				}
+				else if ("-jwkFile".equals(args[argsCount]))
+				{
+					jwkFile = args[++argsCount];
+					++argsCount;
+				}
+				else if ("-tokenScope".equals(args[argsCount]))
+				{
+					tokenScope = args[++argsCount];
+					++argsCount;
+				}
+				else if ("-audience".equals(args[argsCount]))
+				{
+					audience = args[++argsCount];
 					++argsCount;
 				}
 				else if ("-view".equals(args[argsCount]))
@@ -325,6 +344,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 					protocolList = args[++argsCount];
 					++argsCount;
 				}
+				else if ("-sendJsonConvError".equals(args[argsCount]))
+				{
+					sendJsonConvError = true;
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
 					System.out.println("\nUnrecognized command line argument...\n");
@@ -381,6 +405,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return clientSecret;
 	}
 	
+	String jwkFile()
+	{
+		return jwkFile;
+	}
+	
 	String tokenURLV1()
 	{
 		return tokenURL_V1;
@@ -390,7 +419,17 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return tokenURL_V2;
 	}
-
+	
+	String tokenScope()
+	{
+		return tokenScope;
+	}
+	
+	String audience()
+	{
+		return audience;
+	}
+	
 	boolean enableSessionMgnt()
 	{
 		return enableSessionMgnt;
@@ -540,6 +579,11 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return protocolList;
 	}
 
+	boolean sendJsonConvError()
+	{ 
+		return sendJsonConvError;
+	}
+	
 	@Override
 	public void printUsage()
 	{
@@ -567,6 +611,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator for V1 password credentials. For V2 client credentials, this is the service account.(required for V1 password credential and V2 client credential logins)\n" +
 						   "\n -clientSecret specifies the associated secret with the client id(required for V2 client credential logins)." +
 						   "\n -sessionMgnt enables the session management in the Reactor\n" +
+						   "\n -jwk Specifies the file containing the JWK encoded private key for V2 JWT logins.\n" +
 						   "\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials. This is only used with V1 password credential logins(optional for V1 password credential logins).\n" +
 						   "\n -tokenURLV1 specifies the URL for the V1 token generator(optional)." +
 						   "\n -tokenURLV2 specifies the URL for the V2 token generator(optional)." +
@@ -596,7 +641,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -at Specifies the Authentication Token. If this is present, the login user name type will be Login.UserIdTypes.AUTHN_TOKEN" +
 						   "\n -ax Specifies the Authentication Extended information" +
 						   "\n -aid Specifies the Application ID" +
-						   "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.");
+						   "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them." +
+						   "\n -sendJsonConvError enable send json conversion error to provider ");
 	}
 }
 

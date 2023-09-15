@@ -210,6 +210,11 @@ class LoginRefreshImpl extends MsgBaseImpl
                 destfeatures.applyHasSupportStandby();
                 destfeatures.supportStandby(thisfeatures.supportStandby());
             }
+            if (thisfeatures.checkHasSupportStandbyMode())
+            {
+                destfeatures.applyHasSupportStandbyMode();
+                destfeatures.supportStandbyMode(thisfeatures.supportStandbyMode());
+            }
             if (thisfeatures.checkHasSupportProviderDictionaryDownload())
             {
                 destfeatures.applyHasSupportProviderDictionaryDownload();
@@ -523,6 +528,17 @@ class LoginRefreshImpl extends MsgBaseImpl
                 applyHasFeatures();
                 features.applyHasSupportStandby();
                 features.supportStandby(tmpUInt.toLong());
+            }
+            else if (element.name().equals(ElementNames.SUPPORT_STANDBY_MODE))
+            {
+                if (element.dataType() != DataTypes.UINT)
+                    return CodecReturnCodes.FAILURE;
+                ret = tmpUInt.decode(dIter);
+                if (ret != CodecReturnCodes.SUCCESS)
+                    return ret;
+                applyHasFeatures();
+                features.applyHasSupportStandbyMode();
+                features.supportStandbyMode(tmpUInt.toLong());
             }
             else if (element.name().equals(ElementNames.SUPPORT_BATCH))
             {
@@ -1031,6 +1047,15 @@ class LoginRefreshImpl extends MsgBaseImpl
                 element.dataType(DataTypes.UINT);
                 element.name(ElementNames.SUPPORT_STANDBY);
                 tmpUInt.value(features().supportStandby());
+                if ((ret = element.encode(encodeIter, tmpUInt)) != CodecReturnCodes.SUCCESS)
+                    return ret;
+            }
+            
+            if (features().checkHasSupportStandbyMode())
+            {
+                element.dataType(DataTypes.UINT);
+                element.name(ElementNames.SUPPORT_STANDBY_MODE);
+                tmpUInt.value(features().supportStandbyMode());
                 if ((ret = element.encode(encodeIter, tmpUInt)) != CodecReturnCodes.SUCCESS)
                     return ret;
             }

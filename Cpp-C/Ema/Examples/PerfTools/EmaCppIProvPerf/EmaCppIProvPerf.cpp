@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2021 Refinitiv.      All rights reserved.          --
+// *|          Copyright (C) 2021-2022 Refinitiv.   All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 #include "EmaCppIProvPerf.h"
@@ -65,12 +65,21 @@ void EmaCppIProvPerf::exitWithUsage()
 	logText += "  -writeStatsInterval <sec>            Controls how often stats are written to the file.\n";
 	logText += "  -noDisplayStats                      Stop printout of stats to screen.\n\n";
 
-	logText += "  -runTime <sec>                       Runtime of the application, in seconds.\n";
+	logText += "  -runTime <sec>                       Runtime of the application, in seconds.\n\n";
+
 	logText += "  -mainThread <CpuId>                  CPU of the application's main thread that collects & prints stats.\n";
 	logText += "  -threads <thread list>               List of threads, by their bound CPU. Comma-separated list. -1 means do not bind.\n";
 	logText += "                                        (e.g. \"-threads 0,1 \" creates two threads bound to CPU's 0 and 1).\n\n";
+	logText += "  -apiThreads <thread list>            List of Api threads in ApiDispatch mode, by their bound CPU.\n";
+	logText += "                                        Comma-separated list. -1 means do not bind.\n";
+	logText += "                                        Must match the count of listed in -threads option.\n";
+	logText += "                                        (e.g. \"-apiThreads 0,1\" creates two threads bound to CPU's 0 and 1)\n";
+	logText += "  -workerThreads <thread list>         List of Reactor worker threads, by their bound CPU.\n";
+	logText += "                                        Comma-separated list. -1 means do not bind.\n";
+	logText += "                                        Must match the count of listed in -threads option.\n";
+	logText += "                                        (e.g. \"-workerThreads 0,1\" creates two threads bound to CPU's 0 and 1)\n\n";
 
-	logText += "  -useUserDispatch <1 Or 0>            Value 1 will use UserDispatch.\n";
+	logText += "  -useUserDispatch <1 Or 0>            Value 1 will use UserDispatch, 0 will use ApiDispatch.\n";
 	logText += "  -preEnc                              Use Pre-Encoded updates.\n";
 	logText += "  -measureEncode                       Measure encoding time of messages.\n";
 	logText += "  -measureDecode                       Measure dencoding time of messages.\n";
@@ -83,6 +92,8 @@ void EmaCppIProvPerf::exitWithUsage()
 bool EmaCppIProvPerf::initIProvPerfConfig(int argc, char* argv[])
 {
 	int iargs = 1;
+	Int32 provThreadCount = 0;
+
 	while (iargs < argc)
 	{
 		if (0 == strcmp("-?", argv[iargs]))
@@ -214,8 +225,7 @@ bool EmaCppIProvPerf::initIProvPerfConfig(int argc, char* argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
-			int cpuIndex = atoi(argv[iargs++]);
-			provPerfConfig.mainThreadCpu = cpuIndex;
+			provPerfConfig.mainThreadCpu = argv[iargs++];
 		}
 		else if (strcmp("-threads", argv[iargs]) == 0)
 		{
@@ -237,11 +247,87 @@ bool EmaCppIProvPerf::initIProvPerfConfig(int argc, char* argv[])
 					AppUtil::logError(logText);
 					return false;
 				}
-				sscanf(pToken, "%ld", &provPerfConfig.threadBindList[provPerfConfig.threadCount - 1]);
+				provPerfConfig.threadBindList[provPerfConfig.threadCount - 1] = pToken;
 				pToken = strtok(NULL, ",");
 			}
+			if (provThreadCount > 0 && provPerfConfig.threadCount != provThreadCount)
+			{
+				logText = "Config Error: thread count not equal to api thread count.";
+				AppUtil::logError(logText);
+				return false;
+			}
 			for (int i = provPerfConfig.threadCount; i < MAX_PROV_THREADS; ++i)
-				provPerfConfig.threadBindList[i] = -1;
+				provPerfConfig.threadBindList[i].clear();
+
+			provThreadCount = (provPerfConfig.threadCount > 0) ? provPerfConfig.threadCount : 0;
+		}
+		else if (strcmp("-apiThreads", argv[iargs]) == 0)
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+
+			provPerfConfig.threadCount = 0;
+
+			char* pToken = strtok(argv[iargs++], ",");
+			while (pToken)
+			{
+				if (++provPerfConfig.threadCount > MAX_PROV_THREADS)
+				{
+					logText = "Config Error: Too many api threads specified.";
+					AppUtil::logError(logText);
+					return false;
+				}
+				provPerfConfig.apiThreadBindList[provPerfConfig.threadCount - 1] = pToken;
+				pToken = strtok(NULL, ",");
+			}
+			if (provThreadCount > 0 && provPerfConfig.threadCount != provThreadCount)
+			{
+				logText = "Config Error: thread count not equal to api thread count.";
+				AppUtil::logError(logText);
+				return false;
+			}
+			for (int i = provPerfConfig.threadCount; i < MAX_PROV_THREADS; ++i)
+				provPerfConfig.apiThreadBindList[i].clear();
+
+			provThreadCount = (provPerfConfig.threadCount > 0) ? provPerfConfig.threadCount : 0;
+		}
+		else if (strcmp("-workerThreads", argv[iargs]) == 0)
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+
+			provPerfConfig.threadCount = 0;
+
+			char* pToken = strtok(argv[iargs++], ",");
+			while (pToken)
+			{
+				if (++provPerfConfig.threadCount > MAX_PROV_THREADS)
+				{
+					logText = "Config Error: Too many worker threads specified.";
+					AppUtil::logError(logText);
+					return false;
+				}
+				provPerfConfig.workerThreadBindList[provPerfConfig.threadCount - 1] = pToken;
+				pToken = strtok(NULL, ",");
+			}
+			if (provThreadCount > 0 && provPerfConfig.threadCount != provThreadCount)
+			{
+				logText = "Config Error: worker thread count not equal to api thread count.";
+				AppUtil::logError(logText);
+				return false;
+			}
+			for (int i = provPerfConfig.threadCount; i < MAX_PROV_THREADS; ++i)
+				provPerfConfig.workerThreadBindList[i].clear();
+
+			provThreadCount = (provPerfConfig.threadCount > 0) ? provPerfConfig.threadCount : 0;
 		}
 		else if (strcmp("-useUserDispatch", argv[iargs]) == 0)
 		{
@@ -424,23 +510,29 @@ bool EmaCppIProvPerf::initIProvPerfConfig(int argc, char* argv[])
 		return false;
 	}
 
+	if (provPerfConfig.threadCount == 0)
+	{
+		AppUtil::logError("Config Error: -threads must be contain list of Cpu.");
+		exitConfigError(argv);
+		return false;
+	}
+
 	return true;
 }
 
 
 void EmaCppIProvPerf::printIProvPerfConfig(FILE* file)
 {
-	int i;
-	int threadListStringPos = 0;
-	char threadListStr[128];
+	char threadListStr[128] = "-1";
+	char apiThreadListStr[128] = "-1";
+	char workerThreadListStr[128] = "-1";
 	EmaString providerName;
 
 	// Build thread list 
-	threadListStringPos += snprintf(threadListStr, 128, "%ld", provPerfConfig.threadBindList[0]);
-	for (i = 1; i < provPerfConfig.threadCount; ++i)
-	{
-		threadListStringPos += snprintf(threadListStr + threadListStringPos, (128 - threadListStringPos), ",%ld", provPerfConfig.threadBindList[i]);
-	}
+	provPerfConfig.getThreadListAsString(provPerfConfig.threadBindList, threadListStr, 128);
+	provPerfConfig.getThreadListAsString(provPerfConfig.workerThreadBindList, workerThreadListStr, 128);
+	if ( !provPerfConfig.useUserDispatch )
+		provPerfConfig.getThreadListAsString(provPerfConfig.apiThreadBindList, apiThreadListStr, 128);
 
 	if (!provPerfConfig.providerName.empty())
 		providerName = provPerfConfig.providerName;
@@ -453,8 +545,10 @@ void EmaCppIProvPerf::printIProvPerfConfig(FILE* file)
 		"                Run Time: %u\n"
 		"           Provider Name: %s\n"
 		"         useUserDispatch: %s\n"
-		"        mainThread CpuId: %d\n"
+		"        mainThread CpuId: %s\n"
 		"             Thread List: %s\n"
+		"         Api thread List: %s\n"
+		"      Worker thread List: %s\n"
 		"            Summary File: %s\n"
 		"              Stats File: %s\n"
 		"        Latency Log File: %s\n"
@@ -464,8 +558,10 @@ void EmaCppIProvPerf::printIProvPerfConfig(FILE* file)
 		provPerfConfig.runTime,
 		providerName.c_str(),
 		provPerfConfig.useUserDispatch ? "Yes" : "No",
-		provPerfConfig.mainThreadCpu,
+		provPerfConfig.mainThreadCpu.empty() ? "-1" : provPerfConfig.mainThreadCpu.c_str(),
 		threadListStr,
+		apiThreadListStr,
+		workerThreadListStr,
 		provPerfConfig.summaryFilename.c_str(),
 		provPerfConfig.statsFilename.c_str(),
 		( !provPerfConfig.latencyLogFilename.empty() ) ? provPerfConfig.latencyLogFilename.c_str() : "(none)",
@@ -519,9 +615,15 @@ bool EmaCppIProvPerf::inititailizeAndRun(int argc, char* argv[])
 	printIProvPerfConfig(summaryFile); fflush(summaryFile);
 
 
-	if (provPerfConfig.mainThreadCpu != -1)
+	if ( !provPerfConfig.mainThreadCpu.empty() && !provPerfConfig.mainThreadCpu.caseInsensitiveCompare("-1") )
 	{
-		bindThisThread("Main Thread", provPerfConfig.mainThreadCpu);
+		RsslError rsslError;
+		RsslRet retCode = rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError);
+		if ( !bindThisThread("Main Thread", provPerfConfig.mainThreadCpu) )
+		{
+			rsslUninitialize();
+			return false;
+		}
 		printAllThreadBinding();
 	}
 
@@ -538,29 +640,16 @@ bool EmaCppIProvPerf::inititailizeAndRun(int argc, char* argv[])
 		pProviderThread->providerThreadInit();
 
 		pProviderThread->setCpuId(provPerfConfig.threadBindList[i]);
+		pProviderThread->setApiThreadCpuId(provPerfConfig.apiThreadBindList[i]);
+		pProviderThread->setWorkerThreadCpuId(provPerfConfig.workerThreadBindList[i]);
 	}
 
 	// Spawn threads and assigns to specific CPU
-	EmaString providerThreadName;
-
 	const UInt64 ptSize = providerThreads.size();
 	for (i = 0; i < ptSize; ++i)
 	{
-		providerThreadName = providerThreadNameBase;
-		if (provPerfConfig.threadBindList[i] > -1)
-			firstThreadSnapshot();  // collect all the threads for the process 
-
 		// Start the thread
 		providerThreads[i]->start();
-		if (provPerfConfig.threadBindList[i] > -1)
-		{
-			providerThreadName += providerThreads[i]->getThreadIndex();
-			AppUtil::sleep(500);
-
-			// binds the thread to the cpu-id
-			secondThreadSnapshot(providerThreadName, providerThreads[i]->getCpuId());
-			printAllThreadBinding();
-		}
 	}
 
 	// Registers Ctrl+C handler in the handler's chain after EMA.

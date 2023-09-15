@@ -2,22 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Net;
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
     /// <summary>
     /// This is the post handler for the ETA Value Add consumer application.
@@ -508,7 +507,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             if (dictionaryEntry != null)
             {
                 fEntry.FieldId = MarketPriceItem.TRDPRC_1_FID;
-                fEntry.DataType = dictionaryEntry.RwfType;
+                fEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(itemInfo.TRDPRC_1, RealHints.EXPONENT_2);
                 if ((ret = fEntry.Encode(m_EncodeIterator, tempReal)) < CodecReturnCode.SUCCESS)
@@ -523,7 +522,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             if (dictionaryEntry != null)
             {
                 fEntry.FieldId = MarketPriceItem.BID_FID;
-                fEntry.DataType = dictionaryEntry.RwfType;
+                fEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(itemInfo.BID, RealHints.EXPONENT_2);
                 if ((ret = fEntry.Encode(m_EncodeIterator, tempReal)) < CodecReturnCode.SUCCESS)
@@ -539,7 +538,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             if (dictionaryEntry != null)
             {
                 fEntry.FieldId = MarketPriceItem.ASK_FID;
-                fEntry.DataType = dictionaryEntry.RwfType;
+                fEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(itemInfo.ASK, RealHints.EXPONENT_2);
                 if ((ret = fEntry.Encode(m_EncodeIterator, tempReal)) < CodecReturnCode.SUCCESS)

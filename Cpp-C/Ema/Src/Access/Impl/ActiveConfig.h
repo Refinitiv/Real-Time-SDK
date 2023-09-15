@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.            --
+ *|          Copyright (C) 2020-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -15,6 +15,7 @@
 #include "OmmIProviderConfig.h"
 #include "OAuth2Credential.h"
 #include "OmmOAuth2CredentialImpl.h"
+#include "DataDictionary.h"
 
 #include "LoginRdmReqMsgImpl.h"
 
@@ -41,6 +42,7 @@
 #define DEFAULT_DICTIONARY_REQUEST_TIMEOUT				45000
 #define DEFAULT_DICTIONARY_TYPE							Dictionary::FileDictionaryEnum
 #define DEFAULT_DIRECTORY_REQUEST_TIMEOUT				45000
+#define DEFAULT_DIRECT_WRITE							0
 #define DEFAULT_DISPATCH_TIMEOUT_API_THREAD				-1
 #define DEFAULT_RDP_RT_LOCATION							EmaString( "us-east-1" )
 #define DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT				-1
@@ -80,6 +82,7 @@
 #define DEFAULT_PIPE_PORT							    9001
 #define DEFAULT_SERVER_PIPE_PORT					    9009
 #define DEFAULT_POST_ACK_TIMEOUT					    15000
+#define DEFAULT_PROXY_CONNECTION_TIMEOUT			    40
 #define DEFAULT_REACTOR_EVENTFD_PORT				    55000
 #define DEFAULT_RECONNECT_ATTEMPT_LIMIT				    -1
 #define DEFAULT_RECONNECT_MAX_DELAY					    5000
@@ -117,6 +120,7 @@
 #define DEFAULT_XML_TRACE_TO_MULTIPLE_FILE			  false
 #define DEFAULT_XML_TRACE_TO_STDOUT					  false
 #define DEFAULT_XML_TRACE_WRITE						  true
+#define DEFAULT_SEND_JSON_CONV_ERROR		  		  false
 #define DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT		  3
 #define DEFAULT_WS_MAXMSGSIZE						  61440
 #define DEFAULT_WS_PROTOCLOS						  EmaString( "tr_json2, rssl.rwf, rssl.json.v2" )
@@ -127,11 +131,13 @@
 #define DEFAULT_SERVICE_ID_FOR_CONVERTER			  1
 #define DEFAULT_JSON_EXPANDED_ENUM_FIELDS			  false
 #define DEFAULT_OUTPUT_BUFFER_SIZE					  (RWF_MAX_16)
+#define DEFAULT_JSON_TOKEN_INCREMENT_SIZE			  500
 #define DEFAULT_ENABLE_RTT							  false
 #define DEFAULT_REST_ENABLE_LOG						  false
 #define DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK		  false
 #define DEFAULT_WSB_DOWNLOAD_CONNECTION_CONFIG		  false;
 #define DEFAULT_WSB_MODE							  RSSL_RWSB_MODE_LOGIN_BASED
+#define DEFAULT_SHOULD_INIT_CPUID_LIB				  true
 
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
@@ -179,6 +185,7 @@ public :
 	bool					compressionThresholdSet;
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
+	UInt32					directWrite;
 	UInt32					initializationTimeout;
 	UInt32					guaranteedOutputBuffers;
 	UInt32					numInputBuffers;
@@ -220,6 +227,7 @@ public:
 	RsslConnectionTypes		connectionType;
 	UInt32					connectionPingTimeout;
 	UInt32					connectionMinPingTimeout;
+	UInt32					directWrite;
 	UInt32					initializationTimeout;
 	UInt32					guaranteedOutputBuffers;
 	UInt32					numInputBuffers;
@@ -248,6 +256,8 @@ public:
 	EmaString						rdmFieldDictionaryItemName;
 	EmaString						enumTypeDefItemName;
 	Dictionary::DictionaryType		dictionaryType;
+	DataDictionary*					dataDictionary;
+	bool							shouldCopyIntoAPI;
 };
 
 class ServiceDictionaryConfig : public ListLinks<ServiceDictionaryConfig>
@@ -285,6 +295,7 @@ public :
 
 	virtual ~SocketChannelConfig();
 
+	void setProxyConnectionTimeout(UInt64 value);
 	void setServiceDiscoveryRetryCount(UInt64 value);
 	void setWsMaxMsgSize(UInt64 value);
 	void clear();
@@ -300,6 +311,7 @@ public :
 	EmaString				proxyUserName;
 	EmaString				proxyPasswd;
 	EmaString				proxyDomain;
+	UInt32					proxyConnectionTimeout;
 	EmaString				sslCAStore;
 	int						securityProtocol;
 	EmaString				location;
@@ -468,6 +480,7 @@ public:
 	bool					enableRtt;
 	bool					restEnableLog;
 	bool					restEnableLogViaCallback;
+	bool					sendJsonConvError;
 	/*ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace... is per Consumer, or per NIProvider
 	 *or per IProvider instance now. The per channel configuration on these parameters has been deprecated. This variable is 
 	 *used for handling deprecation cases.
@@ -482,6 +495,7 @@ public:
 	EmaString				traceStr;
 	Double					tokenReissueRatio;
 	EmaString				restLogFileName;
+	bool					shouldInitializeCPUIDlib;
 
 	/* Configure the  RsslReactorJsonConverterOptions */
 	UInt16					defaultServiceIDForConverter;
@@ -490,6 +504,7 @@ public:
 	bool					catchUnknownJsonFids;
 	bool					closeChannelFromFailure;
 	UInt32					outputBufferSize;
+	UInt32					jsonTokenIncrementSize;
 };
 
 class ActiveConfig : public BaseConfig

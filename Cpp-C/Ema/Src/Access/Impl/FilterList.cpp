@@ -28,7 +28,10 @@ FilterList::FilterList() :
 
 FilterList::~FilterList()
 {
-	if ( _pEncoder ) 
+	if ( GlobalPool::isFinalState() )
+		return;
+
+	if ( _pEncoder )
 		g_pool._filterListEncoderPool.returnItem( _pEncoder );
 
 	if ( _pDecoder )

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,15 +13,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Refinitiv.Eta.Common;
-using Refinitiv.Common.Logger;
-using Refinitiv.Eta.Internal.Interfaces;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Internal;
+using LSEG.Eta.Common;
+using LSEG.Eta.Internal.Interfaces;
+using LSEG.Eta.Transports;
+using LSEG.Eta.Transports.Internal;
 using System.Net.Sockets;
 using System.Net.Security;
 
-namespace Refinitiv.Eta.Tests
+namespace LSEG.Eta.Tests
 {
     internal class MockChannel : ISocketChannel, IDisposable
     {
@@ -70,6 +69,10 @@ namespace Refinitiv.Eta.Tests
 
         public bool IsEncrypted { get => false;}
 
+        public bool IsAuthenFailure { get => false; }
+
+        public string AuthenFailureMessage { get => string.Empty; }
+
         public MockChannel()
         {
             Clear();
@@ -108,8 +111,6 @@ namespace Refinitiv.Eta.Tests
         /// <returns></returns>
         internal void RaiseConnected(ResultObject aro)
         {
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::EndConnect AsynchResultObject: {aro}");
-
             IsConnected = true;
             Recv(aro.UserState);
             OnConnected?.Invoke(this, new SocketEventArgs(this, "Connected"));
@@ -120,14 +121,11 @@ namespace Refinitiv.Eta.Tests
         /// </summary>
         internal void RaiseDisconnected()
         {
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::Channel Disconnecting from {RemoteEP}");
-
             OnDisconnected?.Invoke(this, new SocketEventArgs(null, ""));
         }
 
         internal void RaiseDataSent(ResultObject aro)
         {
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::DataSent - AsyncResultObject: {aro}, ");
             OnDataSent?.Invoke(aro);
         }
 
@@ -135,7 +133,6 @@ namespace Refinitiv.Eta.Tests
         {
             ReceivedCount++;
 
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::DataReady - AsyncResultObject: {aro}, ");
             OnDataReady?.Invoke(aro);
         }
         /// <summary>
@@ -147,7 +144,6 @@ namespace Refinitiv.Eta.Tests
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("SocketChannel::RaiseError:  {0}", message);
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::RaiseError Message:{sb}");
 
             OnError?.Invoke(this, new SocketEventArgs(aro.UserState, message));
         }
@@ -163,8 +159,6 @@ namespace Refinitiv.Eta.Tests
             // Translate Address:Port from configuration file into a local end-point.
             RemoteEP = new IPEndPoint(remoteAddr, port);
             RemotePort = port;
-
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::BeginConnect Address: {remoteAddr}, Port: {port}");
 
             Task task = Task.Factory.StartNew(() =>
                 {
@@ -238,8 +232,6 @@ namespace Refinitiv.Eta.Tests
             {
                 try
                 {
-                    EtaLogger.Instance.Trace($"{ DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::BeginRecv UserState: {aro.UserState?.ToString() ?? "*null*"}");
-
                     // Initiate the return read on this socket.
                     byte[] packet = aro.Buffer.Contents;
 
@@ -273,7 +265,6 @@ namespace Refinitiv.Eta.Tests
                 }
                 catch (Exception exp)
                 {
-                    EtaLogger.Instance.Error(exp);
                     RaiseError(aro, exp.Message);
                     status = false;
                 }
@@ -286,8 +277,6 @@ namespace Refinitiv.Eta.Tests
             if (!_isDisposed)
             {
                 var aro = new ResultObject(null, packet, user_state);
-                EtaLogger.Instance.Trace($"{ DateTime.UtcNow:HH:mm:ss.ffff} MockChannel({ChannelId})::BeginSend AsynchResultObject: {aro}");
-
                 RaiseDataSent(aro);
             }
             return;

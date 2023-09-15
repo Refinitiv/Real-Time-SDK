@@ -1,0 +1,6 @@
+#file,location
+channelHandler.c,Applications/PerfTools/Common
+channelHandler.h,Applications/PerfTools/Common
+ProvPerf.c,Applications/PerfTools/ProvPerf
+provPerfConfig.c,Applications/PerfTools/ProvPerf
+

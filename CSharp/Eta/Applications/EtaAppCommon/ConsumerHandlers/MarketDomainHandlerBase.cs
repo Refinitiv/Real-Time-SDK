@@ -2,24 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DateTime = Refinitiv.Eta.Codec.DateTime;
-using Double = Refinitiv.Eta.Codec.Double;
-using Enum = Refinitiv.Eta.Codec.Enum;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// Base class for MarketPrice, MarketByPrice and MarketByOrder domain Handlers.
@@ -112,6 +112,12 @@ namespace Refinitiv.Eta.Example.Common
             if (ret != CodecReturnCode.SUCCESS)
             {
                 Console.WriteLine("Encode MarketPriceClose Failed: code " + ret + ".\n");
+                error = new Error()
+                {
+                    Text = "Encode MarketPriceClose Failed: code " + ret + ".\n",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
+                return TransportReturnCode.FAILURE;
             }
             return chnl.Write(msgBuf, out error);
         }
@@ -374,7 +380,7 @@ namespace Refinitiv.Eta.Example.Common
             else
             // cached item name
             {
-                WatchListEntry wle = watchList!.Get(msg.StreamId);
+                WatchListEntry? wle = watchList!.Get(msg.StreamId);
 
                 if (wle != null)
                 {
@@ -407,7 +413,7 @@ namespace Refinitiv.Eta.Example.Common
             State state = statusMsg.State;
             Console.WriteLine("	" + state);
 
-            WatchListEntry wle = watchList!.Get(msg.StreamId);
+            WatchListEntry? wle = watchList!.Get(msg.StreamId);
             if (wle != null)
             {
                 // update our state table with the new state
@@ -422,12 +428,18 @@ namespace Refinitiv.Eta.Example.Common
                         // if this is the case, close the stream
                         if (wle.IsPrivateStream && !wle.ItemName!.Contains("BATCH_"))
                         {
-                            Console.WriteLine("Received non-private response for stream " +
-                                    msg.StreamId + " that should be private - closing stream");
+                            Console.WriteLine("Received non-private response for stream " + msg.StreamId + " that should be private - closing stream");
                             // close stream
-                            CloseStream(redirectChnl!, msg.StreamId, out error);
+                            if (CloseStream(redirectChnl!, msg.StreamId, out var closeError) != TransportReturnCode.SUCCESS)
+                                Console.WriteLine($"Failure while closing the stream: {closeError?.Text}");
+
                             // remove private stream entry from list
                             RemoveMarketPriceItemEntry(msg.StreamId);
+                            error = new Error()
+                            {
+                                Text = "Received non-private response for stream " + msg.StreamId + " that should be private - closing stream",
+                                ErrorId = TransportReturnCode.FAILURE
+                            };
                             return TransportReturnCode.FAILURE;
                         }
                     }
@@ -476,16 +488,27 @@ namespace Refinitiv.Eta.Example.Common
                 Console.WriteLine(" Received RefreshMsg for stream " + refreshMsg.StreamId + " from publisher with user ID: " + pu.UserId + " at user address: " + pu.UserAddrToString(pu.UserAddr));
             }
 
-            WatchListEntry wle = watchList!.Get(msg.StreamId);
+            WatchListEntry? wle = watchList!.Get(msg.StreamId);
 
+            if (wle == null)
+            {
+                error = new Error()
+                {
+                    Text = "Non existing stream id: " + msg.StreamId
+                };
+                return TransportReturnCode.FAILURE;
+            }
             // check if this response should be on private stream but is not
             // if this is the case, close the stream 
-            if (!refreshMsg.CheckPrivateStream() && wle.IsPrivateStream)
+            if (!refreshMsg.CheckPrivateStream() && wle!.IsPrivateStream)
             {
                 Console.WriteLine("Received non-private response for stream " + msg.StreamId +
                         " that should be private - closing stream");
                 // close stream
-                CloseStream(redirectChnl!, msg.StreamId, out error);
+                if (CloseStream(redirectChnl!, msg.StreamId, out var closeError) != TransportReturnCode.SUCCESS)
+                {
+                    Console.WriteLine($"Error closing stream: {closeError?.Text}");
+                }
 
                 // remove private stream entry from list
                 RemoveMarketPriceItemEntry(msg.StreamId);
@@ -496,8 +519,8 @@ namespace Refinitiv.Eta.Example.Common
                 return TransportReturnCode.FAILURE;
             }
             // update our item state list if its a refresh, then process just like update
-            wle.ItemState!.DataState(refreshMsg.State.DataState());
-            wle.ItemState.StreamState(refreshMsg.State.StreamState());
+            wle!.ItemState!.DataState(refreshMsg.State.DataState());
+            wle!.ItemState.StreamState(refreshMsg.State.StreamState());
 
             error = null;
             if (Decode(msg, dIter, dictionary) == CodecReturnCode.SUCCESS)
@@ -552,10 +575,19 @@ namespace Refinitiv.Eta.Example.Common
         
         private TransportReturnCode RedirectToPrivateStream(int streamId, out Error? error)
         {
-            WatchListEntry wle = watchList!.Get(streamId);
+            WatchListEntry? wle = watchList!.Get(streamId);
+
+            if (wle == null)
+            {
+                error = new Error()
+                {
+                    Text = "Non existing stream id: " + streamId
+                };
+                return TransportReturnCode.FAILURE;
+            }
 
             RemoveMarketPriceItemEntry(streamId);
-            int psStreamId = watchList.Add(domainType, wle.ItemName!, true);
+            int psStreamId = watchList.Add(domainType, wle!.ItemName!, true);
 
             GenerateRequest(marketRequest, true, redirectSrcDirInfo!, redirectLoginInfo!);
             marketRequest.ItemNames.Add(wle.ItemName!);
@@ -577,10 +609,10 @@ namespace Refinitiv.Eta.Example.Common
             }
 
             // print out fid name
-            fieldValue.Append("\t" + fEntry.FieldId + "/" + dictionaryEntry.Acronym.ToString() + ": ");
+            fieldValue.Append("\t" + fEntry.FieldId + "/" + dictionaryEntry.GetAcronym().ToString() + ": ");
 
             // Decode and print out fid value
-            int dataType = dictionaryEntry.RwfType;
+            int dataType = dictionaryEntry.GetRwfType();
             CodecReturnCode ret = 0;
             switch (dataType)
             {

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,12 +12,11 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Categories;
-using Refinitiv.Common.Logger;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Transports.Internal;
-using Refinitiv.Eta.Tests;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports.Internal;
+using LSEG.Eta.Tests;
 
-namespace Refinitiv.Eta.Transports.Tests
+namespace LSEG.Eta.Transports.Tests
 {
     [Category("ByteBuffer")]
     public class RipcBufferTests : IDisposable
@@ -28,13 +27,11 @@ namespace Refinitiv.Eta.Transports.Tests
 
         public RipcBufferTests(ITestOutputHelper output)
         {
-            XUnitLoggerProvider.Instance.Output = output;
-            EtaLoggerFactory.Instance.AddProvider(XUnitLoggerProvider.Instance);
+
         }
 
         public void Dispose()
         {
-            XUnitLoggerProvider.Instance.Output = null;
         }
 
         private static void AssertEqual(byte[] expected, byte[] actual)
@@ -520,16 +517,13 @@ namespace Refinitiv.Eta.Transports.Tests
             const int messageCount = 1;
 
             ByteBuffer buffer = CreateByteBufferWithPackedMessages(messageWidth, messageCount, out RipcDataMessage packedMessage);
-            EtaLogger.Instance.Information($"Buffer[0]: {buffer.ToString(true)}");
 
             // First sub-message loaded.
             TransportBuffer transportBuffer = TransportBuffer.Load(ref buffer);
-            EtaLogger.Instance.Information($"TransportBuffer[0]: Length: {transportBuffer.Length}, {transportBuffer.Data.ToString(true)}");
-            EtaLogger.Instance.Information($"Buffer[1]: {buffer.ToString(true)}");
 
             byte[] expectedPayload = CreatePayload(messageWidth, 0);
-            Assert.True(transportBuffer.IsRipcMessage);
-            Assert.Equal(messageWidth, transportBuffer.Length);
+            Assert.True(transportBuffer.GetIsRipcMessage());
+            Assert.Equal(messageWidth, transportBuffer.Length());
             Assert.Equal(expectedPayload, transportBuffer.Data.Contents.Skip(RipcDataMessage.HeaderSize));
 
             // No more messages to unload.
@@ -547,9 +541,7 @@ namespace Refinitiv.Eta.Transports.Tests
 
             TransportBuffer transportBuffer;
 
-            EtaLogger.Instance.Information($" Message Width: {messageWidth}, Message Count: {messageCount}");
             ByteBuffer buffer = CreateByteBufferWithPackedMessages(messageWidth, messageCount, out RipcDataMessage packedMessage);
-            EtaLogger.Instance.Information($"Buffer[*]: {buffer.ToString(true)}");
 
             for (int i = 0; i < messageCount; i++)
             {
@@ -557,11 +549,8 @@ namespace Refinitiv.Eta.Transports.Tests
                 // First sub-message loaded.
                 transportBuffer = TransportBuffer.Load(ref buffer);
 
-                EtaLogger.Instance.Information($"TransportBuffer[{i}]: {transportBuffer.Data.ToString(true)}");
-                EtaLogger.Instance.Information($"      IO Buffer[{i}]: {buffer.ToString(true)}");
-
-                Assert.True(transportBuffer.IsRipcMessage);
-                Assert.Equal(messageWidth, transportBuffer.Length);
+                Assert.True(transportBuffer.GetIsRipcMessage());
+                Assert.Equal(messageWidth, transportBuffer.Length());
                 Assert.Equal(expectedPayload, transportBuffer.Data.Contents.Skip(RipcDataMessage.HeaderSize));
             }
             // No more messages to unload.
@@ -576,11 +565,9 @@ namespace Refinitiv.Eta.Transports.Tests
         {
             const int messageWidth = 11;
             const int messageCount = 5;
-            EtaLogger.Instance.Information($" Message Width: {messageWidth}, Message Count: {messageCount}");
 
             int bufferCapacity = (messageWidth + RipcDataMessage.HeaderSize) * messageCount;
             ByteBuffer expectedBuffer = FillByteBufferWithMessage(messageWidth, out RipcDataMessage message);
-            EtaLogger.Instance.Information($"Expected Buffer[*]: {expectedBuffer}");
 
             ByteBuffer ioBuffer = new ByteBuffer(bufferCapacity);
 
@@ -595,8 +582,6 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer transportBuffer;
             while((transportBuffer = TransportBuffer.Load(ref ioBuffer)) != null)
             {
-                EtaLogger.Instance.Information($"TransportBuffer[{j}]: {transportBuffer.Data}");
-                EtaLogger.Instance.Information($"      IO Buffer[{j}]: {ioBuffer}");
                 Assert.Equal(expectedBuffer, transportBuffer.Data);
                 j++;
             }
@@ -618,7 +603,6 @@ namespace Refinitiv.Eta.Transports.Tests
 
             // Number of sub-messages per Packed Message
             const int subMessageCount = 2;
-            EtaLogger.Instance.Information($" Message Width: {messageWidth}, Message Count: {messageCount}, SubMessage Count: {subMessageCount}");
 
             int bufferCapacity = (((messageWidth + sizeof(ushort)) * subMessageCount ) + RipcDataMessage.HeaderSize) 
                                         * messageCount;
@@ -631,15 +615,13 @@ namespace Refinitiv.Eta.Transports.Tests
                 ByteBuffer packedBuffer = CreateByteBufferWithPackedMessages(messageWidth, subMessageCount, out RipcDataMessage packedMessage);
                 ioBuffer.Put(packedBuffer);
             }
-            EtaLogger.Instance.Information($"      IO Buffer[*]: {ioBuffer.ToString(true)}");
+
             Assert.Equal(bufferCapacity, ioBuffer.Capacity);
 
             int j = 0;
             TransportBuffer transportBuffer;
             while ((transportBuffer = TransportBuffer.Load(ref ioBuffer)) != null)
             {
-                EtaLogger.Instance.Information($"TransportBuffer[{j}]: {transportBuffer.Data}");
-                EtaLogger.Instance.Information($"      IO Buffer[{j}]: {ioBuffer.ToString(true)}");
                 j++;
             }
 

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Threading;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
     /// Maintains the provider application instance. 
@@ -172,8 +172,8 @@ namespace Refinitiv.Eta.PerfTools.Common
                     if (ProviderPerfConfig.ThreadCount > 1)
                         m_TotalStats.GenMsgLatencyStats.Update(latency);
 
-                    if (provThreadInfo.LatencyLogFile != null)
-                        provThreadInfo.LatencyLogFileWriter!.Write("Gen, {0}, {1}, {2}\n", record.StartTime, record.EndTime, record.EndTime - record.StartTime);
+                    provThreadInfo.LatencyLogFileWriter?.Write("Gen, {0}, {1}, {2}\n",
+                        record.StartTime, record.EndTime, record.EndTime - record.StartTime);
 
                     latencyRecords.Pools.Enqueue(record);
                 }

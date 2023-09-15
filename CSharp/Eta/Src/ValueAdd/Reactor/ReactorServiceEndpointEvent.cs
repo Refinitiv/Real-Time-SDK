@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     ///  An event that has occurred to get service discovery endpoint information.
     /// </summary>
     /// <seealso cref="ReactorEvent"/>
     /// <seealso cref="ReactorServiceEndpointInfo"/>
-    public class ReactorServiceEndpointEvent : ReactorEvent
+    sealed public class ReactorServiceEndpointEvent : ReactorEvent
     {
         internal ReactorServiceEndpointEvent()
         {
@@ -24,6 +24,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public List<ReactorServiceEndpointInfo>? ServiceEndpointInfoList { get; internal set; }
 
+        /// <summary>
+        /// Clears to default values.
+        /// </summary>
         public void Clear()
         {
             UserSpecObject = null;
@@ -35,6 +38,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public object? UserSpecObject { get; internal set; }
 
+        /// <summary>
+        /// Returns this object to the pool.
+        /// </summary>
         public override void ReturnToPool()
         {
             UserSpecObject = null;

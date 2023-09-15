@@ -2,17 +2,17 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// Represents authentication token information.
     /// <seealso cref="ReactorAuthTokenEvent"/>
     /// </summary>
-    public class ReactorAuthTokenInfo
+    sealed public class ReactorAuthTokenInfo
     {
         /// <summary>
         /// Gets an access token information provided by the authentication service.

@@ -7,6 +7,7 @@
  */
 
 #include "rtr/rsslBindThread.h"
+#include "rtr/rsslErrors.h"
 #include "rtr/rsslThread.h"
 #include "rtr/bindthread.h"
 #include "rtr/rtratomic.h"
@@ -23,7 +24,7 @@
 #undef _DUMP_DEBUG_
 
 static RsslCPUTopology rsslCPUTopology;
-static rtr_atomic_val initializedCpuTopology = 0;
+static rtr_atomic_val initializedCpuTopology = 0L;
 
 RSSL_API RsslUInt32 rsslGetNumberOfProcessorCore(void)
 {
@@ -126,8 +127,9 @@ RsslRet checkCpuIdInitializationError(RsslErrorInfo* pError)
 */
 RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCount, RsslInt* procSet, RsslErrorInfo* pError)
 {
+	RsslRet ret = RSSL_RET_SUCCESS;
 	RsslUInt32 i;
-	RsslUInt32 lcl_maxcpu;
+	RsslUInt32 lcl_maxcpu = rsslCPUTopology.logicalCpuCount;
 
 	RsslUInt16 procExpected = 0;
 	RsslUInt16 coreExpected = 0;
@@ -140,6 +142,8 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 
 	RsslUInt16 foundInteger = 0;
 	RsslUInt16 foundChar = 0;
+	RsslUInt idCount0 = *idCount;
+
 
 	char* stringIter = cpuString;
 	for (;; stringIter++)
@@ -209,7 +213,7 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 			if (*stringIter == '\0')
 			{
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-					"Syntax for cpu binding for string (eos) is invalid. (%s)", stringIter, cpuString);
+					"Syntax for cpu binding for string (eos) is invalid. (%s)", cpuString);
 				return RSSL_RET_FAILURE;
 			}
 
@@ -233,15 +237,17 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 	}
 	if (!foundChar)
 	{
-		idArray[*idCount] = currentId;
-		*idCount = *idCount + 1;
+		if (currentId < lcl_maxcpu)
+		{
+			idArray[*idCount] = currentId;
+			*idCount = *idCount + 1;
+		}
 	}
 	else
 	{
 		GLKTSN_T* pCpuTopology = rsslCPUTopology.cpu_topology_ptr;
 
 		/* Iterate through the processor list to find matches */
-		lcl_maxcpu = rsslCPUTopology.logicalCpuCount; //getLogicalCpuCount();
 		for (i = 0; i < lcl_maxcpu; i++)
 		{
 			// Don't check this logical id if its currently offline or
@@ -262,7 +268,8 @@ RsslRet parseSingleCpuString(char* cpuString, RsslUInt* idArray, RsslUInt* idCou
 		}
 	}
 
-	RsslRet ret = (*idCount > 0 ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE);
+	ret = (*idCount > idCount0 ? RSSL_RET_SUCCESS : RSSL_RET_FAILURE);
+
 	if (ret != RSSL_RET_SUCCESS)
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
@@ -444,7 +451,7 @@ void dumpCpuTopology()
 }
 #endif
 
-RsslRet rsslBindThreadWithString(const char* cpuString, RsslErrorInfo* pError)
+RsslRet rsslBindThreadWithString(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError)
 {
 	RsslUInt cpuCount = 0;
 	RsslUInt cpuArray[MAX_CPUS_ARRAY];
@@ -459,42 +466,76 @@ RsslRet rsslBindThreadWithString(const char* cpuString, RsslErrorInfo* pError)
 	if (rsslBindThreadToCpuArray(cpuString, cpuArray, cpuCount, procSet, pError) != RSSL_RET_SUCCESS)
 		return RSSL_RET_FAILURE;
 
+	// on Success, print the list of logical core id that were bound for the calling thread
+	if (cpuCount > 0 && pOutputResult != NULL && pOutputResult->length > 0 && pOutputResult->data != NULL)
+	{
+		RsslUInt64 affinityMask = rsslGetAffinityMaskByCpuArray(cpuArray, cpuCount);
+		RsslUInt64 iMask = 1UL;
+		RsslUInt32 nCpu = rsslCPUTopology.logicalCpuCount;
+
+		int bytes = 0;
+		RsslUInt i;
+		RsslUInt iCpu = 0;
+
+		for (i = 0; i < nCpu; ++i, iMask <<= 1)
+		{
+			if ( (affinityMask & iMask) == 0 )
+				continue;
+
+			if (iCpu > 0)
+				bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, ",");
+
+			bytes += snprintf(pOutputResult->data + bytes, pOutputResult->length - bytes, "%llu", i);
+			++iCpu;
+		}
+		pOutputResult->length = bytes;
+	}
+
 	return RSSL_RET_SUCCESS;
 }
 
-RSSL_API RsslRet rsslBindThread(const char* cpuString, RsslErrorInfo* pError)
+RsslRet rsslBindThreadImpl(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError)
 {
 	char* pEnd = NULL;
-	RsslInt32 cpuId = 0;
+	RsslBool fillOutputResult = RSSL_FALSE;
+
+	if (pOutputResult != NULL && pOutputResult->length > 0 && pOutputResult->data != NULL)
+	{
+		fillOutputResult = RSSL_TRUE;
+		*pOutputResult->data = '\0';
+	}
 
 	if (!cpuString)
 	{
 		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
 			"cpuString is not set.");
+		if (fillOutputResult == RSSL_TRUE)
+			pOutputResult->length = snprintf(pOutputResult->data, pOutputResult->length, "%s", pError->rsslError.text);
 		return RSSL_RET_FAILURE;
 	}
 
-	/* Convert cpuString to an integer: Cpu core id. */
-	cpuId = strtol(cpuString, &pEnd, 10);
-	if (cpuId > 0 || cpuId == 0 && pEnd && (pEnd - cpuString) > 0)
+	/* Parse cpuString - specifies Cpu core in string format P:X C:Y T:Z or logical core id. */
+	if (rsslBindThreadWithString(cpuString, pOutputResult, pError) != RSSL_RET_SUCCESS)
 	{
-		if (rsslBindProcessorCoreThread(cpuId, pError) != RSSL_RET_SUCCESS)
-		{
-			return RSSL_RET_FAILURE;
-		}
-	}
-	else  /* Parse cpuString - specifies Cpu core in string format P:X C:Y T:Z. */
-	{
-		if (rsslBindThreadWithString(cpuString, pError) != RSSL_RET_SUCCESS)
-		{
-			return RSSL_RET_FAILURE;
-		}
+		if (fillOutputResult == RSSL_TRUE)
+			pOutputResult->length = snprintf(pOutputResult->data, pOutputResult->length, "%s", pError->rsslError.text);
+		return RSSL_RET_FAILURE;
 	}
 
 	return RSSL_RET_SUCCESS;
 }
 
-RSSL_API RsslRet rsslBindThreadInitialize()
+RSSL_API RsslRet rsslBindThread(const char* cpuString, RsslErrorInfo* pError)
+{
+	return rsslBindThreadImpl(cpuString, (RsslBuffer*)NULL, pError);
+}
+
+RSSL_API RsslRet rsslBindThreadEx(const char* cpuString, RsslBuffer* outputResult, RsslErrorInfo* pError)
+{
+	return rsslBindThreadImpl(cpuString, outputResult, pError);
+}
+
+RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error)
 {
 	if (!initializedCpuTopology)
 	{
@@ -502,10 +543,50 @@ RSSL_API RsslRet rsslBindThreadInitialize()
 
 		RTR_ATOMIC_SET(initializedCpuTopology, 1);
 
+		memset((void*)&rsslErrorInfo, 0, sizeof(RsslErrorInfo));
+
 		initCpuTopologyMutex();
 
+		/* Get CPU affinity of the thread */
+#ifdef WIN32
+		DWORD_PTR cpuMask = (DWORD_PTR)(-1LL);
+		DWORD_PTR oldMask = 0ULL;
+
+		oldMask = SetThreadAffinityMask(GetCurrentThread(), cpuMask);
+		if (!oldMask)
+		{
+			// SetThreadAffinityMask retruns an error
+			// If the thread affinity mask requests a processor that is not selected for the process affinity mask,
+			// the last error code is ERROR_INVALID_PARAMETER.
+		}
+#else	// Linux
+		RsslBool restoreAffinity = RSSL_TRUE;
+		cpu_set_t cpuSet;
+		CPU_ZERO(&cpuSet);
+
+		if (pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuSet) != 0)
+		{
+			// pthread_getaffinity_np returns an error so don't restore the process affinity mask.
+			restoreAffinity = RSSL_FALSE;
+		}
+#endif
+
 		if (initializeCpuTopology(&rsslErrorInfo) != RSSL_RET_SUCCESS)
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s> %s\n", rsslErrorInfo.errorLocation, rsslErrorInfo.rsslError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic pop
+#endif
+
+			destroyCpuTopologyMutex();
+			RTR_ATOMIC_SET(initializedCpuTopology, 0);
 			return RSSL_RET_FAILURE;
+		}
 
 		rsslCPUTopology.cpu_topology_ptr = getCpuTopology();
 		rsslCPUTopology.logicalCpuCount = getLogicalCpuCount();
@@ -514,7 +595,40 @@ RSSL_API RsslRet rsslBindThreadInitialize()
 		if (rsslCPUTopology.cpu_topology_ptr != NULL)
 			dumpCpuTopology();
 #endif
-		rsslClearBindings();
+
+		/* Restore CPU affinity for the thread */
+#ifdef WIN32
+		if (oldMask != 0)
+		{
+			cpuMask = SetThreadAffinityMask(GetCurrentThread(), oldMask);
+			if (!cpuMask)
+			{
+				RsslInt32 errorCode = GetLastError();
+				_rsslSetError(error, NULL, RSSL_RET_FAILURE, errorCode);
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> rsslBindThreadInitialize() Unable to restore processor affinity for cpu mask 0x%llX.\n", __FILE__, __LINE__, oldMask);
+
+				unInitializeCpuTopology();
+				destroyCpuTopologyMutex();
+				rsslCPUTopology.cpu_topology_ptr = NULL;
+				RTR_ATOMIC_SET(initializedCpuTopology, 0);
+				return RSSL_RET_FAILURE;
+			}
+		}
+#else	// Linux
+		if ( (restoreAffinity == RSSL_TRUE) && (sched_setaffinity(0, sizeof(cpu_set_t), &cpuSet) < 0) )
+		{
+			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> rsslBindThreadInitialize() Unable to restore processor affinity.\n", __FILE__, __LINE__);
+
+			unInitializeCpuTopology();
+			destroyCpuTopologyMutex();
+			rsslCPUTopology.cpu_topology_ptr = NULL;
+			RTR_ATOMIC_SET(initializedCpuTopology, 0);
+			return RSSL_RET_FAILURE;
+		}
+#endif
 	}
 	return RSSL_RET_SUCCESS;
 }
@@ -523,10 +637,10 @@ RSSL_API RsslRet rsslBindThreadUninitialize()
 {
 	if (initializedCpuTopology)
 	{
-		RTR_ATOMIC_SET(initializedCpuTopology, 0);
 		unInitializeCpuTopology();
 		destroyCpuTopologyMutex();
 		rsslCPUTopology.cpu_topology_ptr = NULL;
+		RTR_ATOMIC_SET(initializedCpuTopology, 0);
 	}
 
 	return RSSL_RET_SUCCESS;

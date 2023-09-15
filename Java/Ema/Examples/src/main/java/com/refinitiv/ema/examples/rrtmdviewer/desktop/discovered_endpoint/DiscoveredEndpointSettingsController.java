@@ -164,7 +164,25 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
     private ScrollableTextField clientId;
 
     @FXML
+    private Label clientSecretLabel;
+
+    @FXML
     private PasswordEyeComponent clientSecretComponent;
+
+    @FXML
+    private CheckBox jwtAuthCheckbox;
+
+    @FXML
+    private Label jwkLabel;
+
+    @FXML
+    private FilePickerComponent jwkFilePicker;
+
+    @FXML
+    private Label jwtAudienceLabel;
+
+    @FXML
+    private ScrollableTextField jwtAudience;
 
     private final OMMViewerError ommViewerError = new OMMViewerError();
     private AsyncResponseModel asyncResponseObserver;
@@ -185,6 +203,7 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         executorService = ApplicationSingletonContainer.getBean(ExecutorService.class);
         tokenServiceUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_URL_V1);
         serviceDiscoveryUrl.setText(DiscoveredEndpointSettingsModel.DEFAULT_DISCOVERY_ENDPOINT_URL);
+        jwtAudience.setText(DiscoveredEndpointSettingsModel.DEFAULT_TOKEN_SERVICE_AUD_V2);
         discoveredEndpointSettingsService = new DiscoveredEndpointSettingsServiceImpl();
         ApplicationSingletonContainer.addBean(DiscoveredEndpointSettingsService.class, discoveredEndpointSettings);
 
@@ -210,6 +229,8 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
             clientIdTextField.setCustomWidth(width3);
             clientId.setCustomWidth(width3);
             clientSecretComponent.setCustomWidth(width3);
+            jwkFilePicker.setFilePickerWidth(width3);
+            jwtAudience.setCustomWidth(width3);
             tokenServiceUrl.setCustomWidth(width4);
             serviceDiscoveryUrl.setCustomWidth(width4);
             krbFilePicker.setFilePickerWidth(width4);
@@ -367,6 +388,25 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         dictionaryLoader.onDownloadDictionaryChanged(event);
     }
 
+    @FXML
+    public void handleJwtAuthCheckbox(ActionEvent event) {
+        if (jwtAuthCheckbox.isSelected()) {
+            clientSecretLabel.setDisable(true);
+            clientSecretComponent.setDisable(true);
+            jwkLabel.setDisable(false);
+            jwkFilePicker.setDisable(false);
+            jwtAudienceLabel.setDisable(false);
+            jwtAudience.setDisable(false);
+        } else {
+            clientSecretLabel.setDisable(false);
+            clientSecretComponent.setDisable(false);
+            jwkLabel.setDisable(true);
+            jwkFilePicker.setDisable(true);
+            jwtAudienceLabel.setDisable(true);
+            jwtAudience.setDisable(true);
+        }
+    }
+
     private void handleEmaConfigCheckbox(ActionEvent event) {
         final boolean isEmaConfigSelected = emaConfigComponent.getEmaConfigCheckbox().isSelected();
         connectionTypeBox.setDisable(isEmaConfigSelected);
@@ -450,14 +490,17 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
         }
 
         boolean useV1 = authTypeGroup.getSelectedToggle().getUserData().equals("V1");
+        boolean useJwt = jwtAuthCheckbox.isSelected();
 
         return DiscoveredEndpointSettingsModel.builder()
                 .clientId(useV1 ? clientIdTextField.getText().trim() : clientId.getText().trim())
                 .username(usernameTextField.getText().trim())
                 .password(usernamePasswordComponent.getPasswordField().getText().trim())
                 .clientSecret(clientSecretComponent.getPasswordField().getText().trim())
+                .jwkPath(jwkFilePicker.getFilePickerTextField().getText().trim())
+                .audience(jwtAudience.getText().trim())
                 .useV1(useV1)
-                .useClientSecret(!clientSecretComponent.getPasswordField().getText().trim().isEmpty())
+                .useClientSecret(!useJwt)
                 .connectionType(connectionTypesComboBox.getValue())
                 .useEncryption(encryptionDataModel)
                 .useProxy(proxyDataModel)
@@ -483,8 +526,14 @@ public class DiscoveredEndpointSettingsController implements StatefulController 
                         | hasErrorField("Password", usernamePasswordComponent.getPasswordField())
                         | hasErrorField("Client ID", clientIdTextField.getTextField());
             } else {
-                hasError |= hasErrorField("Client ID", clientId.getTextField())
-                        | hasErrorField("Client Secret", clientSecretComponent.getPasswordField());
+                hasError |= hasErrorField("Client ID", clientId.getTextField());
+
+                if (jwtAuthCheckbox.isSelected()) {
+                    hasError |= hasErrorField("Client JWK", jwkFilePicker.getFilePickerTextField())
+                            | hasErrorField("Audience", jwtAudience.getTextField());
+                } else {
+                    hasError |= hasErrorField("Client Secret", clientSecretComponent.getPasswordField());
+                }
             }
 
             if (encryptionOptionCheckbox.isSelected()) {

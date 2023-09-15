@@ -339,4 +339,9 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 		encryptionCfg().TrustManagerAlgorithm = trustManagerAlgorithm;
 		return this;
 	}
+
+	@Override
+	String warmStandbyChannelSet(String instanceName) {
+		return null;
+	}
 }

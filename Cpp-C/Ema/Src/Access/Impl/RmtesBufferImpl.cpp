@@ -43,7 +43,7 @@ RmtesBufferImpl::RmtesBufferImpl( UInt32 length ) :
 {
 	if ( length )
 	{
-		_rsslCacheBuffer.data = (char*)malloc( length + 20 );
+		_rsslCacheBuffer.data = (char*)calloc( length + 20, sizeof(char) );
 		if ( !_rsslCacheBuffer.data )
 		{
 			const char* temp = "Failed to allocate memory in RmtesBufferImpl( UInt32 ).";
@@ -80,7 +80,7 @@ RmtesBufferImpl::RmtesBufferImpl( const char* buf, UInt32 length ) :
 			return;
 		}
 
-		_rsslCacheBuffer.data = (char*)malloc( _rsslBuffer.length + 20 );
+		_rsslCacheBuffer.data = (char*)calloc( _rsslBuffer.length + 20, sizeof(char) );
 		if ( !_rsslCacheBuffer.data )
 		{
 			const char* temp = "Failed to allocate memory in RmtesBufferImpl( const char* , UInt32 ).";
@@ -134,7 +134,7 @@ RmtesBufferImpl::RmtesBufferImpl( const RmtesBufferImpl& other ) :
 
 		if ( _rsslCacheBuffer.allocatedLength )
 		{
-			_rsslCacheBuffer.data = (char*)malloc( _rsslCacheBuffer.allocatedLength );
+			_rsslCacheBuffer.data = (char*)calloc( _rsslCacheBuffer.allocatedLength, sizeof(char) );
 			if ( !_rsslCacheBuffer.data )
 			{
 				const char* temp = "Failed to allocate memory in RmtesBufferImpl( const RmtesBufferImpl& ).";
@@ -156,7 +156,7 @@ RmtesBufferImpl::RmtesBufferImpl( const RmtesBufferImpl& other ) :
 			return;
 		}
 
-		_rsslCacheBuffer.data = (char*)malloc( _rsslBuffer.length + 20 );
+		_rsslCacheBuffer.data = (char*)calloc( _rsslBuffer.length + 20, sizeof(char) );
 		if ( !_rsslCacheBuffer.data )
 		{
 			const char* temp = "Failed to allocate memory in RmtesBufferImpl( const RmtesBuffer& ).";
@@ -231,7 +231,7 @@ const EmaBuffer& RmtesBufferImpl::getAsUTF8()
 		if ( !_rsslUTF8Buffer.data )
 		{
 			_rsslUTF8Buffer.length = _rsslCacheBuffer.allocatedLength;
-			_rsslUTF8Buffer.data =  (char*)malloc( _rsslUTF8Buffer.length );
+			_rsslUTF8Buffer.data =  (char*)calloc( _rsslUTF8Buffer.length, sizeof(char) );
 			if ( !_rsslUTF8Buffer.data )
 			{
 				const char* temp = "Failed to allocate memory in RmtesBufferImpl::getAsUTF8()";
@@ -244,7 +244,7 @@ const EmaBuffer& RmtesBufferImpl::getAsUTF8()
 			free( _rsslUTF8Buffer.data );
 			
 			_rsslUTF8Buffer.length = ( _rsslUTF8Buffer.length == 0 ) ? _rsslCacheBuffer.allocatedLength : _rsslCacheBuffer.length;
-			_rsslUTF8Buffer.data =  (char*)malloc( _rsslUTF8Buffer.length );
+			_rsslUTF8Buffer.data =  (char*)calloc( _rsslUTF8Buffer.length, sizeof(char) );
 			if ( !_rsslUTF8Buffer.data )
 			{
 				const char* temp = "Failed to allocate memory in RmtesBufferImpl::getAsUTF8()";
@@ -260,7 +260,7 @@ const EmaBuffer& RmtesBufferImpl::getAsUTF8()
 			free( _rsslUTF8Buffer.data );
 
 			_rsslUTF8Buffer.length += _rsslUTF8Buffer.length;
-			_rsslUTF8Buffer.data = (char*)malloc( _rsslUTF8Buffer.length );
+			_rsslUTF8Buffer.data = (char*)calloc( _rsslUTF8Buffer.length, sizeof(char) );
 
 			if ( !_rsslUTF8Buffer.data )
 			{
@@ -377,7 +377,7 @@ const EmaString& RmtesBufferImpl::toString()
 		if ( !_rsslUTF8Buffer.data )
 		{
 			_rsslUTF8Buffer.length = _rsslCacheBuffer.allocatedLength;
-			_rsslUTF8Buffer.data =  (char*)malloc( _rsslUTF8Buffer.length );
+			_rsslUTF8Buffer.data =  (char*)calloc( _rsslUTF8Buffer.length, sizeof(char));
 			if ( !_rsslUTF8Buffer.data )
 			{
 				const char* temp = "Failed to allocate memory in RmtesBufferImpl::toString()";
@@ -390,7 +390,7 @@ const EmaString& RmtesBufferImpl::toString()
 			free( _rsslUTF8Buffer.data );
 			
 			_rsslUTF8Buffer.length = ( _rsslUTF8Buffer.length == 0 ) ? _rsslCacheBuffer.allocatedLength : _rsslCacheBuffer.length;
-			_rsslUTF8Buffer.data =  (char*)malloc( _rsslUTF8Buffer.length );
+			_rsslUTF8Buffer.data =  (char*)calloc( _rsslUTF8Buffer.length, sizeof(char));
 			if ( !_rsslUTF8Buffer.data )
 			{
 				const char* temp = "Failed to allocate memory in RmtesBufferImpl::toString()";
@@ -406,7 +406,7 @@ const EmaString& RmtesBufferImpl::toString()
 			free( _rsslUTF8Buffer.data );
 
 			_rsslUTF8Buffer.length += _rsslUTF8Buffer.length;
-			_rsslUTF8Buffer.data =  (char*)malloc( _rsslUTF8Buffer.length );
+			_rsslUTF8Buffer.data =  (char*)calloc( _rsslUTF8Buffer.length, sizeof(char) );
 
 			if ( !_rsslUTF8Buffer.data )
 			{
@@ -448,7 +448,7 @@ void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
 			if ( _rsslCacheBuffer.data ) 
 				free( _rsslCacheBuffer.data );
 
-			_rsslCacheBuffer.data = (char*)malloc( source._rsslCacheBuffer.length );
+			_rsslCacheBuffer.data = (char*)calloc( source._rsslCacheBuffer.length, sizeof(char) );
 			if ( !_rsslCacheBuffer.data )
 			{
 				const char* temp = "Failed to allocate memory in RmtesBufferImpl::apply( const RmtesBufferImpl& )";
@@ -472,7 +472,7 @@ void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
 			if ( actualLen > _rsslCacheBuffer.allocatedLength )
 			{
 				_rsslCacheBuffer.allocatedLength += ( _rsslCacheBuffer.allocatedLength == 0 ?  _rsslBuffer.length + 20 : _rsslBuffer.length );
-				char* newBuffer = static_cast< char *>( malloc( _rsslCacheBuffer.allocatedLength ) );
+				char* newBuffer = static_cast< char *>( calloc( _rsslCacheBuffer.allocatedLength, sizeof(char) ) );
 				if ( !newBuffer )
 				{
 					throwMeeException( "Failed to allocate memory in RmtesBufferImpl::apply( const RmtesBufferImpl& )" );
@@ -492,7 +492,7 @@ void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
 				if ( _rsslCacheBuffer.data )
 					free(_rsslCacheBuffer.data); 
 
-				_rsslCacheBuffer.data = (char*)malloc( _rsslCacheBuffer.allocatedLength );
+				_rsslCacheBuffer.data = (char*)calloc( _rsslCacheBuffer.allocatedLength, sizeof(char) );
 				if ( !_rsslCacheBuffer.data )
 				{
 					throwMeeException( "Failed to allocate memory in RmtesBufferImpl::apply( const RmtesBufferImpl& )" );
@@ -539,7 +539,7 @@ void RmtesBufferImpl::apply( const char* buf, UInt32 length )
 			if ( actualLen > _rsslCacheBuffer.allocatedLength )
 			{
 				_rsslCacheBuffer.allocatedLength += ( _rsslCacheBuffer.allocatedLength == 0 ?  _rsslBuffer.length + 20 : _rsslBuffer.length );
-				char* newBuffer = static_cast< char *>( malloc( _rsslCacheBuffer.allocatedLength ) );
+				char* newBuffer = static_cast< char *>( calloc( _rsslCacheBuffer.allocatedLength, sizeof(char) ) );
 				if ( !newBuffer )
 				{
 					throwMeeException( "Failed to allocate memory in RmtesBufferImpl::apply( const char*, UInt32 )" );
@@ -559,7 +559,7 @@ void RmtesBufferImpl::apply( const char* buf, UInt32 length )
 				if ( _rsslCacheBuffer.data )
 					free(_rsslCacheBuffer.data); 
 
-				_rsslCacheBuffer.data = (char*)malloc( _rsslCacheBuffer.allocatedLength );
+				_rsslCacheBuffer.data = (char*)calloc( _rsslCacheBuffer.allocatedLength, sizeof(char) );
 				if ( !_rsslCacheBuffer.data )
 				{
 					throwMeeException( "Failed to allocate memory in RmtesBufferImpl::apply( const char* , UInt32 )" );
@@ -601,7 +601,7 @@ void RmtesBufferImpl::reallocateRmtesCacheBuffer( const char* errorText )
 	free( _rsslCacheBuffer.data );
 
 	_rsslCacheBuffer.allocatedLength += _rsslCacheBuffer.allocatedLength;
-	_rsslCacheBuffer.data = (char*)malloc( _rsslCacheBuffer.allocatedLength );
+	_rsslCacheBuffer.data = (char*)calloc( _rsslCacheBuffer.allocatedLength, sizeof(char) );
 	_rsslCacheBuffer.length = 0;
 
 	if ( !_rsslCacheBuffer.data )

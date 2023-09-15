@@ -36,7 +36,7 @@ VectorDecoder::VectorDecoder() :
 
 VectorDecoder::~VectorDecoder()
 {
-	if ( _atExit )
+	if ( _atExit || GlobalPool::isFinalState() )
 	{
 		if ( _elementListSetDef ) 
 			delete _elementListSetDef;

@@ -1,20 +1,29 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
+ *|-----------------------------------------------------------------------------
+ */
 
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
 
     /// <summary>
-    /// Event provided to RDMLoginMsgCallback methods.
+    /// Event provided to <see cref="IRDMLoginMsgCallback"/> methods.
     /// </summary>
-    ///
     /// <seealso cref="ReactorMsgEvent"/>
-    public class RDMLoginMsgEvent : ReactorMsgEvent
+    sealed public class RDMLoginMsgEvent : ReactorMsgEvent
     {
         internal RDMLoginMsgEvent() : base()
         {
         }
 
-        public LoginMsg? LoginMsg;
+        /// <summary>
+        /// Gets LoginMsg associated with this message event.
+        /// </summary>
+        public LoginMsg? LoginMsg { get; internal set; }
     }
 }

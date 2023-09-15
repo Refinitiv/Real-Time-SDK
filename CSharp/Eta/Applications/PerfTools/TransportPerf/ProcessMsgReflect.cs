@@ -2,17 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.Common;
 using System;
 
-namespace Refinitiv.Eta.PerfTools.TransportPerf
+namespace LSEG.Eta.PerfTools.TransportPerf
 {
     /// <summary>
     /// Process messages as a message reflector.
@@ -29,22 +28,22 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
 			ITransportBuffer outBuffer;
 
 			handler.TransportThread!.MsgsReceived.Increment();
-			handler.TransportThread.BytesReceived.Add(msgBuffer.Length);
+			handler.TransportThread.BytesReceived.Add(msgBuffer.Length());
 
-			if ((outBuffer = chnl.GetBuffer(msgBuffer.Length, false, out error)) == null)
+			if ((outBuffer = chnl.GetBuffer(msgBuffer.Length(), false, out error)) == null)
 			{
 				ret = chnl.Flush(out error);
 				if (ret < TransportReturnCode.SUCCESS)
 					return (PerfToolsReturnCode)ret;
 
-				if ((outBuffer = chnl.GetBuffer(msgBuffer.Length, false, out error)) == null)
+				if ((outBuffer = chnl.GetBuffer(msgBuffer.Length(), false, out error)) == null)
 				{
 					Console.WriteLine("Channel.Getbuffer() failed after attempting to flush");
 					return (PerfToolsReturnCode)TransportReturnCode.NO_BUFFERS;
 				}
 			}
 
-			if (outBuffer.Length < msgBuffer.Length)
+			if (outBuffer.Length() < msgBuffer.Length())
 				return (PerfToolsReturnCode)TransportReturnCode.FAILURE;
 
 			outBuffer.Data.Put(msgBuffer.Data);

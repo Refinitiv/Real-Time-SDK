@@ -62,9 +62,13 @@ public class NIProviderThread extends ProviderThread {
                 if (!updates.isEmpty()) {
                     sendUpdateMessages();
                 }
-                if (!this.refreshes().isEmpty()) {
-                    sendRefreshMessages();
-                }
+                do {
+                    if (!this.refreshes.isEmpty()) {
+                        sendRefreshMessages();
+                    } else {
+                        break;
+                    }
+                } while (currentTime() < nextTime);
             } catch (OmmInvalidUsageException e) {
                 closeChannel();
             }
@@ -160,8 +164,7 @@ public class NIProviderThread extends ProviderThread {
             itemInfo.attributes().serviceId(config.serviceId());
             itemInfo.attributes().serviceName(config.serviceName());
             itemInfo.itemFlags(ItemFlags.IS_STREAMING_REQ);
-            itemInfo.itemHandle(providerIndex);
-            ++itemListIndex;
+            itemInfo.itemHandle(++itemListIndex);
             this.refreshes().add(itemInfo);
         }
 

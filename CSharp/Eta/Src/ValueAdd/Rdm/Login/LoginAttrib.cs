@@ -2,24 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System.Diagnostics;
 using System.Net;
 using System.Text;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
-{ 
+namespace LSEG.Eta.ValueAdd.Rdm
+{
     /// <summary>
     /// The RDM login attrib. LoginAttrib be used
     /// to send additional authentication information and user preferences between the components.
     /// </summary>
-    public class LoginAttrib
+    sealed public class LoginAttrib
     {
         private LoginAttribFlags flags;
         private Buffer _applicationId = new();
@@ -264,6 +264,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         private const string defaultApplicationName = "eta";
         private static string? defaultPosition;
 
+        /// <summary>
+        /// Sets the default position as the current host name.
+        /// </summary>
         public LoginAttrib()
         {
             try
@@ -278,6 +281,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Clears the Login Attribute structure.
+        /// </summary>
         public void Clear()
         {
             flags = LoginAttribFlags.NONE;
@@ -292,7 +298,11 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             SupportConsumerRTTMonitoring = 2;
         }
 
-        /// <summary>Performs deep copy into destAttrib</summary>
+        /// <summary>
+        /// Performs deep copy into <c>destAttrib</c>
+        /// </summary>
+        /// <param name="destAttrib">LoginAttrib that will be copied into from this object.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginAttrib destAttrib)
         {
             Debug.Assert(destAttrib != null);
@@ -348,6 +358,67 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Shallow copies the information and references contained in <c>srcLoginAttrib</c> into this object.
+        /// </summary>
+        /// <param name="srcLoginAttrib">LoginAttrib that will be copied from.</param>
+        public void CopyReferences(LoginAttrib srcLoginAttrib)
+        {
+            Debug.Assert(srcLoginAttrib != null);
+
+            Flags = srcLoginAttrib.Flags;
+
+            if (srcLoginAttrib.HasAllowSuspectData)
+            {
+                HasAllowSuspectData = true;
+                AllowSuspectData = srcLoginAttrib.AllowSuspectData;
+            }
+            if (srcLoginAttrib.HasApplicationId)
+            {
+                HasApplicationId = true;
+                ApplicationId = srcLoginAttrib.ApplicationId;
+            }
+            if (srcLoginAttrib.HasApplicationName)
+            {
+                HasApplicationName = true;
+                ApplicationName = srcLoginAttrib.ApplicationName;
+            }
+            if (srcLoginAttrib.HasPosition)
+            {
+                HasPosition = true;
+                Position = srcLoginAttrib.Position;
+            }
+            if (srcLoginAttrib.HasProvidePermissionExpressions)
+            {
+                HasProvidePermissionExpressions = true;
+                ProvidePermissionExpressions = srcLoginAttrib.ProvidePermissionExpressions;
+            }
+            if (srcLoginAttrib.HasProvidePermissionProfile)
+            {
+                HasProvidePermissionProfile = true;
+                ProvidePermissionProfile = srcLoginAttrib.ProvidePermissionProfile;
+            }
+            if (srcLoginAttrib.HasSingleOpen)
+            {
+                HasSingleOpen = true;
+                SingleOpen = srcLoginAttrib.SingleOpen;
+            }
+            if (srcLoginAttrib.HasProviderSupportDictDownload)
+            {
+                HasProviderSupportDictDownload = true;
+                SupportProviderDictionaryDownload = srcLoginAttrib.SupportProviderDictionaryDownload;
+            }
+            if (srcLoginAttrib.HasSupportRoundTripLatencyMonitoring)
+            {
+                HasSupportRoundTripLatencyMonitoring = true;
+                SupportConsumerRTTMonitoring = srcLoginAttrib.SupportConsumerRTTMonitoring;
+            }
+        }
+
+        /// <summary>
+        /// Returns a printable string of the contents of this stucture.
+        /// </summary>
+        /// <returns>The string representation of this object</returns>
         public override string ToString()
         {
             stringBuf.Clear();
@@ -419,6 +490,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return stringBuf.ToString();
         }
 
+        /// <summary>
+        /// Initializes the default attributes.
+        /// </summary>
         public void InitDefaultAttrib()
         {
             HasApplicationId = true;
@@ -428,59 +502,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             ApplicationName.Data(defaultApplicationName);
             HasPosition = true;
             Position.Data(defaultPosition);
-        }
-
-        public void CopyReferences(LoginAttrib srcLoginAttrib)
-        {
-            Debug.Assert(srcLoginAttrib != null);
-
-            Flags = srcLoginAttrib.Flags;
-
-            if (srcLoginAttrib.HasAllowSuspectData)
-            {
-                HasAllowSuspectData = true;
-                AllowSuspectData = srcLoginAttrib.AllowSuspectData;
-            }
-            if (srcLoginAttrib.HasApplicationId)
-            {
-                HasApplicationId = true;
-                ApplicationId = srcLoginAttrib.ApplicationId;
-            }
-            if (srcLoginAttrib.HasApplicationName)
-            {
-                HasApplicationName = true;
-                ApplicationName = srcLoginAttrib.ApplicationName;
-            }
-            if (srcLoginAttrib.HasPosition)
-            {
-                HasPosition = true;
-                Position = srcLoginAttrib.Position;
-            }
-            if (srcLoginAttrib.HasProvidePermissionExpressions)
-            {
-                HasProvidePermissionExpressions = true;
-                ProvidePermissionExpressions = srcLoginAttrib.ProvidePermissionExpressions;
-            }
-            if (srcLoginAttrib.HasProvidePermissionProfile)
-            {
-                HasProvidePermissionProfile = true;
-                ProvidePermissionProfile = srcLoginAttrib.ProvidePermissionProfile;
-            }
-            if (srcLoginAttrib.HasSingleOpen)
-            {
-                HasSingleOpen = true;
-                SingleOpen = srcLoginAttrib.SingleOpen;
-            }
-            if (srcLoginAttrib.HasProviderSupportDictDownload)
-            {
-                HasProviderSupportDictDownload = true;
-                SupportProviderDictionaryDownload = srcLoginAttrib.SupportProviderDictionaryDownload;
-            }
-            if (srcLoginAttrib.HasSupportRoundTripLatencyMonitoring)
-            {
-                HasSupportRoundTripLatencyMonitoring = true;
-                SupportConsumerRTTMonitoring = srcLoginAttrib.SupportConsumerRTTMonitoring;
-            }
         }
     }
 }

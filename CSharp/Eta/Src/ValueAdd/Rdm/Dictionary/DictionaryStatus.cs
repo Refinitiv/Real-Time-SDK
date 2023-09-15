@@ -2,25 +2,43 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System.Diagnostics;
 using System.Text;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Dictionary Status. 
     /// Used by a Provider application to indicate changes to the Dictionary stream.
     /// </summary>
-    public class DictionaryStatus : MsgBase
+    sealed public class DictionaryStatus : MsgBase
     {
         private IStatusMsg m_DictionaryStatus = new Msg();
         private State m_State = new State();
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
+        public override int StreamId { get => m_DictionaryStatus.StreamId; set { m_DictionaryStatus.StreamId = value; } }
+
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.DICTIONARY"/>.
+        /// </summary>
+        public override int DomainType { get => m_DictionaryStatus.DomainType; }
+
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.STATUS"/>
+        /// </summary>
+        public override int MsgClass { get => m_DictionaryStatus.MsgClass; }
+
+        /// <summary>
+        /// Flags for this message.  See <see cref="DictionaryStatusFlags"/>.
+        /// </summary>
         public DictionaryStatusFlags Flags { get; set; }
 
         /// <summary>
@@ -73,10 +91,17 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
-        public override int StreamId { get => m_DictionaryStatus.StreamId; set { m_DictionaryStatus.StreamId = value; } }
-        public override int DomainType { get => m_DictionaryStatus.DomainType; }
-        public override int MsgClass { get => m_DictionaryStatus.MsgClass; }
+        /// <summary>
+        /// Dictionary Status Message constructor.
+        /// </summary>
+        public DictionaryStatus()
+        {
+            Clear();
+        }
 
+        /// <summary>
+        /// Clears the current contents of the Dictionary Status object and prepares it for re-use.
+        /// </summary>
         public override void Clear()
         {
             Flags = 0;
@@ -88,12 +113,57 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             m_State.Code(StateCodes.NONE);
         }
 
-        public DictionaryStatus()
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destStatusMsg</c>.
+        /// </summary>
+        /// <param name="destStatusMsg">DictionaryStatus object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Copy(DictionaryStatus destStatusMsg)
         {
-            Clear();
+            if (destStatusMsg == null)
+            {
+                return CodecReturnCode.FAILURE;
+            }
+
+            destStatusMsg.Clear();
+            destStatusMsg.StreamId = StreamId;
+            destStatusMsg.ClearCache = ClearCache;
+            if (HasState)
+            {
+                destStatusMsg.HasState = true;
+                destStatusMsg.State = State;
+            }
+
+            return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Decode(DecodeIterator encIter, Msg msg)
+        /// <summary>
+        /// Encodes this Directory Status message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            if (ClearCache)
+            {
+                m_DictionaryStatus.ApplyClearCache();
+            }
+            if (HasState)
+            {
+                m_DictionaryStatus.ApplyHasState();
+                m_DictionaryStatus.State = m_State;
+            }
+
+            return m_DictionaryStatus.Encode(encodeIter);
+        }
+
+        /// <summary>
+        /// Decodes this Directory Status using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this Directory Status message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             Clear();
             if (msg.MsgClass != MsgClasses.STATUS)
@@ -114,40 +184,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Encode(EncodeIterator encIter)
-        {
-            if (ClearCache)
-            {
-                m_DictionaryStatus.ApplyClearCache();
-            }
-            if (HasState)
-            {
-                m_DictionaryStatus.ApplyHasState();
-                m_DictionaryStatus.State = m_State;
-            }
-
-            return m_DictionaryStatus.Encode(encIter);
-        }
-
-        public CodecReturnCode Copy(DictionaryStatus destMsg)
-        {
-            if (destMsg == null)
-            {
-                return CodecReturnCode.FAILURE;
-            }
-
-            destMsg.Clear();
-            destMsg.StreamId = StreamId;
-            destMsg.ClearCache = ClearCache;
-            if (HasState)
-            {
-                destMsg.HasState = true;
-                destMsg.State = State;
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
-
+        /// <summary>
+        /// Returns a human readable string representation of the Dictionary Status message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();

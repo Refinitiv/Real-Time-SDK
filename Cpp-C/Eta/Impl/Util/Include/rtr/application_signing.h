@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
  
@@ -19,7 +19,7 @@
 #include <time.h>
 #ifdef _WIN32
 #include <windows.h>
-#include <wincrypt.h>
+#include <bcrypt.h>
 #else
 #include <unistd.h>
 #include <sys/types.h>
@@ -49,19 +49,20 @@ extern "C" {
 /* generates 64 bit unsigned random value */
 RTR_C_ALWAYS_INLINE rtrUInt64 randull() {
 #ifdef _WIN32
-	rtrUInt64	li = 0;
-	HCRYPTPROV prov;
+	rtrUInt64 li;
+	NTSTATUS s;
 
-	/* Since dwFlags is usually zero and has been working for most applications, a second
-	attempt is be added with the flag _VERIFYCONTEXT for a rare case found randull returned 0 */
-	if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, 0)) {
-		if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
-			if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
-				return 0;
-		}
+	s = BCryptGenRandom(NULL, (PUCHAR)&li, sizeof(rtrUInt64), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+
+	if (!BCRYPT_SUCCESS(s))
+	{
+		srand((unsigned)time((time_t*)NULL));
+		li = rand();
+		li += ((rtrUInt64)rand()) << 16;
+		li += ((rtrUInt64)rand()) << 32;
+		li += ((rtrUInt64)rand()) << 48;
 	}
-	CryptGenRandom(prov, sizeof(li), (BYTE *)&li);
-	CryptReleaseContext(prov, 0);
+
 	li &= 0x7fffffffffffffffULL;
 	return li;
 #else
@@ -100,16 +101,18 @@ deviceFailure:
 RTR_C_ALWAYS_INLINE rtrUInt32 randu32() 
 {
 #ifdef _WIN32
-	rtrUInt32 li = 0;
-	HCRYPTPROV prov;
+	rtrUInt32 li;
+	NTSTATUS s;
 
-	if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, 0)) {
-		if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET)) {
-			return (rtrUInt32)time((time_t *)NULL);
-		}
+	s = BCryptGenRandom(NULL, (PUCHAR)&li, sizeof(rtrUInt32), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+
+	if (!BCRYPT_SUCCESS(s))
+	{
+		srand((unsigned)time((time_t*)NULL));
+		li = rand();
+		li += ((rtrUInt32)rand()) << 16;
 	}
-	CryptGenRandom(prov, sizeof(li), (BYTE *)&li);
-	CryptReleaseContext(prov, 0);
+
 	return li;
 #else
         rtrUInt8   buffer[sizeof(rtrUInt32)];

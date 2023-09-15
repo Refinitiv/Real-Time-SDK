@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2018-2022 Refinitiv. All rights reserved.
+Copyright (C) 2018-2023 Refinitiv. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.6.6.L1
+    libema.lib                ema3.7.2.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.6.6.L1
-    libema.dll                ema3.6.6.L1
+    libema.lib                ema3.7.2.L1
+    libema.dll                ema3.7.2.L1
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.6.6.L1
+    libema.a                    ema3.7.2.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.6.6.L1          libema.so.14          ema3.6.6.L1
+    libema.so.3.7.2.L1          libema.so.17          ema3.7.2.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -155,29 +155,29 @@ This will create all necessary soft links for example makefiles to link. It is s
 
 # Reference Information
 
-    I-COS Questionnaire: 6032
+    I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.6.6
+    Release Number: 3.7.2
     Load Number: 1
-    Windows Load ID: ema3.6.6.L1.win
-        Supersedes: ema3.6.5.L1.win
-    Linux Load ID: ema3.6.6.L1.linux
-        Supersedes: ema3.6.5.L1.linux
+    Windows Load ID: ema3.7.2.L1.win
+        Supersedes: ema3.7.1.L1.win
+    Linux Load ID: ema3.7.2.L1.linux
+        Supersedes: ema3.7.1.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.52_RealTimeDistributionSystem_22.41 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.71 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
-    Veracode, Refinitiv Standard v21, https://www.veracode.com/.
-    Black Duck by Synopsis, 2020.12.0.808, https://www.blackducksoftware.com/.
+    Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
+    SemGrep 1.2.1, https://semgrep.dev/
 
 # Notes:
-- This package contains APIs that are subject to proprietary and opens source licenses.  Please make sure to read the top level README.md files for clarification.
+- This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the top level README.md files for clarification.

@@ -58,6 +58,11 @@
 
 #endif
 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+
 #include "dictionaries.h"
 
 /* precalculated hash values */
@@ -7634,7 +7639,7 @@ TEST(stringConversionTest, stringToDoubleConversionTest)
 
 	sVal = "-9223372036854775808.";
 	testDouble = -9223372036854775808.;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	ASSERT_TRUE(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf) == RSSL_RET_SUCCESS);
 	ASSERT_EQ(testDoubleOut, testDouble);
@@ -7646,59 +7651,59 @@ TEST(stringConversionTest, stringToDoubleConversionTest)
 
 	sVal = "0.02150940715085";
 	testDouble = 0.02150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "0.00150940715085";
 	testDouble = 0.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "0.001509407150852";
 	testDouble = 0.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "0.021509407150852";
 	testDouble = 0.02150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "7.02150940715085";
 	testDouble = 7.02150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "120.00150940715085";
 	testDouble = 120.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_SUCCESS);
 	EXPECT_TRUE(testCompareDoubles(testDouble, testDoubleOut));
 
 	sVal = "42.001509407150852";
 	testDouble = 42.00150940715085;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "529.021509407150852";
 	testDouble = 529.0215094071509;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 
 	sVal = "0.00000000000015094";
 	testDouble = 0.00000000000015;
-	testStrBuf.length = sprintf(testString, sVal);
+	testStrBuf.length = sprintf(testString, "%s", sVal);
 	testStrBuf.data = testString;
 	EXPECT_EQ(rsslNumericStringToDouble(&testDoubleOut, &testStrBuf), RSSL_RET_INVALID_DATA);
 }
@@ -10128,14 +10133,14 @@ TEST(dateTimeToStringFormatTest,dateTimeToStringFormatTest)
 TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 {
 	/* Date  */ 
-	char dateTestName[7][72] = {		
-		"Date", "Date w space", "ISO8601 Date", "ISO8601 Year Month", "ISO8601 Date w/o hyphen", "--MM-DD", "--MMDD"
+	char dateTestName[9][72] = {
+		"Date", "Date month & day 1 char", "Date w space", "Date w space month & day 1 char", "ISO8601 Date", "ISO8601 Year Month", "ISO8601 Date w/o hyphen", "--MM-DD", "--MMDD"
 	};
-	char dateFormat[7][56] = { 
-		"%2d/%2d/%4d", "%2d %2d %4d", "%04d-%02d-%02d", "%4d-%02d", "%04d%02d%02d", "--%2d-%2d", "--%02d%02d"
+	char dateFormat[9][56] = {
+		"%2d/%2d/%4d", "%1d/%1d/%4d", "%2d %2d %4d", "%1d %1d %4d", "%04d-%02d-%02d", "%4d-%02d", "%04d%02d%02d", "--%2d-%2d", "--%02d%02d"
 	};
-	RsslDate iDate[7] = {
-		{21,10,1978}, {15,12,1998}, {27,6,2008}, {0,1,2009}, {25,5,2010}, {21,10,0}, {13,5,0}
+	RsslDate iDate[9] = {
+		{21,10,1978}, {2,1,2005}, {15,12,1998}, {3,5,1998}, {27,6,2008}, {0,1,2009}, {25,5,2010}, {21,10,0}, {13,5,0}
 	};
 	RsslDate oDate;
 
@@ -10176,13 +10181,13 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 	RsslDateTime oDateTime;
 	char dateTimeFormat[128];
 
-	for (i = 0; i < 7; ++i)
+	for (i = 0; i < 9; ++i)
 	{ /* Date Tests  */ 
-		if( i < 2 )
+		if( i < 4 )
 			dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].month, iDate[i].day, iDate[i].year);
-		else if (i == 5 || i == 6) /* Month & day only */
+		else if (i == 7 || i == 8) /* Month & day only */
 			dateTimeStrBuf.length=  (RsslUInt) snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].month, iDate[i].day);
-		else if(i == 3)
+		else if(i == 5)
 			dateTimeStrBuf.length = (RsslUInt)snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].year, iDate[i].month);
 		else
 			dateTimeStrBuf.length= (RsslUInt) snprintf(dateTimeStr, 256, dateFormat[i], iDate[i].year, iDate[i].month, iDate[i].day);
@@ -10231,7 +10236,7 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 		ASSERT_TRUE(rsslTimeIsEqual(&(iTime[i]), &oTime));
 	}
 
-	for (i = 0; i < 2; ++i)
+	for (i = 0; i < 4; ++i)
 	{ /* DateTime Tests Strf */
 		rsslClearDateTime(&iDateTime);
 		iDateTime.date = iDate[i];
@@ -10252,7 +10257,7 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 		}
 	}
 
-	for (i = 2; i < 7; ++i)
+	for (i = 4; i < 9; ++i)
 	{   /* DateTime Tests ISO8601 */
 		rsslClearDateTime(&iDateTime);
 		iDateTime.date = iDate[i];
@@ -10260,13 +10265,13 @@ TEST(dateTimeStringToDateTimeTest,dateTimeStringToDateTimeTest)
 		{
 			snprintf(dateTimeFormat,128, "%sT%s", dateFormat[i], timeFormat[t]);
 			iDateTime.time = iTime[t];
-			if (i == 3)
+			if (i == 5)
 			{
 				dateTimeStrBuf.length = (RsslUInt)snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.year, iDateTime.date.month,
 					iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 					iDateTime.time.millisecond, iDateTime.time.microsecond, iDateTime.time.nanosecond);
 			}
-			else if(i == 5 || i == 6)
+			else if(i == 7 || i == 8)
 				dateTimeStrBuf.length = (RsslUInt)snprintf(dateTimeStr, 256, dateTimeFormat, iDateTime.date.month, iDateTime.date.day,
 					iDateTime.time.hour, iDateTime.time.minute, iDateTime.time.second,
 					iDateTime.time.millisecond, iDateTime.time.microsecond, iDateTime.time.nanosecond);
@@ -12127,6 +12132,134 @@ TEST(hashFuncsTest, HashingEntityIdsPrecalculated)
 		ASSERT_TRUE(hash == precalculatedHashValues[i].hash);
 	}
 }
+
+void checkDefaultsRsslEncodingLevel(const RsslEncodingLevel* pRsslEncodingLevel)
+{
+	// Tests default values
+	ASSERT_EQ(NULL, pRsslEncodingLevel->_countWritePtr);
+	ASSERT_EQ(NULL, pRsslEncodingLevel->_initElemStartPos);
+	ASSERT_EQ(NULL, pRsslEncodingLevel->_containerStartPos);
+
+	ASSERT_EQ(0, pRsslEncodingLevel->_currentCount);
+	ASSERT_EQ(0, pRsslEncodingLevel->_encodingState);
+	ASSERT_EQ(0, pRsslEncodingLevel->_containerType);
+	ASSERT_EQ(0, pRsslEncodingLevel->_flags);
+
+	ASSERT_EQ(NULL, pRsslEncodingLevel->_listType);
+	ASSERT_EQ(NULL, pRsslEncodingLevel->_fieldListSetDef);
+	ASSERT_EQ(NULL, pRsslEncodingLevel->_elemListSetDef);
+
+	ASSERT_EQ(0, pRsslEncodingLevel->_internalMark._sizeBytes);
+	ASSERT_EQ(0, pRsslEncodingLevel->_internalMark._sizePtr);
+	ASSERT_EQ(0, pRsslEncodingLevel->_internalMark2._sizeBytes);
+	ASSERT_EQ(0, pRsslEncodingLevel->_internalMark2._sizePtr);
+}
+
+void checkDefaultsRsslDecodingLevel(const RsslDecodingLevel* pRsslDecodingLevel)
+{
+	// Tests default values
+	ASSERT_EQ(NULL, pRsslDecodingLevel->_endBufPtr);
+	ASSERT_EQ(NULL, pRsslDecodingLevel->_listType);
+	ASSERT_EQ(NULL, pRsslDecodingLevel->_nextEntryPtr);
+	ASSERT_EQ(NULL, pRsslDecodingLevel->_fieldListSetDef);
+	ASSERT_EQ(NULL, pRsslDecodingLevel->_elemListSetDef);
+
+	ASSERT_EQ(0, pRsslDecodingLevel->_itemCount);
+	ASSERT_EQ(0, pRsslDecodingLevel->_nextItemPosition);
+	ASSERT_EQ(0, pRsslDecodingLevel->_setCount);
+	ASSERT_EQ(0, pRsslDecodingLevel->_nextSetPosition);
+	ASSERT_EQ(0, pRsslDecodingLevel->_containerType);
+}
+
+void checkDefaultsRsslEncodeIterator(const RsslEncodeIterator* pRsslEncodeIterator)
+{
+	unsigned i;
+
+	// Tests default values
+	ASSERT_EQ(NULL, pRsslEncodeIterator->_pBuffer);
+	ASSERT_EQ(NULL, pRsslEncodeIterator->_curBufPtr);
+	ASSERT_EQ(NULL, pRsslEncodeIterator->_endBufPtr);
+
+	ASSERT_EQ(RSSL_RWF_MAJOR_VERSION, pRsslEncodeIterator->_majorVersion);
+	ASSERT_EQ(RSSL_RWF_MINOR_VERSION, pRsslEncodeIterator->_minorVersion);
+	ASSERT_EQ(-1, pRsslEncodeIterator->_encodingLevel);
+
+	for (i = 0; i < RSSL_ITER_MAX_LEVELS; ++i)
+	{
+		checkDefaultsRsslEncodingLevel(&pRsslEncodeIterator->_levelInfo[i]);
+	}
+
+	ASSERT_EQ(NULL, pRsslEncodeIterator->_pGlobalElemListSetDb);
+	ASSERT_EQ(NULL, pRsslEncodeIterator->_pGlobalFieldListSetDb);
+}
+
+void checkDefaultsRsslDecodeIterator(const RsslDecodeIterator* pRsslDecodeIterator)
+{
+	unsigned i;
+
+	// Tests default values
+	ASSERT_EQ(RSSL_RWF_MAJOR_VERSION, pRsslDecodeIterator->_majorVersion);
+	ASSERT_EQ(RSSL_RWF_MINOR_VERSION, pRsslDecodeIterator->_minorVersion);
+	ASSERT_EQ(-1, pRsslDecodeIterator->_decodingLevel);
+
+	ASSERT_EQ(NULL, pRsslDecodeIterator->_curBufPtr);
+	ASSERT_EQ(NULL, pRsslDecodeIterator->_pBuffer);
+
+	for (i = 0; i < RSSL_ITER_MAX_LEVELS; ++i)
+	{
+		checkDefaultsRsslDecodingLevel(&pRsslDecodeIterator->_levelInfo[i]);
+	}
+
+	ASSERT_EQ(NULL, pRsslDecodeIterator->_pGlobalElemListSetDb);
+	ASSERT_EQ(NULL, pRsslDecodeIterator->_pGlobalFieldListSetDb);
+}
+
+TEST(iteratorsInitialization, InitRsslEncodingLevel)
+{
+	RsslEncodingLevel rsslEncodingLevel = RSSL_INIT_ENCODING_LEVEL;
+
+	// Tests default values
+	checkDefaultsRsslEncodingLevel(&rsslEncodingLevel);
+}
+
+TEST(iteratorsInitialization, InitRsslDecodingLevel)
+{
+	RsslDecodingLevel rsslDecodingLevel = RSSL_INIT_DECODING_LEVEL;
+
+	// Tests default values
+	checkDefaultsRsslDecodingLevel(&rsslDecodingLevel);
+}
+
+TEST(iteratorsInitialization, InitRsslEncodeIterator)
+{
+	RsslEncodeIterator encIter = RSSL_INIT_ENCODE_ITERATOR;
+
+	// Tests default values
+	checkDefaultsRsslEncodeIterator(&encIter);
+
+	// Make some changes...
+	memset(&encIter, 0xd3, sizeof(RsslEncodeIterator));
+
+	// Tests clear method
+	rsslClearEncodeIterator(&encIter);
+	checkDefaultsRsslEncodeIterator(&encIter);
+}
+
+TEST(iteratorsInitialization, InitRsslDecodeIterator)
+{
+	RsslDecodeIterator decIter = RSSL_INIT_DECODE_ITERATOR;
+
+	// Tests default values
+	checkDefaultsRsslDecodeIterator(&decIter);
+
+	// Make some changes...
+	memset(&decIter, 0xe4, sizeof(RsslDecodeIterator));
+
+	// Tests clear method
+	rsslClearDecodeIterator(&decIter);
+	checkDefaultsRsslDecodeIterator(&decIter);
+}
+
 
 const char
 	*argToString = "--to-string";

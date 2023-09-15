@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -139,6 +139,8 @@ static const char *defaultProxyDomain = "";
 static const char *defaultCookies = "";
 static const char *defaultCAStore = "";
 
+static RsslUInt64 sumBytesReadTotal = 0;
+static RsslUInt64 sumUncompressedBytesReadTotal = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -405,7 +407,7 @@ int main(int argc, char **argv)
 			{
 				i++;
 				xmlTrace = RSSL_TRUE;
-				snprintf(traceOutputFile, 128, "RsslConsumer\0");
+				snprintf(traceOutputFile, 128, "RsslConsumer");
 			}
 			else if (strcmp("-td", argv[i]) == 0)
 			{
@@ -891,14 +893,21 @@ static RsslRet readFromChannel(RsslChannel* chnl)
 		while (readret > 0) /* read until no more to read */
 		{
 			rsslClearReadInArgs(&readInArgs);
-			if ((msgBuf = rsslReadEx(chnl, &readInArgs, &readOutArgs, &readret,&error)) != 0)
+			rsslClearReadOutArgs(&readOutArgs);
+
+			msgBuf = rsslReadEx(chnl, &readInArgs, &readOutArgs, &readret, &error);
+			if (showTransportDetails)
 			{
-				if (showTransportDetails)
-				{
-					printf("\nMessage Details:\n");
-					printf("Cumulative bytesRead=%d\n", readOutArgs.bytesRead);
-					printf("Cumulative uncompressedBytesRead=%d\n", readOutArgs.uncompressedBytesRead);
-				}
+				sumBytesReadTotal += readOutArgs.bytesRead;
+				sumUncompressedBytesReadTotal += readOutArgs.uncompressedBytesRead;
+
+				printf("\nMessage Details:\n");
+				printf("Cumulative bytesRead=%u (%llu)\n", readOutArgs.bytesRead, sumBytesReadTotal);
+				printf("Cumulative uncompressedBytesRead=%u (%llu)\n", readOutArgs.uncompressedBytesRead, sumUncompressedBytesReadTotal);
+			}
+
+			if (msgBuf != 0)
+			{
 				if (processResponse(chnl, msgBuf) == RSSL_RET_SUCCESS)	
 				{
 					/* set flag for server message received */

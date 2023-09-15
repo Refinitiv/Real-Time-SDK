@@ -19,7 +19,9 @@ class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOpti
 	Buffer _password = CodecFactory.createBuffer();
 	Buffer _clientId = CodecFactory.createBuffer();
 	Buffer _clientSecret = CodecFactory.createBuffer();
+	Buffer _clientJwk = CodecFactory.createBuffer();
 	Buffer _tokenScope = CodecFactory.createBuffer();
+	Buffer _audience = CodecFactory.createBuffer();
 	int _transport, _dataFormat;
 	String _proxyPort;
 	String _proxyHostName;
@@ -42,7 +44,9 @@ class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOpti
 		_password.clear();
 		_clientId.clear();
 		_clientSecret.clear();
+		_clientJwk.clear();
 		_tokenScope.clear();
+		_audience.clear();
 		_transport = ServiceEndpointDiscoveryOption.TransportProtocol.UNKNOWN;
 		_dataFormat = ServiceEndpointDiscoveryOption.DataformatProtocol.UNKNOWN;
 		_proxyHostName = null;
@@ -177,11 +181,25 @@ class ServiceEndpointDiscoveryOptionImpl implements ServiceEndpointDiscoveryOpti
 		_clientSecret.data(clientSecret);
 		return this;
 	}
+	
+	@Override
+	public ServiceEndpointDiscoveryOption clientJWK(String clientJWK)
+	{
+		_clientJwk.data(clientJWK);
+		return this;
+	}
 
 	@Override
 	public ServiceEndpointDiscoveryOption tokenScope(String tokenScope)
 	{
 		_tokenScope.data(tokenScope);
+		return this;
+	}
+	
+	@Override
+	public ServiceEndpointDiscoveryOption audience(String audience)
+	{
+		_audience.data(audience);
 		return this;
 	}
 }

@@ -93,6 +93,7 @@ private :
 
 	static LoggerClientFiles clientFiles;
 
+	static int discoverLogFileNumber(EmaString fileName, int maxFileNumber);
 	void addLogLine( const EmaString& callbackClientName, Severity severity, const char* text );
 };
 

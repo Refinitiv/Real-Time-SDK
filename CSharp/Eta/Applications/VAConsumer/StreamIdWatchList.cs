@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Collections;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
 
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
     /// <summary>
     /// This is a hash map based WatchList for quick lookup of item states when
@@ -36,16 +36,6 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
         public int Add(int domainType, string itemName, bool isPrivateStream = false)
         {
-            // check if item is already in list before adding
-            foreach (var entry in m_WatchList)
-            {
-                if (entry.Value.ItemName.Equals(itemName))
-                {
-                    // return stream id for matching item
-                    return entry.Key;
-                }
-            }
-
             // add new entry
             WatchListEntry wle = new WatchListEntry()
             {

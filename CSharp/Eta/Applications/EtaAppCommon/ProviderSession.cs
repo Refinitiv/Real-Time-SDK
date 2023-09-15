@@ -2,20 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Transports;
+using LSEG.Eta.Codec;
 using System.Net.Sockets;
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.Common;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// Encapsulate ETA transport methods for the interactive provider and generic
@@ -275,7 +274,14 @@ namespace Refinitiv.Eta.Example.Common
             error = null;
             ITransportBuffer tempBuf = msgBuf;
             if (channel is null)
+            {
+                error = new Error()
+                {
+                    Text = "Channel is null",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
+            }
 
             if (shouldXmlTrace)
             {

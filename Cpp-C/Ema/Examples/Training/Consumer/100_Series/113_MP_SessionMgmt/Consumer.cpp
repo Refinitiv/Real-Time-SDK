@@ -7,6 +7,8 @@
 
 #include "Consumer.h"
 #include <cstring>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace refinitiv::ema::access;
 using namespace std;
@@ -34,7 +36,9 @@ void printHelp()
 		<< " -username machine ID to perform authorization with the token service (mandatory for V1 oAuth password credentials)." << endl
 		<< " -password password to perform authorization with the token service (mandatory for V1 oAuth password credentials)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory)." << endl
-		<< " -clientSecret client secret to perform authorization with the token service (mandatory for V2 oAuth client credentials)." << endl
+		<< " -clientSecret client secret to perform authorization with the token service (mandatory for V2 oAuth client credentials with client secret)." << endl
+		<< " -jwkFile path to the file containing the JWK encoded private key (mandatory for V2 oAuth client credentials with JWT). " << endl
+		<< " -audience Audience value for JWT (optional for V2 oAuth client credentials with JWT). " << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional, only for V1 oAuth password credential)." << endl
 		<< " -tokenURL URL to perform authentication to get access and refresh tokens for V1 oAuth password credentials (optional)." << endl
 		<< " -tokenURLV1 URL to perform authentication to get access and refresh tokens for V1 oAuth password credentials (optional)." << endl
@@ -59,6 +63,13 @@ int main( int argc, char* argv[] )
 		UInt8 passwordSet = 0;
 		UInt8 clientIdSet = 0;
 		UInt8 clientSecretSet = 0;
+		UInt8 clientJWKSet = 0;
+
+		FILE* pFile;
+		int readSize;
+		EmaString clientJwk;
+		char clientJwkMem[2048];
+
 
 		EmaString itemName = "IBM.N";
 
@@ -99,6 +110,38 @@ int main( int argc, char* argv[] )
 				{
 					clientSecretSet = 1;
 					config.clientSecret(argv[++i]);
+				}
+			}
+			else if (strcmp(argv[i], "-audience") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					clientSecretSet = 1;
+					config.audience(argv[++i]);
+				}
+			}
+			else if (strcmp(argv[i], "-jwkFile") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					/* As this is an example program showing API, this handling of the JWK is not secure. */
+					pFile = fopen(argv[++i], "rb");
+					if (pFile == NULL)
+					{
+						printf("Cannot load jwk file.\n");
+						return 0;
+					}
+					/* Read the JWK contents into a pre-allocated buffer*/
+					readSize = (int)fread(clientJwkMem, sizeof(char), 2048, pFile);
+					if (readSize == 0)
+					{
+						printf("Cannot load jwk file.\n");
+						return 0;
+					}
+
+					clientJwk.set(clientJwkMem, readSize);
+
+					config.clientJWK(clientJwk);
 				}
 			}
 			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
@@ -175,9 +218,9 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( (!userNameSet || !passwordSet || !clientIdSet) && (!clientIdSet || !clientSecretSet) )
+		if ( (!userNameSet || !passwordSet || !clientIdSet) && (!clientIdSet || (!clientSecretSet && !clientJWKSet) ))
 		{
-			cout << "User name, password and client Id or client Id and client secret must be specified on the command line. Exiting...";
+			cout << "User name, password and client Id or client Id and client secret must be specified on the command line. Exiting..." << endl;
 			printHelp();
 			return -1;
 		}

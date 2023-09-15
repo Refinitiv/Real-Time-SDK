@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,13 +13,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Internal;
-using Refinitiv.Eta.Internal.Interfaces;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Common;
+using LSEG.Eta.Internal;
+using LSEG.Eta.Internal.Interfaces;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.Tests
+namespace LSEG.Eta.Tests
 {
     internal class MockProtocol : ProtocolBase
     {
@@ -35,6 +34,16 @@ namespace Refinitiv.Eta.Tests
 
         static ReaderWriterLockSlim _slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         static WriteLocker _locker = new WriteLocker(_slimLock);
+
+        public override void CloseChannel(IChannel channel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void CloseServer(IServer server)
+        {
+            throw new NotImplementedException();
+        }
 
         public override IChannel CreateChannel(ConnectOptions connectionOptions, out Error error)
         {
@@ -57,7 +66,6 @@ namespace Refinitiv.Eta.Tests
                 error = new Error(
                     errorId: TransportReturnCode.FAILURE,
                     text: exp.Message,
-                    exception: exp,
                     sysError: 0);
             }
             finally

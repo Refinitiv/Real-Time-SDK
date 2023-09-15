@@ -363,6 +363,10 @@ static RsslRet sendDirectoryRequestReject(RsslReactor *pReactor, RsslReactorChan
 		directoryStatus.state.streamState = RSSL_STREAM_CLOSED_RECOVER;
 		directoryStatus.state.dataState = RSSL_DATA_SUSPECT;
 
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		switch(reason)
 		{
 			case MAX_SRCDIR_REQUESTS_REACHED:
@@ -386,6 +390,9 @@ static RsslRet sendDirectoryRequestReject(RsslReactor *pReactor, RsslReactorChan
 			default:
 				break;
 		}
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 
 		/* encode message */
 		rsslClearEncodeIterator(&encodeIter);

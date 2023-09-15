@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 #define __MY_MAX_ADDR 256
-
+#define __ERROR_LEN 512
 
 #define RTR_4BYTE_ALIGN_SHIFT	2
 #define RTR_4BYTE_ALIGN_SIZE	(1UL << RTR_4BYTE_ALIGN_SHIFT)	/* 4 */

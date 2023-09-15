@@ -7,6 +7,8 @@
 
 package com.refinitiv.ema.access;
 
+import com.refinitiv.ema.rdm.DataDictionary;
+
 class DictionaryConfig
 {
 	String		dictionaryName;
@@ -15,6 +17,7 @@ class DictionaryConfig
 	String		rdmFieldDictionaryItemName;
 	String		enumTypeDefItemName;
 	boolean     isLocalDictionary;
+	DataDictionary dataDictionary;
 
 	DictionaryConfig(boolean localDictionary)
 	{
@@ -28,5 +31,6 @@ class DictionaryConfig
 		enumtypeDefFileName = null;
 		rdmFieldDictionaryItemName = null;
 		enumTypeDefItemName = null;
+		dataDictionary = null;
 	}
 }

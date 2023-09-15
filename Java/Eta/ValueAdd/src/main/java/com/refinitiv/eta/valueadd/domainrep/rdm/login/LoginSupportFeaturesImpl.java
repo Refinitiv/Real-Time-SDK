@@ -22,6 +22,7 @@ class LoginSupportFeaturesImpl implements LoginSupportFeatures
     private long supportViewRequests;
     private long supportProviderDictionaryDownload;
     private long supportEnhancedSymbolList;
+    private long supportStandbyMode;
     
     private StringBuilder stringBuf = new StringBuilder();
     private final static String eol = System.getProperty("line.separator");
@@ -43,6 +44,7 @@ class LoginSupportFeaturesImpl implements LoginSupportFeatures
         supportOptimizedPauseResume = 0;
         supportProviderDictionaryDownload = 0;
         supportEnhancedSymbolList = 0;
+        supportStandbyMode = 0;
     }
     
     public int copy(LoginSupportFeatures destLoginSupportFeatures)
@@ -88,6 +90,11 @@ class LoginSupportFeaturesImpl implements LoginSupportFeatures
         {
             destLoginSupportFeatures.applyHasSupportProviderDictionaryDownload();
             destLoginSupportFeatures.supportProviderDictionaryDownload(supportProviderDictionaryDownload());
+        }
+        if (checkHasSupportStandbyMode())
+        {
+            destLoginSupportFeatures.applyHasSupportStandbyMode();
+            destLoginSupportFeatures.supportStandbyMode(supportStandbyMode());
         }
         
         return CodecReturnCodes.SUCCESS;
@@ -249,6 +256,27 @@ class LoginSupportFeaturesImpl implements LoginSupportFeatures
     {
         flags |= LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY;
     }
+    
+    public boolean checkHasSupportStandbyMode()
+    {
+    	return (flags() & LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE) != 0;
+    }
+    
+    public void supportStandbyMode(long supportStandbyMode)
+    {
+    	assert(checkHasSupportStandbyMode());
+        this.supportStandbyMode = supportStandbyMode;
+    }
+    
+    public void applyHasSupportStandbyMode()
+    {
+        flags |= LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE;
+    }
+    
+    public long supportStandbyMode()
+    {
+        return supportStandbyMode;
+    }
      
     public long supportProviderDictionaryDownload()
     {
@@ -357,6 +385,13 @@ class LoginSupportFeaturesImpl implements LoginSupportFeatures
             stringBuf.append(tab);
             stringBuf.append("supportEnhancedSymbolList: ");
             stringBuf.append(supportEnhancedSymbolList());
+            stringBuf.append(eol);
+        }
+        if (checkHasSupportStandbyMode())
+        {
+            stringBuf.append(tab);
+            stringBuf.append("supportStandbyMode: ");
+            stringBuf.append(supportStandbyMode());
             stringBuf.append(eol);
         }
         

@@ -1,18 +1,17 @@
-﻿using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
+﻿using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Xml;
 using Xunit;
-using Array = Refinitiv.Eta.Codec.Array;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DateTime = Refinitiv.Eta.Codec.DateTime;
-using Double = Refinitiv.Eta.Codec.Double;
-using Enum = Refinitiv.Eta.Codec.Enum;
+using Array = LSEG.Eta.Codec.Array;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.Tests
+namespace LSEG.Eta.Tests
 {
 
     class CodecTestUtil
@@ -1884,7 +1883,7 @@ namespace Refinitiv.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
             ElementList elementList = new ElementList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(elementListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -1932,7 +1931,7 @@ namespace Refinitiv.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
             FieldList fieldList = new FieldList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(filedListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -1986,7 +1985,7 @@ namespace Refinitiv.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
             Vector vector = new Vector();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(vectorBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2063,7 +2062,7 @@ namespace Refinitiv.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
             Map map = new Map();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(mapBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2145,7 +2144,7 @@ namespace Refinitiv.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
             Series series = new Series();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(vectorBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2207,7 +2206,7 @@ namespace Refinitiv.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../../etc/RDMFieldDictionary", out error));
             FilterList filterList = new FilterList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(filterListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());

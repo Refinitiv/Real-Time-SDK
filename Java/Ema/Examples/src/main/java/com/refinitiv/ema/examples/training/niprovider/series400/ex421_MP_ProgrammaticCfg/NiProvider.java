@@ -62,7 +62,7 @@ public class NiProvider {
 		elementList.clear();
 
 		Map serviceMap = EmaFactory.createMap();
-		innerElementList.add( EmaFactory.createElementEntry().intValue( "ServiceId", 0 ));
+		innerElementList.add( EmaFactory.createElementEntry().intValue( "ServiceId", 2 ));
 		innerElementList.add( EmaFactory.createElementEntry().ascii( "Vendor", "company name" ));
 		innerElementList.add( EmaFactory.createElementEntry().intValue( "IsSource", 0 ));		
 		innerElementList.add( EmaFactory.createElementEntry().intValue( "AcceptingConsumerStatus", 0 ));	

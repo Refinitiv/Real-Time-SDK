@@ -23,6 +23,10 @@
 #include <cjson/cJSON.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
+#ifndef NO_ETA_JWT_BUILD
+#include <l8w8jwt/algs.h>
+#include <l8w8jwt/encode.h>
+#endif
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -58,6 +62,7 @@ RsslBuffer rssl_rest_client_id_text = { 11, "&client_id=" };
 RsslBuffer rssl_rest_client_secret_text = { 15, "&client_secret=" };
 RsslBuffer rssl_rest_refresh_token_text = { 15, "&refresh_token=" };
 RsslBuffer rssl_rest_scope_text = { 7, "&scope=" };
+RsslBuffer rssl_rest_V2_scope_text = { 14, "&scope=profile" };
 RsslBuffer rssl_rest_take_exclusive_sign_on_false_text = { 33, "&takeExclusiveSignOnControl=false" };
 RsslBuffer rssl_rest_take_exclusive_sign_on_true_text = { 32, "&takeExclusiveSignOnControl=true" };
 RsslBuffer rssl_rest_content_type_text = { 12, "Content-Type" };
@@ -68,6 +73,7 @@ RsslBuffer rssl_rest_accept_encoding_text = { 15, "Accept-Encoding" };
 RsslBuffer rssl_rest_location_header_text = { 8, "Location" };
 RsslBuffer rssl_rest_user_agent_text = { 10, "User-Agent" };
 RsslBuffer rssl_rest_user_agent_rtsdk_text = { 5, "RTSDK" };
+RsslBuffer rssl_rest_client_assertion_type = { 77, "&client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer" };
 RsslBuffer rssl_rest_client_assertion = { 18, "&client_assertion=" };
 
 
@@ -75,6 +81,8 @@ RsslBuffer rssl_rest_client_assertion = { 18, "&client_assertion=" };
 RsslBuffer rssl_rest_token_url_v1 = { 46, "https://api.refinitiv.com/auth/oauth2/v1/token" };
 
 RsslBuffer rssl_rest_token_url_v2 = { 46, "https://api.refinitiv.com/auth/oauth2/v2/token" };
+
+RsslBuffer rssl_rest_default_audience = {48, "https://login.ciam.refinitiv.com/as/token.oauth2" };
 
 static const char * const tokenkeysV1[] =
 {
@@ -201,7 +209,7 @@ void _rsslRestClearError(RsslError* rsslError)
 	rsslError->channel = 0;
 	rsslError->rsslErrorId = RSSL_RET_SUCCESS;
 	rsslError->sysError = 0;
-	memset(rsslError->text, 0, MAX_RSSL_ERROR_TEXT+1);
+	memset(rsslError->text, 0, MAX_RSSL_ERROR_TEXT);
 }
 
 void _rsslClearRestHandleImpl(RsslRestHandleImpl* rsslRestHandleImpl)
@@ -383,7 +391,7 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 			_rsslRestClearError(pError);
 			pError->rsslErrorId = RSSL_RET_FAILURE;
 			snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: failed to allocate memory.", __FILE__, __LINE__);
+				"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed to allocate memory.", __FILE__, __LINE__);
 			return pHeaderList;
 		}
 
@@ -414,7 +422,7 @@ struct curl_slist * _rsslRestExtractHeaderInfo(CURL* curl, RsslRestRequestArgs* 
 		_rsslRestClearError(pError);
 		pError->rsslErrorId = RSSL_RET_FAILURE;
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: _rsslRestExtractHeaderInfo() failed with text: %s", __FILE__, __LINE__,
+			"<%s:%d> Error: _rsslRestExtractHeaderInfo() Curl failed with text: %s", __FILE__, __LINE__,
 			(*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
 
 		return pHeaderList;
@@ -1030,8 +1038,16 @@ RsslRestClient* rsslCreateRestClient(RsslCreateRestClientOptions *pRestClientOpt
 
 		_rsslRestClearError(pError);
 		pError->rsslErrorId = RSSL_RET_FAILURE;
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pError->text, MAX_RSSL_ERROR_TEXT,
 			"<%s:%d> Error: rsslHashTableInit() failed with text: %s", __FILE__, __LINE__, rsslErrorInfo.rsslError.text);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic pop
+#endif
+
 		return 0;
 	}
 
@@ -1145,7 +1161,7 @@ RsslInt64 rsslRestClientDispatch(RsslRestClient* RsslRestClient)
 					_rsslRestClearError(&pRestHandleImpl->rsslError);
 					pRestHandleImpl->rsslError.rsslErrorId = RSSL_RET_FAILURE;
 					snprintf(pRestHandleImpl->rsslError.text, MAX_RSSL_ERROR_TEXT,
-						"<%s:%d> Error: The REST request failed with text: %s",
+						"<%s:%d> Error: rsslRestClientDispatch() Curl failed to perform the request with text: %s",
 						__FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(pCurlMsg->data.result));
 
 					rsslRestResponseEvent.closure = pRestHandleImpl->userPtr;
@@ -1404,7 +1420,7 @@ RsslRestHandle* rsslRestClientNonBlockingRequest(RsslRestClient* restClient, Rss
 		{
 			error->rsslErrorId = RSSL_RET_FAILURE;
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: Failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
+				"<%s:%d> Error: rsslRestClientNonBlockingRequest() Curl failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
 		}
 
 		goto Failed;
@@ -1493,7 +1509,7 @@ Failed:
 	{
 		error->rsslErrorId = RSSL_RET_FAILURE;
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: Failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
+			"<%s:%d> Error: rsslRestClientNonBlockingRequest() Curl failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(curlCode));
 	}
 
 	(*(rssl_rest_CurlJITFuncs->curl_easy_cleanup))(curl);
@@ -1547,7 +1563,7 @@ RsslRet _rsslRestClientBlockingRequest(
 		{
 			error->rsslErrorId = RSSL_RET_FAILURE;
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: Failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
+				"<%s:%d> Error: _rsslRestClientBlockingRequest() Curl failed to set CURL options with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
 		}
 
 		(*(rssl_rest_CurlJITFuncs->curl_easy_cleanup))(curl);
@@ -1621,7 +1637,7 @@ Failed:
 	{
 		error->rsslErrorId = RSSL_RET_FAILURE;
 		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-			"<%s:%d> Error: Failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
+			"<%s:%d> Error: _rsslRestClientBlockingRequest() Curl failed to perform the request with text: %s", __FILE__, __LINE__, (*(rssl_rest_CurlJITFuncs->curl_easy_strerror))(code));
 	}
 
 	(*(rssl_rest_CurlJITFuncs->curl_slist_free_all))(restHandleImpl->pCurlHeaderList);
@@ -2133,8 +2149,8 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* pLocation, RsslB
 	cJSON* arrayValue;
 	RsslInt32 idx;
 	RsslRestBufferImpl rsslRestBufferImpl;
-	char* endpoint;
-	RsslInt32 port;
+	char* endpoint = NULL;
+	RsslInt32 port = 0;
 
 	rsslClearBuffer(pHostName);
 	rsslClearBuffer(pPort);
@@ -2162,7 +2178,7 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* pLocation, RsslB
 		cJSON * subitem = cJSON_GetArrayItem(items, idx);
 		location = cJSON_GetObjectItem(subitem, "location");
 
-		if (cJSON_GetArraySize(location) == 2)
+		if (cJSON_GetArraySize(location) >= 2)
 		{
 			arrayValue = cJSON_GetArrayItem(location, 0);
 
@@ -2182,25 +2198,50 @@ RsslRet rsslRestParseEndpoint(RsslBuffer* dataBody, RsslBuffer* pLocation, RsslB
 				else
 					break;
 
-				pHostName->length = (RsslUInt32)strlen(endpoint);
-				if (_rsslRestGetBuffer(pHostName, pHostName->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
-				{
-					goto Fail;
-				}
-
-				pHostName->data[pHostName->length] = '\0';
-				strncpy(pHostName->data, endpoint, pHostName->length);
-
-				pPort->length = 5;
-				if (_rsslRestGetBuffer(pPort, pPort->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
-				{
-					goto Fail;
-				}
-
-				pPort->length = (RsslUInt32)sprintf(pPort->data, "%d", port);
 				break;
 			}
 		}
+		else if (endpoint == NULL && port == 0 && cJSON_GetArraySize(location) > 0)
+		{
+			arrayValue = cJSON_GetArrayItem(location, 0);
+
+			if (arrayValue && (strncmp(pLocation->data, arrayValue->valuestring, strlen(pLocation->data)) == 0))
+			{
+				value = cJSON_GetObjectItem(subitem, "endpoint");
+
+				if (value)
+					endpoint = value->valuestring;
+				else
+					continue;
+
+				value = cJSON_GetObjectItem(subitem, "port");
+
+				if (value)
+					port = value->valueint;
+				else
+					endpoint = NULL;
+			}
+		}
+	}
+
+	if (endpoint != NULL && port != 0)
+	{
+		pHostName->length = (RsslUInt32)strlen(endpoint);
+		if (_rsslRestGetBuffer(pHostName, pHostName->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
+		{
+			goto Fail;
+		}
+
+		pHostName->data[pHostName->length] = '\0';
+		strncpy(pHostName->data, endpoint, pHostName->length);
+
+		pPort->length = 5;
+		if (_rsslRestGetBuffer(pPort, pPort->length + 1, &rsslRestBufferImpl) != RSSL_RET_SUCCESS)
+		{
+			goto Fail;
+		}
+
+		pPort->length = (RsslUInt32)sprintf(pPort->data, "%d", port);
 	}
 
 	if ( (pHostName->length == 0) || (pPort->length == 0) )
@@ -2501,7 +2542,7 @@ RsslBuffer* rsslRestRequestDumpBuffer(RsslRestRequestArgs* pRestRequest, RsslErr
 	}
 
 	//fprintf(pOutputStream, "\n--- REST REQUEST ---\n\n");
-	pos += snprintf(data + pos, (sizeRestRequest - pos), headerRestRequest.data);
+	pos += snprintf(data + pos, (sizeRestRequest - pos), "%s", headerRestRequest.data);
 
 	//xmlDumpTimestamp(pOutputStream);
 	pos += dumpTimestamp(data + pos, (sizeRestRequest - pos));
@@ -2670,13 +2711,13 @@ RsslBuffer* rsslRestResponseDumpBuffer(RsslRestResponse* pRestResponse, RsslErro
 	}
 
 	//fprintf(pOutputStream, "\n--- REST RESPONSE ---\n\n");
-	pos += snprintf(data + pos, (sizeRestResponse - pos), headerRestResponse.data);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s", headerRestResponse.data);
 
 	//xmlDumpTimestamp(pOutputStream);
 	pos += dumpTimestamp(data + pos, (sizeRestResponse - pos));
 
 	//fprintf(pOutputStream, "HTTP header data:\n");
-	pos += snprintf(data + pos, (sizeRestResponse - pos), sHttpHeaderData.data);
+	pos += snprintf(data + pos, (sizeRestResponse - pos), "%s", sHttpHeaderData.data);
 	
 	httpHeaders = &(pRestResponse->headers);
 	for (pLink = rsslQueuePeekFront(httpHeaders), n = 0; pLink; pLink = rsslQueuePeekNext(httpHeaders, pLink), n++)
@@ -2755,7 +2796,7 @@ RsslBuffer* rsslRestResponseErrDumpBuffer(RsslError* pErrorOutput)
 	}
 
 	//fprintf(pOutputStream, "\n--- REST RESPONSE ERROR---\n\n");
-	pos += snprintf(data + pos, (sizeRestResponseErr - pos), headerRestErr.data);
+	pos += snprintf(data + pos, (sizeRestResponseErr - pos), "%s", headerRestErr.data);
 
 	//xmlDumpTimestamp(pOutputStream);
 	pos += dumpTimestamp(data + pos, (sizeRestResponseErr - pos));
@@ -2866,14 +2907,14 @@ OPENSSL_BIGNUM* rsslBase64URLToBigNum(RsslBuffer* in, ripcSSLApiFuncs* sslFuncs,
 	int i;
 	int inputRemainder;
 	int readOut = 0;
-	char* tempBuf = malloc((size_t)in->length);
+	char* tempBuf = malloc((size_t)(in->length+7));
 	RsslBuffer tempInputBuf;
 
 	if (tempBuf == NULL)
 	{
 		return NULL;
 	}
-	memset(tempBuf, 0, (size_t)in->length);
+	memset(tempBuf, 0, (size_t)(in->length+7));
 
 	tempInputBuf.data = malloc((size_t)in->length + 3);
 	if (tempInputBuf.data == NULL)
@@ -2932,3 +2973,1237 @@ OPENSSL_BIGNUM* rsslBase64URLToBigNum(RsslBuffer* in, ripcSSLApiFuncs* sslFuncs,
 	return bignumout;
 }
 
+#ifndef NO_ETA_JWT_BUILD
+RsslRet rsslGenerateSignedJWT(RsslBuffer* JWK, RsslBuffer* aud, RsslBuffer* out, RsslBuffer* clientId, RsslError* error)
+{
+	ripcSSLApiFuncs* sslFuncs = rsslGetOpenSSLAPIFuncs(error);
+	ripcCryptoApiFuncs* cryptoFuncs = rsslGetOpenSSLCryptoFuncs(error);
+	RsslBuffer dataBuf;
+	RsslBuffer privateKeyBuf = RSSL_INIT_BUFFER;
+
+	/* Set to true if any point in the private key generation fails */
+	RsslBool privateKeyFailure = RSSL_FALSE;
+
+	cJSON* root;
+	cJSON* value;
+	cJSON* algorithm;
+	cJSON* keytype;
+	cJSON* keyId;
+
+	int cipher = 0;
+
+	int jwtRet;
+
+	struct l8w8jwt_claim keyIdHdr; /* kid: key id*/
+	struct l8w8jwt_encoding_params jwtParams;
+
+	root = cJSON_ParseWithLength(JWK->data, (size_t)JWK->length);
+
+	keytype = cJSON_GetObjectItem(root, "kty");
+
+	if (!keytype)
+	{
+		error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslGenerateSignedJWT() failed because JWK keytype is empty.",
+			__FILE__, __LINE__);
+		cJSON_Delete(root);
+		return RSSL_RET_FAILURE;
+	}
+
+	/* Figure out what cipher is in use */
+	algorithm = cJSON_GetObjectItem(root, "alg");
+	if (!algorithm)
+	{
+		error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslGenerateSignedJWT() failed because JWK algorithm is empty.",
+			__FILE__, __LINE__);
+		cJSON_Delete(root);
+		return RSSL_RET_FAILURE;
+	}
+
+	keyId = cJSON_GetObjectItem(root, "kid");
+	if (!keyId)
+	{
+		error->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> Error: rsslGenerateSignedJWT() failed because JWK kid is empty ",
+			__FILE__, __LINE__);
+		cJSON_Delete(root);
+
+		return RSSL_RET_FAILURE;
+	}
+
+	if (strncmp(keytype->valuestring, "RSA", 3) == 0)
+	{
+
+		if (strncmp(algorithm->valuestring, "RS256", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_RS256;
+		}
+		else if (strncmp(algorithm->valuestring, "RS384", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_RS384;
+		}
+		else if (strncmp(algorithm->valuestring, "RS512", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_RS512;
+		}
+		else if (strncmp(algorithm->valuestring, "PS256", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_PS256;
+		}
+		else if (strncmp(algorithm->valuestring, "PS384", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_PS384;
+		}
+		else if (strncmp(algorithm->valuestring, "PS512", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_PS512;
+		}
+		else if (strncmp(algorithm->valuestring, "HS256", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_HS256;
+		}
+		else if (strncmp(algorithm->valuestring, "HS384", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_HS384;
+		}
+		else if (strncmp(algorithm->valuestring, "HS512", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_HS512;
+		}
+		else
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() failed because provided JWK algorithm is not supported.",
+				__FILE__, __LINE__);
+			cJSON_Delete(root);
+			return RSSL_RET_FAILURE;
+		}
+
+		if (sslFuncs->version == RSSL_OPENSSL_V1_0)
+		{
+			OPENSSL_10_rsa rsa;
+			OPENSSL_BIO* outbuf = NULL;
+			OPENSSL_10_BUF_MEM* sslBuf = NULL;
+
+			memset(&rsa, 0, sizeof(OPENSSL_10_rsa));
+
+			value = cJSON_GetObjectItem(root, "n");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find n value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.n = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.n == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting n to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			value = cJSON_GetObjectItem(root, "e");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find e value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.e = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.e == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting e to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			value = cJSON_GetObjectItem(root, "d");
+
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find d value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+			
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.d = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.d == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting d to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}		
+
+			value = cJSON_GetObjectItem(root, "p");
+			
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find p value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+			
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.p = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.p == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting p to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			value = cJSON_GetObjectItem(root, "q");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find q value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.q = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.q == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting q to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			value = cJSON_GetObjectItem(root, "dp");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find dp value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.dmp1 = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.dmp1 == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting dp to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			value = cJSON_GetObjectItem(root, "dq");
+
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find dq value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.dmq1 = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.e == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting dq to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			value = cJSON_GetObjectItem(root, "qi");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find qi value ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			rsa.iqmp = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (rsa.iqmp == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting iq to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			outbuf = (*(sslFuncs->BIO_new))((*(sslFuncs->BIO_s_mem))());
+
+			if (outbuf == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot allocate memory for the OpenSSL BIO",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+
+			/* Generate the PEM file into memory.  No password here since it's epthemeral */
+			(*(cryptoFuncs->PEM_write_bio_RSAPrivateKey_10))(outbuf, &rsa, NULL, NULL, 0, NULL, NULL);
+
+			/* BIO_get_mem_ptr */
+			(*(sslFuncs->BIO_ctrl))(outbuf, RSSL_BIO_C_GET_BUF_MEM_PTR, 0, &sslBuf);
+
+			/* malloc and copy out the PEM encoded private key.  Add 1 for null terminator */
+			privateKeyBuf.data = malloc(sslBuf->length + 1);
+			if (privateKeyBuf.data == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot allocate memory for the PEM",
+					__FILE__, __LINE__);
+				privateKeyFailure = RSSL_TRUE;
+				goto JWT_10_RSA_Failure;
+			}
+			privateKeyBuf.length = (rtrUInt32)sslBuf->length + 1;
+			memcpy(privateKeyBuf.data, sslBuf->data, sslBuf->length);
+			privateKeyBuf.data[sslBuf->length] = '\0';
+
+			/* Cleanup memory used here */
+			(*(sslFuncs->BIO_free_all))(outbuf);
+			(*(cryptoFuncs->bn_clear))(rsa.n);
+			(*(cryptoFuncs->bn_free))(rsa.n);
+			(*(cryptoFuncs->bn_clear))(rsa.e);
+			(*(cryptoFuncs->bn_free))(rsa.e);
+				(*(cryptoFuncs->bn_clear))(rsa.d);
+				(*(cryptoFuncs->bn_free))(rsa.d);
+				(*(cryptoFuncs->bn_clear))(rsa.p);
+				(*(cryptoFuncs->bn_free))(rsa.p);
+				(*(cryptoFuncs->bn_clear))(rsa.q);
+				(*(cryptoFuncs->bn_free))(rsa.q);
+				(*(cryptoFuncs->bn_clear))(rsa.dmp1);
+				(*(cryptoFuncs->bn_free))(rsa.dmp1);
+				(*(cryptoFuncs->bn_clear))(rsa.dmq1);
+				(*(cryptoFuncs->bn_free))(rsa.dmq1);
+				(*(cryptoFuncs->bn_clear))(rsa.iqmp);
+				(*(cryptoFuncs->bn_free))(rsa.iqmp);
+			memset(&rsa, sizeof(OPENSSL_10_rsa), 0);
+
+			JWT_10_RSA_Failure:
+			if(privateKeyFailure == RSSL_TRUE)
+			{
+				if(outbuf != NULL)
+					(*(sslFuncs->BIO_free_all))(outbuf);
+				if (rsa.n != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.n);
+					(*(cryptoFuncs->bn_free))(rsa.n);
+				}
+				if (rsa.e != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.e);
+					(*(cryptoFuncs->bn_free))(rsa.e);
+				}
+				if (rsa.d != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.d);
+					(*(cryptoFuncs->bn_free))(rsa.d);
+				}
+				if (rsa.p != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.p);
+					(*(cryptoFuncs->bn_free))(rsa.p);
+				}
+				if (rsa.q != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.q);
+					(*(cryptoFuncs->bn_free))(rsa.q);
+				}
+				if (rsa.dmp1 != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.dmp1);
+					(*(cryptoFuncs->bn_free))(rsa.dmp1);
+				}
+				if (rsa.dmq1 != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.dmq1);
+					(*(cryptoFuncs->bn_free))(rsa.dmq1);
+				}
+				if (rsa.iqmp != NULL)
+				{
+					(*(cryptoFuncs->bn_clear))(rsa.iqmp);
+					(*(cryptoFuncs->bn_free))(rsa.iqmp);
+				}
+				memset(&rsa, sizeof(OPENSSL_10_rsa), 0);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+		}
+		else
+		{
+			OPENSSL_11_rsa* rsa = NULL;
+			OPENSSL_BIO* outbuf = NULL;
+			OPENSSL_10_BUF_MEM* sslBuf = NULL;
+
+			OPENSSL_BIGNUM* n = NULL;
+			OPENSSL_BIGNUM* e = NULL;
+			OPENSSL_BIGNUM* d = NULL;
+			OPENSSL_BIGNUM* p = NULL;
+			OPENSSL_BIGNUM* q = NULL;
+			OPENSSL_BIGNUM* dmp1 = NULL;
+			OPENSSL_BIGNUM* dmq1 = NULL;
+			OPENSSL_BIGNUM* iqmp = NULL;
+
+			rsa = (*(cryptoFuncs->RSA_new_11))();
+			if (rsa == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot allocate rsa structure",
+					__FILE__, __LINE__);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "n");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find n value",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			n = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+			if (n == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting n to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "e");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find e value",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(n);
+				(*(cryptoFuncs->bn_free))(n);
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			e = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (e == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting e to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->bn_clear))(n);
+				(*(cryptoFuncs->bn_free))(n);
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "d");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find d value",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(n);
+				(*(cryptoFuncs->bn_free))(n);
+				(*(cryptoFuncs->bn_clear))(e);
+				(*(cryptoFuncs->bn_free))(e);
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			d = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (d == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting d to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->bn_clear))(n);
+				(*(cryptoFuncs->bn_free))(n);
+				(*(cryptoFuncs->bn_clear))(e);
+				(*(cryptoFuncs->bn_free))(e);
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			if ((*(cryptoFuncs->RSA_set0_key_11))(rsa, n, e, d) == 0)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Unable to set n, e, and d to the rsa structure ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->bn_clear))(n);
+				(*(cryptoFuncs->bn_free))(n);
+				(*(cryptoFuncs->bn_clear))(e);
+				(*(cryptoFuncs->bn_free))(e);
+				(*(cryptoFuncs->bn_clear))(d);
+				(*(cryptoFuncs->bn_free))(d);
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "p");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find p value",
+					__FILE__, __LINE__);
+				// Do not need to clear the set0_key values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			p = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (p == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting p to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				// Do not need to clear the set0_key values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "q");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find q value",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(p);
+				(*(cryptoFuncs->bn_free))(p);
+				// Do not need to clear the set0_key values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			q = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (q == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting q to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(p);
+				(*(cryptoFuncs->bn_free))(p);
+				// Do not need to clear the set0_key values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			if ((*(cryptoFuncs->RSA_set0_factors_11))(rsa, p, q) == 0)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Unable to set p, q to the rsa structure ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->bn_clear))(p);
+				(*(cryptoFuncs->bn_free))(p);
+				(*(cryptoFuncs->bn_clear))(q);
+				(*(cryptoFuncs->bn_free))(q);
+				// Do not need to clear the set0_key values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "dp");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find dp value",
+					__FILE__, __LINE__);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+
+				return RSSL_RET_FAILURE;
+			}
+			
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			dmp1 = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (dmp1 == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting dp to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "dq");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find dq value",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(dmp1);
+				(*(cryptoFuncs->bn_free))(dmp1);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			dmq1 = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (dmq1 == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting dq to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(dmp1);
+				(*(cryptoFuncs->bn_free))(dmp1);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			value = cJSON_GetObjectItem(root, "qi");
+			if (!value)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() cannot find qi value",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(dmp1);
+				(*(cryptoFuncs->bn_free))(dmp1);
+				(*(cryptoFuncs->bn_clear))(dmq1);
+				(*(cryptoFuncs->bn_free))(dmq1);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+			
+			dataBuf.data = value->valuestring;
+			dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+			iqmp = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+
+			if (iqmp == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Converting qi to OpenSSL BigNum failed. ",
+					__FILE__, __LINE__);
+				(*(cryptoFuncs->bn_clear))(dmp1);
+				(*(cryptoFuncs->bn_free))(dmp1);
+				(*(cryptoFuncs->bn_clear))(dmq1);
+				(*(cryptoFuncs->bn_free))(dmq1);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			if ((*(cryptoFuncs->RSA_set0_crt_params_11))(rsa, dmp1, dmq1, iqmp) == 0)
+			{
+				error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Unable to set dp, dq, or qi to the rsa structure ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->bn_clear))(dmp1);
+				(*(cryptoFuncs->bn_free))(dmp1);
+				(*(cryptoFuncs->bn_clear))(dmq1);
+				(*(cryptoFuncs->bn_free))(dmq1);
+				(*(cryptoFuncs->bn_clear))(iqmp);
+				(*(cryptoFuncs->bn_free))(iqmp);
+				// Do not need to clear the set0_key or set0_factors values as RSA_free will do it.
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			outbuf = (*(sslFuncs->BIO_new))((*(sslFuncs->BIO_s_mem))());
+
+			if (outbuf == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Unable to allocate output BIO memory ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+
+			/* Generate the PEM file into memory.  No password here since it's epthemeral */
+			(*(cryptoFuncs->PEM_write_bio_RSAPrivateKey_11))(outbuf, rsa, NULL, NULL, 0, NULL, NULL);
+
+			/* BIO_get_mem_ptr */
+			(*(sslFuncs->BIO_ctrl))(outbuf, RSSL_BIO_C_GET_BUF_MEM_PTR, 0, &sslBuf);
+
+			/* malloc and copy out the PEM encoded private key.  Add 1 for null terminator */
+			privateKeyBuf.data = malloc(sslBuf->length + 1);
+			if (privateKeyBuf.data == NULL)
+			{
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Unable to allocate memory for PEM encoded buffer ",
+					__FILE__, __LINE__);
+
+				(*(cryptoFuncs->RSA_free_11))(rsa);
+				(*(sslFuncs->BIO_free_all))(outbuf);
+				cJSON_Delete(root);
+
+				return RSSL_RET_FAILURE;
+			}
+			privateKeyBuf.length = (RsslUInt32)sslBuf->length + 1;
+			memcpy(privateKeyBuf.data, sslBuf->data, sslBuf->length);
+			privateKeyBuf.data[sslBuf->length] = '\0';
+
+			/* Cleanup memory used here.  RSA_free will clear the memory prior to freeing it, so we do not need to deal with each individual member */
+			(*(cryptoFuncs->RSA_free_11))(rsa);
+			(*(sslFuncs->BIO_free_all))(outbuf);
+
+		}
+	}
+	else if (strncmp(keytype->valuestring, "EC", 2) == 0)
+	{
+		OPENSSL_EC_KEY* ecKey = NULL;
+		OPENSSL_EC_GROUP* ecGroup = NULL;
+		OPENSSL_BIO* outbuf = NULL;
+		OPENSSL_10_BUF_MEM* sslBuf = NULL;
+		OPENSSL_BIGNUM* d = NULL;
+		OPENSSL_BIGNUM* x = NULL;
+		OPENSSL_BIGNUM* y = NULL;
+		int curve = 0;
+
+		if (strncmp(algorithm->valuestring, "ES256", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_ES256;
+			curve = RSSL_NID_X9_62_prime256v1;
+
+		}
+		else if (strncmp(algorithm->valuestring, "ES384", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_ES384;
+			curve = RSSL_NID_secp384r1;
+		}
+		else if (strncmp(algorithm->valuestring, "ES512", 5) == 0)
+		{
+			cipher = L8W8JWT_ALG_ES512;
+			curve = RSSL_NID_secp521r1;
+		}
+		else
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() failed because provided JWK algorithm is not supported.",
+				__FILE__, __LINE__);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		value = cJSON_GetObjectItem(root, "crv");
+		
+		if (value)
+		{
+			if (strncmp(value->valuestring, "P-256", 5) == 0)
+			{
+				curve = RSSL_NID_X9_62_prime256v1;
+
+			}
+			else if (strncmp(value->valuestring, "P-384", 5) == 0)
+			{
+				curve = RSSL_NID_secp384r1;
+			}
+			else if (strncmp(value->valuestring, "P-521", 5) == 0)
+			{
+				curve = RSSL_NID_secp521r1;
+			}
+			else
+			{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() failed because of unknown elliptic curve.",
+				__FILE__, __LINE__);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+			}
+		}
+
+		ecKey = (*(cryptoFuncs->EC_KEY_new_by_curve_name))(curve);
+		if (!ecKey)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Cannot generate EC Key from the given curve.",
+				__FILE__, __LINE__);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		(*(cryptoFuncs->EC_KEY_set_asn1_flag))(ecKey, RSSL_OPENSSL_EC_NAMED_CURVE);
+
+		ecGroup = (OPENSSL_EC_GROUP*)(*(cryptoFuncs->EC_KEY_get0_group))((const OPENSSL_EC_KEY*)ecKey);
+		if (!ecGroup)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Cannot generate EC group from the ecKey.",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			ecKey = NULL;
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		value = cJSON_GetObjectItem(root, "x");
+		if (!value)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() cannot find x value",
+				__FILE__, __LINE__);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			cJSON_Delete(root);
+
+
+			return RSSL_RET_FAILURE;
+		}
+
+		dataBuf.data = value->valuestring;
+		dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+		x = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+		if (x == NULL)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Converting x to OpenSSL BigNum failed. ",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		value = cJSON_GetObjectItem(root, "y");
+		if (!value)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() cannot find y value",
+				__FILE__, __LINE__);
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		dataBuf.data = value->valuestring;
+		dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+		y = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+		if (y == NULL)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Converting y to OpenSSL BigNum failed. ",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		if ((*(cryptoFuncs->EC_KEY_set_public_key_affine_coordinates))(ecKey, x, y) == 0)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Unable to set public x and y values to the ecKey. ",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->bn_clear))(y);
+			(*(cryptoFuncs->bn_free))(y);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		value = cJSON_GetObjectItem(root, "d");
+		if (!value)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Cannot find the d value.",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->bn_clear))(y);
+			(*(cryptoFuncs->bn_free))(y);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			ecKey = NULL;
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		dataBuf.data = value->valuestring;
+		dataBuf.length = (rtrUInt32)strlen(value->valuestring);
+
+		d = rsslBase64URLToBigNum(&dataBuf, sslFuncs, cryptoFuncs, error);
+		if (d == NULL)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Converting d to OpenSSL BigNum failed.",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->bn_clear))(y);
+			(*(cryptoFuncs->bn_free))(y);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			ecKey = NULL;
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+
+		if ((*(cryptoFuncs->EC_KEY_set_private_key))(ecKey, d) == 0)
+		{
+			error->rsslErrorId = RSSL_RET_INVALID_ARGUMENT;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Cannot set the d private key to the ecKey.",
+				__FILE__, __LINE__);
+		}
+
+		outbuf = (*(sslFuncs->BIO_new))((*(sslFuncs->BIO_s_mem))());
+
+		if (outbuf == NULL)
+		{
+			error->rsslErrorId = RSSL_RET_FAILURE;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Unable to allocate output BIO memory ",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->bn_clear))(y);
+			(*(cryptoFuncs->bn_free))(y);
+			(*(cryptoFuncs->bn_clear))(d);
+			(*(cryptoFuncs->bn_free))(d);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			ecKey = NULL;
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		/* Generate the PEM file into memory.  No password here since it's epthemeral */
+		(*(cryptoFuncs->PEM_write_bio_ECPrivateKey))(outbuf, ecKey, NULL, NULL, 0, NULL, NULL);
+
+		/* BIO_get_mem_ptr */
+		(*(sslFuncs->BIO_ctrl))(outbuf, RSSL_BIO_C_GET_BUF_MEM_PTR, 0, &sslBuf);
+
+		/* malloc and copy out the PEM encoded private key.  Add 1 for null terminator */
+		privateKeyBuf.data = malloc(sslBuf->length + 1);
+		if (privateKeyBuf.data == NULL)
+		{
+			error->rsslErrorId = RSSL_RET_FAILURE;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+				"<%s:%d> Error: rsslGenerateSignedJWT() Unable to allocate memory for PEM encoded buffer ",
+				__FILE__, __LINE__);
+
+			(*(cryptoFuncs->bn_clear))(x);
+			(*(cryptoFuncs->bn_free))(x);
+			(*(cryptoFuncs->bn_clear))(y);
+			(*(cryptoFuncs->bn_free))(y);
+			(*(cryptoFuncs->bn_clear))(d);
+			(*(cryptoFuncs->bn_free))(d);
+			(*(cryptoFuncs->EC_KEY_free))(ecKey);
+			ecKey = NULL;
+			cJSON_Delete(root);
+
+			return RSSL_RET_FAILURE;
+		}
+		privateKeyBuf.length = (RsslUInt32)sslBuf->length + 1;
+		memcpy(privateKeyBuf.data, sslBuf->data, sslBuf->length);
+		privateKeyBuf.data[sslBuf->length] = '\0';
+
+		/* Cleanup memory used here */
+		(*(sslFuncs->BIO_free_all))(outbuf);
+		(*(cryptoFuncs->bn_clear))(x);
+		(*(cryptoFuncs->bn_free))(x);
+		(*(cryptoFuncs->bn_clear))(y);
+		(*(cryptoFuncs->bn_free))(y);
+		(*(cryptoFuncs->bn_clear))(d);
+		(*(cryptoFuncs->bn_free))(d);
+		(*(cryptoFuncs->EC_KEY_free))(ecKey);
+
+		ecKey = NULL;
+	}
+
+	l8w8jwt_encoding_params_init(&jwtParams);
+
+	jwtParams.alg = cipher;
+
+	jwtParams.sub = clientId->data;
+	jwtParams.sub_length = clientId->length;
+
+	jwtParams.iss = clientId->data;
+	jwtParams.iss_length = clientId->length;
+
+	jwtParams.aud = aud->data;
+	jwtParams.aud_length = aud->length;
+
+	jwtParams.iat = time(NULL);
+	jwtParams.exp = time(NULL) + 3600;
+
+	jwtParams.secret_key = privateKeyBuf.data;
+	jwtParams.secret_key_length = privateKeyBuf.length;
+
+	keyIdHdr.key = "kid";
+	keyIdHdr.key_length = 3;
+	keyIdHdr.value = keyId->valuestring;
+	keyIdHdr.value_length = strlen(keyId->valuestring);
+	keyIdHdr.type = L8W8JWT_CLAIM_TYPE_STRING;
+
+	jwtParams.out = &(out->data);
+	jwtParams.out_length = (size_t*)&(out->length);
+
+	jwtParams.additional_header_claims = &keyIdHdr;
+	jwtParams.additional_header_claims_count = 1;
+
+	jwtRet = l8w8jwt_encode(&jwtParams);
+
+	/* Clear out and free the generated private key buffer */
+	memset(privateKeyBuf.data, 0, privateKeyBuf.length);
+	free(privateKeyBuf.data);
+
+	if (jwtRet != L8W8JWT_SUCCESS)
+	{
+		switch (jwtRet)
+		{
+			case L8W8JWT_NULL_ARG:
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Null input to jwt library ",
+					__FILE__, __LINE__);
+				break;
+			case L8W8JWT_INVALID_ARG:
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Invalid input to jwt library ",
+					__FILE__, __LINE__);
+				break;
+			case L8W8JWT_KEY_PARSE_FAILURE:
+				// This shouldn't happen... 
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() PEM Key parse error in jwt library ",
+					__FILE__, __LINE__);
+				break;
+			case L8W8JWT_OUT_OF_MEM:
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() JWT library has run out of memory. ",
+					__FILE__, __LINE__);
+				break;
+			case L8W8JWT_OVERFLOW:
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() JWT library has run into an overflow condition. ",
+					__FILE__, __LINE__);
+				break;
+			case L8W8JWT_SIGNATURE_CREATION_FAILURE:
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() JWT library encounter a signature creation failure. Please verify that the JWK private key is correct. ",
+					__FILE__, __LINE__);
+				break;
+			case L8W8JWT_WRONG_KEY_TYPE:
+				// This is most likely due to a mismatch of Elliptic Curve algorithms and specific the elliptic curve function. For ES256, use the P-384 curve, for ESD384, use P-384, and for ES12, use P-521.
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Wrong key combination passed to JWT library. Please ensure that the algorithms and(if applicable) curve selections are correct. ",
+					__FILE__, __LINE__);
+				break;
+			default:
+				error->rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(error->text, MAX_RSSL_ERROR_TEXT,
+					"<%s:%d> Error: rsslGenerateSignedJWT() Error with JWT library. ",
+					__FILE__, __LINE__);
+				break;
+		}
+		cJSON_Delete(root);
+
+		return RSSL_RET_FAILURE;
+	}
+	cJSON_Delete(root);
+	return RSSL_RET_SUCCESS;
+}
+
+#endif //NO_ETA_JWT_BUILD not defined

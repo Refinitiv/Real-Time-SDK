@@ -2,17 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using System;
 using Xunit;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     public class TestUtil
     {
@@ -107,6 +109,46 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
                     Assert.True(false);
                     break;
             }
+        }
+
+        // todo: why is it here and not in the LoginMsg class?
+        internal static void CopyLoginMsg(LoginMsg srcMsg, LoginMsg destMsg)
+        {
+            switch (srcMsg.LoginMsgType)
+            {
+                case LoginMsgType.REQUEST:
+                    destMsg.LoginMsgType = LoginMsgType.REQUEST;
+                    srcMsg.LoginRequest.Copy(destMsg.LoginRequest);
+                    break;
+                case LoginMsgType.CLOSE:
+                    destMsg.LoginMsgType = LoginMsgType.CLOSE;
+                    srcMsg.LoginClose.Copy(destMsg.LoginClose);
+                    break;
+                case LoginMsgType.REFRESH:
+                    destMsg.LoginMsgType = LoginMsgType.REFRESH;
+                    srcMsg.LoginRefresh.Copy(destMsg.LoginRefresh);
+                    break;
+                case LoginMsgType.STATUS:
+                    destMsg.LoginMsgType = LoginMsgType.STATUS;
+                    srcMsg.LoginStatus.Copy(destMsg.LoginStatus);
+                    break;
+                case LoginMsgType.CONSUMER_CONNECTION_STATUS:
+                    destMsg.LoginMsgType = LoginMsgType.CONSUMER_CONNECTION_STATUS;
+                    srcMsg.LoginConsumerConnectionStatus.Copy(destMsg.LoginConsumerConnectionStatus);
+                    break;
+                case LoginMsgType.RTT:
+                    destMsg.LoginMsgType = LoginMsgType.RTT;
+                    srcMsg.LoginRTT.Copy(destMsg.LoginRTT);
+                    break;
+                default:
+                    Fail("Unknown LoginMsgType.");
+                    break;
+            }
+        }
+
+        public static void Fail(string message)
+        {
+            throw new Xunit.Sdk.XunitException(message);
         }
 
         public static string FIELD_TYPE_DICTIONARY_SHORT = "!\n" +

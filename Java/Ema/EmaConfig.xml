@@ -60,23 +60,6 @@
 			<XmlTraceToStdout value="0"/>
 			<DefaultServiceID value="1"/>
 		</Consumer>
-		<Consumer>
-			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
-			<Name value="Consumer_5"/>
-			<Channel value="Channel_5"/>
-			<Dictionary value="Dictionary_2"/>
-			<XmlTraceToStdout value="0"/>
-			<DefaultServiceID value="1"/>
-		</Consumer>
-		<Consumer>
-			<!-- Name is mandatory -->
-			<Name value="Consumer_6"/>
-			<Channel value="Channel_6"/>
-			<!-- Dictionary is optional: defaulted to "ChannelDictionary" -->
-			<Dictionary value="Dictionary_1"/>
-			<XmlTraceToStdout value="0"/>
-			<DefaultServiceID value="1"/>
-		</Consumer>
 		<!-- Consumer with enabled RTT feature -->
 		<Consumer>
 			<Name value="Consumer_7"/>
@@ -86,6 +69,13 @@
 			<DefaultServiceID value="1"/>
 			<EnableRtt value="1"/>
 		</Consumer>
+		<!-- Consumer for warm standby feature -->
+        <Consumer>
+            <Name value="Consumer_8"/>
+            <WarmStandbyChannelSet value="WarmStandbyChannel_1"/>
+            <Dictionary value="Dictionary_2"/>
+            <XmlTraceToStdout value="0"/>
+        </Consumer>    
 		<!-- Performance tools consumers -->
 		<Consumer>
 			<Name value="Perf_Consumer_1"/>
@@ -228,6 +218,7 @@
 			<MaxDispatchCountUserThread value="500" />
 			<PipePort value="9009" />
 			<RefreshFirstRequired value="1" />
+			<SendJsonConvError value="1" />
 		</IProvider>
 		<IProvider>
 			<!-- Name is mandatory   -->
@@ -508,6 +499,32 @@
 		</Server>
     </ServerList>
 </ServerGroup>
+
+<WarmStandbyServerInfoGroup>
+    <WarmStandbyServerInfoList>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_1"/>
+            <Channel value="Channel_1"/>
+            <PerServiceNameSet value=""/>
+        </WarmStandbyServerInfo>
+        <WarmStandbyServerInfo>
+            <Name value="Server_Info_2"/>
+            <Channel value="Channel_7"/>
+            <PerServiceNameSet value=""/>
+        </WarmStandbyServerInfo>
+    </WarmStandbyServerInfoList>
+</WarmStandbyServerInfoGroup>
+
+<WarmStandbyGroup>
+    <WarmStandbyList>
+        <WarmStandbyChannel>
+            <Name value="WarmStandbyChannel_1"/>
+            <StartingActiveServer value="Server_Info_1"/>
+            <StandbyServerSet value="Server_Info_2"/>
+            <WarmStandbyMode value="WarmStandbyMode::LOGIN_BASED"/>
+        </WarmStandbyChannel>
+    </WarmStandbyList>
+</WarmStandbyGroup>
 
 <!-- source directory refresh configuration used by provider -->
 <DirectoryGroup>

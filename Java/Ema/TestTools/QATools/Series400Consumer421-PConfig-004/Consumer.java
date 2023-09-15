@@ -155,7 +155,6 @@ public class Consumer
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "HandleException", 0 ));
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "MaxDispatchCountApiThread", 500 ));
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "MaxDispatchCountUserThread", 500 ));
-		innerElementList.add(EmaFactory.createElementEntry().intValue( "ReactorEventFdPort", 45000 ));
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "PipePort", 4001 ));
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectAttemptLimit", 10 ));
 		innerElementList.add(EmaFactory.createElementEntry().intValue( "ReconnectMinDelay", 2000 ));

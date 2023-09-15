@@ -2,14 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
 using Xunit;
 using Xunit.Categories;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
 
 namespace CodecTestProject
 {
@@ -20,8 +20,8 @@ namespace CodecTestProject
         [Category("Unit")]
         public void EqualsTest()
         {
-            Refinitiv.Eta.Codec.Buffer buf1 = new Refinitiv.Eta.Codec.Buffer();
-            Refinitiv.Eta.Codec.Buffer buf2 = new Refinitiv.Eta.Codec.Buffer();
+            LSEG.Eta.Codec.Buffer buf1 = new LSEG.Eta.Codec.Buffer();
+            LSEG.Eta.Codec.Buffer buf2 = new LSEG.Eta.Codec.Buffer();
 
             System.String s1 = "abc";
             // equal to s1
@@ -143,8 +143,8 @@ namespace CodecTestProject
                     b = 0x20;
             }
 
-            Refinitiv.Eta.Codec.Buffer buf1 = new Refinitiv.Eta.Codec.Buffer();
-            Refinitiv.Eta.Codec.Buffer buf2 = new Refinitiv.Eta.Codec.Buffer();
+            LSEG.Eta.Codec.Buffer buf1 = new LSEG.Eta.Codec.Buffer();
+            LSEG.Eta.Codec.Buffer buf2 = new LSEG.Eta.Codec.Buffer();
 
             // compare same buffer
             Assert.Equal(CodecReturnCode.SUCCESS,
@@ -583,33 +583,6 @@ namespace CodecTestProject
             Assert.Equal(CodecReturnCode.SUCCESS, buf1.Data(expectedString));
             string actual = buf1.ToHexString();
             Assert.Equal(expectedHexString, actual);
-        }
-
-        [Fact(Skip = "Disagreement on purpose of ToString()")]
-        [Category("Unit")]
-        public void ToStringTest()
-        {
-            Buffer buf1 = new Buffer();
-            string expected = "username";
-            Assert.Equal(CodecReturnCode.SUCCESS, buf1.Data(expected));
-            string actual = buf1.ToString();
-            Assert.Equal(expected, actual);
-
-            ByteBuffer bb1 = new ByteBuffer(8);
-            // username
-            bb1.WriteAt(0, (byte)0x75);
-            bb1.WriteAt(1, (byte)0x73);
-            bb1.WriteAt(2, (byte)0x65);
-            bb1.WriteAt(3, (byte)0x72);
-            bb1.WriteAt(4, (byte)0x6e);
-            bb1.WriteAt(5, (byte)0x61);
-            bb1.WriteAt(6, (byte)0x6d);
-            bb1.WriteAt(7, (byte)0x65);
-            bb1.Flip();
-
-            Assert.Equal(CodecReturnCode.SUCCESS, buf1.Data(bb1));
-            actual = buf1.ToString();
-            Assert.Equal(expected, actual);
         }
 
         [Fact]

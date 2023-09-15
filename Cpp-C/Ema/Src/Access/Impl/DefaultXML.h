@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2021 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -113,6 +113,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"DefaultServiceID",
 	"DictionaryRequestTimeOut",
 	"DirectoryRequestTimeOut",
+	"DirectWrite",
 	"DisconnectOnGap",
 	"EnableSessionManagement",
 	"EnforceAckIDValidation",
@@ -127,6 +128,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"ItemCountHint",
 	"IsSource",
 	"JsonExpandedEnumFields",
+	"JsonTokenIncrementSize",
 	"LoginRequestTimeOut",
 	"MaxDispatchCountApiThread",
 	"MaxDispatchCountUserThread",
@@ -140,6 +142,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"OutputBufferSize",
 	"PacketTTL",
 	"PostAckTimeout",
+	"ProxyConnectionTimeout",
 	"RecoverUserSubmitSourceDirectory",
 	"RefreshFirstRequired",
 	"RemoveItemsOnDisconnect",
@@ -152,6 +155,7 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"ServiceDiscoveryRetryCount",
 	"ServiceId",
 	"ServiceState",
+	"ShouldInitializeCPUIDlib",
 	"SupportsOutOfBandSnapshots",
 	"SupportsQoSRange",
 	"SysRecvBufSize",
@@ -181,7 +185,8 @@ refinitiv::ema::access::EmaString UInt64Values[] = {
 	"MaxFragmentSize",
 	"OpenLimit",
 	"OpenWindow",
-	"LoadFactor"
+	"LoadFactor",
+	"SendJsonConvError",
 };
 
 refinitiv::ema::access::EmaString DoubleValues[] = {

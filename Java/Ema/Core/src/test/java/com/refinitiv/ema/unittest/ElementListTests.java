@@ -1244,6 +1244,171 @@ public class ElementListTests extends TestCase
 		}
 	}
 	
+	public void testElementList_EncodeEMA_DecodeEMA_EfficientDecoding_ContainsElementList_EncodeDecodeAll()
+	{
+		TestUtilities.printTestHead("testElementList_EncodeEMA_DecodeEMA_EfficientDecoding_ContainsElementList_EncodeDecodeAll", "");
+
+		// load dictionary
+		com.refinitiv.eta.codec.DataDictionary dictionary = com.refinitiv.eta.codec.CodecFactory
+				.createDataDictionary();
+		TestUtilities.eta_encodeDictionaryMsg(dictionary);
+
+		ElementList elEnc = EmaFactory.createElementList();
+		elEnc.info( 9999 );
+
+		try { 
+			//EMA Encoding
+			// encoding order:  UINT, UINT, REAL, INT, DATE, TIME, DATETIME, ElementList, UINT
+
+			//first entry 
+			elEnc.add(EmaFactory.createElementEntry().uintValue( "MY_UINT", 64 ));
+
+			//second entry
+			elEnc.add(EmaFactory.createElementEntry().uintValue( "MY_UINT2", 64 ));
+
+			//third entry
+			elEnc.add(EmaFactory.createElementEntry().real( "MY_REAL", 11, OmmReal.MagnitudeType.EXPONENT_NEG_2 ));
+
+			//fourth entry
+			elEnc.add(EmaFactory.createElementEntry().intValue( "MY_INT", 32 ));
+
+			//fifth entry
+			elEnc.add(EmaFactory.createElementEntry().date( "MY_DATE", 1999, 11, 7 ));
+
+			//sixth entry
+			elEnc.add(EmaFactory.createElementEntry().time( "MY_TIME", 02, 03, 04, 005 ));
+
+			//seventh entry
+			elEnc.add(EmaFactory.createElementEntry().dateTime( "MY_DATETIME", 1999, 11, 7, 01, 02, 03, 000 ));
+
+			//eightth entry (nested ElementList)
+			ElementList elEnc1= EmaFactory.createElementList();
+			elEnc1.add(EmaFactory.createElementEntry().uintValue( "MY_UINT", 641));
+			elEnc.add(EmaFactory.createElementEntry().elementList( "EE_UINT", elEnc1 ));
+
+			//ninth entry
+			elEnc.add(EmaFactory.createElementEntry().uintValue( "MY_UINT", 642 ));
+			
+
+			//Now do EMA decoding of ElementList
+			ElementList elDec = JUnitTestConnect.createElementList();
+			JUnitTestConnect.setRsslData(elDec, elEnc, Codec.majorVersion(), Codec.minorVersion(), dictionary, null);
+
+			System.out.println(elDec);
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - hasInfo()" , elDec.hasInfo() );
+			TestUtilities.checkResult("ElementList with primitives and ElementList - infoElementListNum()" ,  elDec.infoElementListNum() == 9999);
+
+			Iterator<ElementEntry> iter = elDec.iteratorByRef();
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee1 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()", ee1.name().equals( "MY_UINT") );
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.UINT", ee1.loadType() == DataTypes.UINT);
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.UINT", ee1.load().dataType()== DataTypes.UINT );
+			TestUtilities.checkResult("ElementEntry.uintValue()", ee1.uintValue() == 64 );
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee2 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()", ee2.name().equals( "MY_UINT2") );
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.UINT", ee2.loadType() == DataTypes.UINT);
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.UINT", ee2.load().dataType()== DataTypes.UINT );
+			TestUtilities.checkResult("ElementEntry.uintValue()", ee2.uintValue() == 64 );
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee3 = iter.next();
+			TestUtilities.checkResult( ee3.name().equals( "MY_REAL"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.REAL",  ee3.loadType() == DataTypes.REAL );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.REAL", ee3.load().dataType()== DataTypes.REAL );
+			TestUtilities.checkResult("ElementEntry.real().mantissa()", ee3.real().mantissa() == 11 );
+			TestUtilities.checkResult("ElementEntry.real().magnitudeType()", ee3.real().magnitudeType() == 12 );
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee4 = iter.next();
+			TestUtilities.checkResult( ee4.name().equals( "MY_INT"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.INT", ee4.loadType() == DataTypes.INT );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.INT", ee4.load().dataType()== DataTypes.INT );
+			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee4.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("ElementEntry.intValue()" ,  ee4.intValue() == 32);
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee5 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()",ee5.name().equals( "MY_DATE"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.DATE", ee5.loadType() == DataTypes.DATE );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.DATE", ee5.load().dataType()== DataTypes.DATE );
+			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee5.code() ==Data.DataCode.NO_CODE);
+					TestUtilities.checkResult("ElementEntry.date().day()", ee5.date().day() == 7 );
+		TestUtilities.checkResult("ElementEntry.date().month()()", ee5.date().month()== 11 );
+			TestUtilities.checkResult("ElementEntry.date().year()", ee5.date().year() == 1999 );
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee6 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()",ee6.name().equals( "MY_TIME"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.TIME", ee6.loadType() == DataTypes.TIME );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.TIME", ee6.load().dataType()== DataTypes.TIME );
+			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee6.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("ElementEntry.time().hour()", ee6.time().hour() == 02 );
+			TestUtilities.checkResult("ElementEntry.time().minute()", ee6.time().minute() == 03 );
+			TestUtilities.checkResult("ElementEntry.time().second()", ee6.time().second() == 04 );
+			TestUtilities.checkResult("ElementEntry.time().millisecond()", ee6.time().millisecond() == 005 );
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee7 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()",ee7.name().equals( "MY_DATETIME"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.DATETIME", ee7.loadType() == DataTypes.DATETIME );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.DATETIME", ee7.load().dataType()== DataTypes.DATETIME );
+			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee7.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("ElementEntry.dateTime().day()", ee7.dateTime().day() == 7 );
+			TestUtilities.checkResult("ElementEntry.dateTime().month()()",  ee7.dateTime().month()== 11 );
+			TestUtilities.checkResult("ElementEntry.dateTime().year()", ee7.dateTime().year() == 1999 );
+			TestUtilities.checkResult("ElementEntry.dateTime().hour()", ee7.dateTime().hour() == 01 );
+			TestUtilities.checkResult("ElementEntry.dateTime().minute()", ee7.dateTime().minute() == 02 );
+			TestUtilities.checkResult("ElementEntry.dateTime().second()", ee7.dateTime().second() == 03 );
+			TestUtilities.checkResult("ElementEntry.dateTime().millisecond()", ee7.dateTime().millisecond() == 000 );
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee8 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()",ee8.name().equals( "EE_UINT"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.ELEMENT_LIST", ee8.loadType() == DataTypes.ELEMENT_LIST );
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.ELEMENT_LIST", ee8.load().dataType()== DataTypes.ELEMENT_LIST );
+			TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", ee8.code() ==Data.DataCode.NO_CODE);
+			TestUtilities.checkResult("ElementEntry.code() == DataTypes.ELEMENT_LIST", ee8.load().dataType()== DataTypes.ELEMENT_LIST );
+			{
+				ElementList nestedEl = ee8.elementList();
+
+				TestUtilities.checkResult("ElementEntry ElementList within elementlist - hasInfo()",  !nestedEl.hasInfo() );
+
+				Iterator<ElementEntry> nestedIter = nestedEl.iteratorByRef();
+				TestUtilities.checkResult("ElementEntry ElementList within elementlist - first elementlist hasNext()" , nestedIter.hasNext());
+				ElementEntry nee1 = nestedIter.next();
+				TestUtilities.checkResult( nee1.name().equals( "MY_UINT"));
+				TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.UINT", nee1.loadType() == DataTypes.UINT);
+				TestUtilities.checkResult("ElementEntry.code() ==Data.DataCode.NO_CODE", nee1.code() ==Data.DataCode.NO_CODE);
+				TestUtilities.checkResult("ElementEntry.uintValue()", nee1.uintValue() == 641 );
+
+				TestUtilities.checkResult("ElementEntry ElementList within elementlist - second elementlist hasNext()", !nestedIter.hasNext());
+			}
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - first entry", iter.hasNext());
+			ElementEntry ee9 = iter.next();
+			TestUtilities.checkResult("ElementEntry.name()",ee9.name().equals( "MY_UINT"));
+			TestUtilities.checkResult("ElementEntry.loadType() == DataTypes.UINT", ee9.loadType() == DataTypes.UINT);
+			TestUtilities.checkResult("ElementEntry.load().dataType()== DataTypes.UINT", ee9.load().dataType()== DataTypes.UINT );
+			TestUtilities.checkResult("ElementEntry.uintValue()", ee9.uintValue() == 642 );
+
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - tenth hasNext()", !iter.hasNext());
+
+			TestUtilities.checkResult("ElementList with primitives and ElementList - exception not expected", true);
+			
+			dictionary = null;
+
+		} catch ( OmmException excp  ) {
+			TestUtilities.checkResult( "ElementList with primitives and ElementList - exception not expected" , false);
+			System.out.println(excp);
+		}
+	}
+	
     public void testElementListList_EncodeEMA_DecodeEMA_ContainsFieldList_EncodeDecodeAll()
 	{
 		

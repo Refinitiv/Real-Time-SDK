@@ -2,22 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Reactor;
-using Array = Refinitiv.Eta.Codec.Array;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Reactor;
+using LSEG.Eta.ValueAdd.Rdm;
+using Array = LSEG.Eta.Codec.Array;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Provider
+namespace LSEG.Eta.ValueAdd.Provider
 {
     /// <summary>
     /// This is the implementation of handling item requests for the interactive provider application. 
@@ -511,7 +510,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             }
 
             errorInfo = null;
-            return ReactorReturnCode.FAILURE;
+            return ReactorReturnCode.SUCCESS;
         }
 
         private CodecReturnCode CopyMsgKey(IMsgKey destKey, IMsgKey sourceKey)
@@ -520,8 +519,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             destKey.NameType = sourceKey.NameType;
             if (sourceKey.CheckHasName() && sourceKey.Name != null)
             {
-                destKey.Name.Data(new ByteBuffer(sourceKey.Name.Length));
-                sourceKey.Name.Copy(destKey.Name);
+                BufferHelper.CopyBuffer(sourceKey.Name, destKey.Name);
             }
             destKey.ServiceId = sourceKey.ServiceId;
             destKey.Filter = sourceKey.Filter;
@@ -542,7 +540,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             foreach (ItemRequestInfo itemReqInfo in m_ItemRequestWatchList)
             {
                 if (itemReqInfo.IsInUse &&
-                        itemReqInfo.Channel == chnl &&
+                        itemReqInfo.Channel == chnl.Channel &&
                         itemReqInfo.StreamId == streamId)
                 {
                     if (itemReqInfo.MsgKey.Equals(key))
@@ -1380,9 +1378,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
 
             itemRequestInfo.DomainType = msg.DomainType;
             // copy item name buffer
-            ByteBuffer byteBuffer = new ByteBuffer(itemRequestInfo.MsgKey.Name.Length);
-            itemRequestInfo.MsgKey.Name.Copy(byteBuffer);
-            itemRequestInfo.ItemName.Data(byteBuffer);
+            BufferHelper.CopyBuffer(itemRequestInfo.MsgKey.Name, itemRequestInfo.ItemName);
             int msgFlags = msg.Flags;
             if ((msgFlags & (int)RequestMsgFlags.PRIVATE_STREAM) != 0)
             {
@@ -1519,9 +1515,9 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             ITransportBuffer msgBuf = reactorChannel.Channel!.GetBuffer(SymbolListItems.MAX_SYMBOL_LIST_SIZE, false, out m_Error);
             if (msgBuf == null)
             {
-                Console.WriteLine($"chnl.GetBuffer(): Failed {(m_Error != null ? m_Error.Text : null)}");
+                Console.WriteLine($"chnl.GetBuffer() failed, error: {m_Error?.Text}");
                 errorInfo = new ReactorErrorInfo();
-                errorInfo.Error.Text = $"chnl.GetBuffer(): Failed {(m_Error != null ? m_Error.Text : null)}";
+                errorInfo.Error.Text = $"chnl.GetBuffer() failed, error: {m_Error?.Text}";
                 return;
             }
 
@@ -1530,15 +1526,15 @@ namespace Refinitiv.Eta.ValueAdd.Provider
 
             if (ret != CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine($"EncodeSymbolListResponse() failed: {(error != null ? error.Text : "")}");
+                Console.WriteLine($"EncodeSymbolListResponse() failed, error: {error?.Text}");
                 errorInfo = new ReactorErrorInfo();
-                errorInfo.Error.Text = $"EncodeSymbolListResponse() failed: {(error != null ? error.Text : "")}";
+                errorInfo.Error.Text = $"EncodeSymbolListResponse() failed, error: {error?.Text}";
                 return;
             }
 
             if (reactorChannel.Submit(msgBuf, m_SubmitOptions, out errorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Error writing message: {(errorInfo != null ? errorInfo.Error.Text : null)}");
+                Console.WriteLine($"ReactorChannel.Sumit() failed, error: {errorInfo?.Error?.Text}");
                 return;
             }
 

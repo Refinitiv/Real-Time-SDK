@@ -2371,6 +2371,246 @@ public class ArrayTests
 		}
 	}
 	
+	void testArrayBuffer_EncodeDecode_EfficientDecoding( boolean fixedSize )
+	{
+		String appendText = fixedSize ?  "fixed size\n"  : "varying size\n";
+		TestUtilities.printTestHead("testArrayBuffer_EncodeDecode_EfficientDecoding",  "Encode and Decode (using efficient decoding) OmmArray Buffer  with " + appendText);
+
+		OmmArray encArray = EmaFactory.createOmmArray();
+		try {
+			if ( fixedSize )
+				encArray.fixedWidth( 8 );
+
+			OmmArrayEntry ae = EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("ABC".getBytes()));
+			TestUtilities.checkResult("OmmArrayEntry.toString() == toString() not supported", ae.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
+			encArray.add(ae);
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
+			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("DEFGH".getBytes())));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+			
+			encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("KLMNOPQRS".getBytes())));
+			TestUtilities.checkResult("OmmArray.toString() == toString() not supported", encArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n"));
+
+			TestUtilities.checkResult( true, "Encode OmmArray Int - exception not expected" );
+
+			OmmArray decArray = JUnitTestConnect.createOmmArray();
+			JUnitTestConnect.setRsslData(decArray, encArray, Codec.majorVersion(), Codec.minorVersion(), null, null);
+			// check that we can still get the toString on encoded/decoded container.
+			TestUtilities.checkResult("OmmArray.toString() != toString() not supported", !(decArray.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));			
+			
+	        TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer - hasFixedWidth()" );
+			TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer - getFixedWidth()" );
+
+			Iterator<OmmArrayEntry> iter = decArray.iteratorByRef();
+			TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - first next()" );
+			 OmmArrayEntry ae1 = iter.next();
+			TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+			try {
+				ae1.uintValue();
+				TestUtilities.checkResult( false, "OmmArray with three Buffer - exception expected" );
+			}
+			catch ( OmmException excp )
+			{
+				TestUtilities.checkResult( true, "OmmArray with three Buffer - exception expected: "  + excp.getMessage() );
+			}
+			{
+				TestUtilities.checkResult( Arrays.equals(new String("ABC").getBytes(),  ae1.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+			}
+
+			TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - second next()" );
+			 OmmArrayEntry ae2 = iter.next();
+			TestUtilities.checkResult( ae2.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+			{
+				TestUtilities.checkResult( Arrays.equals(new String("DEFGH").getBytes(),  ae2.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+			}
+
+			TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - third next()" );
+			 OmmArrayEntry ae3 = iter.next();
+			{
+				TestUtilities.checkResult( Arrays.equals(new String("KLMNOPQRS").getBytes(),  ae3.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+			}
+	       
+			TestUtilities.checkResult( !iter.hasNext(), "OmmArray with three Buffer - fourth next()" );
+
+		
+			iter = decArray.iteratorByRef();
+			{
+				TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer - hasFixedWidth()" );
+				TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer - getFixedWidth()" );
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - first next()" );
+				ae1 = iter.next();
+
+				// check that we can still get the toString on encoded/decoded entry.
+				TestUtilities.checkResult("OmmArrayEntry.toString() != toString() not supported", !(ae1.toString().equals("\nDecoding of just encoded object in the same application is not supported\n")));
+				
+				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+				try {
+					ae1.uintValue();
+					TestUtilities.checkResult( false, "OmmArray with three Buffer - exception expected" );
+				}
+				catch ( OmmException excp )
+				{
+					TestUtilities.checkResult( true, "OmmArray with three Buffer - exception expected: "  + excp.getMessage() );
+				}
+				{
+					TestUtilities.checkResult( Arrays.equals(new String("ABC").getBytes(),  ae1.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+				}
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - second next()" );
+				ae2 = iter.next();
+				TestUtilities.checkResult( ae2.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+				{
+					TestUtilities.checkResult( Arrays.equals(new String("DEFGH").getBytes(),  ae2.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+				}
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer - third next()" );
+				ae3 = iter.next();
+				{
+					TestUtilities.checkResult( Arrays.equals(new String("KLMNOPQRS").getBytes(),  ae3.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+				}
+	        
+				TestUtilities.checkResult( !iter.hasNext(), "OmmArray with three Buffer - fourth next()" );
+			}
+
+			TestUtilities.checkResult( true, "Encode OmmArray Buffer - exception not expected" );
+		}
+		catch (  OmmException excp )
+		{
+			System.out.println( excp);
+
+			if ( !fixedSize )
+				TestUtilities.checkResult( false, "Encode OmmArray Buffer with blanks - exception not expected" );
+			else
+				TestUtilities.checkResult( true, "Encode OmmArray Buffer with blanks - exception expected" );
+		}
+
+
+		encArray.clear();
+
+		try {
+			//Encoding (including blanks)
+			if ( fixedSize )
+				encArray.fixedWidth( 8 );
+
+				encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("ABC".getBytes())));
+				encArray.add(EmaFactory.createOmmArrayEntry().codeBuffer());
+				encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("DEFGH".getBytes())));
+				encArray.add(EmaFactory.createOmmArrayEntry().codeBuffer());
+				encArray.add(EmaFactory.createOmmArrayEntry().buffer(ByteBuffer.wrap("KLMNOPQRS".getBytes())));
+	
+	
+				OmmArray decArray = JUnitTestConnect.createOmmArray();
+				JUnitTestConnect.setRsslData(decArray, encArray, Codec.majorVersion(), Codec.minorVersion(), null, null);
+
+				Iterator<OmmArrayEntry> iter = decArray.iteratorByRef();
+				
+	            TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer (with 2 blanks) - hasFixedWidth()" );
+				TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer (with 2 blanks) - getFixedWidth()" );
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - first next()" );
+				OmmArrayEntry ae1 = iter.next();
+				TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+				try {
+						ae1.uintValue();
+						TestUtilities.checkResult( false, "OmmArray with three Buffer (with 2 blanks) - exception expected" );
+				}
+				catch ( OmmException excp )
+				{
+					TestUtilities.checkResult( true, "OmmArray with three Buffer (with 2 blanks) - exception expected: "  + excp.getMessage() );
+				}
+				{
+					TestUtilities.checkResult( Arrays.equals(new String("ABC").getBytes(),  ae1.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+				}
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer  (with 2 blanks)- second next()" );
+				 OmmArrayEntry ae1b = iter.next();
+				TestUtilities.checkResult( ae1b.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - third next()" );
+				 OmmArrayEntry ae2 = iter.next();
+				TestUtilities.checkResult( ae2.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+				{
+					TestUtilities.checkResult( Arrays.equals(new String("DEFGH").getBytes(),  ae2.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+				}
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - fourth next()" );
+				 OmmArrayEntry ae2b = iter.next();
+				TestUtilities.checkResult( ae2b.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+
+				TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - fifth next()" );
+				 OmmArrayEntry ae3 = iter.next();
+				TestUtilities.checkResult( ae3.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+				{
+					TestUtilities.checkResult( Arrays.equals(new String("KLMNOPQRS").getBytes(),  ae3.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+				}
+	        
+				TestUtilities.checkResult( !iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - sixth next()" );
+
+			
+				iter = decArray.iteratorByRef();
+				{
+					TestUtilities.checkResult( decArray.hasFixedWidth() == fixedSize, "OmmArray with three Buffer (with 2 blanks) - hasFixedWidth()" );
+					TestUtilities.checkResult( decArray.fixedWidth() == (fixedSize ? 8 : 0 ), "OmmArray with three Buffer (with 2 blanks) - getFixedWidth()" );
+
+					TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - first next()" );
+					ae1 = iter.next();
+					TestUtilities.checkResult( ae1.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+					try {
+						ae1.uintValue();
+						TestUtilities.checkResult( false, "OmmArray with three Buffer (with 2 blanks) - exception expected" );
+					}
+					catch ( OmmException excp )
+					{
+						TestUtilities.checkResult( true, "OmmArray with three Buffer (with 2 blanks) - exception expected: "  + excp.getMessage() );
+					}
+					{
+						TestUtilities.checkResult( Arrays.equals(new String("ABC").getBytes(),  ae1.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+					}
+
+					TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - second next()" );
+					ae1b = iter.next();
+					TestUtilities.checkResult( ae1b.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+
+					TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - third next()" );
+					ae2 = iter.next();
+					TestUtilities.checkResult( ae2.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+					{
+						TestUtilities.checkResult( Arrays.equals(new String("DEFGH").getBytes(),  ae2.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+					}
+
+					TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - fourth next()" );
+					ae2b = iter.next();
+					TestUtilities.checkResult( ae2b.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+
+					TestUtilities.checkResult( iter.hasNext(), "OmmArray with three Buffer (with 2 blanks) - fifth next()" );
+					ae3 = iter.next();
+					TestUtilities.checkResult( ae3.loadType()== DataType.DataTypes.BUFFER, "OmmArrayEntry.loadType() == DataType.DataTypes.BUFFER" );
+					{
+						TestUtilities.checkResult( Arrays.equals(new String("KLMNOPQRS").getBytes(),  ae3.buffer().buffer().array()), "OmmArrayEntry.buffer()" );
+					}
+	        
+					TestUtilities.checkResult( !iter.hasNext(), "OmmArray with three Buffer  (with 2 blanks) - sixth next()" );
+				}
+
+			if ( !fixedSize )
+				TestUtilities.checkResult( true, "Encode OmmArray Buffer with blanks - exception not expected" );
+			else
+				TestUtilities.checkResult( false, "Encode OmmArray Buffer with blanks - exception expected" );
+		}
+		catch (  OmmException excp )
+		{
+			System.out.println( excp);
+
+			if ( !fixedSize )
+				TestUtilities.checkResult( false, "Encode OmmArray Buffer with blanks - exception not expected" );
+			else
+				TestUtilities.checkResult( true, "Encode OmmArray Buffer with blanks - exception expected" );
+		}
+	}
+	
    void testArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA()
    {
        TestUtilities.printTestHead("testArray_EncodeETA_DecodeEMA_EncodeEMA_DecodeETA", "Encode Array with ETA, Decode Array with EMA, Encode Array with EMA, Decode Array with ETA");

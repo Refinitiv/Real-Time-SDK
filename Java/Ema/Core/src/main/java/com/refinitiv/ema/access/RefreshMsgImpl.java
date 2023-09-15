@@ -607,7 +607,7 @@ class RefreshMsgImpl extends MsgImpl implements RefreshMsg
 		_rsslMsg = rsslMsg;
 
 		_rsslBuffer = _rsslMsg.encodedMsgBuffer();
-		
+
 		_rsslDictionary = rsslDictionary;
 
 		_rsslMajVer = majVer;

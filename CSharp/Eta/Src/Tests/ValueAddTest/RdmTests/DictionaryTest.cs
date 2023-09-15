@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.IO;
 using Xunit;
-using static Refinitiv.Eta.Rdm.Dictionary;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using static LSEG.Eta.Rdm.Dictionary;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     public class DictionaryTest
     {

@@ -2,13 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.PerfTools.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.PerfTools.Common;
 using System.Net;
+
 /**
 * <p>
 * The ConsPerf application. Implements a consumer, which requests items from a
@@ -48,7 +49,7 @@ using System.Net;
 * </ul>
 */
 
-namespace Refinitiv.Eta.PerfTools.ConsPerf
+namespace LSEG.Eta.PerfTools.ConsPerf
 {
 	public class ConsPerf : IShutdownCallback
 	{
@@ -507,7 +508,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 					}
 
 					fileWriter.Write("\nOverall Statistics: \n");
-					fileWriter.Write("  Sampling duration (sec): {0.000}\n", imageRetrievalStarted ? (m_CurrentTime - m_ConsumerThreadsInfo[i].Stats.ImageRetrievalStartTime) / 1000000000.0 : 0.0);
+					fileWriter.Write("  Sampling duration (sec): {0:0.000}\n", imageRetrievalStarted ? (m_CurrentTime - m_ConsumerThreadsInfo[i].Stats.ImageRetrievalStartTime) / 1000000000.0 : 0.0);
 
 					if (m_ConsumerThreadsInfo[i].Stats.OverallLatencyStats.Count > 0)
 					{

@@ -24,6 +24,7 @@ OAuth2CredentialRenewal::OAuth2CredentialRenewal() :
 	_newPassword(),
 	_clientId(),
 	_clientSecret(),
+	_clientJWK(),
 	_tokenScope()
 {
 	_takeExclusiveSignOnControl = false;
@@ -45,6 +46,7 @@ OAuth2CredentialRenewal& OAuth2CredentialRenewal::clear()
 	_newPassword.secureClear();
 	_clientId.secureClear();
 	_clientSecret.secureClear();
+	_clientJWK.secureClear();
 	_tokenScope.secureClear();
 	_takeExclusiveSignOnControl = false;
 	return *this;
@@ -104,6 +106,17 @@ OAuth2CredentialRenewal& OAuth2CredentialRenewal::clientId( EmaString& clientId 
 OAuth2CredentialRenewal& OAuth2CredentialRenewal::clientSecret( EmaString& clientSecret )
 {
 	_clientSecret = clientSecret;
+	return *this;
+}
+
+/** Specifies the client JWK.  This is used for login V2
+
+	@param[in] clientJWK specifies the client JWK for oAuth2 V2 JWT interactions.
+	@return reference to this object
+*/
+OAuth2CredentialRenewal& OAuth2CredentialRenewal::clientJWK(EmaString& clientJWK)
+{
+	_clientJWK = clientJWK;
 	return *this;
 }
 
@@ -172,6 +185,16 @@ const EmaString& OAuth2CredentialRenewal::getClientId()
 const EmaString& OAuth2CredentialRenewal::getClientSecret()
 {
 	return _clientSecret;
+}
+
+
+/** Gets the clientJWK.  This is used for login V2
+
+@return client JWK
+*/
+const EmaString& OAuth2CredentialRenewal::getClientJWK()
+{
+	return _clientJWK;
 }
 
 /** Gets the tokenScope.  This is optionally used for login V1 and login V2

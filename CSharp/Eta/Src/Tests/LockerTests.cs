@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Categories;
 
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Common;
 
-namespace Refinitiv.Eta.Transports.Tests
+namespace LSEG.Eta.Transports.Tests
 {
     public class LockerTests
     {

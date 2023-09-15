@@ -2,21 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Common;
 using System.Net.Sockets;
-using SessionState = Refinitiv.Eta.ValueAdd.Reactor.ReactorTokenSession.SessionState;
+using SessionState = LSEG.Eta.ValueAdd.Reactor.ReactorTokenSession.SessionState;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     internal class ReactorWorker
     {
-        private const int DEFAULT_WAIT_TIME = 3000; // milliseconds
+        private const int DEFAULT_WAIT_TIME = 100; // milliseconds
 
         Thread? m_Thread;
         private ReactorEventQueue m_WorkerEventQueue; /* Worker's event quque */
@@ -51,7 +50,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 return m_WorkerEventQueue;
             }
         }
-            
+
         public ReactorWorker(Reactor reactor)
         {
             m_Reactor = reactor;
@@ -197,17 +196,21 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 while (m_ReconnectingChannelQueue.HasNext())
                 {
                     ReactorChannel? reactorChannel = (ReactorChannel?)m_ReconnectingChannelQueue.Next();
+
                     if (reactorChannel != null)
                     {
-                        if (reactorChannel.NextRecoveryTime > ReactorUtil.GetCurrentTimeMilliSecond())
+                        if (reactorChannel.NextRecoveryTime > LastRecordedTimeMs)
+                        {
+                            CalculateNextTimeout(reactorChannel.NextRecoveryTime - LastRecordedTimeMs);
                             continue;
+                        }
 
                         IChannel? channel = null;
                         Error? error = null;
                         
                         if(reactorChannel.State != ReactorChannelState.RDP_RT &&
                             reactorChannel.State != ReactorChannelState.RDP_RT_DONE &&
-                            reactorChannel.State != ReactorChannelState.RDP_RT_DONE)
+                            reactorChannel.State != ReactorChannelState.RDP_RT_FAILED)
                         {
                             channel = reactorChannel.Reconnect(out error);
                         }
@@ -220,7 +223,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         }
 
                         if (channel is null && reactorChannel.State != ReactorChannelState.RDP_RT)
-                        { 
+                        {
                             // Reconnect attempt failed -- send channel down event.
                             m_ReconnectingChannelQueue.Remove(reactorChannel);
                             if (reactorChannel.TokenSession != null && (reactorChannel.TokenSession.SessionMgntState == SessionState.STOP_TOKEN_REQUEST ||
@@ -303,7 +306,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                             {
                                 /* Go into connection recovery. */
                                 reactorChannel.CalculateNextReconnectTime();
-                
+
                                 m_ReconnectingChannelQueue.Add(reactorChannel);
                             }
                             break;
@@ -392,6 +395,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 reactorChannel.Channel.Close(out Error error);
                 reactorChannel.SetChannel(null);
                 reactorChannel.FlushRequested = false;
+                CancelRegister(reactorChannel);
             }
 
             if (m_ActiveChannelQueue.Remove(reactorChannel) == false)
@@ -414,13 +418,22 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 if (retval > TransportReturnCode.SUCCESS)
                 {
                     // flush returned positive, register this channel with the
-                    // selector for OP_WRITE in order to flush later.
+                    // Add the Notifier object to the Notifier in order to flush later.
                     reactorChannel.NotifierEvent._RegisteredFlags |= NotifierEventFlag.WRITE;
+                    m_Notifier.AddEvent(reactorChannel.NotifierEvent, channel.Socket, reactorChannel);
                 }
                 else if (retval == TransportReturnCode.SUCCESS)
                 {
                     // flush succeeded
-                    reactorChannel.NotifierEvent._RegisteredFlags &= ~NotifierEventFlag.WRITE;
+                    if((reactorChannel.NotifierEvent._RegisteredFlags & NotifierEventFlag.WRITE) != 0)
+                    {
+                        reactorChannel.NotifierEvent._RegisteredFlags &= ~NotifierEventFlag.WRITE;
+
+                        if(reactorChannel.NotifierEvent._RegisteredFlags == 0)
+                        {
+                            m_Notifier.RemoveEvent(reactorChannel.NotifierEvent);
+                        }
+                    }
 
                     SendReactorImplEvent(reactorChannel, ReactorEventImpl.ImplType.FLUSH_DONE, ReactorReturnCode.SUCCESS, null, null);
                 }
@@ -435,8 +448,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                             reactorChannel.State = ReactorChannelState.DOWN;
                             SendReactorImplEvent(reactorChannel, ReactorEventImpl.ImplType.CHANNEL_DOWN,
                                     ReactorReturnCode.FAILURE, "Worker.ProcessChannelFlush",
-                                    "failed to flush, errorId=" + error.ErrorId
-                                    + " errorText=" + error.Text);
+                                    "failed to flush, errorId=" + error?.ErrorId
+                                    + " errorText=" + error?.Text);
                         }
                     }
                 }
@@ -490,8 +503,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 reactorChannel.State = ReactorChannelState.DOWN;
                 SendReactorImplEvent(reactorChannel, ReactorEventImpl.ImplType.CHANNEL_DOWN,
                         ReactorReturnCode.FAILURE, "Worker.InitializeChannel",
-                        "Error initializing channel: errorId=" + error.ErrorId + " text="
-                        + error.Text);
+                        "Error initializing channel: errorId=" + error?.ErrorId + " text="
+                        + error?.Text);
                 return;
             }
 
@@ -530,6 +543,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                     // channel.init is complete,
                     // save the channel's negotiated ping timeout
                     reactorChannel.GetPingHandler().InitPingHandler(channel.PingTimeOut);
+                    reactorChannel.ResetCurrentChannelRetryCount();
 
                     // move the channel from the initQueue to the activeQueue
                     m_InitChannelQueue.Remove(reactorChannel);

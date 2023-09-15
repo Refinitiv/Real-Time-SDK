@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
 using System.Diagnostics;
 using System.Xml;
-using Refinitiv.Eta.Codec;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DateTime = Refinitiv.Eta.Codec.DateTime;
-using Double = Refinitiv.Eta.Codec.Double;
-using Enum = Refinitiv.Eta.Codec.Enum;
+using LSEG.Eta.Codec;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
     /// Manages message data information from an XML file
@@ -102,6 +102,7 @@ namespace Refinitiv.Eta.PerfTools.Common
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to parse XML file: {ex.ToString()}");
+                return PerfToolsReturnCode.FAILURE;
             }
             return PerfToolsReturnCode.SUCCESS;
         }

@@ -2,23 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// This is the post handler for the ETA consumer application. 
@@ -156,6 +155,7 @@ namespace Refinitiv.Eta.Example.Common
         private TransportReturnCode SendOnstreamPostMsg(ChannelSession chnlSession, bool postWithMsg, out Error? error)
         {
             error = null;
+            CodecReturnCode ret;
             if (StreamId == 0)
             {
                 Console.WriteLine("Currently no available market price streams to on-stream post to.  Will retry shortly.");
@@ -168,15 +168,25 @@ namespace Refinitiv.Eta.Example.Common
 
             if (postWithMsg == true)
             {
-                if (EncodePostWithMsg(chnlSession, msgBuf) != CodecReturnCode.SUCCESS)
+                if ((ret = EncodePostWithMsg(chnlSession, msgBuf)) != CodecReturnCode.SUCCESS)
                 {
+                    error = new Error()
+                    {
+                        Text = $"Failed encoding post with message, return code {ret.GetAsString()}",
+                        ErrorId = TransportReturnCode.FAILURE
+                    };
                     return TransportReturnCode.FAILURE;
                 }
             }
             else
             {
-                if (EncodePostWithData(chnlSession, msgBuf) != CodecReturnCode.SUCCESS)
+                if ((ret = EncodePostWithData(chnlSession, msgBuf)) != CodecReturnCode.SUCCESS)
                 {
+                    error = new Error()
+                    {
+                        Text = $"Failed encoding post with data, return code {ret.GetAsString()}",
+                        ErrorId = TransportReturnCode.FAILURE
+                    };
                     return TransportReturnCode.FAILURE;
                 }
             }
@@ -192,7 +202,14 @@ namespace Refinitiv.Eta.Example.Common
 
             CodecReturnCode ret = EncodePostWithMsg(chnlSession, msgBuf);
             if (ret != CodecReturnCode.SUCCESS)
+            {
+                error = new Error()
+                {
+                    Text = $"Failed encoding post with message, return code {ret.GetAsString()}",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
+            }
 
             TransportReturnCode wRet = chnlSession.Write(msgBuf, out error);
             if (wRet != TransportReturnCode.SUCCESS)
@@ -423,7 +440,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fEntry.FieldId = MarketPriceItem.TRDPRC_1_FID;
-                fEntry.DataType = dictionaryEntry.RwfType;
+                fEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(itemInfo.TRDPRC_1, RealHints.EXPONENT_2);
                 if ((ret = fEntry.Encode(encIter, tempReal)) < CodecReturnCode.SUCCESS)
@@ -438,7 +455,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fEntry.FieldId = MarketPriceItem.BID_FID;
-                fEntry.DataType = dictionaryEntry.RwfType;
+                fEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(itemInfo.BID, RealHints.EXPONENT_2);
                 if ((ret = fEntry.Encode(encIter, tempReal)) < CodecReturnCode.SUCCESS)
@@ -454,7 +471,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fEntry.FieldId = MarketPriceItem.ASK_FID;
-                fEntry.DataType = dictionaryEntry.RwfType;
+                fEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(itemInfo.ASK, RealHints.EXPONENT_2);
                 if ((ret = fEntry.Encode(encIter, tempReal)) < CodecReturnCode.SUCCESS)
@@ -534,6 +551,11 @@ namespace Refinitiv.Eta.Example.Common
                 catch (Exception e)
                 {
                     Console.WriteLine("Populating postUserInfo failed. Dns.GetHostAddresses(Dns.GetHostName()) exception: " + e.Message);
+                    error = new Error()
+                    {
+                        Text = "Populating postUserInfo failed. Dns.GetHostAddresses(Dns.GetHostName()) exception: " + e.Message,
+                        ErrorId = TransportReturnCode.FAILURE
+                    };
                     return TransportReturnCode.FAILURE;
                 }
                 postMsg.PostUserInfo.UserId = Environment.ProcessId;
@@ -551,35 +573,60 @@ namespace Refinitiv.Eta.Example.Common
             CodecReturnCode ret = encIter.SetBufferAndRWFVersion(msgBuf, channelSession.Channel!.MajorVersion, channelSession.Channel.MinorVersion);
             if (ret != CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("Encoder.setBufferAndRWFVersion() failed:  <" + ret + ">");
+                Console.WriteLine("Encoder.SetBufferAndRWFVersion() failed:  <" + ret + ">");
+                error = new Error()
+                {
+                    Text = "Encoder.SetBufferAndRWFVersion() failed:  <" + ret + ">",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
             }
 
             ret = postMsg.EncodeInit(encIter, 0);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("PostMsg.encodeInit() failed:  <" + ret + ">");
+                Console.WriteLine("PostMsg.EncodeInit() failed:  <" + ret + ">");
+                error = new Error()
+                {
+                    Text = "PostMsg.EncodeInit() failed:  <" + ret + ">",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
             }
 
             ret = statusMsg.EncodeInit(encIter, 0);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("StatusMsg.encodeInit() failed:  <" + ret + ">");
+                Console.WriteLine("StatusMsg.EncodeInit() failed:  <" + ret + ">");
+                error = new Error()
+                {
+                    Text = "StatusMsg.EncodeInit() failed:  <" + ret + ">",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
             }
 
             ret = statusMsg.EncodeComplete(encIter, true);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("StatusMsg.encodeComplete() failed:  <" + ret + ">");
+                Console.WriteLine("StatusMsg.EncodeComplete() failed:  <" + ret + ">");
+                error = new Error()
+                {
+                    Text = "StatusMsg.EncodeComplete() failed:  <" + ret + ">",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
             }
 
             ret = postMsg.EncodeComplete(encIter, true);
             if (ret < CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("PostMsg.encodeComplete() failed:  <" + ret + ">");
+                Console.WriteLine("PostMsg.EncodeComplete() failed:  <" + ret + ">");
+                error = new Error()
+                {
+                    Text = "PostMsg.EncodeComplete() failed:  <" + ret + ">",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
             }
 

@@ -2,19 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// This is the market by order handler for the ETA consumer application. 

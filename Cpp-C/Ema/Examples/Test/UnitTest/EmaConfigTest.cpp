@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -207,6 +207,17 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting JsonExpandedEnumFields from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|OutputBufferSize", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 99999) << "extracting OutputBufferSize from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|JsonTokenIncrementSize", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 999992) << "extracting JsonTokenIncrementSize from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ShouldInitializeCPUIDlib", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting ShouldInitializeCPUIDlib from EmaConfig.xml";
+
+	/*Check sendJsonConvError in Consumer group*/
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|SendJsonConvError", uintValue);
+	EXPECT_TRUE(debugResult == true && uintValue == 1) << "extracting  SendJsonConvError from EmaConfig.xml";
+
+	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_3|ShouldInitializeCPUIDlib", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting ShouldInitializeCPUIDlib from EmaConfig.xml";
 
 	// Checks all values from Consumer_8
 	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_8|WarmStandbyChannelSet", retrievedValue);
@@ -304,6 +315,14 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|InitializationTimeout", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 55) << "extracting InitializationTimeout from EmaConfig.xml";
 
+	// Checks proxy settings
+	debugResult = config.get<EmaString>("ChannelGroup|ChannelList|Channel.Channel_4|ProxyHost", retrievedValue);
+	EXPECT_TRUE( debugResult && retrievedValue == "proxylocalhost" ) << "extracting ProxyHost from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ChannelGroup|ChannelList|Channel.Channel_4|ProxyPort", retrievedValue);
+	EXPECT_TRUE( debugResult && retrievedValue == "9018" ) << "extracting ProxyPort from EmaConfig.xml";
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_4|ProxyConnectionTimeout", uintValue);
+	EXPECT_TRUE( debugResult && uintValue == 17 ) << "extracting ProxyConnectionTimeout from EmaConfig.xml";
+
 	// Checks ChannelType == RSSL_CONN_TYPE_WEBSOCKET values from Channel_11
 	channelType = RSSL_CONN_TYPE_INIT;
 	debugResult = config.get<RsslConnectionTypes>("ChannelGroup|ChannelList|Channel.Channel_11|ChannelType", channelType);
@@ -322,6 +341,32 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	channelType = RSSL_CONN_TYPE_INIT;
 	debugResult = config.get<RsslConnectionTypes>("ChannelGroup|ChannelList|Channel.Channel_12|EncryptedProtocolType", channelType);
 	EXPECT_TRUE(debugResult && channelType == RSSL_CONN_TYPE_WEBSOCKET) << "extracting EncryptedProtocolType from EmaConfig.xml";
+
+	// Checks all values from Channel:DirectWrite
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_1|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_1|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_2|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_2|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_3|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting Channel_3|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_4|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Channel_4|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_5|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_5|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_10|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_10|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_11|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_11|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_12|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Channel_12|DirectWrite from EmaConfigTest.xml";
 
 	// Checks ServerType == RSSL_CONN_TYPE_WEBSOCKET values from Server_11
 	serverType = RSSL_CONN_TYPE_INIT;
@@ -402,6 +447,20 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|ServerSharedSocket", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_12|ServerSharedSocket from EmaConfig.xml";
 
+	// Checks all values from Server:DirectWrite
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_1|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 1) << "extracting Server_1|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_2|DirectWrite", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting Server_2|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_11|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Server_11|DirectWrite from EmaConfigTest.xml";
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_12|DirectWrite", uintValue);
+	EXPECT_FALSE(debugResult && uintValue == 0) << "extracting Server_12|DirectWrite from EmaConfigTest.xml";
+
 	/* Check loadFilter in the Directory_1 */
 	uintValue = 0;
 	debugResult = config.get<UInt64>("DirectoryGroup|DirectoryList|Directory.Directory_1|Service.TEST_NI_PUB|LoadFilter|OpenLimit", uintValue);
@@ -439,6 +498,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("SendJsonConvError", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -539,6 +599,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1" ) << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE( activeConfig.restLogFileName == "Rest.log" ) << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE( activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE( activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
+		EXPECT_TRUE( activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE( activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE( activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -608,6 +670,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("SendJsonConvError", 1)
+			.addUInt("ShouldInitializeCPUIDlib", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -636,7 +700,9 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 			.addUInt("DefaultServiceID", 1)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
-			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
+			.addUInt("JsonTokenIncrementSize", 4294967296)
+			.addUInt("MaxDispatchCountUserThread", 700)
+			.addUInt("SendJsonConvError", 1).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
 
@@ -717,6 +783,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
+		EXPECT_TRUE(activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -746,6 +814,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWS)
 		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
 		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
+		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
@@ -793,6 +862,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("SendJsonConvError", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -821,6 +891,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 			.addUInt("DefaultServiceID", 1)
 			.addUInt("JsonExpandedEnumFields", 1)
 			.addUInt("OutputBufferSize", 4294967296)
+			.addUInt("JsonTokenIncrementSize", 4294967296)
 			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -903,6 +974,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1") << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
+		EXPECT_TRUE(activeConfig.shouldInitializeCPUIDlib == 1) << "shouldInitializeCPUIDlib , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -932,6 +1005,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigWSEncrypted)
 		EXPECT_TRUE(activeConfig.defaultServiceIDForConverter == 1) << "defaultServiceID , 1";
 		EXPECT_TRUE(activeConfig.jsonExpandedEnumFields == 1) << "jsonExpandedEnumFields , 1";
 		EXPECT_TRUE(activeConfig.outputBufferSize == 4294967295) << "outputBufferSize , 4294967295"; // Use the max UINT32 instead
+		EXPECT_TRUE(activeConfig.jsonTokenIncrementSize == 4294967295) << "jsonTokenIncrementSize , 4294967295"; // Use the max UINT32 instead
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->interfaceName == "localhost") << "interfaceName , \"localhost\"";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
@@ -978,6 +1052,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addAscii("Dictionary", "Dictionary_1")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("SendJsonConvError", 1)
 			.addUInt("ItemCountHint", 5000)
 			.addUInt("ServiceCountHint", 2000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -1033,6 +1108,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 0)
 			.addUInt("InitializationTimeout", 56)
+			.addUInt("DirectWrite", 0)
 			.complete())
 			.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
 				.addEnum("ChannelType", 2)
@@ -1091,6 +1167,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.dictionaryConfig.dictionaryName == "Dictionary_1" ) << "dictionaryName , \"Dictionary_1\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.sendJsonConvError == 1) << "sendJsonConvError , \"True\"";
 		EXPECT_TRUE(activeConfig.itemCountHint == 5000) << "itemCountHint , 5000";
 		EXPECT_TRUE(activeConfig.serviceCountHint == 2000) << "serviceCountHint , 2000";
 		EXPECT_TRUE(activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -1127,6 +1204,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->compressionThreshold == 12856) << "CompressionThreshold , 12856";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionPingTimeout == 30000) << "connectionPingTimeout , 30000";
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE(activeConfig.configChannelSet[0]->directWrite == 0) << "directWrite , 0";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE(static_cast<SocketChannelConfig* >(activeConfig.configChannelSet[0])->tcpNodelay == 0) << "SocketChannelConfig::tcpNodelay , 0";
@@ -1495,6 +1573,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("Dictionary", "Dictionary_2")
 			.addAscii("RestLogFileName", "Rest.log")
 			.addUInt("RestEnableLog", 1)
+			.addUInt("SendJsonConvError", 0)
 			.addUInt("ItemCountHint", 9000)
 			.addUInt("ServiceCountHint", 9000)
 			.addUInt("ObeyOpenWindow", 1)
@@ -1545,6 +1624,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addAscii("Port", "14002")
 			.addUInt("TcpNodelay", 1)
 			.addUInt("InitializationTimeout", 77) // Overried the 55 value defined in the config file
+			.addUInt("DirectWrite", 1)
 			.complete()).complete();
 
 		elementList.addMap("ChannelList", innerMap).complete();
@@ -1598,6 +1678,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.dictionaryConfig.dictionaryName == "Dictionary_2" ) << "dictionaryName , \"Dictionary_2\"";
 		EXPECT_TRUE(activeConfig.restLogFileName == "Rest.log") << "restLogFileName , \"Rest.log\"";
 		EXPECT_TRUE(activeConfig.restEnableLog == 1) << "restEnableLog , \"True\"";
+		EXPECT_TRUE(activeConfig.sendJsonConvError == 0) << "SendJsonConvError , \"False\"";
 		EXPECT_TRUE( activeConfig.itemCountHint == 9000) << "itemCountHint , 9000";
 		EXPECT_TRUE( activeConfig.serviceCountHint == 9000) << "serviceCountHint , 9000";
 		EXPECT_TRUE( activeConfig.obeyOpenWindow == 1) << "obeyOpenWindow , 1";
@@ -1635,6 +1716,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->compressionThreshold == 12758) << "compressionThreshold , compressionThreshold";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionPingTimeout == 70000) << "connectionPingTimeout , 70000";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "connectionType , ChannelType::RSSL_SOCKET";
+		EXPECT_TRUE( activeConfig.configChannelSet[0]->directWrite == 1) << "directWrite , 1";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->hostName == "localhost" ) << "SocketChannelConfig::hostname , \"localhost\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
@@ -1989,6 +2071,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 					.addAscii("Port", "14008")
 					.addAscii("ProxyHost", "proxyhost2")
 					.addAscii("ProxyPort", "proxyport2")
+					.addUInt("ProxyConnectionTimeout", 32)
 					.addAscii("ObjectName", "objectname2")
 					.addUInt("TcpNodelay", 0).complete())
 				.addKeyAscii("Channel_3", MapEntry::AddEnum,
@@ -1999,6 +2082,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 					.addAscii("Port", "14009")
 					.addAscii("ProxyHost", "proxyhost3")
 					.addAscii("ProxyPort", "proxyport3")
+					.addUInt("ProxyConnectionTimeout", 33)
 					.addAscii("ObjectName", "objectname3")
 					.addUInt("TcpNodelay", 0).complete())
 				.complete();
@@ -2061,6 +2145,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_HTTP) << "Connection type , \"RSSL_CONN_TYPE_HTTP\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 32) << "Proxy connection timeout , \"32\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectname2") << "Object name , \"objectname2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost2") << "hostname , \"localhost2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14008") << "serviceName , \"14009\"";
@@ -2070,6 +2155,7 @@ TEST_F(EmaConfigTest, testLoadChannelSetBwteenFileProgrammaticForNiProv)
 				EXPECT_TRUE(activeConfig.configChannelSet[1]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyHostName == "proxyhost3") << "Proxy hostname , \"proxyhost3\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyPort == "proxyport3") << "Proxy port , \"proxyport3\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->proxyConnectionTimeout == 33) << "Proxy connection timeout , \"33\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->objectName == "objectname3") << "Object name , \"objectname3\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->hostName == "localhost3") << "hostname , \"localhost3\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[1]))->serviceName == "14009") << "serviceName , \"14009\"";
@@ -2176,6 +2262,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 					.addAscii("Port", "14008")
 					.addAscii("ProxyHost", "proxyhost2")
 					.addAscii("ProxyPort", "proxyport2")
+					.addUInt("ProxyConnectionTimeout", 22)
 					.addAscii("ObjectName", "objectname2")
 					.addUInt("TcpNodelay", 0).complete()).complete();
 			}
@@ -2189,6 +2276,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 					.addAscii("Port", "14009")
 					.addAscii("ProxyHost", "proxyhost6")
 					.addAscii("ProxyPort", "proxyport6")
+					.addUInt("ProxyConnectionTimeout", 26)
 					.addAscii("ObjectName", "objectname6")
 					.addUInt("TcpNodelay", 0).complete())
 					.complete();
@@ -2262,6 +2350,9 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhostFC") << "hostname , \"localhostFC\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14022") << "serviceName , \"14022\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 22) << "proxyConnectionTimeout , 22";
 			}
 			else if (testCase == 1)
 			{
@@ -2270,6 +2361,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_SOCKET) << "Connection type , \"RSSL_CONN_TYPE_SOCKET\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 26) << "proxyConnectionTimeout , 26";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
@@ -2317,6 +2409,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 			.addAscii("Port", "14009")
 			.addAscii("ProxyHost", "proxyhost6")
 			.addAscii("ProxyPort", "proxyport6")
+			.addUInt("ProxyConnectionTimeout", 30)
 			.addAscii("ObjectName", "objectname6")
 			.addUInt("TcpNodelay", 0).complete())
 			.complete();
@@ -2367,6 +2460,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammaticNiProv
 		EXPECT_TRUE(activeConfig.configChannelSet[0]->connectionType == RSSL_CONN_TYPE_ENCRYPTED) << "Connection type , \"RSSL_CONN_TYPE_ENCRYPTED\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyHost") << "Proxy hostname , \"proxyHost\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "14032") << "Proxy port , \"14032\"";
+		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 30) << "proxyConnectionTimeout , 30";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->objectName == "objectName") << "Object name , \"objectName\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
 		EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
@@ -2461,6 +2555,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
 					.addUInt("MaxFragmentSize", 100500)
+					.addUInt("DirectWrite", 0)
 					.addAscii("WsProtocols", "rssl.json.v2, rssl.rwf, tr_json2")
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
@@ -2485,6 +2580,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					.addAscii("Port", "14010")
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
+					.addUInt("DirectWrite", 0)
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 						.addEnum("ServerType", 1)
@@ -2719,6 +2815,7 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 			EXPECT_TRUE(activeConfig.pServerConfig->compressionThreshold == 12856) << "CompressionThreshold , 12856";
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionPingTimeout == 30000) << "connectionPingTimeout , 30000";
 			EXPECT_TRUE(activeConfig.pServerConfig->connectionMinPingTimeout == 8000) << "connectionMinPingTimeout , 8000";
+			EXPECT_TRUE(activeConfig.pServerConfig->directWrite == 0) << "directWrite , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->getType() == 0) << "SocketServerConfig::getType , 0";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serviceName == "14010") << "SocketServerConfig::serviceName , \"14002\"";
 			EXPECT_TRUE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->tcpNodelay == 0) << "SocketServerConfig::tcpNodelay , 0";
@@ -4454,6 +4551,7 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
 					.addUInt("ServerSharedSocket", 0)
+					.addUInt("DirectWrite", 0)
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 						.addEnum("ServerType", 1)
@@ -4477,6 +4575,7 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 					.addUInt("TcpNodelay", 0)
 					.addUInt("InitializationTimeout", 66)
 					.addUInt("ServerSharedSocket", 1)
+					.addUInt("DirectWrite", 1)
 					.complete())
 					.addKeyAscii("Server_2", MapEntry::AddEnum, ElementList()
 						.addEnum("ServerType", 1)
@@ -4559,6 +4658,15 @@ TEST_F(EmaConfigTest, testServerSharedSocketProgrammaticConfigForIProv)
 			else
 			{
 				EXPECT_NE(static_cast<SocketServerConfig*>(activeConfig.pServerConfig)->serverSharedSocket, 0) << "SocketServerConfig::serverSharedSocket , 1";
+			}
+
+			if (testCase < 2)
+			{
+				EXPECT_EQ(activeConfig.pServerConfig->directWrite, 0) << "ServerConfig::directWrite , 0";
+			}
+			else
+			{
+				EXPECT_NE(activeConfig.pServerConfig->directWrite, 0) << "ServerConfig::directWrite, 1";
 			}
 		}
 		catch (const OmmException& excp)
@@ -4784,4 +4892,103 @@ TEST_F(EmaConfigTest, testLoadFilterValueOverflowProgrammaticConfigForIProv)
 			EXPECT_TRUE(false) << "Unexpected exception in testServerSharedSocketProgrammaticConfigForIProv()";
 		}
 	}
+}
+
+class EmaConfigTestNotExist : public ::testing::Test {
+public:
+	void SetUp() {
+		// The default path uses when creating Config instance
+		// and was set an empty path to EmaConfigTest.xml or a directory
+		EmaConfigBaseImpl::setDefaultConfigFileName(defaultFileNameNotExist);
+		
+		errorMsgText.append("configuration path [").append(userDefinedFileNameNotExist).append("] does not exist;");
+	}
+
+	void TearDown() {
+	}
+
+	static const char* defaultFileNameNotExist;
+	static const char* userDefinedFileNameNotExist;
+	EmaString errorMsgText;
+};
+
+const char* EmaConfigTestNotExist::defaultFileNameNotExist = "EmaConfigFileNotExist.xml";
+const char* EmaConfigTestNotExist::userDefinedFileNameNotExist = "EmaConfigUserFileNotExist.xml";
+
+TEST_F(EmaConfigTestNotExist, OmmConsumerConfigShouldThrowException)
+{
+	try {
+		OmmConsumerConfig config( EmaConfigTestNotExist::userDefinedFileNameNotExist );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist.";
+	}
+	catch ( const OmmInvalidConfigurationException& exp )
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgText.length() );
+		ASSERT_STREQ( errorMsgText.c_str(), expErrorText.c_str() );
+	}
+	catch (...)
+	{
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+}
+
+TEST_F(EmaConfigTestNotExist, OmmConsumerConfigDefaultShouldNoException)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmConsumerConfig config;
+		}
+	) << "When the default EmaConfig file is not available OmmConsumerConfig does not throw any exception.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmIProviderConfigShouldThrowException)
+{
+	try {
+		OmmIProviderConfig config( EmaConfigTestNotExist::userDefinedFileNameNotExist );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist.";
+	}
+	catch ( const OmmInvalidConfigurationException& exp )
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgText.length() );
+		ASSERT_STREQ( errorMsgText.c_str(), expErrorText.c_str() );
+	}
+	catch (...)
+	{
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+}
+
+TEST_F(EmaConfigTestNotExist, OmmIProviderConfigDefaultShouldNoException)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmIProviderConfig config;
+		}
+	) << "When the default EmaConfig file is not available OmmIProviderConfig does not throw any exception.";
+}
+
+TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigShouldThrowException)
+{
+	try {
+		OmmNiProviderConfig config( EmaConfigTestNotExist::userDefinedFileNameNotExist );
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist.";
+	}
+	catch (const OmmInvalidConfigurationException& exp)
+	{
+		const EmaString& expErrorText = exp.getText().substr( 0, errorMsgText.length() );
+		ASSERT_STREQ( errorMsgText.c_str(), expErrorText.c_str() );
+	}
+	catch (...)
+	{
+		FAIL() << "OmmInvalidConfigurationException was expected because the configuration file is not exist. Actual: it throws a different type.";
+	}
+}
+
+TEST_F(EmaConfigTestNotExist, OmmNiProviderConfigDefaultShouldNoException)
+{
+	ASSERT_NO_THROW(
+		{
+			OmmNiProviderConfig config;
+		}
+	) << "When the default EmaConfig file is not available OmmNiProviderConfig does not throw any exception.";
 }

@@ -2,34 +2,36 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
 using System.Net.Sockets;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DictionaryHandler = Refinitiv.Eta.PerfTools.Common.DictionaryHandler;
-using DirectoryHandler = Refinitiv.Eta.PerfTools.Common.DirectoryHandler;
-using ItemInfo = Refinitiv.Eta.PerfTools.Common.ItemInfo;
-using LoginHandler = Refinitiv.Eta.PerfTools.Common.LoginHandler;
-using MarketPriceItem = Refinitiv.Eta.PerfTools.Common.MarketPriceItem;
 
-namespace Refinitiv.Eta.PerfTools.ConsPerf
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DictionaryHandler = LSEG.Eta.PerfTools.Common.DictionaryHandler;
+using DirectoryHandler = LSEG.Eta.PerfTools.Common.DirectoryHandler;
+using ItemInfo = LSEG.Eta.PerfTools.Common.ItemInfo;
+using LoginHandler = LSEG.Eta.PerfTools.Common.LoginHandler;
+using MarketPriceItem = LSEG.Eta.PerfTools.Common.MarketPriceItem;
+
+namespace LSEG.Eta.PerfTools.ConsPerf
 {
     /// <summary>
-    /// Provides the logic that consumer connections use in ConsPerf for connecting to a provider, 
+    /// Provides the logic that consumer connections use in ConsPerf for connecting to a provider,
     /// requesting items, and processing the received refreshes and updates.
     /// </summary>
-    internal class ConsumerThread
+    internal class ConsumerThread : IReactorChannelEventCallback, IDefaultMsgCallback,
+        IRDMLoginMsgCallback, IDirectoryMsgCallback, IDictionaryMsgCallback
     {
         private const int CONNECTION_RETRY_TIME = 1;                // in seconds
         private const int ITEM_STREAM_ID_START = 6;
@@ -38,33 +40,33 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 
         private ConsumerThreadInfo m_ConsThreadInfo;                // thread information
         private ConsPerfConfig m_ConsPerfConfig;                    // configuration information
-        
+
         private EncodeIterator m_EncIter = new EncodeIterator();    // encode iterator
         private DecodeIterator m_DecIter = new DecodeIterator();    // decode iterator
-        
+
         private WriteArgs m_WriteArgs = new WriteArgs();            // WriteArgs instance used for Write operations
         private ReadArgs m_ReadArgs = new ReadArgs();               // ReasArgs instance used for Read operations
-        
+
         private Msg? m_ResponseMsg;                                  // response message
-        
+
         private LoginHandler? m_LoginHandler;                        // login handler
         private DirectoryHandler? m_SrcDirHandler;                   // source directory handler
         private DictionaryHandler? m_DictionaryHandler;              // dictionary handler
         private PingHandler? m_PingHandler;                          // ping handler
-        
+
         private MarketPriceDecoder m_MarketPriceDecoder;            // market price decoder
         private InProgInfo? m_InProg;                                // connection in progress information
         private Error? m_Error;                                      // error structure
-        
+
         private XmlItemInfoList m_ItemInfoList;                     // item information list from XML file
         private XmlMsgData m_MsgData;                               // message data information from XML file
-        
+
         private ItemRequest[] m_ItemRequestList;                    // item request list
         private int m_PostItemCount;                                // number of items in _itemRequestList that are posting items
         private int m_GenMsgItemCount;                              // number of items in _itemRequestList that are for sending generic msgs on items
         private IRequestMsg? m_RequestMsg;                           // request message
         private PostUserInfo m_PostUserInfo;                        // post user information
-        private bool m_RequestsSent;                                // indicates if requested service is up 
+        private bool m_RequestsSent;                                // indicates if requested service is up
         private long m_MicrosPerTick;                               // microseconds per tick
         private int m_RequestListSize;                              // request list size
         private int m_RequestListIndex;                             // current request list index
@@ -86,18 +88,71 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         private MarketPriceItem? m_MpItem;                           // market price item
         private IMsgKey? m_MsgKey;                                   // message key
         private ItemInfo? m_ItemInfo;                                // item information
-        private int m_JITWarmupRefreshCount;                        // used to determine when JIT warmup is complete
         private IChannel? m_Channel;                                 // ETA Channel
- 
+
         private Buffer m_PostBuffer;
         private Buffer m_GenericBuffer;
-        private Buffer m_FieldDictionaryName = new Buffer(); 
+        private Buffer m_FieldDictionaryName = new Buffer();
         private Buffer m_EnumTypeDictionaryName = new Buffer();
 
-        private volatile bool shouldWrite = false;
+        private bool shouldWrite = false;
 
         private List<Socket> m_ReadList = new List<Socket>();
         private List<Socket> m_WriteList = new List<Socket>();
+
+        #region Reactor-related variables
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private Reactor? m_Reactor;
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorOptions m_ReactorOptions = new ReactorOptions();
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ConsumerRole m_Role = new ConsumerRole();
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorConnectOptions m_ConnectOptions = new ReactorConnectOptions();
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorDispatchOptions m_DispatchOptions = new ReactorDispatchOptions();
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorSubmitOptions m_SubmitOptions = new ReactorSubmitOptions();
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private Service? m_Service;
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorConnectInfo m_ConnectInfo = new ReactorConnectInfo();
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorChannelInfo m_ReactorChannnelInfo;
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving
+        /// </summary>
+        private ReactorChannel? m_ReactorChannel;
+
+        #endregion
 
         public ConsumerThread(ConsumerThreadInfo consInfo, ConsPerfConfig consConfig, XmlItemInfoList itemList, XmlMsgData msgData, PostUserInfo postUserInfo, IShutdownCallback shutdownCallback)
         {
@@ -126,6 +181,14 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             m_FieldDictionaryName.Data("RWFFld");
             m_EnumTypeDictionaryName.Data("RWFEnum");
             m_ShutdownCallback = shutdownCallback;
+
+            m_ReactorOptions = new ReactorOptions();
+            m_Role = new ConsumerRole();
+            m_ConnectOptions = new ReactorConnectOptions();
+            m_DispatchOptions = new ReactorDispatchOptions();
+            m_SubmitOptions = new ReactorSubmitOptions();
+            m_ConnectInfo = new ReactorConnectInfo();
+            m_ReactorChannnelInfo = new ReactorChannelInfo();
         }
 
         /// <summary>
@@ -138,40 +201,43 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 
             if (!m_ConsThreadInfo.Shutdown)
             {
-                // Check if the test is configured for the correct buffer size to fit post / generic messages
-                PrintEstimatedMsgSizes(m_Channel!, MsgClasses.POST);
-                PrintEstimatedMsgSizes(m_Channel!, MsgClasses.GENERIC);
-
-                // set service name in directory handler
-                m_SrcDirHandler!.ServiceName.Data(m_ConsPerfConfig.ServiceName);
-
-                // get and print the channel info
-                if (m_Channel!.Info(m_ChnlInfo, out m_Error) != TransportReturnCode.SUCCESS)
+                if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
                 {
-                    CloseChannelAndShutDown("Channel.Info() failed");
-                    return;
-                }
-                Console.WriteLine("Channel active. \n" + m_ChnlInfo!.ToString());
+                    // Check if the test is configured for the correct buffer size to fit post / generic messages
+                    PrintEstimatedMsgSizes(m_Channel!, MsgClasses.POST);
+                    PrintEstimatedMsgSizes(m_Channel!, MsgClasses.GENERIC);
 
-                // set login parameters
-                m_LoginHandler!.ApplicationName = "ConsPerf";
-                m_LoginHandler.UserName = m_ConsPerfConfig.Username;
-                m_LoginHandler.Role = Login.RoleTypes.CONS;
+                    // set service name in directory handler
+                    m_SrcDirHandler!.ServiceName.Data(m_ConsPerfConfig.ServiceName);
 
-                // Send login request message
-                ITransportBuffer? msg = m_LoginHandler.GetRequest(m_Channel, out m_Error);
-                if (msg != null)
-                {
-                    Write(msg);
-                }
-                else
-                {
-                    CloseChannelAndShutDown("Sending login request failed");
-                    return;
-                }
+                    // get and print the channel info
+                    if (m_Channel?.Info(m_ChnlInfo, out m_Error) != TransportReturnCode.SUCCESS)
+                    {
+                        CloseChannelAndShutDown("Channel.Info() failed");
+                        return;
+                    }
+                    Console.WriteLine("Channel active. \n" + m_ChnlInfo?.ToString());
 
-                // Initialize ping handler
-                m_PingHandler!.InitPingHandler(m_Channel.PingTimeOut);
+                    // set login parameters
+                    m_LoginHandler!.ApplicationName = "ConsPerf";
+                    m_LoginHandler.UserName = m_ConsPerfConfig.Username;
+                    m_LoginHandler.Role = Login.RoleTypes.CONS;
+
+                    // Send login request message
+                    ITransportBuffer? msg = m_LoginHandler.GetRequest(m_Channel, out m_Error);
+                    if (msg != null)
+                    {
+                        Write(msg);
+                    }
+                    else
+                    {
+                        CloseChannelAndShutDown("Sending login request failed");
+                        return;
+                    }
+
+                    // Initialize ping handler
+                    m_PingHandler!.InitPingHandler(m_Channel.PingTimeOut);
+                }
             }
 
             TransportReturnCode transportReturnCode;
@@ -184,7 +250,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             while (!m_ConsThreadInfo.Shutdown)
             {
                 // read until no more to read and then write leftover from previous burst
-                selectTime = SelectTime(nextTickTime);             
+                selectTime = SelectTime(nextTickTime);
 
                 if (!m_ConsPerfConfig.BusyRead)
                 {
@@ -195,24 +261,36 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                     BusyReadAndWrite(selectTime);
                 }
 
-                // Handle pings
-                if (m_PingHandler!.HandlePings(m_Channel!, out m_Error) != TransportReturnCode.SUCCESS)
+                if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
                 {
-                    CloseChannelAndShutDown(string.Format($"Error handling pings: {(m_Error != null ? m_Error.Text : "")}"));
-                    return;
+                    // Handle pings
+                    if (m_PingHandler!.HandlePings(m_Channel!, out m_Error) != TransportReturnCode.SUCCESS)
+                    {
+                        CloseChannelAndShutDown(string.Format($"Error handling pings: {m_Error?.Text}"));
+                        return;
+                    }
                 }
 
                 currentTime = CurrentTime();
                 if (currentTime >= nextTickTime)
                 {
                     nextTickTime = NextTickTime(nextTickTime);
-                   
+
                     // only send bursts on tick boundary
                     if (m_RequestsSent)
                     {
                         Service service;
 
-                        service = m_SrcDirHandler!.ServiceInfo();
+                        // send item request and post bursts
+                        if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                        {
+                            service = m_SrcDirHandler!.ServiceInfo();
+                        }
+                        else // use ETA VA Reactor for sending and receiving
+                        {
+                            service = m_Service!;
+                        }
+
                         if ((transportReturnCode = SendBursts(currentTicks, service)) < TransportReturnCode.SUCCESS)
                         {
                             if (transportReturnCode != TransportReturnCode.NO_BUFFERS)
@@ -231,7 +309,15 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             }   // end of run loop
 
             m_ConsThreadInfo.ShutdownAck = true;
-            CloseChannel();
+            if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+            {
+                CloseChannel();
+            }
+            else
+            {
+                CloseReactor();
+            }
+
             Console.WriteLine($"\nConsumerThread {m_ConsThreadInfo.ThreadId} exiting...");
         }
 
@@ -261,60 +347,100 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         /// </summary>
         private void Connect()
         {
+            ConnectOptions connectOptions;
+
+            if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+            {
+                connectOptions = m_ConnectOpts!;
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                connectOptions = m_ConnectInfo.ConnectOptions;
+            }
+
             // set connect options
-            m_ConnectOpts!.MajorVersion = Codec.Codec.MajorVersion();
-            m_ConnectOpts.MinorVersion = Codec.Codec.MinorVersion();
-            m_ConnectOpts.ConnectionType = m_ConsPerfConfig.ConnectionType;
-            m_ConnectOpts.GuaranteedOutputBuffers = m_ConsPerfConfig.GuaranteedOutputBuffers;
-            m_ConnectOpts.NumInputBuffers = m_ConsPerfConfig.NumInputBuffers;
+            connectOptions!.MajorVersion = Codec.Codec.MajorVersion();
+            connectOptions.MinorVersion = Codec.Codec.MinorVersion();
+            connectOptions.ConnectionType = m_ConsPerfConfig.ConnectionType;
+            connectOptions.GuaranteedOutputBuffers = m_ConsPerfConfig.GuaranteedOutputBuffers;
+            connectOptions.NumInputBuffers = m_ConsPerfConfig.NumInputBuffers;
             if (m_ConsPerfConfig.SendBufSize > 0)
             {
-                m_ConnectOpts.SysSendBufSize = m_ConsPerfConfig.SendBufSize;
+                connectOptions.SysSendBufSize = m_ConsPerfConfig.SendBufSize;
             }
             if (m_ConsPerfConfig.RecvBufSize > 0)
             {
-                m_ConnectOpts.SysRecvBufSize = m_ConsPerfConfig.RecvBufSize;
+                connectOptions.SysRecvBufSize = m_ConsPerfConfig.RecvBufSize;
+            }
+            if (m_ConsPerfConfig.SendTimeout > 0)
+            {
+                connectOptions.SendTimeout = m_ConsPerfConfig.SendTimeout;
+            }
+            if (m_ConsPerfConfig.RecvTimeout > 0)
+            {
+                connectOptions.ReceiveTimeout = m_ConsPerfConfig.RecvTimeout;
             }
             if (m_ConsPerfConfig.ConnectionType == ConnectionType.SOCKET)
             {
-                m_ConnectOpts.TcpOpts.TcpNoDelay = m_ConsPerfConfig.TcpNoDelay;
-            }
-            // set the connection parameters on the connect options 
-            m_ConnectOpts.UnifiedNetworkInfo.Address = m_ConsPerfConfig.HostName;
-            m_ConnectOpts.UnifiedNetworkInfo.ServiceName = m_ConsPerfConfig.PortNo;
-            m_ConnectOpts.UnifiedNetworkInfo.InterfaceName = m_ConsPerfConfig.InterfaceName;
-
-            if (m_ConnectOpts.ConnectionType == ConnectionType.ENCRYPTED)
-            {
-                m_ConnectOpts.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
+                connectOptions.TcpOpts.TcpNoDelay = m_ConsPerfConfig.TcpNoDelay;
             }
 
-            // Initialize Transport
-            InitArgs initArgs = new InitArgs();
-            initArgs.GlobalLocking = m_ConsPerfConfig.ThreadCount > 1 ? true : false;
-            if (Transport.Initialize(initArgs, out m_Error) != TransportReturnCode.SUCCESS)
+            // set the connection parameters on the connect options
+            connectOptions.UnifiedNetworkInfo.Address = m_ConsPerfConfig.HostName;
+            connectOptions.UnifiedNetworkInfo.ServiceName = m_ConsPerfConfig.PortNo;
+            connectOptions.UnifiedNetworkInfo.InterfaceName = m_ConsPerfConfig.InterfaceName;
+
+            if (connectOptions.ConnectionType == ConnectionType.ENCRYPTED)
             {
-                Console.WriteLine("Transport.Initialize failed. {0}", m_Error?.Text);
-                Environment.Exit((int)TransportReturnCode.FAILURE);
+                connectOptions.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
             }
 
-            // Connection recovery loop. It will try to connect until successful
-            Console.WriteLine("Starting connection...");
-            TransportReturnCode handshake;
-            bool initializedChannel;
-            while (!m_ConsThreadInfo.Shutdown)
+            if (!m_ConsPerfConfig.UseReactor)  // use ETA Channel for sending and receiving
             {
-                initializedChannel = false;
-                while (!initializedChannel)
+                // Initialize Transport
+                InitArgs initArgs = new InitArgs();
+                initArgs.GlobalLocking = m_ConsPerfConfig.ThreadCount > 1 ? true : false;
+                if (Transport.Initialize(initArgs, out m_Error) != TransportReturnCode.SUCCESS)
                 {
-                    m_Channel = Transport.Connect(m_ConnectOpts, out m_Error);
-                    if (m_Channel == null)
+                    Console.WriteLine("Transport.Initialize failed. {0}", m_Error?.Text);
+                    Environment.Exit((int)TransportReturnCode.FAILURE);
+                }
+
+                // Connection recovery loop. It will try to connect until successful
+                Console.WriteLine("Starting connection...");
+                TransportReturnCode handshake;
+                bool initializedChannel;
+                while (!m_ConsThreadInfo.Shutdown)
+                {
+                    initializedChannel = false;
+                    while (!initializedChannel)
                     {
-                        Console.Error.WriteLine($"Error: Transport connect failure: {(m_Error != null ? m_Error.Text : "")}. Will retry shortly.");
+                        m_Channel = Transport.Connect(m_ConnectOpts, out m_Error);
+                        if (m_Channel == null)
+                        {
+                            Console.Error.WriteLine($"Error: Transport connect failure: {m_Error?.Text}. Will retry shortly.");
+                            try
+                            {
+                                Thread.Sleep(CONNECTION_RETRY_TIME * 1000);
+                                continue;
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Thread.Sleep failed: {e.Message}");
+                                Environment.Exit((int)TransportReturnCode.FAILURE);
+                            }
+                        }
+                        initializedChannel = true;
+                    }
+
+                    while ((handshake = m_Channel!.Init(m_InProg, out m_Error)) != TransportReturnCode.SUCCESS)
+                    {
+                        if (handshake == TransportReturnCode.FAILURE)
+                            break;
+
                         try
                         {
-                            Thread.Sleep(CONNECTION_RETRY_TIME * 1000);
-                            continue;
+                            Thread.Sleep(1000);
                         }
                         catch (Exception e)
                         {
@@ -322,31 +448,13 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                             Environment.Exit((int)TransportReturnCode.FAILURE);
                         }
                     }
-                    initializedChannel = true;
-                }
 
-                while ((handshake = m_Channel!.Init(m_InProg, out m_Error)) != TransportReturnCode.SUCCESS)
-                {
-                    if (handshake == TransportReturnCode.FAILURE)
+                    if (handshake == TransportReturnCode.SUCCESS)
+                    {
                         break;
-
-                    try
-                    {
-                        Thread.Sleep(1000);
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Thread.Sleep failed: {e.Message}");
-                        Environment.Exit((int)TransportReturnCode.FAILURE);
-                    }
-                }
 
-                if (handshake == TransportReturnCode.SUCCESS)
-                {
-                    break;
-                }
-
-                Console.WriteLine($"Connection failure: {(m_Error != null ? m_Error.Text : "")}. Will retry shortly.");
+                Console.WriteLine($"Connection failure, error: {m_Error?.Text}. Will retry shortly.");
                 try
                 {
                     Thread.Sleep(CONNECTION_RETRY_TIME * 1000);
@@ -362,14 +470,64 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 m_ConsThreadInfo.Channel = m_Channel;
                 Console.WriteLine("Connected.");
 
-                // set the high water mark if configured
-                if (m_ConsPerfConfig.HighWaterMark > 0)
-                {
-                    if (m_Channel!.IOCtl(IOCtlCode.HIGH_WATER_MARK, m_ConsPerfConfig.HighWaterMark, out m_Error) != TransportReturnCode.SUCCESS)
+                    // set the high water mark if configured
+                    if (m_ConsPerfConfig.HighWaterMark > 0)
                     {
-                        CloseChannelAndShutDown("Channel.IOCtl() failed");
-                        return;
+                        if (m_Channel!.IOCtl(IOCtlCode.HIGH_WATER_MARK, m_ConsPerfConfig.HighWaterMark, out m_Error) != TransportReturnCode.SUCCESS)
+                        {
+                            CloseChannelAndShutDown("Channel.IOCtl() failed");
+                            return;
+                        }
                     }
+                }
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                // initialize Reactor
+                var reactor = Reactor.CreateReactor(m_ReactorOptions, out var errorInfo);
+                if (reactor == null)
+                {
+                    Console.WriteLine("CreateReactor() failed: " + errorInfo?.ToString());
+                    Environment.Exit((int)ReactorReturnCode.FAILURE);
+                }
+                m_Reactor = reactor;
+
+                // register selector with reactor's reactorChannel.
+                m_ReadList.Add(m_Reactor.EventSocket!);
+
+                m_ConnectOptions.ConnectionList.Add(m_ConnectInfo);
+
+                // set consumer role information
+                m_Role.ChannelEventCallback = this;
+                m_Role.DefaultMsgCallback = this;
+                m_Role.LoginMsgCallback = this;
+                m_Role.DirectoryMsgCallback = this;
+                m_Role.DictionaryMsgCallback = this;
+                if (!DictionariesLoaded())
+                {
+                    m_Role.DictionaryDownloadMode = DictionaryDownloadMode.FIRST_AVAILABLE;
+                }
+                m_Role.InitDefaultRDMLoginRequest();
+                // set login parameters
+                m_Role.RdmLoginRequest!.HasAttrib = true;
+                m_Role.RdmLoginRequest.LoginAttrib.HasApplicationName = true;
+                m_Role.RdmLoginRequest.LoginAttrib.ApplicationName.Data("ConsPerf");
+                if (!string.IsNullOrEmpty(m_ConsPerfConfig.Username))
+                {
+                    m_Role.RdmLoginRequest.UserName.Data(m_ConsPerfConfig.Username);
+                }
+                m_Role.InitDefaultRDMDirectoryRequest();
+
+                m_ConnectOptions.SetReconnectAttempLimit(-1);
+                m_ConnectOptions.SetReconnectMaxDelay(5000);
+                m_ConnectOptions.SetReconnectMinDelay(1000);
+
+                // connect via Reactor
+                ReactorReturnCode ret;
+                if ((ret = m_Reactor.Connect(m_ConnectOptions, m_Role, out errorInfo)) < ReactorReturnCode.SUCCESS)
+                {
+                    Console.WriteLine($"Reactor.Connect failed with return code: {ret} error = {errorInfo?.Error.Text}");
+                    Environment.Exit((int)ReactorReturnCode.FAILURE);
                 }
             }
         }
@@ -379,13 +537,13 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         /// </summary>
         private void Initialize()
         {
-            // create latency log file writer for this thread 
+            // create latency log file writer for this thread
             if (m_ConsPerfConfig.LogLatencyToFile)
             {
                 string latencyLogPath = m_ConsPerfConfig.LatencyLogFilename + m_ConsThreadInfo.ThreadId + ".csv";
                 try
                 {
-                    // Open latency log file. 
+                    // Open latency log file.
                     m_ConsThreadInfo.LatencyLogFile = latencyLogPath;
                     m_ConsThreadInfo.LatencyLogFileWriter = new StreamWriter(latencyLogPath);
                 }
@@ -397,7 +555,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 m_ConsThreadInfo.LatencyLogFileWriter.WriteLine("Message type, Send Time, Receive Time, Latency (usec)\n");
             }
 
-            // create stats file writer for this thread 
+            // create stats file writer for this thread
 
             string statsFilePath = m_ConsPerfConfig.StatsFilename + m_ConsThreadInfo.ThreadId + ".csv";
             try
@@ -413,7 +571,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             m_ConsThreadInfo.StatsFileWriter.WriteLine("UTC, Latency updates, Latency avg (usec), Latency std dev (usec), Latency max (usec), Latency min (usec), Images, Update rate, Posting Latency updates, Posting Latency avg (usec), Posting Latency std dev (usec), Posting Latency max (usec), Posting Latency min (usec), GenMsgs sent, GenMsg Latencies sent, GenMsgs received, GenMsg Latencies received, GenMsg Latency avg (usec), GenMsg Latency std dev (usec), GenMsg Latency max (usec), GenMsg Latency min (usec), CPU usage (%), Memory(MB)");
 
             // Create latency random array for post messages. Latency random array is used
-            // to randomly insert latency RIC fields into post messages while sending bursts. 
+            // to randomly insert latency RIC fields into post messages while sending bursts.
             if (m_ConsPerfConfig.LatencyPostsPerSec > 0)
             {
                 m_RandomArrayOpts!.TotalMsgsPerSec = m_ConsPerfConfig.PostsPerSec;
@@ -444,7 +602,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 }
             }
 
-            // populate item information from the XML list. 
+            // populate item information from the XML list.
             PopulateItemInfo();
 
             // initialize time tracking parameters
@@ -459,7 +617,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             m_DictionaryHandler!.LoadDictionary(out codecError);
             if (codecError != null)
             {
-                Console.WriteLine($"Error while loading dictionary: {(codecError != null ? codecError.Text : "")}");
+                Console.WriteLine($"Error while loading dictionary: {codecError?.Text}");
             }
 
             // connect to provider application
@@ -482,7 +640,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 if (itemListIndex == m_ConsPerfConfig.CommonItemCount && itemListIndex < m_ConsThreadInfo.ItemListUniqueIndex)
                 {
                     itemListIndex = m_ConsThreadInfo.ItemListUniqueIndex;
-                }                  
+                }
 
                 m_ItemRequestList[streamId].Clear();
                 m_ItemRequestList[streamId].ItemInfo.StreamId = streamId;
@@ -490,7 +648,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 
                 m_ItemRequestList[streamId].ItemName = m_ItemInfoList.ItemInfoList[itemListIndex].Name;
                 m_ItemRequestList[streamId].MsgKey.ApplyHasName();
-                
+
                 Buffer buffer = new Buffer();
                 buffer.Data(m_ItemInfoList.ItemInfoList[itemListIndex].Name);
                 m_ItemRequestList[streamId].MsgKey.Name = buffer;
@@ -596,62 +754,84 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         }
 
         /// <summary>
-        /// Writes the content of the ITransportBuffer to the ETA channel
+        /// Writes the content of the ITransportBuffer to the ETA channel or ReactorChannel when VA Reactor is used.
         /// </summary>
         /// <param name="msgBuf"><see cref="ITransportBuffer"/> with message data</param>
-        private void Write(ITransportBuffer msgBuf)
+        private TransportReturnCode Write(ITransportBuffer msgBuf)
         {
-            // write data to the channel
-            m_WriteArgs.Clear();
-            m_WriteArgs.Priority = WritePriorities.HIGH;
-            if (m_ConsPerfConfig.HighWaterMark <= 0)
+            if (!m_ConsPerfConfig.UseReactor)  // use ETA Channel for sending and receiving
             {
-                m_WriteArgs.Flags = WriteFlags.DIRECT_SOCKET_WRITE;
-            }
-
-            TransportReturnCode retval = m_Channel!.Write(msgBuf, m_WriteArgs, out m_Error);
-
-            if (retval > TransportReturnCode.SUCCESS)
-            {
-                // register for write if there's still data queued
-                shouldWrite = true;
-            }
-            else if (retval == TransportReturnCode.SUCCESS)
-            {
-                //nothing to do, data was successfully written
-            }
-            else
-            {
-                switch (retval)
+                // write data to the channel
+                m_WriteArgs.Clear();
+                m_WriteArgs.Priority = WritePriorities.HIGH;
+                if (m_ConsPerfConfig.HighWaterMark <= 0)
                 {
-                    case TransportReturnCode.WRITE_CALL_AGAIN:
-                        while (retval == TransportReturnCode.WRITE_CALL_AGAIN)
-                        {
-                            retval = m_Channel.Flush(out m_Error);
-                            if (retval < TransportReturnCode.SUCCESS)
-                            {
-                                Console.WriteLine("Channel flush failed with returned code: " + retval.ToString() + " - " + m_Error.Text);
-                            }
-                            retval = m_Channel.Write(msgBuf, m_WriteArgs, out m_Error);
-                        }
+                    m_WriteArgs.Flags = WriteFlags.DIRECT_SOCKET_WRITE;
+                }
 
-                        if (retval > TransportReturnCode.SUCCESS || (retval == TransportReturnCode.WRITE_FLUSH_FAILED && m_Channel.State != ChannelState.CLOSED))
-                        {
-                            shouldWrite = true;
-                        }
-                        break;
-                    case TransportReturnCode.WRITE_FLUSH_FAILED:
-                        if (m_Channel.State != ChannelState.CLOSED)
-                        {
-                            shouldWrite = true;
-                        }
-                        break;
-                    default:
-                        m_Channel.ReleaseBuffer(msgBuf, out m_Error);
-                        CloseChannelAndShutDown("Failed to write to channel: " + retval);
-                        break;
+                TransportReturnCode retval = m_Channel!.Write(msgBuf, m_WriteArgs, out m_Error);
+
+                if (retval > TransportReturnCode.SUCCESS)
+                {
+                    // register for write if there's still data queued
+                    shouldWrite = true;
+                }
+                else if (retval == TransportReturnCode.SUCCESS)
+                {
+                    //nothing to do, data was successfully written
+                }
+                else
+                {
+                    switch (retval)
+                    {
+                        case TransportReturnCode.WRITE_CALL_AGAIN:
+                            while (retval == TransportReturnCode.WRITE_CALL_AGAIN)
+                            {
+                                retval = m_Channel.Flush(out m_Error);
+                                if (retval < TransportReturnCode.SUCCESS)
+                                {
+                                    Console.WriteLine("Channel flush failed with returned code: " + retval.ToString() + " - " + m_Error.Text);
+                                }
+                                retval = m_Channel.Write(msgBuf, m_WriteArgs, out m_Error);
+                            }
+
+                            if (retval > TransportReturnCode.SUCCESS
+                                || (retval == TransportReturnCode.WRITE_FLUSH_FAILED && m_Channel.State != ChannelState.CLOSED))
+                            {
+                                shouldWrite = true;
+                            }
+                            break;
+                        case TransportReturnCode.WRITE_FLUSH_FAILED:
+                            if (m_Channel.State != ChannelState.CLOSED)
+                            {
+                                shouldWrite = true;
+                            }
+                            break;
+                        default:
+                            m_Channel.ReleaseBuffer(msgBuf, out m_Error);
+                            CloseChannelAndShutDown("Failed to write to channel: " + retval);
+                            break;
+                    }
                 }
             }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                // write data to the channel
+                m_SubmitOptions.WriteArgs.Clear();
+                m_SubmitOptions.WriteArgs.Priority = WritePriorities.HIGH;
+                m_SubmitOptions.WriteArgs.Flags = WriteFlags.DIRECT_SOCKET_WRITE;
+
+                if (m_ReactorChannel!.State == ReactorChannelState.READY)
+                {
+                    ReactorReturnCode ret = m_ReactorChannel.Submit(msgBuf, m_SubmitOptions, out _);
+
+                    if (ret == ReactorReturnCode.NO_BUFFERS)
+                    {
+                        return TransportReturnCode.NO_BUFFERS;
+                    }
+                }
+            }
+            return TransportReturnCode.SUCCESS;
         }
 
         /// <summary>
@@ -662,39 +842,68 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         {
             try
             {
-                if (m_Channel!.Socket != null && m_Channel.Socket.Connected)
+                m_ReadList.Clear();
+                m_WriteList.Clear();
+
+                if (!m_ConsPerfConfig.UseReactor
+                    && m_Channel!.Socket != null
+                    && m_Channel.Socket.Connected)
                 {
                     m_ReadList.Add(m_Channel.Socket);
-                    m_WriteList.Add(m_Channel.Socket);
-                    try
+                    if (shouldWrite)
+                        m_WriteList.Add(m_Channel.Socket);
+                }
+                else if (m_ConsPerfConfig.UseReactor)
+                {
+                    m_ReadList.Add(m_Reactor!.EventSocket!);
+                    if (m_ReactorChannel?.Socket != null)
                     {
-                        Socket.Select(m_ReadList, m_WriteList, null, selectTime > 0 ? (int)selectTime : 0);
+                        m_ReadList.Add(m_ReactorChannel.Socket!);
+                    }
+                }
 
-                        if (m_ReadList.Count > 0)
+                if (m_ReadList.Count > 0 || m_WriteList.Count > 0)
+                {
+                    Socket.Select(m_ReadList, m_WriteList, null, selectTime > 0 ? (int)selectTime : 0);
+
+                    if (m_ReadList.Count > 0)
+                    {
+                        if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
                         {
                             Read();
                         }
-
-                        if (shouldWrite && m_WriteList.Count > 0)
+                        else // use ETA VA Reactor for sending and receiving
                         {
-                            if (m_Channel.Flush(out m_Error) == TransportReturnCode.SUCCESS)
+                            if (m_ReadList.Count == 1
+                                && m_ReadList[0] == m_Reactor!.EventSocket)
+                            {
+                                Read(null);
+                            }
+                            else
+                            {
+                                Read(m_ReactorChannel);
+                            }
+                        }
+                    }
+
+                    if (shouldWrite && m_WriteList.Count > 0)
+                    {
+                        /* flush for write file descriptor and active state */
+                        if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                        {
+                            if (m_Channel!.Flush(out m_Error) == TransportReturnCode.SUCCESS)
                             {
                                 shouldWrite = false;
                             }
                         }
                     }
-                    finally
-                    {
-                        m_WriteList.Clear();
-                        m_ReadList.Clear();
-                    }                
                 }
             }
             catch (Exception e1)
             {
                 CloseChannelAndShutDown(e1.Message);
                 return;
-            }                    
+            }
         }
 
         /// <summary>
@@ -703,7 +912,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         /// <param name="selectTime">time during which the method will try to perform read operation</param>
         private void BusyReadAndWrite(double selectTime)
         {
-            double pollTime; 
+            double pollTime;
             double currentTime = CurrentTime();
 
             if (selectTime < 0)
@@ -713,15 +922,44 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 
             pollTime = currentTime + selectTime;
 
-            // call flush once
-            m_Channel!.Flush(out m_Error);
-
-            while (currentTime <= pollTime)
+            if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
             {
-                Read();
-                currentTime = CurrentTime();
-            }
+                // call flush once
+                m_Channel!.Flush(out m_Error);
 
+                while (currentTime <= pollTime)
+                {
+                    Read();
+                    currentTime = CurrentTime();
+                }
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                ReactorReturnCode ret;
+                while (currentTime <= pollTime)
+                {
+                    /* read until no more to read */
+                    if (m_Reactor != null && m_Reactor.EventSocket != null)
+                    {
+                        ReactorErrorInfo? errorInfo;
+                        while ((ret = m_Reactor.Dispatch(m_DispatchOptions, out errorInfo)) > 0) { }
+
+                        if (ret == ReactorReturnCode.FAILURE)
+                        {
+                            Console.WriteLine($"Reactor.ReactorChannel dispatch failed: {ret} ({errorInfo?.Error.Text})");
+                            CloseReactor();
+                            Environment.Exit((int)ReactorReturnCode.FAILURE);
+                        }
+                    }
+
+                    currentTime = CurrentTime();
+                }
+            }
+        }
+
+        private void CloseReactor()
+        {
+            m_Reactor!.Shutdown(out _);
         }
 
         /// <summary>
@@ -758,7 +996,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         public void ProcessResponse(ITransportBuffer buffer)
         {
             CodecReturnCode codecReturnCode;
-            
+
             m_DecIter.Clear();
             m_ResponseMsg!.Clear();
 
@@ -806,15 +1044,15 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             TransportReturnCode ret = m_LoginHandler!.ProcessResponse(m_ResponseMsg!, m_DecIter, out m_Error);
             if (ret != TransportReturnCode.SUCCESS)
             {
-                CloseChannelAndShutDown(m_Error!.Text);
+                CloseChannelAndShutDown(m_Error != null ? m_Error.Text : "");
                 return;
             }
 
             if (m_ResponseMsg!.MsgClass == MsgClasses.REFRESH)
             {
-                if (m_ConsPerfConfig.PostsPerSec > 0 
-                    && (!m_LoginHandler.LoginRefresh.HasFeatures 
-                        || !m_LoginHandler.LoginRefresh.SupportedFeatures.HasSupportPost 
+                if (m_ConsPerfConfig.PostsPerSec > 0
+                    && (!m_LoginHandler.LoginRefresh.HasFeatures
+                        || !m_LoginHandler.LoginRefresh.SupportedFeatures.HasSupportPost
                         || m_LoginHandler.LoginRefresh.SupportedFeatures.SupportOMMPost == 0))
                 {
                     CloseChannelAndShutDown("Provider for this connection does not support posting.");
@@ -833,7 +1071,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 }
                 else
                 {
-                    CloseChannelAndShutDown($"Error sending directory request: {(m_Error != null ? m_Error.Text : "")}");
+                    CloseChannelAndShutDown($"Error sending directory request: {m_Error?.Text}");
                     return;
                 }
             }
@@ -852,7 +1090,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
             TransportReturnCode ret = m_SrcDirHandler!.ProcessResponse(m_ResponseMsg!, m_DecIter, out m_Error);
             if (ret != TransportReturnCode.SUCCESS)
             {
-                CloseChannelAndShutDown(m_Error!.Text);
+                CloseChannelAndShutDown(m_Error != null ? m_Error.Text : "");
                 return;
             }
 
@@ -975,52 +1213,15 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                             return;
                         }
 
-                        if (responseMsg.CheckRefreshComplete())
+                        if (responseMsg.CheckRefreshComplete()
+                            && responseMsg.State.DataState() == DataStates.OK)
                         {
-                            if (m_ConsPerfConfig.PrimeJIT == false)
+                            m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.HAS_REFRESH;
+                            m_ConsThreadInfo.Stats.RefreshCompleteCount.Increment();
+                            if (m_ConsThreadInfo.Stats.RefreshCompleteCount.GetTotal() == (m_RequestListSize - ITEM_STREAM_ID_START))
                             {
-                                if (responseMsg.State.DataState() == DataStates.OK)
-                                {
-                                    m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.HAS_REFRESH;
-                                    m_ConsThreadInfo.Stats.RefreshCompleteCount.Increment();
-                                    if (m_ConsThreadInfo.Stats.RefreshCompleteCount.GetTotal() == (m_RequestListSize - ITEM_STREAM_ID_START))
-                                    {
-                                        m_ConsThreadInfo.Stats.ImageRetrievalEndTime = (long)GetTime.GetNanoseconds();
-                                        m_ConsThreadInfo.Stats.SteadyStateLatencyTime = m_ConsThreadInfo.Stats.ImageRetrievalEndTime + m_ConsPerfConfig.DelaySteadyStateCalc * 1000000L;
-                                    }
-                                }
-                            }
-                            else // JIT priming enabled
-                            {
-                                // Count snapshot images used for priming, ignoring state
-                                if (m_JITWarmupRefreshCount < (m_RequestListSize - ITEM_STREAM_ID_START))
-                                {
-                                    m_JITWarmupRefreshCount++;
-                                    // reset request state so items can be re-requested
-                                    m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.NOT_REQUESTED;
-                                    if (m_JITWarmupRefreshCount == (m_RequestListSize - ITEM_STREAM_ID_START))
-                                    {
-                                        // reset request count and _requestListIndex so items can be re-requested
-                                        //set the image retrieval start time
-                                        m_ConsThreadInfo.Stats.RequestCount.Init();
-                                        m_ConsThreadInfo.Stats.RefreshCompleteCount.Init();
-                                        m_ConsThreadInfo.Stats.RefreshCount.Init();
-                                        m_RequestListIndex = ITEM_STREAM_ID_START;
-                                    }
-                                }
-                                else // the streaming image responses after priming
-                                {
-                                    if (responseMsg.State.DataState() == DataStates.OK)
-                                    {
-                                        m_ItemRequestList[responseMsg.StreamId].RequestState = ItemRequestState.HAS_REFRESH;
-                                        m_ConsThreadInfo.Stats.RefreshCompleteCount.Increment();
-                                        if (m_ConsThreadInfo.Stats.RefreshCompleteCount.GetTotal() == (m_RequestListSize - ITEM_STREAM_ID_START))
-                                        {
-                                            m_ConsThreadInfo.Stats.ImageRetrievalEndTime = (long)GetTime.GetNanoseconds();
-                                            m_ConsThreadInfo.Stats.SteadyStateLatencyTime = m_ConsThreadInfo.Stats.ImageRetrievalEndTime + m_ConsPerfConfig.DelaySteadyStateCalc * 1000000L;
-                                        }
-                                    }
-                                }
+                                m_ConsThreadInfo.Stats.ImageRetrievalEndTime = (long)GetTime.GetNanoseconds();
+                                m_ConsThreadInfo.Stats.SteadyStateLatencyTime = m_ConsThreadInfo.Stats.ImageRetrievalEndTime + m_ConsPerfConfig.DelaySteadyStateCalc * 1000000L;
                             }
                         }
                     }
@@ -1088,17 +1289,15 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 if (m_RequestListIndex == m_RequestListSize)
                 {
                     return TransportReturnCode.SUCCESS;
-                }                   
+                }
 
                 itemRequest = m_ItemRequestList[m_RequestListIndex];
 
                 //Encode request msg.
                 m_RequestMsg!.MsgClass = MsgClasses.REQUEST;
 
-                //don't apply streaming for JIT Compiler priming and snapshot
-                if (!m_ConsPerfConfig.RequestSnapshots 
-                    && (itemRequest.ItemInfo.ItemFlags & (int)ItemFlags.IS_STREAMING_REQ) > 0 
-                    && (!m_ConsPerfConfig.PrimeJIT || (m_ConsPerfConfig.PrimeJIT && m_JITWarmupRefreshCount == (m_RequestListSize - ITEM_STREAM_ID_START))))
+                if (!m_ConsPerfConfig.RequestSnapshots
+                    && (itemRequest.ItemInfo.ItemFlags & (int)ItemFlags.IS_STREAMING_REQ) > 0)
                 {
                     m_RequestMsg.ApplyStreaming();
                 }
@@ -1170,7 +1369,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 if (latencyUpdateNumber == i)
                 {
                     encodeStartTime = (long)GetTime.GetMicroseconds();
-                }                   
+                }
                 else
                 {
                     encodeStartTime = 0;
@@ -1226,13 +1425,10 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 if (currentTicks > m_ConsPerfConfig.RequestsPerTickRemainder)
                 {
                     ++requestBurstCount;
-                } 
+                }
                 if (m_ConsThreadInfo.Stats.ImageRetrievalStartTime == 0)
                 {
-                    if (!m_ConsPerfConfig.PrimeJIT || m_JITWarmupRefreshCount == (m_RequestListSize - ITEM_STREAM_ID_START))
-                    {
-                        m_ConsThreadInfo.Stats.ImageRetrievalStartTime = (long)GetTime.GetNanoseconds();
-                    }
+                    m_ConsThreadInfo.Stats.ImageRetrievalStartTime = (long)GetTime.GetNanoseconds();
                 }
                 if ((ret = SendItemRequestBurst(requestBurstCount, service)) < TransportReturnCode.SUCCESS)
                 {
@@ -1280,6 +1476,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         /// <returns><see cref="TransportReturnCode"/> value indicating the status of the operation</returns>
         private TransportReturnCode WriteRequestMsg()
         {
+
             ITransportBuffer msgBuf;
 
             if ((msgBuf = GetBuffer(REQUEST_MSG_BUF_SIZE, false)) == null)
@@ -1301,8 +1498,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 return TransportReturnCode.FAILURE;
             }
 
-            Write(msgBuf);
-            return TransportReturnCode.SUCCESS;
+            return Write(msgBuf);
         }
 
         /// <summary>
@@ -1338,7 +1534,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
 
         private ItemRequest? NextPostMsgItem()
         {
-            ItemRequest? itemRequest = null;            
+            ItemRequest? itemRequest = null;
             do
             {
                 if (m_PostItemIndex == m_RequestListSize)
@@ -1380,7 +1576,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         /// <param name="text">Shutdown text</param>
         private void CloseChannelAndShutDown(string text)
         {
-            Console.WriteLine(text);
+            Console.WriteLine($"Closing channel and shutting down: {text}");
             m_ShutdownCallback.Shutdown();
             m_ConsThreadInfo.ShutdownAck = true;
             CloseChannel();
@@ -1391,7 +1587,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         /// </summary>
         private void CloseChannel()
         {
-            m_Channel!.Close(out m_Error);
+            m_Channel?.Close(out m_Error);
             Transport.Uninitialize();
         }
 
@@ -1440,7 +1636,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                 default:
                     encodeMsg = (IChannel chnl, ItemInfo info, ITransportBuffer buf, PostUserInfo userInfo, long time) => CodecReturnCode.FAILURE;
                     break;
-            }           
+            }
 
             //Market Price
             if (count > 0)
@@ -1465,13 +1661,13 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
                         }
                         if ((ret = encodeMsg(m_ConsThreadInfo.Channel!, m_ItemInfo, testBuffer, m_PostUserInfo, 0)) != CodecReturnCode.SUCCESS)
                         {
-                            CloseChannelAndShutDown(string.Format("Print Estimated Msg Sizes for MsgClass {0} failed: {1}", 
+                            CloseChannelAndShutDown(string.Format("Print Estimated Msg Sizes for MsgClass {0} failed: {1}",
                                 MsgClasses.ToString(msgClass), ret.GetAsString()));
                             return;
                         }
                         Console.Write("  MarketPrice Msg {0} of class {1}: \n", i + 1, MsgClasses.ToString(msgClass));
                         Console.Write("         estimated length: {0} bytes\n", bufLen);
-                        Console.Write("    approx encoded length: {0} bytes\n", testBuffer.Length);
+                        Console.Write("    approx encoded length: {0} bytes\n", testBuffer.Length());
                         channel.ReleaseBuffer(testBuffer, out m_Error);
                     }
                 }
@@ -1483,7 +1679,7 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         {
             return GetTime.GetMicroseconds() + m_MicrosPerTick; ;
         }
-        
+
         private double NextTickTime(double nextTickTime)
         {
             return nextTickTime + m_MicrosPerTick;
@@ -1498,5 +1694,298 @@ namespace Refinitiv.Eta.PerfTools.ConsPerf
         {
             return GetTime.GetMicroseconds();
         }
+
+        public ReactorCallbackReturnCode ReactorChannelEventCallback(ReactorChannelEvent evt)
+        {
+            switch (evt.EventType)
+            {
+                case ReactorChannelEventType.CHANNEL_UP:
+                    {
+                        Console.WriteLine("Connected ");
+                        m_ReactorChannel = evt.ReactorChannel;
+                        m_ConsThreadInfo.Channel = m_ReactorChannel!.Channel;
+                        m_Channel = m_ReactorChannel!.Channel;
+
+                        // set the high water mark if configured
+                        if (m_ConsPerfConfig.HighWaterMark > 0)
+                        {
+                            if (m_ReactorChannel.IOCtl(IOCtlCode.HIGH_WATER_MARK, m_ConsPerfConfig.HighWaterMark, out _) != ReactorReturnCode.SUCCESS)
+                            {
+                                CloseChannelAndShutDown("Channel.IOCtl() failed");
+                                return ReactorCallbackReturnCode.FAILURE;
+                            }
+                        }
+
+                        // get and print the channel info
+                        if (m_ReactorChannel.Info(m_ReactorChannnelInfo, out _) != ReactorReturnCode.SUCCESS)
+                        {
+                            CloseChannelAndShutDown("Channel.Info() failed");
+                            return ReactorCallbackReturnCode.FAILURE;
+                        }
+
+                        Console.WriteLine($"Channel active. {m_ReactorChannnelInfo.ChannelInfo}\n");
+
+                        break;
+                    }
+                case ReactorChannelEventType.FD_CHANGE:
+                    {
+                        Console.WriteLine("Channel Change - Old Channel: "
+                                + evt.ReactorChannel!.OldSocket + " New Channel: "
+                                + evt.ReactorChannel.Socket);
+                        // no registration update is needed, as the active socket will be retrieved from m_ReactorChannel
+                        break;
+                    }
+                case ReactorChannelEventType.CHANNEL_READY:
+                    {
+                        PrintEstimatedMsgSizes(evt.ReactorChannel!.Channel!, MsgClasses.POST);
+                        PrintEstimatedMsgSizes(evt.ReactorChannel.Channel!, MsgClasses.GENERIC);
+
+                        if (IsRequestedServiceUp())
+                        {
+                            // dictionaries were loaded at initialization. send item requests and post
+                            // messages only after dictionaries are loaded.
+                            if (DictionariesLoaded())
+                            {
+                                m_ConsThreadInfo.Dictionary = m_DictionaryHandler!.DataDictionary;
+                                Console.WriteLine("Dictionary ready, requesting item(s)...\n");
+
+                                m_RequestsSent = true;
+                            }
+                            else // dictionaries not loaded yet
+                            {
+                            }
+                        }
+                        else
+                        {
+                            // service not up or
+                            // previously up service went down
+                            m_RequestsSent = false;
+
+                            Console.WriteLine($"Requested service '{m_ConsPerfConfig.ServiceName}' not up. Waiting for service to be up...");
+                        }
+
+                        break;
+                    }
+                case ReactorChannelEventType.CHANNEL_DOWN_RECONNECTING:
+                    {
+                        if (evt.ReactorChannel!.Socket != null)
+                            Console.Write("\nConnection down reconnecting: Channel " + evt.ReactorChannel.Socket);
+                        else
+                            Console.Write("\nConnection down reconnecting");
+
+                        Console.WriteLine(" , Text: " + evt.ReactorErrorInfo.Error.Text);
+
+                        // allow Reactor to perform connection recovery
+                        m_ReactorChannel = null;
+
+                        // only allow one connect
+                        if (m_Service != null)
+                        {
+                            m_ShutdownCallback.Shutdown();
+                            m_ConsThreadInfo.ShutdownAck = true;
+                        }
+
+                        break;
+                    }
+                case ReactorChannelEventType.CHANNEL_DOWN:
+                    {
+                        if (evt.ReactorChannel?.Socket != null)
+                            Console.Write("\nConnection down: Channel " + evt.ReactorChannel.Socket);
+                        else
+                            Console.Write("\nConnection down");
+
+                        Console.WriteLine(" , Text: " + evt.ReactorErrorInfo.Error.Text);
+
+                        m_ShutdownCallback.Shutdown();
+                        m_ConsThreadInfo.ShutdownAck = true;
+                        // unregister Consumer channel from Select
+                        m_ReactorChannel = null;
+                        break;
+                    }
+                case ReactorChannelEventType.WARNING:
+                    Console.WriteLine("Received ReactorChannel WARNING event\n");
+                    break;
+                default:
+                    {
+                        Console.WriteLine("Unknown channel event!\n");
+                        return ReactorCallbackReturnCode.SUCCESS;
+                    }
+            }
+
+            return ReactorCallbackReturnCode.SUCCESS;
+        }
+
+        private bool IsRequestedServiceUp()
+        {
+            return m_Service != null
+                && m_Service.HasState
+                && m_Service.State.HasAcceptingRequests
+                && m_Service.State.AcceptingRequests == 1
+                && m_Service.State.ServiceStateVal == 1;
+        }
+
+        private void Read(ReactorChannel? reactorChannel)
+        {
+            ReactorReturnCode ret;
+
+            /* read until no more to read */
+            ReactorErrorInfo? errorInfo;
+
+            m_DispatchOptions.ReactorChannel = reactorChannel;
+            while ((ret = m_Reactor!.Dispatch(m_DispatchOptions, out errorInfo)) > 0) { }
+            m_DispatchOptions.ReactorChannel = null;
+
+            if (ret == ReactorReturnCode.FAILURE)
+            {
+                if (reactorChannel?.State != ReactorChannelState.CLOSED
+                    && reactorChannel?.State != ReactorChannelState.DOWN_RECONNECTING)
+                {
+                    Console.WriteLine($"ReactorChannel dispatch failed: {ret} ({errorInfo?.Error.Text})");
+                    CloseReactor();
+                    Environment.Exit((int)ReactorReturnCode.FAILURE);
+                }
+            }
+        }
+
+        #region Reactor callbacks
+
+        public ReactorCallbackReturnCode DefaultMsgCallback(ReactorMsgEvent evt)
+        {
+            Msg msg = (Msg)evt.Msg!;
+            if (msg.DomainType == (int)DomainType.MARKET_PRICE)
+            {
+                if (msg.EncodedDataBody != null && msg.EncodedDataBody.Data() != null)
+                {
+                    m_DecIter.Clear();
+                    m_DecIter.SetBufferAndRWFVersion(msg.EncodedDataBody, m_ReactorChannel!.MajorVersion, m_ReactorChannel.MinorVersion);
+                }
+                ProcessMarketPriceResponse(msg, m_DecIter);
+            }
+
+            return ReactorCallbackReturnCode.SUCCESS;
+        }
+
+        public ReactorCallbackReturnCode RdmLoginMsgCallback(RDMLoginMsgEvent evt)
+        {
+            LoginMsg loginMsg = evt.LoginMsg!;
+
+            switch (loginMsg.LoginMsgType)
+            {
+                case LoginMsgType.REFRESH:
+                    LoginRefresh loginRefresh = loginMsg.LoginRefresh!;
+                    Console.WriteLine("Received Login Response for Username: " + loginRefresh.UserName);
+                    Console.WriteLine(loginRefresh.ToString());
+
+                    State state = loginRefresh.State;
+                    if (state.StreamState() != StreamStates.OPEN
+                        && state.DataState() != DataStates.OK)
+                    {
+                        CloseChannelAndShutDown("Invalid login state : " + state);
+                    }
+
+                    if (m_ConsPerfConfig.PostsPerSec > 0 &&
+                        (!loginRefresh.HasFeatures ||
+                         !loginRefresh.SupportedFeatures.HasSupportPost ||
+                         loginRefresh.SupportedFeatures.SupportOMMPost == 0))
+                    {
+                        CloseChannelAndShutDown("Provider for this connection does not support posting.");
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return ReactorCallbackReturnCode.SUCCESS;
+        }
+
+        public ReactorCallbackReturnCode RdmDirectoryMsgCallback(RDMDirectoryMsgEvent evt)
+        {
+            DirectoryMsg directoryMsg = evt.DirectoryMsg!;
+
+            switch (directoryMsg.DirectoryMsgType)
+            {
+                case DirectoryMsgType.REFRESH:
+                    DirectoryRefresh directoryRefresh = directoryMsg.DirectoryRefresh!;
+                    Console.WriteLine("Received Source Directory Refresh");
+                    Console.WriteLine(directoryRefresh.ToString());
+
+                    foreach (Service rdmService in directoryRefresh.ServiceList)
+                    {
+                        if (rdmService.Info.ServiceName.ToString() != null)
+                        {
+                            Console.WriteLine("Received serviceName: " + rdmService.Info.ServiceName);
+                        }
+
+                        // cache service requested by the application
+                        if (rdmService.Info.ServiceName.ToString().Equals(m_ConsPerfConfig.ServiceName))
+                        {
+                            m_Service = new Service();
+                            rdmService.Copy(m_Service);
+                        }
+                    }
+
+                    break;
+                case DirectoryMsgType.UPDATE:
+                    DirectoryUpdate directoryUpdate = directoryMsg.DirectoryUpdate!;
+                    Console.WriteLine("Received Source Directory Update");
+                    Console.WriteLine(directoryUpdate.ToString());
+
+                    foreach (Service rdmService in directoryUpdate.ServiceList)
+                    {
+                        if (rdmService.Info.ServiceName.ToString() != null)
+                        {
+                            Console.WriteLine("Received serviceName: " + rdmService.Info.ServiceName);
+
+                            // cache service requested by the application
+                            if (rdmService.Info.ServiceName.ToString().Equals(m_ConsPerfConfig.ServiceName))
+                            {
+                                m_Service = new Service();
+                                rdmService.Copy(m_Service);
+                            }
+                        }
+                    }
+
+                    if (IsRequestedServiceUp())
+                    {
+                        // dictionaries were loaded at initialization. send item requests and post
+                        // messages only after dictionaries are loaded.
+                        if (DictionariesLoaded())
+                        {
+                            m_ConsThreadInfo.Dictionary = m_DictionaryHandler!.DataDictionary;
+                            Console.WriteLine("Dictionary ready, requesting item(s)...\n");
+
+                            m_RequestsSent = true;
+                        }
+                    }
+                    else
+                    {
+                        // service not up or
+                        // previously up service went down
+                        m_RequestsSent = false;
+
+                        Console.WriteLine($"Requested service '{m_ConsPerfConfig.ServiceName}' not up. Waiting for service to be up...");
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return ReactorCallbackReturnCode.SUCCESS;
+        }
+
+        public ReactorCallbackReturnCode RdmDictionaryMsgCallback(RDMDictionaryMsgEvent evt)
+        {
+            Msg msg = (Msg)evt.Msg!;
+
+            m_DecIter.Clear();
+
+            m_DecIter.SetBufferAndRWFVersion(evt.Msg!.EncodedDataBody, evt.ReactorChannel!.MajorVersion, evt.ReactorChannel.MinorVersion);
+
+            ProcessDictionaryResponse(msg, m_DecIter);
+
+            return ReactorCallbackReturnCode.SUCCESS;
+        }
+
+        #endregion
     }
 }

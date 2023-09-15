@@ -72,6 +72,20 @@ LocalDictionary* LocalDictionary::create( OmmCommonImpl& ommBaseImpl, BaseConfig
 	return NULL;
 }
 
+LocalDictionary* LocalDictionary::create(OmmCommonImpl& ommBaseImpl, BaseConfig& baseConfig, RsslDataDictionary* dataDictionary)
+{
+	try
+	{
+		return new LocalDictionary(ommBaseImpl, baseConfig, dataDictionary);
+	}
+	catch (std::bad_alloc&)
+	{
+		ommBaseImpl.handleMee("Failed to create LocalDictionary");
+	}
+
+	return NULL;
+}
+
 void LocalDictionary::destroy( LocalDictionary*& pDictionary )
 {
 	if ( pDictionary )
@@ -90,7 +104,8 @@ LocalDictionary::LocalDictionary( OmmCommonImpl& ommCommonImpl, BaseConfig& base
 	_ommCommonImpl(ommCommonImpl),
 	_baseConfig(baseConfig),
 	_rsslDictionary(),
-	_isLoaded( false )
+	_isLoaded( false ),
+	_deleteRsslDictionary( true )
 {
 	rsslClearDataDictionary( &_rsslDictionary );
 
@@ -98,9 +113,23 @@ LocalDictionary::LocalDictionary( OmmCommonImpl& ommCommonImpl, BaseConfig& base
 	_enumStreamId = 4;
 }
 
+
+LocalDictionary::LocalDictionary(OmmCommonImpl& ommCommonImpl, BaseConfig& baseConfig, RsslDataDictionary* dataDictinary) :
+	_ommCommonImpl(ommCommonImpl),
+	_baseConfig(baseConfig),
+	_rsslDictionary(*dataDictinary),
+	_isLoaded( true ),
+	_deleteRsslDictionary( false )
+{
+
+	_fldStreamId = 3;
+	_enumStreamId = 4;
+}
+
 LocalDictionary::~LocalDictionary()
 {
-	rsslDeleteDataDictionary( &_rsslDictionary );
+	if (_deleteRsslDictionary)
+		rsslDeleteDataDictionary( &_rsslDictionary );
 }
 
 const RsslDataDictionary* LocalDictionary::getRsslDictionary() const
@@ -787,7 +816,12 @@ void DictionaryCallbackClient::initialize()
 		return;
 	}
 
-	if (_ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
+	DataDictionaryImpl* dictionary = _ommBaseImpl.getActiveConfig().dictionaryConfig.dataDictionary ?
+		_ommBaseImpl.getActiveConfig().dictionaryConfig.dataDictionary->_pImpl : NULL;
+
+	if (dictionary && dictionary->rsslDataDictionary())
+		_localDictionary = LocalDictionary::create(_ommBaseImpl, _ommBaseImpl.getActiveConfig(), dictionary->rsslDataDictionary());
+	else if (_ommBaseImpl.getActiveConfig().dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
 		_localDictionary = LocalDictionary::create(_ommBaseImpl, _ommBaseImpl.getActiveConfig());
 	else
 		_channelDictionary = ChannelDictionary::create(_ommBaseImpl);

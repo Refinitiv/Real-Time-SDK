@@ -2,30 +2,28 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Common;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Common;
+using LSEG.Eta.ValueAdd.Rdm;
 using System.Net.Sockets;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// The Reactor. Applications create Reactor objects by calling <see cref="Reactor.CreateReactor(ReactorOptions, out ReactorErrorInfo?)"/>,
     /// create connections by calling <see cref="Reactor.Connect(ReactorConnectOptions, ReactorRole, out ReactorErrorInfo?)"/> and process events 
-    /// by calling <see cref="ReactorChannel.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/>/<see cref="Reactor.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/>
+    /// by calling <see cref="Reactor.Dispatch(ReactorDispatchOptions, out ReactorErrorInfo?)"/>
     /// </summary>
-    public class Reactor
+    sealed public class Reactor
     {
         internal const int DEFAULT_INIT_EVENT_POOLS = 10;
 
@@ -61,7 +59,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
         private WriteArgs m_WriteArgs = new WriteArgs();
 
+        /// <summary>
+        /// Gets the <c>Socket</c> to listen for Reactor's event
+        /// </summary>
         public Socket? EventSocket { get; private set; }
+
+        /// <summary>
+        /// Gets the user defined object for this instance.
+        /// </summary>
         public object? UserSpecObj { get; private set; }
 
         internal int ChannelCount { get => m_ReactorChannelQueue.Count(); }
@@ -231,10 +236,18 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
                     if (oAuthCredential is null)
                     {
+                        reactorChannel.ReturnToPool();
                         return errorInfo!.Code;
                     }
 
                     reactorChannel.TokenSession = new ReactorTokenSession(this, oAuthCredential);
+
+                    if(ReactorRestClient.ValidateJWK(reactorChannel.TokenSession.ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
+                    {
+                        reactorChannel.ReturnToPool();
+                        reactorChannel.TokenSession = null;
+                        return errorInfo!.Code;
+                    }
                 }
 
                 if(reactorConnectOptions.ConnectionList[0].EnableSessionManagement)
@@ -251,7 +264,10 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                     reactorChannel.TokenSession!.OriginalExpiresIn = reactorChannel.TokenSession.ReactorAuthTokenInfo.ExpiresIn;
 
                     sendAuthTokenEvent = true;
+                }
 
+                if(reactorChannel.TokenSession != null)
+                {
                     /* Clears OAuth sensitive information if the callback is specified */
                     if (reactorChannel.TokenSession.ReactorOAuthCredential.ReactorOAuthCredentialEventCallback != null)
                     {
@@ -303,6 +319,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
                 if (channel is null)
                 {
+                    PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "Reactor.Connect",
+                                error.Text);
+
                     if (reactorChannel.Server is null && !reactorChannel.RecoveryAttemptLimitReached()) // client channel
                     {
                         reactorChannel.State = ReactorChannelState.DOWN_RECONNECTING;
@@ -749,12 +768,13 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             return retVal;
         }
 
+
         /// <summary>
         /// Queries EDP-RT service discovery to get service endpoint information.
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="serviceDiscoveryOptions"></param>
         /// <param name="errorInfo"></param>
-        /// <returns></returns>
+        /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
         public ReactorReturnCode QueryServiceDiscovery(ReactorServiceDiscoveryOptions serviceDiscoveryOptions, out ReactorErrorInfo? errorInfo)
         {
             errorInfo = null;
@@ -789,12 +809,12 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                             "Required parameter ClientId is not set");
                 }
 
-                if (serviceDiscoveryOptions.ClientSecret is null || serviceDiscoveryOptions.ClientSecret.Length == 0)
+                if(serviceDiscoveryOptions.ClientSecret.Length == 0 && serviceDiscoveryOptions.ClientJwk.Length == 0)
                 {
                     return PopulateErrorInfo(out errorInfo,
-                            ReactorReturnCode.PARAMETER_INVALID,
-                            "Reactor.QueryServiceDiscovery",
-                            "Required parameter ClientSecret is not set");
+                               ReactorReturnCode.PARAMETER_INVALID,
+                               "Reactor.QueryServiceDiscovery",
+                               "Required parameter ClientSecret or ClientJwk is not set");
                 }
 
                 ReactorRestConnectOptions connOptions = new ReactorRestConnectOptions(m_ReactorOptions);
@@ -846,10 +866,22 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 m_ReactorOAuthCredential.ClientSecret.Data(new ByteBuffer(serviceDiscoveryOptions.ClientSecret.Length));
                 serviceDiscoveryOptions.ClientSecret.Copy(m_ReactorOAuthCredential.ClientSecret);
 
+                m_ReactorOAuthCredential.ClientJwk.Data(new ByteBuffer(serviceDiscoveryOptions.ClientJwk.Length));
+                serviceDiscoveryOptions.ClientJwk.Copy(m_ReactorOAuthCredential.ClientJwk);
+
+                m_ReactorOAuthCredential.Audience.Data(new ByteBuffer(serviceDiscoveryOptions.Audience.Length));
+                serviceDiscoveryOptions.Audience.Copy(m_ReactorOAuthCredential.Audience);
+
+                if (ReactorRestClient.ValidateJWK(m_ReactorOAuthCredential, out errorInfo) != ReactorReturnCode.SUCCESS)
+                {
+                    return errorInfo!.Code;
+                }
+
                 if (m_ReactorRestClient!.SendTokenRequest(m_ReactorOAuthCredential, connOptions, authTokenInfo, 
                     out errorInfo) != ReactorReturnCode.SUCCESS)
                 {
                     SendQueryServiceDiscoveryEvent(serviceDiscoveryOptions, null, errorInfo);
+                    errorInfo = null; /* Notify the error via the callback */
                     return ReactorReturnCode.SUCCESS;
                 }
 
@@ -858,6 +890,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 if (m_ReactorRestClient!.SendServiceDirectoryRequest(connOptions, authTokenInfo, endpointInfos, out errorInfo) != ReactorReturnCode.SUCCESS)
                 {
                     SendQueryServiceDiscoveryEvent(serviceDiscoveryOptions, null, errorInfo);
+                    errorInfo = null; /* Notify the error via the callback */
                 }
                 else
                 {
@@ -880,7 +913,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// <param name="renewalOptions">The <see cref="ReactorOAuthCredentialRenewalOptions"/> to configure renewal options</param>
         /// <param name="oAuthCredentialRenewal">The <see cref="ReactorOAuthCredentialRenewal"/> to provide credential renewal information</param>
         /// <param name="errorInfo">error structure to be populated in the event of failure</param>
-        /// <returns><see cref="ReactorReturnCodes"/> indicating success or failure</returns>
+        /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
         public ReactorReturnCode SubmitOAuthCredentialRenewal(ReactorOAuthCredentialRenewalOptions renewalOptions, 
             ReactorOAuthCredentialRenewal oAuthCredentialRenewal, out ReactorErrorInfo? errorInfo)
         {
@@ -922,13 +955,29 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 switch(renewalOptions.RenewalModes)
                 {
                     case ReactorOAuthCredentialRenewalModes.CLIENT_SECRET:
-                        break;
+                        {
+                            if (oAuthCredentialRenewal.ClientSecret is null || oAuthCredentialRenewal.ClientSecret.IsBlank)
+                            {
+                                return PopulateErrorInfo(out errorInfo, ReactorReturnCode.PARAMETER_INVALID, "Reactor.SubmitOAuthCredentialRenewal",
+                                    "ReactorOAuthCredentialRenewal.ClientSecret not provided, aborting.");
+                            }
+                            break;
+                        }
+                    case ReactorOAuthCredentialRenewalModes.CLIENT_JWK:
+                        {
+                            if (oAuthCredentialRenewal.ClientJwk is null || oAuthCredentialRenewal.ClientJwk.IsBlank)
+                            {
+                                return PopulateErrorInfo(out errorInfo, ReactorReturnCode.PARAMETER_INVALID, "Reactor.SubmitOAuthCredentialRenewal",
+                                    "ReactorOAuthCredentialRenewal.ClientJwk not provided, aborting.");
+                            }
+                            break;
+                        }
                     default:
                         return PopulateErrorInfo(out errorInfo, ReactorReturnCode.PARAMETER_INVALID, "Reactor.SubmitOAuthCredentialRenewal",
                             $"Invalid ReactorOAuthCredentialRenewalOptions.RenewalModes({renewalOptions.RenewalModes}), aborting.");
                 }
 
-                m_TokenSessionRenewalCallback.SendAuthRequestWithSensitiveInfo(oAuthCredentialRenewal.ClientSecret.ToString());
+                m_TokenSessionRenewalCallback.SendAuthRequestWithSensitiveInfo(oAuthCredentialRenewal, renewalOptions.RenewalModes);
             }
             finally
             {
@@ -960,7 +1009,6 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             errorInfo = null;
 
             ReactorReturnCode retVal = ReactorReturnCode.SUCCESS;
-
             ReactorLock.EnterWriteLock();
 
             try
@@ -991,7 +1039,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 /* Waits until the worker thread exits properly */
                 do
                 {
-                    Thread.Sleep(5000);
+                    Thread.Sleep(5);
                 } while (m_ReactorWorker!.IsWorkerThreadStarted);
 
                 TransportReturnCode transportReturnCode = Transport.Uninitialize();
@@ -1147,19 +1195,22 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 // and remove it from the queue.
                 reactorChannel.State = ReactorChannelState.CLOSED;
 
-                m_ReactorChannelQueue.Remove(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
-
-                if(SendReactorImplEvent(ReactorEventImpl.ImplType.CHANNEL_CLOSE, reactorChannel) != ReactorReturnCode.SUCCESS)
+                if (m_ReactorChannelQueue.Contains(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK))
                 {
-                    // SendReactorImplEvent() failed, send channel down
-                    reactorChannel.State = ReactorChannelState.DOWN;
-                    SendAndHandleChannelEventCallback("Reactor.CloseChannel",
-                            ReactorChannelEventType.CHANNEL_DOWN,
-                            reactorChannel, errorInfo);
-                    return PopulateErrorInfo(out errorInfo,
-                            ReactorReturnCode.FAILURE,
-                            "Reactor.CloseChannel",
-                            "SendReactorImplEvent() failed");
+                    m_ReactorChannelQueue.Remove(reactorChannel, ReactorChannel.REACTOR_CHANNEL_LINK);
+
+                    if (SendReactorImplEvent(ReactorEventImpl.ImplType.CHANNEL_CLOSE, reactorChannel) != ReactorReturnCode.SUCCESS)
+                    {
+                        // SendReactorImplEvent() failed, send channel down
+                        reactorChannel.State = ReactorChannelState.DOWN;
+                        SendAndHandleChannelEventCallback("Reactor.CloseChannel",
+                                ReactorChannelEventType.CHANNEL_DOWN,
+                                reactorChannel, errorInfo);
+                        return PopulateErrorInfo(out errorInfo,
+                                ReactorReturnCode.FAILURE,
+                                "Reactor.CloseChannel",
+                                "SendReactorImplEvent() failed");
+                    }
                 }
             }
             finally
@@ -1211,7 +1262,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         }
                         else
                         {
-                            Console.WriteLine($"Failed to dump message buffer: {dumpError!.Text}");
+                            Console.WriteLine($"Failed to dump message buffer: {(dumpError != null ? dumpError!.Text : "unknown error")}");
                         }
                     }
 
@@ -1355,7 +1406,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             return reactorReturnCode;
         }
 
-        public ReactorReturnCode SubmitChannel(ReactorChannel reactorChannel, MsgBase rdmMsg, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
+        internal ReactorReturnCode SubmitChannel(ReactorChannel reactorChannel, MsgBase rdmMsg, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
         {
             ReactorReturnCode reactorReturnCode = ReactorReturnCode.SUCCESS;
             CodecReturnCode codecReturnCode;
@@ -1497,6 +1548,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                     else // server channel or no more retries
                     {
                         reactorChannel.State = ReactorChannelState.DOWN;
+                    }
+
+                    /* Populates the ErrorInfo object from the Error object if any */
+                    if(errorInfo is null && error != null)
+                    {
+                        PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
+                                "Reactor.PerformChannelRead",
+                                error.Text);
                     }
 
                     if (reactorChannel.Server is null && !reactorChannel.RecoveryAttemptLimitReached()) // client channel
@@ -1682,9 +1741,12 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
                 case ReactorEventImpl.ImplType.WARNING:
                     /* Override the error code as this is not a failure */
+
                     PopulateErrorInfo(out errorInfo, ReactorReturnCode.SUCCESS,
-                            "Reactor.ProcessReactorEventImpl",
-                            "received a Warning, not a failure");
+                            string.IsNullOrEmpty(eventImpl.ReactorErrorInfo.Location) ? 
+                            "Reactor.ProcessReactorEventImpl" : eventImpl.ReactorErrorInfo.Location,
+                            string.IsNullOrEmpty(eventImpl.ReactorErrorInfo.Error.Text) ? 
+                            "received a Warning, not a failure" : eventImpl.ReactorErrorInfo.Error.Text);
 
                     SendChannelEventCallback(ReactorChannelEventType.WARNING, reactorChannel!, errorInfo);
                     break;
@@ -1949,14 +2011,6 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             }
 
             var writeStatus = channel.Write(msgBuf, m_WriteArgs, out var writeError);
-
-            // TODO: implement real code
-            // Aggregate number of bytes written
-            //if(m_ReactorOptions.WriteStatSet == true)
-            //{
-            //    ((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(),_writeArgs.bytesWritten()));
-            //    ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(),_writeArgs.uncompressedBytesWritten()));
-            //}
 
             if (writeStatus > TransportReturnCode.SUCCESS)
             {
@@ -2534,13 +2588,6 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
             TransportReturnCode transportReturnCode = channel.Write(msgBuf, m_WriteArgs, out transportError);
 
-            /* // TODO: Aggregate number of bytes written
-            if (m_ReactorOptions.WriteStatSet == true)
-            {
-                ((WriteArgsImpl)_writeArgsAggregator).bytesWritten(overflowSafeAggregate(_writeArgsAggregator.bytesWritten(), _writeArgs.bytesWritten()));
-                ((WriteArgsImpl)_writeArgsAggregator).uncompressedBytesWritten(overflowSafeAggregate(_writeArgsAggregator.uncompressedBytesWritten(), _writeArgs.uncompressedBytesWritten()));
-            } */
-
             if (transportReturnCode > TransportReturnCode.SUCCESS)
             {
                 SendFlushRequest(reactorChannel, location, out errorInfo);
@@ -2833,12 +2880,13 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 return null;
             }
 
-            if (oauthCredential.ClientSecret.Length == 0)
+            if (oauthCredential.ClientSecret.Length == 0 && oauthCredential.ClientJwk.Length == 0)
             {
                 PopulateErrorInfo(out errorInfo, ReactorReturnCode.INVALID_USAGE, "Reactor.RetrieveOAuthCredentialFromRole",
-                       "Failed to copy OAuth credential for enabling the session management; OAuth client secret does not exist.");
+                        $"Failed to copy OAuth credential for enabling the session management; OAuth client secret and client JSON Web Key do not exist.");
                 return null;
             }
+
 
             oauthCredentialOut = new ReactorOAuthCredential();
 
@@ -2926,6 +2974,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 {
                     if (isAsysncReq)
                     {
+                        tokenSession.SessionMgntState = ReactorTokenSession.SessionState.AUTHENTICATE_USING_CLIENT_CRED;
+
                         tokenSession.HandleTokenRequest();
 
                         errorInfo = null;
@@ -2933,6 +2983,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                     }
                     else
                     {
+                        tokenSession.ReactorAuthTokenInfo.Clear();
                         if (m_ReactorRestClient!.SendTokenRequest(tokenSession.ReactorOAuthCredential, tokenSession.ReactorRestConnectOptions,
                             tokenSession.ReactorAuthTokenInfo, out errorInfo) != ReactorReturnCode.SUCCESS)
                         {
@@ -2958,6 +3009,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 }
                 else
                 {
+                    reactorChannel.ServiceEndpointInfoList.Clear();
                     if (m_ReactorRestClient!.SendServiceDirectoryRequest(tokenSession.ReactorRestConnectOptions, tokenSession.ReactorAuthTokenInfo,
                         reactorChannel.ServiceEndpointInfoList, out errorInfo) != ReactorReturnCode.SUCCESS)
                     {

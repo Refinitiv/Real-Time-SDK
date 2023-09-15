@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -58,6 +58,7 @@ RSSL_RJC_API void rsslJsonUninitialize();
 typedef struct
 {
 	RsslUInt32 bufferSize; /*!< Size of the buffer that the converter will allocate for its output buffer. */
+	RsslUInt32 jsonTokenIncrementSize; /*!< Number of json token increment size for parsing JSON messages. */
 	RsslBool   skipEncodingPayload; /*!< Shall the json to Rwf simple converter skips encoding the payload data */
 } RsslCreateJsonConverterOptions;
 
@@ -68,6 +69,7 @@ RTR_C_INLINE void rsslClearCreateRsslJsonConverterOptions(RsslCreateJsonConverte
 {
 	memset(pOptions, 0, sizeof(RsslCreateJsonConverterOptions));
 	pOptions->bufferSize = 65535;
+	pOptions->jsonTokenIncrementSize = 500;
 	pOptions->skipEncodingPayload = RSSL_FALSE;
 }
 

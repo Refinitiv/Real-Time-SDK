@@ -101,7 +101,7 @@ void transportThreadInit(TransportThread *pThread,
 		MsgCallback *processMsg,
 		RsslInt32 threadIndex)
 {
-	char tmpFilename[sizeof(transportThreadConfig.statsFilename) + 8];
+	char tmpFilename[sizeof(transportThreadConfig.statsFilename) + 24];
 
 	initCountStat(&pThread->msgsSent);
 	initCountStat(&pThread->bytesSent);

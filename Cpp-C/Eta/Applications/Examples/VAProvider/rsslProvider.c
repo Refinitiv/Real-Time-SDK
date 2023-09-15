@@ -55,6 +55,7 @@ static RsslBool runTimeExpired = RSSL_FALSE;
 static RsslBool xmlTrace = RSSL_FALSE;
 static RsslBool userSpecCipher = RSSL_FALSE;
 static RsslBool rttSupport = RSSL_FALSE;
+static RsslBool sendJsonConvError = RSSL_FALSE;
 
 static RsslUInt32 maxFragmentSize = 0;
 static RsslUInt32 guaranteedOutputBuffers = 0;
@@ -100,6 +101,7 @@ void exitWithUsage()
 	printf(" -debugTunnelStream set 'tunnelstream' debug info level");
 	printf(" -debugAll enable all levels of debug info");
 	printf(" -debugInfoInterval set time interval for debug log");
+	printf(" -sendJsonConvError enable send json conversion error to consumer");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -265,9 +267,9 @@ int main(int argc, char **argv)
 	snprintf(portNo, 128, "%s", defaultPortNo);
 	snprintf(serviceName, 128, "%s", defaultServiceName);
 	snprintf(protocolList, 128, "%s", defaultProtocols);
-	snprintf(certFile, 128, "\0");
-	snprintf(keyFile, 128, "\0");
-	snprintf(cipherSuite, 128, "\0");
+	snprintf(certFile, 128, "%s", "");
+	snprintf(keyFile, 128, "%s", "");
+	snprintf(cipherSuite, 128, "%s", "");
 	connType = RSSL_CONN_TYPE_SOCKET;
 	setServiceId(1);
 	for (iargs = 1; iargs < argc; ++iargs)
@@ -326,7 +328,7 @@ int main(int argc, char **argv)
 		else if (0 == strcmp("-x", argv[iargs]))
 		{
 			xmlTrace = RSSL_TRUE;
-			snprintf(traceOutputFile, 128, "RsslVAProvider\0");
+			snprintf(traceOutputFile, 128, "RsslVAProvider");
 		}
 		else if (0 == strcmp("-maxFragmentSize", argv[iargs]))
 		{
@@ -397,6 +399,10 @@ int main(int argc, char **argv)
 		{
 			++iargs;
 			debugInfoIntervalMS = (time_t)atoi(argv[iargs]);
+		}
+		else if (0 == strcmp("-sendJsonConvError", argv[iargs]))
+		{
+			sendJsonConvError = RSSL_TRUE;
 		}
 		else
 		{
@@ -491,6 +497,7 @@ int main(int argc, char **argv)
 	jsonConverterOptions.defaultServiceId = (RsslUInt16)getServiceId();
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+	jsonConverterOptions.sendJsonConvError = sendJsonConvError;
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
@@ -1043,7 +1050,7 @@ void cleanUpAndExit()
 		}
 
 		if (rsslDestroyReactor(pReactor, &rsslErrorInfo) != RSSL_RET_SUCCESS)
-			printf("Error cleaning up reactor: %s\n", &rsslErrorInfo.rsslError.text);
+			printf("Error cleaning up reactor: %s\n", rsslErrorInfo.rsslError.text);
 
 		/* clean up server */
 		FD_CLR(rsslSrvr->socketId, &readFds);

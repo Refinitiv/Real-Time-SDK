@@ -2,15 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using System.Text;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     public class MarketByOrderUpdate : MarketByOrderBase
     {
@@ -64,7 +64,6 @@ namespace Refinitiv.Eta.Example.Common
             m_UpdateMsg.MsgClass = MsgClasses.UPDATE;
             m_UpdateMsg.DomainType = (int)Rdm.DomainType.MARKET_BY_ORDER;
             m_UpdateMsg.ContainerType = DataTypes.MAP;
-            m_UpdateMsg.ApplyHasMsgKey();
         }
 
         public override Msg EncodeMsg()
@@ -133,7 +132,7 @@ namespace Refinitiv.Eta.Example.Common
                     if (dictionaryEntry != null)
                     {
                         fieldEntry.FieldId = MarketByOrderItem.ORDER_PRC_FID;
-                        fieldEntry.DataType = dictionaryEntry.RwfType;
+                        fieldEntry.DataType = dictionaryEntry.GetRwfType();
                         if ((ret = fieldEntry.Encode(encIter, orderInfo.ORDER_PRC)) < CodecReturnCode.SUCCESS)
                         {
                             return ret;
@@ -146,7 +145,7 @@ namespace Refinitiv.Eta.Example.Common
                     if (dictionaryEntry != null)
                     {
                         fieldEntry.FieldId = MarketByOrderItem.ORDER_SIZE_FID;
-                        fieldEntry.DataType = dictionaryEntry.RwfType;
+                        fieldEntry.DataType = dictionaryEntry.GetRwfType();
                         if ((ret = fieldEntry.Encode(encIter, orderInfo.ORDER_SIZE)) < CodecReturnCode.SUCCESS)
                         {
                             return ret;
@@ -159,7 +158,7 @@ namespace Refinitiv.Eta.Example.Common
                     if (dictionaryEntry != null)
                     {
                         fieldEntry.FieldId = MarketByOrderItem.QUOTIM_MS_FID;
-                        fieldEntry.DataType = dictionaryEntry.RwfType;
+                        fieldEntry.DataType = dictionaryEntry.GetRwfType();
                         tempUInt.Value(orderInfo.QUOTIM_MS);
                         /*
                          * This encoding completes the encoding of the ORDER_PRC,
@@ -183,7 +182,7 @@ namespace Refinitiv.Eta.Example.Common
                         if (dictionaryEntry != null)
                         {
                             fieldEntry.FieldId = MarketByOrderItem.MKOASK_VOL_FID;
-                            fieldEntry.DataType = dictionaryEntry.RwfType;
+                            fieldEntry.DataType = dictionaryEntry.GetRwfType();
                             if ((ret = fieldEntry.Encode(encIter, orderInfo.MKOASK_VOL)) < CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -196,7 +195,7 @@ namespace Refinitiv.Eta.Example.Common
                         if (dictionaryEntry != null)
                         {
                             fieldEntry.FieldId = MarketByOrderItem.MKOBID_VOL_FID;
-                            fieldEntry.DataType = dictionaryEntry.RwfType;
+                            fieldEntry.DataType = dictionaryEntry.GetRwfType();
                             if ((ret = fieldEntry.Encode(encIter, orderInfo.MKOBID_VOL)) < CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -220,7 +219,7 @@ namespace Refinitiv.Eta.Example.Common
                         if (dictionaryEntry != null)
                         {
                             fieldEntry.FieldId = MarketByOrderItem.ORDER_SIDE_FID;
-                            fieldEntry.DataType = dictionaryEntry.RwfType;
+                            fieldEntry.DataType = dictionaryEntry.GetRwfType();
                             if ((ret = fieldEntry.Encode(encIter, orderInfo.ORDER_SIDE)) < CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -233,7 +232,7 @@ namespace Refinitiv.Eta.Example.Common
                         if (dictionaryEntry != null)
                         {
                             fieldEntry.FieldId = MarketByOrderItem.MKT_MKR_ID_FID;
-                            fieldEntry.DataType = dictionaryEntry.RwfType;
+                            fieldEntry.DataType = dictionaryEntry.GetRwfType();
                             tmpBuffer.Data(orderInfo.MKT_MKR_ID);
                             if ((ret = fieldEntry.Encode(encIter, tmpBuffer)) < CodecReturnCode.SUCCESS)
                             {

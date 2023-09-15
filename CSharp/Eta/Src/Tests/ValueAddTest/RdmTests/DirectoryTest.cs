@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
 using Xunit;
-using static Refinitiv.Eta.Rdm.Directory;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DataTypes = Refinitiv.Eta.Codec.DataTypes;
+using static LSEG.Eta.Rdm.Directory;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DataTypes = LSEG.Eta.Codec.DataTypes;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     public class DirectoryTest
     {

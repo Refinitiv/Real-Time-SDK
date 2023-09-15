@@ -2,13 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.ValueAdd.Common;
+using LSEG.Eta.ValueAdd.Common;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     internal class ReactorPool
     {
@@ -56,7 +56,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for(int i = 0; i < size; i++)
             {
                 var reactorChannelEvent = new ReactorChannelEvent();
-                m_ReactorChannelEventPool.UpdatePool(reactorChannelEvent);
+                m_ReactorChannelEventPool.Add(reactorChannelEvent);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for (int i = 0; i < size; i++)
             {
                 var reactorEventImpl = new ReactorEventImpl();
-                m_ReactorEventImplPool.UpdatePool(reactorEventImpl);
+                m_ReactorEventImplPool.Add(reactorEventImpl);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for (int i = 0; i < size; i++)
             {
                 var reactorChannel = new ReactorChannel();
-                m_ReactorChannelPool.UpdatePool(reactorChannel);
+                m_ReactorChannelPool.Add(reactorChannel);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for (int i = 0; i < size; i++)
             {
                 var reactorEventImpl = new ReactorMsgEvent();
-                m_ReactorMsgEventPool.UpdatePool(reactorEventImpl);
+                m_ReactorMsgEventPool.Add(reactorEventImpl);
             }
         }
 
@@ -157,7 +157,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for (int i = 0; i < size; i++)
             {
                 var reactorEventImpl = new RDMLoginMsgEvent();
-                m_ReactorRDMLoginMsgEventPool.UpdatePool(reactorEventImpl);
+                m_ReactorRDMLoginMsgEventPool.Add(reactorEventImpl);
             }
         }
 
@@ -183,7 +183,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for (int i = 0; i < size; i++)
             {
                 var reactorEventImpl = new RDMDirectoryMsgEvent();
-                m_ReactorRDMDirectoryMsgEventPool.UpdatePool(reactorEventImpl);
+                m_ReactorRDMDirectoryMsgEventPool.Add(reactorEventImpl);
             }
         }
 
@@ -208,7 +208,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             for (int i = 0; i < size; i++)
             {
                 var reactorEventImpl = new RDMDictionaryMsgEvent();
-                m_ReactorRDMDictionaryMsgEventPool.UpdatePool(reactorEventImpl);
+                m_ReactorRDMDictionaryMsgEventPool.Add(reactorEventImpl);
             }
         }
 

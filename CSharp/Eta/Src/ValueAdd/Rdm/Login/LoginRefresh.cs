@@ -2,26 +2,26 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 
-using static Refinitiv.Eta.Rdm.Login;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using static LSEG.Eta.Rdm.Login;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Login Refresh.
     /// This message is used to respond to a Login Request message after the user's login is accepted.
     /// </summary>
-    public class LoginRefresh : MsgBase
+    sealed public class LoginRefresh : MsgBase
     {
         #region Private Fields
 
@@ -42,14 +42,29 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         #endregion
         #region Public Message Properties
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
         public override int StreamId { get; set; }
 
-        public override int MsgClass { get => m_RefreshMsg.MsgClass; }
-
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="DomainType.LOGIN"/>
+        /// </summary>
         public override int DomainType { get => m_RefreshMsg.DomainType; }
 
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.REFRESH"/>
+        /// </summary>
+        public override int MsgClass { get => m_RefreshMsg.MsgClass; }
+
+        /// <summary>
+        /// Flags for this message.  See <see cref="LoginRefreshFlags"/>.
+        /// </summary>
         public LoginRefreshFlags Flags { get; set; }
 
+        /// <summary>
+        /// Checks the presence of the Solicited flag. 
+        /// </summary>
         public bool Solicited
         {
             get => (Flags & LoginRefreshFlags.SOLICITED) != 0;
@@ -78,6 +93,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Checks the presence of the Has Attrib flag. 
+        /// </summary>
         public bool HasAttrib
         {
             get => (Flags & LoginRefreshFlags.HAS_ATTRIB) != 0;
@@ -89,6 +107,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     Flags &= ~LoginRefreshFlags.HAS_ATTRIB;
             }
         }
+
+        /// <summary>
+        /// Checks the presence of the Has Features flag. 
+        /// </summary>
         public bool HasFeatures
         {
             get => (Flags & LoginRefreshFlags.HAS_FEATURES) != 0;
@@ -100,6 +122,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     Flags &= ~LoginRefreshFlags.HAS_FEATURES;
             }
         }
+
         /// <summary>
         /// Checks the presence of user name field.
         /// </summary>
@@ -145,6 +168,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Indicates whether <see cref="AuthenticationExtendedResp"/> is present.
+        /// </summary>
         public bool HasAuthenticationExtendedResp
         {
             get => (Flags & LoginRefreshFlags.HAS_AUTHENTICATION_EXTENDED_RESP) != 0;
@@ -157,6 +183,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Indicates whether <see cref="AuthenticationErrorText"/> is present.
+        /// </summary>
         public bool HasAuthenticationErrorText
         {
             get => (Flags & LoginRefreshFlags.HAS_AUTHENTICATION_ERROR_TEXT) != 0;
@@ -169,6 +198,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Indicates whether <see cref="AuthenticationErrorCode"/> is present.
+        /// </summary>
         public bool HasAuthenticationErrorCode
         {
             get => (Flags & LoginRefreshFlags.HAS_AUTHENTICATION_ERROR_CODE) != 0;
@@ -181,6 +213,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Indicates whether <see cref="SequenceNumber"/> is present.
+        /// </summary>
         public bool HasSequenceNumber
         {
             get => (Flags & LoginRefreshFlags.HAS_SEQ_NUM) != 0;
@@ -193,6 +228,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Indicates whether the clear cache flag is present.
+        /// </summary>
         public bool ClearCache
         {
             get => (Flags & LoginRefreshFlags.CLEAR_CACHE) != 0;
@@ -221,6 +259,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Sets AuthenticationExtended Response to the user specified buffer.
+        /// Data and position of authenticationExtendedResp buffer will be set to passed in buffer's data and position.
+        /// </summary>
         public Buffer AuthenticationExtendedResp
         {
             get => authenticationExtendedResp;
@@ -230,6 +272,12 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 BufferHelper.CopyBuffer(value, authenticationExtendedResp);
             }
         }
+
+
+        /// <summary>
+        /// Sets AuthenticationErrorText to the user specified buffer.
+        /// Data and position of AuthenticationErrorText buffer will be set to passed in buffer's data and position.
+        /// </summary>
 
         public Buffer AuthenticationErrorText
         {
@@ -241,6 +289,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Sets LoginAttrib to the user specified buffer.
+        /// Deep copies the Login Attrib.
+        /// </summary>
         public LoginAttrib LoginAttrib
         {
             get => attrib;
@@ -265,6 +317,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// The Sequence Number for this message.
+        /// </summary>
         public long SequenceNumber { get; set; }
 
         /// <summary>
@@ -278,8 +333,15 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// <seealso cref="HasAuthenicationTTReissue"/>
         public long AuthenticationTTReissue { get; set; }
 
+        /// <summary>
+        /// The authentication error code for this message.
+        /// </summary>
         public long AuthenticationErrorCode { get; set; }
 
+        /// <summary>
+        /// The supported features for this message.
+        /// </summary>
+        /// <seealso cref="LoginSupportFeatures"/>
         public LoginSupportFeatures SupportedFeatures
         {
             get => features;
@@ -290,15 +352,56 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// The stream state
+        /// </summary>
+        /// <seealso cref="State"/>
         public State State { get; set; } = new State();
 
         #endregion
-
+        /// <summary>
+        /// Login Refresh Message constructor.
+        /// </summary>
         public LoginRefresh()
         {
             Clear();
         }
 
+        /// <summary>
+        /// Clears the current contents of the login refresh object and prepares it for re-use.
+        /// </summary>
+        public override void Clear()
+        {
+            m_RefreshMsg.Clear();
+            m_RefreshMsg.MsgClass = MsgClasses.REFRESH;
+            m_RefreshMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
+            m_RefreshMsg.ContainerType = DataTypes.NO_DATA;
+            m_RefreshMsg.ApplyHasMsgKey();
+            m_RefreshMsg.ApplyRefreshComplete();
+
+            Flags = default;
+            LoginAttrib.Clear();
+            features.Clear();
+
+            State.Clear();
+            State.StreamState(StreamStates.OPEN);
+            State.DataState(DataStates.OK);
+            State.Code(StateCodes.NONE);
+
+            UserNameType = Login.UserIdTypes.NAME;
+            userName.Clear();
+            AuthenticationTTReissue = 0;
+            AuthenticationErrorCode = 0;
+            authenticationExtendedResp.Clear();
+            authenticationErrorText.Clear();
+            connectionConfig.Clear();
+        }
+
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destRefreshMsg</c>.
+        /// </summary>
+        /// <param name="destRefreshMsg">LoginRefresh object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginRefresh destRefreshMsg)
         {
             Debug.Assert(destRefreshMsg != null);
@@ -371,14 +474,19 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Encode(EncodeIterator EncodeIter)
+        /// <summary>
+        /// Encodes this login refresh message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
         {
             m_RefreshMsg.Clear();
 
             // message header
             m_RefreshMsg.MsgClass = MsgClasses.REFRESH;
             m_RefreshMsg.StreamId = StreamId;
-            m_RefreshMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.LOGIN;
+            m_RefreshMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
             m_RefreshMsg.ContainerType = DataTypes.NO_DATA;
             m_RefreshMsg.ApplyHasMsgKey();
             m_RefreshMsg.ApplyRefreshComplete();
@@ -424,26 +532,26 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 m_RefreshMsg.ContainerType = DataTypes.ELEMENT_LIST;
             }
 
-            CodecReturnCode ret = m_RefreshMsg.EncodeInit(EncodeIter, 0);
+            CodecReturnCode ret = m_RefreshMsg.EncodeInit(encodeIter, 0);
             if (ret != CodecReturnCode.ENCODE_MSG_KEY_ATTRIB)
                 return ret;
-            ret = EncodeAttrib(EncodeIter);
+            ret = EncodeAttrib(encodeIter);
             if (ret != CodecReturnCode.SUCCESS)
                 return ret;
-            ret = m_RefreshMsg.EncodeKeyAttribComplete(EncodeIter, true);
+            ret = m_RefreshMsg.EncodeKeyAttribComplete(encodeIter, true);
             if (ret < CodecReturnCode.SUCCESS)
                 return ret;
 
             // Encode conn config now, if specified
             if (HasConnectionConfig)
             {
-                ret = ConnectionConfig.Encode(EncodeIter);
+                ret = ConnectionConfig.Encode(encodeIter);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
                 }
             }
-            ret = m_RefreshMsg.EncodeComplete(EncodeIter, true);
+            ret = m_RefreshMsg.EncodeComplete(encodeIter, true);
             if (ret < CodecReturnCode.SUCCESS)
                 return ret;
 
@@ -617,6 +725,15 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                         return ret;
                 }
 
+                if (SupportedFeatures.HasSupportStandbyMode)
+                {
+                    element.DataType = DataTypes.UINT;
+                    element.Name = ElementNames.SUPPORT_STANDBY_MODE;
+                    tmpUInt.Value(SupportedFeatures.SupportStandbyMode);
+                    if ((ret = element.Encode(EncodeIter, tmpUInt)) != CodecReturnCode.SUCCESS)
+                        return ret;
+                }
+
                 if (SupportedFeatures.HasSupportOptimizedPauseResume)
                 {
                     element.DataType = DataTypes.UINT;
@@ -634,12 +751,27 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     if ((ret = element.Encode(EncodeIter, tmpUInt)) != CodecReturnCode.SUCCESS)
                         return ret;
                 }
+
+                if(SupportedFeatures.HasSupportEnhancedSymbolList)
+                {
+                    element.DataType = DataTypes.UINT;
+                    element.Name = ElementNames.SUPPORT_ENH_SL;
+                    tmpUInt.Value(SupportedFeatures.SupportEnhancedSymbolList);
+                    if ((ret = element.Encode(EncodeIter, tmpUInt)) != CodecReturnCode.SUCCESS)
+                        return ret;
+                }
             }
 
             return elementList.EncodeComplete(EncodeIter, true);
         }
 
-        public override CodecReturnCode Decode(DecodeIterator dIter, Msg msg)
+        /// <summary>
+        /// Decodes this Login Refresh message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this LoginRefresh message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             Clear();
 
@@ -683,18 +815,18 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
             if (msg.ContainerType == DataTypes.ELEMENT_LIST)
             {
-                CodecReturnCode ret = DecodePayload(dIter, refreshMsg);
+                CodecReturnCode ret = DecodePayload(decodeIter, refreshMsg);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
 
             if (msgKey.CheckHasAttrib())
             {
-                CodecReturnCode ret = msg.DecodeKeyAttrib(dIter, msgKey);
+                CodecReturnCode ret = msg.DecodeKeyAttrib(decodeIter, msgKey);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
 
-                return DecodeAttrib(dIter);
+                return DecodeAttrib(decodeIter);
             }
 
             return CodecReturnCode.SUCCESS;
@@ -848,6 +980,17 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     SupportedFeatures.HasSupportStandby = true;
                     SupportedFeatures.SupportStandby = tmpUInt.ToLong();
                 }
+                else if (element.Name.Equals(ElementNames.SUPPORT_STANDBY_MODE))
+                {
+                    if (element.DataType != DataTypes.UINT)
+                        return CodecReturnCode.FAILURE;
+                    ret = tmpUInt.Decode(dIter);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+                    HasFeatures = true;
+                    SupportedFeatures.HasSupportStandbyMode = true;
+                    SupportedFeatures.SupportStandbyMode = tmpUInt.ToLong();
+                }
                 else if (element.Name.Equals(ElementNames.SUPPORT_BATCH))
                 {
                     if (element.DataType != DataTypes.UINT)
@@ -904,6 +1047,17 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     HasFeatures = true;
                     SupportedFeatures.HasSupportProviderDictionaryDownload = true;
                     SupportedFeatures.SupportProviderDictionaryDownload = tmpUInt.ToLong();
+                }
+                else if (element.Name.Equals(ElementNames.SUPPORT_ENH_SL))
+                {
+                    if (element.DataType != DataTypes.UINT)
+                        return CodecReturnCode.FAILURE;
+                    ret = tmpUInt.Decode(dIter);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+                    HasFeatures = true;
+                    SupportedFeatures.HasSupportEnhancedSymbolList = true;
+                    SupportedFeatures.SupportEnhancedSymbolList = tmpUInt.ToLong();
                 }
                 else if (element.Name.Equals(ElementNames.AUTHN_TT_REISSUE))
                 {
@@ -964,6 +1118,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Returns a human readable string representation of the Login Refresh message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
@@ -1032,33 +1190,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 stringBuf.Append(ConnectionConfig.ToString());
             }
             return stringBuf.ToString();
-        }
-
-        public override void Clear()
-        {
-            m_RefreshMsg.Clear();
-            m_RefreshMsg.MsgClass = MsgClasses.REFRESH;
-            m_RefreshMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.LOGIN;
-            m_RefreshMsg.ContainerType = DataTypes.NO_DATA;
-            m_RefreshMsg.ApplyHasMsgKey();
-            m_RefreshMsg.ApplyRefreshComplete();
-
-            Flags = default;
-            LoginAttrib.Clear();
-            features.Clear();
-
-            State.Clear();
-            State.StreamState(StreamStates.OPEN);
-            State.DataState(DataStates.OK);
-            State.Code(StateCodes.NONE);
-
-            UserNameType = Login.UserIdTypes.NAME;
-            userName.Clear();
-            AuthenticationTTReissue = 0;
-            AuthenticationErrorCode = 0;
-            authenticationExtendedResp.Clear();
-            authenticationErrorText.Clear();
-            connectionConfig.Clear();
         }
     }
 }

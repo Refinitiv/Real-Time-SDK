@@ -82,7 +82,7 @@ public interface ServiceEndpointDiscoveryOption
 	ServiceEndpointDiscoveryOption password(String password);
 
 	/**
-	 * Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+	 * Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 	 * 
 	 * @param clientId specifies the client ID
 	 * @return reference to this object
@@ -98,12 +98,28 @@ public interface ServiceEndpointDiscoveryOption
 	ServiceEndpointDiscoveryOption clientSecret(String clientSecret);
 	
 	/**
+	 * Specifies optionally a client JWK string used to authenticate to the Authorization Server.
+	 * 
+	 * @param clientJwk specifies a client Jwk string.
+	 * @return reference to this object
+	 */
+	ServiceEndpointDiscoveryOption clientJWK(String clientJwk);
+	
+	/**
 	 * Specifies optionally a token scope to limit the scope of generated token from the token service.
 	 * 
 	 * @param tokenScope specifies a token scope
 	 * @return reference to this object
 	 */
 	ServiceEndpointDiscoveryOption tokenScope(String tokenScope);
+	
+	/**
+	 * Specifies optionally an audience string used with JWT authentication.
+	 * 
+	 * @param audience specifies a token scope
+	 * @return reference to this object
+	 */
+	ServiceEndpointDiscoveryOption audience(String audience);
 	
 	/**
      * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.

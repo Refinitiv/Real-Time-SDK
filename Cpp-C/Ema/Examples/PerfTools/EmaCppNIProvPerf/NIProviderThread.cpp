@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2021 Refinitiv.      All rights reserved.          --
+// *|        Copyright (C) 2021-2022 Refinitiv.    All rights reserved.         --
 ///*|-----------------------------------------------------------------------------
 
 #include "NIProviderThread.h"
@@ -34,7 +34,7 @@ ProviderThreadState::ProviderThreadState(const NIProvPerfConfig& config) :
 
 NIProviderThread::NIProviderThread(NIProvPerfConfig& config, PerfMessageData* perfData, Int32 provIndex)
 	:	stopThread(false), running(false),
-		providerThreadIndex(provIndex), cpuId(-1),
+		providerThreadIndex(provIndex),
 		niProvPerfConfig(config), perfMessageData(perfData),
 		niProviderClient(NULL),
 		provider(NULL),
@@ -109,7 +109,7 @@ void NIProviderThread::providerThreadInit()
 		EmaString text("Error: Failed to open file '");
 		text += tmpFilename;
 		text += "'.\n";
-		printf(text.c_str());
+		printf("%s", text.c_str());
 		AppUtil::logError(text);
 		exit(-1);
 	}
@@ -127,7 +127,7 @@ void NIProviderThread::providerThreadInit()
 			EmaString text("Failed to open latency log file: ");
 			text += tmpFilename;
 			text += "\n";
-			printf(text.c_str());
+			printf("%s", text.c_str());
 			AppUtil::logError(text);
 			exit(-1);
 		}
@@ -246,6 +246,11 @@ void NIProviderThread::run()
 
 		providerConfig.username("user");
 
+		if ( !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+			providerConfig.apiThreadBind(apiThreadCpuId);
+		if ( !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1") )
+			providerConfig.workerThreadBind(workerThreadCpuId);
+
 		provider = new OmmProvider(providerConfig, *niProviderClient);
 
 		cout << endl << "NIProviderThread.MainThread. run.2" << endl;
@@ -260,6 +265,42 @@ void NIProviderThread::run()
 		{
 			cout << "NIProviderThread. run. Waiting initilization... #" << providerThreadIndex << endl;
 			AppUtil::sleep(200);
+		}
+
+		if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1") )
+		{
+			EmaString provThreadName("EmaThread for ");
+			provThreadName.append(sProviderName);
+
+			// bind cpuId for the ni provider thread
+			if (!bindThisThread(provThreadName, cpuId))
+			{
+				cout << "NIProviderThread::run() #" << providerThreadIndex << " bindThisThread failed!"
+					<< " cpuId[" << cpuId << "] " << endl;
+				running = false;
+			}
+		}
+		if ( !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1") )
+		{
+			EmaString workerThreadName(sProviderName);
+			workerThreadName.append("_RW");
+			// Add information about Reactor worker thread
+			addThisThread(workerThreadName, workerThreadCpuId, 0);
+		}
+		if ( !niProvPerfConfig.useUserDispatch
+			&& !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+		{
+			EmaString provApiThreadName(sProviderName);
+			provApiThreadName.append("_Api");
+			// Add information about API internal thread
+			addThisThread(provApiThreadName, apiThreadCpuId, 0);
+		}
+
+		if ( !cpuId.empty() && !cpuId.caseInsensitiveCompare("-1")
+			|| !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1")
+			|| !niProvPerfConfig.useUserDispatch && !apiThreadCpuId.empty() && !apiThreadCpuId.caseInsensitiveCompare("-1") )
+		{
+			printAllThreadBinding();
 		}
 
 		currentTime = perftool::common::GetTime::getTimeMicro();

@@ -2,24 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Refinitiv.Eta.Rdm.Directory;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using static LSEG.Eta.Rdm.Directory;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// This is the source directory handler for the ETA NIProvider application. 
@@ -200,13 +200,11 @@ namespace Refinitiv.Eta.Example.Common
             CodecReturnCode ret = directoryRefresh.Encode(encIter);
             if (ret != CodecReturnCode.SUCCESS)
             {
-                if(error is null)
+                error = new Error()
                 {
-                    error = new Error();
-                }
-
-                error.ErrorId = TransportReturnCode.FAILURE;
-                error.Text = "encodeDirectoryRefresh(): Failed <" +ret + ">";
+                    ErrorId = TransportReturnCode.FAILURE,
+                    Text = "EncodeDirectoryRefresh failed, return code: <" + ret + ">"
+                };
                 return TransportReturnCode.FAILURE;
             }
 

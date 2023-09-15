@@ -9,8 +9,10 @@ package com.refinitiv.ema.access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.ema.access.DirectoryServiceStore.ServiceIdInteger;
@@ -1029,8 +1031,8 @@ TunnelStreamStatusEventCallback
 	private static final int  PROVIDER_STARTING_STREAM_ID = 0;
 	private static final int CONSUMER_MAX_STREAM_ID_MINUSONE = Integer.MAX_VALUE -1;
 	
-	private HashMap<LongObject, Item<T>>	_itemMap;
-	private HashMap<IntObject, Item<T>> _streamIdMap;
+	private Map<LongObject, Item<T>>	_itemMap;
+	private Map<IntObject, Item<T>> _streamIdMap;
 	private LongObject _longObjHolder;
 	private IntObject _intObjHolder;
 	protected LoginMsg _rsslRDMLoginMsg;
@@ -1041,9 +1043,17 @@ TunnelStreamStatusEventCallback
 	ItemCallbackClient(OmmBaseImpl<T> baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
-		
-		_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
-		_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+
+		if(baseImpl.activeConfig().userDispatch == OmmConsumerConfig.OperationModel.API_DISPATCH)
+		{
+			_itemMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
+		else
+		{
+			_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
 
 		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 		
@@ -1065,9 +1075,17 @@ TunnelStreamStatusEventCallback
 	ItemCallbackClient(OmmServerBaseImpl baseImpl)
 	{
 		super(baseImpl, CLIENT_NAME);
-		
-		_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
-		_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+
+		if(baseImpl.activeConfig().userDispatch == OmmConsumerConfig.OperationModel.API_DISPATCH)
+		{
+			_itemMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new ConcurrentHashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
+		else
+		{
+			_itemMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+			_streamIdMap = new HashMap<>( baseImpl.activeConfig().itemCountHint == 0 ? 1024 : baseImpl.activeConfig().itemCountHint);
+		}
 
 		_updateMsg = new UpdateMsgImpl(_baseImpl.objManager());
 		
@@ -1469,6 +1487,8 @@ TunnelStreamStatusEventCallback
 		
 		Msg msg = event.msg();
 		ChannelInfo channelInfo = (ChannelInfo)event.reactorChannel().userSpecObj();
+		if (channelInfo.getParentChannel() != null)
+			channelInfo = channelInfo.getParentChannel();
         if (msg == null)
         {
         	com.refinitiv.eta.transport.Error error = event.errorInfo().error();
@@ -2469,19 +2489,18 @@ TunnelStreamStatusEventCallback
 			
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(ItemCallbackClient.CLIENT_NAME, temp.toString(), Severity.TRACE));
 		}
-		
-		try
+
+		if(item.itemIdObj() != null)
 		{
-			_baseImpl.userLock().lock();
-			
 			_itemMap.remove(item.itemIdObj());
-			_streamIdMap.remove(item.streamIdObj());
-			item.backToPool();
 		}
-		finally
+
+		if(item.streamIdObj() != null)
 		{
-			_baseImpl.userLock().unlock();
+			_streamIdMap.remove(item.streamIdObj());
 		}
+
+		item.backToPool();
 	}
 
 	boolean isStreamIdInUse(int nextStreamId)
@@ -2551,6 +2570,8 @@ TunnelStreamStatusEventCallback
 
 class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 {
+	private static final String CLIENT_NAME = "ItemCallbackClientConsumer";
+	
 	ItemCallbackClientConsumer(OmmBaseImpl<OmmConsumerClient> baseImpl) {
 		super(baseImpl);
 	}
@@ -2558,36 +2579,84 @@ class ItemCallbackClientConsumer extends ItemCallbackClient<OmmConsumerClient>
 	@Override
 	void notifyOnAllMsg(com.refinitiv.ema.access.Msg msg)
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming Msg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onAllMsg(msg, _eventImpl);
 	}
 	
 	@Override
     void notifyOnRefreshMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming RefreshMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onRefreshMsg(_refreshMsg, _eventImpl);
 	}
 	
 	@Override
 	void notifyOnUpdateMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming UpdateMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onUpdateMsg(_updateMsg, _eventImpl);
 	}
 	
 	@Override
 	void notifyOnStatusMsg() 
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming StatusMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onStatusMsg(_statusMsg, _eventImpl);
 	}
 	
 	@Override
 	void notifyOnGenericMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming GenericMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onGenericMsg(_genericMsg, _eventImpl);
 	} 
 	
 	@Override
 	void notifyOnAckMsg()
 	{
+		if (_eventImpl._item.client() == null)	// Consumer client is already closed, ignore this message
+		{
+			StringBuilder tempErr = _baseImpl.strBuilder();
+			tempErr.append("An incoming AckMsg to a closed OmmConsumerClient has been dropped.");
+			if (_baseImpl.loggerClient().isErrorEnabled())
+				_baseImpl.loggerClient().error(_baseImpl.formatLogMessage(CLIENT_NAME, tempErr.toString(), Severity.WARNING));
+			return;
+		}
 		_eventImpl._item.client().onAckMsg(_ackMsg, _eventImpl);
 	}
 }
@@ -3406,6 +3475,8 @@ interface ProviderItem
 	void cancelReqTimerEvent();
 	
 	boolean requestWithService();
+
+	ReentrantLock userLock();
 }
 
 abstract class IProviderSingleItem extends Item<OmmProviderClient> implements ProviderItem
@@ -4141,6 +4212,12 @@ class ClosedStatusClient<T> implements TimeoutClient
 		else
 			((ItemCallbackClient<T>)_client).removeFromMap(_item);
 	}
+
+	@Override
+	public ReentrantLock userLock()
+	{
+		return _client._baseImpl.userLock();
+	}
 }
 
 class ItemWatchList
@@ -4325,6 +4402,11 @@ class ItemTimeOut implements TimeoutClient
 		
 		_providerItem.sendCloseMsg();
 		_providerItem.scheduleItemClosedRecoverableStatus("request is timeout", false);
+	}
+
+	@Override
+	public ReentrantLock userLock() {
+		return _providerItem.userLock();
 	}
 }
 

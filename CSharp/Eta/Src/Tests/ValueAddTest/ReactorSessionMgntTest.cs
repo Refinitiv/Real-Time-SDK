@@ -2,27 +2,32 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using Xunit;
 using Xunit.Categories;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.ValueAdd.Reactor;
 using System.Net.Sockets;
 using System.Collections.Generic;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
 using System;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using System.IO;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     public class ReactorSessionMgntTest : IReactorChannelEventCallback, IDefaultMsgCallback, 
         IReactorAuthTokenEventCallback, IReactorOAuthCredentialEventCallback, IRDMLoginMsgCallback
     {
         private string CLIENT_ID;
+        private string CLIENT_ID_JWT;
         private string CLIENT_SECRET;
+        private string CLIENT_JWK;
+        private string TOKEN_SERVICE_URL;
+        private string SERVICE_DISCOVERY_URL;
         private ReactorAuthTokenInfo reactorAuthTokenInfo = new ReactorAuthTokenInfo();
         private static readonly string TOKEN_TYPE = "Bearer";
         private const int EXPIRES_IN = 7199;
@@ -46,7 +51,11 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             try
             {
                 CLIENT_ID = Environment.GetEnvironmentVariable("ETANET_CLIENT_ID", System.EnvironmentVariableTarget.Process);
+                CLIENT_ID_JWT = Environment.GetEnvironmentVariable("ETANET_CLIENT_ID_JWT", System.EnvironmentVariableTarget.Process);
                 CLIENT_SECRET = Environment.GetEnvironmentVariable("ETANET_CLIENT_SECRET", System.EnvironmentVariableTarget.Process);
+                CLIENT_JWK = Environment.GetEnvironmentVariable("ETANET_CLIENT_JWK", System.EnvironmentVariableTarget.Process);
+                TOKEN_SERVICE_URL = Environment.GetEnvironmentVariable("ETANET_TOKEN_SERVICE_URL", System.EnvironmentVariableTarget.Process);
+                SERVICE_DISCOVERY_URL = Environment.GetEnvironmentVariable("ETANET_SERVICE_DISCOVERY_URL", System.EnvironmentVariableTarget.Process);
             }
             catch(Exception)
             {
@@ -56,12 +65,20 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             Clear();
         }
 
-        [Fact]
-        [Category("Unit")]
-        [Category("Reactor")]
-        public void ConnectSuccessWithOneConnection_usingDefaultLocationTest()
+        void ConnectSuccessWithOneConnection_usingDefaultLocation(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
         {
             ReactorOptions reactorOptions = new ReactorOptions();
+
+            if(overrideTokenServiceURL && !string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            if(overrideDiscoveryURL && !string.IsNullOrEmpty(SERVICE_DISCOVERY_URL))
+            {
+                reactorOptions.SetServiceDiscoveryURL(SERVICE_DISCOVERY_URL);
+            }
+
             reactorOptions.UserSpecObj = this;
             Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
 
@@ -81,8 +98,17 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             ReactorOAuthCredential credential = new ReactorOAuthCredential();
 
-            credential.ClientId.Data(CLIENT_ID);
-            credential.ClientSecret.Data(CLIENT_SECRET);
+            if (isPingJwt == false)
+            {
+                credential.ClientSecret.Data(CLIENT_SECRET);
+                credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
+                credential.ClientId.Data(CLIENT_ID_JWT);
+                credential.Audience.Data(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.InitDefaultRDMLoginRequest();
@@ -137,9 +163,33 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-        public void ConnectSuccessWithOneConnection_SpecifyLocationTest()
+        public void ConnectSuccessWithOneConnection_usingDefaultLocationTest()
+        {
+            ConnectSuccessWithOneConnection_usingDefaultLocation(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectSuccessWithOneConnection_usingDefaultLocation_JWT_Test()
+        {
+            ConnectSuccessWithOneConnection_usingDefaultLocation(true, false, false);
+        }
+
+        void ConnectSuccessWithOneConnection_SpecifyLocation(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
         {
             ReactorOptions reactorOptions = new ReactorOptions();
+
+            if (overrideTokenServiceURL && !string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            if (overrideDiscoveryURL && !string.IsNullOrEmpty(SERVICE_DISCOVERY_URL))
+            {
+                reactorOptions.SetServiceDiscoveryURL(SERVICE_DISCOVERY_URL);
+            }
+
             reactorOptions.UserSpecObj = this;
             Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
 
@@ -153,15 +203,23 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             connectInfo.ConnectOptions.MinorVersion = Codec.Codec.MinorVersion();
             connectInfo.EnableSessionManagement = true;
             connectInfo.ReactorAuthTokenEventCallback = this;
-            connectInfo.Location = "us-east-2"; // Specify a location
+            connectInfo.Location = "us-east-1"; // Specify a location
 
             ReactorConnectOptions connectOptions = new ReactorConnectOptions();
             connectOptions.ConnectionList.Add(connectInfo);
 
             ReactorOAuthCredential credential = new ReactorOAuthCredential();
 
-            credential.ClientId.Data(CLIENT_ID);
-            credential.ClientSecret.Data(CLIENT_SECRET);
+            if (isPingJwt == false)
+            {
+                credential.ClientSecret.Data(CLIENT_SECRET);
+                credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
+                credential.ClientId.Data(CLIENT_ID_JWT);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.ReactorOAuthCredential = credential;
@@ -194,9 +252,33 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-        public void ConnectSuccessWithOneConnection_InvalidLocationTest()
+        public void ConnectSuccessWithOneConnection_SpecifyLocationTest()
+        {
+            ConnectSuccessWithOneConnection_SpecifyLocation(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectSuccessWithOneConnection_SpecifyLocation_JWT_Test()
+        {
+            ConnectSuccessWithOneConnection_SpecifyLocation(true, false, false);
+        }
+
+        void ConnectSuccessWithOneConnection_InvalidLocation(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
         {
             ReactorOptions reactorOptions = new ReactorOptions();
+
+            if (overrideTokenServiceURL && !string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            if (overrideDiscoveryURL && !string.IsNullOrEmpty(SERVICE_DISCOVERY_URL))
+            {
+                reactorOptions.SetServiceDiscoveryURL(SERVICE_DISCOVERY_URL);
+            }
+
             reactorOptions.UserSpecObj = this;
             Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
 
@@ -215,8 +297,16 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             ReactorOAuthCredential credential = new ReactorOAuthCredential();
 
-            credential.ClientId.Data(CLIENT_ID);
-            credential.ClientSecret.Data(CLIENT_SECRET);
+            if (isPingJwt == false)
+            {
+                credential.ClientSecret.Data(CLIENT_SECRET);
+                credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
+                credential.ClientId.Data(CLIENT_ID_JWT);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.ReactorOAuthCredential = credential;
@@ -233,9 +323,33 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-        public void ConnectionList_FirstFailed_SecondRDPConnection_Test()
+        public void ConnectSuccessWithOneConnection_InvalidLocationTest()
+        {
+            ConnectSuccessWithOneConnection_InvalidLocation(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectSuccessWithOneConnection_InvalidLocation_JWT_Test()
+        {
+            ConnectSuccessWithOneConnection_InvalidLocation(true, false, false);
+        }
+
+        void ConnectionList_FirstFailed_SecondRDPConnection(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryUrl)
         {
             ReactorOptions reactorOptions = new ReactorOptions();
+
+            if (overrideTokenServiceURL && !string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            if (overrideDiscoveryUrl && !string.IsNullOrEmpty(SERVICE_DISCOVERY_URL))
+            {
+                reactorOptions.SetServiceDiscoveryURL(SERVICE_DISCOVERY_URL);
+            }
+
             reactorOptions.UserSpecObj = this;
             Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
 
@@ -269,8 +383,16 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             ReactorOAuthCredential credential = new ReactorOAuthCredential();
 
-            credential.ClientId.Data(CLIENT_ID);
-            credential.ClientSecret.Data(CLIENT_SECRET);
+            if (isPingJwt == false)
+            {
+                credential.ClientSecret.Data(CLIENT_SECRET);
+                credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
+                credential.ClientId.Data(CLIENT_ID_JWT);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.InitDefaultRDMLoginRequest();
@@ -352,9 +474,33 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-        public void ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback_Test()
+        public void ConnectionList_FirstFailed_SecondRDPConnection_Test()
+        {
+            ConnectionList_FirstFailed_SecondRDPConnection(false, false, false);
+        }
+        
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectionList_FirstFailed_SecondRDPConnection_JWT_Test()
+        {
+            ConnectionList_FirstFailed_SecondRDPConnection(true, false, false);
+        }
+
+        void ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback(bool isPingJwt, bool overrideTokenServiceURL, bool overrideDiscoveryURL)
         {
             ReactorOptions reactorOptions = new ReactorOptions();
+
+            if (overrideTokenServiceURL && !string.IsNullOrEmpty(TOKEN_SERVICE_URL))
+            {
+                reactorOptions.SetTokenServiceURL(TOKEN_SERVICE_URL);
+            }
+
+            if (overrideDiscoveryURL && !string.IsNullOrEmpty(SERVICE_DISCOVERY_URL))
+            {
+                reactorOptions.SetServiceDiscoveryURL(SERVICE_DISCOVERY_URL);
+            }
+
             reactorOptions.UserSpecObj = this;
             Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
 
@@ -388,8 +534,16 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             ReactorOAuthCredential credential = new ReactorOAuthCredential();
 
-            credential.ClientId.Data(CLIENT_ID);
-            credential.ClientSecret.Data(CLIENT_SECRET);
+            if (isPingJwt == false)
+            {
+                credential.ClientSecret.Data(CLIENT_SECRET);
+                credential.ClientId.Data(CLIENT_ID);
+            }
+            else
+            {
+                credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
+                credential.ClientId.Data(CLIENT_ID_JWT);
+            }
 
             ConsumerRole consumerRole = new ConsumerRole();
             consumerRole.InitDefaultRDMLoginRequest();
@@ -469,6 +623,108 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
         }
 
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback_Test()
+        {
+            ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback(false, false, false);
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback_JWT_Test()
+        {
+            ConnectionList_FirstFailed_SecondRDPConnection_Specify_OAuthCredentialCallback(true, false, false);
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void Connect_NotSpecifyClientSecretAndClientJWK_Test()
+        {
+            ReactorOptions reactorOptions = new ReactorOptions();
+
+            reactorOptions.UserSpecObj = this;
+            Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
+
+            Assert.NotNull(reactor);
+
+            Socket reactorEventFD = reactor.EventSocket;
+            ReactorDispatchOptions dispatchOpts = new ReactorDispatchOptions();
+            ReactorConnectInfo connectInfo = new ReactorConnectInfo();
+            connectInfo.ConnectOptions.ConnectionType = Transports.ConnectionType.ENCRYPTED;
+            connectInfo.ConnectOptions.MajorVersion = Codec.Codec.MajorVersion();
+            connectInfo.ConnectOptions.MinorVersion = Codec.Codec.MinorVersion();
+            connectInfo.EnableSessionManagement = true;
+            connectInfo.ReactorAuthTokenEventCallback = this;
+
+            ReactorConnectOptions connectOptions = new ReactorConnectOptions();
+            connectOptions.ConnectionList.Add(connectInfo);
+
+            ReactorOAuthCredential credential = new ReactorOAuthCredential();
+
+            credential.ClientId.Data(CLIENT_ID);
+
+            ConsumerRole consumerRole = new ConsumerRole();
+            consumerRole.InitDefaultRDMLoginRequest();
+            consumerRole.ReactorOAuthCredential = credential;
+            consumerRole.ChannelEventCallback = this;
+            consumerRole.DefaultMsgCallback = this;
+            consumerRole.LoginMsgCallback = this;
+
+            ReactorReturnCode returnCode = reactor.Connect(connectOptions, consumerRole, out errorInfo);
+            Assert.Equal(ReactorReturnCode.INVALID_USAGE, returnCode);
+            Assert.NotNull(errorInfo);
+            Assert.Equal("Failed to copy OAuth credential for enabling the session management; OAuth client secret and client JSON Web Key do not exist.", errorInfo.Error.Text);
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void Connect_ClientJWKWithInvalidAudience_Test()
+        {
+            ReactorOptions reactorOptions = new ReactorOptions();
+
+            reactorOptions.UserSpecObj = this;
+            Reactor reactor = Reactor.CreateReactor(reactorOptions, out ReactorErrorInfo errorInfo);
+
+            Assert.NotNull(reactor);
+
+            ReactorDispatchOptions dispatchOpts = new ReactorDispatchOptions();
+            ReactorConnectInfo connectInfo = new ReactorConnectInfo();
+            connectInfo.ConnectOptions.ConnectionType = Transports.ConnectionType.ENCRYPTED;
+            connectInfo.ConnectOptions.MajorVersion = Codec.Codec.MajorVersion();
+            connectInfo.ConnectOptions.MinorVersion = Codec.Codec.MinorVersion();
+            connectInfo.EnableSessionManagement = true;
+            connectInfo.ReactorAuthTokenEventCallback = this;
+
+            ReactorConnectOptions connectOptions = new ReactorConnectOptions();
+            connectOptions.ConnectionList.Add(connectInfo);
+
+            ReactorOAuthCredential credential = new ReactorOAuthCredential();
+
+            credential.ClientId.Data(CLIENT_ID);
+            credential.ClientJwk.Data(File.ReadAllText(CLIENT_JWK));
+            credential.Audience.Data("InvalidJWTAudience");
+
+            ConsumerRole consumerRole = new ConsumerRole();
+            consumerRole.InitDefaultRDMLoginRequest();
+            consumerRole.ReactorOAuthCredential = credential;
+            consumerRole.ChannelEventCallback = this;
+            consumerRole.DefaultMsgCallback = this;
+
+            ReactorReturnCode returnCode = reactor.Connect(connectOptions, consumerRole, out errorInfo);
+            Assert.Equal(ReactorReturnCode.FAILURE, returnCode);
+            Assert.NotNull(errorInfo);
+            Assert.Equal("Failed to perform a REST request to the token service. Text: {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid client or client credentials.\" }", errorInfo.Error.Text);
+
+            Assert.Equal(ReactorReturnCode.SUCCESS, reactor.Shutdown(out _));
+        }
+
         public ReactorCallbackReturnCode DefaultMsgCallback(ReactorMsgEvent msgEvent)
         {
             return ReactorCallbackReturnCode.SUCCESS;
@@ -516,10 +772,24 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             if (reactorOAuthCredential is not null)
             {
-                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
-                reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                Assert.True(reactorOAuthCredentialEvent.ReactorOAuthCredentialRenewal.ClientId.Equals(reactorOAuthCredential.ClientId));
+                Assert.True(reactorOAuthCredentialEvent.ReactorOAuthCredentialRenewal.Audience.Equals(reactorOAuthCredential.Audience));
+                if (reactorOAuthCredential.ClientJwk.Length == 0)
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
+                    reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                }
+                else
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_JWK;
+                    reactorOAuthCredentialRenewal.ClientJwk.Data(reactorOAuthCredential.ClientJwk.ToString());
+                }
 
                 reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
+            }
+            else
+            {
+                Assert.NotNull(reactorOAuthCredential);
             }
 
             return ReactorCallbackReturnCode.SUCCESS;

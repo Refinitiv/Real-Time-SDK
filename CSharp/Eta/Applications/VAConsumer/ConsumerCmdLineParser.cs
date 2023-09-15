@@ -2,15 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 
-using Refinitiv.Eta.Example.VACommon;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Example.VACommon;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
     /// <summary>Command line parser for the Value Add consumer application.</summary>
     internal class ConsumerCmdLineParser : ICommandLineParser
@@ -33,7 +33,15 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
         internal string? ClientSecret { get; private set; }
 
+        internal string? JwkFile { get; private set; }
+
+        internal string? Audience { get; private set; }
+
         internal string? TokenURL { get; private set; }
+
+        internal string? serviceDiscoveryURL { get; private set; }
+
+        internal string? TokenScope { get; private set; }
 
         internal bool EnableView { get; private set; }
 
@@ -74,6 +82,11 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
         internal string? ApplicationId { get; private set; }
 
         internal bool EnableRtt { get; private set; }
+
+        internal bool EnableRestLogging { get; private set; }
+
+        internal string? RestLoggingFileName { get; private set; }
+
         #endregion
 
         private ConnectionArgsParser m_ConnectionArgsParser = new ConnectionArgsParser();
@@ -87,12 +100,6 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             {
                 if (m_ConnectionArgsParser.IsStart(args, argsCount))
                 {
-                    if ("-segmentedMulticast".Equals(args[argsCount]))
-                    {
-                        // consumer does not currently handle multicast
-                        return false;
-                    }
-
                     if ((argsCount = m_ConnectionArgsParser.Parse(args, argsCount)) < 0)
                     {
                         // error
@@ -150,9 +157,29 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                     ClientSecret = args[++argsCount];
                     ++argsCount;
                 }
+                else if ("-jwkFile".Equals(args[argsCount]))
+                {
+                    JwkFile = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-audience".Equals(args[argsCount]))
+                {
+                    Audience = args[++argsCount];
+                    ++argsCount;
+                }
                 else if ("-tokenURL".Equals(args[argsCount]))
                 {
                     TokenURL = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-serviceDiscoveryURL".Equals(args[argsCount]))
+                {
+                    serviceDiscoveryURL = args[++argsCount];
+                    ++argsCount;
+                }
+                else if ("-tokenScope".Equals(args[argsCount]))
+                {
+                    TokenScope = args[++argsCount];
                     ++argsCount;
                 }
                 else if ("-view".Equals(args[argsCount]))
@@ -224,7 +251,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                         EnableEncrypted = true;
                     }
                 }
-                else if ("-encryptedConnectionType".Equals(args[argsCount]))
+                else if ("-encryptedProtocolType".Equals(args[argsCount]))
                 {
                     // will overwrite connectionArgsParser's connectionList's connectionType based on the flag
                     String connectionType = args[++argsCount];
@@ -279,6 +306,16 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                     EnableRtt = true;
                     ++argsCount;
                 }
+                else if ("-restEnableLog".Equals(args[argsCount]))
+                {
+                    EnableRestLogging = true;
+                    ++argsCount;
+                }
+                else if ("-restLogFileName".Equals(args[argsCount]))
+                {
+                    RestLoggingFileName = args[++argsCount];
+                    ++argsCount;
+                }
                 else // unrecognized command line argument
                 {
                     Console.WriteLine($"\nUnrecognized command line argument '{args[argsCount]}'\n");
@@ -308,8 +345,12 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                                "\n -passwd changes the password used when logging into the provider\n" +
                                "\n -clientId specifies a unique ID for application making the request to RDP token service\n" +
                                "\n -clientSecret specifies the associated secret with the client ID\n" +
+                               "\n -jwkFile specifies a file containing the JWK encoded private key for V2 JWT logins.\n" +
+                               "\n -audience audience claim for v2 JWT logins.\n" +
                                "\n -sessionMgnt enables the session management in the Reactor\n" +
                                "\n -tokenURL specifies the URL for the token service to override the default value.\n" +
+                               "\n -serviceDiscoveryURL specifies the RDP Service Discovery URL to override the default value.\n" +
+                               "\n -tokenScope specifies a scope for the token service.\n" +
                                "\n -view specifies each request using a basic dynamic view\n" +
                                "\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +
                                "\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +
@@ -319,15 +360,15 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                                "\n -encryptedProtocolType specifies the encrypted protocol type that the connection should use (possible values are: 'socket')\n" +
                                "\n -proxy specifies that proxy is used for connectionType\n" +
                                "\n -ph specifies proxy server host name\n" +
-                               "\n -pp specifies roxy port number\n" +
+                               "\n -pp specifies proxy port number\n" +
                                "\n -plogin specifies user name on proxy server\n" +
                                "\n -ppasswd specifies password on proxy server\n" +
                                "\n -x provides an XML trace of messages\n" +
                                "\n -runtime adjusts the running time of the application" +
                                "\n -aid Specifies the Application ID" +
+                               "\n -restEnableLog enable REST logging message" +
+                               "\n -restLogFileName set REST logging output stream" +
                                "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them.");
         }
     }
-
-
 }

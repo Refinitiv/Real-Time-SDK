@@ -205,6 +205,7 @@ else()
             Impl/ServiceEndpointDiscovery.cpp
             Impl/ServiceEndpointDiscoveryImpl.cpp Impl/ServiceEndpointDiscoveryImpl.h
             Impl/ServiceEndpointDiscoveryClient.cpp
+            Impl/ServiceEndpointDiscoveryConfig.cpp
             Impl/ServiceEndpointDiscoveryEvent.cpp
             Impl/ServiceEndpointDiscoveryInfo.cpp
             Impl/ServiceEndpointDiscoveryOption.cpp
@@ -318,6 +319,7 @@ else()
             Include/SeriesEntry.h
             Include/ServiceEndpointDiscovery.h
             Include/ServiceEndpointDiscoveryClient.h
+            Include/ServiceEndpointDiscoveryConfig.h
             Include/ServiceEndpointDiscoveryEvent.h
             Include/ServiceEndpointDiscoveryInfo.h
             Include/ServiceEndpointDiscoveryOption.h
@@ -417,12 +419,14 @@ else()
                                         "/D __EMA_COPY_ON_SET__" 
                                     PRIVATE
 									    ${RCDEV_DEBUG_TYPE_FLAGS_STATIC}
+										${RTSDK_EXTRA_FLAGS}
                                 )
 
         target_compile_options( libema_shared 
                                     PRIVATE 
                                         "/D EMA_LIBRARY_EXPORTS" 
                                         "/D __EMA_COPY_ON_SET__"	 
+										${RTSDK_EXTRA_FLAGS}
                                         ${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
                                         ${RCDEV_TYPE_CHECK_FLAG}
                                         $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
@@ -455,7 +459,10 @@ else()
         target_compile_options( libema 
                                 PUBLIC 
                                     "-D__EMA_STATIC_BUILD__"
-                                    "-D__EMA_COPY_ON_SET__")
+                                    "-D__EMA_COPY_ON_SET__"
+								PRIVATE
+									${RTSDK_EXTRA_FLAGS}
+									)
 
         set_target_properties( libema_shared PROPERTIES DEFINE_SYMBOL "" ) # avoid -Dlibema_EXPORTS
         set_target_properties( libema_shared 
@@ -467,7 +474,10 @@ else()
                             )
         target_compile_options( libema_shared 
                                 PUBLIC 
-                                    "-D__EMA_COPY_ON_SET__")
+                                    "-D__EMA_COPY_ON_SET__"
+                                    PRIVATE
+									${RTSDK_EXTRA_FLAGS}
+									)
     endif()
 
 	rcdev_add_target(rtsdk libema libema_shared)

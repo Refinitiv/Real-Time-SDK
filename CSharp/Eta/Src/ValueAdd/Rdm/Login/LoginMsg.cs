@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System.Diagnostics;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
 
     /// <summary>The RDM Login Base Message.</summary>
     ///
-    /// <remarks>This RDM dictionary messages may be reused or pooled in a single collection via
+    /// <remarks>This RDM Login messages may be reused or pooled in a single collection via
     /// their common <c>LoginMsg</c> base class and re-used as a different
     /// <see cref="LoginMsgType"/>.</remarks>
     ///
@@ -24,7 +24,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
     /// <seealso cref="LoginRequest"/>
     /// <seealso cref="LoginStatus"/>
     /// <seealso cref="LoginConsumerConnectionStatus"/>
-    public class LoginMsg
+    sealed public class LoginMsg
     {
         private LoginClose? m_LoginClose;
         private LoginRefresh? m_LoginRefresh;
@@ -35,7 +35,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
         private LoginMsgType m_LoginMsgType = LoginMsgType.UNKNOWN;
 
-        /// Login message type. These are defined per-message class basis for login
+        /// <summary>
+        /// Login message type. These are defined per-message class basis for login messages.
+        /// </summary>
         public LoginMsgType LoginMsgType
         {
             get => m_LoginMsgType;
@@ -74,26 +76,46 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+		/// Returns a <see cref="LoginClose"/> RDM message if this LoginMsg is set to  <see cref="LoginMsgType.CLOSE"/>, null otherwise.
+		/// </summary>
+		/// <returns>The LoginClose RDM Message </returns>
         public LoginClose? LoginClose
         {
             get => (LoginMsgType == LoginMsgType.CLOSE) ? m_LoginClose : null;
         }
 
+        /// <summary>
+		/// Returns a <see cref="LoginRefresh"/>  RDM message if this LoginMsg is set to  <see cref="LoginMsgType.REFRESH"/>, null otherwise.
+		/// </summary>
+		/// <returns>The LoginRefresh RDM Message.</returns>
         public LoginRefresh? LoginRefresh
         {
             get => (LoginMsgType == LoginMsgType.REFRESH) ? m_LoginRefresh : null;
         }
 
+        /// <summary>
+		/// Returns a <see cref="LoginRequest"/>  RDM message  if this LoginMsg is set to  <see cref="LoginMsgType.REQUEST"/>, null otherwise.
+		/// </summary>
+		/// <returns>The LoginRequest RDM Message.</returns>
         public LoginRequest? LoginRequest
         {
             get => (LoginMsgType == LoginMsgType.REQUEST) ? m_LoginRequest : null;
         }
 
+        /// <summary>
+		/// Returns a <see cref="LoginStatus"/>  RDM message if this LoginMsg is set to  <see cref="LoginMsgType.STATUS"/>, null otherwise.
+		/// </summary>
+		/// <returns>The LoginStatus RDM Message.</returns>
         public LoginStatus? LoginStatus
         {
             get => (LoginMsgType == LoginMsgType.STATUS) ? m_LoginStatus : null;
         }
 
+        /// <summary>
+        /// Returns a <see cref="LoginConsumerConnectionStatus"/>  RDM message if this LoginMsg is set to  <see cref="LoginMsgType.CONSUMER_CONNECTION_STATUS"/>, null otherwise.
+        /// </summary>
+        /// <returns>The LoginConsumerConnectionStatus RDM Message.</returns>
         public LoginConsumerConnectionStatus? LoginConsumerConnectionStatus
         {
             get => (LoginMsgType == LoginMsgType.CONSUMER_CONNECTION_STATUS)
@@ -101,6 +123,11 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 : null;
         }
 
+
+        /// <summary>
+        /// Returns a <see cref="LoginRTT"/>  RDM message if this LoginMsg is set to <see cref="LoginMsgType.RTT"/>, null otherwise.
+        /// </summary>
+        /// <returns>The LoginRTT RDM Message.</returns>
         public LoginRTT? LoginRTT
         {
             get => (LoginMsgType == LoginMsgType.RTT)
@@ -108,6 +135,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 : null;
         }
 
+        /// <summary>
+        /// Returns the Login RDM message that this LoginMsg is set to with <see cref="LoginMsgType"/> .
+        /// </summary>
+        /// <returns>The RDM Message.</returns>
         private MsgBase? GetMsg()
         {
             switch (m_LoginMsgType)
@@ -135,27 +166,56 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Returns a human readable string representation of the Login message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             return GetMsg()!.ToString() ?? String.Empty;
         }
 
-        public CodecReturnCode Decode(DecodeIterator dIter, Msg msg)
+        /// <summary>
+        /// Clears the current contents of the Directory Message object and prepares it for re-use.
+        /// </summary>
+        public void Clear()
+        {
+            GetMsg()!.Clear();
+        }
+
+        /// <summary>
+        /// Encodes this Login message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            return GetMsg()!.Encode(encodeIter);
+        }
+
+        /// <summary>
+        /// Decodes this Login RDM message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// LoginMsgType needs to be set prior to calling Decode.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this LoginClose message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             switch (LoginMsgType)
             {
                 case LoginMsgType.REQUEST:
-                    return LoginRequest!.Decode(dIter, msg);
+                    return LoginRequest!.Decode(decodeIter, msg);
                 case LoginMsgType.REFRESH:
-                    return LoginRefresh!.Decode(dIter, msg);
+                    return LoginRefresh!.Decode(decodeIter, msg);
                 case LoginMsgType.STATUS:
-                    return LoginStatus!.Decode(dIter, msg);
+                    return LoginStatus!.Decode(decodeIter, msg);
                 case LoginMsgType.CLOSE:
-                    return LoginClose!.Decode(dIter, msg);
+                    return LoginClose!.Decode(decodeIter, msg);
                 case LoginMsgType.CONSUMER_CONNECTION_STATUS:
-                    return LoginStatus!.Decode(dIter, msg);
+                    return LoginStatus!.Decode(decodeIter, msg);
                 case LoginMsgType.RTT:
-                    return LoginRTT!.Decode(dIter, msg);
+                    return LoginRTT!.Decode(decodeIter, msg);
                 default:
                     Debug.Assert (false); // not supported on this message class
                     return CodecReturnCode.FAILURE;

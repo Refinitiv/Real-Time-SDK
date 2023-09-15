@@ -143,6 +143,28 @@ RsslReactorCallbackRet ServerChannelHandler::channelEventCallback(RsslReactor* p
 				}
 			}
 
+			if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE, &ommServerBase->getActiveConfig().pServerConfig->directWrite, &rsslErrorInfo) != RSSL_RET_SUCCESS)
+			{
+				if (OmmLoggerClient::ErrorEnum >= ommServerBase->getActiveConfig().loggerConfig.minLoggerSeverity)
+				{
+					EmaString temp("Failed to set direct write on client handle ");
+					temp.append(clientSession->getClientHandle()).append(CR)
+						.append("Consumer Name ").append(ommServerBase->getInstanceName()).append(CR)
+						.append("RsslReactor ").append(ptrToStringAsHex(pRsslReactor)).append(CR)
+						.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+						.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+						.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+						.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+						.append("Error text ").append(rsslErrorInfo.rsslError.text);
+
+					ommServerBase->getOmmLoggerClient().log(_clientName, OmmLoggerClient::ErrorEnum, temp.trimWhitespace());
+				}
+
+				ommServerBase->getServerChannelHandler().closeChannel(pRsslReactorChannel);
+
+				return RSSL_RC_CRET_SUCCESS;
+			}
+
 			if ( ommServerBase->getActiveConfig().pServerConfig->highWaterMark )
 			{
 				if (rsslReactorChannelIoctl(pRsslReactorChannel, RSSL_HIGH_WATER_MARK, &ommServerBase->getActiveConfig().pServerConfig->highWaterMark, &rsslErrorInfo) != RSSL_RET_SUCCESS)

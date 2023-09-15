@@ -146,7 +146,7 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	
 	/**
 	 * Specifies the keystore type for the configured keystore.
-	 * This is optional, and the default behavior be set to "JKS".
+	 * This is optional, and the default behavior is set to "JKS".
 	 * 
 	 * @param keystoreType the keystore type
 	 * @return reference to this object
@@ -155,7 +155,7 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	
 	/**
 	 * Specifies the security Protocol type for the configured server.
-	 * This is optional, and the default behavior be set to "TLS".
+	 * This is optional, and the default behavior is set to "TLS".
 	 * 
 	 * @param securityProtocol the security protocol
 	 * @return reference to this object
@@ -164,7 +164,7 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	
 	/**
 	 * Specifies the security provider type for the configured server.
-	 * This is optional, and the default behavior be set to "SunJSSE".
+	 * This is optional, and the default behavior is set to "SunJSSE".
 	 * 
 	 * @param securityProvider the security provider
 	 * @return reference to this object
@@ -173,7 +173,7 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	
 	/**
 	 * Specifies the key manager algorithm for the configured server.
-	 * This is optional, and the default behavior be set to "SunX509".
+	 * This is optional, and the default behavior is set to "SunX509".
 	 * 
 	 * @param keyManagerAlgorithm the key manager algorithm
 	 * @return reference to this object
@@ -182,7 +182,7 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	
 	/**
 	 * Specifies the trust manager algorithm for the configured server.
-	 * This is optional, and the default behavior be set to "PKIX".
+	 * This is optional, and the default behavior is set to "PKIX".
 	 * 
 	 * @param trustManagerAlgorithm the trust manager algorithm
 	 * @return reference to this object

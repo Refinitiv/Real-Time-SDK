@@ -2,19 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.Common;
 using System;
 using System.Collections.Generic;
-using Refinitiv.Eta.Codec;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Codec;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
     /// Represents one channel's session. Stores information about items requested.
@@ -212,7 +212,7 @@ namespace Refinitiv.Eta.PerfTools.Common
         public PerfToolsReturnCode PrintEstimatedMsgSizes(out Error? error)
         {
             MsgKey msgKey = new MsgKey();
-            msgKey.Flags = MsgKeyFlags.HAS_NAME_TYPE | MsgKeyFlags.HAS_SERVICE_ID;
+            msgKey.Flags = MsgKeyFlags.HAS_NAME_TYPE | MsgKeyFlags.HAS_SERVICE_ID | MsgKeyFlags.HAS_NAME;
             msgKey.NameType = InstrumentNameTypes.RIC;
             msgKey.Name.Data("RDT0");
             msgKey.ServiceId = 0;
@@ -237,7 +237,7 @@ namespace Refinitiv.Eta.PerfTools.Common
                 Console.WriteLine("Approximate message size:");
                 Console.Write("  MarketPrice RefreshMsg (without name): \n");
                 Console.Write($"         estimated length: {bufLen} bytes\n");
-                Console.Write($"    approx encoded length: {testBuffer.Length} bytes\n");
+                Console.Write($"    approx encoded length: {testBuffer.Length()} bytes\n");
                 ReleaseTempBuffer(testBuffer, out error);
 
                 // Update msgs
@@ -254,7 +254,7 @@ namespace Refinitiv.Eta.PerfTools.Common
                     }
                     Console.Write($"  MarketPrice UpdateMsg {i + 1}: \n");
                     Console.Write($"         estimated length: {bufLen} bytes\n");
-                    Console.Write($"    approx encoded length: {testBuffer.Length} bytes\n");
+                    Console.Write($"    approx encoded length: {testBuffer.Length()} bytes\n");
                     ReleaseTempBuffer(testBuffer, out error);
                     if (error != null)
                     {
@@ -276,10 +276,9 @@ namespace Refinitiv.Eta.PerfTools.Common
         /// <param name="streamId">the stream id</param>
         public void CloseItemStream(int streamId)
         {
-            ItemInfo itemInfo = ItemStreamIdTable[streamId];
-            if (itemInfo != null)
+            if (ItemStreamIdTable.TryGetValue(streamId, out var itemInfo))
             {
-                itemInfo.Clear();
+                FreeItemInfo(itemInfo);
             }
             else
             {

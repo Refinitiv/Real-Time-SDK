@@ -2,28 +2,27 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
-using static Refinitiv.Eta.Rdm.Directory;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+using static LSEG.Eta.Rdm.Directory;
 using System.Net.Sockets;
 
-namespace Refinitiv.Eta.ValueAdd.Provider
+namespace LSEG.Eta.ValueAdd.Provider
 {
     public class VAProvider : IRDMLoginMsgCallback, IDirectoryMsgCallback, IDictionaryMsgCallback, IReactorChannelEventCallback, IDefaultMsgCallback
     {
         // client sessions over this limit gets rejected with NAK mount
         const int NUM_CLIENT_SESSIONS = 5;
 
-        private const int UPDATE_INTERVAL = 1000000;
+        private const int UPDATE_INTERVAL = 1_000_000; // 1 second in microseconds
 
         private BindOptions m_BindOptions = new BindOptions();        
         private ReactorOptions m_ReactorOptions = new ReactorOptions();
@@ -52,7 +51,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
         private string? portNo;
         private string? serviceName;
         private int serviceId;
-        private long runtime;
+        private System.DateTime runtime;
 
         private long m_CloseTime;
         private long m_CloseRunTime;
@@ -111,7 +110,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                 serviceId = defaultServiceId;
             }
 
-            runtime = (System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) + (m_ProviderCmdLineParser.Runtime * 1000);
+            runtime = System.DateTime.Now + TimeSpan.FromSeconds(m_ProviderCmdLineParser.Runtime);
             m_CloseRunTime = (System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) + (m_ProviderCmdLineParser.Runtime + m_CloseTime) * 1000;
 
             Console.WriteLine($"ConnectionType: {(m_ProviderCmdLineParser.ConnectionType == ConnectionType.SOCKET ? "socket" : "encrypted")}");
@@ -167,7 +166,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             m_Server = Transport.Bind(m_BindOptions, out error);
             if (m_Server == null)
             {
-                Console.WriteLine($"Error initializing server: {(error != null ? error.Text : "")}");
+                Console.WriteLine($"Transport.Bind() failed, error: {error?.Text}");
                 Environment.Exit((int)ReactorReturnCode.FAILURE);
             }
 
@@ -377,16 +376,18 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                     break;
                 case LoginMsgType.RTT:
                     LoginRTT? loginRTT = loginMsg.LoginRTT!;
-                    Console.WriteLine($"Received login RTT message from Consumer {m_SocketFdValueMap[reactorEvent.ReactorChannel!]}.\n");
-                    Console.WriteLine($"\tRTT Tick value is {loginRTT.Ticks}\n");
+                    Console.WriteLine($"Received login RTT message from Consumer {m_SocketFdValueMap[reactorEvent.ReactorChannel!]}.");
+                    // nanoseconds to microseconds
+                    Console.WriteLine("\tRTT Tick value is {0}us", (long)((double)loginRTT.Ticks / 1000.0));
                     if (loginRTT.HasTCPRetrans) 
                     {
-                        Console.WriteLine($"\tConsumer side TCP retransmissions: {loginRTT.TCPRetrans}\n");
+                        Console.WriteLine($"\tConsumer side TCP retransmissions: {loginRTT.TCPRetrans}");
                     }
                     long calculatedRtt = loginRTT.CalculateRTTLatency();
                     LoginRTT storedLoginRtt = m_LoginHandler.GetLoginRtt(reactorChannel!)!.LoginRtt;
                     loginRTT.Copy(storedLoginRtt);
-                    Console.WriteLine($"\tLast RTT message latency is {calculatedRtt}.\n\n");
+                    // nanoseconds to microseconds
+                    Console.WriteLine("\tLast RTT message latency is {0}us.\n", (long)((double)calculatedRtt / 1000.0));
                     break;
                 default:
                     Console.WriteLine($"\nReceived unhandled login msg type: {loginMsg.LoginMsgType}");
@@ -574,8 +575,13 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                 m_DirectoryHandler.CloseStream(reactorChannel);
                 m_LoginHandler.CloseStream(reactorChannel);
                 m_ItemHandler.CloseStream(reactorChannel);
-                m_SocketChannelMap.Remove(reactorChannel.Socket!);
-                m_SocketList.Remove(reactorChannel.Socket!);
+
+                if (reactorChannel.Socket is not null)
+                {
+                    m_SocketChannelMap.Remove(reactorChannel.Socket);
+                    m_SocketList.Remove(reactorChannel.Socket);
+                }
+
                 reactorChannel.Close(out ReactorErrorInfo? errorInfo);
                 if (errorInfo != null)
                 {
@@ -591,7 +597,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             // shutdown reactor
             if (m_Reactor!.Shutdown(out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine($"Error shutting down Reactor: {(error != null ? error.Text : "")}");
+                Console.WriteLine($"Reactor shutdown failed, error: {error?.Text}");
             }
         }
 
@@ -622,7 +628,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                     CleanupAndExit();
                 }
 
-                // nothing to read
+                // nothing to read: UPDATE_INTERVAL expired
                 if (m_CurrentSocketList.Count == 0)
                 {
                     // Send market price updates for each connected channel
@@ -689,21 +695,25 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                                 Console.WriteLine($"Failed to dispatch reactor event: {(m_ErrorInfo != null ? m_ErrorInfo.Error.Text : "")}");
                                 CleanupAndExit();
                             }
-                        } 
+                        }
                         else // Reactor EventSocket
                         {
                             // retrieve associated reactor channel and dispatch on that channel
-                            ReactorChannel reactorChnl = m_SocketChannelMap[socket];
-                            m_DispatchOptions.ReactorChannel = reactorChnl;
-                            // dispatch until no more messages
-                            while ((ret = m_Reactor.Dispatch(m_DispatchOptions, out m_ErrorInfo)) > 0) { }
-                            if (ret == ReactorReturnCode.FAILURE)
+                            ReactorChannel ?reactorChnl = null;
+
+                            if (m_SocketChannelMap.TryGetValue(socket, out reactorChnl))
                             {
-                                if (reactorChnl.State != ReactorChannelState.CLOSED &&
-                                    reactorChnl.State != ReactorChannelState.DOWN)
+                                m_DispatchOptions.ReactorChannel = reactorChnl;
+                                // dispatch until no more messages
+                                while ((ret = m_Reactor.Dispatch(m_DispatchOptions, out m_ErrorInfo)) > 0) { }
+                                if (ret == ReactorReturnCode.FAILURE)
                                 {
-                                    Console.WriteLine($"Failed to dispatch channel: {(m_ErrorInfo != null ? m_ErrorInfo.Error.Text : "")}");
-                                    CleanupAndExit();
+                                    if (reactorChnl.State != ReactorChannelState.CLOSED &&
+                                        reactorChnl.State != ReactorChannelState.DOWN)
+                                    {
+                                        Console.WriteLine($"Failed to dispatch channel: {(m_ErrorInfo != null ? m_ErrorInfo.Error.Text : "")}");
+                                        CleanupAndExit();
+                                    }
                                 }
                             }
                         }
@@ -711,7 +721,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                 }
 
                 // Handle run-time
-                if ((System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) >= runtime && !m_CloseHandled)
+                if (System.DateTime.Now >= runtime && !m_CloseHandled)
                 {
                     Console.WriteLine("Provider run-time expired, closing the application...");
                     SendCloseStatusMessages();
@@ -720,6 +730,10 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                 else if ((System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) >= m_CloseRunTime)
                 {
                     Console.WriteLine("Provider run-time expired...");
+                    break;
+                }
+                if(m_CloseHandled)
+                {
                     break;
                 }
             }

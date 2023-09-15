@@ -119,11 +119,8 @@ class RsslHttpSocketChannel extends RsslSocketChannel
     boolean rcvACKnewChannel = false;
     boolean readAllRemainingOldSocketChannel = false;
     boolean rcvEndOfResponseOldChannel = false;  // received 0x30 0x0d 0x0A 0x0D 0x0A ?
-    CryptoHelper _oldCrypto = null;
     private static final int CRLFCRLF = 0x0D0A0D0A;  // value of bytes for /r/n/r/n
     private long endOfOldSocketMessage = 0;
-
-    protected boolean releaseOldCrypto = false;
 
     protected RsslHttpSocketChannel(SocketProtocol transport, Pool channelPool, boolean encrypted)
     {
@@ -901,7 +898,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
                         System.out.println(" RECON rcvACKnewChannel = " + rcvACKnewChannel +
                                            " rcvEndOfResponseOldChannel = " + rcvEndOfResponseOldChannel);
-                    if (rcvACKnewChannel && rcvEndOfResponseOldChannel)
+					if (rcvACKnewChannel && rcvEndOfResponseOldChannel)
                     {
                         _httpReconnectState = false;
                         _httpReconnectProxyActive = false;
@@ -959,23 +956,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                         break;
                     case NO_DATA:
 
-                        if (releaseOldCrypto)
-                        {
-                            // end of the oldcrypto channel
-                            returnValue = TransportReturnCodes.READ_FD_CHANGE;
-                            _oldScktChannel.close();
-
-                            releaseOldCrypto = false;
-                            readAllRemainingOldSocketChannel = false;
-
-                            _httpReconnectState = false;
-                            _httpReconnectProxyActive = false;
-                            rcvACKnewChannel = false;
-                            rcvEndOfResponseOldChannel = false;
-                            _oldScktChannel.close();
-                        }
-                        else
-                            returnValue = TransportReturnCodes.READ_WOULD_BLOCK;
+                        returnValue = TransportReturnCodes.READ_WOULD_BLOCK;
                         break;
                     case END_OF_STREAM:
                         if (!_httpReconnectState)
@@ -1082,52 +1063,27 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     int saveOldScktChannelBytesRead = 0;
                     while (!readAllRemainingOldSocketChannel)
                     {
-                        if (_encrypted)
+                        // read from oldScktChannel
+                        bytesRead = _oldScktChannel.read(_readIoBuffer.buffer());
+                        if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW) { //readIoBuffer overflow happened
+                            compactOnBufferOverflow();
+                            bytesRead = _oldScktChannel.read(_readIoBuffer.buffer());
+                        }
+                        if (bytesRead > 0)
                         {
-                            try
-                            {
-                                // read from _oldCrypto
-                                bytesRead = _oldCrypto.read(_readIoBuffer.buffer());
-                                if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW) { //readIoBuffer overflow happened
-                                    compactOnBufferOverflow();
-                                    bytesRead = _oldCrypto.read(_readIoBuffer.buffer());
-                                }
-                                saveOldScktChannelBytesRead = saveOldScktChannelBytesRead + bytesRead;
-                            }
-                            catch (IOException e)
-                            {
-                                if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                                    System.out.println("oldCrypto exception = " + e.toString());
-                                // old channel could encounter exception involving SSL engine
-                                // with/without terminal bytes - 5 bytes (end of message or for 0x0 + /n/r/n/r)
-                                readAllRemainingOldSocketChannel = true;
-                                // only release old channel when all msgs are read
-                                releaseOldCrypto = true;
-                            }
+                            if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
+                                System.out.println("HttpSocketChannel::performReadIO(ReadArgsImpl) in _httpReconnectState  bytesRead==" + bytesRead);
+                        }
+                        if (bytesRead != -1)
+                        {
+                            saveOldScktChannelBytesRead = saveOldScktChannelBytesRead + bytesRead;
                         }
                         else
                         {
-                            // read from oldScktChannel
-                            bytesRead = _oldScktChannel.read(_readIoBuffer.buffer());
-                            if (bytesRead == ReadBufferStateMachine.ReadReturnCodes.BUFFER_OVERFLOW) { //readIoBuffer overflow happened
-                                compactOnBufferOverflow();
-                                bytesRead = _oldScktChannel.read(_readIoBuffer.buffer());
-                            }
-                            if (bytesRead > 0)
-                            {
-                                if ((db = System.getProperty("javax.net.debug")) != null && db.equals("all"))
-                                    System.out.println("HttpSocketChannel::performReadIO(ReadArgsImpl) in _httpReconnectState  bytesRead==" + bytesRead);
-                            }
-                            if (bytesRead != -1)
-                            {
-                                saveOldScktChannelBytesRead = saveOldScktChannelBytesRead + bytesRead;
-                            }
-                            else
-                            {
-                                _oldScktChannel.close();
-                                readAllRemainingOldSocketChannel = true;
-                            }
+                            _oldScktChannel.close();
+                            readAllRemainingOldSocketChannel = true;
                         }
+
 
                         if (_readIoBuffer.buffer().position() >= 5) // read at least 5 bytes (check for end of message or for 0x0 + /n/r/n)
                         {
@@ -1137,9 +1093,11 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                                 // convert to unsigned.
                                 endOfOldSocketMessage &= 0xFFFFFFFF;
                             }
+                            
                             if (endOfOldSocketMessage == CRLFCRLF)
                             {
-                                if (_readIoBuffer.buffer().get(_readIoBuffer.buffer().position() - 5) == 0)
+                            	// check to see if a '0' character is prior to this.
+                                if (_readIoBuffer.buffer().get(_readIoBuffer.buffer().position() - 5) == 0x30)
                                 {
                                     readAllRemainingOldSocketChannel = true;
                                 }
@@ -1152,6 +1110,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                 // not httpReconnectState
                 {
                     bytesRead = readToIoBuffer();
+
                 }
 
                 //bytesRead = readAndPrintForReplay(); // for NetworkReplay replace the above read lines with this one
@@ -1305,7 +1264,21 @@ class RsslHttpSocketChannel extends RsslSocketChannel
                     System.out.println("http channel flush failed (during HttpSocketChannel::reconnectClient) with returned code: " + ret +
                                        " - " + error.text());
             }
-            _oldScktChannel = _scktChannel;
+            
+            // Allocate _oldScktChannel if it's null
+            if(_oldScktChannel == null)
+            {
+            	if(_encrypted)
+            	{
+            		_oldScktChannel = new EncryptedSocketHelper();
+            	}
+            	else
+            	{
+            		_oldScktChannel = new SocketHelper();
+            	}
+            }
+            
+            _scktChannel.copy(_oldScktChannel);
 
             // open new connection
             connectHTTPreconnectState(_cachedConnectOptions, error);
@@ -1567,6 +1540,8 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         {
             _totalBytesRead = 0;
             _scktChannel.setSocketChannel(java.nio.channels.SocketChannel.open());
+            
+            _scktChannel.initialize(_cachedConnectOptions);
 
             // use the values from ConnectOptions if set, otherwise defaults.
             if (_cachedConnectOptions.sysRecvBufSize() > 0)
@@ -1587,6 +1562,7 @@ class RsslHttpSocketChannel extends RsslSocketChannel
             {
                 _scktChannel.configureBlocking(false);
             }
+            
 
             if (_cachedInetSocketAddress == null)
             {
@@ -1807,8 +1783,6 @@ class RsslHttpSocketChannel extends RsslSocketChannel
         s.append(readAllRemainingOldSocketChannel);
         s.append("\n\t\trcvEndOfResponseOldChannel: ");
         s.append(rcvEndOfResponseOldChannel);
-        s.append("\n\t\t_oldCrypto: ");
-        s.append(_oldCrypto);
         s.append("\n\t\tendOfOldSocketMessage: ");
         s.append(endOfOldSocketMessage);
         s.append("\n\t\t_proxyCredentails: ");

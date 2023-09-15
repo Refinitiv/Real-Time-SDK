@@ -2,17 +2,17 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using System.Diagnostics;
 using System.Text;
-using Enum = Refinitiv.Eta.Codec.Enum;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     public class MarketPriceRefresh : MarketPriceBase
     {
@@ -107,7 +107,6 @@ namespace Refinitiv.Eta.Example.Common
             m_RefreshMsg.Clear();
             m_RefreshMsg.DomainType = (int)Rdm.DomainType.MARKET_PRICE;
             m_RefreshMsg.MsgClass = MsgClasses.REFRESH;
-            m_RefreshMsg.ApplyHasMsgKey();
         }
 
         public override Msg EncodeMsg()
@@ -131,6 +130,8 @@ namespace Refinitiv.Eta.Example.Common
             {
                 m_RefreshMsg.ApplySolicited();
             }
+
+            m_RefreshMsg.ApplyHasMsgKey();
 
             if (HasServiceId)
             {
@@ -207,7 +208,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.RDNDISPLAY_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempUInt.Value(mpItem.RDNDISPLAY);
                 if ((ret = fieldEntry.Encode(encodeIter, tempUInt)) < CodecReturnCode.SUCCESS)
                 {
@@ -220,7 +221,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.RDN_EXCHID_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 Enum enumValue = new Enum();
                 enumValue.Value(mpItem.RDN_EXCHID);
                 if ((ret = fieldEntry.Encode(encodeIter, enumValue)) < CodecReturnCode.SUCCESS)
@@ -235,7 +236,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.DIVPAYDATE_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 return fieldEntry.Encode(encodeIter, mpItem.DIVPAYDATE);
             }
 

@@ -2,26 +2,25 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Net;
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+using static LSEG.Eta.Rdm.Login;
 
-using static Refinitiv.Eta.Rdm.Login;
-
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
     /// <summary>
-    /// Determines the information a provider needs for accepting logins, 
+    /// Determines the information a provider needs for accepting logins,
     /// and provides encoding of appropriate responses.
     /// </summary>
     public class LoginProvider
@@ -30,16 +29,26 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
         private LoginRefresh m_LoginRefresh;
         private LoginRequest m_LoginRequest;
+
+        public LoginRequest LoginRequest { get => m_LoginRequest; }
+
         private EncodeIterator m_EncodeIter;
         public string? ApplicationId { get; set; }
         public string? ApplicationName { get; set; }
         public string? Position { get; set; }
+
+        // Use the VA Reactor instead of the ETA Channel for sending and receiving
+        private ReactorSubmitOptions  m_ReactorSubmitOptions;
 
         public LoginProvider()
         {
             m_LoginRefresh = new LoginRefresh();
             m_LoginRequest = new LoginRequest();
             m_EncodeIter = new EncodeIterator();
+
+            m_ReactorSubmitOptions = new();
+            m_ReactorSubmitOptions.Clear();
+            m_ReactorSubmitOptions.WriteArgs.Priority = WritePriorities.HIGH;
         }
 
         /// <summary>
@@ -64,7 +73,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                     {
                         error = new Error()
                         {
-                            Text = $"LoginRequest.Decode() failed with return code:  {codecReturnCode.GetAsString()}" 
+                            Text = $"LoginRequest.Decode() failed with return code:  {codecReturnCode.GetAsString()}"
                         };
                         return TransportReturnCode.FAILURE;
                     }
@@ -97,7 +106,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                 string hostName = Dns.GetHostName();
                 Position = Dns.GetHostAddresses(hostName)
                     .Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                    .FirstOrDefault()?.ToString() 
+                    .FirstOrDefault()?.ToString()
                     + "/" + hostName;
             }
             catch (Exception)
@@ -127,12 +136,12 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                 return TransportReturnCode.FAILURE;
             }
 
-            // provide login response information 
+            // provide login response information
 
-            // streamId 
+            // streamId
             m_LoginRefresh.StreamId = m_LoginRequest.StreamId;
 
-            // username 
+            // username
             m_LoginRefresh.HasUserName = true;
             m_LoginRefresh.UserName = m_LoginRequest.UserName;
 
@@ -197,6 +206,98 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
             //send login response
             return channelHandler.WriteChannel(clientChannelInfo, msgBuf, 0, out error);
+        }
+
+        internal ReactorReturnCode SendRefreshReactor(ClientChannelInfo clientChannelInfo, out ReactorErrorInfo? errorInfo)
+        {
+            // initialize login response info
+            m_LoginRefresh.Clear();
+
+            ReactorChannel reactorChannel = clientChannelInfo.ReactorChannel!;
+
+            // get a buffer for the login response
+            ITransportBuffer? msgBuf = reactorChannel.GetBuffer(REFRESH_MSG_SIZE, false, out errorInfo);
+
+            if (msgBuf == null)
+            {
+                return ReactorReturnCode.FAILURE;
+            }
+
+            // provide login response information
+
+            // StreamId
+            m_LoginRefresh.StreamId = m_LoginRequest.StreamId;
+
+            // Username
+            m_LoginRefresh.HasUserName = true;
+            m_LoginRefresh.UserName.Data(m_LoginRequest.UserName.Data(), m_LoginRequest.UserName.Position, m_LoginRequest.UserName.Length);
+
+            m_LoginRefresh.HasUserNameType = true;
+            m_LoginRefresh.UserNameType = UserIdTypes.NAME;
+
+            m_LoginRefresh.State.Code(StateCodes.NONE);
+            m_LoginRefresh.State.DataState(DataStates.OK);
+            m_LoginRefresh.State.StreamState(StreamStates.OPEN);
+            m_LoginRefresh.State.Text().Data("Login accepted by host localhost");
+
+            m_LoginRefresh.Solicited = true;
+
+            m_LoginRefresh.HasAttrib = true;
+
+            // ApplicationId
+            m_LoginRefresh.LoginAttrib.HasApplicationId = true;
+            m_LoginRefresh.LoginAttrib.ApplicationId.Data(ApplicationId);
+
+            // ApplicationName
+            m_LoginRefresh.LoginAttrib.HasApplicationName = true;
+            m_LoginRefresh.LoginAttrib.ApplicationName.Data(ApplicationName);
+
+            // Position
+            m_LoginRefresh.LoginAttrib.HasPosition = true;
+            m_LoginRefresh.LoginAttrib.Position.Data(Position);
+
+            //
+            // this provider does not support
+            // SingleOpen behavior
+            //
+            m_LoginRefresh.LoginAttrib.HasSingleOpen = true;
+            m_LoginRefresh.LoginAttrib.SingleOpen = 0;
+
+            //
+            // this provider supports
+            // batch requests
+            //
+            m_LoginRefresh.HasFeatures = true;
+            m_LoginRefresh.SupportedFeatures.HasSupportBatchRequests = true;
+            m_LoginRefresh.SupportedFeatures.SupportBatchRequests = 1;
+
+            m_LoginRefresh.SupportedFeatures.HasSupportPost = true;
+            m_LoginRefresh.SupportedFeatures.SupportOMMPost = 1;
+
+            // keep default values for all others
+
+            // encode login response
+            m_EncodeIter.Clear();
+            CodecReturnCode codeRet = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, reactorChannel.MajorVersion, reactorChannel.MinorVersion);
+            if (codeRet != CodecReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = $"EncodeIter.SetBufferAndRWFVersion() failed with return code: {codeRet}";
+                errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+
+            codeRet = m_LoginRefresh.Encode(m_EncodeIter);
+            if (codeRet != CodecReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = $"LoginRefresh.Encode() failed with return code: {codeRet}";
+                errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+
+            //send login response
+            return reactorChannel.Submit(msgBuf, m_ReactorSubmitOptions, out errorInfo);
         }
     }
 }

@@ -40,8 +40,6 @@ extern "C" {
 #include <tcpmib.h>
 #endif
 
-#define RIPC_MAX_CONN_HDR_LEN  V10_MIN_CONN_HDR + MAX_RSSL_ERROR_TEXT 
-
 #define RSSL_RSSL_SOCKET_IMPL_FAST(ret)		ret RTR_FASTCALL
 
 #define RIPC_RWF_PROTOCOL_TYPE 0 /* must match definition for RWF in RSSL */
@@ -256,6 +254,7 @@ typedef struct {
 	RsslInt32(*additionalTransportHdrLength)(); /* This is additional header length for transport protocols */
 	rtr_msgb_t *(*getPoolBuffer)(rtr_bufferpool_t *, size_t);
 	rtr_msgb_t *(*getGlobalBuffer)(size_t);
+	void(*dumpMsgAndTransportHdr)(const char *, rtr_msgb_t *, void *);
 
 } ripcProtocolFuncs;
 
@@ -369,6 +368,8 @@ typedef enum
 	RSSL_CURL_DONE = 2
 } RsslLibCurlStatus;
 
+/* Default timeout for Proxy connection */
+#define RSSL_CURL_PROXY_CONNECTION_TIMEOUT 40
 
 typedef struct
 {
@@ -409,6 +410,7 @@ typedef struct
 	char				*curlOptProxyUser;		/* username used for tunneling connection */
 	char				*curlOptProxyPasswd;	/* password used for tunneling connection */
 	char				*curlOptProxyDomain;	/* domain used for tunneling connection */
+	RsslUInt32			proxyConnectionTimeout;	/* the maximum time during which a connection to the proxy can be established. */
 	RsslBool			blocking : 1;			/* Perform blocking operations */
 	RsslBool			tcp_nodelay : 1;		/* Disable Nagle Algorithm */
 	RsslUInt32			compression;			/* Use compression defined by server, otherwise none */
@@ -618,6 +620,7 @@ RTR_C_INLINE void ripcClearRsslSocketChannel(RsslSocketChannel *rsslSocketChanne
 	rsslSocketChannel->curlOptProxyUser = 0;
 	rsslSocketChannel->curlOptProxyPasswd = 0;
 	rsslSocketChannel->curlOptProxyDomain = 0;
+	rsslSocketChannel->proxyConnectionTimeout = RSSL_CURL_PROXY_CONNECTION_TIMEOUT;
 	rsslSocketChannel->server = 0;
 	rsslSocketChannel->serverName = 0;
 	rsslSocketChannel->hostName = 0;
@@ -826,6 +829,7 @@ RsslInt32 ipcReadTransportMsg(void *, char *, int , ripcRWFlags , RsslError *);
 RsslInt32 ipcReadPrependTransportHdr(void *, char *, int, ripcRWFlags, int *, RsslError *);
 RsslInt32 ipcPrependTransportHdr(void *, rtr_msgb_t *, RsslError *);
 RsslInt32 ipcAdditionalHeaderLength();
+void ipcDumpMsgAndTransportHdr(const char *, rtr_msgb_t *, void *);
 
 extern RsslRet ipcShutdownServer(RsslServerSocketChannel* socket, RsslError *error);
 extern RsslRet ipcSrvrDropRef(RsslServerSocketChannel *rsslServerSocketChannel, RsslError *error);

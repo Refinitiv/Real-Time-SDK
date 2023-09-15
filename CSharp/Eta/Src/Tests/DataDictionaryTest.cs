@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
 using System.Collections.Generic;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
 using Xunit;
 using Xunit.Categories;
 
-namespace Refinitiv.Eta.Transports.Tests
+namespace LSEG.Eta.Transports.Tests
 {
     public class DataDictionaryTest
     {
@@ -31,7 +31,7 @@ namespace Refinitiv.Eta.Transports.Tests
             dictionary.Clear();
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadFieldDictionary(null, out error));
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadFieldDictionary("xyz", out error));
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
             Assert.Equal(15047, dictionary.NumberOfEntries);
             Assert.Equal(32767, dictionary.MaxFid);
             Assert.Equal(-32768, dictionary.MinFid);
@@ -47,54 +47,54 @@ namespace Refinitiv.Eta.Transports.Tests
             // FID 1
             IDictionaryEntry entry = dictionary.Entry(1);
             Assert.NotNull(entry);
-            Assert.Equal("PROD_PERM", entry.Acronym.ToString());
-            Assert.Equal("PERMISSION", entry.DdeAcronym.ToString());
-            Assert.Equal(1, entry.Fid);
-            Assert.Equal(0, entry.RippleToField);
-            Assert.Equal(MfFieldTypes.INTEGER, entry.FieldType);
-            Assert.Equal(5, entry.Length);
-            Assert.Equal(0, entry.EnumLength);
-            Assert.Equal(DataTypes.UINT, entry.RwfType);
-            Assert.Equal(2, entry.RwfLength);
+            Assert.Equal("PROD_PERM", entry.GetAcronym().ToString());
+            Assert.Equal("PERMISSION", entry.GetDdeAcronym().ToString());
+            Assert.Equal(1, entry.GetFid());
+            Assert.Equal(0, entry.GetRippleToField());
+            Assert.Equal(MfFieldTypes.INTEGER, entry.GetFieldType());
+            Assert.Equal(5, entry.GetLength());
+            Assert.Equal(0, entry.GetEnumLength());
+            Assert.Equal(DataTypes.UINT, entry.GetRwfType());
+            Assert.Equal(2, entry.GetRwfLength());
 
             // FID 32767
             entry = dictionary.Entry(32767);
             Assert.NotNull(entry);
-            Assert.Equal("MAX_FID", entry.Acronym.ToString());
-            Assert.Equal("MAX_FID_DDE", entry.DdeAcronym.ToString());
-            Assert.Equal(32767, entry.Fid);
-            Assert.Equal(0, entry.RippleToField);
-            Assert.Equal(MfFieldTypes.ENUMERATED, entry.FieldType);
-            Assert.Equal(3, entry.Length);
-            Assert.Equal(3, entry.EnumLength);
-            Assert.Equal(DataTypes.ENUM, entry.RwfType);
-            Assert.Equal(1, entry.RwfLength);
+            Assert.Equal("MAX_FID", entry.GetAcronym().ToString());
+            Assert.Equal("MAX_FID_DDE", entry.GetDdeAcronym().ToString());
+            Assert.Equal(32767, entry.GetFid());
+            Assert.Equal(0, entry.GetRippleToField());
+            Assert.Equal(MfFieldTypes.ENUMERATED, entry.GetFieldType());
+            Assert.Equal(3, entry.GetLength());
+            Assert.Equal(3, entry.GetEnumLength());
+            Assert.Equal(DataTypes.ENUM, entry.GetRwfType());
+            Assert.Equal(1, entry.GetRwfLength());
 
             // FID -32768
             entry = dictionary.Entry(-32768);
             Assert.NotNull(entry);
-            Assert.Equal("MIN_FID", entry.Acronym.ToString());
-            Assert.Equal("MIN_FID_DDE", entry.DdeAcronym.ToString());
-            Assert.Equal(-32768, entry.Fid);
-            Assert.Equal(0, entry.RippleToField);
-            Assert.Equal(MfFieldTypes.ENUMERATED, entry.FieldType);
-            Assert.Equal(3, entry.Length);
-            Assert.Equal(3, entry.EnumLength);
-            Assert.Equal(DataTypes.ENUM, entry.RwfType);
-            Assert.Equal(1, entry.RwfLength);
+            Assert.Equal("MIN_FID", entry.GetAcronym().ToString());
+            Assert.Equal("MIN_FID_DDE", entry.GetDdeAcronym().ToString());
+            Assert.Equal(-32768, entry.GetFid());
+            Assert.Equal(0, entry.GetRippleToField());
+            Assert.Equal(MfFieldTypes.ENUMERATED, entry.GetFieldType());
+            Assert.Equal(3, entry.GetLength());
+            Assert.Equal(3, entry.GetEnumLength());
+            Assert.Equal(DataTypes.ENUM, entry.GetRwfType());
+            Assert.Equal(1, entry.GetRwfLength());
 
             // FID 6
             entry = dictionary.Entry(6);
             Assert.NotNull(entry);
-            Assert.Equal("TRDPRC_1", entry.Acronym.ToString());
-            Assert.Equal("LAST", entry.DdeAcronym.ToString());
-            Assert.Equal(6, entry.Fid);
-            Assert.Equal(7, entry.RippleToField);
-            Assert.Equal(MfFieldTypes.PRICE, entry.FieldType);
-            Assert.Equal(17, entry.Length);
-            Assert.Equal(0, entry.EnumLength);
-            Assert.Equal(DataTypes.REAL, entry.RwfType);
-            Assert.Equal(7, entry.RwfLength);
+            Assert.Equal("TRDPRC_1", entry.GetAcronym().ToString());
+            Assert.Equal("LAST", entry.GetDdeAcronym().ToString());
+            Assert.Equal(6, entry.GetFid());
+            Assert.Equal(7, entry.GetRippleToField());
+            Assert.Equal(MfFieldTypes.PRICE, entry.GetFieldType());
+            Assert.Equal(17, entry.GetLength());
+            Assert.Equal(0, entry.GetEnumLength());
+            Assert.Equal(DataTypes.REAL, entry.GetRwfType());
+            Assert.Equal(7, entry.GetRwfLength());
         }
 
         /**
@@ -111,7 +111,7 @@ namespace Refinitiv.Eta.Transports.Tests
             dictionary.Clear();
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadEnumTypeDictionary(null, out error));
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadEnumTypeDictionary("xyz", out error));
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadEnumTypeDictionary("../../../enumtype.def", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadEnumTypeDictionary("../../../../Src/Tests/enumtype.def", out error));
 
             // verify tags
             Assert.Equal("ENUMTYPE.001", dictionary.InfoEnumFilename.ToString());

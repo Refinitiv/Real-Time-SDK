@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -231,18 +231,17 @@
 
 using System.Net.Sockets;
 
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.Common;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 using DateTime = System.DateTime;
-using Directory = Refinitiv.Eta.Rdm.Directory;
+using Directory = LSEG.Eta.Rdm.Directory;
 
-namespace Refinitiv.Eta.Training.NiProvider
+namespace LSEG.Eta.Training.NiProvider
 {
     public class Module_3_ProvideDirectory
     {
@@ -425,10 +424,10 @@ namespace Refinitiv.Eta.Training.NiProvider
              * Client/NIProv Application Life Cycle Major Step 2: Connect using
              * Connect (OS connection establishment handshake) Connect call
              * Establishes an outbound connection, which can leverage standard
-             * sockets, HTTP, or HTTPS. Returns an Channel that represents the
-             * connection to the user. In the event of an error, NULL is returned
-             * and additional information can be found in the Error structure.
-             * Connection options are passed in via an ConnectOptions structure.
+             * sockets. Returns an Channel that represents the connection to the
+             * user. In the event of an error, NULL is returned and additional
+             * information can be found in the Error structure. Connection
+             * options are passed in via an ConnectOptions structure.
              *********************************************************/
 
             if ((channel = Transport.Connect(cOpts, out error)) == null)

@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using ItemInfo = Refinitiv.Eta.PerfTools.Common.ItemInfo;
-using ProviderSession = Refinitiv.Eta.PerfTools.Common.ProviderSession;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using ItemInfo = LSEG.Eta.PerfTools.Common.ItemInfo;
+using ProviderSession = LSEG.Eta.PerfTools.Common.ProviderSession;
 
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
     /// <summary>
     /// Implementation of handling item requests for the ProvPerf application.
@@ -120,6 +120,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                             // deep copy item name buffer
                             ByteBuffer nameBytes = new ByteBuffer(msgKey.Name.Length);
                             msgKey.Name.Copy(nameBytes);
+                            nameBytes.Flip();
                             itemAttributes.MsgKey.Name.Data(nameBytes);
                         }
 
@@ -128,6 +129,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                             // deep copy attrib buffer
                             ByteBuffer attribBytes = new ByteBuffer(msgKey.EncodedAttrib.Length);
                             msgKey.EncodedAttrib.Copy(attribBytes);
+                            attribBytes.Flip();
                             itemAttributes.MsgKey.EncodedAttrib.Data(attribBytes);
                         }
 
@@ -135,6 +137,11 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
                         if (itemInfo == null)
                         {
+                            error = new Error()
+                            {
+                                Text = "Failed to create ItemInfo instance",
+                                ErrorId = TransportReturnCode.FAILURE
+                            };
                             return TransportReturnCode.FAILURE;
                         }
 
@@ -142,6 +149,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                         itemInfo.StreamId = msg.StreamId;
                         itemInfo.ItemFlags = itemInfo.ItemFlags | (int)ItemFlags.IS_SOLICITED;
                         providerSession.ItemAttributesTable.Add(itemAttributes, itemInfo);
+                        providerSession.ItemStreamIdTable.Add(msg.StreamId, itemInfo);
                     }
                     else
                     {

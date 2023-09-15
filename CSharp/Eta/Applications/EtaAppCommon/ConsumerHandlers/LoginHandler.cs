@@ -2,21 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static Refinitiv.Eta.Rdm.Login;
+using static LSEG.Eta.Rdm.Login;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// This is the Login handler for the ETA Consumer and NIProvider applications. 
@@ -235,6 +234,11 @@ namespace Refinitiv.Eta.Example.Common
                 case MsgClasses.CLOSE:
                     Console.WriteLine("Received Login Close");
                     LoginState = ConsumerLoginState.CLOSED;
+                    error = new Error()
+                    {
+                        Text = "Received Login Close message",
+                        ErrorId = TransportReturnCode.FAILURE
+                    };
                     return TransportReturnCode.FAILURE;
                 default:
                     error = new Error()

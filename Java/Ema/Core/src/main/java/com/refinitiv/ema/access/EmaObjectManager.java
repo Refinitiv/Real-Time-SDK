@@ -9,11 +9,9 @@ package com.refinitiv.ema.access;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import com.refinitiv.ema.access.NoDataImpl;
-import com.refinitiv.ema.access.FieldListImpl;
-import com.refinitiv.ema.access.SingleItem;
 import com.refinitiv.eta.valueadd.common.VaPool;
 
 class EmaObjectManager
@@ -84,6 +82,16 @@ class EmaObjectManager
 	VaPool _vectorEntryPool = new VaPool(false);
 	VaPool _ommServiceIdIntegerPool = new VaPool(true);
 	VaPool _streamInfoPool = new VaPool(true);
+	
+	ArrayList<com.refinitiv.eta.codec.ElementList> _rsslElementListPool = new ArrayList<com.refinitiv.eta.codec.ElementList>();
+	ArrayList<com.refinitiv.eta.codec.Vector> _rsslVectorPool = new ArrayList<com.refinitiv.eta.codec.Vector>();
+	ArrayList<com.refinitiv.eta.codec.FieldList> _rsslFieldListPool = new ArrayList<com.refinitiv.eta.codec.FieldList>();
+	ArrayList<com.refinitiv.eta.codec.FilterList> _rsslFilterListPool = new ArrayList<com.refinitiv.eta.codec.FilterList>();
+	ArrayList<com.refinitiv.eta.codec.Map> _rsslMapPool = new ArrayList<com.refinitiv.eta.codec.Map>();
+	ArrayList<com.refinitiv.eta.codec.Series> _rsslSeriesPool = new ArrayList<com.refinitiv.eta.codec.Series>();
+	ArrayList<com.refinitiv.eta.codec.Array> _rsslArrayPool = new ArrayList<com.refinitiv.eta.codec.Array>();
+	
+	ArrayList<com.refinitiv.eta.codec.DecodeIterator> _etaDecodeIteratorPool = new ArrayList<com.refinitiv.eta.codec.DecodeIterator>();
 	
 	<T> void initialize()
 	{

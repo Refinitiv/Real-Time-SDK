@@ -8,16 +8,31 @@ eclipse {
 
 dependencies {
 	// version 1.1.3_8 not available on mavencentral
-	compile group: 'xpp3', name: 'xpp3', version: '1.1.4c'
+    implementation group: 'xpp3', name: 'xpp3', version: '1.1.4c'
 
-	compile project(':Eta:Applications:Shared')
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
+
+    implementation project(':Eta:Applications:Shared')
+    implementation project(':Eta:Core')
+    implementation project(':Eta:ValueAdd')
+    implementation project(':Eta:Converter')
 }
 
 mainClassName = 'com.refinitiv.eta.perftools.provperf.ProvPerf'
 
-task copyDictionary( type: Copy ) {
-	from '../../../etc'
-	into '.'
+task copyDictionary{
+    outputs.files files('../../../etc')
+            .asFileTree
+            .files
+            .collect{'./${it.name}'}
+
+    doLast{
+        copy{
+            from '../../../etc'
+            into './'
+        }
+    }
 }
 
 task deleteDictionary( type: Delete ) {
@@ -67,7 +82,7 @@ task runETAPerfProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) ) 
 
-    main = 'com.refinitiv.eta.perftools.provperf.ProvPerf'
+    mainClass.set('com.refinitiv.eta.perftools.provperf.ProvPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -87,7 +102,7 @@ task runETAPerfConsumer(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) ) 
 
-    main = 'com.refinitiv.eta.perftools.consperf.ConsPerf'
+    mainClass.set('com.refinitiv.eta.perftools.consperf.ConsPerf')
     classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -107,7 +122,7 @@ task runETAPerfNIProvider(type: JavaExec) {
     if (APP_ARGS)
         args Eval.me ( buildArgsList ( APP_ARGS ) )
 
-	main = 'com.refinitiv.eta.perftools.niprovperf.NIProvPerf'
+    mainClass.set('com.refinitiv.eta.perftools.niprovperf.NIProvPerf')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -124,7 +139,7 @@ task runETAPerfTransport(type: JavaExec) {
     // - uncomment and add to APP_ARGS to specify the command line options
     // APP_ARGS="-msgRate 1000 -runTime 60"
 
-	main = 'com.refinitiv.eta.perftools.transportperf.TransportPerf'
+    mainClass.set('com.refinitiv.eta.perftools.transportperf.TransportPerf')
 	classpath = sourceSets.main.runtimeClasspath
 }
 

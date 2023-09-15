@@ -29,7 +29,7 @@ RsslRet encodeItemCloseStatus(RsslChannel* chnl, RsslItemInfo* itemInfo, RsslBuf
 {
 	RsslRet ret = 0;
 	RsslStatusMsg msg = RSSL_INIT_STATUS_MSG;
-	char stateText[MAX_ITEM_INFO_STRLEN];
+	char stateText[MAX_ITEM_INFO_STRLEN+1];
 	RsslEncodeIterator encodeIter;
 
 	/* clear encode iterator */
@@ -44,7 +44,14 @@ RsslRet encodeItemCloseStatus(RsslChannel* chnl, RsslItemInfo* itemInfo, RsslBuf
 	msg.state.streamState = RSSL_STREAM_CLOSED;
 	msg.state.dataState = RSSL_DATA_SUSPECT;
 	msg.state.code = RSSL_SC_NONE;
-	snprintf(stateText, 128, "Stream closed for item: %s", itemInfo->Itemname);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+	snprintf(stateText, MAX_ITEM_INFO_STRLEN + 1, "Stream closed for item: %s", itemInfo->Itemname);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+#pragma GCC diagnostic pop
+#endif
 	msg.state.text.data = stateText;
 	msg.state.text.length = (RsslUInt32)strlen(stateText);
 

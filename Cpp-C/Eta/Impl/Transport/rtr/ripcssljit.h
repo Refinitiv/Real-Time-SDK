@@ -307,7 +307,8 @@ typedef enum
 {
 	RSSL_OPENSSL_VNONE = 0,
 	RSSL_OPENSSL_V1_0 = 1,
-	RSSL_OPENSSL_V1_1 = 2
+	RSSL_OPENSSL_V1_1 = 2,
+	RSSL_OPENSSL_V3 = 3
 } RsslOpenSSLAPIVersion;
 
 typedef struct
@@ -415,6 +416,7 @@ typedef struct
 	void (*dh_free_11)(OPENSSL_11_DH*);						/* DH_free */
 	OPENSSL_BIGNUM* (*bin2bn)(const unsigned char*, int, OPENSSL_BIGNUM*);	/* BN_bin2bn */
 	void (*bn_free)(OPENSSL_BIGNUM*);			/* BN_free */
+	void (*bn_clear)(OPENSSL_BIGNUM*);			/* BN_clear */
 	void (*rand_seed)(const void*, int);		/* RAND_seed */
 	void (*err_free_strings)(void);				/* ERR_free_strings */
 	void (*err_remove_state)(int);				/* ERR_remove_state */
@@ -437,16 +439,20 @@ typedef struct
 	const OPENSSL_EC_GROUP* (*EC_KEY_get0_group)(const OPENSSL_EC_KEY*);
 	OPENSSL_EC_POINT* (*EC_POINT_new)(const OPENSSL_EC_GROUP*);
 	int (*EC_POINT_set_affine_coordinates_GFp)(const OPENSSL_EC_GROUP*, OPENSSL_EC_POINT*, const OPENSSL_BIGNUM*, const OPENSSL_BIGNUM*, OPENSSL_BN_CTX*);
+	int (*EC_KEY_set_public_key_affine_coordinates)(OPENSSL_EC_KEY*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*);
 	int (*EC_KEY_set_public_key)(OPENSSL_EC_KEY*, const OPENSSL_EC_POINT*);
-	void (*EC_POINT_free)(OPENSSL_EC_POINT*);
+	void (*EC_POINT_clear_free)(OPENSSL_EC_POINT*);
 	int (*EC_POINT_mul)(const OPENSSL_EC_GROUP*, OPENSSL_EC_POINT*, const OPENSSL_BIGNUM*, const OPENSSL_EC_POINT*, const OPENSSL_BIGNUM*, OPENSSL_BN_CTX*);
 	void (*EC_KEY_set_asn1_flag)(OPENSSL_EC_KEY*, int);
 	int (*PEM_write_bio_ECPrivateKey)(OPENSSL_BIO*, OPENSSL_EC_KEY*, const OPENSSL_EVP_CIPHER*, unsigned char*, int,
 		pem_password_cb*, void*); /* PEM_write_bio_ECPrivateKey */
+	int (*PEM_write_bio_EC_PUBKEY)(OPENSSL_BIO*, OPENSSL_EC_KEY*); /* PEM_write_bio_EC_PUBKEY */
 	int (*PEM_write_bio_RSAPrivateKey_10)(OPENSSL_BIO*, OPENSSL_10_rsa*, const OPENSSL_EVP_CIPHER*, unsigned char*, int,
 		pem_password_cb*, void*); /* PEM_write_bio_RSAPrivateKey for v1.0.X */
+	int (*PEM_write_bio_RSAPublicKey_10)(OPENSSL_BIO*, OPENSSL_10_rsa*); /* PEM_write_bio_RSAPublicKey for v1.0.X */
 	int (*PEM_write_bio_RSAPrivateKey_11)(OPENSSL_BIO*, OPENSSL_11_rsa*, const OPENSSL_EVP_CIPHER*, unsigned char*, int,
 		pem_password_cb*, void*); /* PEM_write_bio_RSAPrivateKey for v1.1.X */
+	int (*PEM_write_bio_RSAPublicKey_11)(OPENSSL_BIO*, OPENSSL_11_rsa*); /* PEM_write_bio_RSAPublicKey for v1.1.X */
 
 	OPENSSL_11_rsa* (*RSA_new_11)();  /* RSA_new v1.1.X*/
 

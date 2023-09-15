@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2020-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -38,6 +38,7 @@ void EmaActiveConfigTest::ChannelConfigTestDefaultValues(SocketChannelConfig & c
 	EXPECT_EQ(channelConfig.getType(), RSSL_CONN_TYPE_SOCKET);
 
 	EXPECT_EQ(channelConfig.connectionPingTimeout, DEFAULT_CONNECTION_PINGTIMEOUT);
+	EXPECT_EQ(channelConfig.directWrite, DEFAULT_DIRECT_WRITE);
 	EXPECT_EQ(channelConfig.initializationTimeout, DEFAULT_INITIALIZATION_TIMEOUT);
 	EXPECT_EQ(channelConfig.guaranteedOutputBuffers, DEFAULT_GUARANTEED_OUTPUT_BUFFERS);
 	EXPECT_EQ(channelConfig.numInputBuffers, DEFAULT_NUM_INPUT_BUFFERS);
@@ -80,6 +81,7 @@ TEST_F(EmaActiveConfigTest, ChannelConfigTest)
 	//channelConfig.connectionType = RSSL_CONN_TYPE_UNIDIR_SHMEM;
 
 	channelConfig.connectionPingTimeout = 3002;
+	channelConfig.directWrite = 1;
 	channelConfig.initializationTimeout = 55;
 	channelConfig.guaranteedOutputBuffers = 45;
 	channelConfig.numInputBuffers = 33;
@@ -102,6 +104,13 @@ void EmaActiveConfigTest::SocketChannelConfigTestDefaultValues(SocketChannelConf
 	EXPECT_TRUE(socketChannelConfig.objectName.empty());
 	EXPECT_TRUE(socketChannelConfig.sslCAStore.empty());
 
+	EXPECT_TRUE(socketChannelConfig.proxyHostName.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyPort.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyUserName.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyPasswd.empty());
+	EXPECT_TRUE(socketChannelConfig.proxyDomain.empty());
+	EXPECT_EQ(socketChannelConfig.proxyConnectionTimeout, DEFAULT_PROXY_CONNECTION_TIMEOUT);
+
 	EXPECT_EQ(socketChannelConfig.encryptedConnectionType, RSSL_CONN_TYPE_INIT);
 	EXPECT_EQ(socketChannelConfig.securityProtocol, RSSL_ENC_TLSV1_2);
 
@@ -123,6 +132,14 @@ TEST_F(EmaActiveConfigTest, SocketChannelConfigTest)
 	SocketChannelConfigTestDefaultValues(socketChannelConfig);
 
 	const int midValue = 120;
+	// proxyConnectionTimeout
+	socketChannelConfig.setProxyConnectionTimeout((RWF_MAX_32)+1ULL);
+	EXPECT_EQ((RWF_MAX_32), socketChannelConfig.proxyConnectionTimeout) << "Should be equal to RWF_MAX_32 - maximum allowed value";
+	socketChannelConfig.setProxyConnectionTimeout(midValue);
+	EXPECT_EQ(midValue, socketChannelConfig.proxyConnectionTimeout) << "Should be equal to " << midValue;
+	socketChannelConfig.setProxyConnectionTimeout(0);
+	EXPECT_EQ(0, socketChannelConfig.proxyConnectionTimeout) << "Should be equal to 0";
+
 	// serviceDiscoveryRetryCount
 	socketChannelConfig.setServiceDiscoveryRetryCount((RWF_MAX_32)+1ULL);
 	EXPECT_EQ((RWF_MAX_32), socketChannelConfig.serviceDiscoveryRetryCount) << "Should be equal to RWF_MAX_32 - maximum allowed value";
@@ -146,6 +163,13 @@ TEST_F(EmaActiveConfigTest, SocketChannelConfigTest)
 	socketChannelConfig.tcpNodelay = RSSL_FALSE;
 	socketChannelConfig.objectName = "ooo";
 	socketChannelConfig.sslCAStore = "ccc";
+
+	socketChannelConfig.proxyHostName = "non def proxyHostName";
+	socketChannelConfig.proxyPort = "non def proxyHostPort";
+	socketChannelConfig.proxyUserName = "non def proxyUserName";
+	socketChannelConfig.proxyPasswd = "non def proxyPasswd";
+	socketChannelConfig.proxyDomain = "non def proxyDomain";
+	socketChannelConfig.proxyConnectionTimeout = 420;
 
 	//socketChannelConfig.encryptedConnectionType = RSSL_CONN_TYPE_HTTP;
 	socketChannelConfig.securityProtocol = RSSL_ENC_NONE;
@@ -175,6 +199,7 @@ void EmaActiveConfigTest::ServerConfigTestDefaultValues(SocketServerConfig& serv
 
 	EXPECT_EQ(serverConfig.connectionPingTimeout, DEFAULT_CONNECTION_PINGTIMEOUT);
 	EXPECT_EQ(serverConfig.connectionMinPingTimeout, DEFAULT_CONNECTION_MINPINGTIMEOUT);
+	EXPECT_EQ(serverConfig.directWrite, DEFAULT_DIRECT_WRITE);
 	EXPECT_EQ(serverConfig.initializationTimeout, DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT);
 	EXPECT_EQ(serverConfig.guaranteedOutputBuffers, DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS);
 	EXPECT_EQ(serverConfig.numInputBuffers, DEFAULT_NUM_INPUT_BUFFERS);
@@ -217,6 +242,7 @@ TEST_F(EmaActiveConfigTest, ServerConfigTest)
 
 	serverConfig.connectionPingTimeout = 7897;
 	serverConfig.connectionMinPingTimeout = 12;
+	serverConfig.directWrite = 1;
 	serverConfig.initializationTimeout = 7;
 	serverConfig.guaranteedOutputBuffers = 8;
 	serverConfig.numInputBuffers = 33;
@@ -489,8 +515,11 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.catchUnknownJsonFids, DEFAULT_CATCH_UNKNOWN_JSON_FIDS);
 	EXPECT_EQ(baseConfig.closeChannelFromFailure, DEFAULT_CLOSE_CHANNEL_FROM_FAILURE);
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
+	EXPECT_EQ(baseConfig.jsonTokenIncrementSize, DEFAULT_JSON_TOKEN_INCREMENT_SIZE);
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
 	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
+	EXPECT_EQ(baseConfig.sendJsonConvError, DEFAULT_SEND_JSON_CONV_ERROR);
+	EXPECT_EQ(baseConfig.shouldInitializeCPUIDlib, DEFAULT_SHOULD_INIT_CPUID_LIB);
 }
 
 TEST_F(EmaActiveConfigTest, BaseConfigTest)
@@ -519,11 +548,11 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 
 	// setCatchUnhandledException
 	baseConfig.setCatchUnhandledException( 333 );
-	EXPECT_EQ(true, baseConfig.catchUnhandledException) << "Should be equal to true when set non 0";
+	EXPECT_TRUE(baseConfig.catchUnhandledException) << "Should be equal to true when set non 0";
 	baseConfig.setCatchUnhandledException( midValue );
-	EXPECT_EQ(true, baseConfig.catchUnhandledException) << "Should be equal to true";
+	EXPECT_TRUE(baseConfig.catchUnhandledException) << "Should be equal to true";
 	baseConfig.setCatchUnhandledException( 0 );
-	EXPECT_EQ(false, baseConfig.catchUnhandledException) << "Should be equal to false";
+	EXPECT_FALSE(baseConfig.catchUnhandledException) << "Should be equal to false";
 
 	// setMaxDispatchCountApiThread
 	baseConfig.setMaxDispatchCountApiThread( (RWF_MAX_32) + 1ULL );
@@ -593,8 +622,11 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.catchUnknownJsonFids = false;
 	baseConfig.closeChannelFromFailure = false;
 	baseConfig.outputBufferSize = 23;
+	baseConfig.jsonTokenIncrementSize = 42;
 	baseConfig.restEnableLog = true;
 	baseConfig.restEnableLogViaCallback = true;
+	baseConfig.sendJsonConvError = true;
+	baseConfig.shouldInitializeCPUIDlib = false;
 
 	// Tests clear method
 	baseConfig.clear();
@@ -814,11 +846,11 @@ TEST_F(EmaActiveConfigTest, OmmIProviderActiveConfigTest)
 
 	// setRefreshFirstRequired
 	ommIProvideractiveServerConfig.setRefreshFirstRequired( (RWF_MAX_32) + 1ULL );
-	EXPECT_EQ(true, ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
+	EXPECT_TRUE(ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
 	ommIProvideractiveServerConfig.setRefreshFirstRequired( midValue );
-	EXPECT_EQ(true, ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
+	EXPECT_TRUE(ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to true";
 	ommIProvideractiveServerConfig.setRefreshFirstRequired( 0 );
-	EXPECT_EQ(false, ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to false";
+	EXPECT_FALSE(ommIProvideractiveServerConfig.getRefreshFirstRequired()) << "Should be equal to false";
 
 	// Make some changes...
 	ommIProvideractiveServerConfig.setRefreshFirstRequired(false);

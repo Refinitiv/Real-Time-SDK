@@ -8,6 +8,9 @@
 package com.refinitiv.ema.access;
 
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -847,6 +850,14 @@ class ConfigReader
 						{
 							tagDict = ConfigManager.GlobalConfigDict;
 						}
+						else if ( configNodeChild.getNodeName().equals("WarmStandbyGroup"))
+						{
+							tagDict = ConfigManager.WarmStandbyGroupDict;
+						}
+						else if ( configNodeChild.getNodeName().equals("WarmStandbyServerInfoGroup"))
+						{
+							tagDict = ConfigManager.WarmStandbyServerDict;
+						}
 					}
 					
 					if ( level == 5 )
@@ -926,6 +937,15 @@ class ConfigReader
 
 			if (path == null || path.isEmpty()) {
 				fileName = defaultFileName;
+				File tmp = new File(fileName);
+				String filePath = System.getProperty("user.dir") + FileSystems.getDefault().getSeparator() + fileName;
+				if (!Files.isReadable(Paths.get(filePath)) || tmp.length() == 0)
+				{
+					errorTracker().append(String.format("Missing, unreadable or empty file configuration, path=[%s",
+									filePath)).append( "]" )
+							.create(Severity.INFO);
+				}
+
 			} else {
 				File tmp = new File(path);
 				if(!tmp.exists()) {
@@ -1659,6 +1679,26 @@ class ConfigReader
 			}
 
 			return(xmlRoot.getNodeWithAttributeList(ConfigManager.SERVER_LIST,serverName,ConfigManager.ServerName));
+		}
+		
+		ConfigAttributes getWSBGroupAttributes(String WSBGroup) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.WARMSTANDBYGROUP_LIST,WSBGroup,ConfigManager.WarmStandbyChannelName));
+		}
+		
+		ConfigAttributes getWSBServerInfoAttributes(String WSBServerInfo) 
+		{
+			if( xmlRoot == null )
+			{
+				return null;
+			}
+
+			return(xmlRoot.getNodeWithAttributeList(ConfigManager.WARMSTANDBYSERVER_LIST,WSBServerInfo,ConfigManager.WarmStandbyServerName));
 		}
 		
 		ConfigAttributes getGlobalConfig(){

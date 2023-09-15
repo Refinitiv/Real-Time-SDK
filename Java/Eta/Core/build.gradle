@@ -1,6 +1,8 @@
 apply plugin: 'net.saliman.cobertura'
-apply plugin: 'maven' 
-apply plugin: 'signing' 
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: 'application'
+apply plugin: 'java-library'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -8,101 +10,18 @@ group = "com.refinitiv.eta"
 archivesBaseName = "eta"
 version "$SpecificationVersion"
 
-uploadArchives { 
-    repositories { 
-        mavenDeployer { 
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
-
-            pom.project {
-                name "$archivesBaseName"
-                    packaging 'jar'
-                    url 'https://github.com/Refinitiv/Real-Time-SDK'
-                    description 'Enterprise Transport API (ETA) Java Edition'
-
-                    scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                    }
-
-                developers {
-                    developer {
-                        organization 'Refinitiv'
-                    }
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-        } 
-    } 
-}
-
-signing {
-	sign configurations.archives
-}
-
-cobertura {
-     coverageFormats = ['html', 'xml']
-}
-
-eclipse {
-    project {
-        name = 'RTSDK-Eta-Src'
-    }
-}
-
-dependencies {
-		compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
-		compile group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.13'
-		compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
-		compile group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
-
-    testCompile('org.mockito:mockito-all:1.9.0'){
-        exclude group: 'org.hamcrest'
-    }
-
-    // needed for cobertura
-    testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+java {
+    withSourcesJar()
 }
 
 ext.sharedManifest = manifest {
-        attributes( 'Sealed': 'true',
-                'Build-Date': BuildDate,
-                'Specification-Version': SpecificationVersion,
-                'Specification-Vendor': vendor,
-                'Implementation-Title': group,
-                'Implementation-Version': etaImplementationVersion,
-                'Implementation-Vendor': vendor )
-}
-
-jar {
-    doFirst { println 'Creating ETA jar file' }
-
-    manifest { 
-        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
-            from sharedManifest 
-    }
-
-    from ('impl') 
-    {
-        include 'com/refinitiv/proxy/authentication/kerberos/login.conf'
-    }
-
-    destinationDir = file("../Libs/")
-        baseName = 'eta'
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
 }
 
 javadoc {
@@ -123,8 +42,123 @@ javadoc {
     options.setWindowTitle ('ETA')
 }
 
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
+        from sharedManifest
+    }
+}
+
+publishing {
+    publications{
+        mavenJava(MavenPublication){
+
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
+            artifact javadocJar
+
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Transport API (ETA) Java Edition'
+
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
+
+                developers {
+                    developer {
+                        organization = 'Refinitiv'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+            name = "repository"
+            def releaseRepository = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepository = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository
+        }
+    }
+}
+
+signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+    }
+    sign configurations.archives
+    sign publishing.publications.mavenJava
+}
+
+cobertura {
+     coverageFormats = ['html', 'xml']
+}
+
+eclipse {
+    project {
+        name = 'RTSDK-Eta-Src'
+    }
+}
+
+dependencies {
+    api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
+    api group: 'org.apache.httpcomponents', name: 'httpclient-cache', version: '4.5.14'
+    api group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
+    api group: 'org.lz4', name: 'lz4-java', version: '1.8.0'
+
+    testImplementation('org.mockito:mockito-all:1.10.19'){
+        exclude group: 'org.hamcrest'
+    }
+
+    // needed for cobertura
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
+}
+
+jar {
+    doFirst { println 'Creating ETA jar file' }
+
+    manifest { 
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
+            from sharedManifest 
+    }
+
+    from ('impl') 
+    {
+        include 'com/refinitiv/proxy/authentication/kerberos/login.conf'
+    }
+
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('eta');
+    archiveBaseName.set('eta');
+}
+
 task cleanJar (type: Delete) {
-        delete "${jar.archivePath}"
+        delete "${jar.archiveFile}"
 }
 
 task cleanJavadoc (type: Delete) {
@@ -133,30 +167,11 @@ task cleanJavadoc (type: Delete) {
 
 clean.dependsOn cleanJar, cleanJavadoc
 
-task javadocJar (type: Jar) {
-	classifier = 'javadoc'
-	from javadoc.destinationDir
-        destinationDir = jar.destinationDir
-
-        manifest {
-		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition'
-                from sharedManifest
-        }
-}
-
-task sourcesJar(type: Jar) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
-
-artifacts {
-	archives javadocJar, sourcesJar
-}
-
 test {
     systemProperty "sun.net.useExclusiveBind", "false"
+
+    forkEvery = 1
 	// set to true to see the junit stdoutput
         testLogging.showStandardStreams = false
-	maxParallelForks = Runtime.runtime.availableProcessors()
+	maxParallelForks = 1
 }
-

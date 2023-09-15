@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>LSEG.Eta.Ansi</AssemblyName>
+    <BaseOutputPath>$(SolutionDir)Eta\Libs\</BaseOutputPath>
+    <Version>3.0.3</Version>
+    <AssemblyVersion>3.0.3</AssemblyVersion>
+    <FileVersion>3.0.3</FileVersion>
+    <Company>Refinitiv</Company>
+	<Authors>LSEG</Authors>
+    <Product>Enterprise Transport API (ETA) C# Edition</Product>
+    <Copyright>Copyright @ 2023 Refinitiv. All Rights Reserved.</Copyright>
+    <RepositoryUrl>https://github.com/Refinitiv/Real-Time-SDK</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageDescription>Offers an easy to use programming interface that has the ability to encode and decode ANSI Page sources, as well as the ability to generate page data suitable for publishing.</PackageDescription>
+	<PackageTags>ANSI; terminal; console</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <NeutralLanguage>en-US</NeutralLanguage>
+	<PackageReleaseNotes>https://github.com/Refinitiv/Real-Time-SDK/blob/master/CSharp/CHANGELOG.md</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>$(SolutionDir)Eta\Libs\$(Configuration)\$(TargetFramework)\LSEG.Eta.Ansi.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>$(SolutionDir)Eta\Libs\$(Configuration)\$(TargetFramework)\LSEG.Eta.Ansi.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+</Project>

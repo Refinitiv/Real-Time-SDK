@@ -1,25 +1,37 @@
-﻿/*|------------------------------------------get; set;-----------------------------------
+﻿/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
-    public class RDMDictionaryMsgEvent : ReactorMsgEvent
+    /// <summary>
+    /// Event provided to <see cref="IDictionaryMsgCallback"/> methods.
+    /// </summary>
+    sealed public class RDMDictionaryMsgEvent : ReactorMsgEvent
     {
-        public DictionaryMsg? DictionaryMsg { get; set; }
+        /// <summary>
+        /// Gets the <see cref="DictionaryMsg"/> associated with this message event.
+        /// </summary>
+        public DictionaryMsg? DictionaryMsg { get; internal set; }
 
+        /// <summary>
+        /// Clears to default values
+        /// </summary>
         public override void Clear()
         {
             base.Clear();
             DictionaryMsg = null;
         }
 
+        /// <summary>
+        /// Returns back to the pool.
+        /// </summary>
         public override void ReturnToPool()
         {
             DictionaryMsg = null;

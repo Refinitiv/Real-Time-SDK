@@ -1,4 +1,4 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
@@ -7,56 +7,8 @@ group = "com.refinitiv.eta.ansi"
 archivesBaseName = "ansipage"
 version "$SpecificationVersion"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
-
-            pom.project {
-                name "$archivesBaseName"
-                    packaging 'jar'
-                    url 'https://github.com/Refinitiv/Real-Time-SDK'
-                    description 'Enterprise Transport API (ETA) Java Edition ANSI Classes'
-
-                    scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                    }
-
-                developers {
-                    developer {
-                        organization 'Refinitiv'
-                    }
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-        }
-    }
-}
-
-signing {
-    sign configurations.archives
-}
-
-eclipse {
-    project {
-        name = 'RTSDK-Eta-AnsiPage'
-    }
+java {
+    withSourcesJar()
 }
 
 ext.sharedManifest = manifest {
@@ -69,6 +21,100 @@ ext.sharedManifest = manifest {
             'Implementation-Vendor': vendor )
 }
 
+javadoc {
+    doFirst {
+        println "Generating javadoc for ANSI"
+    }
+
+    destinationDir = file('../Docs/refman/ansipage/')
+    title = "ANSI JAVA " +  "${SpecificationVersion}"
+
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.setWindowTitle ('ANSI')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ANSI Classes'
+        from sharedManifest
+    }
+}
+
+publishing {
+    publications{
+        mavenJava(MavenPublication){
+
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
+            artifact javadocJar
+
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Transport API (ETA) Java Edition ANSI Classes'
+
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
+
+                developers {
+                    developer {
+                        organization = 'Refinitiv'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+            name = "repository"
+            def releaseRepository = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepository = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository
+        }
+    }
+}
+
+signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+    }
+    sign configurations.archives
+    sign publishing.publications.mavenJava
+}
+
+eclipse {
+    project {
+        name = 'RTSDK-Eta-AnsiPage'
+    }
+}
+
 jar {
 	doFirst { println 'Creating ANSI jar file' }
 
@@ -77,48 +123,12 @@ jar {
                 from sharedManifest
         }
 
-        destinationDir = file("../Libs/")
-        baseName = 'ansipage'
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('ansipage');
+    archiveBaseName.set('ansipage');
 }
 
 task cleanJar (type: Delete) {
-        delete "${jar.archivePath}"
+        delete "${jar.archiveFile}"
 }
 clean.dependsOn cleanJar
-
-javadoc {
-        doFirst {
-                println "Generating javadoc for ANSI"
-        }
-
-        destinationDir = file('../Docs/refman/ansipage/')
-        title = "ANSI JAVA " +  "${SpecificationVersion}"
-
-        options.footer ("${javadoc_footer}")
-        options.header ("${javadoc_header}")
-        options.bottom ("${javadoc_bottom}")
-
-        options.setWindowTitle ('ANSI')
-}
-
-task javadocJar (type: Jar, dependsOn: this.javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-        destinationDir = jar.destinationDir
-
-        manifest {
-                attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ANSI Classes'
-                from sharedManifest
-        }
-}
-
-task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-}
-
-artifacts {
-        archives javadocJar, sourcesJar
-}
-
-

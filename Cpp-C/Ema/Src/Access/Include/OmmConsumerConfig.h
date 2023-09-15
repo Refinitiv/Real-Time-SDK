@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -29,6 +29,7 @@
 
 #include "Access/Include/EmaString.h"
 #include "Access/Include/OmmLoginCredentialConsumerClient.h"
+#include "DataDictionary.h"
 
 namespace refinitiv {
 
@@ -92,13 +93,13 @@ public :
 	*/
 	OmmConsumerConfig& clear();
 
-	/** Specifies the username. Overrides a value specified in Login domain via the addAdminMsg(..) method.
+	/** Specifies the username. Mandatory for V1 oAuth Password Credentials logins with session management turned on. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] username specifies name used on login request
 		@return reference to this object
 	*/
 	OmmConsumerConfig& username( const EmaString& username );
 
-	/** Specifies the password. Overrides a value specified in Login domain via the addAdminMsg(..) method.
+	/** Specifies the password. Mandatory for V1 oAuth Password Credentials logins with session management turned on. Overrides a value specified in Login domain via the addAdminMsg(..) method.
 		@param[in] password specifies respective login request attribute
 		@return reference to this object
 	*/
@@ -117,25 +118,37 @@ public :
 	*/
 	OmmConsumerConfig& applicationId( const EmaString& applicationId );
 
-	/** Specifies an unique identifier defined for making an authentication request to the token service.
-		@param[in] clientId specifies an unique identifier.
+	/** Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
+		@param[in] clientId specifies the clientId.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& clientId( const EmaString& clientId );
 
-	/** Specifies optionally a secret used by OAuth client to authenticate to the Authorization Server.
+	/** Specifies the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
 		@param[in] clientSecret specifies a client secret.
 		@return reference to this object
 	*/
 	OmmConsumerConfig& clientSecret( const EmaString& clientSecret );
 
-	/** Specifies optionally token scope to limit the scope of generated token from the token service.
+	/** Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+	@param[in] clientJWK specifies the JWK formatted private key
+	@return reference to this object
+	*/
+	OmmConsumerConfig& clientJWK(const EmaString& clientJWK);
+
+	/** Specifies the audience claim for the JWT. Optional, used for V2 Client Credentials with JWT.
+	@param[in] audience specifies the client audience claim
+	@return reference to this object
+	*/
+	OmmConsumerConfig& audience(const EmaString& audience = "https://login.ciam.refinitiv.com/as/token.oauth2");
+
+	/** Specifies the token scope to limit the scope of generated token from the token service. Optional.
 		@param[in] tokenScope specifies a token scope
 		@return reference to this object
 	*/
 	OmmConsumerConfig& tokenScope( const EmaString& tokenScope = "trapi.streaming.pricing.read" );
 
-	/** Specifies optionally the exclusive sign on control to force sign-out of other applications using the same credentials.
+	/** Specifies the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins.
 		@param[in] takeExclusiveSignOnControl the exclusive sign on control.
 		@return reference to this object
 	*/
@@ -347,6 +360,38 @@ public :
 		@return reference to this object
 	*/
 	OmmConsumerConfig& restLoggingCallback( OmmRestLoggingClient& ommRestLoggingClient, void* closure = (void*)0 );
+
+	/** Specifies the Cpu core to bind for Reactor Worker thread.
+		Application may call multiple times prior to initialization.
+		@param[in] cpuString specifies the Cpu core in string format (Cpu core id or P:X C:Y T:Z format).
+		@return reference to this object
+	*/
+	OmmConsumerConfig& workerThreadBind( const EmaString& cpuString );
+
+	/** Specifies the Cpu core to bind for internal EMA thread that dispatch messages.
+		When ApiDispatchEnum set as operational model.
+		Application may call multiple times prior to initialization.
+		@param[in] cpuString specifies the Cpu core in string format (Cpu core id or P:X C:Y T:Z format).
+		@return reference to this object
+	*/
+	OmmConsumerConfig& apiThreadBind(const EmaString& cpuString);
+
+	/** Specifies should ETA initialize CpuID library. It will analyze CPU topology.
+		Application may call multiple times prior to initialization.
+		@param[in] shouldInitCPUIDlib true ETA should initialize CpuID library; otherwise ETA will not initialize CpuID library.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& shouldInitializeCPUIDlib(bool shouldInitCPUIDlib);
+
+    /** Specifies the DataDictionary object.
+        Overrides DataDictionary object that is provided via EmaConfig.xml or
+        Programmatic configure.
+        @param[in] dataDictionary specifies the DataDictionary object.
+        @param[in] shouldCopyIntoAPI specifies whether to copy dataDictionary into API or pass it in as a reference.
+        @throw OmmInvalidUsageException if application passes not fully loaded DataDictionary object
+        @return reference to this object.
+    */
+	OmmConsumerConfig& dataDictionary(const refinitiv::ema::rdm::DataDictionary& dataDictionary, bool shouldCopyIntoAPI = false);
 	//@}
 
 private :

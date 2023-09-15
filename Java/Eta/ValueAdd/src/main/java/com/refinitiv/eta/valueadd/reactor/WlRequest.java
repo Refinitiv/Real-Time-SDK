@@ -37,9 +37,12 @@ class WlRequest extends VaNode
     int _viewElemCount;    
     int _viewType;
     int _viewAction;
-    boolean _reissue_hasChange = false;
+	boolean _reissue_hasChange = false;
     boolean _reissue_hasViewChange = false;
     boolean _fanoutSolicitedAfterView = false;
+    
+    int _statusFlags; // Used for the warm standby settings.
+
        
     Qos _matchedQos = CodecFactory.createQos();
     
@@ -342,6 +345,16 @@ class WlRequest extends VaNode
 	{
 		_viewElemCount = viewElemCount;
 	}
+	
+    int statusFlags()
+    {
+    	return _statusFlags;
+    }
+    
+    void statusFlags(int flags)
+    {
+    	_statusFlags = flags;
+    }
     
 	/* Clears the object for re-use. */
     void clear()

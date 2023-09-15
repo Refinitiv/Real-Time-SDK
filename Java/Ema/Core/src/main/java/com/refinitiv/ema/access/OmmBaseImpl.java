@@ -14,7 +14,6 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,7 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.valueadd.reactor.*;
-import com.refinitiv.eta.valueadd.reactor.ReactorOAuthCredentialRenewalOptions.RenewalModes;
 
 import org.slf4j.Logger;
 
@@ -262,8 +260,21 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if (_loggerClient.isTraceEnabled())
 				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, "Successfully open Selector.", Severity.TRACE));
 			
-			if (_activeConfig.xmlTraceEnable)
-				_rsslReactorOpts.enableXmlTracing();
+			if (_activeConfig.xmlTraceEnable || _activeConfig.xmlTraceToFileEnable){
+				if ( _activeConfig.xmlTraceEnable) _rsslReactorOpts.enableXmlTracing();
+				if ( _activeConfig.xmlTraceToFileEnable ) _rsslReactorOpts.enableXmlTraceToFile();
+
+				_rsslReactorOpts.setXmlTraceMaxFileSize(_activeConfig.xmlTraceMaxFileSize);
+				_rsslReactorOpts.setXmlTraceFileName(_activeConfig.xmlTraceFileName);
+				if (_activeConfig.xmlTraceToMultipleFilesEnable) _rsslReactorOpts.enableXmlTraceToMultipleFiles();
+				if (_activeConfig.xmlTraceWriteEnable) _rsslReactorOpts.enableXmlTraceWrite();
+				if (_activeConfig.xmlTraceReadEnable) _rsslReactorOpts.enableXmlTraceRead();
+				if (  _activeConfig.xmlTracePingEnable &&  //ping flag must be enabled
+						(_activeConfig.xmlTraceReadEnable || _activeConfig.xmlTraceWriteEnable ) ) { // and at least one of write or read must be enabled
+					_rsslReactorOpts.enableXmlTracePing();
+				}
+			}
+
 
 			_rsslReactorOpts.userSpecObj(this);
 			
@@ -872,6 +883,34 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			{
 				_activeConfig.xmlTraceEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_ENABLE;
 			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToFile)) != null)
+			{
+				_activeConfig.xmlTraceToFileEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_FILE_ENABLE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceMaxFileSize)) != null)
+			{
+				_activeConfig.xmlTraceMaxFileSize = ce.intLongValue() == 0 ? ActiveConfig.DEFAULT_XML_TRACE_MAX_FILE_SIZE : ce.intLongValue();
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceFileName)) != null)
+			{
+				_activeConfig.xmlTraceFileName = (String) ce.value();
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceToMultipleFiles)) != null)
+			{
+				_activeConfig.xmlTraceToMultipleFilesEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_TO_MULTIPLE_FILES;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceWrite)) != null)
+			{
+				_activeConfig.xmlTraceWriteEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_WRITE;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTraceRead)) != null)
+			{
+				_activeConfig.xmlTraceReadEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_READ;
+			}
+			if( (ce = attributes.getPrimitiveValue(ConfigManager.XmlTracePing)) != null)
+			{
+				_activeConfig.xmlTracePingEnable = ce.intLongValue() == 1 ? true : ActiveConfig.DEFAULT_XML_TRACE_PING;
+			}
 			
 			if( (ce = attributes.getPrimitiveValue(ConfigManager.ReissueTokenAttemptLimit)) != null)
 			{
@@ -919,12 +958,40 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.CloseChannelFromConverterFailure)) != null) {
 				_activeConfig.closeChannelFromFailure = ce.intLongValue() > 0;
 			}
+
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.SendJsonConvError)) != null) {
+				_activeConfig.sendJsonConvError = ce.intLongValue() > 0;
+			}
+			
+			// WarmStandbyChannel
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.ConsumerWarmStandbyChannelSet)) != null) {
+				
+				String[] pieces = ce.asciiValue().split(",");
+				for (int i = 0; i < pieces.length; i++)
+				{
+					_activeConfig.configWarmStandbySet.add( readWSBChannelConfig(config,  pieces[i].trim()));
+				}
+			}
+		}
+		
+		// .........................................................................
+		// WarmStandby
+		//
+		
+		String warmStandbyChannelSet = config.warmStandbyChannelSet(_activeConfig.configuredName);
+		if (warmStandbyChannelSet != null && warmStandbyChannelSet.trim().length() > 0)
+		{
+			String[] pieces = warmStandbyChannelSet.split(",");
+			for (int i = 0; i < pieces.length; i++)
+			{
+				readWSBChannelConfig(config,  pieces[i].trim());
+			}
 		}
 
 		// .........................................................................
 		// Channel
 		//
-
+		
 		String channelName = config.channelName(_activeConfig.configuredName);
 		if (channelName != null  && channelName.trim().length() > 0)
 		{
@@ -1004,7 +1071,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			if(globalConfig != null){
 				_activeConfig.globalConfig = globalConfig;
 			}
-			
+
 			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
 			if (channelOrChannelSet == null)
 				channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNELSET_FLAG );
@@ -1063,6 +1130,141 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		_activeConfig.rsslRDMLoginRequest = config.loginReq();
 	}
 	
+	WarmStandbyChannelConfig readWSBChannelConfig(EmaConfigImpl configImpl, String wsbChannelName)
+	{	
+		ConfigElement ce = null;
+		WarmStandbyChannelConfig newWSBChannelConfig = new WarmStandbyChannelConfig();
+		ConfigAttributes attributes = null;
+
+		attributes = configImpl.xmlConfig().getWSBGroupAttributes(wsbChannelName);
+		
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.StartingActiveServer)) != null)
+			newWSBChannelConfig.startingActiveServer = readWSBServerInfoConfig(configImpl, ce.asciiValue());
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.StandbyServerSet)) != null)
+		{
+			for (String part : ce.asciiValue().split(","))
+			{
+				newWSBChannelConfig.standbyServerSet.add(readWSBServerInfoConfig(configImpl, part.trim()));
+			}
+		}
+		
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.WarmStandbyMode)) != null)
+		{
+			switch (ce.asciiValue())
+			{
+				case "WarmStandbyMode::LOGIN_BASED":
+					newWSBChannelConfig.warmStandbyMode = ReactorWarmStandbyMode.LOGIN_BASED;
+					break;
+				case "WarmStandbyMode::SERVICE_BASED":
+					newWSBChannelConfig.warmStandbyMode = ReactorWarmStandbyMode.SERVICE_BASED;
+					break;
+				default:
+					newWSBChannelConfig.warmStandbyMode = ReactorWarmStandbyMode.LOGIN_BASED;
+						break;
+			}
+		}
+		
+		ProgrammaticConfigure pc = configImpl.programmaticConfigure();
+		if ( pc != null)
+		{
+			pc .retrieveCommonConfig( _activeConfig.configuredName, _activeConfig );
+
+			GlobalConfig globalConfig = pc.retrieveGlobalConfig();
+			if(globalConfig != null){
+				_activeConfig.globalConfig = globalConfig;
+			}
+			
+			String warmStandbyChannelSet = pc.activeEntryNames(_activeConfig.configuredName, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
+			if (warmStandbyChannelSet != null && !warmStandbyChannelSet.isEmpty())
+			{
+				pc.retrieveWSBChannelConfig(wsbChannelName.trim(), _activeConfig, newWSBChannelConfig);
+			}
+
+			String channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNEL_FLAG );
+			if (channelOrChannelSet == null)
+				channelOrChannelSet = pc .activeEntryNames( _activeConfig.configuredName, InstanceEntryFlag.CHANNELSET_FLAG );
+
+			if ( channelOrChannelSet != null && !channelOrChannelSet.isEmpty() )
+			{
+				_activeConfig.channelConfigSet.clear();
+				String[] pieces = channelOrChannelSet.split(",");
+				for (int i = 0; i < pieces.length; i++)
+				{
+					ChannelConfig fileChannelConfig = readChannelConfig( configImpl,  pieces[i].trim());
+
+					int chanConfigByFuncCall = 0;
+					if (configImpl.getUserSpecifiedHostname() != null && configImpl.getUserSpecifiedHostname().length() > 0)
+						chanConfigByFuncCall = ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL;
+					else
+					{
+						HttpChannelConfig tunnelingConfig = configImpl.tunnelingChannelCfg();
+						if ( tunnelingConfig.httpProxyHostName != null && tunnelingConfig.httpProxyHostName.length() > 0 )
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL;
+						if (tunnelingConfig.httpProxyPort != null && tunnelingConfig.httpProxyPort.length() > 0 )
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL;
+						if (tunnelingConfig.objectName != null && tunnelingConfig.objectName.length() > 0)
+							chanConfigByFuncCall |= ActiveConfig.TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL;
+					}
+					
+					pc .retrieveChannelConfig( pieces[i].trim(), _activeConfig, chanConfigByFuncCall, fileChannelConfig );
+					if ( _activeConfig.channelConfigSet.size() == i )
+						_activeConfig.channelConfigSet.add( fileChannelConfig );
+					else
+						fileChannelConfig = null;
+				}
+			}
+		}
+
+		newWSBChannelConfig.name = wsbChannelName;
+
+		return newWSBChannelConfig;
+	}
+	
+	WarmStandbyServerInfoConfig readWSBServerInfoConfig(EmaConfigImpl configImpl, String wsbServerName)
+	{
+		ConfigElement ce = null;
+		WarmStandbyServerInfoConfig wsbServerInfoConfig = new WarmStandbyServerInfoConfig();
+		ConfigAttributes attributes = null;
+
+		attributes = configImpl.xmlConfig().getWSBServerInfoAttributes(wsbServerName);
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.WarmStandbyServerName)) != null)
+		{
+			String channelName = readChannelNameFromWSBServerInfo(configImpl, ce.asciiValue());
+			
+			wsbServerInfoConfig.channelConfig = readChannelConfig(configImpl, channelName);
+			
+			_activeConfig.configChannelSetForWSB.add(wsbServerInfoConfig.channelConfig);
+		}
+
+		if (attributes != null && (ce = attributes.getPrimitiveValue(ConfigManager.PerServiceNameSet)) != null)
+		{
+			for (String part : ce.asciiValue().split(","))
+			{
+				wsbServerInfoConfig.perServiceNameSet.add(part);
+			}
+		}
+
+		wsbServerInfoConfig.name = wsbServerName;
+
+		return wsbServerInfoConfig;
+	}
+	
+	String readChannelNameFromWSBServerInfo(EmaConfigImpl configImpl, String serverInfoName)
+	{
+		ConfigAttributes attributes = null;
+		ConfigElement ce = null;
+		
+		attributes = configImpl.xmlConfig().getWSBServerInfoAttributes(serverInfoName);
+		if (attributes != null) 
+		{
+			ce = attributes.getPrimitiveValue(ConfigManager.WarmStandbyServerChannel);
+		}
+		
+		return ce.asciiValue();
+	}
+	
 	ChannelConfig readChannelConfig(EmaConfigImpl configImpl, String channelName)
 	{
 		int maxInt = Integer.MAX_VALUE;		
@@ -1099,7 +1301,7 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 					encrypedProtocol = pc.retrieveEncryptedProtocolConfig(channelName);
 				
 				if(encrypedProtocol < 0)
-					encrypedProtocol = (ep == null) ? ConnectionTypes.HTTP : ep.intValue();
+					encrypedProtocol = (ep == null) ? ConnectionTypes.SOCKET : ep.intValue();
 			}
 		}
 		
@@ -1530,21 +1732,26 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 	{
 		if (_state == OmmImplState.NOT_INITIALIZED)
 		{
-			if (_loggerClient.isErrorEnabled() && _logError)
-			{
-				_logError = false;
-				_dispatchStrBuilder.setLength(0);
-				_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. The _state is set to OmmImplState.NOT_INITIALIZED");
+			_userLock.lock();
+			try {
+				if (_loggerClient.isErrorEnabled() && _logError)
+				{
+					_logError = false;
+					_dispatchStrBuilder.setLength(0);
+					_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. The _state is set to OmmImplState.NOT_INITIALIZED");
 
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
-			}		
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+				}
+			} finally {
+				_userLock.unlock();
+			}
+
 			return false;
 		}		
 		
 		_eventReceived = false;
 		_rsslDispatchOptions.maxMessages(count);
 		int ret = ReactorReturnCodes.SUCCESS;
-		int loopCount = 0;
 		long startTime = System.nanoTime();
 		long endTime = 0;
 		
@@ -1593,39 +1800,21 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				int selectCount = _selector.select(selectTimeout > 0 ? selectTimeout : MIN_TIME_FOR_SELECT_IN_MILLISEC);
 				if (selectCount > 0 || !_selector.selectedKeys().isEmpty())
 				{
-					Iterator<SelectionKey> iter = _selector.selectedKeys().iterator();
-					while (iter.hasNext())
+					if(_selector.selectedKeys().contains(_pipeSelectKey))
 					{
-						SelectionKey key = iter.next();
-						iter.remove();
-						try
-						{
-							if (!key.isValid()) continue;
-							
-							if (key.isReadable())
-							{
-								if (_pipeSelectKey == key) pipeRead();
-								
-								loopCount = 0;
-								do {
-									_userLock.lock();
-									try{
-										ret = ((ReactorChannel) key.attachment()).dispatch(_rsslDispatchOptions,	_rsslErrorInfo);
-									}
-									finally
-									{
-										if (_userLock.isLocked()) {
-											_userLock.unlock();
-										}
-									}
-								}
-								while (ret > ReactorReturnCodes.SUCCESS && !_eventReceived && ++loopCount < DISPATCH_LOOP_COUNT);
-							}
-						}
-						catch (CancelledKeyException e)
-						{
-							continue;
-						}
+						pipeRead();
+					}
+
+					_userLock.lock();
+					try {
+						ret = _rsslReactor.dispatchAll(_selector.selectedKeys(), _rsslDispatchOptions, _rsslErrorInfo);
+					} finally {
+						_userLock.unlock();
+					}
+
+					if (ret == ReactorReturnCodes.FAILURE)
+					{
+						System.out.println("ReactorChannel dispatch failed: " + ret + "(" + _rsslErrorInfo.error().text() + ")");
 					}
 					
 					if (_eventReceived) return true;
@@ -1650,12 +1839,16 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				
 				if (Thread.currentThread().isInterrupted())
 				{
+					_userLock.lock();
 					_threadRunning = false;
-	
-					if (_loggerClient.isTraceEnabled())
-					{
-						_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
-								"Call to rsslReactorDispatchLoop() received thread interruption signal.", Severity.TRACE));
+					try {
+						if (_loggerClient.isTraceEnabled())
+						{
+							_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+									"Call to rsslReactorDispatchLoop() received thread interruption signal.", Severity.TRACE));
+						}
+					} finally {
+						_userLock.unlock();
 					}
 				}
 			}
@@ -1665,35 +1858,46 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		} //end of Try		
 		catch (CancelledKeyException e)
 		{
-			if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
-			{
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
-						"Call to rsslReactorDispatchLoop() received cancelled key exception.", Severity.TRACE));
+			_userLock.lock();
+			try {
+				if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
+				{
+					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+							"Call to rsslReactorDispatchLoop() received cancelled key exception.", Severity.TRACE));
+				}
+			} finally {
+				_userLock.unlock();
 			}
-
 			return true;
 		} 
 		catch (ClosedSelectorException e)
 		{
-			if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
-			{
-				_loggerClient.trace(formatLogMessage(_activeConfig.instanceName, 
-						"Call to rsslReactorDispatchLoop() received closed selector exception.", Severity.TRACE));
+			_userLock.lock();
+			try {
+				if (_loggerClient.isTraceEnabled() && _state != OmmImplState.NOT_INITIALIZED )
+				{
+					_loggerClient.trace(formatLogMessage(_activeConfig.instanceName,
+							"Call to rsslReactorDispatchLoop() received closed selector exception.", Severity.TRACE));
+				}
+			} finally {
+				_userLock.unlock();
 			}
-
 			return true;
 		} 
 		catch (IOException e)
 		{
-			if (_loggerClient.isErrorEnabled())
-			{
-				_dispatchStrBuilder.setLength(0);
-				_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Received exception,")
-						.append(" exception text= ").append(e.getLocalizedMessage()).append(". ");
+			_userLock.lock();
+			try {
+				if (_loggerClient.isErrorEnabled()) {
+					_dispatchStrBuilder.setLength(0);
+					_dispatchStrBuilder.append("Call to rsslReactorDispatchLoop() failed. Received exception,")
+							.append(" exception text= ").append(e.getLocalizedMessage()).append(". ");
 
-				_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+					_loggerClient.error(formatLogMessage(_activeConfig.instanceName, _dispatchStrBuilder.toString(), Severity.ERROR));
+				}
+			} finally {
+				_userLock.unlock();
 			}
-
 			uninitialize();
 
 			return false;
@@ -1824,8 +2028,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 		{
 			if (_loggerClient.isErrorEnabled())
 			{
-				_userLock.lock();
-
 				strBuilder().append("Failed to close reactor channel (rsslReactorChannel).")
 						.append("' RsslChannel='")
 						.append(Integer.toHexString(_rsslErrorInfo.error().channel() != null ? _rsslErrorInfo.error().channel().hashCode() : 0))
@@ -1837,7 +2039,6 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 				_loggerClient.error(
 						formatLogMessage(_activeConfig.instanceName, _strBuilder.toString(), Severity.ERROR));
 
-				_userLock.unlock();
 			}
 		}
 

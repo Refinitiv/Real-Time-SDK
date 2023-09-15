@@ -12,6 +12,7 @@
 #define _MARKET_PRICE_DECODER_H
 
 #include "consumerThreads.h"
+#include "jsonHandler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +20,9 @@ extern "C" {
 
 /* Decodes a MarketPrice message. */
 RsslRet decodeMPUpdate(RsslDecodeIterator *pIter, RsslMsg *msg, ConsumerThread* pConsumerThread);
+
+/* Decodes a MarketPrice message. */
+RsslRet decodeMPUpdateJson(ConsumerThread* pConsumerThread, RsslMsgClasses rsslMsgClass, cJSON* json);
 
 #ifdef __cplusplus
 };

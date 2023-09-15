@@ -2,28 +2,41 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
-using System;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using System.Diagnostics;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Dictionary Request. 
     /// Used by a Consumer application to request a dictionary from a service that provides it.
     /// </summary>
-    public class DictionaryRequest : MsgBase
+    sealed public class DictionaryRequest : MsgBase
     {
 
         private IRequestMsg m_DictionaryRequest = new Msg();
+        
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
+        public override int StreamId { get => m_DictionaryRequest.StreamId; set { m_DictionaryRequest.StreamId = value; } }
+
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.DICTIONARY"/>.
+        /// </summary>
+        public override int DomainType { get => m_DictionaryRequest.DomainType; }
+        
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.REQUEST"/>
+        /// </summary>
+        public override int MsgClass { get => m_DictionaryRequest.MsgClass; }
 
         /// <summary>
         /// The ID of the service to request the dictionary from.
@@ -35,6 +48,9 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// </summary>
         public Buffer DictionaryName { get => m_DictionaryRequest.MsgKey.Name; set { m_DictionaryRequest.MsgKey.Name = value; } }
 
+        /// <summary>
+        /// Flags for this message.  See <see cref="DictionaryRequestFlags"/>.
+        /// </summary>
         public DictionaryRequestFlags Flags { get; set; }
 
         /// <summary>
@@ -61,10 +77,17 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// </summary>
         public long Verbosity { get => m_DictionaryRequest.MsgKey.Filter; set { m_DictionaryRequest.MsgKey.Filter = value; } }
 
-        public override int StreamId { get => m_DictionaryRequest.StreamId; set { m_DictionaryRequest.StreamId = value; } }
-        public override int DomainType { get => m_DictionaryRequest.DomainType; }
-        public override int MsgClass { get => m_DictionaryRequest.MsgClass; }
+        /// <summary>
+        /// Dictionary Request Message constructor.
+        /// </summary>
+        public DictionaryRequest()
+        {
+            Clear();
+        }
 
+        /// <summary>
+        /// Clears the current contents of the Dictionary Request object and prepares it for re-use.
+        /// </summary>
         public override void Clear()
         {
             m_DictionaryRequest.Clear();
@@ -73,16 +96,49 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             m_DictionaryRequest.MsgKey.ApplyHasServiceId();
             m_DictionaryRequest.MsgKey.ApplyHasName();
             m_DictionaryRequest.ContainerType = DataTypes.NO_DATA;
-            m_DictionaryRequest.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.DICTIONARY;
+            m_DictionaryRequest.DomainType = (int)LSEG.Eta.Rdm.DomainType.DICTIONARY;
             Flags = 0;
         }
 
-        public DictionaryRequest()
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destRequestMsg</c>.
+        /// </summary>
+        /// <param name="destRequestMsg">DictionaryRequest object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Copy(DictionaryRequest destRequestMsg)
         {
-            Clear();
+            Debug.Assert(destRequestMsg != null);
+
+            destRequestMsg.StreamId = StreamId;
+            destRequestMsg.ServiceId = ServiceId;
+            destRequestMsg.Verbosity = Verbosity;
+            BufferHelper.CopyBuffer(DictionaryName, destRequestMsg.DictionaryName);
+            destRequestMsg.Streaming = Streaming;
+
+            return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Decode(DecodeIterator encIter, Msg msg)
+        /// <summary>
+        /// Encodes this Dictionary Request message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            if (Streaming)
+            {
+                m_DictionaryRequest.ApplyStreaming();
+            }
+            return m_DictionaryRequest.Encode(encodeIter);
+        }
+
+        /// <summary>
+        /// Decodes this Dictionary Request message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this DictionaryRequest message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             Clear();
             if (msg.MsgClass != MsgClasses.REQUEST)
@@ -110,28 +166,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Encode(EncodeIterator encIter)
-        {
-            if (Streaming)
-            {
-                m_DictionaryRequest.ApplyStreaming();
-            }
-            return m_DictionaryRequest.Encode(encIter);
-        }
-
-        public CodecReturnCode Copy(DictionaryRequest destRequestMsg)
-        {
-            Debug.Assert(destRequestMsg != null);
-
-            destRequestMsg.StreamId = StreamId;
-            destRequestMsg.ServiceId = ServiceId;
-            destRequestMsg.Verbosity = Verbosity;
-            BufferHelper.CopyBuffer(DictionaryName, destRequestMsg.DictionaryName);
-            destRequestMsg.Streaming = Streaming;
-
-            return CodecReturnCode.SUCCESS;
-        }
-
+        /// <summary>
+        /// Returns a human readable string representation of the Dictionary Request message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();

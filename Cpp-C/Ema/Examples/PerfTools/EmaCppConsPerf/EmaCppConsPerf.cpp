@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 #include "EmaCppConsPerf.h"
@@ -55,10 +55,10 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
-			char *pToken;
+
 			consPerfConfig.threadCount = 0;
 
-			pToken = strtok(argv[iargs++], ",");
+			char* pToken = strtok(argv[iargs++], ",");
 			while(pToken)
 			{
 				if (++consPerfConfig.threadCount > MAX_CONS_THREADS)
@@ -67,7 +67,7 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 					AppUtil::logError(logText);
 					return false;
 				}
-				sscanf(pToken, "%ld", &consPerfConfig.threadBindList[consPerfConfig.threadCount-1]);
+				consPerfConfig.threadBindList[consPerfConfig.threadCount - 1] = pToken;
 				pToken = strtok(NULL, ",");
 			}
 			if( consThreadCount > 0 && consPerfConfig.threadCount != consThreadCount )
@@ -76,11 +76,9 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				AppUtil::logError(logText);
 				return false;
 			}
-			if( consPerfConfig.threadCount < MAX_CONS_THREADS )
-			{
-				for( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
-					consPerfConfig.threadBindList[i] = -1;
-			}
+			for( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
+				consPerfConfig.threadBindList[i].clear();
+
 			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
 		}
 		else if(strcmp("-apiThreads", argv[iargs]) == 0)
@@ -91,10 +89,10 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
-			char *pToken;
+
 			consPerfConfig.threadCount = 0;
 
-			pToken = strtok(argv[iargs++], ",");
+			char* pToken = strtok(argv[iargs++], ",");
 			while(pToken)
 			{
 				if (++consPerfConfig.threadCount > MAX_CONS_THREADS)
@@ -104,7 +102,7 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 					return false;
 				}
 	
-				sscanf(pToken, "%ld", &consPerfConfig.apiThreadBindList[consPerfConfig.threadCount-1]);
+				consPerfConfig.apiThreadBindList[consPerfConfig.threadCount - 1] = pToken;
 				pToken = strtok(NULL, ",");
 			}
 			if( consThreadCount > 0  && consPerfConfig.threadCount != consThreadCount )
@@ -113,11 +111,9 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				AppUtil::logError(logText);
 				return false;
 			}
-			if( consPerfConfig.threadCount < MAX_CONS_THREADS )
-			{
-				for( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
-					consPerfConfig.apiThreadBindList[i] = -1;
-			}
+			for( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
+				consPerfConfig.apiThreadBindList[i].clear();
+
 			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
 		}
 		else if(strcmp("-mainThread", argv[iargs]) == 0)
@@ -128,8 +124,41 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 				exitOnMissingArgument(argv, iargs - 1);
 				return false;
 			}
-			int i = atoi(argv[iargs++]);
-			consPerfConfig.mainThreadCpu = i;
+			consPerfConfig.mainThreadCpu = argv[iargs++];
+		}
+		else if (strcmp("-workerThreads", argv[iargs]) == 0)
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+
+			consPerfConfig.threadCount = 0;
+
+			char* pToken = strtok(argv[iargs++], ",");
+			while (pToken)
+			{
+				if (++consPerfConfig.threadCount > MAX_CONS_THREADS)
+				{
+					logText = "Config Error: Too many worker threads specified.";
+					AppUtil::logError(logText);
+					return false;
+				}
+				consPerfConfig.workerThreadBindList[consPerfConfig.threadCount - 1] = pToken;
+				pToken = strtok(NULL, ",");
+			}
+			if ( consThreadCount > 0 && consPerfConfig.threadCount != consThreadCount )
+			{
+				logText = "Config Error: worker thread count not equal to api thread count.";
+				AppUtil::logError(logText);
+				return false;
+			}
+			for ( int i = consPerfConfig.threadCount; i < MAX_CONS_THREADS; ++i )
+				consPerfConfig.workerThreadBindList[i].clear();
+
+			consThreadCount = (consPerfConfig.threadCount > 0) ? consPerfConfig.threadCount : 0;
 		}
 		else if(strcmp("-serviceName", argv[iargs]) == 0)
 		{
@@ -386,9 +415,15 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 		}
 	}
 	
-	if( consPerfConfig.useUserDispatch && consPerfConfig.apiThreadBindList[0] != -1 )
+	if (consPerfConfig.threadCount == 0)
 	{
-		AppUtil::logError("Config Error: -apiThreads cannot be used when user dispacth is used. ");
+		AppUtil::logError("Config Error: -threads must be contain list of Cpu.");
+		exitConfigError(argv); return false;
+	}
+
+	if( consPerfConfig.useUserDispatch && !consPerfConfig.apiThreadBindList[0].empty() )
+	{
+		AppUtil::logError("Config Error: -apiThreads cannot be used when user dispacth is used.");
 		exitConfigError(argv); return false;
 	}
 
@@ -540,7 +575,7 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -uname <name>                        Username to use in login request\n";
 	logText += "   -serviceName <name>                  Service Name\n";
 	logText += "   -useServiceId <1 Or 0>               Value 1 will use serviceId in the Requests\n\n";
-	logText += "   -useUserDispatch <1 Or 0>            Value 1 will use UserDispatch\n";
+	logText += "   -useUserDispatch <1 Or 0>            Value 1 will use UserDispatch, 0 will use ApiDispatch.\n";
 	logText += "   -itemFile <file name>                Name of the file to get item names from\n";
 	logText += "   -msgFile <file name>                 Name of the file that specifies the data content in messages\n";
 	logText += "   -summaryFile <filename>              Name of file for logging summary info.\n";
@@ -550,7 +585,8 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -latencyFile <filename>              Base name of file for logging latency.\n\n";
 	logText += "   -steadyStateTime <seconds>           Time consumer will run the steady-state portion of the test.\n";
 	logText += "                                          Also used as a timeout during the startup-state portion.\n\n";
-	logText += "   -delaySteadyStateCalc <mili sec>     Time consumer will wait before calculate the latency.\n";
+	logText += "   -delaySteadyStateCalc <mili sec>     Time consumer will wait before calculate the latency.\n\n";
+
 	logText += "   -apiThreads <thread list>            List of Api threads in ApiDispatch mode (which create 1 connection each),\n";
 	logText += "                                          by their bound CPU. Comma-separated list. -1 means do not bind.\n";
 	logText += "                                          Must match the count of listed in -threads option.\n";
@@ -559,6 +595,11 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -threads <thread list>               List of threads (which create 1 connection each),\n";
 	logText += "                                          by their bound CPU. Comma-separated list. -1 means do not bind.\n";
 	logText += "                                          (e.g. \"-threads 0,1\" creates two threads bound to CPU's 0 and 1)\n\n";
+	logText += "   -workerThreads <thread list>         List of Reactor worker threads, by their bound CPU.\n";
+	logText += "                                          Comma-separated list. -1 means do not bind.\n";
+	logText += "                                          Must match the count of listed in -threads option.\n";
+	logText += "                                          (e.g. \"-workerThreads 0,1\" creates two threads bound to CPU's 0 and 1)\n\n";
+
 	logText += "   -consumerName <name>                 Name of the Consumer component in config file EmaConfig.xml that will be used to configure connection.\n";
 	logText += "   -websocket <protocol>                Using websocket connection with specified tunnel protocol: \"rssl.json.v2\" or \"rssl.rwf\".\n";
 
@@ -572,23 +613,14 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 	// Unless the transport config paramaters are passed via programatic config and logger turned off.
 	// 1. consPerfConfig.connectionType
 	// 2. Hostname, Port
-	int i;
-	int tmpStringPos = 0;
-	int tmpApiThreadListStringPos = 0;
-	char tmpString[128];
-	char tmpApiThreadListString[128];
-	char mainThread[128];
-	// Build thread list 
-	snprintf(mainThread, 128, "%ld", consPerfConfig.mainThreadCpu);
-	tmpStringPos += snprintf(tmpString, 128, "%ld", consPerfConfig.threadBindList[0]);
-	tmpApiThreadListStringPos += snprintf(tmpApiThreadListString, 128, "%ld", consPerfConfig.apiThreadBindList[0]);
-	for(i = 1; i < consPerfConfig.threadCount; ++i)
-	{
-		tmpStringPos += snprintf(tmpString + tmpStringPos, 128 - tmpStringPos, ",%ld", consPerfConfig.threadBindList[i]);
-		if( !consPerfConfig.useUserDispatch )
-			tmpApiThreadListStringPos += snprintf(tmpApiThreadListString + tmpApiThreadListStringPos, 128 - tmpApiThreadListStringPos, ",%ld", consPerfConfig.apiThreadBindList[i]);
-
-	}
+	char tmpString[128] = "-1";
+	char tmpApiThreadListString[128] = "-1";
+	char tmpWorkerThreadListString[128] = "-1";
+	// Build thread list
+	consPerfConfig.getThreadListAsString(consPerfConfig.threadBindList, tmpString, 128);
+	consPerfConfig.getThreadListAsString(consPerfConfig.workerThreadBindList, tmpWorkerThreadListString, 128);
+	if ( !consPerfConfig.useUserDispatch )
+		consPerfConfig.getThreadListAsString(consPerfConfig.apiThreadBindList, tmpApiThreadListString, 128);
 
 	fprintf(file, "--- TEST INPUTS ---\n\n");
 	fprintf(file,
@@ -602,6 +634,7 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 		"              mainThread: %s\n"
 		"             Thread List: %s\n"
 		"          ApiThread List: %s\n"
+		"       WorkerThread List: %s\n"
 		"                Username: %s\n"
 		"              Item Count: %d\n"
 		"       Common Item Count: %d\n"
@@ -619,9 +652,10 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 		"               Tick Rate: %u\n",
 		consPerfConfig.serviceName.c_str(),
 		(consPerfConfig.useUserDispatch) ? "1" : "0",
-		mainThread,
+		consPerfConfig.mainThreadCpu.empty() ? "-1" : consPerfConfig.mainThreadCpu.c_str(),
 		tmpString,
 		tmpApiThreadListString,
+		tmpWorkerThreadListString,
 		strlen(consPerfConfig.username.c_str()) ? consPerfConfig.username.c_str() : "(use system login name)",
 		consPerfConfig.itemRequestCount,
 		consPerfConfig.commonItemCount,
@@ -1169,9 +1203,16 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 	if(initConsPerfConfig(argc, argv) == false)
 		return false;
 	printConsPerfConfig(stdout);
-	if( consPerfConfig.mainThreadCpu != -1)
+
+	if( !consPerfConfig.mainThreadCpu.empty() && !consPerfConfig.mainThreadCpu.caseInsensitiveCompare("-1") )
 	{
-		bindThisThread("Main Thread", consPerfConfig.mainThreadCpu);
+		RsslError rsslError;
+		RsslRet retCode = rsslInitialize(RSSL_LOCK_GLOBAL_AND_CHANNEL, &rsslError);
+		if ( !bindThisThread("Main Thread", consPerfConfig.mainThreadCpu) )
+		{
+			rsslUninitialize();
+			return false;
+		}
 		printAllThreadBinding();
 	}	
 
@@ -1207,6 +1248,7 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 			return false;
 		consumerThreads[i]->cpuId = consPerfConfig.threadBindList[i];
 		consumerThreads[i]->apiThreadCpuId = consPerfConfig.apiThreadBindList[i];
+		consumerThreads[i]->workerThreadCpuId = consPerfConfig.workerThreadBindList[i];
 	}
 
 	assert(itemListUniqueIndex == consPerfConfig.itemRequestCount - 
@@ -1233,23 +1275,11 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 	}
 
 	// Spawn consumer threads 
-	EmaString consumerThreadName;
-
 	const UInt64 ctSize = consumerThreads.size();
 	for( i = 0; i < ctSize; ++i )
 	{
-		consumerThreadName = BASECONSUMER_NAME;
-		if( consumerThreads[i]->cpuId != -1)
-			firstThreadSnapshot();
-
+		// Start the thread
 		consumerThreads[i]->start();
-		if(consumerThreads[i]->cpuId != -1)
-		{
-			consumerThreadName += consumerThreads[i]->consumerThreadIndex;
-			AppUtil::sleep( 1000 );
-			secondThreadSnapshot(consumerThreadName, consumerThreads[i]->cpuId);
-			printAllThreadBinding();
-		}		
 	}
 
 	UInt32 currentRuntimeSec = 0;
@@ -1257,7 +1287,6 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 
 	endTime = perftool::common::GetTime::getTimeMilli() + consPerfConfig.steadyStateTime * 1000;
 	
-
 	startTime = perftool::common::GetTime::getTimeMilli();
 
 	// Registers Ctrl+C handler in the handler's chain after EMA.
@@ -1267,6 +1296,7 @@ bool EmaCppConsPerf::inititailizeAndRun( int argc, char *argv[])
 
 	// Sleep for one more second so some stats can be gathered before first printout.
 	AppUtil::sleep( 1000 );
+
 	while ( !shutdownThreads() )
 	{		
 		currentTime = perftool::common::GetTime::getTimeMilli();

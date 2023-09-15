@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
 #]=============================================================================]
 
 
@@ -12,13 +12,13 @@ if(NOT lz4_url)
 	# This is the latest build. However, until deprecated interfaces updates can 
 	# be applied to the rtsdk code in esdk repository, the older, compatible source will be used
 	#set(lz4_url "https://github.com/lz4/lz4/archive/r131.tar.gz")
-	set(lz4_url "https://github.com/lz4/lz4/archive/v1.8.3.tar.gz")
+	set(lz4_url "https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz")
 endif()
 if(NOT lz4_hash)
-	set(lz4_hash "MD5=d5ce78f7b1b76002bbfffa6f78a5fc4e")
+	set(lz4_hash "MD5=e9286adb64040071c5e23498bf753261")
 endif()
 if(NOT lz4_version)
-	set(lz4_version "1.8.3")
+	set(lz4_version "1.9.4")
 endif()
 
 # If the option for using the system installed package is not defined
@@ -59,7 +59,7 @@ if((NOT lz4_USE_INSTALLED) AND
 	# the top CMake entry point is not in the top source_dir location
 	# so need to define 'SOURCE_SUBDIR'
 	set(_EPA_SOURCE_DIR "SOURCE_DIR ${lz4_source}"
-						"SOURCE_SUBDIR contrib/cmake_unofficial")
+						"SOURCE_SUBDIR build/cmake")
 	# the BINARY_DIR is not seperate for this type of external project
 	set(_EPA_INSTALL_DIR "INSTALL_DIR ${lz4_install}")
 

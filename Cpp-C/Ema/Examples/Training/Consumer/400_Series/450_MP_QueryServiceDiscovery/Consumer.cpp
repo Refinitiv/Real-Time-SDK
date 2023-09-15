@@ -7,6 +7,8 @@
 
 #include "Consumer.h"
 #include <cstring>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace refinitiv::ema::access;
 using namespace std;
@@ -15,6 +17,8 @@ EmaString userName;
 EmaString password;
 EmaString clientId;
 EmaString clientSecret;
+EmaString clientJWK;
+EmaString audience;
 EmaString host;
 EmaString port;
 EmaString location("us-east-1");
@@ -52,7 +56,7 @@ void AppClient::onSuccess( const ServiceEndpointDiscoveryResp& serviceEndpointRe
 	{
 		const EmaVector<EmaString>& locationList = serviceEndpointResp.getServiceEndpointInfoList()[index].getLocationList();
 
-		if ( locationList.size() == 2 ) // Get an endpoint that provides auto failover for the specified location.
+		if ( locationList.size() >= 2 ) // Get an endpoint that provides auto failover for the specified location.
 		{
 			if ( locationList[0].find(location) != -1 )
 			{
@@ -61,6 +65,15 @@ void AppClient::onSuccess( const ServiceEndpointDiscoveryResp& serviceEndpointRe
 				break;
 			}
 		}
+		else if (locationList.size() > 0 && host.empty() && port.empty())
+		{
+			if ( locationList[0].find(location) != -1 )
+			{
+				host = serviceEndpointResp.getServiceEndpointInfoList()[index].getEndPoint();
+				port = serviceEndpointResp.getServiceEndpointInfoList()[index].getPort();
+			}
+		}
+		
 	}
 }
 
@@ -148,6 +161,8 @@ void printHelp()
 		<< " -password password to perform authorization with the token service (mandatory V1 oauth password grant)." << endl
 		<< " -clientId client ID to perform authorization with the token service (mandatory for both V1 and V2 grant types). " << endl
 		<< " -clientSecret client secret to perform authorization with the token service (mandatory for V2 oauth client credential grant). " << endl
+		<< " -jwkFile path to the file containing the JWK encoded private key (mandatory for V2 oAuth client credentials with JWT). " << endl
+		<< " -audience Audience value for JWT (optional for V2 oAuth client credentials with JWT). " << endl
 		<< " -location location to get an endpoint from RDP service discovery (optional). Defaults to \"us-east-1\"" << endl
 		<< " -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials (optional, only used with V1 oauth password grant)." << endl
 		<< " -tokenURL URL for V1 to perform authentication to get access and refresh tokens (optional)." << endl
@@ -170,6 +185,10 @@ int main( int argc, char* argv[] )
 		AppClient client;
 		Map configDb;
 		OmmConsumerConfig config;
+
+		FILE* pFile;
+		int readSize;
+		char clientJwkMem[2048];
 
 		EmaString itemName = "IBM.N";
 
@@ -199,6 +218,32 @@ int main( int argc, char* argv[] )
 			else if (strcmp(argv[i], "-clientSecret") == 0)
 			{
 				if (i < (argc - 1)) clientSecret.set(argv[++i]);
+			}
+			else if (strcmp(argv[i], "-jwkFile") == 0)
+			{
+				if (i < (argc - 1))
+				{
+					/* As this is an example program showing API, this handling of the JWK is not secure. */
+					pFile = fopen(argv[++i], "rb");
+					if (pFile == NULL)
+					{
+						printf("Cannot load jwk file.\n");
+						return 0;
+					}
+					/* Read the JWK contents into a pre-allocated buffer*/
+					readSize = (int)fread(clientJwkMem, sizeof(char), 2048, pFile);
+					if (readSize == 0)
+					{
+						printf("Cannot load jwk file.\n");
+						return 0;
+					}
+
+					clientJWK.set(clientJwkMem, readSize);
+				}
+			}
+			else if (strcmp(argv[i], "-audience") == 0)
+			{
+				if (i < (argc - 1)) audience.set(argv[++i]);
 			}
 			else if (strcmp(argv[i], "-takeExclusiveSignOnControl") == 0)
 			{
@@ -278,9 +323,9 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		if ( !userName.length() || !password.length() )
+		if ( userName.length() == 0 || password.length() == 0 )
 		{
-			if (!clientId.length() || !clientSecret.length())
+			if (clientId.length() == 0 || (clientSecret.length() == 0 && clientJWK.length() == 0))
 			{
 				cout << "User name, password and client Id/client Id and client Secret must be specified on the command line. Exiting...";
 				printHelp();
@@ -299,15 +344,37 @@ int main( int argc, char* argv[] )
 
 		/* If this is a V1 password grant type login, set the username, password, and clientId on the OmmConsumerConfig object.  Otherwise, 
 		   set the clientId and clientSecret for a V2 client credential grant type. */
-		if(clientSecret.empty() == true)
-			serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().username( userName ).password( password )
-				.clientId( clientId ).transport( transportProtocol ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
-				.proxyHostName( proxyHostName ).proxyPort( proxyPort ).proxyUserName( proxyUserName ).proxyPassword( proxyPasswd )
-				.proxyDomain( proxyDomain ), client );
+		if (password.empty() == false)
+		{
+			serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().username(userName).password(password)
+				.clientId(clientId).transport(transportProtocol).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
+				.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName).proxyPassword(proxyPasswd)
+				.proxyDomain(proxyDomain), client);
+		}
 		else
-			serviceDiscovery.registerClient( ServiceEndpointDiscoveryOption().clientId( clientId ).clientSecret( clientSecret )
-				.transport( transportProtocol ).proxyHostName( proxyHostName ).proxyPort( proxyPort )
-				.proxyUserName( proxyUserName ).proxyPassword( proxyPasswd ).proxyDomain( proxyDomain ), client );
+		{
+			if (clientJWK.empty() == true)
+			{
+				serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().clientId(clientId).clientSecret(clientSecret)
+					.transport(transportProtocol).proxyHostName(proxyHostName).proxyPort(proxyPort)
+					.proxyUserName(proxyUserName).proxyPassword(proxyPasswd).proxyDomain(proxyDomain), client);
+			}
+			else
+			{
+				if (audience.empty() == true)
+				{
+					serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().clientId(clientId).clientJWK(clientJWK)
+						.transport(transportProtocol).proxyHostName(proxyHostName).proxyPort(proxyPort)
+						.proxyUserName(proxyUserName).proxyPassword(proxyPasswd).proxyDomain(proxyDomain), client);
+				}
+				else
+				{
+					serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().clientId(clientId).clientJWK(clientJWK).audience(audience)
+						.transport(transportProtocol).proxyHostName(proxyHostName).proxyPort(proxyPort)
+						.proxyUserName(proxyUserName).proxyPassword(proxyPasswd).proxyDomain(proxyDomain), client);
+				}
+			}
+		}
 
 		if ( !host.length() || !port.length() )
 		{
@@ -317,15 +384,34 @@ int main( int argc, char* argv[] )
 
 		createProgramaticConfig( configDb );\
 		/* Set the configured credentials as above */
-		if (clientSecret.empty() == true)
-			config.consumerName( "Consumer_1" ).username( userName ).password( password )
-				.clientId( clientId ).config( configDb ).takeExclusiveSignOnControl( takeExclusiveSignOnControl )
-				.tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
-				.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain );
+		if (password.empty() != true)
+		{
+			config.consumerName("Consumer_1").username(userName).password(password)
+				.clientId(clientId).config(configDb).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
+				.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+				.proxyUserName(proxyUserName).proxyPasswd(proxyPasswd).proxyDomain(proxyDomain);
+		}
 		else
-			config.consumerName( "Consumer_1" ).clientId( clientId ).clientSecret( clientSecret )
-				.config( configDb ).tunnelingProxyHostName( proxyHostName ).tunnelingProxyPort( proxyPort )
-				.proxyUserName( proxyUserName ).proxyPasswd( proxyPasswd ).proxyDomain( proxyDomain );
+		{
+			if (clientJWK.empty() == true)
+			{
+				config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret)
+					.config(configDb).tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+					.proxyUserName(proxyUserName).proxyPasswd(proxyPasswd).proxyDomain(proxyDomain);
+			}
+			else
+			{
+				config.consumerName("Consumer_1").clientId(clientId).clientJWK(clientJWK)
+					.config(configDb).tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+					.proxyUserName(proxyUserName).proxyPasswd(proxyPasswd).proxyDomain(proxyDomain);
+
+				if (audience.empty() != true)
+				{
+					config.audience(audience);
+				}
+			}
+		}
+			
 
 		OmmConsumer consumer(config);
 

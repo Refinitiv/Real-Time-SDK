@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided   --
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
  *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022 Refinitiv. All rights reserved.                          --
+ *| Copyright (C) 2022-2023 Refinitiv. All rights reserved.                          --
  *|-------------------------------------------------------------------------------
  */
 
@@ -55,11 +55,10 @@
 
 
 using System.Net.Sockets;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.Training.Provider
+namespace LSEG.Eta.Training.Provider
 {
     public class Module_1a_Connect
     {
@@ -195,7 +194,7 @@ namespace Refinitiv.Eta.Training.Provider
             /*********************************************************
              * Server/Provider Application Life Cycle Major Step 2: Create listening
              * socket using Bind Establishes a listening socket connection, which
-             * supports connections from standard socket and HTTP Connect users.
+             * supports connections from standard socket users.
              *
              * Returns an Server that represents the listening socket connection to
              * the user. In the event of an error, NULL is returned and additional

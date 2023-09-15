@@ -2,22 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Text;
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
     /// <summary>
     /// This is the market price handler for the ETA Value Add consumer application.
@@ -60,8 +60,6 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
         private EncodeIterator m_EncodeIterator = new();
 
-        private bool m_ViewRequested = false;
-        private bool m_SnapshotRequested = false;
         private List<string> m_ViewFieldList;
 
         private ReactorSubmitOptions m_SubmitOptions = new();
@@ -175,7 +173,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
         {
             marketPriceRequest.Clear();
 
-            if (!m_SnapshotRequested)
+            if (!SnapshotRequest)
                 marketPriceRequest.Streaming = true;
 
             marketPriceRequest.HasServiceId = true;
@@ -198,7 +196,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             if (loginInfo.HasFeatures
                 && loginInfo.SupportedFeatures.HasSupportViewRequests
                 && loginInfo.SupportedFeatures.SupportViewRequests == 1
-                && m_ViewRequested)
+                && ViewRequest)
             {
                 marketPriceRequest.HasView = true;
                 marketPriceRequest.ViewFields.AddRange(m_ViewFieldList);
@@ -226,7 +224,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
         private ReactorReturnCode SendBatchRequest(ReactorChannel chnl, List<string> itemNames, out ReactorErrorInfo? errorInfo)
         {
-            int batchStreamId = m_WatchList.Add(m_DomainType, "BATCH_" + System.DateTime.Now, m_MarketPriceRequest.PrivateStream);
+            int batchStreamId = m_WatchList.Add(m_DomainType, "BATCH_" + System.DateTime.Now.Ticks, m_MarketPriceRequest.PrivateStream);
             m_MarketPriceRequest.StreamId = batchStreamId;
 
             foreach (string itemName in itemNames)
@@ -390,30 +388,26 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             var wle = m_WatchList.Get(msg.StreamId);
             if (wle != null)
             {
-                /* update our state table with the new state */
+                /* update our state table with the new state
+                 * check if this response should be on private stream but is not
+                 */
                 if (!statusMsg.CheckPrivateStream()) /* non-private stream */
                 {
                     /*
                      * check if this response should be on private stream but is not
+                     * batch responses for private stream may be sent on non-private
+                     * stream
                      */
-                    if (!statusMsg.CheckPrivateStream()) /* non-private stream */
+                    /* if this is the case, close the stream */
+                    if (wle.IsPrivateStream && !wle.ItemName.Contains("BATCH_"))
                     {
-                        /*
-                         * check if this response should be on private stream but is not
-                         * batch responses for private stream may be sent on non-private
-                         * stream
-                         */
-                        /* if this is the case, close the stream */
-                        if (wle.IsPrivateStream && !wle.ItemName.Contains("BATCH_"))
-                        {
-                            Console.WriteLine("Received non-private response for stream " +
-                                    msg.StreamId + " that should be private - closing stream");
-                            // close stream
-                            CloseStream(m_RedirectChannel!, msg.StreamId, out errorInfo);
-                            // remove private stream entry from list
-                            RemoveMarketPriceItemEntry(msg.StreamId);
-                            return ReactorReturnCode.FAILURE;
-                        }
+                        Console.WriteLine("Received non-private response for stream " +
+                                          msg.StreamId + " that should be private - closing stream");
+                        // close stream
+                        CloseStream(m_RedirectChannel!, msg.StreamId, out errorInfo);
+                        // remove private stream entry from list
+                        RemoveMarketPriceItemEntry(msg.StreamId);
+                        return ReactorReturnCode.FAILURE;
                     }
                 }
                 wle.ItemState.DataState(statusMsg.State.DataState());
@@ -533,7 +527,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             return DecodePayload(dIter, dictionary, fieldValue);
         }
 
-        private CodecReturnCode DecodePayload(DecodeIterator dIter, DataDictionary dictionary, StringBuilder fieldValue)
+        public virtual CodecReturnCode DecodePayload(DecodeIterator dIter, DataDictionary dictionary, StringBuilder fieldValue)
         {
             CodecReturnCode ret = fieldList.Decode(dIter, null);
             if (ret != CodecReturnCode.SUCCESS)
@@ -585,10 +579,10 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             }
 
             // print out fid name
-            fieldValue.Append("\t" + fEntry.FieldId + "/" + dictionaryEntry.Acronym.ToString() + ": ");
+            fieldValue.Append("\t" + fEntry.FieldId + "/" + dictionaryEntry.GetAcronym().ToString() + ": ");
 
             // decode and print out fid value
-            int dataType = dictionaryEntry.RwfType;
+            int dataType = dictionaryEntry.GetRwfType();
             CodecReturnCode ret = 0;
             switch (dataType)
             {

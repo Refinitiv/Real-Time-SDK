@@ -98,7 +98,7 @@ ReqMsg::ReqMsg(const ReqMsg& other)
 
 ReqMsg::~ReqMsg()
 {
-	if ( _pEncoder )
+	if ( _pEncoder && !GlobalPool::isFinalState() )
 		g_pool._reqMsgEncoderPool.returnItem( static_cast<ReqMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
@@ -106,7 +106,8 @@ ReqMsg::~ReqMsg()
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		g_pool._reqMsgDecoderPool.returnItem( static_cast<ReqMsgDecoder*>( _pDecoder ) );
+		if ( !GlobalPool::isFinalState() )
+			g_pool._reqMsgDecoderPool.returnItem( static_cast<ReqMsgDecoder*>( _pDecoder ) );
 	}
 }
 

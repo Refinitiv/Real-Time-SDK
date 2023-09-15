@@ -2,11 +2,11 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2023 Refinitiv. All rights reserved.
 */
 
 /*
- * This is the main file for the rsslWatchlistConsumer application.  It is a single-threaded
+ * This is the main file for the rsslMultiCredWLConsumer application.  It is a single-threaded
  * client application that utilizes the ETA Reactor's watchlist to provide recovery of data.
  * 
  * The main consumer file provides the callback for channel events and 
@@ -158,6 +158,31 @@ int main(int argc, char **argv)
 		}
 	}
 
+	if (watchlistConsumerConfig.restProxyHost[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyHostName = watchlistConsumerConfig.restProxyHost;
+	}
+
+	if (watchlistConsumerConfig.restProxyPort[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPort = watchlistConsumerConfig.restProxyPort;
+	}
+
+	if (watchlistConsumerConfig.restProxyUserName[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyUserName = watchlistConsumerConfig.restProxyUserName;
+	}
+
+	if (watchlistConsumerConfig.restProxyPasswd[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPasswd = watchlistConsumerConfig.restProxyPasswd;
+	}
+
+	if (watchlistConsumerConfig.restProxyDomain[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyDomain = watchlistConsumerConfig.restProxyDomain;
+	}
+
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -275,6 +300,7 @@ int main(int argc, char **argv)
 			if (!runTimeExpired)
 			{
 				runTimeExpired = RSSL_TRUE;
+				break;
 			}
 		}
 	} while(ret >= RSSL_RET_SUCCESS);
@@ -877,7 +903,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				RsslErrorInfo rsslErrorInfo;
 
 				rsslClearTraceOptions(&traceOptions);
-				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer\0");
+				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer");
 				traceOptions.traceMsgFileName = traceOutputFile;
 				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
@@ -1027,8 +1053,11 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor* pReactor, RsslR
 	/* For a V1 credential, only the password requires updating.  For a V2 credential, the clientSecret needs to be updated. */
 	if (pRequestCredential->oAuthCredential.password.length != 0)
 		reactorOAuthCredentialRenewal.password = pRequestCredential->oAuthCredential.password; /* Specified password as needed */
-	else
+	else if(pRequestCredential->oAuthCredential.clientSecret.length != 0)
 		reactorOAuthCredentialRenewal.clientSecret = pRequestCredential->oAuthCredential.clientSecret;
+	else
+		reactorOAuthCredentialRenewal.clientJWK = pRequestCredential->oAuthCredential.clientJWK;
+
 
 	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 

@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -79,7 +79,14 @@ typedef struct
 	char			_tokenUrlV1[255];
 	char			_tokenUrlV2[255];
 	char			_serviceDiscoveryUrl[255];
-	
+
+	/* Proxy configuration settings for Rest requests */
+	char			restProxyHost[255];					/* Proxy host name */
+	char			restProxyPort[255];					/* Proxy port */
+	char			restProxyUserName[255];				/* Proxy user name */
+	char			restProxyPasswd[255];				/* Proxy password */
+	char			restProxyDomain[255];				/* Proxy domain */
+
 } WatchlistConsumerConfig;
 
 typedef struct
@@ -106,6 +113,8 @@ typedef struct
 	char _clientIdBuffer[255];
 	char _clientSecretBuffer[255];
 	char _tokenScopeBuffer[255];
+	char _clientJWKBuffer[2048];
+	char _audienceBuffer[255];
 }OAuthRequestCredential;
 
 typedef struct

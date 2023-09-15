@@ -2,25 +2,25 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 
-using Enum = Refinitiv.Eta.Codec.Enum;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// Connection config is representation of login response payload
     /// and contains standby configuration information.
     /// </summary>
-    public class LoginConnectionConfig
+    sealed public class LoginConnectionConfig
     {
         private List<ServerInfo> _serverList;
 
@@ -57,12 +57,19 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// </summary>
         public long NumStandByServers { get; set; }
 
+        /// <summary>
+        /// Login Connection Config constructor.
+        /// </summary>
         public LoginConnectionConfig()
         {
             _serverList = new List<ServerInfo>();
         }
 
+        /// <summary>
         /// Performs a deep copy of this object into <c>destConnectionConfig</c>.
+        /// </summary>
+        /// <param name="destConnectionConfig">LoginConnectionConfig that will be copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginConnectionConfig destConnectionConfig)
         {
             Debug.Assert(destConnectionConfig != null);
@@ -83,20 +90,39 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        /// <summary>Clears the current contents of the server info object and prepares it for re-use.</summary>
+        /// <summary>
+        /// Shallow copies the information and references contained in <c>srcConnectionConfig</c> into this object.
+        /// </summary>
+        /// <param name="srcConnectionConfig">LoginConnectionConfig that will be copied from.</param>
+        public void CopyReferences(LoginConnectionConfig srcConnectionConfig)
+        {
+            Debug.Assert(srcConnectionConfig != null);
+
+            NumStandByServers = srcConnectionConfig.NumStandByServers;
+            ServerList = srcConnectionConfig.ServerList;
+        }
+
+        /// <summary>
+        /// Clears the current contents of the login connection config info object and prepares it for re-use.
+        /// </summary>
         public void Clear()
         {
             NumStandByServers = 0;
             _serverList.Clear();
         }
 
-        public CodecReturnCode Encode(EncodeIterator EncodeIter)
+        /// <summary>
+        /// Encodes the connection config info using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Encode(EncodeIterator encodeIter)
         {
             // Encode Element ConnectionConfig
             elementList.Clear();
             elementList.Flags = ElementListFlags.HAS_STANDARD_DATA;
 
-            CodecReturnCode ret = elementList.EncodeInit(EncodeIter, null, 0);
+            CodecReturnCode ret = elementList.EncodeInit(encodeIter, null, 0);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
@@ -107,7 +133,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             elementEntry.DataType = DataTypes.VECTOR;
             elementEntry.Name = ElementNames.CONNECTION_CONFIG;
 
-            ret = elementEntry.EncodeInit(EncodeIter, 0);
+            ret = elementEntry.EncodeInit(encodeIter, 0);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
@@ -118,7 +144,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             vector.ContainerType = DataTypes.ELEMENT_LIST;
             vector.Flags = VectorFlags.HAS_SUMMARY_DATA;
 
-            ret = vector.EncodeInit(EncodeIter, 0, 0);
+            ret = vector.EncodeInit(encodeIter, 0, 0);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
@@ -128,7 +154,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             elementList.Clear();
             elementList.Flags = ElementListFlags.HAS_STANDARD_DATA;
 
-            ret = elementList.EncodeInit(EncodeIter, null, 0);
+            ret = elementList.EncodeInit(encodeIter, null, 0);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
@@ -139,18 +165,18 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             elementEntry.DataType = DataTypes.UINT;
             elementEntry.Name = ElementNames.NUM_STANDBY_SERVERS;
             tmpUInt.Value(NumStandByServers);
-            ret = elementEntry.Encode(EncodeIter, tmpUInt);
+            ret = elementEntry.Encode(encodeIter, tmpUInt);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
             }
-            ret = elementList.EncodeComplete(EncodeIter, true);
+            ret = elementList.EncodeComplete(encodeIter, true);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
             }
 
-            ret = vector.EncodeSummaryDataComplete(EncodeIter, true);
+            ret = vector.EncodeSummaryDataComplete(encodeIter, true);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
@@ -161,7 +187,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 vectorEntry.Clear();
                 vectorEntry.Index = (uint)serverInfo.ServerIndex;
                 vectorEntry.Action = VectorEntryActions.SET;
-                ret = vectorEntry.EncodeInit(EncodeIter, 0);
+                ret = vectorEntry.EncodeInit(encodeIter, 0);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -171,7 +197,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 elementList.Clear();
                 elementList.Flags = ElementListFlags.HAS_STANDARD_DATA;
 
-                ret = elementList.EncodeInit(EncodeIter, null, 0);
+                ret = elementList.EncodeInit(encodeIter, null, 0);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -180,7 +206,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
                 elementEntry.DataType = DataTypes.ASCII_STRING;
                 elementEntry.Name = ElementNames.HOSTNAME;
-                ret = elementEntry.Encode(EncodeIter, serverInfo.HostName);
+                ret = elementEntry.Encode(encodeIter, serverInfo.HostName);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -189,7 +215,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 elementEntry.DataType = DataTypes.UINT;
                 elementEntry.Name = ElementNames.PORT;
                 tmpUInt.Value(serverInfo.Port);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                ret = elementEntry.Encode(encodeIter, tmpUInt);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -200,7 +226,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     elementEntry.DataType = DataTypes.UINT;
                     elementEntry.Name = ElementNames.LOAD_FACT;
                     tmpUInt.Value(serverInfo.LoadFactor);
-                    ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                    ret = elementEntry.Encode(encodeIter, tmpUInt);
                     if (ret != CodecReturnCode.SUCCESS)
                     {
                         return ret;
@@ -211,19 +237,19 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     elementEntry.DataType = DataTypes.ENUM;
                     elementEntry.Name = ElementNames.SERVER_TYPE;
                     tmpEnum.Value(serverInfo.ServerType);
-                    ret = elementEntry.Encode(EncodeIter, tmpEnum);
+                    ret = elementEntry.Encode(encodeIter, tmpEnum);
                     if (ret != CodecReturnCode.SUCCESS)
                     {
                         return ret;
                     }
                 }
 
-                ret = elementList.EncodeComplete(EncodeIter, true);
+                ret = elementList.EncodeComplete(encodeIter, true);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
                 }
-                ret = vectorEntry.EncodeComplete(EncodeIter, true);
+                ret = vectorEntry.EncodeComplete(encodeIter, true);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -231,25 +257,30 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
 
             // Complete
-            ret = vector.EncodeComplete(EncodeIter, true);
+            ret = vector.EncodeComplete(encodeIter, true);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
             }
 
-            ret = elementEntry.EncodeComplete(EncodeIter, true);
+            ret = elementEntry.EncodeComplete(encodeIter, true);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
             }
 
-            return elementList.EncodeComplete(EncodeIter, true);
+            return elementList.EncodeComplete(encodeIter, true);
         }
 
-        public CodecReturnCode Decode(DecodeIterator dIter)
+        /// <summary>
+        /// Decodes the connection config info using the provided <c>dIter</c>.  The decode iterator must be set to decode the vector containing the login connection config info.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message and is ready to decode the Login Connection Config Vector.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Decode(DecodeIterator decodeIter)
         {
             Clear();
-            CodecReturnCode ret = vector.Decode(dIter);
+            CodecReturnCode ret = vector.Decode(decodeIter);
             if (ret != CodecReturnCode.SUCCESS)
             {
                 return ret;
@@ -263,7 +294,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             if (vector.CheckHasSetDefs())
             {
                 setDb.Clear();
-                ret = setDb.Decode(dIter);
+                ret = setDb.Decode(decodeIter);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -273,7 +304,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             // Decode payload
             if (vector.CheckHasSummaryData())
             {
-                ret = serverElementList.Decode(dIter, null);
+                ret = serverElementList.Decode(decodeIter, null);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
                     return ret;
@@ -281,7 +312,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
                 bool foundNumStandbyServers = false;
                 // Decode each element entry in list
-                while ((ret = serverElementEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
+                while ((ret = serverElementEntry.Decode(decodeIter)) != CodecReturnCode.END_OF_CONTAINER)
                 {
                     if (ret != CodecReturnCode.SUCCESS)
                     {
@@ -292,7 +323,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     {
                         if (serverElementEntry.DataType != DataTypes.UINT)
                             return CodecReturnCode.FAILURE;
-                        ret = tmpUInt.Decode(dIter);
+                        ret = tmpUInt.Decode(decodeIter);
                         if (ret != CodecReturnCode.SUCCESS)
                         {
                             return ret;
@@ -309,7 +340,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             vectorEntry.Clear();
             bool foundHostName = false;
             bool foundServerPort = false;
-            if ((ret = vectorEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
+            if ((ret = vectorEntry.Decode(decodeIter)) != CodecReturnCode.END_OF_CONTAINER)
             {
                 if (ret != CodecReturnCode.SUCCESS)
                 {
@@ -317,7 +348,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
                 do
                 {
-                    ret = serverElementList.Decode(dIter, setDb);
+                    ret = serverElementList.Decode(decodeIter, setDb);
                     if (ret != CodecReturnCode.SUCCESS)
                     {
                         return ret;
@@ -328,7 +359,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     serverInfo.ServerIndex = vectorEntry.Index;
 
                     // Decode each element entry in list
-                    while ((ret = serverElementEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
+                    while ((ret = serverElementEntry.Decode(decodeIter)) != CodecReturnCode.END_OF_CONTAINER)
                     {
                         if (ret != CodecReturnCode.SUCCESS)
                         {
@@ -343,7 +374,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
                         if (serverElementEntry.Name.Equals(ElementNames.PORT))
                         {
-                            ret = tmpUInt.Decode(dIter);
+                            ret = tmpUInt.Decode(decodeIter);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -354,7 +385,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
                         if (serverElementEntry.Name.Equals(ElementNames.LOAD_FACT))
                         {
-                            ret = tmpUInt.Decode(dIter);
+                            ret = tmpUInt.Decode(decodeIter);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -365,7 +396,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
                         if (serverElementEntry.Name.Equals(ElementNames.SERVER_TYPE))
                         {
-                            ret = tmpEnum.Decode(dIter);
+                            ret = tmpEnum.Decode(decodeIter);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -382,11 +413,15 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     if (!foundHostName)
                         return CodecReturnCode.FAILURE;
                 }
-                while ((ret = vectorEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER);
+                while ((ret = vectorEntry.Decode(decodeIter)) != CodecReturnCode.END_OF_CONTAINER);
             }
             return CodecReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Returns a human readable string containing the connection configuration info.
+        /// </summary>        
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             stringBuf.Clear();
@@ -403,14 +438,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             stringBuf.Append(eol);
 
             return stringBuf.ToString();
-        }
-
-        public void CopyReferences(LoginConnectionConfig srcConnectionConfig)
-        {
-            Debug.Assert(srcConnectionConfig != null);
-
-            NumStandByServers = srcConnectionConfig.NumStandByServers;
-            ServerList = srcConnectionConfig.ServerList;
         }
     }
 }

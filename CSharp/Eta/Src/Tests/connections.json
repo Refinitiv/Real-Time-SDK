@@ -8,7 +8,7 @@
           "ServerPort": "14002",
           "UserName": "trep1",
           "ServiceId": "957",
-          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+          "Handler": "LSEG.Eta.Example.Consumer.MarketPriceHandler"
         },
         {
           "ConnectionName": "TestHiSpeed",
@@ -16,7 +16,7 @@
           "ServerPort": "14999",
           "UserName": "username",
           "ServiceId": "1",
-          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+          "Handler": "LSEG.Eta.Example.Consumer.MarketPriceHandler"
         },
         {
           "ConnectionName": "TestLoSpeed",
@@ -24,13 +24,13 @@
           "ServerPort": "15001",
           "UserName": "username",
           "ServiceId": "1",
-          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+          "Handler": "LSEG.Eta.Example.Consumer.MarketPriceHandler"
         },
         {
           "ConnectionName": "TestEta",
           "ServerAddress": "127.0.0.1",
           "ServerPort": "14002",
-          "Handler": "Refinitiv.Eta.Example.Consumer.TestBufferParser"
+          "Handler": "LSEG.Eta.Example.Consumer.TestBufferParser"
         }
       ]
     },
@@ -42,7 +42,7 @@
           "ServerPort": "14002",
           "UserName": "trep1",
           "ServiceId": "957",
-          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+          "Handler": "LSEG.Eta.Example.Consumer.MarketPriceHandler"
         },
         {
           "ConnectionName": "TestHiSpeed",
@@ -50,7 +50,7 @@
           "ServerPort": "14999",
           "UserName": "username",
           "ServiceId": "1",
-          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+          "Handler": "LSEG.Eta.Example.Consumer.MarketPriceHandler"
         },
         {
           "ConnectionName": "TestLoSpeed",
@@ -58,13 +58,13 @@
           "ServerPort": "15001",
           "UserName": "username",
           "ServiceId": "1",
-          "Handler": "Refinitiv.Eta.Example.Consumer.MarketPriceHandler"
+          "Handler": "LSEG.Eta.Example.Consumer.MarketPriceHandler"
         },
         {
           "ConnectionName": "TestEta",
           "ServerAddress": "127.0.0.1",
           "ServerPort": "14002",
-          "Handler": "Refinitiv.Eta.Example.Consumer.TestBufferParser"
+          "Handler": "LSEG.Eta.Example.Consumer.TestBufferParser"
         }
       ]
     }

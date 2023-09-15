@@ -2,27 +2,34 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 
-namespace Refinitiv.Eta.ValueAdd.Common
+namespace LSEG.Eta.ValueAdd.Common
 {
     /// <summary>
     /// A FIFO queue.
     /// </summary>
     public class VaQueue
     {
+        /// <summary>
+        /// The reference to the <see cref="VaNode"/> at the head of the queue.
+        /// </summary>
         protected VaNode? _head;
+
+        /// <summary>
+        /// The reference to the <see cref="VaNode"/> at the tail of the queue.
+        /// </summary>
         protected VaNode? _tail;
         private volatile int _size;
 
         /// <summary>
         /// Adds to the tail of the queue.
         /// </summary>
-        /// <param name="node">the node to add</param>
+        /// <param name="node">The node to add</param>
         virtual public void Add(VaNode node)
         {
             if (node is null)
@@ -46,6 +53,10 @@ namespace Refinitiv.Eta.ValueAdd.Common
             _size++;
         }
 
+        /// <summary>
+        /// Polls a <see cref="VaNode"/> from this queue.
+        /// </summary>
+        /// <returns>Removes the oldest <see cref="VaNode"/></returns>
         virtual public VaNode? Poll()
         {
             if (_head == null)
@@ -75,7 +86,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
         /// <summary>
         /// Returns but does not remove the head of the queue.
         /// </summary>
-        /// <returns>the head of the queue</returns>
+        /// <returns>The head of the queue</returns>
         virtual public VaNode? Peek()
         {
             return _head;
@@ -84,8 +95,8 @@ namespace Refinitiv.Eta.ValueAdd.Common
         /// <summary>
         /// Removes a node from the queue.
         /// </summary>
-        /// <param name="node">the node to remove</param>
-        /// <returns>true if the node was in the queue, or false if the node wasn't</returns>
+        /// <param name="node">The node to remove</param>
+        /// <returns><c>true</c> if the node was in the queue, or <c>false</c> if the node wasn't</returns>
         virtual public bool Remove(VaNode node)
         {
             if (node == null || _head == null)
@@ -137,7 +148,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
         /// <summary>
         /// Returns the size of the queue.
         /// </summary>
-        /// <returns>the size of the queue</returns>
+        /// <returns>The size of the queue</returns>
         virtual public int Size()
         {
             return _size;

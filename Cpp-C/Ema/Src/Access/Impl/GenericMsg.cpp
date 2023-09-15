@@ -82,7 +82,7 @@ GenericMsg::GenericMsg(const GenericMsg& other)
 
 GenericMsg::~GenericMsg()
 {
-	if ( _pEncoder )
+	if ( _pEncoder && !GlobalPool::isFinalState() )
 		g_pool._genericMsgEncoderPool.returnItem( static_cast<GenericMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
@@ -90,7 +90,8 @@ GenericMsg::~GenericMsg()
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		g_pool._genericMsgDecoderPool.returnItem( static_cast<GenericMsgDecoder*>( _pDecoder ) );
+		if ( !GlobalPool::isFinalState() )
+			g_pool._genericMsgDecoderPool.returnItem( static_cast<GenericMsgDecoder*>( _pDecoder ) );
 	}
 }
 

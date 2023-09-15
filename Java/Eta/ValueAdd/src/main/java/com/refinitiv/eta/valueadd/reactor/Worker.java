@@ -223,12 +223,64 @@ class Worker implements Runnable
                             continue;
 
                         Channel channel = null;
+                        ReactorWarmStandbyServerInfo wsbServerImpl;
+
+                        if(_reactor.reactorHandlesWarmStandby(reactorChannel))
+                        {
+                        	reactorChannel._reconnectAttempts++;
+                        	ReactorWarmStandbyGroupImpl wsbGroup = reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl();
+                        	if(reactorChannel.isStartingServerConfig)
+                        	{
+                        		wsbServerImpl = reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl().startingActiveServer();
+                        		reactorChannel.setCurrentReactorConnectInfo(wsbGroup.startingActiveServer().reactorConnectInfo());
+                        		reactorChannel.setCurrentConnectOptionsInfo(wsbGroup.startingConnectOptionsInfo);
+                        		reactorChannel.userSpecObj(reactorChannel.getCurrentReactorConnectInfo().connectOptions().userSpecObject());
+                        		
+                        		reactorChannel.standByGroupListIndex = reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupIndex();
+                        	
+	                        	if((reactorChannel.warmStandByHandlerImpl.warmStandbyHandlerState() & 
+	                        			ReactorWarmStandbyHandlerState.CLOSING_STANDBY_CHANNELS) != 0)
+	                        	{
+	                        		continue;
+	                        	}
+                        	}
+                        	else
+                        	{
+                        		wsbServerImpl = reactorChannel.warmStandByHandlerImpl.currentWarmStandbyGroupImpl().standbyServerList().get(reactorChannel.standByServerListIndex);
+                        		reactorChannel.setCurrentReactorConnectInfo(wsbGroup.standbyServerList().get(reactorChannel.standByServerListIndex).reactorConnectInfo());
+                        		reactorChannel.setCurrentConnectOptionsInfo(wsbGroup.standbyConnectOptionsInfoList.get(reactorChannel.standByServerListIndex));
+                        		reactorChannel.userSpecObj(reactorChannel.getCurrentReactorConnectInfo().connectOptions().userSpecObject());
+                        	}
+                        	
+                        	/* Channel has already been closed and cleaned up in the main thread, so we're just removing it from the worker's queues here */
+                        	if(wsbServerImpl.isActiveChannelConfig() == false)
+                        	{
+                                _reconnectingChannelQueue.remove(reactorChannel);
+                        	}
+
+                        }
+                        else
+                        {   
+                        	 if (reactorChannel.state() != State.EDP_RT &&
+                                     reactorChannel.state() != State.EDP_RT_DONE &&
+                                     reactorChannel.state() != State.EDP_RT_FAILED)
+                             {
+                        		 reactorChannel._reconnectAttempts++;
+                        		 if (++reactorChannel._listIndex == reactorChannel.getReactorConnectOptions().connectionList().size())
+                        		 {
+                        			 reactorChannel. _listIndex = 0;
+                        		 }
+                        		 reactorChannel.setCurrentReactorConnectInfo(reactorChannel.getReactorConnectOptions().connectionList().get(reactorChannel._listIndex));
+                        		 reactorChannel.setCurrentConnectOptionsInfo(reactorChannel._connectOptionsInfoList.get(reactorChannel._listIndex));
+                            }
+                        }
+
 
                         if (reactorChannel.state() != State.EDP_RT &&
                             reactorChannel.state() != State.EDP_RT_DONE &&
                             reactorChannel.state() != State.EDP_RT_FAILED)
                         {
-                            channel = reactorChannel.reconnect(_error);
+                            channel = reactorChannel.reconnectReactorChannel(_error);
                         }
 
                         if (reactorChannel.state() == State.EDP_RT ||
@@ -307,12 +359,16 @@ class Worker implements Runnable
                     }
                     
                     _reconnectingChannelQueue.add(reactorChannel);
-                    
-                    
                 }
                 break;
             case CHANNEL_CLOSE:
                 processChannelClose(reactorChannel);
+                if(reactorChannel.warmStandByHandlerImpl != null)
+                {
+                	/* Remove the channel from any session management lists */
+            		_reactor.removeReactorChannel(reactorChannel);
+
+                }
                 sendWorkerEvent(reactorChannel, WorkerEventTypes.CHANNEL_CLOSE_ACK,
                         ReactorReturnCodes.SUCCESS, null, null);
                 break;
@@ -845,6 +901,6 @@ class Worker implements Runnable
             return ReactorReturnCodes.FAILURE;
         }
 
-        return ReactorReturnCodes.SUCCESS;
-    }
+		return ReactorReturnCodes.SUCCESS;
+	}
 }

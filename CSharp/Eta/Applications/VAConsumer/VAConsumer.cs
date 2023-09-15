@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 
 using System.Net.Sockets;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.VACommon;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.VACommon;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
     /// <summary>
     /// This is a main class to run the ETA Value Add Consumer application.
@@ -174,6 +174,8 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
         private ReactorSubmitOptions m_SubmitOptions = new();
 
+        private FileStream? m_FileStream;
+
         /// <summary>
         /// Map Socket file descriptor to the corresponding ReactorChannel.
         /// It is needed in C# version of the app because there is no way to attach
@@ -232,7 +234,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
             // display product version information
             Console.WriteLine("Consumer initializing...");
-            Console.WriteLine($"Codec version: {Codec.Codec.MajorVersion()}.{Codec.Codec.MajorVersion()}");
+            Console.WriteLine($"Codec version: {Codec.Codec.MajorVersion()}.{Codec.Codec.MinorVersion()}");
 
             m_Runtime = System.DateTime.Now + m_ConsumerCmdLineParser.Runtime;
             m_CloseRuntime = System.DateTime.Now + (m_ConsumerCmdLineParser.Runtime + m_Closetime);
@@ -244,6 +246,35 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             if (m_ConsumerCmdLineParser.EnableXmlTracing)
             {
                 m_ReactorOptions.XmlTracing = true;
+            }
+
+            if(!string.IsNullOrEmpty(m_ConsumerCmdLineParser.TokenURL))
+            {
+                m_ReactorOptions.SetTokenServiceURL(m_ConsumerCmdLineParser.TokenURL);
+            }
+
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.serviceDiscoveryURL))
+            {
+                m_ReactorOptions.SetServiceDiscoveryURL(m_ConsumerCmdLineParser.serviceDiscoveryURL);
+            }
+
+            if (m_ConsumerCmdLineParser.EnableRestLogging)
+            {
+                m_ReactorOptions.EnableRestLogStream = m_ConsumerCmdLineParser.EnableRestLogging;
+            }
+
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.RestLoggingFileName))
+            {
+                try
+                {
+                    m_FileStream = new FileStream(m_ConsumerCmdLineParser.RestLoggingFileName, FileMode.Create);
+                    m_ReactorOptions.RestLogOutputStream = m_FileStream;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to create a FileStream with error text: {ex.Message}");
+                    Environment.Exit((int)ReactorReturnCode.FAILURE);
+                }
             }
 
             // create reactor
@@ -836,8 +867,16 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
 
             if (reactorOAuthCredential is not null)
             {
-                renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
-                reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                if (reactorOAuthCredentialRenewal.ClientSecret.Length > 0)
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
+                    reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
+                }
+                else
+                {
+                    renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_JWK;
+                    reactorOAuthCredentialRenewal.ClientJwk.Data(reactorOAuthCredential.ClientJwk.ToString());
+                }
 
                 reactorOAuthCredentialEvent.Reactor!.SubmitOAuthCredentialRenewal(renewalOptions, reactorOAuthCredentialRenewal, out _);
             }
@@ -1185,6 +1224,30 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                 }
             }
 
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.JwkFile))
+            {
+                if (!File.Exists(m_ConsumerCmdLineParser.JwkFile))
+                {
+                    Console.Error.WriteLine($"Cannot load jwk file: {m_ConsumerCmdLineParser.JwkFile}");
+                    Environment.Exit((int)CodecReturnCode.FAILURE);
+                }
+
+                oAuthCredential.ClientJwk.Data(File.ReadAllText(m_ConsumerCmdLineParser.JwkFile));
+
+                /* Specified the IReactorOAuthCredentialEventCallback to get JWK */
+                oAuthCredential.ReactorOAuthCredentialEventCallback = this;
+            }
+
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.Audience))
+            {
+                oAuthCredential.Audience.Data(m_ConsumerCmdLineParser.Audience);
+            }
+
+            if (!string.IsNullOrEmpty(m_ConsumerCmdLineParser.TokenScope))
+            {
+                oAuthCredential.TokenScope.Data(m_ConsumerCmdLineParser.TokenScope);
+            }
+
             oAuthCredential.UserSpecObj = oAuthCredential;
             chnlInfo.ConsumerRole.ReactorOAuthCredential = oAuthCredential;
 
@@ -1266,8 +1329,8 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                 chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
             }
 
-            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.ServiceName = chnlInfo.ConnectionArg.Port;
-            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.Address = chnlInfo.ConnectionArg.Hostname;
+            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.ServiceName = chnlInfo.ConnectionArg.Port ?? String.Empty;
+            chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.Address = chnlInfo.ConnectionArg.Hostname ?? String.Empty;
 
             chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.UserSpecObject = chnlInfo;
             chnlInfo.ConnectOptions.ConnectionList[0].ConnectOptions.GuaranteedOutputBuffers = 1000;
@@ -1297,7 +1360,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                 }
             }
 
-            // handler encrypted or http connection
+            // handler encrypted connection
             chnlInfo.ShouldEnableEncrypted = m_ConsumerCmdLineParser.EnableEncrypted;
 
             if(chnlInfo.ShouldEnableEncrypted)
@@ -1308,7 +1371,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             }
 
             /* Setup proxy if configured */
-            if (m_ConsumerCmdLineParser.EnableProxy)
+                if (m_ConsumerCmdLineParser.EnableProxy)
             {
                 string? proxyHostName = m_ConsumerCmdLineParser.ProxyHostname;
                 if (String.IsNullOrEmpty(proxyHostName))
@@ -1595,6 +1658,11 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                 {
                     chnlInfo.ReactorChannel.Close(out _);
                 }
+            }
+
+            if(m_FileStream != null)
+            {
+                m_FileStream.Dispose();
             }
 
             // shutdown reactor

@@ -7,20 +7,32 @@ eclipse {
 }
 
 dependencies {
-	compile project(':Eta:AnsiPage')
-	compile project(':Eta:ValueAdd')
-	compile project(':Eta:ValueAddCache')
-	compile project(':Eta:Applications:Shared')
-	compile project(':Eta:Converter')
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.2'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
+	implementation project(':Eta:AnsiPage')
+	implementation project(':Eta:ValueAdd')
+	implementation project(':Eta:ValueAddCache')
+	implementation project(':Eta:Applications:Shared')
+	implementation project(':Eta:Converter')
+	implementation project(':Eta:Core')
 	// Adding dependency on the jdacsEtalib.jar
-	compile fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
+	implementation fileTree(dir: '../../../../RTSDK-BinaryPack/Java/Eta/Libs', include: 'jdacsEtalib.jar')
 }
 
 mainClassName = 'com.refinitiv.eta.examples.provider.Provider'
 
-task copyDictionary( type: Copy ) {
-	from '../../../etc'
-	into '.'
+task copyDictionary{
+	outputs.files files('../../../etc')
+			.asFileTree
+			.files
+			.collect{'./${it.name}'}
+
+	doLast{
+		copy{
+			from '../../../etc'
+			into './'
+		}
+	}
 }
 
 task deleteDictionary( type: Delete ) {
@@ -61,7 +73,7 @@ task runProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Interactive Provider Application Example'
 
-	main = 'com.refinitiv.eta.examples.provider.Provider'
+	mainClass.set('com.refinitiv.eta.examples.provider.Provider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -70,7 +82,7 @@ task runConsumer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Consumer Application Example'
 
-	main = 'com.refinitiv.eta.examples.consumer.Consumer'
+	mainClass.set('com.refinitiv.eta.examples.consumer.Consumer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -79,7 +91,7 @@ task runNIProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Non Interactive Provider Application Example'
 
-	main = 'com.refinitiv.eta.examples.niprovider.NIProvider'
+	mainClass.set('com.refinitiv.eta.examples.niprovider.NIProvider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -88,7 +100,7 @@ task runVAProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA ValueAdd Interactive Provider Application Example'
 
-	main = 'com.refinitiv.eta.valueadd.examples.provider.Provider'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.provider.Provider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -97,7 +109,7 @@ task runVAConsumer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA ValueAdd Consumer Application Example'
 
-	main = 'com.refinitiv.eta.valueadd.examples.consumer.Consumer'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.consumer.Consumer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -106,7 +118,7 @@ task runVANIProvider(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA ValueAdd Non Interactive Provider Application Example'
 
-	main = 'com.refinitiv.eta.valueadd.examples.niprovider.NIProvider'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.niprovider.NIProvider')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -115,7 +127,7 @@ task runWatchlistConsumer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Watchlist Consumer Application Example'
 
-	main = 'com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumer'
+	mainClass.set('com.refinitiv.eta.valueadd.examples.watchlistconsumer.WatchlistConsumer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -124,7 +136,7 @@ task runGenericProv(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Generic Provider Application Example'
 
-	main = 'com.refinitiv.eta.examples.genericprov.GenericProv'
+	mainClass.set('com.refinitiv.eta.examples.genericprov.GenericProv')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -133,7 +145,7 @@ task runGenericCons(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Generic Consumer Application Example'
 
-	main = 'com.refinitiv.eta.examples.genericcons.GenericCons'
+	mainClass.set('com.refinitiv.eta.examples.genericcons.GenericCons')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -142,7 +154,7 @@ task runNewsViewer(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA News Viewer Application Example'
 
-	main = 'com.refinitiv.eta.examples.newsviewer.NewsViewer'
+	mainClass.set('com.refinitiv.eta.examples.newsviewer.NewsViewer')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -151,7 +163,7 @@ task runAnsiPageExample(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Ansi Page Application Example'
 
-	main = 'com.refinitiv.eta.examples.ansipage.AnsiPageExample'
+	mainClass.set('com.refinitiv.eta.examples.ansipage.AnsiPageExample')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -160,7 +172,7 @@ task runCodecExample(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA Codec Application Example'
 
-	main = 'com.refinitiv.eta.examples.codec.CodecExample'
+	mainClass.set('com.refinitiv.eta.examples.codec.CodecExample')
 	classpath = sourceSets.main.runtimeClasspath
 }
 
@@ -169,7 +181,7 @@ task runAuthLockExample(type: JavaExec) {
     group 'Run ETA Application Examples'
     description 'Run ETA AuthLock Application Example'
 
-	main = 'com.refinitiv.eta.examples.authlock.AuthLockExample'
+	mainClass.set('com.refinitiv.eta.examples.authlock.AuthLockExample')
 	classpath = sourceSets.main.runtimeClasspath
 }
 

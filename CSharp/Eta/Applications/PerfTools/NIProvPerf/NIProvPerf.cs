@@ -2,15 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Provider = Refinitiv.Eta.PerfTools.Common.Provider;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using Provider = LSEG.Eta.PerfTools.Common.Provider;
 
-namespace Refinitiv.Eta.Perftools.NIProvPerf
+namespace LSEG.Eta.Perftools.NIProvPerf
 {
     /// <summary>The main NIProvPerf application. Implements a Non-Interactive Provider.
     /// It connects to an ADH, and provides images and update bursts for a given
@@ -46,10 +46,10 @@ namespace Refinitiv.Eta.Perftools.NIProvPerf
     /// </ul>
     public class NIProvPerf
     {
-        private XmlMsgData m_XmlMsgData;                // message data information from XML file 
-        private volatile bool m_ShutdownApp = false;    // Indicates whether or not application should be shutdown      
+        private XmlMsgData m_XmlMsgData;                // message data information from XML file
+        private volatile bool m_ShutdownApp = false;    // Indicates whether or not application should be shutdown
         private Provider m_Provider;                    // The provider used by this application. Handles the statistic for all threads used by this provider
-        private Error m_Error;                          // error information 
+        private Error m_Error;                          // error information
         private InitArgs m_InitArgs;                    // arguments for initializing transport
 
         private CountdownEvent m_RunLoopExited = new CountdownEvent(1);
@@ -103,7 +103,7 @@ namespace Refinitiv.Eta.Perftools.NIProvPerf
             }
 
             Stop();
-            m_RunLoopExited.Signal(1);      
+            m_RunLoopExited.Signal(1);
         }
 
         private void Stop()
@@ -134,14 +134,17 @@ namespace Refinitiv.Eta.Perftools.NIProvPerf
             // The application will exit if error happens during initialization
             m_Provider.Init(xmlMsgData => new NIProviderThread(xmlMsgData), ProviderType.PROVIDER_NONINTERACTIVE, m_XmlMsgData, NIProvPerfConfig.SummaryFilename!);
 
-            // Initialize ETA Transport
-            m_InitArgs.Clear();
-            m_InitArgs.GlobalLocking = NIProvPerfConfig.ThreadCount > 1;
-
-            if (Transport.Initialize(m_InitArgs, out m_Error) != TransportReturnCode.SUCCESS)
+            if (!NIProvPerfConfig.UseReactor)
             {
-                Console.WriteLine($"Error: Transport failed to initialize: {(m_Error != null ? m_Error!.Text : "")}");
-                Environment.Exit(-1);
+                // Initialize ETA Transport
+                m_InitArgs.Clear();
+                m_InitArgs.GlobalLocking = NIProvPerfConfig.ThreadCount > 1;
+
+                if (Transport.Initialize(m_InitArgs, out m_Error) != TransportReturnCode.SUCCESS)
+                {
+                    Console.WriteLine($"Transport failed to initialize, error: {m_Error?.Text}");
+                    Environment.Exit(-1);
+                }
             }
 
             m_Provider.StartThreads();

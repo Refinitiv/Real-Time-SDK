@@ -2,27 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Login Status. Used by an OMM Provider to indicate changes to the Login stream.
     /// </summary>
-    public class LoginStatus : MsgBase
+    sealed public class LoginStatus : MsgBase
     {
         #region Private Fields
 
@@ -40,12 +37,24 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         #endregion
         #region Public Message Properties
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
         public override int StreamId { get; set; }
 
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.LOGIN"/>.
+        /// </summary>
         public override int DomainType { get => m_StatusMsg.DomainType; }
 
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.STATUS"/>
+        /// </summary>
         public override int MsgClass { get => m_StatusMsg.MsgClass; }
 
+        /// <summary>
+        /// Flags for this message.  See <see cref="LoginStatusFlags"/>.
+        /// </summary>
         public LoginStatusFlags Flags { get; set; }
 
         /// <summary>
@@ -196,18 +205,21 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         #endregion
 
         /// <summary>
-        /// Instantiates new LoginStatus message.
+        /// Login Status Message constructor.
         /// </summary>
         public LoginStatus()
         {
             Clear();
         }
 
+        /// <summary>
+        /// Clears the current contents of the login Status object and prepares it for re-use.
+        /// </summary>
         public override void Clear()
         {
             m_StatusMsg.Clear();
             m_StatusMsg.MsgClass = MsgClasses.STATUS;
-            m_StatusMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.LOGIN;
+            m_StatusMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
             m_StatusMsg.ContainerType = DataTypes.NO_DATA;
             Flags = default;
             StreamId = 1;
@@ -217,6 +229,11 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             AuthenticationErrorCode = 0;
         }
 
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destStatusMsg</c>.
+        /// </summary>
+        /// <param name="destStatusMsg">LoginStatus object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginStatus destStatusMsg)
         {
             Debug.Assert(destStatusMsg != null);
@@ -256,91 +273,18 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Decode(DecodeIterator decIter, Msg msg)
-        {
-            Clear();
-            if (msg.MsgClass != MsgClasses.STATUS)
-                return CodecReturnCode.FAILURE;
-
-            IStatusMsg statusMsg = (IStatusMsg)msg;
-            StreamId = msg.StreamId;
-            if (statusMsg.CheckHasState())
-            {
-                HasState = true;
-                State = statusMsg.State;
-            }
-
-            if (statusMsg.CheckClearCache())
-            {
-                ClearCache = true;
-            }
-
-            IMsgKey msgKey = msg.MsgKey;
-            if (msgKey != null)
-            {
-                if (msgKey.CheckHasName())
-                {
-                    HasUserName = true;
-                    UserName = msgKey.Name;
-                    if (msgKey.CheckHasNameType())
-                    {
-                        HasUserNameType = true;
-                        UserNameType = (Login.UserIdTypes)msgKey.NameType;
-                    }
-                }
-                if (msgKey.CheckHasAttrib())
-                {
-                    CodecReturnCode ret = msg.DecodeKeyAttrib(decIter, msgKey);
-                    if (ret != CodecReturnCode.SUCCESS)
-                        return ret;
-
-                    return DecodeAttrib(decIter);
-                }
-            }
-            return CodecReturnCode.SUCCESS;
-        }
-
-        private CodecReturnCode DecodeAttrib(DecodeIterator dIter)
-        {
-            elementList.Clear();
-            CodecReturnCode ret = elementList.Decode(dIter, null);
-            if (ret != CodecReturnCode.SUCCESS)
-                return ret;
-
-            element.Clear();
-            while ((ret = element.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
-            {
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-                else if (element.Name.Equals(ElementNames.AUTHN_ERROR_CODE))
-                {
-                    if (element.DataType != DataTypes.UINT)
-                        return CodecReturnCode.FAILURE;
-                    ret = tmpUInt.Decode(dIter);
-                    if (ret != CodecReturnCode.SUCCESS)
-                        return ret;
-                    HasAuthenticationErrorCode = true;
-                    AuthenticationErrorCode = tmpUInt.ToLong();
-                }
-                else if (element.Name.Equals(ElementNames.AUTHN_ERROR_TEXT))
-                {
-                    if (element.DataType != DataTypes.ASCII_STRING
-                            && element.DataType != DataTypes.BUFFER)
-                        return CodecReturnCode.FAILURE;
-                    HasAuthenticationErrorText = true;
-                    AuthenticationErrorText = element.EncodedData;
-                }
-            }
-            return CodecReturnCode.SUCCESS;
-        }
-
-        public override CodecReturnCode Encode(EncodeIterator encIter)
+        /// <summary>
+        /// Encodes this login status message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
         {
             m_StatusMsg.Clear();
             m_StatusMsg.StreamId = StreamId;
             m_StatusMsg.ContainerType = DataTypes.NO_DATA;
             m_StatusMsg.MsgClass = MsgClasses.STATUS;
-            m_StatusMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.LOGIN;
+            m_StatusMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
 
             if (HasUserName)
             {
@@ -378,23 +322,23 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 m_StatusMsg.MsgKey.ApplyHasAttrib();
                 m_StatusMsg.MsgKey.AttribContainerType = DataTypes.ELEMENT_LIST;
 
-                CodecReturnCode ret = m_StatusMsg.EncodeInit(encIter, 0);
+                CodecReturnCode ret = m_StatusMsg.EncodeInit(encodeIter, 0);
                 if (ret != CodecReturnCode.ENCODE_MSG_KEY_ATTRIB)
                     return ret;
-                ret = EncodeAttrib(encIter);
+                ret = EncodeAttrib(encodeIter);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
-                ret = m_StatusMsg.EncodeKeyAttribComplete(encIter, true);
+                ret = m_StatusMsg.EncodeKeyAttribComplete(encodeIter, true);
                 if (ret < CodecReturnCode.SUCCESS)
                     return ret;
 
-                ret = m_StatusMsg.EncodeComplete(encIter, true);
+                ret = m_StatusMsg.EncodeComplete(encodeIter, true);
                 if (ret < CodecReturnCode.SUCCESS)
                     return ret;
             }
             else
             {
-                CodecReturnCode ret = m_StatusMsg.Encode(encIter);
+                CodecReturnCode ret = m_StatusMsg.Encode(encodeIter);
                 if (ret < CodecReturnCode.SUCCESS)
                     return ret;
 
@@ -434,6 +378,94 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
         }
 
+        /// <summary>
+        /// Decodes this Login Status message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this LoginStatus message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
+        {
+            Clear();
+            if (msg.MsgClass != MsgClasses.STATUS)
+                return CodecReturnCode.FAILURE;
+
+            IStatusMsg statusMsg = (IStatusMsg)msg;
+            StreamId = msg.StreamId;
+            if (statusMsg.CheckHasState())
+            {
+                HasState = true;
+                State = statusMsg.State;
+            }
+
+            if (statusMsg.CheckClearCache())
+            {
+                ClearCache = true;
+            }
+
+            IMsgKey msgKey = msg.MsgKey;
+            if (msgKey != null)
+            {
+                if (msgKey.CheckHasName())
+                {
+                    HasUserName = true;
+                    UserName = msgKey.Name;
+                    if (msgKey.CheckHasNameType())
+                    {
+                        HasUserNameType = true;
+                        UserNameType = (Login.UserIdTypes)msgKey.NameType;
+                    }
+                }
+                if (msgKey.CheckHasAttrib())
+                {
+                    CodecReturnCode ret = msg.DecodeKeyAttrib(decodeIter, msgKey);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+
+                    return DecodeAttrib(decodeIter);
+                }
+            }
+            return CodecReturnCode.SUCCESS;
+        }
+
+        private CodecReturnCode DecodeAttrib(DecodeIterator dIter)
+        {
+            elementList.Clear();
+            CodecReturnCode ret = elementList.Decode(dIter, null);
+            if (ret != CodecReturnCode.SUCCESS)
+                return ret;
+
+            element.Clear();
+            while ((ret = element.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
+            {
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+                else if (element.Name.Equals(ElementNames.AUTHN_ERROR_CODE))
+                {
+                    if (element.DataType != DataTypes.UINT)
+                        return CodecReturnCode.FAILURE;
+                    ret = tmpUInt.Decode(dIter);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+                    HasAuthenticationErrorCode = true;
+                    AuthenticationErrorCode = tmpUInt.ToLong();
+                }
+                else if (element.Name.Equals(ElementNames.AUTHN_ERROR_TEXT))
+                {
+                    if (element.DataType != DataTypes.ASCII_STRING
+                            && element.DataType != DataTypes.BUFFER)
+                        return CodecReturnCode.FAILURE;
+                    HasAuthenticationErrorText = true;
+                    AuthenticationErrorText = element.EncodedData;
+                }
+            }
+            return CodecReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Returns a human readable string representation of the Login Status message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();

@@ -2,24 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using System.Diagnostics;
 using System.Text;
-using static Refinitiv.Eta.Rdm.Directory;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Directory = Refinitiv.Eta.Rdm.Directory;
+using static LSEG.Eta.Rdm.Directory;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using Directory = LSEG.Eta.Rdm.Directory;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Service Data. Contains information provided by the Source Directory Data filter.
     /// </summary>
-    public class ServiceData
+    sealed public class ServiceData
     {
         private Buffer m_Data = new Buffer();
 
@@ -35,34 +35,40 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// The action associated with data filter.
         /// </summary>
         public FilterEntryActions Action { get; set; }
+
         /// <summary>
         /// The filterId. Populated by <see cref="ServiceFilterIds"/>
         /// </summary>
         public int FilterId { get => ServiceFilterIds.DATA; }
+
         /// <summary>
         /// Checks the presence of the data field.
         /// </summary>
         public bool HasData { get => (Flags & ServiceDataFlags.HAS_DATA) != 0; set { if (value) Flags |= ServiceDataFlags.HAS_DATA; else Flags &= ~ServiceDataFlags.HAS_DATA; } }
+
         /// <summary>
         /// The buffer representing the encoded data, 
         /// to be applied to all items being provided by this service.
         /// </summary>
         public Buffer Data { get => m_Data; set { BufferHelper.CopyBuffer(value, m_Data); } }
+
         /// <summary>
         /// Directory data type. Populated by <see cref="Directory.DataTypes"/>
         /// </summary>
         public long Type { get; set; }
+
         /// <summary>
-        /// The OMM type of the data. Populated by <see cref="DataTypes"/>
+        /// The OMM type of the data. Populated by <see cref="Eta.Codec.DataTypes"/>
         /// </summary>
         public int DataType { get; set; }
+
         /// <summary>
         /// The service data flags. Populated by <see cref="ServiceDataFlags"/>
         /// </summary>
         public ServiceDataFlags Flags { get; set; }
 
         /// <summary>
-        /// Instantiates a new service data.
+        /// RDM Service Data constructor.
         /// </summary>
         public ServiceData()
         {
@@ -70,7 +76,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Clears an RDM Service Data.
+        /// Clears the current contents of the RDM Service Data object and prepares it for re-use.
         /// </summary>
         public void Clear()
         {
@@ -168,10 +174,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Performs a deep copy of the current ServiceData object.
+        /// Performs a deep copy of this object into <c>destServiceData</c>.
         /// </summary>
-        /// <param name="destServiceData">ServiceData object to copy this object into. It cannot be null.</param>
-        /// <returns><see cref="CodecReturnCode"/> indicating the status of the operation.</returns>
+        /// <param name="destServiceData">ServiceData object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(ServiceData destServiceData)
         {
             Debug.Assert(destServiceData != null);
@@ -209,7 +215,11 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
             return CodecReturnCode.SUCCESS;
         }
-     
+
+        /// <summary>
+        /// Returns a human readable string representation of the Service Data.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             m_StringBuf.Clear();

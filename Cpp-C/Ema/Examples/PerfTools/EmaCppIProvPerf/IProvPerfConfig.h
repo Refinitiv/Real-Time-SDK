@@ -34,8 +34,6 @@ public:
 	bool			displayStats;				/* Controls whether stats appear on the screen. */
 	bool			preEncItems;				/* Whether to use pre-encoded data rather than fully encoding. */
 
-	long			apiThreadBindList[MAX_PROV_THREADS];				/* CPU ID list for threads that handle connections.  See -apiThreads */
-
 	refinitiv::ema::access::EmaString		msgFilename;				/* File of data to use for message payloads. See -msgFile. */
 	bool			logLatencyToFile;			/* Whether to log genMsg latency information to a file. See -latencyFile. */
 	refinitiv::ema::access::EmaString		latencyLogFilename;			/* Name of the latency log file. See -latencyFile. */

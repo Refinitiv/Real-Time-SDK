@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,20 +10,19 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Common;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Common;
+using LSEG.Eta.ValueAdd.Rdm;
 
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// Channel representing a connection handled by a <see cref="Reactor"/>
     /// </summary>
-    public class ReactorChannel : VaNode
+    sealed public class ReactorChannel : VaNode
     {
         private long m_InitializationTimeout;
         private long m_InitializationEndTimeMs;
@@ -32,11 +31,13 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
         /* Connection recovery information. */
         private const int NO_RECONNECT_LIMIT = -1;
-        public ReactorConnectOptions? ConnectOptions { get; private set; }
+        internal ReactorConnectOptions? ConnectOptions { get; private set; }
         private int m_ReconnectAttempts;
         private int m_ReconnectDelay;
         private int m_ListIndex;
         internal NotifierEvent NotifierEvent { get; private set; }
+
+        private ReactorRole? m_Role;
 
         /* Link for ReactorChannel queue */
         private ReactorChannel? _reactorChannelNext, _reactorChannelPrev;
@@ -50,11 +51,11 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         internal LoginRequest? RDMLoginRequestRDP { get; set; }
 
         internal ReactorErrorInfo ReactorErrorInfo { get; set; } = new ReactorErrorInfo();
-        #endregion  
+        #endregion
 
         internal TransportReturnCode ReadRet { get; set; } = TransportReturnCode.SUCCESS;
 
-        internal class ReactorChannelLink : Refinitiv.Eta.ValueAdd.Common.VaDoubleLinkList<ReactorChannel>.ILink<ReactorChannel>
+        internal class ReactorChannelLink : LSEG.Eta.ValueAdd.Common.VaDoubleLinkList<ReactorChannel>.ILink<ReactorChannel>
         {
             public ReactorChannel? GetPrev(ReactorChannel thisPrev) { return thisPrev._reactorChannelPrev; }
             public void SetPrev(ReactorChannel? thisPrev, ReactorChannel? thatPrev) { thisPrev!._reactorChannelPrev = thatPrev; }
@@ -101,7 +102,49 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public Object? UserSpecObj { get; internal set; }
 
-        internal ReactorRole? Role { get; set; }
+        /// <summary>
+        /// Role associated with this Channel. A deep copy is performed from a new value.
+        /// </summary>
+        internal ReactorRole? Role
+        {
+            get => m_Role;
+            set
+            {
+                if (value == null)
+                {
+                    m_Role = null;
+                    return;
+                }
+                // perform a deep copy *from* the provided value
+                switch (value.Type)
+                {
+                    case ReactorRoleType.CONSUMER:
+                        if (m_Role == null || m_Role.Type != ReactorRoleType.CONSUMER)
+                        {
+                            m_Role = new ConsumerRole();
+                        }
+                        ((ConsumerRole)m_Role).Copy((ConsumerRole)value);
+                        break;
+                    case ReactorRoleType.NIPROVIDER:
+                        if (m_Role == null || m_Role.Type != ReactorRoleType.NIPROVIDER)
+                        {
+                            m_Role = new NIProviderRole();
+                        }
+                        ((NIProviderRole)m_Role).Copy((NIProviderRole)value);
+                        break;
+                    case ReactorRoleType.PROVIDER:
+                        if (m_Role == null || m_Role.Type != ReactorRoleType.PROVIDER)
+                        {
+                            m_Role = new ProviderRole();
+                        }
+                        ((ProviderRole)m_Role).Copy((ProviderRole)value);
+                        break;
+                    default:
+                        Debug.Assert(false);  // not supported
+                        return;
+                }
+            }
+        }
 
         /// <summary>
         /// When <see cref="ReactorChannel"/> becomes active for a client or server, this is
@@ -262,6 +305,12 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             return m_StringBuilder.ToString();
         }
 
+        /// <summary>
+        /// Populates information about the <see cref="ReactorChannel"/> into <see cref="ReactorChannelInfo"/>.
+        /// </summary>
+        /// <param name="info"><see cref="ReactorChannelInfo"/> structure to be populated with information</param>
+        /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> is set in the event of failure</param>
+        /// <returns><see cref="ReactorReturnCode"/> indicating sucess or failure.</returns>
         public ReactorReturnCode Info(ReactorChannelInfo info, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -457,7 +506,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// Packs current buffer to allow another message to be written
         /// </summary>
         /// <param name="buffer">the buffer to be packed</param>
-        /// <param name="errorInfo"><see cref="ReactorErrorInfo"/> structure filled with error information in case of failure</param>
+        /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> structure filled with error information in case of failure</param>
         /// <returns>value greater than 0 indicating the number of bytes left in the buffer in case of success,
         /// <see cref="ReactorReturnCode"/> value indicating the status operation otherwise. </returns>
         public ReactorReturnCode PackBuffer(ITransportBuffer buffer, out ReactorErrorInfo? errorInfo)
@@ -486,7 +535,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 return Reactor.PopulateErrorInfo(out errorInfo, (ReactorReturnCode)transportReturnCode,
                         "ReactorChannel.PackBuffer",
-                        error != null ? error.Text : "");
+                        error?.Text ?? "");
             }
 
             errorInfo = null;
@@ -497,7 +546,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// Returns an unwritten buffer to the ReactorChannel.
         /// </summary>
         /// <param name="buffer">the buffer to release</param>
-        /// <param name="errorInfo"><see cref="ReactorErrorInfo"/> to be set in the event of failure</param>
+        /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> to be set in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
         public ReactorReturnCode ReleaseBuffer(ITransportBuffer buffer, out ReactorErrorInfo? errorInfo)
         {
@@ -510,7 +559,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
             if (Reactor is null)
             {
-                return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, 
+                return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
                     "ReactorChannel.ReleaseBuffer", "Reactor cannot be null");
             }
 
@@ -520,7 +569,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 return Reactor.PopulateErrorInfo(out errorInfo, (ReactorReturnCode)retCode,
                         "ReactorChannel.ReleaseBuffer",
-                        error != null ? error.Text : "");
+                        error.Text);
             }
 
             errorInfo = null;
@@ -558,7 +607,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
                         "ReactorChannel.IOCtl",
-                        $"Channel.IOCtl failed: {(error != null ? error.Text : "")}");
+                        $"Channel.IOCtl failed, error: {error?.Text}");
             } else
             {
                 errorInfo = null;
@@ -578,6 +627,13 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
             if(reactorConnectInfo.EnableSessionManagement)
             {
+                if(RedoServiceDiscoveryForCurrentChannel())
+                {
+                    reactorConnectInfo.ConnectOptions.UnifiedNetworkInfo.Address = string.Empty;
+                    reactorConnectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName = string.Empty;
+                    ResetCurrentChannelRetryCount();
+                }
+
                 if (Reactor!.SessionManagementStartup(TokenSession!, reactorConnectInfo, Role!, this, true,
                     out ReactorErrorInfo? reactorErrorInfo) != ReactorReturnCode.SUCCESS)
                 {
@@ -640,6 +696,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
         private IChannel? Reconnect(ReactorConnectInfo reactorConnectInfo, out Error error)
         {
+            IncreaseRetryCountForCurrentChannel();
             UserSpecObj = reactorConnectInfo.ConnectOptions.UserSpecObject;
             reactorConnectInfo.ConnectOptions.ChannelReadLocking = true;
             reactorConnectInfo.ConnectOptions.ChannelWriteLocking = true;
@@ -692,6 +749,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             ReadRet = TransportReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Returns this object back to the pool. 
+        /// </summary>
         public override void ReturnToPool()
         {
             /* Releases user-specified object specified by users if any. */
@@ -739,6 +799,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 ConnectOptions = new ReactorConnectOptions();
 
             reactorConnectOptions.Copy(ConnectOptions);
+
+            foreach(var connectInfo in ConnectOptions.ConnectionList)
+            {
+                connectInfo.HostAndPortProvided = (!string.IsNullOrEmpty(connectInfo.ConnectOptions.UnifiedNetworkInfo.Address)
+                    && !string.IsNullOrEmpty(connectInfo.ConnectOptions.UnifiedNetworkInfo.ServiceName));
+                connectInfo.ReconnectAttempts = 0;
+            }
+
             m_ReconnectDelay = 0;
             NextRecoveryTime = 0;
         }
@@ -859,7 +927,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                     if (endpointInfo.Transport.Equals(transportType) &&
                         endpointInfo.LocationList[0].StartsWith(reactorConnectInfo.Location))
                     {
-                        // Try to find an endpoint which provides the maximum number of availability zones. 
+                        // Try to find an endpoint which provides the maximum number of availability zones.
                         if (selectedEndpoint is null || selectedEndpoint.LocationList.Count < endpointInfo.LocationList.Count)
                         {
                             selectedEndpoint = endpointInfo;
@@ -903,6 +971,44 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
                 // Don't send the password
                 RDMLoginRequestRDP.Flags &= ~LoginRequestFlags.HAS_PASSWORD;
+            }
+        }
+
+        bool RedoServiceDiscoveryForCurrentChannel()
+        {
+            if (ConnectOptions != null)
+            {
+                ReactorConnectInfo connectInfo = ConnectOptions.ConnectionList![m_ListIndex];
+
+                return (connectInfo.ServiceDiscoveryRetryCount != 0
+                        && !connectInfo.HostAndPortProvided
+                        && connectInfo.ReconnectAttempts == connectInfo.ServiceDiscoveryRetryCount);
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        void IncreaseRetryCountForCurrentChannel()
+        {
+            if (ConnectOptions != null)
+            {
+                ReactorConnectInfo connectInfo = ConnectOptions.ConnectionList![m_ListIndex];
+                if (connectInfo.EnableSessionManagement && connectInfo.ServiceDiscoveryRetryCount != 0)
+                {
+                    connectInfo.ReconnectAttempts++;
+                }
+            }
+        }
+
+        internal void ResetCurrentChannelRetryCount()
+        {
+            if (ConnectOptions != null)
+            {
+                ReactorConnectInfo connectInfo = ConnectOptions.ConnectionList![m_ListIndex];
+                connectInfo.ReconnectAttempts = 0;
             }
         }
     }

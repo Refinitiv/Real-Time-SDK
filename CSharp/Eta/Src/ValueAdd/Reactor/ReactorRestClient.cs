@@ -2,17 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Transports;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     internal class ReactorRestClient : IDisposable
     {
@@ -21,9 +25,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         static readonly string GRANT_TYPE = "grant_type";
         static readonly string GRANT_TYPE_VALUE = "client_credentials";
         static readonly string TOKEN_SCOPE = "scope";
-        static readonly string TOKEN_SCOPE_VALUE = "trapi.streaming.pricing.read";
         static readonly string CLIENT_ID = "client_id";
-        static readonly string CLIENT_SECRET = "client_secret";
+        public static readonly string CLIENT_SECRET = "client_secret";
         static readonly string MEDIA_TYPE = "application/x-www-form-urlencoded";
         static readonly MediaTypeWithQualityHeaderValue ACCEPT_MEDIA_TYPE = new MediaTypeWithQualityHeaderValue("application/json");
         static readonly StringWithQualityHeaderValue ACCEPT_GZIP = new StringWithQualityHeaderValue("gzip");
@@ -34,8 +37,13 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         static readonly string DATAFORMAT_JSON2_QUERY = "dataformat=tr_json2";
         public static readonly string RDP_RT_TRANSPORT_PROTOCOL_WEBSOCKET = "websocket";
 	    public static readonly string RDP_RT_TRANSPORT_PROTOCOL_TCP = "tcp";
+        public static readonly string CLIENT_ASSERTION_TYPE = "client_assertion_type";
+        public static readonly string CLIENT_ASSERTION_VALUE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+        public static readonly string CLIENT_ASSERTION = "client_assertion";
+        const int CLIENT_JWT_EXPIRED_IN_SECONDS = 3600;
 
         Dictionary<string, string> encodedContentDict = new Dictionary<string, string>(5);
+        Dictionary<string, string> encodedContentAssertionDict = new Dictionary<string, string>(6);
         Dictionary<ProxyOptions, HttpClient> httpClientDict = new Dictionary<ProxyOptions, HttpClient>(5);
         private bool disposedValue;
 
@@ -44,9 +52,16 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             m_Reactor = reactor;
             /* Set encoded content dictionary */
             encodedContentDict.Add(GRANT_TYPE, GRANT_TYPE_VALUE);
-            encodedContentDict.Add(TOKEN_SCOPE, TOKEN_SCOPE_VALUE);
+            encodedContentDict.Add(TOKEN_SCOPE, "");
             encodedContentDict.Add(CLIENT_ID, "");
             encodedContentDict.Add(CLIENT_SECRET, "");
+
+            /* Set encoded content dictionary for JWT client assertion */
+            encodedContentAssertionDict.Add(GRANT_TYPE, GRANT_TYPE_VALUE);
+            encodedContentAssertionDict.Add(TOKEN_SCOPE, "");
+            encodedContentAssertionDict.Add(CLIENT_ID, "");
+            encodedContentAssertionDict.Add(CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_VALUE);
+            encodedContentAssertionDict.Add(CLIENT_ASSERTION, "");
         }
 
         public HttpClient GetHttpClient(ReactorRestConnectOptions restConnetOptions)
@@ -108,16 +123,38 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 url = m_Reactor.m_ReactorOptions.GetTokenServiceURL();
             }
 
+            Dictionary<string, string> encodedDict;
+            if (oAuthCredential.JsonWebKey != null)
+            {
+                string? clientAssertion = GenerateClientAssertion(oAuthCredential, out errorInfo);
+
+                if(clientAssertion is null)
+                {
+                    return errorInfo!.Code;
+                }
+                
+                /* Specify client ID and client assertion token. */
+                encodedContentAssertionDict[TOKEN_SCOPE] = oAuthCredential.TokenScope.ToString();
+                encodedContentAssertionDict[CLIENT_ID] = oAuthCredential.ClientId.ToString();
+                encodedContentAssertionDict[CLIENT_ASSERTION] = clientAssertion;
+
+                encodedDict = encodedContentAssertionDict;
+            }
+            else
+            {
+                /* Specify client ID and client secret. */
+                encodedContentDict[TOKEN_SCOPE] = oAuthCredential.TokenScope.ToString();
+                encodedContentDict[CLIENT_ID] = oAuthCredential.ClientId.ToString();
+                encodedContentDict[CLIENT_SECRET] = oAuthCredential.ClientSecret.ToString();
+                encodedDict = encodedContentDict;
+            }
+
             var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Accept.Add(ACCEPT_MEDIA_TYPE);
             request.Headers.AcceptEncoding.Add(ACCEPT_GZIP);
             request.Headers.AcceptEncoding.Add(ACCEPT_DEFLATE);
 
-            /* Specify client ID and client secret. */
-            encodedContentDict[CLIENT_ID] = oAuthCredential.ClientId.ToString();
-            encodedContentDict[CLIENT_SECRET] = oAuthCredential.ClientSecret.ToString();
-
-            var content = new FormUrlEncodedContent(encodedContentDict);
+            var content = new FormUrlEncodedContent(encodedDict);
             content.Headers.ContentType = new MediaTypeHeaderValue(MEDIA_TYPE);
 
             request.Content = content;
@@ -126,8 +163,22 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 var response = GetHttpClient(restConnetOptions).Send(request);
 
+                restConnetOptions.RestLoggingHandler.LogRestRequest(restConnetOptions, request);
+
                 var restResponse = HandleTokenServiceHttpResponse(response, oAuthCredential, restConnetOptions, authTokenInfo, null,
                     false, out errorInfo);
+
+                restConnetOptions.RestLoggingHandler.LogRestResponse(response, restResponse);
+
+                if (errorInfo != null)
+                {
+                    return errorInfo.Code;
+                }
+                else if(restConnetOptions.AuthRedirect && !string.IsNullOrEmpty(authTokenInfo.AccessToken))
+                {
+                    restConnetOptions.ClearAuthRedirectParamerters();
+                    return ReactorReturnCode.SUCCESS;
+                }
                 
                 AccessTokenInformation? tokenInfo = JsonSerializer.Deserialize<AccessTokenInformation>(restResponse.Content!);
                 if(tokenInfo != null)
@@ -177,11 +228,35 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             request.Headers.AcceptEncoding.Add(ACCEPT_DEFLATE);
 
             /* Specify client ID and client secret. */
-            var localEncodedContentDict = new Dictionary<string, string>(5);
-            localEncodedContentDict.Add(GRANT_TYPE, GRANT_TYPE_VALUE);
-            localEncodedContentDict.Add(TOKEN_SCOPE, TOKEN_SCOPE_VALUE);
-            localEncodedContentDict[CLIENT_ID] = oAuthCredential.ClientId.ToString();
-            localEncodedContentDict[CLIENT_SECRET] = oAuthCredential.ClientSecret.ToString();
+            var localEncodedContentDict = new Dictionary<string, string>(6);
+
+            if (oAuthCredential.JsonWebKey is null)
+            {
+                /* Specify client ID and client secret. */
+                localEncodedContentDict.Add(GRANT_TYPE, GRANT_TYPE_VALUE);
+                localEncodedContentDict.Add(TOKEN_SCOPE, oAuthCredential.TokenScope.ToString());
+                localEncodedContentDict.Add(CLIENT_ID, oAuthCredential.ClientId.ToString());
+                localEncodedContentDict.Add(CLIENT_SECRET, oAuthCredential.ClientSecret.ToString());
+            }
+            else
+            {
+                string? clientAssertion = GenerateClientAssertion(oAuthCredential, out ReactorErrorInfo? errorInfo);
+
+                if (clientAssertion is null)
+                {
+                    RestEvent restEvent = new RestEvent();
+                    restEvent.Type = RestEvent.EventType.FAILED;
+                    tokenSession.RestErrorCallback(restEvent, errorInfo!.Error.Text);
+                    return;
+                }
+
+                /* Specify client ID and client assertion token. */
+                localEncodedContentDict.Add(GRANT_TYPE, GRANT_TYPE_VALUE);
+                localEncodedContentDict.Add(TOKEN_SCOPE, oAuthCredential.TokenScope.ToString());
+                localEncodedContentDict.Add(CLIENT_ID, oAuthCredential.ClientId.ToString());
+                localEncodedContentDict.Add(CLIENT_ASSERTION_TYPE, CLIENT_ASSERTION_VALUE);
+                localEncodedContentDict.Add(CLIENT_ASSERTION, clientAssertion);
+            }
 
             var content = new FormUrlEncodedContent(localEncodedContentDict);
             content.Headers.ContentType = new MediaTypeHeaderValue(MEDIA_TYPE);
@@ -194,26 +269,24 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 var response = GetHttpClient(restConnetOptions).SendAsync(request);
 
-                response.GetAwaiter().OnCompleted(() =>
-                {
-                    if(response.IsCompleted)
+                restConnetOptions.RestLoggingHandler.LogRestRequest(restConnetOptions, request);
+
+                Task.Run(() => {
+                    try
                     {
-                        HandleTokenServiceHttpResponse(response.Result, oAuthCredential, restConnetOptions, authTokenInfo,
-                            tokenSession, true, out _);
+                        response.Wait();
+
+                        var restResponse = HandleTokenServiceHttpResponse(response.Result, oAuthCredential, restConnetOptions, authTokenInfo,
+                                   tokenSession, true, out _);
+
+                        restConnetOptions.RestLoggingHandler.LogRestResponse(response.Result, restResponse);
                     }
-                    else if(response.IsFaulted)
+                    catch (Exception ex)
                     {
                         RestEvent restEvent = new RestEvent();
                         restEvent.Type = RestEvent.EventType.FAILED;
-                        tokenSession.RestErrorCallback(restEvent, response.Exception?.Message);
+                        tokenSession.RestErrorCallback(restEvent, ex.Message);
                     }
-                    else if(response.IsCanceled)
-                    {
-                        RestEvent restEvent = new RestEvent();
-                        restEvent.Type = RestEvent.EventType.CANCELLED;
-                        tokenSession.RestErrorCallback(restEvent, "The request is cancelled.");
-                    }
-
                 });
 
             }
@@ -250,8 +323,22 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 var response = GetHttpClient(restConnetOptions).Send(request);
 
+                restConnetOptions.RestLoggingHandler.LogRestRequest(restConnetOptions, request);
+
                 var restResponse = HandleServiceDiscoveryHttpResponse(response, restConnetOptions, authTokenInfo, null, false, endpointInfoList,
                     out errorInfo);
+
+                restConnetOptions.RestLoggingHandler.LogRestResponse(response, restResponse);
+
+                if (errorInfo != null)
+                {
+                    return errorInfo.Code;
+                }
+                else if(restConnetOptions.DiscoveryRedirect && endpointInfoList.Count > 0)
+                {
+                    restConnetOptions.ClearDiscoveryRedirectParameters();
+                    return ReactorReturnCode.SUCCESS;
+                }
 
                 if (ParserServiceDiscoveryEndpoint(restResponse, endpointInfoList, out errorInfo) != ReactorReturnCode.SUCCESS)
                 {
@@ -293,32 +380,34 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
             try
             {
+                tokenSession.SessionMgntState = ReactorTokenSession.SessionState.QUERYING_SERVICE_DISCOVERY;
                 var response = GetHttpClient(restConnetOptions).SendAsync(request);
 
-                response.GetAwaiter().OnCompleted(() =>
-                {
-                    if (response.IsCompleted)
+                restConnetOptions.RestLoggingHandler.LogRestRequest(restConnetOptions, request);
+
+                Task.Run(() => {
+                    try
                     {
-                        HandleServiceDiscoveryHttpResponse(response.Result, restConnetOptions, authTokenInfo, tokenSession,
+                        response.Wait();
+
+                        var restResponse = HandleServiceDiscoveryHttpResponse(response.Result, restConnetOptions, authTokenInfo, tokenSession,
                             true, null, out _);
+
+                        restConnetOptions.RestLoggingHandler.LogRestResponse(response.Result, restResponse);
                     }
-                    else if (response.IsFaulted)
+                    catch (Exception ex)
                     {
                         RestEvent restEvent = new RestEvent();
+                        restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                         restEvent.Type = RestEvent.EventType.FAILED;
-                        tokenSession.RestErrorCallback(restEvent, response.Exception?.Message);
-                    }
-                    else if (response.IsCanceled)
-                    {
-                        RestEvent restEvent = new RestEvent();
-                        restEvent.Type = RestEvent.EventType.CANCELLED;
-                        tokenSession.RestErrorCallback(restEvent, "The request is cancelled.");
+                        tokenSession.RestErrorCallback(restEvent, ex.Message);
                     }
                 });
             }
             catch (Exception ex)
             {
                 RestEvent restEvent = new RestEvent();
+                restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                 restEvent.Type = RestEvent.EventType.FAILED;
                 tokenSession.RestErrorCallback(restEvent, $"Failed to perform a REST request to the service discovery. Text: {ex.Message}");
             }
@@ -455,6 +544,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         }
                         else
                         {
+                            Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorRestClient.HandleServiceDiscoveryHttpResponse()",
+                                $"Failed to perform a REST request to the token service. Text: {restResponse.Content}");
                             return restResponse;
                         }
 
@@ -478,6 +569,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         }
                         else
                         {
+                            Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorRestClient.HandleServiceDiscoveryHttpResponse()",
+                               $"Failed to perform a REST request to the token service. Text: {restResponse.Content}");
                             return restResponse;
                         }
                         break;
@@ -497,6 +590,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         }
                         else
                         {
+                            Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorRestClient.HandleServiceDiscoveryHttpResponse()",
+                               $"Failed to perform a REST request to the token service. Text: {restResponse.Content}");
                             return restResponse;
                         }
 
@@ -530,6 +625,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.COMPLETED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
@@ -585,11 +681,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.FAILED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
                         else
                         {
+                            Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorRestClient.HandleServiceDiscoveryHttpResponse()",
+                                $"Failed to perform a REST request to the service discovery. Text: {restResponse.Content}");
                             return restResponse;
                         }
 
@@ -608,11 +707,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.STOPPED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
                         else
                         {
+                            Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorRestClient.HandleServiceDiscoveryHttpResponse()",
+                                $"Failed to perform a REST request to the service discovery. Text: {restResponse.Content}");
                             return restResponse;
                         }
                         break;
@@ -627,11 +729,15 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                         if (isAsync)
                         {
                             RestEvent restEvent = new RestEvent();
+                            restEvent.RespType = RestEvent.ResponseType.SERVICE_DISCOVERY_RESP;
                             restEvent.Type = RestEvent.EventType.FAILED;
                             tokenSession!.RestResponseCallback(restResponse, restEvent);
                         }
                         else
                         {
+                            Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorRestClient.HandleServiceDiscoveryHttpResponse()", 
+                                $"Failed to perform a REST request to the service discovery.Text: {restResponse.Content}");
+
                             return restResponse;
                         }
 
@@ -722,6 +828,73 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public static ReactorReturnCode ValidateJWK(ReactorOAuthCredential reactorOAuthCredential, out ReactorErrorInfo? errorInfo)
+        {
+            errorInfo = null;
+
+            if(reactorOAuthCredential.ClientJwk.Length > 0)
+            {
+                var jsonWebKey = reactorOAuthCredential.ClientJwk.ToString();
+
+                try
+                {
+                    reactorOAuthCredential.JsonWebKey = new JsonWebKey(jsonWebKey);
+                }
+                catch(Exception ex)
+                {
+                    return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
+                    "ReactorRestClient.ValidateJWKFile", $"Failed to retrieve Json Web Key information {jsonWebKey}. Text: {ex.Message}");
+                }
+
+            }
+
+            return ReactorReturnCode.SUCCESS;
+        }
+
+        string? GenerateClientAssertion(ReactorOAuthCredential oAuthCredential, out ReactorErrorInfo? errorInfo)
+        {
+            string? clientAssertion = null;
+            long epocSeconds = DateTimeOffset.Now.ToUnixTimeSeconds();
+            long epocSecondsExpired = epocSeconds + CLIENT_JWT_EXPIRED_IN_SECONDS;
+
+            try
+            {
+                var claims = new Claim[]
+                {
+                        new Claim(JwtRegisteredClaimNames.Iss, oAuthCredential.ClientId.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Sub, oAuthCredential.ClientId.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Aud, oAuthCredential.Audience.ToString()),
+                        new Claim(JwtRegisteredClaimNames.Iat, epocSeconds.ToString(), ClaimValueTypes.Integer),
+                        new Claim(JwtRegisteredClaimNames.Exp, epocSecondsExpired.ToString(), ClaimValueTypes.Integer),
+                };
+
+                var signingCredentials = new SigningCredentials(
+                      oAuthCredential.JsonWebKey,
+                      oAuthCredential.JsonWebKey!.Alg
+                  );
+
+                var jwt = new JwtSecurityToken(
+                 audience: null,
+                 issuer: null,
+                 claims: claims,
+                 notBefore: null,
+                 expires: null,
+                 signingCredentials: signingCredentials);
+
+                clientAssertion = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+                errorInfo = null;
+
+            }
+            catch (Exception ex)
+            {
+                Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
+                "ReactorRestClient.SendTokenRequest", $"Failed to create a client token assertion from JSON Web Key. Text: {ex.Message}");
+            }
+            
+            return clientAssertion;
         }
     }
 }

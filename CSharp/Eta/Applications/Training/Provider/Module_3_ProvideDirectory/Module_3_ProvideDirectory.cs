@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided   --
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
  *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022 Refinitiv. All rights reserved.                          --
+ *| Copyright (C) 2022-2023 Refinitiv. All rights reserved.                          --
  *|-------------------------------------------------------------------------------
  */
 
@@ -244,15 +244,14 @@
 using System.Net;
 using System.Net.Sockets;
 
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.Common;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 
 
-namespace Refinitiv.Eta.Training.Provider
+namespace LSEG.Eta.Training.Provider
 {
     ///<summary>
     /// The Enum LoginRejectReason.
@@ -564,9 +563,9 @@ namespace Refinitiv.Eta.Training.Provider
                          ***************************************************************************/
 
                         /* Internally, the ETA initialization process includes several actions. The
-                         * initialization includes any necessary ETA connection handshake exchanges, including
-                         * any HTTP or HTTPS negotiation.  Compression, ping timeout, and versioning related
-                         * negotiations also take place during the initialization process.
+                         * initialization includes any necessary ETA connection handshake exchanges.
+                         * Compression, ping timeout, and versioning related negotiations  also take
+                         * place during the initialization process.
                          *
                          * This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.State will transition.

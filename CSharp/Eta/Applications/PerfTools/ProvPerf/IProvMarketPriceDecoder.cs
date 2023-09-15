@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.PerfTools.Common;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DateTime = Refinitiv.Eta.Codec.DateTime;
-using Double = Refinitiv.Eta.Codec.Double;
-using Enum = Refinitiv.Eta.Codec.Enum;
+using LSEG.Eta.Codec;
+using LSEG.Eta.PerfTools.Common;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
 	/// <summary>
 	/// This is the market price decoder for the ProvPerf application
@@ -136,7 +136,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 		{
 			CodecReturnCode codecReturnCode;
 
-			int dataType = dictionaryEntry.RwfType;
+			int dataType = dictionaryEntry.GetRwfType();
 			switch (dataType)
 			{
 				case DataTypes.INT:

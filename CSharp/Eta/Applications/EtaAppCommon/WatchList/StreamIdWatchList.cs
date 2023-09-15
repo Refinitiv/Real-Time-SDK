@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     public class StreamIdWatchList : IEnumerable
     {
@@ -54,11 +54,12 @@ namespace Refinitiv.Eta.Example.Common
             return thisStreamId;
         }
 
-        public WatchListEntry Get(int streamId)
+        public WatchListEntry? Get(int streamId)
         {
             StreamIdKey key = new StreamIdKey();
             key.StreamId = streamId;
-            return watchList[key];
+            watchList.TryGetValue(key, out var wle);
+            return wle;
         }
 
         public void RemoveAll()

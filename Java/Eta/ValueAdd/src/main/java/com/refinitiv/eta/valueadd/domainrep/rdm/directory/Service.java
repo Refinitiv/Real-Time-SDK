@@ -1227,7 +1227,6 @@ public interface Service
             serviceName = CodecFactory.createBuffer();
             vendor = CodecFactory.createBuffer();
             itemList = CodecFactory.createBuffer();
-            serviceName = CodecFactory.createBuffer();
             clear();
         }
 
@@ -2292,6 +2291,7 @@ public interface Service
             serviceName().copy(byteBuffer);
             destServiceInfo.serviceName().data(byteBuffer);
             destServiceInfo.action(action());
+            destServiceInfo.capabilitiesList().clear();
             destServiceInfo.capabilitiesList().addAll(capabilitiesList());
             if (checkHasAcceptingConsumerStatus())
             {
@@ -2301,6 +2301,7 @@ public interface Service
             if (checkHasDictionariesProvided())
             {
                 destServiceInfo.applyHasDictionariesProvided();
+                dictionariesProvidedList().clear();
                 for (String dictProvided : dictionariesProvidedList())
                 {
                     destServiceInfo.dictionariesProvidedList().add(dictProvided);
@@ -2309,6 +2310,7 @@ public interface Service
             if (checkHasDictionariesUsed())
             {
                 destServiceInfo.applyHasDictionariesUsed();
+                dictionariesUsedList().clear();
                 for (String dictUsed : dictionariesUsedList())
                 {
                     destServiceInfo.dictionariesUsedList().add(dictUsed);

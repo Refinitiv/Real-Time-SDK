@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided   --
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
  *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022 Refinitiv. All rights reserved.                          --
+ *| Copyright (C) 2022-2023 Refinitiv. All rights reserved.                          --
  *|-------------------------------------------------------------------------------
  */
 
@@ -52,12 +52,11 @@
 
 using System.Net.Sockets;
 
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.Example.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.Example.Common;
 
 
-namespace Refinitiv.Eta.Training.Consumer
+namespace LSEG.Eta.Training.Consumer
 {
     public class Module_1a_Connect
     {
@@ -179,7 +178,7 @@ namespace Refinitiv.Eta.Training.Consumer
             /*********************************************************
              * Client/Consumer Application life cycle Major Step 2: Connect using Connect
              * (OS connection establishment handshake) Connect call Establishes an
-             * outbound connection, which can leverage standard sockets, HTTP, or HTTPS.
+             * outbound connection, which can leverage standard sockets.
              *
              * Returns an Channel that represents the connection to the user. In the event
              * of an error, NULL is returned and additional information can be found in
@@ -233,9 +232,8 @@ namespace Refinitiv.Eta.Training.Consumer
                          * Internally, the ETA initialization process includes several actions.
                          *
                          * The initialization includes any necessary ETA connection handshake
-                         * exchanges, including any HTTP or HTTPS negotiation.  Compression, ping
-                         * timeout, and versioning related negotiations also take place during the
-                         * initialization process.
+                         * exchanges.  Compression, ping timeout, and versioning related negotiations
+                         * also take place during the initialization process.
                          *
                          * This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.State will
@@ -348,7 +346,7 @@ namespace Refinitiv.Eta.Training.Consumer
                 }
                 catch (Exception e1)
                 {
-                    Console.Write("Exception. Stack trace: {0}\n", e1.StackTrace);
+                    Console.WriteLine("Exception: {0}\nStack trace:\n{1}", e1.Message, e1.StackTrace);
                     CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE);
                 }
             }

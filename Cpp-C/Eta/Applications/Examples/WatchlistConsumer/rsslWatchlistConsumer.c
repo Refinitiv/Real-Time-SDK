@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2021-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2021-2023 Refinitiv. All rights reserved.
 */
 
 /*
@@ -57,11 +57,12 @@ static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
 RsslSocket socketIdList[2] = { 0, 0 };
-RsslUInt32 socketIdListCount = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
 static RsslBool canSendLoginReissue;
+
+fd_set	readFds, exceptFds;
 
 extern RsslDataDictionary dictionary;
 
@@ -162,11 +163,25 @@ int main(int argc, char **argv)
 			serviceDiscoveryOpts.clientId = watchlistConsumerConfig.clientId;
 	}
 
-	/* Set login password if specified. */
+	/* Set client Secret if specified. */
 	if (watchlistConsumerConfig.clientSecret.length)
 	{
 		if (watchlistConsumerConfig.queryEndpoint)
 			serviceDiscoveryOpts.clientSecret = watchlistConsumerConfig.clientSecret;
+	}
+
+	/* Set JWK if specified. */
+	if (watchlistConsumerConfig.clientJWK.length)
+	{
+		if (watchlistConsumerConfig.queryEndpoint)
+			serviceDiscoveryOpts.clientJWK = watchlistConsumerConfig.clientJWK;
+	}
+
+	/* Set JWK if specified. */
+	if (watchlistConsumerConfig.audience.length)
+	{
+		if (watchlistConsumerConfig.queryEndpoint)
+			serviceDiscoveryOpts.audience = watchlistConsumerConfig.audience;
 	}
 	
 	/* If the authentication Token is specified, set it and authenticationExtended(if present) to the loginRequest */
@@ -221,6 +236,10 @@ int main(int argc, char **argv)
 		oauthCredential.clientId = watchlistConsumerConfig.clientId;
 		if (watchlistConsumerConfig.clientSecret.data)
 			oauthCredential.clientSecret = watchlistConsumerConfig.clientSecret;
+		if (watchlistConsumerConfig.clientJWK.data)
+			oauthCredential.clientJWK = watchlistConsumerConfig.clientJWK;
+		if (watchlistConsumerConfig.audience.data)
+			oauthCredential.audience = watchlistConsumerConfig.audience;
 		oauthCredential.takeExclusiveSignOnControl = watchlistConsumerConfig.takeExclusiveSignOnControl;
 		if (watchlistConsumerConfig.tokenScope.data)
 			oauthCredential.tokenScope = watchlistConsumerConfig.tokenScope;
@@ -261,6 +280,31 @@ int main(int argc, char **argv)
 	if (watchlistConsumerConfig.restEnableLogViaCallback == 1)
 	{
 		reactorOpts.restEnableLogViaCallback = RSSL_TRUE;
+	}
+
+	if (watchlistConsumerConfig.restProxyHost[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyHostName = watchlistConsumerConfig.restProxyHost;
+	}
+
+	if (watchlistConsumerConfig.restProxyPort[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPort = watchlistConsumerConfig.restProxyPort;
+	}
+
+	if (watchlistConsumerConfig.restProxyUserName[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyUserName = watchlistConsumerConfig.restProxyUserName;
+	}
+
+	if (watchlistConsumerConfig.restProxyPasswd[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPasswd = watchlistConsumerConfig.restProxyPasswd;
+	}
+
+	if (watchlistConsumerConfig.restProxyDomain[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyDomain = watchlistConsumerConfig.restProxyDomain;
 	}
 
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
@@ -306,37 +350,11 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 
-		if (watchlistConsumerConfig.proxyHost[0] != '\0')
-		{
-			serviceDiscoveryOpts.proxyHostName.data = watchlistConsumerConfig.proxyHost;
-			serviceDiscoveryOpts.proxyHostName.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyHostName.data);
-		}
-
-		if (watchlistConsumerConfig.proxyPort[0] != '\0')
-		{
-			serviceDiscoveryOpts.proxyPort.data = watchlistConsumerConfig.proxyPort;
-			serviceDiscoveryOpts.proxyPort.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyPort.data);
-		}
-
-		if (watchlistConsumerConfig.proxyUserName[0] != '\0')
-		{
-			serviceDiscoveryOpts.proxyUserName.data = watchlistConsumerConfig.proxyUserName;
-			serviceDiscoveryOpts.proxyUserName.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyUserName.data);
-		}
-
-		if (watchlistConsumerConfig.proxyPasswd[0] != '\0')
-		{
-			serviceDiscoveryOpts.proxyPasswd.data = watchlistConsumerConfig.proxyPasswd;
-			serviceDiscoveryOpts.proxyPasswd.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyPasswd.data);
-		}
-		if (watchlistConsumerConfig.proxyDomain[0] != '\0')
-
-		{
-			serviceDiscoveryOpts.proxyDomain.data = watchlistConsumerConfig.proxyDomain;
-			serviceDiscoveryOpts.proxyDomain.length = (RsslUInt32)strlen(serviceDiscoveryOpts.proxyDomain.data);
-		}
-
 		serviceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
+
+		/* Note: If RsslCreateReactorOptions.restProxyOptions are set when creating the Reactor, */
+		/* the serviceDiscoveryOpts proxy settings will not take affect for service discovery done in application: */
+		/* proxyHostName, proxyPort, proxyUserName, proxyPasswd, proxyDomain. */
 
 		if(rsslReactorQueryServiceDiscovery(pReactor, &serviceDiscoveryOpts, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
@@ -456,6 +474,12 @@ int main(int argc, char **argv)
 	reactorConnectOpts.reconnectMinDelay = 500;
 	reactorConnectOpts.reconnectMaxDelay = 3000;
 
+	FD_ZERO(&readFds);
+	FD_ZERO(&exceptFds);
+
+	FD_SET(pReactor->eventFd, &readFds);
+	FD_SET(pReactor->eventFd, &exceptFds);
+
 	/* Connect. */
 	if ((ret = rsslReactorConnect(pReactor, &reactorConnectOpts, 
 					(RsslReactorChannelRole*)&consumerRole, &rsslErrorInfo)) != RSSL_RET_SUCCESS)
@@ -468,6 +492,15 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pDictionary = &dictionary;
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+
+	if (watchlistConsumerConfig.jsonOutputBufferSize > 0)
+	{
+		jsonConverterOptions.outputBufferSize = watchlistConsumerConfig.jsonOutputBufferSize;
+	}
+	if (watchlistConsumerConfig.jsonTokenIncrementSize > 0)
+	{
+		jsonConverterOptions.jsonTokenIncrementSize = watchlistConsumerConfig.jsonTokenIncrementSize;
+	}
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{
@@ -490,38 +523,11 @@ int main(int argc, char **argv)
 	do
 	{
 		struct timeval 				selectTime;
-		fd_set						readFds;
-		fd_set						exceptFds;
 		RsslReactorDispatchOptions	dispatchOpts;
-		RsslUInt32					index;
-
-		FD_ZERO(&readFds);
-		FD_ZERO(&exceptFds);
-		FD_SET(pReactor->eventFd, &readFds);
-		FD_SET(pReactor->eventFd, &exceptFds);
-
-		if (pConsumerChannel)
-		{
-			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
-			{
-				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
-				{
-					FD_SET(pConsumerChannel->socketId, &readFds);
-					FD_SET(pConsumerChannel->socketId, &exceptFds);
-				}
-			}
-			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
-			{
-				for (index = 0; index < socketIdListCount; index++)
-				{
-					FD_SET(socketIdList[index], &readFds);
-					FD_SET(socketIdList[index], &exceptFds);
-				}
-			}
-		}
+		fd_set useReadFds = readFds, useExceptFds = exceptFds;
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
-		ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
+		ret = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
 
 		if (ret < 0)
 		{
@@ -1426,6 +1432,31 @@ static RsslReactorCallbackRet msgCallback(RsslReactor *pReactor, RsslReactorChan
 	return RSSL_RC_CRET_SUCCESS;
 }
 
+static void clearConnection(RsslReactorChannel *pReactorChannel)
+{
+	if (pReactorChannel == NULL)
+	{
+		printf("Error in clearConnection (). pReactorChannel is not SET.");
+		return;
+	}
+
+	if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+	{
+		FD_CLR(pReactorChannel->socketId, &readFds);
+		FD_CLR(pReactorChannel->socketId, &exceptFds);
+	}
+	else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+	{
+		RsslUInt32 index;
+
+		for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
+		{
+			FD_CLR(socketIdList[index], &readFds);
+			FD_CLR(socketIdList[index], &exceptFds);
+		}
+	}
+}
+
 /* Callback for when the channel is first opened by the application.
  * If dictionaries are loaded, items will immediately be requested.
  * Otherwise, dictionaries must be retrieved before requesting items. 
@@ -1450,19 +1481,24 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 		{
 			/* Save the channel on our info structure. */
 			pConsumerChannel = pReactorChannel;
-			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				FD_SET(pReactorChannel->socketId, &readFds);
+				FD_SET(pReactorChannel->socketId, &exceptFds);
+			}
+			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
 
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
+					FD_SET(socketIdList[index], &readFds);
+					FD_SET(socketIdList[index], &exceptFds);
 				}
-
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
-
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
+
 			if (isXmlTracingEnabled() == RSSL_TRUE) 
 			{
 				RsslTraceOptions traceOptions;
@@ -1470,7 +1506,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				RsslErrorInfo rsslErrorInfo;
 
 				rsslClearTraceOptions(&traceOptions);
-				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer\0");
+				snprintf(traceOutputFile, 128, "rsslWatchlistConsumer");
 				traceOptions.traceMsgFileName = traceOutputFile;
 				traceOptions.traceFlags |= RSSL_TRACE_TO_FILE_ENABLE | RSSL_TRACE_TO_STDOUT | RSSL_TRACE_TO_MULTIPLE_FILES | RSSL_TRACE_WRITE | RSSL_TRACE_READ | RSSL_TRACE_DUMP;
 				traceOptions.traceMsgMaxFileSize = 100000000;
@@ -1485,15 +1521,24 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			return RSSL_RC_CRET_SUCCESS;
 		case RSSL_RC_CET_FD_CHANGE:
 		{
-			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				FD_CLR(pReactorChannel->oldSocketId, &readFds);
+				FD_CLR(pReactorChannel->oldSocketId, &exceptFds);
+				FD_SET(pReactorChannel->socketId, &readFds);
+				FD_SET(pReactorChannel->socketId, &exceptFds);
+			}
+			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
+					FD_CLR(socketIdList[index], &readFds);
+					FD_CLR(socketIdList[index], &exceptFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
+					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
 				}
-
-				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
 
 			return RSSL_RC_CRET_SUCCESS;
@@ -1503,7 +1548,10 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
 				printf("Channel "SOCKET_PRINT_TYPE" down.\n", pReactorChannel->socketId);
+				clearConnection(pReactorChannel);
+			}
 			else
 				printf("Channel down.\n");
 
@@ -1530,14 +1578,16 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			}
 
 			if (pReactorChannel->socketId != REACTOR_INVALID_SOCKET)
+			{
 				printf("Channel "SOCKET_PRINT_TYPE" down. Reconnecting hostname %s\n", pReactorChannel->socketId, hostName);
+				clearConnection(pReactorChannel);
+			}
 			else
 				printf("Channel down. Reconnecting hostname %s\n",  hostName);
 
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
-			socketIdListCount = 0;
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
@@ -1572,18 +1622,44 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 {
 	RsslUInt32 index;
 	RsslReactorServiceEndpointInfo *pServiceEndpointInfo;
+	char *endPoint = NULL;
+	char *port = NULL;
+
+	if (pEndPointEvent->pErrorInfo != NULL)
+	{
+		printf("Error requesting Service Discovery Endpoint Information: %s\n", pEndPointEvent->pErrorInfo->rsslError.text);
+		exit(-1);
+	}
+
 	for(index = 0; index < pEndPointEvent->serviceEndpointInfoCount; index++)
 	{
 		pServiceEndpointInfo = &pEndPointEvent->serviceEndpointInfoList[index];
-		if(pServiceEndpointInfo->locationCount == 2) // Get an endpoint that provides auto failover for the specified location
+		if(pServiceEndpointInfo->locationCount >= 2) // Get an endpoint that provides auto failover for the specified location
 		{
 			if (strncmp(watchlistConsumerConfig.location.data, pServiceEndpointInfo->locationList[0].data, watchlistConsumerConfig.location.length) == 0 )
 			{
-				snprintf(watchlistConsumerConfig.hostName, 255, "%s", pServiceEndpointInfo->endPoint.data);	
-				snprintf(watchlistConsumerConfig.port, 255, "%s", pServiceEndpointInfo->port.data);	
+				endPoint = pServiceEndpointInfo->endPoint.data;
+				port = pServiceEndpointInfo->port.data;
 				break;
 			}
 		}
+		else if (pServiceEndpointInfo->locationCount > 0) // Try to get backups and keep looking for main case
+		{
+			if (endPoint == NULL && port == NULL) // keep only the first item met
+			{
+				if (strncmp(watchlistConsumerConfig.location.data, pServiceEndpointInfo->locationList[0].data, watchlistConsumerConfig.location.length) == 0)
+				{
+					endPoint = pServiceEndpointInfo->endPoint.data;
+					port = pServiceEndpointInfo->port.data;
+				}
+			}
+		}
+	}
+
+	if (endPoint != NULL && port != NULL)
+	{
+		snprintf(watchlistConsumerConfig.hostName, 255, "%s", pServiceEndpointInfo->endPoint.data);
+		snprintf(watchlistConsumerConfig.port, 255, "%s", pServiceEndpointInfo->port.data);
 	}
 
 	return RSSL_RC_CRET_SUCCESS;

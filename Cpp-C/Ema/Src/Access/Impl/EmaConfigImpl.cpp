@@ -45,17 +45,13 @@ EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 	_pEmaConfig(new XMLnode("EmaConfig", 0, 0)),
 	_pProgrammaticConfigure(0),
 	_instanceNodeName(),
-	_configSessionName()
+	_configSessionName(),
+	_userSetShouldInitializeCPUIDlib(false),
+	_shouldInitializeCPUIDlib(true)
 {
 	createNameToValueHashTable();
 
-	OmmLoggerClient::Severity result(readXMLconfiguration(path));
-	if (result == OmmLoggerClient::ErrorEnum || result == OmmLoggerClient::VerboseEnum)
-	{
-		EmaString errorMsg("failed to extract configuration from path [");
-		errorMsg.append(path.c_str()).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, result);
-	}
+	readXMLconfiguration(path);
 }
 
 EmaConfigBaseImpl::~EmaConfigBaseImpl()
@@ -68,6 +64,11 @@ void EmaConfigBaseImpl::clear()
 {
 	_instanceNodeName.clear();
 	_configSessionName.clear();
+
+	_cpuWorkerThreadBind.clear();
+	_cpuApiThreadBind.clear();
+	_userSetShouldInitializeCPUIDlib = false;
+	_shouldInitializeCPUIDlib = true;
 }
 
 const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const
@@ -195,16 +196,20 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 	EmaString fileName;		// eventual location of config file
 	const EmaString defaultFileName( defaultEmaConfigXMLFileName ); // used if path is empty or contains a directory
 
+	int statResult;
+#ifdef WIN32
+#define getcwd _getcwd
+	struct _stat statBuffer;
+#else
+	struct stat statBuffer;
+#endif
+
 	if ( path.empty() )
 		fileName = defaultFileName;
 	else {						// user specified a path
-		int statResult;
 #ifdef WIN32
-		struct _stat statBuffer;
 		statResult = _stat(path.c_str(), &statBuffer);
-#define getcwd _getcwd
 #else
-		struct stat statBuffer;
 		statResult = stat(path.c_str(), &statBuffer);
 #endif
 		if (statResult == -1) {
@@ -223,26 +228,6 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 		else if (statBuffer.st_mode & S_IFDIR) {
 			fileName = path;
 			fileName.append("/").append(defaultFileName);
-#ifdef WIN32
-			statResult = _stat(fileName.c_str(), &statBuffer);
-#else
-			statResult = stat(fileName.c_str(), &statBuffer);
-#endif
-			// file must exist
-			if (statResult == -1) {
-				EmaString errorMsg( "fileName [" );
-				errorMsg.append(fileName).append("] does not exist;")
-					.append("working directory was [").append(getcwd(0, 0)).append("];")
-					.append("system error message [").append(strerror(errno)).append("]");
-				throwIceException(errorMsg);
-			}
-			// file must be a file
-			if ( ! (statBuffer.st_mode & S_IFREG) ) {
-				EmaString errorMsg( "fileName [" );
-				errorMsg.append(fileName).append("] is not a file;")
-					.append("working directory was [").append(getcwd(0, 0)).append("]");
-				throwIceException(errorMsg);
-			}
 		}
 
 		else {
@@ -258,48 +243,63 @@ OmmLoggerClient::Severity EmaConfigBaseImpl::readXMLconfiguration(const EmaStrin
 	 *    if the user did not specify a filename, we are using the default filename and will use
 	 *    the result of stat to determine whether or not the file exists
 	 */
-	int statResult;
 #ifdef WIN32
-	struct _stat statBuffer;
 	statResult = _stat(fileName.c_str(), &statBuffer);
 #else
-	struct stat statBuffer;
 	statResult = stat(fileName.c_str(), &statBuffer);
 #endif
-	if (statResult == -1 || !statBuffer.st_size)
-	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName.c_str()).append("]; file is empty");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+	// file must exist
+	if ( statResult == -1 ) {
+		EmaString errorMsg("fileName [");
+		errorMsg.append(fileName).append("] does not exist;")
+			.append("working directory was [").append(getcwd(0, 0)).append("];")
+			.append("system error message [").append(strerror(errno)).append("]");
+		_pEmaConfig->appendErrorMessage(errorMsg, (!path.empty() ? OmmLoggerClient::ErrorEnum : OmmLoggerClient::VerboseEnum));
+		return handleConfigurationPathError(errorMsg, !path.empty());
+	}
+	// file must be a file
+	if ( !(statBuffer.st_mode & S_IFREG) ) {
+		EmaString errorMsg("fileName [");
+		errorMsg.append(fileName).append("] is not a file;")
+			.append("working directory was [").append(getcwd(0, 0)).append("]");
+		_pEmaConfig->appendErrorMessage(errorMsg, (!path.empty() ? OmmLoggerClient::ErrorEnum : OmmLoggerClient::VerboseEnum));
 		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
 
-	FILE* fp;
-	fp = fopen(fileName.c_str(), "r");
-	if (!fp)
+	char* xmlData = NULL;
+	if (statBuffer.st_size > 0)
 	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName.c_str()).append("]; could not open file; system error message [").append(strerror(errno)).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return handleConfigurationPathError(errorMsg, !path.empty());
+		xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1LL));
+		if (!xmlData)
+		{
+			EmaString errorMsg("Failed to allocate memory for reading configuration file[");
+			errorMsg.append(fileName.c_str()).append("]");
+			_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
+			return handleConfigurationPathError(errorMsg, !path.empty());
+		}
 	}
 
-	char* xmlData = reinterpret_cast<char*>(malloc(statBuffer.st_size + 1));
-	if (!xmlData)
-	{
-		EmaString errorMsg("Failed to allocate memory for reading configuration file[");
-		errorMsg.append(fileName.c_str()).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		return handleConfigurationPathError(errorMsg, !path.empty());
-	}
+	FILE* fp = NULL;
+	size_t bytesRead = 0;
 
-	size_t bytesRead(fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp));
-	if (!bytesRead)
+	if (statResult == -1 || statBuffer.st_size <= 0 || xmlData == NULL ||
+		!(fp = fopen(fileName.c_str(), "r"))    ||
+		!(bytesRead = fread(reinterpret_cast<void*>(xmlData), sizeof(char), statBuffer.st_size, fp)))
 	{
-		EmaString errorMsg("error reading configuration file [");
-		errorMsg.append(fileName.c_str()).append("]; fread failed; system error message [").append(strerror(errno)).append("]");
-		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::ErrorEnum);
-		free(xmlData);
+		EmaString workingDir;
+		getCurrentDir(workingDir);
+
+		EmaString errorMsg("Missing, unreadable or empty file configuration, path=[");
+		errorMsg.append(workingDir);
+#ifdef WIN32
+		errorMsg.append("\\");
+#else
+		errorMsg.append("/");
+#endif
+		errorMsg.append(fileName.c_str()).append("];");
+		_pEmaConfig->appendErrorMessage(errorMsg, OmmLoggerClient::VerboseEnum);
+		if(xmlData) free(xmlData);
+		if(fp) fclose(fp);
 		return handleConfigurationPathError(errorMsg, !path.empty());
 	}
 	fclose(fp);
@@ -778,6 +778,15 @@ void EmaConfigBaseImpl::getServiceNames(const EmaString& directoryName, EmaVecto
 	_pEmaConfig->getServiceNameList(directoryName, serviceNames);
 }
 
+void EmaConfigBaseImpl::setCpuWorkerThreadBind(const EmaString& cpuString)
+{
+	_cpuWorkerThreadBind = cpuString;
+}
+
+void EmaConfigBaseImpl::setCpuApiThreadBind(const EmaString& cpuString)
+{
+	_cpuApiThreadBind = cpuString;
+}
 
 EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	EmaConfigBaseImpl( path ),
@@ -921,6 +930,16 @@ void EmaConfigImpl::clientId( const EmaString& clientId )
 void EmaConfigImpl::clientSecret( const EmaString& clientSecret )
 {
 	_oAuthCredential.clientSecret(clientSecret);
+}
+
+void EmaConfigImpl::clientJWK(const EmaString& clientJWK)
+{
+	_oAuthCredential.clientJWK(clientJWK);
+}
+
+void EmaConfigImpl::audience(const EmaString& audience)
+{
+	_oAuthCredential.audience(audience);
 }
 
 void EmaConfigImpl::tokenScope(const EmaString& tokenScope)

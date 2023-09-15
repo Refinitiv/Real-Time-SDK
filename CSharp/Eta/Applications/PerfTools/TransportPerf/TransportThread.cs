@@ -2,20 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Refinitiv.Eta.PerfTools.TransportPerf
+namespace LSEG.Eta.PerfTools.TransportPerf
 {
     /// <summary>
     /// Handles one transport thread.
@@ -340,7 +339,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                         /* send messages for writer role (reflector role doesn't send messages) */
                         if ((m_SessionHandler!.Role & TransportTestRole.WRITER) > 0)
                         {
-                            foreach (var clientChannelInfo in ChannelHandler!.ActiveChannelList)
+                            foreach (var clientChannelInfo in ChannelHandler!.ActiveChannelList.Values)
                             {
                                 TransportSession session;
                                 session = (TransportSession)clientChannelInfo.UserSpec!;
@@ -369,11 +368,11 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                                                 ChannelHandler.CloseChannel(clientChannelInfo, error);
                                             break;
                                         case TransportReturnCode.FAILURE:
-                                            Console.WriteLine("Failure while writing message bursts: {0} ({1})\n", error!.Text, ret);
+                                            Console.WriteLine("Failure while writing message bursts: {0} ({1})\n", error?.Text, ret);
                                             ChannelHandler.CloseChannel(clientChannelInfo, error);
                                             break;
                                         default:
-                                            Console.WriteLine("Failure while writing message bursts: {0} ({1})\n", error!.Text, ret);
+                                            Console.WriteLine("Failure while writing message bursts: {0} ({1})\n", error?.Text, ret);
                                             // if channel no longer active, close channel
                                             if (clientChannelInfo!.Channel!.State != ChannelState.ACTIVE)
                                                 ChannelHandler.CloseChannel(clientChannelInfo, error);
@@ -391,7 +390,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                     else // busy read, messages not sent in this mode
                     {
                         //ClientChannelInfo clientChannelInfo;
-                        foreach (var clientChannelInfo in ChannelHandler!.ActiveChannelList)
+                        foreach (var clientChannelInfo in ChannelHandler!.ActiveChannelList.Values)
                         {
                             //clientChannelInfo = ChannelHandler.ActiveChannelList[i];
                             if (!ChannelHandler.ReadChannel(clientChannelInfo, nextTickTime, out Error? error))
@@ -401,7 +400,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                             }
                         }
 
-                        foreach (var clientChannelInfo in ChannelHandler!.InitializingChannelList)
+                        foreach (var clientChannelInfo in ChannelHandler!.InitializingChannelList.Values)
                         {
                             //clientChannelInfo = ChannelHandler.InitializingChannelList[i];
                             if (ChannelHandler.InitializeChannel(clientChannelInfo, out Error? error) < TransportReturnCode.SUCCESS)
@@ -420,7 +419,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                     {
                         Error? error = null;
                         //ClientChannelInfo clientChannelInfo;
-                        foreach (var clientChannelInfo in ChannelHandler!.ActiveChannelList)
+                        foreach (var clientChannelInfo in ChannelHandler!.ActiveChannelList.Values)
                         {
                             ChannelHandler.CloseChannel(clientChannelInfo, error);
                         }

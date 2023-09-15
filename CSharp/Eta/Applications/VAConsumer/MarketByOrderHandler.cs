@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
 
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
 
     /// <summary>
@@ -43,9 +43,9 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
         }
 
 
-        public CodecReturnCode DecodePayload(DecodeIterator dIter, DataDictionary dictionary, StringBuilder fieldValue)
+        public override CodecReturnCode DecodePayload(DecodeIterator dIter, DataDictionary dictionary, StringBuilder fieldValue)
         {
-            //level 2 market by price is a map of field lists
+            //level 2 market by order is a map of field lists
             CodecReturnCode ret;
             if ((ret = map.Decode(dIter)) != CodecReturnCode.SUCCESS)
             {
@@ -66,7 +66,7 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
                 ret = localFieldSetDefDb.Decode(dIter);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
-                    Console.WriteLine($"DecodeLocalFieldSetDefDb() failed: <{ret}>");
+                    Console.WriteLine($"LocalFieldSetDefDb.Decode() failed: <{ret}>");
                     return ret;
                 }
             }

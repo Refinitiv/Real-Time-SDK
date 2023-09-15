@@ -110,6 +110,7 @@ protected :
 	const EmaString& toStringInt() const;
 
 	UInt32						_errorTextLength;
+	UInt32						_errorTextPadding; // _errorText buffer is used for placement new and needs to be 64-bit aligned
 	mutable char				_errorText[MAX_SIZE];
 	mutable char				_space[MAX_SIZE_PLUS_PADDING];
 

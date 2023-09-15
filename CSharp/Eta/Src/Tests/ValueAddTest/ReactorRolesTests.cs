@@ -2,19 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 using System;
 using Xunit;
 using Xunit.Categories;
-using static Refinitiv.Eta.Rdm.Dictionary;
+using static LSEG.Eta.Rdm.Dictionary;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     public class ReactorRolesTests
     {

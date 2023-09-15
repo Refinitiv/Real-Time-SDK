@@ -233,6 +233,23 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	return RSSL_RET_SUCCESS;
 }
 
+/* Free reactor channel. */
+RTR_C_INLINE void _rsslFreeReactorChannel(RsslReactorChannelImpl* pReactorChannel)
+{
+	_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
+	_rsslChannelFreeConnectionList(pReactorChannel);
+	_rsslCleanUpPackedBufferHashTable(pReactorChannel);
+	_cleanupReactorChannelDebugInfo(pReactorChannel);
+	rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
+	if (pReactorChannel->pWatchlist)
+		rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+	if (pReactorChannel->pNotifierEvent)
+		rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
+	if (pReactorChannel->pWorkerNotifierEvent)
+		rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
+	free(pReactorChannel);
+}
+
 void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 {
 	RsslQueueLink *pLink;
@@ -245,90 +262,32 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->channelPool)))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
-		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
-		_rsslChannelFreeConnectionList(pReactorChannel);
-		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
-		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
-		if (pReactorChannel->pNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
-		if (pReactorChannel->pWorkerNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
-		free(pReactorChannel);
+		_rsslFreeReactorChannel(pReactorChannel);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->initializingChannels)))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
-		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
-		_rsslChannelFreeConnectionList(pReactorChannel);
-		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
-		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
-		if (pReactorChannel->pWatchlist)
-			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
-		if (pReactorChannel->pNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
-		if (pReactorChannel->pWorkerNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
-		free(pReactorChannel);
+		_rsslFreeReactorChannel(pReactorChannel);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->activeChannels)))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
-		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
-		_rsslChannelFreeConnectionList(pReactorChannel);
-		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
-		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
-		if (pReactorChannel->pWatchlist)
-			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
-		if (pReactorChannel->pNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
-		if (pReactorChannel->pWorkerNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
-		free(pReactorChannel);
+		_rsslFreeReactorChannel(pReactorChannel);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->inactiveChannels)))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
-		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
-		_rsslChannelFreeConnectionList(pReactorChannel);
-		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
-		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
-		if (pReactorChannel->pWatchlist)
-			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
-		if (pReactorChannel->pNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
-		if (pReactorChannel->pWorkerNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
-		free(pReactorChannel);
+		_rsslFreeReactorChannel(pReactorChannel);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->closingChannels)))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
-		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
-		_rsslChannelFreeConnectionList(pReactorChannel);
-		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
-		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
-		if (pReactorChannel->pWatchlist)
-			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
-		if (pReactorChannel->pNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
-		if (pReactorChannel->pWorkerNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
-		free(pReactorChannel);
+		_rsslFreeReactorChannel(pReactorChannel);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->reconnectingChannels)))
 	{
 		RsslReactorChannelImpl *pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, reactorQueueLink, pLink);
-		_reactorWorkerFreeChannelRDMMsgs(pReactorChannel);
-		_rsslChannelFreeConnectionList(pReactorChannel);
-		_rsslCleanUpPackedBufferHashTable(pReactorChannel);
-		rsslCleanupReactorEventQueue(&pReactorChannel->eventQueue);
-		if (pReactorChannel->pWatchlist)
-			rsslWatchlistDestroy(pReactorChannel->pWatchlist);
-		if (pReactorChannel->pNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pNotifierEvent);
-		if (pReactorChannel->pWorkerNotifierEvent)
-			rsslDestroyNotifierEvent(pReactorChannel->pWorkerNotifierEvent);
-		free(pReactorChannel);
+		_rsslFreeReactorChannel(pReactorChannel);
 	}
 	while ((pLink = rsslQueueRemoveFirstLink(&pReactorImpl->closingWarmstandbyChannel)))
 	{
@@ -468,6 +427,8 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		}
 	}
 
+	rsslFreeProxyOpts(&pReactorImpl->restProxyOptions);
+
 	/* For RDP token management and service discovery */
 	free(pReactorImpl->accessTokenRespBuffer.data);
 	free(pReactorImpl->tokenInformationBuffer.data);
@@ -490,8 +451,6 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslReactorImpl* pReactorImpl)
 {
 	RsslReactorTokenSessionImpl* pTokenSessionImpl = pChannelInfo->pSessionImpl;
-
-	RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 
 	if (pChannelInfo->tokenSessionLink.next != NULL && pChannelInfo->tokenSessionLink.prev != NULL)
 	{
@@ -521,11 +480,15 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 			pTokenSessionImpl->pRestHandle = NULL;
 			if (rsslRestCloseHandle(pRestHandle, &(pReactorImpl->reactorWorker.workerCerr.rsslError)) != RSSL_RET_SUCCESS)
 			{
-				RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 				return RSSL_RET_FAILURE;
 			}
+
+			/* Release the access token mutex as the new token request to the token service is canceled */
+			RTR_ATOMIC_SET(pTokenSessionImpl->stopTokenRequest, 1);
+			RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 		}
 
+		RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
 		{
 			rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
@@ -536,9 +499,9 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 			rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
 
 		rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
-	}
 
-	RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+		RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+	}
 
 	return RSSL_RET_SUCCESS;
 }
@@ -646,12 +609,13 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 				else
 				{
 					pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pTokenSessionImpl->sessionAuthUrl, &pTokenSessionImpl->pOAuthCredential->clientId,
-						&pTokenSessionImpl->pOAuthCredential->clientSecret, &pTokenSessionImpl->pOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pReactorWorker->workerCerr);
+						&pTokenSessionImpl->pOAuthCredential->clientSecret, &pTokenSessionImpl->pOAuthCredential->clientJWK, &pTokenSessionImpl->pOAuthCredential->audience, &pTokenSessionImpl->pOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pReactorWorker->workerCerr);
 				}
 
 				if (pRestRequestArgs)
 				{
-					_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
+					_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
+						&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 					if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 						(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError);
@@ -861,7 +825,8 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
-			_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+			_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+				&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 			if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 				(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
@@ -1149,6 +1114,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 #endif
 	pReactorWorker->sleepTimeMs = 3000;
 
+#ifndef NO_ETA_CPU_BIND
 	/* Bind cpu for the worker thread. */
 	if (pReactorWorker->cpuBindWorkerThread.length > 0 && pReactorWorker->cpuBindWorkerThread.data != NULL)
 	{
@@ -1161,6 +1127,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 			return RSSL_THREAD_RETURN();
 		}
 	}
+#endif
 
 	RTR_ATOMIC_SET(pReactorWorker->threadStarted, RSSL_REACTOR_WORKER_THREAD_STARTED);
 
@@ -1247,9 +1214,10 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													/* Close the channel */
 													/* TODO: Error check? */
 													rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &(pReactorChannel->channelWorkerCerr.rsslError));
-													pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
 													pReactorChannel->reactorChannel.pRsslChannel = 0;
 												}
+
+												pReactorChannel->channelSetupState = RSSL_RC_CHST_RECONNECTING;
 
 												/* If the channel is using session V2 and has connected, clear out the access token, forcing the reconnection to get a new access token. */
 												if (pReactorChannel->hasConnected == RSSL_TRUE && pReactorChannel->pCurrentTokenSession != NULL && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
@@ -1525,7 +1493,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													tokenServiceURL = (pTokenSessionImpl->temporaryURL.data == 0) ? pTokenSessionImpl->sessionAuthUrl : pTokenSessionImpl->temporaryURL;
 
 													pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &tokenServiceURL, &pTokenSessionImpl->pOAuthCredential->clientId,
-														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, &pTokenSessionImpl->pOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf, pUserSpec, &pTokenSessionImpl->tokenSessionWorkerCerr);
+														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, &pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientJWK, &pTokenSessionImpl->pOAuthCredential->audience, &pTokenSessionImpl->pOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf, pUserSpec, &pTokenSessionImpl->tokenSessionWorkerCerr);
 												}
 
 												if (pRestRequestArgs)
@@ -1544,7 +1512,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 													RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
-													_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
+													_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
+														&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 
 													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
@@ -1607,8 +1576,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													/* Clears sensitive information */
 													rsslClearReactorOAuthCredentialRenewal(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal);
 
-													RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
-
 													RSSL_QUEUE_FOR_EACH_LINK(&pTokenSessionImpl->reactorChannelList, pLink)
 													{
 														pReactorChannel = (RsslReactorChannelImpl*)RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pSessionImpl;
@@ -1651,8 +1618,14 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												{
 													tokenServiceURL = pReactorImpl->tokenServiceURLV2;
 													sessionVersion = RSSL_RC_SESSMGMT_V2;
-													pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &tokenServiceURL, (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientId),
-														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, (&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.tokenScope), &pOAuthCredentialRenewalImpl->rsslPostDataBodyBuf, pUserSpec, &pReactorWorker->workerCerr);
+													pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &tokenServiceURL, 
+														(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientId),
+														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientSecret, 
+														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.clientJWK, 
+														&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.audience,
+														(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal.tokenScope), 
+														&pOAuthCredentialRenewalImpl->rsslPostDataBodyBuf,
+														pUserSpec, &pReactorWorker->workerCerr);
 												}
 												if (pRestRequestArgs)
 												{
@@ -1672,7 +1645,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 														RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
-														_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts, pRestRequestArgs);
+														_assignConnectionArgsToRequestArgs(&pTokenSessionImpl->proxyConnectOpts,
+															&pReactorImpl->restProxyOptions, pRestRequestArgs);
 													}
 													else
 													{
@@ -2328,7 +2302,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						}
 					}
 				}
-				else if(pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
+				else if(pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER
+						&&  pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList)
 				{
 					/* Get the next login request message */
 					pReactorChannel->channelRole.ommConsumerRole.pLoginRequest = pReactorChannel->channelRole.ommConsumerRole.pLoginRequestList[pReactorChannel->currentConnectionOpts->base.loginReqIndex]->loginRequestMsg;
@@ -2425,13 +2400,14 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							else
 							{
 								pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pTokenSession->sessionAuthUrl, &pTokenSession->pOAuthCredential->clientId,
-									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->tokenScope, &pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
+									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->clientJWK, &pTokenSession->pOAuthCredential->audience, &pTokenSession->pOAuthCredential->tokenScope, &pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
 							}
 							
 
 							if (pRestRequestArgs)
 							{
-								_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts, pRestRequestArgs);
+								_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts,
+									&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 								if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 									(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -2499,7 +2475,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								/* V2 does not have a refresh token concept, so request a new token from the token generator. */
 								pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pTokenSession->sessionAuthUrl, &pTokenSession->pOAuthCredential->clientId,
-									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->tokenScope, &pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
+									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->clientJWK, &pTokenSession->pOAuthCredential->audience, &pTokenSession->pOAuthCredential->tokenScope, &pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
 							}
 							else
 							{
@@ -2520,7 +2496,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 						if (pRestRequestArgs)
 						{
-							_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts, pRestRequestArgs);
+							_assignConnectionArgsToRequestArgs(&pTokenSession->proxyConnectOpts,
+								&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -2752,6 +2729,9 @@ static void _reactorWorkerFreeChannelRDMMsgs(RsslReactorChannelImpl *pReactorCha
 
 							if (pConsRole->pOAuthCredentialList[i]->clientSecret.data)
 								memset((void*)(pConsRole->pOAuthCredentialList[i]->clientSecret.data), 0, (size_t)(pConsRole->pOAuthCredentialList[i]->clientSecret.length));
+
+							if (pConsRole->pOAuthCredentialList[i]->clientJWK.data)
+								memset((void*)(pConsRole->pOAuthCredentialList[i]->clientJWK.data), 0, (size_t)(pConsRole->pOAuthCredentialList[i]->clientJWK.length));
 
 							if (pConsRole->pOAuthCredentialList[i]->password.data)
 								memset((void*)(pConsRole->pOAuthCredentialList[i]->password.data), 0, (size_t)(pConsRole->pOAuthCredentialList[i]->password.length));
@@ -3333,7 +3313,8 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 					goto RequestFailed;
 				}
 
-				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+					&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
@@ -3410,7 +3391,8 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 					goto RequestFailed;
 				}
 
-				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+				_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+					&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 				pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY;
 
@@ -3806,7 +3788,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 								}
 							}
 
-							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions, pRestRequestArgs);
+							_assignConnectionArgsToRequestArgs(&pReactorConnectInfoImpl->base.rsslConnectOptions,
+								&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 							if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 								(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslError);
@@ -3944,12 +3927,13 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					else
 					{
 						pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pReactorTokenSession->sessionAuthUrl, &pReactorTokenSession->pOAuthCredential->clientId,
-							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->tokenScope, &pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
+							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->clientJWK, &pReactorTokenSession->pOAuthCredential->audience, &pReactorTokenSession->pOAuthCredential->tokenScope, &pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
 					}
 
 					if (pRestRequestArgs)
 					{
-						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts, pRestRequestArgs);
+						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts,
+							&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -4057,11 +4041,12 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					else
 					{
 						pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pReactorTokenSession->sessionAuthUrl, &pReactorTokenSession->pOAuthCredential->clientId,
-							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->tokenScope, &pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
+							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->clientJWK, &pReactorTokenSession->pOAuthCredential->audience, &pReactorTokenSession->pOAuthCredential->tokenScope, &pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
 					}
 					if (pRestRequestArgs)
 					{
-						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts, pRestRequestArgs);
+						_assignConnectionArgsToRequestArgs(&pReactorTokenSession->proxyConnectOpts,
+							&pReactorImpl->restProxyOptions, pRestRequestArgs);
 
 						if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 							(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorTokenSession->tokenSessionWorkerCerr.rsslError);
@@ -4574,7 +4559,14 @@ static RsslRet _reactorWorkerBuildName(RsslReactorWorker* pReactorWorker, rtr_at
 				bufTitle[lenTitle] = '\0';
 			}
 		}
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
 		snprintf(pReactorWorker->nameReactorWorker, MAX_THREADNAME_STRLEN, "%s-%s", bufTitle, rwtBuf);
+#if defined(__GNUC__) && (__GNUC__ >= 9)
+	#pragma GCC diagnostic pop
+#endif
 	}
 	else
 	{

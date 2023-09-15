@@ -1283,6 +1283,7 @@ public class LoginJunit
         long singleOpen = 1;
         int userNameType = Login.UserIdTypes.NAME;
         long supportStandby = 6;
+        long supportStandbyMode = 5;
         long supportBatchRequests = 1;
         long supportBatchReissues = 1;
         long supportBatchCloses = 1;
@@ -1372,6 +1373,9 @@ public class LoginJunit
 
         refRDMMsg1.features().applyHasSupportStandby();
         refRDMMsg1.features().supportStandby(supportStandby);
+        
+        refRDMMsg1.features().applyHasSupportStandbyMode();
+        refRDMMsg1.features().supportStandbyMode(supportStandbyMode);
 
         refRDMMsg1.applyHasSequenceNumber();
         refRDMMsg1.sequenceNumber(seqNum);
@@ -1418,6 +1422,10 @@ public class LoginJunit
         assertEquals(refRDMMsg1.features().supportBatchReissues(), refRDMMsg2.features().supportBatchReissues());
         assertEquals(refRDMMsg1.features().supportBatchCloses(), refRDMMsg2.features().supportBatchCloses());
         assertEquals(refRDMMsg1.features().supportViewRequests(), refRDMMsg2.features().supportViewRequests());
+        assertEquals(refRDMMsg1.features().supportStandby(), refRDMMsg2.features().supportStandby());
+        assertEquals(refRDMMsg1.features().supportStandbyMode(), refRDMMsg2.features().supportStandbyMode());
+
+
 
         LoginConnectionConfig connectionConfig2 = refRDMMsg2.connectionConfig();
         assertEquals(connectionConfig.numStandbyServers(), connectionConfig2.numStandbyServers());
@@ -1897,6 +1905,7 @@ public class LoginJunit
         long providePermissionExpressions = 2;
         long singleOpen = 1;
         long supportStandby = 6;
+        long supportStandbyMode = 5;
         long supportBatchRequests = 1;
         long supportBatchReissues = 1;
         long supportBatchCloses = 1;
@@ -2038,6 +2047,9 @@ public class LoginJunit
 
                 encRDMMsg.features().applyHasSupportStandby();
                 encRDMMsg.features().supportStandby(supportStandby);
+                
+                encRDMMsg.features().applyHasSupportStandbyMode();
+                encRDMMsg.features().supportStandbyMode(supportStandbyMode);
 
                 encRDMMsg.features().applyHasSupportPost();
                 encRDMMsg.features().supportOMMPost(supportOMMPost);
@@ -2119,6 +2131,7 @@ public class LoginJunit
                 assertEquals(supportBatchCloses, decRDMMsg.features().supportBatchCloses());
                 assertEquals(supportViewRequests, decRDMMsg.features().supportViewRequests());
                 assertEquals(supportStandby, decRDMMsg.features().supportStandby());
+                assertEquals(supportStandbyMode, decRDMMsg.features().supportStandbyMode());
                 assertEquals(supportOMMPost, decRDMMsg.features().supportOMMPost());
                 assertEquals(supportOPR, decRDMMsg.features().supportOptimizedPauseResume());
             }

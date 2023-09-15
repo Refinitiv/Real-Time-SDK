@@ -2,11 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Common
+namespace LSEG.Eta.ValueAdd.Common
 {
     /// <summary>
     /// A thread-safe version of the Value Add FIFO queue.
@@ -15,6 +15,10 @@ namespace Refinitiv.Eta.ValueAdd.Common
     {
         ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        /// <summary>
+        /// Adds <see cref="VaNode"/> to this queue.
+        /// </summary>
+        /// <param name="node">The node to add</param>
         public override void Add(VaNode node)
         {
             _lock.EnterWriteLock();
@@ -28,6 +32,10 @@ namespace Refinitiv.Eta.ValueAdd.Common
             }
         }
 
+        /// <summary>
+        /// Polls a <see cref="VaNode"/> from this queue.
+        /// </summary>
+        /// <returns>Removes the oldest <see cref="VaNode"/></returns>
         public override VaNode? Poll()
         {
             _lock.EnterWriteLock();
@@ -41,6 +49,10 @@ namespace Refinitiv.Eta.ValueAdd.Common
             }
         }
 
+        /// <summary>
+        /// Returns but does not remove the head of the queue.
+        /// </summary>
+        /// <returns>The head of the queue</returns>
         public override VaNode? Peek()
         {
             _lock.EnterWriteLock();
@@ -55,6 +67,11 @@ namespace Refinitiv.Eta.ValueAdd.Common
             }
         }
 
+        /// <summary>
+        /// Removes a node from the queue.
+        /// </summary>
+        /// <param name="node">The node to remove</param>
+        /// <returns><c>true</c> if the node was in the queue, or <c>false</c> if the node wasn't</returns>
         public override bool Remove(VaNode node)
         {
             _lock.EnterWriteLock();
@@ -69,6 +86,10 @@ namespace Refinitiv.Eta.ValueAdd.Common
             }
         }
 
+        /// <summary>
+        /// Returns the size of the queue.
+        /// </summary>
+        /// <returns>The size of queue</returns>
         public override int Size()
         {
             _lock.EnterWriteLock();

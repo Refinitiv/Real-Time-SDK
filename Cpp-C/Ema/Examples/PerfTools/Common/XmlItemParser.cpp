@@ -224,9 +224,12 @@ XmlItemParser::~XmlItemParser()
 	}
 	AppUtil::log("XmlItemParser Destroyed\n");
 }
+
 XmlItemList* XmlItemParser::create(const char* filename, unsigned int count)
 {
+	xmlParserCtxtPtr pParserCtxt = NULL;
 	xmlSAXHandler saxHandler;
+
 	if(count < 1)
 	{
 		EmaString text("Error: Function XmlItemParser::create-> Count was not at least 1.");
@@ -241,25 +244,42 @@ XmlItemList* XmlItemParser::create(const char* filename, unsigned int count)
 
 	saxHandler.startElement = _saxStartElementExternC;
 	saxHandler.endElement = _saxEndElementExternC;
-	if(xmlSAXUserParseFile(&saxHandler, this, filename) < 0)
+
+	pParserCtxt = xmlNewSAXParserCtxt(&saxHandler, (void*)this);
+	if (pParserCtxt == NULL)
 	{
-		EmaString text("Error: Function XmlItemParser::create-> xmlSAXUserParseFile() failed with parsing state: ");
-		text.append( (UInt32) _parsingState);
-		text += ".";
+		EmaString text("Error: Function XmlItemParser::create-> xmlNewSAXParserCtxt() failed to allocate parser context.");
 		AppUtil::logError(text);
 		if( _pXmlItemList )
 			delete _pXmlItemList;
 		_pXmlItemList = 0;
+
+		return NULL;
 	}
-	else if(_parsingState != COMPLETE_STATE)
+
+	(void)xmlCtxtReadFile(pParserCtxt, filename, NULL, XML_PARSE_COMPACT | XML_PARSE_BIG_LINES);
+	if (pParserCtxt->myDoc != NULL)
 	{
-		EmaString text("Error: Function XmlItemParser::create-> xmlSAXUserParseFile() returned with unexpected parsing state: ");
-		text.append( (UInt32) _parsingState);
+		EmaString text("Error: Function XmlItemParser::create-> xmlCtxtReadFile() failed with parsing state: ");
+		text.append((UInt32)_parsingState);
 		text += ".";
 		AppUtil::logError(text);
-		if( _pXmlItemList )
+		if (_pXmlItemList)
 			delete _pXmlItemList;
 		_pXmlItemList = 0;
 	}
+	else if (_parsingState != COMPLETE_STATE)
+	{
+		EmaString text("Error: Function XmlItemParser::create-> xmlCtxtReadFile() returned with unexpected parsing state: ");
+		text.append((UInt32)_parsingState);
+		text += ".";
+		AppUtil::logError(text);
+		if (_pXmlItemList)
+			delete _pXmlItemList;
+		_pXmlItemList = 0;
+	}
+
+	xmlFreeParserCtxt(pParserCtxt);
+
 	return _pXmlItemList;
 }

@@ -2,11 +2,11 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
 */
 
 /*
- * This file handles configuration of the rsslWatchlistConsumer application.
+ * This file handles configuration of the rsslMultiCredWLConsumer application.
  */
 
 #include "rsslMultiCredWLConsumerConfig.h"
@@ -157,7 +157,12 @@ void printUsageAndExit(int argc, char **argv)
 			"-restEnableLogCallback enable receiving REST logging messages via callback"
 			"-tokenURLV1 URL of token service V1\n"
 			"-tokenURLV2 URL of token service V2\n"
-			"-serviceDiscoveryURL URL the service discovery"
+			"-serviceDiscoveryURL URL the service discovery\n"
+			"-restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth"
 			"\n"
 			"-libcurlName specifies the name of the libcurl library\n"
 			"-libsslName specifies the name of libssl\n"
@@ -347,6 +352,8 @@ RsslRet parseJsonInput(char* fileName)
 	char* inputBuffer = NULL;
 	size_t bytesRead;
 	FILE* fp = NULL;
+	FILE* jwkFile = NULL;
+	int readSize;
 	int i = 0;
 	int j = 0;
 #ifdef WIN32
@@ -381,7 +388,7 @@ RsslRet parseJsonInput(char* fileName)
 	}
 	fclose(fp);
 
-	root  = cJSON_Parse(inputBuffer);
+	root  = cJSON_ParseWithLength(inputBuffer, bytesRead);
 
 	if (root == NULL)
 	{
@@ -399,6 +406,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (loginList == NULL)
 		{
 			printf("Unable to allocated login request structures.\n");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 		loginCount = cJSON_GetArraySize(node);
@@ -412,6 +421,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (loginList[i].requestMsgCredential.loginRequestMsg == NULL)
 			{
 				printf("Failed to allocated login request message.\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -424,6 +435,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("Failed to get Login message array.\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -467,6 +480,8 @@ RsslRet parseJsonInput(char* fileName)
 			else
 			{
 				printf("All login array members need to have a Name\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -483,6 +498,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (oAuthCredentialList == NULL)
 		{
 			printf("Unable to allocated login request structures.\n");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 		oAuthCredentialCount = cJSON_GetArraySize(node);
@@ -496,6 +513,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("Unable to find oauth credential array index\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -509,6 +528,8 @@ RsslRet parseJsonInput(char* fileName)
 			else
 			{
 				printf("All oAuth array members need to have a Name\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -544,6 +565,44 @@ RsslRet parseJsonInput(char* fileName)
 				oAuthCredentialList[i].oAuthCredential.clientSecret.length = (RsslUInt32)strlen(itemValue->valuestring);
 			}
 
+			itemValue = cJSON_GetObjectItem(item, "jwkFile");
+			if (itemValue != NULL)
+			{
+				jwkFile = NULL;
+				readSize = 0;
+				/* As this is an example program showing API, this handling of the JWK is not secure. */
+				jwkFile = fopen(itemValue->valuestring, "rb");
+				if (jwkFile == NULL)
+				{
+					printf("Cannot open jwk file: %s\n", itemValue->valuestring);
+					cJSON_Delete(root);
+
+					return RSSL_RET_FAILURE;
+				}
+				/* Read the JWK contents into a pre-allocated buffer*/
+				readSize = (int)fread(oAuthCredentialList[i]._clientJWKBuffer, sizeof(char), 2047, jwkFile);
+				if (readSize == 0)
+				{
+					printf("Cannot read jwk file: %s\n", itemValue->valuestring);
+					cJSON_Delete(root);
+
+					return RSSL_RET_FAILURE;
+				}
+
+				fclose(jwkFile);
+
+				oAuthCredentialList[i].oAuthCredential.clientJWK.data = oAuthCredentialList[i]._clientJWKBuffer;
+				oAuthCredentialList[i].oAuthCredential.clientJWK.length = readSize;
+			}
+
+			itemValue = cJSON_GetObjectItem(item, "audience");
+			if (itemValue != NULL)
+			{
+				memcpy(oAuthCredentialList[i]._audienceBuffer, itemValue->valuestring, strlen(itemValue->valuestring));
+				oAuthCredentialList[i].oAuthCredential.audience.data = oAuthCredentialList[i]._audienceBuffer;
+				oAuthCredentialList[i].oAuthCredential.audience.length = (RsslUInt32)strlen(itemValue->valuestring);
+			}
+
 			itemValue = cJSON_GetObjectItem(item, "tokenScope");
 			if (itemValue != NULL)
 			{
@@ -558,6 +617,8 @@ RsslRet parseJsonInput(char* fileName)
 				if (cJSON_IsBool(itemValue) == 0)
 				{
 					printf("takeExclusiveSignOn value is not a boolean.");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -584,6 +645,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (warmStandbyGroupList == NULL)
 		{
 			printf("Unable to allocate warmStandby group list.");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 		
@@ -595,6 +658,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (subNode == NULL)
 			{
 				printf("No array for WSB group\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -609,6 +674,8 @@ RsslRet parseJsonInput(char* fileName)
 				else
 				{
 					printf("Invalid WSB Mode specified\n");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 			}
@@ -618,6 +685,8 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("No active config for WSB group\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 
@@ -639,6 +708,8 @@ RsslRet parseJsonInput(char* fileName)
 				if (warmStandbyGroupList[i].standbyConnectionInfoList == NULL)
 				{
 					printf("Unable to allocated memory for standby connection info list\n");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -647,6 +718,8 @@ RsslRet parseJsonInput(char* fileName)
 				if (warmStandbyGroupList[i].warmStandbyGroup.standbyServerList == NULL)
 				{
 					printf("Unable to allocated memory for standby server info list.\n");
+					cJSON_Delete(root);
+
 					return RSSL_RET_FAILURE;
 				}
 
@@ -659,11 +732,15 @@ RsslRet parseJsonInput(char* fileName)
 					if (itemValue == NULL)
 					{
 						printf("Unable to get standby connection.\n");
+						cJSON_Delete(root);
+
 						return RSSL_RET_FAILURE;
 					}
 
 					if (parseJsonChannelInfo(itemValue, &warmStandbyGroupList[i].standbyConnectionInfoList[j]) != RSSL_RET_SUCCESS)
 					{
+						cJSON_Delete(root);
+
 						return RSSL_RET_FAILURE;
 					}
 
@@ -683,6 +760,8 @@ RsslRet parseJsonInput(char* fileName)
 		if (connectionList == NULL)
 		{
 			printf("Unable to allocate connection list.\n");
+			cJSON_Delete(root);
+
 			return RSSL_RET_FAILURE;
 		}
 
@@ -692,16 +771,21 @@ RsslRet parseJsonInput(char* fileName)
 			if (item == NULL)
 			{
 				printf("Unable to get connection list array item\n");
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 			clearConnectionInfoConfig(&connectionList[i]);
 			if (parseJsonChannelInfo(item, &connectionList[i]) != RSSL_RET_SUCCESS)
 			{
+				cJSON_Delete(root);
+
 				return RSSL_RET_FAILURE;
 			}
 		}
 
 	}
+	cJSON_Delete(root);
 
 	return RSSL_RET_SUCCESS;
 }
@@ -728,14 +812,20 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 	watchlistConsumerConfig.itemCount = 0;
 	watchlistConsumerConfig.runTime = 300;
 
-	snprintf(watchlistConsumerConfig.libsslName, 255, "");
-	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
-	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
-	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+	snprintf(watchlistConsumerConfig.libsslName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "");
-	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
-	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
+	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", "");
+
+	snprintf(watchlistConsumerConfig.restProxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "%s", "");
 
 	snprintf(watchlistConsumerConfig.configJsonFileName, 255, "WSBConfig.json");
 
@@ -848,6 +938,31 @@ void watchlistConsumerConfigInit(int argc, char** argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.configJsonFileName, 255, "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyHost"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyHost, sizeof(watchlistConsumerConfig.restProxyHost), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPort, sizeof(watchlistConsumerConfig.restProxyPort), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyUserName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyUserName, sizeof(watchlistConsumerConfig.restProxyUserName), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPasswd"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPasswd, sizeof(watchlistConsumerConfig.restProxyPasswd), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyDomain"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyDomain, sizeof(watchlistConsumerConfig.restProxyDomain), "%s", argv[i]);
 		}
 		else
 		{

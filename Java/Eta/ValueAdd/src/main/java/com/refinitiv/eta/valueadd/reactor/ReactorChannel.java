@@ -11,10 +11,23 @@ package com.refinitiv.eta.valueadd.reactor;
 import java.nio.channels.SelectableChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 
-import com.refinitiv.eta.codec.*;
+import com.refinitiv.eta.codec.Buffer;
+import com.refinitiv.eta.codec.Codec;
+import com.refinitiv.eta.codec.CodecFactory;
+import com.refinitiv.eta.codec.CodecReturnCodes;
+import com.refinitiv.eta.codec.DataStates;
+import com.refinitiv.eta.codec.DataTypes;
+import com.refinitiv.eta.codec.Msg;
+import com.refinitiv.eta.codec.MsgClasses;
+import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.StateCodes;
+import com.refinitiv.eta.codec.StatusMsg;
+import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.json.converter.JsonProtocol;
 import com.refinitiv.eta.rdm.Login;
 import com.refinitiv.eta.transport.Channel;
@@ -25,9 +38,17 @@ import com.refinitiv.eta.transport.Server;
 import com.refinitiv.eta.transport.Transport;
 import com.refinitiv.eta.transport.TransportBuffer;
 import com.refinitiv.eta.transport.TransportReturnCodes;
-import com.refinitiv.eta.valueadd.common.VaNode;
 import com.refinitiv.eta.valueadd.common.VaDoubleLinkList.Link;
+import com.refinitiv.eta.valueadd.common.VaNode;
 import com.refinitiv.eta.valueadd.domainrep.rdm.MsgBase;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.ConsumerStatusService;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryConsumerStatus;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsg;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryMsgType;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginConsumerConnectionStatus;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgFactory;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginMsgType;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.login.LoginRequestFlags;
 import com.refinitiv.eta.valueadd.reactor.ReactorAuthTokenInfo.TokenVersion;
@@ -53,6 +74,8 @@ public class ReactorChannel extends VaNode
     private long _initializationEndTimeMs = 0;
     private boolean _flushRequested = false;
     private boolean _flushAgain = false;
+    private int _reactorChannelType = ReactorChannelType.NORMAL; 	// The Reactor channel type that this channel represents.
+    private ReactorWarmStandbyChannelInfo _warmStandbyChInfo = new ReactorWarmStandbyChannelInfo(); 		// This member is only available for the Reactor warm standby channel to get a list of channels. Used for notification of available data for this channel.
 
     /* The last tunnel-stream expire time requested to the Worker, if one is currently requested. */
     private long _tunnelStreamManagerNextDispatchTime = 0;
@@ -63,12 +86,14 @@ public class ReactorChannel extends VaNode
 
     /* Connection recovery information. */
     private final int NO_RECONNECT_LIMIT = -1;
-    private ReactorConnectOptions _reactorConnectOptions;
-    private int _reconnectAttempts;
+	ReactorConnectOptions _reactorConnectOptions;
+	private ReactorConnectInfo _currentConnectInfo;
+	private ConnectOptionsInfo _currentConnectOptionsInfo;
+    int _reconnectAttempts;
     private int _reconnectDelay;
     private long _nextRecoveryTime;
-    private int _listIndex;
-    private List<ConnectOptionsInfo> _connectOptionsInfoList;
+    int _listIndex;
+    List<ConnectOptionsInfo> _connectOptionsInfoList = new ArrayList<ConnectOptionsInfo>();;
 
     // tunnel stream support
     private TunnelStreamManager _tunnelStreamManager = new TunnelStreamManager();
@@ -82,6 +107,25 @@ public class ReactorChannel extends VaNode
     // watchlist support
     private Watchlist _watchlist;
 
+	/* For Warm Standby by feature */
+	ReactorWarmStandbyHandler warmStandByHandlerImpl; // Keeps a list of Channel(s) for connected server(s).
+	boolean isActiveServer; // This indicates whether this channel is used to connect with the active server.
+	int standByServerListIndex = -1; // Keeps the index of the standby server list in a ReactorWarmStandByGroup.
+	int standByGroupListIndex = -1;	// Keeps the index of the standbyGroup.
+	boolean isStartingServerConfig; // This is used to indicate that this channel uses the starting server configuration.
+	long lastSubmitOptionsTime; // Keeps the timestamp when handling the last submit options. 
+	Queue<ReactorWSRecoveryMsgInfo> _watchlistRecoveryMsgList = new LinkedList<ReactorWSRecoveryMsgInfo>(); // Keeps a list of recovery status messages to notify application when this channel becomes active.
+	DirectoryMsg _wsbDirectoryUpdate = null;
+    LoginConsumerConnectionStatus _loginConsumerStatus = (LoginConsumerConnectionStatus)LoginMsgFactory.createMsg();
+    DirectoryConsumerStatus _directoryConsumerStatus = (DirectoryConsumerStatus)DirectoryMsgFactory.createMsg();
+    ConsumerStatusService _serviceConsumerStatus = DirectoryMsgFactory.createConsumerStatusService();
+
+	// Original Login Request Information
+	Buffer userName;
+	int flags;
+	int userNameType;
+	
+    
     /** The ReactorChannel's state. */
     public enum State
     {
@@ -203,7 +247,7 @@ public class ReactorChannel extends VaNode
             _restConnectOptions.restResultClosure(new RestResultClosure(_reactor._restClient, this));
         }
 
-        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
+        ReactorConnectInfo reactorConnectInfo = _currentConnectInfo;
         _restConnectOptions.proxyHost(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyHostName());
         _restConnectOptions.proxyPort(reactorConnectInfo.connectOptions().tunnelingInfo().HTTPproxyPort());
         _restConnectOptions.proxyUserName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyUsername());
@@ -287,6 +331,9 @@ public class ReactorChannel extends VaNode
             _watchlist.returnToPool();
             _watchlist = null;
         }
+        
+        _reactorChannelType = ReactorChannelType.NORMAL;
+        _warmStandbyChInfo.clear();
 
         _reconnectAttempts = 0;
         _reconnectDelay = 0;
@@ -300,7 +347,26 @@ public class ReactorChannel extends VaNode
         _reactorServiceEndpointInfoList.clear();
         _restConnectOptions = null;
         _role = null;
-        _connectOptionsInfoList = null;
+        _connectOptionsInfoList.clear();
+        _loginConsumerStatus.rdmMsgType(LoginMsgType.CONSUMER_CONNECTION_STATUS);
+        _loginConsumerStatus.clear();
+        _directoryConsumerStatus.rdmMsgType(DirectoryMsgType.CONSUMER_STATUS);
+        _directoryConsumerStatus.clear();
+        _serviceConsumerStatus.clear();
+        _watchlistRecoveryMsgList.clear();
+        standByServerListIndex = -1;
+        standByGroupListIndex = -1;
+        isActiveServer = false;
+        isStartingServerConfig = false;
+        _currentConnectOptionsInfo = null;
+        
+        if(_wsbDirectoryUpdate == null)
+        {
+        	_wsbDirectoryUpdate = DirectoryMsgFactory.createMsg();
+        	_wsbDirectoryUpdate.rdmMsgType(DirectoryMsgType.UPDATE);
+        }
+        
+        _wsbDirectoryUpdate.clear();
     }
 
     @Override
@@ -318,7 +384,7 @@ public class ReactorChannel extends VaNode
          _loginRequestForEDP = null;
          _restConnectOptions = null;
          _role = null;
-
+         
     	super.returnToPool();
     }
 
@@ -608,8 +674,27 @@ public class ReactorChannel extends VaNode
             return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
                     "ReactorChannel.dispatch",
                     "Reactor is shutdown, dispatch aborted.");
+        else if(_reactor.reactorHandlesWarmStandby(this))
+        {
+        	 return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE,
+                     "ReactorChannel.dispatch",
+                     "Cannot dispatch on a channel with Warm Standby enabled. Use Reactor.dispatchAll() instead.");
+        }
+        
+        /* If the warmStandbyHandlerImpl is present and we've gotten through the above check,
+         * the channel has moved to a Channel Set and therefore can be dispatched directly.
+         * Set the correct channel to dispatch on. */
+        ReactorChannel channelImpl = this;
+		  
+		if(warmStandByHandlerImpl != null)
+		{
+		  	if(this == warmStandByHandlerImpl.mainReactorChannelImpl())
+		  	{
+		  		channelImpl = warmStandByHandlerImpl.startingReactorChannel();
+		  	}
+		}
 
-        return _reactor.dispatchChannel(this, dispatchOptions, errorInfo);
+        return channelImpl._reactor.dispatchChannel(this, dispatchOptions, errorInfo);
     }
 
     /**
@@ -636,7 +721,7 @@ public class ReactorChannel extends VaNode
 
         try
         {
-            if (_watchlist != null)
+            if (_watchlist != null || warmStandByHandlerImpl != null)
                 return reactor().populateErrorInfo(errorInfo, ReactorReturnCodes.INVALID_USAGE,
                         "ReactorChannel.submit",
                         "Cannot submit buffer when watchlist is enabled.");
@@ -691,14 +776,30 @@ public class ReactorChannel extends VaNode
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                         "ReactorChannel.submit",
                         "ReactorChannel is closed, submit aborted.");
-
-            if (_watchlist == null) // watchlist not enabled, submit normally
+            
+            /* If the warmStandbyHandlerImpl is present, make sure we're submitting on the correct channel */
+			ReactorChannel channelImpl = this;
+			  
+			if(warmStandByHandlerImpl != null)
+			{
+			  	if(this == warmStandByHandlerImpl.mainReactorChannelImpl())
+			  	{
+			  		channelImpl = warmStandByHandlerImpl.startingReactorChannel();
+			  	}
+			}
+			
+			/* If this is a warm standby connection, make sure the request is fanned out */
+			if(_reactor.reactorHandlesWarmStandby(channelImpl))
+			{
+				return _reactor.submitWSBMsg(this, msg, submitOptions, errorInfo);
+			}
+			else if (_watchlist == null) // watchlist not enabled, submit normally
             {
                 return _reactor.submitChannel(this, msg, submitOptions, errorInfo);
             }
             else // watchlist enabled, submit via watchlist
             {
-                return _watchlist.submitMsg(msg, submitOptions, errorInfo);
+				return channelImpl._watchlist.submitMsg(msg, submitOptions, errorInfo);
             }
         }
         finally
@@ -740,8 +841,22 @@ public class ReactorChannel extends VaNode
                 return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                         "ReactorChannel.submit",
                         "ReactorChannel is closed, submit aborted.");
+            
+            ReactorChannel channelImpl = this;
+            
+            if(warmStandByHandlerImpl != null)
+			{
+			  	if(this == warmStandByHandlerImpl.mainReactorChannelImpl())
+			  	{
+			  		channelImpl = warmStandByHandlerImpl.startingReactorChannel();
+			  	}
+			}
 
-            if (_watchlist == null) // watchlist not enabled, submit normally
+            if(_reactor.reactorHandlesWarmStandby(channelImpl))
+			{
+				return _reactor.submitWSBRDMMsg(channelImpl, rdmMsg, submitOptions, errorInfo);
+			}
+			else if (_watchlist == null) // watchlist not enabled, submit normally
             {
                 return _reactor.submitChannel(this, rdmMsg, submitOptions, errorInfo);
             }
@@ -773,7 +888,31 @@ public class ReactorChannel extends VaNode
             return ReactorReturnCodes.FAILURE;
 
         _reactor._reactorLock.lock();
-
+    
+        if(_reactor.reactorHandlesWarmStandby(this))
+		{
+        	warmStandByHandlerImpl.setClosingState();
+        	while(warmStandByHandlerImpl.channelList().size() != 0)
+        	{
+        		ReactorChannel wsbChnl = warmStandByHandlerImpl.channelList().remove(0);
+        		
+        		retVal = _reactor.closeChannel(wsbChnl, errorInfo);
+        		_reactor.removeReactorChannel(wsbChnl);
+        		
+        		if(retVal != ReactorReturnCodes.SUCCESS)
+        		{
+        			_reactor._reactorLock.unlock();
+        			return retVal;
+        		}
+        	}
+        	
+        	
+        	// Return this channel to the pool and return.
+        	 _reactor._reactorLock.unlock();
+        	 returnToPool();
+        	return retVal;
+		}
+	        
         try {
             if (_reactor.isShutdown())
                 retVal = _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.SHUTDOWN,
@@ -781,16 +920,6 @@ public class ReactorChannel extends VaNode
                         "Reactor is shutdown, close aborted.");
             if (state() != State.CLOSED)
                 retVal = _reactor.closeChannel(this, errorInfo);
-
-            _tunnelStreamManager.close();
-
-            if (_watchlist != null)
-            {
-                _watchlist.close();
-
-                /* This watch list is returned to the pool when it is closed. */
-                _watchlist = null;
-            }
 
             _reactor.removeReactorChannel(this);
 
@@ -1060,7 +1189,7 @@ public class ReactorChannel extends VaNode
     }
 
     /**
-     * Returns information about the ReactorChannel.
+     * Populates information about the ReactorChannel into ReactorChannelInfo
      *
      * @param info ReactorChannelInfo structure to be populated with information
      * @param errorInfo error structure to be populated in the event of failure
@@ -1130,6 +1259,7 @@ public class ReactorChannel extends VaNode
      */
     public int ioctl(int code, int value, ReactorErrorInfo errorInfo)
     {
+    	int ret = ReactorReturnCodes.SUCCESS;
         if (errorInfo == null || _reactor == null)
             return ReactorReturnCodes.FAILURE;
         if (_reactor.isShutdown()) {
@@ -1144,6 +1274,43 @@ public class ReactorChannel extends VaNode
     	{
     		return _reactor.populateErrorInfo(errorInfo, ReactorReturnCodes.FAILURE,
                     "ReactorChannel.ioctl", "The channel is no longer available.");
+    	}
+    	
+    	if(reactor().reactorHandlesWarmStandby(this)) 
+    	{
+    		/* Apply the ioctl code and then fan out the ioctl to every channel that's currently active */
+    		ret = channel.ioctl(code, value, errorInfo.error());
+    		if(ret < TransportReturnCodes.SUCCESS)
+				return ret;
+    		for(int i = 0; i < warmStandByHandlerImpl.channelList().size(); i++)
+    		{
+    			ReactorChannel tmpChannel =  warmStandByHandlerImpl.channelList().get(i);
+    			
+    			if(tmpChannel.channel() == null || tmpChannel == channel)
+    			{
+    				continue;
+    			}
+    			
+    			ret = tmpChannel.channel().ioctl(code, value, errorInfo.error());
+    			
+    			if(ret < TransportReturnCodes.SUCCESS)
+    				return ret;
+    		}
+    		
+    		if(code == IoctlCodes.MAX_NUM_BUFFERS)
+    			warmStandByHandlerImpl.maxNumBuffers(value);
+    		else if(code == IoctlCodes.NUM_GUARANTEED_BUFFERS)
+    			warmStandByHandlerImpl.numGuaranteedBuffers(value);
+    		else if(code == IoctlCodes.HIGH_WATER_MARK)
+    			warmStandByHandlerImpl.highWaterMark(value);
+    		else if(code == IoctlCodes.SYSTEM_WRITE_BUFFERS)
+    			warmStandByHandlerImpl.systemWriteBuffers(value);
+    		else if(code == IoctlCodes.SYSTEM_READ_BUFFERS)
+    			warmStandByHandlerImpl.systemReadBuffers(value);
+    		else if(code == IoctlCodes.COMPRESSION_THRESHOLD)
+    			warmStandByHandlerImpl.compressionThreshold(value);
+    		
+    		return ret;
     	}
 
         return channel.ioctl(code, value, errorInfo.error());
@@ -1659,18 +1826,36 @@ public class ReactorChannel extends VaNode
         reactorConnectOptions.copy(_reactorConnectOptions);
         _reconnectDelay = 0;
         _nextRecoveryTime = 0;
-        if (Reactor.enableSessionManagement(reactorConnectOptions)) {
-            _connectOptionsInfoList = new ArrayList<>(_reactorConnectOptions.connectionList().size());
-            _reactorConnectOptions.connectionList().forEach(conn -> {
-                ConnectOptionsInfo connectOptions = new ConnectOptionsInfo();
-                connectOptions.hostAndPortProvided = conn.connectOptions().unifiedNetworkInfo().address() != null
-                        && conn.connectOptions().unifiedNetworkInfo().serviceName() != null
-                        && !conn.connectOptions().unifiedNetworkInfo().address().equals("")
-                        && !conn.connectOptions().unifiedNetworkInfo().serviceName().equals("");
-                connectOptions.reconnectAttempts = 0;
-                _connectOptionsInfoList.add(connectOptions);
-            });
-        }
+        _connectOptionsInfoList = new ArrayList<>(_reactorConnectOptions.connectionList().size());
+        _reactorConnectOptions.connectionList().forEach(conn -> {
+            ConnectOptionsInfo connectOptions = new ConnectOptionsInfo();
+            connectOptions.hostAndPortProvided = conn.connectOptions().unifiedNetworkInfo().address() != null
+                    && conn.connectOptions().unifiedNetworkInfo().serviceName() != null
+                    && !conn.connectOptions().unifiedNetworkInfo().address().equals("")
+                    && !conn.connectOptions().unifiedNetworkInfo().serviceName().equals("");
+            connectOptions.reconnectAttempts = 0;
+            _connectOptionsInfoList.add(connectOptions);
+        });
+        
+        _reactorConnectOptions._reactorWarmStandyGroupList.forEach(wsbGroup -> {
+        	ReactorWarmStandbyGroupImpl wsbGroupImpl = (ReactorWarmStandbyGroupImpl)wsbGroup;
+        	wsbGroupImpl.startingConnectOptionsInfo.hostAndPortProvided = wsbGroupImpl.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() != null
+                    && wsbGroupImpl.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName() != null
+                    && !wsbGroupImpl.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().address().equals("")
+                    && !wsbGroupImpl.startingActiveServer().reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName().equals("");
+        	wsbGroupImpl.startingConnectOptionsInfo.reconnectAttempts = 0;
+        	
+        	wsbGroupImpl.standbyServerList().forEach(wsbConnectInfo -> {
+        		ConnectOptionsInfo connectOptions = new ConnectOptionsInfo();
+        		connectOptions.hostAndPortProvided = wsbConnectInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address() != null
+                        && wsbConnectInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName() != null
+                        && !wsbConnectInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().address().equals("")
+                        && !wsbConnectInfo.reactorConnectInfo().connectOptions().unifiedNetworkInfo().serviceName().equals("");
+        		connectOptions.reconnectAttempts = 0;
+        		wsbGroupImpl.standbyConnectOptionsInfoList.add(connectOptions);
+        	});
+        	
+        });
     }
 
     /* Determines the time at which reconnection should be attempted for this channel. */
@@ -1711,29 +1896,44 @@ public class ReactorChannel extends VaNode
     }
 
     boolean redoServiceDiscoveryForCurrentChannel() {
-        return (_reactorConnectOptions.connectionList().get(_listIndex).serviceDiscoveryRetryCount() != 0
-                && _connectOptionsInfoList != null
-                && !_connectOptionsInfoList.get(_listIndex).hostAndPortProvided
-                && _connectOptionsInfoList.get(_listIndex).reconnectAttempts == _reactorConnectOptions.connectionList().get(_listIndex).serviceDiscoveryRetryCount());
+        return (_currentConnectInfo.serviceDiscoveryRetryCount() != 0
+                && _currentConnectOptionsInfo != null
+                && !_currentConnectOptionsInfo.hostAndPortProvided
+                && _currentConnectOptionsInfo.reconnectAttempts == _currentConnectInfo.serviceDiscoveryRetryCount());
     }
 
-    ReactorConnectInfo getReactorConnectInfo()
+    ReactorConnectInfo getCurrentReactorConnectInfo()
     {
-        return _reactorConnectOptions.connectionList().get(_listIndex);
+    	return _currentConnectInfo;
+    }
+    
+    void setCurrentReactorConnectInfo(ReactorConnectInfo connectInfo)
+    {
+    	_currentConnectInfo = connectInfo;
+    }
+    
+    ConnectOptionsInfo getCurrentConnectOptionsInfo()
+    {
+    	return _currentConnectOptionsInfo;
+    }
+    
+    void setCurrentConnectOptionsInfo(ConnectOptionsInfo connectInfo)
+    {
+    	_currentConnectOptionsInfo = connectInfo;
     }
 
-    private Channel reconnect(ReactorConnectInfo reactorConnectInfo, Error error)
+    private Channel reconnect(Error error)
     {
         increaseRetryCountForCurrentChannel();
-        userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
-        reactorConnectInfo.connectOptions().channelReadLocking(true);
-        reactorConnectInfo.connectOptions().channelWriteLocking(true);
+        userSpecObj(_currentConnectInfo.connectOptions().userSpecObject());
+        _currentConnectInfo.connectOptions().channelReadLocking(true);
+        _currentConnectInfo.connectOptions().channelWriteLocking(true);
 
         // connect
-        Channel channel = Transport.connect(reactorConnectInfo.connectOptions(), error);
+        Channel channel = Transport.connect(_currentConnectInfo.connectOptions(), error);
 
         if (channel != null)
-            initializationTimeout(reactorConnectInfo.initTimeout());
+            initializationTimeout(_currentConnectInfo.initTimeout());
 
         return channel;
     }
@@ -1743,28 +1943,26 @@ public class ReactorChannel extends VaNode
     {
         ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 
-        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
-
-        userSpecObj(reactorConnectInfo.connectOptions().userSpecObject());
+        userSpecObj(_currentConnectInfo.connectOptions().userSpecObject());
 
         // if done getting the auth token and service discovery
         if (_state == State.EDP_RT_DONE)
         {
-            if (reactorConnectInfo.enableSessionManagement() && redoServiceDiscoveryForCurrentChannel())
+            if (_currentConnectInfo.enableSessionManagement() && redoServiceDiscoveryForCurrentChannel())
             {
-                reactorConnectInfo.connectOptions().unifiedNetworkInfo().address("");
-                reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName("");
+            	_currentConnectInfo.connectOptions().unifiedNetworkInfo().address("");
+            	_currentConnectInfo.connectOptions().unifiedNetworkInfo().serviceName("");
                 resetCurrentChannelRetryCount();
 
                 /* Checks and changes the state of Reactor channel either State.EDP_RT or State.EDP_RT_DONE */
-                if (_reactor.sessionManagementStartup(_tokenSession, reactorConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
+                if (_reactor.sessionManagementStartup(_tokenSession, _currentConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
                 {
                     error.text(errorInfo.error().text());
                 }
             } else {
                 applyAccessToken();
 
-                if(Reactor.requestServiceDiscovery(reactorConnectInfo))
+                if(Reactor.requestServiceDiscovery(_currentConnectInfo))
                 {
                     if (applyServiceDiscoveryEndpoint(errorInfo) != ReactorReturnCodes.SUCCESS)
                     {
@@ -1774,7 +1972,7 @@ public class ReactorChannel extends VaNode
                     }
                 }
 
-                return reconnect(reactorConnectInfo, error);
+                return reconnect(error);
             }
             if (_reactor._reactorOptions.debuggerOptions().debugConnectionLevel()) {
                 _reactor.debugger.writeDebugInfo(ReactorDebugger.CONNECTION_RECONNECT_RDP,
@@ -1784,7 +1982,7 @@ public class ReactorChannel extends VaNode
                 );
             }
 
-            return reconnect(reactorConnectInfo, error);
+            return reconnect(error);
         }
 
         if (_state == State.EDP_RT_FAILED)
@@ -1799,30 +1997,23 @@ public class ReactorChannel extends VaNode
 
     boolean enableSessionManagement()
     {
-        return _reactorConnectOptions.connectionList().get(_listIndex).enableSessionManagement();
+        return _currentConnectInfo.enableSessionManagement();
     }
 
     /* Attempts to reconnect, using the next set of connection options in the channel's list. */
-    Channel reconnect(Error error)
+    Channel reconnectReactorChannel(Error error)
     {
-        _reconnectAttempts++;
-        if (++_listIndex == _reactorConnectOptions.connectionList().size())
-        {
-            _listIndex = 0;
-        }
-        ReactorConnectInfo reactorConnectInfo = _reactorConnectOptions.connectionList().get(_listIndex);
-
-        if (reactorConnectInfo.enableSessionManagement())
+        if (_currentConnectInfo.enableSessionManagement())
         {
             if (redoServiceDiscoveryForCurrentChannel()) {
-                reactorConnectInfo.connectOptions().unifiedNetworkInfo().address("");
-                reactorConnectInfo.connectOptions().unifiedNetworkInfo().serviceName("");
+            	_currentConnectInfo.connectOptions().unifiedNetworkInfo().address("");
+            	_currentConnectInfo.connectOptions().unifiedNetworkInfo().serviceName("");
                 resetCurrentChannelRetryCount();
             }
             ReactorErrorInfo errorInfo = ReactorFactory.createReactorErrorInfo();
 
             /* Checks and changes the state of Reactor channel either State.EDP_RT or State.EDP_RT_DONE */
-            if (_reactor.sessionManagementStartup(_tokenSession, reactorConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
+            if (_reactor.sessionManagementStartup(_tokenSession, _currentConnectInfo, _role, this, false, errorInfo) != ReactorReturnCodes.SUCCESS)
             {
                 error.text(errorInfo.error().text());
             }
@@ -1838,18 +2029,18 @@ public class ReactorChannel extends VaNode
             );
         }
 
-        return reconnect(reactorConnectInfo, error);
+        return reconnect(error);
     }
 
     private void increaseRetryCountForCurrentChannel() {
-        if (_connectOptionsInfoList != null) {
-            _connectOptionsInfoList.get(_listIndex).reconnectAttempts++;
+        if (_currentConnectOptionsInfo != null) {
+        	_currentConnectOptionsInfo.reconnectAttempts++;
         }
     }
 
     void resetCurrentChannelRetryCount() {
-        if (_connectOptionsInfoList != null) {
-            _connectOptionsInfoList.get(_listIndex).reconnectAttempts = 0;
+        if (_currentConnectOptionsInfo != null) {
+        	_currentConnectOptionsInfo.reconnectAttempts = 0;
         }
     }
 
@@ -1884,7 +2075,7 @@ public class ReactorChannel extends VaNode
     }
 
     ReactorAuthTokenEventCallback reactorAuthTokenEventCallback() {
-        return _reactorConnectOptions.connectionList().get(_listIndex).reactorAuthTokenEventCallback();
+        return _currentConnectInfo.reactorAuthTokenEventCallback();
     }
 
     int applyServiceDiscoveryEndpoint (ReactorErrorInfo errorInfo)
@@ -1894,13 +2085,10 @@ public class ReactorChannel extends VaNode
         String transportType = "";
         boolean foundLocation = false;
 
-        for(int index = 0; index < _reactorServiceEndpointInfoList.size(); index++)
+        for (ReactorServiceEndpointInfo serviceEndpointInfo : _reactorServiceEndpointInfoList)
         {
-            endpointInfo = _reactorServiceEndpointInfoList.get(index);
-
-            if ( reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED)
-            {
-                if(reactorConnectInfo.connectOptions().encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET)
+            if (reactorConnectInfo.connectOptions().connectionType() == ConnectionTypes.ENCRYPTED) {
+                if (reactorConnectInfo.connectOptions().encryptionOptions().connectionType() == ConnectionTypes.WEBSOCKET)
                 {
                     transportType = RestClient.EDP_RT_TRANSPORT_PROTOCOL_WEBSOCKET;
                 }
@@ -1910,13 +2098,21 @@ public class ReactorChannel extends VaNode
                 }
             }
 
-            if(endpointInfo.locationList().size() > 1 && endpointInfo.transport().equals(transportType))
+            // Get an endpoint that provides auto failover for the specified location
+            if (serviceEndpointInfo.locationList().size() >= 2 && serviceEndpointInfo.transport().equals(transportType) &&
+                    serviceEndpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
             {
-                if ( endpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
-                {
-                    foundLocation = true;
-                    break;
-                }
+                foundLocation = true;
+                endpointInfo = serviceEndpointInfo;
+                break;
+            }
+            // Try to get backups and keep looking for main case. Keep only the first item met.
+            else if(serviceEndpointInfo.locationList().size() > 0 && !foundLocation &&
+                    serviceEndpointInfo.transport().equals(transportType) &&
+                    serviceEndpointInfo.locationList().get(0).startsWith(reactorConnectInfo.location()))
+            {
+                foundLocation = true;
+                endpointInfo = serviceEndpointInfo;
             }
         }
 
@@ -2001,4 +2197,65 @@ public class ReactorChannel extends VaNode
     {
     	return _reactorConnectOptions;
     }
+    
+    public int reactorChannelType()
+    {
+    	return _reactorChannelType;
+    }
+    
+    void reactorChannelType(int reactorChannelType)
+    {
+    	_reactorChannelType = reactorChannelType;
+    }
+    
+    public ReactorWarmStandbyChannelInfo warmStandbyChannelInfo()
+    {
+    	return _warmStandbyChInfo;
+    }
+    
+    void warmStandbyChannelInfo(ReactorWarmStandbyChannelInfo warmStandbyChInfo)
+    {
+    	_warmStandbyChInfo = warmStandbyChInfo;
+    }
+
+	int reconnectAttemptLimit() {
+		return _reactorConnectOptions._reconnectAttemptLimit;
+	}
+
+	void reconnectAttemptLimit(int reconnectAttempts) {
+		_reactorConnectOptions._reconnectAttemptLimit = reconnectAttempts;
+	}
+
+	int reconnectMinDelay() {
+		return _reactorConnectOptions._reconnectMinDelay;
+	}
+
+	void reconnectMinDelay(int reconnectMinDelay) {
+		_reactorConnectOptions._reconnectMinDelay = reconnectMinDelay;
+	}
+
+	int reconnectMaxDelay() {
+		return _reactorConnectOptions._reconnectMaxDelay;
+	}
+
+	void reconnectMaxDelay(int reconnectMaxDelay) {
+		_reactorConnectOptions._reconnectMaxDelay = reconnectMaxDelay;
+	}
+
+	void reconnectAttemptCount(int i) {
+		_reconnectAttempts = i;
+	}
+
+	void userName(Buffer userName) {
+		this.userName = userName;
+	}
+
+	void flags(int flags) {
+		this.flags = flags;
+	}
+
+	void userNameType(int userNameType) {
+		this.userNameType = userNameType;
+	}
+
 }

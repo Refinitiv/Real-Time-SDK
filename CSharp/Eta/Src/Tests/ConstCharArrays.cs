@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Refinitiv.Eta.Tests
+namespace LSEG.Eta.Tests
 {
     class ConstCharArrays
     {

@@ -21,6 +21,7 @@ public class ConsumerWatchlistOptions
     private int  _maxOutstandingPosts = 100000;
     private int _postAckTimeout = 15000;
     private int _requestTimeout = 15000; 
+    private boolean _enableWarmStandby = false;
     
     /**
      * Is the watchlist enabled.
@@ -82,6 +83,21 @@ public class ConsumerWatchlistOptions
     public void itemCountHint(int itemCountHint)
     {
         _itemCountHint = itemCountHint;
+    }
+    
+    /**
+     * Return if warm standby is enabled.
+     * 
+     * @return enableWarmStandby boolean telling if warm standby is enabled
+     */
+    public boolean enableWarmStandby()
+    {
+        return _enableWarmStandby;
+    }
+    
+    void enableWarmStandby(boolean enableWarmStandby)
+    {
+    	_enableWarmStandby = enableWarmStandby;
     }
 
     /**

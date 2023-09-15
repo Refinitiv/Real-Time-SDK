@@ -12,6 +12,8 @@ import java.nio.channels.SelectableChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Objects;
 
+import com.refinitiv.eta.codec.Codec;
+
 import static com.refinitiv.eta.transport.WebSocketFrameParser._WS_MAX_HEADER_LEN;
 
 class ServerImpl extends EtaNode implements Server
@@ -184,6 +186,17 @@ class ServerImpl extends EtaNode implements Server
         int ret = TransportReturnCodes.SUCCESS;
         // copy the bind options to data member
         ((BindOptionsImpl)options).copyTo(_bindOpts);
+        
+        if(options.protocolType() == Codec.JSON_PROTOCOL_TYPE)
+        {
+        	String errorText = "JSON Protocol Type not supported with options.protocolType()";
+			error.channel(null);
+			error.errorId(TransportReturnCodes.FAILURE);
+			error.sysError(0);
+			error.text(errorText);
+			return TransportReturnCodes.FAILURE;
+        }
+        
 
         // validate specified WS protocols
         final String protocols = _bindOpts.wSocketOpts().protocols();

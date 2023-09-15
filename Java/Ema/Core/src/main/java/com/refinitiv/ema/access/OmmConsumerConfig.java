@@ -2,10 +2,12 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+// *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
+
+import com.refinitiv.ema.rdm.DataDictionary;
 
 /**
  * OmmConsumerConfig is used to modify configuration and behaviour of OmmConsumer.
@@ -94,7 +96,7 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig applicationId(String applicationId);
 	
 	/**
-	 * Specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator.
+	 * Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 	 * 
 	 * @param clientId specifies an unique identifier.
 	 * @return reference to this object
@@ -110,12 +112,28 @@ public interface OmmConsumerConfig
 	public OmmConsumerConfig clientSecret(String clientSecret);
 	
 	/**
+	 * Specifies optionally a client JWK used by OAuth client to authenticate to the Authorization Server.
+	 * 
+	 * @param clientJWK specifies the full JSON encoded JWK string 
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig clientJWK(String clientJWK);
+	
+	/**
 	 * Specifies optionally a token scope to limit the scope of generated token from the token service.
 	 * 
 	 * @param tokenScope specifies a token scope
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig tokenScope(String tokenScope);
+	
+	/**
+	 * Specifies optionally an audience used with JWT authentication from the token service.
+	 * 
+	 * @param audience specifies a token scope
+	 * @return reference to this object
+	 */
+	public OmmConsumerConfig audience(String audience);
 	
 	/**
      * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
@@ -268,8 +286,7 @@ public interface OmmConsumerConfig
 	
 	/**
 	 * The type of the key store for certificate file.
-     * Defaults to the property keystore.type in the JDK security properties file (java.security).
-     * Sun JDK default = JKS
+     * RTSDK Default = JKS
      * 
 	 * @param keyStoreType specifies the type of key store for tunneling connection.
 	 * @return reference to this object
@@ -347,4 +364,19 @@ public interface OmmConsumerConfig
 	 * @return reference to this object
 	 */
 	public OmmConsumerConfig addAdminMsg(ReqMsg reqMsg);
+
+	/**
+	 * Specifies the DataDictionary object.
+	 * Overrides DataDictionary object that is provided via EmaConfig.xml or
+	 * Programmatic configure.
+	 * 
+	 * If shouldCopyIntoAPI is true, the DataDictionary object will be copied
+	 * into the application space, otherwise it will be passed in as a reference.
+	 *
+	 * @param dataDictionary specifies the DataDictionary object.
+	 * @param shouldCopyIntoAPI specifies whether to copy dataDictionary into API or pass in as reference.
+	 * @return reference to this object.
+	 * @throws OmmInvalidUsageException if dataDictionary object instance does not contain entire dictionary information.
+	 */
+	public OmmConsumerConfig dataDictionary(DataDictionary dataDictionary, boolean shouldCopyIntoAPI);
 }

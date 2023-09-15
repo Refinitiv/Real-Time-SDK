@@ -42,11 +42,15 @@ static char* default10SslLibName = "libssl.so.10";
 static char* default10CryptoLibName = "libcrypto.so.10";
 static char* default11SslLibName = "libssl.so.1.1";
 static char* default11CryptoLibName = "libcrypto.so.1.1";
+static char* default3SslLibName = "libssl.so.3";
+static char* default3CryptoLibName = "libcrypto.so.3";
 #else
 static char* default10SslLibName = "ssleay32.dll";
 static char* default10CryptoLibName = "libeay32.dll";
 static char* default11SslLibName = "libssl-1_1-x64.dll";
 static char* default11CryptoLibName = "libcrypto-1_1-x64.dll";
+static char* default3SslLibName = "libssl-3-x64.dll";
+static char* default3CryptoLibName = "libcrypto-3-x64.dll";
 #endif
 
 static RsslOpenSSLAPIVersion openSSLAPI = RSSL_OPENSSL_VNONE;
@@ -67,7 +71,7 @@ ripcCryptoApiFuncs* ripcGetOpenSSLCryptoFuncs()
 
 ripcSSLProtocolFlags ripcGetSupportedProtocolFlags()
 {
-	if (openSSLAPI == RSSL_OPENSSL_V1_0 || openSSLAPI == RSSL_OPENSSL_V1_1)
+	if (openSSLAPI == RSSL_OPENSSL_V1_0 || openSSLAPI == RSSL_OPENSSL_V1_1 || openSSLAPI == RSSL_OPENSSL_V3)
 		return supportedProtocols;
 	else
 		return RIPC_PROTO_SSL_NONE;
@@ -93,10 +97,84 @@ int ripcSSLInitError()
 	return -1;
 }
 
+#ifdef WIN32
+static HMODULE openSslLib(char* libsslName)
+#else
+static void* openSslLib(char* libsslName)
+#endif
+{
+	/* try given name first */
+	if (libsslName != NULL && (*libsslName != '\0'))
+	{
+		RSSL_LI_RESET_DLERROR;
+		sslHandle = RSSL_LI_DLOPEN(libsslName);
+		return sslHandle;
+	}
+
+	/* try OPENSSL 3 name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((sslHandle = RSSL_LI_DLOPEN(default3SslLibName)) != 0)
+	{
+		return sslHandle;
+	}
+
+	/* try OPENSSL 1.1 name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((sslHandle = RSSL_LI_DLOPEN(default11SslLibName)) != 0)
+	{
+		return sslHandle;
+	}
+
+	/* try OPENSSL 1.0 name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((sslHandle = RSSL_LI_DLOPEN(default10SslLibName)) != 0)
+	{
+		return sslHandle;
+	}
+
+	return sslHandle;
+}
+
+#ifdef WIN32
+static HMODULE openCryptoLib(char* libcryptoName)
+#else
+static void* openCryptoLib(char* libcryptoName)
+#endif
+{
+	/* try given name first */
+	if (libcryptoName != NULL && (*libcryptoName != '\0'))
+	{
+		RSSL_LI_RESET_DLERROR;
+		cryptoHandle = RSSL_LI_DLOPEN(libcryptoName);
+		return cryptoHandle;
+	}
+
+	/* try OPENSSL 3 name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((cryptoHandle = RSSL_LI_DLOPEN(default3CryptoLibName)) != 0)
+	{
+		return cryptoHandle;
+	}
+
+	/* try OPENSSL 1.1 name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((cryptoHandle = RSSL_LI_DLOPEN(default11CryptoLibName)) != 0)
+	{
+		return cryptoHandle;
+	}
+
+	/* try OPENSSL 1.0 name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((cryptoHandle = RSSL_LI_DLOPEN(default10CryptoLibName)) != 0)
+	{
+		return cryptoHandle;
+	}
+
+	return cryptoHandle;
+}
+
 RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 {
-	char* sslLib;
-	char* cryptoLib;
 	RsslInt32 retVal;
 	
 	ripcTransportFuncs SSLfuncs;
@@ -108,49 +186,16 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 
 	supportedProtocols = RIPC_PROTO_SSL_NONE;
 
-	if(libsslName == NULL || (*libsslName == '\0'))
-		sslLib = default11SslLibName;
-	else
-		sslLib = libsslName;
-		
-	if(libcryptoName == NULL || (*libcryptoName == '\0'))
-		cryptoLib = default11CryptoLibName;
-	else
-		cryptoLib = libcryptoName;
-
-
-	RSSL_LI_RESET_DLERROR;
-	if ((sslHandle = RSSL_LI_DLOPEN(sslLib)) == 0)
+	/* load libcrypto first */
+	if ((cryptoHandle = openCryptoLib(libcryptoName)) == 0)
 	{
-		if (libsslName == NULL || (*libsslName == '\0'))
-		{
-			RSSL_LI_RESET_DLERROR;
-			if ((sslHandle = RSSL_LI_DLOPEN(default10SslLibName)) == 0)
-			{
-				return -1;
-			}
-		}
-		else
-			return -1;
+		return -1;
 	}
 
-	RSSL_LI_RESET_DLERROR;
-	if ((cryptoHandle = RSSL_LI_DLOPEN(cryptoLib)) == 0)
+	if ((sslHandle = openSslLib(libsslName)) == 0)
 	{
-		if (libcryptoName == NULL || (*libcryptoName == '\0'))
-		{
-			RSSL_LI_RESET_DLERROR;
-			if ((cryptoHandle = RSSL_LI_DLOPEN(default10CryptoLibName)) == 0)
-			{
-				RSSL_LI_DLCLOSE(sslHandle);
-				return -1;
-			}
-		}
-		else
-		{
-			RSSL_LI_DLCLOSE(sslHandle);
-			return -1;
-		}
+		RSSL_LI_DLCLOSE(cryptoHandle);
+		return -1;
 	}
 
 	/* This function is in the 1.0.X versions, but not 1.1.0 */
@@ -166,9 +211,21 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		}
 		else
 		{
-			openSSLAPI = RSSL_OPENSSL_V1_1;
-			sslFuncs.version = RSSL_OPENSSL_V1_1;
-			cryptoFuncs.version = RSSL_OPENSSL_V1_1;
+			unsigned long version = (*(sslFuncs.ssl_11_version))();
+			/* version 0x30100000 */
+			if ((version & 0xff000000) == 0x30000000)
+			{
+				openSSLAPI = RSSL_OPENSSL_V3;
+				sslFuncs.version = RSSL_OPENSSL_V3;
+				cryptoFuncs.version = RSSL_OPENSSL_V3;
+			}
+			/* version 0x1010114f */
+			else
+			{
+				openSSLAPI = RSSL_OPENSSL_V1_1;
+				sslFuncs.version = RSSL_OPENSSL_V1_1;
+				cryptoFuncs.version = RSSL_OPENSSL_V1_1;
+			}
 		}
 	}
 	else
@@ -178,7 +235,7 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		cryptoFuncs.version = RSSL_OPENSSL_V1_0;
 	}
 
-	/* These funtions are only used with OpenSSL 1.0.X's interface */
+	/* These functions are only used with OpenSSL 1.0.X's interface */
 	if (openSSLAPI == RSSL_OPENSSL_V1_0)
 	{
 		RSSL_LI_RESET_DLERROR;
@@ -292,10 +349,15 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 						unsigned char*, int, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPrivateKey");
 		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPrivateKey_10, dlErr))
 			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.PEM_write_bio_RSAPublicKey_10 = (int (*)(OPENSSL_BIO*, OPENSSL_10_rsa*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPublicKey");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPublicKey_10, dlErr))
+			return ripcSSLInitError();
 	}
 	
-	/* These funtions are only defined on the OpenSSL 1.1.X interface */
-	if (openSSLAPI == RSSL_OPENSSL_V1_1)
+	/* These functions are only defined on the OpenSSL 1.1.X interface */
+	if (openSSLAPI == RSSL_OPENSSL_V1_1 || openSSLAPI == RSSL_OPENSSL_V3)
 	{
 		RSSL_LI_RESET_DLERROR;
 		sslFuncs.ssl_get_state = (RSSL_11_OSSL_HANDSHAKE_STATE (*)(const OPENSSL_SSL*))RSSL_LI_DLSYM(sslHandle, "SSL_get_state");
@@ -367,7 +429,12 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		RSSL_LI_RESET_DLERROR;
 		cryptoFuncs.PEM_write_bio_RSAPrivateKey_11 = (int (*)(OPENSSL_BIO*, OPENSSL_11_rsa*, const OPENSSL_EVP_CIPHER*, 
 					unsigned char*, int, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPrivateKey");
-		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.dh_set0_pqg_11, dlErr))
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPrivateKey_11, dlErr))
+			return ripcSSLInitError();
+
+		RSSL_LI_RESET_DLERROR;
+		cryptoFuncs.PEM_write_bio_RSAPublicKey_11 = (int (*)(OPENSSL_BIO*, OPENSSL_11_rsa*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_RSAPublicKey");
+		if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_RSAPublicKey_11, dlErr))
 			return ripcSSLInitError();
 
 		RSSL_LI_RESET_DLERROR;
@@ -481,10 +548,23 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 	if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl_free, dlErr))
 		return ripcSSLInitError();
 	
-	RSSL_LI_RESET_DLERROR;
-	sslFuncs.ssl_get_peer_cert = (OPENSSL_X509* (*)(const OPENSSL_SSL*))RSSL_LI_DLSYM(sslHandle, "SSL_get_peer_certificate");
-	if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl_get_peer_cert, dlErr))
-		return ripcSSLInitError();
+	/* SSL_get0_peer_certificate() and SSL_get1_peer_certificate() were added in 3.0.0.
+	   SSL_get_peer_certificate() is an alias of SSL_get1_peer_certificate().
+	   SSL_get_peer_certificate() was deprecated in 3.0.0. */
+	if (openSSLAPI == RSSL_OPENSSL_V3)
+	{
+		RSSL_LI_RESET_DLERROR;
+		sslFuncs.ssl_get_peer_cert = (OPENSSL_X509* (*)(const OPENSSL_SSL*))RSSL_LI_DLSYM(sslHandle, "SSL_get1_peer_certificate");
+		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl_get_peer_cert, dlErr))
+			return ripcSSLInitError();
+	}
+	else
+	{
+		RSSL_LI_RESET_DLERROR;
+		sslFuncs.ssl_get_peer_cert = (OPENSSL_X509* (*)(const OPENSSL_SSL*))RSSL_LI_DLSYM(sslHandle, "SSL_get_peer_certificate");
+		if (dlErr = RSSL_LI_CHK_DLERROR(sslFuncs.ssl_get_peer_cert, dlErr))
+			return ripcSSLInitError();
+	}
 
 	RSSL_LI_RESET_DLERROR;
 	sslFuncs.ctx_new = (OPENSSL_SSL_CTX* (*)(const OPENSSL_SSL_METHOD*))RSSL_LI_DLSYM(sslHandle, "SSL_CTX_new");
@@ -773,18 +853,28 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 		return ripcSSLInitError();
 	
 	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.EC_KEY_set_public_key = (int (*)(OPENSSL_EC_KEY * key, const OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_set_public_key");
+	cryptoFuncs.EC_KEY_set_public_key_affine_coordinates = (int (*)(OPENSSL_EC_KEY*, OPENSSL_BIGNUM*, OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_set_public_key_affine_coordinates");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_KEY_set_public_key_affine_coordinates, dlErr))
+		return ripcSSLInitError();
+
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.EC_KEY_set_public_key = (int (*)(OPENSSL_EC_KEY*, const OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_KEY_set_public_key");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_KEY_set_public_key, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
-	cryptoFuncs.EC_POINT_free = (void (*)(OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_POINT_free");
-	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_POINT_free, dlErr))
+	cryptoFuncs.EC_POINT_clear_free = (void (*)(OPENSSL_EC_POINT*))RSSL_LI_DLSYM(cryptoHandle, "EC_POINT_clear_free");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.EC_POINT_clear_free, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
 	cryptoFuncs.PEM_write_bio_ECPrivateKey = (int (*)(OPENSSL_BIO*, OPENSSL_EC_KEY*, const OPENSSL_EVP_CIPHER*, unsigned char*, int, pem_password_cb*, void*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_ECPrivateKey");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_ECPrivateKey, dlErr))
+		return ripcSSLInitError();
+
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.PEM_write_bio_EC_PUBKEY = (int (*)(OPENSSL_BIO*, OPENSSL_EC_KEY*))RSSL_LI_DLSYM(cryptoHandle, "PEM_write_bio_EC_PUBKEY");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.PEM_write_bio_EC_PUBKEY, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
@@ -795,6 +885,11 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 	RSSL_LI_RESET_DLERROR;
 	cryptoFuncs.bn_free = (void(*)(OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "BN_free");
 	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.bn_free, dlErr))
+		return ripcSSLInitError();
+
+	RSSL_LI_RESET_DLERROR;
+	cryptoFuncs.bn_clear = (void(*)(OPENSSL_BIGNUM*))RSSL_LI_DLSYM(cryptoHandle, "BN_clear");
+	if (dlErr = RSSL_LI_CHK_DLERROR(cryptoFuncs.bn_clear, dlErr))
 		return ripcSSLInitError();
 
 	RSSL_LI_RESET_DLERROR;
@@ -859,7 +954,7 @@ RsslInt32 ripcInitializeSSL(char* libsslName, char* libcryptoName)
 
 		}
 	}
-	else if (openSSLAPI == RSSL_OPENSSL_V1_1)
+	else if (openSSLAPI == RSSL_OPENSSL_V1_1 || openSSLAPI == RSSL_OPENSSL_V3)
 	{
 		SSLfuncs.newClientConnection = ripcSSLConnectTLS; // calls SSL connect on client side
 
@@ -918,7 +1013,7 @@ void ripcSSLErrors(RsslError *error, RsslInt32 initPos)
 
 	while ((l=(*(cryptoFuncs.get_error_line_data))(&file, &line, &data, &flags)) != 0)
 	{
-		if ((strlen(buf) + strlen(file) + cUrl + 30 ) > MAX_RSSL_ERROR_TEXT)
+		if ((strlen(buf) + strlen(file) + cUrl + 30 ) >= MAX_RSSL_ERROR_TEXT)
 			break;
 
 		if (data != NULL && flags & RSSL_SSL_ERR_TXT_STRING)
@@ -1867,7 +1962,7 @@ RsslInt32 ripcSSLInit(void *session, ripcSessInProg *inPr, RsslError *error)
 				return 0;
 			}
 		}
-		else if(openSSLAPI == RSSL_OPENSSL_V1_1)
+		else if(openSSLAPI == RSSL_OPENSSL_V1_1 || openSSLAPI == RSSL_OPENSSL_V3)
 		{
 			if ((*(sslFuncs.ssl_get_state))(sess->connection) == RSSL_TLS_ST_OK)
 			{
@@ -1999,7 +2094,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 	/* allows us to write part of a buffer and not be required to pass in the same address with the next write call */
 	if (openSSLAPI == RSSL_OPENSSL_V1_0)
 		(*(sslFuncs.ctrl))(sess->connection, RSSL_10_SSL_CTRL_MODE, RSSL_SSL_MODE_ENABLE_PARTIAL_WRITE | RSSL_SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER, NULL);
-	else if (openSSLAPI == RSSL_OPENSSL_V1_1)
+	else if (openSSLAPI == RSSL_OPENSSL_V1_1 || openSSLAPI == RSSL_OPENSSL_V3)
 		(*(sslFuncs.set_options))(sess->connection, RSSL_SSL_MODE_ENABLE_PARTIAL_WRITE | RSSL_SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 	
 	(*(sslFuncs.set_bio))(sess->connection, sess->bio, sess->bio);
@@ -2009,7 +2104,7 @@ void *ripcSSLConnectInt(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslInt32 *
 
 	
 	/* Setup hostname validation here */
-	if (openSSLAPI == RSSL_OPENSSL_V1_1)
+	if (openSSLAPI == RSSL_OPENSSL_V1_1 || openSSLAPI == RSSL_OPENSSL_V3)
 	{
 		/* Check to see if the hostname on the channel is an IP Address*/
 		if (inet_pton(AF_INET, ((RsslSocketChannel*)userSpecPtr)->hostName, &addr))

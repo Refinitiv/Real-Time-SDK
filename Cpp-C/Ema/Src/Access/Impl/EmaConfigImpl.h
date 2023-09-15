@@ -1152,6 +1152,36 @@ public:
 
 	static void setDefaultConfigFileName(const EmaString&);
 
+	const EmaString& getCpuWorkerThreadBind()
+	{
+		return _cpuWorkerThreadBind;
+	}
+
+	const EmaString& getCpuApiThreadBind()
+	{
+		return _cpuApiThreadBind;
+	}
+
+	void setCpuWorkerThreadBind(const EmaString&);
+
+	void setCpuApiThreadBind(const EmaString&);
+
+	bool isUserSetShouldInitializeCPUIDlib()
+	{
+		return _userSetShouldInitializeCPUIDlib;
+	}
+
+	bool getShouldInitializeCPUIDlib()
+	{
+		return _shouldInitializeCPUIDlib;
+	}
+
+	void setShouldInitializeCPUIDlib(bool shouldInitializeCPUIDlib)
+	{
+		_shouldInitializeCPUIDlib = shouldInitializeCPUIDlib;
+		_userSetShouldInitializeCPUIDlib = true;
+	}
+
 protected:
 
 	XMLnode*				_pEmaConfig;
@@ -1159,6 +1189,12 @@ protected:
 
 	EmaString				_instanceNodeName;
 	EmaString				_configSessionName;
+
+	EmaString				_cpuWorkerThreadBind;
+	EmaString				_cpuApiThreadBind;
+
+	bool					_userSetShouldInitializeCPUIDlib;
+	bool					_shouldInitializeCPUIDlib;
 
 private:
 
@@ -1184,6 +1220,8 @@ public:
 
 	void clientId( const EmaString& );
 	void clientSecret(const EmaString& );
+	void clientJWK (const EmaString&);
+	void audience(const EmaString&);
 	void tokenScope( const EmaString& );
 	void takeExclusiveSignOnControl( bool );
 	void tokenServiceUrl( const EmaString& );

@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// ReactorSubmitOptions class is used while submitting a message
     /// </summary>
-    public class ReactorSubmitOptions
+    sealed public class ReactorSubmitOptions
     {
         /// <summary>
         /// Service name to be associated with the message, 
@@ -26,6 +26,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public WriteArgs WriteArgs { get; set; } = new WriteArgs();
 
+        /// <summary>
+        /// Clears to default values.
+        /// </summary>
         public void Clear()
         {
             ServiceName = null;

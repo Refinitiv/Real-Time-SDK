@@ -2,13 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 
-namespace Refinitiv.Eta.ValueAdd.Common
+namespace LSEG.Eta.ValueAdd.Common
 {
 	/// <summary>
 	/// Double-linked List class for maintaining objects that might have multiple links, so that
@@ -18,7 +18,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
 	/// links without inheriting.
 	/// </summary>
 	/// <typeparam name="T">The element type</typeparam>
-	public class VaDoubleLinkList<T>
+	public class VaDoubleLinkList<T> where T : class
     {
 		private T? _head, _tail;
 		private T? _iter;
@@ -34,34 +34,37 @@ namespace Refinitiv.Eta.ValueAdd.Common
 		public interface ILink<V>
 		{
 			/// <summary>
-			/// Gets the given elem's previous link
+			/// Gets the given element's previous link
 			/// </summary>
 			/// <param name="thisPrev">The element to get previous link</param>
 			/// <returns>The element's previous link</returns>
 			V? GetPrev(V thisPrev);
 
 			/// <summary>
-			/// Sets the given elem's previous link
+			/// Sets the given element's previous link
 			/// </summary>
 			/// <param name="thisPrev">The element to set previous link</param>
 			/// <param name="thatPrev">The element's previous link</param>
 			void SetPrev(V? thisPrev, V? thatPrev);
 
 			/// <summary>
-			/// Gets the given elem's next link 
+			/// Gets the given element's next link 
 			/// </summary>
 			/// <param name="thisNext">The element to get next link</param>
 			/// <returns>The element's next link</returns>
 			V? GetNext(V thisNext);
 
 			/// <summary>
-			/// Sets the given elem's next link
+			/// Sets the given element's next link
 			/// </summary>
 			/// <param name="thisNext">The element to set next link</param>
 			/// <param name="thatNext">The element's next link</param>
 			void SetNext(V? thisNext, V? thatNext);
 		}
 
+		/// <summary>
+		/// The constuctor.
+		/// </summary>
 		public VaDoubleLinkList()
 		{
 			Clear();
@@ -72,19 +75,19 @@ namespace Refinitiv.Eta.ValueAdd.Common
 		/// </summary>
 		public void Clear()
 		{
-			_head = default;
-			_tail = default;
+			_head = null;
+			_tail = null;
 			_count = 0;
 		}
 
 		/// <summary>
-		/// Returns the number of elems in the list.
+		/// Returns the number of elements in the list.
 		/// </summary>
 		/// <returns>The number of element</returns>
 		public int Count() { return _count; }
 
 		/// <summary>
-		/// Adds a elem to the front of the list.
+		/// Adds an element to the front of the list.
 		/// </summary>
 		/// <param name="elem">The element to add</param>
 		/// <param name="queueLink">The link for the element</param>
@@ -99,17 +102,17 @@ namespace Refinitiv.Eta.ValueAdd.Common
 			}
 			else
 			{
-				queueLink.SetPrev(elem, default);
+				queueLink.SetPrev(elem, null);
 				_head = _tail = elem;
 			}
 
-			queueLink.SetNext(elem, default);
+			queueLink.SetNext(elem, null);
 			++_count;
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
 		/// <summary>
-		/// Adds an elem to the back of the list
+		/// Adds an element to the back of the list
 		/// </summary>
 		/// <param name="elem">the element to add</param>
 		/// <param name="queueLink">The link for the element</param>
@@ -124,42 +127,54 @@ namespace Refinitiv.Eta.ValueAdd.Common
 			}
 			else
 			{
-				queueLink.SetNext(elem, default);
+				queueLink.SetNext(elem, null);
 				_head = _tail = elem;
 			}
 
-			queueLink.SetPrev(elem, default);
+			queueLink.SetPrev(elem, null);
 			++_count;
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		public void InsertBefore(T thisBuffer, T newBuffer, ILink<T> queueLink)
+		/// <summary>
+		/// Adds an element before the element in the list
+		/// </summary>
+		/// <param name="thisElement">The element to insert before</param>
+		/// <param name="newElement">The new element to be inserted to the list</param>
+		/// <param name="queueLink">The link for the element</param>
+		public void InsertBefore(T thisElement, T newElement, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
-			if (queueLink.GetPrev(thisBuffer) != null)
-				queueLink.SetNext(queueLink.GetPrev(thisBuffer), newBuffer);
-			queueLink.SetPrev(newBuffer, queueLink.GetPrev(thisBuffer));
-			queueLink.SetNext(newBuffer, thisBuffer);
-			queueLink.SetPrev(thisBuffer, newBuffer);
+			if (queueLink.GetPrev(thisElement) != null)
+				queueLink.SetNext(queueLink.GetPrev(thisElement), newElement);
+			queueLink.SetPrev(newElement, queueLink.GetPrev(thisElement));
+			queueLink.SetNext(newElement, thisElement);
+			queueLink.SetPrev(thisElement, newElement);
 
-			if (ReferenceEquals(thisBuffer,_head))
-				_head = newBuffer;
+			if (ReferenceEquals(thisElement, _head))
+				_head = newElement;
 
 			++_count;
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		public void InsertAfter(T thisBuffer, T newBuffer, ILink<T> queueLink)
+		/// <summary>
+		/// Adds an element after the element in the list
+		/// </summary>
+		/// <param name="thisElement">The element to insert after</param>
+		/// <param name="newElement">The new element to be inserted to the list</param>
+		/// <param name="queueLink">The link for the element</param>
+		public void InsertAfter(T thisElement, T newElement, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
-			if (queueLink.GetNext(thisBuffer) != null)
-				queueLink.SetPrev(queueLink.GetNext(thisBuffer), newBuffer);
-			queueLink.SetNext(newBuffer, queueLink.GetNext(thisBuffer));
-			queueLink.SetPrev(newBuffer, thisBuffer);
-			queueLink.SetNext(thisBuffer, newBuffer);
+			if (queueLink.GetNext(thisElement) != null)
+				queueLink.SetPrev(queueLink.GetNext(thisElement), newElement);
+			queueLink.SetNext(newElement, queueLink.GetNext(thisElement));
+			queueLink.SetPrev(newElement, thisElement);
+			queueLink.SetNext(thisElement, newElement);
 
-			if (ReferenceEquals(thisBuffer,_tail))
-				_tail = newBuffer;
+			if (ReferenceEquals(thisElement, _tail))
+				_tail = newElement;
 
 			++_count;
 			if (DEBUG_LIST) VerifyList(queueLink);
@@ -196,16 +211,26 @@ namespace Refinitiv.Eta.ValueAdd.Common
 			return head;
 		}
 
+		/// <summary>
+		/// Starts to iterate the link
+		/// </summary>
+		/// <param name="queueLink">The link for the element</param>
+		/// <returns>The head element of the link</returns>
 		public T? Start(ILink<T> queueLink)
 		{
 			if (_head != null)
 				_iter = queueLink.GetNext(_head);
 			else
-				_iter = default;
+				_iter = null;
 
 			return _head;
 		}
 
+		/// <summary>
+		/// Iterates through the queue.
+		/// </summary>
+		/// <param name="queueLink">The link for the element</param>
+		/// <returns>The current element before moving next</returns>
 		public T? Forth(ILink<T> queueLink)
 		{
 			T? iter;
@@ -217,7 +242,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
 		}
 
 		/// <summary>
-		/// Removes a elem from the list.
+		/// Removes an element from the list.
 		/// </summary>
 		/// <param name="elem">the element to remove</param>
 		/// <param name="queueLink">the element's link</param>
@@ -243,13 +268,18 @@ namespace Refinitiv.Eta.ValueAdd.Common
 				_tail = queueLink.GetPrev(elem);
 			}
 
-			queueLink.SetNext(elem, default);
-			queueLink.SetPrev(elem, default);
+			queueLink.SetNext(elem, null);
+			queueLink.SetPrev(elem, null);
 			--_count;
 
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
+		/// <summary>
+		/// Appends to another list
+		/// </summary>
+		/// <param name="otherList">The list to append the link to</param>
+		/// <param name="queueLink">the element's link</param>
 		public void Append(VaDoubleLinkList<T> otherList, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
@@ -272,8 +302,8 @@ namespace Refinitiv.Eta.ValueAdd.Common
 
 			/* Update count and clear old list. */
 			_count += otherList._count;
-			otherList._head = default;
-			otherList._tail = default;
+			otherList._head = null;
+			otherList._tail = null;
 			otherList._count = 0;
 
 			if (DEBUG_LIST) VerifyList(queueLink);

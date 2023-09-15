@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,17 +11,17 @@ using System;
 using Xunit;
 using Xunit.Categories;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
 
-using static Refinitiv.Eta.Rdm.Login;
+using static LSEG.Eta.Rdm.Login;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using System.Diagnostics;
 
-
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
 
     /// Unit-tests for LoginRequest.
@@ -652,8 +652,6 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             Console.WriteLine("LoginRequest tests...");
             LoginRequest encRDMMsg = new();
             LoginRequest decRDMMsg = new();
-            //encRDMMsg.rdmMsgType(LoginMsgType.REQUEST);
-            //decRDMMsg.rdmMsgType(LoginMsgType.REQUEST);
 
             foreach (var userNameType in userNameTypeList)
             {
@@ -736,7 +734,6 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
                         Assert.Equal(CodecReturnCode.SUCCESS, ret);
                         ret = decRDMMsg.Decode(dIter, msg);
                         Assert.Equal(CodecReturnCode.SUCCESS, ret);
-                        //Assert.Equal(decRDMMsg.rdmMsgType(), LoginMsgType.REQUEST);
                         Assert.Equal(encRDMMsg.Flags, decRDMMsg.Flags);
 
                         if (decRDMMsg.HasUserNameType)
@@ -859,6 +856,7 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             Console.WriteLine("Done.");
         }
 
+        private static readonly double TicksPerNanosecond = Stopwatch.Frequency / 1_000_000_000.0;
 
         [Fact]
         [Category("Unit")]
@@ -872,9 +870,9 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             int streamId = 1;
 
             Console.WriteLine("LoginRTT initRTT test...");
-            var t1 = System.DateTime.Now.Ticks * 100;
-            encLoginRTTMsg.InitRTT(streamId);
-            var t2 = System.DateTime.Now.Ticks * 100;
+            var t1 = (long)(Stopwatch.GetTimestamp() / TicksPerNanosecond);
+            encLoginRTTMsg.InitDefaultRTT(streamId);
+            var t2 = (long)(Stopwatch.GetTimestamp() / TicksPerNanosecond);
 
             Buffer membuf = new();
             membuf.Data(new ByteBuffer(1024));
@@ -912,7 +910,7 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             Console.WriteLine("LoginRTT copy test...");
 
-            rttMsg1.InitRTT(streamId);
+            rttMsg1.InitDefaultRTT(streamId);
             rttMsg1.HasRTLatency = true;
             rttMsg1.RTLatency = latency;
             rttMsg1.HasTCPRetrans = true;

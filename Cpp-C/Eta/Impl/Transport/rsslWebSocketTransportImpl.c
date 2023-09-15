@@ -368,12 +368,6 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 
 		ripcBuffer->priority = rsslBufImpl->priority;
 
-		if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (ripcBuffer->length))
-		{
-			rsslWebSocketDumpOutFuncImpl(__FUNCTION__, ripcBuffer->buffer, (RsslUInt32)ripcBuffer->length,
-				rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
-		}
-
 		retVal = rwsWriteWebSocket(rsslSocketChannel, rsslBufImpl, writeFlags, 
 								(RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, 
 								(writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);
@@ -547,20 +541,19 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 
 					if (tempSize == 0)
 					{
-						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
+						if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
+						{
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_ONLY_ONE_FRAG_MSG;
+						}
+						else
+						{
+							rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
+						}
 					}
 				}
 				else
 				{
-					/* If this the first fragmented message then split it into two WS frames. */
-					if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
-					{
-						copyUserMsgSize = tempSize/2;
-					}
-					else
-					{
-						copyUserMsgSize = tempSize;
-					}
+					copyUserMsgSize = tempSize;
 
 					/* this will all actually fit in one message */
 					MemCopyByInt(pBuffer, pDataBuffer + rsslBufImpl->writeCursor, copyUserMsgSize);
@@ -569,16 +562,14 @@ RSSL_RSSL_SOCKET_IMPL_FAST(RsslRet) rsslWebSocketWrite(rsslChannelImpl *rsslChnl
 					ripcBuffer->priority = rsslBufImpl->priority;
 					tempSize -= copyUserMsgSize;
 						
-					if (tempSize == 0)
+					if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
+					{
+						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_ONLY_ONE_FRAG_MSG;
+					}
+					else
 					{
 						rsslBufImpl->fragmentationFlag = BUFFER_IMPL_LAST_FRAG_HEADER;
 					}
-				}
-
-				if ((rsslChnlImpl->debugFlags & RSSL_DEBUG_RSSL_DUMP_OUT) && (ripcBuffer->length))
-				{
-					rsslWebSocketDumpOutFuncImpl(__FUNCTION__, ripcBuffer->buffer, (RsslUInt32)ripcBuffer->length,
-						rsslChnlImpl->Channel.socketId, &rsslChnlImpl->Channel);
 				}
 
 				retVal = rwsWriteWebSocket(rsslSocketChannel, rsslBufImpl, writeFlags, (RsslInt32*)&outBytes, (RsslInt32*)&uncompOutBytes, (writeFlags & RSSL_WRITE_DIRECT_SOCKET_WRITE) != 0, error);

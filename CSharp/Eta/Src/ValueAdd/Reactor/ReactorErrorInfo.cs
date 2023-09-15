@@ -2,21 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// ReactorErrorInfo is used by various Reactor methods to return error or warning
     /// information to the user. If the <see cref="ReactorReturnCode"/> is <see cref="ReactorReturnCode.SUCCESS"/>,
     /// then there is no error. Otherwise, the user should inspect the code, <see cref="Transports.Error"/> and location.
     /// </summary>
-    public class ReactorErrorInfo
+    sealed public class ReactorErrorInfo
     {
+        /// <summary>
+        /// Create <see cref="ReactorErrorInfo"/>.
+        /// </summary>
         public ReactorErrorInfo()
         {
             Error = new Error();

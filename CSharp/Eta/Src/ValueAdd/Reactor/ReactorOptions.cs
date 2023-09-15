@@ -2,16 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// This is the option to be used in the <see cref="Reactor.CreateReactor(ReactorOptions, out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorOptions
+    sealed public class ReactorOptions
     {
         string m_ServiceDiscoveryUrl = string.Empty;
         string m_TokenServiceUrl = string.Empty;
@@ -30,11 +30,27 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public bool XmlTracing { get; set; }
 
+        /// <summary>
+        /// Gets or sets an output stream for logging REST request and response. Defaults to standard output.
+        /// </summary>
+        public Stream? RestLogOutputStream { get; set; }
+
+        /// <summary>
+        /// Gets or sets to enable logging REST request and response to an output stream. Defaults to <c>false</c>
+        /// </summary>
+        public bool EnableRestLogStream { get; set; }
+
+        /// <summary>
+        /// Create <see cref="ReactorOptions"/>
+        /// </summary>
         public ReactorOptions()
         {
             Clear();
         }
 
+        /// <summary>
+        /// Clears to default values
+        /// </summary>
         public void Clear()
         {
             UserSpecObj = null;
@@ -42,7 +58,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             m_TokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v2/token";
             m_ServiceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/";
             m_RestRequestTimeout = 45000; // 45 seconds
-            m_TokenExpireRatio = 0.95;
+            m_TokenExpireRatio = 0.01;
+            EnableRestLogStream = false;
         }
 
         /// <summary>
@@ -131,14 +148,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
 
         /// <summary>
         /// Sets a ratio to multiply with access token validity time(second) to specify when the access is about to expire.
-        /// The default token exipre ratio is 0.95. The valid range is between 0.50 to 0.95.
+        /// The default token exipred ratio is 0.01. The valid range is between 0.01 to 0.90.
         /// </summary>
-        /// <param name="tokenReissueRatio">The token expire ratio</param>
+        /// <param name="tokenExpireRatio">The token expire ratio</param>
         /// <returns><see cref="ReactorReturnCode.SUCCESS"/> on success, otherwise <see cref="ReactorReturnCode.PARAMETER_INVALID"/>
         /// if the specified ratio is out of range.</returns>
         public ReactorReturnCode SetTokenExpireRatio(double tokenExpireRatio)
         {
-            if(tokenExpireRatio < 0.50 || tokenExpireRatio > 0.95)
+            if(tokenExpireRatio < 0.01 || tokenExpireRatio > 0.90)
             {
                 return ReactorReturnCode.PARAMETER_INVALID;
             }
@@ -169,6 +186,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             m_ServiceDiscoveryUrl = options.m_ServiceDiscoveryUrl;
             m_RestRequestTimeout = options.m_RestRequestTimeout;
             m_TokenExpireRatio = options.m_TokenExpireRatio;
+            EnableRestLogStream = options.EnableRestLogStream;
+            RestLogOutputStream = options.RestLogOutputStream;
         }
     }
 }

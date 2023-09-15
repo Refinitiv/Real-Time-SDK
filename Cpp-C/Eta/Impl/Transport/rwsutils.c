@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2020 Refinitiv. All rights reserved.              --
+ *|         Copyright (C) 2020-2023 Refinitiv. All rights reserved.           --
  *|-----------------------------------------------------------------------------
  */
 
@@ -1086,6 +1086,23 @@ RsslInt32 checkInputBufferSpace(RsslSocketChannel *rsslSocketChannel, size_t len
 	return 0;
 }
 
+// Calculate next read size into the input buffer and ensure that there is sufficient space
+//  for reading addtinal websocket frames.
+RsslInt32 calculateNextReadSize(RsslSocketChannel* rsslSocketChannel, size_t length)
+{
+	size_t remaingReadSize = (rsslSocketChannel->inputBuffer->maxLength - rsslSocketChannel->inputBuffer->length) / 2;
+
+	if (remaingReadSize >= length + 4)
+	{
+		if (remaingReadSize >= rsslSocketChannel->readSize)
+			return rsslSocketChannel->readSize;
+		else
+			return (RsslInt32)remaingReadSize;
+	}
+
+	return 0;
+}
+
 /* This function returns the number of free guaranteed buffers 
  * available to a user for writing. It is not very efficient.
  * Was done as a quick solution.
@@ -1115,20 +1132,46 @@ RsslInt32 rwsIntTotalUsedOutputBuffers(RsslSocketChannel *rsslSocketChannel, Rss
 	return(num);
 }
 
+/* Reallocates the memory object. */
+/**/
+/* The reallocation is done: */
+/* allocating a new memory block of size at least newLength bytes, */
+/* copying memory area with size equal the lesser of the new and the old sizes, */
+/* and freeing the old block. */
+/**/
+/* If there is not enough memory, the old memory block is not freed and null pointer is returned. */
+/* When the new required memory size newLength is greater than the maximum allowed size maxLength, */
+/* the old memory block is not freed and null pointer is returned. */
+/* When a null pointer is returned, the error parameter will populate detailed error information. */
 rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t* bufferObj, size_t newLength, size_t maxLength, RsslError *error)
 {
+	/* bufferObj is the pointer to the memory area to be reallocated */
+	/* bufferObj->maxLength is currently allocated memory size */
+	/* newLength is the new required memory size */
+	/* maxLength is the threshould maximum available memory size */
+
 	rtr_msgb_t* tempBufferObj;
+	/* When earlier allocated memory is enough then we return only */
 	if (bufferObj->maxLength < newLength)
 	{
+		/* When maximum limit is not set */
 		if (maxLength == 0)
 		{
 			size_t allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
 			tempBufferObj = ipcAllocGblMsg(allocatedSize);
 		}
-		else if (bufferObj->maxLength * 2 <= maxLength)
-			tempBufferObj = ipcAllocGblMsg(bufferObj->maxLength * 2);
-		else if (bufferObj->maxLength < maxLength)
-			tempBufferObj = ipcAllocGblMsg(maxLength);
+		/* Checks the limit on the maximum memory size */
+		else if (newLength <= maxLength)
+		{
+			/* Try to increase memory twice */
+			size_t allocatedSize = (bufferObj->maxLength * 2) > newLength ? (bufferObj->maxLength * 2) : newLength;
+			
+			/* And checks the limit on the maximum memory size */
+			if (maxLength < allocatedSize)
+				allocatedSize = maxLength;
+
+			tempBufferObj = ipcAllocGblMsg(allocatedSize);
+		}
 		else
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -1147,7 +1190,8 @@ rtr_msgb_t *checkSizeAndRealloc(rtr_msgb_t* bufferObj, size_t newLength, size_t 
 			return(0);
 		}
 	
-			
+		/* Copy the memory to the new allocated area */
+		/* bufferObj->length is the size of using memory space */
 		memcpy(tempBufferObj->buffer, bufferObj->buffer, bufferObj->length);
 		tempBufferObj->length = bufferObj->length;
 		rtr_smplcFreeMsg(bufferObj);
@@ -2650,7 +2694,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 		else
 		{
 			rsslSocketChannel->curInputBuf = ipcDupGblMsg(rsslSocketChannel->inputBuffer);
-}
+		}
 
 		if ((rsslSocketChannel->inputBuffer == 0) || (rsslSocketChannel->curInputBuf == 0))
 		{
@@ -2661,7 +2705,7 @@ ripcSessInit rwsWaitResponseHandshake(RsslSocketChannel * rsslSocketChannel, rip
 
 			return(RIPC_CONN_ERROR);
 		}
-		rsslSocketChannel->readSize = (RsslInt32)rsslSocketChannel->inputBuffer->maxLength / 2;
+		rsslSocketChannel->readSize = (RsslInt32)(rsslSocketChannel->inputBuffer->maxLength / 2);
 
 		if ((rsslSocketChannel->guarBufPool->sharedPool) &&
 			(rsslSocketChannel->guarBufPool->sharedPool->initialized == 0))
@@ -2761,7 +2805,7 @@ RsslInt32 rwsSendResponseHandshake(RsslSocketChannel *rsslSocketChannel, rwsSess
 		respLen += sprintfRet;
 		remaining -= sprintfRet;
 
-		if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB && wsSess->deflate)
+		if (wsSess->server->compressionSupported == RSSL_COMP_ZLIB && wsSess->deflate && wsSess->protocol != RWS_SP_RWF)
 		{
 			sprintfRet = snprintf(resp + respLen, remaining, "Sec-WebSocket-Extensions: permessage-deflate");
 
@@ -3761,7 +3805,7 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 				}
 				else
 				{
-					*uncompBytesRead = (RsslInt32)(frame->payloadLen + rsslSocketChannel->inputBufCursor);
+					*uncompBytesRead = (RsslInt32)(frame->payloadLen + rsslSocketChannel->inBufProtOffset);
 
 					// Just point to the message in the input buffer
 					rsslSocketChannel->curInputBuf->buffer = rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor;
@@ -3835,6 +3879,49 @@ void handleWebSocketMessages(RsslSocketChannel* rsslSocketChannel, RsslRet* read
 	} while (1);
 }
 
+// When the part of the internal buffer contains already processed data,
+// we will move the raw data to the beginning of the buffer.
+static RsslBool _movePartialFrameToBeginningOfInputBuffer(RsslSocketChannel* rsslSocketChannel, rwsSession_t* wsSess)
+{
+	_DEBUG_TRACE_WS_READ("inputBufCursor:%u inputBuffer->length:%llu\n",
+		rsslSocketChannel->inputBufCursor, rsslSocketChannel->inputBuffer->length);
+
+	// The data before inputBufCursor has already been processed.
+	if (rsslSocketChannel->inputBufCursor > 0 && rsslSocketChannel->inputBufCursor < rsslSocketChannel->inputBuffer->length)
+	{
+		rwsFrameHdr_t* frame = &(wsSess->frameHdr);
+		size_t actualInBuffLen = rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor;
+
+		// Check that buffer has only 1 byte of unhandled data.
+		// The byte is a start of a new frame
+		if (rsslSocketChannel->inputBufCursor + 1 == rsslSocketChannel->inputBuffer->length)
+		{
+			// Copy 1 byte only to the beginning of the buffer.
+			*rsslSocketChannel->inputBuffer->buffer = *(rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor);
+		}
+		else
+		{
+			// Copy the partial fragment to the beginning of the buffer.
+			memmove(rsslSocketChannel->inputBuffer->buffer,
+				rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor,
+				actualInBuffLen);
+		}
+
+		// Reset pointers
+		rsslSocketChannel->inputBufCursor = 0;
+		rsslSocketChannel->inputBuffer->length = actualInBuffLen;
+
+		wsSess->inputReadCursor = 0;
+		wsSess->actualInBuffLen = actualInBuffLen;
+
+		// Sync frame (wsSess->frameHdr)
+		_resetWSFrame(frame, rsslSocketChannel->inputBuffer->buffer);
+		_decodeWSFrame(frame, rsslSocketChannel->inputBuffer->buffer, actualInBuffLen);
+		return RSSL_TRUE;
+	}
+	return RSSL_FALSE;
+}
+
 rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *readret, int *moreData, RsslInt32* bytesRead, RsslInt32* uncompBytesRead, RsslInt32 *packing, RsslError *error)
 {
 	RsslInt32		cc = 0, hdrLen = 0;
@@ -3858,8 +3945,24 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 		RsslInt32 readSize;
 		// Make sure we either have 2 bytes already read or room to read at least 2 bytes
 		// to determine the header length and opcode.
+		readSize = checkInputBufferSpace(rsslSocketChannel, 2);
+		if (readSize == 0)
+		{
+			// This is a case when the internal buffer is (almost) full.
+			// The several messages has already processed.
+			// There is a partial frame at the end of the buffer.
+			// And we don't have enough space inside the internal buffer to read the whole frame.
+			// 
+			// Move unhandled data to the beginning of the inputBuffer.
+			if (_movePartialFrameToBeginningOfInputBuffer(rsslSocketChannel, wsSess) > 0)
+			{
+				readSize = checkInputBufferSpace(rsslSocketChannel, 2);
 
-		if ( (readSize = checkInputBufferSpace(rsslSocketChannel, 2)) == 0)
+				inputBufferLength = rsslSocketChannel->inputBuffer->length;
+			}
+		}
+
+		if (readSize == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf((error->text), MAX_RSSL_ERROR_TEXT,
@@ -3905,6 +4008,7 @@ rtr_msgb_t *rwsReadWebSocket(RsslSocketChannel *rsslSocketChannel, RsslRet *read
 			if ((wsSess->actualInBuffLen - wsSess->inputReadCursor) >= frame->hdrLen && (frame->advancedInputCursor == RSSL_FALSE))
 			{
 				rsslSocketChannel->inputBufCursor += frame->hdrLen;
+				rsslSocketChannel->inBufProtOffset += frame->hdrLen;
 				frame->advancedInputCursor = RSSL_TRUE;
 			}
 
@@ -4348,15 +4452,18 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 
 					if (maxRead <= 0)
 					{
-						break;
+						canRead = 0;
 					}
 				}
 			}
 			else
 			{
-				/* Updates the length for partial read if any. */
-				rsslSocketChannel->inputBuffer->length += totalCC;
-				return(RSSL_RET_READ_WOULD_BLOCK);
+				/* This is a blocking and non-blocking read and we should break loop */
+				if (cc == 0)
+				{
+					return(RSSL_RET_READ_WOULD_BLOCK);
+				}
+				break;
 			}
 
 			totalCC += cc;
@@ -4372,7 +4479,8 @@ RsslInt32 rwsReadTransportMsg(void *transport, char * buffer, int bufferLen, rip
 
 	bytesRead = (RsslInt32)(wsSess->actualInBuffLen - wsSess->inputReadCursor);
 	// See if we have the 2 bytes so we can calculate the length of the WS Frame Header
-	if (bytesRead >= 2)
+	// when we have only 1 byte it sets frame partial
+	if (bytesRead >= 1)
 	{
 		_decodeWSFrame(frame, buffer, bytesRead);
 
@@ -4562,11 +4670,24 @@ RsslInt32 rwsReadPrependTransportHdr(void* transport, char* buffer, int bufferLe
 	RsslSocketChannel	*rsslSocketChannel = (RsslSocketChannel *)transport;
 	rwsSession_t *wsSess = (rwsSession_t*)rsslSocketChannel->rwsSession;
 	rwsFrameHdr_t           *frame = &wsSess->frameHdr;
+	int readSize;
 
 	rwflags |= RIPC_RW_WAITALL;
 
+	/* Get the maximum read size to ensure that addtional websocket frames can be read into the remaining input buffer. */
+	if ((readSize = calculateNextReadSize(rsslSocketChannel, 2)) == 0)
+	{
+		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
+		snprintf((error->text), MAX_RSSL_ERROR_TEXT,
+			"<%s:%d> rwsReadPrependTransportHdr() internal error, Unable to read more data into the input buffer",
+			__FILE__, __LINE__);
+
+		*ret = RSSL_RET_FAILURE;
+		return RSSL_RET_FAILURE;
+	}
+
 	cc = rwsReadTransportMsg((void*)rsslSocketChannel, buffer,
-		bufferLen, rwflags, error);
+		readSize, rwflags, error);
 
 	if (cc >= 0)
 	{
@@ -4650,9 +4771,9 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 	RsslQueueLink	*pLink = 0;
 	int	hdrlen = 0;
 	rwsOpCodes_t opCode = RWS_OPC_NONE;
-	RsslBool singleMessage = RSSL_FALSE;
-	RsslBool compressedFlag = RSSL_FALSE;
+	RsslBool compressedFlag = RSSL_FALSE; /* This is used for fragmented message only. */
 	RsslBool enableCompression = RSSL_FALSE;
+	RsslBool singleMessage = RSSL_FALSE;
 
 	if (IPC_NULL_PTR(rsslSocketChannel, "rwsWriteWebSocket", "rsslSocketChannel", error))
 		return RSSL_RET_FAILURE;
@@ -4698,6 +4819,15 @@ RsslRet rwsWriteWebSocket(RsslSocketChannel *rsslSocketChannel, rsslBufferImpl *
 	{
 		wsSess->finBit = RSSL_TRUE;
 		singleMessage = RSSL_TRUE;
+	}
+	else if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_ONLY_ONE_FRAG_MSG)
+	{
+		wsSess->finBit = RSSL_TRUE;
+
+		if (enableCompression)
+		{
+			compressedFlag = RSSL_TRUE; /* Set the compressed flag for the single compressed fragmentation message. */
+		}
 	}
 	else if (rsslBufImpl->fragmentationFlag == BUFFER_IMPL_FIRST_FRAG_HEADER)
 	{
@@ -5254,6 +5384,20 @@ RsslInt32 rwsPrependWsHdr(void *transport, rtr_msgb_t *msgb, RsslError *error)
 	rwsWriteWsHdr(msgb, 0, wsSess, 0, RWS_OPC_NONE);
 
 	return ((RsslInt32)msgb->length);
+}
+
+/* Dumps WS header and message
+ * buf->buffer points to the start of the header and payload data,
+ * buf->length is the length of the header and current payload data. */
+void rwsDumpMsgAndTransportHdr(const char* functionName, rtr_msgb_t* buf, void* transport)
+{
+	RsslSocketChannel* rsslSocketChannel = (RsslSocketChannel*)transport;
+	if (rsslSocketChannel != NULL)
+	{
+		webSocketDumpOutFuncImpl(functionName, buf->buffer, (RsslUInt32)(buf->length),
+			rsslSocketChannel->stream, rsslSocketChannel->protocolType);
+	}
+	return;
 }
 
 RsslInt32 rwsSendPingData(RsslSocketChannel* rsslSocketChannel, RsslBuffer *pingData, RsslError *error)

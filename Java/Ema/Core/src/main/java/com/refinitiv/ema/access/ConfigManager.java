@@ -31,6 +31,8 @@ class ConfigManager
 	static TagDictionary IProviderTagDict;
 	static TagDictionary ServerTagDict;
 	static TagDictionary GlobalConfigDict;
+	static TagDictionary WarmStandbyGroupDict;
+	static TagDictionary WarmStandbyServerDict;
 	
 	static Branch DEFAULT_CONSUMER;
 	static Branch DEFAULT_NIPROVIDER;
@@ -47,6 +49,8 @@ class ConfigManager
 	static Branch SERVER_LIST;
 	static Branch GLOBAL_CONFIG;
 	static Branch DIRECTORY_LIST;
+	static Branch WARMSTANDBYGROUP_LIST;
+	static Branch WARMSTANDBYSERVER_LIST;
 	
 	
 	private static StringBuilder _stringMaker;
@@ -114,6 +118,8 @@ class ConfigManager
 	public static final int CatchUnknownJsonFids = 52;
 	public static final int CatchUnknownJsonKeys = 53;
 	public static final int CloseChannelFromConverterFailure = 54;
+
+	public static final int SendJsonConvError = 55;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -280,6 +286,27 @@ class ConfigManager
 	public static final int TunnelStreamMsgEventPoolLimit = 1104;
 	public static final int TunnelStreamStatusEventPoolLimit = 1105;
 	
+	// WarmStandby
+	public static final int ConsumerWarmStandbyChannelSet = 1200;
+	
+	// WarmStandbyGroup
+	public static final int WarmStandbyGroup = 1201;
+	public static final int WarmStandbyList = 1202;
+	public static final int WarmStandbyChannel = 1203;
+	public static final int WarmStandbyChannelName = 1204;
+	public static final int StartingActiveServer = 1205;
+	public static final int StandbyServerSet = 1206;
+	public static final int WarmStandbyMode = 1207;
+	
+	// WarmStandbyServerInfo
+	public static final int WarmStandbyServerInfoGroup = 1208;
+	public static final int WarmStandbyServerInfoList = 1209;
+	public static final int WarmStandbyServerInfo = 1210;
+	public static final int WarmStandbyServerName = 1211;
+	public static final int WarmStandbyServerChannel = 1212;
+	public static final int PerServiceNameSet = 1213;
+	
+	
 	public static final int MAX_UINT16 = 0xFFFF;
 	
 	static
@@ -296,6 +323,8 @@ class ConfigManager
 		IProviderTagDict = acquire().new TagDictionary();
 		ServerTagDict = acquire().new TagDictionary();
 		GlobalConfigDict = acquire().new TagDictionary();
+		WarmStandbyGroupDict = acquire().new TagDictionary();
+		WarmStandbyServerDict = acquire().new TagDictionary();
 		
 		ConsumerTagDict.add( "ConsumerGroup",ConsumerGroup );
 		ConsumerTagDict.add( "DefaultConsumer",DefaultConsumer );
@@ -307,6 +336,7 @@ class ConfigManager
 		ConsumerTagDict.add( "ChannelSet",ChannelSet );
 		ConsumerTagDict.add( "Logger",ConsumerLoggerName );
 		ConsumerTagDict.add( "Dictionary",ConsumerDictionaryName );
+		ConsumerTagDict.add( "WarmStandbyChannelSet", ConsumerWarmStandbyChannelSet);
 		
 		ConsumerTagDict.add( "CatchUnhandledException",CatchUnhandledException );
 		ConsumerTagDict.add( "DictionaryRequestTimeOut",DictionaryRequestTimeOut );
@@ -344,6 +374,7 @@ class ConfigManager
 		ConsumerTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		ConsumerTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		ConsumerTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+		ConsumerTagDict.add("SendJsonConvError", SendJsonConvError);
 
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -451,6 +482,7 @@ class ConfigManager
 		NiProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		NiProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		NiProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+		NiProviderTagDict.add("SendJsonConvError", SendJsonConvError);
 
 		
 		DirectoryTagDict.add( "DirectoryGroup", DirectoryGroup);
@@ -523,6 +555,7 @@ class ConfigManager
 		IProviderTagDict.add( "XmlTraceMaxFileSize", XmlTraceMaxFileSize );
 		IProviderTagDict.add( "XmlTracePing", XmlTracePing );
 		IProviderTagDict.add( "XmlTraceRead", XmlTraceRead );
+		IProviderTagDict.add( "XmlTraceWrite", XmlTraceWrite );
 		IProviderTagDict.add( "XmlTraceToFile", XmlTraceToFile );
 		IProviderTagDict.add( "XmlTraceToMultipleFiles", XmlTraceToMultipleFiles );
 		IProviderTagDict.add( "XmlTraceToStdout", XmlTraceToStdout );
@@ -531,6 +564,7 @@ class ConfigManager
 		IProviderTagDict.add("CatchUnknownJsonFids", CatchUnknownJsonFids);
 		IProviderTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		IProviderTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
+		IProviderTagDict.add("SendJsonConvError", SendJsonConvError);
 
 		ServerTagDict.add( "ServerGroup", ServerGroup );
 		ServerTagDict.add( "ServerList" , ServerList );
@@ -563,6 +597,21 @@ class ConfigManager
 		GlobalConfigDict.add( "TunnelStreamMsgEventPoolLimit", TunnelStreamMsgEventPoolLimit);
 		GlobalConfigDict.add( "TunnelStreamStatusEventPoolLimit", TunnelStreamStatusEventPoolLimit );
 		GlobalConfigDict.add("JsonConverterPoolsSize", JsonConverterPoolsSize);
+		
+		WarmStandbyGroupDict.add( "WarmStandbyGroup", WarmStandbyGroup);
+		WarmStandbyGroupDict.add( "WarmStandbyList", WarmStandbyList);
+		WarmStandbyGroupDict.add( "WarmStandbyChannel", WarmStandbyChannel);
+		WarmStandbyGroupDict.add( "Name", WarmStandbyChannelName);
+		WarmStandbyGroupDict.add( "StartingActiveServer", StartingActiveServer);
+		WarmStandbyGroupDict.add( "StandbyServerSet", StandbyServerSet);
+		WarmStandbyGroupDict.add( "WarmStandbyMode", WarmStandbyMode);
+		
+		WarmStandbyServerDict.add( "WarmStandbyServerInfoGroup", WarmStandbyServerInfoGroup);
+		WarmStandbyServerDict.add( "WarmStandbyServerInfoList", WarmStandbyServerInfoList);
+		WarmStandbyServerDict.add( "WarmStandbyServerInfo", WarmStandbyServerInfo);
+		WarmStandbyServerDict.add( "Name", WarmStandbyServerName);
+		WarmStandbyServerDict.add( "Channel", WarmStandbyServerChannel);
+		WarmStandbyServerDict.add( "PerServiceNameSet", PerServiceNameSet);
 		
 		CONSUMER_GROUP = ConfigManager.acquire().new Branch();
 		CONSUMER_GROUP.add(ConfigManager.ConsumerGroup,ConfigManager.ConsumerTagDict);
@@ -634,6 +683,17 @@ class ConfigManager
 		GLOBAL_CONFIG = ConfigManager.acquire().new Branch();
 		GLOBAL_CONFIG.add(ConfigManager.GlobalConfig, ConfigManager.GlobalConfigDict);
 		GLOBAL_CONFIG.complete();
+		
+		WARMSTANDBYGROUP_LIST = ConfigManager.acquire().new Branch();
+		WARMSTANDBYGROUP_LIST.add(ConfigManager.WarmStandbyGroup, ConfigManager.WarmStandbyGroupDict);
+		WARMSTANDBYGROUP_LIST.add(ConfigManager.WarmStandbyList, ConfigManager.WarmStandbyGroupDict);
+		WARMSTANDBYGROUP_LIST.complete();
+		
+		WARMSTANDBYSERVER_LIST = ConfigManager.acquire().new Branch();
+		WARMSTANDBYSERVER_LIST.add(ConfigManager.WarmStandbyServerInfoGroup, ConfigManager.WarmStandbyServerDict);
+		WARMSTANDBYSERVER_LIST.add(ConfigManager.WarmStandbyServerInfoList, ConfigManager.WarmStandbyServerDict);
+		WARMSTANDBYSERVER_LIST.complete();
+		
 	}
 
 	public static String AsciiValues[] = {
@@ -679,9 +739,17 @@ class ConfigManager
 			"XmlTraceFileName",
 			"ProxyHost",
 			"ProxyPort",
-			"WsProtocols"
+			"WsProtocols",
+			"WarmStandbyChannelSet",
+			"WarmStandbyChannelName",
+			"StartingActiveServer",
+			"StandbyServerSet",
+			"WarmStandbyMode",
+			"WarmStandbyServerName",
+			"WarmStandbyServerChannel",
+			"PerServiceNameSet"
 	};
-
+	
 	public static String EnumeratedValues[] = {
 		"ChannelType",
 		"CompressionType",
@@ -791,7 +859,8 @@ class ConfigManager
 		"OpenLimit",
 		"OpenWindow",
 		"LoadFactor",
-		"JsonConverterPoolsSize"
+		"JsonConverterPoolsSize",
+		"SendJsonConvError"
 	};
 	public static String DoubleValues[] = {
 		"TokenReissueRatio"	

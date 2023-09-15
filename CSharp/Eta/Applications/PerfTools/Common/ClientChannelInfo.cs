@@ -2,15 +2,17 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Reactor;
+using System;
 using System.Collections.Concurrent;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
     /// Used by the ChannelHandler object. Maintains information about a channel,
@@ -18,6 +20,11 @@ namespace Refinitiv.Eta.PerfTools.Common
     /// </summary>
     public class ClientChannelInfo
     {
+        /// <summary>
+        /// Gets an unique ID for this object.
+        /// </summary>
+        public Guid ID { get; private set; } = Guid.NewGuid();
+
         /// <summary>
         /// Gets or sets the ETA Channel associated with this info.
         /// </summary>
@@ -66,7 +73,12 @@ namespace Refinitiv.Eta.PerfTools.Common
         /// <summary>
         /// Gets or sets a reference back to the list this channel is an element of.
         /// </summary>
-        public volatile ConcurrentBag<ClientChannelInfo>? ParentQueue;
+        public volatile ConcurrentDictionary<Guid, ClientChannelInfo>? ParentQueue;
+
+        /// <summary>
+        /// Use the VA Reactor instead of the ETA Channel for sending and receiving.
+        /// </summary>
+        public ReactorChannel? ReactorChannel { get; set; }
 
         /// <summary>
         /// Gets or set a <see cref="SelectElement"/> associated with this channel if any.

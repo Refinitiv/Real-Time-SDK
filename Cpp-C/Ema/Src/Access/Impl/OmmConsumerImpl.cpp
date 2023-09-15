@@ -99,78 +99,104 @@ OmmConsumerImpl::~OmmConsumerImpl()
 	uninitialize( false, false );
 
 	OmmBaseImplMap<OmmBaseImpl>::releaseCleanupLock();
+
+	if (_activeConfig.dictionaryConfig.shouldCopyIntoAPI)
+	{
+		_activeConfig.dictionaryConfig.dataDictionary->_pImpl->decDataDictionaryRefCount();
+		if (!_activeConfig.dictionaryConfig.dataDictionary->_pImpl->getDataDictionaryRefCount())
+			delete _activeConfig.dictionaryConfig.dataDictionary;
+	}
 }
 
 void OmmConsumerImpl::readCustomConfig( EmaConfigImpl* pConfigImpl )
 {
-	pConfigImpl->getDictionaryName( _activeConfig.configuredName, _activeConfig.dictionaryConfig.dictionaryName );
-
-	if ( _activeConfig.dictionaryConfig.dictionaryName.empty() )
+	if (((OmmConsumerConfigImpl*)pConfigImpl)->dataDictionary() != NULL)
 	{
-		_activeConfig.dictionaryConfig.dictionaryName.set( "Dictionary" );
-		_activeConfig.dictionaryConfig.dictionaryType = Dictionary::ChannelDictionaryEnum;
+		_activeConfig.dictionaryConfig.dictionaryName.set("Dictionary");
+		_activeConfig.dictionaryConfig.dictionaryType = Dictionary::FileDictionaryEnum ;
 		_activeConfig.dictionaryConfig.enumtypeDefFileName.clear();
 		_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName.clear();
+		_activeConfig.dictionaryConfig.dataDictionary = ((OmmConsumerConfigImpl*)pConfigImpl)->dataDictionary();
+		_activeConfig.dictionaryConfig.shouldCopyIntoAPI = ((OmmConsumerConfigImpl*)pConfigImpl)->isShouldCopyIntoAPI();
+
+		if (_activeConfig.dictionaryConfig.shouldCopyIntoAPI)
+			_activeConfig.dictionaryConfig.dataDictionary->_pImpl->incDataDictionaryRefCount();
+
+		EmaString errorMsg("The user specified DataDictionary object is used for dictionary information. ");
+		errorMsg.append("EMA ignores the DictionaryGroup configuration in either file and programmatic configuration database.");
+		pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::VerboseEnum);
 	}
 	else
 	{
-		EmaString dictionaryNodeName( "DictionaryGroup|DictionaryList|Dictionary." );
-		dictionaryNodeName.append( _activeConfig.dictionaryConfig.dictionaryName ).append( "|" );
+		pConfigImpl->getDictionaryName(_activeConfig.configuredName, _activeConfig.dictionaryConfig.dictionaryName);
 
-		EmaString name;
-		if ( !pConfigImpl->get< EmaString >( dictionaryNodeName + "Name", name ) )
+		if (_activeConfig.dictionaryConfig.dictionaryName.empty())
 		{
-			EmaString errorMsg( "no configuration exists in the config file for consumer dictionary [" );
-			errorMsg.append( dictionaryNodeName ).append( "]; will use dictionary defaults if not config programmatically" );
-			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::WarningEnum );
-		}
-
-		if ( !pConfigImpl->get<Dictionary::DictionaryType>( dictionaryNodeName + "DictionaryType", _activeConfig.dictionaryConfig.dictionaryType ) )
+			_activeConfig.dictionaryConfig.dictionaryName.set("Dictionary");
 			_activeConfig.dictionaryConfig.dictionaryType = Dictionary::ChannelDictionaryEnum;
-
-		if ( _activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum )
-		{
-			if ( !pConfigImpl->get<EmaString>( dictionaryNodeName + "RdmFieldDictionaryFileName", _activeConfig.dictionaryConfig.rdmfieldDictionaryFileName ) )
-				_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName.set( "./RDMFieldDictionary" );
-			if ( !pConfigImpl->get<EmaString>( dictionaryNodeName + "EnumTypeDefFileName", _activeConfig.dictionaryConfig.enumtypeDefFileName ) )
-				_activeConfig.dictionaryConfig.enumtypeDefFileName.set( "./enumtype.def" );
+			_activeConfig.dictionaryConfig.enumtypeDefFileName.clear();
+			_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName.clear();
 		}
-	}
+		else
+		{
+			EmaString dictionaryNodeName("DictionaryGroup|DictionaryList|Dictionary.");
+			dictionaryNodeName.append(_activeConfig.dictionaryConfig.dictionaryName).append("|");
 
-	if ( ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure() )
-	{
-		ppc->retrieveDictionaryConfig( _activeConfig.dictionaryConfig.dictionaryName, _activeConfig );
-	}
+			EmaString name;
+			if (!pConfigImpl->get< EmaString >(dictionaryNodeName + "Name", name))
+			{
+				EmaString errorMsg("no configuration exists in the config file for consumer dictionary [");
+				errorMsg.append(dictionaryNodeName).append("]; will use dictionary defaults if not config programmatically");
+				pConfigImpl->appendConfigError(errorMsg, OmmLoggerClient::VerboseEnum);
+			}
 
-	const UInt32 maxUInt32( 0xFFFFFFFF );
-	UInt64 tmp;
-	EmaString instanceNodeName( pConfigImpl->getInstanceNodeName() );
-	instanceNodeName.append( _activeConfig.configuredName ).append( "|" );
+			if (!pConfigImpl->get<Dictionary::DictionaryType>(dictionaryNodeName + "DictionaryType", _activeConfig.dictionaryConfig.dictionaryType))
+				_activeConfig.dictionaryConfig.dictionaryType = Dictionary::ChannelDictionaryEnum;
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "ObeyOpenWindow", tmp ) )
-		_activeConfig.obeyOpenWindow = static_cast<UInt32>( tmp > 0 ? 1 : 0 );
+			if (_activeConfig.dictionaryConfig.dictionaryType == Dictionary::FileDictionaryEnum)
+			{
+				if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "RdmFieldDictionaryFileName", _activeConfig.dictionaryConfig.rdmfieldDictionaryFileName))
+					_activeConfig.dictionaryConfig.rdmfieldDictionaryFileName.set("./RDMFieldDictionary");
+				if (!pConfigImpl->get<EmaString>(dictionaryNodeName + "EnumTypeDefFileName", _activeConfig.dictionaryConfig.enumtypeDefFileName))
+					_activeConfig.dictionaryConfig.enumtypeDefFileName.set("./enumtype.def");
+			}
+		}
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "PostAckTimeout", tmp ) )
-		_activeConfig.postAckTimeout = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+		if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
+		{
+			ppc->retrieveDictionaryConfig(_activeConfig.dictionaryConfig.dictionaryName, _activeConfig);
+		}
 
-	if ( pConfigImpl->get< UInt64 >( instanceNodeName + "DictionaryRequestTimeOut", tmp ) )
-		_activeConfig.dictionaryRequestTimeOut = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+		const UInt32 maxUInt32(0xFFFFFFFF);
+		UInt64 tmp;
+		EmaString instanceNodeName(pConfigImpl->getInstanceNodeName());
+		instanceNodeName.append(_activeConfig.configuredName).append("|");
 
-	if ( pConfigImpl->get< UInt64 >( instanceNodeName + "DirectoryRequestTimeOut", tmp ) )
-		_activeConfig.directoryRequestTimeOut = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "ObeyOpenWindow", tmp))
+			_activeConfig.obeyOpenWindow = static_cast<UInt32>(tmp > 0 ? 1 : 0);
 
-	if ( pConfigImpl->get<UInt64>( instanceNodeName + "MaxOutstandingPosts", tmp ) )
-		_activeConfig.maxOutstandingPosts = static_cast<UInt32>( tmp > maxUInt32 ? maxUInt32 : tmp );
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "PostAckTimeout", tmp))
+			_activeConfig.postAckTimeout = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	_activeConfig.pRsslDirectoryRequestMsg = pConfigImpl->getDirectoryReq();
+		if (pConfigImpl->get< UInt64 >(instanceNodeName + "DictionaryRequestTimeOut", tmp))
+			_activeConfig.dictionaryRequestTimeOut = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	_activeConfig.pRsslEnumDefRequestMsg = pConfigImpl->getEnumDefDictionaryReq();
+		if (pConfigImpl->get< UInt64 >(instanceNodeName + "DirectoryRequestTimeOut", tmp))
+			_activeConfig.directoryRequestTimeOut = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	_activeConfig.pRsslRdmFldRequestMsg = pConfigImpl->getRdmFldDictionaryReq();
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxOutstandingPosts", tmp))
+			_activeConfig.maxOutstandingPosts = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
 
-	if ( ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure() )
-	{
-		ppc->retrieveCustomConfig( _activeConfig.configuredName, _activeConfig );
+		_activeConfig.pRsslDirectoryRequestMsg = pConfigImpl->getDirectoryReq();
+
+		_activeConfig.pRsslEnumDefRequestMsg = pConfigImpl->getEnumDefDictionaryReq();
+
+		_activeConfig.pRsslRdmFldRequestMsg = pConfigImpl->getRdmFldDictionaryReq();
+
+		if (ProgrammaticConfigure* ppc = pConfigImpl->getProgrammaticConfigure())
+		{
+			ppc->retrieveCustomConfig(_activeConfig.configuredName, _activeConfig);
+		}
 	}
 }
 
@@ -580,6 +606,12 @@ void OmmConsumerImpl::renewOAuth2Credentials(OAuth2CredentialRenewal& credential
 	{
 		credentialRenewal.clientSecret.data = (char*)credentials.getClientSecret().c_str();
 		credentialRenewal.clientSecret.length = credentials.getClientSecret().length();
+	}
+
+	if (!credentials.getClientJWK().empty())
+	{
+		credentialRenewal.clientJWK.data = (char*)credentials.getClientJWK().c_str();
+		credentialRenewal.clientJWK.length = credentials.getClientJWK().length();
 	}
 
 	if (!credentials.getTokenScope().empty())

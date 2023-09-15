@@ -1,0 +1,3 @@
+# file,location
+Provider.cs,Applications/Provider/Provider.cs
+ProviderSession.cs,Applications/EtaAppCommon/ProviderSession.cs

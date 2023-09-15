@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Threading;
-using static Refinitiv.Eta.Rdm.Login;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using static LSEG.Eta.Rdm.Login;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Consumer
+namespace LSEG.Eta.Example.Consumer
 {
     public class Consumer : ResponseCallback
     {
@@ -205,7 +205,7 @@ namespace Refinitiv.Eta.Example.Consumer
             {
                 if (channelSession.InitChannel(inProg, out error) < TransportReturnCode.SUCCESS)
                 {
-                    Console.WriteLine("Error initializing channel, will retry" + (error != null ? (": " + error.Text) : ""));
+                    Console.WriteLine($"Error initializing channel, will retry. Error: {error?.Text}");
                 }
                 if (channelSession.Channel == null || channelSession.GetChannelState() == ChannelState.ACTIVE)
                     break;
@@ -970,12 +970,11 @@ namespace Refinitiv.Eta.Example.Consumer
 
         private void FlushChannel()
         {
-            TransportReturnCode retval = (TransportReturnCode)1; 
-
-            while (retval > TransportReturnCode.SUCCESS)
+            TransportReturnCode retval;
+            do
             {
                 retval = channelSession.Flush(out error);
-            }
+            } while (retval > TransportReturnCode.SUCCESS);
 
             if (retval < TransportReturnCode.SUCCESS)
             {

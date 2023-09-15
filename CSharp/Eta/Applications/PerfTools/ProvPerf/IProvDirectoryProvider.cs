@@ -2,19 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
     public class IProvDirectoryProvider : DirectoryProvider
     {
@@ -26,7 +26,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         // Open limit
         public int OpenLimit { get => m_OpenLimit; set => m_OpenLimit = value; }
 
-        // Service id 
+        // Service id
         public int ServiceId { get => m_ServiceId; set => m_ServiceId = value; }
 
         // Qos
@@ -35,13 +35,21 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         // Service name
         public string? ServiceName { get => m_ServiceName; set { m_ServiceName = value; } }
 
+        // Use the VA Reactor instead of the ETA Channel for sending and receiving
+        private ReactorSubmitOptions m_ReactorSubmitOptions;
+
+
         public IProvDirectoryProvider() : base()
-        {          
+        {
             DirectoryRequest = new DirectoryRequest();
+
+            m_ReactorSubmitOptions = new ReactorSubmitOptions();
+            m_ReactorSubmitOptions.Clear();
+            m_ReactorSubmitOptions.WriteArgs.Priority = WritePriorities.HIGH;
         }
 
         /// <summary>
-        /// Processes a directory request. 
+        /// Processes a directory request.
         /// This consists of decoding directory request message and encoding/sending directory refresh
         /// </summary>
         /// <param name="channelHandler">handler for the channel</param>
@@ -86,7 +94,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         {
             IChannel channel = clientChannelInfo.Channel!;
 
-            // get a buffer for the source directory refresh 
+            // get a buffer for the source directory refresh
             ITransportBuffer msgBuf = channel.GetBuffer(REFRESH_MSG_SIZE, false, out error);
             if (msgBuf == null)
             {
@@ -149,6 +157,73 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
             // send source directory refresh
             return channelHandler.WriteChannel(clientChannelInfo, msgBuf, 0, out error);
+        }
+
+        internal ReactorReturnCode SendRefreshReactor(ClientChannelInfo? clientChannelInfo, out ReactorErrorInfo? errorInfo)
+        {
+            ReactorChannel reactorChannel = clientChannelInfo!.ReactorChannel!;
+
+            // get a buffer for the source directory refresh
+            ITransportBuffer? msgBuf = reactorChannel.GetBuffer(REFRESH_MSG_SIZE, false, out errorInfo);
+            if (msgBuf == null)
+            {
+                return ReactorReturnCode.FAILURE;
+            }
+
+            // encode source directory refresh
+            m_DirectoryRefresh.Clear();
+            m_DirectoryRefresh.StreamId = DirectoryRequest.StreamId;
+
+            // clear cache
+            m_DirectoryRefresh.ClearCache = true;
+            m_DirectoryRefresh.Solicited = true;
+
+            // state information for refresh message
+            m_DirectoryRefresh.State.Clear();
+            m_DirectoryRefresh.State.StreamState(StreamStates.OPEN);
+            m_DirectoryRefresh.State.DataState(DataStates.OK);
+            m_DirectoryRefresh.State.Code(StateCodes.NONE);
+            m_DirectoryRefresh.State.Text().Data("Source Directory Refresh Completed");
+
+            // attribInfo information for response message
+            m_DirectoryRefresh.Filter = DirectoryRequest.Filter;
+
+            // ServiceId
+            if (DirectoryRequest.HasServiceId)
+            {
+                m_DirectoryRefresh.HasServiceId = true;
+                m_DirectoryRefresh.ServiceId = DirectoryRequest.ServiceId;
+                if (DirectoryRequest.ServiceId == Service.ServiceId)
+                {
+                    m_DirectoryRefresh.ServiceList.Add(Service);
+                }
+            }
+            else
+            {
+                m_DirectoryRefresh.ServiceList.Add(Service);
+            }
+
+            // encode directory refresh
+            m_EncodeIter.Clear();
+            CodecReturnCode ret = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, reactorChannel.MajorVersion, reactorChannel.MinorVersion);
+            if (ret != CodecReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = "EncodeIter.SetBufferAndRWFVersion() failed with return code: " + ret;
+                errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+            ret = m_DirectoryRefresh.Encode(m_EncodeIter);
+            if (ret != CodecReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = "DirectoryRefresh.Encode() failed with return code: " + ret;
+                errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+
+            // send source directory refresh
+            return reactorChannel.Submit(msgBuf, m_ReactorSubmitOptions, out errorInfo);
         }
     }
 }

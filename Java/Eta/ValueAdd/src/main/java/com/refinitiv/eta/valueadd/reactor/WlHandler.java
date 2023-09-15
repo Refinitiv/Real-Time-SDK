@@ -21,7 +21,7 @@ interface WlHandler
     /* Submit a Codec message to a watchlist handler. */
     int submitMsg(WlRequest wlRequest, Msg msg, ReactorSubmitOptions submitOptions, ReactorErrorInfo errorInfo);
     /* Watchlist handler read message method. */
-    int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo);
+    int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, boolean wsbSendClosedRecover, ReactorErrorInfo errorInfo);
     /* Used to notify the watchlist handler of a request timeout. */ 
     int requestTimeout(WlStream wlStream, ReactorErrorInfo errorInfo);
     /* Used to call back the user. */ 

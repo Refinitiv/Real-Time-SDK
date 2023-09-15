@@ -2,28 +2,31 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
-    /// ReactorAcceptOptions to be used in the <see cref="Reactor.Accept(Transports.Interfaces.IServer, 
+    /// ReactorAcceptOptions to be used in the <see cref="Reactor.Accept(IServer, 
     /// ReactorAcceptOptions, ReactorRole, out ReactorErrorInfo?)"/> call.
     /// </summary>
-    public class ReactorAcceptOptions
+    sealed public class ReactorAcceptOptions
     {
         private const int DEFAULT_TIME = 60;
         int m_Timeout = DEFAULT_TIME;
 
         /// <summary>
-        /// 
+        /// Gets ETA AcceptOptions.
         /// </summary>
         public AcceptOptions AcceptOptions { get; private set; }
 
+        /// <summary>
+        /// Create <see cref="ReactorAcceptOptions"/>
+        /// </summary>
         public ReactorAcceptOptions()
         {
             AcceptOptions = new AcceptOptions();

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
 */
 
@@ -29,6 +29,9 @@
 #include "DirectoryServiceStore.h"
 
 #include "OmmIProviderImpl.h"
+#ifndef NO_ETA_CPU_BIND
+#include "rtr/rsslBindThread.h"
+#endif
 
 #include "GetTime.h"
 
@@ -43,6 +46,7 @@
 using namespace refinitiv::ema::access;
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, void* closure) :
+	OmmCommonImpl(),
 	_activeServerConfig(activeServerConfig),
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
@@ -71,10 +75,18 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+#ifdef USING_POLL
+	_serverReadEventFdsIdx = -1;
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, OmmProviderClient& ommProviderClient, OmmProviderErrorClient& client, void* closure) :
+	OmmCommonImpl(),
 	_activeServerConfig(activeServerConfig),
 	_pOmmProviderClient(&ommProviderClient),
 	_userLock(),
@@ -103,6 +115,13 @@ OmmServerBaseImpl::OmmServerBaseImpl(ActiveServerConfig& activeServerConfig, Omm
 	_bApiDispatchThreadStarted(false),
 	_bUninitializeInvoked(false)
 {
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+#ifdef USING_POLL
+	_serverReadEventFdsIdx = -1;
+#endif
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(client);
@@ -154,7 +173,20 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 
 	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeServerConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
-	
+
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "SendJsonConvError", tmp))
+		_activeServerConfig.sendJsonConvError = tmp > 0 ? true : false;
+
+	if (pConfigServerImpl->isUserSetShouldInitializeCPUIDlib())
+	{
+		_activeServerConfig.shouldInitializeCPUIDlib = pConfigServerImpl->getShouldInitializeCPUIDlib();
+	}
+	else
+	{
+		if (pConfigServerImpl->get<UInt64>(instanceNodeName + "ShouldInitializeCPUIDlib", tmp))
+			_activeServerConfig.shouldInitializeCPUIDlib = tmp > 0 ? true : false;
+	}
+
 	Int64 tmp1;
 	
 	if (pConfigServerImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
@@ -237,6 +269,11 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		_activeServerConfig.outputBufferSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
 	}
 
+	if (pConfigServerImpl->get<UInt64>(instanceNodeName + "JsonTokenIncrementSize", tmp))
+	{
+		_activeServerConfig.jsonTokenIncrementSize = tmp <= 0xFFFFFFFF ? (UInt32)tmp : 0xFFFFFFFF;
+	}
+
 	pConfigServerImpl->get<Int64>(instanceNodeName + "PipePort", _activeServerConfig.pipePort);
 
 	pConfigServerImpl->getLoggerName(_activeServerConfig.configuredName, _activeServerConfig.loggerConfig.loggerName);
@@ -258,7 +295,7 @@ void OmmServerBaseImpl::readConfig(EmaConfigServerImpl* pConfigServerImpl)
 		{
 			EmaString errorMsg("no configuration exists for consumer logger [");
 			errorMsg.append(loggerNodeName).append("]; will use logger defaults if not config programmatically");
-			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::ErrorEnum);
+			pConfigServerImpl->appendConfigError(errorMsg, OmmLoggerClient::VerboseEnum);
 		}
 
 		pConfigServerImpl->get<OmmLoggerClient::LoggerType>(loggerNodeName + "LoggerType", _activeServerConfig.loggerConfig.loggerType);
@@ -550,6 +587,10 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 	if (pConfigServerImpl->get<UInt64>(serverNodeName + "HighWaterMark", tempUInt))
 		newServerConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
+	tempUInt = 0;
+	if (pConfigServerImpl->get<UInt64>(serverNodeName + "DirectWrite", tempUInt))
+		newServerConfig->directWrite = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
+
 	EmaString instanceNodeName(pConfigServerImpl->getInstanceNodeName());
 	instanceNodeName.append(_activeServerConfig.configuredName).append("|");
 
@@ -688,6 +729,8 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 			rsslInitOpts.jitOpts.libcryptoName = (char*)_activeServerConfig.libCryptoName.c_str();
 		if (_activeServerConfig.libcurlName.length() > 0)
 			rsslInitOpts.jitOpts.libcurlName = (char*)_activeServerConfig.libcurlName.c_str();
+		if (_activeServerConfig.shouldInitializeCPUIDlib != DEFAULT_SHOULD_INIT_CPUID_LIB)
+			rsslInitOpts.shouldInitializeCPUIDlib = _activeServerConfig.shouldInitializeCPUIDlib;
 
 		RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 		if (retCode != RSSL_RET_SUCCESS)
@@ -715,6 +758,12 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		rsslClearCreateReactorOptions(&reactorOpts);
 
+		if ( !serverConfigImpl->getCpuWorkerThreadBind().empty() )
+		{
+			reactorOpts.cpuBindWorkerThread.length = serverConfigImpl->getCpuWorkerThreadBind().length();
+			reactorOpts.cpuBindWorkerThread.data = (char*)serverConfigImpl->getCpuWorkerThreadBind().c_str();
+		}
+
 		reactorOpts.userSpecPtr = (void*)this;
 
 		_pRsslReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo);
@@ -739,9 +788,6 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		_state = ReactorInitializedEnum;
 
 #ifdef USING_SELECT
-		FD_ZERO(&_readFds);
-		FD_ZERO(&_exceptFds);
-
 		FD_SET(_pipe.readFD(), &_readFds);
 		FD_SET(_pipe.readFD(), &_exceptFds);
 		FD_SET(_pRsslReactor->eventFd, &_readFds);
@@ -800,6 +846,8 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 		jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeServerConfig.catchUnknownJsonFids;
 		jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeServerConfig.closeChannelFromFailure;
 		jsonConverterOptions.outputBufferSize = _activeServerConfig.outputBufferSize;
+		jsonConverterOptions.jsonTokenIncrementSize = _activeServerConfig.jsonTokenIncrementSize;
+		jsonConverterOptions.sendJsonConvError = _activeServerConfig.sendJsonConvError;
 
 		if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 		{
@@ -865,10 +913,15 @@ void OmmServerBaseImpl::initialize(EmaConfigServerImpl* serverConfigImpl)
 
 		if ( isApiDispatching() && !_atExit )
 		{
+			if ( !serverConfigImpl->getCpuApiThreadBind().empty() )
+			{
+				_cpuApiThreadBind = serverConfigImpl->getCpuApiThreadBind();
+			}
+
 			start();
 
 			/* Waits until the API dispatch thread started */
-			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
+			while ( !_bApiDispatchThreadStarted && !_atExit ) OmmBaseImplMap<OmmServerBaseImpl>::sleep(100);
 		}
 
 		if (_atExit)
@@ -1231,7 +1284,7 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 #endif
 
 	RsslError rsslError;
-	if (RSSL_RET_SUCCESS != rsslCloseServer(_pRsslServer, &rsslError))
+	if (_pRsslServer && RSSL_RET_SUCCESS != rsslCloseServer(_pRsslServer, &rsslError))
 	{
 		if (OmmLoggerClient::ErrorEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity)
 		{
@@ -1259,7 +1312,8 @@ void OmmServerBaseImpl::uninitialize(bool caughtException, bool calledFromInit)
 	if (!calledFromInit) _userLock.unlock();
 
 #ifdef USING_POLL
-	delete[] _eventFds;
+	if (_eventFds)
+		delete[] _eventFds;
 #endif
 }
 
@@ -1758,6 +1812,46 @@ void OmmServerBaseImpl::run()
 {
 	_dispatchLock.lock();
 	_bApiDispatchThreadStarted = true;
+
+	/* Bind cpu for the API thread. */
+	if ( !_cpuApiThreadBind.empty() )
+	{
+#ifdef NO_ETA_CPU_BIND
+		_dispatchLock.unlock();
+		EmaString temp("CPU Binding is not supported by this EMA library build. OmmBaseImpl::run().");
+
+		if (_pLoggerClient) _pLoggerClient->log(_activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+		setAtExit();
+		return;
+#else
+		RsslRet ret;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+
+		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
+		{
+			_dispatchLock.unlock();
+			EmaString temp( "Failed to bind Cpu for API thread. OmmServerBaseImpl::run()." );
+			temp.append( " CPU='" ).append( _cpuApiThreadBind )
+				.append( "' Error Id='" ).append( rsslErrorInfo.rsslError.rsslErrorId )
+				.append( "' Internal sysError='" ).append( rsslErrorInfo.rsslError.sysError )
+				.append( "' Error Location='" ).append( rsslErrorInfo.errorLocation )
+				.append( "' Error Text='" ).append( rsslErrorInfo.rsslError.text).append( "'. " );
+
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeServerConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
+			setAtExit();
+			return;
+		}
+
+		if ( OmmLoggerClient::SuccessEnum >= _activeServerConfig.loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "EMA Api thread bound to CPU: " );
+			temp.append( _cpuApiThreadBind ).append( "." );
+
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeServerConfig.instanceName, OmmLoggerClient::SuccessEnum, temp );
+		}
+#endif
+	}
 
 	while (!Thread::isStopping() && !_atExit)
 		rsslReactorDispatchLoop(_activeServerConfig.dispatchTimeoutApiThread, _activeServerConfig.maxDispatchCountApiThread, _bEventReceived);

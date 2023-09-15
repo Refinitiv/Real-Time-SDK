@@ -1,6 +1,6 @@
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
-
+apply plugin: 'java-library'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -8,50 +8,108 @@ group = "com.refinitiv.eta.valueadd.cache"
 archivesBaseName = "etaValueAddCache"
 version "$SpecificationVersion"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+java {
+    withSourcesJar()
+}
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+ext.sharedManifest = manifest {
+    attributes( 'Sealed': 'true',
+            'Build-Date': BuildDate,
+            'Specification-Version': SpecificationVersion,
+            'Specification-Vendor': vendor,
+            'Implementation-Title': group,
+            'Implementation-Version': etaImplementationVersion,
+            'Implementation-Vendor': vendor )
+}
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
+javadoc {
+    doFirst {
+        println "Generating javadoc for ValueAddCache"
+    }
 
-            pom.project {
-                name "$archivesBaseName"
-                    packaging 'jar'
-                    url 'https://github.com/Refinitiv/Real-Time-SDK'
-                    description 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
+    destinationDir = file('../Docs/refman/etajvalueaddcache/')
+    title = "ETA ValueAddCache JAVA " +  "${SpecificationVersion}"
 
-                    scm {
-                        connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                            developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                            url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                    }
+    options.footer ("${javadoc_footer}")
+    options.header ("${javadoc_header}")
+    options.bottom ("${javadoc_bottom}")
+
+    options.group ('Cache', 'com.refinitiv.eta.valueadd.cache')
+
+    options.setWindowTitle ('ETA ValueAddCache')
+}
+
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
+    from javadoc.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
+
+    manifest {
+        attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
+        from sharedManifest
+    }
+}
+
+publishing {
+    publications{
+        mavenJava(MavenPublication){
+
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
+            artifact javadocJar
+
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
+
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
 
                 developers {
                     developer {
-                        organization 'Refinitiv'
+                        organization = 'Refinitiv'
                     }
                 }
 
                 licenses {
                     license {
-                        name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
             }
         }
     }
+
+    repositories {
+        maven {
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+            name = "repository"
+            def releaseRepository = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepository = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository
+        }
+    }
 }
 
 signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+    }
     sign configurations.archives
+    sign publishing.publications.mavenJava
 }
 
 eclipse {
@@ -61,21 +119,12 @@ eclipse {
 }
 
 dependencies {
-    testCompile('org.mockito:mockito-all:1.9.0'){
+    testImplementation('org.mockito:mockito-all:1.10.19'){
         exclude group: 'org.hamcrest'
     }
 
-	compile project(':Eta:ValueAdd')
-}
-
-ext.sharedManifest = manifest {
-        attributes( 'Sealed': 'true',
-                'Build-Date': BuildDate,
-                'Specification-Version': SpecificationVersion,
-                'Specification-Vendor': vendor,
-                'Implementation-Title': group,
-                'Implementation-Version': etaImplementationVersion,
-                'Implementation-Vendor': vendor )
+    api project(':Eta:Core')
+    api project(':Eta:ValueAdd')
 }
 
 jar {
@@ -85,50 +134,13 @@ jar {
 		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
 		from sharedManifest 
 	}
-
-        destinationDir = file("../Libs/")
-        baseName = 'etaValueAddCache'
-}
-
-javadoc {
-        doFirst {
-                println "Generating javadoc for ValueAddCache"
-        }
-
-        destinationDir = file('../Docs/refman/etajvalueaddcache/')
-        title = "ETA ValueAddCache JAVA " +  "${SpecificationVersion}"
-
-        options.footer ("${javadoc_footer}")
-        options.header ("${javadoc_header}")
-        options.bottom ("${javadoc_bottom}")
-
-        options.group ('Cache', 'com.refinitiv.eta.valueadd.cache')
-
-        options.setWindowTitle ('ETA ValueAddCache')
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('etaValueAddCache');
+    archiveBaseName.set('etaValueAddCache');
 }
 
 task cleanJar (type: Delete) {
         delete "${jar.archivePath}"
 }
 clean.dependsOn cleanJar
-
-task javadocJar (type: Jar) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-        destinationDir = jar.destinationDir
-
-        manifest {
-		attributes 'Specification-Title': 'Enterprise Transport API (ETA) Java Edition ValueAddCache Classes'
-                from sharedManifest
-        }
-}
-
-task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-}
-
-artifacts {
-        archives javadocJar, sourcesJar
-}
 

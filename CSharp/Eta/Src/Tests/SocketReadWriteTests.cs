@@ -2,22 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Internal.Interfaces;
-using Refinitiv.Eta.Tests;
-using Refinitiv.Eta.Transports.Internal;
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.Common;
+using LSEG.Eta.Internal.Interfaces;
+using LSEG.Eta.Tests;
+using LSEG.Eta.Transports.Internal;
 using System.Text;
 
 using Xunit;
 using Xunit.Categories;
-using Refinitiv.Eta.Internal;
+using LSEG.Eta.Internal;
 
-namespace Refinitiv.Eta.Transports.Tests
+namespace LSEG.Eta.Transports.Tests
 {
     [Collection("Transport")]
     [Category("Unit")]
@@ -78,7 +77,7 @@ namespace Refinitiv.Eta.Transports.Tests
             Assert.NotNull(recevBuf);
             Assert.Null(error);
 
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
 
             Transport.Uninitialize();
@@ -143,14 +142,14 @@ namespace Refinitiv.Eta.Transports.Tests
                 Assert.NotNull(recevBuf);
                 Assert.Null(error);
 
-                Assert.True(TestUtilities.CompareByteArray(dataByteArray1, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+                Assert.True(TestUtilities.CompareByteArray(dataByteArray1, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
                 ITransportBuffer recevBuf2 = channel.Read(readArgs, out error);
                 Assert.Equal(TransportReturnCode.SUCCESS, readArgs.ReadRetVal);
                 Assert.NotNull(recevBuf2);
                 Assert.Null(error);
 
-                Assert.True(TestUtilities.CompareByteArray(dataByteArray2, 0, recevBuf2.Data.Contents, recevBuf2.DataStartPosition, recevBuf2.Length));
+                Assert.True(TestUtilities.CompareByteArray(dataByteArray2, 0, recevBuf2.Data.Contents, recevBuf2.GetDataStartPosition(), recevBuf2.Length()));
 
                 mockChannel.Clear();
             }
@@ -242,7 +241,7 @@ namespace Refinitiv.Eta.Transports.Tests
             Assert.NotNull(recevBuf);
             Assert.Null(error);
 
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
         }
@@ -320,7 +319,7 @@ namespace Refinitiv.Eta.Transports.Tests
             Assert.NotNull(recevBuf);
             Assert.Null(error);
 
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
 
@@ -369,7 +368,7 @@ namespace Refinitiv.Eta.Transports.Tests
             Assert.NotNull(recevBuf);
             Assert.Null(error);
 
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
 
             Transport.Uninitialize();
@@ -463,16 +462,16 @@ namespace Refinitiv.Eta.Transports.Tests
 
             ITransportBuffer recevBuf = channel.Read(readArgs, out error);
             Assert.NotNull(recevBuf);
-            Assert.Equal(dataByteArray1.Length, recevBuf.Length);
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray1, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.Equal(dataByteArray1.Length, recevBuf.Length());
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray1, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
             mockChannel.ClearNetworkBuffer(); //channel should already get all data into internal buffer after the first read,
                                               //hence network buffer should be empty
 
             recevBuf = channel.Read(readArgs, out error);
             Assert.NotNull(recevBuf);
-            Assert.Equal(dataByteArray2.Length, recevBuf.Length);
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray2, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.Equal(dataByteArray2.Length, recevBuf.Length());
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray2, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
             recevBuf = channel.Read(readArgs, out error);
             Assert.Null(recevBuf);
@@ -492,8 +491,8 @@ namespace Refinitiv.Eta.Transports.Tests
 
             recevBuf = channel.Read(readArgs, out error);
             Assert.NotNull(recevBuf);
-            Assert.Equal(dataByteArray1.Length, recevBuf.Length);
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray1, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.Equal(dataByteArray1.Length, recevBuf.Length());
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray1, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
 
@@ -587,8 +586,8 @@ namespace Refinitiv.Eta.Transports.Tests
                 Assert.NotNull(recevBuf);
                 Assert.Null(error);
 
-                Assert.Equal(dataByteArray.Length, recevBuf.Length);
-                Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+                Assert.Equal(dataByteArray.Length, recevBuf.Length());
+                Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
             }
 
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out _));
@@ -831,8 +830,8 @@ namespace Refinitiv.Eta.Transports.Tests
                 Assert.NotNull(recevBuf);
             }
 
-            Assert.Equal(dataByteArray.Length, recevBuf.Length);
-            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.DataStartPosition, recevBuf.Length));
+            Assert.Equal(dataByteArray.Length, recevBuf.Length());
+            Assert.True(TestUtilities.CompareByteArray(dataByteArray, 0, recevBuf.Data.Contents, recevBuf.GetDataStartPosition(), recevBuf.Length()));
 
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
 

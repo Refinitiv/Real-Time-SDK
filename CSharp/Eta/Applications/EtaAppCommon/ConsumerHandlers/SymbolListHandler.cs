@@ -2,22 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// This is the symbol list handler for the ETA consumer application. 
@@ -89,7 +89,8 @@ namespace Refinitiv.Eta.Example.Common
                     if (statusMsg.CheckHasState())
                     {
                         state.DataState(statusMsg.State.DataState());
-                        this.state.StreamState(statusMsg.State.StreamState());
+                        state.StreamState(statusMsg.State.StreamState());
+                        state.Text(statusMsg.State.Text());
                         Console.WriteLine("    " + state);
                     }
                     break;

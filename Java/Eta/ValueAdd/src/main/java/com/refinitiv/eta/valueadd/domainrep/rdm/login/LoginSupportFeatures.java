@@ -335,4 +335,38 @@ public interface LoginSupportFeatures
      *          false - if not.
      */    
     public boolean checkHasSupportEnhancedSymbolList();
+    
+    /**
+     * Indicates support for Standby Mode features.
+     * 
+     * @return supportStandbyMode.   		3 - if both login-based and service-based standby modes supported
+     * 										2 - if standby mode service-based supported
+     * 										1 - if standby mode login-based supported
+     *                                      0 - if no standby mode supported
+     */
+    public long supportStandbyMode();
+    
+    /**
+     * Indicates support for Standby Mode features.
+     *
+     * @param supportStandbyMode the supported standby mode(s)
+     */    
+    public void supportStandbyMode(long supportStandbyMode);
+    
+    /**
+     * Applies supportStandbyMode presence flag.
+     * 
+     * This flag can also be bulk-set by {@link #flags(int)}
+     */
+    public void applyHasSupportStandbyMode();
+
+    /**
+     * Checks the presence of supportStandbyMode field.
+     * 
+     * This flag can also be bulk-get by {@link #flags()}
+     * 
+     * @return  true  - if supportStandbyMode field is present, 
+     *          false - if not.
+     */    
+    public boolean checkHasSupportStandbyMode();
 }

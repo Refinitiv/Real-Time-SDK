@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// Base class for NiProvider Item domain handlers.
@@ -46,7 +46,11 @@ namespace Refinitiv.Eta.Example.Common
             CodecReturnCode ret = closeMessage.Encode(encIter);
             if (ret != CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("Encode MarketPriceClose: Failed <" + ret + ">");
+                error = new Error()
+                {
+                    Text = $"Encode MarketPriceClose Failed: {ret.GetAsString()}",
+                    ErrorId = TransportReturnCode.FAILURE
+                };
                 return TransportReturnCode.FAILURE;
             }
             return chnl.Write(msgBuf, out error);
@@ -75,7 +79,7 @@ namespace Refinitiv.Eta.Example.Common
                 TransportReturnCode ret;
                 if ((ret = CloseStream(chnl, entry.Key, out error)) != TransportReturnCode.SUCCESS)
                 {
-                    Console.WriteLine("Failed to close stream " + entry.Key + ": " + " code " + ret + (error != null ? ", " + error.Text : ""));
+                    Console.WriteLine($"Failed to close stream {entry.Key}, code: {ret}, error: {error?.Text}");
                 }
                 itemsToRemove.Add(entry.Key);
             }

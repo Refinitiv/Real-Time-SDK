@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
-namespace Refinitiv.Eta.PerfTools.TransportPerf
+namespace LSEG.Eta.PerfTools.TransportPerf
 {
     /// <summary>
     /// The TransportPerf application. This application may act as a clienl or server as appropriate,
@@ -459,8 +459,8 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
                         fileWriter.Write("  No latency information was received.\n\n");
 
                     fileWriter.Write("  Sampling duration(sec): {0:F2}\n", threadConnectedTime);
-                    fileWriter.Write("  Msgs Sent: {0,D}\n", thread.MsgsSent.GetTotal());
-                    fileWriter.Write("  Msgs Received: {0,D}\n", thread.MsgsReceived.GetTotal());
+                    fileWriter.Write("  Msgs Sent: {0:D}\n", thread.MsgsSent.GetTotal());
+                    fileWriter.Write("  Msgs Received: {0:D}\n", thread.MsgsReceived.GetTotal());
                     fileWriter.Write("  Data Sent (MB): {0:F2}\n", thread.BytesSent.GetTotal() / 1048576.0);
                     fileWriter.Write("  Data Received (MB): {0:F2}\n", thread.BytesReceived.GetTotal() / 1048576.0);
                     fileWriter.Write("  Avg. Msg Sent Rate: {0:F0}\n", threadConnectedTime > 0 ? thread.MsgsSent.GetTotal() / threadConnectedTime : 0);
@@ -507,7 +507,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
             else
                 Console.Write("No CPU/Mem statistics taken.\n\n");
 
-            fileWriter.Write("  Process ID: {0}\n", Environment.CurrentManagedThreadId);
+            fileWriter.Write("  Process ID: {0}\n", Process.GetCurrentProcess().Id.ToString());
         }
 
         private void SendToLeastLoadedThread(IChannel chnl)

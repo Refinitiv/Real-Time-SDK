@@ -2,28 +2,33 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using LSEG.Eta.Codec;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// This is the service discovery options to be used in the <see cref="Reactor.QueryServiceDiscovery(ReactorServiceDiscoveryOptions, out ReactorErrorInfo?)"/>
     /// to get endpoint informaton from the service discovery.
     /// </summary>
-    public class ReactorServiceDiscoveryOptions
+    sealed public class ReactorServiceDiscoveryOptions
     {
         private Buffer m_ClientId = new Buffer();
         private Buffer m_ClientSecret = new Buffer();
+        private Buffer m_ClientJwk = new Buffer();
+        private Buffer m_Audience = new Buffer();
         private Buffer m_ProxyHostName = new Buffer();
         private Buffer m_ProxyPort = new Buffer();
         private Buffer m_ProxyUserName = new Buffer();
         private Buffer m_ProxyPassword = new Buffer();
 
+        /// <summary>
+        /// Creates <see cref="ReactorServiceDiscoveryOptions"/>
+        /// </summary>
         public ReactorServiceDiscoveryOptions()
         {
             Clear();
@@ -36,6 +41,8 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         {
             m_ClientId.Clear();
             m_ClientSecret.Clear();
+            m_ClientJwk.Clear();
+            m_Audience.Data(ReactorOAuthCredential.DEFAULT_JWT_AUDIENCE);
             Transport = ReactorDiscoveryTransportProtocol.RD_TP_INIT;
             DataFormat = ReactorDiscoveryDataFormatProtocol.RD_DP_INIT;
             m_ProxyHostName.Clear();
@@ -45,7 +52,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the unique ID defined for an application making a request to the token service.
+        /// Gets or sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
         /// </summary>
         public Buffer ClientId 
         {
@@ -62,6 +69,26 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             get { return m_ClientSecret; }
 
             set { m_ClientSecret.Data(value.Data(), value.Position, value.Length); }
+        }
+
+        /// <summary>
+        /// Gets or sets the JWK formatted private key used to create the JWT.  The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+        /// </summary>
+        public Buffer ClientJwk
+        {
+            get { return m_ClientJwk; }
+
+            set { m_ClientJwk.Data(value.Data(), value.Position, value.Length); }
+        }
+
+        /// <summary>
+        /// Gets or sets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
+        /// </summary>
+        public Buffer Audience
+        {
+            get { return m_Audience; }
+
+            set { m_Audience.Data(value.Data(), value.Position, value.Length); }
         }
 
         /// <summary>

@@ -39,7 +39,9 @@ namespace ema {
 namespace access {
 
 class FieldListDecoder;
-
+class DictionaryCallbackClient;
+class OmmConsumerImpl;
+class OmmConsumerConfigImpl;
 }
 
 namespace rdm {
@@ -422,6 +424,20 @@ public:
 	*/
 	refinitiv::ema::access::UInt32 extractDictionaryType(const refinitiv::ema::access::Series& series);
 
+	/**
+	* Check whether the Field Dictionary has been loaded or not.
+
+	* @return true if Field Dictionary has been loaded, otherwise false.
+	*/
+	bool isFieldDictionaryLoaded() const;
+
+	/**
+	* Check whether the EnumTypeDef has been loaded or not.
+
+	* @return true if EnumTypeDef has been loaded, otherwise false.
+	*/
+	bool isEnumTypeDefLoaded() const;
+
 	/** Returns a string representation of the class instance.
 	@throw OmmMemoryExhaustionException if app runs out of memory
 	@return string representation of the class instance
@@ -436,7 +452,10 @@ public:
 
 private:
 
+	friend class refinitiv::ema::access::DictionaryCallbackClient;
 	friend class refinitiv::ema::access::FieldListDecoder;
+	friend class refinitiv::ema::access::OmmConsumerImpl;
+	friend class refinitiv::ema::access::OmmConsumerConfigImpl;
 
 	DataDictionary(bool);
 

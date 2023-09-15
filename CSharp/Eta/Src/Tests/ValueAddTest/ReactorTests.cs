@@ -2,29 +2,27 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using Xunit;
 using Xunit.Categories;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.ValueAdd.Reactor;
 using System.Net.Sockets;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Transports;
 using System;
-using Refinitiv.Eta.Transports.Interfaces;
 using System.Threading.Tasks;
 using System.Threading;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using static Refinitiv.Eta.Rdm.Directory;
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using LSEG.Eta.ValueAdd.Rdm;
+using static LSEG.Eta.Rdm.Directory;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using Buffer = LSEG.Eta.Codec.Buffer;
 using System.Collections.Generic;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     [Collection("ValueAdded")]
     public class ReactorTests
@@ -636,11 +634,11 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
                 loopCount--;
             }while (loopCount > 0);
 
-            Assert.Equal(3, serverComponentTest.ReactorChannel.GetPingHandler().GetPingReceived());
-            Assert.Equal(3, serverComponentTest.ReactorChannel.GetPingHandler().GetPingSent());
+            Assert.True(serverComponentTest.ReactorChannel.GetPingHandler().GetPingReceived() >= 9);
+            Assert.True(serverComponentTest.ReactorChannel.GetPingHandler().GetPingSent() >= 9);
 
-            Assert.Equal(3, clientComponentTest.ReactorChannel.GetPingHandler().GetPingReceived());
-            Assert.Equal(3, clientComponentTest.ReactorChannel.GetPingHandler().GetPingSent());
+            Assert.True(clientComponentTest.ReactorChannel.GetPingHandler().GetPingReceived() >= 9);
+            Assert.True(clientComponentTest.ReactorChannel.GetPingHandler().GetPingSent() >= 9);
 
             Assert.Equal(TransportReturnCode.SUCCESS, server.Close(out error));
 
@@ -2333,39 +2331,38 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
                     }
                 }
 
-                public int Length
+                public bool IsOwnedByApp { get; set; }
+
+                public int Length()
                 {
-                    get
+                    if (parentChannel.smallBuffer == false)
                     {
-                        if (parentChannel.smallBuffer == false)
-                        {
-                            return bufSize;
-                        }
-                        else
-                        {
-                            parentChannel.smallBuffer = false;
-                            return smallBufSize;
-                        }
+                        return bufSize;
+                    }
+                    else
+                    {
+                        parentChannel.smallBuffer = false;
+                        return smallBufSize;
                     }
                 }
 
-                public int Capacity
+                public int Capacity()
                 {
-                    get
+                    if (parentChannel.smallBuffer == false)
                     {
-                        if (parentChannel.smallBuffer == false)
-                        {
-                            return bufSize;
-                        }
-                        else
-                        {
-                            parentChannel.smallBuffer = false;
-                            return smallBufSize;
-                        }
+                        return bufSize;
+                    }
+                    else
+                    {
+                        parentChannel.smallBuffer = false;
+                        return smallBufSize;
                     }
                 }
 
-                public int DataStartPosition => 0;
+                public int GetDataStartPosition()
+                {
+                    return 0;
+                }
 
                 public int Copy(ByteBuffer destination)
                 {

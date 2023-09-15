@@ -1,26 +1,31 @@
-﻿/*|-----------------------------------------------------------------------------
+/*|-----------------------------------------------------------------------------
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Common;
 using System.Diagnostics;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// This class represents the OAuth credential renewal information.
     /// </summary>
-    public class ReactorOAuthCredentialRenewal
+    sealed public class ReactorOAuthCredentialRenewal
     {
         private Buffer m_ClientId = new Buffer();
         private Buffer m_ClientSecret = new Buffer();
         private Buffer m_TokenScope = new Buffer();
+        private Buffer m_ClientJwk = new Buffer();
+        private Buffer m_Audience = new Buffer();
 
+        /// <summary>
+        /// Creates <see cref="ReactorOAuthCredentialRenewal"/>
+        /// </summary>
         public ReactorOAuthCredentialRenewal()
         {
             Clear();
@@ -34,10 +39,12 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             m_ClientId.Clear();
             m_ClientSecret.Clear();
             m_TokenScope.Clear();
+            m_ClientJwk.Clear();
+            m_Audience.Clear();
         }
 
         /// <summary>
-        /// Gets or sets the unique identifier that was used when sending the authorization request.
+        /// Gets or sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
         /// </summary>
         public Buffer ClientId
         {
@@ -47,7 +54,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the secret that was used by OAuth Client to authenticate with the token service. 
+        /// Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
         /// </summary>
         public Buffer ClientSecret
         {
@@ -57,13 +64,33 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Gets or sets the token scope that was used to limit the scope of generated token.
+        /// Gets or sets the token scope to limit the scope of generated token. Optional.
         /// </summary>
         public Buffer TokenScope
         {
             get { return m_TokenScope; }
 
             set { m_TokenScope.Copy(value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the JWK formatted private key used to create the JWT. The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+        /// </summary>
+        public Buffer ClientJwk
+        {
+            get { return m_ClientJwk; }
+
+            set { ClientJwk.Copy(value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the audience claim for the JWT.
+        /// </summary>
+        public Buffer Audience
+        {
+            get { return m_Audience; }
+
+            set { Audience.Copy(value); }
         }
 
         /// <summary>
@@ -83,6 +110,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 ByteBuffer byteBuffer = new ByteBuffer(m_ClientId.Length);
                 m_ClientId.Copy(byteBuffer);
+                byteBuffer.Flip();
                 destReactorOAuthCredentialRenewal.ClientId.Data(byteBuffer);
             }
 
@@ -90,6 +118,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 ByteBuffer byteBuffer = new ByteBuffer(m_ClientSecret.Length);
                 m_ClientSecret.Copy(byteBuffer);
+                byteBuffer.Flip();
                 destReactorOAuthCredentialRenewal.ClientSecret.Data(byteBuffer);
             }
 
@@ -97,7 +126,24 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             {
                 ByteBuffer byteBuffer = new ByteBuffer(m_TokenScope.Length);
                 m_TokenScope.Copy(byteBuffer);
+                byteBuffer.Flip();
                 destReactorOAuthCredentialRenewal.TokenScope.Data(byteBuffer);
+            }
+
+            if (m_ClientJwk.Length != 0)
+            {
+                ByteBuffer byteBuffer = new ByteBuffer(m_ClientJwk.Length);
+                m_ClientJwk.Copy(byteBuffer);
+                byteBuffer.Flip();
+                destReactorOAuthCredentialRenewal.ClientJwk.Data(byteBuffer);
+            }
+
+            if (m_Audience.Length != 0)
+            {
+                ByteBuffer byteBuffer = new ByteBuffer(m_Audience.Length);
+                m_Audience.Copy(byteBuffer);
+                byteBuffer.Flip();
+                destReactorOAuthCredentialRenewal.Audience.Data(byteBuffer);
             }
 
             return ReactorReturnCode.SUCCESS;

@@ -1,30 +1,24 @@
-# Refinitiv Real-Time SDK Announcement
-
-Elektron SDK (ESDK) is now rebranded to Refinitiv Real-Time SDK (RTSDK).
-
-In general, please note that Refinitiv products will be undergoing brand changes to reflect Refinitiv branding. 
-
-Starting with release, Refinitiv Real-Time SDK version 2.0 (ETA & EMA 3.6), rebranding activities have been completed and impact customers in the following manner where applicable: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. Customers of impacted applications written to RTSDK will be required to alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following: 
-
-- For specific details on impact of changes to applications with RTSDK 2.0, please see [REBRAND.md](REBRAND.md). 
-- For general details regarding impact of rebranding, support questions, and timelines with RTSDK and other APIs, please see the [API Product Change Notification (PCN)](https://my.refinitiv.com/content/mytr/en/pcnpage/12072.html).
-
-
 # Refinitiv Real-Time SDK
-This is the Refinitiv Real-Time SDK. This SDK encompasses these open source Real-Time APIs: Enterprise Message API (EMA) and Enterprise Transport API (ETA).
+
+This is the Real-Time SDK (RTSDK). This SDK encompasses these open source Real-Time APIs: Enterprise Message API (EMA) and Enterprise Transport API (ETA).
 
 The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment.  EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+The **Enterprise Transport API (ETA)** is an open source low-level Transport and OMM encoder/decoder API. It is used by the Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages.
+
+The RTSDK was formerly known as Elektron SDK (ESDK). Starting with version 2.0 (ETA & EMA 3.6), SDK was rebranded with the following impact: namespace changes and jar files names. This applies to applications written to EMA C++, EMA Java and ETA Java. If upgrading from a version prior to RTSDK 2.0, please alter code, re-compile and redeploy applications to pick up these changes. Please note that connectivity to Refinitiv products will not be impacted after rebranding and existing applications will continue to work. For more details, please see the following:
+
+- For specific details on impact of changes to applications with RTSDK 2.0, please see [REBRAND.md](REBRAND.md).
+- For general details regarding impact of rebranding, support questions, and timelines with RTSDK and other APIs, please see the [API Product Change Notification (PCN)](https://my.refinitiv.com/content/mytr/en/pcnpage/12072.html). 
 
 
 # Supported Languages, Platforms and Compilers
 
-The Refinitiv Real-Time-SDK will support multiple languages across different combinations of `Linux` and `Windows` and their corresponding compilers. Navigate to the language and API of your choice to see the individual API README.md files for further details on building and running the API and examples. You can click on the below links to take you to the language of your choice.
+The Real-Time-SDK will support multiple languages across different combinations of `Linux` and `Windows` and their corresponding compilers. Navigate to the language and API of your choice to see the individual API README.md files for further details on building and running the API and examples. You can click on the below links to take you to the language of your choice.
 
 - [C++](Cpp-C)
 - [Java](Java)
-- CSharp: coming soon
+- [C#](CSharp)
 
 
 # Documentation
@@ -36,11 +30,13 @@ GitHub PDF format docs per API:
 - [Enterprise Transport API - C Edition](Cpp-C/Eta/Docs)
 - [Enterprise Message API - Java Edition](Java/Ema/Docs)
 - [Enterprise Transport API - Java Edition](Java/Eta/Docs)
+- [Enterprise Transport API - CSharp Edition](CSharp/Eta/Docs)
 
 Refinitiv Developer Portal documentation section contains docs in PDF format for both C++ and Java:
 
 - [C++/C](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/documentation)
 - [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation)
+- [CSharp](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/documentation)
 
 Documentation is also available in **HTML format** on a package or Refinitiv Developer Portal. 
 
@@ -82,9 +78,12 @@ License details can be found in the LICENSE.md file contained in this section. T
 - Java/Eta/TestTools
 - Java/Eta/ValueAdd
 - Java/Eta/ValueAddCache
+- CSharp/Eta/Src/Core
+- CSharp/Eta/Src/ValueAdd
+- CSharp/Eta/Applications
+- CSharp/Eta/TestTools
 
 Any source code, header files not specified above (even if included by header files in the locations above), libraries, and underlying dependencies continue to be governed by the licensing and agreements per the [MyRefinitiv](https://my.refinitiv.com/content/mytr/en/signin.html) site and RDC Program.
-
 
 
 # Notes:

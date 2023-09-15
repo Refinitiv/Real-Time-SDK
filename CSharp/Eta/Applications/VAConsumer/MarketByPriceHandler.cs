@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Rdm;
 
 
-namespace Refinitiv.Eta.ValueAdd.Consumer
+namespace LSEG.Eta.ValueAdd.Consumer
 {
 
     /// <summary>
@@ -42,31 +42,34 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             return new MarketByPriceRequest();
         }
 
-
-        protected override CodecReturnCode Decode(Msg msg, DecodeIterator dIter, DataDictionary dictionary)
+        public override CodecReturnCode DecodePayload(DecodeIterator dIter, DataDictionary dictionary, StringBuilder fieldValue)
         {
-            StringBuilder fieldValue = new StringBuilder("\n");
-            GetItemName(msg, fieldValue);
-            if (msg.MsgClass == MsgClasses.REFRESH)
-                fieldValue.Append((((IRefreshMsg)msg).State).ToString() + "\n");
-
-            CodecReturnCode ret = map.Decode(dIter);
-            if (ret != CodecReturnCode.SUCCESS)
+            //level 2 market by price is a map of field lists
+            CodecReturnCode ret;
+            if ((ret = map.Decode(dIter)) != CodecReturnCode.SUCCESS)
             {
-                Console.WriteLine("DecodeMap() failed with return code: " + ret);
+                Console.WriteLine("Map.Decode() failed with return code: " + ret);
                 return ret;
             }
 
+            //decode set definition database
             if (map.CheckHasSetDefs())
             {
+                /*
+                 * decode set definition - should be field set definition
+                 */
+                /*
+                 * this needs to be passed in when we decode each field list
+                 */
                 localFieldSetDefDb.Clear();
                 ret = localFieldSetDefDb.Decode(dIter);
                 if (ret != CodecReturnCode.SUCCESS)
                 {
-                    Console.WriteLine("DecodeLocalFieldSetDefDb() failed");
+                    Console.WriteLine($"LocalFieldSetDefDb.Decode() failed: <{ret}>");
                     return ret;
                 }
             }
+
             if (map.CheckHasSummaryData())
             {
                 ret = DecodeSummaryData(dIter, dictionary, fieldValue);
@@ -77,7 +80,6 @@ namespace Refinitiv.Eta.ValueAdd.Consumer
             ret = DecodeMap(dIter, dictionary, fieldValue);
             if (ret != CodecReturnCode.SUCCESS)
                 return ret;
-
             Console.WriteLine(fieldValue.ToString());
             return CodecReturnCode.SUCCESS;
         }

@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided   --
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
  *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022 Refinitiv. All rights reserved.                          --
+ *| Copyright (C) 2022-2023 Refinitiv. All rights reserved.                          --
  *|-------------------------------------------------------------------------------
  */
 
@@ -326,16 +326,15 @@
 using System.Net;
 using System.Net.Sockets;
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Example.Common;
+using LSEG.Eta.Common;
+using LSEG.Eta.Example.Common;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
 
 
-namespace Refinitiv.Eta.Training.Provider
+namespace LSEG.Eta.Training.Provider
 {
     ///<summary>
     /// The Enum LoginRejectReason.
@@ -767,9 +766,9 @@ namespace Refinitiv.Eta.Training.Provider
                          ***************************************************************************/
 
                         /* Internally, the ETA initialization process includes several actions. The
-                         * initialization includes any necessary ETA connection handshake exchanges, including
-                         * any HTTP or HTTPS negotiation.  Compression, ping timeout, and versioning related
-                         * negotiations also take place during the initialization process.
+                         * initialization includes any necessary ETA connection handshake exchanges.
+                         * Compression, ping timeout, and versioning related negotiations  also take
+                         * place during the initialization process.
                          *
                          * This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.State will transition.
@@ -4731,6 +4730,7 @@ namespace Refinitiv.Eta.Training.Provider
                 refreshMsg.ApplyRefreshComplete();
                 refreshMsg.ApplyHasQos();
                 refreshMsg.ApplyClearCache();
+                refreshMsg.ApplySolicited();
                 stateText = "Item Refresh Completed";
                 refreshMsg.State.Text().Data(stateText);
 
@@ -4832,7 +4832,7 @@ namespace Refinitiv.Eta.Training.Provider
                 if (dictionaryEntry != null)
                 {
                     fieldEntry.FieldId = MarketPriceItem.RDNDISPLAY_FID;
-                    fieldEntry.DataType = dictionaryEntry.RwfType;
+                    fieldEntry.DataType = dictionaryEntry.GetRwfType();
                     tempUInt.Value(mpItem.RDNDISPLAY);
 
                     if ((codeVal = fieldEntry.Encode(encodeIter, tempUInt)) < CodecReturnCode.SUCCESS)
@@ -4849,7 +4849,7 @@ namespace Refinitiv.Eta.Training.Provider
                 if (dictionaryEntry != null)
                 {
                     fieldEntry.FieldId = MarketPriceItem.RDN_EXCHID_FID;
-                    fieldEntry.DataType = dictionaryEntry.RwfType;
+                    fieldEntry.DataType = dictionaryEntry.GetRwfType();
                     Codec.Enum enumValue = new();
                     enumValue.Value(mpItem.RDN_EXCHID);
                     if ((codeVal = fieldEntry.Encode(encodeIter, enumValue)) < CodecReturnCode.SUCCESS)
@@ -4866,7 +4866,7 @@ namespace Refinitiv.Eta.Training.Provider
                 if (dictionaryEntry != null)
                 {
                     fieldEntry.FieldId = MarketPriceItem.DIVPAYDATE_FID;
-                    fieldEntry.DataType = dictionaryEntry.RwfType;
+                    fieldEntry.DataType = dictionaryEntry.GetRwfType();
                     if ((codeVal = fieldEntry.Encode(encodeIter, mpItem.DIVPAYDATE)) < CodecReturnCode.SUCCESS)
                     {
                         channel.ReleaseBuffer(msgBuf, out error);
@@ -4882,7 +4882,7 @@ namespace Refinitiv.Eta.Training.Provider
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.TRDPRC_1_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.TRDPRC_1, RealHints.EXPONENT_2);
                 if ((codeVal = fieldEntry.Encode(encodeIter, tempReal)) < CodecReturnCode.SUCCESS)
@@ -4899,7 +4899,7 @@ namespace Refinitiv.Eta.Training.Provider
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.BID_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.BID, RealHints.EXPONENT_2);
                 if ((codeVal = fieldEntry.Encode(encodeIter, tempReal)) < CodecReturnCode.SUCCESS)
@@ -4916,7 +4916,7 @@ namespace Refinitiv.Eta.Training.Provider
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.ASK_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.ASK, RealHints.EXPONENT_2);
 
@@ -4934,7 +4934,7 @@ namespace Refinitiv.Eta.Training.Provider
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.ACVOL_1_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.ACVOL_1, RealHints.EXPONENT_2);
 
@@ -4952,7 +4952,7 @@ namespace Refinitiv.Eta.Training.Provider
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.NETCHNG_1_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.NETCHNG_1, RealHints.EXPONENT_2);
                 if ((codeVal = fieldEntry.Encode(encodeIter, tempReal)) < CodecReturnCode.SUCCESS)
@@ -4969,7 +4969,7 @@ namespace Refinitiv.Eta.Training.Provider
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.ASK_TIME_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 if ((codeVal = fieldEntry.Encode(encodeIter, mpItem.ASK_TIME.Time())) < CodecReturnCode.SUCCESS)
                 {
                     channel.ReleaseBuffer(msgBuf, out error);

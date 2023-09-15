@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Reactor;
 using System.Net.Sockets;
 
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
     /// <summary>
-    /// The ProvPerf application. Implements an interactive provider, 
-    /// which allows the requesting of items, and responds to them with images and bursts of updates. 
+    /// The ProvPerf application. Implements an interactive provider,
+    /// which allows the requesting of items, and responds to them with images and bursts of updates.
     /// </summary>
     public class ProvPerf
     {
@@ -48,7 +48,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         {
             // This loop will block Socket.Select for up to 1 second and wait for accept
             // If any channel is trying to connect during this time it will be accepted
-            // the time tracking parameters and counters are updated at the second interval 
+            // the time tracking parameters and counters are updated at the second interval
             // at the configured time intervals the stats will be printed
             // the loop exits when time reaches the configured end time.
 
@@ -62,30 +62,40 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
             // this is the main loop
             while (!m_ShutdownApp)
-            {     
+            {
                 int selectTime = (int)(nextTime - GetTime.GetMilliseconds());
                 try
                 {
                     socketList.Clear();
                     if (m_Server!.Socket != null && m_Server.Socket.IsBound)
-                    {         
+                    {
                         socketList.Add(m_Server.Socket!);
                         Socket.Select(socketList, null, null, selectTime > 0 ? selectTime * 1000 : 0);
                     }
 
                     if (socketList.Count > 0)
                     {
-                        IChannel clientChannel = m_Server.Accept(m_AcceptOptions, out m_Error);
-                        if (clientChannel == null)
+                        if (!ProviderPerfConfig.UseReactor) // use ETA Channel
                         {
-                            Console.Error.WriteLine($"ETA Server Accept failed: {m_Error!.Text}\n");
+                            IChannel clientChannel = m_Server.Accept(m_AcceptOptions, out m_Error);
+                            if (clientChannel == null)
+                            {
+                                Console.Error.WriteLine($"ETA Server Accept failed, error: {m_Error?.Text}\n");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Server accepting new channel '{clientChannel.Socket.Handle}'.\n\n");
+                                SendToLeastLoadedThread(clientChannel);
+                            }
                         }
-                        else
-                        {
-                            Console.WriteLine($"Server accepting new channel '{clientChannel.Socket.SafeHandle}'.\n\n");
-                            SendToLeastLoadedThread(clientChannel);
-                        }
-                    }                    
+        				else // use ETA VA Reactor
+        				{
+                            if (AcceptReactorConnection(m_Server, out var errorInfo) != ReactorReturnCode.SUCCESS)
+                            {
+                                Console.Error.WriteLine("AcceptReactorConnection: failed <{0}>", errorInfo?.Error.Text);
+                            }
+        				}
+                    }
                 }
                 catch (Exception e)
                 {
@@ -126,6 +136,15 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             //init binding options first to be able print effective values
             InitBindOptions();
             m_AcceptOptions.SysSendBufSize = ProviderPerfConfig.SendBufSize;
+            m_AcceptOptions.SysRecvBufSize = ProviderPerfConfig.RecvBufSize;
+            if (ProviderPerfConfig.SendTimeout > 0)
+            {
+                m_AcceptOptions.SendTimeout = ProviderPerfConfig.SendTimeout;
+            }
+            if (ProviderPerfConfig.RecvTimeout > 0)
+            {
+                m_AcceptOptions.ReceiveTimeout = ProviderPerfConfig.RecvTimeout;
+            }
             Console.WriteLine(ProviderPerfConfig.ConvertToString(m_BindOptions));
 
             // parse message data XML file
@@ -136,7 +155,16 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             }
 
             m_InitArgs.Clear();
-            m_InitArgs.GlobalLocking = ProviderPerfConfig.ThreadCount > 1 ? true : false;
+
+            if (!ProviderPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+            {
+                m_InitArgs.GlobalLocking = ProviderPerfConfig.ThreadCount > 1 ? true : false;
+            }
+            else
+            {
+                m_InitArgs.GlobalLocking = true;
+            }
+
             if (Transport.Initialize(m_InitArgs, out m_Error) != TransportReturnCode.SUCCESS)
             {
                 Console.Error.WriteLine($"Error: Transport failed to initialize: {m_Error.Text}");
@@ -146,7 +174,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             m_Server = Transport.Bind(m_BindOptions, out m_Error);
             if (m_Server == null)
             {
-                Console.Error.WriteLine($"Error: Transport bind failure: {m_Error!.Text}");
+                Console.Error.WriteLine($"Error: Transport bind failure, error: {m_Error?.Text}");
                 Environment.Exit(-1);
             }
             Console.WriteLine($"\nServer bound on port {m_Server.PortNumber}");
@@ -164,7 +192,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             m_BindOptions.ServiceName = ProviderPerfConfig.PortNo;
             if (ProviderPerfConfig.InterfaceName != null)
                 m_BindOptions.InterfaceName = ProviderPerfConfig.InterfaceName;
-            
+
             m_BindOptions.ConnectionType = ProviderPerfConfig.ConnectionType;
             if (m_BindOptions.ConnectionType == ConnectionType.ENCRYPTED)
             {
@@ -222,6 +250,27 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             provThread!.HandlerLock().EnterWriteLock();
             provThread.AcceptNewChannel(channel);
             provThread.HandlerLock().ExitWriteLock();
+        }
+
+        private ReactorReturnCode AcceptReactorConnection(IServer server, out ReactorErrorInfo? errorInfo)
+        {
+            IProviderThread provThread = (IProviderThread)m_Provider.ProviderThreadList![0];
+            int minProvConnCount = provThread.ConnectionCount;
+
+            // find least loaded thread
+            for (int i = 1; i < ProviderPerfConfig.ThreadCount; ++i)
+            {
+                IProviderThread tmpProvThread = (IProviderThread) m_Provider.ProviderThreadList[i];
+                int connCount = tmpProvThread.ConnectionCount;
+                if (connCount < minProvConnCount)
+                {
+                    minProvConnCount = connCount;
+                    provThread = tmpProvThread;
+                }
+            }
+
+            // accept new reactor channel
+            return provThread.AcceptNewReactorChannel(server, out errorInfo);
         }
 
         private void Cleanup()

@@ -22,6 +22,85 @@ extern "C" {
  */
 
 /**
+ *	@brief Performs a deep copy of a RsslProxyOpts structure.
+ *
+ *	@param destProxyOpts RsslProxyOpts to be copied to.
+ *	@param sourceProxyOpts RsslProxyOpts to be copied from.
+ *	@return RSSL_RET_SUCCESS if successful, RSSL_RET_FAILURE if an error occurred.
+ */
+RTR_C_INLINE RsslRet rsslDeepCopyProxyOpts(RsslProxyOpts* destProxyOpts, RsslProxyOpts* sourceProxyOpts)
+{
+	size_t tempLen = 0;
+
+	if (sourceProxyOpts->proxyHostName != 0)
+	{
+		tempLen = (strlen(sourceProxyOpts->proxyHostName) + 1) * sizeof(char);
+		destProxyOpts->proxyHostName = (char*)malloc(tempLen);
+
+		if (destProxyOpts->proxyHostName == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destProxyOpts->proxyHostName, sourceProxyOpts->proxyHostName, tempLen);
+	}
+
+	if (sourceProxyOpts->proxyPort != 0)
+	{
+		tempLen = (strlen(sourceProxyOpts->proxyPort) + 1) * sizeof(char);
+		destProxyOpts->proxyPort = (char*)malloc(tempLen);
+
+		if (destProxyOpts->proxyPort == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destProxyOpts->proxyPort, sourceProxyOpts->proxyPort, tempLen);
+	}
+
+	if (sourceProxyOpts->proxyUserName != 0)
+	{
+		tempLen = (strlen(sourceProxyOpts->proxyUserName) + 1) * sizeof(char);
+		destProxyOpts->proxyUserName = (char*)malloc(tempLen);
+
+		if (destProxyOpts->proxyUserName == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destProxyOpts->proxyUserName, sourceProxyOpts->proxyUserName, tempLen);
+	}
+
+	if (sourceProxyOpts->proxyPasswd != 0)
+	{
+		tempLen = (strlen(sourceProxyOpts->proxyPasswd) + 1) * sizeof(char);
+		destProxyOpts->proxyPasswd = (char*)malloc(tempLen);
+
+		if (destProxyOpts->proxyPasswd == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destProxyOpts->proxyPasswd, sourceProxyOpts->proxyPasswd, tempLen);
+	}
+
+	if (sourceProxyOpts->proxyDomain != 0)
+	{
+		tempLen = (strlen(sourceProxyOpts->proxyDomain) + 1) * sizeof(char);
+		destProxyOpts->proxyDomain = (char*)malloc(tempLen);
+
+		if (destProxyOpts->proxyDomain == 0)
+		{
+			return RSSL_RET_FAILURE;
+		}
+
+		strncpy(destProxyOpts->proxyDomain, sourceProxyOpts->proxyDomain, tempLen);
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+/**
  *	@brief Performs a deep copy of a rsslConnectOpts structure.
  *
  *	@param destOpts RsslConnectOpts to be copied to.
@@ -135,72 +214,6 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 		strncpy(destOpts->connectionInfo.segmented.sendServiceName, sourceOpts->connectionInfo.segmented.sendServiceName, tempLen);
 	}
 	
-	if (sourceOpts->proxyOpts.proxyHostName != 0)
-	{
-		tempLen = (strlen(sourceOpts->proxyOpts.proxyHostName)+1)*sizeof(char);
-		destOpts->proxyOpts.proxyHostName = (char*)malloc(tempLen);
-
-		if (destOpts->proxyOpts.proxyHostName == 0)
-		{
-			return RSSL_RET_FAILURE;
-		}
-
-		strncpy(destOpts->proxyOpts.proxyHostName, sourceOpts->proxyOpts.proxyHostName, tempLen);
-	}
-	
-	if (sourceOpts->proxyOpts.proxyPort != 0)
-	{
-		tempLen = (strlen(sourceOpts->proxyOpts.proxyPort)+1)*sizeof(char);
-		destOpts->proxyOpts.proxyPort = (char*)malloc(tempLen);
-
-		if (destOpts->proxyOpts.proxyPort == 0)
-		{
-			return RSSL_RET_FAILURE;
-		}
-
-		strncpy(destOpts->proxyOpts.proxyPort, sourceOpts->proxyOpts.proxyPort, tempLen);
-	}
-
-	if (sourceOpts->proxyOpts.proxyUserName != 0)
-	{
-		tempLen = (strlen(sourceOpts->proxyOpts.proxyUserName) + 1) * sizeof(char);
-		destOpts->proxyOpts.proxyUserName = (char*)malloc(tempLen);
-
-		if (destOpts->proxyOpts.proxyUserName == 0)
-		{
-			return RSSL_RET_FAILURE;
-		}
-
-		strncpy(destOpts->proxyOpts.proxyUserName, sourceOpts->proxyOpts.proxyUserName, tempLen);
-	}
-
-	if (sourceOpts->proxyOpts.proxyPasswd != 0)
-	{
-		tempLen = (strlen(sourceOpts->proxyOpts.proxyPasswd) + 1) * sizeof(char);
-		destOpts->proxyOpts.proxyPasswd = (char*)malloc(tempLen);
-
-		if (destOpts->proxyOpts.proxyPasswd == 0)
-		{
-			return RSSL_RET_FAILURE;
-		}
-
-		strncpy(destOpts->proxyOpts.proxyPasswd, sourceOpts->proxyOpts.proxyPasswd, tempLen);
-	}
-
-	if (sourceOpts->proxyOpts.proxyDomain != 0)
-	{
-		tempLen = (strlen(sourceOpts->proxyOpts.proxyDomain) + 1) * sizeof(char);
-		destOpts->proxyOpts.proxyDomain = (char*)malloc(tempLen);
-
-		if (destOpts->proxyOpts.proxyDomain == 0)
-		{
-			return RSSL_RET_FAILURE;
-		}
-
-		strncpy(destOpts->proxyOpts.proxyDomain, sourceOpts->proxyOpts.proxyDomain, tempLen);
-	}
-
-
 	if (sourceOpts->componentVersion != 0)
 	{
 		tempLen = (strlen(sourceOpts->componentVersion)+1)*sizeof(char);
@@ -291,8 +304,43 @@ RTR_C_INLINE RsslRet rsslDeepCopyConnectOpts(RsslConnectOptions *destOpts, RsslC
 
 		strcpy(destOpts->wsOpts.protocols, sourceOpts->wsOpts.protocols);
 	}
+
+	if (rsslDeepCopyProxyOpts(&destOpts->proxyOpts, &sourceOpts->proxyOpts) != RSSL_RET_SUCCESS)
+	{
+		return RSSL_RET_FAILURE;
+	}
 	
 	return RSSL_RET_SUCCESS;
+}
+
+RTR_C_INLINE void rsslFreeProxyOpts(RsslProxyOpts* proxyOpts)
+{
+	if (proxyOpts->proxyHostName != 0)
+	{
+		free(proxyOpts->proxyHostName);
+	}
+
+	if (proxyOpts->proxyPort != 0)
+	{
+		free(proxyOpts->proxyPort);
+	}
+
+	if (proxyOpts->proxyUserName != 0)
+	{
+		free(proxyOpts->proxyUserName);
+	}
+
+	if (proxyOpts->proxyPasswd != 0)
+	{
+		free(proxyOpts->proxyPasswd);
+	}
+
+	if (proxyOpts->proxyDomain != 0)
+	{
+		free(proxyOpts->proxyDomain);
+	}
+
+	memset(proxyOpts, 0, sizeof(RsslProxyOpts));
 }
 
 RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
@@ -347,31 +395,6 @@ RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
 		free(connOpts->componentVersion);
 	}
 	
-	if(connOpts->proxyOpts.proxyHostName != 0)
-	{
-		free(connOpts->proxyOpts.proxyHostName);
-	}
-	
-	if(connOpts->proxyOpts.proxyPort != 0)
-	{
-		free(connOpts->proxyOpts.proxyPort);
-	}
-
-	if (connOpts->proxyOpts.proxyUserName != 0)
-	{
-		free(connOpts->proxyOpts.proxyUserName);
-	}
-
-	if (connOpts->proxyOpts.proxyPasswd != 0)
-	{
-		free(connOpts->proxyOpts.proxyPasswd);
-	}
-
-	if (connOpts->proxyOpts.proxyDomain != 0)
-	{
-		free(connOpts->proxyOpts.proxyDomain);
-	}
-
 	if(connOpts->multicastOpts.hsmInterface != 0)
 	{
 		free(connOpts->multicastOpts.hsmInterface);
@@ -401,6 +424,8 @@ RTR_C_INLINE void rsslFreeConnectOpts(RsslConnectOptions *connOpts)
 	{
 		free(connOpts->wsOpts.protocols);
 	}
+
+	rsslFreeProxyOpts(&connOpts->proxyOpts);
 
 	memset(connOpts, 0, sizeof(RsslConnectOptions));
 }

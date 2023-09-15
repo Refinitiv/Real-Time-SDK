@@ -2,34 +2,28 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.PerfTools.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
 
-using static Refinitiv.Eta.Rdm.Dictionary;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using static LSEG.Eta.Rdm.Dictionary;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.PerfTools.ProvPerf
+namespace LSEG.Eta.PerfTools.ProvPerf
 {
     /// <summary>
     /// Provides sending of the provperf's dictionary, if requested
     /// </summary>
     public class DictionaryProvider
     {
-        public enum DictionaryRejectReason
-        {
-            UNKNOWN_DICTIONARY_NAME,
-            MAX_DICTIONARY_REQUESTS_REACHED
-        }
-
         private const int MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE = 128000;
         private const int MAX_DICTIONARY_STATUS_MSG_SIZE = 1024;
 
@@ -55,9 +49,15 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
 
         private EncodeIterator m_EncodeIter;
         private ChannelInfo m_ChnlInfo;
-        private DictionaryRefresh m_DictionaryRefresh;     
+        private DictionaryRefresh m_DictionaryRefresh;
         private DictionaryStatus m_DictionaryStatus;
-        
+
+        // Use the VA Reactor instead of the ETA Channel for sending and receiving
+        private ReactorSubmitOptions m_ReactorSubmitOptions;
+
+        // Use the VA Reactor instead of the ETA Channel for sending and receiving
+        private ReactorChannelInfo m_ReactorChnlInfo;
+
 
         public DictionaryProvider()
         {
@@ -67,10 +67,16 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             Dictionary = new DataDictionary();
             DictionaryRequest = new DictionaryRequest();
             m_DictionaryRefresh = new DictionaryRefresh();
-            m_DictionaryStatus = new DictionaryStatus();     
+            m_DictionaryStatus = new DictionaryStatus();
 
             FieldDictionaryDownloadName.Data("RWFFld");
             EnumTypeDictionaryDownloadName.Data("RWFEnum");
+
+            m_ReactorSubmitOptions = new ReactorSubmitOptions();
+            m_ReactorSubmitOptions.Clear();
+            m_ReactorSubmitOptions.WriteArgs.Priority = WritePriorities.HIGH;
+            m_ReactorChnlInfo = new ReactorChannelInfo();
+
         }
 
         /// <summary>
@@ -150,7 +156,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                 default:
                     error = new Error()
                     {
-                        Text = $"Received unhandled Source Directory msg type: {msg.MsgClass}" 
+                        Text = $"Received unhandled Source Directory msg type: {msg.MsgClass}"
                     };
                     return TransportReturnCode.FAILURE;
             }
@@ -172,7 +178,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         {
             IChannel channel = clientChannelInfo.Channel!;
 
-            // get a buffer for the dictionary request reject status 
+            // get a buffer for the dictionary request reject status
             ITransportBuffer msgBuf = channel.GetBuffer(MAX_DICTIONARY_STATUS_MSG_SIZE, false, out error);
             if (msgBuf == null)
                 return TransportReturnCode.FAILURE;
@@ -187,10 +193,13 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         }
 
         /// <summary>
-        /// Sends a field dictionary response to a channel. This consists of getting a message buffer, 
-        /// encoding the dictionary response, and sending the dictionary response to the server. 
-        /// Returns success if send dictionary response succeeds or failure if send response fails.
+        /// Sends a field dictionary response to a channel.
         /// </summary>
+        ///
+        /// This consists of getting a message buffer, encoding the dictionary response,
+        /// and sending the dictionary response to the server.  Returns success if send
+        /// dictionary response succeeds or failure if send response fails.
+        ///
         /// <param name="channelHandler">the client channel handler</param>
         /// <param name="clientChannelInfo">client channel information to send dictionary response to.</param>
         /// <param name="error"><see cref="Error"/> instance that contains failure details</param>
@@ -228,6 +237,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                 }
 
                 m_EncodeIter.Clear();
+
                 CodecReturnCode codecReturnCode = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, channel.MajorVersion, channel.MinorVersion);
                 if (codecReturnCode != CodecReturnCode.SUCCESS)
                 {
@@ -238,7 +248,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                     return TransportReturnCode.FAILURE;
                 }
 
-                m_DictionaryRefresh.State.Text().Data($"Field Dictionary Refresh (starting fid {m_DictionaryRefresh.StartFid}");
+                m_DictionaryRefresh.State.Text().Data($"Field Dictionary Refresh (starting fid {m_DictionaryRefresh.StartFid})");
                 codecReturnCode = m_DictionaryRefresh.Encode(m_EncodeIter);
                 if (codecReturnCode < CodecReturnCode.SUCCESS)
                 {
@@ -253,7 +263,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                 if ((writeRet = channelHandler.WriteChannel(clientChannelInfo, msgBuf, 0, out error)) < TransportReturnCode.SUCCESS)
                 {
                     return TransportReturnCode.FAILURE;
-                }                    
+                }
 
                 // break out of loop when all dictionary responses sent
                 if (codecReturnCode == CodecReturnCode.SUCCESS)
@@ -266,9 +276,9 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
         }
 
         /// <summary>
-        /// Sends a enum dictionary response to a channel. This consists of getting a message buffer, 
-        /// encoding the dictionary response, and sending the dictionary response to the server. 
-        /// Returns success if send dictionary response succeeds or failure if send response fails. 
+        /// Sends a enum dictionary response to a channel. This consists of getting a message buffer,
+        /// encoding the dictionary response, and sending the dictionary response to the server.
+        /// Returns success if send dictionary response succeeds or failure if send response fails.
         /// </summary>
         /// <param name="channelHandler">the client channel handler</param>
         /// <param name="clientChannelInfo">client channel information to send dictionary response toparam>
@@ -291,6 +301,9 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             m_DictionaryRefresh.Solicited = true;
             m_DictionaryRefresh.DictionaryType = Types.ENUM_TABLES;
             m_DictionaryRefresh.DataDictionary = Dictionary;
+            m_DictionaryRefresh.State.StreamState(StreamStates.OPEN);
+            m_DictionaryRefresh.State.DataState(DataStates.OK);
+            m_DictionaryRefresh.State.Code(StateCodes.NONE);
             m_DictionaryRefresh.Verbosity = DictionaryRequest.Verbosity;
             m_DictionaryRefresh.DictionaryName.Data(DictionaryRequest.DictionaryName.Data(), DictionaryRequest.DictionaryName.Position, DictionaryRequest.DictionaryName.Length);
             m_DictionaryRefresh.RefreshComplete = true;
@@ -301,7 +314,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             {
                 error = new Error()
                 {
-                    Text = $"EncodeIter.SetBufferAndRWFVersion() failed with return code: {codecReturnCode.GetAsString()}" 
+                    Text = $"EncodeIter.SetBufferAndRWFVersion() failed with return code: {codecReturnCode.GetAsString()}"
                 };
                 return TransportReturnCode.FAILURE;
             }
@@ -354,7 +367,7 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
                     break;
             }
 
-            // clear encode iterator 
+            // clear encode iterator
             m_EncodeIter.Clear();
 
             // encode message
@@ -381,6 +394,181 @@ namespace Refinitiv.Eta.PerfTools.ProvPerf
             return TransportReturnCode.SUCCESS;
         }
 
+        #region Reactor Responses
 
+
+        /// <summary>
+        /// Sends a field dictionary response to a reactor channel.
+        /// </summary>
+        ///
+        /// This consists of getting a message buffer, encoding the dictionary response,
+        /// and sending the dictionary response to the server. Returns success if send
+        /// dictionary response succeeds or failure if send response fails.
+        ///
+        /// <param name="clientChannelInfo">Client channel information to send dictionary response to.</param>
+        ///
+        internal ReactorReturnCode SendFieldDictionaryResponseReactor(ClientChannelInfo? clientChannelInfo, out ReactorErrorInfo? errorInfo)
+        {
+            // set-up message
+            m_DictionaryRefresh.Clear();
+            m_DictionaryRefresh.StreamId = DictionaryRequest.StreamId;
+            m_DictionaryRefresh.DictionaryType = Types.FIELD_DEFINITIONS;
+            m_DictionaryRefresh.DataDictionary = Dictionary;
+            m_DictionaryRefresh.State.StreamState(StreamStates.OPEN);
+            m_DictionaryRefresh.State.DataState(DataStates.OK);
+            m_DictionaryRefresh.State.Code(StateCodes.NONE);
+            m_DictionaryRefresh.Verbosity = DictionaryRequest.Verbosity;
+            m_DictionaryRefresh.ServiceId = DictionaryRequest.ServiceId;
+            m_DictionaryRefresh.DictionaryName.Data(DictionaryRequest.DictionaryName.Data(), DictionaryRequest.DictionaryName.Position, DictionaryRequest.DictionaryName.Length);
+            m_DictionaryRefresh.Solicited = true;
+
+            ReactorChannel reactorChannel = clientChannelInfo!.ReactorChannel!;
+
+            while (true)
+            {
+                if (reactorChannel.Info(m_ReactorChnlInfo, out errorInfo) != ReactorReturnCode.SUCCESS)
+                {
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                // get a buffer for the dictionary response
+                ITransportBuffer? msgBuf = reactorChannel.GetBuffer(m_ReactorChnlInfo.ChannelInfo.MaxFragmentSize, false, out errorInfo);
+                if (msgBuf == null)
+                {
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                m_EncodeIter.Clear();
+                CodecReturnCode codeRet = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, reactorChannel.MajorVersion, reactorChannel.MinorVersion);
+                if (codeRet != CodecReturnCode.SUCCESS)
+                {
+                    errorInfo = new ReactorErrorInfo();
+                    errorInfo.Error.Text = "EncodeIter.setBufferAndRWFVersion() failed with return code: " + codeRet;
+                    errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                // next message chunk is encoded (if dictionary exceeds buffer size)
+                m_DictionaryRefresh.State.Text().Data($"Field Dictionary Refresh (starting fid {m_DictionaryRefresh.StartFid})");
+                codeRet = m_DictionaryRefresh.Encode(m_EncodeIter);
+                if (codeRet < CodecReturnCode.SUCCESS)
+                {
+                    errorInfo = new ReactorErrorInfo();
+                    errorInfo.Error.Text = "DictionaryRefresh.encode() failed: " + codeRet;
+                    errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                // send dictionary response
+                if (reactorChannel.Submit(msgBuf, m_ReactorSubmitOptions, out errorInfo) < ReactorReturnCode.SUCCESS)
+                {
+                    return ReactorReturnCode.FAILURE;
+                }
+
+                // break out of loop when all dictionary responses sent
+                if (codeRet == CodecReturnCode.SUCCESS)
+                {
+                    break;
+                }
+            }
+
+            return ReactorReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Sends a enum dictionary response to a reactor channel.
+        /// </summary>
+        ///
+        /// This consists of getting a message buffer, encoding the dictionary response,
+        /// and sending the dictionary response to the server. Returns success if send
+        /// dictionary response succeeds or failure if send response fails.
+        ///
+        /// <param name="clientChannelInfo">Client channel information to send dictionary response to.</param>
+        ///
+        internal ReactorReturnCode SendEnumTypeDictionaryResponseReactor(ClientChannelInfo? clientChannelInfo, out ReactorErrorInfo? errorInfo)
+        {
+            ReactorChannel reactorChannel = clientChannelInfo!.ReactorChannel!;
+
+            // get a buffer for the dictionary response
+            ITransportBuffer? msgBuf = reactorChannel.GetBuffer(MAX_ENUM_TYPE_DICTIONARY_MSG_SIZE, false, out errorInfo);
+            if (msgBuf == null)
+                return ReactorReturnCode.FAILURE;
+
+            //encode dictionary refresh - enum type
+            m_DictionaryRefresh.Clear();
+            m_DictionaryRefresh.StreamId = DictionaryRequest.StreamId;
+            m_DictionaryRefresh.Solicited = true;
+            m_DictionaryRefresh.DictionaryType = Types.ENUM_TABLES;
+            m_DictionaryRefresh.DataDictionary = Dictionary;
+            m_DictionaryRefresh.State.StreamState(StreamStates.OPEN);
+            m_DictionaryRefresh.State.DataState(DataStates.OK);
+            m_DictionaryRefresh.State.Code(StateCodes.NONE);
+            m_DictionaryRefresh.Verbosity = DictionaryRequest.Verbosity;
+            m_DictionaryRefresh.DictionaryName.Data(DictionaryRequest.DictionaryName.Data(),
+                DictionaryRequest.DictionaryName.Position, DictionaryRequest.DictionaryName.Length);
+            m_DictionaryRefresh.RefreshComplete = true;
+
+            m_EncodeIter.Clear();
+            CodecReturnCode codeRet = m_EncodeIter.SetBufferAndRWFVersion(msgBuf, reactorChannel.MajorVersion, reactorChannel.MinorVersion);
+            if (codeRet != CodecReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = "EncodeIter.SetBufferAndRWFVersion() failed with return code: " + codeRet;
+                errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+
+            // encode message
+            codeRet = m_DictionaryRefresh.Encode(m_EncodeIter);
+            if (codeRet < CodecReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = "DictionaryRefresh.Encode() failed";
+                errorInfo.Error.ErrorId = TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+
+            // send dictionary response
+            ReactorReturnCode ret = reactorChannel.Submit(msgBuf, m_ReactorSubmitOptions, out errorInfo);
+            if (ret < ReactorReturnCode.SUCCESS)
+                return ReactorReturnCode.FAILURE;
+
+            return ReactorReturnCode.SUCCESS;
+        }
+
+
+        /// <summary>
+        /// Sends the dictionary request reject status message for a reactor channel.
+        /// </summary>
+        ///
+        /// <param name="chnl">The channel to send request reject status message to</param>
+        /// <param name="streamId">The stream id of the request</param>
+        /// <param name="reason">The reason for the reject</param>
+        ///
+        internal ReactorReturnCode SendRequestRejectReactor(ClientChannelInfo? clientChannelInfo, int streamId,
+            DictionaryRejectReason reason, out ReactorErrorInfo? errorInfo)
+        {
+            ReactorChannel reactorChannel = clientChannelInfo!.ReactorChannel!;
+
+            // get a buffer for the dictionary request reject status
+            ITransportBuffer? msgBuf = reactorChannel.GetBuffer(MAX_DICTIONARY_STATUS_MSG_SIZE, false, out errorInfo);
+            if (msgBuf == null)
+                return ReactorReturnCode.FAILURE;
+
+            // encode dictionary request reject status
+            TransportReturnCode transRet = EncodeDictionaryRequestReject(reactorChannel.Channel!, streamId, reason, msgBuf, out var encodeError);
+            if (transRet != TransportReturnCode.SUCCESS)
+            {
+                errorInfo = new ReactorErrorInfo();
+                errorInfo.Error.Text = encodeError?.Text;
+                errorInfo.Error.ErrorId = encodeError?.ErrorId ?? TransportReturnCode.FAILURE;
+                return ReactorReturnCode.FAILURE;
+            }
+
+            // send request reject status
+            return reactorChannel.Submit(msgBuf, m_ReactorSubmitOptions, out errorInfo);
+        }
+
+        #endregion
     }
 }

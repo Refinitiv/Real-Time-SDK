@@ -2,11 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
 
     /// <summary>The types of RDM login Messages. rdmMsgType member in <see cref="LoginMsg"/> may
@@ -19,25 +19,39 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
     /// <seealso cref="LoginConsumerConnectionStatus"/>
     public enum LoginMsgType
     {
-        /// <summary>Unknown</summary>
+        /// <summary>
+        /// Unknown type.  This LoginMsg has not been initialized yet.
+        /// </summary>
         UNKNOWN = 0,
 
-        /// <summary>Login Request</summary>
+        /// <summary>
+        /// Indicates that a message is an Login Close message. See <see cref="LoginRequest"/>
+        /// </summary>
         REQUEST = 1,
 
-        /// <summary>Login Close</summary>
+        /// <summary>
+        /// Indicates that a message is an Login Close message. See <see cref="LoginClose"/>
+        /// </summary>
         CLOSE = 2,
 
-        /// <summary>Login Consumer Connection Status</summary>
+        /// <summary>
+        /// Indicates that a message is an Login Consumer Connection Status message. See <see cref="LoginConsumerConnectionStatus"/>
+        /// </summary>
         CONSUMER_CONNECTION_STATUS = 3,
 
-        /// <summary>Login Refresh</summary>
+        /// <summary>
+        /// Indicates that a message is an Login Refresh message. See <see cref="LoginRefresh"/>
+        /// </summary>
         REFRESH = 4,
 
-        /// <summary>Login Status</summary>
+        /// <summary>
+        /// Indicates that a message is an Login Status message. See <see cref="LoginStatus"/>
+        /// </summary>
         STATUS = 5,
 
-        /// <summary>Indicates that a message is an RTT message</summary>
+        /// <summary>
+        /// Indicates that a message is an Login RTT message. See <see cref="LoginRTT"/>
+        /// </summary>
         RTT = 8
     }
 }

@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     public class CommandLine
     {
@@ -180,9 +180,12 @@ namespace Refinitiv.Eta.Example.Common
                 List<string>? paramValues;
                 Parameters.TryGetValue(current.ParsedString!, out paramValues);
                 if (paramValues == null)
+                {
                     paramValues = new List<string>();
+                    Parameters.Add(current.ParsedString!, paramValues);
+                }
+
                 paramValues.AddRange(next!.ParsedString!.Split(","));
-                Parameters.Add(current.ParsedString!, paramValues);
 
                 current = ArgumentToken.Next(argv);
             }
@@ -247,9 +250,18 @@ namespace Refinitiv.Eta.Example.Common
         public static bool BoolValue(string varName)
         {
             List<string>? values = Values(varName);
+            bool retValue = HasArg(varName);
+
             if (values == null)
-                return HasArg(varName);
-            return Boolean.Parse(values[0]);
+                return retValue;
+
+            try
+            {
+                retValue = Boolean.Parse(values[0]);
+            }
+            catch (Exception) { }
+
+            return retValue;
         }
 
         /// <summary>

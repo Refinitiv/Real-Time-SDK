@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 using System;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DateTime = Refinitiv.Eta.Codec.DateTime;
-using Double = Refinitiv.Eta.Codec.Double;
-using Enum = Refinitiv.Eta.Codec.Enum;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DateTime = LSEG.Eta.Codec.DateTime;
+using Double = LSEG.Eta.Codec.Double;
+using Enum = LSEG.Eta.Codec.Enum;
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
     /// The market price decoder for the ConsPerf application.
@@ -38,8 +38,10 @@ namespace Refinitiv.Eta.PerfTools.Common
         private Qos m_FidQosValue;                  // storage for QOS
         private State m_FidStateValue;              // storage for State
         private Buffer m_FidBufferValue;            // storage for Buffer 
-        private IEnumType? m_EnumTypeInfo;           // EnumType dictionary information 
+        private IEnumType? m_EnumTypeInfo;           // EnumType dictionary information
         private PostUserInfo m_PostUserInfo;        // post user information
+
+        private Func<DecodeIterator, CodecReturnCode>[] m_DecodeFunc = new Func<DecodeIterator, CodecReturnCode>[20];
 
         public MarketPriceDecoder(PostUserInfo postUserInfo)
         {
@@ -58,6 +60,21 @@ namespace Refinitiv.Eta.PerfTools.Common
             m_PostUserInfo = postUserInfo;
             m_FidEnumValue = new Enum();
             m_FidDateValue = new Date();
+
+            m_DecodeFunc[DataTypes.INT] = iter => m_FidIntValue.Decode(iter);
+            m_DecodeFunc[DataTypes.UINT] = iter => m_FidUIntValue.Decode(iter);
+            m_DecodeFunc[DataTypes.FLOAT] = iter => m_FidFloatValue.Decode(iter);
+            m_DecodeFunc[DataTypes.DOUBLE] = iter => m_FidDoubleValue.Decode(iter);
+            m_DecodeFunc[DataTypes.REAL] = iter => m_FidRealValue.Decode(iter);
+            m_DecodeFunc[DataTypes.DATE] = iter => m_FidDateValue.Decode(iter);
+            m_DecodeFunc[DataTypes.TIME] = iter => m_FidTimeValue.Decode(iter);
+            m_DecodeFunc[DataTypes.DATETIME] = iter => m_FidDateTimeValue.Decode(iter);
+            m_DecodeFunc[DataTypes.QOS] = iter => m_FidQosValue.Decode(iter);
+            m_DecodeFunc[DataTypes.STATE] = iter => m_FidStateValue.Decode(iter);
+            m_DecodeFunc[DataTypes.BUFFER] = iter => m_FidBufferValue.Decode(iter);
+            m_DecodeFunc[DataTypes.ASCII_STRING] = iter => m_FidBufferValue.Decode(iter);
+            m_DecodeFunc[DataTypes.UTF8_STRING] = iter => m_FidBufferValue.Decode(iter);
+            m_DecodeFunc[DataTypes.RMTES_STRING] = iter => m_FidBufferValue.Decode(iter);
         }
 
         /// <summary>
@@ -142,20 +159,17 @@ namespace Refinitiv.Eta.PerfTools.Common
         private void UpdateLatencyStats(ConsumerThreadInfo consumerThread, long timeTracker, int msgClass)
         {
             long currentTime = (long)GetTime.GetMicroseconds();
-            long unitsPerMicro;
-
-            unitsPerMicro = 1;
 
             switch (msgClass)
             {
                 case MsgClasses.UPDATE:
-                    consumerThread.TimeRecordSubmit(consumerThread.LatencyRecords, timeTracker, currentTime, unitsPerMicro);
+                    consumerThread.TimeRecordSubmit(consumerThread.LatencyRecords, timeTracker, currentTime, 1);
                     break;
                 case MsgClasses.GENERIC:
-                    consumerThread.TimeRecordSubmit(consumerThread.GenMsgLatencyRecords, timeTracker, currentTime, unitsPerMicro);
+                    consumerThread.TimeRecordSubmit(consumerThread.GenMsgLatencyRecords, timeTracker, currentTime, 1);
                     break;
                 case MsgClasses.POST:
-                    consumerThread.TimeRecordSubmit(consumerThread.PostLatencyRecords, timeTracker, currentTime, unitsPerMicro);
+                    consumerThread.TimeRecordSubmit(consumerThread.PostLatencyRecords, timeTracker, currentTime, 1);
                     break;
                 default:
                     break;
@@ -164,55 +178,29 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         private CodecReturnCode DecodeFidValue(IDictionaryEntry dictionaryEntry, DecodeIterator iter, ConsumerThreadInfo consumerThread)
         {
-            switch (dictionaryEntry.RwfType)
+            int type = dictionaryEntry.GetRwfType();
+            if (type == DataTypes.ENUM)
             {
-                case DataTypes.INT:
-                    return m_FidIntValue.Decode(iter);
-                case DataTypes.UINT:
-                    return m_FidUIntValue.Decode(iter);
-                case DataTypes.FLOAT:
-                    return m_FidFloatValue.Decode(iter);
-                case DataTypes.DOUBLE:
-                    return m_FidDoubleValue.Decode(iter);
-                case DataTypes.REAL:
-                    return m_FidRealValue.Decode(iter);
-                case DataTypes.DATE:
-                    return m_FidDateValue.Decode(iter);
-                case DataTypes.TIME:
-                    return m_FidTimeValue.Decode(iter);
-                case DataTypes.DATETIME:
-                    return m_FidDateTimeValue.Decode(iter);
-                case DataTypes.QOS:
-                    return m_FidQosValue.Decode(iter);
-                case DataTypes.STATE:
-                    return m_FidStateValue.Decode(iter);
-                case DataTypes.ENUM:
+                CodecReturnCode codecReturnCode;
+                if ((codecReturnCode = m_FidEnumValue.Decode(iter)) < CodecReturnCode.SUCCESS)
+                {
+                    return codecReturnCode;
+                }
+                if (codecReturnCode != CodecReturnCode.BLANK_DATA)
+                {
+                    m_EnumTypeInfo = consumerThread!.Dictionary!.EntryEnumType(dictionaryEntry, m_FidEnumValue);
+                    if (m_EnumTypeInfo != null)
                     {
-                        CodecReturnCode codecReturnCode;
-                        if ((codecReturnCode = m_FidEnumValue.Decode(iter)) < CodecReturnCode.SUCCESS)
-                        {
-                            return codecReturnCode;
-                        }
-                        if (codecReturnCode == CodecReturnCode.BLANK_DATA)
-                            break;
-                        m_EnumTypeInfo = consumerThread.Dictionary!.EntryEnumType(dictionaryEntry, m_FidEnumValue);
-                        if (m_EnumTypeInfo != null)
-                        {
-                            m_FidBufferValue = m_EnumTypeInfo.Display;
-                        }
-                        break;
+                        m_FidBufferValue = m_EnumTypeInfo.Display;
                     }
-                case DataTypes.BUFFER:
-                case DataTypes.ASCII_STRING:
-                case DataTypes.UTF8_STRING:
-                case DataTypes.RMTES_STRING:
-                    return m_FidBufferValue.Decode(iter);
-                default:
-                    Console.WriteLine($"Error: Unhandled data type {DataTypes.ToString(dictionaryEntry.RwfType)}({dictionaryEntry.RwfType}) in field with ID {m_FieldEntry.FieldId}.\n");
-                    return CodecReturnCode.FAILURE;
-            }
+                }
 
-            return CodecReturnCode.SUCCESS;
+                return CodecReturnCode.SUCCESS;
+            }
+            else
+            {
+                return m_DecodeFunc[type](iter);
+            }
         }
 
         private bool CheckPostUserInfo(Msg msg)

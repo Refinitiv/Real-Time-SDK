@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
@@ -13,7 +13,7 @@ using System.Net;
 using Xunit;
 using Xunit.Categories;
 
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Common;
 
 namespace CodecTestProject
 {
@@ -183,9 +183,6 @@ namespace CodecTestProject
             {
                 Assert.Equal<int>(bArrayData[i], byteBuffer.ReadByte());
             }
-
-            // Throw to indeicate read past Limit.
-            Assert.Throws<EndOfStreamException>(() => byteBuffer.ReadByte());
         }
 
 

@@ -1,10 +1,10 @@
 buildscript {
         repositories {
-                jcenter()
+                gradlePluginPortal()
         }
 
         dependencies {
-                classpath 'com.github.jengelman.gradle.plugins:shadow:5.0.0'
+                classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
         }
 }
 
@@ -12,17 +12,17 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 dependencies {
-        compile project(':Eta:Core')
-        compile project(':Eta:Converter')
-        compile project(':Eta:ValueAdd')
-        compile project(':Eta:ValueAddCache')
-        compile project(':Eta:AnsiPage')
-        compile project(':Eta:Applications:Shared')
-        compile project(':Eta:Applications:PerfTools')
+        implementation project(':Eta:Core')
+        implementation project(':Eta:Converter')
+        implementation project(':Eta:ValueAdd')
+        implementation project(':Eta:ValueAddCache')
+        implementation project(':Eta:AnsiPage')
+        implementation project(':Eta:Applications:Shared')
+        implementation project(':Eta:Applications:PerfTools')
 }
 
 shadowJar {
-        baseName = 'ETA'
+        archiveBaseName.set('ETA');
 }
 
 

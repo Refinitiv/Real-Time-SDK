@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -22,7 +22,9 @@
 #include "OmmInvalidUsageException.h"
 #include "OmmJsonConverterException.h"
 #include "OmmNiProviderImpl.h"
-
+#ifndef NO_ETA_CPU_BIND
+#include "rtr/rsslBindThread.h"
+#endif
 #include "GetTime.h"
 
 #ifdef WIN32
@@ -58,6 +60,7 @@ static DummyProvClient defaultProvClient;
 static DummyOAuth2ConsClient defaultOAuthConsClient;
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -95,10 +98,16 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig) :
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
+
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo( &_reactorDispatchErrorInfo );
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -137,10 +146,15 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -179,10 +193,15 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oAuthClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -221,10 +240,15 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -263,11 +287,16 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 	clearRsslErrorInfo(&_reactorDispatchErrorInfo);
 }
 
 
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& client ) :
+	OmmCommonImpl(),
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_dispatchLock(),
@@ -304,8 +333,13 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 {
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
-
 	_adminClosure = 0;
+
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -319,6 +353,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmConsumerErrorClient& cl
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& client, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -357,6 +392,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(client);
@@ -370,6 +410,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmOAuth2ConsumerClient& oA
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -408,6 +449,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -421,6 +467,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminClient, OmmOAuth2ConsumerClient& oAuthClient, OmmConsumerErrorClient& errorClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -459,6 +506,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 	_OAuthReactorConfig = NULL;
 	_LoginReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler(errorClient);
@@ -472,6 +524,7 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmConsumerClient& adminCli
 }
 
 OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& client ) :
+	OmmCommonImpl(),
 	_activeConfig( activeConfig ),
 	_userLock(),
 	_dispatchLock(),
@@ -509,6 +562,11 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 	_adminClosure = 0;
 	_OAuthReactorConfig = NULL;
 
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
+
 	try
 	{
 		_pErrorClientHandler = new ErrorClientHandler( client );
@@ -522,6 +580,7 @@ OmmBaseImpl::OmmBaseImpl( ActiveConfig& activeConfig, OmmProviderErrorClient& cl
 }
 
 OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminClient, OmmProviderErrorClient& errorClient, void* adminClosure) :
+	OmmCommonImpl(),
 	_activeConfig(activeConfig),
 	_userLock(),
 	_dispatchLock(),
@@ -558,6 +617,11 @@ OmmBaseImpl::OmmBaseImpl(ActiveConfig& activeConfig, OmmProviderClient& adminCli
 {
 	_adminClosure = adminClosure;
 	_OAuthReactorConfig = NULL;
+
+#ifdef USING_SELECT
+	FD_ZERO(&_readFds);
+	FD_ZERO(&_exceptFds);
+#endif
 
 	try
 	{
@@ -596,6 +660,7 @@ OmmBaseImpl::~OmmBaseImpl()
 		for (i = 0; i < _oAuth2Credentials.size(); i++)
 		{
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientSecret()).secureClear();
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientJWK()).secureClear();
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getPassword()).secureClear();
 
 			if (_OAuthReactorConfig[i] != NULL)
@@ -683,6 +748,7 @@ void OmmBaseImpl::clearSensitiveInfo()
 		for (i = 0; i < _oAuth2Credentials.size(); i++)
 		{
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientSecret()).secureClear();
+			const_cast<EmaString&>(_oAuth2Credentials[i]->getClientJWK()).secureClear();
 			const_cast<EmaString&>(_oAuth2Credentials[i]->getPassword()).secureClear();
 
 			if (_OAuthReactorConfig[i] != NULL)
@@ -780,7 +846,20 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "MaxDispatchCountUserThread", tmp))
 		_activeConfig.maxDispatchCountUserThread = static_cast<UInt32>(tmp > maxUInt32 ? maxUInt32 : tmp);
-	
+
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "SendJsonConvError", tmp))
+		_activeConfig.sendJsonConvError = tmp > 0 ? true : false;
+
+	if (pConfigImpl->isUserSetShouldInitializeCPUIDlib())
+	{
+		_activeConfig.shouldInitializeCPUIDlib = pConfigImpl->getShouldInitializeCPUIDlib();
+	}
+	else
+	{
+		if (pConfigImpl->get<UInt64>(instanceNodeName + "ShouldInitializeCPUIDlib", tmp))
+			_activeConfig.shouldInitializeCPUIDlib = tmp > 0 ? true : false;
+	}
+
 	Int64 tmp1;
 	
 	if (pConfigImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
@@ -896,6 +975,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.outputBufferSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
 	}
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "JsonTokenIncrementSize", tmp))
+	{
+		_activeConfig.jsonTokenIncrementSize = tmp <= maxUInt32 ? (UInt32)tmp : maxUInt32;
+	}
+
 	if (pConfigImpl->get<UInt64>(instanceNodeName + "EnableRtt", tmp))
 	{
 		_activeConfig.enableRtt = tmp > 0 ? true : false;
@@ -942,7 +1026,7 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		{
 			EmaString errorMsg( "no configuration exists for consumer logger [" );
 			errorMsg.append( loggerNodeName ).append( "]; will use logger defaults if not config programmatically" );
-			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::ErrorEnum );
+			pConfigImpl->appendConfigError( errorMsg, OmmLoggerClient::VerboseEnum );
 		}
 
 		pConfigImpl->get<OmmLoggerClient::LoggerType>( loggerNodeName + "LoggerType", _activeConfig.loggerConfig.loggerType );
@@ -1260,6 +1344,18 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 			{
 				pOAuthCredential->clientSecret.data = const_cast<char*>(_oAuth2Credentials[i]->getClientSecret().c_str());
 				pOAuthCredential->clientSecret.length = _oAuth2Credentials[i]->getClientSecret().length();
+			}
+
+			if (_oAuth2Credentials[i]->getClientJWK().length())
+			{
+				pOAuthCredential->clientJWK.data = const_cast<char*>(_oAuth2Credentials[i]->getClientJWK().c_str());
+				pOAuthCredential->clientJWK.length = _oAuth2Credentials[i]->getClientJWK().length();
+			}
+
+			if (_oAuth2Credentials[i]->getAudience().length())
+			{
+				pOAuthCredential->audience.data = const_cast<char*>(_oAuth2Credentials[i]->getAudience().c_str());
+				pOAuthCredential->audience.length = _oAuth2Credentials[i]->getAudience().length();
 			}
 
 			if (_oAuth2Credentials[i]->getTokenScope().length())
@@ -1686,6 +1782,11 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 			socketChannelCfg->proxyDomain = pConfigImpl->getUserSpecifiedProxyDomain();
 		}
 
+		if (pConfigImpl->get<UInt64>(channelNodeName + "ProxyConnectionTimeout", tempUInt))
+		{
+			socketChannelCfg->setProxyConnectionTimeout(tempUInt);
+		}
+
 		if (pConfigImpl->getUserSpecifiedSslCAStore().length())
 		{
 			socketChannelCfg->sslCAStore = pConfigImpl->getUserSpecifiedSslCAStore();
@@ -1799,6 +1900,10 @@ ChannelConfig* OmmBaseImpl::readChannelConfig(EmaConfigImpl* pConfigImpl, const 
 	tempUInt = 0;
 	if ( pConfigImpl->get<UInt64>( channelNodeName + "HighWaterMark", tempUInt ) )
 		newChannelConfig->highWaterMark = tempUInt > maxUInt32 ? maxUInt32 : (UInt32) tempUInt;
+
+	tempUInt = 0;
+	if (pConfigImpl->get<UInt64>(channelNodeName + "DirectWrite", tempUInt))
+		newChannelConfig->directWrite = tempUInt > maxUInt32 ? maxUInt32 : (UInt32)tempUInt;
 
 	/* @deprecated DEPRECATED:
 	 *ReconnectAttemptLimit,ReconnectMinDelay,ReconnectMaxDelay,MsgKeyInUpdates,XmlTrace is per consumer/niprov/iprov instance based now. 
@@ -2050,12 +2155,6 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			_pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::VerboseEnum, temp);
 		}
 
-/* Ensure that _readFds and _exceptFds are cleared properly before creating the pipe. */
-#ifdef USING_SELECT
-		FD_ZERO(&_readFds);
-		FD_ZERO(&_exceptFds);
-#endif
-
 		if ( !_pipe.create() )
 		{
 			EmaString temp( "Failed to create communication Pipe." );
@@ -2078,6 +2177,8 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			rsslInitOpts.jitOpts.libcryptoName = (char*)_activeConfig.libCryptoName.c_str();
 		if (_activeConfig.libcurlName.length() > 0)
 			rsslInitOpts.jitOpts.libcurlName = (char*)_activeConfig.libcurlName.c_str();
+		if (_activeConfig.shouldInitializeCPUIDlib != DEFAULT_SHOULD_INIT_CPUID_LIB)
+			rsslInitOpts.shouldInitializeCPUIDlib = _activeConfig.shouldInitializeCPUIDlib;
 
 		RsslRet retCode = rsslInitializeEx(&rsslInitOpts, &rsslError);
 		if ( retCode != RSSL_RET_SUCCESS )
@@ -2160,6 +2261,12 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			reactorOpts.pRestLoggingCallback = restLoggingCallback;
 		}
 
+		if ( !configImpl->getCpuWorkerThreadBind().empty() )
+		{
+			reactorOpts.cpuBindWorkerThread.length = configImpl->getCpuWorkerThreadBind().length();
+			reactorOpts.cpuBindWorkerThread.data = (char*)configImpl->getCpuWorkerThreadBind().c_str();
+		}
+
 		reactorOpts.userSpecPtr = ( void* )this;
 
 		_pRsslReactor = rsslCreateReactor( &reactorOpts, &rsslErrorInfo );
@@ -2219,6 +2326,8 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			jsonConverterOptions.catchUnknownJsonFids = (RsslBool)_activeConfig.catchUnknownJsonFids;
 			jsonConverterOptions.closeChannelFromFailure = (RsslBool)_activeConfig.closeChannelFromFailure;
 			jsonConverterOptions.outputBufferSize = _activeConfig.outputBufferSize;
+			jsonConverterOptions.jsonTokenIncrementSize = _activeConfig.jsonTokenIncrementSize;
+			jsonConverterOptions.sendJsonConvError = _activeConfig.sendJsonConvError;
 
 			if (rsslReactorInitJsonConverter(_pRsslReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 			{
@@ -2303,17 +2412,31 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		}
 
 		loadDirectory();
-		loadDictionary();
+
+		if (getImplType() == OmmCommonImpl::ConsumerEnum)
+		{
+			if (!getDictionaryCallbackClient().getDefaultDictionary()->isLoaded())
+				loadDictionary();
+		}
+		else
+		{
+			loadDictionary();
+		}
 
 		clearSensitiveInfo();
 		_isInitialized = true;
 
 		if ( isApiDispatching() && !_atExit )
 		{
+			if ( !configImpl->getCpuApiThreadBind().empty() )
+			{
+				_cpuApiThreadBind = configImpl->getCpuApiThreadBind();
+			}
+
 			start();
 
 			/* Waits until the API dispatch thread started */
-			while (!_bApiDispatchThreadStarted) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
+			while ( !_bApiDispatchThreadStarted && !_atExit ) OmmBaseImplMap<OmmBaseImpl>::sleep(100);
 		}
 		
 		if (_atExit)
@@ -2483,7 +2606,7 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	{
 		if (!calledFromInit) _userLock.lock();
 	}
-	
+
 	if ( _state == NotInitializedEnum )
 	{
 		if ( !calledFromInit ) _userLock.unlock();
@@ -2538,11 +2661,17 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	}
 
 #ifdef USING_SELECT
-	FD_CLR( _pipe.readFD(), &_readFds );
-	FD_CLR( _pipe.readFD(), &_exceptFds );
+	if ( _pipe.isInitialized() )
+	{
+		FD_CLR( _pipe.readFD(), &_readFds );
+		FD_CLR( _pipe.readFD(), &_exceptFds );
+	}
 #else
-	removeFd( _pipe.readFD() );
-	_pipeReadEventFdsIdx = -1;
+	if ( _pipe.isInitialized() )
+	{
+		removeFd( _pipe.readFD() );
+		_pipeReadEventFdsIdx = -1;
+	}
 #endif
 	_pipe.close();
 
@@ -2553,7 +2682,8 @@ void OmmBaseImpl::uninitialize( bool caughtExcep, bool calledFromInit )
 	if ( !calledFromInit ) _userLock.unlock();
 
 #ifdef USING_POLL
-	delete[] _eventFds;
+	if ( _eventFds )
+		delete[] _eventFds;
 #endif
 }
 
@@ -3054,6 +3184,46 @@ void OmmBaseImpl::run()
 	_dispatchLock.lock();
 	_bApiDispatchThreadStarted = true;
 
+
+	/* Bind cpu for the API thread. */
+	if ( !_cpuApiThreadBind.empty() )
+	{
+#ifdef NO_ETA_CPU_BIND
+		_dispatchLock.unlock();
+		EmaString temp("CPU Binding is not supported by this EMA library build. OmmBaseImpl::run().");
+		
+		if (_pLoggerClient) _pLoggerClient->log(_activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp);
+		setAtExit();
+		return;
+#else
+		RsslRet ret;
+		RsslErrorInfo rsslErrorInfo;
+		clearRsslErrorInfo(&rsslErrorInfo);
+
+		if ( (ret = rsslBindThread(_cpuApiThreadBind.c_str(), &rsslErrorInfo)) != RSSL_RET_SUCCESS )
+		{
+			_dispatchLock.unlock();
+			EmaString temp( "Failed to bind Cpu for API thread. OmmBaseImpl::run()." );
+			temp.append( " CPU='" ).append( _cpuApiThreadBind )
+				.append( "' Error Id='" ).append( rsslErrorInfo.rsslError.rsslErrorId )
+				.append( "' Internal sysError='" ).append( rsslErrorInfo.rsslError.sysError )
+				.append( "' Error Location='" ).append (rsslErrorInfo.errorLocation )
+				.append( "' Error Text='" ).append( rsslErrorInfo.rsslError.text ).append( "'." );
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::ErrorEnum, temp );
+			setAtExit();
+			return;
+		}
+
+		if ( OmmLoggerClient::SuccessEnum >= _activeConfig.loggerConfig.minLoggerSeverity )
+		{
+			EmaString temp( "EMA Api thread bound to CPU: " );
+			temp.append( _cpuApiThreadBind ).append( "." );
+
+			if ( _pLoggerClient ) _pLoggerClient->log( _activeConfig.instanceName, OmmLoggerClient::SuccessEnum, temp );
+		}
+#endif
+	}
+
 	while ( !Thread::isStopping() && !_atExit )
 		rsslReactorDispatchLoop( _activeConfig.dispatchTimeoutApiThread, _activeConfig.maxDispatchCountApiThread, _bEventReceived );
 
@@ -3165,6 +3335,12 @@ RsslReactorCallbackRet OmmBaseImpl::oAuthCredentialCallback(RsslReactor* pRsslRe
 		{
 			credentialRenewal.clientSecret.data = (char*)oAuthCredentialImpl->getClientSecret().c_str();
 			credentialRenewal.clientSecret.length = oAuthCredentialImpl->getClientSecret().length();
+		}
+
+		if (!oAuthCredentialImpl->getClientJWK().empty())
+		{
+			credentialRenewal.clientJWK.data = (char*)oAuthCredentialImpl->getClientJWK().c_str();
+			credentialRenewal.clientJWK.length = oAuthCredentialImpl->getClientJWK().length();
 		}
 
 		if (!oAuthCredentialImpl->getTokenScope().empty())

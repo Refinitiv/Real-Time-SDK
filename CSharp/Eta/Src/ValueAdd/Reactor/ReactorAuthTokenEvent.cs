@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// Event provided to ReactorAuthTokenEventCallback methods to retrieve authentication
     /// token information
     /// <seealso cref="ReactorAuthTokenInfo"/>
     /// </summary>
-    public class ReactorAuthTokenEvent : ReactorEvent
+    sealed public class ReactorAuthTokenEvent : ReactorEvent
     {
         internal ReactorAuthTokenEvent()
         {
@@ -24,6 +24,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public ReactorAuthTokenInfo? ReactorAuthTokenInfo { get; internal set; }
 
+        /// <summary>
+        /// Returns this object back to the pool.
+        /// </summary>
         public override void ReturnToPool()
         {
             ReactorAuthTokenInfo = null;

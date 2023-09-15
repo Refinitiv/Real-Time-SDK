@@ -34,6 +34,11 @@ class RestAuthOptions {
     
     public static final int HAS_CLIENT_SECRET = 0x0100;
     
+    public static final int HAS_CLIENT_JWK = 0x0200;
+    
+    public static final int HAS_AUDIENCE = 0x0400;
+
+
     private int _flags;
     private String _username;
     private String _password;
@@ -42,6 +47,8 @@ class RestAuthOptions {
     private String _clientId;
     private String _tokenScope = "trapi.streaming.pricing.read";
     private String _clientSecret;
+    private String _clientJwk;
+    private String _audience;
     private String _grantType = RestReactor.AUTH_PASSWORD;
     private HashMap<String,String> _headerAttribute;
     private ReactorTokenSession _tokenSession;
@@ -67,10 +74,13 @@ class RestAuthOptions {
 		_username = "";
 		_password = "";
 		_newPassword = "";
+		_clientJwk = "";
 		_takeExclusiveSignOnControl = true;
 		_clientId = "";
 		_tokenScope = "trapi.streaming.pricing.read";
 		_clientSecret = "";
+		_clientJwk = "";
+		_audience = "";
 		_grantType = RestReactor.AUTH_PASSWORD;
 		_headerAttribute = null;
 		_tokenSession = null;
@@ -87,6 +97,9 @@ class RestAuthOptions {
 		
 		_clientSecret = "";
 		_flags &= ~HAS_CLIENT_SECRET;
+		
+		_clientJwk = "";
+		_flags &= ~HAS_CLIENT_JWK;
 		
 		return this;
 	}
@@ -139,6 +152,38 @@ class RestAuthOptions {
 		return _newPassword;
 	}
 	
+	public RestAuthOptions clientJwk(String clientJwk) 
+	{
+		if( (clientJwk != null) && (!clientJwk.isEmpty()))
+		{
+			_clientJwk = clientJwk;		
+			_flags |= RestAuthOptions.HAS_CLIENT_JWK;
+		}
+		
+		return this;
+	}
+	
+	public String clientJwk()
+	{
+		return _clientJwk;
+	}
+	
+	public RestAuthOptions audience(String audience) 
+	{
+		if( (audience != null) && (!audience.isEmpty()))
+		{
+			_audience = audience;		
+			_flags |= RestAuthOptions.HAS_AUDIENCE;
+		}
+		
+		return this;
+	}
+	
+	public String audience()
+	{
+		return _audience;
+	}
+
 	public RestAuthOptions grantType(String grantType) {
 		_grantType = grantType;
 		_flags |= RestAuthOptions.HAS_GRANT_TYPE;
@@ -273,6 +318,15 @@ class RestAuthOptions {
 		return (_flags & RestAuthOptions.HAS_HEADER_ATTRIB) != 0;
 	}
 	
+	public boolean hasClientJwk() 
+	{
+		return (_flags & RestAuthOptions.HAS_CLIENT_JWK) != 0;
+	}
+	
+	public boolean hasAudience() 
+	{
+		return (_flags & RestAuthOptions.HAS_AUDIENCE) != 0;
+	}
     
     public String toString()
 	{

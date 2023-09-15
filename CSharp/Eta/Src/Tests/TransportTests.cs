@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
@@ -14,20 +14,19 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Categories;
 
-using Refinitiv.Common.Logger;
-using Refinitiv.Eta.Internal;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.Internal.Interfaces;
-using Refinitiv.Eta.Tests;
+using LSEG.Eta.Internal;
+using LSEG.Eta.Internal.Interfaces;
+using LSEG.Eta.Tests;
 using System.Text;
-using Refinitiv.Eta.Transports.Internal;
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.Transports.Internal;
+using LSEG.Eta.Common;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Net.Security;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
-namespace Refinitiv.Eta.Transports.Tests
+namespace LSEG.Eta.Transports.Tests
 {
     #region Transport Initialization
     /// <summary>
@@ -92,6 +91,48 @@ namespace Refinitiv.Eta.Transports.Tests
             Assert.True(TransportReturnCode.INIT_NOT_INITIALIZED == Transport.Uninitialize());
         }
 
+        [Fact]
+        [Category("Unit")]
+        [Category("Transport")]
+        public void TransportLibraryVersionTest()
+        {
+            ILibraryVersionInfo libraryInfo = Transport.QueryVersion();
+
+            Assert.NotNull(libraryInfo);
+
+            FileVersionInfo fileVersionInfo = null;
+
+            try
+            {
+                fileVersionInfo = FileVersionInfo.GetVersionInfo("LSEG.Eta.Core.dll");
+            }
+            catch (Exception) { }
+
+            if (fileVersionInfo != null && fileVersionInfo.ProductVersion != null)
+            {
+                string fileProductVersion = fileVersionInfo.ProductVersion;
+
+                string[] versionNumbers = fileProductVersion.Split('.');
+
+                string productVersion = string.Empty;
+
+                if (versionNumbers.Length >= 3)
+                {
+                    productVersion = $"{versionNumbers[0]}.{versionNumbers[1]}.{versionNumbers[2]}";
+                }
+
+                string productInternalVersion = $"etacsharp{productVersion}.L1.all.rrg";
+
+                Assert.Equal(fileProductVersion, libraryInfo.ProductVersion());
+                Assert.Equal(productInternalVersion, libraryInfo.ProductInternalVersion());
+            }
+            else
+            {
+                Assert.Equal("ETA C# Edition", libraryInfo.ProductVersion());
+                Assert.Equal("ETA C# Edition", libraryInfo.ProductInternalVersion());
+            }
+        }
+
     }
     #endregion
 
@@ -112,19 +153,16 @@ namespace Refinitiv.Eta.Transports.Tests
     {
         public TransportConnectTests(ITestOutputHelper output)
         {
-            XUnitLoggerProvider.Instance.Output = output;
-            EtaLoggerFactory.Instance.AddProvider(XUnitLoggerProvider.Instance);
         }
 
         public void Dispose()
         {
-            XUnitLoggerProvider.Instance.Output = null;
         }
 
         static TransportConnectTests()
         {
             ProtocolRegistry.Instance
-                .Register(ConnectionType.ENCRYPTED, new Refinitiv.Eta.Tests.MockProtocol());
+                .Register(ConnectionType.ENCRYPTED, new LSEG.Eta.Tests.MockProtocol());
         }
 
         /// <summary>
@@ -138,13 +176,10 @@ namespace Refinitiv.Eta.Transports.Tests
                 connectOptions.UnifiedNetworkInfo.ServiceName = MockProtocol.PortActionAfter50ms.ToString();
 
             var channel = Transport.Connect(connectOptions, out Error error);
-            if (error != null)
-                EtaLogger.Instance.Error($"{DateTime.UtcNow:HH:mm:ss.ffff} Test - Error: {error}");
+
             Assert.Null(error);
 
             Assert.IsAssignableFrom<IChannel>(channel);
-
-            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} Test - Channel: {channel}");
 
             Assert.True((((ChannelBase)channel).State == ChannelState.ACTIVE)
                       || ((ChannelBase)channel).State == ChannelState.INITIALIZING && !connectOptions.Blocking);
@@ -199,192 +234,15 @@ namespace Refinitiv.Eta.Transports.Tests
 
             }
         }
-
-        [Fact(Skip = "Broken")]
-        [Category("Unit")]
-        [Category("Transport")]
-        [Category("Channel")]
-        public void TransportConnectBlockingProtocolOk()
-        {
-            IChannel channel = null;
-            try
-            {
-                InitArgs initArgs = new InitArgs { GlobalLocking = true };
-
-                var actual = Transport.Initialize(initArgs, out Error error);
-                if (error != null)
-                    EtaLogger.Instance.Trace($"{error}");
-
-                Assert.Equal(TransportReturnCode.SUCCESS, actual);
-
-                var cnxnOptions = new ConnectOptions
-                {
-                    ConnectionType = ConnectionType.SOCKET,
-                    Blocking = true
-                };
-                cnxnOptions.UnifiedNetworkInfo.Address = "localhost";
-                cnxnOptions.UnifiedNetworkInfo.ServiceName = MockProtocol.PortActionAfter50ms.ToString();
-
-                channel = AssertChannelExists(cnxnOptions);
-            }
-            finally
-            {
-                if (channel != null)
-                {
-                    channel.Close(out Error error);
-                    Assert.Null(error);
-                }
-                Transport.Uninitialize();
-            }
-        }
-
-        [Fact(Skip ="Broken")]
-        [Category("Unit")]
-        [Category("Transport")]
-        [Category("Channel")]
-        async public void TransportConnectBlockingOneAtATime()
-        {
-            try
-            {
-                InitArgs initArgs = new InitArgs { GlobalLocking = false };
-                var result = Transport.Initialize(initArgs, out Error error);
-
-                Assert.Equal(TransportReturnCode.SUCCESS, result);
-
-                Func<IChannel> connect = new Func<IChannel>(() =>
-                {
-                    var cnxnOptions = new ConnectOptions
-                    {
-                        ConnectionType = ConnectionType.SOCKET,
-                        Blocking = true
-                    };
-                    cnxnOptions.UnifiedNetworkInfo.Address = "localhost";
-                    cnxnOptions.UnifiedNetworkInfo.ServiceName = MockProtocol.PortActionAfter50ms.ToString();
-
-                    IChannel channel = null;
-                    try
-                    {
-                        channel = Transport.Connect(cnxnOptions,
-                                                 out Error connectError);
-                        if (connectError != null)
-                            EtaLogger.Instance.Trace($"{DateTime.UtcNow:HH:mm:ss.ffff} Test ConnectError: {connectError}");
-
-                        return channel;
-                    }
-                    finally
-                    {
-                        channel.Close(out Error closeError);
-                        Assert.Null(closeError);
-                    }
-                });
-
-                MockProtocol.TestMultipleConnectsFail = true;
-
-                var taskA = Task.Factory.StartNew(connect);
-                var taskB = Task.Factory.StartNew(connect);
-
-                var channelA = taskA.Result;
-                var channelB = taskB.Result;
-
-                Assert.NotNull(channelA);
-                Assert.IsAssignableFrom<IChannel>(channelA);
-
-                await taskB;
-            }
-            finally
-            {
-                Transport.Uninitialize();
-            }
-        }
-
-        [Fact(Skip = "Broken")]
-        [Category("Unit")]
-        [Category("Transport")]
-        [Category("Channel")]
-        public void TransportConnectNonBlockingChannelAsyncConnect()
-        {
-            Error connectError = null;
-            Error initError = null;
-
-            try
-            {
-                InitArgs initArgs = new InitArgs { GlobalLocking = false };
-
-                var returnCode = Transport.Initialize(initArgs, out Error error);
-                Assert.Equal(TransportReturnCode.SUCCESS, returnCode);
-
-                Func<int, IChannel> connect = new Func<int, IChannel>((port) =>
-                {
-                    IChannel result = null;
-                    var connectionOptions = new ConnectOptions
-                    {
-                        ConnectionType = ConnectionType.SOCKET,
-                        Blocking = false      
-                    };
-                    connectionOptions.UnifiedNetworkInfo.Address = "localhost";
-                    connectionOptions.UnifiedNetworkInfo.ServiceName = port.ToString();
-                    result = Transport.Connect(connectionOptions,
-                                             out connectError);
-
-                    return result;
-                });
-
-                Func<IChannel, TransportReturnCode> initPoll = new Func<IChannel, TransportReturnCode>((chnl) =>
-                {
-                    TransportReturnCode initReturnCode;
-                    do
-                    {
-                        Thread.Sleep(10);
-                        InProgInfo inProgInfo = new InProgInfo();
-                        initReturnCode = chnl.Init(inProgInfo, out initError);
-                    } while (initReturnCode != TransportReturnCode.SUCCESS);
-                    return initReturnCode;
-                });
-
-                // Create a MockChannel that will pend on external connect signal before
-                // changing its state.
-                IChannel channel = connect(MockProtocol.PortActionOnSignal);
-                var initTask = Task.Factory.StartNew<TransportReturnCode>(() => initPoll(channel));
-
-                // Assert Channel created initializing.
-                Assert.Equal(TransportReturnCode.CHAN_INIT_IN_PROGRESS, channel.Init(new InProgInfo(), out connectError));
-
-                // Fondle internals
-                IInternalChannel baseChannel = channel as IInternalChannel;
-                Assert.NotNull(baseChannel);
-
-                Thread.Sleep(250);
-                // Assert Channel created still initializing.
-                Assert.Equal(TransportReturnCode.CHAN_INIT_IN_PROGRESS, channel.Init(new InProgInfo(), out connectError));
-
-                // Externally Set Connected Signal
-                baseChannel.SocketChannel.IsConnected = true;
-
-                Thread.Sleep(50);
-                baseChannel.SocketChannel.IsDataReady = true;
-
-                int waitms = 15000;
-                if (initTask.Wait(waitms))
-                    Assert.Equal(TransportReturnCode.SUCCESS, initTask.Result);
-                else
-                    throw new TransportException($"Channel (NonBlocking) Timeout: ({waitms})ms");
-
-            }
-            finally
-            {
-                Transport.Clear();
-            }
-        }
-
     }
     #endregion
 
     #region Transport Initialization ThreadSafety
     /// <summary>
     /// step 1
-    /// Test the ability to run TaskB within TaskA
+    /// Test the ability to Run TaskB within TaskA
     /// step 2
-    /// Test the ability to run TaskA within TaskB
+    /// Test the ability to Run TaskA within TaskB
     /// step 3
     /// Created 30 Task random intervals
     /// </summary>
@@ -468,38 +326,6 @@ namespace Refinitiv.Eta.Transports.Tests
             Task.WaitAll(taskA, taskB);
             Assert.Equal(TransportReturnCode.INIT_NOT_INITIALIZED, Transport.Uninitialize());
         }
-
-        [Fact(Skip = "TakesTooLong")]
-        [Category("Unit")]
-        [Category("Transport")]
-        public void MultipleTaskVariableIntervals()
-        {
-            object[] resultList = new object[30];
-            Random randomInteval = new Random();
-
-            Task<TransportReturnCode>[] taskArray = new Task<TransportReturnCode>[30];
-            int randomInt;
-            var threadId = Thread.CurrentThread.ManagedThreadId;
-
-            Transport.Clear();
-            for (int i = 0; i < taskArray.Length; i++)
-            {
-                randomInt = randomInteval.Next(0, 3000);
-
-                taskArray[i] = Task<TransportReturnCode>.Factory.StartNew(
-                            () =>
-                            {
-                                InitArgs initArgs = new InitArgs { GlobalLocking = true };
-                                Transport.Initialize(initArgs, error: out Error error);
-                                Thread.Sleep(randomInt);
-                                return Transport.Uninitialize();
-                            });//).Result;
-                resultList[i] = taskArray[i].Result;
-                Assert.Equal(TransportReturnCode.SUCCESS, resultList[i]);
-            }
-            Task.WaitAll(taskArray, 6000);
-            Assert.Equal(TransportReturnCode.INIT_NOT_INITIALIZED, Transport.Uninitialize());
-        }
     }
     #endregion
 
@@ -509,19 +335,16 @@ namespace Refinitiv.Eta.Transports.Tests
     {
         public TransportTestsProtocol(ITestOutputHelper output)
         {
-            XUnitLoggerProvider.Instance.Output = output;
-            EtaLoggerFactory.Instance.AddProvider(XUnitLoggerProvider.Instance);
         }
 
         public void Dispose()
         {
-            XUnitLoggerProvider.Instance.Output = null;
         }
 
         static TransportTestsProtocol()
         {
             ProtocolRegistry.Instance
-                .Register(ConnectionType.SOCKET, new Refinitiv.Eta.Tests.MockProtocol());
+                .Register(ConnectionType.SOCKET, new LSEG.Eta.Tests.MockProtocol());
         }
 
         /// <summary>
@@ -532,8 +355,6 @@ namespace Refinitiv.Eta.Transports.Tests
         private void AssertChannelExists(ConnectOptions connectOptions)
         {
             var channel = Transport.Connect(connectOptions, out Error error);
-            if (error != null)
-                EtaLogger.Instance.Trace($"{error}");
 
             Assert.IsAssignableFrom<IChannel>(channel);
             Assert.Null(error);
@@ -551,13 +372,11 @@ namespace Refinitiv.Eta.Transports.Tests
 
         public TransportGlobalLockingTests(ITestOutputHelper output)
         {
-            XUnitLoggerProvider.Instance.Output = output;
-            EtaLoggerFactory.Instance.AddProvider(XUnitLoggerProvider.Instance);
+
         }
 
         public void Dispose()
         {
-            XUnitLoggerProvider.Instance.Output = null;
         }
 
         [Fact]
@@ -600,7 +419,7 @@ namespace Refinitiv.Eta.Transports.Tests
         {
             _output = output;
             ProtocolRegistry.Instance
-                           .Register(ConnectionType.SOCKET, new Refinitiv.Eta.Tests.MockProtocol());
+                           .Register(ConnectionType.SOCKET, new LSEG.Eta.Tests.MockProtocol());
         }
     }
 
@@ -666,7 +485,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             expectedBuffer.Data.WriteAt(0, (short)(ripcMsgLength));  // Populate RIPC message length
             expectedBuffer.Data.WriteAt(2, (byte)RipcFlags.DATA);  // Populate RIPC message header
@@ -708,7 +527,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer.Data.Put(dataByteArray);
 
@@ -762,7 +581,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer.Data.Put(dataByteArray);
 
@@ -828,7 +647,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer.Data.Put(dataByteArray);
 
@@ -847,7 +666,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
-            int ripcMsgLength2 = expectedBuffer2.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer2.Data.Put(dataByteArray2);
 
@@ -919,7 +738,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer.Data.Put(dataByteArray);
 
@@ -938,7 +757,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
-            int ripcMsgLength2 = expectedBuffer2.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer2.Data.Put(dataByteArray2);
 
@@ -957,7 +776,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer3 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer3.Data.Put(dataByteArray3);
 
-            int ripcMsgLength3 = expectedBuffer3.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength3 = expectedBuffer3.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer3.Data.Put(dataByteArray3);
 
@@ -1024,7 +843,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer.Data.Put(dataByteArray);
 
@@ -1043,7 +862,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
-            int ripcMsgLength2 = expectedBuffer2.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer2.Data.Put(dataByteArray2);
 
@@ -1062,7 +881,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer3 = new TransportBuffer(new Common.ByteBuffer(10), RipcDataMessage.HeaderSize, true);
             expectedBuffer3.Data.Put(dataByteArray3);
 
-            int ripcMsgLength3 = expectedBuffer3.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength3 = expectedBuffer3.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer3.Data.Put(dataByteArray3);
 
@@ -1128,7 +947,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer.Data.Put(dataByteArray);
 
@@ -1147,7 +966,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer2 = new TransportBuffer(new Common.ByteBuffer(50), RipcDataMessage.HeaderSize, true);
             expectedBuffer2.Data.Put(dataByteArray2);
 
-            int ripcMsgLength2 = expectedBuffer2.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength2 = expectedBuffer2.Length() + RipcDataMessage.HeaderSize;
 
             messageBuffer2.Data.Put(dataByteArray2);
 
@@ -1232,7 +1051,7 @@ namespace Refinitiv.Eta.Transports.Tests
             TransportBuffer expectedBuffer = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, true);
             expectedBuffer.Data.Put(dataByteArray);
 
-            int ripcMsgLength = expectedBuffer.Length + RipcDataMessage.HeaderSize;
+            int ripcMsgLength = expectedBuffer.Length() + RipcDataMessage.HeaderSize;
 
             expectedBuffer.Data.WriteAt(0, (short)(ripcMsgLength));  // Populate RIPC message length
             expectedBuffer.Data.WriteAt(2, (byte)RipcFlags.DATA);  // Populate RIPC message header
@@ -1994,7 +1813,16 @@ namespace Refinitiv.Eta.Transports.Tests
 
                 if (!expectedError || !blocking)
                 {
-                    Assert.Null(acceptError);
+                    if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && acceptError != null)
+		    {
+			/* Linux platform can generate this error for openssl version older than 1.1.1 */
+                    	Assert.StartsWith("Failed to create a client encrypted channel. Reason:CipherSuitesPolicy is not supported on this platform.", acceptError.Text);
+			expectedError = true;
+		    }
+                    else
+                    {
+                    	Assert.Null(acceptError);
+		    }
                 }
                 else
                 {
@@ -2031,7 +1859,16 @@ namespace Refinitiv.Eta.Transports.Tests
 
                 if (!expectedError || !blocking)
                 {
-                    Assert.Null(error);
+                    if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && error != null)
+		    {
+			/* Linux platform can generate this error for openssl version older than 1.1.1 */
+			Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.", error.Text);
+                        expectedError = true;
+		    }	
+                    else
+		    {
+                    	Assert.Null(error);
+		    }
                 }
                 else
                 {
@@ -2124,7 +1961,16 @@ namespace Refinitiv.Eta.Transports.Tests
 
                         if (!expectedError)
                         {
-                            Assert.Null(initError);
+			     if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && initError != null)
+			     {
+				/* Linux platform can generate this error for openssl version older than 1.1.1 */
+                        	Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.", initError.Text);
+                        	expectedError = true;
+			     }
+			     else
+			     {
+                            	Assert.Null(initError);
+			     }
                         }
                         else
                         {
@@ -2135,7 +1981,7 @@ namespace Refinitiv.Eta.Transports.Tests
 
                         if (initRet == TransportReturnCode.SUCCESS || initRet == TransportReturnCode.FAILURE)
                         {
-                            Assert.True(false); // Unexpected return code.
+                            return initRet;
                         }
                     }
 
@@ -2145,7 +1991,16 @@ namespace Refinitiv.Eta.Transports.Tests
 
                     if (!expectedError)
                     {
-                        Assert.Null(initError);
+			 if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && initError != null)
+			{
+				/* Linux platform can generate this error for openssl version older than 1.1.1 */
+                         	Assert.StartsWith("Failed to create a client encrypted channel. Reason:CipherSuitesPolicy is not supported on this platform.", initError.Text);
+                         	expectedError = true;
+			}
+			else
+			{	
+                        	Assert.Null(initError);
+			}
                     }
                     else
                     {

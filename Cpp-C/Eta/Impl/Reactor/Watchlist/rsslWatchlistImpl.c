@@ -292,8 +292,10 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 	/* Update the login index when the channel supports the session management */
 	if (_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE)
 	{
-		if (pReactorChannelImpl->currentConnectionOpts->base.enableSessionManagement)
+		if (pReactorChannelImpl->supportSessionMgnt || pReactorChannelImpl->channelRole.ommConsumerRole.pLoginRequestList)
+		{
 			pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
+		}
 	}
 	else
 	{
@@ -504,9 +506,10 @@ RsslRet rsslWatchlistDispatch(RsslWatchlist *pWatchlist, RsslInt64 currentTime,
 	if (pWatchlistImpl->base.pWriteCallAgainBuffer)
 	{
 		RsslUInt32 bytes, uncompBytes;
+		RsslUInt8 writeFlags = (pReactorChannelImpl->directWrite ? RSSL_WRITE_DIRECT_SOCKET_WRITE : 0);
 
 		if ((ret = rsslWrite(pWatchlistImpl->base.pRsslChannel, pWatchlistImpl->base.pWriteCallAgainBuffer, 
-						RSSL_HIGH_PRIORITY, 0, &bytes, &uncompBytes, &pErrorInfo->rsslError)) 
+						RSSL_HIGH_PRIORITY, writeFlags, &bytes, &uncompBytes, &pErrorInfo->rsslError))
 				< RSSL_RET_SUCCESS)
 		{
 			/* Collects write statistic */
@@ -4118,7 +4121,7 @@ RsslRet rsslWatchlistSubmitMsg(RsslWatchlist *pWatchlist,
 				/* Update the login index when the channel supports the session management */
 				if (_reactorHandlesWarmStandby(pReactorChannelImpl) == RSSL_FALSE)
 				{
-					if (pReactorChannelImpl->currentConnectionOpts->base.enableSessionManagement || pReactorChannelImpl->channelRole.ommConsumerRole.pLoginRequestList)
+					if (pReactorChannelImpl->supportSessionMgnt || pReactorChannelImpl->channelRole.ommConsumerRole.pLoginRequestList)
 						pWatchlistImpl->login.index = pReactorChannelImpl->connectionListIter;
 				}
 				else
@@ -4543,6 +4546,7 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 	RsslBuffer *pOutputBuffer = pWriteBuffer;
 	RsslBuffer *pMsgBuffer = NULL; /* The buffer to send JSON message to network only. */
 	RsslBool releaseUserBuffer = RSSL_FALSE; /* Release when it writes user's buffer successfully. */
+	RsslUInt8 writeFlags = (pReactorChannelImpl->directWrite ? RSSL_WRITE_DIRECT_SOCKET_WRITE : 0);
 
 	/* Calls JSON converter when the protocol type is simplified JSON. */
 	if (pWatchlistImpl->base.pRsslChannel->protocolType == RSSL_JSON_PROTOCOL_TYPE)
@@ -4623,7 +4627,7 @@ static RsslRet wlWriteBuffer(RsslWatchlistImpl *pWatchlistImpl, RsslBuffer *pWri
 		}
 	}
 
-	if ((ret = rsslWrite(pWatchlistImpl->base.pRsslChannel, pOutputBuffer, RSSL_HIGH_PRIORITY, 0, &bytes, &uncompBytes,
+	if ((ret = rsslWrite(pWatchlistImpl->base.pRsslChannel, pOutputBuffer, RSSL_HIGH_PRIORITY, writeFlags, &bytes, &uncompBytes,
 					&pError->rsslError)) < RSSL_RET_SUCCESS)
 	{
 		/* Collect write statistics */

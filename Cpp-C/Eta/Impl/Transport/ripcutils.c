@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019, 2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -120,6 +120,9 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	char* curlOptProxyUserPwd = NULL;
 
 	CURLcode curlret;
+
+	rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ACTIVE;
+
 	if ((curlFuncs = rsslGetCurlFuncs()) == NULL)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, errno);
@@ -158,6 +161,7 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 			"<%s:%d> Error: 1001 Could not initialize memory for Curl Error.\n",
 			__FILE__, __LINE__);
 		_rsslFree(rsslSocketChannel->curlThreadInfo.curlError);
+		rsslSocketChannel->curlThreadInfo.curlError = 0;
 		rsslSocketChannel->curlThreadInfo.curlThreadState = RSSL_CURL_ERROR;
 		/* trigger select for error condition */
 		rssl_pipe_write(&rsslSocketChannel->sessPipe, "1", 1);
@@ -227,6 +231,10 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
 	// Set Curl Proxy Port
 	(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_PROXYPORT, (long)proxyPortNum);
 
+	// Set Curl Timeout: maximum time a connection is allowed to be established
+	if (rsslSocketChannel->proxyConnectionTimeout > 0)
+		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_TIMEOUT, (long)rsslSocketChannel->proxyConnectionTimeout);
+
 	// Set interface, if specified in connectopts
 	if (rsslSocketChannel->interfaceName != NULL)
 		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_INTERFACE, rsslSocketChannel->interfaceName);
@@ -270,6 +278,10 @@ RSSL_THREAD_DECLARE(runBlockingLibcurlProxyConnection, pArg)
         RSSL_THREAD_DETACH(&(rsslSocketChannel->curlThreadInfo.curlThreadId));
 		return RSSL_THREAD_RETURN();
 	}
+
+	// Reset Curl Timeout because it applied on establish connection stage only.
+	if (rsslSocketChannel->proxyConnectionTimeout > 0)
+		(*(curlFuncs->curl_easy_setopt))(rsslSocketChannel->curlHandle, CURLOPT_TIMEOUT, 0L);
 
     /* Free the allocated memory */
 	_rsslFree(curlOptProxy);
@@ -1678,6 +1690,7 @@ int ipcSetProtFuncs()
 	func.additionalTransportHdrLength = ipcAdditionalHeaderLength; // Not defined, only a stub
 	func.getPoolBuffer = ipcGetPoolBuffer;  // Get a buffer from the socketChannel inputbuffer pool
 	func.getGlobalBuffer = ipcAllocGblMsg;  // Get a simple buffer from the global pool
+	func.dumpMsgAndTransportHdr = ipcDumpMsgAndTransportHdr; // Not defined, only a stub
 	
 	return (ipcSetProtocolHdrFuncs(RSSL_CONN_TYPE_SOCKET, &func));
 }

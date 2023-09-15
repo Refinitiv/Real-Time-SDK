@@ -36,7 +36,7 @@ SeriesDecoder::SeriesDecoder() :
 
 SeriesDecoder::~SeriesDecoder()
 {
-	if ( _atExit )
+	if ( _atExit || GlobalPool::isFinalState() )
 	{
 		if ( _elementListSetDef ) 
 			delete _elementListSetDef;

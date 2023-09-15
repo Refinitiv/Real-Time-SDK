@@ -155,8 +155,6 @@ public class JsonConverterSession
 			error.text(converterError.getText());
 			return error.errorId();
         }
-        
-        converterOptions.userClosure(this);
 		
 		return CodecReturnCodes.SUCCESS;
 	}

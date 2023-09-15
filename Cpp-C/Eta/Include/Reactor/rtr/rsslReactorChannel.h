@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2020 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
 */
 
 #ifndef _RTR_REACTOR_CHANNEL_H
@@ -162,13 +162,22 @@ RSSL_VA_API RsslBuffer* rsslReactorPackBuffer(RsslReactorChannel *pReactorChanne
 /**
  * @brief Changes some aspects of the RsslReactorChannel.
  * @param pReactorChannel The channel to be modified.
- * @param code Code indicating the option to change. See RsslIoctlCodes.
+ * @param code Code indicating the option to change. See RsslIoctlCodes, RsslReactorChannelIoctlCodes.
  * @param value Value to change the option to.
  * @param pError Error structure to be populated in the event of failure.
  * @return RsslRet return codes
- * @see RsslReactor, RsslReactorChannel, RsslIoctlCodes, RsslErrorInfo
+ * @see RsslReactor, RsslReactorChannel, RsslIoctlCodes, RsslReactorChannelIoctlCodes, RsslErrorInfo
  */
 RSSL_VA_API RsslRet rsslReactorChannelIoctl(RsslReactorChannel* pReactorChannel, int code, void* value, RsslErrorInfo* pError);
+
+/**
+* @brief Reactor Channel IOCtl codes
+* Notice: the code values less than 200 reserved for ETA level usage, see RsslIoctlCodes.
+* @see rsslReactorChannelIoctl, RsslReactorChannel, RsslIoctlCodes
+*/
+typedef enum {
+	RSSL_REACTOR_CHANNEL_IOCTL_DIRECT_WRITE = 200,  /* (200) ReactorChannel: Used for attempting to pass the data directly to the transport, avoiding the queuing for this channel. It will be set flag RSSL_WRITE_DIRECT_SOCKET_WRITE for rsslWrite. */
+} RsslReactorChannelIoctlCodes;
 
 /**
  *	@}

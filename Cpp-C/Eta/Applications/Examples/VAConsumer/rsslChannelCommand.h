@@ -247,7 +247,7 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 	pCommand->capabilitiesCount = 0;
 
 	pCommand->tunnelMessagingEnabled = RSSL_FALSE;
-	snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "");
+	snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", "");
 }
 
 /*

@@ -160,7 +160,7 @@ class WlLoginHandler implements WlHandler
 		{
 			if(_stream.isChannelUp())
 			{
-				if ((ret = _stream.sendMsg(requestMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) 
+				if ((ret = _stream.sendMsgOutOfLoop(requestMsg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) 
 				{
 					if (!isReissue) {
 						_loginRequest = null;
@@ -217,7 +217,7 @@ class WlLoginHandler implements WlHandler
 			}
 
 			// send message
-			if ((ret = _stream.sendMsg(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) {
+			if ((ret = _stream.sendMsgOutOfLoop(msg, submitOptions, errorInfo)) < ReactorReturnCodes.SUCCESS) {
 				return ret;
 			}
 
@@ -266,7 +266,7 @@ class WlLoginHandler implements WlHandler
 
 					int userStreamId = msg.streamId();
 		            msg.streamId(_stream._streamId);
-		            ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+		            ret = _stream.sendMsgOutOfLoop(msg, submitOptions, errorInfo);
 		            msg.streamId(userStreamId);
 
 					// reset service id if checkAck() return false
@@ -345,7 +345,7 @@ class WlLoginHandler implements WlHandler
 				}
 				
 				// send message
-				ret = _stream.sendMsg(msg, submitOptions, errorInfo);
+				ret = _stream.sendMsgOutOfLoop(msg, submitOptions, errorInfo);
 				
                 // reset service id if necessary
                 if (resetServiceId)
@@ -688,7 +688,7 @@ class WlLoginHandler implements WlHandler
     }
 
     @Override
-	public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, ReactorErrorInfo errorInfo)
+	public int readMsg(WlStream wlStream, DecodeIterator dIter, Msg msg, boolean wsbSendClosedRecover, ReactorErrorInfo errorInfo)
 	{
 		assert (_stream == wlStream);
 		if (_watchlist.reactorChannel().enableSessionManagement())
@@ -815,10 +815,9 @@ class WlLoginHandler implements WlHandler
 		if (((RefreshMsg) msg).checkSolicited()) {
 			wlStream.responseReceived();
 		}
-
+		
 		// convert to rdm login refresh and save
 		_loginRefresh.decode(dIter, msg);
-
 		// alter login refresh for user
 		// SingleOpen and AllowSuspectData must match the user's request,
 		// regardless of provider support.
@@ -826,11 +825,13 @@ class WlLoginHandler implements WlHandler
 		// must NOT pass on SupportPauseResume.
 		// SupportBatchRequests is supported regardless of provider support.
 		// Enhanced symbol list data streams are always supported.
+		_loginRefresh.applyHasAttrib();
 		_loginRefresh.attrib().applyHasSingleOpen();
 		_loginRefresh.attrib().singleOpen(supportSingleOpen() ? 1 : 0);
 		_loginRefresh.attrib().applyHasAllowSuspectData();
 		_loginRefresh.attrib().allowSuspectData(
 				supportAllowSuspectData() ? 1 : 0);
+		_loginRefresh.applyHasFeatures();
 		_loginRefresh.features().applyHasSupportBatchRequests();
 		_loginRefresh.features().supportBatchRequests(
 				Login.BatchSupportFlags.SUPPORT_REQUESTS);
@@ -861,7 +862,7 @@ class WlLoginHandler implements WlHandler
 		{
 			_tempMsg.clear();
 			_watchlist.convertRDMToCodecMsg(_loginRequest, _tempMsg);
-			if ((ret = wlStream.sendMsg(_tempMsg, _submitOptions, errorInfo)) == ReactorReturnCodes.SUCCESS)
+			if ((ret = wlStream.sendMsgOutOfLoop(_tempMsg, _submitOptions, errorInfo)) == ReactorReturnCodes.SUCCESS)
 			{
 				if (!_loginRequest.checkNoRefresh())
 				{
@@ -931,14 +932,14 @@ class WlLoginHandler implements WlHandler
 		if (!isRttMessage) {
 			return _watchlist.reactor().sendAndHandleDefaultMsgCallback(
 					"WlLoginHandler.readGenericMsg", _watchlist.reactorChannel(),
-					null, msg, (wlRequest != null ? wlRequest.streamInfo() : null),
+					null, msg, wlRequest,
 					errorInfo);
 		} else if (rttEnabled) {
 			submitMsg(wlRequest, msg, _submitOptions, errorInfo);
 			loginRTT.clear();
 			loginRTT.decode(dIter, msg);
 			return _watchlist.reactor().sendAndHandleLoginMsgCallback("WlLoginHandler.readGenericMsg",
-					_watchlist.reactorChannel(), null, msg, loginRTT, (wlRequest != null ? wlRequest.streamInfo() : null),
+					_watchlist.reactorChannel(), null, msg, loginRTT, wlRequest,
 					errorInfo);
 		}
 		return ReactorReturnCodes.SUCCESS;
@@ -972,12 +973,12 @@ class WlLoginHandler implements WlHandler
 
 		ret = _watchlist.reactor().sendAndHandleLoginMsgCallback(location,
 				_watchlist.reactorChannel(), null, msg, (LoginMsg) rdmMsg,
-				(wlRequest != null ? wlRequest.streamInfo() : null), errorInfo);
+				wlRequest, errorInfo);
 
 		if (ret == ReactorCallbackReturnCodes.RAISE) {
 			ret = _watchlist.reactor().sendAndHandleDefaultMsgCallback(
 					location, _watchlist.reactorChannel(), null, msg,
-					(wlRequest != null ? wlRequest.streamInfo() : null),
+					wlRequest,
 					errorInfo);
 		}
 
@@ -996,7 +997,7 @@ class WlLoginHandler implements WlHandler
 		 if (_stream != null && _hasPendingRequest) 
 		 {
 	        _hasPendingRequest = false;
-			return _stream.sendMsg(_stream._requestMsg, _submitOptions, errorInfo);
+			return _stream.sendMsgOutOfLoop(_stream._requestMsg, _submitOptions, errorInfo);
 		 }
 		 
 	     return ReactorReturnCodes.SUCCESS;
@@ -1263,7 +1264,7 @@ class WlLoginHandler implements WlHandler
 			_tempMsg.clear();
 			_watchlist.convertRDMToCodecMsg(loginRequest, _tempMsg);
 
-			if (_stream.sendMsg(_tempMsg, _submitOptions, errorInfo) >= ReactorReturnCodes.SUCCESS)
+			if (_stream.sendMsgOutOfLoop(_tempMsg, _submitOptions, errorInfo) >= ReactorReturnCodes.SUCCESS)
 			{
 				// if successful update tables
 				if (newRequest) {
@@ -1364,7 +1365,7 @@ class WlLoginHandler implements WlHandler
 		// re-send login request
 		_tempMsg.clear();
 		_watchlist.convertRDMToCodecMsg(loginRequest, _tempMsg);
-		return wlStream.sendMsg(_tempMsg, _submitOptions, errorInfo);
+		return wlStream.sendMsgOutOfLoop(_tempMsg, _submitOptions, errorInfo);
 	}
 
 	/* Clear state of watchlist login handler for re-use. */

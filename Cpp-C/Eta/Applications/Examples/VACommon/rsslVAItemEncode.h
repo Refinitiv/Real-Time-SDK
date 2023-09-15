@@ -45,7 +45,7 @@ typedef enum {
 /* item information. */
 typedef struct {
 	RsslBool		IsRefreshComplete;
-	char			Itemname[MAX_ITEM_INFO_STRLEN];
+	char			Itemname[MAX_ITEM_INFO_STRLEN+1];
 	RsslUInt32		InterestCount;
 	RsslUInt8		domainType;
 	void*			itemData; /* Holds information about the item's data. This data will be different depending on the domain of the item. */

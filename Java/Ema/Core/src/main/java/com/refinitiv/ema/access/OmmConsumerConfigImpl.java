@@ -10,10 +10,12 @@ package com.refinitiv.ema.access;
 
 import com.refinitiv.ema.access.OmmLoggerClient.Severity;
 import com.refinitiv.ema.access.ProgrammaticConfigure.InstanceEntryFlag;
+import com.refinitiv.ema.rdm.DataDictionary;
 
 class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 {
 	private int 				_operationModel;
+	private DataDictionary 		dataDictionary;
 	
 	OmmConsumerConfigImpl()
 	{
@@ -36,6 +38,7 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 	{
 		clearInt();
 		_operationModel = OperationModel.API_DISPATCH;
+		dataDictionary = null;
 		return this;
 	}
 
@@ -86,11 +89,25 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		clientSecretInt(clientSecret);
 		return this;
 	}
+	
+	@Override
+	public OmmConsumerConfig clientJWK(String clientJwk)
+	{
+		clientJwkInt(clientJwk);
+		return this;
+	}
 
 	@Override
 	public OmmConsumerConfig tokenScope(String tokenScope)
 	{
 		tokenScopeInt(tokenScope);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig audience(String audience)
+	{
+		audienceInt(audience);
 		return this;
 	}
 
@@ -263,6 +280,21 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		return channelName;
 	}
 	
+	String warmStandbyChannelSet(String channelSet)
+	{
+		String warmStandbyChannelSet = null;
+
+		if ( _programmaticConfigure != null )
+		{
+			warmStandbyChannelSet = _programmaticConfigure.activeEntryNames(channelSet, InstanceEntryFlag.WARM_STANDBY_CHANNELSET_FLAG);
+			if (warmStandbyChannelSet != null)
+				return warmStandbyChannelSet;
+		}
+	
+		warmStandbyChannelSet = (String) xmlConfig().getConsumerAttributeValue(channelSet, ConfigManager.ConsumerWarmStandbyChannelSet);
+		return warmStandbyChannelSet;
+	}
+	
 	String dictionaryName(String instanceName)
 	{
 		String dictionaryName = null;
@@ -381,4 +413,30 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		encryptionCfg().TrustManagerAlgorithm = trustManagerAlgorithm;
 		return this;
 	}
+
+	@Override
+	public OmmConsumerConfig dataDictionary(DataDictionary dataDictionary, boolean shouldCopyIntoAPI)
+	{
+		if(dataDictionary != null && dataDictionary.isFieldDictionaryLoaded() && dataDictionary.isEnumTypeDefLoaded())
+		{
+			if (shouldCopyIntoAPI)
+			{
+				this.dataDictionary = EmaFactory.createDataDictionary(dataDictionary);
+				return this;
+			}
+			else
+			{
+				this.dataDictionary = dataDictionary;
+				return this;
+			}
+		}
+			throw ommIUExcept().message("The dictionary information is not fully loaded in the passed DataDictionary object.",
+					OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT);
+	}
+	
+	DataDictionary dataDictionary()
+	{
+		return dataDictionary;
+	}
+	
 }

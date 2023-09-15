@@ -82,7 +82,6 @@ class ReadBufferStateMachineHTTP extends ReadBufferStateMachine
         else
         {
             _currentMsgStartPos += (_httpOverhead + _currentMsgRipcLen);
-
             _currentMsgRipcLen = UNKNOWN_LENGTH;
             updateStateCurrentLenUnknown(readArgs, error);
         }

@@ -41,6 +41,7 @@ public class ReactorFactory
     static VaPool _wlIntegerPool = new VaPool(true);
     static VaPool _wlViewPool = new VaPool(true);
     static VaPool _packedBufferPool = new VaPool(true);
+    static VaPool _wsbServicePool = new VaPool(true);
 
     private static final int DEFAULT_POOL_LIMIT = -1;
     /**
@@ -275,6 +276,18 @@ public class ReactorFactory
     {
         return new ReactorConnectInfo();
     }
+    
+    /**
+     * Create {@link ReactorWarmStandbyServerInfo}.
+     *
+     * @return {@link ReactorWarmStandbyServerInfo} object
+     *
+     * @see ReactorWarmStandbyServerInfo
+     */
+    public static ReactorWarmStandbyServerInfo createReactorWarmStandbyServerInfo()
+    {
+        return new ReactorWarmStandbyServerInfo();
+    }
 
     /**
      * Create {@link TunnelStreamAcceptOptions}.
@@ -416,6 +429,7 @@ public class ReactorFactory
         if(reactorChannel == null)
         {
             reactorChannel = new ReactorChannel();
+            reactorChannel.clear();
             _reactorChannelPool.updatePool(reactorChannel);
         }
         else
@@ -851,6 +865,26 @@ public class ReactorFactory
     }
     
     /**
+     * Creates a new Reactor object.
+     *
+     * @return the reactorWSBService
+     */
+    static ReactorWSBService createWsbService()
+    {
+    	ReactorWSBService wsbService = (ReactorWSBService)_wsbServicePool.poll();
+        if(wsbService == null)
+        {
+        	wsbService = new ReactorWSBService();
+            _wsbServicePool.updatePool(wsbService);
+        }
+        else
+        {
+        	wsbService.clear();
+        }
+        return wsbService;
+    }
+    
+    /**
      * Creates a new ReactorPackedBuffer object or get it from the pool.
      *
      * @return the ReactorPackedBuffer
@@ -917,5 +951,16 @@ public class ReactorFactory
     static ReactorDebugger createReactorDebugger(int capacity)
     {
         return new ReactorDebuggerImpl(capacity);
+    }
+    
+    /**
+     * Creates {@link ReactorWarmStandbyGroup}
+     *
+     * @return the warm standby group
+     * @see ReactorWarmStandbyGroup
+     */
+    public static ReactorWarmStandbyGroup createReactorWarmStandbyGroup()
+    {
+    	return new ReactorWarmStandbyGroupImpl();
     }
 }

@@ -79,17 +79,29 @@ public:
 	*/
 	ServiceEndpointDiscoveryOption& password(const EmaString& password);
 
-	/** Specifies the a unique identifier for an application making the request.
+	/** Specifies the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
 		@param[in] clientId specifies the client ID
 		@return reference to this object
 	*/
 	ServiceEndpointDiscoveryOption& clientId(const EmaString& clientId);
 
-	/** Specifies optionally a secret used by OAuth client to authenticate to the Authorization Server.
+	/** Specifies the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
 		@param[in] clientSecret specifies a client secret.
 		@return reference to this object
 	*/
 	ServiceEndpointDiscoveryOption & clientSecret(const EmaString& clientSecret);
+
+	/** Specifies the clientJWK.  This is used for login V2
+	@param[in] clientJWK specifies the client JWK for oAuth2 interactions.
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption& clientJWK(const EmaString& clientJWK);
+
+	/** Specifies the audience claim used by OAuth client to authenticate to the Authorization Server. This is optional for OAuth V2 JWT interactions.
+	@param[in] audience specifies the client audience claim
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryOption& audience(const EmaString& audience = "https://login.ciam.refinitiv.com/as/token.oauth2");
 
 	/** Specifies optionally token scope to limit the scope of generated token from the token service.
 		@param[in] tokenScope specifies a token scope
@@ -171,6 +183,8 @@ private:
 	EmaString			_password;
 	EmaString			_clientId;
 	EmaString			_clientSecret;
+	EmaString			_clientJWK;
+	EmaString			_audience;
 	EmaString			_tokenScope;
 	bool				_takeExclusiveSignOnControl;
 	EmaString			_proxyHostName;

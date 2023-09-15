@@ -2,14 +2,15 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.ValueAdd.Common;
+using Microsoft.IdentityModel.Tokens;
+using LSEG.Eta.ValueAdd.Common;
 using System.Text.Json;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     internal class ReactorTokenSession : VaNode, IRestResponseCallback
     {
@@ -94,15 +95,33 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             return m_AuthTokenExpireTime;
         }
 
-        public void SendAuthRequestWithSensitiveInfo(string clientSecret)
+        public void SendAuthRequestWithSensitiveInfo(ReactorOAuthCredentialRenewal reactorOAuthCredRenewal,
+            ReactorOAuthCredentialRenewalModes renewalModes)
         {
             SessionMgntState = SessionState.REQ_AUTH_TOKEN_USING_CLIENT_CRED;
 
-            ReactorOAuthCredential.ClientSecret.Data(clientSecret);
+            if (renewalModes == ReactorOAuthCredentialRenewalModes.CLIENT_SECRET)
+            {
+                ReactorOAuthCredential.ClientSecret.Data(reactorOAuthCredRenewal.ClientSecret.ToString());
+            }
+            else if (renewalModes == ReactorOAuthCredentialRenewalModes.CLIENT_JWK)
+            {
+                ReactorOAuthCredential.ClientJwk.Data(reactorOAuthCredRenewal.ClientJwk.ToString());
+                ReactorOAuthCredential.JsonWebKey = null;
+
+                if ( ReactorRestClient.ValidateJWK(ReactorOAuthCredential, out ReactorErrorInfo? errorInfo) != ReactorReturnCode.SUCCESS)
+                {
+                    RestEvent restEvent = new RestEvent();
+                    restEvent.Type = RestEvent.EventType.FAILED;
+                    RestErrorCallback(restEvent, errorInfo!.Error.Text);
+                    return;
+                }
+            }
 
             m_RestClient.SendTokenRequestAsync(ReactorOAuthCredential, ReactorRestConnectOptions, ReactorAuthTokenInfo, this);
 
             ReactorOAuthCredential.ClientSecret.Clear();
+            ReactorOAuthCredential.ClientJwk.Clear();
         }
 
         public void HandleTokenRequest()
@@ -123,6 +142,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                     ReactorOAuthCredentialRenewal.Clear();
                     ReactorOAuthCredentialRenewal.ClientId.Data(ReactorOAuthCredential.ClientId.ToString());
                     ReactorOAuthCredentialRenewal.TokenScope.Data(ReactorOAuthCredential.TokenScope.ToString());
+                    ReactorOAuthCredentialRenewal.Audience.Data(ReactorOAuthCredential.Audience.ToString());
 
                     /* Creates the token renewal event to the Reactor's queue for the application to submit sensitive information */
                     m_Reactor.SendCredentialRenewalEvent(ReactorChannel!, this, null);
@@ -206,6 +226,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                                                 if (Reactor.RequestServiceDiscovery(reactorConnectInfo))
                                                 {
                                                     SessionMgntState = SessionState.QUERYING_SERVICE_DISCOVERY;
+                                                    ReactorChannel.ServiceEndpointInfoList.Clear();
                                                     if (m_RestClient.SendServiceDirectoryRequest(ReactorRestConnectOptions, ReactorAuthTokenInfo,
                                                         ReactorChannel.ServiceEndpointInfoList, out ReactorErrorInfo? errorInfo) != ReactorReturnCode.SUCCESS)
                                                     {
@@ -323,6 +344,11 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                                         $"Text: {errorText}");
 
                                     m_Reactor.SendChannelWarningEvent(ReactorChannel, ReactorChannel.ReactorErrorInfo);
+
+                                    if (ReactorChannel.State == ReactorChannelState.RDP_RT)
+                                    {
+                                        ReactorChannel.State = ReactorChannelState.RDP_RT_FAILED;
+                                    }
                                 }
                                 else
                                 {
@@ -401,10 +427,6 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                             m_Reactor.SendChannelWarningEvent(ReactorChannel, ReactorChannel.ReactorErrorInfo);
                         }
                     }
-
-                    m_Reactor.SendAuthTokenEvent(ReactorChannel, this, ReactorChannel.ReactorErrorInfo);
-
-                    SessionMgntState = SessionState.REQUEST_TOKEN_FAILURE;
 
                     /* This is used to indicate that the token is no longer valid */
                     ReactorChannel.RDMLoginRequestRDP!.UserName.Data("");

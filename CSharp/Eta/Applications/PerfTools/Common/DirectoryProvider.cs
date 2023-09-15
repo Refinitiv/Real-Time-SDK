@@ -2,16 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.ValueAdd.Rdm;
 
 
-namespace Refinitiv.Eta.PerfTools.Common
+namespace LSEG.Eta.PerfTools.Common
 {
     /// <summary>
     /// The directory handler for the ProvPerf and NIProvPerf. 
@@ -47,6 +47,8 @@ namespace Refinitiv.Eta.PerfTools.Common
 
         // Service qos
         protected Qos m_Qos;
+
+        public DirectoryRefresh DirectoryRefresh { get => m_DirectoryRefresh; }
 
         /// <summary>
         /// Instantiates a new directory provider.

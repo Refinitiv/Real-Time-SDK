@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|          Copyright (C) 2021 Refinitiv.      All rights reserved.          --
+// *|         Copyright (C) 2021-2022 Refinitiv.    All rights reserved.        --
 ///*|-----------------------------------------------------------------------------
 
 #pragma once
@@ -148,8 +148,14 @@ public:
 	FILE* getStatsFile() { return statsFile; }
 	FILE* getLatencyLogFile() { return latencyLogFile; }
 
-	void setCpuId(Int32 id) { cpuId = id; }
-	Int32 getCpuId() { return cpuId; }
+	void setCpuId(const EmaString& id) { cpuId = id; }
+	const EmaString& getCpuId() const { return cpuId; }
+
+	void setApiThreadCpuId(const EmaString& id) { apiThreadCpuId = id; }
+	const EmaString& getApiThreadCpuId() const { return apiThreadCpuId; }
+
+	void setWorkerThreadCpuId(const EmaString& id) { workerThreadCpuId = id; }
+	const EmaString& getWorkerThreadCpuId() const { return workerThreadCpuId; }
 
 	Int32 getThreadIndex() { return providerThreadIndex; }
 
@@ -158,7 +164,9 @@ protected:
 	bool				running;
 
 	Int32				providerThreadIndex;
-	Int32				cpuId;
+	EmaString			cpuId;				// CPU for binding Consumer thread.
+	EmaString			apiThreadCpuId;		// CPU for binding EMA API internal thread when ApiDispatch mode set.
+	EmaString			workerThreadCpuId;	// CPU for binding Reactor Worker thread.
 
 #if defined(WIN32)
 	static unsigned __stdcall ThreadFunc(void* pArguments);

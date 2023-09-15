@@ -23,6 +23,8 @@ OAuth2Credential::OAuth2Credential() :
 	_password(),
 	_clientId(),
 	_clientSecret(),
+	_clientJWK(),
+	_audience(),
 	_tokenScope(),
 	_channelList()
 {
@@ -40,6 +42,8 @@ OAuth2Credential::OAuth2Credential(const OAuth2Credential& credentials) :
 	_password(credentials._password),
 	_clientId(credentials._clientId),
 	_clientSecret(credentials._clientSecret),
+	_clientJWK(credentials._clientJWK),
+	_audience(credentials._audience),
 	_tokenScope(credentials._tokenScope),
 	_channelList(credentials._channelList)
 {
@@ -55,6 +59,8 @@ OAuth2Credential& OAuth2Credential::clear()
 	_password.secureClear();
 	_clientId.secureClear();
 	_clientSecret.secureClear();
+	_clientJWK.secureClear();
+	_audience.secureClear();
 	_tokenScope.secureClear();
 	_channelList.secureClear();
 	_takeExclusiveSignOnControl = true;
@@ -102,6 +108,28 @@ OAuth2Credential& OAuth2Credential::clientId(const EmaString& clientId )
 OAuth2Credential& OAuth2Credential::clientSecret(const EmaString& clientSecret )
 {
 	_clientSecret = clientSecret;
+	return *this;
+}
+
+/** Specifies the client JWK.  This is used for login V2
+
+	@param[in] clientJWK specifies the client JWK for oAuth2 interactions.
+	@return reference to this object
+*/
+OAuth2Credential& OAuth2Credential::clientJWK(const EmaString& clientJWK)
+{
+	_clientJWK = clientJWK;
+	return *this;
+}
+
+/** Specifies the audience claim for the JWT usage.  This is used for login V2
+
+	@param[in] clientJWK specifies the client JWK for oAuth2 interactions.
+	@return reference to this object
+*/
+OAuth2Credential& OAuth2Credential::audience(const EmaString& audience)
+{
+	_audience = audience;
 	return *this;
 }
 
@@ -172,6 +200,24 @@ const EmaString& OAuth2Credential::getClientId()
 const EmaString& OAuth2Credential::getClientSecret()
 {
 	return _clientSecret;
+}
+
+/** Gets the client JWK.  This is used for login V2
+
+	@return client WJK
+*/
+const EmaString& OAuth2Credential::getClientJWK()
+{
+	return _clientJWK;
+}
+
+/** Gets the audience.  This is used for login V2
+
+	@return audience
+*/
+const EmaString& OAuth2Credential::getAudience()
+{
+	return _audience;
 }
 
 /** Gets the tokenScope.  This is optionally used for login V1 and login V2

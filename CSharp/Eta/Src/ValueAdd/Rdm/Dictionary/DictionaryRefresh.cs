@@ -2,23 +2,23 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
 using System.Diagnostics;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// Represents Dictionary Refresh message.
     /// </summary>
-    public class DictionaryRefresh : MsgBase
+    sealed public class DictionaryRefresh : MsgBase
     {
         private IRefreshMsg m_DictionaryRefresh = new Msg();
         private Int tmpInt = new Int();
@@ -30,6 +30,24 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         private ElementEntry m_ElementEntry = new ElementEntry();
         private long m_SeqNum;
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
+        public override int StreamId { get => m_DictionaryRefresh.StreamId; set { m_DictionaryRefresh.StreamId = value; } }
+
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.DICTIONARY"/>.
+        /// </summary>
+        public override int MsgClass { get => m_DictionaryRefresh.MsgClass; }
+
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.REFRESH"/>
+        /// </summary>
+        public override int DomainType { get => m_DictionaryRefresh.DomainType; }
+
+        /// <summary>
+        /// Flags for this message.  See <see cref="DictionaryRefreshFlags"/>.
+        /// </summary>
         public DictionaryRefreshFlags Flags { get; set; }
 
         /// <summary>
@@ -49,6 +67,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             } 
         }
+
         /// <summary>
         /// Checks the presence of solicited flag.
         /// </summary>
@@ -67,6 +86,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             }
         }
+
         /// <summary>
         /// Checks presence of the dictionaryId, version, and type fields.
         /// </summary>
@@ -85,6 +105,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             }
         }
+
         /// <summary>
         /// Checks the presence of refresh complete flag.
         /// </summary>
@@ -103,6 +124,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             }
         }
+
         /// <summary>
         /// Checks the presence of clear cache flag.
         /// </summary>
@@ -121,10 +143,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             }
         }
-
-        public override int StreamId { get => m_DictionaryRefresh.StreamId; set { m_DictionaryRefresh.StreamId = value; } }
-        public override int MsgClass { get => m_DictionaryRefresh.MsgClass; }
-        public override int DomainType { get => m_DictionaryRefresh.DomainType; }
 
         /// <summary>
         /// The ID of the service providing the dictionary.
@@ -191,7 +209,15 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         public int StartEnumTableCount { get; set; }
 
         /// <summary>
-        /// Clears current DictionaryRefresh instance.
+        /// Dictionary Refresh Message constructor.
+        /// </summary>
+        public DictionaryRefresh()
+        {
+            Clear();
+        }
+
+        /// <summary>
+        /// Clears the current contents of the Dictionary Refresh object and prepares it for re-use.
         /// </summary>
         public override void Clear()
         {
@@ -214,12 +240,145 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             DataBody.Clear();
         }
 
-        public DictionaryRefresh()
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destRefreshMsg</c>.
+        /// </summary>
+        /// <param name="destRefreshMsg">DictionaryRefresh object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Copy(DictionaryRefresh destRefreshMsg)
         {
-            Clear();
+            destRefreshMsg.Clear();
+            destRefreshMsg.Flags = Flags;
+            destRefreshMsg.StreamId = StreamId;
+            destRefreshMsg.ServiceId = ServiceId;
+            destRefreshMsg.Verbosity = Verbosity;
+            destRefreshMsg.DictionaryType = DictionaryType;
+            destRefreshMsg.StartFid = StartFid;
+            destRefreshMsg.StartEnumTableCount = StartEnumTableCount;
+            BufferHelper.CopyBuffer(DictionaryName, destRefreshMsg.DictionaryName);
+            BufferHelper.CopyBuffer(DataBody, destRefreshMsg.DataBody);
+            State.Copy(destRefreshMsg.State);
+            if (HasSequenceNumber)
+            {
+                destRefreshMsg.SequenceNumber = SequenceNumber;
+            }
+
+            return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Decode(DecodeIterator decIter, Msg msg)
+        /// <summary>
+        /// Encodes this Dictionary Refresh message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            if (ClearCache)
+            {
+                m_DictionaryRefresh.ApplyClearCache();
+            }
+            if (Solicited)
+            {
+                m_DictionaryRefresh.ApplySolicited();
+            }
+            if (RefreshComplete)
+            {
+                m_DictionaryRefresh.ApplyRefreshComplete();
+            }
+            if (HasSequenceNumber)
+            {
+                m_DictionaryRefresh.ApplyHasSeqNum();
+                m_DictionaryRefresh.SeqNum = m_SeqNum;
+            }
+
+            CodecReturnCode ret = m_DictionaryRefresh.EncodeInit(encodeIter, 0);
+            if (ret < CodecReturnCode.SUCCESS)
+            {
+                return ret;
+            }
+
+            CodecError error;
+
+            //encode dictionary into message
+            switch (DictionaryType)
+            {
+                case Dictionary.Types.FIELD_DEFINITIONS:
+                    {
+                        tmpInt.Value(StartFid);
+                        CodecReturnCode dictEncodeRet = DataDictionary!.EncodeFieldDictionary(encodeIter, tmpInt, (int)Verbosity, out error);
+                        if (dictEncodeRet != CodecReturnCode.SUCCESS)
+                        {
+                            if (dictEncodeRet != CodecReturnCode.DICT_PART_ENCODED)
+                            {
+                                // dictionary encode failed
+                                return dictEncodeRet;
+                            }
+                        }
+                        else
+                        {
+                            // set refresh complete flag
+                            ret = encodeIter.SetRefreshCompleteFlag();
+                            if (ret != CodecReturnCode.SUCCESS)
+                            {
+                                return ret;
+                            }
+                        }
+
+                        //complete encode message
+                        ret = m_DictionaryRefresh.EncodeComplete(encodeIter, true);
+                        if (ret < CodecReturnCode.SUCCESS)
+                        {
+                            return ret;
+                        }
+
+                        StartFid = (int)tmpInt.ToLong();
+                        return dictEncodeRet;
+                    }
+                case Dictionary.Types.ENUM_TABLES:
+                    {
+                        tmpInt.Value(StartEnumTableCount);
+
+                        //encode dictionary into message
+                        CodecReturnCode dictEncodeRet = DataDictionary!.EncodeEnumTypeDictionaryAsMultiPart(encodeIter, tmpInt, (int)Verbosity, out error);
+                        if (dictEncodeRet != CodecReturnCode.SUCCESS)
+                        {
+                            if (dictEncodeRet != CodecReturnCode.DICT_PART_ENCODED)
+                            {
+                                // dictionary encode failed
+                                return dictEncodeRet;
+                            }
+                        }
+                        else
+                        {
+                            // set refresh complete flag
+                            ret = encodeIter.SetRefreshCompleteFlag();
+                            if (ret != CodecReturnCode.SUCCESS)
+                            {
+                                return ret;
+                            }
+                        }
+
+                        //complete encode message
+                        ret = m_DictionaryRefresh.EncodeComplete(encodeIter, true);
+                        if (ret < CodecReturnCode.SUCCESS)
+                        {
+                            return ret;
+                        }
+                        StartEnumTableCount = (int)tmpInt.ToLong();
+                        return dictEncodeRet;
+                    }
+                default:
+                    return CodecReturnCode.FAILURE;
+            }
+        }
+
+        /// <summary>
+        /// Decodes this Dictionary Refresh using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this DictionaryRefresh message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             if (msg.MsgClass != MsgClasses.REFRESH)
             {
@@ -268,7 +427,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             {
                 Buffer encodedDataBody = msg.EncodedDataBody;
                 DataBody.Data(msg.EncodedDataBody.Data(), msg.EncodedDataBody.Position, msg.EncodedDataBody.Length);
-                m_SeriesDecodeIterator.SetBufferAndRWFVersion(encodedDataBody, decIter.MajorVersion(), decIter.MinorVersion());
+                m_SeriesDecodeIterator.SetBufferAndRWFVersion(encodedDataBody, decodeIter.MajorVersion(), decodeIter.MinorVersion());
                 CodecReturnCode ret = m_Series.Decode(m_SeriesDecodeIterator);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
@@ -321,128 +480,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Encode(EncodeIterator encIter)
-        {
-            if (ClearCache)
-            {
-                m_DictionaryRefresh.ApplyClearCache();
-            }
-            if (Solicited)
-            {
-                m_DictionaryRefresh.ApplySolicited();
-            }
-            if (RefreshComplete)
-            {
-                m_DictionaryRefresh.ApplyRefreshComplete();
-            }
-            if (HasSequenceNumber)
-            {
-                m_DictionaryRefresh.ApplyHasSeqNum();
-                m_DictionaryRefresh.SeqNum = m_SeqNum;
-            }
-          
-            CodecReturnCode ret = m_DictionaryRefresh.EncodeInit(encIter, 0);
-            if (ret < CodecReturnCode.SUCCESS)
-            {
-                return ret;
-            }
-
-            CodecError error;
-
-            //encode dictionary into message
-            switch (DictionaryType)
-            {
-                case Dictionary.Types.FIELD_DEFINITIONS:
-                    {
-                        tmpInt.Value(StartFid);
-                        CodecReturnCode dictEncodeRet = DataDictionary!.EncodeFieldDictionary(encIter, tmpInt, (int)Verbosity, out error);
-                        if (dictEncodeRet != CodecReturnCode.SUCCESS)
-                        {
-                            if (dictEncodeRet != CodecReturnCode.DICT_PART_ENCODED)
-                            {
-                                // dictionary encode failed
-                                return dictEncodeRet;
-                            }
-                        }
-                        else
-                        {
-                            // set refresh complete flag
-                            ret = encIter.SetRefreshCompleteFlag();
-                            if (ret != CodecReturnCode.SUCCESS)
-                            {
-                                return ret;
-                            }
-                        }
-
-                        //complete encode message
-                        ret = m_DictionaryRefresh.EncodeComplete(encIter, true);
-                        if (ret < CodecReturnCode.SUCCESS)
-                        {
-                            return ret;
-                        }
-
-                        StartFid = (int)tmpInt.ToLong();
-                        return dictEncodeRet;
-                    }
-                case Dictionary.Types.ENUM_TABLES:
-                    {
-                        tmpInt.Value(StartEnumTableCount);
-
-                        //encode dictionary into message
-                        CodecReturnCode dictEncodeRet = DataDictionary!.EncodeEnumTypeDictionaryAsMultiPart(encIter, tmpInt, (int)Verbosity, out error);
-                        if (dictEncodeRet != CodecReturnCode.SUCCESS)
-                        {
-                            if (dictEncodeRet != CodecReturnCode.DICT_PART_ENCODED)
-                            {
-                                // dictionary encode failed
-                                return dictEncodeRet;
-                            }
-                        }
-                        else
-                        {
-                            // set refresh complete flag
-                            ret = encIter.SetRefreshCompleteFlag();
-                            if (ret != CodecReturnCode.SUCCESS)
-                            {
-                                return ret;
-                            }
-                        }
-
-                        //complete encode message
-                        ret = m_DictionaryRefresh.EncodeComplete(encIter, true);
-                        if (ret < CodecReturnCode.SUCCESS)
-                        {
-                            return ret;
-                        }
-                        StartEnumTableCount = (int)tmpInt.ToLong();
-                        return dictEncodeRet;
-                    }
-                default:
-                    return CodecReturnCode.FAILURE;
-            }
-        }
-
-        public CodecReturnCode Copy(DictionaryRefresh destRefreshMsg)
-        {
-            destRefreshMsg.Clear();
-            destRefreshMsg.Flags = Flags;
-            destRefreshMsg.StreamId = StreamId;
-            destRefreshMsg.ServiceId = ServiceId;
-            destRefreshMsg.Verbosity = Verbosity;
-            destRefreshMsg.DictionaryType = DictionaryType;
-            destRefreshMsg.StartFid = StartFid;
-            destRefreshMsg.StartEnumTableCount = StartEnumTableCount;
-            BufferHelper.CopyBuffer(DictionaryName, destRefreshMsg.DictionaryName);
-            BufferHelper.CopyBuffer(DataBody, destRefreshMsg.DataBody);
-            State.Copy(destRefreshMsg.State);
-            if (HasSequenceNumber)
-            {
-                destRefreshMsg.SequenceNumber = SequenceNumber;
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
-
+        /// <summary>
+        /// Returns a human readable string representation of the Dictionary Refresh message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuilder = PrepareStringBuilder();

@@ -2,22 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
 
-using static Refinitiv.Eta.Rdm.Login;
+using static LSEG.Eta.Rdm.Login;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM login request. Used by an OMM Consumer or OMM Non-Interactive Provider to
@@ -36,7 +36,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
     /// allows for simplified use in OMM applications that leverage RDMs.</para>
     ///
     /// </remarks>
-    public class LoginRequest : MsgBase
+    sealed public class LoginRequest : MsgBase
     {
         #region Private Fields
 
@@ -60,12 +60,24 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         #endregion
         #region Public Message Properties
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
         public override int StreamId { get; set; }
 
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.LOGIN"/>.
+        /// </summary>
         public override int DomainType { get => m_RequestMsg.DomainType; }
 
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.REQUEST"/>
+        /// </summary>
         public override int MsgClass { get => m_RequestMsg.MsgClass; }
 
+        /// <summary>
+        /// Flags for this message.  See <see cref="LoginRequestFlags"/>.
+        /// </summary>
         public LoginRequestFlags Flags { get; set; }
 
         /// <summary>
@@ -310,7 +322,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         #endregion
 
         /// <summary>
-        /// Instantiates a new LoginRequest.
+        /// Login Request Message constructor.
         /// </summary>
         public LoginRequest()
         {
@@ -328,10 +340,33 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Initializes a LoginRequest, clearing it and filling in
+        /// Clears the current contents of the login request object and prepares it for re-use.
+        /// </summary>
+        public override void Clear()
+        {
+            m_RequestMsg.Clear();
+            m_RequestMsg.MsgClass = MsgClasses.REQUEST;
+            m_RequestMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
+            m_RequestMsg.ApplyStreaming();
+            m_RequestMsg.ContainerType = DataTypes.NO_DATA;
+
+            Flags = default;
+            InstanceId.Clear();
+            UserName.Clear();
+            Password.Clear();
+            LoginAttrib.Clear();
+            Role = 0;
+            DownloadConnectionConfig = 0;
+            UserNameType = 0;
+            AuthenticationToken.Clear();
+            AuthenticationExtended.Clear();
+        }
+
+        /// <summary>
+        /// Initializes a LoginRequest with default information, clearing it and filling in
         /// a typical userName, applicationName and position.
         /// </summary>
-        /// <param name="streamId"></param>
+        /// <param name="streamId">Stream ID to be used for this login Request.</param>
         public void InitDefaultRequest(int streamId)
         {
 
@@ -341,6 +376,328 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             UserNameType = UserIdTypes.NAME;
             HasAttrib = true;
             LoginAttrib.InitDefaultAttrib();
+        }
+
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destRequestMsg</c>.
+        /// </summary>
+        /// <param name="destRequestMsg">LoginRequest object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Copy(LoginRequest destRequestMsg)
+        {
+            Debug.Assert(destRequestMsg != null);
+
+            destRequestMsg.StreamId = StreamId;
+            destRequestMsg.Flags = Flags;
+
+            BufferHelper.CopyBuffer(UserName, destRequestMsg.UserName);
+            if (HasUserNameType)
+            {
+                destRequestMsg.HasUserNameType = true;
+                destRequestMsg.UserNameType = UserNameType;
+            }
+            if (HasAttrib)
+            {
+                destRequestMsg.HasAttrib = true;
+                LoginAttrib.Copy(destRequestMsg.LoginAttrib);
+            }
+            if (HasDownloadConnectionConfig)
+            {
+                destRequestMsg.HasDownloadConnectionConfig = true;
+                destRequestMsg.DownloadConnectionConfig = DownloadConnectionConfig;
+            }
+            if (HasInstanceId)
+            {
+                destRequestMsg.HasInstanceId = true;
+                BufferHelper.CopyBuffer(InstanceId, destRequestMsg.InstanceId);
+            }
+            if (HasPassword)
+            {
+                destRequestMsg.HasPassword = true;
+                BufferHelper.CopyBuffer(Password, destRequestMsg.Password);
+            }
+            if (HasRole)
+            {
+                destRequestMsg.HasRole = true;
+                destRequestMsg.Role = Role;
+            }
+
+            if (HasAuthenticationExtended)
+            {
+                destRequestMsg.HasAuthenticationExtended = true;
+                BufferHelper.CopyBuffer(AuthenticationExtended, destRequestMsg.AuthenticationExtended);
+            }
+
+            return CodecReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Encodes this login request message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            m_RequestMsg.Clear();
+
+            m_RequestMsg.MsgClass = MsgClasses.REQUEST;
+            m_RequestMsg.StreamId = StreamId;
+            m_RequestMsg.DomainType = (int)Eta.Rdm.DomainType.LOGIN;
+            m_RequestMsg.ContainerType = DataTypes.NO_DATA;
+
+            m_RequestMsg.ApplyStreaming();
+
+            if (NoRefresh)
+                m_RequestMsg.ApplyNoRefresh();
+
+            if (Pause)
+                m_RequestMsg.ApplyPause();
+
+            m_RequestMsg.MsgKey.ApplyHasName();
+            m_RequestMsg.MsgKey.Name = UserName;
+
+            if (HasUserNameType)
+            {
+                m_RequestMsg.MsgKey.ApplyHasNameType();
+                m_RequestMsg.MsgKey.NameType = (int)UserNameType;
+                if (UserNameType == Login.UserIdTypes.AUTHN_TOKEN)
+                    m_RequestMsg.MsgKey.Name.Data(blankStringConst);
+            }
+
+            m_RequestMsg.MsgKey.ApplyHasAttrib();
+            m_RequestMsg.MsgKey.AttribContainerType = DataTypes.ELEMENT_LIST;
+
+            CodecReturnCode ret = m_RequestMsg.EncodeInit(encodeIter, 0);
+            if (ret != CodecReturnCode.ENCODE_MSG_KEY_ATTRIB)
+                return ret;
+
+            ret = EncodeAttrib(encodeIter);
+            if (ret != CodecReturnCode.SUCCESS)
+                return ret;
+
+            if ((ret = m_RequestMsg.EncodeKeyAttribComplete(encodeIter, true)) < CodecReturnCode.SUCCESS)
+                return ret;
+
+            if ((ret = m_RequestMsg.EncodeComplete(encodeIter, true)) < CodecReturnCode.SUCCESS)
+                return ret;
+
+            return CodecReturnCode.SUCCESS;
+        }
+
+        private CodecReturnCode EncodeAttrib(EncodeIterator EncodeIter)
+        {
+            elementEntry.Clear();
+            elementList.Clear();
+            elementList.ApplyHasStandardData();
+            CodecReturnCode ret;
+
+            if ((ret = elementList.EncodeInit(EncodeIter, null, 0)) != CodecReturnCode.SUCCESS)
+                return ret;
+
+            if (HasAttrib
+                && LoginAttrib.HasApplicationId
+                && LoginAttrib.ApplicationId.Length != 0)
+            {
+                elementEntry.DataType = DataTypes.ASCII_STRING;
+                elementEntry.Name = ElementNames.APPID;
+                if ((ret = elementEntry.Encode(EncodeIter, LoginAttrib.ApplicationId)) != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib
+                && LoginAttrib.HasApplicationName
+                && LoginAttrib.ApplicationName.Length != 0)
+            {
+                elementEntry.DataType = DataTypes.ASCII_STRING;
+                elementEntry.Name = ElementNames.APPNAME;
+                if ((ret = elementEntry.Encode(EncodeIter, LoginAttrib.ApplicationName)) != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib
+                && LoginAttrib.HasPosition
+                && LoginAttrib.Position.Length != 0)
+            {
+                elementEntry.DataType = DataTypes.ASCII_STRING;
+                elementEntry.Name = ElementNames.POSITION;
+                if ((ret = elementEntry.Encode(EncodeIter, LoginAttrib.Position)) != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasPassword && Password.Length != 0)
+            {
+                elementEntry.DataType = DataTypes.ASCII_STRING;
+                elementEntry.Name = ElementNames.PASSWORD;
+                if ((ret = elementEntry.Encode(EncodeIter, Password)) != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib && LoginAttrib.HasProvidePermissionProfile)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.PROV_PERM_PROF;
+                tmpUInt.Value(LoginAttrib.ProvidePermissionProfile);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib && LoginAttrib.HasProvidePermissionExpressions)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.PROV_PERM_EXP;
+                tmpUInt.Value(LoginAttrib.ProvidePermissionExpressions);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib && LoginAttrib.HasSingleOpen)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.SINGLE_OPEN;
+                tmpUInt.Value(LoginAttrib.SingleOpen);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib && LoginAttrib.HasAllowSuspectData)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.ALLOW_SUSPECT_DATA;
+                tmpUInt.Value(LoginAttrib.AllowSuspectData);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib && LoginAttrib.HasProviderSupportDictDownload)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD;
+                tmpUInt.Value(LoginAttrib.SupportProviderDictionaryDownload);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasUserNameType
+                && UserNameType == Login.UserIdTypes.AUTHN_TOKEN
+                && UserName.Length != 0)
+            {
+                elementEntry.DataType = DataTypes.ASCII_STRING;
+                elementEntry.Name = ElementNames.AUTHN_TOKEN;
+                if ((ret = elementEntry.Encode(EncodeIter, UserName)) != CodecReturnCode.SUCCESS)
+                    return ret;
+
+                if (HasAuthenticationExtended && AuthenticationExtended.Length != 0)
+                {
+                    elementEntry.DataType = DataTypes.BUFFER;
+                    elementEntry.Name = ElementNames.AUTHN_EXTENDED;
+                    if ((ret = elementEntry.Encode(EncodeIter, AuthenticationExtended)) != CodecReturnCode.SUCCESS)
+                        return ret;
+                }
+            }
+
+            if (HasInstanceId && InstanceId.Length != 0)
+            {
+                elementEntry.DataType = DataTypes.ASCII_STRING;
+                elementEntry.Name = ElementNames.INST_ID;
+                ret = elementEntry.Encode(EncodeIter, InstanceId);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasRole)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.ROLE;
+                tmpUInt.Value(Role);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasDownloadConnectionConfig)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.DOWNLOAD_CON_CONFIG;
+                tmpUInt.Value(DownloadConnectionConfig);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if (HasAttrib && LoginAttrib.HasSupportRoundTripLatencyMonitoring)
+            {
+                elementEntry.DataType = DataTypes.UINT;
+                elementEntry.Name = ElementNames.ROUND_TRIP_LATENCY;
+                tmpUInt.Value(LoginAttrib.SupportConsumerRTTMonitoring);
+                ret = elementEntry.Encode(EncodeIter, tmpUInt);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+            }
+
+            if ((ret = elementList.EncodeComplete(EncodeIter, true)) != CodecReturnCode.SUCCESS)
+                return ret;
+
+            return CodecReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Decodes this Login Refresh message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this LoginRefresh message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
+        {
+            Clear();
+            if (msg.MsgClass != MsgClasses.REQUEST)
+                return CodecReturnCode.FAILURE;
+
+            IRequestMsg requestMsg = (IRequestMsg)msg;
+
+            //All login requests should be streaming
+            if ((requestMsg.Flags & (int)RequestMsgFlags.STREAMING) == 0)
+                return CodecReturnCode.FAILURE;
+
+            if ((requestMsg.Flags & (int)RequestMsgFlags.NO_REFRESH) != 0)
+                NoRefresh = true;
+
+            if ((requestMsg.Flags & (int)RequestMsgFlags.PAUSE) != 0)
+                Pause = true;
+
+            StreamId = msg.StreamId;
+
+            IMsgKey msgKey = msg.MsgKey;
+            if (msgKey == null
+                || !msgKey.CheckHasName()
+                || (msgKey.CheckHasAttrib()
+                    && msgKey.AttribContainerType != DataTypes.ELEMENT_LIST))
+            {
+                return CodecReturnCode.FAILURE;
+            }
+
+            Buffer userName = msgKey.Name;
+            UserName = userName;
+            if (msgKey.CheckHasNameType())
+            {
+                HasUserNameType = true;
+                UserNameType = (Login.UserIdTypes)msgKey.NameType;
+            }
+
+            if (msgKey.CheckHasAttrib())
+            {
+                CodecReturnCode ret = msg.DecodeKeyAttrib(decodeIter, msgKey);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+
+                return DecodeAttrib(decodeIter);
+            }
+
+            return CodecReturnCode.SUCCESS;
         }
 
         private CodecReturnCode DecodeAttrib(DecodeIterator dIter)
@@ -509,286 +866,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Decode(DecodeIterator dIter, Msg msg)
-        {
-            Clear();
-            if (msg.MsgClass != MsgClasses.REQUEST)
-                return CodecReturnCode.FAILURE;
-
-            IRequestMsg requestMsg = (IRequestMsg)msg;
-
-            //All login requests should be streaming
-            if ((requestMsg.Flags & (int)RequestMsgFlags.STREAMING) == 0)
-                return CodecReturnCode.FAILURE;
-
-            if ((requestMsg.Flags & (int)RequestMsgFlags.NO_REFRESH) != 0)
-                NoRefresh = true;
-
-            if ((requestMsg.Flags & (int)RequestMsgFlags.PAUSE) != 0)
-                Pause = true;
-
-            StreamId = msg.StreamId;
-
-            IMsgKey msgKey = msg.MsgKey;
-            if (msgKey == null
-                || !msgKey.CheckHasName()
-                || (msgKey.CheckHasAttrib()
-                    && msgKey.AttribContainerType != DataTypes.ELEMENT_LIST))
-            {
-                return CodecReturnCode.FAILURE;
-            }
-
-            Buffer userName = msgKey.Name;
-            UserName = userName;
-            if (msgKey.CheckHasNameType())
-            {
-                HasUserNameType = true;
-                UserNameType = (Login.UserIdTypes)msgKey.NameType;
-            }
-
-            if (msgKey.CheckHasAttrib())
-            {
-                CodecReturnCode ret = msg.DecodeKeyAttrib(dIter, msgKey);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-
-                return DecodeAttrib(dIter);
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
-
-        public override CodecReturnCode Encode(EncodeIterator EncodeIter)
-        {
-            m_RequestMsg.Clear();
-
-            m_RequestMsg.MsgClass = MsgClasses.REQUEST;
-            m_RequestMsg.StreamId = StreamId;
-            m_RequestMsg.DomainType = (int)Eta.Rdm.DomainType.LOGIN;
-            m_RequestMsg.ContainerType = DataTypes.NO_DATA;
-
-            m_RequestMsg.ApplyStreaming();
-
-            if (NoRefresh)
-                m_RequestMsg.ApplyNoRefresh();
-
-            if (Pause)
-                m_RequestMsg.ApplyPause();
-
-            m_RequestMsg.MsgKey.ApplyHasName();
-            m_RequestMsg.MsgKey.Name = UserName;
-
-            if (HasUserNameType)
-            {
-                m_RequestMsg.MsgKey.ApplyHasNameType();
-                m_RequestMsg.MsgKey.NameType = (int)UserNameType;
-                if (UserNameType == Login.UserIdTypes.AUTHN_TOKEN)
-                    m_RequestMsg.MsgKey.Name.Data(blankStringConst);
-            }
-
-            m_RequestMsg.MsgKey.ApplyHasAttrib();
-            m_RequestMsg.MsgKey.AttribContainerType = DataTypes.ELEMENT_LIST;
-
-            CodecReturnCode ret = m_RequestMsg.EncodeInit(EncodeIter, 0);
-            if (ret != CodecReturnCode.ENCODE_MSG_KEY_ATTRIB)
-                return ret;
-
-            ret = EncodeAttrib(EncodeIter);
-            if (ret != CodecReturnCode.SUCCESS)
-                return ret;
-
-            if ((ret = m_RequestMsg.EncodeKeyAttribComplete(EncodeIter, true)) < CodecReturnCode.SUCCESS)
-                return ret;
-
-            if ((ret = m_RequestMsg.EncodeComplete(EncodeIter, true)) < CodecReturnCode.SUCCESS)
-                return ret;
-
-            return CodecReturnCode.SUCCESS;
-        }
-
-        private CodecReturnCode EncodeAttrib(EncodeIterator EncodeIter)
-        {
-            elementEntry.Clear();
-            elementList.Clear();
-            elementList.ApplyHasStandardData();
-            CodecReturnCode ret;
-
-            if ((ret = elementList.EncodeInit(EncodeIter, null, 0)) != CodecReturnCode.SUCCESS)
-                return ret;
-
-            if (HasAttrib
-                && LoginAttrib.HasApplicationId
-                && LoginAttrib.ApplicationId.Length != 0)
-            {
-                elementEntry.DataType = DataTypes.ASCII_STRING;
-                elementEntry.Name = ElementNames.APPID;
-                if ((ret = elementEntry.Encode(EncodeIter, LoginAttrib.ApplicationId)) != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib
-                && LoginAttrib.HasApplicationName
-                && LoginAttrib.ApplicationName.Length != 0)
-            {
-                elementEntry.DataType = DataTypes.ASCII_STRING;
-                elementEntry.Name = ElementNames.APPNAME;
-                if ((ret = elementEntry.Encode(EncodeIter, LoginAttrib.ApplicationName)) != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib
-                && LoginAttrib.HasPosition
-                && LoginAttrib.Position.Length != 0)
-            {
-                elementEntry.DataType = DataTypes.ASCII_STRING;
-                elementEntry.Name = ElementNames.POSITION;
-                if ((ret = elementEntry.Encode(EncodeIter, LoginAttrib.Position)) != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasPassword && Password.Length != 0)
-            {
-                elementEntry.DataType = DataTypes.ASCII_STRING;
-                elementEntry.Name = ElementNames.PASSWORD;
-                if ((ret = elementEntry.Encode(EncodeIter, Password)) != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib && LoginAttrib.HasProvidePermissionProfile)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.PROV_PERM_PROF;
-                tmpUInt.Value(LoginAttrib.ProvidePermissionProfile);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib && LoginAttrib.HasProvidePermissionExpressions)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.PROV_PERM_EXP;
-                tmpUInt.Value(LoginAttrib.ProvidePermissionExpressions);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib && LoginAttrib.HasSingleOpen)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.SINGLE_OPEN;
-                tmpUInt.Value(LoginAttrib.SingleOpen);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib && LoginAttrib.HasAllowSuspectData)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.ALLOW_SUSPECT_DATA;
-                tmpUInt.Value(LoginAttrib.AllowSuspectData);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib && LoginAttrib.HasProviderSupportDictDownload)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.SUPPORT_PROVIDER_DICTIONARY_DOWNLOAD;
-                tmpUInt.Value(LoginAttrib.SupportProviderDictionaryDownload);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasUserNameType
-                && UserNameType == Login.UserIdTypes.AUTHN_TOKEN
-                && UserName.Length != 0)
-            {
-                elementEntry.DataType = DataTypes.ASCII_STRING;
-                elementEntry.Name = ElementNames.AUTHN_TOKEN;
-                if ((ret = elementEntry.Encode(EncodeIter, UserName)) != CodecReturnCode.SUCCESS)
-                    return ret;
-
-                if (HasAuthenticationExtended && AuthenticationExtended.Length != 0)
-                {
-                    elementEntry.DataType = DataTypes.BUFFER;
-                    elementEntry.Name = ElementNames.AUTHN_EXTENDED;
-                    if ((ret = elementEntry.Encode(EncodeIter, AuthenticationExtended)) != CodecReturnCode.SUCCESS)
-                        return ret;
-                }
-            }
-
-            if (HasInstanceId && InstanceId.Length != 0)
-            {
-                elementEntry.DataType = DataTypes.ASCII_STRING;
-                elementEntry.Name = ElementNames.INST_ID;
-                ret = elementEntry.Encode(EncodeIter, InstanceId);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasRole)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.ROLE;
-                tmpUInt.Value(Role);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasDownloadConnectionConfig)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.DOWNLOAD_CON_CONFIG;
-                tmpUInt.Value(DownloadConnectionConfig);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if (HasAttrib && LoginAttrib.HasSupportRoundTripLatencyMonitoring)
-            {
-                elementEntry.DataType = DataTypes.UINT;
-                elementEntry.Name = ElementNames.ROUND_TRIP_LATENCY;
-                tmpUInt.Value(LoginAttrib.SupportConsumerRTTMonitoring);
-                ret = elementEntry.Encode(EncodeIter, tmpUInt);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-            }
-
-            if ((ret = elementList.EncodeComplete(EncodeIter, true)) != CodecReturnCode.SUCCESS)
-                return ret;
-
-            return CodecReturnCode.SUCCESS;
-        }
-
-
-        public override void Clear()
-        {
-            m_RequestMsg.Clear();
-            m_RequestMsg.MsgClass = MsgClasses.REQUEST;
-            m_RequestMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.LOGIN;
-            m_RequestMsg.ApplyStreaming();
-            m_RequestMsg.ContainerType = DataTypes.NO_DATA;
-
-            Flags = default;
-            InstanceId.Clear();
-            UserName.Clear();
-            Password.Clear();
-            LoginAttrib.Clear();
-            Role = 0;
-            DownloadConnectionConfig = 0;
-            UserNameType = 0;
-            AuthenticationToken.Clear();
-            AuthenticationExtended.Clear();
-        }
-
-
+        /// <summary>
+        /// Returns a human readable string representation of the Login Request message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();
@@ -863,55 +944,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
 
             return stringBuf.ToString();
-        }
-
-        /// <summary>Performs deep copy into the destRequestMsg</summary>
-        public CodecReturnCode Copy(LoginRequest destRequestMsg)
-        {
-            Debug.Assert(destRequestMsg != null);
-
-            destRequestMsg.StreamId = StreamId;
-            destRequestMsg.Flags = Flags;
-
-            BufferHelper.CopyBuffer(UserName, destRequestMsg.UserName);
-            if (HasUserNameType)
-            {
-                destRequestMsg.HasUserNameType = true;
-                destRequestMsg.UserNameType = UserNameType;
-            }
-            if (HasAttrib)
-            {
-                destRequestMsg.HasAttrib = true;
-                LoginAttrib.Copy(destRequestMsg.LoginAttrib);
-            }
-            if (HasDownloadConnectionConfig)
-            {
-                destRequestMsg.HasDownloadConnectionConfig = true;
-                destRequestMsg.DownloadConnectionConfig = DownloadConnectionConfig;
-            }
-            if (HasInstanceId)
-            {
-                destRequestMsg.HasInstanceId = true;
-                BufferHelper.CopyBuffer(InstanceId, destRequestMsg.InstanceId);
-            }
-            if (HasPassword)
-            {
-                destRequestMsg.HasPassword = true;
-                BufferHelper.CopyBuffer(Password, destRequestMsg.Password);
-            }
-            if (HasRole)
-            {
-                destRequestMsg.HasRole = true;
-                destRequestMsg.Role = Role;
-            }
-
-            if (HasAuthenticationExtended)
-            {
-                destRequestMsg.HasAuthenticationExtended = true;
-                BufferHelper.CopyBuffer(AuthenticationExtended, destRequestMsg.AuthenticationExtended);
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
+        }       
     }
 }

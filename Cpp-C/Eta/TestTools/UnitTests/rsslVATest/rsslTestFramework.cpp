@@ -136,7 +136,7 @@ static void HttpCallbackFunctionProv(RsslHttpMessage* httpMess, RsslError* error
 		for (pLink = rsslQueuePeekFront(cookeis), n = 0; pLink; pLink = rsslQueuePeekNext(cookeis, pLink), n++)
 		{
 			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
-			snprintf(cookiesValue[n], strlen(data->value.data) + 1, data->value.data);
+			snprintf(cookiesValue[n], strlen(data->value.data) + 1, "%s", data->value.data);
 			ASSERT_STREQ(cookiesValue[n], cookiesData[n].data);
 			ASSERT_EQ(strlen(data->value.data), cookiesData[n].length);
 		}
@@ -214,7 +214,7 @@ static void HttpCallbackFunctionCons(RsslHttpMessage* httpMess, RsslError* error
 		for (pLink = rsslQueuePeekFront(cookeis), n = 0; pLink; pLink = rsslQueuePeekNext(cookeis, pLink), n++)
 		{
 			data = RSSL_QUEUE_LINK_TO_OBJECT(RsslHttpHdrData, link, pLink);
-			snprintf(cookiesValue[n], strlen(data->value.data) + 1, data->value.data);
+			snprintf(cookiesValue[n], strlen(data->value.data) + 1, "%s", data->value.data);
 			ASSERT_STREQ(cookiesValue[n], cookiesData[n].data);
 			ASSERT_EQ(strlen(data->value.data), cookiesData[n].length);
 		}

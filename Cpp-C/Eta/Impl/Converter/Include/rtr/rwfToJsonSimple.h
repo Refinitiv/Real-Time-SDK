@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -12,13 +12,13 @@
 #include "rtr/rwfToJsonBase.h"
 
 #define JSON_FIXED_SIMPLFIED_PREQUEL 6  //   {"Id":
-#define MAX_MSG_SIMPLIFIED_PREQUEL 16 // FIXED PREQUEL + 10 char possible streamId
+#define MAX_MSG_SIMPLIFIED_PREQUEL 17 // FIXED PREQUEL + 10 char possible streamId + 1 char sign '-'
 
 class rwfToJsonSimple : public rwfToJsonBase
 {
 public:
 	// Constructor
-	rwfToJsonSimple(int bufSize, u_16 convFlags = 0);
+	rwfToJsonSimple(int bufSize, u_16 convFlags);
 
 	// Destructor
 	~rwfToJsonSimple();

@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#include "rtr/cputopology.h"
+#include "eta/cputopology.h"
 #include "rtr/rsslErrorInfo.h"
 #include "rtr/rsslTypes.h"
 
@@ -37,7 +37,8 @@ RsslRet rsslBindThreadToCpuArray(const char* cpuString, RsslUInt* cpuArray, Rssl
 
 /* Binds the calling thread to the core with the given CPU as cpuString in P:X C:Y T:Z format. */
 /* @param cpuString the Cpu core in string format (P:X C:Y T:Z format). */
-RsslRet rsslBindThreadWithString(const char* cpuString, RsslErrorInfo* pError);
+/* @param pOutputResult on Success, the list of logical core id that were bound for the calling thread; on Fail, an error text description same as in pError. */
+RsslRet rsslBindThreadWithString(const char* cpuString, RsslBuffer* pOutputResult, RsslErrorInfo* pError);
 
 /* Clear all the bindings threads to CPU cores. */
 RSSL_API void rsslClearBindings();
@@ -48,7 +49,7 @@ RSSL_API void rsslClearBindings();
 * @return RSSL_RET_SUCCESS when initialization was successful.
 * @return RSSL_RET_FAILURE on critical error: memory allocation error.
 */
-RSSL_API RsslRet rsslBindThreadInitialize();
+RSSL_API RsslRet rsslBindThreadInitialize(RsslError* error);
 
 /**
 * @brief Uninitialize all the resources: mutex, cpuid library.

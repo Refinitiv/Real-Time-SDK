@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
 */
 
 /*
@@ -61,8 +61,10 @@ void printUsageAndExit(int argc, char **argv)
 			" -if          Specifies the address of a specific network interface to use.\n"
 			" -clientId    Specifies an unique ID for application making the request to RDP token service, or the client Id for Refinitiv login version 2 (mandatory).\n"
 			" -clientSecret Specifies the client secret associated with the client id.\n"
+			" -jwkFile		Specifies the file location of the private JWK for use with V2 JWT authentication. \n"
+			" -audience		Specifies the audience claim for V2 JWT authentication.\n"
 			" -sessionMgnt Enables session management in the Reactor.\n"
-			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east-1.\n"
+			" -l           Specifies a location to get an endpoint from service endpoint information. Defaults to us-east.\n"
 			" -takeExclusiveSignOnControl Specifies true or false to set the exclusive sign on control to force sign-out for the same credentials.\n"
 			" -query       Quries RDP service discovery to get an endpoint according the specified connection type and location.\n"
 			" -mp          For each occurance, requests item using Market Price domain.\n"
@@ -114,9 +116,17 @@ void printUsageAndExit(int argc, char **argv)
 			"-tokenURLV1 URL of token service V1\n"
 			"-tokenURLV2 URL of token service V2\n"
 			"-tokenScope scope for the login token\n"
-			"-serviceDiscoveryURL URL the service discovery"
+			"-serviceDiscoveryURL URL the service discovery\n"
+			"-restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"-restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth"
 			"\n"
-			, argv[0], argv[0]);
+			"-jsonOutputBufferSize <size>   Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
+			"-jsonTokenIncrementSize <increment> Number of json token increment size for parsing JSON messages"
+			"\n"
+		, argv[0], argv[0]);
 	exit(-1);
 }
 
@@ -161,6 +171,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 {
 	int i;
 	int configFlags = 0;
+	FILE* pFile;		// For JWK file
 	int readSize = 0;
 	int wsConfigFlags = 0;
 	char warmStandbyMode[255];
@@ -171,7 +182,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 	watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
 
 	/* Set defaults. */
-	snprintf(watchlistConsumerConfig.interface, 255, "");
+	snprintf(watchlistConsumerConfig.interface, 255, "%s", "");
 
 	watchlistConsumerConfig.serviceName = defaultServiceName;
 	rsslClearBuffer(&watchlistConsumerConfig.userName);
@@ -182,26 +193,36 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	watchlistConsumerConfig.enableHostStatMessages = RSSL_FALSE;
 	watchlistConsumerConfig.takeExclusiveSignOnControl = RSSL_TRUE;
-	snprintf(watchlistConsumerConfig.hsmAddress, 255, "");
-	snprintf(watchlistConsumerConfig.hsmPort, 255, "");
-	snprintf(watchlistConsumerConfig.hsmInterface, 255, "");
+	snprintf(watchlistConsumerConfig.hsmAddress, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.hsmPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.hsmInterface, 255, "%s", "");
 	watchlistConsumerConfig.hsmInterval = 5;
 
-	snprintf(watchlistConsumerConfig.proxyHost, 255, "");
-	snprintf(watchlistConsumerConfig.proxyPort, 255, "");
-	snprintf(watchlistConsumerConfig.proxyUserName, 255, "");
-	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "");
-	snprintf(watchlistConsumerConfig.proxyDomain, 255, "");
+	snprintf(watchlistConsumerConfig.proxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.proxyDomain, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig.libsslName, 255, "");
-	snprintf(watchlistConsumerConfig.libcryptoName, 255, "");
-	snprintf(watchlistConsumerConfig.libcurlName, 255, "");
-	snprintf(watchlistConsumerConfig.sslCAStore, 255, "");
+	snprintf(watchlistConsumerConfig.libsslName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcryptoName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.libcurlName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", "");
 
-	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "");
-	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "");
-	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "");
-	snprintf(watchlistConsumerConfig._tokenScope, 255, "");
+	snprintf(watchlistConsumerConfig._clientJwkMem, 2048, "%s", "");
+	snprintf(watchlistConsumerConfig._audienceMem, 255, "%s", "");
+
+
+	snprintf(watchlistConsumerConfig._tokenUrlV1, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenUrlV2, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._serviceDiscoveryUrl, 255, "%s", "");
+	snprintf(watchlistConsumerConfig._tokenScope, 255, "%s", "");
+
+	snprintf(watchlistConsumerConfig.restProxyHost, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPort, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyUserName, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyPasswd, 255, "%s", "");
+	snprintf(watchlistConsumerConfig.restProxyDomain, 255, "%s", "");
 
 	snprintf(watchlistConsumerConfig.protocolList, 255, "tr_json2");
 
@@ -217,6 +238,10 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	/* Set login based warm standby as default. */
 	watchlistConsumerConfig.warmStandbyMode = RSSL_RWSB_MODE_LOGIN_BASED;
+
+	/* Use default values for JSON Converter buffers. */
+	watchlistConsumerConfig.jsonOutputBufferSize = 0;
+	watchlistConsumerConfig.jsonTokenIncrementSize = 0;
 
 	for(i = 1; i < argc; ++i)
 	{
@@ -557,6 +582,35 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 				(RsslUInt32)snprintf(watchlistConsumerConfig._clientSecretMem, 255, "%s", argv[i]);
 			watchlistConsumerConfig.clientSecret.data = watchlistConsumerConfig._clientSecretMem;
 		}
+		else if (0 == strcmp(argv[i], "-jwkFile"))
+		{
+			/* As this is an example program showing API, this handling of the JWK is not secure. */
+			if (++i == argc) printUsageAndExit(argc, argv);
+			pFile = fopen(argv[i], "rb");
+			if (pFile == NULL)
+			{
+				printf("Cannot load jwk file.\n");
+				printUsageAndExit(argc, argv);
+			}
+			/* Read the JWK contents into a pre-allocated buffer*/
+			readSize = (int)fread(watchlistConsumerConfig._clientJwkMem, sizeof(char), 2048, pFile);
+			if (readSize == 0)
+			{
+				printf("Cannot load jwk file.\n");
+				printUsageAndExit(argc, argv);
+			}
+			watchlistConsumerConfig.clientJWK.data = watchlistConsumerConfig._clientJwkMem;
+			watchlistConsumerConfig.clientJWK.length = readSize;
+
+			fclose(pFile);
+		}
+		else if (0 == strcmp(argv[i], "-audience"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.audience.length =
+				(RsslUInt32)snprintf(watchlistConsumerConfig._audienceMem, 255, "%s", argv[i]);
+			watchlistConsumerConfig.audience.data = watchlistConsumerConfig._audienceMem;
+		}
 		else if (0 == strcmp(argv[i], "-tokenURLV1"))
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
@@ -626,6 +680,41 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			watchlistConsumerConfig.restEnableLogViaCallback = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-jsonOutputBufferSize"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.jsonOutputBufferSize = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-jsonTokenIncrementSize"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			watchlistConsumerConfig.jsonTokenIncrementSize = atoi(argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyHost"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyHost, sizeof(watchlistConsumerConfig.restProxyHost), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPort"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPort, sizeof(watchlistConsumerConfig.restProxyPort), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyUserName"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyUserName, sizeof(watchlistConsumerConfig.restProxyUserName), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyPasswd"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyPasswd, sizeof(watchlistConsumerConfig.restProxyPasswd), "%s", argv[i]);
+		}
+		else if (0 == strcmp(argv[i], "-restProxyDomain"))
+		{
+			if (++i == argc) printUsageAndExit(argc, argv);
+			snprintf(watchlistConsumerConfig.restProxyDomain, sizeof(watchlistConsumerConfig.restProxyDomain), "%s", argv[i]);
 		}
 		else
 		{

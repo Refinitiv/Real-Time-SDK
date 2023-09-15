@@ -2,7 +2,7 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
@@ -27,6 +27,7 @@ class MapImpl extends CollectionDataImpl implements Map
 	private int _summaryDataType = com.refinitiv.eta.codec.DataTypes.NO_DATA;
 	private boolean _keyTypeSet = false;
 	private boolean _summaryDataTypeSet = false;
+	private MapIterImpl _mapIterImpl = null;
 	
 	MapImpl() 
 	{
@@ -111,6 +112,17 @@ class MapImpl extends CollectionDataImpl implements Map
 			fillCollection();
 		
 		return new EmaIterator<MapEntry>(_mapCollection.iterator());
+	}
+	
+	@Override
+	public Iterator<MapEntry> iteratorByRef()
+	{
+		if (_mapIterImpl == null)
+			_mapIterImpl = new MapIterImpl(this);
+		else
+			_mapIterImpl.clear();
+			
+		return _mapIterImpl;
 	}
 
 	@Override

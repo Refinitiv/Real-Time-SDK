@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2020-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2020-2023 Refinitiv. All rights reserved.
 */
 
 #ifndef WATCHLIST_CONSUMER_CONFIG_H
@@ -127,6 +127,8 @@ typedef struct
 	RsslBool			enableSessionMgnt;				/* Enables the session management to keep the session alive */
 	RsslBuffer			clientId;						/* Unique ID defined for application making request to RDP token service, or client ID */  
 	RsslBuffer			clientSecret;					/* Client secret with associated clientId */
+	RsslBuffer			clientJWK;						/* Client JWK with associated clientId */
+	RsslBuffer			audience;						/* Optional audience claim for use with JWT */
 	RsslBuffer			location;						/* Location to get an endpoint from RDP Service discovery */
 	RsslBool			queryEndpoint;					/* Queries the RDP service discovery in application for the specified connection type and location. */
 	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
@@ -134,6 +136,9 @@ typedef struct
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
 	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
 	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
+
+	RsslUInt32			jsonOutputBufferSize;			/* JSON Converter output buffer size. */
+	RsslUInt32			jsonTokenIncrementSize;			/* JSON Converter number of json token increment size for parsing JSON messages. */
 
 	char			_userNameMem[255];
 	char			_passwordMem[255];
@@ -144,12 +149,21 @@ typedef struct
 	char 			_appIdMem[255];
 	char 			_clientIdMem[255];
 	char 			_clientSecretMem[255];
+	char			_clientJwkMem[2048];
+	char			_audienceMem[255];
 	char 			_locationMem[255];
 	char			_tokenUrlV1[255];
 	char			_tokenUrlV2[255];
 	char			_serviceDiscoveryUrl[255];
 	char			_tokenScope[255];
-	
+
+	/* Proxy configuration settings for Rest requests */
+	char			restProxyHost[255];					/* Proxy host name */
+	char			restProxyPort[255];					/* Proxy port */
+	char			restProxyUserName[255];				/* Proxy user name */
+	char			restProxyPasswd[255];				/* Proxy password */
+	char			restProxyDomain[255];				/* Proxy domain */
+
 } WatchlistConsumerConfig;
 extern WatchlistConsumerConfig watchlistConsumerConfig;
 

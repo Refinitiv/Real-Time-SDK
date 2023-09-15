@@ -2,24 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using static Refinitiv.Eta.Rdm.Dictionary;
-using static Refinitiv.Eta.Rdm.Directory;
-using static Refinitiv.Eta.Rdm.Login;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using LSEG.Eta.ValueAdd.Rdm;
+using static LSEG.Eta.Rdm.Dictionary;
+using static LSEG.Eta.Rdm.Directory;
+using static LSEG.Eta.Rdm.Login;
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// Class representing the role of an OMM Consumer.
     /// </summary>
     /// <see cref="ReactorRole"/>
     /// <see cref="ReactorRoleType"/>
-    public class ConsumerRole : ReactorRole
+    sealed public class ConsumerRole : ReactorRole
     {
         private LoginRequest? m_LoginRequest;
         DirectoryRequest? m_DirectoryRequest = null;
@@ -27,13 +27,13 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         DictionaryClose? m_FieldDictionaryClose = null;
         DictionaryClose? m_EnumDictionaryClose = null;
 
-        public const int LOGIN_STREAM_ID = 1;
-        public const int DIRECTORY_STREAM_ID = 2;
-        public const int FIELD_DICTIONARY_STREAM_ID = 3;
-        public const int ENUM_DICTIONARY_STREAM_ID = 4;
+        internal const int LOGIN_STREAM_ID = 1;
+        internal const int DIRECTORY_STREAM_ID = 2;
+        internal const int FIELD_DICTIONARY_STREAM_ID = 3;
+        internal const int ENUM_DICTIONARY_STREAM_ID = 4;
 
-        public bool ReceivedFieldDictionaryResp { get; set; } = false;
-        public bool ReceivedEnumDictionaryResp { get; set; } = false;
+        internal bool ReceivedFieldDictionaryResp { get; set; } = false;
+        internal bool ReceivedEnumDictionaryResp { get; set; } = false;
         /// <summary>
         /// The <see cref="LoginRequest"/> to be sent during the connection establishment process.
         /// </summary>
@@ -51,13 +51,18 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             }
         }
 
-        public LoginRTT? RdmLoginRTT { get; set; }
+        internal LoginRTT? RdmLoginRTT { get; set; }
 
-        public bool RTTEnabled { get; set; }
+        internal bool RTTEnabled { get; set; }
 
+        /// <summary>
+        /// Gets or sets a class which implements the <see cref="IRDMLoginMsgCallback"/> interface for processing
+        /// <see cref="RDMLoginMsgEvent"/>s received. If not present, the received message will be passed
+        /// to the <see cref="IDefaultMsgCallback"/>.
+        /// </summary>
         public IRDMLoginMsgCallback? LoginMsgCallback { get; set; }
 
-        public const long FILTER_TO_REQUEST = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE |  ServiceFilterFlags.GROUP;
+        internal const long FILTER_TO_REQUEST = ServiceFilterFlags.INFO | ServiceFilterFlags.STATE |  ServiceFilterFlags.GROUP;
 
         /// <summary>
         /// A Directory Request to be sent during the setup of a Consumer-Provider session.
@@ -104,11 +109,14 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         /// </summary>
         public IDictionaryMsgCallback? DictionaryMsgCallback { get; set; }
 
+        /// <summary>
+        /// Gets or set <see cref="DictionaryDownloadMode"/>
+        /// </summary>
         public DictionaryDownloadMode DictionaryDownloadMode { get; set; } = DictionaryDownloadMode.NONE;
 
         /// <summary>
         /// Gets or sets <see cref="ReactorOAuthCredential"/> to specify OAuth credential for authentication with the
-        /// token service. 
+        /// token service.
         /// </summary>
         public ReactorOAuthCredential? ReactorOAuthCredential { get; set; }
 
@@ -297,25 +305,21 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         }
 
         /// <summary>
-        /// Performs a deep copy from a specified LoginRequest
-        /// into the LoginRequest associated with this ConsumerRole.
+        /// Performs a deep copy from a specified LoginRequest into the LoginRequest
+        /// associated with this ConsumerRole.
         /// </summary>
         /// <param name="loginRequest">source LoginRequest</param>
         void CopyLoginRequest(LoginRequest? loginRequest)
         {
             if (loginRequest != null)
             {
-                if (loginRequest != null)
-                {
-                    if (m_LoginRequest == null)
-                    {
-                        m_LoginRequest = new LoginRequest();
-                    }
-                    loginRequest.Copy(m_LoginRequest);
-                }
+                m_LoginRequest ??= new LoginRequest();
+                loginRequest.Copy(m_LoginRequest);
+
+                RTTEnabled = loginRequest.HasAttrib
+                        && loginRequest.LoginAttrib.HasSupportRoundTripLatencyMonitoring;
             }
         }
-
 
         /// <summary>
         /// Initializes the RDM LoginRequest with default information.
@@ -356,6 +360,9 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             return;
         }
 
+        /// <summary>
+        /// Initializes the default value for Login RTT.
+        /// </summary>
         public void InitDefaultLoginRTT()
         {
             int streamId;
@@ -371,7 +378,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
                 RdmLoginRTT.Clear();
             }
 
-            RdmLoginRTT.InitRTT(streamId);
+            RdmLoginRTT.InitDefaultRTT(streamId);
         }
     }
 }

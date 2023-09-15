@@ -2,18 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-namespace Refinitiv.Eta.ValueAdd.Reactor
+namespace LSEG.Eta.ValueAdd.Reactor
 {
     /// <summary>
     /// Class representing the role of an OMM Interactive Provider.
     /// </summary>
     /// <see cref="ReactorRole"/>
     /// <see cref="ReactorRoleType"/>
-    public class ProviderRole : ReactorRole
+    sealed public class ProviderRole : ReactorRole
     {
         private IDirectoryMsgCallback? m_DirectoryMsgCallback = null;
         private IDictionaryMsgCallback? m_DictionaryMsgCallback = null;
@@ -46,7 +46,11 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
             Type = ReactorRoleType.PROVIDER;
         }
 
-
+        /// <summary>
+        /// Gets or sets a class which implements the <see cref="IRDMLoginMsgCallback"/> interface for processing
+        /// <see cref="RDMLoginMsgEvent"/>s received. If not present, the received message will be passed
+        /// to the <see cref="IDefaultMsgCallback"/>.
+        /// </summary>
         public IRDMLoginMsgCallback? LoginMsgCallback { get; set; }
 
         /// <summary>
@@ -57,6 +61,7 @@ namespace Refinitiv.Eta.ValueAdd.Reactor
         internal void Copy(ProviderRole role)
         {
             base.Copy(role);
+            LoginMsgCallback = role.LoginMsgCallback;
             DirectoryMsgCallback = role.DirectoryMsgCallback;
             DictionaryMsgCallback = role.DictionaryMsgCallback;
         }

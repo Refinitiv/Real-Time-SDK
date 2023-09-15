@@ -192,6 +192,14 @@ public interface DictionaryRefresh extends DictionaryMsg
      * @param dictionaryType the dictionary type
      */
     public void dictionaryType(int dictionaryType);
+    
+    /**
+     * The version of the dictionary. This is only populated during decoding. While encoding, 
+     * the version information is populated based on the DataDictionary object set with
+     * {@link #dictionary(DataDictionary)} 
+     * @return Buffer containing the version string of the dictionary.
+     */
+    public Buffer version();
 
     /**
      * When decoding, points to the payload of the message. The application

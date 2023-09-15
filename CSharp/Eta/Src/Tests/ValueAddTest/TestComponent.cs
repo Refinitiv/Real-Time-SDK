@@ -2,18 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
 using System;
 using System.IO;
+
 using Xunit;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+using LSEG.Eta.Codec;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     internal class TestComponent : IReactorChannelEventCallback, IDictionaryMsgCallback, IDirectoryMsgCallback, IDefaultMsgCallback, IRDMLoginMsgCallback
     {
@@ -134,7 +136,7 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
             switch (channelEvent.EventType)
             {
-                case ReactorChannelEventType.CHANNEL_OPENDED:
+                case ReactorChannelEventType.CHANNEL_OPENED:
                     ++NumChannelOpenedEvent;
                     break;
                 case ReactorChannelEventType.CHANNEL_UP:

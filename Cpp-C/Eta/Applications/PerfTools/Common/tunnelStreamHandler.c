@@ -139,7 +139,7 @@ void handleTunnelStreamHandler(RsslReactor *pReactor, RsslReactorChannel *pReact
 
 	if ((ret = rsslReactorOpenTunnelStream(pReactorChannel, &tunnelStreamOpenOptions, &errorInfo)) != RSSL_RET_SUCCESS)
 	{
-		printf("rsslReactorOpenTunnelStream failed: %s(%s)\n", rsslRetCodeToString(ret), &errorInfo.rsslError.text);
+		printf("rsslReactorOpenTunnelStream failed: %s(%s)\n", rsslRetCodeToString(ret), errorInfo.rsslError.text);
 		return;
 	}
 
@@ -167,7 +167,7 @@ void tunnelStreamHandlerCloseStreams(TunnelStreamHandler *pTunnelHandler)
 //		pTunnelHandler->waitFinalStatusEvent = RSSL_TRUE;
 
 		if ((ret = rsslReactorCloseTunnelStream(pTunnelHandler->pTunnelStream, &closeOpts, &errorInfo)) < RSSL_RET_SUCCESS)
-			printf("rsslReactorCloseTunnelStream failed: %s(%s)\n", rsslRetCodeToString(ret), &errorInfo.rsslError.text);
+			printf("rsslReactorCloseTunnelStream failed: %s(%s)\n", rsslRetCodeToString(ret), errorInfo.rsslError.text);
 
 		tunnelStreamHandlerClear(pTunnelHandler);
 		printf("Tunnel stream has closed.\n");

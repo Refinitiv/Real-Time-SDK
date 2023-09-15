@@ -2,22 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
+using LSEG.Eta.Codec;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// Set of features provider of the login refresh message supports.
     /// This is additional information sent between components.
     /// </summary>
-    public class LoginSupportFeatures
+    sealed public class LoginSupportFeatures
     {
         /// <summary>
         /// The login support features flags. Populated by <see cref="LoginSupportFeaturesFlags"/>
@@ -73,6 +73,14 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// 1 - if enhanced symbol list features supported, 0 - if not.
         /// </summary>
         public long SupportEnhancedSymbolList { get; set; }
+
+        /// <summary>
+        /// Indicates support standby modes for the warm standby feature.
+        /// 0 - Unknown warm standby mode.
+        /// 1 - Login based warm standby mode.
+        /// 2 - Service based warm standby mode.
+        /// </summary>
+        public long SupportStandbyMode { get; set; }
 
         /// <summary>
         /// Checks the presence of supportBatchRequests field.
@@ -209,11 +217,36 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
         }
 
+        /// <summary>
+        /// Checks the presence of supportStandbyMode field.
+        /// </summary>
+        public bool HasSupportStandbyMode
+        {
+            get => (Flags & LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE) != 0;
+            set
+            {
+                if (value)
+                    Flags |= LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE;
+                else
+                    Flags &= ~LoginSupportFeaturesFlags.HAS_SUPPORT_STANDBY_MODE;
+            }
+        }
 
         private StringBuilder stringBuf = new StringBuilder();
         private const string eol = "\n";
         private const string tab = "\t";
 
+        /// <summary>
+        /// Login Support Features constructor.
+        /// </summary>
+        public LoginSupportFeatures()
+        {
+            Clear();
+        }
+
+        /// <summary>
+        /// Clears the current contents of the Login Support Features object and prepares it for re-use.
+        /// </summary>
         public void Clear()
         {
             Flags = default;
@@ -228,11 +261,11 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             SupportEnhancedSymbolList = 0;
         }
 
-        public LoginSupportFeatures()
-        {
-            Clear();
-        }
-
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destLoginSupportFeatures</c>.
+        /// </summary>
+        /// <param name="destLoginSupportFeatures">LoginSupportFeatures object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginSupportFeatures destLoginSupportFeatures)
         {
             Debug.Assert(destLoginSupportFeatures != null);
@@ -281,6 +314,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Returns a human readable string representation of the Login Support Features object.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             stringBuf.Clear();
@@ -346,6 +383,13 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 stringBuf.Append(tab);
                 stringBuf.Append("SupportEnhancedSymbolList: ");
                 stringBuf.Append(SupportEnhancedSymbolList);
+                stringBuf.Append(eol);
+            }
+            if (HasSupportStandbyMode)
+            {
+                stringBuf.Append(tab);
+                stringBuf.Append("SupportStandbyMode: ");
+                stringBuf.Append(SupportStandbyMode);
                 stringBuf.Append(eol);
             }
 

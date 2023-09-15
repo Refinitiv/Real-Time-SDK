@@ -444,7 +444,7 @@ int main(int argc, char **argv)
 			{
 				i += 1;
 				xmlTrace = RSSL_TRUE;
-				snprintf(traceOutputFile, 128, "RsslNIProvider\0");
+				snprintf(traceOutputFile, 128, "RsslNIProvider");
 			}
 			else if(strcmp("-td", argv[i]) == 0)
 			{

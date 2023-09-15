@@ -302,6 +302,13 @@ Series300Consumer332-Dict-007
 	
 Series300Consumer332-Dict-008
     Alters consumer to call new interface DataDictionary.entry(int id, DictionaryEntry entryDst)
+	
+Series300Consumer332-Dict-009
+	Alters to use dictionary object and identify -shouldCopyIntoAPI to set shouldCopyIntoAPI=true
+	
+Series300Consumer332-Dict-010
+	Alters create 2 OmmConsumers, Consumer1 register to request dictionary from provider and shared it to Consumer2
+	and identify -shouldCopyIntoAPI to set shouldCopyIntoAPI=true
 
 Module:  Series300Consumer333 
 Series300Consumer333-GenM-001
@@ -571,6 +578,19 @@ Module:  Series400Consumer450
 -----------------------------
 Series400Consumer450-ConsFunc-001
 	Alters consumer to identify -tokenServiceUrl, -serviceDiscoveryUrl, -restRequestTimeout, -reissueTokenAttemptInterval, -reissueTokenAttemptLimit, -tokenReissueRatio
+
+Module:  Series400Consumer490
+-----------------------------
+Series400Consumer490-Dict-001
+	Alters to identify -shouldCopyIntoAPI to set shouldCopyIntoAPI=true
+	
+Series400Consumer490-Dict-002
+	Alters to create 2 OmmConsumers shared dictionary object and identify -shouldCopyIntoAPI to set shouldCopyIntoAPI=true
+
+Series400Consumer490-Dict-003
+	Alters to create 2 OmmConsumers reload dictionary (RDMFieldDictionart1) object and identify -shouldCopyIntoAPI to set shouldCopyIntoAPI=true	
+	Note: RDMFieldDictionart1 must append this into last line
+	NEG_ACVOL_1    "NEG VOL ACCUMULATED"       -32  NULL        INTEGER            15  REAL64           7
 
 Module:  Series100Provider100 
 -------------------------------

@@ -79,7 +79,7 @@ WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
 */
 
 
-#include "rtr/cputopology.h"
+#include "eta/cputopology.h"
 #include "rtr/rsslThread.h"
 
 #ifdef __linux__
@@ -940,7 +940,7 @@ int  InitStructuredLeafBuffers(RsslErrorInfo* pError)
             if(j == 0xf) qeidmsk = info.EDX;  // sub-leaf value are derived from valid resource id's
             else qeidmsk = info.EBX;
             kk = 1;
-            while (  kk < 32)  {
+            while (  kk < MAX_CACHE_SUBLEAFS )  {
                 _CPUID(&info, j, kk);
                 if( (qeidmsk  & (1 << kk) ) != 0 ) glbl_ptr->cpuid_values[j].subleaf_max = kk;
                 kk ++;
@@ -964,12 +964,6 @@ int  InitStructuredLeafBuffers(RsslErrorInfo* pError)
                             //  i, j, subleaf, info.EAX, info.EBX, info.ECX, info.EDX, __FILE__, __LINE__);
                 subleaf++;
                 glbl_ptr->cpuid_values[j].subleaf_max = subleaf;
-            }
-            if(subleaf == MAX_CACHE_SUBLEAFS) {
-                            rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__,
-                                "Need bigger MAX_CACHE_SUBLEAFS(%d).", MAX_CACHE_SUBLEAFS);
-                            glbl_ptr->error |= _MSGTYP_TOPOLOGY_NOTANALYZED;
-                            return -2; // exit(2);
             }
         }
     }
@@ -1896,8 +1890,11 @@ RsslRet initializeCpuTopology(RsslErrorInfo* pError)
             // All the errors of Cpu topology analysing do not report here.
             // When user app requests binding a thread to cpu core by topology
             // then we return the error.
-            rsslCopyErrorInfo(&errorCpuIdInit, pError);
-            hasErrorInitializationStage = RSSL_TRUE;
+            if (ret < 0)
+            {
+                rsslCopyErrorInfo(&errorCpuIdInit, pError);
+                hasErrorInitializationStage = RSSL_TRUE;
+            }
         }
 
         RSSL_MUTEX_UNLOCK(&initCpuTopologyLock);

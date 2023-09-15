@@ -24,6 +24,20 @@
 //
 extern void bindThisThread( const refinitiv::ema::access::EmaString& threadName, long cpu, long threadId = 0 );
 
+// Bind CPU core as cpuString for the calling thread.
+extern bool bindThisThread(
+	const refinitiv::ema::access::EmaString& threadName,
+	const refinitiv::ema::access::EmaString& cpuString
+);
+
+
+// Add thread info to collection
+extern void addThisThread(
+	const refinitiv::ema::access::EmaString& threadName,
+	const refinitiv::ema::access::EmaString& cpuString,
+	long threadId
+);
+
 // these methods take snapshots of all the threads running in the calling process
 // at the moment of calling the methods
 // 

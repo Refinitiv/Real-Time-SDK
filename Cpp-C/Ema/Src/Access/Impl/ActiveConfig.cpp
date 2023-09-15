@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -18,7 +18,9 @@ DictionaryConfig::DictionaryConfig() :
 	enumtypeDefFileName(),
 	rdmFieldDictionaryItemName(),
 	enumTypeDefItemName(),
-	dictionaryType( DEFAULT_DICTIONARY_TYPE )
+	dictionaryType(DEFAULT_DICTIONARY_TYPE),
+	dataDictionary(NULL),
+	shouldCopyIntoAPI(false)
 {
 }
 
@@ -34,6 +36,8 @@ void DictionaryConfig::clear()
 	rdmFieldDictionaryItemName.clear();
 	enumTypeDefItemName.clear();
 	dictionaryType = DEFAULT_DICTIONARY_TYPE;
+	dataDictionary = NULL;
+	shouldCopyIntoAPI = false;
 }
 
 ServiceDictionaryConfig::ServiceDictionaryConfig() :
@@ -165,6 +169,7 @@ BaseConfig::BaseConfig() :
 	enableRtt(DEFAULT_ENABLE_RTT),
 	restEnableLog(DEFAULT_REST_ENABLE_LOG),
 	restEnableLogViaCallback(DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK),
+	sendJsonConvError(DEFAULT_SEND_JSON_CONV_ERROR),
 	loggerConfig(),
 	catchUnhandledException(DEFAULT_HANDLE_EXCEPTION),
 	parameterConfigGroup(1), // This variable is set for handling deprecation cases.
@@ -178,7 +183,9 @@ BaseConfig::BaseConfig() :
 	catchUnknownJsonKeys(DEFAULT_CATCH_UNKNOWN_JSON_KEYS),
 	catchUnknownJsonFids(DEFAULT_CATCH_UNKNOWN_JSON_FIDS),
 	closeChannelFromFailure(DEFAULT_CLOSE_CHANNEL_FROM_FAILURE),
-	outputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE)
+	outputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE),
+	jsonTokenIncrementSize(DEFAULT_JSON_TOKEN_INCREMENT_SIZE),
+	shouldInitializeCPUIDlib(DEFAULT_SHOULD_INIT_CPUID_LIB)
 {
 }
 
@@ -225,6 +232,9 @@ void BaseConfig::clear()
 	catchUnknownJsonFids = DEFAULT_CATCH_UNKNOWN_JSON_FIDS;
 	closeChannelFromFailure = DEFAULT_CLOSE_CHANNEL_FROM_FAILURE;
 	outputBufferSize = DEFAULT_OUTPUT_BUFFER_SIZE;
+	jsonTokenIncrementSize = DEFAULT_JSON_TOKEN_INCREMENT_SIZE;
+	sendJsonConvError = DEFAULT_SEND_JSON_CONV_ERROR;
+	shouldInitializeCPUIDlib = DEFAULT_SHOULD_INIT_CPUID_LIB;
 }
 
 EmaString BaseConfig::configTrace()
@@ -259,8 +269,11 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t catchUnknownJsonFids : ").append(catchUnknownJsonFids)
 		.append("\n\t closeChannelFromFailure : ").append(closeChannelFromFailure)
 		.append("\n\t outputBufferSize : ").append(outputBufferSize)
+		.append("\n\t jsonTokenIncrementSize : ").append(jsonTokenIncrementSize)
 		.append("\n\t restEnableLog : ").append(restEnableLog)
-		.append("\n\t restLogFileName : ").append(restLogFileName);
+		.append("\n\t restLogFileName : ").append(restLogFileName)
+		.append("\n\t sendJsonConvError : ").append(sendJsonConvError)
+		.append("\n\t shouldInitializeCPUIDlib : ").append(shouldInitializeCPUIDlib);
 
 	return traceStr;
 }
@@ -718,6 +731,7 @@ ChannelConfig::ChannelConfig( RsslConnectionTypes type ) :
 	compressionThreshold( DEFAULT_COMPRESSION_THRESHOLD ),
 	connectionType( type ),
 	connectionPingTimeout( DEFAULT_CONNECTION_PINGTIMEOUT ),
+	directWrite( DEFAULT_DIRECT_WRITE ),
 	initializationTimeout( DEFAULT_INITIALIZATION_TIMEOUT ),
 	guaranteedOutputBuffers( DEFAULT_GUARANTEED_OUTPUT_BUFFERS ),
 	numInputBuffers( DEFAULT_NUM_INPUT_BUFFERS ),
@@ -736,6 +750,7 @@ void ChannelConfig::clear()
 	compressionType = DEFAULT_COMPRESSION_TYPE;
 	compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
 	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
+	directWrite = DEFAULT_DIRECT_WRITE;
 	initializationTimeout = DEFAULT_INITIALIZATION_TIMEOUT;
 	guaranteedOutputBuffers = DEFAULT_GUARANTEED_OUTPUT_BUFFERS;
 	numInputBuffers = DEFAULT_NUM_INPUT_BUFFERS;
@@ -776,6 +791,7 @@ ServerConfig::ServerConfig( RsslConnectionTypes type ) :
 	connectionType(type),
 	connectionPingTimeout(DEFAULT_CONNECTION_PINGTIMEOUT),
 	connectionMinPingTimeout(DEFAULT_CONNECTION_MINPINGTIMEOUT),
+	directWrite(DEFAULT_DIRECT_WRITE),
 	initializationTimeout(DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT),
 	guaranteedOutputBuffers(DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS),
 	numInputBuffers(DEFAULT_NUM_INPUT_BUFFERS),
@@ -801,6 +817,7 @@ void ServerConfig::clear()
 	connectionType = RSSL_CONN_TYPE_SOCKET;
 	connectionPingTimeout = DEFAULT_CONNECTION_PINGTIMEOUT;
 	connectionMinPingTimeout = DEFAULT_CONNECTION_MINPINGTIMEOUT;
+	directWrite = DEFAULT_DIRECT_WRITE;
 	initializationTimeout = DEFAULT_INITIALIZATION_ACCEPT_TIMEOUT;
 	guaranteedOutputBuffers = DEFAULT_PROVIDER_GUARANTEED_OUTPUT_BUFFERS;
 	numInputBuffers = DEFAULT_NUM_INPUT_BUFFERS;
@@ -834,6 +851,12 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	defaultServiceName(defaultServiceName),
 	tcpNodelay(DEFAULT_TCP_NODELAY),
 	objectName(DEFAULT_OBJECT_NAME),
+	proxyHostName(),
+	proxyPort(),
+	proxyUserName(),
+	proxyPasswd(),
+	proxyDomain(),
+	proxyConnectionTimeout(DEFAULT_PROXY_CONNECTION_TIMEOUT),
 	sslCAStore(DEFAULT_SSL_CA_STORE),
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
 	securityProtocol(RSSL_ENC_TLSV1_2),
@@ -857,6 +880,12 @@ void SocketChannelConfig::clear()
 	serviceName = defaultServiceName;
 	tcpNodelay = DEFAULT_TCP_NODELAY;
 	objectName = DEFAULT_OBJECT_NAME;
+	proxyHostName.clear();
+	proxyPort.clear();
+	proxyUserName.clear();
+	proxyPasswd.clear();
+	proxyDomain.clear();
+	proxyConnectionTimeout = DEFAULT_PROXY_CONNECTION_TIMEOUT;
 	sslCAStore = DEFAULT_SSL_CA_STORE;
 	securityProtocol = RSSL_ENC_TLSV1_2;
 	enableSessionMgnt = RSSL_FALSE;
@@ -869,6 +898,14 @@ void SocketChannelConfig::clear()
 ChannelConfig::ChannelType SocketChannelConfig::getType() const
 {
 	return ChannelConfig::SocketChannelEnum;
+}
+
+void SocketChannelConfig::setProxyConnectionTimeout(UInt64 value)
+{
+	if (value >= 0)
+	{
+		proxyConnectionTimeout = value > RWF_MAX_32 ? RWF_MAX_32 : (UInt32)value;
+	}
 }
 
 void SocketChannelConfig::setServiceDiscoveryRetryCount(UInt64 value)

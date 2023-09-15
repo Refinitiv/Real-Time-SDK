@@ -2,21 +2,21 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using Xunit;
-using Refinitiv.Eta.ValueAdd.Reactor;
+using LSEG.Eta.ValueAdd.Reactor;
 using System;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.Codec;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Common.Interfaces;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Common;
 using System.Threading;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     internal class ServerComponentTest : TestComponent
     {
@@ -364,12 +364,11 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
                 {
                     Thread.Sleep(1);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Assert.True(false);
+                    TestUtil.Fail(e.Message);
                 }
             }
         }
-
     }
 }

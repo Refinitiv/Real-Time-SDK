@@ -8,11 +8,9 @@
 
 package com.refinitiv.eta.json.converter;
 
-import com.refinitiv.eta.codec.Buffer;
-import com.refinitiv.eta.codec.CodecFactory;
-import com.refinitiv.eta.codec.MsgClasses;
-import com.refinitiv.eta.codec.RefreshMsg;
+import com.refinitiv.eta.codec.*;
 import com.refinitiv.eta.rdm.DomainTypes;
+import com.refinitiv.eta.transport.TransportFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,6 +43,11 @@ public class RefreshMsgNegativeTest {
 
     @Before
     public void init() {
+        DataDictionary dictionary = CodecFactory.createDataDictionary();
+        final String dictionaryFileName1 = "../../etc/RDMFieldDictionary";
+        com.refinitiv.eta.transport.Error error = TransportFactory.createError();
+        dictionary.clear();
+        dictionary.loadFieldDictionary(dictionaryFileName1, error);
         jsonMsg.clear();
         initMsg();
         jsonBuffer = CodecFactory.createBuffer();
@@ -52,6 +55,7 @@ public class RefreshMsgNegativeTest {
         JsonConverter converter = ConverterFactory.createJsonConverterBuilder()
                 .setProperty(JsonConverterProperties.JSON_CPC_CATCH_UNKNOWN_JSON_KEYS, false)
                 .setServiceConverter(new ServiceNameIdTestConverter())
+                .setDictionary(dictionary)
                 .build(convError);
         JsonConverterProxy proxy = new JsonConverterProxy(converter);
         this.converter = (JsonConverter) Proxy.newProxyInstance(JsonConverter.class.getClassLoader(),
@@ -129,5 +133,17 @@ public class RefreshMsgNegativeTest {
         convError.clear();
         assertEquals(SUCCESS, converter.getErrorMessage(errorBuffer, errorParams, convError));
         checkJsonErrorMsg(errorBuffer);
+    }
+
+    @Test
+    public void givenJsonDateHasNoDay_decodingDoesntThrowError() throws IOException {
+        final String refreshMsg = "{\"ID\":3,\"Type\":\"Refresh\",\"Key\": " +
+                "{\"Service\":\"ELEKTRON_DD\",\"Name\":\"ALINN.PA\"}," +
+                "\"State\":{\"Stream\":\"Open\",\"Data\":\"Ok\",\"Text\":\"*All is well\"}," +
+                "\"Qos\":{\"Timeliness\":\"Realtime\",\"Rate\":\"TickByTick\"},\"PermData\":\"AxHygTLA\",\"SeqNumber\":4768," +
+                "\"Fields\":{\"DIVPAYDATE\":\"2022-11\"}}";
+        jsonBuffer.data(refreshMsg);
+        assertEquals(SUCCESS, converter.parseJsonBuffer(jsonBuffer, parseJsonOptions, convError));
+        assertEquals(SUCCESS, converter.decodeJsonMsg(jsonMsg, decodeJsonMsgOptions, convError));
     }
 }

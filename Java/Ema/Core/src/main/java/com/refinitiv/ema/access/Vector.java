@@ -2,12 +2,13 @@
 // *|            This source code is provided under the Apache 2.0 license      --
 // *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 // *|                See the project's LICENSE.md for details.                  --
-// *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+// *|           Copyright (C) 2023 Refinitiv. All rights reserved.            --
 ///*|-----------------------------------------------------------------------------
 
 package com.refinitiv.ema.access;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Vector is a homogeneous container of complex data type entries.<br>
@@ -157,4 +158,17 @@ public interface Vector extends ComplexType, Collection<VectorEntry>
 	 * @return reference to this object
 	 */
 	public Vector summaryData(ComplexType data);
+	
+	/**
+	 * A more efficient and performant iterator call, which eliminates using a collection and
+	 * having an iterator over the collection.
+	 * 
+	 * Returns an iterator over a single decoded Vector. This does not return a copy of this data,
+	 * but rather a reference to it that can be read and used before being moved to the next decoded VectorEntry
+	 * when hasNext() is called, and returning the entry with next() on this iterator. hasNext() is required to be called
+	 * before each next() call to return the following entry.
+	 * 
+	 * @return iterator for a reference of a single decoded VectorEntry.
+	 */
+	public Iterator<VectorEntry> iteratorByRef();
 }

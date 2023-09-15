@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2019-2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -19,6 +19,7 @@
 #define NEG_EXP_MAX 14
 #define ERROR_TEXT_MAX 250
 
+#define JSON_FLAGS_DEFAULT 0
 #define JSON_FLAG_DEFAULT_QOS 0x01
 #define JSON_FLAG_CATCH_UNEXPECTED_KEYS 0x02
 #define JSON_FLAG_CATCH_UNEXPECTED_FIDS 0x04
@@ -41,7 +42,7 @@ class jsonToRwfBase
 		_dictionaryCount = dictionaryCount;
 	}
 
-	jsonToRwfBase(int bufSize, unsigned int flags, int numTokens = DEFAULT_NUM_TOKENS, int incSize = DEFAULT_NUM_TOKENS);
+	jsonToRwfBase(int bufSize, unsigned int flags, int numTokens, int incSize);
 	virtual ~jsonToRwfBase();
 	int decodeJsonMsg(RsslJsonMsg &jsonMsg);
 	int parseJsonBuffer(const RsslBuffer *bufPtr, int offset);

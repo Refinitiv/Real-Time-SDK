@@ -2,7 +2,7 @@
 *|            This source code is provided under the Apache 2.0 license      --
 *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
 *|                See the project's LICENSE.md for details.                  --
-*|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+*|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
 *|-----------------------------------------------------------------------------
 */
 
@@ -12,6 +12,7 @@
 #include "EmaVector.h"
 #include "Mutex.h"
 #include "ActiveConfig.h"
+#include "GlobalPool.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -44,6 +45,14 @@ class ErrorClientHandler;
 class OmmCommonImpl
 {
 public:
+		OmmCommonImpl() {
+#ifdef USING_POLL
+			_eventFds = NULL;
+			_eventFdsCount = 0;
+			_eventFdsCapacity = 0;
+			_pipeReadEventFdsIdx = -1;
+#endif
+		}
 
 		enum ImplementationType
 		{
@@ -275,6 +284,10 @@ private:
 
 	static void atExit()
 	{
+		// set the global pool state as final
+		// stop all operations with the global pool
+		refinitiv::ema::access::GlobalPool::setFinalState();
+
 		_cleanupLock.lock();
 		_listLock.lock();
 

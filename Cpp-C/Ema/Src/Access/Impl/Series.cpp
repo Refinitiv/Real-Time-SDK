@@ -29,7 +29,10 @@ Series::Series() :
 
 Series::~Series()
 {
-	if ( _pEncoder ) 
+	if ( GlobalPool::isFinalState() )
+		return;
+
+	if ( _pEncoder )
 		g_pool._seriesEncoderPool.returnItem( _pEncoder );
 
 	if ( _pDecoder )

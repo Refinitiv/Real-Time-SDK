@@ -1,0 +1,13 @@
+:: This is a@m1@ template file and should @m2@ be edited directly. 
+:: Any changes required should be made in the upstream  script file,
+::     CMake/l8w8jwtlib.bat.in
+
+echo Running vcvarsall
+call "@_vcvarsall_bin@" x86_amd64
+echo Packaging l8w8jwt lib debug
+
+"@CMAKE_LINKER@" /LIB /OUT:"@l8w8jwt_install@/lib/libl8w8jwtd.lib" /LTCG "@l8w8jwt_build@/Debug/l8w8jwt.lib" "@l8w8jwt_build@/mbedtls/library/Debug/mbedcrypto.lib" "@l8w8jwt_build@/mbedtls/library/Debug/mbedtls.lib" "@l8w8jwt_build@/mbedtls/library/Debug/mbedx509.lib"
+
+echo Packaging l8w8jwt lib release
+
+"@CMAKE_LINKER@" /LIB /OUT:"@l8w8jwt_install@/lib/libl8w8jwt.lib" /LTCG "@l8w8jwt_build@/Release/l8w8jwt.lib" "@l8w8jwt_build@/mbedtls/library/Release/mbedcrypto.lib" "@l8w8jwt_build@/mbedtls/library/Release/mbedtls.lib" "@l8w8jwt_build@/mbedtls/library/Release/mbedx509.lib"

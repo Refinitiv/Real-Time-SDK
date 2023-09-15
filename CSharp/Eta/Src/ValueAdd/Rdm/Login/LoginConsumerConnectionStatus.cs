@@ -2,24 +2,24 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Diagnostics;
 using System.Text;
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Login Consumer Connection Status. Used by an OMM Consumer to send Warm Standby information.
     /// </summary>
-    public class LoginConsumerConnectionStatus : MsgBase
+    sealed public class LoginConsumerConnectionStatus : MsgBase
     {
         #region Private Fields
 
@@ -31,12 +31,24 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         #endregion
         #region Public Message Properties
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
         public override int StreamId { get; set; }
 
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.LOGIN"/>.
+        /// </summary>
         public override int DomainType { get => m_GenericMsg.DomainType; }
 
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.GENERIC"/>
+        /// </summary>
         public override int MsgClass { get => m_GenericMsg.MsgClass; }
 
+        /// <summary>
+        /// Flags for this message.  See <see cref="LoginConsumerConnectionStatusFlags"/>.
+        /// </summary>
         public LoginConsumerConnectionStatusFlags Flags { get; set; }
 
         /// <summary>
@@ -61,12 +73,34 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
         #endregion
 
+        /// <summary>
+        /// Login Consumer Connection Status constructor.
+        /// </summary>
         public LoginConsumerConnectionStatus()
         {
             Clear();
         }
 
+        /// <summary>
+        /// Clears the current contents of the Login Consumer Connection Status object and prepares it for re-use.
+        /// </summary>
+        public override void Clear()
+        {
+            WarmStandbyInfo.Clear();
+            m_GenericMsg.Clear();
+            m_GenericMsg.MsgClass = MsgClasses.STATUS;
+            m_GenericMsg.DomainType = (int)LSEG.Eta.Rdm.DomainType.LOGIN;
+            m_GenericMsg.Flags = StatusMsgFlags.HAS_MSG_KEY;
+            m_GenericMsg.MsgKey.Flags = MsgKeyFlags.HAS_NAME;
+            m_GenericMsg.MsgKey.Name = ElementNames.CONS_CONN_STATUS;
+            m_GenericMsg.ContainerType = DataTypes.MAP;
+        }
+
+        /// <summary>
         /// Performs a deep copy of this object into <c>destConnStatusMsg</c>.
+        /// </summary>
+        /// <param name="destConnStatusMsg">LoginConsumerConnectionStatus object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Copy(LoginConsumerConnectionStatus destConnStatusMsg)
         {
             Debug.Assert(destConnStatusMsg != null);
@@ -80,7 +114,12 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        public override CodecReturnCode Encode(EncodeIterator EncodeIter)
+        /// <summary>
+        /// Encodes this Login Consumer Connection Status message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
         {
             // Encode ConsumerConnectionStatus Generic message.
             // Used to send the WarmStandbyMode.
@@ -93,7 +132,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             m_GenericMsg.MsgKey.Flags = (int)MsgKeyFlags.HAS_NAME;
             m_GenericMsg.MsgKey.Name = ElementNames.CONS_CONN_STATUS;
 
-            CodecReturnCode ret = m_GenericMsg.EncodeInit(EncodeIter, 0);
+            CodecReturnCode ret = m_GenericMsg.EncodeInit(encodeIter, 0);
             if (ret != CodecReturnCode.ENCODE_CONTAINER)
                 return CodecReturnCode.FAILURE;
 
@@ -101,7 +140,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             map.Flags = MapFlags.NONE;
             map.KeyPrimitiveType = DataTypes.ASCII_STRING;
             map.ContainerType = DataTypes.ELEMENT_LIST;
-            ret = map.EncodeInit(EncodeIter, 0, 0);
+            ret = map.EncodeInit(encodeIter, 0, 0);
             if (ret != CodecReturnCode.SUCCESS)
                 return CodecReturnCode.FAILURE;
 
@@ -112,30 +151,30 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 mapEntry.Action = WarmStandbyInfo.Action;
                 if (mapEntry.Action != MapEntryActions.DELETE)
                 {
-                    ret = mapEntry.EncodeInit(EncodeIter, ElementNames.WARMSTANDBY_INFO, 0);
+                    ret = mapEntry.EncodeInit(encodeIter, ElementNames.WARMSTANDBY_INFO, 0);
 
-                    ret = WarmStandbyInfo.Encode(EncodeIter);
+                    ret = WarmStandbyInfo.Encode(encodeIter);
                     if (ret != CodecReturnCode.SUCCESS)
                         return CodecReturnCode.FAILURE;
 
-                    ret = mapEntry.EncodeComplete(EncodeIter, true);
+                    ret = mapEntry.EncodeComplete(encodeIter, true);
                     if (ret != CodecReturnCode.SUCCESS)
                         return CodecReturnCode.FAILURE;
                 }
                 else
                 {
-                    ret = mapEntry.Encode(EncodeIter, ElementNames.WARMSTANDBY_INFO);
+                    ret = mapEntry.Encode(encodeIter, ElementNames.WARMSTANDBY_INFO);
                     if (ret != CodecReturnCode.SUCCESS)
                         return CodecReturnCode.FAILURE;
                 }
 
             }
 
-            ret = map.EncodeComplete(EncodeIter, true);
+            ret = map.EncodeComplete(encodeIter, true);
             if (ret != CodecReturnCode.SUCCESS)
                 return CodecReturnCode.FAILURE;
 
-            ret = m_GenericMsg.EncodeComplete(EncodeIter, true);
+            ret = m_GenericMsg.EncodeComplete(encodeIter, true);
             if (ret != CodecReturnCode.SUCCESS)
                 return CodecReturnCode.FAILURE;
 
@@ -143,14 +182,14 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Decode a ETA message into an RDM message.
+        /// Decodes this Login Consumer Connection Status message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
         /// </summary>
-        /// <param name="dIter"></param>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public override CodecReturnCode Decode(DecodeIterator dIter, Msg msg)
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this LoginConsumerConnectionStatus message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
-            if (msg.MsgClass != MsgClasses.GENERIC || msg.DomainType != (int)Refinitiv.Eta.Rdm.DomainType.LOGIN)
+            if (msg.MsgClass != MsgClasses.GENERIC || msg.DomainType != (int)LSEG.Eta.Rdm.DomainType.LOGIN)
                 return CodecReturnCode.FAILURE;
 
             IMsgKey key = msg.MsgKey;
@@ -172,7 +211,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
             map.Clear();
 
-            CodecReturnCode ret = map.Decode(dIter);
+            CodecReturnCode ret = map.Decode(decodeIter);
             if (ret != CodecReturnCode.SUCCESS)
                 return CodecReturnCode.FAILURE;
 
@@ -184,7 +223,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
 
             mapEntry.Clear();
             tempBuffer.Clear();
-            while ((ret = mapEntry.Decode(dIter, tempBuffer)) != CodecReturnCode.END_OF_CONTAINER)
+            while ((ret = mapEntry.Decode(decodeIter, tempBuffer)) != CodecReturnCode.END_OF_CONTAINER)
             {
                 if (ret < CodecReturnCode.SUCCESS)
                     return CodecReturnCode.FAILURE;
@@ -194,7 +233,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                     HasWarmStandbyInfo = true;
                     if (mapEntry.Action != MapEntryActions.DELETE)
                     {
-                        ret = WarmStandbyInfo.Decode(dIter, msg);
+                        ret = WarmStandbyInfo.Decode(decodeIter, msg);
                         if (ret != CodecReturnCode.SUCCESS)
                             return CodecReturnCode.FAILURE;
                     }
@@ -205,6 +244,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
+        /// <summary>
+        /// Returns a human readable string representation of the Login Consumer Connection Status message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder toStringBuilder = PrepareStringBuilder();
@@ -218,18 +261,6 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             }
 
             return toStringBuilder.ToString();
-        }
-
-        public override void Clear()
-        {
-            WarmStandbyInfo.Clear();
-            m_GenericMsg.Clear();
-            m_GenericMsg.MsgClass = MsgClasses.STATUS;
-            m_GenericMsg.DomainType = (int)Refinitiv.Eta.Rdm.DomainType.LOGIN;
-            m_GenericMsg.Flags = StatusMsgFlags.HAS_MSG_KEY;
-            m_GenericMsg.MsgKey.Flags = MsgKeyFlags.HAS_NAME;
-            m_GenericMsg.MsgKey.Name = ElementNames.CONS_CONN_STATUS;
-            m_GenericMsg.ContainerType = DataTypes.MAP;
         }
     }
 }

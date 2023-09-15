@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019 Refinitiv. All rights reserved.            --
+ *|          Copyright (C) 2019-2022 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -58,8 +58,18 @@ class GlobalPool
 public :
 
 	GlobalPool();
-
 	virtual ~GlobalPool();
+
+	// When the global pool is in final state
+	// then clients must stop all the operations with it
+	static bool isFinalState() {
+		return _isFinalState;
+	}
+
+	static void setFinalState() {
+		_isFinalState = true;
+	}
+
 
 	ElementListSetDefPool		_elementListSetDefPool;
 	FieldListSetDefPool			_fieldListSetDefPool;
@@ -99,6 +109,11 @@ public :
 	RefreshMsgDecoderPool		_refreshMsgDecoderPool;
 	StatusMsgDecoderPool		_statusMsgDecoderPool;
 	UpdateMsgDecoderPool		_updateMsgDecoderPool;
+
+private:
+
+	static bool					_isFinalState;  // indicates that the global pool is destroyed, clients must stop all operations with it
+
 };
 
 }

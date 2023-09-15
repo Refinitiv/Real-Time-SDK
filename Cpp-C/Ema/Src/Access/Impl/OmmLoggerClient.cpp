@@ -14,12 +14,121 @@
 #include "Utilities.h"
 #include <new>
 
+#ifndef WIN32
+#include <dirent.h>
+#include <sys/stat.h>
+#endif
+
 #define LOGFILEEXT		".log"
+#define LOGFILEEXTLEN	4
 
 using namespace refinitiv::ema::access;
 
 Mutex OmmLoggerClient::_printLock;
 struct LoggerClientFiles OmmLoggerClient::clientFiles = { 0, 0, 0 };
+
+
+int OmmLoggerClient::discoverLogFileNumber(EmaString fileName, int maxFileNumber)
+{
+	const size_t fileNameLen = fileName.length();
+
+#ifdef WIN32
+	fileName.append("_*");
+	fileName += LOGFILEEXT;
+
+	WIN32_FIND_DATA FindFileData;
+
+	HANDLE hFind = FindFirstFile(fileName.c_str(), &FindFileData);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		FILETIME lastFileTime = { 0 };
+		long lastFileNumber = 0;
+		long maxNumber = 1;
+		do
+		{
+			const size_t fileEntryLen = strlen(FindFileData.cFileName);
+			*(FindFileData.cFileName + fileEntryLen - LOGFILEEXTLEN) = '\0';
+
+			int fileNumber = atoi(FindFileData.cFileName + fileNameLen + 1);
+
+			if (fileNumber <= maxFileNumber && fileNumber > 0)
+			{
+				if (maxNumber < fileNumber)
+					maxNumber = fileNumber;
+
+				if (CompareFileTime(&FindFileData.ftLastWriteTime, &lastFileTime) > 0)
+				{
+					lastFileTime = FindFileData.ftLastWriteTime;
+					lastFileNumber = fileNumber;
+				}
+			}
+		} while (FindNextFile(hFind, &FindFileData));
+
+		FindClose(hFind);
+		return (maxNumber == maxFileNumber) ? lastFileNumber : maxNumber;
+	}
+#else
+	DIR* dir = opendir("./");
+	if (dir)
+	{
+		struct timespec lastFileTime = { 0 };
+		struct dirent * entry = 0;
+		long lastFileNumber = 0;
+		long maxNumber = 1;
+		while (entry = readdir(dir))
+		{
+			// expected regular file or might be UNKNOWN for some file systems
+			if (!(entry->d_type == DT_REG || entry->d_type == DT_UNKNOWN))
+				continue;
+
+			const size_t fileEntryLen = strlen(entry->d_name);
+
+			// expected "fileName" + "_" + number + "LOGFILEEXT"
+			if (fileEntryLen <= (fileNameLen + LOGFILEEXTLEN + 1) || fileEntryLen > (fileNameLen + LOGFILEEXTLEN + 1 + 10))
+				continue;
+
+			if (memcmp(entry->d_name + fileEntryLen - LOGFILEEXTLEN, LOGFILEEXT, LOGFILEEXTLEN) != 0)
+				continue;
+
+			if (*(entry->d_name + fileNameLen) != '_')
+				continue;
+
+			if (memcmp(entry->d_name, fileName.c_str(), fileNameLen) != 0)
+				continue;
+
+			const size_t fileNumberLen = fileEntryLen - fileNameLen - LOGFILEEXTLEN - 1;
+			char* fileNumberStr = (char*)alloca(fileNumberLen + 1);
+			if (!fileNumberStr)
+				continue;
+
+			strncpy(fileNumberStr, entry->d_name + fileNameLen + 1, fileNumberLen + 1);
+			int fileNumber = atoi(fileNumberStr);
+
+			if (fileNumber <= maxFileNumber)
+			{
+				if (maxNumber < fileNumber)
+					maxNumber = fileNumber;
+
+				struct stat entryStat = { 0 };
+				if (!stat(entry->d_name, &entryStat))
+				{
+					if ((entryStat.st_mtim.tv_sec > lastFileTime.tv_sec)
+						|| (entryStat.st_mtim.tv_sec == lastFileTime.tv_sec && entryStat.st_mtim.tv_nsec > lastFileTime.tv_nsec))
+					{
+						lastFileTime = entryStat.st_mtim;
+						lastFileNumber = fileNumber;
+					}
+				}
+			}
+		}
+
+		closedir(dir);
+		return (maxNumber == maxFileNumber) ? lastFileNumber : maxNumber;
+	}
+#endif
+
+	return 1;
+}
 
 OmmLoggerClient::OmmLoggerClient( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName, UInt32 maxFileSize, UInt32 maxFileNumber ) :
 	_pOutput( 0 ),
@@ -66,7 +175,7 @@ void OmmLoggerClient::openLogFile( const EmaString& inFileName, UInt32 maxFileSi
 	_printLock.lock();
 
 	EmaString fileName( inFileName );
-	UInt32 fileNumber = 1;
+	UInt32 fileNumber = 0;
 
 	if (maxFileNumber > 0)
 	{
@@ -81,6 +190,8 @@ void OmmLoggerClient::openLogFile( const EmaString& inFileName, UInt32 maxFileSi
 				return;
 			}
 		}
+
+		fileNumber = discoverLogFileNumber(fileName, maxFileNumber);
 
 		fileName.append( "_" );
 		fileName += fileNumber;
@@ -110,7 +221,7 @@ void OmmLoggerClient::openLogFile( const EmaString& inFileName, UInt32 maxFileSi
 		}
 	}
 
-    _pOutput = fopen( fileName.c_str(), "w" );
+    _pOutput = fopen( fileName.c_str(), "a" );
 	if ( ! _pOutput )
 	{
 		_printLock.unlock();
@@ -236,7 +347,7 @@ char* OmmLoggerClient::timeString( bool includeDate )
 		next = strftime( timeString, sizeof timeString, "%Y/%m/%d %H:%M:%S", localtime(&tp.tv_sec));
 	else
 		next = strftime( timeString, sizeof timeString, "%H:%M:%S", localtime(&tp.tv_sec));
-	 snprintf(timeString + next, sizeof timeString - next, ".%03d", tp.tv_nsec/static_cast<long>(1E6));
+	 snprintf(timeString + next, sizeof timeString - next, ".%03ld", tp.tv_nsec/static_cast<long>(1E6));
 #endif
 
 	return timeString;

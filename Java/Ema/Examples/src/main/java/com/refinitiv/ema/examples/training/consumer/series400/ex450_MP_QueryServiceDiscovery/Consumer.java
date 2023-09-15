@@ -9,8 +9,6 @@ package com.refinitiv.ema.examples.training.consumer.series400.ex450_MP_QuerySer
 
 import com.refinitiv.ema.access.Msg;
 
-import java.util.List;
-
 import com.refinitiv.ema.access.AckMsg;
 import com.refinitiv.ema.access.ElementList;
 import com.refinitiv.ema.access.GenericMsg;
@@ -20,6 +18,7 @@ import com.refinitiv.ema.access.RefreshMsg;
 import com.refinitiv.ema.access.ServiceEndpointDiscovery;
 import com.refinitiv.ema.access.StatusMsg;
 import com.refinitiv.ema.access.UpdateMsg;
+import com.refinitiv.eta.codec.CodecReturnCodes;
 import com.refinitiv.ema.access.EmaFactory;
 import com.refinitiv.ema.access.OmmConsumer;
 import com.refinitiv.ema.access.OmmConsumerClient;
@@ -30,6 +29,11 @@ import com.refinitiv.ema.access.ServiceEndpointDiscoveryClient;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryEvent;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryOption;
 import com.refinitiv.ema.access.ServiceEndpointDiscoveryResp;
+import com.refinitiv.ema.access.ServiceEndpointDiscoveryInfo;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 {
@@ -55,20 +59,28 @@ class AppClient implements OmmConsumerClient, ServiceEndpointDiscoveryClient
 	public void onSuccess(ServiceEndpointDiscoveryResp serviceEndpointResp, ServiceEndpointDiscoveryEvent event)
 	{
 		System.out.println(serviceEndpointResp); // dump service discovery endpoints
-		
-		for(int index = 0; index < serviceEndpointResp.serviceEndpointInfoList().size(); index++)
+		String endPoint = null;
+		String port = null;
+		for(ServiceEndpointDiscoveryInfo info : serviceEndpointResp.serviceEndpointInfoList())
 		{
-			List<String> locationList = serviceEndpointResp.serviceEndpointInfoList().get(index).locationList();
-			
-			if(locationList.size() == 2) // Get an endpoint that provides auto failover for the specified location.
+			if(info.locationList().size() >= 2 && info.locationList().get(0).startsWith(Consumer.location)) // Get an endpoint that provides auto failover for the specified location.
 			{
-				if(locationList.get(0).startsWith(Consumer.location))
-				{
-					Consumer.host = serviceEndpointResp.serviceEndpointInfoList().get(index).endpoint();
-					Consumer.port = serviceEndpointResp.serviceEndpointInfoList().get(index).port();
-					break;
-				}
+				endPoint = info.endpoint();
+				port = info.port();
+				break;
 			}
+			// Try to get backups and keep looking for main case. Keep only the first item met.
+			else if(info.locationList().size() > 0 && info.locationList().get(0).startsWith(Consumer.location) &&
+					endPoint == null && port == null)
+			{
+				endPoint = info.endpoint();
+				port = info.port();
+			}
+		}
+
+		if(Objects.nonNull(endPoint) && Objects.nonNull(port)) {
+			Consumer.host = endPoint;
+			Consumer.port = port;
 		}
 	}
 
@@ -84,6 +96,8 @@ public class Consumer
 	static String password;
 	static String clientId;
 	static String clientSecret;
+	static String clientJwk;
+	static String audience;
 	static String proxyHostName;
 	static String proxyPort = "-1";
 	static String proxyUserName;
@@ -113,6 +127,8 @@ public class Consumer
 	    		+ "\tdiscovery. Defaults to \"us-east-1\" (optional).\n"
 	    		+ "  -clientId client ID for application making the request to(mandatory for V1 password grant and V2 client credentials grant) \r\n"
 	    		+ "  -clientSecret service account secret (mandatory for V2 client credentials grant).\n"
+	    		+ "  -jwkFile file containing the private JWK encoded in JSON format. (mandatory for V2 client credentials grant with JWT)\n"
+	    		+ "  -audience Audience value for JWT (optional for V2 oAuth client credentials with JWT).\n"
 	    		+ "  -websocket Use the WebSocket transport protocol (optional) \r\n"
 	    		+ "\tRDP token service, also known as AppKey generated using an AppGenerator (mandatory).\n"
 	    		+ "  -keyfile keystore file for encryption.\n"
@@ -165,6 +181,32 @@ public class Consumer
 	            else if ("-clientSecret".equals(args[argsCount]))
     			{
 	            	clientSecret = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;				
+    			}
+	            else if ("-audience".equals(args[argsCount]))
+    			{
+	            	audience = argsCount < (args.length-1) ? args[++argsCount] : null;
+    				++argsCount;				
+    			}
+	            else if ("-jwkFile".equals(args[argsCount]))
+    			{
+	            	String jwkFile = argsCount < (args.length-1) ? args[++argsCount] : null;
+	            	if(jwkFile != null)
+	            	{
+		            	try
+						{
+							// Get the full contents of the JWK file.
+							byte[] jwkBuffer = Files.readAllBytes(Paths.get(jwkFile));
+							clientJwk = new String(jwkBuffer);
+						}
+						catch(Exception e)
+						{
+							System.err.println("Error loading JWK file: " + e.getMessage());
+							System.err.println();
+							System.out.println("Consumer exits...");
+							System.exit(CodecReturnCodes.FAILURE);
+						} 
+	            	}
     				++argsCount;				
     			}
 	            else if ("-location".equals(args[argsCount]))
@@ -276,11 +318,11 @@ public class Consumer
     			}			
     		}
 	        
-	        if ( userName == null || password == null || clientId == null)
+	        if ( userName == null || password == null)
 			{
-	        	if(clientId == null || clientSecret == null)
+	        	if(clientId == null || (clientSecret == null && clientJwk == null))
 	        	{
-					System.out.println("Username/password/clientId or clientId/clientSecret must be specified on the command line. Exiting...");
+					System.out.println("Username/password/clientId or clientId/clientSecret or jwkFile must be specified on the command line. Exiting...");
 					printHelp();
 					return false;
 	        	}
@@ -370,7 +412,7 @@ public class Consumer
 			serviceDiscovery = EmaFactory.createServiceEndpointDiscovery(tokenUrlV1, tokenUrlV2, serviceDiscoveryUrl);
 			
 			/* If username, password, and clientId are present, this is a V1 password grant connection */ 
-			if ( clientSecret == null )
+			if ( password != null )
 			{
 				serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().username(userName)
 						.password(password).clientId(clientId)
@@ -381,11 +423,33 @@ public class Consumer
 			}
 			else
 			{
-				/* V2 client credentials grant */
-				serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().clientId(clientId).clientSecret(clientSecret)
-						.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
-						.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
-						.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+				if(clientJwk == null)
+				{
+					/* V2 client credentials grant */
+					serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().clientId(clientId).clientSecret(clientSecret)
+							.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+							.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
+							.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+				}
+				else
+				{
+					if(audience == null)
+					{
+						/* V2 client credentials grant with JWK */
+						serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().clientId(clientId).clientJWK(clientJwk)
+								.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+								.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
+								.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+					}
+					else
+					{
+						/* V2 client credentials grant with JWK */
+						serviceDiscovery.registerClient(EmaFactory.createServiceEndpointDiscoveryOption().clientId(clientId).clientJWK(clientJwk).audience(audience)
+								.transport(connectWebSocket ? ServiceEndpointDiscoveryOption.TransportProtocol.WEB_SOCKET : ServiceEndpointDiscoveryOption.TransportProtocol.TCP)
+								.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName)
+								.proxyPassword(proxyPassword).proxyDomain(proxyDomain).proxyKRB5ConfigFile(proxyKrb5Configfile), appClient);
+					}
+				}
 			}
 			
 			if ( host == null || port == null )
@@ -398,19 +462,33 @@ public class Consumer
 			
 			if ( (proxyHostName == null) && (proxyPort == "-1") )
 			{
-				if ( clientSecret == null )
+				if ( password != null )
 				{
 					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
 						.clientId(clientId).takeExclusiveSignOnControl(takeExclusiveSignOnControl).config(configDb));
 				}
 				else
 				{
-					consumer = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret).config(configDb));
+					if(clientJwk == null)
+					{
+						consumer = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret).config(configDb));
+					}
+					else
+					{
+						if(audience == null)
+						{
+							consumer = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientJWK(clientJwk).config(configDb));
+						}
+						else
+						{
+							consumer = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientJWK(clientJwk).audience(audience).config(configDb));
+						}
+					}
 				}
 			}
 			else
 			{
-				if ( clientSecret == null )
+				if ( password != null )
 				{
 					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").username(userName).password(password)
 						.clientId(clientId).config(configDb).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
@@ -420,10 +498,30 @@ public class Consumer
 				}
 				else
 				{
-					consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret).config(configDb)
-							.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
-							.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
-							.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+					if(clientJwk == null)
+					{
+						consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret).config(configDb)
+								.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+								.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
+								.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+					}
+					else
+					{
+						if(audience == null)
+						{
+							consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientJWK(clientJwk).config(configDb)
+									.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+									.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
+									.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+						}
+						else
+						{
+							consumer  = EmaFactory.createOmmConsumer(config.consumerName("Consumer_1").clientId(clientId).clientJWK(clientJwk).config(configDb).audience(audience)
+									.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
+									.tunnelingCredentialUserName(proxyUserName).tunnelingCredentialPasswd(proxyPassword).tunnelingCredentialDomain(proxyDomain)
+									.tunnelingCredentialKRB5ConfigFile(proxyKrb5Configfile));
+						}
+					}
 				}
 			}
 					

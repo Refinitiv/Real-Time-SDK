@@ -2,17 +2,17 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.ValueAdd.Rdm;
 using System.Diagnostics;
 using System.Text;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     public abstract class MarketPriceBase : MsgBase
     {
@@ -108,7 +108,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.TRDPRC_1_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.TRDPRC_1, RealHints.EXPONENT_2);
                 ret = fieldEntry.Encode(encodeIter, tempReal);
@@ -124,7 +124,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.BID_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.BID, RealHints.EXPONENT_2);
                 ret = fieldEntry.Encode(encodeIter, tempReal);
@@ -139,7 +139,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.ASK_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.ASK, RealHints.EXPONENT_2);
                 ret = fieldEntry.Encode(encodeIter, tempReal);
@@ -154,7 +154,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.ACVOL_1_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.ACVOL_1, RealHints.EXPONENT_2);
                 ret = fieldEntry.Encode(encodeIter, tempReal);
@@ -169,7 +169,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.NETCHNG_1_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 tempReal.Clear();
                 tempReal.Value(mpItem.NETCHNG_1, RealHints.EXPONENT_2);
                 ret = fieldEntry.Encode(encodeIter, tempReal);
@@ -185,7 +185,7 @@ namespace Refinitiv.Eta.Example.Common
             if (dictionaryEntry != null)
             {
                 fieldEntry.FieldId = MarketPriceItem.ASK_TIME_FID;
-                fieldEntry.DataType = dictionaryEntry.RwfType;
+                fieldEntry.DataType = dictionaryEntry.GetRwfType();
                 ret = fieldEntry.Encode(encodeIter, mpItem.ASK_TIME.Time());
                 if (ret < CodecReturnCode.SUCCESS)
                 {
@@ -201,7 +201,7 @@ namespace Refinitiv.Eta.Example.Common
                 if (dictionaryEntry != null)
                 {
                     fieldEntry.FieldId = MarketPriceItem.PERATIO_FID;
-                    fieldEntry.DataType = dictionaryEntry.RwfType;
+                    fieldEntry.DataType = dictionaryEntry.GetRwfType();
                     tempReal.Clear();
                     tempReal.Value(mpItem.PERATIO, RealHints.EXPONENT_2);
                     ret = fieldEntry.Encode(encodeIter, tempReal);
@@ -216,7 +216,7 @@ namespace Refinitiv.Eta.Example.Common
                 if (dictionaryEntry != null)
                 {
                     fieldEntry.FieldId = MarketPriceItem.SALTIME_FID;
-                    fieldEntry.DataType = dictionaryEntry.RwfType;
+                    fieldEntry.DataType = dictionaryEntry.GetRwfType();
                     ret = fieldEntry.Encode(encodeIter, mpItem.SALTIME.Time());
                     if (ret < CodecReturnCode.SUCCESS)
                     {

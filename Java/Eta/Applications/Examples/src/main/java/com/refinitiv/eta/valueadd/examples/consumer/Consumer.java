@@ -16,6 +16,8 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import com.refinitiv.eta.codec.Buffer;
@@ -36,6 +38,7 @@ import com.refinitiv.eta.codec.StreamStates;
 import com.refinitiv.eta.rdm.Dictionary;
 import com.refinitiv.eta.rdm.DomainTypes;
 import com.refinitiv.eta.rdm.Login;
+import com.refinitiv.eta.shared.CommandLine;
 import com.refinitiv.eta.shared.network.ChannelHelper;
 import com.refinitiv.eta.transport.ConnectOptions;
 import com.refinitiv.eta.transport.ConnectionTypes;
@@ -149,9 +152,17 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  *
  * <li>-passwd changes the password used when logging into the provider
  *
- * <li>-clientId specifies a unique ID for application making the request to RDP token service, also known as AppKey generated using an AppGenerator
+ * <li>-clientId Specifies the client Id for Refinitiv login V2, or specifies a unique ID with login V1 for applications making the request to EDP token service, this is also known as AppKey generated using an AppGenerator.
+ * 
+ * <li>-clientSecret Specifies the associated client Secret with a provided clientId for V2 logins.
+ * 
+ * <li>-jwkFile Specifies the file containing the JWK encoded private key for V2 JWT logins.
  *
  * <li>-sessionMgnt enables the session management in the Reactor
+ * 
+ * <li>-tokenURLV1 Specifies the token URL for V1 token oauthpasswd grant type.
+ * 
+ * <li>-tokenURLV2 Specifies the token URL for V2 token oauthclientcreds grant type.
  *
  * <li>-view specifies each request using a basic dynamic view
  *
@@ -360,7 +371,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		{
 			reactorOptions.tokenServiceURL_V2().data(consumerCmdLineParser.tokenURLV2());
 		}
-
+		
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
@@ -409,6 +420,7 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		jsonConverterOptions.dataDictionary(dictionary);
 		jsonConverterOptions.serviceNameToIdCallback(this);
 		jsonConverterOptions.jsonConversionEventCallback(this);
+		jsonConverterOptions.sendJsonConvError(consumerCmdLineParser.sendJsonConvError());
 
 		// Initialize the JSON converter
 		if ( reactor.initJsonConverter(jsonConverterOptions, errorInfo) != ReactorReturnCodes.SUCCESS)
@@ -1506,6 +1518,38 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 				oAuthCredential.takeExclusiveSignOnControl(consumerCmdLineParser.takeExclusiveSignOnControl());
 			}
 		}
+		
+		if(consumerCmdLineParser.jwkFile() != null && !consumerCmdLineParser.jwkFile().equals(""))
+		{
+			try
+			{
+				// Get the full contents of the JWK file.
+				byte[] jwkFile = Files.readAllBytes(Paths.get(consumerCmdLineParser.jwkFile()));
+				String jwkText = new String(jwkFile);
+				
+				oAuthCredential.clientJwk().data(jwkText);
+
+			}
+			catch(Exception e)
+			{
+				System.err.println("Error loading JWK file: " + e.getMessage());
+				System.err.println();
+				System.err.println(CommandLine.optionHelpString());
+				System.out.println("Consumer exits...");
+				System.exit(CodecReturnCodes.FAILURE);
+			}
+		}
+		
+		if(consumerCmdLineParser.tokenScope() != null && !consumerCmdLineParser.tokenScope().equals(""))
+		{
+			oAuthCredential.tokenScope().data(consumerCmdLineParser.tokenScope());
+		}
+		
+		if(consumerCmdLineParser.audience() != null && !consumerCmdLineParser.audience().equals(""))
+		{
+			oAuthCredential.audience().data(consumerCmdLineParser.audience());
+		}
+			
 				
 		oAuthCredential.userSpecObj(oAuthCredential);
 		chnlInfo.consumerRole.reactorOAuthCredential(oAuthCredential);

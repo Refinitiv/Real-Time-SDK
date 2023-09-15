@@ -2,13 +2,13 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System.Net.Sockets;
 
-namespace Refinitiv.Eta.ValueAdd.Common
+namespace LSEG.Eta.ValueAdd.Common
 {
     /// <summary>
     /// This is used to notify read or write events
@@ -23,7 +23,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
         /// <summary>
         /// Indicates whether the event's Socket can be read from
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if this event is readable</returns>
         public bool IsReadable()
         {
             return (NotifiedFlags & NotifierEventFlag.READ) != 0;
@@ -32,7 +32,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
         /// <summary>
         /// Indicates whether the event's Socket can be written to
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if this event is writeable</returns>
         public bool IsWriteable()
         {
             return (NotifiedFlags & NotifierEventFlag.WRITE) != 0;
@@ -41,7 +41,7 @@ namespace Refinitiv.Eta.ValueAdd.Common
         /// <summary>
         /// Indicates whether the event's Socket may be invalid.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><c>true</c> if this event is bad socket</returns>
         public bool IsBadSocket()
         {
             return (NotifiedFlags & NotifierEventFlag.BAD_SOCKET) != 0;

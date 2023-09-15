@@ -36,8 +36,6 @@ public:
 	refinitiv::ema::access::UInt32			serviceId;					/* ID of the provided service. See -serviceId. */
 	refinitiv::ema::access::EmaString		serviceName;				/* Name of the provided service. Should correspond to existed name of Service entry EmaConfig. See -serviceName. */
 
-	long			apiThreadBindList[MAX_PROV_THREADS];	/* CPU ID list for threads that handle connections.  See -apiThreads. */
-
 	refinitiv::ema::access::EmaString		itemFilename;				/* File of names to use when requesting items. See -itemFile. */
 	refinitiv::ema::access::EmaString		msgFilename;				/* File of data to use for message payloads. See -msgFile. */
 	bool			logLatencyToFile;			/* Whether to log genMsg latency information to a file. See -latencyFile. */

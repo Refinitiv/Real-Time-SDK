@@ -2,23 +2,23 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
 using System.Diagnostics;
 using System.Text;
-using static Refinitiv.Eta.Rdm.Directory;
+using static LSEG.Eta.Rdm.Directory;
 
-namespace Refinitiv.Eta.ValueAdd.Rdm
+namespace LSEG.Eta.ValueAdd.Rdm
 {
     /// <summary>
     /// The RDM Directory Update. 
     /// Used by a Provider application to provide updates about available services. 
     /// </summary>
-    public class DirectoryUpdate : MsgBase
+    sealed public class DirectoryUpdate : MsgBase
     {
         private IUpdateMsg m_UpdateMsg = new Msg();
         private List<Service> m_ServiceList = new List<Service>();
@@ -28,6 +28,24 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         private UInt m_tmpUInt = new UInt();
         private long m_SeqNum = 0;
 
+        /// <summary>
+        /// StreamId for this message
+        /// </summary>
+        public override int StreamId { get => m_UpdateMsg.StreamId; set { m_UpdateMsg.StreamId = value; } }
+        
+        /// <summary>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.SOURCE"/>.
+        /// </summary>
+        public override int DomainType { get => m_UpdateMsg.DomainType; }
+
+        /// <summary>
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.UPDATE"/>
+        /// </summary>
+        public override int MsgClass { get => m_UpdateMsg.MsgClass; }
+
+        /// <summary>
+        /// Flags for this message.  See <see cref="DirectoryUpdateFlags"/>.
+        /// </summary>
         public DirectoryUpdateFlags Flags { get; set; }
 
         /// <summary>
@@ -51,9 +69,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
         /// <summary>
         /// Filter indicating which filters may appear on this stream. 
         /// Where possible, this should match the consumer's request. 
-        /// Populated by <see cref="Directory.ServiceFilterFlags"/>
+        /// Populated by <see cref="ServiceFilterFlags"/>
         /// </summary>
         public long Filter { get; set; }
+        
         /// <summary>
         /// Checks the presence of service id field.
         /// </summary>
@@ -72,16 +91,13 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             }
         }
+       
         /// <summary>
         /// The ID of the service whose information is provided by this stream 
         /// (if not present, all services should be provided). 
         /// Should match the Consumer's request if possible.
         /// </summary>
         public int ServiceId { get; set; }
-        
-        public override int StreamId { get => m_UpdateMsg.StreamId; set { m_UpdateMsg.StreamId = value; } }
-        public override int DomainType { get => m_UpdateMsg.DomainType; }
-        public override int MsgClass { get => m_UpdateMsg.MsgClass; }
 
         /// <summary>
         /// Handles the presence of sequence number field.
@@ -101,13 +117,16 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 }
             }
         }
+       
         /// <summary>
         /// Sequence number of this message.
         /// </summary>
         public long SequenceNumber { get => m_SeqNum; set { m_SeqNum = value; } }
+       
         /// <summary>
         /// List of service entries.
         /// </summary>
+        /// <seealso cref="Service"/>
         public List<Service> ServiceList { 
             get => m_ServiceList; 
             set
@@ -131,11 +150,17 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return null;
         }
 
+        /// <summary>
+        /// Directory Update Message constructor.
+        /// </summary>
         public DirectoryUpdate()
         {
             Clear();
         }
 
+        /// <summary>
+        /// Clears the current contents of the Directory Update object and prepares it for re-use.
+        /// </summary>
         public override void Clear()
         {
             Flags = 0;
@@ -148,7 +173,128 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             m_SeqNum = 0;
         }
 
-        public override CodecReturnCode Decode(DecodeIterator decIter, Msg msg)
+        /// <summary>
+        /// Performs a deep copy of this object into <c>destUpdateMsg</c>.
+        /// </summary>
+        /// <param name="destUpdateMsg">DirectoryUpdate object that will have this object's information copied into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Copy(DirectoryUpdate destUpdateMsg)
+        {
+            Debug.Assert(destUpdateMsg != null);
+            destUpdateMsg.Clear();
+
+            destUpdateMsg.StreamId = StreamId;
+
+            if (HasFilter)
+            {
+                destUpdateMsg.HasFilter = true;
+                destUpdateMsg.Filter = Filter;
+            }
+
+            if (HasServiceId)
+            {
+                destUpdateMsg.HasServiceId = true;
+                destUpdateMsg.ServiceId = ServiceId;
+            }
+
+
+            if (HasSequenceNumber)
+            {
+                destUpdateMsg.HasSequenceNumber = true;
+                destUpdateMsg.SequenceNumber = SequenceNumber;
+            }
+
+            CodecReturnCode ret = CodecReturnCode.SUCCESS;
+            foreach (Service rdmService in ServiceList)
+            {
+                Service destRDMService = new Service();
+                ret = rdmService.Copy(destRDMService);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+                destUpdateMsg.ServiceList.Add(destRDMService);
+            }
+
+            return CodecReturnCode.SUCCESS;
+        }
+
+        /// <summary>
+        /// Encodes this Directory Status message using the provided <c>encodeIter</c>.
+        /// </summary>
+        /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Encode(EncodeIterator encodeIter)
+        {
+            if (HasFilter)
+            {
+                m_UpdateMsg.ApplyHasMsgKey();
+                m_UpdateMsg.MsgKey.ApplyHasFilter();
+                m_UpdateMsg.MsgKey.Filter = Filter;
+            }
+
+            if (HasServiceId)
+            {
+                m_UpdateMsg.ApplyHasMsgKey();
+                m_UpdateMsg.MsgKey.ApplyHasServiceId();
+                m_UpdateMsg.MsgKey.ServiceId = ServiceId;
+            }
+
+            if (HasSequenceNumber)
+            {
+                m_UpdateMsg.ApplyHasSeqNum();
+                m_UpdateMsg.SeqNum = m_SeqNum;
+            }
+
+            CodecReturnCode ret = m_UpdateMsg.EncodeInit(encodeIter, 0);
+            if (ret != CodecReturnCode.ENCODE_CONTAINER)
+                return ret;
+            ret = EncodeServiceList(encodeIter);
+            if (ret != CodecReturnCode.SUCCESS)
+                return ret;
+            ret = m_UpdateMsg.EncodeComplete(encodeIter, true);
+            if (ret != CodecReturnCode.SUCCESS)
+                return ret;
+            return CodecReturnCode.SUCCESS;
+        }
+        private CodecReturnCode EncodeServiceList(EncodeIterator encIter)
+        {
+            m_Map.Clear();
+            m_Map.Flags = MapFlags.NONE;
+            m_Map.KeyPrimitiveType = Codec.DataTypes.UINT;
+            m_Map.ContainerType = Codec.DataTypes.FILTER_LIST;
+            CodecReturnCode ret = m_Map.EncodeInit(encIter, 0, 0);
+            if (ret != CodecReturnCode.SUCCESS)
+                return ret;
+
+            foreach (Service service in ServiceList)
+            {
+                m_Entry.Clear();
+                m_Entry.Flags = MapEntryFlags.NONE;
+                m_Entry.Action = service.Action;
+                m_tmpUInt.Value(service.ServiceId);
+                ret = m_Entry.EncodeInit(encIter, m_tmpUInt, 0);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+                if (m_Entry.Action != MapEntryActions.DELETE)
+                {
+                    ret = service.Encode(encIter);
+                    if (ret != CodecReturnCode.SUCCESS)
+                        return ret;
+                }
+                ret = m_Entry.EncodeComplete(encIter, true);
+                if (ret != CodecReturnCode.SUCCESS)
+                    return ret;
+
+            }
+            return m_Map.EncodeComplete(encIter, true);
+        }
+
+        /// <summary>
+        /// Decodes this Directory Status using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded Msg object for this DirectoryUpdate message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
             Clear();
             if (msg.MsgClass != MsgClasses.UPDATE)
@@ -183,7 +329,7 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
                 return CodecReturnCode.FAILURE;
             }
 
-            return DecodeServiceList(decIter);
+            return DecodeServiceList(decodeIter);
         }
 
         private CodecReturnCode DecodeServiceList(DecodeIterator dIter)
@@ -226,112 +372,10 @@ namespace Refinitiv.Eta.ValueAdd.Rdm
             return CodecReturnCode.SUCCESS;
         }
 
-        private CodecReturnCode EncodeServiceList(EncodeIterator encIter)
-        {
-            m_Map.Clear();
-            m_Map.Flags = MapFlags.NONE;
-            m_Map.KeyPrimitiveType = Codec.DataTypes.UINT;
-            m_Map.ContainerType = Codec.DataTypes.FILTER_LIST;
-            CodecReturnCode ret = m_Map.EncodeInit(encIter, 0, 0);
-            if (ret != CodecReturnCode.SUCCESS)
-                return ret;
-
-            foreach (Service service in ServiceList)
-            {
-                m_Entry.Clear();
-                m_Entry.Flags = MapEntryFlags.NONE;
-                m_Entry.Action = service.Action;
-                m_tmpUInt.Value(service.ServiceId);
-                ret = m_Entry.EncodeInit(encIter, m_tmpUInt, 0);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-                if (m_Entry.Action != MapEntryActions.DELETE)
-                {
-                    ret = service.Encode(encIter);
-                    if (ret != CodecReturnCode.SUCCESS)
-                        return ret;
-                }
-                ret = m_Entry.EncodeComplete(encIter, true);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-
-            }
-            return m_Map.EncodeComplete(encIter, true);
-        }
-
-        public override CodecReturnCode Encode(EncodeIterator encIter)
-        {
-            if (HasFilter)
-            {
-                m_UpdateMsg.ApplyHasMsgKey();
-                m_UpdateMsg.MsgKey.ApplyHasFilter();
-                m_UpdateMsg.MsgKey.Filter = Filter;
-            }
-
-            if (HasServiceId)
-            {
-                m_UpdateMsg.ApplyHasMsgKey();
-                m_UpdateMsg.MsgKey.ApplyHasServiceId();
-                m_UpdateMsg.MsgKey.ServiceId = ServiceId;
-            }
-
-            if (HasSequenceNumber)
-            {
-                m_UpdateMsg.ApplyHasSeqNum();
-                m_UpdateMsg.SeqNum = m_SeqNum;
-            }
-
-            CodecReturnCode ret = m_UpdateMsg.EncodeInit(encIter, 0);
-            if (ret != CodecReturnCode.ENCODE_CONTAINER)
-                return ret;
-            ret = EncodeServiceList(encIter);
-            if (ret != CodecReturnCode.SUCCESS)
-                return ret;
-            ret = m_UpdateMsg.EncodeComplete(encIter, true);
-            if (ret != CodecReturnCode.SUCCESS)
-                return ret;
-            return CodecReturnCode.SUCCESS;
-        }
-
-        public CodecReturnCode Copy(DirectoryUpdate destUpdateMsg)
-        {
-            Debug.Assert(destUpdateMsg != null);
-            destUpdateMsg.Clear();
-
-            destUpdateMsg.StreamId = StreamId;
-
-            if (HasFilter)
-            {
-                destUpdateMsg.HasFilter = true;
-                destUpdateMsg.Filter = Filter;
-            }
-
-            if (HasServiceId)
-            {
-                destUpdateMsg.HasServiceId = true;
-                destUpdateMsg.ServiceId = ServiceId;
-            }
-
-
-            if (HasSequenceNumber)
-            {
-                destUpdateMsg.HasSequenceNumber = true;
-                destUpdateMsg.SequenceNumber = SequenceNumber;
-            }
-
-            CodecReturnCode ret = CodecReturnCode.SUCCESS;
-            foreach (Service rdmService in ServiceList)
-            {
-                Service destRDMService = new Service();
-                ret = rdmService.Copy(destRDMService);
-                if (ret != CodecReturnCode.SUCCESS)
-                    return ret;
-                destUpdateMsg.ServiceList.Add(destRDMService);
-            }
-
-            return CodecReturnCode.SUCCESS;
-        }
-
+        /// <summary>
+        /// Returns a human readable string representation of the Directory Update message.
+        /// </summary>
+        /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
             StringBuilder stringBuf = PrepareStringBuilder();

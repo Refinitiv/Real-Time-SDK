@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10.3)
+cmake_minimum_required (VERSION 3.12.4)
 # The minimum version was chosen from a combination of the need for
 # critical bug fixes by CMake, the idea of taking advantage of future
 # CMake fixes soon to be released and wanting to fully embrace the
@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.10.3)
 # guarantee of a successful build if changed.
 
 project (rtsdk
-		VERSION 2.0.6.0
+		VERSION 2.1.2.1
 		LANGUAGES C CXX)
 
 set(rtsdk_CMAKE_DIR "${rtsdk_SOURCE_DIR}/CMake")
@@ -18,6 +18,9 @@ include(rcdevSupport)
 
 include(rtsdkOptions)
 include(rtsdkInfo)
+include(rtsdkAdditionalCompilerOptions)
+
+include(rtsdkAdditionalCompilerOptions)
 
 
 if(BUILD_RTSDK-BINARYPACK)
@@ -34,6 +37,9 @@ include(addExternal_lz4)
 include(addExternal_libxml2)
 include(addExternal_curl)
 include(addExternal_cjson)
+if(BUILD_ETA_JWT)
+include(addExternal_l8w8jwt)
+endif()
 
 #
 # Set up default build paths if not already defined

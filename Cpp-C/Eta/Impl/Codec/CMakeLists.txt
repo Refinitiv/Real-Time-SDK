@@ -17,6 +17,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE STATIC
                           LANGUAGE C
+						  LINKDEPENDS ${SYSTEM_LIBRARIES}
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
@@ -29,6 +30,7 @@ if (BUILD_WITH_PREBUILT_ETA_EMA_LIBRARIES)
                           LIBNAME librssl 
                           LIBTYPE SHARED
                           LANGUAGE C
+						  LINKDEPENDS ${SYSTEM_LIBRARIES}
                           PATHROOT   ${Eta_SOURCE_DIR}/Libs
                           LIBHEADERS ${Eta_SOURCE_DIR}/Include/Codec
                                      ${Eta_SOURCE_DIR}/Include/Util
@@ -112,7 +114,6 @@ else()
                 #Utils source files
                 ${Eta_SOURCE_DIR}/Impl/Util/cutildfltcbuffer.c
                 ${Eta_SOURCE_DIR}/Impl/Util/cutilsmplcbuffer.c
-                ${Eta_SOURCE_DIR}/Impl/Util/rsslBindThread.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslHashFuncs.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslHashTable.c
                 ${Eta_SOURCE_DIR}/Impl/Util/rsslMemoryBuffer.c
@@ -122,12 +123,9 @@ else()
                 ${Eta_SOURCE_DIR}/Impl/Util/tr_sha_1.c
                 ${Eta_SOURCE_DIR}/Impl/Util/tr_sl1_64.c
 				${Eta_SOURCE_DIR}/Impl/Util/rsslGetTime.c
-                ${Eta_SOURCE_DIR}/Impl/Util/cpu_topo.c
-                ${Eta_SOURCE_DIR}/Impl/Util/util_os.c
 
                 #Utils header files
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/os.h
-                ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslBindThread.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslErrorInfo.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslEventSignal.h
                 ${Eta_SOURCE_DIR}/Include/Util/rtr/rsslHashFuncs.h
@@ -143,9 +141,7 @@ else()
 				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslCurlJIT.h
 				${Eta_SOURCE_DIR}/Include/Util/rtr/rsslGetTime.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/application_signing.h
-                ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/bindthread.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/byteswap.h
-                ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/cputopology.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/custmem.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/cutilcbuffer.h
                 ${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/cutildfltcbuffer.h
@@ -262,18 +258,40 @@ else()
                 ${Eta_SOURCE_DIR}/Include/rssl.rc
                 ${Eta_SOURCE_DIR}/Include/rsslResource.h
             )
-        set(rsslWinAsm
-                ${Eta_SOURCE_DIR}/Impl/Util/get_cpuid.asm
-            )
+		if(BUILD_ETA_CPU_BIND)
+			set(rsslWinBindThread
+	                ${Eta_SOURCE_DIR}/Impl/Util/rsslBindThread.c
+					${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/bindthread.h
+					${Eta_SOURCE_DIR}/Include/Util/rtr/rsslBindThread.h
+
+					${Eta_SOURCE_DIR}/Impl/Util/cpu_topo.c
+	                ${Eta_SOURCE_DIR}/Impl/Util/Include/eta/cputopology.h
+					${Eta_SOURCE_DIR}/Impl/Util/util_os.c
+
+
+					${Eta_SOURCE_DIR}/Impl/Util/get_cpuid.asm
+				)
+		endif()
 
     else()
 		set(staticVersionSrc	rsslVersionStatic.c)
 		set(sharedVersionSrc	rsslVersionShared.c)
 
-        set(rsslLnx64Asm
-                ${Eta_SOURCE_DIR}/Impl/Util/get_cpuid_lix64.s
-            )
-        add_library(rssl_asm OBJECT ${rsslLnx64Asm})
+		if(BUILD_ETA_CPU_BIND)
+			set(rsslLinuxBindThread
+	                ${Eta_SOURCE_DIR}/Impl/Util/rsslBindThread.c
+					${Eta_SOURCE_DIR}/Impl/Util/Include/rtr/bindthread.h
+					${Eta_SOURCE_DIR}/Include/Util/rtr/rsslBindThread.h
+
+					${Eta_SOURCE_DIR}/Impl/Util/cpu_topo.c
+	                ${Eta_SOURCE_DIR}/Impl/Util/Include/eta/cputopology.h
+					${Eta_SOURCE_DIR}/Impl/Util/util_os.c
+				)
+			set(rsslLnx64Asm
+					${Eta_SOURCE_DIR}/Impl/Util/get_cpuid_lix64.s
+				)
+			add_library(rssl_asm OBJECT ${rsslLnx64Asm})
+		endif()
     endif()
 
 	#
@@ -285,11 +303,21 @@ else()
 	endif()
 
     if (CMAKE_HOST_WIN32)
-        add_library( librssl_tmp STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${rsslWinAsm} )
+		if(BUILD_ETA_CPU_BIND)
+			add_library( librssl_tmp STATIC 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${rsslWinBindThread} )
+		else()
+			add_library( librssl_tmp STATIC 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} )
+		endif()
     else()
-        add_library( librssl_tmp STATIC 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:rssl_asm> )
+		if(BUILD_ETA_CPU_BIND)
+			add_library( librssl_tmp STATIC 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} ${rsslLinuxBindThread} $<TARGET_OBJECTS:rssl_asm> )
+		else()
+			add_library( librssl_tmp STATIC 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${staticVersionSrc} ${rsslJsonConverterFiles} )
+		endif()
     endif()
 
     if (CMAKE_HOST_WIN32)
@@ -302,6 +330,7 @@ else()
 		target_compile_options(librssl_tmp 
 						PRIVATE 
 							${RCDEV_DEBUG_TYPE_FLAGS_STATIC} 
+                            ${RTSDK_EXTRA_FLAGS}
 							"/D REAL_SHA1_INIT")
 
 	else()
@@ -311,6 +340,7 @@ else()
 								)
 		target_compile_options(librssl_tmp 
 						PRIVATE
+                            ${RTSDK_EXTRA_FLAGS}
 							"-DREAL_SHA1_INIT")
 	endif()
 
@@ -333,9 +363,9 @@ else()
 								)
 
     if (CMAKE_HOST_WIN32)
-		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib ZLIB::ZLIB LZ4::LZ4 Iphlpapi.lib )
+		target_link_libraries( librssl_tmp wininet.lib ws2_32.lib crypt32.lib cryptui.lib bcrypt.lib ZLIB::ZLIB LZ4::LZ4 Iphlpapi.lib )
 	else()
-		target_link_libraries( librssl_tmp ZLIB::ZLIB LZ4::LZ4 )
+		target_link_libraries( librssl_tmp rt dl ZLIB::ZLIB LZ4::LZ4 )
 	endif()
 
 
@@ -385,11 +415,21 @@ else()
 	##          -- Build librssl SHARED LIBRARY --
 
     if (CMAKE_HOST_WIN32)
-        add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${rsslWinAsm} )
+		if(BUILD_ETA_CPU_BIND)			
+			add_library( librssl_shared SHARED 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${rsslWinBindThread} )
+		else()
+			add_library( librssl_shared SHARED 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} )
+		endif()
     else()
-        add_library( librssl_shared SHARED 
-                        ${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} $<TARGET_OBJECTS:rssl_asm> )
+		if(BUILD_ETA_CPU_BIND)			
+			add_library( librssl_shared SHARED 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} ${rsslLinuxBindThread} $<TARGET_OBJECTS:rssl_asm> )
+		else()
+			add_library( librssl_shared SHARED 
+							${rsslSrcFiles} ${rsslWinInetSrcFiles} ${rsslWinRCFiles} ${sharedVersionSrc} ${rsslJsonConverterFiles} )
+		endif()
     endif()
 
     target_include_directories(librssl_shared
@@ -415,6 +455,7 @@ else()
                                     ws2_32.lib
 									crypt32.lib
 									cryptui.lib
+									bcrypt.lib
 									Iphlpapi.lib
 									ZLIB::ZLIB 
 									LZ4::LZ4
@@ -424,9 +465,10 @@ else()
                                         "/D RSSL_IMPORTS"
                                     PRIVATE
                                         "/D RSSL_EXPORTS" 
-					"/D REAL_SHA1_INIT"
+					                    "/D REAL_SHA1_INIT"
                                         ${RCDEV_DEBUG_TYPE_FLAGS_NONSTATIC}
                                         ${RCDEV_TYPE_CHECK_FLAG}
+                                        ${RTSDK_EXTRA_FLAGS}
                                         $<$<CONFIG:Release_MD>:${RCDEV_FLAGS_NONSTATIC_RELEASE}>
                                 )
                                                
@@ -452,7 +494,8 @@ else()
 		
 	target_compile_options(librssl_shared 
 					PRIVATE
-						"-DREAL_SHA1_INIT")
+						"-DREAL_SHA1_INIT"
+                        ${RTSDK_EXTRA_FLAGS} )
 
         set_target_properties( librssl_shared 
                                 PROPERTIES 
@@ -464,7 +507,7 @@ else()
                                         ${librssl_SO_VERSION} 
                             )
 
-		target_link_libraries( librssl_shared ZLIB::ZLIB LZ4::LZ4 )
+		target_link_libraries( librssl_shared rt dl ZLIB::ZLIB LZ4::LZ4 )
 
     endif()
 

@@ -17,7 +17,9 @@
 #include "rtr/rsslVAUtils.h"
 
 #include "rtr/rsslQueue.h"
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
+#endif
 #include "rtr/rsslThread.h"
 #include "rtr/rsslReactorUtils.h"
 #include "rtr/tunnelManager.h"
@@ -368,7 +370,7 @@ typedef struct
 	RsslReactorWarmStandbyMode        warmStandbyMode; /*!< Specifies a warm standby mode. */
 	/* End */
 
-	RsslHashTable               _perServiceById; /* This hash table provides mapping between service ID and ReactorChannel. */
+	RsslHashTable               _perServiceById; /* This hash table provides mapping between service ID and current active ReactorChannel. */
 	RsslQueue	                _serviceList; /* Keeps a list of full services which belong to this group. */
 	RsslQueue	                _updateServiceList; /* Keeps a list of update service list which belong to this group.  */
 	RsslHashTable               *pActiveServiceConfig; /* This is used to select an active service from a server. */
@@ -453,6 +455,7 @@ struct _RsslReactorChannelImpl
 	RsslWatchlist *pWatchlist;
 	RsslBool	wlDispatchEventQueued;
 	RsslBool	tunnelDispatchEventQueued;
+	RsslBool		directWrite;	/* Indicates that rsslWrite() will attempt to pass the data directly to the transport, avoiding the queuing. */
 
 	RsslRDMMsg rdmMsg;				/* The typed message that has been decoded */
 	RsslReactorChannelSetupState channelSetupState;
@@ -492,6 +495,7 @@ struct _RsslReactorChannelImpl
 	TunnelManager *pTunnelManager;
 
 	/* Support session management and RDP service discovery. */
+	RsslBool				supportSessionMgnt; /* This indicates this ReactorChannel support session managment in one of its RsslReactorConnectInfo */
 	RsslUInt32				httpStausCode; /* the latest HTTP status code */
 	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from RDP service discovery */
 
@@ -522,7 +526,7 @@ struct _RsslReactorChannelImpl
 	/* For Warm Standby by feature */
 	RsslReactorWarmStandByHandlerImpl *pWarmStandByHandlerImpl; /* Keeps a list of RsslChannel(s) for connected server(s). */
 	RsslQueueLink					  warmstandbyChannelLink; /* Keeps in the RsslQueue of RsslWarmStandByHandlerImpl */
-	RsslBool                          isActiveServer; /* This indicates whether this channel is used to connect with the active server. */
+	RsslBool                          isActiveServer; /* This indicates whether this channel is used to connect with the active server for Login-based warm standby */
 	RsslUInt32						  standByServerListIndex; /* Keeps the index of the standby server list in a RsslReactorWarmStandByGroup. */
 	RsslBool						  isStartingServerConfig; /* This is used to indicate that this channel uses the starting server configuration. */
 	RsslInt64						  lastSubmitOptionsTime; /* Keeps the timestamp when handling the last submit options. */
@@ -554,7 +558,8 @@ typedef enum
 	RSSL_REACTOR_WS_SYSTEM_WRITE_BUFFERS = 0x10,
 	RSSL_REACTOR_WS_PRIORITY_FLUSH_ORDER = 0x20,
 	RSSL_REACTOR_WS_COMPRESSION_THRESHOLD = 0x40,
-	RSSL_REACTOR_WS_TRACE = 0x80
+	RSSL_REACTOR_WS_TRACE = 0x80,
+	RSSL_REACTOR_WS_DIRECT_WRITE = 0x0100
 } RsslReactorWSIoctlCodes;
 
 /* RsslWarmStandByHandlerImpl
@@ -595,6 +600,7 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslUInt32		systemWriteBuffers;
 	RsslUInt32		priorityFlushOrder;
 	RsslUInt32		compressionThresHold;
+	RsslBool		directWrite;
 };
 
 RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
@@ -863,6 +869,9 @@ RTR_C_INLINE void _rsslFreeWarmStandbyHandler(RsslReactorWarmStandByHandlerImpl 
 
 					if (pConsRole->pOAuthCredentialList[j]->clientSecret.data)
 						memset((void*)(pConsRole->pOAuthCredentialList[j]->clientSecret.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->clientSecret.length));
+
+					if (pConsRole->pOAuthCredentialList[j]->clientJWK.data)
+						memset((void*)(pConsRole->pOAuthCredentialList[j]->clientJWK.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->clientJWK.length));
 
 					if (pConsRole->pOAuthCredentialList[j]->password.data)
 						memset((void*)(pConsRole->pOAuthCredentialList[j]->password.data), 0, (size_t)(pConsRole->pOAuthCredentialList[j]->password.length));
@@ -1935,6 +1944,8 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	/* Always resets the flag to clear the tunnel stream event queued indication. */
 	pReactorChannel->tunnelDispatchEventQueued = RSSL_FALSE;
 
+	pReactorChannel->directWrite = RSSL_FALSE;
+
 	pReactorChannel->connectionListCount = 0;
 	pReactorChannel->connectionListIter = 0;
 	pReactorChannel->connectionOptList = NULL;
@@ -1943,6 +1954,7 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->reactorChannel.oldSocketId = (RsslSocket)REACTOR_INVALID_SOCKET;
 
 	/* Reset all buffers for the session management */
+	pReactorChannel->supportSessionMgnt = RSSL_FALSE;
 	pReactorChannel->pRestHandle = NULL;
 
 	/* The channel statistics */
@@ -2095,6 +2107,8 @@ struct _RsslReactorImpl
 
 	RsslInt32 maxEventsInPool; /* To control size of memory */
 
+	RsslBool sendJsonConvError; /* To enable sending JSON conversion error. */
+
 	/* Used on each interface in the reactor to ensure thread-safety and that calling interfaces in callbacks is prevented. */
 	RsslMutex interfaceLock; /* Ensures function calls are thread-safe */
 	RsslBool inReactorFunction; /* Ensures functions are not called inside callbacks */
@@ -2131,7 +2145,7 @@ struct _RsslReactorImpl
 	RsslBool			doNotNotifyWorkerOnCredentialChange;
 	RsslBool			rsslWorkerStarted;
 	RsslUInt32			restRequestTimeout; /* Keeps the request timeout */
-
+	RsslProxyOpts		restProxyOptions;   /* Keeps proxy settings for Rest requests: service discovery and auth. */
 	
 	RsslBool			jsonConverterInitialized; 	/* This is used to indicate whether the RsslJsonConverter is initialized */
 	RsslJsonConverter	*pJsonConverter; 
@@ -2170,14 +2184,15 @@ RTR_C_INLINE RsslBool isReactorDebugEnabled(RsslReactorImpl *pReactorImpl)
 	return (pReactorImpl->debugLevel != RSSL_RC_DEBUG_LEVEL_NONE);
 }
 
-void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslRestRequestArgs* pRestRequestArgs);
+void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs);
 
 /* Populates the request for v1 token handling */
 RsslRestRequestArgs* _reactorCreateTokenRequestV1(RsslReactorImpl *pReactorImpl, RsslBuffer *pTokenServiceURL, RsslBuffer *pUserName, RsslBuffer *password, RsslBuffer *pNewPassword,
 	RsslBuffer *pClientID, RsslBuffer *pClientSecret, RsslBuffer *pTokenScope, RsslBool takeExclusiveSignOnContorl, RsslBuffer *pPostDataBodyBuf, void *pUserSpecPtr, RsslErrorInfo *pError);
 
 /* Populates the request for v2 token handling */
-RsslRestRequestArgs* _reactorCreateTokenRequestV2(RsslReactorImpl* pReactorImpl, RsslBuffer* pTokenServiceURL, RsslBuffer* pClientId, RsslBuffer* pClientSecret, RsslBuffer* pTokenScope, RsslBuffer* pHeaderAndDataBodyBuf, void* pUserSpecPtr, RsslErrorInfo* pError);
+RsslRestRequestArgs* _reactorCreateTokenRequestV2(RsslReactorImpl* pReactorImpl, RsslBuffer* pTokenServiceURL, RsslBuffer* pClientId, RsslBuffer* pClientSecret, RsslBuffer* pJWK, RsslBuffer* pAud,
+	RsslBuffer* pTokenScope, RsslBuffer* pHeaderAndDataBodyBuf, void* pUserSpecPtr, RsslErrorInfo* pError);
 
 
 RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImpl *pReactorImpl, RsslBuffer *pServiceDiscoveryURL, RsslReactorDiscoveryTransportProtocol transport,
@@ -2196,8 +2211,6 @@ RsslBool _reactorHandlesWarmStandby(RsslReactorChannelImpl *pReactorChannelImpl)
 RsslReactorErrorInfoImpl *rsslReactorGetErrorInfoFromPool(RsslReactorWorker *pReactorWoker);
 
 void rsslReactorReturnErrorInfoToPool(RsslReactorErrorInfoImpl *pReactorErrorInfo, RsslReactorWorker *pReactorWoker);
-
-RsslBool _reactorHandlesWarmStandby(RsslReactorChannelImpl *pReactorChannelImpl);
 
 RsslBool _isActiveServiceForWSBChannelByID(RsslReactorWarmStandbyGroupImpl *pWarmStandByGroupImpl, RsslReactorChannelImpl *pReactorChannel, RsslUInt serviceId);
 

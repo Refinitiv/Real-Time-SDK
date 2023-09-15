@@ -2,15 +2,14 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
 
-namespace Refinitiv.Eta.PerfTools.TransportPerf
+namespace LSEG.Eta.PerfTools.TransportPerf
 {
     /// <summary>
     /// Provides the global configuration for TransportThreads.
@@ -65,7 +64,7 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
         /// <summary>
         /// Gets or sets whether ping timeouts should be monitored.
         /// </summary>
-        public static bool CheckPings { get; set; }
+        public static bool CheckPings { get; set; } = true;
 
         /// <summary>
         /// Gets or sets name of the statistics log file.

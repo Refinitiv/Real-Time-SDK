@@ -2,19 +2,19 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.Md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.ValueAdd.Rdm;
-using Refinitiv.Eta.ValueAdd.Reactor;
-using static Refinitiv.Eta.Rdm.Dictionary;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.ValueAdd.Rdm;
+using LSEG.Eta.ValueAdd.Reactor;
+using static LSEG.Eta.Rdm.Dictionary;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.ValueAdd.Provider
+namespace LSEG.Eta.ValueAdd.Provider
 {
     public class DictionaryHandler
     {
@@ -71,13 +71,13 @@ namespace Refinitiv.Eta.ValueAdd.Provider
             Dictionary.Clear();
             if (Dictionary.LoadFieldDictionary(FIELD_DICTIONARY_FILE_NAME, out CodecError fdError) < 0)
             {
-                Console.WriteLine($"Failed to load FieldDictionary: {(fdError != null ? fdError.Text : "")}");
+                Console.WriteLine($"Failed to load FieldDictionary, error: {fdError?.Text}");
                 return false;
             }
 
             if (Dictionary.LoadEnumTypeDictionary(ENUM_TABLE_FILE_NAME, out CodecError edError) < 0)
             {
-                Console.WriteLine($"Failed to load EnumType Dictionary: {(edError != null ? edError.Text : "")}");
+                Console.WriteLine($"Failed to load EnumType Dictionary, error: {edError?.Text}");
                 return false;
             }                
 
@@ -236,7 +236,7 @@ namespace Refinitiv.Eta.ValueAdd.Provider
                     break;
                 case DictionaryRejectReason.DICTIONARY_RDM_DECODER_FAILED:
                     m_DictionaryStatus.State.Code(StateCodes.USAGE_ERROR);
-                    m_DictionaryStatus.State.Text().Data($"Dictionary request rejected for stream id {streamId} - decoding failure: {(errorInfo?.Error != null ? errorInfo?.Error.Text : "")}");
+                    m_DictionaryStatus.State.Text().Data($"Dictionary request rejected for stream id {streamId} - decoding failure, error: {(errorInfo?.Error?.Text != null ? errorInfo?.Error.Text : "")}");
                     break;
                 default:
                     break;

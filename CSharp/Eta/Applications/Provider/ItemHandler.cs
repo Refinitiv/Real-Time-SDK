@@ -2,23 +2,22 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
-using Refinitiv.Eta.Codec;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Refinitiv.Eta.Example.Common;
-using Refinitiv.Eta.Transports;
-using Array = Refinitiv.Eta.Codec.Array;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.Rdm;
+using LSEG.Eta.Codec;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using LSEG.Eta.Example.Common;
+using LSEG.Eta.Transports;
+using Array = LSEG.Eta.Codec.Array;
+using LSEG.Eta.Rdm;
 using System.Collections.Generic;
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Common;
+using LSEG.Eta.Common;
+using LSEG.Eta.ValueAdd.Rdm;
 
-namespace Refinitiv.Eta.Example.Provider
+namespace LSEG.Eta.Example.Provider
 {
     /// <summary>
     /// This is the implementation of handling item requests for the interactive provider application.
@@ -241,7 +240,7 @@ namespace Refinitiv.Eta.Example.Provider
 
                     while ((ret = m_ArrayEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
                     {
-                        if (ret<CodecReturnCode.SUCCESS)
+                        if (ret < CodecReturnCode.SUCCESS)
                         {
                             error = new Error
                             {
@@ -273,8 +272,15 @@ namespace Refinitiv.Eta.Example.Provider
                         msg.MsgKey.Name = m_ArrayEntry.EncodedData;
 
                         ItemRequestInfo? itemReqInfo = GetMatchingItemReqInfo(chnl, msg, itemStream, rejectReasonSet);
-                        ItemRejectReason rejectReason = rejectReasonSet.GetEnumerator().MoveNext() ?
-                            rejectReasonSet.GetEnumerator().Current : ItemRejectReason.NONE;
+                        ItemRejectReason rejectReason = ItemRejectReason.NONE;
+
+                        var enumerator = rejectReasonSet.GetEnumerator();
+
+                        if (enumerator.MoveNext())
+                        {
+                            rejectReason = enumerator.Current;
+                        }
+
                         if (itemReqInfo == null && rejectReason != ItemRejectReason.NONE)
                         {
                             SendItemRequestReject(chnl, itemStream, msg.DomainType, rejectReason, isPrivateStream, out error);
@@ -296,7 +302,15 @@ namespace Refinitiv.Eta.Example.Provider
                         {
                             // Batch requests should not be used to reissue item
                             // requests.
-                            SendItemRequestReject(chnl, itemStream, msg.DomainType, rejectReasonSet.GetEnumerator().Current, isPrivateStream, out error);
+                            rejectReason = ItemRejectReason.NONE;
+                            enumerator = rejectReasonSet.GetEnumerator();
+
+                            if (enumerator.MoveNext())
+                            {
+                                rejectReason = enumerator.Current;
+                            }
+
+                            SendItemRequestReject(chnl, itemStream, msg.DomainType, rejectReason, isPrivateStream, out error);
                             dataState = DataStates.SUSPECT;
                             continue;
                         }
@@ -779,7 +793,8 @@ namespace Refinitiv.Eta.Example.Provider
         {
             foreach (ItemRequestInfo itemRequestInfo in m_ItemRequestWatchList)
             {
-                if (itemRequestInfo.IsInUse && object.ReferenceEquals(itemRequestInfo.Channel,channel))
+                if (itemRequestInfo.IsInUse && (itemRequestInfo.Channel != null &&
+                    itemRequestInfo.Channel.Socket.Handle.Equals(channel.Socket.Handle)))
                 {
                     if (itemRequestInfo.DomainType == msg.DomainType
                             && (itemRequestInfo.MsgKey.Equals(msg.MsgKey)))
@@ -897,9 +912,7 @@ namespace Refinitiv.Eta.Example.Provider
 
             itemRequestInfo.DomainType = msg.DomainType;
             //copy item name buffer
-            ByteBuffer byteBuffer = new ByteBuffer(itemRequestInfo.MsgKey.Name.Length);
-            itemRequestInfo.MsgKey.Name.Copy(byteBuffer);
-            itemRequestInfo.ItemName.Data(byteBuffer);
+            BufferHelper.CopyBuffer(itemRequestInfo.MsgKey.Name, itemRequestInfo.ItemName);
             int msgFlags = msg.Flags;
             if ((msgFlags & RequestMsgFlags.PRIVATE_STREAM) != 0)
             {
@@ -1034,7 +1047,7 @@ namespace Refinitiv.Eta.Example.Provider
             ITransportBuffer msgBuf = chnl.GetBuffer(SymbolListItems.MAX_SYMBOL_LIST_SIZE, false, out Error? error);
             if (msgBuf is null)
             {
-                Console.Write($"IChanel.GetBuffer(): Failed {error.Text}");
+                Console.Write($"IChanel.GetBuffer() failed, error: {error?.Text}");
                 return;
             }
 
@@ -1046,7 +1059,7 @@ namespace Refinitiv.Eta.Example.Provider
             }
 
             if (m_ProviderSession.Write(chnl, msgBuf, out error) == TransportReturnCode.FAILURE)
-                Console.WriteLine($"Error writing message: {error!.Text}");
+                Console.WriteLine($"Failed writing message, error: {error?.Text}");
         }
 
         public CodecReturnCode SendItemUpdates(IChannel channel, out Error? error)
@@ -1230,8 +1243,7 @@ namespace Refinitiv.Eta.Example.Provider
             destKey.NameType = sourceKey.NameType;
             if (sourceKey.CheckHasName() && sourceKey.Name != null)
             {
-                destKey.Name.Data(new ByteBuffer(sourceKey.Name.Length));
-                sourceKey.Name.Copy(destKey.Name);
+                BufferHelper.CopyBuffer(sourceKey.Name, destKey.Name);
             }
             destKey.ServiceId = sourceKey.ServiceId;
             destKey.Filter = sourceKey.Filter;
@@ -1347,7 +1359,7 @@ namespace Refinitiv.Eta.Example.Provider
                         m_NestedMsg.PostUserInfo.UserId = postMsg.PostUserInfo.UserId;
                         if (UpdateItemInfoFromPost(itemInfo, m_NestedMsg, dIter, out error) != CodecReturnCode.SUCCESS)
                         {
-                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error!.Text, out error);
+                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error != null ? error!.Text : "", out error);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -1365,7 +1377,7 @@ namespace Refinitiv.Eta.Example.Provider
                         m_NestedMsg.PostUserInfo.UserId = postMsg.PostUserInfo.UserId;
                         if (UpdateItemInfoFromPost(itemInfo, m_NestedMsg, dIter, out error) != CodecReturnCode.SUCCESS)
                         {
-                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error!.Text, out error);
+                            ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error != null ? error!.Text : "", out error);
                             if (ret != CodecReturnCode.SUCCESS)
                             {
                                 return ret;
@@ -1418,7 +1430,7 @@ namespace Refinitiv.Eta.Example.Provider
 
                 if (UpdateItemInfoFromPost(itemInfo, msg, dIter, out error) != CodecReturnCode.SUCCESS)
                 {
-                    ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error!.Text, out error);
+                    ret = SendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, error != null ? error.Text : "", out error);
                     if (ret != CodecReturnCode.SUCCESS)
                     {
                         return ret;

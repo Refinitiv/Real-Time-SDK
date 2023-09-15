@@ -131,7 +131,7 @@ Series100Consumer112-PConfig-001
 Series100Consumer113-ConsFunc-001
    Alters consumer added addition arguments -tokenServiceUrl and -serviceDiscoveryUrl to set config.tokenServiceUrl or config.serviceDiscoveryUrl. 
    
-Series100Consumer113-ConsFunc-001
+Series100Consumer113-ConsFunc-002
 	Alters consumer to request about 240K rics from Asian region to reproduce customer issue RTSDK-5292.
 	Cons113.exe -username <> -password <> -clientId <> -fileName preload_ubs1
 
@@ -342,6 +342,11 @@ Series400Consumer410-Encryption-001
 Module:  Series400Consumer421 
 ---------------------------
 
+Series400Consumer421-DirectWrite-001
+    Alters consumer such that Channel_1 added configuration for DirectWrite
+	.addUInt( "DirectWrite", 1 ).
+    Note: to display the writeFlags parameter in rsslWrite/rsslWriteEx use eta-rsslWrite-001
+
 Series400Consumer421-PConfig-001
     Alters consumer such that Channel_1 added configuration for CompressionThreshold and alter value for InterfaceName 
     to consumerInterface, 
@@ -359,6 +364,20 @@ Series400Consumer421-PConfig-003
     to consumerInterface, also replace Enum ( "DictionaryType", 0 ) 
     instead of ( "DictionaryType", 1 ). 
     In functional configuration for consumerName as Consumer_3 and  host("localhost:14002")
+
+Series400Consumer421-PTimeout-001
+    Alters consumer such that Channel_1 added configuration settings for proxy connections.
+    Under Windows:
+	.addAscii("ProxyHost", "webproxy.pln.colo.services")
+	.addAscii("ProxyPort", "80")
+	.addUInt("ProxyConnectionTimeout", 7)
+    Under Linux:
+	.addAscii("ProxyHost", "google.com")
+	.addAscii("ProxyPort", "102")
+	.addUInt("ProxyConnectionTimeout", 7)
+    Also added configuration option for Reactor initialization timeout:
+	.addUInt("InitializationTimeout", 10)
+    Note: to display the curl_easy_setopt's parameters in runBlockingLibcurlProxyConnection use eta-PTimeout-001
 
 
 Module:  Series400Consumer430
@@ -433,6 +452,15 @@ Series400Consumer450-RestLogCallback-001
    -restLogFilename: File name for printing the REST logging messages.
    ./Cons450 -username <> -password <> -clientId <> -restLogCallback -restLogFilename "filename.log"
 
+Module:  Series400Consumer490
+-----------------------------
+    Alters consumer to test a dictionary loading from object
+    Added command line options:
+    -loadLocalDictTwoConsSeq: load local dictionary to object then use this object to run 2 consumers sequntially
+    -loadChannelDictTwoConsSeq: load channel dictionary to object then use this object to run 2 consumers sequntially
+    -loadLocalDictTwoConsConcur: load local dictionary to object then use this object to run 2 consumers concurrently
+    -loadChannelDictTwoConsConcur: load channel dictionary to object then use this object to run 2 consumers concurrently
+    -shouldCopyIntoAPI: enable deep copy dictionary object into API
 
 Module:  Series100Provider100 
 -------------------------------
@@ -573,6 +601,11 @@ delete service after sending 9 updates.
 Module:  Series400Provider421
 ---------------------------
 
+Series400Provider421-DirectWrite-001
+    Alters Provider such that Server_1 added configuration for DirectWrite
+	.addUInt( "DirectWrite", 1 ).
+    Note: to display the writeFlags parameter in rsslWrite/rsslWriteEx use eta-rsslWrite-001
+
 Series400Provider421-PConfig-001: 
     Alters Provider for following changes
         -Added programmatic config for number of Provider configuration in Provider_1 
@@ -707,3 +740,22 @@ emalibs-Cons-001
     Alters ema library, specifically ItemCallbackClient.cpp, to change 
     CONSUMER_STARTING_STREAM_ID from 4 to 2147483636.  
 
+
+Module:  Emacppconsperf-Rto
+----------------------------------
+emacppconsperf-Rto-001
+    Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
+    Alters ConsPerfConfig.cpp, ConsPerfConfig.h, ConsumerThread.cpp, EmaCppConsPerf.cpp to connect to RTO, requires CLI credentials.
+    Run EmaCppConsPerf. Sample Cmd:
+
+    # encrypted
+    EMACppPerfCons -serviceName ELEKTRON_DD \
+           -uname <username> -password <password> -clientId <clientId> \
+           -tickRate 1000 -steadyStateTime 300 \
+           -itemFile 350k.xml -consumerName Perf_Consumer_1
+
+    # encrypted websocket json rssl.json.v2
+    EMACppPerfCons -serviceName ELEKTRON_DD \
+           -uname <username> -password <password> -clientId <clientId> \
+           -tickRate 1000 -steadyStateTime 300 \
+           -itemFile 350k.xml -consumerName Perf_Consumer_WSJSON_1

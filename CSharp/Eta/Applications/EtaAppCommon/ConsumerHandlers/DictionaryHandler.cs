@@ -2,19 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.            --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     /// <summary>
     /// This is the dictionary handler for the ETA consumer application. It provides 
@@ -253,7 +252,7 @@ namespace Refinitiv.Eta.Example.Common
             {
                 error = new Error()
                 {
-                    Text = "Error decoding dictionary refresh: " + ret + ".",
+                    Text = $"Error decoding dictionary refresh, return code: {ret.GetAsString()}",
                     ErrorId = TransportReturnCode.FAILURE
                 };
                 return TransportReturnCode.FAILURE;
@@ -293,7 +292,7 @@ namespace Refinitiv.Eta.Example.Common
                 {
                     error = new Error()
                     {
-                        Text = "Failed to decode FieldDictionary"
+                        Text = $"Failed to decode FieldDictionary, return code: {ret.GetAsString()}, error: {codecError?.Text}"
                     };
                     return TransportReturnCode.FAILURE;
                 }
@@ -318,7 +317,7 @@ namespace Refinitiv.Eta.Example.Common
                 {
                     error = new Error()
                     {
-                        Text = "Failed to decode EnumType Dictionary"
+                        Text = $"Failed to decode EnumType Dictionary, return code: {ret.GetAsString()}, error: {codecError?.Text}"
                     };
                     return TransportReturnCode.FAILURE;
                 }
@@ -372,7 +371,7 @@ namespace Refinitiv.Eta.Example.Common
             {
                 error = new Error()
                 {
-                    Text = "Encode DictionaryClose failed :  code " + ret + ".",
+                    Text = $"Encode DictionaryClose failed, return code {ret.GetAsString()}",
                     ErrorId = TransportReturnCode.FAILURE
                 };
                 return TransportReturnCode.FAILURE;

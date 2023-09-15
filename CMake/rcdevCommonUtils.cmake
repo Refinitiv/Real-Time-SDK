@@ -409,6 +409,8 @@ macro(rcdev_wrap_prebuilt_library TARGET_NAME )
                 (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "REDHATLINUX")) AND 
                  (RCDEV_HOST_SYSTEM_FLAVOR_REL EQUAL 8 ) )
              rcdev_get_platform_suffix(_plat_suffix2 "gcc" "rhel")
+		elseif (RCDEV_HOST_SYSTEM_FLAVOR_U MATCHES "UBUNTU")
+			rcdev_get_platform_suffix(_plat_suffix2 "ubuntu", "compiler_rhel8")
         else()
             rcdev_get_platform_suffix(_plat_suffix2 "gcc" )
         endif()

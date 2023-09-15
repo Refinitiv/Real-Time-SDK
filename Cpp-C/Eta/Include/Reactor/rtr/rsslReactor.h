@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 */
 
 #ifndef _RTR_RSSL_REACTOR_H
@@ -172,15 +172,22 @@ typedef struct
  */
 typedef struct
 {
-	RsslBuffer									userName;						/*!< The user name required to authorize with the RDP token service. Optional */
-	RsslBuffer									password;						/*!< The password for user name used to get access token. Mandatory only if userName is present */
-	RsslBuffer									clientId;						/*!< A unique ID defined for an application marking the request. Optional, used as Application Id for V1 logins, the clientId for V2 logins. */
-	RsslBuffer									clientSecret;					/*!< A secret used by OAuth client to authenticate to the Authorization Server. Mandatory for V2 logins with a client secret login. */
-	RsslBuffer									tokenScope;						/*!< A user can optionally limit the scope of generated token. Optional*/
+	RsslBuffer									userName;						/*!< The user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins */
+	RsslBuffer									password;						/*!< The password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins */
+	RsslBuffer									clientId;						/*!< The clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 
+																				 *   oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins. */
+	RsslBuffer									clientSecret;					/*!< The clientSecret, also known as the Service Account password, used to authenticate with RDP token service. 
+																				 *   Mandatory for V2 Client Credentials Logins and used in conjunction with clientID. */
+	RsslBuffer									tokenScope;						/*!< The scope of the generated token. Optional*/
 	RsslReactorOAuthCredentialEventCallback		*pOAuthCredentialEventCallback; /*!< Callback function that receives RsslReactorOAuthCredentialEvent to specify sensitive information. Optional
-																				 *   The Reactor will not copy password and client secret if the function pointer is specified.*/
-	RsslBool									takeExclusiveSignOnControl;		/*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional and only used for V1 logins */
+																				 *   The Reactor will not deep copy the password, client secret, or client JWK if the function pointer is specified.*/
+	RsslBool									takeExclusiveSignOnControl;		/*!< The exclusive sign on control value. If set to RSSL_TRUE, other applications using the same credentials will be force signed-out. Optional and only 
+																				 *   used for V1 oAuth Password Credentials logins */
 	void*										userSpecPtr;					/*!< user specified pointer that will be referenced in any instances of pOAuthCredentialEventCallback */
+	RsslBuffer									clientJWK;						/*!< Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with RDP token service. 
+																				 *   Mandatory for V2 Client Credentials with JWT Logins. */
+	RsslBuffer									audience;						/*!< Specifies the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT Logins. 
+																				 *   The default value is: https://login.ciam.refinitiv.com/as/token.oauth2 */
 } RsslReactorOAuthCredential;
 
 
@@ -392,6 +399,7 @@ typedef struct {
 												 * discovery and subscribing data from RDP. */
 	RsslBuffer	tokenServiceURL_V2;				/*!< Specifies a URL of the token service to get an access token from the Refinitiv Login V2. This is used for querying RDP service
 												 * discovery and subscribing data from RDP. */
+	RsslProxyOpts	restProxyOptions;			/*!< Specifies proxy settings for Rest requests: service discovery and auth token service. This proxy is used when both proxyHostName and proxyPort are specified to override the proxy settings in the RsslReactorConnectOptions (RsslConnectOptions.proxyOpts) and RsslReactorServiceDiscoveryOptions (proxyHostName, proxyPort, proxyUserName, proxyPasswd, proxyDomain).> */
 	RsslUInt32   debugLevel;						/*!< Configure level of debugging info> */
 	RsslUInt32	 debugBufferSize;				/*!< Configure size of debug buffer> */
 } RsslCreateReactorOptions;
@@ -468,28 +476,34 @@ typedef enum
  */
 typedef struct
 {
-	RsslBuffer								userName;		/*!< The user name required to authorize with the RDP token service. Optional */
-	RsslBuffer								password;		/*!< The password for user name used to get access token. Mandatory only if userName is present */
-	RsslBuffer								clientId;		/*!< A unique ID defined for an application marking the request. Optional, used as Application Id for V1 logins, the clientId for V2 logins. */
-	RsslBuffer								clientSecret;	/*!< A secret used by OAuth client to authenticate to the Authorization Server. Mandatory for V2 logins with a client secret login. */
-	RsslBuffer								tokenScope;		/* !< A user can optionally limit the scope of generated token. Optional */
-	RsslBool								takeExclusiveSignOnControl; /*!< The exclusive sign on control to force sign-out of other applications using the same credentials. Optional */
-	RsslReactorDiscoveryTransportProtocol   transport;  /*!< This is an optional parameter to specify the desired transport protocol to get
-														 * service endpoints from the service discovery. */
-	RsslReactorDiscoveryDataFormatProtocol  dataFormat; /*!< This is an optional parameter to specify the desired data format protocol to get
-														 * service endpoints from the service discovery. */
+	RsslBuffer								userName;						/*!< The user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins.  */
+	RsslBuffer								password;						/*!< The password for user name used to get access token. Mandatory for V1 oAuth Password Credentials logins   */
+	RsslBuffer								clientId				;		/*!< The clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 
+																			 *   oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins. */
+	RsslBuffer								clientSecret;					/*!< The clientSecret, also known as the Service Account password, used to authenticate with RDP token service. 
+																			 *   Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.*/
+	RsslBuffer								tokenScope;						/*!< The scope of the generated token. Optional*/
+	RsslBool								takeExclusiveSignOnControl;		/*!< The take exclusive sign on control value. If set to RSSL_TRUE, other applications using the same credentials will be force signed-out. Optional and only 
+																			 *   used for V1 oAuth Password Credentials logins */
+	RsslReactorDiscoveryTransportProtocol   transport;						/*!< This is an optional parameter to specify the desired transport protocol to get
+																			 *   service endpoints from the service discovery. */
+	RsslReactorDiscoveryDataFormatProtocol  dataFormat;						/*!< This is an optional parameter to specify the desired data format protocol to get
+																			 *   service endpoints from the service discovery. */
 	RsslReactorServiceEndpointEventCallback *pServiceEndpointEventCallback; /*!< Callback function that receives RsslReactorServiceEndpointEvents. Applications can use service
-																			 * endpoint information from the callback to get an endpoint and establish a connection to the service */
+																			 *   endpoint information from the callback to get an endpoint and establish a connection to the service */
 
-	void                                    *userSpecPtr;  /*!< user-specified pointer which will be set on the RsslReactorServiceEndpointEvent. */
+	void                                    *userSpecPtr;					/*!< user-specified pointer which will be set on the RsslReactorServiceEndpointEvent. */
 
-	RsslBuffer                              proxyHostName; /*!< specifies a proxy server hostname. */
-	RsslBuffer                              proxyPort;     /*!< specifies a proxy server port. */
-	RsslBuffer                              proxyUserName; /*!< specifies a username to perform authorization with a proxy server. */
-	RsslBuffer                              proxyPasswd;   /*!< specifies a password to perform authorization with a proxy server. */
-	RsslBuffer                              proxyDomain;   /*!< specifies a proxy domain of the user to authenticate.
-															Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols. */
-
+	RsslBuffer                              proxyHostName;					/*!< specifies a proxy server hostname. */
+	RsslBuffer                              proxyPort;						/*!< specifies a proxy server port. */
+	RsslBuffer                              proxyUserName;					/*!< specifies a username to perform authorization with a proxy server. */
+	RsslBuffer                              proxyPasswd;					/*!< specifies a password to perform authorization with a proxy server. */
+	RsslBuffer                              proxyDomain;					/*!< specifies a proxy domain of the user to authenticate.
+																			 *   Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols. */
+	RsslBuffer								clientJWK;						/*!< Specifies the JWK formatted private key used to create the JWT. The JWT is used to authenticate with RDP token service. 
+																			 *   Mandatory for V2 Client Credentials with JWT Logins. */
+	RsslBuffer								audience;						/*!< Specifies the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT Logins. 
+																			 *   The default value is: https://login.ciam.refinitiv.com/as/token.oauth2 */
 } RsslReactorServiceDiscoveryOptions;
 
 /**
@@ -790,7 +804,7 @@ RSSL_VA_API RsslRet rsslReactorDispatch(RsslReactor *pReactor, RsslReactorDispat
 typedef struct
 {
 	RsslWritePriorities	priority;						/*!< Priority of message. Affects the order of messages sent. Populated by RsslWritePriorities. */
-	RsslUInt8			writeFlags;						/*!< Options for how the message is written.  Populated by RsslWritePriorities. */
+	RsslUInt8			writeFlags;						/*!< Options for how the message is written.  Populated by RsslWriteFlags. */
 	RsslUInt32			*pBytesWritten;					/*!< Returns total number of bytes written. Optional. */
 	RsslUInt32			*pUncompressedBytesWritten;		/*!< Returns total number of bytes written, before any compression. Optional. */
 } RsslReactorSubmitOptions;
@@ -1002,8 +1016,8 @@ RSSL_VA_API RsslRet rsslReactorRejectTunnelStream(RsslTunnelStreamRequestEvent *
 typedef enum
 {
 	RSSL_ROC_RT_INIT = 0x00,
-	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD = 1,			/*!< Indicates that there is either a password(V1) or clientSecret(V2) in this renewal call.  
-														 *	 Use this for all V2 credential types, even if there is a change in clientSecret. */
+	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD = 1,			/*!< Indicates that there is either a password(V1),  clientSecret(V2) or clientJWK(V2 with JWK) in this renewal call.  
+														 *	 Use this for all V2 credential types, even if there is a change in clientSecret or clientJWK. */
 	RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD_CHANGE = 2	/*!< OAuth credential V1 only: Indicates that the password has changed. 
 														 *   The associated RsslReactorOAuthCredentialRenewalOptions.newPassword and RsslReactorOAuthCredentialRenewalOptions.password need to 
 														 *	 be populated. */
@@ -1058,8 +1072,8 @@ typedef struct
 } RsslReactorLoginCredentialRenewalOptions;
 
 /**
- * @brief Clears an RsslReactorOAuthCredentialRenewalOptions object.
- * @see RsslReactorOAuthCredentialRenewalOptions
+ * @brief Clears an RsslReactorLoginCredentialRenewalOptions object.
+ * @see RsslReactorLoginCredentialRenewalOptions
  */
 RTR_C_INLINE void rsslClearReactorLoginCredentialRenewalOptions(RsslReactorLoginCredentialRenewalOptions* pOpts)
 {
@@ -1070,7 +1084,7 @@ RTR_C_INLINE void rsslClearReactorLoginCredentialRenewalOptions(RsslReactorLogin
  * @brief Submit Login Msg renewal with updated credentials. This function can only be called during a RsslReactorLoginMsgRenewalEventCallback function. Any further updates to the login message should be done through rsslSubmitMsg.
  * @param pReactor The reactor handling the login renewal.
  * @param pReactorChannel the channel that will have it's login updated.
- * @param pNewLoginMsg new Login request message.
+ * @param pOptions new Login request options.
  * @param pError Error structure to be populated in the event of failure.
  * @return failure codes, if specified invalid arguments or the RsslReactor was shut down due to a failure.
  * @see RsslReactor
@@ -1126,6 +1140,8 @@ typedef struct {
 	RsslBool								catchUnknownJsonFids;			/*!< When converting from JSON to RWF, catch unknown JSON field IDs. */
 	RsslBool								closeChannelFromFailure;		/*!< Closes the channel when the Reactor failed to parse JSON message or received JSON error message. */
 	RsslUInt32								outputBufferSize;				/*!< Size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough */
+	RsslUInt32								jsonTokenIncrementSize;				/*!< Number of json token increment size for parsing JSON messages. */
+	RsslBool								sendJsonConvError;				/*!< Enable sending json conversion error>*/
 } RsslReactorJsonConverterOptions;
 
 /**
@@ -1139,6 +1155,7 @@ RTR_C_INLINE void rsslClearReactorJsonConverterOptions(RsslReactorJsonConverterO
 	pReactorJsonConverterOptions->catchUnknownJsonFids = RSSL_TRUE;
 	pReactorJsonConverterOptions->closeChannelFromFailure = RSSL_TRUE;
 	pReactorJsonConverterOptions->outputBufferSize = 65535;
+	pReactorJsonConverterOptions->jsonTokenIncrementSize = 500;
 }
 
 /**

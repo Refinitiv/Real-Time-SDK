@@ -2,17 +2,18 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Transports.Interfaces;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
     public class ItemInfoList : IEnumerable<ItemInfo>
     {
@@ -70,10 +71,7 @@ namespace Refinitiv.Eta.Example.Common
                     if (tmpItemInfo.InterestCount == 0)
                     {
                         // copy item name buffer
-                        ByteBuffer byteBuffer = new ByteBuffer(itemName.Length);
-                        itemName.Copy(byteBuffer);
-                        byteBuffer.Flip();
-                        tmpItemInfo.ItemName.Data(byteBuffer);
+                        BufferHelper.CopyBuffer(itemName, tmpItemInfo.ItemName);
                         tmpItemInfo.DomainType = domainType;
                         tmpItemInfo.IsPrivateStream = isPrivateStream;
                         itemInfo = tmpItemInfo;

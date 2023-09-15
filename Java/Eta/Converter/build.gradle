@@ -1,7 +1,8 @@
 apply plugin: 'net.saliman.cobertura'
 apply plugin: 'net.saliman.cobertura'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'java-library'
 
 def jenkinsBuild = System.getenv("BUILD_NUMBER") ?: "0"
 
@@ -9,71 +10,8 @@ group = "com.refinitiv.eta.json.converter"
 archivesBaseName = "etajConverter"
 version "$SpecificationVersion"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
-
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: findProperty('ossrhUsername'), password: findProperty('ossrhPassword'))
-            }
-
-            pom.project {
-                name "$archivesBaseName"
-                packaging 'jar'
-                url 'https://github.com/Refinitiv/Real-Time-SDK'
-                description 'Elektron Transport API (ETA) Java Edition Converter Classes'
-
-                scm {
-                    connection 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
-                    developerConnection 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
-                    url 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
-                }
-
-                developers {
-                    developer {
-                        organization 'Refinitiv'
-                    }
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-            }
-        }
-    }
-}
-
-signing {
-    sign configurations.archives
-}
-
-cobertura {
-    coverageFormats = ['html', 'xml']
-}
-
-eclipse {
-    project {
-        name = 'RTSDK-Eta-Converter-Src'
-    }
-}
-
-dependencies {
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.4'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
-
-    compile project(':Eta:Core')
-    compile project(':Eta:AnsiPage')
-
-    // needed for cobertura
-    testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
+java {
+    withSourcesJar()
 }
 
 ext.sharedManifest = manifest {
@@ -84,23 +22,6 @@ ext.sharedManifest = manifest {
             'Implementation-Title': group,
             'Implementation-Version': etaImplementationVersion,
             'Implementation-Vendor': vendor )
-}
-
-jar {
-    doFirst { println 'Creating ETA jar file' }
-
-    manifest {
-        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition Converter classes'
-        from sharedManifest
-    }
-
-    from ('impl')
-            {
-                include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
-            }
-
-    destinationDir = file("../Libs/")
-    baseName = 'etajConverter'
 }
 
 javadoc {
@@ -121,16 +42,11 @@ javadoc {
     options.setWindowTitle ('ETA Converter')
 }
 
-task cleanJar (type: Delete) {
-    delete "${jar.archivePath}"
-}
-
-clean.dependsOn cleanJar
-
-task javadocJar (type: Jar) {
-    classifier = 'javadoc'
+task javadocJar (type: Jar, dependsOn: this.javadoc) {
+    archiveClassifier.convention('javadoc');
+    archiveClassifier.set('javadoc');
     from javadoc.destinationDir
-    destinationDir = jar.destinationDir
+    destinationDirectory.set(jar.destinationDirectory)
 
     manifest {
         attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition Converter Classes'
@@ -138,19 +54,115 @@ task javadocJar (type: Jar) {
     }
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+publishing {
+    publications{
+        mavenJava(MavenPublication){
+
+            groupId = group
+            artifactId = archivesBaseName
+            version = "$SpecificationVersion"
+            from components.java
+            artifact javadocJar
+
+            pom {
+                name = "$archivesBaseName"
+                packaging = 'jar'
+                url = 'https://github.com/Refinitiv/Real-Time-SDK'
+                description = 'Elektron Transport API (ETA) Java Edition Converter Classes'
+
+                scm {
+                    connection = 'scm:git:git://github.com/Refinitiv/Real-Time-SDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:Refinitiv/Real-Time-SDK.git'
+                    url = 'http://github.com/Refinitiv/Real-Time-SDK/tree/master'
+                }
+
+                developers {
+                    developer {
+                        organization = 'Refinitiv'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username = findProperty('ossrhUsername')
+                password = findProperty('ossrhPassword')
+            }
+            name = "repository"
+            def releaseRepository = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotRepository = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository
+        }
+    }
 }
 
-artifacts {
-    archives javadocJar, sourcesJar
+signing {
+    setRequired {
+        // signing is only required if the artifacts are to be published
+        gradle.taskGraph.allTasks.any { it.equals( PublishToMavenRepository) }
+    }
+    sign configurations.archives
+    sign publishing.publications.mavenJava
 }
+
+cobertura {
+    coverageFormats = ['html', 'xml']
+}
+
+eclipse {
+    project {
+        name = 'RTSDK-Eta-Converter-Src'
+    }
+}
+
+dependencies {
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.15.2'
+    api group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
+
+    api project(':Eta:Core')
+    api project(':Eta:AnsiPage')
+
+    // needed for cobertura
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
+}
+
+jar {
+    doFirst { println 'Creating ETA jar file' }
+
+    manifest {
+        attributes 'Specification-Title': 'Elektron Transport API (ETA) Java Edition Converter classes'
+        from sharedManifest
+    }
+
+    from ('impl')
+            {
+                include 'com/thomsonreuters/proxy/authentication/kerberos/login.conf'
+            }
+
+    destinationDirectory.set(file("../Libs/"))
+    archiveBaseName.convention('etajConverter');
+    archiveBaseName.set('etajConverter');
+}
+
+task cleanJar (type: Delete) {
+    delete "${jar.archiveFile}"
+}
+
+clean.dependsOn cleanJar
 
 test {
+    forkEvery = 1
     // set to true to see the junit stdoutput
     testLogging.showStandardStreams = false
-    maxParallelForks = Runtime.runtime.availableProcessors()
+    maxParallelForks = 1
 }
-
-

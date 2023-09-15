@@ -92,7 +92,7 @@ PostMsg::PostMsg(const PostMsg& other)
 
 PostMsg::~PostMsg()
 {
-	if ( _pEncoder )
+	if ( _pEncoder && !GlobalPool::isFinalState() )
 		g_pool._postMsgEncoderPool.returnItem( static_cast<PostMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
@@ -100,7 +100,8 @@ PostMsg::~PostMsg()
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		g_pool._postMsgDecoderPool.returnItem( static_cast<PostMsgDecoder*>( _pDecoder ) );
+		if ( !GlobalPool::isFinalState() )
+			g_pool._postMsgDecoderPool.returnItem( static_cast<PostMsgDecoder*>( _pDecoder ) );
 	}
 }
 

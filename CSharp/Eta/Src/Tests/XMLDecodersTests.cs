@@ -1,13 +1,13 @@
-﻿using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Rdm;
+﻿using LSEG.Eta.Codec;
+using LSEG.Eta.Common;
+using LSEG.Eta.Rdm;
 using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Categories;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
+using Buffer = LSEG.Eta.Codec.Buffer;
 
-namespace Refinitiv.Eta.Tests
+namespace LSEG.Eta.Tests
 {
 
     [Category("XMLDecoders")]

@@ -22,8 +22,10 @@
 #include <ctype.h>
 #include "rtr/rsslThread.h"
 #include "rtr/rsslGetTime.h"
+#ifndef NO_ETA_CPU_BIND
 #include "rtr/rsslBindThread.h"
 #include "rtr/bindthread.h"
+#endif
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -183,7 +185,8 @@ typedef struct
 	RsslBuffer memoryBuffer;
 	RsslInt64 lastRecordedTimeMs;
 	RsslInt32 channelCount;			
-	RsslInt32 maxEventsInPool; 
+	RsslInt32 maxEventsInPool;
+	RsslBool sendJsonConvError;
 	RsslMutex interfaceLock; 
 	RsslBool inReactorFunction;
 	MyReactorEventQueueGroup activeEventQueueGroup;
@@ -933,14 +936,14 @@ TEST_F(ReactorSessionMgntTest, InvalidAuthTokenServiceURL)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: _rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Error: _rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 }
 
 TEST_F(ReactorSessionMgntTest, EmptyServiceDiscoveryURL)
@@ -979,14 +982,14 @@ TEST_F(ReactorSessionMgntTest, InvalidServiceDiscoveryURL)
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "_rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 
 	_reactorOmmConsumerRole.watchlistOptions.enableWatchlist = RSSL_FALSE;
 
 	ASSERT_TRUE(rsslReactorConnect(pConsMon->pReactor, &_reactorConnectionOpts, (RsslReactorChannelRole*)&_reactorOmmConsumerRole, &rsslErrorInfo) == RSSL_RET_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(rsslErrorInfo.rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "Failed to perform the request") != NULL);
+	ASSERT_TRUE(strstr(rsslErrorInfo.rsslError.text, "_rsslRestClientBlockingRequest() Curl failed to perform the request") != NULL);
 }
 
 TEST_F(ReactorSessionMgntTest, InvalidConnectionType)
@@ -4939,7 +4942,7 @@ void reactorUnitTests_ManyConnections(RsslConnectionTypes connectionType)
 		numConnections = rlimit.rlim_cur / 2 - 50;
 	}
 
-	printf("  File descriptor limit is %d. Test will open %d reactor connections between consumer & provider.\n", rlimit.rlim_cur, numConnections);
+	printf("  File descriptor limit is %lu. Test will open %d reactor connections between consumer & provider.\n", rlimit.rlim_cur, numConnections);
 #else
 	numConnections > MAX_REACTOR_CONS ? MAX_REACTOR_CONS : numConnections;
 	printf("  FD_SETSIZE is %d. Test will open %d reactor connections between consumer & provider.\n", FD_SETSIZE, numConnections);
@@ -5074,6 +5077,10 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 	mOpts.maxEventsInPool = 1;
 	initReactors(&mOpts, RSSL_FALSE);
 
+	MyReactorImpl* pMyConsReactorImpl = (MyReactorImpl*)pConsMon->pReactor;
+	MyRsslReactorWorker* myConsReacotrWorker = &(pMyConsReactorImpl->reactorWorker);
+	RsslQueue* evtPoolCons = &(myConsReacotrWorker->workerQueue.eventPool);
+
 	/* Create notifiers. */
 	pProvMon->pNotifier = rsslCreateNotifier(1024);
 	ASSERT_TRUE(pProvMon->pNotifier != NULL);
@@ -5090,9 +5097,7 @@ void reactorUnitTests_EventPoolSize(RsslConnectionTypes connectionType)
 	ASSERT_TRUE(rsslNotifierAddEvent(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent, pProvMon->pReactor->eventFd, pProvMon) == 0);
 	ASSERT_TRUE(rsslNotifierRegisterRead(pProvMon->pNotifier, pProvMon->pReactorNotifierEvent) == 0);
 
-	MyReactorImpl *pMyConsReactorImpl = (MyReactorImpl*)pConsMon->pReactor;
-	MyRsslReactorWorker *myConsReacotrWorker = &(pMyConsReactorImpl->reactorWorker);
-	RsslQueue *evtPoolCons = &(myConsReacotrWorker->workerQueue.eventPool);
+
 
 	/*Check pool size before connection*/
 	ASSERT_TRUE((RsslInt32)evtPoolCons->count > mOpts.maxEventsInPool);
@@ -5333,6 +5338,7 @@ void reactorUnitTests_InvalidNetworkInterface(RsslConnectionTypes connectionType
 const unsigned MAXLEN = 32;
 const unsigned MAXERRLEN = 256;
 
+#ifndef NO_ETA_CPU_BIND
 class ReactorThreadBindProcessorCoreTest : public ::testing::Test {
 protected:
 
@@ -5361,24 +5367,49 @@ protected:
 #ifndef WIN32   // Linux
 	RsslBool checkProcessorIdByPS(RsslUInt32 proccessorForReactorWorker)
 	{
-		const char* cmd = "ps -e -T -o psr,comm | grep VATes-RWT";
-		char psBuf[512] = { '\0' };
-		FILE* psFile = popen(cmd, "r");
+		const char* cmd = "ps -e -T -o psr,comm | grep \"RWT.\"";
+		char psBuf[1024] = { '\0' };
+		size_t lenBuf = sizeof(psBuf);
 
+		size_t n = 0, nStr = 0;
+		unsigned k = 0;
+		char* psRes[100];
+
+		FILE* psFile = popen(cmd, "r");
 		if (psFile != NULL)
 		{
-			char* ps = fgets(psBuf, 512, psFile);
+			while (n < lenBuf && k < 100 && !feof(psFile) && !ferror(psFile))
+			{
+				if (fgets(psBuf + n, (lenBuf - n), psFile) != NULL)
+				{
+					nStr = strlen(psBuf + n);
+					psRes[k] = (psBuf + n);
+
+					//printf("checkProcessorIdByPS: %u str = [%s] %u\n", k, (psBuf+n), nStr);
+					n += (nStr + 1);
+					++k;
+				}
+			}
+
+			//printf("checkProcessorIdByPS: n=%u:  k=%u feof=%d ferror=%d\n", n, k, feof(psFile), ferror(psFile));
 			pclose(psFile);
 
-			if (ps)
+			for (unsigned i = 0; i < k; ++i)
 			{
-				while (isspace(*ps))
-					++ps;
-
-				if (ps && isdigit(*ps))
+				char* ps = psRes[i];
+				if (ps)
 				{
-					int processorId = atoi(ps);
-					return (processorId >= 0 && (unsigned)processorId == proccessorForReactorWorker ? RSSL_TRUE : RSSL_FALSE);
+					while (isspace(*ps))
+						++ps;
+
+					if (ps && isdigit(*ps))
+					{
+						int processorId = atoi(ps);
+						if (processorId >= 0 && (unsigned)processorId == proccessorForReactorWorker)
+						{
+							return RSSL_TRUE;
+						}
+					}
 				}
 			}
 		}
@@ -5425,7 +5456,7 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectChar1ForReactorWo
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), badCpuCoreStr);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", badCpuCoreStr);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
@@ -5449,7 +5480,7 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCoreIncorrectChar2ForReactorWo
 
 	rsslClearCreateReactorOptions(&createReactorOpts);
 	createReactorOpts.cpuBindWorkerThread.data = strCpuBind;
-	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), badCpuCoreStr);
+	createReactorOpts.cpuBindWorkerThread.length = snprintf(strCpuBind, sizeof(strCpuBind), "%s", badCpuCoreStr);
 
 	pReactor = rsslCreateReactor(&createReactorOpts, &rsslErrorInfo);
 
@@ -5614,3 +5645,6 @@ TEST_F(ReactorThreadBindProcessorCoreTest, BindCpuCorePCTForReactorWorkerTest)
 	ASSERT_TRUE(rsslDestroyReactor(pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 }
 #endif // !WIN32
+
+#endif // NO_ETA_CPU_BIND
+

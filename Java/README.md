@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -15,28 +15,30 @@ Please refer to the CHANGELOG file in this section to see what is new in this re
 
 External modules used by this version of RTSDK Java:
 
-	Dependency		Version
-	----------		-------
-	commons-codec 		1.11
-	commons-configuration2  2.7	
-	commons-collections4    4.4	
-	commons-lang		2.6
-	commons-logging		1.2
-	jackson-annotations     2.11.0  
-	jackson-core            2.12.4  
-	jackson-databind        2.12.4  
-	junit			4.12
-	json			20210307
-	httpclient		4.5.13
-	httpclient-cache	4.5.13
-	httpcore		4.4.13
-	httpcore-nio		4.4.13
-	httpmime		4.5.13
-        lz4-java                1.8.0
-	mockito-all		1.9.0
-	slf4j-api		1.7.32
-	slf4j-jdk14		1.7.32
-	xpp3			1.1.4c
+	Dependency				Version
+	----------				-------
+	commons-codec				1.11
+	commons-configuration2			2.9.0
+	commons-collections4			4.4	
+	commons-lang3				3.3.2
+	commons-logging				1.2
+	commons-text		 		1.10.0
+	jackson-annotations	 		2.15.2
+	jackson-core	 			2.15.2  
+	jackson-databind 			2.15.2
+	jose4j					0.9.3
+	junit					4.12
+	json					20210307
+	httpclient				4.5.14
+	httpclient-cache 			4.5.14
+	httpcore				4.4.13
+	httpcore-nio	 			4.4.16
+	httpmime				4.5.14
+	lz4-java				1.8.0
+	mockito-all				1.9.0
+	slf4j-api				2.0.7
+	slf4j-jdk14				2.0.7
+	xpp3					1.1.4c
 
 
 ### Supported Platforms, OSs, Compilers
@@ -47,14 +49,16 @@ External modules used by this version of RTSDK Java:
 - CPUs must have high resolution timer frequencies greater than 1GHz.
 
 #### Supported Java Version 
-The Refinitiv Real-Time-SDK supports Oracle JDK 1.8 & 1.11, OpenJDK 1.8 & 1.11, Amazon Corretto 8 & 11.
+The Refinitiv Real-Time-SDK supports Oracle JDK 1.8, 1.11 & 1.17, OpenJDK 1.8, 1.11 & 1.17, Amazon Corretto 8 & 11.
 
-NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8.
+NOTE: RRT Viewer requires JavaFX which is bundled with open/JDK 1.11, and Amazon Corretto. JavaFX must be explicitly downloaded if using open/JDK 1.8. 
+
+NOTE: Full JWT support requires at least Java 1.8u251.
 
 Refinitiv fully supports the use of the EMA Java Edition developers kit on the core linux and windows platforms listed below.
 
 Refinitiv will extend support to other platforms based on the following criteria:
-- EMA Java is used with a J2SE 8 compliant JVM
+- EMA Java is used with a J2SE 11 compliant JVM
 - All problems must be reproducible on one of the core platforms listed below. Refinitiv support teams will only be able to reproduce problems on the core platforms.
 
 #### Supported Platforms
@@ -64,9 +68,9 @@ The Refinitiv Real-Time-SDK provides support for multicast connections using JNI
 
 Platforms:
 
-	Windows Server 2012 Enterprise Edition or later 64-bit
-	Windows Server 2016 Enterprise Edition or later 64-bit
-	Microsoft Windows 8.1 Professional or later 64-bit
+	Microsoft Windows Server 2012 Enterprise Edition or later 64-bit
+	Microsoft Windows Server 2016 Enterprise Edition or later 64-bit
+	Microsoft Windows Server 2019 Standard Edition or later 64-bit
 	Microsoft Windows 10 Professional 64-bit
 
 Compilers (only on OSs supported by Microsoft):
@@ -74,6 +78,7 @@ Compilers (only on OSs supported by Microsoft):
 	Microsoft Visual Studio 14.0 (2015) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.1 (2017) 64-bit (JNI Libraries)
 	Microsoft Visual Studio 14.2 (2019) 64-bit (JNI Libraries)
+	Microsoft Visual Studio 14.3 (2022) 64-bit (JNI Libraries)
 
 NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, please use a BinaryPack from a version [prior to Real-Time-SDK-2.0.3.L1](https://github.com/Refinitiv/Real-Time-SDK/releases/tag/Real-Time-SDK-2.0.2.G3) at your own risk as changes to BinaryPacks will not be availble for deprecated compilers.
 
@@ -81,11 +86,11 @@ NOTE: To obtain JNI Libraries for deprecated versions, VS 2013 and VS 2012, plea
 
 Platforms:
 
-	Red Hat Enterprise Linux 6.X Release 64bit, GCC 4.4.4 (JNI Libraries)
-	Oracle Linux Server 7.X 64-bit, GCC 4.8.2 (JNI Libraries)
-        Red Hat Enterprise Server 8.X Release 64-bit, GCC 8.3.1 (JNI Libraries)
-        CentOS 7.X Release 64-bit Qualification 
-        CentOS 8.X Release 64-bit Qualification
+	Oracle Linux Server 7.X 64-bit
+        Red Hat Enterprise Server 7.X Release 64-bit
+        Red Hat Enterprise Server 8.X Release 64-bit
+        CentOS 7.X Release 64-bit Qualification
+	Ubuntu 20.04 64-bit Qualification
 
 #### Tested Versions
 
@@ -93,8 +98,9 @@ This release has been tested with the following:
 
 	Oracle Java SE 8 (JDK1.8)
 	Oracle Java SE 11 (JDK1.11)
-	Oracle Open JDK (1.8) -- Linux-only
+	Oracle Open JDK (1.8)
 	Oracle Open JDK (1.11)
+	Oracle Open JDK (1.17)
 	Amazon Corretto 8
 	Amazon Corretto 11
 
@@ -113,25 +119,28 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption for TLS 1.2.  
+This release supports encryption using TLS 1.2.  
 
 ##### Generating a keystore file
-The **keystore** file is used to contain your own private keys and public key certificates which is used for SSL/TLS handshake with server certificates to create an encrypted connection type. If you do not need to include your own private keys, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you do need to [create your own keystore file](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html), please follow industry standard instructions. 
+The **keystore** file can contain custom private keys and public key certificates (including your server certificate) that are used in TLS handshake to establish an encrypted connection. By default, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you create your own keystore file, please follow industry [standard instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html) to do so. This custom keystore file must be specified an input into API to successfully connect to the encrypted server.
 
 ### Interoperability
 
 RTSDK Java supports connectivity to the following platforms:
 
-- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS version 2.6 and higher, ADH version 2.6 and higher.
-- Refinitiv Real-Time: Refinitiv Real-Time Deployed, Refinitiv Real-Time Hosted, Refinitiv Real-Time - Optimized, Refinitiv Direct Feed
+- Refinitiv Real-Time Distribution System (RSSL/RWF connections): ADS/ADH all supported versions 
+- Refinitiv Real-Time: Refinitiv Real-Time Deployed
+- Refinitiv Real-Time Hosted
+- Refinitiv Real-Time - Optimized (RTO)
+- Refinitiv Direct Feed
 
 NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.6.0
-- ADH 3.6.0
-- DACS 7.6
+- ADS 3.7.1
+- ADH 3.7.1
+- DACS 7.8
 
 # Documentation
   
@@ -154,9 +163,7 @@ Refinitiv Real-Time SDK package is also available on [MyRefinitiv.com](https://m
 
 **Using Gradle**:
 
-Gradle is now used to build RTSDK.
-Gradle can be downloaded from https://gradle.org
-NOTE: Starting with SDK version 1.3.1, please use Gradle version 5.X which supports JDK1.11 and no longer supports JDK1.7.
+Gradle is used to build RTSDK and may be downloaded from https://gradle.org. For a minimum version of gradle required by gradle wrapper, please check [build.gradle](https://github.com/Refinitiv/Real-Time-SDK/blob/master/Java/build.gradle#L186).
 
 Refer to the RTSDK Java Installation Guide for more detailed Gradle build instructions than what is described below.
 
@@ -197,7 +204,7 @@ To debug a encrypted consumer connection, you can add the following JVM argument
 
 	-Djavax.net.debug=all
 
-This provides SSL/TLS details that can be useful if SSL/TLS handshake failed
+This provides TLS details that can be useful if TLS handshake failed
 
 
 # Obtaining the Refinitiv Field Dictionaries
@@ -213,40 +220,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.6.6.0</version>
+		<version>3.7.2.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.6.6.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.6.6.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.6.6.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.6.6.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.6.6.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.2.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.2.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.2.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.2.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.2.0'
 
 # Developing 
 

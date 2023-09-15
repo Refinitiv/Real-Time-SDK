@@ -186,6 +186,7 @@ public abstract class TestReactorComponent {
             {
                 bindOpts.serviceName(String.valueOf(_portToBind++));
                 _server = Transport.bind(bindOpts, _errorInfo.error());
+                
             }
         }
         
@@ -269,7 +270,7 @@ public abstract class TestReactorComponent {
     /** Closes the component's channel. */
     void closeChannel()
     {
-        if(ReactorChannel.State.CLOSED!=_reactorChannel.state()){
+        if(ReactorChannel.State.CLOSED !=_reactorChannel.state()){
             assertEquals(ReactorReturnCodes.SUCCESS, _reactorChannel.close(_errorInfo));
         }
         _reactorChannelIsUp = false;

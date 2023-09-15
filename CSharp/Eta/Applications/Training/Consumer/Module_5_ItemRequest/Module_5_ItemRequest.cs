@@ -3,7 +3,7 @@
  *| This source code is provided under the Apache 2.0 license and is provided   --
  *| AS IS with no warranty or guarantee of fit for purpose.  See the project's  --
  *| LICENSE.md for details.                                                     --
- *| Copyright (C) 2022 Refinitiv. All rights reserved.                          --
+ *| Copyright (C) 2022-2023 Refinitiv. All rights reserved.                          --
  *|-------------------------------------------------------------------------------
  */
 
@@ -296,17 +296,16 @@
 
 using System.Net.Sockets;
 
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Example.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Example.Common;
 
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using Array = Refinitiv.Eta.Codec.Array;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using Array = LSEG.Eta.Codec.Array;
 
-namespace Refinitiv.Eta.Training.Consumer
+namespace LSEG.Eta.Training.Consumer
 {
     public class Module_5_ItemRequest
     {
@@ -574,7 +573,7 @@ namespace Refinitiv.Eta.Training.Consumer
             /*********************************************************
              * Client/Consumer Application life cycle Major Step 2: Connect using Connect
              * (OS connection establishment handshake) Connect call Establishes an
-             * outbound connection, which can leverage standard sockets, HTTP, or HTTPS.
+             * outbound connection, which can leverage standard sockets.
              *
              * Returns an Channel that represents the connection to the user. In the event
              * of an error, NULL is returned and additional information can be found in
@@ -628,9 +627,8 @@ namespace Refinitiv.Eta.Training.Consumer
                          * Internally, the ETA initialization process includes several actions.
                          *
                          * The initialization includes any necessary ETA connection handshake
-                         * exchanges, including any HTTP or HTTPS negotiation.  Compression, ping
-                         * timeout, and versioning related negotiations also take place during the
-                         * initialization process.
+                         * exchanges.  Compression, ping timeout, and versioning related negotiations
+                         * also take place during the initialization process.
                          *
                          * This process involves exchanging several messages across the connection,
                          * and once all message exchanges have completed the Channel.State will
@@ -743,7 +741,7 @@ namespace Refinitiv.Eta.Training.Consumer
                 }
                 catch (Exception e1)
                 {
-                    Console.Write("Exception. Stack trace: {0}\n", e1.StackTrace);
+                    Console.WriteLine("Exception: {0}\nStack trace:\n{1}", e1.Message, e1.StackTrace);
                     CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE, dictionary);
                 }
             }
@@ -863,9 +861,10 @@ namespace Refinitiv.Eta.Training.Consumer
                                     CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE, dictionary);
                                 }
                                 /* decode contents into the Msg structure */
-                                if ((CodecReturnCode)(retCode = (TransportReturnCode)msg.Decode(decodeIter)) != CodecReturnCode.SUCCESS)
+                                if ((ret = msg.Decode(decodeIter)) != CodecReturnCode.SUCCESS)
                                 {
-                                    Console.Write("Error ({0}) (errno: {1}) encountered with DecodeMsg. Error Text: {3}\n", error.ErrorId, error.SysError, channelFDValue, error.Text);
+                                    Console.Write("Error ({0}) (errno: {1}) encountered with DecodeMsg.\n",
+                                        ret.GetAsInfo(), ret);
                                     /* Closes channel, cleans up and exits the application. */
                                     CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE, dictionary);
                                 }
@@ -931,7 +930,7 @@ namespace Refinitiv.Eta.Training.Consumer
                                         break;
                                     case (int)DomainType.SOURCE:
                                         {
-                                            if (ProcessSourceDirectoryResponse(channel, msg, error, decodeIter) != TransportReturnCode.SUCCESS)
+                                            if (ProcessSourceDirectoryResponse(channel, msg, decodeIter) != TransportReturnCode.SUCCESS)
                                             {
                                                 /* Closes channel, cleans up and exits the application. */
                                                 CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE, dictionary);
@@ -1170,7 +1169,7 @@ namespace Refinitiv.Eta.Training.Consumer
                                         break;
                                     case (int)DomainType.MARKET_PRICE:
                                         {
-                                            if (ProcessMarketPriceItemResponse(channel, msg, decodeIter, dictionary, error) != TransportReturnCode.SUCCESS)
+                                            if (ProcessMarketPriceItemResponse(channel, msg, decodeIter, dictionary) != TransportReturnCode.SUCCESS)
                                             {
                                                 /* Closes channel, cleans up and exits the application. */
                                                 CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE, dictionary);
@@ -1347,7 +1346,8 @@ namespace Refinitiv.Eta.Training.Consumer
                 }
                 catch (Exception e1)
                 {
-                    Console.Write("Exception. Stack trace: {0}\n", e1.StackTrace);
+                    Console.WriteLine("Exception: {0}\nStack trace:\n{1}", e1.Message, e1.StackTrace);
+                    CloseChannelCleanUpAndExit(channel, TransportReturnCode.FAILURE, dictionary);
                 }
             }
         }
@@ -2011,11 +2011,11 @@ namespace Refinitiv.Eta.Training.Consumer
                         /* get Username */
                         if (key != null)
                         {
-                            Console.Write("\nReceived Login Response for ApplicationId: {0}\n", key.Name.ToString());
+                            Console.Write("\nReceived Login Response for Username: {0}\n", key.Name.ToString());
                         }
                         else
                         {
-                            Console.Write("\nReceived Login Response for ApplicationId: Unknown\n");
+                            Console.Write("\nReceived Login Response for Username: Unknown\n");
                         }
 
                         /* get state information */
@@ -2372,7 +2372,7 @@ namespace Refinitiv.Eta.Training.Consumer
             ret = requestMsg.Encode(encIter);
             if (ret != CodecReturnCode.SUCCESS)
             {
-                error.Text = ("encodeDirectoryRequest(): Failed <" + CodecReturnCodeExtensions.GetAsString(ret) + ">");
+                error.Text = "EncodeDirectoryRequest(): Failed <" + ret.GetAsString() + ">";
                 return (TransportReturnCode)ret;
             }
 
@@ -2396,7 +2396,7 @@ namespace Refinitiv.Eta.Training.Consumer
             return (TransportReturnCode)ret;
         }
 
-        public static TransportReturnCode ProcessSourceDirectoryResponse(IChannel chnl, Msg msg, Error error, DecodeIterator dIter)
+        public static TransportReturnCode ProcessSourceDirectoryResponse(IChannel chnl, Msg msg, DecodeIterator dIter)
         {
             CodecReturnCode retval;
             State pState;
@@ -2467,8 +2467,8 @@ namespace Refinitiv.Eta.Training.Consumer
                         if ((retval = map.Decode(dIter)) < CodecReturnCode.SUCCESS)
                         {
                             /* decoding failure tends to be unrecoverable */
-                            Console.Write("Error ({0}) (errno: {1})encountered with DecodeMap. Error Text: {2}",
-                                error.ErrorId, error.SysError, error.Text);
+                            Console.Write("Error ({0}) (errno: {1}) encountered with DecodeMap.",
+                                retval.GetAsInfo(), retval);
                             return (TransportReturnCode)retval;
                         }
 
@@ -2512,33 +2512,25 @@ namespace Refinitiv.Eta.Training.Consumer
                             if (retval != CodecReturnCode.SUCCESS && retval != CodecReturnCode.BLANK_DATA)
                             {
                                 /* decoding failure tends to be unrecoverable */
-                                Console.Write("Error ({0}) (errno: {1})encountered with DecodeMapEntry. Error Text: {2}",
-                                    error.ErrorId, error.SysError, error.Text);
+                                Console.Write("Error ({0}) (errno: {1}) encountered with DecodeMapEntry.",
+                                    retval.GetAsInfo(), retval);
                                 return (TransportReturnCode)retval;
                             }
                             else
                             {
                                 if (msg.MsgClass == MsgClasses.REFRESH)
-                                    Console.Write("\nReceived Source Directory Refresh for Decoded Service Id:{0}",
+                                    Console.Write("\nReceived Source Directory Refresh for Decoded Service Id: {0}",
                                         serviceId.ToLong());
                                 else /* (4) Update Message */
-                                    Console.Write("\nReceived Source Directory Update for Decoded Service Id: {1}",
+                                    Console.Write("\nReceived Source Directory Update for Decoded Service Id: {0}",
                                         serviceId.ToLong());
-
-                                /* if this is the current serviceId we are interested in */
-                                if ((serviceId.Equals(serviceDiscoveryInfo_serviceId))
-                                    && (serviceDiscoveryInfo_serviceNameFound == true))
-                                {
-                                    /* this is the current serviceId we are interested in and requested by the ETA Consumer application */
-                                    Console.Write(" ({0})\n", serviceDiscoveryInfo_serviceName);
-                                }
 
                                 /* decode contents into the filter list structure */
                                 if ((retval = filterList.Decode(dIter)) < CodecReturnCode.SUCCESS)
                                 {
                                     /* decoding failure tends to be unrecoverable */
-                                    Console.Write("Error ({0}) (errno: {1})encountered with DecodeFilterList. Error Text: {2}",
-                                        error.ErrorId, error.SysError, error.Text);
+                                    Console.Write("Error ({0}) (errno: {1}) encountered with DecodeFilterList.",
+                                        retval.GetAsInfo(), retval);
                                     return (TransportReturnCode)retval;
                                 }
 
@@ -2550,8 +2542,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                 {
                                     if (retval < CodecReturnCode.SUCCESS)
                                     {
-                                        Console.Write("Error ({0}) (errno: {1})encountered with DecodeFilterEntry. Error Text: {2}",
-                                            error.ErrorId, error.SysError, error.Text);
+                                        Console.Write("Error ({0}) (errno: {1}) encountered with DecodeFilterEntry.",
+                                            retval.GetAsInfo(), retval);
                                         return (TransportReturnCode)retval;
                                     }
 
@@ -2577,7 +2569,7 @@ namespace Refinitiv.Eta.Training.Consumer
                                             case DataTypes.MAP:
                                                 {
                                                     /* Continue decoding map entries. call DecodeMap function
-                                                     * printf("DecodeFilterEntry: Continue decoding map entries.\n");
+                                                     * Write("DecodeFilterEntry: Continue decoding map entries.\n");
                                                      */
                                                 }
                                                 break;
@@ -2591,7 +2583,7 @@ namespace Refinitiv.Eta.Training.Consumer
                                                      */
 
                                                     /* Continue decoding element entries. call DecodeElementList function
-                                                     * printf("DecodeFilterEntry: Continue decoding element entries.\n");
+                                                     * Write("DecodeFilterEntry: Continue decoding element entries.\n");
                                                      */
                                                 }
                                                 break;
@@ -2612,8 +2604,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                     if ((retval = elementList.Decode(dIter, null)) < CodecReturnCode.SUCCESS)
                                                     {
                                                         /* decoding failure tends to be unrecoverable */
-                                                        Console.Write("Error ({0}) (errno: {1})encountered with DecodeElementList. Error Text: {2}",
-                                                            error.ErrorId, error.SysError, error.Text);
+                                                        Console.Write("Error ({0}) (errno: {1}) encountered with DecodeElementList.",
+                                                            retval.GetAsInfo(), retval);
                                                         return (TransportReturnCode)retval;
                                                     }
                                                     /* decode element list elements */
@@ -2622,8 +2614,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                         if (retval < CodecReturnCode.SUCCESS)
                                                         {
                                                             /* decoding failure tends to be unrecoverable */
-                                                            Console.Write("Error ({0}) (errno: {1})encountered with DecodeElementEntry. Error Text: {2}",
-                                                                error.ErrorId, error.SysError, error.Text);
+                                                            Console.Write("Error ({0}) (errno: {1}) encountered with DecodeElementEntry.",
+                                                                retval.GetAsInfo(), retval);
                                                             return (TransportReturnCode)retval;
                                                         }
                                                         else
@@ -2655,7 +2647,7 @@ namespace Refinitiv.Eta.Training.Consumer
 
                                                                     Console.Write("\tService name: {0} ({1}) is discovered by the OMM consumer. \n",
                                                                         serviceName, serviceId.ToLong());
-                                                                    serviceDiscoveryInfo_serviceId = serviceId;
+                                                                    serviceId.Copy(serviceDiscoveryInfo_serviceId);
                                                                     serviceDiscoveryInfo_serviceNameFound = true;
                                                                 }
                                                             }
@@ -2666,8 +2658,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                 if ((retval = array.Decode(dIter)) < CodecReturnCode.SUCCESS)
                                                                 {
                                                                     /* decoding failure tends to be unrecoverable */
-                                                                    Console.Write("Error {0} ({1}) encountered with DecodeArray. Error Text: {2}\n",
-                                                                        error.ErrorId, error.SysError, error.Text);
+                                                                    Console.Write("Error {0} ({1}) encountered with DecodeArray.\n",
+                                                                        retval.GetAsInfo(), retval);
                                                                     return (TransportReturnCode)retval;
                                                                 }
                                                                 while ((retval = arrayEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
@@ -2693,8 +2685,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                         retval = capabilities.Decode(dIter);
                                                                         if (retval != CodecReturnCode.SUCCESS && retval != CodecReturnCode.BLANK_DATA)
                                                                         {
-                                                                            Console.Write("Error {0} ({1}) encountered with DecodeUInt(). Error Text: {2}\n",
-                                                                                error.ErrorId, error.SysError, error.Text);
+                                                                            Console.Write("Error {0} ({1}) encountered with DecodeUInt().\n",
+                                                                                retval.GetAsInfo(), retval);
                                                                             return (TransportReturnCode)retval;
                                                                         }
                                                                         if (msg.MsgClass == MsgClasses.REFRESH)
@@ -2722,8 +2714,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                     else if (retval != CodecReturnCode.BLANK_DATA)
                                                                     {
                                                                         /* decoding failure tends to be unrecoverable */
-                                                                        Console.Write("Error {0} ({1}) encountered with DecodeArrayEntry. Error Text: {2}\n",
-                                                                            error.ErrorId, error.SysError, error.Text);
+                                                                        Console.Write("Error {0} ({1}) encountered with DecodeArrayEntry.\n",
+                                                                            retval.GetAsInfo(), retval);
                                                                         return (TransportReturnCode)retval;
                                                                     }
                                                                     arrayCount++;
@@ -2737,8 +2729,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                 if ((retval = array.Decode(dIter)) < CodecReturnCode.SUCCESS)
                                                                 {
                                                                     /* decoding failure tends to be unrecoverable */
-                                                                    Console.Write("Error {0} ({1}) encountered with DecodeArray. Error Text: {2}\n",
-                                                                        error.ErrorId, error.SysError, error.Text);
+                                                                    Console.Write("Error {0} ({1}) encountered with DecodeArray.\n",
+                                                                        retval.GetAsInfo(), retval);
                                                                     return (TransportReturnCode)retval;
                                                                 }
                                                                 while ((retval = arrayEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
@@ -2790,8 +2782,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                     else if (retval != CodecReturnCode.BLANK_DATA)
                                                                     {
                                                                         /* decoding failure tends to be unrecoverable */
-                                                                        Console.Write("Error {0} ({1}) encountered with DecodeArrayEntry. Error Text: {2}\n",
-                                                                            error.ErrorId, error.SysError, error.Text);
+                                                                        Console.Write("Error {0} ({1}) encountered with DecodeArrayEntry.\n",
+                                                                            retval.GetAsInfo(), retval);
                                                                         return (TransportReturnCode)retval;
                                                                     }
                                                                     arrayCount++;
@@ -2807,8 +2799,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                 if ((retval = array.Decode(dIter)) < CodecReturnCode.SUCCESS)
                                                                 {
                                                                     /* decoding failure tends to be unrecoverable */
-                                                                    Console.Write("Error {0} ({1}) encountered with DecodeArray. Error Text: {2}\n",
-                                                                        error.ErrorId, error.SysError, error.Text);
+                                                                    Console.Write("Error {0} ({1}) encountered with DecodeArray.\n",
+                                                                        retval.GetAsInfo(), retval);
                                                                     return (TransportReturnCode)retval;
                                                                 }
                                                                 while ((retval = arrayEntry.Decode(dIter)) != CodecReturnCode.END_OF_CONTAINER)
@@ -2848,8 +2840,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                     else if (retval != CodecReturnCode.BLANK_DATA)
                                                                     {
                                                                         /* decoding failure tends to be unrecoverable */
-                                                                        Console.Write("Error {0} ({1}) encountered with DecodeArrayEntry. Error Text: {2}\n",
-                                                                            error.ErrorId, error.SysError, error.Text);
+                                                                        Console.Write("Error {0} ({1}) encountered with DecodeArrayEntry.\n",
+                                                                            retval.GetAsInfo(), retval);
                                                                         return (TransportReturnCode)retval;
                                                                     }
                                                                     arrayCount++;
@@ -2889,8 +2881,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                     if ((retval = elementList.Decode(dIter, null)) < CodecReturnCode.SUCCESS)
                                                     {
                                                         /* decoding failure tends to be unrecoverable */
-                                                        Console.Write("Error {0} ({1}) encountered with DecodeElementList. Error Text: {2}\n",
-                                                            error.ErrorId, error.SysError, error.Text);
+                                                        Console.Write("Error {0} ({1}) encountered with DecodeElementList.\n",
+                                                            retval.GetAsInfo(), retval);
                                                         return (TransportReturnCode)retval;
                                                     }
 
@@ -2900,8 +2892,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                         if (retval < CodecReturnCode.SUCCESS)
                                                         {
                                                             /* decoding failure tends to be unrecoverable */
-                                                            Console.Write("Error {0} ({1}) encountered with DecodeElementEntry. Error Text: {2}\n",
-                                                                error.ErrorId, error.SysError, error.Text);
+                                                            Console.Write("Error {0} ({1}) encountered with DecodeElementEntry.\n",
+                                                                retval.GetAsInfo(), retval);
                                                             return (TransportReturnCode)retval;
                                                         }
                                                         else
@@ -2935,8 +2927,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                 retval = serviceState.Decode(dIter);
                                                                 if (retval != CodecReturnCode.SUCCESS && retval != CodecReturnCode.BLANK_DATA)
                                                                 {
-                                                                    Console.Write("Error {0} ({1}) encountered with State.Decode(). Error Text: {2}\n",
-                                                                        error.ErrorId, error.SysError, error.Text);
+                                                                    Console.Write("Error {0} ({1}) encountered with State.Decode().\n",
+                                                                        retval.GetAsInfo(), retval);
                                                                     return (TransportReturnCode)retval;
                                                                 }
                                                                 if (msg.MsgClass == MsgClasses.REFRESH)
@@ -2958,8 +2950,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                                 retval = acceptingRequests.Decode(dIter);
                                                                 if (retval != CodecReturnCode.SUCCESS && retval != CodecReturnCode.BLANK_DATA)
                                                                 {
-                                                                    Console.Write("Error {0} ({1}) encountered with DecodeUInt(). Error Text: {2}\n",
-                                                                        error.ErrorId, error.SysError, error.Text);
+                                                                    Console.Write("Error {0} ({1}) encountered with DecodeUInt().\n",
+                                                                        retval.GetAsInfo(), retval);
                                                                     return (TransportReturnCode)retval;
                                                                 }
                                                                 if (msg.MsgClass == MsgClasses.REFRESH)
@@ -3009,8 +3001,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                     if ((retval = elementList.Decode(dIter, null)) < CodecReturnCode.SUCCESS)
                                                     {
                                                         /* decoding failure tends to be unrecoverable */
-                                                        Console.Write("Error {0} ({1}) encountered with DecodeElementList. Error Text: {2}\n",
-                                                            error.ErrorId, error.SysError, error.Text);
+                                                        Console.Write("Error {0} ({1}) encountered with DecodeElementList.\n",
+                                                            retval.GetAsInfo(), retval);
                                                         return (TransportReturnCode)retval;
                                                     }
 
@@ -3020,8 +3012,8 @@ namespace Refinitiv.Eta.Training.Consumer
                                                         if (retval < CodecReturnCode.SUCCESS)
                                                         {
                                                             /* decoding failure tends to be unrecoverable */
-                                                            Console.Write("Error {0} ({1}) encountered with DecodeElementEntry. Error Text: {2}\n",
-                                                                error.ErrorId, error.SysError, error.Text);
+                                                            Console.Write("Error {0} ({1}) encountered with DecodeElementEntry.\n",
+                                                                retval.GetAsInfo(), retval);
                                                             return (TransportReturnCode)retval;
                                                         }
                                                         else
@@ -3033,10 +3025,10 @@ namespace Refinitiv.Eta.Training.Consumer
                                                             {
                                                                 if (msg.MsgClass == MsgClasses.REFRESH)
                                                                     Console.Write("\tReceived Source Directory Refresh for Group: {0}\n",
-                                                                        elementEntry.EncodedData.Data());
+                                                                        elementEntry.EncodedData);
                                                                 else /* (4) Update Message */
                                                                     Console.Write("\tReceived Source Directory Update for Group: {0}\n",
-                                                                        elementEntry.EncodedData.Data());
+                                                                        elementEntry.EncodedData);
                                                             }
                                                         }
                                                     }
@@ -3093,10 +3085,9 @@ namespace Refinitiv.Eta.Training.Consumer
                     break;
                 default:
                     {
-                        error.Text = ("Received Unhandled Source Directory Msg Class: " + msg.MsgClass);
-                        retval = CodecReturnCode.FAILURE;
+                        Console.Write("Received Unhandled Source Directory Msg Class: " + msg.MsgClass);
+                        return TransportReturnCode.FAILURE;
                     }
-                    break;
             }
 
             return TransportReturnCode.SUCCESS;
@@ -3167,7 +3158,7 @@ namespace Refinitiv.Eta.Training.Consumer
                          */
                         if (dictionary.ExtractDictionaryType(dIter, dictionaryType, out codecError) != CodecReturnCode.SUCCESS)
                         {
-                            Console.Write("extractDictionaryType() failed: {0}\n", codecError.Text);
+                            Console.Write("ExtractDictionaryType() failed: {0}\n", codecError.Text);
                             return TransportReturnCode.FAILURE;
                         }
                         int dictionaryType_int = (int)dictionaryType.ToLong();
@@ -3541,7 +3532,7 @@ namespace Refinitiv.Eta.Training.Consumer
         /// <param name="error">the error</param>
         ///
         /// <returns>status code</returns>
-        public static TransportReturnCode ProcessMarketPriceItemResponse(IChannel chnl, Msg msg, DecodeIterator dIter, DataDictionary dictionary, Error error)
+        public static TransportReturnCode ProcessMarketPriceItemResponse(IChannel chnl, Msg msg, DecodeIterator dIter, DataDictionary dictionary)
         {
             /* The MsgKey contains a variety of attributes used to identify the contents flowing
              * within a particular stream.
@@ -3680,12 +3671,12 @@ namespace Refinitiv.Eta.Training.Consumer
         static UInt fidUIntValue = new();
         static Int fidIntValue = new();
         static Real fidRealValue = new();
-        static Refinitiv.Eta.Codec.Float fidFloatValue = new();
-        static Refinitiv.Eta.Codec.Double fidDoubleValue = new();
-        static Refinitiv.Eta.Codec.Enum fidEnumValue = new();
-        static Refinitiv.Eta.Codec.Date fidDateValue = new();
+        static LSEG.Eta.Codec.Float fidFloatValue = new();
+        static LSEG.Eta.Codec.Double fidDoubleValue = new();
+        static LSEG.Eta.Codec.Enum fidEnumValue = new();
+        static LSEG.Eta.Codec.Date fidDateValue = new();
         static Time fidTimeValue = new();
-        static Refinitiv.Eta.Codec.DateTime fidDateTimeValue = new();
+        static LSEG.Eta.Codec.DateTime fidDateTimeValue = new();
 
         /// <summary>
         /// Decode market price payload.
@@ -3706,7 +3697,6 @@ namespace Refinitiv.Eta.Training.Consumer
              * If content is set defined, actual type enum will be present.
              */
             int dataType = DataTypes.UNKNOWN;
-            Error error = new();
 
             fidUIntValue.Clear();
             fidIntValue.Clear();
@@ -3750,10 +3740,10 @@ namespace Refinitiv.Eta.Training.Consumer
                         }
 
                         // print out fid name
-                        Console.Write("\t" + fEntry.FieldId + "/" + dictionaryEntry.Acronym.ToString() + ": ");
+                        Console.Write("\t" + fEntry.FieldId + "/" + dictionaryEntry.GetAcronym().ToString() + ": ");
 
                         // decode and print out fid value
-                        dataType = dictionaryEntry.RwfType;
+                        dataType = dictionaryEntry.GetRwfType();
 
                         switch (dataType)
                         {
@@ -3786,7 +3776,7 @@ namespace Refinitiv.Eta.Training.Consumer
                                 ret = fidFloatValue.Decode(dIter);
                                 if (ret == CodecReturnCode.SUCCESS)
                                 {
-                                    Console.WriteLine("{0}\n", fidFloatValue.ToFloat());
+                                    Console.Write("{0}\n", fidFloatValue.ToFloat());
                                 }
                                 else if (ret != CodecReturnCode.BLANK_DATA)
                                 {
@@ -3833,7 +3823,7 @@ namespace Refinitiv.Eta.Training.Consumer
                                     }
                                     else
                                     {
-                                        Console.Write(enumType.Display.ToString() + "(" + fidEnumValue.ToInt() + ")");
+                                        Console.WriteLine(enumType.Display.ToString() + "(" + fidEnumValue.ToInt() + ")");
                                     }
                                 }
                                 else if (ret != CodecReturnCode.BLANK_DATA)
@@ -3931,14 +3921,14 @@ namespace Refinitiv.Eta.Training.Consumer
                         }
                         if (ret == CodecReturnCode.BLANK_DATA)
                         {
-                            Console.Write("<blank data>");
+                            Console.WriteLine("<blank data>");
                         }
                     }
                     else
                     {
                         /* decoding failure tends to be unrecoverable */
-                        Console.Write("Error ({0}) (errno: {1}) encountered with DecodeFieldEntry. Error Text: {2}\n",
-                            error.ErrorId, error.SysError, error.Text);
+                        Console.Write("Error ({0}) (errno: {1}) encountered with DecodeFieldEntry.\n",
+                            ret.GetAsInfo(), ret);
 
                         return (TransportReturnCode)ret;
 
@@ -3948,8 +3938,8 @@ namespace Refinitiv.Eta.Training.Consumer
             else
             {
                 /* decoding failure tends to be unrecoverable */
-                Console.Write("Error ({0}) (errno: {1}) encountered with DecodeFieldList. Error Text: {2}\n",
-                    error.ErrorId, error.SysError, error.Text);
+                Console.Write("Error ({0}) (errno: {1}) encountered with DecodeFieldList.\n",
+                    ret.GetAsInfo(), ret);
 
                 return (TransportReturnCode)ret;
             }

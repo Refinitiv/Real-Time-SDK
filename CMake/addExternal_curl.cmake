@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2021 Refinitiv. All rights reserved.            --
+ *|             Copyright (C) 2022 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
 if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-7_78_0/curl-7.78.0.tar.xz")
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_2_0/curl-8.2.0.tar.xz")
 endif()
 if(NOT curl_hash)
-	set(curl_hash "MD5=419c2461366cf404160a820f7a902b7e")
+	set(curl_hash "MD5=79209ce29a6ae6f28e1bc0a7e38735b9")
 endif()
 if(NOT curl_version)
-	set(curl_version "7.78.0")
+	set(curl_version "8.2.0")
 endif()
 
 # If the option for using the system installed 
@@ -89,11 +89,11 @@ if((NOT curl_USE_INSTALLED) AND
 	unset(_cfg_type)
 	if(WIN32)
 		set(_config_options "${_config_options}"
-						"-DCMAKE_USE_SCHANNEL:BOOL=ON")
+						"-DCURL_USE_SCHANNEL:BOOL=ON")
 #						"-DCMAKE_USE_WINSSL:BOOL=ON")
 	else()
 		set(_config_options "${_config_options}" 
-							"-DCMAKE_USE_OPENSSL:BOOL=ON")
+							"-DCURL_USE_OPENSSL:BOOL=ON")
 
 		# Need to search for the correct OpenSsl version incase there are 64 and 32 bit 
 		# versions installed, since the curl build and install will not protect itself from 

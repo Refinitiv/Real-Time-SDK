@@ -25,6 +25,8 @@ public class ReactorOAuthCredentialRenewal
 	Buffer _newPassword = CodecFactory.createBuffer();
 	Buffer _clientId = CodecFactory.createBuffer();
 	Buffer _clientSecret = CodecFactory.createBuffer();
+	Buffer _audience = CodecFactory.createBuffer();
+	Buffer _clientJwk = CodecFactory.createBuffer();
 	Buffer _tokenScope = CodecFactory.createBuffer();
 	private boolean	_takeExclusiveSignOnControl = true;
 
@@ -43,12 +45,14 @@ public class ReactorOAuthCredentialRenewal
 		_newPassword.clear();
 		_clientId.clear();
 		_clientSecret.clear();
+		_audience.clear();
+		_clientJwk.clear();
 		_tokenScope.clear();
 		_takeExclusiveSignOnControl = true;
 	}
 	
 	 /**
-     * The user name that was used when sending the authorization request.
+     * Gets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
      * 
      * @return - User name buffer.
      */
@@ -58,7 +62,7 @@ public class ReactorOAuthCredentialRenewal
     }
 
     /**
-     * Sets userName to authorize with the token service. Mandatory
+     * Sets the user name required to authorize with the RDP token service. Mandatory for V1 oAuth Password Credentials logins
      *
      * @param userName the user name
      */
@@ -68,7 +72,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * The password that was used when sending the authorization request.
+     * Gets the password for user name used to get an access token and a refresh token. Mandatory, used for V1 oAuth Password Credential logins.
      * 
      * @return - Password buffer.
      */
@@ -78,7 +82,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * Sets password to authorize with the token service. Mandatory
+     * Sets the password for user name used to get an access token and a refresh token. Mandatory, used for V1 oAuth Password Credential logins.
      *
      * @param password the password associated with the user name
      */
@@ -88,7 +92,9 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * The password that was used when sending the authorization request.
+     * Gets the newPassword.  This is only used for V1 oAuth Password Credentials only if the password has changed since the last login attempt. /p
+	 *	If the password has changed, the previous password should be specified with ReactorOAuth2CredentialRenewal::password, and the 
+	 *	new password should be set with this function.
      * 
      * @return - Password buffer.
      */
@@ -98,7 +104,9 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * Sets password to authorize with the token service. Mandatory
+     * Sets the newPassword.  This is only used for V1 oAuth Password Credentials only if the password has changed since the last login attempt. /p
+	 *	If the password has changed, the previous password should be specified with ReactorOAuth2CredentialRenewal::password, and the 
+	 *	new password should be set with this function.
      *
      * @param newPassword the password associated with the user name
      */
@@ -108,7 +116,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * The unique identifier that was used when sending the authorization request.
+     * Gets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      * 
      * @return - Client ID buffer.
      */
@@ -118,7 +126,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * Sets unique identifier defined for the application or user making a request to the token service. Mandatory
+     * Sets the clientID used for RDP token service. Mandatory, used to specify Application ID obtained from App Generator for V1 oAuth Password Credentials, or to specify Service Account username for V2 Client Credentials and V2 Client Credentials with JWT Logins.
      *
      * @param clientId the unique identifier for the application
      */
@@ -128,7 +136,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * The secret that was used by OAuth Client to authenticate with the token service. 
+     * Gets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      * 
      * @return - Client Secret buffer.
      */
@@ -138,7 +146,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * Sets client secret to authorize with the token service. Optional
+     * Sets the clientSecret, also known as the Service Account password, used to authenticate with RDP token service. Mandatory for V2 Client Credentials Logins and used in conjunction with clientID.
      *
      * @param clientSecret the client secret
      */
@@ -148,7 +156,48 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * The token scope that was used to limit the scope of generated token. 
+     * Gets the JWK formatted private key used to create the JWT.  The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+     * 
+     * @return - Client JWK buffer.
+     */
+    public Buffer clientJWK()
+    {
+    	return _clientJwk;
+    }
+    
+    /**
+     * Sets the JWK formatted private key used to create the JWT.  The JWT is used to authenticate with the RDP token service. Mandatory for V2 logins with client JWT logins 
+     *
+     * @param clientJwk the client JWK
+     */
+    public void clientJWK(Buffer clientJwk)
+    {
+    	clientJwk.copy(_clientJwk);
+    }
+    
+    
+    /**
+     * Gets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
+     * 
+     * @return - audience buffer.
+     */
+    public Buffer audience()
+    {
+    	return _audience;
+    }
+    
+    /**
+     * Sets the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT.
+     *
+     * @param audience the audience claim.
+     */
+    public void audience(Buffer audience)
+    {
+    	audience.copy(_audience);
+    }
+    
+    /**
+     * Gets the scope of generated token. Optional.
      * 
      * @return - Token Scope buffer.
      */
@@ -158,7 +207,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * Sets token scope to limit the scope of generated token. Optional
+     * Sets the scope of generated token. Optional.
      *
      * @param tokenScope the token scope
      */
@@ -168,7 +217,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * The exclusive sign on control to force sign-out.
+     * Gets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins
      * 
      * @return - true to force sign-out using the same credential otherwise false.
      */
@@ -178,7 +227,7 @@ public class ReactorOAuthCredentialRenewal
     }
     
     /**
-     * Sets the exclusive sign on control to force sign-out of other applications using the same credentials.
+     * Sets the take exclusive sign on control value. If set to true, other applications using the same credentials will be force signed-out. Optional and only used for V1 oAuth Password Credentials logins
      *
      * @param takeExclusiveSignOnControl the exclusive sign on control.
      */
@@ -235,6 +284,13 @@ public class ReactorOAuthCredentialRenewal
     		ByteBuffer byteBuffer = ByteBuffer.allocate(_clientSecret.length());
     		_clientSecret.copy(byteBuffer);
     		destReactorOAuthCredentialRenewal.clientSecret().data(byteBuffer);
+    	}
+    	
+    	if(_clientJwk.length() != 0)
+    	{
+    		ByteBuffer byteBuffer = ByteBuffer.allocate(_clientJwk.length());
+    		_clientJwk.copy(byteBuffer);
+    		destReactorOAuthCredentialRenewal.clientJWK().data(byteBuffer);
     	}
     	
     	if(_tokenScope.length() != 0)

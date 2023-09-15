@@ -2,17 +2,16 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Common;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
 using System.Text;
 using Xunit;
 
-namespace Refinitiv.Eta.ValuedAdd.Tests
+namespace LSEG.Eta.ValuedAdd.Tests
 {
     public class CopiedTransportBuffer : ITransportBuffer
     {
@@ -22,8 +21,8 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
 
         public CopiedTransportBuffer(ITransportBuffer transportBuffer)
         {
-            _data = new ByteBuffer(transportBuffer.Length);
-            _length = transportBuffer.Length;
+            _data = new ByteBuffer(transportBuffer.Length());
+            _length = transportBuffer.Length();
             Assert.True(transportBuffer.Copy(_data) == (int)TransportReturnCode.SUCCESS);
             _data.Flip();
         }
@@ -35,11 +34,16 @@ namespace Refinitiv.Eta.ValuedAdd.Tests
             set { _data = value; }
         }
 
-        public int Length => _length;
+        public bool IsOwnedByApp { get; set; }
 
-        public int Capacity => _length;
+        public int Length() => _length;
 
-        public int DataStartPosition => 0;
+        public int Capacity() => _length;
+
+        public int GetDataStartPosition()
+        {
+            return 0;
+        }
 
         public int Copy(ByteBuffer destBuffer)
         {

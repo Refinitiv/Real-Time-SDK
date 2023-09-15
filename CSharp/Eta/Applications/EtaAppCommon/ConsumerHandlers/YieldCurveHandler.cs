@@ -2,23 +2,23 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Codec;
-using Refinitiv.Eta.Rdm;
-using Refinitiv.Eta.Transports;
-using Refinitiv.Eta.ValueAdd.Rdm;
+using LSEG.Eta.Common;
+using LSEG.Eta.Codec;
+using LSEG.Eta.Rdm;
+using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Rdm;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Array = Refinitiv.Eta.Codec.Array;
-using Buffer = Refinitiv.Eta.Codec.Buffer;
-using DateTime = Refinitiv.Eta.Codec.DateTime;
+using Array = LSEG.Eta.Codec.Array;
+using Buffer = LSEG.Eta.Codec.Buffer;
+using DateTime = LSEG.Eta.Codec.DateTime;
 
-namespace Refinitiv.Eta.Example.Common
+namespace LSEG.Eta.Example.Common
 {
 	/// <summary>
 	/// This is the yield curve handler for the ETA consumer application. 
@@ -112,7 +112,11 @@ namespace Refinitiv.Eta.Example.Common
 			CodecReturnCode ret = closeMessage.Encode(encIter);
 			if (ret < CodecReturnCode.SUCCESS)
 			{
-				Console.WriteLine("encodeYieldCurveClose(): Failed <" + ret + ">");
+				error = new Error()
+				{
+					Text = "EncodeYieldCurveClose(): Failed <" + ret + ">"
+				};
+				return TransportReturnCode.FAILURE;
 			}
 			return chnl.Write(msgBuf, out error);
 		}
@@ -232,7 +236,7 @@ namespace Refinitiv.Eta.Example.Common
 			{
 				error = new Error()
 				{
-					Text = "YieldCurveRequest.encode() failed"
+					Text = "YieldCurveRequest.Encode() failed"
 				};
 				return TransportReturnCode.FAILURE;
 			}
@@ -304,7 +308,7 @@ namespace Refinitiv.Eta.Example.Common
 			State state = statusMsg.State;
 			Console.WriteLine("	" + state);
 
-			WatchListEntry wle = watchList.Get(msg.StreamId);
+			WatchListEntry? wle = watchList.Get(msg.StreamId);
 			if (wle != null)
 			{
 				// update our state table with the new state
@@ -324,9 +328,19 @@ namespace Refinitiv.Eta.Example.Common
 											+ msg.StreamId
 											+ " that should be private - closing stream");
 							// close stream
-							CloseStream(redirectChnl!, msg.StreamId, out error);
+							if (CloseStream(redirectChnl!, msg.StreamId, out var closeError) != TransportReturnCode.SUCCESS)
+							{
+								Console.WriteLine($"Failed closing the channel: {closeError?.Text}");
+							}
 							// remove private stream entry from list
 							RemoveYieldCurveItemEntry(msg.StreamId);
+							error = new Error()
+							{
+								Text = "Received non-private response for stream "
+											+ msg.StreamId
+											+ " that should be private - closing stream",
+								ErrorId = TransportReturnCode.FAILURE
+							};
 							return TransportReturnCode.FAILURE;
 						}
 					}
@@ -349,17 +363,27 @@ namespace Refinitiv.Eta.Example.Common
 		{
 			error = null;
 			IRefreshMsg refreshMsg = msg;
-			WatchListEntry wle = watchList.Get(msg.StreamId);
+			WatchListEntry? wle = watchList!.Get(msg.StreamId);
 
-			// Check if this response should be on private stream but is not 
-			// if this is the case, close the stream 
-			if (!refreshMsg.CheckPrivateStream() && wle.IsPrivateStream)
+			if (wle == null)
+			{
+				error = new Error()
+				{
+					Text = "Non existing stream id: " + msg.StreamId
+				};
+				return TransportReturnCode.FAILURE;
+			}
+
+			// Check if this response should be on private stream but is not
+			// if this is the case, close the stream
+			if (!refreshMsg.CheckPrivateStream() && wle!.IsPrivateStream)
 			{
 				Console.WriteLine("Received non-private response for stream "
 						+ msg.StreamId
 						+ " that should be private - closing stream");
 				// close stream
-				CloseStream(redirectChnl!, msg.StreamId, out error);
+				if (CloseStream(redirectChnl!, msg.StreamId, out var closeError) != TransportReturnCode.SUCCESS)
+					Console.WriteLine($"Failed closing the stream: {closeError?.Text}");
 
 				// remove private stream entry from list
 				RemoveYieldCurveItemEntry(msg.StreamId);
@@ -373,14 +397,15 @@ namespace Refinitiv.Eta.Example.Common
 			}
 		
 			// update our item state list if its a refresh, then process just like update
-			wle.ItemState!.DataState(refreshMsg.State.DataState());
-			wle.ItemState.StreamState(refreshMsg.State.StreamState());
+			wle!.ItemState!.DataState(refreshMsg.State.DataState());
+			wle!.ItemState.StreamState(refreshMsg.State.StreamState());
 
 			CodecReturnCode ret;
 			if ((ret = Decode(msg, dIter, dictionary)) == CodecReturnCode.SUCCESS)
             {
 				return TransportReturnCode.SUCCESS;
-			} else
+			}
+			else
             {
 				error = new Error()
 				{
@@ -436,7 +461,7 @@ namespace Refinitiv.Eta.Example.Common
 			}
 			else
 			{
-				WatchListEntry wle = watchList.Get(msg.StreamId);
+				WatchListEntry? wle = watchList.Get(msg.StreamId);
 
 				if (wle != null)
 				{
@@ -494,13 +519,13 @@ namespace Refinitiv.Eta.Example.Common
 					return CodecReturnCode.SUCCESS;
 				}
 
-				Console.Write(indents[indentCount] + dictionaryEntry.Acronym.ToString());
-				for (int i = 0; i < 40 - indents[indentCount].Length - dictionaryEntry.Acronym.Length; i++)
+				Console.Write(indents[indentCount] + dictionaryEntry.GetAcronym().ToString());
+				for (int i = 0; i < 40 - indents[indentCount].Length - dictionaryEntry.GetAcronym().Length; i++)
 				{
 					Console.Write(" ");
 				}
 
-				int dataType = dictionaryEntry.RwfType;
+				int dataType = dictionaryEntry.GetRwfType();
 
 				switch (dataType)
 				{
@@ -843,9 +868,9 @@ namespace Refinitiv.Eta.Example.Common
 
 		private TransportReturnCode RedirectToPrivateStream(int streamId, out Error? error)
 		{
-			WatchListEntry wle = watchList.Get(streamId);
+			WatchListEntry? wle = watchList.Get(streamId);
 			RemoveYieldCurveItemEntry(streamId);
-			int psStreamId = watchList.Add(domainType, wle.ItemName!, true);
+			int psStreamId = watchList.Add(domainType, wle!.ItemName!, true);
 
 			GenerateRequest(yieldCurveRequest, true, redirectSrcDirInfo!, redirectLoginInfo!);
 			yieldCurveRequest.ItemNames.Add(wle.ItemName!);

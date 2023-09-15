@@ -19,6 +19,7 @@ static void* curlHandle = 0;
 
 #ifdef LINUX
 static char* defaultCurlLibName = "libcurl.so";
+static char* defaultCurl4LibName = "libcurl.so.4";
 #else
 #ifdef NDEBUG
 static char* defaultCurlLibName = "libcurl.dll";
@@ -55,26 +56,62 @@ void curlUnlockCb(CURL* handle, curl_lock_data data, curl_lock_access access, vo
     RSSL_MUTEX_UNLOCK(&curlLock);
 }
 
+#ifdef WIN32
+static HMODULE openLibCurlLib(char* libCurlName, RsslError *error)
+#else
+static void* openLibCurlLib(char* libCurlName, RsslError *error)
+#endif
+{
+	/* try given name first */
+	if (libCurlName != NULL && (*libCurlName != '\0'))
+	{
+		RSSL_LI_RESET_DLERROR;
+		if ((curlHandle = RSSL_LI_DLOPEN(libCurlName)) == 0)
+		{
+			error->rsslErrorId = RSSL_RET_FAILURE;
+			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0012 Libcurl intialization failed. Curl library: %s not found.\n", __FILE__, __LINE__, libCurlName);
+		}
+		return curlHandle;
+	}
+
+	/* try defaultCurlLibName name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((curlHandle = RSSL_LI_DLOPEN(defaultCurlLibName)) != 0)
+	{
+		return curlHandle;
+	}
+
+#ifdef LINUX
+	/* try defaultCurl4LibName name then */
+	RSSL_LI_RESET_DLERROR;
+	if ((curlHandle = RSSL_LI_DLOPEN(defaultCurl4LibName)) != 0)
+	{
+		return curlHandle;
+	}
+
+#endif
+
+	if (curlHandle == 0)
+	{
+		error->rsslErrorId = RSSL_RET_FAILURE;
+		snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0012 Libcurl intialization failed. Curl library: %s not found.\n", __FILE__, __LINE__, defaultCurlLibName);
+	}
+
+	return curlHandle;
+}
+
 RsslCurlJITFuncs* rsslInitCurlApi(char* curlLibName, RsslError *error)
 {
-	char* curlLib;
 	CURLcode ret;
-    CURLSHcode shret;
+	CURLSHcode shret;
 	RSSL_LI_ERR_T dlErr = 0;
-
-	if(curlLibName == NULL || *curlLibName == '\0')
-		curlLib = defaultCurlLibName;
-	else
-		curlLib = curlLibName;
 
 	if (rsslCurlInitCount == 0)
 	{
 		memset(&curlJITFuncs, 0, sizeof(RsslCurlJITFuncs));
 		RSSL_LI_RESET_DLERROR;
-		if ((curlHandle = RSSL_LI_DLOPEN(curlLib)) == 0)
+		if ((curlHandle = openLibCurlLib(curlLibName, error)) == 0)
 		{
-			error->rsslErrorId = RSSL_RET_FAILURE;
-			snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> Error: 0012 Libcurl intialization failed.  Curl library: %s not found.\n", __FILE__, __LINE__, curlLib);
 			return NULL;
 		}
 

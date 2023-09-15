@@ -1142,7 +1142,12 @@ class LoginItem<T> extends SingleItem<T> implements TimeoutClient
 			remove();
 		}
 	}
-	
+
+	@Override
+	public ReentrantLock userLock() {
+		return _baseImpl.userLock();
+	}
+
 	boolean submit(LoginRequest rdmRequestMsg)
 	{
 		ReactorSubmitOptions rsslSubmitOptions = _baseImpl.rsslSubmitOptions();

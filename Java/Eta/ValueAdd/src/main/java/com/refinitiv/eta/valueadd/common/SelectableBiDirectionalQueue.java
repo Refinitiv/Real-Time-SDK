@@ -65,7 +65,7 @@ public class SelectableBiDirectionalQueue
 
     NotifiedState _writeNotifier;
     NotifiedState _readNotifier;
-    NotifiedState _shutdown;
+    volatile NotifiedState _shutdown;
 
     /**
      * Normal constructor.
@@ -193,6 +193,13 @@ public class SelectableBiDirectionalQueue
         VaNode node = null;
 
         _readLock.lock();
+        
+        if (_shutdown.isSet())
+        {
+        	_readLock.unlock();
+            return null;
+        }
+        
         try
         {
             node = _readQueue.poll();
@@ -250,6 +257,13 @@ public class SelectableBiDirectionalQueue
             return false;
 
         _writeLock.lock();
+        
+        if (_shutdown.isSet())
+        {
+        	_writeLock.unlock();
+            return false;
+        }
+        
         try
         {
             _writeQueue.add(node);
@@ -320,22 +334,18 @@ public class SelectableBiDirectionalQueue
                 _remote._readPipe.source().close();
                 
                 _writeBuffer = null;
-                _writeLock = null;
                 _writeNotifier = null;
                 _writePipe = null;
                 _writeQueue = null;
                 _readBuffer = null;
-                _readLock = null;
                 _readNotifier = null;
                 _readPipe = null;
                 _readQueue = null;
                 _remote._writeBuffer = null;
-                _remote._writeLock = null;
                 _remote._writeNotifier = null;
                 _remote._writePipe = null;
                 _remote._writeQueue = null;
                 _remote._readBuffer = null;
-                _remote._readLock = null;
                 _remote._readNotifier = null;
                 _remote._readPipe = null;
                 _remote._readQueue = null;

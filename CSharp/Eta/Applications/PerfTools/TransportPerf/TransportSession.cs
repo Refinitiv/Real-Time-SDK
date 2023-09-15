@@ -2,18 +2,17 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
  *|-----------------------------------------------------------------------------
  */
 
 using System;
-using Refinitiv.Common.Interfaces;
-using Refinitiv.Eta.Transports.Interfaces;
-using Refinitiv.Eta.PerfTools.Common;
-using Refinitiv.Eta.Transports;
+using LSEG.Eta.Common;
+using LSEG.Eta.Transports;
+using LSEG.Eta.PerfTools.Common;
 using System.Net;
 
-namespace Refinitiv.Eta.PerfTools.TransportPerf
+namespace LSEG.Eta.PerfTools.TransportPerf
 {
     /// <summary>
     /// Stores information about an open session on a channel.
@@ -87,6 +86,10 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
 
             for (; msgsLeft > 0; --msgsLeft)
             {
+                if (!ChannelInfo!.Channel!.Socket.SafeHandle.IsClosed && !ChannelInfo!.Channel!.Socket.Poll(0, System.Net.Sockets.SelectMode.SelectWrite))
+                {
+                    continue;
+                }
                 /* Send the item. */
                 ret = SendMsg(handler, msgsLeft,
                         (msgsLeft - 1) == latencyUpdateNumber || TransportThreadConfig.LatencyMsgsPerSec == TransportThreadConfig.ALWAYS_SEND_LATENCY_MSG,
@@ -119,11 +122,11 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
             if ((ret = GetMsgBuffer(out error)) < TransportReturnCode.SUCCESS)
                 return ret;
 
-            int bufferLength = m_WritingBuffer!.Length;
+            int bufferLength = m_WritingBuffer!.Length();
 
             if (bufferLength < TransportThreadConfig.MsgSize)
             {
-                Console.WriteLine("Error: TransportSession.SendMsg(): Buffer length {0} is too small to write next message.\n", m_WritingBuffer.Length);
+                Console.WriteLine("Error: TransportSession.SendMsg(): Buffer length {0} is too small to write next message.\n", m_WritingBuffer.Length());
                 Environment.Exit(-1);
             }
 
@@ -179,6 +182,8 @@ namespace Refinitiv.Eta.PerfTools.TransportPerf
             error = null;
             TransportReturnCode ret;
             IChannel? chnl = ChannelInfo!.Channel;
+            m_WriteArgs.Clear();
+            m_WriteArgs.Flags = TransportThreadConfig.WriteFlags;
 
             /* Make sure we stop packing at the end of a burst of msgs
              *   in case the next burst is for a different channel. 

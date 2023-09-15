@@ -133,6 +133,7 @@
 
 #include "Access/Include/ServiceEndpointDiscovery.h"
 #include "Access/Include/ServiceEndpointDiscoveryClient.h"
+#include "Access/Include/ServiceEndpointDiscoveryConfig.h"
 #include "Access/Include/ServiceEndpointDiscoveryEvent.h"
 #include "Access/Include/ServiceEndpointDiscoveryInfo.h"
 #include "Access/Include/ServiceEndpointDiscoveryOption.h"

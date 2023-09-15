@@ -2,7 +2,7 @@
  * This source code is provided under the Apache 2.0 license and is provided
  * AS IS with no warranty or guarantee of fit for purpose.  See the project's 
  * LICENSE.md for details. 
- * Copyright (C) 2019-2022 Refinitiv. All rights reserved.
+ * Copyright (C) 2019-2023 Refinitiv. All rights reserved.
 */
 
 /*
@@ -70,6 +70,10 @@ static RsslUInt restEnableLogViaCallback = 0U;  // 0: disabled, 1: enabled from 
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
 static time_t nextDebugTimeMS = 0;
+static RsslBool sendJsonConvError = RSSL_FALSE;
+
+static RsslUInt32 jsonOutputBufferSize = 0;
+static RsslUInt32 jsonTokenIncrementSize = 0;
 
 #define MAX_CHAN_COMMANDS 4
 static ChannelCommand chanCommands[MAX_CHAN_COMMANDS];
@@ -84,6 +88,8 @@ char passwordBlock[128];
 char clientIdBlock[128];
 char clientSecretBlock[128];
 char scopeBlock[128];
+char clientJWKBlock[2048];
+char audienceBlock[255];
 static char traceOutputFile[128];
 static char protocolList[128];
 char authnTokenBlock[1024];
@@ -98,6 +104,8 @@ RsslBuffer userName = RSSL_INIT_BUFFER;
 RsslBuffer password = RSSL_INIT_BUFFER;
 RsslBuffer clientId = RSSL_INIT_BUFFER;
 RsslBuffer clientSecret = RSSL_INIT_BUFFER;
+RsslBuffer clientJWK = RSSL_INIT_BUFFER;
+RsslBuffer audience = RSSL_INIT_BUFFER;
 RsslBuffer authnToken = RSSL_INIT_BUFFER;
 RsslBuffer authnExtended = RSSL_INIT_BUFFER;
 RsslBuffer appId = RSSL_INIT_BUFFER;
@@ -116,6 +124,11 @@ static char tokenURLNameV2[255];
 static char serviceDiscoveryURLName[255];
 static char tokenScopeName[255];
 
+static char restProxyHost[256];
+static char restProxyPort[256];
+static char restProxyUserName[128];
+static char restProxyPasswd[128];
+static char restProxyDomain[128];
 
 static char sslCAStore[255];
 /* default sub-protocol list */
@@ -155,6 +168,8 @@ void printUsageAndExit(char *appName)
 			"\n -clientId specifies the Client ID for Refinitiv Real-Time - Optimized, or the client ID for login v2 (mandatory). To generate clientID for a V1 login, login to Eikon,\n"
 			"\n  and search for App Key Generator. The App Key is the Client ID.\n"
 			"\n -clientSecret associated client secret for the client ID with the v2 login.\n"
+			"\n -jwkFile File containing the private JWK information for V2 login with JWT.\n"
+			"\n -audience audience claim for v2 JWT logins.\n"
 			"\n -sessionMgnt Enables session management in the Reactor for Refinitiv Real-Time - Optimized.\n"
 			"\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials.\n"
 			"\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n"
@@ -188,11 +203,19 @@ void printUsageAndExit(char *appName)
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
 			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
-		    "\n -debugConn set 'connection' rector debug info level"
+			"\n -restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyUserName <proxy username> Proxy user name. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyPasswd <proxy password> Proxy password. Used for Rest requests only: service discovery, auth\n"
+			"\n -restProxyDomain <proxy domain> Proxy domain of the user. Used for Rest requests only: service discovery, auth\n"
+			"\n -debugConn set 'connection' rector debug info level"
 			"\n -debugEventQ set 'eventqueue' rector debug info level"
 			"\n -debugTunnelStream set 'tunnelstream' debug info level"
 			"\n -debugAll enable all levels of debug info"
 			"\n -debugInfoInterval set time interval for debug log"
+			"\n -jsonOutputBufferSize size of the buffer that the converter will allocate for its output buffer. The conversion fails if the size is not large enough"
+			"\n -jsonTokenIncrementSize number of json token increment size for parsing JSON messages"
+			"\n -sendJsonConvError enable send json conversion error to provider"
 			, appName, appName);
 
 	/* WINDOWS: wait for user to enter something before exiting  */
@@ -211,6 +234,9 @@ void parseCommandLine(int argc, char **argv)
 
 	RsslInt32 i;
 	RsslBool cacheOption = RSSL_FALSE;
+	FILE* pFile = NULL;
+	int readSize = 0;
+
 
 	/* Check usage and retrieve operating parameters */
 	{
@@ -220,11 +246,11 @@ void parseCommandLine(int argc, char **argv)
 		RsslUInt8 tunnelStreamDomainType = RSSL_DMT_SYSTEM;
 
 		snprintf(protocolList, 128, "%s", defaultProtocols);
-		snprintf(proxyHost, sizeof(proxyHost), "");
-		snprintf(proxyPort, sizeof(proxyPort), "");
-		snprintf(proxyUserName, sizeof(proxyUserName), "");
-		snprintf(proxyPasswd, sizeof(proxyPasswd), "");
-		snprintf(proxyDomain, sizeof(proxyDomain), "");
+		snprintf(proxyHost, sizeof(proxyHost), "%s", "");
+		snprintf(proxyPort, sizeof(proxyPort), "%s", "");
+		snprintf(proxyUserName, sizeof(proxyUserName), "%s", "");
+		snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", "");
+		snprintf(proxyDomain, sizeof(proxyDomain), "%s", "");
 		for (i = 1; i < argc; i++)
 		{
 			if (strcmp("-sessionMgnt", argv[i]) == 0)
@@ -234,10 +260,10 @@ void parseCommandLine(int argc, char **argv)
 			}
 		}
 
-		snprintf(libcryptoName, sizeof(libcryptoName), "");
-		snprintf(libsslName, sizeof(libsslName), "");
-		snprintf(libcurlName, sizeof(libcurlName), "");
-		snprintf(sslCAStore, sizeof(sslCAStore), "");
+		snprintf(libcryptoName, sizeof(libcryptoName), "%s", "");
+		snprintf(libsslName, sizeof(libsslName), "%s", "");
+		snprintf(libcurlName, sizeof(libcurlName), "%s", "");
+		snprintf(sslCAStore, sizeof(sslCAStore), "%s", "");
 
 		i = 1;
 
@@ -280,6 +306,36 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				clientSecret.length = snprintf(clientSecretBlock, sizeof(clientSecretBlock), "%s", argv[i - 1]);
 				clientSecret.data = clientSecretBlock;
+			}
+			else if (0 == strcmp(argv[i], "-jwkFile"))
+			{
+				/* As this is an example program showing API, this handling of the JWK is not secure. */
+				if (++i == argc) printUsageAndExit(argv[0]);
+				
+				pFile = fopen(argv[i], "rb");
+				if (pFile == NULL)
+				{
+					printf("Cannot load jwk file.\n");
+					printUsageAndExit(argv[0]);
+				}
+				/* Read the JWK contents into a pre-allocated buffer*/
+				readSize = (int)fread(clientJWKBlock, sizeof(char), 2048, pFile);
+				if (readSize == 0)
+				{
+					printf("Cannot read jwk file.\n");
+					printUsageAndExit(argv[0]);
+				}
+				clientJWK.data = clientJWKBlock;
+				clientJWK.length = readSize;
+
+				fclose(pFile);
+				i++;
+			}
+			else if (strcmp("-audience", argv[i]) == 0)
+			{
+				i += 2;
+				audience.length = snprintf(audienceBlock, sizeof(audienceBlock), "%s", argv[i - 1]);
+				audience.data = audienceBlock;
 			}
 			else if (strcmp("-tokenURLV1", argv[i]) == 0)
 			{
@@ -423,6 +479,11 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				restEnableLogViaCallback = atoi(argv[i - 1]);
 			}
+			else if (strcmp("-sendJsonConvError", argv[i]) == 0)
+			{
+				i++;
+				sendJsonConvError = RSSL_TRUE;
+			}
 			else if ((strcmp("-c", argv[i]) == 0) || (strcmp("-tcp", argv[i]) == 0) ||
 					(strcmp("-webSocket", argv[i]) == 0) || 
 					(strcmp("-encrypted", argv[i]) == 0) || 
@@ -497,13 +558,13 @@ void parseCommandLine(int argc, char **argv)
 					/* Hostname */
 					pToken = strtok(argv[i], ":");
 					if (!pToken && !enableSessionMgnt) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-					snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+					snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", pToken);
 					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
 					/* Port */
 					pToken = strtok(NULL, ":");
 					if (!pToken && !enableSessionMgnt) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-					snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+					snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", pToken);
 					pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
 					pToken = strtok(NULL, ":");
@@ -514,7 +575,7 @@ void parseCommandLine(int argc, char **argv)
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -723,13 +784,13 @@ void parseCommandLine(int argc, char **argv)
 				/* Hostname */
 				pToken = strtok(argv[i], ":");
 				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
 				/* Port */
 				pToken = strtok(NULL, ":");
 				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
 				pToken = strtok(NULL, ":");
@@ -739,7 +800,7 @@ void parseCommandLine(int argc, char **argv)
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -954,13 +1015,13 @@ void parseCommandLine(int argc, char **argv)
 				/* Hostname */
 				pToken = strtok(argv[i], ":");
 				if (!pToken) { printf("Error: Missing hostname.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->hostName, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.address = pCommand->hostName;
 
 				/* Port */
 				pToken = strtok(NULL, ":");
 				if (!pToken) { printf("Error: Missing port.\n"); printUsageAndExit(argv[0]); }
-				snprintf(pCommand->port, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->port, MAX_BUFFER_LENGTH, "%s", pToken);
 				pCommand->cInfo.rsslConnectOptions.connectionInfo.unified.serviceName = pCommand->port;
 
 				pToken = strtok(NULL, ":");
@@ -970,7 +1031,7 @@ void parseCommandLine(int argc, char **argv)
 
 				/* Item Service Name */
 				pToken = argv[i];
-				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, pToken);
+				snprintf(pCommand->serviceName, MAX_BUFFER_LENGTH, "%s", pToken);
 
 				i += 1;
 				if (i < argc)
@@ -1151,7 +1212,7 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				xmlTrace = RSSL_TRUE;
-				snprintf(traceOutputFile, 128, "RsslVAConsumer\0");
+				snprintf(traceOutputFile, 128, "RsslVAConsumer");
 			}
 			else if (strcmp("-runtime", argv[i]) == 0)
 			{
@@ -1200,7 +1261,7 @@ void parseCommandLine(int argc, char **argv)
 
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				hasTunnelStreamServiceName = RSSL_TRUE;
-				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), argv[i-1]);
+				snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", argv[i-1]);
 			}
 			else if (strcmp("-tunnel", argv[i]) == 0)
 			{
@@ -1255,6 +1316,41 @@ void parseCommandLine(int argc, char **argv)
 					takeExclusiveSignOnControl = RSSL_FALSE;
 				}
 			}
+			else if (strcmp("-jsonOutputBufferSize", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				jsonOutputBufferSize = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-jsonTokenIncrementSize", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				jsonTokenIncrementSize = atoi(argv[i - 1]);
+			}
+			else if (strcmp("-restProxyHost", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyHost, sizeof(restProxyHost), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyPort", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyPort, sizeof(restProxyPort), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyUserName", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyUserName, sizeof(restProxyUserName), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyPasswd", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyPasswd, sizeof(restProxyPasswd), "%s", argv[i - 1]);
+			}
+			else if (strcmp("-restProxyDomain", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				snprintf(restProxyDomain, sizeof(restProxyDomain), "%s", argv[i - 1]);
+			}
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -1267,7 +1363,7 @@ void parseCommandLine(int argc, char **argv)
 				/* If service not specified for tunnel stream, use the service given for other items instead. */
 				if (pCommand->tunnelMessagingEnabled && hasTunnelStreamServiceName == RSSL_FALSE)
 				{
-					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), pCommand->serviceName);
+					snprintf(pCommand->tunnelStreamServiceName, sizeof(pCommand->tunnelStreamServiceName), "%s", pCommand->serviceName);
 				}
 
 				/* Check whether the session management is enable */
@@ -1437,8 +1533,10 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 
 	if (password.length != 0)
 		reactorOAuthCredentialRenewal.password = password; /* Specified password as needed */
-	else
+	else if (clientSecret.length != 0)
 		reactorOAuthCredentialRenewal.clientSecret = clientSecret;
+	else
+		reactorOAuthCredentialRenewal.clientJWK = clientJWK;
 
 	rsslReactorSubmitOAuthCredentialRenewal(pReactor, &renewalOptions, &reactorOAuthCredentialRenewal, &rsslError);
 
@@ -1797,6 +1895,21 @@ int main(int argc, char **argv)
 		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
 	}
 
+	/* If a JWK was specified */
+	if (clientJWK.length)
+	{
+		oAuthCredential.clientJWK = clientJWK;
+
+		/* Specified the RsslReactorOAuthCredentialEventCallback to get sensitive information as needed to authorize with the token service. */
+		oAuthCredential.pOAuthCredentialEventCallback = oAuthCredentialEventCallback;
+	}
+
+	/* If an audience was specified */
+	if (audience.length)
+	{
+		oAuthCredential.audience = audience;
+	}
+
 	/* If an authentication Token was specified, set it on the login request and set the user name type to RDM_LOGIN_USER_AUTHN_TOKEN */
 	if (authnToken.length)
 	{
@@ -1992,6 +2105,31 @@ int main(int argc, char **argv)
 		reactorOpts.serviceDiscoveryURL = serviceDiscoveryURL;
 	}
 
+	if (restProxyHost[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyHostName = restProxyHost;
+	}
+
+	if (restProxyPort[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPort = restProxyPort;
+	}
+
+	if (restProxyUserName[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyUserName = restProxyUserName;
+	}
+
+	if (restProxyPasswd[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyPasswd = restProxyPasswd;
+	}
+
+	if (restProxyDomain[0] != '\0')
+	{
+		reactorOpts.restProxyOptions.proxyDomain = restProxyDomain;
+	}
+
 	if (!(pReactor = rsslCreateReactor(&reactorOpts, &rsslErrorInfo)))
 	{
 		printf("Error: %s", rsslErrorInfo.rsslError.text);
@@ -2004,6 +2142,7 @@ int main(int argc, char **argv)
 	/* Set the reactor's event file descriptor on our descriptor set. This, along with the file descriptors 
 	 * of RsslReactorChannels, will notify us when we should call rsslReactorDispatch(). */
 	FD_SET(pReactor->eventFd, &readFds);
+	FD_SET(pReactor->eventFd, &exceptFds);
 
 	/* Add the desired connections to the reactor. */
 	for(i = 0; i < channelCommandCount; ++i)
@@ -2029,6 +2168,16 @@ int main(int argc, char **argv)
 	jsonConverterOptions.pDictionary = &(chanCommands[0].dictionary);
 	jsonConverterOptions.pServiceNameToIdCallback = serviceNameToIdCallback;
 	jsonConverterOptions.pJsonConversionEventCallback = jsonConversionEventCallback;
+	jsonConverterOptions.sendJsonConvError = sendJsonConvError;
+
+	if (jsonOutputBufferSize > 0)
+	{
+		jsonConverterOptions.outputBufferSize = jsonOutputBufferSize;
+	}
+	if (jsonTokenIncrementSize > 0)
+	{
+		jsonConverterOptions.jsonTokenIncrementSize = jsonTokenIncrementSize;
+	}
 
 	if (rsslReactorInitJsonConverter(pReactor, &jsonConverterOptions, &rsslErrorInfo) != RSSL_RET_SUCCESS)
 	{

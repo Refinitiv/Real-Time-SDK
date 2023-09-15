@@ -7,23 +7,32 @@ eclipse {
 }
 
 dependencies {
-        compile project(':Ema:PerfTools')	
-	compile project(':Ema:Core')
+	implementation project(':Ema:PerfTools')
+	implementation project(':Ema:Core')
 }
 
 mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
 
 task createExtraRunApp(type: CreateStartScripts) {
-	mainClassName = 'com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider'
+	mainClass.set('com.refinitiv.ema.examples.training.iprovider.series100.ex100_MP_Streaming.IProvider')
 	classpath = startScripts.classpath
 	outputDir = startScripts.outputDir
 	applicationName = 'iprovider100'
 	classpath += files ('build/classes/java')
 }
 
-task copyDictionary( type: Copy ) {
-	from '../../etc'
-	into '.'
+task copyDictionary{
+	outputs.files files('../../etc')
+			.asFileTree
+			.files
+			.collect{'./${it.name}'}
+
+	doLast{
+		copy{
+			from '../../etc'
+			into './'
+		}
+	}
 }
 
 task deleteDictionary( type: Delete ) {
