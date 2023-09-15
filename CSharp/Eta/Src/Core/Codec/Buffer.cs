@@ -2,10 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LSEG.Eta.Common;
@@ -52,6 +53,8 @@ namespace LSEG.Eta.Codec
 
         internal bool _isBlank;
 
+        private Encoding m_Encoding;
+
         /// <summary>
         /// Creates <see cref="Buffer"/> with no data.
         /// must be called later for buffer to be useful.
@@ -59,6 +62,7 @@ namespace LSEG.Eta.Codec
         /// <seealso cref="Buffer"/>
         public Buffer()
         {
+            m_Encoding = Encoding.ASCII;
         }
 
         /// <summary>
@@ -245,7 +249,7 @@ namespace LSEG.Eta.Codec
                         ByteBuffer destByteBuffer = destBuffer.Data();
                         if (destByteBuffer != null)
                         {
-                            if (length <= destBuffer.Length)
+                            if (length <= destBuffer.Capacity)
                             {
                                 destByteBuffer.WritePosition = destBuffer.Position;
 
@@ -299,7 +303,8 @@ namespace LSEG.Eta.Codec
                     ByteBuffer newByteBuffer = new ByteBuffer(Length);
                     buffer.Data(newByteBuffer);
                 }
-            } else if (_dataString != null)
+            }
+            else if (_dataString != null)
             {
                 buffer.Data_internal(_dataString);
                 return CodecReturnCode.SUCCESS;
@@ -371,7 +376,7 @@ namespace LSEG.Eta.Codec
 
         /// <summary>
         /// Converts the underlying buffer into a String. This should only be called
-        /// when the Buffer is known to contain ASCII data.This method creates
+        /// when the Buffer is known to contain ASCII data. This method creates
         /// garbage unless the underlying buffer is a String.
         /// </summary>
         /// <returns>The String representation</returns>
@@ -381,7 +386,7 @@ namespace LSEG.Eta.Codec
 
             if (_data != null)
             {
-                retStr = System.Text.Encoding.ASCII.GetString(DataBytes(), 0, _length);
+                retStr = m_Encoding.GetString(DataBytes(), 0, _length);
             }
             else if (!string.ReferenceEquals(_dataString, null))
             {
@@ -475,7 +480,8 @@ namespace LSEG.Eta.Codec
             else if (!string.IsNullOrEmpty(_dataString))
             {
                 bufferBytes = System.Text.Encoding.ASCII.GetBytes(_dataString.ToCharArray(), _position, _length);
-            } else
+            }
+            else
             {
                 bufferBytes = new byte[_length];
             }
@@ -673,7 +679,7 @@ namespace LSEG.Eta.Codec
             {
                 hashCode = _data.Contents[_position] + 31;
                 int multiplier = 1;
-                for (int i = _position + 1; i < _position + _length; ++i)
+                for (int i = _position + 1; i < _position + Length; ++i)
                 {
                     multiplier *= 31;
                     hashCode += (_data.Contents[i] + 30) * multiplier;
@@ -930,6 +936,17 @@ namespace LSEG.Eta.Codec
             return all.ToString();
         }
 
-    }
+        /// <summary>
+        /// This is used internally to set a specific encoding name for the <see cref="ToString()"/>
+        /// <remarks>
+        /// This is used to override the default in order to encode non-ascii string.
+        /// </remarks>
+        /// </summary>
+        /// <param name="encoding">The character encoding</param>
+        internal Buffer(Encoding encoding)
+        {
+            m_Encoding = encoding;
+        }
 
+    }
 }

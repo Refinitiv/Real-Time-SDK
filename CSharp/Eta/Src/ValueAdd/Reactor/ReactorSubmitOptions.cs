@@ -27,12 +27,18 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public WriteArgs WriteArgs { get; set; } = new WriteArgs();
 
         /// <summary>
+        /// Gets request message options if submitting RequestMsg and enabling the watchlist.
+        /// </summary>
+        public ReactorRequestMsgOptions RequestMsgOptions { get; private set; } = new ReactorRequestMsgOptions();
+
+        /// <summary>
         /// Clears to default values.
         /// </summary>
         public void Clear()
         {
             ServiceName = null;
             WriteArgs.Clear();
+            RequestMsgOptions.Clear();
         }
     }
 }

@@ -45,7 +45,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		internal void Data(ByteBuffer buffer)
 		{
-			_buffer = buffer;
+            _buffer = buffer;
 			pointer = buffer._pointer;
 		}
 
@@ -437,17 +437,13 @@ namespace LSEG.Eta.Codec
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)] 
-		internal long ReadULong64ls(int size)
+		internal ulong ReadULong64ls(int size)
 		{
-			long value = 0L;
+			ulong value = 0;
 			for (int i = _position; i < _position + size; i++)
 			{
 				value <<= 8;
 				value |= pointer[i];
-			}
-			if (size == 8 && (pointer[_position] & 128) == 128) //sign-extend
-			{
-				value = (long)(((ulong)value) | num[size * 8]);
 			}
 			_position += size;
 

@@ -20,7 +20,7 @@ namespace LSEG.Eta.Example.Common
         public override int MsgClass { get => m_StatusMsg.MsgClass; }
         public override int DomainType
         {
-            get => m_StatusMsg.DomainType;
+            get => m_StatusMsg.DomainType; set => m_StatusMsg.DomainType = value;
         }
         public MarketPriceStatusFlags Flags { get; set; }
 

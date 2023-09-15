@@ -27,12 +27,19 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public IMsg? Msg { get; internal set; } = null;
 
         /// <summary>
+        /// Gets <see cref="WatchlistStreamInfo"/> associated with this message event.
+        /// </summary>
+        /// <remarks>Only used when the Watchlist is enabled</remarks>
+        public WatchlistStreamInfo StreamInfo { get; private set; } = new WatchlistStreamInfo();
+
+        /// <summary>
         /// Clears to default values
         /// </summary>
         public virtual void Clear()
         {
             TransportBuffer = null;
             Msg = null;
+            StreamInfo.Clear();
         }
 
         /// <summary>

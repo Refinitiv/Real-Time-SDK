@@ -15,6 +15,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private const int DEFAULT_POOL_LIMIT = -1;
 
         private VaPool m_ReactorChannelPool = new VaPool(true);
+        private VaPool m_WatchlistPool = new VaPool(true);
         private VaLimitedPool m_ReactorChannelEventPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorEventImplPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorMsgEventPool = new VaLimitedPool(true);
@@ -22,6 +23,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private VaLimitedPool m_ReactorRDMDirectoryMsgEventPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorRDMDictionaryMsgEventPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorServiceEndpointEvent = new VaLimitedPool(true);
+        private VaLimitedPool m_WlRequestPool = new VaLimitedPool(true);
+        private VaLimitedPool m_WlItemRequestPool = new VaLimitedPool(true);
+        private VaLimitedPool m_WlItemStreamPool = new VaLimitedPool(true);
+        private VaLimitedPool m_WlStreamAttributesPool = new VaLimitedPool(true);
+        private VaLimitedPool m_WlStreamPool = new VaLimitedPool(true);
+        private VaPool m_WlTimeoutTimerPool = new VaPool(false);
 
         /// <summary>
         /// Sets maximum number of events in m_ReactorChannelEventPool, if value is negative then amount of events is unlimited
@@ -242,6 +249,171 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
 
             return serviceEndpointEvent;
+        }
+
+        public void InitWatchlistPool(int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                var watchlist = new Watchlist();
+                m_WatchlistPool.Add(watchlist);
+            }
+        }
+
+        public Watchlist CreateWatchlist(ReactorChannel reactorChannel, ConsumerRole consumerRole)
+        {
+            Watchlist? watchlist = (Watchlist?)m_WatchlistPool.Poll();
+            if (watchlist is null)
+            {
+                watchlist = new Watchlist(reactorChannel, consumerRole);
+                m_WatchlistPool.UpdatePool(watchlist);
+            }
+            else
+            {
+                watchlist.Init(reactorChannel, consumerRole);
+            }
+
+            return watchlist;
+        }
+
+        private void InitRequestPool<T>(int size, VaLimitedPool pool) where T : VaNode, new()
+        {
+            for (int i = 0; i < size; i++)
+            {
+                T item = new T();
+                pool.Add(item);
+            }
+        }
+
+        public T CreatePooledRequest<T>(VaLimitedPool pool) where T : WlRequest, new()
+        {
+            T? itemRequest = (T?)pool.Poll();
+            if (itemRequest == null)
+            {
+                itemRequest = new T();
+                pool.UpdatePool(itemRequest);
+            }
+            else
+            {
+                itemRequest.Clear();
+            }
+
+            return itemRequest;
+        }
+
+        public void InitWlRequest(int size)
+        {
+            InitRequestPool<WlRequest>(size, m_WlRequestPool);
+        }
+
+        public WlRequest CreateWlRequest()
+        {
+            return CreatePooledRequest<WlRequest>(m_WlRequestPool);
+        }
+
+        public void InitWlItemRequest(int size)
+        {
+            InitRequestPool<WlItemRequest>(size, m_WlItemRequestPool);
+        }
+
+        public WlItemRequest CreateWlItemRequest()
+        {
+            return CreatePooledRequest<WlItemRequest>(m_WlItemRequestPool);
+        }
+
+        public void InitWlStream(int size)
+        {
+            InitRequestPool<WlStream>(size, m_WlStreamPool);
+        }
+
+        public WlStream CreateWlStream()
+        {
+            WlStream? wlStream = (WlStream?)m_WlStreamPool.Poll();
+            if (wlStream == null)
+            {
+                wlStream = new WlStream();
+                m_WlStreamPool.UpdatePool(wlStream);
+            }
+            else
+            {
+                wlStream.Clear();
+            }
+
+            return wlStream;
+        }   
+
+        public void InitWlItemStream(int size)
+        {
+            for(int i = 0; i< size; i++)
+            {
+                WlItemStream wlItemStream = new WlItemStream();
+                m_WlItemStreamPool.Add(wlItemStream);
+            }
+        }
+
+        public WlItemStream CreateWlItemStream()
+        {
+            WlItemStream? wlItemStream = (WlItemStream?)m_WlItemStreamPool.Poll();
+            if(wlItemStream is null)
+            {
+                wlItemStream = new WlItemStream();
+                m_WlItemStreamPool.UpdatePool(wlItemStream);
+            }
+            else
+            {
+                wlItemStream.Clear();
+            }
+
+            return wlItemStream;
+        }
+
+        public void InitWlStreamAttributes(int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                WlStreamAttributes wlStreamAttributes = new WlStreamAttributes();
+                m_WlStreamAttributesPool.Add(wlStreamAttributes);
+            }
+        }
+
+        public WlStreamAttributes CreateWlStreamAttributes()
+        {
+            WlStreamAttributes? wlStreamAttributes = (WlStreamAttributes?)m_WlStreamAttributesPool.Poll();
+            if (wlStreamAttributes is null)
+            {
+                wlStreamAttributes = new WlStreamAttributes();
+                m_WlStreamAttributesPool.UpdatePool(wlStreamAttributes);
+            }
+            else
+            {
+                wlStreamAttributes.Clear();
+            }
+
+            return wlStreamAttributes;
+        }
+
+        public void InitWlTimeoutTimerPool(int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                var timer = new WlTimeoutTimer();
+                m_WlTimeoutTimerPool.Add(timer);
+            }
+        }
+
+        public WlTimeoutTimer CreateWlTimeoutTimer(WlTimeoutTimerGroup timerGroup, Action<WlTimeoutTimer> action)
+        {
+            WlTimeoutTimer? timer = (WlTimeoutTimer?)m_WlTimeoutTimerPool.Poll();
+            if (timer == null)
+            {
+                timer = new WlTimeoutTimer(timerGroup, action);
+            }
+            else
+            {
+                timer.Init(timerGroup, action);
+            }
+
+            return timer;
         }
     }
 }

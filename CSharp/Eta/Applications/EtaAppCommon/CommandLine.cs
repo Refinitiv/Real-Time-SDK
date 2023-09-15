@@ -185,7 +185,7 @@ namespace LSEG.Eta.Example.Common
                     Parameters.Add(current.ParsedString!, paramValues);
                 }
 
-                paramValues.AddRange(next!.ParsedString!.Split(","));
+                paramValues.Add(next!.ParsedString!);
 
                 current = ArgumentToken.Next(argv);
             }

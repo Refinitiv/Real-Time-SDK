@@ -16,6 +16,7 @@ using LSEG.Eta.ValueAdd.Rdm;
 using LSEG.Eta.Codec;
 using System;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace LSEG.Eta.ValuedAdd.Tests;
 
@@ -48,7 +49,7 @@ public class TestReactor
     /// <summary>
     /// Queue of events received from calling dispatch.
     /// </summary>
-    private Queue<TestReactorEvent> m_EventQueue;
+    internal Queue<TestReactorEvent> m_EventQueue;
 
     /// <summary>
     /// List of components associated with this reactor.
@@ -180,6 +181,8 @@ public class TestReactor
         {
             if (lastDispatchRet == 0)
             {
+                m_ReadSocketList.RemoveAll(socket => socket.SafeHandle.IsClosed);
+
                 TimeSpan selectTime;
 
                 var eventSocket = m_Reactor.EventSocket;
@@ -389,7 +392,7 @@ public class TestReactor
     /// <summary>
     /// Associates a component with this reactor and opens a connection.
     /// </summary>
-    void Connect(ConsumerProviderSessionOptions opts, TestReactorComponent component, int portNumber)
+    internal void Connect(ConsumerProviderSessionOptions opts, TestReactorComponent component, int portNumber)
     {
         ReactorConnectOptions connectOpts = new();
         ReactorConnectInfo connectInfo = new();
@@ -412,6 +415,12 @@ public class TestReactor
         connectOpts.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.Address = "localhost";
         connectOpts.ConnectionList[0].ConnectOptions.UnifiedNetworkInfo.ServiceName = portNumber.ToString();
 
+        if(opts.SysSendBufSize > 0)
+            connectOpts.ConnectionList[0].ConnectOptions.SysSendBufSize = opts.SysSendBufSize;
+
+        if (opts.SysRecvBufSize > 0)
+            connectOpts.ConnectionList[0].ConnectOptions.SysRecvBufSize = opts.SysRecvBufSize;
+
         ReactorReturnCode connectCode = m_Reactor.Connect(connectOpts, component.ReactorRole, out var connectError);
         Assert.True(ReactorReturnCode.SUCCESS == connectCode,
             $"Connect failed: {connectCode} ({connectError?.Location} -- {connectError?.Error?.Text})");
@@ -425,7 +434,7 @@ public class TestReactor
     /// <summary>
     /// Associates a component with this reactor and accepts a connection.
     /// </summary>
-    void Accept(ConsumerProviderSessionOptions opts, TestReactorComponent component)
+    internal void Accept(ConsumerProviderSessionOptions opts, TestReactorComponent component)
     {
         Accept(opts, component, TimeSpan.FromMilliseconds(5000));
     }
@@ -433,12 +442,17 @@ public class TestReactor
     /// <summary>
     /// Associates a component with this reactor and accepts a connection.
     /// </summary>
-    void Accept(ConsumerProviderSessionOptions opts, TestReactorComponent component, TimeSpan timeout)
+    internal void Accept(ConsumerProviderSessionOptions opts, TestReactorComponent component, TimeSpan timeout)
     {
         ReactorConnectOptions connectOpts = new();
 
         Assert.NotNull(component.Server);
         Assert.Null(component.ReactorChannel);
+
+        if(m_ReadSocketList.Count == 0)
+        {
+            m_ReadSocketList.Add(component.Server.Socket);
+        }
 
         /* Wait for server channel to trigger. */
         System.DateTime stopTime = System.DateTime.Now + timeout;
@@ -510,12 +524,49 @@ public class TestReactor
         /* Preset login message required if automatically setting up login stream. */
         Assert.True(opts.SetupDefaultLoginStream == false || consumerRole.RdmLoginRequest != null);
 
-        consumer.TestReactor.Dispatch(0);
+        /* Preset directory message required, or watchlist must be enabled, if automatically setting up directory stream */
+        Assert.True(opts.SetupDefaultDirectoryStream == false
+            || consumerRole.WatchlistOptions.EnableWatchlist == true
+            || consumerRole.RdmDirectoryRequest != null);
+
+        if (consumerRole.WatchlistOptions.EnableWatchlist)
+        {
+            foreach (var component in consumer.TestReactor.ComponentList)
+            {
+                if (opts.LoginHandler != null)
+                    component.ReactorChannel.Watchlist.LoginHandler = opts.LoginHandler;
+                if (opts.DirectoryHandler != null)
+                    component.ReactorChannel.Watchlist.DirectoryHandler = opts.DirectoryHandler;
+                if (opts.ItemHandler != null)
+                    component.ReactorChannel.Watchlist.ItemHandler = opts.ItemHandler;
+            }
+        }
+        /* If watchlist enabled, should get ChannelOpenCallback */
+        if (consumerRole.WatchlistOptions.EnableWatchlist
+            && consumerRole.WatchlistOptions.ChannelOpenEventCallback != null
+            && recoveringChannel == false)
+        {
+            evt = consumer.TestReactor.PollEvent();
+            Assert.Equal(TestReactorEventType.CHANNEL_EVENT, evt.EventType);
+            channelEvent = (ReactorChannelEvent)evt.ReactorEvent;
+            Assert.Equal(ReactorChannelEventType.CHANNEL_OPENED, channelEvent.EventType);
+        }
+        else
+        {
+            consumer.TestReactor.Dispatch(0);
+        }
 
         provider.TestReactor.Accept(opts, provider);
 
         /* Provider receives channel-up/channel-ready */
-        provider.TestReactor.Dispatch(2);
+        if (recoveringChannel)
+        {
+            provider.TestReactor.Dispatch(2, TimeSpan.FromSeconds(6));
+        }
+        else
+        {
+            provider.TestReactor.Dispatch(2);
+        }
 
         evt = provider.TestReactor.PollEvent();
         Assert.Equal(TestReactorEventType.CHANNEL_EVENT, evt.EventType);
@@ -529,7 +580,11 @@ public class TestReactor
 
         /* Consumer receives channel-up and any status events due the watchlist
          * items submitted in channel open callback. */
-        consumer.TestReactor.Dispatch(1 + opts.NumStatusEvents);
+
+        if (consumerRole.RdmLoginRequest == null)
+            consumer.TestReactor.Dispatch(2 + opts.NumStatusEvents);
+        else
+            consumer.TestReactor.Dispatch(1 + opts.NumStatusEvents);
         for (int i = 0; i < opts.NumStatusEvents; i++)
         {
             evt = consumer.TestReactor.PollEvent();
@@ -545,7 +600,7 @@ public class TestReactor
         if (consumerRole.RdmLoginRequest == null)
         {
             /* Consumer receives channel-ready, then we're done. */
-            consumer.TestReactor.Dispatch(1);
+            //consumer.TestReactor.Dispatch(1);
             evt = consumer.TestReactor.PollEvent();
             Assert.Equal(TestReactorEventType.CHANNEL_EVENT, evt.EventType);
             channelEvent = (ReactorChannelEvent)evt.ReactorEvent;
@@ -572,6 +627,8 @@ public class TestReactor
 
         loginRefresh.Clear();
         loginRefresh.Solicited = true;
+        loginRefresh.UserNameType = loginRequest.UserNameType;
+        loginRefresh.HasUserName = !string.IsNullOrEmpty(loginRequest.UserName.ToString());
         loginRefresh.UserName = loginRequest.UserName;
         loginRefresh.StreamId = loginRequest.StreamId;
         loginRefresh.HasFeatures = true;
@@ -595,7 +652,7 @@ public class TestReactor
         Assert.True(provider.SubmitAndDispatch(loginRefresh, submitOptions) >= ReactorReturnCode.SUCCESS);
 
         /* Consumer receives login refresh. */
-        if (consumerRole.RdmDirectoryRequest == null)
+        if (consumerRole.RdmDirectoryRequest == null && consumerRole.WatchlistOptions.EnableWatchlist == false)
             consumer.TestReactor.Dispatch(2);
         else
             consumer.TestReactor.Dispatch(1);
@@ -610,7 +667,7 @@ public class TestReactor
         loginMsgEvent = (RDMLoginMsgEvent)evt.ReactorEvent;
         Assert.Equal(LoginMsgType.REFRESH, loginMsgEvent.LoginMsg.LoginMsgType);
 
-        if (consumerRole.RdmDirectoryRequest == null)
+        if (consumerRole.RdmDirectoryRequest == null && consumerRole.WatchlistOptions.EnableWatchlist == false)
         {
             /* Consumer receives channel-ready. */
             evt = consumer.TestReactor.PollEvent();
@@ -621,10 +678,13 @@ public class TestReactor
             provider.TestReactor.Dispatch(0);
 
             /* when watchlist is not enabled, no directory exchange occurs. We're done. */
-            return;
+            if (consumerRole.WatchlistOptions.EnableWatchlist == false)
+            {
+                return;
+            }
         }
 
-        if (opts.SetupDefaultDirectoryStream == false)
+        if (opts.SetupDefaultDirectoryStream == false && consumerRole.WatchlistOptions.EnableWatchlist == false)
             return;
 
         /* Provider receives directory request. */
@@ -637,8 +697,6 @@ public class TestReactor
         /* Provider sends a default directory refresh. */
         DirectoryRequest directoryRequest = directoryMsgEvent.DirectoryMsg.DirectoryRequest;
         DirectoryRefresh directoryRefresh = new();
-
-        //directoryRefresh  = DirectoryMsgType.REFRESH);
 
         directoryRefresh.Clear();
         directoryRefresh.StreamId = directoryRequest.StreamId;
@@ -682,7 +740,7 @@ public class TestReactor
         {
             Assert.Equal(TestReactorEventType.DIRECTORY_MSG, evt.EventType);
             directoryMsgEvent = (RDMDirectoryMsgEvent)evt.ReactorEvent;
-            if (!recoveringChannel)
+            if (!recoveringChannel || consumerRole.WatchlistOptions.EnableWatchlist == false)
                 Assert.Equal(DirectoryMsgType.REFRESH, directoryMsgEvent.DirectoryMsg.DirectoryMsgType);
             else
                 Assert.Equal(DirectoryMsgType.UPDATE, directoryMsgEvent.DirectoryMsg.DirectoryMsgType);

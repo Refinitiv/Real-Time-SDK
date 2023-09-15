@@ -23,6 +23,8 @@ using DirectoryHandler = LSEG.Eta.PerfTools.Common.DirectoryHandler;
 using ItemInfo = LSEG.Eta.PerfTools.Common.ItemInfo;
 using LoginHandler = LSEG.Eta.PerfTools.Common.LoginHandler;
 using MarketPriceItem = LSEG.Eta.PerfTools.Common.MarketPriceItem;
+using System.Data;
+using System.Threading.Channels;
 
 namespace LSEG.Eta.PerfTools.ConsPerf
 {
@@ -92,6 +94,9 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 
         private Buffer m_PostBuffer;
         private Buffer m_GenericBuffer;
+        private IGenericMsg m_GenericMsg; // Use the VA Watchlist instead of the ETA Channel for sending and receiving
+        private IPostMsg m_PostMsg; // Use the VA Watchlist instead of the ETA Channel for sending and receiving
+        private DictionaryRequest m_DictionaryRequest; // Use the VA Reactor instead of the ETA Channel for sending and receiving
         private Buffer m_FieldDictionaryName = new Buffer();
         private Buffer m_EnumTypeDictionaryName = new Buffer();
 
@@ -178,6 +183,10 @@ namespace LSEG.Eta.PerfTools.ConsPerf
             m_PostBuffer.Data(new ByteBuffer(512));
             m_GenericBuffer = new Buffer();
             m_GenericBuffer.Data(new ByteBuffer(512));
+
+            m_GenericMsg = new Msg();
+            m_PostMsg = new Msg();
+            m_DictionaryRequest = new ();
             m_FieldDictionaryName.Data("RWFFld");
             m_EnumTypeDictionaryName.Data("RWFEnum");
             m_ShutdownCallback = shutdownCallback;
@@ -201,7 +210,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 
             if (!m_ConsThreadInfo.Shutdown)
             {
-                if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
                 {
                     // Check if the test is configured for the correct buffer size to fit post / generic messages
                     PrintEstimatedMsgSizes(m_Channel!, MsgClasses.POST);
@@ -261,7 +270,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                     BusyReadAndWrite(selectTime);
                 }
 
-                if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
                 {
                     // Handle pings
                     if (m_PingHandler!.HandlePings(m_Channel!, out m_Error) != TransportReturnCode.SUCCESS)
@@ -282,7 +291,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                         Service service;
 
                         // send item request and post bursts
-                        if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                        if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
                         {
                             service = m_SrcDirHandler!.ServiceInfo();
                         }
@@ -309,7 +318,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
             }   // end of run loop
 
             m_ConsThreadInfo.ShutdownAck = true;
-            if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
             {
                 CloseChannel();
             }
@@ -349,7 +358,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         {
             ConnectOptions connectOptions;
 
-            if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
             {
                 connectOptions = m_ConnectOpts!;
             }
@@ -395,7 +404,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 connectOptions.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
             }
 
-            if (!m_ConsPerfConfig.UseReactor)  // use ETA Channel for sending and receiving
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist)  // use ETA Channel for sending and receiving
             {
                 // Initialize Transport
                 InitArgs initArgs = new InitArgs();
@@ -503,7 +512,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 m_Role.LoginMsgCallback = this;
                 m_Role.DirectoryMsgCallback = this;
                 m_Role.DictionaryMsgCallback = this;
-                if (!DictionariesLoaded())
+                if (!DictionariesLoaded() && !m_ConsPerfConfig.UseWatchlist)
                 {
                     m_Role.DictionaryDownloadMode = DictionaryDownloadMode.FIRST_AVAILABLE;
                 }
@@ -521,7 +530,16 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 m_ConnectOptions.SetReconnectAttempLimit(-1);
                 m_ConnectOptions.SetReconnectMaxDelay(5000);
                 m_ConnectOptions.SetReconnectMinDelay(1000);
-
+                
+                // enable watchlist if configured
+                if (m_ConsPerfConfig.UseWatchlist)
+                {
+                    m_Role.WatchlistOptions.EnableWatchlist = true;
+                    // set itemCountHint to itemRequestCount
+                    m_Role.WatchlistOptions.ItemCountHint = (uint) m_ConsPerfConfig.ItemRequestCount;
+                    // set request timeout to 0, request timers reduce performance
+                    m_Role.WatchlistOptions.RequestTimeout = 0;
+                }
                 // connect via Reactor
                 ReactorReturnCode ret;
                 if ((ret = m_Reactor.Connect(m_ConnectOptions, m_Role, out errorInfo)) < ReactorReturnCode.SUCCESS)
@@ -748,9 +766,16 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         /// <param name="length">the length of the buffer</param>
         /// <param name="packedBuffer">determines whether the buffer is packed</param>
         /// <returns><see cref="ITransportBuffer"/> instance</returns>
-        private ITransportBuffer GetBuffer(int length, bool packedBuffer)
+        private ITransportBuffer? GetBuffer(int length, bool packedBuffer)
         {
-            return m_Channel!.GetBuffer(length, packedBuffer, out m_Error);
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
+            {
+                return m_Channel!.GetBuffer(length, packedBuffer, out m_Error);
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                return m_ReactorChannel?.GetBuffer(length, packedBuffer, out _);
+            }
         }
 
         /// <summary>
@@ -759,7 +784,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         /// <param name="msgBuf"><see cref="ITransportBuffer"/> with message data</param>
         private TransportReturnCode Write(ITransportBuffer msgBuf)
         {
-            if (!m_ConsPerfConfig.UseReactor)  // use ETA Channel for sending and receiving
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist)  // use ETA Channel for sending and receiving
             {
                 // write data to the channel
                 m_WriteArgs.Clear();
@@ -821,7 +846,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 m_SubmitOptions.WriteArgs.Priority = WritePriorities.HIGH;
                 m_SubmitOptions.WriteArgs.Flags = WriteFlags.DIRECT_SOCKET_WRITE;
 
-                if (m_ReactorChannel!.State == ReactorChannelState.READY)
+                if (m_ReactorChannel?.State == ReactorChannelState.READY)
                 {
                     ReactorReturnCode ret = m_ReactorChannel.Submit(msgBuf, m_SubmitOptions, out _);
 
@@ -845,7 +870,8 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 m_ReadList.Clear();
                 m_WriteList.Clear();
 
-                if (!m_ConsPerfConfig.UseReactor
+                if (!m_ConsPerfConfig.UseReactor 
+                    && !m_ConsPerfConfig.UseWatchlist
                     && m_Channel!.Socket != null
                     && m_Channel.Socket.Connected)
                 {
@@ -853,7 +879,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                     if (shouldWrite)
                         m_WriteList.Add(m_Channel.Socket);
                 }
-                else if (m_ConsPerfConfig.UseReactor)
+                else if (m_ConsPerfConfig.UseReactor || m_ConsPerfConfig.UseWatchlist)
                 {
                     m_ReadList.Add(m_Reactor!.EventSocket!);
                     if (m_ReactorChannel?.Socket != null)
@@ -868,7 +894,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 
                     if (m_ReadList.Count > 0)
                     {
-                        if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                        if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
                         {
                             Read();
                         }
@@ -889,7 +915,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                     if (shouldWrite && m_WriteList.Count > 0)
                     {
                         /* flush for write file descriptor and active state */
-                        if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+                        if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
                         {
                             if (m_Channel!.Flush(out m_Error) == TransportReturnCode.SUCCESS)
                             {
@@ -922,7 +948,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 
             pollTime = currentTime + selectTime;
 
-            if (!m_ConsPerfConfig.UseReactor) // use ETA Channel for sending and receiving
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
             {
                 // call flush once
                 m_Channel!.Flush(out m_Error);
@@ -1105,7 +1131,14 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 }
                 else // dictionaries not loaded yet
                 {
-                    SendDictionaryRequests(m_Channel!, m_SrcDirHandler.ServiceInfo());
+                    // request dictionaries if watchlist enabled
+                    if (m_ConsPerfConfig.UseWatchlist)
+                    {
+                        SendWatchlistDictionaryRequests(m_ReactorChannel, m_SrcDirHandler.ServiceInfo());
+                    }else
+                    {
+                        SendDictionaryRequests(m_Channel!, m_SrcDirHandler.ServiceInfo());
+                    }
                 }
             }
             else
@@ -1159,6 +1192,37 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                     CloseChannelAndShutDown("Sending dictionary request failed");
                     return;
                 }
+            }
+        }
+
+        private void SendWatchlistDictionaryRequests(ReactorChannel? reactorChannel, Service service)
+        {
+            ReactorReturnCode ret;
+
+            if (m_RequestsSent)
+                return;
+
+            m_DictionaryRequest.Verbosity = Dictionary.VerbosityValues.NORMAL;
+            m_DictionaryRequest.ServiceId = service.ServiceId;
+
+            m_DictionaryRequest.StreamId = 3;
+            m_DictionaryRequest.DictionaryName = m_FieldDictionaryName;
+
+            ret = reactorChannel?.Submit(m_DictionaryRequest, m_SubmitOptions, out var _) ?? ReactorReturnCode.NO_BUFFERS;
+            if (ret < ReactorReturnCode.SUCCESS && ret != ReactorReturnCode.NO_BUFFERS)
+            {
+                CloseChannelAndShutDown("Sending field dictionary request failed");
+                return;
+            }
+
+            m_DictionaryRequest.StreamId = 4;
+            m_DictionaryRequest.DictionaryName = m_EnumTypeDictionaryName;
+
+            ret = reactorChannel?.Submit(m_DictionaryRequest, m_SubmitOptions, out var _) ?? ReactorReturnCode.NO_BUFFERS;
+            if (ret < ReactorReturnCode.SUCCESS && ret != ReactorReturnCode.NO_BUFFERS)
+            {
+                CloseChannelAndShutDown("Sending enum type dictionary request failed");
+                return;
             }
         }
 
@@ -1321,7 +1385,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 m_RequestMsg.MsgKey.ApplyHasServiceId();
                 m_RequestMsg.MsgKey.ServiceId = service.ServiceId;
 
-                if ((ret = WriteRequestMsg()) != TransportReturnCode.SUCCESS)
+                if ((ret = WriteMsg((Msg)m_RequestMsg)) != TransportReturnCode.SUCCESS)
                 {
                     return ret;
                 }
@@ -1374,31 +1438,78 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 {
                     encodeStartTime = 0;
                 }
-
-                int bufLen = m_ItemEncoder.EstimateItemMsgBufferLength(item!.ItemInfo, msgClass);
-                ITransportBuffer msgBuf;
-                if ((msgBuf = GetBuffer(bufLen, false)) == null)
+                if(!m_ConsPerfConfig.UseWatchlist)// VA Reactor Watchlist not enabled
                 {
-                    return TransportReturnCode.NO_BUFFERS;
-                }
-                if ((codecReturnCode = encodeMsg(m_Channel!, item.ItemInfo, msgBuf, m_PostUserInfo, encodeStartTime)) != CodecReturnCode.SUCCESS)
-                {
-                    Console.WriteLine($"Encode Item for MsgClass {MsgClasses.ToString(msgClass)} failed: {codecReturnCode.GetAsString()}.\n");
-                    return TransportReturnCode.FAILURE;
-                }
-
-                Write(msgBuf);
-
-                if (msgClass == MsgClasses.POST)
-                {
-                    m_ConsThreadInfo.Stats.PostSentCount.Increment();
-                }
-                else if (msgClass == MsgClasses.GENERIC)
-                {
-                    m_ConsThreadInfo.Stats.GenMsgSentCount.Increment();
-                    if (latencyUpdateNumber == i)
+                    int bufLen = m_ItemEncoder.EstimateItemMsgBufferLength(item!.ItemInfo, msgClass);
+                    ITransportBuffer? msgBuf;
+                    if ((msgBuf = GetBuffer(bufLen, false)) == null)
                     {
-                        m_ConsThreadInfo.Stats.LatencyGenMsgSentCount.Increment();
+                        return TransportReturnCode.NO_BUFFERS;
+                    }
+                    if ((codecReturnCode = encodeMsg(m_Channel!, item.ItemInfo, msgBuf, m_PostUserInfo, encodeStartTime)) != CodecReturnCode.SUCCESS)
+                    {
+                        Console.WriteLine($"Encode Item for MsgClass {MsgClasses.ToString(msgClass)} failed: {codecReturnCode.GetAsString()}.\n");
+                        return TransportReturnCode.FAILURE;
+                    }
+
+                    Write(msgBuf);
+
+                    if (msgClass == MsgClasses.POST)
+                    {
+                        m_ConsThreadInfo.Stats.PostSentCount.Increment();
+                    }
+                    else if (msgClass == MsgClasses.GENERIC)
+                    {
+                        m_ConsThreadInfo.Stats.GenMsgSentCount.Increment();
+                        if (latencyUpdateNumber == i)
+                        {
+                            m_ConsThreadInfo.Stats.LatencyGenMsgSentCount.Increment();
+                        }
+                    }
+                }
+                else // VA Reactor Watchlist is enabled, submit message instead of buffer
+                {
+                    // create properly encoded generic message
+                    if (m_ReactorChannel?.State == ReactorChannelState.UP || m_ReactorChannel?.State == ReactorChannelState.READY)
+                    {
+                        if (msgClass == MsgClasses.GENERIC)
+                        {
+                            m_GenericMsg.Clear();
+                            m_GenericBuffer.Data().Clear();
+                            CodecReturnCode ret;
+                            if ((ret = m_ItemEncoder.CreateItemGenMsg(m_ReactorChannel?.Channel!, item!.ItemInfo, m_GenericMsg, m_GenericBuffer, encodeStartTime)) != CodecReturnCode.SUCCESS)
+                            {
+                                Console.WriteLine($"CreateItemGenMsg() failed: {ret}.\n");
+                                return (TransportReturnCode)ret;
+                            }
+
+                            WriteMsg((Msg)m_GenericMsg);
+
+                            m_ConsThreadInfo.Stats.GenMsgSentCount.Increment();
+                            if (latencyUpdateNumber == i)
+                            {
+                                m_ConsThreadInfo.Stats.LatencyGenMsgSentCount.Increment();
+                            }
+                        }
+                        else if (msgClass == MsgClasses.POST)
+                        {
+                            m_PostMsg.Clear();
+                            m_PostBuffer.Data().Clear();
+                            CodecReturnCode ret;
+                            if ((ret = m_ItemEncoder.CreateItemPostMsg(m_ReactorChannel?.Channel!, item!.ItemInfo, m_PostMsg, m_PostBuffer, m_PostUserInfo, encodeStartTime)) != CodecReturnCode.SUCCESS)
+                            {
+                                Console.WriteLine($"createItemPost() failed: {ret}.\n");
+                                return (TransportReturnCode)ret;
+                            }
+
+                            WriteMsg((Msg)m_PostMsg);
+
+                            m_ConsThreadInfo.Stats.PostSentCount.Increment();
+                        }
+                        else
+                        {
+                            return TransportReturnCode.FAILURE;
+                        }
                     }
                 }
             }
@@ -1471,34 +1582,44 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         }
 
         /// <summary>
-        /// Writes the request message to the ETA channel
+        /// Writes the message to the ETA channel
         /// </summary>
         /// <returns><see cref="TransportReturnCode"/> value indicating the status of the operation</returns>
-        private TransportReturnCode WriteRequestMsg()
+        private TransportReturnCode WriteMsg(Msg msg)
         {
-
-            ITransportBuffer msgBuf;
-
-            if ((msgBuf = GetBuffer(REQUEST_MSG_BUF_SIZE, false)) == null)
+            if (!m_ConsPerfConfig.UseWatchlist) //// VA Reactor Watchlist not enabled
             {
-                return TransportReturnCode.NO_BUFFERS;
-            }
+                ITransportBuffer? msgBuf;
 
-            m_EncIter.Clear();
-            CodecReturnCode codecReturnCode = m_EncIter.SetBufferAndRWFVersion(msgBuf, MajorVersion(), MinorVersion());
-            if (codecReturnCode != CodecReturnCode.SUCCESS)
+                if ((msgBuf = GetBuffer(REQUEST_MSG_BUF_SIZE, false)) == null)
+                {
+                    return TransportReturnCode.NO_BUFFERS;
+                }
+
+                m_EncIter.Clear();
+                CodecReturnCode codecReturnCode = m_EncIter.SetBufferAndRWFVersion(msgBuf, MajorVersion(), MinorVersion());
+                if (codecReturnCode != CodecReturnCode.SUCCESS)
+                {
+                    Console.WriteLine($"SetBufferAndRWFVersion() failed: {codecReturnCode.GetAsString()}\n");
+                    return TransportReturnCode.FAILURE;
+                }
+
+                if ((codecReturnCode = msg!.Encode(m_EncIter)) != CodecReturnCode.SUCCESS)
+                {
+                    Console.WriteLine($"EncodeMsg() failed: {codecReturnCode.GetAsString()}.\n");
+                    return TransportReturnCode.FAILURE;
+                }
+
+                return Write(msgBuf);
+            }
+            else // VA Reactor Watchlist is enabled, submit message instead of buffer
             {
-                Console.WriteLine($"SetBufferAndRWFVersion() failed: {codecReturnCode.GetAsString()}\n");
-                return TransportReturnCode.FAILURE;
+                if (m_ReactorChannel?.State == ReactorChannelState.READY)
+                {
+                    return (TransportReturnCode)m_ReactorChannel.Submit(msg, m_SubmitOptions, out var _);
+                }
+                return TransportReturnCode.SUCCESS;
             }
-
-            if ((codecReturnCode = m_RequestMsg!.Encode(m_EncIter)) != CodecReturnCode.SUCCESS)
-            {
-                Console.WriteLine($"EncodeMsg() failed: {codecReturnCode.GetAsString()}.\n");
-                return TransportReturnCode.FAILURE;
-            }
-
-            return Write(msgBuf);
         }
 
         /// <summary>
@@ -1507,7 +1628,14 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         /// <returns>int value corresponding to the major version</returns>
         private int MajorVersion()
         {
-            return m_Channel!.MajorVersion;
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
+            {
+                return m_Channel!.MajorVersion;
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                return m_ReactorChannel?.MajorVersion ?? 0;
+            }
         }
 
         /// <summary>
@@ -1516,7 +1644,14 @@ namespace LSEG.Eta.PerfTools.ConsPerf
         /// <returns>int value corresponding to the minor version</returns>
         private int MinorVersion()
         {
-            return m_Channel!.MinorVersion;
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
+            {
+                return m_Channel!.MinorVersion;
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                return m_ReactorChannel?.MinorVersion ?? 0;
+            }
         }
 
         private ItemRequest? NextMsgItem(int msgClass)
@@ -1580,6 +1715,14 @@ namespace LSEG.Eta.PerfTools.ConsPerf
             m_ShutdownCallback.Shutdown();
             m_ConsThreadInfo.ShutdownAck = true;
             CloseChannel();
+            if (!m_ConsPerfConfig.UseReactor && !m_ConsPerfConfig.UseWatchlist) // use ETA Channel for sending and receiving
+            {
+                CloseChannel();
+            }
+            else // use ETA VA Reactor for sending and receiving
+            {
+                CloseReactor();
+            }
         }
 
         /// <summary>
@@ -1703,13 +1846,19 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                     {
                         Console.WriteLine("Connected ");
                         m_ReactorChannel = evt.ReactorChannel;
-                        m_ConsThreadInfo.Channel = m_ReactorChannel!.Channel;
-                        m_Channel = m_ReactorChannel!.Channel;
+                        m_ConsThreadInfo.Channel = m_ReactorChannel?.Channel;
+                        m_Channel = m_ReactorChannel?.Channel;
+
+                        if(m_ReactorChannel is null)
+                        {
+                            CloseChannelAndShutDown("m_ReactorChannel null");
+                            return ReactorCallbackReturnCode.FAILURE;
+                        }
 
                         // set the high water mark if configured
                         if (m_ConsPerfConfig.HighWaterMark > 0)
                         {
-                            if (m_ReactorChannel.IOCtl(IOCtlCode.HIGH_WATER_MARK, m_ConsPerfConfig.HighWaterMark, out _) != ReactorReturnCode.SUCCESS)
+                            if (m_ReactorChannel!.IOCtl(IOCtlCode.HIGH_WATER_MARK, m_ConsPerfConfig.HighWaterMark, out _) != ReactorReturnCode.SUCCESS)
                             {
                                 CloseChannelAndShutDown("Channel.IOCtl() failed");
                                 return ReactorCallbackReturnCode.FAILURE;
@@ -1717,7 +1866,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                         }
 
                         // get and print the channel info
-                        if (m_ReactorChannel.Info(m_ReactorChannnelInfo, out _) != ReactorReturnCode.SUCCESS)
+                        if (m_ReactorChannel!.Info(m_ReactorChannnelInfo, out _) != ReactorReturnCode.SUCCESS)
                         {
                             CloseChannelAndShutDown("Channel.Info() failed");
                             return ReactorCallbackReturnCode.FAILURE;
@@ -1753,6 +1902,11 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                             }
                             else // dictionaries not loaded yet
                             {
+                                // request dictionaries if watchlist enabled
+                                if (m_ConsPerfConfig.UseWatchlist)
+                                {
+                                    SendWatchlistDictionaryRequests(m_ReactorChannel, m_Service!);
+                                }
                             }
                         }
                         else
@@ -1804,6 +1958,9 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                     }
                 case ReactorChannelEventType.WARNING:
                     Console.WriteLine("Received ReactorChannel WARNING event\n");
+                    break;
+                case ReactorChannelEventType.CHANNEL_OPENED:
+                    Console.WriteLine("Received ReactorChannel CHANNEL_OPENED event\n");
                     break;
                 default:
                     {
@@ -1857,7 +2014,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
                 if (msg.EncodedDataBody != null && msg.EncodedDataBody.Data() != null)
                 {
                     m_DecIter.Clear();
-                    m_DecIter.SetBufferAndRWFVersion(msg.EncodedDataBody, m_ReactorChannel!.MajorVersion, m_ReactorChannel.MinorVersion);
+                    m_DecIter.SetBufferAndRWFVersion(msg.EncodedDataBody, m_ReactorChannel?.MajorVersion ?? 0, m_ReactorChannel?.MinorVersion ?? 0);
                 }
                 ProcessMarketPriceResponse(msg, m_DecIter);
             }

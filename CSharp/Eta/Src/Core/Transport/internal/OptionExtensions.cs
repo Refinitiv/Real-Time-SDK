@@ -18,6 +18,16 @@ namespace LSEG.Eta.Internal
             return source;
         }
 
+        internal static UnifiedNetworkInfo CopyTo(this UnifiedNetworkInfo source, UnifiedNetworkInfo dest)
+        {
+            dest.ServiceName = source.ServiceName;
+            dest.Address = source.Address;
+            dest.InterfaceName = source.InterfaceName;
+            dest.Port = source.Port;
+
+            return source;
+        }
+
         internal static ConnectOptions CopyTo(this ConnectOptions source, ConnectOptions dest)
         {
             dest.Blocking = source.Blocking;
@@ -35,7 +45,7 @@ namespace LSEG.Eta.Internal
             dest.SysRecvBufSize = source.SysRecvBufSize;
             dest.SysSendBufSize = source.SysSendBufSize;
             source.TcpOpts.CopyTo(dest.TcpOpts);
-            dest.UnifiedNetworkInfo = source.UnifiedNetworkInfo;
+            source.UnifiedNetworkInfo.CopyTo(dest.UnifiedNetworkInfo);
             dest.UserSpecObject = source.UserSpecObject;
             source.EncryptionOpts.CopyTo(dest.EncryptionOpts);
             source.ProxyOptions.CopyTo(dest.ProxyOptions);

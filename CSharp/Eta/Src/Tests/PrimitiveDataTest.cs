@@ -6,7 +6,6 @@
  *|-----------------------------------------------------------------------------
  */
 
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using LSEG.Eta.Codec;
@@ -58,7 +57,7 @@ namespace CodecTestProject
             Assert.Equal(CodecReturnCode.BLANK_DATA, uint1.Decode(_decIter));
 
             Assert.True(uint1.IsBlank);
-            Assert.Equal<long>(uintv.ToLong(), uint1.ToLong());
+            Assert.Equal(uintv.ToLong(), uint1.ToLong());
         }
 
         [Fact]
@@ -68,7 +67,7 @@ namespace CodecTestProject
             UInt thisUInt = new UInt();
 
             thisUInt.Value(11223344);
-            Assert.Equal<long>(11223344, thisUInt.ToLong());
+            Assert.Equal(11223344, thisUInt.ToLong());
         }
 
         [Fact]
@@ -97,17 +96,17 @@ namespace CodecTestProject
             Left.Value(13);
 
             // Make sure they are NOT equal, by asserting if they ARE equal
-            Assert.True(Left._longValue != Right._longValue);
+            Assert.True(Left._ulongValue != Right._ulongValue);
 
             Left.Copy(Right);
             //  Make sure they are Equal
             Assert.Equal<bool>(Left.IsBlank, Right.IsBlank);
-            Assert.Equal<long>(Left._longValue, Right._longValue);
+            Assert.Equal(Left._ulongValue, Right._ulongValue);
 
             // Change it again to make sure they are now NOT equal 
             // ( this ensures we are doing a DEEP copy and not just copying references)
-            Left.Value(Right._longValue + 1);
-            Assert.True(Left._longValue != Right._longValue);
+            Left.Value(Right._ulongValue + 1);
+            Assert.True(Left._ulongValue != Right._ulongValue);
         }
 
         [Fact]
@@ -227,41 +226,70 @@ namespace CodecTestProject
         [Category("Unit")]
         public void UIntEncodeDecodeTest()
         {
-            UInt unint = new UInt();
-            long val;
+            UInt unint = new ();
 
-            /* leading 0's */
-            for (val = 6148914691236517205; val != 0; val >>= 1)
-            {
+            {//long
+                long val;
+
+                /* leading 0's */
+                for (val = 6148914691236517205; val != 0; val >>= 1)
+                {
+                    unint.Value(val);
+                    UIntED(unint);
+                }
+
+                for (val = -6148914691236517206; val != -1; val >>= 1)
+                {
+                    unint.Value(val);
+                    UIntED(unint);
+                }
+
+                /* trailing 0's */
+                for (val = -6148914691236517206; val != 0; val <<= 1)
+                {
+                    unint.Value(val);
+                    UIntED(unint);
+                }
+                /* Highest hex number */
+                val = -1;
+                unint.Value(val);
+                UIntED(unint);
+
+                /* 0 */
+                val = 0;
                 unint.Value(val);
                 UIntED(unint);
             }
 
-            for (val = -6148914691236517206; val != -1; val >>= 1)
-            {
-                unint.Value(val);
-                UIntED(unint);
-            }
+            {//ulong
+                ulong val;
+                /* leading 0's */
+                for (val = 6148914691236517205; val != 0; val >>= 1)
+                {
+                    unint.Value(val);
+                    UIntED(unint);
+                }
 
-            /* trailing 0's */
-            for (val = -6148914691236517206; val != 0; val <<= 1)
-            {
-                unint.Value(val);
-                UIntED(unint);
+                for (val = 0b_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010;
+                    val != 0b_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111_1111;
+                    val = (val >> 1) | 0b_1000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000)
+                {
+                    unint.Value(val);
+                    UIntED(unint);
+                }
+
+                /* trailing 0's */
+                for (val = 0b_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010_1010;
+                     val != 0;
+                     val <<= 1)
+                {
+                    unint.Value(val);
+                    UIntED(unint);
+                }
             }
 
             /* Highest hex number */
-            val = -1;
-            unint.Value(val);
-            UIntED(unint);
-
-            /* 0 */
-            val = 0;
-            unint.Value(val);
-            UIntED(unint);
-
-            /* Highest hex number */
-            unint.Value("-1");
+            unint.Value("18446744073709551615");
             UIntED(unint);
 
             /* 0 */
@@ -3089,7 +3117,8 @@ namespace CodecTestProject
             UInt uint1 = new UInt();
             uint1.Decode(_decIter);
 
-            Assert.Equal<long>(unint.ToLong(), uint1.ToLong());
+            Assert.Equal(unint.ToLong(), uint1.ToLong());
+            Assert.Equal(unint.ToULong(), uint1.ToULong());
         }
         private void IntED(Int intv)
         {

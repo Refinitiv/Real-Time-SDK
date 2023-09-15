@@ -182,7 +182,12 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 		/// </summary>
 		public bool BusyRead { get; set; }
 
-		public void AddDefaultOptionValues()
+        /// <summary>
+        /// Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving.
+        /// </summary>
+        public bool UseWatchlist => CommandLine.BoolValue("watchlist");
+
+        public void AddDefaultOptionValues()
         {
 			CommandLine.ProgName("ConsPerf");
 			CommandLine.AddOption("steadyStateTime", 300, "Time consumer will run the steady-state portion of the test. Also used as a timeout during the startup-state portion");
@@ -220,8 +225,9 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 			CommandLine.AddOption("genericMsgLatencyRate", 0, "Rate at which to send latency generic messages");
             CommandLine.AddOption("reactor", false, "Use the VA Reactor instead of the ETA Channel for sending and receiving");
 			CommandLine.AddOption("busyRead", false, "If set, the application will continually read rather than using notification.");
-
-		}
+            CommandLine.AddOption("busyRead", false, "If set, the application will continually read rather than using notification."); 
+			CommandLine.AddOption("watchlist", false, "Use the VA Reactor watchlist instead of the ETA Channel for sending and receiving");
+        }
 
 		/// <summary>
 		/// Parses command-line arguments to fill in the application's configuration structures.
@@ -281,7 +287,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 				}
 				else
 				{
-					Console.Error.WriteLine("Config Error: Only socket, websocket or encrypted connection type is supported.\n");
+					Console.Error.WriteLine("Config Error: Only socket or encrypted connection type is supported.\n");
 					Console.Error.WriteLine(CommandLine.OptionHelpString());
 					Environment.Exit((int)PerfToolsReturnCode.FAILURE);
 				}
@@ -420,7 +426,7 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 				Environment.Exit((int)PerfToolsReturnCode.FAILURE);
 			}
 
-			RequestsPerTick = ItemRequestsPerSec / TicksPerSec;
+            RequestsPerTick = ItemRequestsPerSec / TicksPerSec;
 
 			RequestsPerTickRemainder = ItemRequestsPerSec % TicksPerSec;
 
@@ -431,7 +437,10 @@ namespace LSEG.Eta.PerfTools.ConsPerf
 		{
             string reactorWatchlistUsageString;
 
-            if (UseReactor)
+            if (UseWatchlist)
+            {
+                reactorWatchlistUsageString = "Reactor and Watchlist";
+            }else if (UseReactor)
             {
                 reactorWatchlistUsageString = "Reactor";
             }

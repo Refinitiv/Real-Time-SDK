@@ -68,19 +68,47 @@ namespace LSEG.Eta.PerfTools.Common
         /// <param name="postUserInfo">the post user info</param>
         /// <param name="encodeStartTime">if &gt;0, this is a latency timestamp to be included in the post message</param>
         /// <returns>&lt;0 if encoding fails, 0 otherwise</returns>
-        public CodecReturnCode CreateItemPost(IChannel channel, ItemInfo itemInfo, IPostMsg postMsg, Codec.Buffer postBuffer, PostUserInfo postUserInfo, long encodeStartTime)
+        public CodecReturnCode CreateItemPostMsg(IChannel channel, ItemInfo itemInfo, IPostMsg postMsg, Codec.Buffer postBuffer, PostUserInfo postUserInfo, long encodeStartTime)
         {
             m_EncIter.Clear();
             CodecReturnCode codecReturnCode = m_EncIter.SetBufferAndRWFVersion(postBuffer, channel.MajorVersion, channel.MinorVersion);
-            if (codecReturnCode == CodecReturnCode.SUCCESS)
-            {
-                return EncodeItemPost(itemInfo, postMsg, m_EncIter, postUserInfo, encodeStartTime);
-            } 
-            else
+            if (codecReturnCode != CodecReturnCode.SUCCESS)
             {
                 Console.WriteLine($"SetBufferAndRWFVersion() failed: {codecReturnCode.GetAsString()}.");
                 return codecReturnCode;
             } 
+
+            // Prepare Post message
+            postMsg.MsgClass = MsgClasses.POST;
+            postMsg.StreamId = itemInfo.StreamId;
+            postMsg.ApplyPostComplete();
+            postMsg.PostUserInfo.UserAddr = postUserInfo.UserAddr;
+            postMsg.PostUserInfo.UserId = postUserInfo.UserId;
+            postMsg.DomainType = itemInfo.Attributes.DomainType;
+            postMsg.ContainerType = DataTypes.MSG;
+
+            // Prepare Update message
+            m_TmpMsg.Clear();
+            m_TmpMsg.MsgClass = MsgClasses.UPDATE;
+            m_TmpMsg.ApplyHasPostUserInfo();
+            m_TmpMsg.PostUserInfo.UserAddr = postUserInfo.UserAddr;
+            m_TmpMsg.PostUserInfo.UserId = postUserInfo.UserId;
+            m_TmpMsg.DomainType = itemInfo.Attributes.DomainType;
+
+            if (itemInfo.Attributes.DomainType != (int)DomainType.MARKET_PRICE)
+                return CodecReturnCode.FAILURE;
+            m_TmpMsg.ContainerType = DataTypes.FIELD_LIST;
+            if ((codecReturnCode = m_TmpMsg.EncodeInit(m_EncIter, 0)) < CodecReturnCode.SUCCESS)
+                return codecReturnCode;
+            if ((codecReturnCode = m_MarketPriceEncoder.EncodeDataBody(m_EncIter, m_MarketPriceEncoder.NextPostMsg((MarketPriceItem)itemInfo.ItemData!), MsgClasses.POST, encodeStartTime)) < CodecReturnCode.SUCCESS)
+                return codecReturnCode;
+            if ((codecReturnCode = m_TmpMsg.EncodeComplete(m_EncIter, true)) < CodecReturnCode.SUCCESS)
+                return codecReturnCode;
+
+            // set EncodedDataBody on PostMsg
+            postMsg.EncodedDataBody = postBuffer;
+
+            return CodecReturnCode.SUCCESS;
         }
 
         /// <summary>
@@ -119,15 +147,26 @@ namespace LSEG.Eta.PerfTools.Common
         {
             m_EncIter.Clear();
             CodecReturnCode codecReturnCode = m_EncIter.SetBufferAndRWFVersion(genericBuffer, channel.MajorVersion, channel.MinorVersion);
-            if (codecReturnCode == CodecReturnCode.SUCCESS)
-            {
-                return EncodeItemGenMsg(itemInfo, genericMsg, m_EncIter, encodeStartTime);
-            }  
-            else
+            if (codecReturnCode != CodecReturnCode.SUCCESS)
             {
                 Console.WriteLine($"SetBufferAndRWFVersion() failed: {codecReturnCode.GetAsString()}.");
                 return codecReturnCode;
             }
+
+            genericMsg.MsgClass = MsgClasses.GENERIC;
+            genericMsg.StreamId = itemInfo.StreamId;
+            genericMsg.DomainType = itemInfo.Attributes.DomainType;
+            if (itemInfo.Attributes.DomainType != (int)DomainType.MARKET_PRICE)
+                return CodecReturnCode.FAILURE;
+            genericMsg.ContainerType = DataTypes.FIELD_LIST;
+
+            if ((codecReturnCode = m_MarketPriceEncoder.EncodeDataBody(m_EncIter, m_MarketPriceEncoder.NextGenMsg((MarketPriceItem)itemInfo.ItemData!), MsgClasses.GENERIC, encodeStartTime)) < CodecReturnCode.SUCCESS)
+                return codecReturnCode;
+            Debug.Assert(genericMsg.ContainerType == DataTypes.FIELD_LIST);
+
+            genericMsg.EncodedDataBody = genericBuffer;
+
+            return CodecReturnCode.SUCCESS;
         }
 
         /// <summary>

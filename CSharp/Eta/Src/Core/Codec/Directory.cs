@@ -140,7 +140,10 @@ namespace LSEG.Eta.Rdm
 			/// <summary>
 			/// Source Communication Link Information </summary>
 			public const int LINK = 0x00000020;
-		}
+            /// <summary>
+            /// All of the above information </summary>
+            public const int ALL_FILTERS = 0x0000003F;
+}
 
 		/// <summary>
 		/// Filter IDs for RDM directory service.

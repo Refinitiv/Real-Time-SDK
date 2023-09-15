@@ -10,6 +10,7 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Rdm;
 using System.Diagnostics;
 using System.Text;
+using static LSEG.Eta.Rdm.Dictionary;
 using Buffer = LSEG.Eta.Codec.Buffer;
 
 namespace LSEG.Eta.ValueAdd.Rdm
@@ -95,6 +96,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
             m_DictionaryRequest.MsgKey.ApplyHasFilter();
             m_DictionaryRequest.MsgKey.ApplyHasServiceId();
             m_DictionaryRequest.MsgKey.ApplyHasName();
+            m_DictionaryRequest.MsgKey.Filter = VerbosityValues.NORMAL;
             m_DictionaryRequest.ContainerType = DataTypes.NO_DATA;
             m_DictionaryRequest.DomainType = (int)LSEG.Eta.Rdm.DomainType.DICTIONARY;
             Flags = 0;

@@ -1241,7 +1241,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -1481,7 +1481,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -1702,7 +1702,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -2275,7 +2275,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -2744,7 +2744,7 @@ namespace LSEG.Eta.Transports.Tests
             FilterList filterList = new FilterList();
             FilterEntry filterEntry = new FilterEntry();
             UInt key = new UInt();
-            key.Value(nested);
+            key.Value((uint)nested);
 
             if (nested == 0)
             {

@@ -285,7 +285,7 @@ public abstract class TestReactorComponent
     /// <summary>
     /// Closes the component's channel.
     /// </summary>
-    void CloseChannel()
+    internal void CloseChannel()
     {
         if (ReactorChannelState.CLOSED != m_ReactorChannel.State)
         {
@@ -314,5 +314,17 @@ public abstract class TestReactorComponent
 
         TestReactor.RemoveComponent(this);
         TestReactor = null;
+    }
+
+    public ReactorReturnCode GetChannelInfo(ReactorChannelInfo reactorChannelInfo)
+    {
+        if(m_ReactorChannelIsUp && m_ReactorChannel != null)
+        {
+            return m_ReactorChannel.Info(reactorChannelInfo, out _);
+        }
+        else
+        {
+            return ReactorReturnCode.FAILURE;
+        }
     }
 }

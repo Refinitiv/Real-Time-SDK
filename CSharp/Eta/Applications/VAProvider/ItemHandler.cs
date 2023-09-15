@@ -1272,7 +1272,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                             // The request has a different stream ID, meaning it
                             // would open the same item on another stream.
                             // This is not allowed (except for private streams).
-                            if (!msg.CheckPrivateStream())
+                            if (!msg.CheckPrivateStream() && !itemRequestInfo.IsPrivateStreamRequest)
                             {
                                 rejectReason.Add(ItemRejectReason.ITEM_ALREADY_OPENED);
                                 return null;

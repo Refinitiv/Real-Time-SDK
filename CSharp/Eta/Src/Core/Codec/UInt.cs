@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace LSEG.Eta.Codec
@@ -16,8 +17,7 @@ namespace LSEG.Eta.Codec
     /// </summary>
     sealed public class UInt : IEquatable<UInt>
 	{
-        internal long _longValue;
-		internal byte[] _bytes = new byte[9];
+        internal ulong _ulongValue;
 
 		// for value(String) method
 		private string trimmedVal;
@@ -35,7 +35,7 @@ namespace LSEG.Eta.Codec
 		/// </summary>
 		public void Clear()
 		{
-			_longValue = 0;
+			_ulongValue = 0;
 		}
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace LSEG.Eta.Codec
 				return CodecReturnCode.INVALID_ARGUMENT;
 			}
 
-			destUInt._longValue = _longValue;
+			destUInt._ulongValue = _ulongValue;
 			destUInt.IsBlank = IsBlank;
 
 			return CodecReturnCode.SUCCESS;
@@ -73,44 +73,70 @@ namespace LSEG.Eta.Codec
 		/// <returns> the value as long
 		/// </returns>
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		public long ToLong()
-		{
-			return _longValue;
-		}
+		public long ToLong() => unchecked((long)_ulongValue);
 
-		/// <summary>
-		/// Set value to int.
-		/// </summary>
-		/// <param name="value"> the value to set </param>
-		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		public void Value(int value)
+        /// <summary>
+        /// Returns value as ulong. The value is returned as unsigned long.
+        /// </summary>
+        /// <returns> the value as ulong
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public ulong ToULong() => _ulongValue;
+
+        /// <summary>
+        /// Set value to uint.
+        /// </summary>
+        /// <param name="value"> the value to set </param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+		public void Value(uint value)
 		{
-			_longValue = value;
+			_ulongValue = value;
 			IsBlank = false;
 		}
 
+        /// <summary>
+        /// Set value to int.
+        /// </summary>
+        /// <param name="value"> the value to set </param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Value(int value)
+        {
+            _ulongValue = unchecked((uint)value);
+            IsBlank = false;
+        }
 
-		/// <summary>
-		/// Set value to long.
-		/// </summary>
-		/// <param name="value"> the value to set </param>
-		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-		public void Value(long value)
+        /// <summary>
+        /// Set value to ulong.
+        /// </summary>
+        /// <param name="value"> the value to set </param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+		public void Value(ulong value)
 		{
-			_longValue = value;
+			_ulongValue = value;
 			IsBlank = false;
 		}
 
-		/// <summary>
-		/// Used to encode into a buffer.
-		/// </summary>
-		/// <param name="iter"> <see cref="EncodeIterator"/> with buffer to encode into. Iterator
-		///            should also have appropriate version information set.
-		/// </param>
-		/// <returns> <c>CodecReturnCode.SUCCESS</c> upon successful completion.
-		/// </returns>
-		/// <seealso cref="EncodeIterator"/>
-		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        /// <summary>
+        /// Set value to long.
+        /// </summary>
+        /// <param name="value"> the value to set </param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Value(long value)
+        {
+            _ulongValue = unchecked((ulong)value);
+            IsBlank = false;
+        }
+
+        /// <summary>
+        /// Used to encode into a buffer.
+        /// </summary>
+        /// <param name="iter"> <see cref="EncodeIterator"/> with buffer to encode into. Iterator
+        ///            should also have appropriate version information set.
+        /// </param>
+        /// <returns> <c>CodecReturnCode.SUCCESS</c> upon successful completion.
+        /// </returns>
+        /// <seealso cref="EncodeIterator"/>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public CodecReturnCode Encode(EncodeIterator iter)
 		{
 			if (!IsBlank)
@@ -147,7 +173,7 @@ namespace LSEG.Eta.Codec
         /// </returns>
         public override string ToString()
 		{
-			return Convert.ToString(_longValue);
+			return Convert.ToString(_ulongValue);
 		}
 
 		/// <summary>
@@ -161,7 +187,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public CodecReturnCode Value(string value)
 		{
-			if (string.ReferenceEquals(value, null))
+			if (value is null)
 			{
 				return CodecReturnCode.INVALID_ARGUMENT;
 			}
@@ -176,14 +202,18 @@ namespace LSEG.Eta.Codec
 
 			try
 			{
-				Value(long.Parse(value));
+				Value(ulong.Parse(value));
 				return CodecReturnCode.SUCCESS;
 			}
-			catch (System.FormatException)
+			catch (FormatException)
 			{
 				return CodecReturnCode.INVALID_ARGUMENT;
 			}
-		}
+			catch(OverflowException)
+            {
+                return CodecReturnCode.INVALID_ARGUMENT;
+            }
+        }
 
         /// <summary>
 		/// Checks equality of two UInt data.
@@ -194,7 +224,7 @@ namespace LSEG.Eta.Codec
 		/// </returns>
 		public bool Equals(UInt thatUInt)
 		{
-			return (thatUInt != null) && (_longValue == thatUInt.ToLong()) && (IsBlank == thatUInt.IsBlank);
+			return (thatUInt != null) && (_ulongValue == thatUInt.ToULong()) && (IsBlank == thatUInt.IsBlank);
 		}
 
         /// <summary>
@@ -207,13 +237,10 @@ namespace LSEG.Eta.Codec
         /// </returns>
         public override bool Equals(object other)
         {
-            if (other == null)
+            if (other is null)
                 return false;
 
-            if (other is Enum)
-                return Equals((Enum)other);
-
-            return false;
+            return other is UInt uInt && Equals(uInt);
         }
 
         /// <summary>

@@ -95,7 +95,7 @@ namespace LSEG.Eta.ValueAdd.Provider
 						KeyCertificate = args[++argsCount];
 						++argsCount;
 					}
-					else if ("-key".Equals(args[argsCount]))
+					else if ("-keyfile".Equals(args[argsCount]))
 					{
 						PrivateKey = args[++argsCount];
 						++argsCount;

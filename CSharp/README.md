@@ -24,6 +24,8 @@ External modules used by this version of RTSDK CSharp:
         Microsoft.IdentityModel.Tokens             6.23.1
         Microsoft.Netcore.Platforms                1.1.0
         Microsoft.Netcore.Targets                  1.1.0
+        NLog                                       5.2.2
+        NLog.Extensions.Logging                    5.3.2
         System.IdentityModel.Tokens.Jwt            6.23.1
         System.Runtime                             4.3.0
         System.Security.Cryptography.Cng           4.5.0 

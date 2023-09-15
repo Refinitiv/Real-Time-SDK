@@ -1159,18 +1159,21 @@ namespace LSEG.Eta.Codec
                 return CodecReturnCode.BUFFER_TOO_SMALL;
             }
 
-            newEncodeBuffer.WritePosition = _startBufPos;
+            int newStartPos = newEncodeBuffer.WritePosition;
+            _clientBuffer.Clear();
+            _clientBuffer.Data(newEncodeBuffer);
 
             // copy ByteBuffer to ByteBuffer.
-            newEncodeBuffer.Put(_buffer.Contents, _startBufPos, _startBufPos + encodedLength);
+            newEncodeBuffer.Put(_buffer.Contents, _startBufPos, encodedLength);
 
             // modify _startBufPos to that of newEncodeBuffer
-            _startBufPos = newEncodeBuffer.Position;
+            _startBufPos = newStartPos;
 
             // realign iterator data
             _curBufPos += offset;
             _endBufPos = endBufPos;
             _buffer = newEncodeBuffer;
+            
             _writer._buffer = _buffer;
 
             // modify the iterator marks

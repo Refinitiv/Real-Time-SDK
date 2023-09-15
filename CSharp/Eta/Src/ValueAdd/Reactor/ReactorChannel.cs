@@ -39,6 +39,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private ReactorRole? m_Role;
 
+        internal Watchlist? Watchlist { get; set; }
+
         /* Link for ReactorChannel queue */
         private ReactorChannel? _reactorChannelNext, _reactorChannelPrev;
 
@@ -395,7 +397,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <summary>
         /// Sends a message to the channel.
         /// </summary>
-        /// <param name="msg">the Codec message to send</param>
+        /// <param name="msg">the Codec <see cref="Msg"/> to send</param>
         /// <param name="submitOptions">options for how to send the message</param>
         /// <param name="errorInfo">error structure to be populated in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode.SUCCESS"/> if submit succeeded,
@@ -426,12 +428,34 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "ReactorChannel is closed, submit aborted.");
                 }
 
-                return Reactor.SubmitChannel(this, msg, submitOptions, out errorInfo);
+                if (Watchlist is null) // watchlist not enabled, submit normally
+                {
+                    return Reactor.SubmitChannel(this, msg, submitOptions, out errorInfo);
+                }
+                else // watchlist is enabled, submit via watchlist
+                {
+                    return Watchlist.SubmitMsg(msg, submitOptions, out errorInfo);
+                }
             }
             finally
             {
                 Reactor.ReactorLock.ExitWriteLock();
             }
+        }
+
+        /// <summary>
+        /// Sends a message to the channel.
+        /// </summary>
+        /// <param name="msg">the Codec <see cref="IMsg"/> to send</param>
+        /// <param name="submitOptions">options for how to send the message</param>
+        /// <param name="errorInfo">error structure to be populated in the event of failure</param>
+        /// <returns><see cref="ReactorReturnCode.SUCCESS"/> if submit succeeded,
+        /// or <see cref="ReactorReturnCode.WRITE_CALL_AGAIN"/> if the message cannot be written at this time,
+        /// or <see cref="ReactorReturnCode.NO_BUFFERS"/> if there are no more buffers to encode the message into,
+        /// or <see cref="ReactorReturnCode.FAILURE"/> if submit failed (refer to errorInfo instance for additional information)</returns>
+        public ReactorReturnCode Submit(IMsg msg, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
+        {
+            return Submit((Msg)msg, submitOptions, out errorInfo);
         }
 
         /// <summary>
@@ -468,7 +492,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "ReactorChannel is closed, submit aborted.");
                 }
 
-                return Reactor.SubmitChannel(this, rdmMsg, submitOptions, out errorInfo);
+                if (Watchlist is null) // watchlist not enabled, submit normally
+                {
+                    return Reactor.SubmitChannel(this, rdmMsg, submitOptions, out errorInfo);
+                }
+                else // watchlist is enabled, submit via watchlist
+                {
+                    return Watchlist.SubmitMsg(rdmMsg, submitOptions, out errorInfo);
+                }
             }
             finally
             {
@@ -746,6 +777,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             ServiceEndpointInfoList.Clear();
             RDMLoginRequestRDP = null;
             TokenSession = null;
+            Watchlist = null;
             ReadRet = TransportReturnCode.SUCCESS;
         }
 
@@ -766,6 +798,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             TokenSession = null;
             RDMLoginRequestRDP = null;
             TokenSession = null;
+            Watchlist = null;
             ReadRet = TransportReturnCode.SUCCESS;
 
             base.ReturnToPool();

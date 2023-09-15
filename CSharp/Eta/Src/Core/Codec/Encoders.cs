@@ -112,6 +112,34 @@ namespace LSEG.Eta.Codec
                 _encoders = encoders;
             }
 
+            /* A table of Array entry encoding types, for each valid combination of primitive type and item length.
+             * It is specifically for use with ArrayEntry.EncodeBlank().(note that Enum does not have types for itemLength 1 & 2 because types like ENUM_1 and ENUM_2 don't exist.
+             * They can't be encoded as blank though, so for purposes of this array this will work. */
+            internal static int[,] ArrayEntryBlankTypes = new int[DataTypes.RMTES_STRING+1, 13]
+            {
+             /*              0                        1                  2                  3                 4                  5                 6  7                     8                   9                     10 11                     12 */
+            /* (0) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* (1) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* (2) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* INT */      { DataTypes.INT           ,DataTypes.INT_1   ,DataTypes.INT_2   ,0                ,DataTypes.INT_4   ,0                ,0 ,0                    ,DataTypes.INT_8    ,0                    ,0 ,0                     ,0},
+            /* UINT */     { DataTypes.UINT          ,DataTypes.UINT_1  ,DataTypes.UINT_2  ,0                ,DataTypes.UINT_4  ,0                ,0 ,0                    ,DataTypes.UINT_8   ,0                    ,0 ,0                     ,0},
+            /* FLOAT */    { DataTypes.FLOAT         ,0                 ,0                 ,0                ,DataTypes.FLOAT_4 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* DOUBLE */   { DataTypes.DOUBLE        ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,DataTypes.DOUBLE_8 ,0                    ,0 ,0                     ,0},
+            /* (7) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* REAL */     { DataTypes.REAL          ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* DATE */     { DataTypes.DATE          ,0                 ,0                 ,0                ,DataTypes.DATE_4  ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* TIME */     { DataTypes.TIME          ,0                 ,0                 ,DataTypes.TIME_3 ,0                 ,DataTypes.TIME_5 ,0 ,DataTypes.TIME_7     ,DataTypes.TIME_8   ,0                    ,0 ,0                     ,0},
+            /* DATETIME */ { DataTypes.DATETIME      ,0                 ,0                 ,0                ,0                 ,0                ,0 ,DataTypes.DATETIME_7 ,0                  ,DataTypes.DATETIME_9 ,0 ,DataTypes.DATETIME_11 ,DataTypes.DATETIME_12},
+            /* QOS */      { DataTypes.QOS           ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* STATE */    { DataTypes.STATE         ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* ENUM */     { DataTypes.ENUM          ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* (ARRAY) */  { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* BUFFER */   { DataTypes.BUFFER        ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* ASCII */    { DataTypes.ASCII_STRING  ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* UTF8 */     { DataTypes.UTF8_STRING   ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* RMTES */    { DataTypes.RMTES_STRING  ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0}
+            };
+
             public static bool ValidEncodeActions(int type)
             {
                 return _primitveDataTypesSet.Contains(type);
@@ -4949,7 +4977,7 @@ namespace LSEG.Eta.Codec
 				}
 
 				/* Store FieldId as Uint16 */
-				iter._writer.WriteShort(field.DataType);
+				iter._writer.WriteShort(field.FieldId);
 				iter._curBufPos = iter._writer.Position();
 
 				iter._writer._buffer.Write((byte)zero);
@@ -5458,10 +5486,12 @@ namespace LSEG.Eta.Codec
                 /* Blank */
                 if (array._itemLength > 0)
                 {
-                    if (array._primitiveType <= DataTypes.RMTES_STRING && array._itemLength <= 9)
+                    int arrayEntryBlankType;
+                    if (array._primitiveType <= DataTypes.RMTES_STRING && array._itemLength <= 9
+                        && ((arrayEntryBlankType = PrimitiveEncoder.ArrayEntryBlankTypes[array._primitiveType,array._itemLength]) != 0))
                     {
                         _levelInfo._encodingState = EncodeIteratorStates.SET_DATA;
-                        if ((ret = EncodeBlank(iter, array._primitiveType)) != CodecReturnCode.SUCCESS)
+                        if ((ret = EncodeBlank(iter, arrayEntryBlankType)) != CodecReturnCode.SUCCESS)
                         {
                             return ret;
                         }

@@ -12,8 +12,8 @@ namespace LSEG.Eta.Codec
 	internal class EnumTypeImpl : IEnumType
 	{
 		internal ushort _value;
-		internal readonly Buffer _display = new Buffer();
-		internal readonly Buffer _meaning = new Buffer();
+		internal readonly Buffer _display = new (DataDictionary.EncodingChars);
+		internal readonly Buffer _meaning = new ();
 
 		public ushort Value
 		{

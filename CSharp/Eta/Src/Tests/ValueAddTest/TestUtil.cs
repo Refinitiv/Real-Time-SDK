@@ -45,6 +45,16 @@ namespace LSEG.Eta.ValuedAdd.Tests
                 thisEvent.TransportBuffer = new CopiedTransportBuffer(otherEvent.TransportBuffer);
             }
 
+            if(otherEvent.StreamInfo != null)
+            {
+                thisEvent.StreamInfo.UserSpec = otherEvent.StreamInfo.UserSpec;
+
+                if(otherEvent.StreamInfo.ServiceName != null)
+                {
+                    thisEvent.StreamInfo.ServiceName = otherEvent.StreamInfo.ServiceName;
+                }
+            }
+
             thisEvent.ReactorChannel = otherEvent.ReactorChannel;
             TestUtil.CopyErrorInfo(otherEvent.ReactorErrorInfo, thisEvent.ReactorErrorInfo);
         }       

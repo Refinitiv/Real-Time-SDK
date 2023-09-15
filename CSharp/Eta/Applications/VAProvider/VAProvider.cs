@@ -123,7 +123,7 @@ namespace LSEG.Eta.ValueAdd.Provider
             if (m_ProviderCmdLineParser.ConnectionType == ConnectionType.ENCRYPTED)
             {
                 Console.WriteLine($"Certificate: {m_ProviderCmdLineParser.KeyCertificate}");
-                Console.WriteLine($"Key: {m_ProviderCmdLineParser.PrivateKey}");
+                Console.WriteLine($"Keyfile: {m_ProviderCmdLineParser.PrivateKey}");
             }
 
             // load dictionary

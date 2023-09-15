@@ -116,10 +116,16 @@ namespace LSEG.Eta.Rdm
         /// </param>
         /// <returns> the string representation of a domain type name
         /// </returns>
-        public static string ToString(int domainType)
-        {
-            return $"{(DomainType)domainType}";
-        }
+        public static string ToString(int domainType) => ToString((DomainType)domainType);
+
+        /// <summary>
+        /// String representation of a domain type name.
+        /// </summary>
+        /// <param name="domainType"> domain type
+        /// </param>
+        /// <returns> the string representation of a domain type name
+        /// </returns>
+        public static string ToString(DomainType domainType) => $"{domainType}";
 
         /// <summary>
         /// Returns domainType value from domain type string.
