@@ -6,7 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
@@ -111,7 +113,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
         /// </summary>
         public class WatchListEntry
         {
-            public string ItemName = String.Empty;
+            public string ItemName = string.Empty;
             public int DomainType;
             public bool IsPrivateStream = false;
             public MarketByPriceItem? MarketPriceItem;

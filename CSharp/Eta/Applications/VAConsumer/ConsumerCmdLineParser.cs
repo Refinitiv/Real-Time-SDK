@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
 
 using LSEG.Eta.Example.VACommon;
 using LSEG.Eta.Transports;

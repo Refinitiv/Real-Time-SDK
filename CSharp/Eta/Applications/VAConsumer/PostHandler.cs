@@ -6,7 +6,9 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 
 using LSEG.Eta.Common;
@@ -14,7 +16,6 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
 using LSEG.Eta.Rdm;
 using LSEG.Eta.ValueAdd.Reactor;
-
 
 namespace LSEG.Eta.ValueAdd.Consumer
 {

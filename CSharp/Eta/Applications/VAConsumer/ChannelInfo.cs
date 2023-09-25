@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System.Collections.Generic;
+
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.VACommon;
 using LSEG.Eta.ValueAdd.Rdm;
