@@ -867,7 +867,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
             if (reactorOAuthCredential is not null)
             {
-                if (reactorOAuthCredentialRenewal.ClientSecret.Length > 0)
+                if (reactorOAuthCredential.ClientSecret.Length > 0)
                 {
                     renewalOptions.RenewalModes = ReactorOAuthCredentialRenewalModes.CLIENT_SECRET;
                     reactorOAuthCredentialRenewal.ClientSecret.Data(reactorOAuthCredential.ClientSecret.ToString());
