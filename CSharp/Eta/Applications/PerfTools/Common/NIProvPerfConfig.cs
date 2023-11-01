@@ -134,6 +134,8 @@ namespace LSEG.Eta.PerfTools.Common
         /// <summary>Converts configuration parameters to a string.</summary>
         public static string? ConvertToString { get; private set; }
 
+        public static readonly EncryptionProtocolCommandLineArg EncryptionProtocol = new();
+
         #endregion
 
         static NIProvPerfConfig()

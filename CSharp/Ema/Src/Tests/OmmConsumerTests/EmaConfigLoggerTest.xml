@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmaConfig>
+
+<ConsumerGroup>
+	<!-- DefaultConsumer parameter defines which consumer configuration is used by OmmConsumer			-->
+	<!-- if application does not specify it through OmmConsumerConfig.ConsumerName()					-->
+	<!-- first consumer on the ConsumerList is a DefaultConsumer if this parameter is not specified		-->
+	<DefaultConsumer value="Consumer_1_Success"/>
+	<ConsumerList>
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_1_Verbose"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success"										-->
+			<Logger value="Logger_1_Verbose"/>
+
+			<LoginRequestTimeOut value="3000"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_1_Success"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success"										-->
+			<Logger value="Logger_1_Success"/>
+
+			<LoginRequestTimeOut value="3000"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_1_Warning"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success"										-->
+			<Logger value="Logger_1_Warning"/>
+
+			<LoginRequestTimeOut value="3000"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_1_Error"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success"										-->
+			<Logger value="Logger_1_Error"/>
+
+			<LoginRequestTimeOut value="3000"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="Consumer_1_NoLogMsg"/>
+
+			<!-- Channel is optional: defaulted to "RSSL_SOCKET + localhost + 14002"					-->
+			<!-- Channel or ChannelSet may be specified													-->
+			<Channel value="Channel_1"/>
+
+			<!-- Logger is optional: defaulted to "File + Success"										-->
+			<Logger value="Logger_1_NoLogMsg"/>
+
+			<LoginRequestTimeOut value="3000"/>
+
+			<!-- Dictionary is optional: defaulted to "ChannelDictionary"								-->
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+
+		<Consumer>
+			<Name value="Consumer_2_Verbose"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1"/>
+
+			<Logger value="Logger_2_Verbose"/>
+
+			<LoginRequestTimeOut value="3000"/>
+			
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_2_Success"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1"/>
+
+			<Logger value="Logger_2_Success"/>
+
+			<LoginRequestTimeOut value="3000"/>
+			
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_2_Warning"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1"/>
+
+			<Logger value="Logger_2_Warning"/>
+
+			<LoginRequestTimeOut value="3000"/>
+			
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_2_Error"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1"/>
+
+			<Logger value="Logger_2_Error"/>
+
+			<LoginRequestTimeOut value="3000"/>
+			
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_2_NoLogMsg"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1"/>
+
+			<Logger value="Logger_2_NoLogMsg"/>
+
+			<LoginRequestTimeOut value="3000"/>
+			
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+		<Consumer>
+			<Name value="Consumer_2_MultipleFiles"/>
+
+			<!-- ChannelSet specifies an ordered list of Channels to which OmmConsumer will attempt to	-->
+			<!-- connect, one at a time, if the previous one fails to connect							-->
+			<ChannelSet value="Channel_1"/>
+
+			<Logger value="Logger_2_MultipleFiles"/>
+
+			<LoginRequestTimeOut value="3000"/>
+
+			<Dictionary value="Dictionary_2"/>
+		</Consumer>
+	</ConsumerList>
+</ConsumerGroup>
+<ChannelGroup>
+	<ChannelList>
+		<Channel>
+			<Name value="Channel_1"/>
+
+			<!-- ChannelType possible values are:														-->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
+			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type								-->
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+
+			<!-- CompressionType is optional: defaulted to None											-->
+			<!-- possible values: None, ZLib, LZ4														-->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000									-->
+			<ConnectionPingTimeout value="30000"/>
+
+			<!-- TcpNodelay is optional: defaulted to 1 												-->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set)					-->
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_2"/>
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+	</ChannelList>
+</ChannelGroup>
+
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="Logger_1_Verbose"/>
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::Verbose"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_1_Success"/>
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_1_Warning"/>
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::Warning"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_1_Error"/>
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::Error"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_1_NoLogMsg"/>
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::NoLogMsg"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2_Verbose"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<FileName value="emaLog_Verbose"/>
+			<LoggerSeverity value="LoggerSeverity::Verbose"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2_Success"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<FileName value="emaLog_Success"/>
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2_Warning"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<FileName value="emaLog_Warning"/>
+			<LoggerSeverity value="LoggerSeverity::Warning"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2_Error"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<FileName value="emaLog_Error"/>
+			<LoggerSeverity value="LoggerSeverity::Error"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2_NoLogMsg"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<FileName value="emaLog_NoLogMsg"/>
+			<LoggerSeverity value="LoggerSeverity::NoLogMsg"/>
+		</Logger>
+
+		<Logger>
+			<Name value="Logger_2_MultipleFiles"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<FileName value="emaLog_MultipleFiles"/>
+			<LoggerSeverity value="LoggerSeverity::Verbose"/>
+			<MaxLogFileSize value="700"/>
+			<NumberOfLogFiles value="2"/>
+			<IncludeDateInLoggerOutput value="1"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
+
+<DictionaryGroup>
+	<DictionaryList>
+		<Dictionary>
+			<Name value="Dictionary_1"/>
+
+			<!-- dictionaryType is optional: defaulted to ChannelDictionary" -->
+			<!-- possible values: ChannelDictionary, FileDictionary -->
+			<!-- if dictionaryType is set to ChannelDictionary, file names are ignored -->
+			<DictionaryType value="DictionaryType::ChannelDictionary"/>
+		</Dictionary>
+
+		<Dictionary>
+			<Name value="Dictionary_2"/>
+			<DictionaryType value="DictionaryType::FileDictionary"/>
+
+			<!-- dictionary names are optional: defaulted to RDMFieldDictionary and enumtype.def -->
+			<RdmFieldDictionaryFileName value="../../../../../../etc/RDMFieldDictionary"/>
+			<EnumTypeDefFileName value="../../../../../../etc/enumtype.def"/>
+		</Dictionary>
+
+	</DictionaryList>
+
+</DictionaryGroup>
+
+</EmaConfig>

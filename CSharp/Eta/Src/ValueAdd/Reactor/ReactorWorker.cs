@@ -28,7 +28,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private VaIteratableQueue m_InitChannelQueue = new VaIteratableQueue();
         private VaIteratableQueue m_ActiveChannelQueue = new VaIteratableQueue();
         private VaIteratableQueue m_ReconnectingChannelQueue = new VaIteratableQueue();
-        private VaIteratableQueue m_TimerEventQueue = new VaIteratableQueue();
         private VaIteratableQueue m_TokenSessionQueue = new VaIteratableQueue();
 
         private volatile bool m_Exit;
@@ -142,11 +141,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     }
                 }
 
-                m_TimerEventQueue.Rewind();
-                while (m_TimerEventQueue.HasNext())
+                if (m_Reactor.m_TimeoutTimerManager.DetectExpiredTimers(out long nextTimerMs))
                 {
-                    // TODO: Handles any timeout events
+                    // there are some timers that have expired, Reactor must be woken
+                    // up to invoke timeout callbacks
+                    SendReactorImplEvent(null, ReactorEventImpl.ImplType.WATCHLIST_TIMEOUT,
+                                         ReactorReturnCode.SUCCESS, "Worker.Run()",
+                                         "Timer timed out");
                 }
+                if (nextTimerMs != Int64.MaxValue)
+                    CalculateNextTimeout(nextTimerMs - LastRecordedTimeMs);
 
                 // initialize channels and check if initialization timeout occurred
                 m_InitChannelQueue.Rewind();
@@ -207,7 +211,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                         IChannel? channel = null;
                         Error? error = null;
-                        
+
                         if(reactorChannel.State != ReactorChannelState.RDP_RT &&
                             reactorChannel.State != ReactorChannelState.RDP_RT_DONE &&
                             reactorChannel.State != ReactorChannelState.RDP_RT_FAILED)
@@ -232,7 +236,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                                 /* This is a terminal state.  There was an REST error that we cannot recover from, so set the reconnectLimit to 0 */
                                 reactorChannel.ConnectOptions!.SetReconnectAttempLimit(0);
                             }
-                            
+
                             SendReactorImplEvent(reactorChannel, ReactorEventImpl.ImplType.CHANNEL_DOWN,
                                     ReactorReturnCode.FAILURE, "Worker.Run()",
                                     "Reconnection failed: " + error?.Text);
@@ -261,7 +265,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         {
                             tokenSession.SessionMgntState = SessionState.AUTHENTICATE_USING_CLIENT_CRED;
 
-                             /* Clears the current access token information as it is about to expire and Reactor should get a 
+                             /* Clears the current access token information as it is about to expire and Reactor should get a
                              one when establising a connection */
                             tokenSession.ReactorAuthTokenInfo.Clear();
 
@@ -333,16 +337,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                             ProcessChannelFDChange(reactorChannel);
                             break;
                         }
-                    case ReactorEventImpl.ImplType.START_DISPATCH_TIMER:
-                        {
-                            m_TimerEventQueue.Add(reactorEvent);
-                            return;
-                        }
-                    case ReactorEventImpl.ImplType.START_WATCHLIST_TIMER:
-                        { 
-                            m_TimerEventQueue.Add(reactorEvent);
-                            return;
-                        }
                     case ReactorEventImpl.ImplType.TOKEN_MGNT:
                         {
                             ReactorTokenSession? tokenSession = eventImpl.TokenSession;
@@ -360,7 +354,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
                                 CalculateNextTimeout(nextExpiretTime - LastRecordedTimeMs);
                             }
-                            
+
                             break;
                         }
                     default:
@@ -393,7 +387,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
             {
                 // sckt.close will implicitly cancel any registered keys.
                 reactorChannel.Channel.Close(out Error error);
-                reactorChannel.SetChannel(null);
                 reactorChannel.FlushRequested = false;
                 CancelRegister(reactorChannel);
             }
@@ -531,7 +524,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                             SendReactorImplEvent(reactorChannel, ReactorEventImpl.ImplType.CHANNEL_DOWN,
                                     ReactorReturnCode.FAILURE, "Worker.InitializeChannel",
                                     "Error - exceeded initialization timeout ("
-                                    + reactorChannel.InitializationEndTimeMs() + " s)");
+                                    + reactorChannel.InitializationTimeout() + " s)");
                         }
                     }
 
@@ -661,7 +654,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /* Send a ReactorImplEvent to Reactor*/
-        private void SendReactorImplEvent(ReactorChannel reactorChannel, ReactorEventImpl.ImplType eventType, ReactorReturnCode reactorReturnCode, 
+        private void SendReactorImplEvent(ReactorChannel? reactorChannel, ReactorEventImpl.ImplType eventType, ReactorReturnCode reactorReturnCode,
             string? location, string? text)
         {
             ReactorEventImpl reactorEventImpl = m_Reactor.GetReactorPool().CreateReactorEventImpl();

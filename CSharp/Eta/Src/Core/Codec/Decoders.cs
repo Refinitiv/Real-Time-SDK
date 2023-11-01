@@ -189,22 +189,22 @@ namespace LSEG.Eta.Codec
                 return CodecReturnCode.INCOMPLETE_DATA;
             }
 
+            var dataBody = msg._encodedDataBody;
             if ((_levelInfo._endBufPos - position) > 0)
             {
-                msg.EncodedDataBody.Data_internal(iter._reader._buffer, position, _levelInfo._endBufPos - position);
+                dataBody.Data_internal(iter._reader._buffer, position, _levelInfo._endBufPos - position);
 
                 if (!CanDecodeContainerType(msg.ContainerType))
                 {
                     /* ETA has no decoders for this format(e.g. Opaque). Move past it. */
-                    iter._curBufPos += msg.EncodedDataBody.GetLength();
-                    try
-                    {
-                        iter._reader.SkipBytes(msg.EncodedDataBody.GetLength());
-                    }
-                    catch (Exception)
+                    iter._curBufPos += dataBody.GetLength();
+                    
+                    iter._reader.SkipBytes(dataBody.GetLength());
+                    if (iter._reader._position > iter._reader._buffer.BufferLimit())
                     {
                         return CodecReturnCode.INCOMPLETE_DATA;
                     }
+                    
                     iter._curBufPos = iter._reader._position;
                     EndOfList(iter);
                     return CodecReturnCode.SUCCESS;
@@ -218,7 +218,7 @@ namespace LSEG.Eta.Codec
             else
             {
                 /* No payload. Reset iterator and return. */
-                msg.EncodedDataBody.Clear();
+                dataBody.Clear();
                 EndOfList(iter);
                 return CodecReturnCode.SUCCESS;
             }
@@ -255,29 +255,31 @@ namespace LSEG.Eta.Codec
             switch (msg.MsgClass)
             {
                 case MsgClasses.UPDATE:
-                    msg.Flags = iter._reader.ReadUShort15rb();
+                    int updateFlags = iter._reader.ReadUShort15rb();
+                    msg.Flags = updateFlags;
+
                     // need to scale containerType
                     msg.ContainerType = pointer[reader._position++] + DataTypes.CONTAINER_TYPE_MIN;
 
                     msg.UpdateType = pointer[reader._position++];
 
-                    if (msg.CheckHasSeqNum())
+                    if ((updateFlags & UpdateMsgFlags.HAS_SEQ_NUM) > 0)
                     {
                         msg.SeqNum = reader.ReadUnsignedInt();
                     }
 
-                    if (msg.CheckHasConfInfo())
+                    if ((updateFlags & UpdateMsgFlags.HAS_CONF_INFO) > 0)
                     {
                         msg.ConflationCount = reader.ReadUShort15rb();
                         msg.ConflationTime = reader.ReadUnsignedShort();
                     }
 
-                    if (msg.CheckHasPermData())
+                    if ((updateFlags & UpdateMsgFlags.HAS_PERM_DATA) > 0)
                     {
                         DecodeBuffer15(iter, msg.PermData);
                     }
 
-                    if (msg.CheckHasMsgKey())
+                    if ((updateFlags & UpdateMsgFlags.HAS_MSG_KEY) > 0)
                     {
                         keySize = reader.ReadUShort15rb();
 
@@ -289,12 +291,12 @@ namespace LSEG.Eta.Codec
                         reader._position = currentPosition;
                     }
 
-                    if (msg.CheckHasExtendedHdr())
+                    if ((updateFlags & UpdateMsgFlags.HAS_EXTENDED_HEADER) > 0)
                     {
-                        DecodeBuffer8(iter, msg.ExtendedHeader);
+                        DecodeBuffer8(iter, msg._extendedHeader);
                     }
 
-                    if (msg.CheckHasPostUserInfo())
+                    if ((updateFlags & UpdateMsgFlags.HAS_POST_USER_INFO) > 0)
                     {
                         /* decode only if actually in the header */
                         if ((headerSize - (reader._position - (startPosition + 2))) >= POST_USER_INFO_SIZE)
@@ -312,11 +314,13 @@ namespace LSEG.Eta.Codec
                     }
                     break;
                 case MsgClasses.REFRESH:
-                    msg.Flags = iter._reader.ReadUShort15rb();
+                    int refreshFlags = iter._reader.ReadUShort15rb();
+                    msg.Flags = refreshFlags;
+                    
                     // need to scale containerType
                     msg.ContainerType = pointer[reader._position++] + DataTypes.CONTAINER_TYPE_MIN;
 
-                    if (msg.CheckHasSeqNum())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_SEQ_NUM) > 0)
                     {
                         msg.SeqNum = iter._reader.ReadUnsignedInt();
                     }
@@ -324,17 +328,17 @@ namespace LSEG.Eta.Codec
                     DecodeStateInMsg(iter, msg.State);
                     DecodeBuffer8(iter, msg.GroupId);
 
-                    if (msg.CheckHasPermData())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_PERM_DATA) > 0)
                     {
                         DecodeBuffer15(iter, msg.PermData);
                     }
 
-                    if (msg.CheckHasQos())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_QOS) > 0)
                     {
                         DecodeQosInMsg(iter, msg.Qos);
                     }
 
-                    if (msg.CheckHasMsgKey())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_MSG_KEY) > 0)
                     {
                         keySize = reader.ReadUShort15rb();
                         /* don't iterate position by this value anymore. We want to add the keySize to position */
@@ -345,12 +349,12 @@ namespace LSEG.Eta.Codec
                         reader._position = currentPosition;
                     }
 
-                    if (msg.CheckHasExtendedHdr())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_EXTENDED_HEADER) > 0)
                     {
-                        DecodeBuffer8(iter, msg.ExtendedHeader);
+                        DecodeBuffer8(iter, msg._extendedHeader);
                     }
 
-                    if (msg.CheckHasPostUserInfo())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_POST_USER_INFO) > 0)
                     {
                         /* decode only if actually in the header */
                         if ((headerSize - (reader._position - (startPosition + 2))) >= POST_USER_INFO_SIZE)
@@ -367,7 +371,7 @@ namespace LSEG.Eta.Codec
                         }
                     }
 
-                    if (msg.CheckHasPartNum())
+                    if ((refreshFlags & RefreshMsgFlags.HAS_PART_NUM) > 0)
                     {
                         /* decode only if actually in the header */
                         if ((headerSize - (reader._position - (startPosition + 2))) > 0)
@@ -526,9 +530,9 @@ namespace LSEG.Eta.Codec
                         else
                         /* not really there, unset flag */
                         {
-                            int flags = msg.Flags;
-                            flags &= ~GenericMsgFlags.HAS_PART_NUM;
-                            msg.Flags = flags;
+                            int val = msg.Flags;
+                            val &= ~GenericMsgFlags.HAS_PART_NUM;
+                            msg.Flags = val;
                         }
                     }
                     break;
@@ -830,13 +834,11 @@ namespace LSEG.Eta.Codec
 		}
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        private unsafe static void DecodeQosInMsg(DecodeIterator iter, Qos qosInt)
+        private unsafe static void DecodeQosInMsg(DecodeIterator iter, Qos qos)
 		{
             BufferReader reader = iter._reader;
-            byte* pointer = reader._buffer._pointer;
 
-            Qos qos = qosInt;
-			sbyte qosValue = (sbyte)pointer[reader._position++];
+			sbyte qosValue = (sbyte)reader._buffer._pointer[reader._position++];
 
             qos.Timeliness(qosValue >> 5);
 			qos.Rate((qosValue >> 1) & 0xF);
@@ -922,37 +924,38 @@ namespace LSEG.Eta.Codec
             BufferReader reader = iter._reader;
             byte* pointer = reader._buffer._pointer;
 
-            key.Flags = reader.ReadUShort15rb();
+            int keyFlags = reader.ReadUShort15rb();
+            key.Flags = keyFlags;
 
-            if (key.CheckHasServiceId())
+            if ((keyFlags & MsgKeyFlags.HAS_SERVICE_ID) > 0)
             {
                 key.ServiceId = reader.ReadUShort16ob();
             }
 
-            if (key.CheckHasName())
+            if ((keyFlags & MsgKeyFlags.HAS_NAME) > 0)
             {
                 /* take name off wire */
                 DecodeBuffer8(iter, key.Name);
 
                 /* name type is only present if name is there */
-                if (key.CheckHasNameType())
+                if ((keyFlags & MsgKeyFlags.HAS_NAME_TYPE) > 0)
                 {
                     key.NameType = pointer[reader._position++];
                 }
             }
 
-            if (key.CheckHasFilter())
+            if ((keyFlags & MsgKeyFlags.HAS_FILTER) > 0)
             {
                 key.Filter = reader.ReadUnsignedInt();
             }
 
-            if (key.CheckHasIdentifier())
+            if ((keyFlags & MsgKeyFlags.HAS_IDENTIFIER) > 0)
             {
                 key.Identifier = reader._buffer.ReadIntAt(reader._position);
                 reader._position += 4;
             }
 
-            if (key.CheckHasAttrib())
+            if ((keyFlags & MsgKeyFlags.HAS_ATTRIB) > 0)
             {
                 /* container type needs to be scaled back up */
                 key.AttribContainerType = pointer[reader._position++] + DataTypes.CONTAINER_TYPE_MIN;
@@ -2553,10 +2556,10 @@ namespace LSEG.Eta.Codec
 				}
 
 				/* Get the Field List Set Data */
-				if (fieldList.CheckHasSetData())
+				if ((fieldList.Flags & FieldListFlags.HAS_SET_DATA) > 0)
 				{
 					/* Get the set identifier */
-					if ((fieldList.Flags & FieldListFlags.HAS_SET_DATA) > 0)
+					if (fieldList.CheckHasSetId())
 					{
 						fieldList.SetId = reader.ReadUShort15rb();
 					}
@@ -2637,7 +2640,7 @@ namespace LSEG.Eta.Codec
 						return CodecReturnCode.SET_SKIPPED;
 					}
 				}
-				else if (fieldList.CheckHasStandardData())
+				else if ((fieldList.Flags & FieldListFlags.HAS_STANDARD_DATA) > 0)
 				{
 					/* Get the field list data only */
 					fieldList._encodedSetData.Clear();

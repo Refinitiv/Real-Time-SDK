@@ -2,9 +2,9 @@
 
 This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available in Enterprise Transport API.  
 
-The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible. Starting with verison RTSDK 2.0, there are changes to namespace and jar file names: please see [REBRAND.md](https://github.com/Refinitiv/Real-Time-SDK/blob/master/REBRAND.md) for details on how to adapt a UPA application or a ETA application written to prior versions of the library to see what must be changed. 
+The Enterprise Transport API is the re-branding of the Ultra Performance API (UPA). All interfaces in ETA are the same as their corresponding interfaces in UPA Java (same name, same parameter sets) and the transport and codec are fully wire compatible. Starting with verison RTSDK 2.0, there are changes to namespace and jar file names: please see [REBRAND.md](https://github.com/Refinitiv/Real-Time-SDK/blob/master/REBRAND.md) for details on how to adapt a UPA application or a ETA application written to prior versions of the library to see what must be changed. 
 
-ETA Java contains open source components. The transport, decoder, encoder, and cache components are open source. 
+ETA Java contains open source components. The transport, decoder, encoder, value add reactor, watchlist and cache components are open source. 
 
 ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 

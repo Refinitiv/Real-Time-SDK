@@ -7,6 +7,7 @@
  */
 
 using LSEG.Eta.Transports;
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
@@ -27,12 +28,19 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public WriteArgs WriteArgs { get; set; } = new WriteArgs();
 
         /// <summary>
+        /// Gets request message options if submitting RequestMsg and enabling the watchlist.
+        /// </summary>
+        public ReactorRequestMsgOptions RequestMsgOptions { get; private set; } = new ReactorRequestMsgOptions();
+
+        /// <summary>
         /// Clears to default values.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             ServiceName = null;
             WriteArgs.Clear();
+            RequestMsgOptions.Clear();
         }
     }
 }

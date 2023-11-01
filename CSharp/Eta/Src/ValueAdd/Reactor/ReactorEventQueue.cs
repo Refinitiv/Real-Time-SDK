@@ -15,7 +15,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
     {
         EventSignal m_EventSignal;
         VaQueue m_EventQueue;
-        private ReaderWriterLockSlim EventQueueLock { get; set; } = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+        private object m_lock = new object();
 
         public ReactorEventQueue()
         {
@@ -25,7 +26,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         public ReactorReturnCode InitReactorEventQueue()
         {
-            if( m_EventSignal.InitEventSignal() != 0)
+            if ( m_EventSignal.InitEventSignal() != 0)
             {
                 return ReactorReturnCode.FAILURE;
             }
@@ -36,7 +37,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public void UninitReactorEventQueue()
         {
             m_EventSignal.CleanupEventSignal();
-            EventQueueLock.Dispose();
+            //EventQueueLock.Dispose();
         }
 
         public Socket GetEventQueueSocket()
@@ -48,18 +49,18 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             try
             {
-                EventQueueLock.EnterWriteLock();
+                Monitor.Enter(m_lock);
                 m_EventQueue.Add(reactorEvent);
                
                 /* Queue was previously empty; Needs to notify queue's listener*/
-                if(m_EventQueue.Size() == 1)
+                if (m_EventQueue.Size() == 1)
                 {
                     m_EventSignal.SetEventSignal();
                 }
             }
             finally
             {
-                EventQueueLock.ExitWriteLock();
+                Monitor.Exit(m_lock);
             }
         }
 
@@ -68,7 +69,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             ReactorEvent? reactorEvent = null;
             try
             {
-                EventQueueLock.EnterWriteLock();
+                Monitor.Enter(m_lock);
                 int count = m_EventQueue.Size();
                 reactorEvent = (ReactorEvent?)m_EventQueue.Poll();
 
@@ -80,7 +81,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
             finally
             {
-                EventQueueLock.ExitWriteLock();
+                Monitor.Exit(m_lock);
             }
 
             return reactorEvent;
@@ -88,7 +89,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         public int GetEventQueueSize()
         {
-            return (int)m_EventQueue.Size();
+            return m_EventQueue.Size();
         }
     }
 }

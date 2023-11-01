@@ -122,16 +122,17 @@ namespace LSEG.Eta.ValueAdd.Rdm
             CodecReturnCode ret = CodecReturnCode.SUCCESS;
             destService.Action = Action;
             destService.ServiceId = ServiceId;
-            destService.HasInfo = HasInfo;
+            
             if (HasInfo)
             {
+                destService.HasInfo = HasInfo;
                 ret = Info.Update(destService.Info);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
-            destService.HasData = HasData;
             if (HasData)
             {
+                destService.HasData = HasData;
                 ret = Data.Update(destService.Data);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
@@ -145,23 +146,23 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
             }
-            destService.HasLink = HasLink;
             if (HasLink)
             {
+                destService.HasLink = HasLink;
                 ret = Link.Update(destService.Link);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
-            }
-            destService.HasLoad = HasLoad;
+            }           
             if (HasLoad)
             {
+                destService.HasLoad = HasLoad;
                 ret = Load.Update(destService.Load);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;
-            }
-            destService.HasState = HasState;
+            }          
             if (HasState)
             {
+                destService.HasState = HasState;
                 ret = State.Update(destService.State);
                 if (ret != CodecReturnCode.SUCCESS)
                     return ret;

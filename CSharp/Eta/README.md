@@ -2,13 +2,15 @@
 
 This is the **Enterprise Transport API (ETA)**, the high performance, low latency, foundation of the Refinitiv Real-Time SDK. This product allows applications to achieve the highest throughput, lowest latency, low memory utilization, and low CPU utilization when publishing or consuming content. All OMM content and domain models are available in Enterprise Transport API.  
 
-ETA CSharp contains open source components. The transport, decoder, encoder and value add reactor layers are open source. 
+ETA CSharp contains open source components. The transport, decoder, encoder, value add reactor layer and watchlist layer are open source. 
 
 ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 
 Copyright (C) 2022-2023 Refinitiv. All rights reserved.
 
 # ETA CSharp Documentation
+
+- Installation Guide
 - DevGuide
 - ValueAddDevGuide
 - RDMUsageGuide
@@ -44,9 +46,9 @@ In addtion, HTML documentation is available in CSharp/Eta/Docs. For addtional do
 - Open Source value added helpers:
 
    - Reactor is a connection management and event processing component that can significantly reduce the amount of code an application must write to leverage OMM in their own applications and to connect to other OMM based devices. The Reactor can be used to create or enhance Consumer, Interactive Provider, and Non-Interactive Provider start-up processing, including user log in, source directory establishment, and dictionary download. The Reactor also allows for dispatching of events to user implemented callback functions. In addition, it handles flushing of user written content and manages network pings on the user's behalf. Value Added domain representations are coupled with the Reactor, allowing domain specific callbacks to be presented with their respective domain representation for easier, more logical access to content. Reactor also provides opportunity in-box support of RTT monitoring for consumer applications.
-   - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
 
    - The Administration Domain Model Representations are RDM specific amount of code an application needs to interact with OMM devices (i.e., Refinitiv Real-Time Distribution System), but also ensures that encoding/decoding for these domain models follow OMM specified formatting rules. Applications can use this Value Added Component directly to help with encoding, decoding and representation of these domain models. When using the ETA Reactor, this component is embedded to manage and present callbacks with a domain specific representation of content.
+
 - ANSI library for users to process ANSI Page based content
 
 #### General Capabilities
@@ -95,20 +97,21 @@ Users can use Transport API to write non-interactive applications that start up 
 
 - Reactor applications can take advantage of an event-driven distribution model
 - Reactor will manage ping heartbeats and ensure that user written content is flushed out as effectively as possible.
+- Reactor applications can use the watchlist functionality for item recovery, like-request aggregation, fan out, and group status handling.
 - Reactor allows for consumer based applications to measure and monitor Round Trip Latency during message exchanging.
 
 # ETA CSharp Library and Version Information
 The distribution contains several DLL files (libraries), intended to allow for ease of integration into both production and development environments.
     Library Name                  Package Version   Description
     ------------                  ----------------  -----------
-    LSEG.Eta.Core.dll             eta3.0.3.L1       The ETA - CSharp Edition library.  Includes
+    LSEG.Eta.Core.dll             eta3.1.0.L1       The ETA - CSharp Edition library.  Includes
                                                     the ETA transport package and the RWF codec.
 
-    LSEG.Eta.ValueAdd.dll         eta3.0.3.L1       The Value Add library for ETA CSharp Edition.
+    LSEG.Eta.ValueAdd.dll         eta3.1.0.L1       The Value Add library for ETA CSharp Edition.
                                                     Includes the ETA Value Add Reactor and
                                                     Administration Domain Model Representations.
 
-    LSEG.Eta.Ansi.dll             eta3.0.3.L1       The ANSI decoders and encoders.
+    LSEG.Eta.Ansi.dll             eta3.1.0.L1       The ANSI decoders and encoders.
     LSEG.Eta.AnsiPage.dll     
 
                   
@@ -121,24 +124,24 @@ The distribution contains several DLL files (libraries), intended to allow for e
     I-COS Questionnaire: 6212 
     Refinitiv Item Number: N/A
     Product Name: Enterprise Transport API - CSharp Edition
-    Release Number: 3.0.3
+    Release Number: 3.1.0
     Load Number: 1
-    Load ID: etacsharp3.0.3.L1.all
-        Supersedes: etacsharp3.0.2.L1.all
+    Load ID: etacsharp3.1.0.L1.all
+        Supersedes: etacsharp3.0.3.L1.all
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.71 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.81 for RWF and Marketfeed Record Templates
 
 # Security
 
     The components in this package have been scanned using the below software and security scanning products:
 
     Black Duck by Synopsis, 2022.10.1.1048, https://www.blackducksoftware.com/
-    SemGrep 1.2.1, https://semgrep.dev/
+    Coverity, 2022.12.2, https://scan.coverity.com/ 
 
 # Notes:
 - This package contains APIs that are subject to proprietary and open source licenses. Please make sure to read the README.md files within each package for clarification.

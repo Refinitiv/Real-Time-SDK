@@ -108,8 +108,6 @@ namespace LSEG.Eta.Codec
 
         private bool _isVersionSet; // flag that tracks whether or not version is set
 
-        private ByteBuffer _readBuffer = new ByteBuffer(1024);
-
         /// <summary>
         /// Creates <see cref="DecodeIterator"/>.
         /// </summary>

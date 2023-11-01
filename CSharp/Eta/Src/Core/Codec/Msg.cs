@@ -48,6 +48,9 @@ namespace LSEG.Eta.Codec
         public Msg()
         {
             ContainerType = DataTypes.CONTAINER_TYPE_MIN;
+            _generalQos[MsgFields.Common.Qos.QOS] = new Qos();
+            _generalQos[MsgFields.Request.Qos.WORST_QOS] = new Qos();
+            _generalPriority = new Priority();
         }
 
 		/* To make efficient use of memory and let a single MsgImpl class
@@ -145,8 +148,8 @@ namespace LSEG.Eta.Codec
 
 		// the following fields are common to all the message types
 		private readonly MsgKey _msgKey = new MsgKey();
-		private readonly Buffer _extendedHeader = new Buffer();
-		private readonly Buffer _encodedDataBody = new Buffer();
+		internal readonly Buffer _extendedHeader = new Buffer();
+		internal readonly Buffer _encodedDataBody = new Buffer();
 		private readonly Buffer _encodedMsgBuffer = new Buffer();
 
 		// Through the use of the following general-purpose fields, we attempt
@@ -177,6 +180,8 @@ namespace LSEG.Eta.Codec
                         return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_MSG_KEY) > 0 ? _msgKey : null;
                     case MsgClasses.REFRESH:
                         return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_MSG_KEY) > 0 ? _msgKey : null;
+                    case MsgClasses.REQUEST: // request message always has message key
+                        return _msgKey;                 
                     case MsgClasses.STATUS:
                         return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_MSG_KEY) > 0 ? _msgKey : null;
                     case MsgClasses.GENERIC:
@@ -184,9 +189,7 @@ namespace LSEG.Eta.Codec
                     case MsgClasses.POST:
                         return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_MSG_KEY) > 0 ? _msgKey : null;
                     case MsgClasses.ACK:
-                        return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_MSG_KEY) > 0 ? _msgKey : null;
-                    case MsgClasses.REQUEST: // request message always has message key
-                        return _msgKey;
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_MSG_KEY) > 0 ? _msgKey : null;                 
                     default: // all other messages don't have message key
                         return null;
                 }
@@ -367,21 +370,21 @@ namespace LSEG.Eta.Codec
                 switch (MsgClass)
                 {
                     case MsgClasses.UPDATE:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
                     case MsgClasses.REFRESH:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
-                    case MsgClasses.STATUS:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
-                    case MsgClasses.GENERIC:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
-                    case MsgClasses.CLOSE:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & CloseMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
                     case MsgClasses.REQUEST:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
+                    case MsgClasses.STATUS:
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
+                    case MsgClasses.GENERIC:
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
+                    case MsgClasses.CLOSE:
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & CloseMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
                     case MsgClasses.POST:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
                     case MsgClasses.ACK:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null);
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_EXTENDED_HEADER) > 0 ? _extendedHeader : null;
                     default:
                         return null;
                 }
@@ -389,7 +392,7 @@ namespace LSEG.Eta.Codec
 
             set
             {
-                (_extendedHeader).CopyReferences(value);
+                _extendedHeader.CopyReferences(value);
             }
 		}
 
@@ -409,6 +412,12 @@ namespace LSEG.Eta.Codec
             }
 		}
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal Buffer GetEncodedDataBody()
+        {
+            return _encodedDataBody;
+        }
+
         /// <summary>
         /// Gets <see cref="Buffer"/> that contains the entire encoded message, typically only populated during decode.
         /// </summary>
@@ -419,6 +428,12 @@ namespace LSEG.Eta.Codec
                 return _encodedMsgBuffer;
             }
 		}
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        internal Buffer GetEncodedMsgBuffer()
+        {
+            return _encodedMsgBuffer;
+        }
 
         /// <summary>
         /// Decodes a message.
@@ -475,40 +490,42 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public CodecReturnCode Copy(IMsg destMsg, int copyMsgFlags)
 		{
-            if(destMsg is null )
+            if (destMsg == null || !ValidateMsg())
                 return CodecReturnCode.FAILURE;
 
-            if (!ValidateMsg())
-			{
-				return CodecReturnCode.FAILURE;
-			}
+            var tmpMsg = (Msg)destMsg;
+            tmpMsg._generalInt[MsgFields.Common.Int.FLAGS] = 0;
+            tmpMsg.MsgClass = MsgClass;
+            tmpMsg.DomainType = DomainType;
+            tmpMsg.ContainerType = ContainerType;
+            tmpMsg.StreamId = StreamId;
 
-			destMsg.Clear();
-			destMsg.MsgClass = MsgClass;
-			destMsg.DomainType = DomainType;
-			destMsg.ContainerType = ContainerType;
-			destMsg.StreamId = StreamId;
+            tmpMsg._msgKey.Clear();
+            tmpMsg._extendedHeader.Clear();
+            tmpMsg._encodedDataBody.Clear();
+            tmpMsg._encodedMsgBuffer.Clear();
+            tmpMsg._keyReserved = false;
+            tmpMsg._extendedHeaderReserved = false;
 
-			for (int i = 0; i < GENERAL_PURPOSE_LONGS; i++)
+            for (int i = 0; i < GENERAL_PURPOSE_LONGS; i++)
 			{
-				((Msg)destMsg)._generalLong[i] = _generalLong[i];
+                tmpMsg._generalLong[i] = _generalLong[i];
 			}
 			for (int i = 0; i < GENERAL_PURPOSE_INTS; i++)
 			{
-				((Msg)destMsg)._generalInt[i] = _generalInt[i];
+                tmpMsg._generalInt[i] = _generalInt[i];
 			}
 
 			switch (MsgClass)
 			{
-				case MsgClasses.UPDATE:
+                case MsgClasses.REQUEST:
+                    return CopyRequestMsg(tmpMsg, copyMsgFlags);
+                case MsgClasses.UPDATE:
 					IUpdateMsg updMsg = (IUpdateMsg)destMsg;
 					return CopyUpdateMsg(updMsg, copyMsgFlags);
 				case MsgClasses.REFRESH:
 					IRefreshMsg rfMsg = (IRefreshMsg)destMsg;
-					return CopyRefreshMsg(rfMsg, copyMsgFlags);
-				case MsgClasses.REQUEST:
-					IRequestMsg rqMsg = (IRequestMsg)destMsg;
-					return CopyRequestMsg(rqMsg, copyMsgFlags);
+                    return CopyRefreshMsg(rfMsg, copyMsgFlags);			
 				case MsgClasses.POST:
 					IPostMsg postMsg = (IPostMsg)destMsg;
 					return CopyPostMsg(postMsg, copyMsgFlags);
@@ -582,7 +599,10 @@ namespace LSEG.Eta.Codec
 
 			switch (MsgClass)
 			{
-				case MsgClasses.UPDATE:
+                case MsgClasses.REQUEST:
+                case MsgClasses.CLOSE:
+                    return true;
+                case MsgClasses.UPDATE:
 				case MsgClasses.REFRESH:
 				case MsgClasses.POST:
 				case MsgClasses.GENERIC:
@@ -590,10 +610,7 @@ namespace LSEG.Eta.Codec
 					{
 						return false;
 					}
-					return true;
-				case MsgClasses.REQUEST:
-				case MsgClasses.CLOSE:
-					return true;
+					return true;			
 				case MsgClasses.STATUS:
 					if (CheckHasPermData() && ((PermData == null) || (PermData.Length == 0)))
 					{
@@ -656,21 +673,21 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.UPDATE:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_EXTENDED_HEADER) > 0;
 				case MsgClasses.REFRESH:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
-				case MsgClasses.STATUS:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_EXTENDED_HEADER) > 0;
+                case MsgClasses.REQUEST:
+                    return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_EXTENDED_HEADER) > 0;
+                case MsgClasses.STATUS:
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_EXTENDED_HEADER) > 0;
 				case MsgClasses.GENERIC:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_EXTENDED_HEADER) > 0;
 				case MsgClasses.CLOSE:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & CloseMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
-				case MsgClasses.REQUEST:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & CloseMsgFlags.HAS_EXTENDED_HEADER) > 0;
 				case MsgClasses.POST:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_EXTENDED_HEADER) > 0;
 				case MsgClasses.ACK:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_EXTENDED_HEADER) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_EXTENDED_HEADER) > 0;
 				default:
 					return false;
 			}
@@ -691,7 +708,10 @@ namespace LSEG.Eta.Codec
 				case MsgClasses.REFRESH:
 					_generalInt[MsgFields.Common.Int.FLAGS] |= RefreshMsgFlags.HAS_EXTENDED_HEADER;
 					break;
-				case MsgClasses.STATUS:
+                case MsgClasses.REQUEST:
+                    _generalInt[MsgFields.Common.Int.FLAGS] |= RequestMsgFlags.HAS_EXTENDED_HEADER;
+                    break;
+                case MsgClasses.STATUS:
 					_generalInt[MsgFields.Common.Int.FLAGS] |= StatusMsgFlags.HAS_EXTENDED_HEADER;
 					break;
 				case MsgClasses.GENERIC:
@@ -699,9 +719,6 @@ namespace LSEG.Eta.Codec
 					break;
 				case MsgClasses.CLOSE:
 					_generalInt[MsgFields.Common.Int.FLAGS] |= CloseMsgFlags.HAS_EXTENDED_HEADER;
-					break;
-				case MsgClasses.REQUEST:
-					_generalInt[MsgFields.Common.Int.FLAGS] |= RequestMsgFlags.HAS_EXTENDED_HEADER;
 					break;
 				case MsgClasses.POST:
 					_generalInt[MsgFields.Common.Int.FLAGS] |= PostMsgFlags.HAS_EXTENDED_HEADER;
@@ -743,17 +760,17 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.UPDATE:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_MSG_KEY) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_MSG_KEY) > 0;
 				case MsgClasses.REFRESH:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_MSG_KEY) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_MSG_KEY) > 0;
 				case MsgClasses.STATUS:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_MSG_KEY) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_MSG_KEY) > 0;
 				case MsgClasses.GENERIC:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_MSG_KEY) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_MSG_KEY) > 0;
 				case MsgClasses.POST:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_MSG_KEY) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_MSG_KEY) > 0;
 				case MsgClasses.ACK:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_MSG_KEY) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_MSG_KEY) > 0;
 				default:
 					return false;
 			}
@@ -804,15 +821,15 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.UPDATE:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_SEQ_NUM) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_SEQ_NUM) > 0;
 				case MsgClasses.REFRESH:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_SEQ_NUM) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_SEQ_NUM) > 0;
 				case MsgClasses.GENERIC:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_SEQ_NUM) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_SEQ_NUM) > 0;
 				case MsgClasses.POST:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_SEQ_NUM) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_SEQ_NUM) > 0;
 				case MsgClasses.ACK:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_SEQ_NUM) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.HAS_SEQ_NUM) > 0;
 				default:
 					return false;
 			}
@@ -920,15 +937,15 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.UPDATE:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_PERM_DATA) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_PERM_DATA) > 0;
 				case MsgClasses.REFRESH:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_PERM_DATA) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_PERM_DATA) > 0;
 				case MsgClasses.STATUS:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_PERM_DATA) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_PERM_DATA) > 0;
 				case MsgClasses.GENERIC:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_PERM_DATA) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_PERM_DATA) > 0;
 				case MsgClasses.POST:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_PERM_DATA) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_PERM_DATA) > 0;
 				default:
 					return false;
 			}
@@ -1098,13 +1115,13 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.REFRESH:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
-				case MsgClasses.STATUS:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
-				case MsgClasses.REQUEST:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.PRIVATE_STREAM) > 0;
+                case MsgClasses.REQUEST:
+                    return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.PRIVATE_STREAM) > 0;
+                case MsgClasses.STATUS:
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.PRIVATE_STREAM) > 0;
 				case MsgClasses.ACK:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.PRIVATE_STREAM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.PRIVATE_STREAM) > 0;
 				default:
 					return false;
 			}
@@ -1124,13 +1141,13 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.REFRESH:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.QUALIFIED_STREAM) > 0 ? true : false;
-				case MsgClasses.STATUS:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.QUALIFIED_STREAM) > 0 ? true : false;
-				case MsgClasses.REQUEST:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.QUALIFIED_STREAM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.QUALIFIED_STREAM) > 0;
+                case MsgClasses.REQUEST:
+                    return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.QUALIFIED_STREAM) > 0;
+                case MsgClasses.STATUS:
+                    return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.QUALIFIED_STREAM) > 0;			
 				case MsgClasses.ACK:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.QUALIFIED_STREAM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & AckMsgFlags.QUALIFIED_STREAM) > 0;
 				default:
 					return false;
 			}
@@ -1243,11 +1260,11 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.REFRESH:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_PART_NUM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_PART_NUM) > 0;
 				case MsgClasses.GENERIC:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_PART_NUM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_PART_NUM) > 0;
 				case MsgClasses.POST:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_PART_NUM) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_PART_NUM) > 0;
 				default:
 					return false;
 			}
@@ -1293,9 +1310,9 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.REFRESH:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_QOS) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_QOS) > 0;
 				case MsgClasses.REQUEST:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_QOS) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_QOS) > 0;
 				default:
 					return false;
 			}
@@ -1315,9 +1332,9 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.REFRESH:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.CLEAR_CACHE) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.CLEAR_CACHE) > 0;
 				case MsgClasses.STATUS:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.CLEAR_CACHE) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.CLEAR_CACHE) > 0;
 				default:
 					return false;
 			}
@@ -1337,9 +1354,9 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.UPDATE:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DO_NOT_CACHE) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DO_NOT_CACHE) > 0;
 				case MsgClasses.REFRESH:
-					return ((_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.DO_NOT_CACHE) > 0 ? true : false);
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.DO_NOT_CACHE) > 0;
 				default:
 					return false;
 			}
@@ -1359,11 +1376,11 @@ namespace LSEG.Eta.Codec
 			switch (MsgClass)
 			{
 				case MsgClasses.UPDATE:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_POST_USER_INFO) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_POST_USER_INFO) > 0;
 				case MsgClasses.REFRESH:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_POST_USER_INFO) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.HAS_POST_USER_INFO) > 0;
 				case MsgClasses.STATUS:
-					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_POST_USER_INFO) > 0 ? true : false;
+					return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_POST_USER_INFO) > 0;
 				default:
 					return false;
 			}
@@ -1456,7 +1473,7 @@ namespace LSEG.Eta.Codec
                     case MsgClasses.REFRESH: // refresh message always has state
                         return _generalState;
                     case MsgClasses.STATUS:
-                        return ((_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_STATE) > 0 ? _generalState : null);
+                        return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_STATE) > 0 ? _generalState : null;
                     default: // all other messages don't have state
                         return null;
                 }
@@ -1483,11 +1500,6 @@ namespace LSEG.Eta.Codec
 		{
             get
             {
-                if (_generalQos[MsgFields.Common.Qos.QOS] == null)
-                {
-                    _generalQos[MsgFields.Common.Qos.QOS] = new Qos();
-                }
-
                 switch (MsgClass)
                 {
                     case MsgClasses.REFRESH:
@@ -1631,7 +1643,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckMessageComplete()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.MESSAGE_COMPLETE) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.MESSAGE_COMPLETE) > 0;
 		}
 
         /// <summary>
@@ -1645,7 +1657,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasSecondarySeqNum()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_SECONDARY_SEQ_NUM) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & GenericMsgFlags.HAS_SECONDARY_SEQ_NUM) > 0;
 		}
 
         /// <summary>
@@ -1715,7 +1727,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasPostId()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_POST_ID) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_POST_ID) > 0;
 		}
 
         /// <summary>
@@ -1729,7 +1741,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckPostComplete()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.POST_COMPLETE) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.POST_COMPLETE) > 0;
 		}
 
         /// <summary>
@@ -1743,7 +1755,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasPostUserRights()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_POST_USER_RIGHTS) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_POST_USER_RIGHTS) > 0;
 		}
 
         /// <summary>
@@ -1791,7 +1803,7 @@ namespace LSEG.Eta.Codec
 		{
             get
             {
-                return ((_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_POST_ID) > 0 ? _generalLong[MsgFields.Post.Long.POST_ID] : 0);
+                return (_generalInt[MsgFields.Common.Int.FLAGS] & PostMsgFlags.HAS_POST_ID) > 0 ? _generalLong[MsgFields.Post.Long.POST_ID] : 0;
             }
 
             set
@@ -1839,7 +1851,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckSolicited()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.SOLICITED) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.SOLICITED) > 0;
 		}
 
         /// <summary>
@@ -1853,7 +1865,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckRefreshComplete()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.REFRESH_COMPLETE) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RefreshMsgFlags.REFRESH_COMPLETE) > 0;
 		}
 
         /// <summary>
@@ -1917,7 +1929,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasPriority()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_PRIORITY) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_PRIORITY) > 0;
 		}
 
         /// <summary>
@@ -1931,7 +1943,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckStreaming()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.STREAMING) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.STREAMING) > 0;
 		}
 
         /// <summary>
@@ -1945,7 +1957,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckMsgKeyInUpdates()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.MSG_KEY_IN_UPDATES) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.MSG_KEY_IN_UPDATES) > 0;
 		}
 
         /// <summary>
@@ -1959,7 +1971,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckConfInfoInUpdates()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.CONF_INFO_IN_UPDATES) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.CONF_INFO_IN_UPDATES) > 0;
 		}
 
         /// <summary>
@@ -1973,7 +1985,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckNoRefresh()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.NO_REFRESH) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.NO_REFRESH) > 0;
 		}
 
         /// <summary>
@@ -1987,7 +1999,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasWorstQos()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_WORST_QOS) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_WORST_QOS) > 0;
 		}
 
         /// <summary>
@@ -2001,7 +2013,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckPause()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.PAUSE) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.PAUSE) > 0;
 		}
 
         /// <summary>
@@ -2015,7 +2027,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasView()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_VIEW) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_VIEW) > 0;
 		}
 
         /// <summary>
@@ -2029,7 +2041,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasBatch()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_BATCH) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_BATCH) > 0;
 		}
 
         /// <summary>
@@ -2153,7 +2165,7 @@ namespace LSEG.Eta.Codec
                     _generalPriority = new Priority();
                 }
 
-                return ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_PRIORITY) > 0 ? _generalPriority : null);
+                return (_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_PRIORITY) > 0 ? _generalPriority : null;
             }
 		}
 
@@ -2191,7 +2203,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasGroupId()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_GROUP_ID) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_GROUP_ID) > 0;
 		}
 
         /// <summary>
@@ -2205,7 +2217,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasState()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_STATE) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & StatusMsgFlags.HAS_STATE) > 0;
 		}
 
         /// <summary>
@@ -2247,7 +2259,7 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckHasConfInfo()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_CONF_INFO) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.HAS_CONF_INFO) > 0;
 		}
 
         /// <summary>
@@ -2261,7 +2273,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckDoNotConflate()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DO_NOT_CONFLATE) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DO_NOT_CONFLATE) > 0;
 		}
 
         /// <summary>
@@ -2274,7 +2286,7 @@ namespace LSEG.Eta.Codec
         /// <seealso cref="IMsg.Flags"/>
         public bool CheckDoNotRipple()
 		{
-			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DO_NOT_RIPPLE) > 0 ? true : false;
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DO_NOT_RIPPLE) > 0;
 		}
 
         /// <summary>
@@ -2288,7 +2300,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public bool CheckDiscardable()
 		{
-			return ((_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DISCARDABLE) > 0 ? true : false);
+			return (_generalInt[MsgFields.Common.Int.FLAGS] & UpdateMsgFlags.DISCARDABLE) > 0;
 		}
 
         /// <summary>
@@ -2509,7 +2521,7 @@ namespace LSEG.Eta.Codec
             }
             if (CheckHasMsgKey())
             {
-                if ((ret = ((MsgKey)MsgKey).Copy(msg.MsgKey, copyMsgFlags)) != CodecReturnCode.SUCCESS)
+                if ((ret = MsgKey.Copy(msg.MsgKey, copyMsgFlags)) != CodecReturnCode.SUCCESS)
                 {
                     return ret;
                 }
@@ -2592,11 +2604,11 @@ namespace LSEG.Eta.Codec
                     }
                 }
             }
-            if (EncodedMsgBuffer.Length > 0)
+            if (_encodedMsgBuffer.Length > 0)
             {
                 if ((copyMsgFlags & CopyMsgFlags.MSG_BUFFER) > 0)
                 {
-                    if ((ret = (EncodedMsgBuffer).CopyWithOrWithoutByteBuffer(msg.EncodedMsgBuffer)) != CodecReturnCode.SUCCESS)
+                    if ((ret = _encodedMsgBuffer.CopyWithOrWithoutByteBuffer(msg.EncodedMsgBuffer)) != CodecReturnCode.SUCCESS)
                     {
                         return ret;
                     }
@@ -2614,7 +2626,7 @@ namespace LSEG.Eta.Codec
             msg.State.Code(State.Code());
             if ((copyMsgFlags & CopyMsgFlags.STATE_TEXT) > 0)
             {
-                if ((ret = (State.Text()).CopyWithOrWithoutByteBuffer(msg.State.Text())) != CodecReturnCode.SUCCESS)
+                if ((ret = State.Text().CopyWithOrWithoutByteBuffer(msg.State.Text())) != CodecReturnCode.SUCCESS)
                 {
                     return ret;
                 }
@@ -2638,70 +2650,67 @@ namespace LSEG.Eta.Codec
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
-        private CodecReturnCode CopyRequestMsg(IRequestMsg msg, int copyMsgFlags)
+        private CodecReturnCode CopyRequestMsg(Msg msg, int copyMsgFlags)
         {
             CodecReturnCode ret;
-            if (CheckHasExtendedHdr())
+            if ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_EXTENDED_HEADER) > 0)
             {
                 if ((copyMsgFlags & CopyMsgFlags.EXTENDED_HEADER) > 0)
                 {
-                    if ((ret = (_extendedHeader).CopyWithOrWithoutByteBuffer(msg.ExtendedHeader)) != CodecReturnCode.SUCCESS)
+                    if ((ret = _extendedHeader.CopyWithOrWithoutByteBuffer(msg._extendedHeader)) != CodecReturnCode.SUCCESS)
                     {
                         return ret;
                     }
                 }
                 else
                 {
-                    msg.Flags = msg.Flags & ~RequestMsgFlags.HAS_EXTENDED_HEADER;
+                    msg._generalInt[MsgFields.Common.Int.FLAGS] &= ~RequestMsgFlags.HAS_EXTENDED_HEADER;
                 }
             }
-            if ((ret = ((MsgKey)MsgKey).Copy(msg.MsgKey, copyMsgFlags)) != CodecReturnCode.SUCCESS)
+            if ((ret = _msgKey.Copy(msg.MsgKey, copyMsgFlags)) != CodecReturnCode.SUCCESS)
             {
                 return ret;
             }
-            if (EncodedDataBody.Length > 0)
+            if (_encodedDataBody.Length > 0 && (copyMsgFlags & CopyMsgFlags.DATA_BODY) > 0)
             {
-                if ((copyMsgFlags & CopyMsgFlags.DATA_BODY) > 0)
+                if ((ret = _encodedDataBody.CopyWithOrWithoutByteBuffer(msg._encodedDataBody)) != CodecReturnCode.SUCCESS)
                 {
-                    if ((ret = (EncodedDataBody).CopyWithOrWithoutByteBuffer(msg.EncodedDataBody)) != CodecReturnCode.SUCCESS)
-                    {
-                        return ret;
-                    }
+                    return ret;
                 }
             }
-            if (EncodedMsgBuffer.Length > 0)
+            if (_encodedMsgBuffer.Length > 0 && (copyMsgFlags & CopyMsgFlags.MSG_BUFFER) > 0)
             {
-                if ((copyMsgFlags & CopyMsgFlags.MSG_BUFFER) > 0)
+                if ((ret = _encodedMsgBuffer.CopyWithOrWithoutByteBuffer(msg._encodedMsgBuffer)) != CodecReturnCode.SUCCESS)
                 {
-                    if ((ret = (EncodedMsgBuffer).CopyWithOrWithoutByteBuffer(msg.EncodedMsgBuffer)) != CodecReturnCode.SUCCESS)
-                    {
-                        return ret;
-                    }
+                    return ret;
                 }
             }
-            if (CheckHasPriority())
+            if ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_PRIORITY) > 0)
             {
-                msg.Priority.Count = Priority.Count;
-                msg.Priority.PriorityClass = Priority.PriorityClass;
-                msg.ApplyHasPriority();
+                msg._generalInt[MsgFields.Common.Int.FLAGS] |= RequestMsgFlags.HAS_PRIORITY;
+                msg._generalPriority.Count = _generalPriority.Count;
+                msg._generalPriority.PriorityClass = _generalPriority.PriorityClass;           
             }
-            if (CheckHasQos())
+            if ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_QOS) > 0)
             {
-                msg.Qos.Rate(Qos.Rate());
-                msg.Qos.RateInfo(Qos.RateInfo());
-                msg.Qos.Timeliness(Qos.Timeliness());
-                msg.Qos.TimeInfo(Qos.TimeInfo());
-                msg.Qos.IsDynamic = Qos.IsDynamic;
-                msg.ApplyHasQos();
+                msg._generalInt[MsgFields.Common.Int.FLAGS] |= RequestMsgFlags.HAS_QOS; ;
+                var msgQos = msg._generalQos[MsgFields.Common.Qos.QOS]; 
+                var thisQos = _generalQos[MsgFields.Common.Qos.QOS];
+                msgQos.Rate(thisQos.Rate());
+                msgQos.RateInfo(thisQos.RateInfo());
+                msgQos.Timeliness(thisQos.Timeliness());
+                msgQos.TimeInfo(thisQos.TimeInfo());
+                msgQos.IsDynamic = thisQos.IsDynamic;
             }
-            if (CheckHasWorstQos())
+            if ((_generalInt[MsgFields.Common.Int.FLAGS] & RequestMsgFlags.HAS_WORST_QOS) > 0)
             {
+                msg._generalInt[MsgFields.Common.Int.FLAGS] |= RequestMsgFlags.HAS_WORST_QOS;
                 msg.WorstQos.Rate(WorstQos.Rate());
                 msg.WorstQos.RateInfo(WorstQos.RateInfo());
                 msg.WorstQos.Timeliness(WorstQos.Timeliness());
                 msg.WorstQos.TimeInfo(WorstQos.TimeInfo());
                 msg.WorstQos.IsDynamic = WorstQos.IsDynamic;
-                msg.ApplyHasWorstQos();
+                
             }
             return CodecReturnCode.SUCCESS;
         }

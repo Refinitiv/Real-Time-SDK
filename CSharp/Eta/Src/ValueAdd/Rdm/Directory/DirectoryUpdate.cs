@@ -218,7 +218,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Encodes this Directory Status message using the provided <c>encodeIter</c>.
+        /// Encodes this Directory Update message using the provided <c>encodeIter</c>.
         /// </summary>
         /// <param name="encodeIter">Encode iterator that has a buffer set to encode into.</param>
         /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
@@ -289,7 +289,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Decodes this Directory Status using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// Decodes this Directory Update message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
         /// </summary>
         /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
         /// <param name="msg">Decoded Msg object for this DirectoryUpdate message.</param>

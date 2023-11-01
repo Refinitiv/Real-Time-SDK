@@ -7,6 +7,7 @@
  */
 
 using LSEG.Eta.Common;
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Eta.Transports
 {
@@ -56,6 +57,7 @@ namespace LSEG.Eta.Transports
         /// <summary>
         /// Clears ETA Write Arguments.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
             Priority = WritePriorities.HIGH;

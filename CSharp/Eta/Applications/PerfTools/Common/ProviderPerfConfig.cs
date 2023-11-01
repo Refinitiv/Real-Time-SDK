@@ -58,6 +58,8 @@ namespace LSEG.Eta.PerfTools.Common
         public static string? KeyFile { get; set; }
         public static string? Cert { get; set; }
 
+        public static readonly EncryptionProtocolCommandLineArg EncryptionProtocol = new();
+
         /// <summary>Whether to log update latency information to a file</summary>
         public static bool LogLatencyToFile
         {
@@ -135,7 +137,6 @@ namespace LSEG.Eta.PerfTools.Common
             ServiceName = CommandLine.Value("serviceName");
             Cert = CommandLine.Value("cert");
             KeyFile = CommandLine.Value("keyfile");
-
             if (CommandLine.Value("c") == null || CommandLine.Value("c")!.Equals("socket"))
             {
                 ConnectionType = ConnectionType.SOCKET;

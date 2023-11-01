@@ -16,13 +16,6 @@ using static LSEG.Eta.Rdm.Directory;
 using System.Net.Sockets;
 // API QA
 using LSEG.Eta.Common;
-using LSEG.Eta.ValueAdd;
-using LSEG.Eta.Codec;
-using LSEG.Eta.Example.Common;
-using LSEG.Eta.Rdm;
-using LSEG.Eta.Transports;
-using LSEG.Eta.ValueAdd.Rdm;
-using LSEG.Eta.ValueAdd.Reactor;
 //END API QA
 
 namespace LSEG.Eta.ValueAdd.Provider
@@ -34,7 +27,7 @@ namespace LSEG.Eta.ValueAdd.Provider
 
         private const int UPDATE_INTERVAL = 1_000_000; // 1 second in microseconds
 
-        private BindOptions m_BindOptions = new BindOptions();        
+        private BindOptions m_BindOptions = new BindOptions();
         private ReactorOptions m_ReactorOptions = new ReactorOptions();
         private ReactorAcceptOptions m_ReactorAcceptOptions = new ReactorAcceptOptions();
         private ProviderRole m_ProviderRole = new ProviderRole();
@@ -82,7 +75,9 @@ namespace LSEG.Eta.ValueAdd.Provider
         private ReactorChannel savedReactorChannel;
         // END APIQA:
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public VAProvider()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             m_DictionaryHandler = new DictionaryHandler();
             m_DirectoryHandler = new DirectoryHandler();
@@ -131,7 +126,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                 serviceId = defaultServiceId;
             }
 
-            runtime = (System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) + (m_ProviderCmdLineParser.Runtime * 1000);
+            runtime = new System.DateTime(((System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) + (m_ProviderCmdLineParser.Runtime * 1000))* TimeSpan.TicksPerMillisecond);
             m_CloseRunTime = (System.DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) + (m_ProviderCmdLineParser.Runtime + m_CloseTime) * 1000;
 
             Console.WriteLine($"ConnectionType: {(m_ProviderCmdLineParser.ConnectionType == ConnectionType.SOCKET ? "socket" : "encrypted")}");
@@ -262,7 +257,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                         if (reactorEvent.ReactorChannel!.Channel != null)
                             Console.WriteLine($"\nConnection down: Channel {reactorEvent.ReactorChannel}");
                         else
-                        Console.WriteLine("\nConnection down");
+                            Console.WriteLine("\nConnection down");
 
                         if (reactorEvent.ReactorErrorInfo != null && reactorEvent.ReactorErrorInfo.Error.Text != null)
                             Console.WriteLine($"	Error text: {reactorEvent.ReactorErrorInfo.Error.Text}\n");
@@ -425,7 +420,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                     Console.WriteLine($"Received login RTT message from Consumer {m_SocketFdValueMap[reactorEvent.ReactorChannel!]}.");
                     // nanoseconds to microseconds
                     Console.WriteLine("\tRTT Tick value is {0}us", (long)((double)loginRTT.Ticks / 1000.0));
-                    if (loginRTT.HasTCPRetrans) 
+                    if (loginRTT.HasTCPRetrans)
                     {
                         Console.WriteLine($"\tConsumer side TCP retransmissions: {loginRTT.TCPRetrans}");
                     }
@@ -479,7 +474,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                             ((directoryRequest.Filter & ServiceFilterFlags.GROUP) == 0))
                         {
                             if (m_DirectoryHandler.SendRequestReject(reactorChannel!, reactorEvent.Msg!.StreamId, DirectoryRejectReason.INCORRECT_FILTER_FLAGS, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
-                            RemoveClientSessionForChannel(reactorChannel);
+                                RemoveClientSessionForChannel(reactorChannel);
                             break;
                         }
 
@@ -524,7 +519,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                 if (reactorEvent.Msg != null)
                 {
                     if (m_DictionaryHandler.SendRequestReject(reactorChannel!, reactorEvent.Msg.StreamId, DictionaryRejectReason.DICTIONARY_RDM_DECODER_FAILED, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
-                    RemoveClientSessionForChannel(reactorChannel);
+                        RemoveClientSessionForChannel(reactorChannel);
 
                     return ReactorCallbackReturnCode.SUCCESS;
                 }
@@ -599,7 +594,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                 {
                     // send close status messages to all item streams 
                     if (m_ItemHandler.SendCloseStatusMsgs(reactorChnl, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
-                        Console.WriteLine($"Error sending item close: {m_ErrorInfo?.Error.Text}");               
+                        Console.WriteLine($"Error sending item close: {m_ErrorInfo?.Error.Text}");
 
                     // send close status message to source directory stream
                     if (m_DirectoryHandler.SendCloseStatus(reactorChnl, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
@@ -635,7 +630,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                 }
                 m_SocketFdValueMap.Remove(reactorChannel);
                 m_ClientSessionCount--;
-            }           
+            }
         }
 
         private void Uninitialize()
@@ -745,7 +740,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                         else // Reactor EventSocket
                         {
                             // retrieve associated reactor channel and dispatch on that channel
-                            ReactorChannel ?reactorChnl = null;
+                            ReactorChannel? reactorChnl = null;
 
                             if (m_SocketChannelMap.TryGetValue(socket, out reactorChnl))
                             {
@@ -778,7 +773,7 @@ namespace LSEG.Eta.ValueAdd.Provider
                     Console.WriteLine("Provider run-time expired...");
                     break;
                 }
-                if(m_CloseHandled)
+                if (m_CloseHandled)
                 {
                     break;
                 }
@@ -788,11 +783,11 @@ namespace LSEG.Eta.ValueAdd.Provider
         // APIQA: Send generic message on sourceDirectory
         private void SendGenericMessageSource(ReactorChannel chnl, int serviceId)
         {
-            Msg msg = new Msg();
-            ITransportBuffer _genericBuffer = chnl.GetBuffer(ChannelSession.MAX_MSG_SIZE, false, out m_ErrorInfo);
+            Msg msg = new ();
+            ITransportBuffer? _genericBuffer = chnl.GetBuffer(ChannelSession.MAX_MSG_SIZE, false, out m_ErrorInfo);
             if (_genericBuffer == null)
             {
-                Console.WriteLine("Failed chnl.GetBuffer: {0}", m_ErrorInfo.ToString);
+                Console.WriteLine("Failed chnl.GetBuffer: {0}", m_ErrorInfo?.ToString());
                 return;
             }
             IGenericMsg _genericMsg = (IGenericMsg)msg;
@@ -849,7 +844,7 @@ namespace LSEG.Eta.ValueAdd.Provider
             reactorSubmitOptions.Clear();
             if (chnl.Submit(_genericBuffer, reactorSubmitOptions, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine("\n\n-------------APIQ: Error submitting generic message on SOURCE DIRECTORY domain: " + m_ErrorInfo.ToString);
+                Console.WriteLine("\n\n-------------APIQ: Error submitting generic message on SOURCE DIRECTORY domain: " + m_ErrorInfo?.ToString());
             }
             return;
         }
@@ -860,10 +855,10 @@ namespace LSEG.Eta.ValueAdd.Provider
             Msg msg = new Msg();
             IGenericMsg _genericMsg = (IGenericMsg)msg;
             CodecReturnCode ret = CodecReturnCode.SUCCESS;
-            ITransportBuffer _genericBuffer = chnl.GetBuffer(ChannelSession.MAX_MSG_SIZE, false, out m_ErrorInfo);
+            ITransportBuffer? _genericBuffer = chnl.GetBuffer(ChannelSession.MAX_MSG_SIZE, false, out m_ErrorInfo);
             if (_genericBuffer == null)
             {
-                Console.WriteLine("Failed chnl.GetBuffer: {0}", m_ErrorInfo.ToString);
+                Console.WriteLine("Failed chnl.GetBuffer: {0}", m_ErrorInfo?.ToString());
                 return;
             }
 
@@ -899,7 +894,7 @@ namespace LSEG.Eta.ValueAdd.Provider
 
             if (chnl.Submit(_genericBuffer, reactorSubmitOptions, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine("\n\n-------------APIQ: Error submitting generic message on MP domain: {0}", m_ErrorInfo.ToString);
+                Console.WriteLine("\n\n-------------APIQ: Error submitting generic message on MP domain: {0}", m_ErrorInfo?.ToString());
             }
             return;
         }
@@ -908,12 +903,12 @@ namespace LSEG.Eta.ValueAdd.Provider
         // APIQA: Send generic message on Login domain and stream
         private void SendGenericMessageLogin(ReactorChannel chnl)
         {
-            Msg msg = new Msg();
-            ITransportBuffer _genericBuffer = chnl.GetBuffer(ChannelSession.MAX_MSG_SIZE, false, out m_ErrorInfo);
-            if (_genericBuffer == null) 
+            Msg msg = new ();
+            ITransportBuffer? _genericBuffer = chnl.GetBuffer(ChannelSession.MAX_MSG_SIZE, false, out m_ErrorInfo);
+            if (_genericBuffer == null)
             {
-                Console.WriteLine("Failed chnl.GetBuffer: {0}", m_ErrorInfo.ToString);
-                return; 
+                Console.WriteLine("Failed chnl.GetBuffer: {0}", m_ErrorInfo?.ToString());
+                return;
             }
 
             IGenericMsg _genericMsg = (IGenericMsg)msg;
@@ -969,7 +964,7 @@ namespace LSEG.Eta.ValueAdd.Provider
             reactorSubmitOptions.Clear();
             if (chnl.Submit(_genericBuffer, reactorSubmitOptions, out m_ErrorInfo) != ReactorReturnCode.SUCCESS)
             {
-                Console.WriteLine("\n\n-------------APIQ: Error submitting generic message on LOGIN domain: " + m_ErrorInfo.ToString());
+                Console.WriteLine("\n\n-------------APIQ: Error submitting generic message on LOGIN domain: " + m_ErrorInfo?.ToString());
             }
             return;
         }

@@ -22,7 +22,7 @@ namespace LSEG.Eta.Codec
     /// <seealso cref="IUpdateMsg"/>
 	sealed public class PostUserInfo
 	{
-		private StringBuilder _strBldr = new StringBuilder();
+		private StringBuilder _strBldr;
 
 
         /// <summary>
@@ -101,6 +101,10 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public string UserAddrToString(long addrInt)
 		{
+			if (_strBldr == null)
+			{
+				_strBldr = new StringBuilder();
+			}
             _strBldr.Clear();
             _strBldr.Append((addrInt >> 24) & 0xFF);
 			_strBldr.Append(".");

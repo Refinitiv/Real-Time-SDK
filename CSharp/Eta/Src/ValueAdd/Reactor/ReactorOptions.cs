@@ -58,7 +58,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             m_TokenServiceUrl = "https://api.refinitiv.com/auth/oauth2/v2/token";
             m_ServiceDiscoveryUrl = "https://api.refinitiv.com/streaming/pricing/v1/";
             m_RestRequestTimeout = 45000; // 45 seconds
-            m_TokenExpireRatio = 0.01;
+            m_TokenExpireRatio = 0.50;
             EnableRestLogStream = false;
         }
 
@@ -148,7 +148,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         /// <summary>
         /// Sets a ratio to multiply with access token validity time(second) to specify when the access is about to expire.
-        /// The default token exipred ratio is 0.01. The valid range is between 0.01 to 0.90.
+        /// The default token exipred ratio is 0.50. The valid range is between 0.01 to 0.90.
         /// </summary>
         /// <param name="tokenExpireRatio">The token expire ratio</param>
         /// <returns><see cref="ReactorReturnCode.SUCCESS"/> on success, otherwise <see cref="ReactorReturnCode.PARAMETER_INVALID"/>

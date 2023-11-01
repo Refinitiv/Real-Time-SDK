@@ -98,7 +98,7 @@ namespace LSEG.Eta.Codec
 				return CodecReturnCode.INVALID_ARGUMENT;
 			}
 
-			_enumValue = value;
+            _enumValue = value;
             IsBlank = false;
 
 			return CodecReturnCode.SUCCESS;

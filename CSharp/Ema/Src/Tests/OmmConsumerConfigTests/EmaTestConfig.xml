@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmaConfig>
+<!-- This is a test file for making sure all settings carry through the config. -->
+
+<ConsumerGroup>
+	<DefaultConsumer value="TestConsumer"/>
+	<ConsumerList>
+		<Consumer>
+			<!-- Name is mandatory																		-->
+			<Name value="TestConsumer"/>
+			<Channel value="TestChannel_1"/>
+			<Logger value="TestLogger_1"/>
+			<Dictionary value="TestDictionary_1"/>
+			<CatchUnhandledException value="1"/>
+			<DictionaryRequestTimeOut value="10"/>
+			<DirectoryRequestTimeOut value="20"/>
+			<LoginRequestTimeOut value="30"/>
+			<DispatchTimeoutApiThread value="40"/>
+			<EnableRtt value="1"/>
+			<ItemCountHint value="50"/>
+			<MaxDispatchCountApiThread value="60"/>
+			<MaxDispatchCountUserThread value="70"/>
+			<MaxOutstandingPosts value="80"/>
+			<MsgKeyInUpdates value="0"/>
+			<ObeyOpenWindow value="0"/>
+			<PostAckTimeout value="100"/>
+			<ReconnectAttemptLimit value="110"/>
+			<ReconnectMaxDelay value="1400"/>
+			<ReconnectMinDelay value="1300"/>
+			<RequestTimeout value="140"/>
+			<RestEnableLog value="1"/>
+			<RestEnableLogViaCallback value="1"/>
+			<RestLogFileName value="testRestLog"/>
+			<RestRequestTimeOut value="150"/>
+			<ServiceCountHint value="160"/>
+			<!--XmlTraceDump value="1"/-->
+			<!--XmlTraceFileName value="testXmlTrace"/-->
+			<XmlTraceToStdout value="1"/>
+
+		</Consumer>
+		<!-- ChannelSet should override Channel here. -->
+		<Consumer>
+			<Name value="TestConsumer_2"/>
+			<ChannelSet value="TestChannel_1, TestChannel_2"/>
+			<Channel value="TestChannel_1"/>
+		</Consumer>
+
+	</ConsumerList>
+</ConsumerGroup>
+
+<ChannelGroup>
+	<ChannelList>
+		<Channel>
+			<Name value="TestChannel_1"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<!-- Invalid to pass into ETA, but it's different from default -->
+			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_ENCRYPTED"/>
+			<ConnectionPingTimeout value="10"/>
+			<EnableSessionManagement value="1"/>
+			<GuaranteedOutputBuffers value="20"/>
+			<HighWaterMark value="30"/>
+			<InitializationTimeout value="40"/>
+			<InterfaceName value="testInterface"/>
+			<Location value="testLocation"/>
+			<NumInputBuffers value="50"/>
+			<ServiceDiscoveryRetryCount value="60"/>
+			<SysRecvBufSize value="70"/>
+			<SysSendBufSize value="80"/>
+			<CompressionType value="CompressionType::ZLib"/>
+			<CompressionThreshold value="555"/>
+			<DirectWrite value="1"/>
+			<Host value="testChannel1"/>
+			<Port value="testPort1"/>
+			<ProxyHost value="proxyHost1"/>
+			<ProxyPort value="proxyPort1"/>
+			<TcpNodelay value="1"/>
+			<!-- this is 0110, which has 0x04 set, so this should pass through -->
+			<SecurityProtocol value="6"/>
+			<AuthenticationTimeout value="25"/>
+		</Channel>
+		
+		<Channel>
+			<Name value="TestChannel_2"/>
+
+		</Channel>
+		
+	</ChannelList>
+</ChannelGroup>
+
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="TestLogger_1"/>
+			<LoggerType value="LoggerType::Stdout"/>
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+			<FileName value="testLogFile1"/>
+			<IncludeDateInLoggerOutput value="1"/>
+			<NumberOfLogFiles value="10"/>
+			<MaxLogFileSize value="20"/>
+		</Logger>
+		<Logger>
+			<Name value="TestLogger_2"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
+
+<DictionaryGroup>
+
+	<DictionaryList>
+		<Dictionary>
+			<Name value="TestDictionary_1"/>
+			<DictionaryType value="DictionaryType::FileDictionary"/>
+			<EnumTypeDefFileName value="testEnumFile1"/>
+			<EnumTypeDefItemName value="testEnumItem1"/>
+			<RdmFieldDictionaryFileName value="testRdmFile1"/>
+			<RdmFieldDictionaryItemName value="testRdmItem1"/>
+		</Dictionary>
+		<Dictionary>
+			<Name value="TestDictionary_2"/>
+		</Dictionary>
+	</DictionaryList>
+
+</DictionaryGroup>
+
+</EmaConfig>

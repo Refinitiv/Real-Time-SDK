@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|-----------------------------------------------------------------------------
+ */
+
 package com.refinitiv.eta.shared;
 
 import com.refinitiv.eta.codec.CodecFactory;
@@ -27,6 +35,8 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRefresh;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryStatus;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
+import com.refinitiv.eta.json.converter.JsonConverterError;
+import com.refinitiv.eta.json.converter.ServiceNameIdConverter;
 
 /**
  * This is the source directory handler for the ETA Java Provider application.
@@ -42,7 +52,7 @@ import com.refinitiv.eta.valueadd.domainrep.rdm.directory.Service;
  * getting/setting the service id, checking if a request has minimal filter
  * flags, and closing source directory streams are also provided.
  */
-public class ProviderDirectoryHandler
+public class ProviderDirectoryHandler implements ServiceNameIdConverter
 {
     private static final int REJECT_MSG_SIZE = 1024;
     private static final int STATUS_MSG_SIZE = 1024;
@@ -521,9 +531,9 @@ public class ProviderDirectoryHandler
     private boolean keyHasMinFilterFlags(MsgKey key)
     {
         return key.checkHasFilter() &&
-                (key.filter() & Directory.ServiceFilterFlags.INFO) != 0 &&
-                (key.filter() & Directory.ServiceFilterFlags.STATE) != 0 &&
-                (key.filter() & Directory.ServiceFilterFlags.GROUP) != 0;
+               (key.filter() & Directory.ServiceFilterFlags.INFO) != 0 &&
+               (key.filter() & Directory.ServiceFilterFlags.STATE) != 0 &&
+               (key.filter() & Directory.ServiceFilterFlags.GROUP) != 0;
     }
 
     /**
@@ -564,5 +574,18 @@ public class ProviderDirectoryHandler
     public void serviceId(int serviceId)
     {
         this._serviceId = serviceId;
+    }
+
+    @Override
+    public int serviceNameToId(String serviceName, JsonConverterError error) {
+        if (this.serviceName().equals(serviceName)) {
+            return serviceId();
+        }
+        return -1;
+    }
+
+    @Override
+    public String serviceIdToName(int id, JsonConverterError error) {
+        return null;
     }
 }

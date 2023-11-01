@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\EtaAppCommon\EtaAppCommon_NET6.0.csproj" />
+    <ProjectReference Include="..\..\Examples\EtaAppCommon\EtaAppCommon_NET6.0.csproj" />
   </ItemGroup>
 
 </Project>

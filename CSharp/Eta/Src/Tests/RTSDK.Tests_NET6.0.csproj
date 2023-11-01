@@ -34,12 +34,6 @@
     <Content Include="connections.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-	<Content Include="certificate.test.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-	<Content Include="certificate.test.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -54,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Applications\EtaAppCommon\EtaAppCommon_NET6.0.csproj" />
+    <ProjectReference Include="..\..\Applications\Examples\EtaAppCommon\EtaAppCommon_NET6.0.csproj" />
     <ProjectReference Include="..\ValueAdd\ValueAdd_NET6.0.csproj" />
   </ItemGroup>
 
