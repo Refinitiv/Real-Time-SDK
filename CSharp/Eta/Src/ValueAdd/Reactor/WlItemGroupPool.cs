@@ -60,14 +60,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 pow = (int)Math.Log2(length) + 1;
             }
 
-            if (pow - minLengthPow < itemGroupListArray.Length)
+            int index = pow - minLengthPow;
+
+            if ( -1 < index && index < itemGroupListArray.Length)
             {
-                var itemGroupNode = itemGroupListArray[pow - minLengthPow].Pop(WlItemGroupNode.ITEM_GROUP_NODE_LINK);
+                var itemGroupNode = itemGroupListArray[index].Pop(WlItemGroupNode.ITEM_GROUP_NODE_LINK);
                 if (itemGroupNode == null)
                 {
                     itemGroupNode = new WlItemGroupNode((int)Math.Pow(2, pow));
                 }
-                emptyItemGroupListArray[pow - minLengthPow].Push(itemGroupNode, WlItemGroupNode.ITEM_GROUP_NODE_LINK);
+                emptyItemGroupListArray[index].Push(itemGroupNode, WlItemGroupNode.ITEM_GROUP_NODE_LINK);
                 return itemGroupNode.itemGroup!;
             }
             else
@@ -84,21 +86,33 @@ namespace LSEG.Eta.ValueAdd.Reactor
         internal void ReturnWlItemGroup(WlItemGroup itemGroup)
         {
             var byteBuffer = itemGroup.GroupId!.Data();
-            int pow = (int)Math.Log2(byteBuffer.Contents.Length);
+            int length = byteBuffer.Contents.Length;
+            int pow;
 
-            if (pow - minLengthPow < emptyItemGroupListArray.Length)
+            if (length < Math.Pow(2, minLengthPow - 1))
+            {
+                pow = minLengthPow;
+            }
+            else
+            {
+                pow = (int)Math.Log2(length) + 1;
+            }
+
+            int index = pow - minLengthPow;
+
+            if (-1 < index && index < emptyItemGroupListArray.Length)
             {
                 itemGroup.GroupId.Clear();
                 byteBuffer.Clear();
                 itemGroup.GroupId.Data(byteBuffer);
 
-                var itemGroupNode = emptyItemGroupListArray[pow - minLengthPow].Pop(WlItemGroupNode.ITEM_GROUP_NODE_LINK);
+                var itemGroupNode = emptyItemGroupListArray[index].Pop(WlItemGroupNode.ITEM_GROUP_NODE_LINK);
                 if (itemGroupNode == null)
                 {
                     itemGroupNode = new WlItemGroupNode();
                 }
                 itemGroupNode.itemGroup = itemGroup;
-                itemGroupListArray[pow - minLengthPow].PushBack(itemGroupNode, WlItemGroupNode.ITEM_GROUP_NODE_LINK);
+                itemGroupListArray[index].PushBack(itemGroupNode, WlItemGroupNode.ITEM_GROUP_NODE_LINK);
             }
         }
     }
