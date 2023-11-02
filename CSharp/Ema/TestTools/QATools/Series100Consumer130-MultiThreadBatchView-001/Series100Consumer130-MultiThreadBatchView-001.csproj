@@ -1,7 +1,10 @@
 ﻿<Project>
 	<Import Project="..\Consumer.props" />
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\PerfTools\EmaPerfToolsCommon_NET6.0\EMA_PerfToolsCommon_NET6.0.csproj" />
+	  <None Include="Cons130_NET6.0.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\PerfTools\EmaPerfToolsCommon\EMA_PerfToolsCommon_NET6.0.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="1k.xml">
