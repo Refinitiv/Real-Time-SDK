@@ -94,6 +94,8 @@ internal class WlTimeoutTimer : VaNode
 
     public override void ReturnToPool()
     {
+        /* Ensure that the timer is stopped before returning back to the pool */
+        Stop();
         base.ReturnToPool();
         Clear();
     }
@@ -115,7 +117,7 @@ internal class WlTimeoutTimer : VaNode
     public void Stop()
     {
         m_IsStopped = true;
-        m_Group!.StopTimer(this);
+        m_Group?.StopTimer(this);
     }
 
     /// <summary>
