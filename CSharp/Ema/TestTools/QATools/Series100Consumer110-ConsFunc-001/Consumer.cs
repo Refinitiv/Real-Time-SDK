@@ -763,7 +763,7 @@ public class Consumer
 
                     long h1 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Payload(batch), client, closure1);
                     Thread.Sleep(3000);
-                    long h2 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Name("LSEG.O"), client, closure2);
+                    long h2 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Name("GOOG.O"), client, closure2);
                 }
                 else if (temp == 35)
                 {
@@ -778,7 +778,7 @@ public class Consumer
 
                     long h1 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Payload(batch), client, closure1);
                     Thread.Sleep(3000);
-                    long h2 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Name("LSEG.O").InterestAfterRefresh(false), client, closure2);
+                    long h2 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Name("GOOG.O").InterestAfterRefresh(false), client, closure2);
                 }
                 else if (temp == 36)
                 {
