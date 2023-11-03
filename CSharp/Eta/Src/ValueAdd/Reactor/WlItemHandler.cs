@@ -1146,7 +1146,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 while (streamLink != null)
                 {
                     WlItemStream? stream = m_Watchlist!.StreamManager.StreamsByStreamIds[streamLink.StreamId - WlStreamManager.MIN_STREAM_ID];
-                    //m_Watchlist!.StreamIdToWlStreamDict!.TryGetValue(streamLink.StreamId, out stream);
                     if (stream != null && stream.UserRequestDlList.Count() != 0)
                     {
                         userRequestExists = true;
@@ -1253,10 +1252,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         }
                         else
                         {
-                            Buffer groupId = new ();
-                            groupId.Data(new ByteBuffer(serviceGroup.MergedToGroup.Length));
+                            ByteBuffer destByteBuffer;
+                            var groupId = wlItemGroup.GroupId;
+                            int length = Math.Max(groupId!.Data().Contents.Length, WlItemGroupPool.GetMinPow2Length(serviceGroup.MergedToGroup.Length));
+
+                            if (length <= groupId.Data().Contents.Length) { destByteBuffer = groupId.Data(); destByteBuffer.Clear(); }
+                            else destByteBuffer = new ByteBuffer(length);
+
+                            wlItemGroup.GroupId!.Clear();
+                            wlItemGroup.GroupId.Data(destByteBuffer);
                             serviceGroup.MergedToGroup.Copy(groupId);
-                            wlItemGroup.GroupId = groupId;
                             wlService.ItemGroupDict.Add(wlItemGroup.GroupId, wlItemGroup);
                         }
                     }

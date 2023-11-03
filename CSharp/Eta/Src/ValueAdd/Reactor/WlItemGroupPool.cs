@@ -22,13 +22,25 @@ namespace LSEG.Eta.ValueAdd.Reactor
     {
         VaDoubleLinkList<WlItemGroupNode>[] itemGroupListArray;
         VaDoubleLinkList<WlItemGroupNode>[] emptyItemGroupListArray;
-        int minLengthPow;
+        static int minLengthPow;
+
+        internal static int GetMinPow2Length(int length)
+        {
+            if (length < Math.Pow(2, minLengthPow - 1))
+            {
+                return minLengthPow;
+            }
+            else
+            {
+                return (int)Math.Log2(length) + 1;
+            }
+        }
 
         internal WlItemGroupPool(int[] listSize, int numOfLengths = 10, int minLengthPow = 2)
         {
             Debug.Assert(listSize.Length >= numOfLengths);
 
-            this.minLengthPow = minLengthPow;
+            WlItemGroupPool.minLengthPow = minLengthPow;
 
             itemGroupListArray = new VaDoubleLinkList<WlItemGroupNode>[numOfLengths];
             emptyItemGroupListArray = new VaDoubleLinkList<WlItemGroupNode>[numOfLengths];
@@ -88,11 +100,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
             var byteBuffer = itemGroup.GroupId!.Data();
             int length = byteBuffer.Contents.Length;
             int pow = (int)Math.Log2(length);
-
-            if (pow < minLengthPow)
-            {
-                pow = minLengthPow;
-            }
 
             int index = pow - minLengthPow;
 
