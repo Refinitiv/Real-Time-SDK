@@ -7,6 +7,8 @@
  */
 
 using System;
+using System.Linq;
+using System.Net;
 using System.Text;
 
 using LSEG.Ema.Access;
@@ -36,8 +38,9 @@ public sealed class LoginReq : Login
     {
         try
         {
-            DEFAULT_POSITION = System.Net.Dns.GetHostAddresses(System.Net.Dns.GetHostName()) + "/"
-                    + System.Net.Dns.GetHostName();
+            string hostName = Dns.GetHostName();
+            DEFAULT_POSITION = Dns.GetHostAddresses(hostName).Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .FirstOrDefault() + "/" + hostName;
         }
         catch (Exception)
         {

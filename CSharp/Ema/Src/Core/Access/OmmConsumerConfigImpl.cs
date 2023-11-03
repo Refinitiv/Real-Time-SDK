@@ -741,6 +741,7 @@ namespace LSEG.Ema.Access
                 AdminLoginRequest.LoginAttrib.HasSupportRoundTripLatencyMonitoring = true;
             }
 
+            AdminLoginRequest.StreamId = 1; // Set the stream ID for login domain
             role.RdmLoginRequest = AdminLoginRequest;
             role.RdmDirectoryRequest = AdminDirectoryRequest;
             role.RdmEnumTypeDictionaryRequest = AdminEnumDictionaryRequest;
