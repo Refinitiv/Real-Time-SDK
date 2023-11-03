@@ -87,15 +87,11 @@ namespace LSEG.Eta.ValueAdd.Reactor
         {
             var byteBuffer = itemGroup.GroupId!.Data();
             int length = byteBuffer.Contents.Length;
-            int pow;
+            int pow = (int)Math.Log2(length);
 
-            if (length < Math.Pow(2, minLengthPow - 1))
+            if (pow < minLengthPow)
             {
                 pow = minLengthPow;
-            }
-            else
-            {
-                pow = (int)Math.Log2(length) + 1;
             }
 
             int index = pow - minLengthPow;
