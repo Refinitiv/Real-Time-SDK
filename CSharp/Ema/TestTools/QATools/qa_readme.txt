@@ -107,8 +107,8 @@ Series100Consumer110-ConsFunc-001
     -m 34: Streaming Batch request  + normal streaming item request this item not  part of list in Batch.
     -m 35: Streaming Batch request  + normal non streaming item request this item not  part of list in Batch.
     -m 36: Streaming Batch+View request+non-streaming normal item request this item is not part of Batch item list.
-    -m 37: Streaming Batch+View request  +non-streaming normal item request this item is part of Batch item list. 
-           Reissue on IBM.N with no-view stream Id 28 after wait 20 sec.
+    -m 37: Streaming Batch+View request  + streaming normal item request this item is part of Batch item list. 
+           Reissue with initial image on IBM.N with no-view stream after wait 20 sec.
     -m 99: Requests a market price item with 99 view FIDS.
 
 

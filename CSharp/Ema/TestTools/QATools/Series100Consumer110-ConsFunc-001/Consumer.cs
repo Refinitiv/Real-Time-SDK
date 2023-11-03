@@ -827,10 +827,10 @@ public class Consumer
 
                     long h1 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Payload(batch), client, closure1);
                     Thread.Sleep(3000);
-                    long h2 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Name("IBM.N").InterestAfterRefresh(false), client, closure3);
+                    long h2 = consumer.RegisterClient(new RequestMsg().ServiceName(sName).Name("IBM.N").InterestAfterRefresh(true), client, closure3);
                     Thread.Sleep(20000);
                     Console.WriteLine("Reissue");
-                    consumer.Reissue(new RequestMsg().ServiceName(sName).Name("IBM.N").InitialImage(false).StreamId(28), h2);
+                    consumer.Reissue(new RequestMsg().ServiceName(sName).Name("IBM.N").InitialImage(true), h2);
                 }
                 else if (temp == 99)
                 {
