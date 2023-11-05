@@ -434,14 +434,14 @@ namespace LSEG.Ema.Access
                         item.m_ServiceDirectory = m_ServiceDirectory;
                         item.StreamId = ++itemStreamStart;
                         item.DomainType = DomainType;
-                        m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), item);
+                        m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), item);
                     }
                 }
                 else
                 {
                     StreamId = GetNextStreamId(0);
                     requestMsg.StreamId = StreamId;
-                    m_OmmBaseImpl.ItemCallbackClient!.AddToItemMap(m_OmmBaseImpl.NextLongId(), this);
+                    m_OmmBaseImpl.ItemCallbackClient!.AddToMap(m_OmmBaseImpl.NextLongId(), this);
                 }
             }
             else
