@@ -72,7 +72,6 @@ namespace LSEG.Ema.Access
         {
             "Trace"     => LoggerLevel.TRACE,
             "Verbose"   => LoggerLevel.TRACE,
-            "Debug"     => LoggerLevel.DEBUG,
             "Info"      => LoggerLevel.INFO,
             "Success"   => LoggerLevel.INFO,
             "Warning"   => LoggerLevel.WARNING,

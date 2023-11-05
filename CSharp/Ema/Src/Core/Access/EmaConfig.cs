@@ -118,14 +118,9 @@ namespace LSEG.Ema.Access
         public class LoggerLevelEnum
         {
             /// <summary>
-            /// The EMA Logger will log success or trace events in addition to any below log events.
+            /// The EMA Logger will log verbose or trace events in addition to any below log events.
             /// </summary>
             public const int TRACE = 0;
-
-            /// <summary>
-            /// The EMA Logger will log debug events in addition to any below log events.
-            /// </summary>
-            public const int DEBUG = 1;
 
             /// <summary>
             /// The EMA Logger will log informative events in addition to any below log events.
