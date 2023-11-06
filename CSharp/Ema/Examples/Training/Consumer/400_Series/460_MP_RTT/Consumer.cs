@@ -9,7 +9,6 @@
 using LSEG.Ema.Access;
 using LSEG.Ema.Domain.Login;
 using LSEG.Ema.Rdm;
-using LSEG.Eta.Rdm;
 using System;
 using System.Threading;
 using static LSEG.Ema.Access.DataType;
@@ -34,7 +33,7 @@ internal class AppClient : IOmmConsumerClient
 	}
 	
 	public void OnGenericMsg(GenericMsg genericMsg, IOmmConsumerEvent consumerEvent){
-		if (genericMsg.DomainType() == (int)DomainType.LOGIN && genericMsg.Payload().DataType == DataTypes.ELEMENT_LIST) {
+		if (genericMsg.DomainType() == EmaRdm.MMT_LOGIN && genericMsg.Payload().DataType == DataTypes.ELEMENT_LIST) {
 			Console.WriteLine("Received login RTT message from Provider");
 			ElementList data = genericMsg.Payload().ElementList();
 			foreach ( ElementEntry elem in data) {

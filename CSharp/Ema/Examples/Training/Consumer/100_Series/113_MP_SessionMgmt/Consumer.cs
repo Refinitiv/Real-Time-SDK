@@ -7,7 +7,6 @@
  */
 
 using LSEG.Ema.Access;
-using LSEG.Eta.Codec;
 using System;
 using System.IO;
 using System.Threading;
@@ -100,7 +99,7 @@ public class Consumer
 							Console.Error.WriteLine("Error loading JWK file: " + e.Message);
 							Console.Error.WriteLine();
 							Console.WriteLine("Consumer exits...");
-							System.Environment.Exit((int)CodecReturnCode.FAILURE);
+							System.Environment.Exit(-1);
 						} 
 	            	}
     				++argsCount;				

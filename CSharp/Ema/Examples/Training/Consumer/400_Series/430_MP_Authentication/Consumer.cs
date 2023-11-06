@@ -12,7 +12,6 @@ using LSEG.Ema.Rdm;
 using System;
 using System.Text;
 using System.Threading;
-using static LSEG.Eta.Rdm.Login;
 
 namespace LSEG.Ema.Example.Traning.Consumer;
 
