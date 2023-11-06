@@ -306,6 +306,7 @@ namespace LSEG.Ema.Access
             m_permDataSet = false;
             m_permData.Clear();
             m_extendedHeader.Clear();
+            m_itemGroupDataSet = false;
 
             m_rsslMsg.Clear();
             m_rsslMsg.MsgClass = m_msgClass;
@@ -323,6 +324,7 @@ namespace LSEG.Ema.Access
             m_permDataSet = false;
             m_permData.Clear();
             m_extendedHeader.Clear();
+            m_itemGroupDataSet = false;
 
             m_rsslMsg = m_internalRsslMsg;
         }
@@ -334,6 +336,7 @@ namespace LSEG.Ema.Access
             m_permDataSet = false;
             m_permData.Clear();
             m_extendedHeader.Clear();
+            m_itemGroupDataSet = false;
 
             m_rsslMsg = m_internalRsslMsg;
         }

@@ -1248,7 +1248,37 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     {
                         if (newItemGroup != null)
                         {
-                            newItemGroup.OpenStreamIdDlList.Append(wlItemGroup.OpenStreamIdDlList);
+                            /* Update all WlItemStream objects by removing from the existing item group and add to the new item group. */
+                            WlItemStream? wlItemStream;
+                            var wlItemStreamLink = wlItemGroup!.OpenStreamIdDlList!.Start();
+                            while (wlItemStreamLink != null)
+                            {
+                                wlItemStream = m_Watchlist!.StreamManager.StreamsByStreamIds[wlItemStreamLink.StreamId - WlStreamManager.MIN_STREAM_ID];
+
+                                if (wlItemStream != null)
+                                {
+                                    if (ReferenceEquals(wlItemStream.ItemGroup, wlItemGroup))
+                                    {
+                                        wlItemGroup.OpenStreamIdDlList.Remove(wlItemStream.StreamIdLink[1]!);
+
+                                        if (wlItemGroup.OpenStreamIdDlList.Count() == 0 && wlItemStream.WlService != null)
+                                        {
+                                            if (wlItemGroup.GroupId != null)
+                                            {
+                                                /* wlItemGroup is already removed so it can be returned back to its pool. */
+                                                m_itemGroupPool.ReturnWlItemGroup(wlItemGroup);
+                                            }
+                                        }
+                                    }
+
+                                    /* Update with the new item group */
+                                    wlItemStream.ItemGroup = newItemGroup;
+
+                                    newItemGroup.OpenStreamIdDlList.PushBack(wlItemStream.StreamIdLink[1]!);
+                                }
+
+                                wlItemStreamLink = wlItemGroup!.OpenStreamIdDlList!.Forth();
+                            }
                         }
                         else
                         {

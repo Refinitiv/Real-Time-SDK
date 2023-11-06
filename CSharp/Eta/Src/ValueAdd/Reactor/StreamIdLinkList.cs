@@ -191,11 +191,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 _tail = otherList._tail;
             }
 
-            /* Update count and clear old list. */
+            /* Update count. */
             _count += otherList._count;
-            otherList._head = null;
-            otherList._tail = null;
-            otherList._count = 0;
         }
     }
 }
