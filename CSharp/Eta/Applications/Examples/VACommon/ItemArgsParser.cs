@@ -8,9 +8,6 @@
 
 using System.Collections.Generic;
 
-using System;
-using System.Collections.Generic;
-
 using LSEG.Eta.Rdm;
 
 namespace LSEG.Eta.Example.VACommon

@@ -9,10 +9,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Net.Sockets;
-
 using LSEG.Eta.Transports;
 using LSEG.Eta.Codec;
+using System.Net.Sockets;
 using LSEG.Eta.Common;
 
 namespace LSEG.Eta.Example.Common

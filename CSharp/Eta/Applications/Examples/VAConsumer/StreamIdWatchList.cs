@@ -113,7 +113,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
         /// </summary>
         public class WatchListEntry
         {
-            public string ItemName = string.Empty;
+            public string ItemName = String.Empty;
             public int DomainType;
             public bool IsPrivateStream = false;
             public MarketByPriceItem? MarketPriceItem;

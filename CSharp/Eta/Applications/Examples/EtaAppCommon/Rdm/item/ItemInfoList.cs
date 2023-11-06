@@ -38,7 +38,7 @@ namespace LSEG.Eta.Example.Common
         /// <param name="domainType">Domain type to search iteminfo for</param>
         /// <param name="isPrivateStream">Private stream attribute to search iteminfo for</param>
         /// <returns><see cref="ItemInfo"/> associated with the search attributes</returns>
-        public ItemInfo? Get(Codec.Buffer name, int domainType, bool isPrivateStream)
+        public ItemInfo? Get(Buffer name, int domainType, bool isPrivateStream)
         {
             foreach (ItemInfo itemInfo in m_ItemInfoList)
             {
@@ -58,7 +58,7 @@ namespace LSEG.Eta.Example.Common
         /// <param name="domainType">Domain type to search iteminfo for</param>
         /// <param name="isPrivateStream">Private stream attribute to search iteminfo for</param>
         /// <returns><see cref="ItemInfo"/> associated with the search attributes or get a new one from the list.</returns>
-        public ItemInfo? Get(IChannel channel, Codec.Buffer itemName, int domainType, bool isPrivateStream)
+        public ItemInfo? Get(IChannel channel, Buffer itemName, int domainType, bool isPrivateStream)
         {
             /* first check for existing item */
             ItemInfo? itemInfo = Get(itemName, domainType, isPrivateStream);
