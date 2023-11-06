@@ -6,7 +6,10 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Threading;
 
 using LSEG.Eta.Common;
 using LSEG.Eta.Codec;

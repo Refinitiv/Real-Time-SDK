@@ -32,8 +32,7 @@ namespace LSEG.Eta.Tests
         /// </summary>
         public static bool TestMultipleConnectsFail = false;
 
-        static ReaderWriterLockSlim _slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        static WriteLocker _locker = new WriteLocker(_slimLock);
+        static MonitorWriteLocker _locker = new MonitorWriteLocker(new object());
 
         public override void CloseChannel(IChannel channel)
         {

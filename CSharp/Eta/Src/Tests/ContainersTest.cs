@@ -948,7 +948,7 @@ namespace LSEG.Eta.Transports.Tests
 		    testQos2.Rate(QosRates.TIME_CONFLATED);
 		    testQos2.RateInfo(897);
 		    testQos2.Timeliness(QosTimeliness.REALTIME);
-		
+
 		    Qos[] testQos = { testQos2, testQos1, testQos3 };
 
             testQosArray(testQos, 3, 0, false);
@@ -962,12 +962,12 @@ namespace LSEG.Eta.Transports.Tests
 		    Buffer stateText = new Buffer();
             stateText.Data("Illinois");
 		    testState1.Text(stateText);
-		
+
 		    State testState2 = new State();
             testState2.Code(StateCodes.NONE);
 		    testState2.DataState(DataStates.NO_CHANGE);
 		    testState2.StreamState(StreamStates.OPEN);
-		
+
 		    State testState3 = new State();
             testState3.Code(StateCodes.INVALID_ARGUMENT);
 		    testState3.DataState(DataStates.NO_CHANGE);
@@ -975,7 +975,7 @@ namespace LSEG.Eta.Transports.Tests
 		    Buffer stateText3 = new Buffer();
             stateText3.Data("bla bla");
 		    testState3.Text(stateText3);
-		
+
 		    State[] testState = { testState1, testState2, testState3 };
 
             testStateArray(testState, 3, 0, false);
@@ -1014,7 +1014,7 @@ namespace LSEG.Eta.Transports.Tests
 		    byte[] bts2 = { 10, 57, 0x7F, 4 };
             bb.Put(bts2);
 		    testBuffer3.Data(bb,0,4);
-		
+
 		    Buffer[] testBuffer = { testBuffer1, testBuffer2, testBuffer3 };
 
             testBufferArray(testBuffer, 3, 0, false);
@@ -1241,7 +1241,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -1481,7 +1481,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -1702,7 +1702,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -2260,7 +2260,7 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(ElementListFlags.HAS_STANDARD_DATA, decElementList.Flags);
             int eCount = 0;
             CodecReturnCode ret;
-           
+
             while ((ret = decEntry.Decode(_decIter)) != CodecReturnCode.END_OF_CONTAINER)
             {
                 Assert.Equal(CodecReturnCode.SUCCESS, ret);
@@ -2275,7 +2275,7 @@ namespace LSEG.Eta.Transports.Tests
                         break;
                     case DataTypes.UINT:
                         Assert.Equal(CodecReturnCode.SUCCESS, decUInt.Decode(_decIter));
-                        Assert.Equal(2049, decUInt.ToLong());
+                        Assert.Equal(2049L, decUInt.ToLong());
                         break;
                     case DataTypes.REAL:
                         Assert.Equal(CodecReturnCode.SUCCESS, decReal.Decode(_decIter));
@@ -2405,7 +2405,7 @@ namespace LSEG.Eta.Transports.Tests
             {
                 Assert.Equal(CodecReturnCode.SUCCESS, ret);
                 DecodeElementList();
-                
+
                 entry.Clear();
                 eCount++;
             }
@@ -2564,7 +2564,7 @@ namespace LSEG.Eta.Transports.Tests
                     entry.Clear();
                     entry.EncodeInit(_encIter, 0);
                     EncodeElementList();
-                    entry.EncodeComplete(_encIter, true);            
+                    entry.EncodeComplete(_encIter, true);
                 }
                 container.EncodeComplete(_encIter, true);
 
@@ -2744,7 +2744,7 @@ namespace LSEG.Eta.Transports.Tests
             FilterList filterList = new FilterList();
             FilterEntry filterEntry = new FilterEntry();
             UInt key = new UInt();
-            key.Value(nested);
+            key.Value((uint)nested);
 
             if (nested == 0)
             {
@@ -2956,6 +2956,3328 @@ namespace LSEG.Eta.Transports.Tests
                     Assert.Equal(CodecReturnCode.END_OF_CONTAINER, _decIter.FinishDecodeEntries());
                 }
             }
+        }
+
+        LSEG.Eta.Codec.Buffer primitiveEntryOverrunTest_encodeBuffer = new();
+        ByteBuffer primitiveEntryOverrunTest_byteBuffer = new(1024);
+
+        /* Realign to a bytebuffer that has the specified space. */
+        private void PrimitiveEntryOverrunTest_realignBuffer(EncodeIterator eIter, int newSize)
+        {
+            primitiveEntryOverrunTest_byteBuffer = new ByteBuffer(newSize);
+            primitiveEntryOverrunTest_encodeBuffer.Data(primitiveEntryOverrunTest_byteBuffer);
+
+            Assert.Equal(CodecReturnCode.SUCCESS, eIter.RealignBuffer(primitiveEntryOverrunTest_encodeBuffer));
+        }
+
+        [Fact]
+        [Category("Unit")]
+        public void SetDefinedAndStandardDataOverrunTest()
+        {
+            // Test overrun & rollback of encoding a FieldList & ElementList with the
+            // different possible primitives, both as set-defined and standard data.
+            //
+            // Wrap the FieldList or ElementList in a series that also encodes the
+            // relevant Field/Element SetDef, to test overrun & rollback of encoding them.
+            //
+            // When encoding fails, increase buffer size by 1, realign and try again.
+            //
+            // See ETA-2340. */
+
+            // step I.1
+
+            /* FieldList */
+
+            /* Setup field set def db, with entries. */
+            LocalFieldSetDefDb fsetDb = new();
+            FieldSetDefEntry[] entries = new FieldSetDefEntry[34];
+
+            entries[0] = new FieldSetDefEntry();
+            entries[0].FieldId = 0;
+            entries[0].DataType = DataTypes.INT_1;
+
+            entries[1] = new FieldSetDefEntry();
+            entries[1].FieldId = 1;
+            entries[1].DataType = DataTypes.INT_2;
+
+            entries[2] = new FieldSetDefEntry();
+            entries[2].FieldId = 2;
+            entries[2].DataType = DataTypes.INT_4;
+
+            entries[3] = new FieldSetDefEntry();
+            entries[3].FieldId = 3;
+            entries[3].DataType = DataTypes.INT_8;
+
+            entries[4] = new FieldSetDefEntry();
+            entries[4].FieldId = 4;
+            entries[4].DataType = DataTypes.UINT_1;
+
+            entries[5] = new FieldSetDefEntry();
+            entries[5].FieldId = 5;
+            entries[5].DataType = DataTypes.UINT_2;
+
+            entries[6] = new FieldSetDefEntry();
+            entries[6].FieldId = 6;
+            entries[6].DataType = DataTypes.UINT_4;
+
+            entries[7] = new FieldSetDefEntry();
+            entries[7].FieldId = 7;
+            entries[7].DataType = DataTypes.UINT_8;
+
+            entries[8] = new FieldSetDefEntry();
+            entries[8].FieldId = 8;
+            entries[8].DataType = DataTypes.FLOAT_4;
+
+            entries[9] = new FieldSetDefEntry();
+            entries[9].FieldId = 9;
+            entries[9].DataType = DataTypes.DOUBLE_8;
+
+            entries[10] = new FieldSetDefEntry();
+            entries[10].FieldId = 10;
+            entries[10].DataType = DataTypes.REAL_4RB;
+
+            entries[11] = new FieldSetDefEntry();
+            entries[11].FieldId = 11;
+            entries[11].DataType = DataTypes.REAL_8RB;
+
+            entries[12] = new FieldSetDefEntry();
+            entries[12].FieldId = 12;
+            entries[12].DataType = DataTypes.DATE_4;
+
+            entries[13] = new FieldSetDefEntry();
+            entries[13].FieldId = 13;
+            entries[13].DataType = DataTypes.TIME_3;
+
+            entries[14] = new FieldSetDefEntry();
+            entries[14].FieldId = 14;
+            entries[14].DataType = DataTypes.TIME_5;
+
+            entries[15] = new FieldSetDefEntry();
+            entries[15].FieldId = 15;
+            entries[15].DataType = DataTypes.DATETIME_7;
+
+            entries[16] = new FieldSetDefEntry();
+            entries[16].FieldId = 16;
+            entries[16].DataType = DataTypes.DATETIME_11;
+
+            entries[17] = new FieldSetDefEntry();
+            entries[17].FieldId = 17;
+            entries[17].DataType = DataTypes.DATETIME_12;
+
+            entries[18] = new FieldSetDefEntry();
+            entries[18].FieldId = 18;
+            entries[18].DataType = DataTypes.TIME_7;
+
+            entries[19] = new FieldSetDefEntry();
+            entries[19].FieldId = 19;
+            entries[19].DataType = DataTypes.TIME_8;
+
+            entries[20] = new FieldSetDefEntry();
+            entries[20].FieldId = 20;
+            entries[20].DataType = DataTypes.INT;
+
+            entries[21] = new FieldSetDefEntry();
+            entries[21].FieldId = 21;
+            entries[21].DataType = DataTypes.UINT;
+
+            entries[22] = new FieldSetDefEntry();
+            entries[22].FieldId = 22;
+            entries[22].DataType = DataTypes.FLOAT;
+
+            entries[23] = new FieldSetDefEntry();
+            entries[23].FieldId = 23;
+            entries[23].DataType = DataTypes.DOUBLE;
+
+            entries[24] = new FieldSetDefEntry();
+            entries[24].FieldId = 24;
+            entries[24].DataType = DataTypes.REAL;
+
+            entries[25] = new FieldSetDefEntry();
+            entries[25].FieldId = 25;
+            entries[25].DataType = DataTypes.DATE;
+
+            entries[26] = new FieldSetDefEntry();
+            entries[26].FieldId = 26;
+            entries[26].DataType = DataTypes.TIME;
+
+            entries[27] = new FieldSetDefEntry();
+            entries[27].FieldId = 27;
+            entries[27].DataType = DataTypes.DATETIME;
+
+            entries[28] = new FieldSetDefEntry();
+            entries[28].FieldId = 28;
+            entries[28].DataType = DataTypes.QOS;
+
+            entries[29] = new FieldSetDefEntry();
+            entries[29].FieldId = 29;
+            entries[29].DataType = DataTypes.ENUM;
+
+            entries[30] = new FieldSetDefEntry();
+            entries[30].FieldId = 30;
+            entries[30].DataType = DataTypes.BUFFER;
+
+            entries[31] = new FieldSetDefEntry();
+            entries[31].FieldId = 31;
+            entries[31].DataType = DataTypes.ASCII_STRING;
+
+            entries[32] = new FieldSetDefEntry();
+            entries[32].FieldId = 32;
+            entries[32].DataType = DataTypes.UTF8_STRING;
+
+            entries[33] = new FieldSetDefEntry();
+            entries[33].FieldId = 33;
+            entries[33].DataType = DataTypes.RMTES_STRING;
+
+            fsetDb.Definitions[0].SetId = 0;
+            fsetDb.Definitions[0].Count = 34;
+            fsetDb.Definitions[0].Entries = entries;
+
+            EncodeIterator eIter = new();
+            Series series = new();
+            SeriesEntry seriesEntry = new();
+            FieldList fieldList = new();
+            FieldEntry fieldEntry = new();
+            Int intVal = new();
+            UInt uintVal = new();
+            Float floatVal = new();
+            Double doubleVal = new();
+            Real realVal = new();
+            Date dateVal = new();
+            Time timeVal = new();
+            DateTime dateTimeVal = new();
+            Qos qosVal = new();
+            Enum enumVal = new();
+            Buffer bufferVal = new();
+
+            /* Buffer size needed to encode (starting at series header) */
+            int seriesHeaderEncodedSize = 1 /* Flags */ + 1 /* Container type */ + 2 /* SetDef size bytes */ + 2 /* Entry count */;
+            int bufSizeNeeded = seriesHeaderEncodedSize;
+            int encodeBufSize = bufSizeNeeded;
+
+            primitiveEntryOverrunTest_byteBuffer = new ByteBuffer(encodeBufSize);
+            primitiveEntryOverrunTest_encodeBuffer.Data(primitiveEntryOverrunTest_byteBuffer);
+            CodecReturnCode codecReturnCode = eIter.SetBufferAndRWFVersion(primitiveEntryOverrunTest_encodeBuffer,
+                Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+
+            /* Encode Series. */
+            series.Clear();
+            series.ContainerType = DataTypes.FIELD_LIST;
+            series.ApplyHasSetDefs();
+            Assert.Equal(CodecReturnCode.SUCCESS, series.EncodeInit(eIter, 0, 0));
+
+            /* Encode set definition. */
+            bufSizeNeeded += 1 /* Flags */ + 1 /* SetDef Count */ + 1 /* Set ID */ + 1 /* Entry count */
+                + 34 * 3 /* entries (fieldId, dataType) */;
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fsetDb.Encode(eIter));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(0, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fsetDb.Encode(eIter));
+            Assert.Equal(CodecReturnCode.SUCCESS, series.EncodeSetDefsComplete(eIter, true));
+
+            /* Encode SeriesEntry. */
+            bufSizeNeeded += 3 /* Size bytes */;
+            encodeBufSize = bufSizeNeeded;
+            PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            seriesEntry.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, seriesEntry.EncodeInit(eIter, 0));
+
+            /* Encode field list. */
+            bufSizeNeeded += 1 /* FieldList flags */ + 2 /* Set data length */ + 2 /* Standard data length */;
+            encodeBufSize = bufSizeNeeded;
+            PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+
+            fieldList.Clear();
+            fieldList.ApplyHasSetData();
+            fieldList.ApplyHasStandardData();
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldList.EncodeInit(eIter, fsetDb, 0));
+
+            /* INT_1 needs 1 byte. */
+            bufSizeNeeded += 1;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 0;
+            fieldEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, intVal));
+
+            /* INT_2 needs 2 bytes. */
+            bufSizeNeeded += 2;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 1;
+            fieldEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, intVal));
+
+            /* INT_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 2;
+            fieldEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, intVal));
+
+            /* INT_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 3;
+            fieldEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, intVal));
+
+            /* UINT_1 needs 1 byte. */
+            bufSizeNeeded += 1;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 4;
+            fieldEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, uintVal));
+
+            /* UINT_2 needs 2 bytes. */
+            bufSizeNeeded += 2;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 5;
+            fieldEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, uintVal));
+
+            /* UINT_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 6;
+            fieldEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, uintVal));
+
+            /* UINT_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 7;
+            fieldEntry.DataType = DataTypes.UINT;
+            uintVal.Value(ulong.MaxValue);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, uintVal));
+
+            /* FLOAT_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 8;
+            fieldEntry.DataType = DataTypes.FLOAT;
+            floatVal.Value(1.0f);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, floatVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, floatVal));
+
+            /* DOUBLE_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 9;
+            fieldEntry.DataType = DataTypes.DOUBLE;
+            doubleVal.Value(1.0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, doubleVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, doubleVal));
+
+            /* REAL_4RB needs 5 bytes for this value. */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 10;
+            fieldEntry.DataType = DataTypes.REAL;
+            realVal.Value(2147483647, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, realVal));
+
+            /* REAL_8RB needs 9 bytes for this value. */
+            bufSizeNeeded += 9;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 11;
+            fieldEntry.DataType = DataTypes.REAL;
+            realVal.Value(9223372036854775807L, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, realVal));
+
+            /* DATE_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 12;
+            fieldEntry.DataType = DataTypes.DATE;
+            dateVal.Day(12);
+            dateVal.Month(11);
+            dateVal.Year(1955);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateVal));
+
+            /* TIME_3 needs 3 bytes. */
+            bufSizeNeeded += 3;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 13;
+            fieldEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, timeVal));
+
+            /* TIME_5 needs 5 bytes. */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 14;
+            fieldEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, timeVal));
+
+            /* DATETIME_7 needs 7 bytes. */
+            bufSizeNeeded += 7;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 15;
+            fieldEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateTimeVal));
+
+            /* DATETIME_11 needs 11 bytes. */
+            bufSizeNeeded += 11;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 16;
+            fieldEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateTimeVal));
+
+            /* DATETIME_12 needs 12 bytes. */
+            bufSizeNeeded += 12;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 17;
+            fieldEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            dateTimeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateTimeVal));
+
+            /* TIME_7 needs 7 bytes. */
+            bufSizeNeeded += 7;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 18;
+            fieldEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, timeVal));
+
+            /* TIME_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 19;
+            fieldEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            timeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, timeVal));
+
+            /* This INT needs 3 bytes. */
+            bufSizeNeeded += 3;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 20;
+            fieldEntry.DataType = DataTypes.INT;
+            intVal.Value(255);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, intVal));
+
+            /* This UINT needs 3 bytes. */
+            bufSizeNeeded += 3;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 21;
+            fieldEntry.DataType = DataTypes.UINT;
+            uintVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, uintVal));
+
+            /* This FLOAT needs 5 bytes. */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 22;
+            fieldEntry.DataType = DataTypes.FLOAT;
+            floatVal.Value(1.0f);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, floatVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, floatVal));
+
+            /* This DOUBLE needs 9 bytes. */
+            bufSizeNeeded += 9;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 23;
+            fieldEntry.DataType = DataTypes.DOUBLE;
+            doubleVal.Value(1.0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, doubleVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, doubleVal));
+
+            /* This REAL needs 6 bytes. */
+            bufSizeNeeded += 6;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 24;
+            fieldEntry.DataType = DataTypes.REAL;
+            realVal.Value(2147483647, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, realVal));
+
+            /* This DATE needs 5 bytes. */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 25;
+            fieldEntry.DataType = DataTypes.DATE;
+            dateVal.Day(12);
+            dateVal.Month(11);
+            dateVal.Year(1955);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateVal));
+
+            /* This TIME needs 9 bytes. */
+            bufSizeNeeded += 9;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 26;
+            fieldEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            timeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, timeVal));
+
+            /* This DATETIME needs 13 bytes. */
+            bufSizeNeeded += 13;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 27;
+            fieldEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            dateTimeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateTimeVal));
+
+            /* This QOS needs 6 bytes. */
+            bufSizeNeeded += 6;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 28;
+            fieldEntry.DataType = DataTypes.QOS;
+            qosVal.Timeliness(QosTimeliness.DELAYED);
+            qosVal.TimeInfo(3000);
+            qosVal.Rate(QosRates.TIME_CONFLATED);
+            qosVal.RateInfo(5000);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, qosVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, qosVal));
+
+            /* This ENUM needs 3 bytes. */
+            bufSizeNeeded += 3;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 29;
+            fieldEntry.DataType = DataTypes.ENUM;
+            enumVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, enumVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, enumVal));
+
+            /* This BUFFER needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 30;
+            fieldEntry.DataType = DataTypes.BUFFER;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This ASCII_STRING needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 31;
+            fieldEntry.DataType = DataTypes.ASCII_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This UTF8_STRING needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 32;
+            fieldEntry.DataType = DataTypes.UTF8_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This RMTES_STRING needs 8 bytes. */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 33;
+            fieldEntry.DataType = DataTypes.RMTES_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SET_COMPLETE, fieldEntry.Encode(eIter, bufferVal));
+
+            /* Standard data */
+
+            /* This INT needs 5 bytes (2 for fieldId, 3 for value). */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 20;
+            fieldEntry.DataType = DataTypes.INT;
+            intVal.Value(255);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, intVal));
+
+            /* This UINT needs 5 bytes (2 for fieldId, 3 for value). */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 21;
+            fieldEntry.DataType = DataTypes.UINT;
+            uintVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, uintVal));
+
+            /* This UINT needs 7 bytes (2 for fieldId, 5 for value). */
+            bufSizeNeeded += 7;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 22;
+            fieldEntry.DataType = DataTypes.FLOAT;
+            floatVal.Value(1.0f);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, floatVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, floatVal));
+
+            /* This DOUBLE needs 11 bytes (2 for fieldId, 9 for value). */
+            bufSizeNeeded += 11;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 23;
+            fieldEntry.DataType = DataTypes.DOUBLE;
+            doubleVal.Value(1.0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, doubleVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, doubleVal));
+
+            /* This REAL needs 8 bytes (2 for fieldId, 6 for value). */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 24;
+            fieldEntry.DataType = DataTypes.REAL;
+            realVal.Value(2147483647, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, realVal));
+
+            /* This DATE needs 7 bytes (2 for fieldId, 5 for value). */
+            bufSizeNeeded += 7;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 25;
+            fieldEntry.DataType = DataTypes.DATE;
+            dateVal.Day(12);
+            dateVal.Month(11);
+            dateVal.Year(1955);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateVal));
+
+            /* This TIME needs 11 bytes (2 for fieldId, 9 for value). */
+            bufSizeNeeded += 11;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 26;
+            fieldEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            timeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, timeVal));
+
+            /* This DATETIME needs 13 bytes (2 for fieldId, 13 for value). */
+            bufSizeNeeded += 15;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 27;
+            fieldEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            dateTimeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, dateTimeVal));
+
+            /* This QOS needs 8 bytes (2 for fieldId, 6 for value). */
+            bufSizeNeeded += 8;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 28;
+            fieldEntry.DataType = DataTypes.QOS;
+            qosVal.Timeliness(QosTimeliness.DELAYED);
+            qosVal.TimeInfo(3000);
+            qosVal.Rate(QosRates.TIME_CONFLATED);
+            qosVal.RateInfo(5000);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, qosVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, qosVal));
+
+            /* This ENUM needs 5 bytes (2 for fieldId, 3 for value). */
+            bufSizeNeeded += 5;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 29;
+            fieldEntry.DataType = DataTypes.ENUM;
+            enumVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, enumVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, enumVal));
+
+            /* This BUFFER needs 10 bytes (2 for fieldId, 8 for value). */
+            bufSizeNeeded += 10;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 30;
+            fieldEntry.DataType = DataTypes.BUFFER;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This ASCII_STRING needs 10 bytes (2 for fieldId, 8 for value). */
+            bufSizeNeeded += 10;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 31;
+            fieldEntry.DataType = DataTypes.ASCII_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This UTF8_STRING needs 10 bytes (2 for fieldId, 8 for value). */
+            bufSizeNeeded += 10;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 32;
+            fieldEntry.DataType = DataTypes.UTF8_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This RMTES_STRING needs 10 bytes (2 for fieldId, 8 for value). */
+            bufSizeNeeded += 10;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 33;
+            fieldEntry.DataType = DataTypes.RMTES_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter, bufferVal));
+
+            /* This RMTES_STRING needs 10 bytes (2 for fieldId, 8 for value). */
+            /* Encode this one via encodedData. */
+            bufSizeNeeded += 10;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 34;
+            fieldEntry.DataType = DataTypes.RMTES_STRING;
+            fieldEntry.EncodedData.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter));
+
+            /* This RMTES_STRING will be blank and needs 3 bytes (2 for fieldId, 1 for value). */
+            bufSizeNeeded += 3;
+            fieldEntry.Clear();
+            fieldEntry.FieldId = 35;
+            fieldEntry.DataType = DataTypes.RMTES_STRING;
+
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, fieldEntry.Encode(eIter));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Encode(eIter));
+
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldList.EncodeComplete(eIter, true));
+            Assert.Equal(CodecReturnCode.SUCCESS, seriesEntry.EncodeComplete(eIter, true));
+            Assert.Equal(CodecReturnCode.SUCCESS, series.EncodeComplete(eIter, true));
+
+            // step I.2 finished encoding, now start decoding
+
+            /* Decode the series, set definition, and fields, to validate data. */
+            primitiveEntryOverrunTest_byteBuffer.Flip();
+            DecodeIterator dIter = new();
+            Buffer decodeBuffer = new();
+            decodeBuffer.Data(primitiveEntryOverrunTest_byteBuffer);
+            dIter.SetBufferAndRWFVersion(decodeBuffer, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+
+            Assert.Equal(CodecReturnCode.SUCCESS, series.Decode(dIter));
+            Assert.Equal(DataTypes.FIELD_LIST, series.ContainerType);
+            Assert.True(series.CheckHasSetDefs());
+
+            fsetDb.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, fsetDb.Decode(dIter));
+            Assert.Equal(CodecReturnCode.SUCCESS, seriesEntry.Decode(dIter));
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldList.Decode(dIter, fsetDb));
+
+            /* INT_1 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(0, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.INT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* INT_2 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(1, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.INT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* INT_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(2, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.INT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* INT_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(3, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.INT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* UINT_1 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(4, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UINT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* UINT_2 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(5, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UINT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* UINT_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(6, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UINT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* UINT_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(7, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UINT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(ulong.MaxValue, uintVal.ToULong());
+
+            /* FLOAT_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(8, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.FLOAT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
+            Assert.Equal(1.0f, floatVal.ToFloat(), 0);
+
+            /* DOUBLE_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(9, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DOUBLE, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
+            Assert.Equal(1.0, doubleVal.ToDouble(), 0);
+
+            /* REAL_4RB */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(10, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.REAL, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(2147483647L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* REAL_8RB */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(11, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.REAL, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(9223372036854775807L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* DATE_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(12, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DATE, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
+            Assert.Equal(12, dateVal.Day());
+            Assert.Equal(11, dateVal.Month());
+            Assert.Equal(1955, dateVal.Year());
+
+            /* TIME_3 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(13, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.TIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(0, timeVal.Millisecond());
+            Assert.Equal(0, timeVal.Microsecond());
+            Assert.Equal(0, timeVal.Nanosecond());
+
+            /* TIME_5 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(14, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.TIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(0, timeVal.Microsecond());
+            Assert.Equal(0, timeVal.Nanosecond());
+
+            /* DATETIME_7 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(15, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DATETIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(0, dateTimeVal.Millisecond());
+            Assert.Equal(0, dateTimeVal.Microsecond());
+            Assert.Equal(0, dateTimeVal.Nanosecond());
+
+            /* DATETIME_11 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(16, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DATETIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(0, dateTimeVal.Nanosecond());
+
+            /* DATETIME_12 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(17, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DATETIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(3, dateTimeVal.Nanosecond());
+
+            /* TIME_7 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(18, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.TIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(0, timeVal.Nanosecond());
+
+            /* TIME_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(19, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.TIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(3, timeVal.Nanosecond());
+
+            /* INT */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(20, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.INT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(255, intVal.ToLong());
+
+            /* UINT */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(21, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UINT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(256, uintVal.ToLong());
+
+            /* FLOAT */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(22, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.FLOAT, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
+            Assert.Equal(1.0f, floatVal.ToFloat(), 0);
+
+            /* DOUBLE */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(23, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DOUBLE, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
+            Assert.Equal(1.0, doubleVal.ToDouble(), 0);
+
+            /* REAL */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(24, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.REAL, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(2147483647L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* DATE */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(25, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DATE, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
+            Assert.Equal(12, dateVal.Day());
+            Assert.Equal(11, dateVal.Month());
+            Assert.Equal(1955, dateVal.Year());
+
+            /* TIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(26, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.TIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(3, timeVal.Nanosecond());
+
+            /* DATETIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(27, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.DATETIME, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(3, dateTimeVal.Nanosecond());
+
+            /* QOS */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(28, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.QOS, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, qosVal.Decode(dIter));
+            Assert.Equal(QosTimeliness.DELAYED, qosVal.Timeliness());
+            Assert.Equal(3000, qosVal.TimeInfo());
+            Assert.Equal(QosRates.TIME_CONFLATED, qosVal.Rate());
+            Assert.Equal(5000, qosVal.RateInfo());
+
+            /* ENUM */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(29, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.ENUM, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, enumVal.Decode(dIter));
+            Assert.Equal(256, enumVal.ToInt());
+
+            /* BUFFER */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(30, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.BUFFER, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* ASCII_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(31, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.ASCII_STRING, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* UTF8_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(32, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UTF8_STRING, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(33, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.RMTES_STRING, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* Standard data */
+
+            /* INT */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(20, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(255, intVal.ToLong());
+
+            /* UINT */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(21, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(256, uintVal.ToLong());
+
+            /* FLOAT */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(22, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
+            Assert.Equal(1.0f, floatVal.ToFloat(), 0);
+
+            /* DOUBLE */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(23, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
+            Assert.Equal(1.0, doubleVal.ToDouble(), 0);
+
+            /* REAL */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(24, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(2147483647L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* DATE */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(25, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
+            Assert.Equal(12, dateVal.Day());
+            Assert.Equal(11, dateVal.Month());
+            Assert.Equal(1955, dateVal.Year());
+
+            /* TIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(26, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(3, timeVal.Nanosecond());
+
+            /* DATETIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(27, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(3, dateTimeVal.Nanosecond());
+
+            /* QOS */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(28, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, qosVal.Decode(dIter));
+            Assert.Equal(QosTimeliness.DELAYED, qosVal.Timeliness());
+            Assert.Equal(3000, qosVal.TimeInfo());
+            Assert.Equal(QosRates.TIME_CONFLATED, qosVal.Rate());
+            Assert.Equal(5000, qosVal.RateInfo());
+
+            /* ENUM */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(29, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, enumVal.Decode(dIter));
+            Assert.Equal(256, enumVal.ToInt());
+
+            /* BUFFER */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(30, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* ASCII_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(31, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* UTF8_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(32, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(33, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING (encoded via encodedData) */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(34, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING (encoded as blank) */
+            Assert.Equal(CodecReturnCode.SUCCESS, fieldEntry.Decode(dIter));
+            Assert.Equal(35, fieldEntry.FieldId);
+            Assert.Equal(DataTypes.UNKNOWN, fieldEntry.DataType);
+            Assert.Equal(CodecReturnCode.BLANK_DATA, bufferVal.Decode(dIter));
+
+            Assert.Equal(CodecReturnCode.END_OF_CONTAINER, fieldEntry.Decode(dIter));
+            Assert.Equal(CodecReturnCode.END_OF_CONTAINER, seriesEntry.Decode(dIter));
+
+            /* ElementList */
+
+            /* Setup element set def db, with entries. */
+            LocalElementSetDefDb esetDb = new LocalElementSetDefDb();
+            ElementSetDefEntry[] elementSetEntries = new ElementSetDefEntry[34];
+
+            elementSetEntries[0] = new ElementSetDefEntry();
+            elementSetEntries[0].Name.Data("0");
+            elementSetEntries[0].DataType = DataTypes.INT_1;
+
+            elementSetEntries[1] = new ElementSetDefEntry();
+            elementSetEntries[1].Name.Data("1");
+            elementSetEntries[1].DataType = DataTypes.INT_2;
+
+            elementSetEntries[2] = new ElementSetDefEntry();
+            elementSetEntries[2].Name.Data("2");
+            elementSetEntries[2].DataType = DataTypes.INT_4;
+
+            elementSetEntries[3] = new ElementSetDefEntry();
+            elementSetEntries[3].Name.Data("3");
+            elementSetEntries[3].DataType = DataTypes.INT_8;
+
+            elementSetEntries[4] = new ElementSetDefEntry();
+            elementSetEntries[4].Name.Data("4");
+            elementSetEntries[4].DataType = DataTypes.UINT_1;
+
+            elementSetEntries[5] = new ElementSetDefEntry();
+            elementSetEntries[5].Name.Data("5");
+            elementSetEntries[5].DataType = DataTypes.UINT_2;
+
+            elementSetEntries[6] = new ElementSetDefEntry();
+            elementSetEntries[6].Name.Data("6");
+            elementSetEntries[6].DataType = DataTypes.UINT_4;
+
+            elementSetEntries[7] = new ElementSetDefEntry();
+            elementSetEntries[7].Name.Data("7");
+            elementSetEntries[7].DataType = DataTypes.UINT_8;
+
+            elementSetEntries[8] = new ElementSetDefEntry();
+            elementSetEntries[8].Name.Data("8");
+            elementSetEntries[8].DataType = DataTypes.FLOAT_4;
+
+            elementSetEntries[9] = new ElementSetDefEntry();
+            elementSetEntries[9].Name.Data("9");
+            elementSetEntries[9].DataType = DataTypes.DOUBLE_8;
+
+            elementSetEntries[10] = new ElementSetDefEntry();
+            elementSetEntries[10].Name.Data("10");
+            elementSetEntries[10].DataType = DataTypes.REAL_4RB;
+
+            elementSetEntries[11] = new ElementSetDefEntry();
+            elementSetEntries[11].Name.Data("11");
+            elementSetEntries[11].DataType = DataTypes.REAL_8RB;
+
+            elementSetEntries[12] = new ElementSetDefEntry();
+            elementSetEntries[12].Name.Data("12");
+            elementSetEntries[12].DataType = DataTypes.DATE_4;
+
+            elementSetEntries[13] = new ElementSetDefEntry();
+            elementSetEntries[13].Name.Data("13");
+            elementSetEntries[13].DataType = DataTypes.TIME_3;
+
+            elementSetEntries[14] = new ElementSetDefEntry();
+            elementSetEntries[14].Name.Data("14");
+            elementSetEntries[14].DataType = DataTypes.TIME_5;
+
+            elementSetEntries[15] = new ElementSetDefEntry();
+            elementSetEntries[15].Name.Data("15");
+            elementSetEntries[15].DataType = DataTypes.DATETIME_7;
+
+            elementSetEntries[16] = new ElementSetDefEntry();
+            elementSetEntries[16].Name.Data("16");
+            elementSetEntries[16].DataType = DataTypes.DATETIME_11;
+
+            elementSetEntries[17] = new ElementSetDefEntry();
+            elementSetEntries[17].Name.Data("17");
+            elementSetEntries[17].DataType = DataTypes.DATETIME_12;
+
+            elementSetEntries[18] = new ElementSetDefEntry();
+            elementSetEntries[18].Name.Data("18");
+            elementSetEntries[18].DataType = DataTypes.TIME_7;
+
+            elementSetEntries[19] = new ElementSetDefEntry();
+            elementSetEntries[19].Name.Data("19");
+            elementSetEntries[19].DataType = DataTypes.TIME_8;
+
+            elementSetEntries[20] = new ElementSetDefEntry();
+            elementSetEntries[20].Name.Data("20");
+            elementSetEntries[20].DataType = DataTypes.INT;
+
+            elementSetEntries[21] = new ElementSetDefEntry();
+            elementSetEntries[21].Name.Data("21");
+            elementSetEntries[21].DataType = DataTypes.UINT;
+
+            elementSetEntries[22] = new ElementSetDefEntry();
+            elementSetEntries[22].Name.Data("22");
+            elementSetEntries[22].DataType = DataTypes.FLOAT;
+
+            elementSetEntries[23] = new ElementSetDefEntry();
+            elementSetEntries[23].Name.Data("23");
+            elementSetEntries[23].DataType = DataTypes.DOUBLE;
+
+            elementSetEntries[24] = new ElementSetDefEntry();
+            elementSetEntries[24].Name.Data("24");
+            elementSetEntries[24].DataType = DataTypes.REAL;
+
+            elementSetEntries[25] = new ElementSetDefEntry();
+            elementSetEntries[25].Name.Data("25");
+            elementSetEntries[25].DataType = DataTypes.DATE;
+
+            elementSetEntries[26] = new ElementSetDefEntry();
+            elementSetEntries[26].Name.Data("26");
+            elementSetEntries[26].DataType = DataTypes.TIME;
+
+            elementSetEntries[27] = new ElementSetDefEntry();
+            elementSetEntries[27].Name.Data("27");
+            elementSetEntries[27].DataType = DataTypes.DATETIME;
+
+            elementSetEntries[28] = new ElementSetDefEntry();
+            elementSetEntries[28].Name.Data("28");
+            elementSetEntries[28].DataType = DataTypes.QOS;
+
+            elementSetEntries[29] = new ElementSetDefEntry();
+            elementSetEntries[29].Name.Data("29");
+            elementSetEntries[29].DataType = DataTypes.ENUM;
+
+            elementSetEntries[30] = new ElementSetDefEntry();
+            elementSetEntries[30].Name.Data("30");
+            elementSetEntries[30].DataType = DataTypes.BUFFER;
+
+            elementSetEntries[31] = new ElementSetDefEntry();
+            elementSetEntries[31].Name.Data("31");
+            elementSetEntries[31].DataType = DataTypes.ASCII_STRING;
+
+            elementSetEntries[32] = new ElementSetDefEntry();
+            elementSetEntries[32].Name.Data("32");
+            elementSetEntries[32].DataType = DataTypes.UTF8_STRING;
+
+            elementSetEntries[33] = new ElementSetDefEntry();
+            elementSetEntries[33].Name.Data("33");
+            elementSetEntries[33].DataType = DataTypes.RMTES_STRING;
+
+            esetDb.Definitions[0].SetId = 0;
+            esetDb.Definitions[0].Count = 34;
+            esetDb.Definitions[0].Entries = elementSetEntries;
+
+            /* Buffer size needed to encode (starting at series header) */
+            bufSizeNeeded = seriesHeaderEncodedSize;
+            encodeBufSize = bufSizeNeeded;
+
+            ElementList elementList = new();
+            ElementEntry elementEntry = new();
+
+            // step II.1 finished decoding, start encoding
+
+            primitiveEntryOverrunTest_byteBuffer = new ByteBuffer(encodeBufSize);
+            primitiveEntryOverrunTest_encodeBuffer.Data(primitiveEntryOverrunTest_byteBuffer);
+            eIter.Clear();
+            eIter.SetBufferAndRWFVersion(primitiveEntryOverrunTest_encodeBuffer,
+                Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+
+            /* Encode Series. */
+            series.Clear();
+            series.ContainerType = DataTypes.ELEMENT_LIST;
+            series.ApplyHasSetDefs();
+            Assert.Equal(CodecReturnCode.SUCCESS, series.EncodeInit(eIter, 0, 0));
+
+            /* Encode set definition. */
+            bufSizeNeeded += 1 /* Flags */ + 1 /* SetDef Count */ + 1 /* Set ID */ + 1 /* Entry count */
+                + 10 * 3 /* The first ten entries which have one-character names, "0" to "9" (name-length, name, dataType) */
+                + 24 * 4 /* The remaining entries, have two-character names, "10" to "33" (name-length, name, dataType) */
+                + 1 /* The check for the length of each entry's name-length assumes the worst-case (2 bytes), even
+                 * though the entries only actually use one. So we will need one more byte available to completely encode it. */
+                ;
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, esetDb.Encode(eIter));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(0, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, esetDb.Encode(eIter));
+            Assert.Equal(CodecReturnCode.SUCCESS, series.EncodeSetDefsComplete(eIter, true));
+
+            bufSizeNeeded -= 1 /* Back off the one byte the encoder didn't use for the set definition. */;
+
+            /* Encode SeriesEntry. */
+            bufSizeNeeded += 3 /* Size bytes */;
+            encodeBufSize = bufSizeNeeded;
+            PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            seriesEntry.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, seriesEntry.EncodeInit(eIter, 0));
+
+            bufSizeNeeded += 1 /* ElementList flags */ + 2 /* Set data length */ + 2 /* Standard data length */;
+            encodeBufSize = bufSizeNeeded;
+            PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+
+            /* Encode element list. */
+            elementList.Clear();
+            elementList.ApplyHasSetData();
+            elementList.ApplyHasStandardData();
+            Assert.Equal(CodecReturnCode.SUCCESS, elementList.EncodeInit(eIter, esetDb, 0));
+
+            /* INT_1 needs 1 byte. */
+            bufSizeNeeded += 1;
+            elementEntry.Clear();
+            elementEntry.Name.Data("0");
+            elementEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, intVal));
+
+            /* INT_2 needs 2 bytes. */
+            bufSizeNeeded += 2;
+            elementEntry.Clear();
+            elementEntry.Name.Data("1");
+            elementEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, intVal));
+
+            /* INT_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            elementEntry.Clear();
+            elementEntry.Name.Data("2");
+            elementEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, intVal));
+
+            /* INT_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("3");
+            elementEntry.DataType = DataTypes.INT;
+            intVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, intVal));
+
+            /* UINT_1 needs 1 byte. */
+            bufSizeNeeded += 1;
+            elementEntry.Clear();
+            elementEntry.Name.Data("4");
+            elementEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, uintVal));
+
+            /* UINT_2 needs 2 bytes. */
+            bufSizeNeeded += 2;
+            elementEntry.Clear();
+            elementEntry.Name.Data("5");
+            elementEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, uintVal));
+
+            /* UINT_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            elementEntry.Clear();
+            elementEntry.Name.Data("6");
+            elementEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, uintVal));
+
+            /* UINT_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("7");
+            elementEntry.DataType = DataTypes.UINT;
+            uintVal.Value(64);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, uintVal));
+
+            /* FLOAT_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            elementEntry.Clear();
+            elementEntry.Name.Data("8");
+            elementEntry.DataType = DataTypes.FLOAT;
+            floatVal.Value(1.0f);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, floatVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, floatVal));
+
+            /* DOUBLE_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("9");
+            elementEntry.DataType = DataTypes.DOUBLE;
+            doubleVal.Value(1.0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, doubleVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, doubleVal));
+
+            /* REAL_4RB needs 5 bytes for this value. */
+            bufSizeNeeded += 5;
+            elementEntry.Clear();
+            elementEntry.Name.Data("10");
+            elementEntry.DataType = DataTypes.REAL;
+            realVal.Value(2147483647, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, realVal));
+
+            /* REAL_8RB needs 9 bytes for this value. */
+            bufSizeNeeded += 9;
+            elementEntry.Clear();
+            elementEntry.Name.Data("11");
+            elementEntry.DataType = DataTypes.REAL;
+            realVal.Value(9223372036854775807L, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, realVal));
+
+            /* DATE_4 needs 4 bytes. */
+            bufSizeNeeded += 4;
+            elementEntry.Clear();
+            elementEntry.Name.Data("12");
+            elementEntry.DataType = DataTypes.DATE;
+            dateVal.Day(12);
+            dateVal.Month(11);
+            dateVal.Year(1955);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateVal));
+
+            /* TIME_3 needs 3 bytes. */
+            bufSizeNeeded += 3;
+            elementEntry.Clear();
+            elementEntry.Name.Data("13");
+            elementEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, timeVal));
+
+            /* TIME_5 needs 5 bytes. */
+            bufSizeNeeded += 5;
+            elementEntry.Clear();
+            elementEntry.Name.Data("14");
+            elementEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, timeVal));
+
+            /* DATETIME_7 needs 7 bytes. */
+            bufSizeNeeded += 7;
+            elementEntry.Clear();
+            elementEntry.Name.Data("15");
+            elementEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateTimeVal));
+
+            /* DATETIME_11 needs 11 bytes. */
+            bufSizeNeeded += 11;
+            elementEntry.Clear();
+            elementEntry.Name.Data("16");
+            elementEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateTimeVal));
+
+            /* DATETIME_12 needs 12 bytes. */
+            bufSizeNeeded += 12;
+            elementEntry.Clear();
+            elementEntry.Name.Data("17");
+            elementEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            dateTimeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateTimeVal));
+
+            /* TIME_7 needs 7 bytes. */
+            bufSizeNeeded += 7;
+            elementEntry.Clear();
+            elementEntry.Name.Data("18");
+            elementEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, timeVal));
+
+            /* TIME_8 needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("19");
+            elementEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            timeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, timeVal));
+
+            /* This INT needs 3 bytes. */
+            bufSizeNeeded += 3;
+            elementEntry.Clear();
+            elementEntry.Name.Data("20");
+            elementEntry.DataType = DataTypes.INT;
+            intVal.Value(255);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, intVal));
+
+            /* This UINT needs 3 bytes. */
+            bufSizeNeeded += 3;
+            elementEntry.Clear();
+            elementEntry.Name.Data("21");
+            elementEntry.DataType = DataTypes.UINT;
+            uintVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, uintVal));
+
+            /* This FLOAT needs 5 bytes. */
+            bufSizeNeeded += 5;
+            elementEntry.Clear();
+            elementEntry.Name.Data("22");
+            elementEntry.DataType = DataTypes.FLOAT;
+            floatVal.Value(1.0f);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, floatVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, floatVal));
+
+            /* This DOUBLE needs 9 bytes. */
+            bufSizeNeeded += 9;
+            elementEntry.Clear();
+            elementEntry.Name.Data("23");
+            elementEntry.DataType = DataTypes.DOUBLE;
+            doubleVal.Value(1.0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, doubleVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, doubleVal));
+
+            /* This REAL needs 6 bytes. */
+            bufSizeNeeded += 6;
+            elementEntry.Clear();
+            elementEntry.Name.Data("24");
+            elementEntry.DataType = DataTypes.REAL;
+            realVal.Value(2147483647, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, realVal));
+
+            /* This DATE needs 5 bytes. */
+            bufSizeNeeded += 5;
+            elementEntry.Clear();
+            elementEntry.Name.Data("25");
+            elementEntry.DataType = DataTypes.DATE;
+            dateVal.Day(12);
+            dateVal.Month(11);
+            dateVal.Year(1955);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateVal));
+
+            /* This TIME needs 9 bytes. */
+            bufSizeNeeded += 9;
+            elementEntry.Clear();
+            elementEntry.Name.Data("26");
+            elementEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            timeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, timeVal));
+
+            /* This DATETIME needs 13 bytes. */
+            bufSizeNeeded += 13;
+            elementEntry.Clear();
+            elementEntry.Name.Data("27");
+            elementEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            dateTimeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateTimeVal));
+
+            /* This QOS needs 6 bytes. */
+            bufSizeNeeded += 6;
+            elementEntry.Clear();
+            elementEntry.Name.Data("28");
+            elementEntry.DataType = DataTypes.QOS;
+            qosVal.Timeliness(QosTimeliness.DELAYED);
+            qosVal.TimeInfo(3000);
+            qosVal.Rate(QosRates.TIME_CONFLATED);
+            qosVal.RateInfo(5000);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, qosVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, qosVal));
+
+            /* This ENUM needs 3 bytes. */
+            bufSizeNeeded += 3;
+            elementEntry.Clear();
+            elementEntry.Name.Data("29");
+            elementEntry.DataType = DataTypes.ENUM;
+            enumVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, enumVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, enumVal));
+
+            /* This BUFFER needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("30");
+            elementEntry.DataType = DataTypes.BUFFER;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This ASCII_STRING needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("31");
+            elementEntry.DataType = DataTypes.ASCII_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This UTF8_STRING needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("32");
+            elementEntry.DataType = DataTypes.UTF8_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This RMTES_STRING needs 8 bytes. */
+            bufSizeNeeded += 8;
+            elementEntry.Clear();
+            elementEntry.Name.Data("33");
+            elementEntry.DataType = DataTypes.RMTES_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SET_COMPLETE, elementEntry.Encode(eIter, bufferVal));
+
+            /* Standard data */
+
+            /* This INT needs 7 bytes (1 for dataType, 3 for name, 3 for value) */
+            bufSizeNeeded += 7;
+            elementEntry.Clear();
+            elementEntry.Name.Data("20");
+            elementEntry.DataType = DataTypes.INT;
+            intVal.Value(255);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, intVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, intVal));
+
+            /* This UINT needs 7 bytes (1 for dataType, 3 for name, 3 for value) */
+            bufSizeNeeded += 7;
+            elementEntry.Clear();
+            elementEntry.Name.Data("21");
+            elementEntry.DataType = DataTypes.UINT;
+            uintVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, uintVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, uintVal));
+
+            /* This FLOAT needs 7 bytes (1 for dataType, 3 for name, 5 for value) */
+            bufSizeNeeded += 9;
+            elementEntry.Clear();
+            elementEntry.Name.Data("22");
+            elementEntry.DataType = DataTypes.FLOAT;
+            floatVal.Value(1.0f);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, floatVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, floatVal));
+
+            /* This DOUBLE needs 13 bytes (1 for dataType, 3 for name, 9 for value) */
+            bufSizeNeeded += 13;
+            elementEntry.Clear();
+            elementEntry.Name.Data("23");
+            elementEntry.DataType = DataTypes.DOUBLE;
+            doubleVal.Value(1.0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, doubleVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, doubleVal));
+
+            /* This REAL needs 10 bytes (1 for dataType, 3 for name, 6 for value) */
+            bufSizeNeeded += 10;
+            elementEntry.Clear();
+            elementEntry.Name.Data("24");
+            elementEntry.DataType = DataTypes.REAL;
+            realVal.Value(2147483647, RealHints.EXPONENT0);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, realVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, realVal));
+
+            /* This DATE needs 9 bytes (1 for dataType, 3 for name, 5 for value) */
+            bufSizeNeeded += 9;
+            elementEntry.Clear();
+            elementEntry.Name.Data("25");
+            elementEntry.DataType = DataTypes.DATE;
+            dateVal.Day(12);
+            dateVal.Month(11);
+            dateVal.Year(1955);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateVal));
+
+            /* This TIME needs 13 bytes (1 for dataType, 3 for name, 9 for value) */
+            bufSizeNeeded += 13;
+            elementEntry.Clear();
+            elementEntry.Name.Data("26");
+            elementEntry.DataType = DataTypes.TIME;
+            timeVal.Hour(22);
+            timeVal.Minute(4);
+            timeVal.Second(0);
+            timeVal.Millisecond(1);
+            timeVal.Microsecond(2);
+            timeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, timeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, timeVal));
+
+            /* This DATETIME needs 17 bytes (1 for dataType, 3 for name, 13 for value) */
+            bufSizeNeeded += 17;
+            elementEntry.Clear();
+            elementEntry.Name.Data("27");
+            elementEntry.DataType = DataTypes.DATETIME;
+            dateTimeVal.Day(12);
+            dateTimeVal.Month(11);
+            dateTimeVal.Year(1955);
+            dateTimeVal.Hour(22);
+            dateTimeVal.Minute(4);
+            dateTimeVal.Second(0);
+            dateTimeVal.Millisecond(1);
+            dateTimeVal.Microsecond(2);
+            dateTimeVal.Nanosecond(3);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, dateTimeVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, dateTimeVal));
+
+            /* This QOS needs 10 bytes (1 for dataType, 3 for name, 6 for value) */
+            bufSizeNeeded += 10;
+            elementEntry.Clear();
+            elementEntry.Name.Data("28");
+            elementEntry.DataType = DataTypes.QOS;
+            qosVal.Timeliness(QosTimeliness.DELAYED);
+            qosVal.TimeInfo(3000);
+            qosVal.Rate(QosRates.TIME_CONFLATED);
+            qosVal.RateInfo(5000);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, qosVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, qosVal));
+
+            /* This ENUM needs 7 bytes (1 for dataType, 3 for name, 3 for value) */
+            bufSizeNeeded += 7;
+            elementEntry.Clear();
+            elementEntry.Name.Data("29");
+            elementEntry.DataType = DataTypes.ENUM;
+            enumVal.Value(256);
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, enumVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, enumVal));
+
+            /* This BUFFER needs 12 bytes (1 for dataType, 3 for name, 8 for value) */
+            bufSizeNeeded += 12;
+            elementEntry.Clear();
+            elementEntry.Name.Data("30");
+            elementEntry.DataType = DataTypes.BUFFER;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This ASCII_STRING needs 12 bytes (1 for dataType, 3 for name, 8 for value) */
+            bufSizeNeeded += 12;
+            elementEntry.Clear();
+            elementEntry.Name.Data("31");
+            elementEntry.DataType = DataTypes.ASCII_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This UTF8_STRING needs 12 bytes (1 for dataType, 3 for name, 8 for value) */
+            bufSizeNeeded += 12;
+            elementEntry.Clear();
+            elementEntry.Name.Data("32");
+            elementEntry.DataType = DataTypes.UTF8_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This RMTES_STRING needs 12 bytes (1 for dataType, 3 for name, 8 for value) */
+            bufSizeNeeded += 12;
+            elementEntry.Clear();
+            elementEntry.Name.Data("33");
+            elementEntry.DataType = DataTypes.RMTES_STRING;
+            bufferVal.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter, bufferVal));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter, bufferVal));
+
+            /* This RMTES_STRING needs 12 bytes (1 for dataType, 3 for name, 8 for value) */
+            /* Encode this one via encodedData. */
+            bufSizeNeeded += 12;
+            elementEntry.Clear();
+            elementEntry.Name.Data("34");
+            elementEntry.DataType = DataTypes.RMTES_STRING;
+            elementEntry.EncodedData.Data("OVERRUN");
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter));
+
+            /* This RMTES_STRING will be blank and needs 5 bytes (1 for dataType, 3 for name, 1 for value) */
+            bufSizeNeeded += 5;
+            elementEntry.Clear();
+            elementEntry.Name.Data("35");
+            elementEntry.DataType = DataTypes.RMTES_STRING;
+            while (encodeBufSize < bufSizeNeeded)
+            {
+                int startPos = eIter._curBufPos;
+                Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, elementEntry.Encode(eIter));
+                Assert.Equal(startPos, eIter._curBufPos);
+                Assert.Equal(startPos, eIter._writer.Position());
+                Assert.Equal(1, eIter._encodingLevel);
+                ++encodeBufSize;
+                PrimitiveEntryOverrunTest_realignBuffer(eIter, encodeBufSize);
+            }
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Encode(eIter));
+
+            Assert.Equal(CodecReturnCode.SUCCESS, elementList.EncodeComplete(eIter, true));
+            Assert.Equal(CodecReturnCode.SUCCESS, seriesEntry.EncodeComplete(eIter, true));
+            Assert.Equal(CodecReturnCode.SUCCESS, series.EncodeComplete(eIter, true));
+
+            // step II.2 finished encoding, start decoding
+
+            /* Decode the series, set definition, and elements, to validate data. */
+            primitiveEntryOverrunTest_byteBuffer.Flip();
+            decodeBuffer.Data(primitiveEntryOverrunTest_byteBuffer);
+            dIter.SetBufferAndRWFVersion(decodeBuffer, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+
+            Assert.Equal(CodecReturnCode.SUCCESS, series.Decode(dIter));
+            Assert.Equal(DataTypes.ELEMENT_LIST, series.ContainerType);
+            Assert.True(series.CheckHasSetDefs());
+
+            esetDb.Clear();
+            Assert.Equal(CodecReturnCode.SUCCESS, esetDb.Decode(dIter));
+            Assert.Equal(CodecReturnCode.SUCCESS, seriesEntry.Decode(dIter));
+            Assert.Equal(CodecReturnCode.SUCCESS, elementList.Decode(dIter, esetDb));
+
+            /* INT_1 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("0"));
+            Assert.Equal(DataTypes.INT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* INT_2 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("1"));
+            Assert.Equal(DataTypes.INT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* INT_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("2"));
+            Assert.Equal(DataTypes.INT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* INT_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("3"));
+            Assert.Equal(DataTypes.INT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(64, intVal.ToLong());
+
+            /* UINT_1 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("4"));
+            Assert.Equal(DataTypes.UINT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* UINT_2 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("5"));
+            Assert.Equal(DataTypes.UINT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* UINT_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("6"));
+            Assert.Equal(DataTypes.UINT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* UINT_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("7"));
+            Assert.Equal(DataTypes.UINT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(64, uintVal.ToLong());
+
+            /* FLOAT_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("8"));
+            Assert.Equal(DataTypes.FLOAT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
+            Assert.Equal(1.0f, floatVal.ToFloat(), 0);
+
+            /* DOUBLE_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("9"));
+            Assert.Equal(DataTypes.DOUBLE, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
+            Assert.Equal(1.0, doubleVal.ToDouble(), 0);
+
+            /* REAL_4RB */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("10"));
+            Assert.Equal(DataTypes.REAL, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(2147483647, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* REAL_8RB */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("11"));
+            Assert.Equal(DataTypes.REAL, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(9223372036854775807L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* DATE_4 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("12"));
+            Assert.Equal(DataTypes.DATE, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
+            Assert.Equal(12, dateVal.Day());
+            Assert.Equal(11, dateVal.Month());
+            Assert.Equal(1955, dateVal.Year());
+
+            /* TIME_3 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("13"));
+            Assert.Equal(DataTypes.TIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(0, timeVal.Millisecond());
+            Assert.Equal(0, timeVal.Microsecond());
+            Assert.Equal(0, timeVal.Nanosecond());
+
+            /* TIME_5 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("14"));
+            Assert.Equal(DataTypes.TIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(0, timeVal.Microsecond());
+            Assert.Equal(0, timeVal.Nanosecond());
+
+            /* DATETIME_7 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("15"));
+            Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(0, dateTimeVal.Millisecond());
+            Assert.Equal(0, dateTimeVal.Microsecond());
+            Assert.Equal(0, dateTimeVal.Nanosecond());
+
+            /* DATETIME_11 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("16"));
+            Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(0, dateTimeVal.Nanosecond());
+
+            /* DATETIME_12 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("17"));
+            Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(3, dateTimeVal.Nanosecond());
+
+            /* TIME_7 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("18"));
+            Assert.Equal(DataTypes.TIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(0, timeVal.Nanosecond());
+
+            /* TIME_8 */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("19"));
+            Assert.Equal(DataTypes.TIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(3, timeVal.Nanosecond());
+
+            /* INT */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("20"));
+            Assert.Equal(DataTypes.INT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(255, intVal.ToLong());
+
+            /* UINT */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("21"));
+            Assert.Equal(DataTypes.UINT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(256, uintVal.ToLong());
+
+            /* FLOAT */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("22"));
+            Assert.Equal(DataTypes.FLOAT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
+            Assert.Equal(1.0f, floatVal.ToFloat(), 0);
+
+            /* DOUBLE */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("23"));
+            Assert.Equal(DataTypes.DOUBLE, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
+            Assert.Equal(1.0, doubleVal.ToDouble(), 0);
+
+            /* REAL */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("24"));
+            Assert.Equal(DataTypes.REAL, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(2147483647L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* DATE */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("25"));
+            Assert.Equal(DataTypes.DATE, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
+            Assert.Equal(12, dateVal.Day());
+            Assert.Equal(11, dateVal.Month());
+            Assert.Equal(1955, dateVal.Year());
+
+            /* TIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("26"));
+            Assert.Equal(DataTypes.TIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(3, timeVal.Nanosecond());
+
+            /* DATETIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("27"));
+            Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(3, dateTimeVal.Nanosecond());
+
+            /* QOS */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("28"));
+            Assert.Equal(DataTypes.QOS, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, qosVal.Decode(dIter));
+            Assert.Equal(QosTimeliness.DELAYED, qosVal.Timeliness());
+            Assert.Equal(3000, qosVal.TimeInfo());
+            Assert.Equal(QosRates.TIME_CONFLATED, qosVal.Rate());
+            Assert.Equal(5000, qosVal.RateInfo());
+
+            /* ENUM */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("29"));
+            Assert.Equal(DataTypes.ENUM, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, enumVal.Decode(dIter));
+            Assert.Equal(256, enumVal.ToInt());
+
+            /* BUFFER */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("30"));
+            Assert.Equal(DataTypes.BUFFER, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* ASCII_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("31"));
+            Assert.Equal(DataTypes.ASCII_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* UTF8_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("32"));
+            Assert.Equal(DataTypes.UTF8_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("33"));
+            Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* Standard data */
+
+            /* INT */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("20"));
+            Assert.Equal(DataTypes.INT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, intVal.Decode(dIter));
+            Assert.Equal(255, intVal.ToLong());
+
+            /* UINT */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("21"));
+            Assert.Equal(DataTypes.UINT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, uintVal.Decode(dIter));
+            Assert.Equal(256, uintVal.ToLong());
+
+            /* FLOAT */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("22"));
+            Assert.Equal(DataTypes.FLOAT, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, floatVal.Decode(dIter));
+            Assert.Equal(1.0f, floatVal.ToFloat(), 0);
+
+            /* DOUBLE */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("23"));
+            Assert.Equal(DataTypes.DOUBLE, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, doubleVal.Decode(dIter));
+            Assert.Equal(1.0, doubleVal.ToDouble(), 0);
+
+            /* REAL */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("24"));
+            Assert.Equal(DataTypes.REAL, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, realVal.Decode(dIter));
+            Assert.Equal(2147483647L, realVal.ToLong());
+            Assert.Equal(RealHints.EXPONENT0, realVal.Hint);
+
+            /* DATE */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("25"));
+            Assert.Equal(DataTypes.DATE, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateVal.Decode(dIter));
+            Assert.Equal(12, dateVal.Day());
+            Assert.Equal(11, dateVal.Month());
+            Assert.Equal(1955, dateVal.Year());
+
+            /* TIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("26"));
+            Assert.Equal(DataTypes.TIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, timeVal.Decode(dIter));
+            Assert.Equal(22, timeVal.Hour());
+            Assert.Equal(4, timeVal.Minute());
+            Assert.Equal(0, timeVal.Second());
+            Assert.Equal(1, timeVal.Millisecond());
+            Assert.Equal(2, timeVal.Microsecond());
+            Assert.Equal(3, timeVal.Nanosecond());
+
+            /* DATETIME */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("27"));
+            Assert.Equal(DataTypes.DATETIME, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, dateTimeVal.Decode(dIter));
+            Assert.Equal(12, dateTimeVal.Day());
+            Assert.Equal(11, dateTimeVal.Month());
+            Assert.Equal(1955, dateTimeVal.Year());
+            Assert.Equal(22, dateTimeVal.Hour());
+            Assert.Equal(4, dateTimeVal.Minute());
+            Assert.Equal(0, dateTimeVal.Second());
+            Assert.Equal(1, dateTimeVal.Millisecond());
+            Assert.Equal(2, dateTimeVal.Microsecond());
+            Assert.Equal(3, dateTimeVal.Nanosecond());
+
+            /* QOS */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("28"));
+            Assert.Equal(DataTypes.QOS, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, qosVal.Decode(dIter));
+            Assert.Equal(QosTimeliness.DELAYED, qosVal.Timeliness());
+            Assert.Equal(3000, qosVal.TimeInfo());
+            Assert.Equal(QosRates.TIME_CONFLATED, qosVal.Rate());
+            Assert.Equal(5000, qosVal.RateInfo());
+
+            /* ENUM */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("29"));
+            Assert.Equal(DataTypes.ENUM, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, enumVal.Decode(dIter));
+            Assert.Equal(256, enumVal.ToInt());
+
+            /* BUFFER */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("30"));
+            Assert.Equal(DataTypes.BUFFER, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* ASCII_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("31"));
+            Assert.Equal(DataTypes.ASCII_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* UTF8_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("32"));
+            Assert.Equal(DataTypes.UTF8_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("33"));
+            Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING (encoded via encodedData) */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("34"));
+            Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.SUCCESS, bufferVal.Decode(dIter));
+            Assert.True(bufferVal.ToString().Equals("OVERRUN"));
+
+            /* RMTES_STRING (encoded as blank) */
+            Assert.Equal(CodecReturnCode.SUCCESS, elementEntry.Decode(dIter));
+            Assert.True(elementEntry.Name.ToString().Equals("35"));
+            Assert.Equal(DataTypes.RMTES_STRING, elementEntry.DataType);
+            Assert.Equal(CodecReturnCode.BLANK_DATA, bufferVal.Decode(dIter));
+
+            Assert.Equal(CodecReturnCode.END_OF_CONTAINER, elementEntry.Decode(dIter));
+            Assert.Equal(CodecReturnCode.END_OF_CONTAINER, seriesEntry.Decode(dIter));
         }
     }
 }

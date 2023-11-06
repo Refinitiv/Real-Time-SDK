@@ -50,11 +50,12 @@
  *
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 
 using LSEG.Eta.Transports;
-using LSEG.Eta.Example.Common;
-
 
 namespace LSEG.Eta.Training.Consumer
 {

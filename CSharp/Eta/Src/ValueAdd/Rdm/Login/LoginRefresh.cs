@@ -33,7 +33,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private LoginConnectionConfig connectionConfig = new();
         private Buffer authenticationExtendedResp = new();
         private Buffer authenticationErrorText = new();
-        private string blankStringConst = string.Empty;
+        private string blankStringConst = "\0";
 
         private ElementList elementList = new();
         private ElementEntry element = new();
@@ -78,7 +78,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Whether connection config is present.
+        /// Checks whether connection config is present.
         /// </summary>
         /// <seealso cref="ConnectionConfig"/>
         public bool HasConnectionConfig
@@ -515,7 +515,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
 
             if (HasUserNameType)
             {
-                if (UserNameType == UserIdTypes.TOKEN)
+                if (UserNameType == UserIdTypes.AUTHN_TOKEN)
                 {
                     m_RefreshMsg.MsgKey.ApplyHasName();
                     m_RefreshMsg.MsgKey.Name.Data(blankStringConst);

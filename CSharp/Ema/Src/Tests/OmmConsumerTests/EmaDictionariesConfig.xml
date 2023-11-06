@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmaConfig>
+	<!-- This is a test file for making sure all settings carry through the config. -->
+	<ConsumerGroup>
+		<DefaultConsumer value="TestConsumer"/>
+		<ConsumerList>
+			<Consumer>
+				<!-- Name is mandatory																		-->
+				<Name value="TestConsumer"/>
+				<Channel value="TestChannel_1"/>
+				<Dictionary value="TestDictionary_1"/>
+			</Consumer>
+		</ConsumerList>
+	</ConsumerGroup>
+
+	<ChannelGroup>
+		<ChannelList>
+			<Channel>
+				<Name value="TestChannel_1"/>
+				<ChannelType value="ChannelType::RSSL_SOCKET"/>
+				<Host value="localhost"/>
+				<Port value="testPort1"/>
+			</Channel>
+		</ChannelList>
+	</ChannelGroup>
+
+	<DictionaryGroup>
+		<DictionaryList>
+			<Dictionary>
+				<Name value="TestDictionary_1"/>
+				<DictionaryType value="DictionaryType::FileDictionary"/>
+				<EnumTypeDefFileName value="EnumTypeDefinitions.file"/>
+				<RdmFieldDictionaryFileName value="RDMTestDictionary.file"/>
+			</Dictionary>
+		</DictionaryList>
+	</DictionaryGroup>
+</EmaConfig>

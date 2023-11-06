@@ -9,12 +9,15 @@
 using System;
 
 using LSEG.Eta.Transports;
+using LSEG.Eta.ValueAdd.Reactor;
 
 namespace LSEG.Eta.ValuedAdd.Tests;
 
 public class ConsumerProviderSessionOptions
 {
-    /**  Type of connection the session will use. */
+    /// <summary>
+    ///  Type of connection the session will use.
+    /// </summary>
     public ConnectionType ConnectionType { get; set; }
 
     public int ProtocolType { get; set; }
@@ -28,19 +31,19 @@ public class ConsumerProviderSessionOptions
     public TimeSpan ReconnectMaxDelay { get; set; } = TimeSpan.FromSeconds(1);
 
     /** Whether a default login stream will be setup.
-	 * If set to true, the consumer's reactor role must have a preset login request. */
+     * If set to true, the consumer's reactor role must have a preset login request. */
     public bool SetupDefaultLoginStream { get; set; }
 
     /** Whether a default directory stream will be setup.
-	 *
-	 * If set to true, either the consumer's reactor role must have a preset directory
-	 * request, or its watchlist is enabled (or both). */
+     *
+     * If set to true, either the consumer's reactor role must have a preset directory
+     * request, or its watchlist is enabled (or both). */
     public bool SetupDefaultDirectoryStream { get; set; }
 
     /** Sets whether a second default directory stream will be setup.
-	 *
-	 * If set to true, either the consumer's reactor role must have a preset directory
-	 * request, or its watchlist is enabled (or both). */
+     *
+     * If set to true, either the consumer's reactor role must have a preset directory
+     * request, or its watchlist is enabled (or both). */
     public bool SetupSecondDefaultDirectoryStream { get; set; }
 
     /*  Number of status events received before the CHANNEL_READY event. Used for
@@ -58,5 +61,26 @@ public class ConsumerProviderSessionOptions
 
     public int NumOfGuaranteedBuffers { get; set; } = 50;
 
+    /* Overrides the default system send buffer size */
+    public int SysSendBufSize = 0;
+
+    /* Overrides the default system receive buffer size */
+    public int SysRecvBufSize = 0;
+
     public CompressionType CompressionType { get; set; } = CompressionType.NONE;
+
+    /// <summary>
+    /// Optional (mock) replacement for the Consumer's <see cref="WlLoginHandler"/> implementation.
+    /// </summary>
+    internal IWlLoginHandler LoginHandler { get; set; } = null;
+
+    /// <summary>
+    /// Optional (mock) replacement for the Consumer's <see cref="WlDirectoryHandler"/> implementation.
+    /// </summary>
+    internal IWlDirectoryHandler DirectoryHandler { get; set; } = null;
+
+    /// <summary>
+    /// Optional (mock) replacement for the Consumer's <see cref="WlItemHandler"/> implementation.
+    /// </summary>
+    internal IWlItemHandler ItemHandler { get; set; } = null;
 }

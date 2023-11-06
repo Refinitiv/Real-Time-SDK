@@ -6,8 +6,12 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Threading;
+
 using LSEG.Eta.PerfTools.Common;
 using LSEG.Eta.Transports;
+
 using Provider = LSEG.Eta.PerfTools.Common.Provider;
 
 namespace LSEG.Eta.Perftools.NIProvPerf

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<StartupObject>LSEG.Ema.Example.Traning.Consumer.Consumer</StartupObject>
+		<AssemblyName>$(AssemblyName.Replace("_NET6.0", ""))</AssemblyName>
+		<BaseOutputPath>..\..\..\..\..\Executables\$(AssemblyName)</BaseOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\..\Src\Core\EMA_Core_NET6.0.csproj" />
+	</ItemGroup>
+</Project>

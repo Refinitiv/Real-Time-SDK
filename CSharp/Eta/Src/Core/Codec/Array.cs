@@ -285,7 +285,7 @@ namespace LSEG.Eta.Codec
 		}
 
         /// <summary>
-        /// Gets or sets the number of items in the array.
+        /// Gets or sets the fixed length of items in the array.
 		/// If items are fixed length populate length here - otherwise make 0 for
 		/// length specified item encoding. Must be in the range of 0 - 65535.
 		/// </summary>

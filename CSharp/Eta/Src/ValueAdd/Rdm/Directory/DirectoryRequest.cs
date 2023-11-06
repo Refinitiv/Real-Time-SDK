@@ -22,7 +22,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
     sealed public class DirectoryRequest : MsgBase
     {
         private IRequestMsg m_RequestMsg = new Msg();
-        private int m_ServiceId = 0;
 
         /// <summary>
         /// Checks if this request is streaming or not.
@@ -37,7 +36,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// The ID of the service to request the directory from.
         /// </summary>
-        public int ServiceId { get => m_ServiceId; set { Debug.Assert(HasServiceId); m_ServiceId = value; } }
+        public int ServiceId { get; set; }
         
         /// <summary>
         /// A filter indicating which filters of information the Consumer is interested in. Populated by <see cref="ServiceFilterFlags"/>

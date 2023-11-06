@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|-----------------------------------------------------------------------------
+ */
+
 package com.refinitiv.eta.examples.provider;
 
 import java.nio.ByteBuffer;
@@ -187,8 +195,7 @@ public class ItemHandler
                 if ((msg.flags() & RequestMsgFlags.HAS_WORST_QOS) != 0 &&
                         (msg.flags() & RequestMsgFlags.HAS_QOS) != 0)
                 {
-                    if (!((RequestMsg)msg).qos().isInRange(((RequestMsg)msg).worstQos(), _providerQos))
-
+                    if(!_providerQos.isInRange(((RequestMsg)msg).qos(), ((RequestMsg)msg).worstQos()))
                     {
                         return sendItemRequestReject(chnl, msg.streamId(),
                                                 msg.domainType(), ItemRejectReason.QOS_NOT_SUPPORTED, false, error);
@@ -1318,6 +1325,8 @@ public class ItemHandler
             System.out.println("Received an on-stream post for item= " + itemInfo.itemName);
         }
         
+        // This is used to indicate whether an ACK message is sent.
+        boolean sendAck = false;
         
         // if the post message contains another message, then use the
         // "contained" message as the update/refresh/status
@@ -1348,6 +1357,8 @@ public class ItemHandler
                         {
                             return ret;
                         }
+                        
+                        sendAck = true;
                     }
                 
                     break;
@@ -1364,7 +1375,8 @@ public class ItemHandler
                         {
                             return ret;
                         }
-
+                        
+                        sendAck = true;
                     }
                     break;
 
@@ -1382,11 +1394,13 @@ public class ItemHandler
                             ret = sendAck(chnl, postMsg, NakCodes.INVALID_CONTENT, "client has insufficient rights to close/delete an item", error);
                             if (ret != CodecReturnCodes.SUCCESS)
                                 return ret;
+                            
+                            sendAck = true;
                         }
                     }
                     break;
                 default:
-                    break;
+                	break;
             }
         }
         else
@@ -1399,8 +1413,8 @@ public class ItemHandler
             if (msg.encodedDataBody() != null && msg.encodedDataBody().length() > 0)
                 _updateMsg.encodedDataBody(msg.encodedDataBody());
             _updateMsg.flags(UpdateMsgFlags.HAS_POST_USER_INFO);
-            ((UpdateMsg)_updateMsg).postUserInfo().userAddr(postMsg.postUserInfo().userAddr());
-            ((UpdateMsg)_updateMsg).postUserInfo().userId(postMsg.postUserInfo().userId());
+            _updateMsg.postUserInfo().userAddr(postMsg.postUserInfo().userAddr());
+            _updateMsg.postUserInfo().userId(postMsg.postUserInfo().userId());
             if (postMsg.checkHasMsgKey())
             {
                 _updateMsg.flags(_updateMsg.flags() | UpdateMsgFlags.HAS_MSG_KEY);
@@ -1415,13 +1429,19 @@ public class ItemHandler
                     return ret;
                 }
 
+                sendAck = true;
             }
         }
+        
+        int ret;
 
-        int ret = sendAck(chnl, postMsg, NakCodes.NONE, null, error);
-        if (ret != CodecReturnCodes.SUCCESS)
+        if(sendAck == false)
         {
-            return ret;
+        	ret = sendAck(chnl, postMsg, NakCodes.NONE, null, error);
+        	if (ret != CodecReturnCodes.SUCCESS)
+        	{
+        		return ret;
+        	}
         }
         // send the post to all public streams with this item open
         for (ItemRequestInfo itemReqInfoL : _itemRequestWatchList)

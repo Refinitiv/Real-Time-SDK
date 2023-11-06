@@ -33,6 +33,8 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - File Config:	Enables applications to specify EMA configuration in an EmaConfig.xml file
 
+- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
+
 - Direct Write setting on socket channel
 
 - High Water Mark setting on socket channel
@@ -44,7 +46,7 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - Connection Failover: EMA can be configured to specify a list of failover servers via ChannelSet configuration.  In the event that the consumer's connection attempt fails, EMA will utilize the next channel in the ChannelSet list.
 
-- Configurable Admin Domain Requests:  EMA provides means for modifying the default admin domain requests
+- Configurable Admin Domain Requests: EMA provides means for modifying the default admin domain requests
 
 - Batch Request: Application may use a single request message to specify interest in multiple items via the item list
 
@@ -54,23 +56,17 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
 - Single Open: EMA supports application selected single open functionality
 
-- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
-
 ## Non-Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default login and directory messages while connecting to server. This provides minimum configuration for applications to get up and running.
 
 - Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 		
 
-- Programmatic Config: Enables application to programmatically specify and overwrite EMA configuration
-
 ## Interactive Provider Features:
 
 - Default Admin Domains: EMA uses default directory messages while sending to the connected client. This provides minimum configuration for applications to get up and running.
  
-- Configurable Admin Domains:  EMA provides means for modifying the default admin domain messages. 
-
-- Programmatic Config	Enables application to programmatically specify and overwrite EMA configuration
+- Configurable Admin Domains: EMA provides means for modifying the default admin domain messages. 
 
 # EMA Java Library and Version Information
 

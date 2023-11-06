@@ -1,4 +1,4 @@
-This is the change log of the Refinitiv Real-Time SDK (RTSDK), CSharp edition. RTSDK consists of both the Elektron Message API (EMA) and the Elektron Transport API (ETA). For CSharp ETA is delivered and EMA is forthcoming. This file contains history starting with initial release of CSharp. Note that RTSDK product version numbers start from 2.0.8 and EMA/ETA version numbers start from 3.0.0.
+This is the change log of the Refinitiv Real-Time SDK (RTSDK), CSharp edition. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting with initial release of CSharp. Note that RTSDK product version numbers start from 2.0.8 and EMA/ETA version numbers start from 3.0.0.
 
 There are three types of RTSDK releases that append a letter directly followed by a number to the version number. 
 
@@ -10,18 +10,51 @@ There are three types of RTSDK releases that append a letter directly followed b
     Also note that emergency releases may only be partial (i.e., CSharp, Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.2.L1 aka ETA 3.0.3.L1 aka 3.0.3.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK CSharp 2.1.3.L1 aka ETA 3.1.0.L1 aka 3.1.0.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes
+This release introduces Enterprise Tranport API (ETA) C# watchlist support and Enterprise Message API (EMA) C# client side implementation. Included is support for socket encrypted and unencrypted connections, session management feature for Real-Time - Optimized (RTO) connectivity, round trip latency monitoring, and features required to consume/contribute content on multiple domains: batch, view, snapshot/streaming, etc.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 ---------------------------------------------
+RTSDK CSharp Release 2.1.3.L1 (Nov 6, 2023)
+---------------------------------------------
+
+EMA CSharp 3.1.0.L1 
+-------------------
+- [RTSDK-7261] - EMA C# implementation
+- [RTSDK-7509] - EMA C#: Create EMA ConsPerf Tool
+- [RTSDK-7529] - EMA C#: Create EMA Examples: 100, 200, 300, 400 Series
+- [RTSDK-7510] - EMA C#: Support session management feature with V2 authenticaiton and service discovery 
+- [RTSDK-7613] - Create CSharp PDF documentation
+- [RTSDK-7919] - Create EMA reference manual
+
+ETA CSharp 3.1.0.L1 Issues Resolved
+-----------------------------------
+- [RTSDK-6752] - ETA C# watchlist implementation
+- [RTSDK-7097] - ETA C# WL: Create watchlist consumer example
+- [RTSDK-7193] - ETA C# WL: Update ConsPerf tool with -watchlist option
+- [RTSDK-7194] - ETA C# WL: Performance optimizations
+- [RTSDK-7278] - ETA C# WL: Refactor initial timeout timer implementation to avoid locking
+- [RTSDK-7350] - Fix to WLConsumer and VAConsumer command lines to accept -tokenURLV2 instead of -tokenURL
+- [RTSDK-7502] - Fix to ProvPerf to show error when MsgData.xml is not found
+- [RTSDK-7520] - ETA C# EncodeIterator.RealignBuffer doesn't work as expected
+- [RTSDK-7540] - Fix to C# VAProvider to avoid rejecting a second request for TRI where the 1st request was PRIVATE
+- [RTSDK-7609] - Fix to VAProvider to change -key to -keyfile to align with other Provider examples
+- [RTSDK-7630] - Fix to non-ASCII characters encoding/decoding in ETA C#
+
+Both ETA C and EMA C++ 3.1.0.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-7342] - Support for TLS 1.3
+
+---------------------------------------------
 RTSDK CSharp Release 2.1.2.L1 (Sep 8, 2023)
 ---------------------------------------------
+
+This is a maintenance release with fixes.
 
 ETA CSharp 3.0.3.L1  
 -------------------

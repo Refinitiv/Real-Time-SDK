@@ -646,10 +646,10 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
-        /// Decodes this Login Refresh message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// Decodes this Login Request message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
         /// </summary>
         /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
-        /// <param name="msg">Decoded Msg object for this LoginRefresh message.</param>
+        /// <param name="msg">Decoded Msg object for this LoginRequest message.</param>
         /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public override CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {

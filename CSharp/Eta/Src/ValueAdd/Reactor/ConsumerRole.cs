@@ -121,6 +121,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
         public ReactorOAuthCredential? ReactorOAuthCredential { get; set; }
 
         /// <summary>
+        /// Gets options for using the watchlist. <see cref="ConsumerWatchlistOptions"/> is used to enable
+        /// and set watchlist options for ConsumerRole.
+        /// </summary>
+        public ConsumerWatchlistOptions WatchlistOptions { get; private set; } = new ConsumerWatchlistOptions();
+
+        /// <summary>
         /// Instantiates a new consumer role.
         /// </summary>
         public ConsumerRole()
@@ -285,6 +291,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             DirectoryMsgCallback = role.DirectoryMsgCallback;
             DictionaryMsgCallback = role.DictionaryMsgCallback;
             DictionaryDownloadMode = role.DictionaryDownloadMode;
+            WatchlistOptions.Copy(role.WatchlistOptions);
         }
 
         /// <summary>

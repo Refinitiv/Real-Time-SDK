@@ -31,7 +31,8 @@ namespace LSEG.Eta.Internal.Interfaces
 
     internal sealed class ChannelBase : IChannel, IInternalChannel
     {
-       internal class BigBuffersPool
+        private Error m_transportError = new Error();
+        internal class BigBuffersPool
         {
             internal Pool[] _pools = new Pool[32];
             internal int _maxSize = 0;
@@ -319,6 +320,8 @@ namespace LSEG.Eta.Internal.Interfaces
             m_SocketProtocol = socketProtocol;
             _socketChannel = socketChannel;
 
+            ConnectionType = connectionOptions.ConnectionType;
+
             ConnectionOptions = new ConnectOptions();
             connectionOptions.CopyTo(ConnectionOptions);
             State = ChannelState.INACTIVE;
@@ -386,12 +389,12 @@ namespace LSEG.Eta.Internal.Interfaces
             }
 
             _readLocker = ConnectionOptions.ChannelReadLocking
-               ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-               : (Locker)new NoLocker();
+               ? new MonitorWriteLocker(new object())
+               : new NoLocker();
 
             _writeLocker = ConnectionOptions.ChannelWriteLocking
-                         ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-                         : (Locker)new NoLocker();
+                         ? new MonitorWriteLocker(new object())
+                         : new NoLocker();
 
             ProtocolFunctions = new RipcProtocolFunctions(this);
 
@@ -431,6 +434,8 @@ namespace LSEG.Eta.Internal.Interfaces
            
             State = ChannelState.INITIALIZING;
 
+            ConnectionType = m_ServerImpl.BindOptions.ConnectionType;
+
             m_ChannelInfo.CompressionType = m_ServerImpl.BindOptions.CompressionType;
             m_ChannelInfo.CompressionThresHold = GetDefaultCompressionTreshold(m_ChannelInfo.CompressionType);
             m_ChannelInfo.PingTimeout = m_ServerImpl.BindOptions.PingTimeout;
@@ -456,12 +461,12 @@ namespace LSEG.Eta.Internal.Interfaces
             InternalFragmentSize = m_ChannelInfo.MaxFragmentSize + RipcDataMessage.HeaderSize;
 
             _readLocker = acceptOptions.ChannelReadLocking
-               ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-               : (Locker)new NoLocker();
+               ? new MonitorWriteLocker(new object())
+               : new NoLocker();
 
             _writeLocker = acceptOptions.ChannelWriteLocking
-                         ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-                         : (Locker)new NoLocker();
+                         ? new MonitorWriteLocker(new object())
+                         : new NoLocker();
 
             ProtocolFunctions = new RipcProtocolFunctions(this);
 
@@ -499,12 +504,12 @@ namespace LSEG.Eta.Internal.Interfaces
             InternalFragmentSize = m_ChannelInfo.MaxFragmentSize + RipcDataMessage.HeaderSize;
 
             _readLocker = ConnectionOptions.ChannelReadLocking
-               ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-               : (Locker)new NoLocker();
+               ? new MonitorWriteLocker(new object())
+               : new NoLocker();
 
             _writeLocker = ConnectionOptions.ChannelWriteLocking
-                         ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-                         : (Locker)new NoLocker();
+                         ? new MonitorWriteLocker(new object())
+                         : new NoLocker();
 
             m_SocketProtocol = new SocketProtocol(); // Output buffer pool per protocol type.
             m_AvailableBuffers = new Pool(this);
@@ -761,23 +766,33 @@ namespace LSEG.Eta.Internal.Interfaces
 
                     case ReadBufferStateMachine.BufferState.END_OF_STREAM:
 
-                        if (State != ChannelState.CLOSED)
+                        try
                         {
-                            CloseFromError();
-                        }
+                            _writeLocker.Enter();
 
-                        State = ChannelState.CLOSED;
-
-                        if (error is null)
-                        {
-                            error = new Error
+                            if (State != ChannelState.CLOSED)
                             {
-                                Channel = this,
-                                ErrorId = TransportReturnCode.FAILURE,
-                                SysError = 0,
-                                Text = "SocketChannel.Receive returned -1 (end-of-stream)"
-                            };
+                                CloseFromError();
+                            }
+
+                            State = ChannelState.CLOSED;
+
+                            if (error is null)
+                            {
+                                error = new Error
+                                {
+                                    Channel = this,
+                                    ErrorId = TransportReturnCode.FAILURE,
+                                    SysError = 0,
+                                    Text = "SocketChannel.Receive returned -1 (end-of-stream)"
+                                };
+                            }
                         }
+                        finally
+                        {
+                            _writeLocker.Exit();
+                        }
+
 
                         returnValue = TransportReturnCode.FAILURE;
 
@@ -790,23 +805,32 @@ namespace LSEG.Eta.Internal.Interfaces
                 readArgs.ReadRetVal = returnValue;
                 return transportBuffer;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                if(State != ChannelState.CLOSED)
+                try
                 {
-                    CloseFromError();
+                    _writeLocker.Enter();
+
+                    if (State != ChannelState.CLOSED)
+                    {
+                        CloseFromError();
+                    }
+
+                    State = ChannelState.CLOSED;
+
+                    error = new Error
+                    {
+                        Channel = this,
+                        ErrorId = TransportReturnCode.FAILURE,
+                        SysError = 0,
+                        Text = e.Message
+                    };
+                    readArgs.ReadRetVal = TransportReturnCode.FAILURE;
                 }
-
-                State = ChannelState.CLOSED;
-
-                error = new Error
+                finally
                 {
-                    Channel = this,
-                    ErrorId = TransportReturnCode.FAILURE,
-                    SysError = 0,
-                    Text = e.Message
-                };
-                readArgs.ReadRetVal = TransportReturnCode.FAILURE;
+                    _writeLocker.Exit();
+                }
 
                 return null;
             }
@@ -1228,13 +1252,12 @@ namespace LSEG.Eta.Internal.Interfaces
             {
                 if (State != ChannelState.ACTIVE)
                 {
-                    error = new Error
-                    {
-                        Channel = this,
-                        ErrorId = TransportReturnCode.FAILURE,
-                        SysError = 0,
-                        Text = "Channel is not in active state for GetBuffer"
-                    };
+                    m_transportError.Text = "Channel is not in active state for GetBuffer";
+                    m_transportError.Channel = this;
+                    m_transportError.ErrorId = TransportReturnCode.FAILURE;
+                    m_transportError.SysError = 0;
+
+                    error = m_transportError;
 
                     return transportBuffer;
                 }
@@ -1254,20 +1277,24 @@ namespace LSEG.Eta.Internal.Interfaces
                         transportBuffer = ProtocolFunctions.GetBigBuffer(size, out error);
                         if (transportBuffer is null)
                         {
-                            error.Channel = this;
-                            error.Text = $"Channel out of buffers, error: {error?.Text}";
+                            m_transportError.Text = $"Channel out of buffers, error: {error?.Text}";
+                            m_transportError.Channel = this;
+                            m_transportError.ErrorId = TransportReturnCode.FAILURE;
+                            m_transportError.SysError = 0;
+
+                            error = m_transportError;
 
                             return transportBuffer;
                         }
                     }
                     else
                     {
-                        error = new Error
-                        {
-                            Channel = this,
-                            ErrorId = TransportReturnCode.FAILURE,
-                            Text = "Packing buffer must fit in maxFragmentSize"
-                        };
+                        m_transportError.Text = "Packing buffer must fit in maxFragmentSize";
+                        m_transportError.Channel = this;
+                        m_transportError.ErrorId = TransportReturnCode.FAILURE;
+                        m_transportError.SysError = 0;
+
+                        error = m_transportError;
 
                         return transportBuffer;
                     }
@@ -1278,12 +1305,12 @@ namespace LSEG.Eta.Internal.Interfaces
 
                     if (transportBuffer is null)
                     {
-                        error = new Error
-                        {
-                            Channel = this,
-                            ErrorId = TransportReturnCode.FAILURE,
-                            Text = "Channel out of buffers"
-                        };
+                        m_transportError.Text = "Channel out of buffers";
+                        m_transportError.Channel = this;
+                        m_transportError.ErrorId = TransportReturnCode.FAILURE;
+                        m_transportError.SysError = 0;
+
+                        error = m_transportError;
 
                         return transportBuffer;
                     }
@@ -2192,6 +2219,15 @@ namespace LSEG.Eta.Internal.Interfaces
                     info.ComponentInfoList = m_ChannelInfo.ComponentInfoList;
                     info.ClientIP = m_ChannelInfo.ClientIP;
                     info.ClientHostname = m_ChannelInfo.ClientHostname;
+
+                    if(SslStream != null)
+                    {
+                        info.EncryptionProtocol = SslStream.SslProtocol;
+                    }
+                    else
+                    {
+                        info.EncryptionProtocol = System.Security.Authentication.SslProtocols.None;
+                    }
                 }
                 else
                 {

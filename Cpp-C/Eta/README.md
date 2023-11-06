@@ -4,7 +4,7 @@ This is the **Enterprise Transport API (ETA)**, the high performance, low latenc
 
 The Transport API is the re-branding of the Ultra Performance API (UPA), which is used by the Refinitiv Real-Time Distribution System and Refinitiv Real-Time for the optimal distribution of OMM/RWF data. All interfaces in ETA are the same as their corresponding interfaces in UPA (same name, same parameter sets) and the transport and codec are fully wire compatible.  
 
-ETA contains open source components. The transport, decoder and encoder components are open source. The reliable multicast transport and VA cache component are closed source.
+ETA contains open source components. The transport, decoder, encoder, value add reactor and watchlist features are open source. The reliable multicast transport and VA cache component are closed source.
 
 ETA provides the necessary libraries and information to allow for OMM/RWF encoding and decoding along with all of the necessary Refinitiv transport implementations to connect to Refinitiv Real-Time Distribution System, Refinitiv Real-Time, and Refinitiv Data Feed Direct products.
 

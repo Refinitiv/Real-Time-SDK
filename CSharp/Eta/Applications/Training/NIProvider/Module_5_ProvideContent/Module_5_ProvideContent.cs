@@ -300,6 +300,9 @@
 *
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 
 using LSEG.Eta.Common;
@@ -332,7 +335,7 @@ namespace LSEG.Eta.Training.NiProvider
         const string ENUM_TYPE_DICTIONARY_FILE_NAME = "enumtype.def";
 
         static bool marketPriceItemInfo_isRefreshComplete;
-        static string marketPriceItemInfo_itemName = String.Empty;
+        static string marketPriceItemInfo_itemName = string.Empty;
         static MarketPriceItem marketPriceItemInfo_itemData = new();
         const int MARKETPRICE_ITEM_STREAM_ID_START = -2;
 
