@@ -43,7 +43,6 @@ namespace LSEG.Ema.Access
             "ConsumerList",
             "DefaultConsumer",
             "Consumer",
-            "CatchUnhandledException",
             "ChannelSet",
             "DictionaryRequestTimeOut",
             "DirectoryRequestTimeOut",
@@ -272,28 +271,6 @@ namespace LSEG.Ema.Access
                     throw new OmmInvalidConfigurationException("Missing Name element in the Consumer Name");
                 }
 
-                // CatchUnhandledException ulong
-                CurrNode2 = consumerListNode.SelectSingleNode("CatchUnhandledException");
-                if (CurrNode2 != null)
-                {
-                    ValueNode = (XmlElement)CurrNode2;
-                    XmlAttribute = ValueNode.GetAttributeNode("value");
-
-                    if (XmlAttribute == null)
-                    {
-                        throw new OmmInvalidConfigurationException("Missing value attribute in the Consumer CatchUnhandledException element");
-                    }
-
-                    try
-                    {
-                        tmpConfig.CatchUnhandledException = (ulong.Parse(XmlAttribute.Value) != 0);
-                    }
-                    catch(SystemException)
-                    {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer CatchUnhandledException element is incorrectly formatted. Correct values are: \"0\" or \"1\".");
-                    }
-                }
-
                 // Channel string
                 CurrNode2 = consumerListNode.SelectSingleNode("Channel");
                 if (CurrNode2 != null)
@@ -363,7 +340,7 @@ namespace LSEG.Ema.Access
                     }
                     catch (SystemException)
                     {
-                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer CatchUnhandledException element is incorrectly formatted. Correct format is an unsigned numeric string.");
+                        throw new OmmInvalidConfigurationException("The value attribute in the Consumer DictionaryRequestTimeOut element is incorrectly formatted. Correct format is an unsigned numeric string.");
                     }
 
                 }

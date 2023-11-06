@@ -136,15 +136,6 @@ namespace LSEG.Ema.Access
                                 bool channelSetFound = false;
                                 switch(consumerEntry.Name)
                                 {
-                                    // CatchUnhandledException ulong
-                                    case "CatchUnhandledException":
-                                        if(consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.UINT)
-                                        {
-                                            throw new OmmInvalidConfigurationException("Invalid entry payload type for Consumer element CatchUnhandledException. This element entry must contain an UINT, cannot be blank, and have a value of \"0\" or \"1\"");
-                                        }
-                                        tmpConfig.CatchUnhandledException = (consumerEntry.UIntValue() != 0);
-                                        break;
-                                        
                                     // Channel string.  Keeping the behavior the same as XML: If ChannelSet is present, that overrides the "Channel", even if it's later in the map.
                                     case "Channel":
                                         if (consumerEntry.Load == null || consumerEntry.Load.Code == DataCode.BLANK || consumerEntry.LoadType != DataTypes.ASCII_STRING)

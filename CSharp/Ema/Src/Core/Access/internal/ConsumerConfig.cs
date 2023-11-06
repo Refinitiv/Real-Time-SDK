@@ -49,7 +49,6 @@ namespace LSEG.Ema.Access
             ReissueTokenAttemptInterval = oldConfig.ReissueTokenAttemptInterval;
             ReissueTokenAttemptLimit = oldConfig.ReissueTokenAttemptLimit;
             oldConfig.ChannelSet.ForEach(channelName => ChannelSet.Add(channelName));
-            CatchUnhandledException = oldConfig.CatchUnhandledException;
             RestEnableLog = oldConfig.RestEnableLog;
             RestEnableLogViaCallback = oldConfig.RestEnableLogViaCallback;
             RestLogFileName = oldConfig.RestLogFileName;
@@ -61,8 +60,6 @@ namespace LSEG.Ema.Access
         }
 
         public string Name { get; set; } = string.Empty;
-
-        public bool CatchUnhandledException { get; set; }
 
         public List<string> ChannelSet { get; set; }
 
@@ -150,7 +147,6 @@ namespace LSEG.Ema.Access
             ReissueTokenAttemptInterval = 5000;
             ReissueTokenAttemptLimit = -1;
             ChannelSet.Clear();
-            CatchUnhandledException = true;
             RestEnableLog = false;
             RestEnableLogViaCallback = false;
             RestLogFileName = string.Empty;
@@ -187,7 +183,6 @@ namespace LSEG.Ema.Access
             DestConfig.ReissueTokenAttemptInterval = ReissueTokenAttemptInterval;
             DestConfig.ReissueTokenAttemptLimit = ReissueTokenAttemptLimit;
             ChannelSet.ForEach(channelName => DestConfig.ChannelSet.Add(channelName));
-            DestConfig.CatchUnhandledException = CatchUnhandledException;
             DestConfig.RestEnableLog = RestEnableLog;
             DestConfig.RestEnableLogViaCallback = RestEnableLogViaCallback;
             DestConfig.RestLogFileName = RestLogFileName;

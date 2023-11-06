@@ -354,7 +354,6 @@ public class ConsumerConfigTests
         Assert.Equal("TestChannel_1", testConsConfig.ChannelSet[0]);
         Assert.Equal("TestLogger_1", testConsConfig.Logger);
         Assert.Equal("TestDictionary_1", testConsConfig.Dictionary);
-        Assert.True(testConsConfig.CatchUnhandledException);
         Assert.Equal((long)10, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal((long)20, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal((long)30, testConsConfig.LoginRequestTimeOut);
@@ -399,7 +398,6 @@ public class ConsumerConfigTests
         Assert.Equal("TestChannel_2", testConsConfig.ChannelSet[1]);
         Assert.Equal(defaultConsConfig.Logger, testConsConfig.Logger);
         Assert.Equal(defaultConsConfig.Dictionary, testConsConfig.Dictionary);
-        Assert.Equal(defaultConsConfig.CatchUnhandledException, testConsConfig.CatchUnhandledException);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal(defaultConsConfig.LoginRequestTimeOut, testConsConfig.LoginRequestTimeOut);
@@ -627,7 +625,6 @@ public class ConsumerConfigTests
         Assert.Equal("TestChannel_1", testConsConfig.ChannelSet[0]);
         Assert.Equal("TestLogger_1", testConsConfig.Logger);
         Assert.Equal("TestDictionary_1", testConsConfig.Dictionary);
-        Assert.True(testConsConfig.CatchUnhandledException);
         Assert.Equal((long)10, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal((long)20, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal((long)30, testConsConfig.LoginRequestTimeOut);
@@ -863,7 +860,6 @@ public class ConsumerConfigTests
         Assert.Equal("TestChannel_2", testConsConfig.ChannelSet[1]);
         Assert.Equal("DefaultEmaLogger", testConsConfig.Logger);
         Assert.Equal("DefaultEmaDictionary", testConsConfig.Dictionary);
-        Assert.Equal(defaultConsConfig.CatchUnhandledException, testConsConfig.CatchUnhandledException);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal(defaultConsConfig.LoginRequestTimeOut, testConsConfig.LoginRequestTimeOut);
@@ -1158,7 +1154,6 @@ public class ConsumerConfigTests
         Assert.Equal("TestChannel_1", testConsConfig.ChannelSet[0]);
         Assert.Equal("DefaultEmaLogger", testConsConfig.Logger);
         Assert.Equal("DefaultEmaDictionary", testConsConfig.Dictionary);
-        Assert.Equal(defaultConsConfig.CatchUnhandledException, testConsConfig.CatchUnhandledException);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal(defaultConsConfig.LoginRequestTimeOut, testConsConfig.LoginRequestTimeOut);
@@ -1368,8 +1363,7 @@ public class ConsumerConfigTests
 
         // Encode ProgrammaticConsumer_1
         //
-        encodeObjectList.AddUInt("CatchUnhandledException", 0)
-            .AddAscii("Channel", "ProgChannel_1")
+        encodeObjectList.AddAscii("Channel", "ProgChannel_1")
             .AddAscii("Dictionary", "ProgDictionary_1")
             .AddAscii("Logger", "ProgLogger_1")
             .AddUInt("DictionaryRequestTimeOut", 2000)
@@ -1547,7 +1541,6 @@ public class ConsumerConfigTests
         Assert.Equal("ProgChannel_1", testConsConfig.ChannelSet[0]);
         Assert.Equal("ProgLogger_1", testConsConfig.Logger);
         Assert.Equal("ProgDictionary_1", testConsConfig.Dictionary);
-        Assert.False(testConsConfig.CatchUnhandledException);
         Assert.Equal((long)2000, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal((long)2010, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal((long)2030, testConsConfig.LoginRequestTimeOut);
@@ -1592,7 +1585,6 @@ public class ConsumerConfigTests
         Assert.Equal("ProgChannel_2", testConsConfig.ChannelSet[1]);
         Assert.Equal(defaultConsConfig.Logger, testConsConfig.Logger);
         Assert.Equal(defaultConsConfig.Dictionary, testConsConfig.Dictionary);
-        Assert.Equal(defaultConsConfig.CatchUnhandledException, testConsConfig.CatchUnhandledException);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal(defaultConsConfig.LoginRequestTimeOut, testConsConfig.LoginRequestTimeOut);
@@ -1829,8 +1821,7 @@ public class ConsumerConfigTests
 
         // Encode ProgrammaticConsumer_1
         //
-        encodeObjectList.AddUInt("CatchUnhandledException", 1)
-            .AddAscii("Channel", "ProgChannel_1")
+        encodeObjectList.AddAscii("Channel", "ProgChannel_1")
             .AddAscii("Dictionary", "ProgDictionary_1")
             .AddAscii("Logger", "ProgLogger_1")
             .AddUInt("DictionaryRequestTimeOut", 2000)
@@ -2006,7 +1997,6 @@ public class ConsumerConfigTests
         Assert.Equal("ProgChannel_1", testConsConfig.ChannelSet[0]);
         Assert.Equal("ProgLogger_1", testConsConfig.Logger);
         Assert.Equal("ProgDictionary_1", testConsConfig.Dictionary);
-        Assert.True(testConsConfig.CatchUnhandledException);
         Assert.Equal((long)2000, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal((long)2010, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal((long)2030, testConsConfig.LoginRequestTimeOut);
@@ -2051,7 +2041,6 @@ public class ConsumerConfigTests
         Assert.Equal("ProgChannel_2", testConsConfig.ChannelSet[1]);
         Assert.Equal(defaultConsConfig.Logger, testConsConfig.Logger);
         Assert.Equal(defaultConsConfig.Dictionary, testConsConfig.Dictionary);
-        Assert.Equal(defaultConsConfig.CatchUnhandledException, testConsConfig.CatchUnhandledException);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal(defaultConsConfig.LoginRequestTimeOut, testConsConfig.LoginRequestTimeOut);
@@ -2311,7 +2300,6 @@ public class ConsumerConfigTests
         Assert.Equal("DefaultEmaChannel", testConsConfig.ChannelSet[0]);
         Assert.Equal("DefaultEmaLogger", testConsConfig.Logger);
         Assert.Equal("DefaultEmaDictionary", testConsConfig.Dictionary);
-        Assert.Equal(defaultConsConfig.CatchUnhandledException, testConsConfig.CatchUnhandledException);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DictionaryRequestTimeOut);
         Assert.Equal(defaultConsConfig.DictionaryRequestTimeOut, testConsConfig.DirectoryRequestTimeOut);
         Assert.Equal(defaultConsConfig.LoginRequestTimeOut, testConsConfig.LoginRequestTimeOut);

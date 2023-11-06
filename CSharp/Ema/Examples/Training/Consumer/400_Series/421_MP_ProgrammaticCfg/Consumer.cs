@@ -126,10 +126,8 @@ public class Consumer
 		innerElementList.AddUInt( "RequestTimeout", 5000 );
 		innerElementList.AddUInt( "MaxOutstandingPosts", 5000 );
 		innerElementList.AddInt( "DispatchTimeoutApiThread", 1 );
-		innerElementList.AddUInt( "HandleException", 0 );
 		innerElementList.AddUInt( "MaxDispatchCountApiThread", 500 );
 		innerElementList.AddUInt( "MaxDispatchCountUserThread", 500 );
-		innerElementList.AddInt( "PipePort", 4001 );
 		innerElementList.AddInt( "ReconnectAttemptLimit", 10 );
 		innerElementList.AddInt( "ReconnectMinDelay", 2000 );
 		innerElementList.AddInt( "ReconnectMaxDelay", 6000 );
