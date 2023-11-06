@@ -130,10 +130,6 @@ public class ConsumerConfigTests
             outputLoggerLevel = LoggerConfig.StringToLoggerLevel(testString);
             Assert.Equal(LoggerLevel.TRACE, outputLoggerLevel);
 
-            testString = "Debug";
-            outputLoggerLevel = LoggerConfig.StringToLoggerLevel(testString);
-            Assert.Equal(LoggerLevel.DEBUG, outputLoggerLevel);
-
             testString = "Info";
             outputLoggerLevel = LoggerConfig.StringToLoggerLevel(testString);
             Assert.Equal(LoggerLevel.INFO, outputLoggerLevel);
@@ -159,6 +155,21 @@ public class ConsumerConfigTests
             // Fail here
             Assert.False(true);
         }
+
+        bool catchException = false;
+        try
+        {
+            testString = "Debug";
+            outputLoggerLevel = LoggerConfig.StringToLoggerLevel(testString);
+            Assert.Equal(LoggerLevel.DEBUG, outputLoggerLevel);
+        }
+        catch (OmmInvalidConfigurationException exp)
+        {
+            catchException = true;
+            Assert.Equal("Logger Severity: Debug not recognized. Acceptable inputs: \"Trace\"," +
+                " \"Info\" or \"Success\", \"Warning\", \"Error\" or \"Verbose\", \"NoLogMsg\".", exp.Message);
+        }
+        Assert.True(catchException);
 
         try
         {

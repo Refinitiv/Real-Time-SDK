@@ -77,7 +77,7 @@ namespace LSEG.Ema.Access
             "Warning"   => LoggerLevel.WARNING,
             "Error"     => LoggerLevel.ERROR,
             "NoLogMsg"  => LoggerLevel.OFF,
-            _           => throw new OmmInvalidConfigurationException("Logger Severity: " + logLevel + " not recognized. Acceptable inputs: \"Trace\", \"Debug\", \"Info\" or \"Success\", \"Warning\", \"Error\" or \"Verbose\", \"NoLogMsg\".")
+            _           => throw new OmmInvalidConfigurationException("Logger Severity: " + logLevel + " not recognized. Acceptable inputs: \"Trace\", \"Info\" or \"Success\", \"Warning\", \"Error\" or \"Verbose\", \"NoLogMsg\".")
         };
 
         internal static LoggerType StringToLoggerType(string logType) => logType switch
