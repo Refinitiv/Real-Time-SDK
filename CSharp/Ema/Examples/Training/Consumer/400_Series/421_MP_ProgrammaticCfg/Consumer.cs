@@ -68,8 +68,11 @@ internal class AppClient : IOmmConsumerClient
 					Console.WriteLine(fieldEntry.OmmDateValue().Day + " / " + fieldEntry.OmmDateValue().Month + " / " + fieldEntry.OmmDateValue().Year);
 					break;
 				case DataTypes.TIME :
-					Console.WriteLine(fieldEntry.OmmTimeValue().Hour + ":" + fieldEntry.OmmTimeValue().Minute + ":" + fieldEntry.OmmTimeValue().Second + ":" + fieldEntry.OmmTimeValue().Millisecond);
-					break;
+					{
+						OmmTime ommTime = fieldEntry.OmmTimeValue();
+						Console.WriteLine($"{ommTime.Hour}:{ommTime.Minute}:{ommTime.Second}:{ommTime.Millisecond}:{ommTime.Microsecond}:{ommTime.Nanosecond}");
+						break;
+					}
 				case DataTypes.DATETIME :
 					Console.WriteLine(fieldEntry.OmmDateTimeValue().Day + " / " + fieldEntry.OmmDateTimeValue().Month + " / " +
 						fieldEntry.OmmDateTimeValue().Year + "." + fieldEntry.OmmDateTimeValue().Hour + ":" + 
