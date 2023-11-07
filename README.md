@@ -30,6 +30,7 @@ GitHub PDF format docs per API:
 - [Enterprise Transport API - C Edition](Cpp-C/Eta/Docs)
 - [Enterprise Message API - Java Edition](Java/Ema/Docs)
 - [Enterprise Transport API - Java Edition](Java/Eta/Docs)
+- [Enterprise Message API - CSharp Edition](CSharp/Ema/Docs)
 - [Enterprise Transport API - CSharp Edition](CSharp/Eta/Docs)
 
 Refinitiv Developer Portal documentation section contains docs in PDF format for both C++ and Java:
@@ -78,6 +79,10 @@ License details can be found in the LICENSE.md file contained in this section. T
 - Java/Eta/TestTools
 - Java/Eta/ValueAdd
 - Java/Eta/ValueAddCache
+- CSharp/Ema/Src/Core
+- CSharp/Ema/Examples
+- CSharp/Ema/PerfTools
+- CSharp/Ema/TestTools
 - CSharp/Eta/Src/Core
 - CSharp/Eta/Src/ValueAdd
 - CSharp/Eta/Applications

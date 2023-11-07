@@ -1883,7 +1883,7 @@ namespace LSEG.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/test_FieldDictionary", out error));
             ElementList elementList = new ElementList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(elementListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -1931,7 +1931,7 @@ namespace LSEG.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/test_FieldDictionary", out error));
             FieldList fieldList = new FieldList();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(filedListBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -1985,7 +1985,7 @@ namespace LSEG.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/test_FieldDictionary", out error));
             Vector vector = new Vector();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(vectorBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2062,7 +2062,7 @@ namespace LSEG.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/test_FieldDictionary", out error));
             Map map = new Map();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(mapBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
@@ -2144,7 +2144,7 @@ namespace LSEG.Eta.Tests
             CodecError error;
             DataDictionary dictionary = new DataDictionary();
             dictionary.Clear();
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/test_FieldDictionary", out error));
             Series series = new Series();
             DecodeIterator decIter = new DecodeIterator();
             decIter.SetBufferAndRWFVersion(vectorBuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());

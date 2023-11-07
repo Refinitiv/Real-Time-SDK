@@ -24,9 +24,8 @@ using System.Diagnostics;
 namespace LSEG.Eta.ValuedAdd.Tests
 {
 
-    /// Unit-tests for LoginRequest.
+    /// Unit-tests for LoginRequest class.
     ///
-    /// see: LoginJunit.java
     [Collection("ValueAdded")]
     public class LoginRequestTest
     {
@@ -1228,7 +1227,6 @@ namespace LSEG.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-
         public void LoginCloseTests()
         {
             LoginClose encRDMMsg = new();
@@ -1269,7 +1267,6 @@ namespace LSEG.Eta.ValuedAdd.Tests
         [Fact]
         [Category("Unit")]
         [Category("Reactor")]
-
         public void LoginRefreshCopyTest()
         {
             LoginRefresh refRDMMsg1 = new();
@@ -1288,7 +1285,7 @@ namespace LSEG.Eta.ValuedAdd.Tests
             long providePermissionProfile = 2;
             long providePermissionExpressions = 2;
             long singleOpen = 1;
-            var userNameType = UserIdTypes.NAME;
+            var userNameType = UserIdTypes.TOKEN;
             long supportStandby = 6;
             long supportBatchRequests = 1;
             long supportBatchReissues = 1;
@@ -1760,6 +1757,77 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Assert.True(refreshDec.HasAttrib);
             Assert.True(refreshDec.LoginAttrib.HasPosition);
             Assert.Equal(0, refreshDec.LoginAttrib.Position.Length);
+
+            Console.WriteLine("Done.");
+        }
+
+        [Fact]
+        [Category("Unit")]
+        [Category("Reactor")]
+        public void LoginRefreshAuthnTokenTest()
+        {
+            // original message for encoding into membuf
+            LoginRefresh refreshEnc = new();
+            // decoded message from membuf. must match the original
+            LoginRefresh refreshDec = new();
+            zeroLengthBuf.Data("");
+
+            string extResp = "ext_resp";
+            string userName = "user_name";
+            Buffer name = new();
+            name.Data(userName);
+
+            Console.WriteLine("LoginRefresh blank test...");
+            // Test 1: Encode side
+            //parameters setup
+
+            State state = new();
+            Buffer buffer = new();
+            buffer.Data("state");
+            state.Text(buffer);
+            state.Code(StateCodes.FAILOVER_COMPLETED);
+            state.DataState(DataStates.SUSPECT);
+            state.StreamState(StreamStates.OPEN);
+
+            //status msg setup
+            refreshEnc.Clear();
+            // provRefresh[0].rdmMsgType(LoginMsgType.REFRESH);
+            refreshEnc.StreamId = 1;
+            refreshEnc.Solicited = true;
+            refreshEnc.HasUserNameType = true;
+            refreshEnc.UserNameType = Login.UserIdTypes.AUTHN_TOKEN;
+            refreshEnc.HasUserName = true;
+            refreshEnc.UserName.Data(userName);
+            refreshEnc.HasAuthenicationTTReissue = true;
+            refreshEnc.AuthenticationTTReissue = 12345;
+            refreshEnc.HasAuthenticationExtendedResp = true;
+            refreshEnc.AuthenticationExtendedResp.Data(extResp);
+            refreshEnc.State.StreamState(StreamStates.OPEN);
+            refreshEnc.State.DataState(DataStates.OK);
+
+            dIter.Clear();
+            encIter.Clear();
+
+            Buffer membuf = new();
+            membuf.Data(new ByteBuffer(1024));
+
+            // Encode LoginRefresh original
+            encIter.SetBufferAndRWFVersion(membuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            var ret = refreshEnc.Encode(encIter);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+
+            // Decode LoginRefresh from membuf
+            dIter.SetBufferAndRWFVersion(membuf, Codec.Codec.MajorVersion(), Codec.Codec.MinorVersion());
+            ret = msg.Decode(dIter);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+
+            ret = refreshDec.Decode(dIter, msg);
+            Assert.Equal(CodecReturnCode.SUCCESS, ret);
+
+            Assert.Equal(LoginRefreshFlags.HAS_USERNAME | LoginRefreshFlags.HAS_USERNAME_TYPE | LoginRefreshFlags.SOLICITED
+                | LoginRefreshFlags.HAS_AUTHENTICATION_TT_REISSUE | LoginRefreshFlags.HAS_AUTHENTICATION_EXTENDED_RESP,
+                refreshDec.Flags);
+            Assert.Equal(LoginAttribFlags.NONE, refreshDec.LoginAttrib.Flags);
 
             Console.WriteLine("Done.");
         }
@@ -2513,95 +2581,5 @@ namespace LSEG.Eta.ValuedAdd.Tests
             Console.WriteLine("Done.");
         }
         #endregion
-
-
-        /*
-
-                [Fact]
-        [Category("Unit")]
-        [Category("Reactor")]
-
-        public void loginAckCopyTest()
-        {
-            LoginAck ackRDMMsg1 = (LoginAck)LoginMsgFactory.createMsg();
-            LoginAck ackRDMMsg2 = (LoginAck)LoginMsgFactory.createMsg();
-            ackRDMMsg1.rdmMsgType(LoginMsgType.ACK);
-            ackRDMMsg2.rdmMsgType(LoginMsgType.ACK);
-            int streamId = -5;
-
-            Console.WriteLine("LoginAck copy test...");
-            ackRDMMsg1.streamId(streamId);
-
-            //deep copy
-            int ret = ackRDMMsg1.copy(ackRDMMsg2);
-            Assert.Equal(CodecReturnCode.SUCCESS, ret);
-
-            //verify deep copy
-            Assert.Equal(ackRDMMsg1.StreamId, ackRDMMsg2.StreamId);
-
-            Console.WriteLine("Done.");
-        }
-
-                [Fact]
-        [Category("Unit")]
-        [Category("Reactor")]
-        public void loginAckToStringTest()
-        {
-            LoginAck ackRDMMsg1 = (LoginAck)LoginMsgFactory.createMsg();
-            ackRDMMsg1.rdmMsgType(LoginMsgType.ACK);
-            int streamId = -5;
-
-
-            Console.WriteLine("LoginAck toString test...");
-            ackRDMMsg1.streamId(streamId);
-            ackRDMMsg1.ToString();
-
-            Console.WriteLine("Done.");
-        }
-
-                [Fact]
-        [Category("Unit")]
-        [Category("Reactor")]
-        public void loginAckTests()
-        {
-             LoginAck encRDMMsg =
-             (LoginAck)LoginMsgFactory.createMsg();
-             LoginAck decRDMMsg =
-             (LoginAck)LoginMsgFactory.createMsg();
-             decRDMMsg.rdmMsgType(LoginMsgType.ACK);
-             int streamId = -5;
-
-             dIter.Clear();
-             encIter.Clear();
-             msg.Clear();
-
-             //allocate a ByteBuffer and associate it with a Buffer
-             ByteBuffer bb = new ByteBuffer(1024);
-             Buffer membuf = new();
-             membuf.Data(bb);
-
-             Console.WriteLine("LoginAck Tests...");
-             encRDMMsg.Clear();
-
-             encRDMMsg.rdmMsgType(LoginMsgType.ACK);
-             encRDMMsg.streamId(streamId);
-             encIter.SetBufferAndRWFVersion(membuf, Codec.Codec.MajorVersion,
-             Codec.Codec.MinorVersion);
-
-             int ret = encRDMMsg.Encode(encIter);
-             Assert.Equal(CodecReturnCode.SUCCESS, ret);
-
-             dIter.SetBufferAndRWFVersion(membuf, Codec.Codec.MajorVersion,
-             Codec.Codec.MinorVersion);
-             ret = msg.Decode(dIter);
-             Assert.Equal(CodecReturnCode.SUCCESS, ret);
-             ret = decRDMMsg.Decode(dIter, msg);
-             Assert.Equal(CodecReturnCode.SUCCESS, ret);
-
-             Assert.Equal(streamId, decRDMMsg.StreamId);
-
-             Console.WriteLine("Done.\n");
-        }
-    */
     }
 }

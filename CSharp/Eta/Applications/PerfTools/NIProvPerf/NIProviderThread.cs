@@ -6,7 +6,10 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Threading;
 
 using LSEG.Eta.Codec;
 using LSEG.Eta.Example.Common;
@@ -192,6 +195,16 @@ namespace LSEG.Eta.Perftools.NIProvPerf
             if (m_ConnectInfo.ConnectOptions.ConnectionType == ConnectionType.ENCRYPTED)
             {
                 m_ConnectInfo.ConnectOptions.EncryptionOpts.EncryptedProtocol = NIProvPerfConfig.EncryptedConnectionType;
+
+                try
+                {
+                    m_ConnectInfo.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = NIProvPerfConfig.EncryptionProtocol.Value;
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Error: {ex.Message}.");
+                    System.Environment.Exit((int)TransportReturnCode.FAILURE);
+                }
             }
             m_ConnectInfo.ConnectOptions.TcpOpts.TcpNoDelay = NIProvPerfConfig.TcpNoDelay;
 
@@ -389,7 +402,7 @@ namespace LSEG.Eta.Perftools.NIProvPerf
 
                 Socket.Select(m_ReadSocketList, m_ShouldWrite ? m_WriteSocketList : null, null, (int)selectTime);
 
-                if (m_ReadSocketList.Count() > 0)
+                if (m_ReadSocketList.Count > 0)
                 {
                     if (!NIProvPerfConfig.UseReactor) // use ETA Channel for sending and receiving
                     {

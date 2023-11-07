@@ -44,7 +44,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
 
         internal string? Audience2 { get; private set; }
         /* END API QA */
-        internal string? TokenURL { get; private set; }
+        internal string? TokenURLV2 { get; private set; }
 
         internal string? serviceDiscoveryURL { get; private set; }
 
@@ -196,9 +196,9 @@ namespace LSEG.Eta.ValueAdd.Consumer
                     ++argsCount;
                 }
                 /* End API QA */
-                else if ("-tokenURL".Equals(args[argsCount]))
+                else if ("-tokenURLV2".Equals(args[argsCount]))
                 {
-                    TokenURL = args[++argsCount];
+                    TokenURLV2 = args[++argsCount];
                     ++argsCount;
                 }
                 else if ("-serviceDiscoveryURL".Equals(args[argsCount]))
@@ -383,7 +383,7 @@ namespace LSEG.Eta.ValueAdd.Consumer
                                "\n -audience2 audience claim for v2 JWT logins.\n" +
                                /* End API QA */
                                "\n -sessionMgnt enables the session management in the Reactor\n" +
-                               "\n -tokenURL specifies the URL for the token service to override the default value.\n" +
+                               "\n -tokenURLV2 specifies the URL for the token service to override the default value.\n" +
                                "\n -serviceDiscoveryURL specifies the RDP Service Discovery URL to override the default value.\n" +
                                "\n -tokenScope specifies a scope for the token service.\n" +
                                "\n -view specifies each request using a basic dynamic view\n" +

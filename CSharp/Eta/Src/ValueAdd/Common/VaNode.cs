@@ -6,6 +6,8 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System.Runtime.CompilerServices;
+
 namespace LSEG.Eta.ValueAdd.Common
 {
     /// <summary>
@@ -28,6 +30,7 @@ namespace LSEG.Eta.ValueAdd.Common
         /// <summary>
         /// Returns this node to the pool.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public virtual void ReturnToPool()
         {
             if (Pool != null)

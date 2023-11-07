@@ -72,9 +72,9 @@ namespace LSEG.Eta.Codec
         /// </summary>
         public void Clear()
         {
-            Data.Clear();
+            Data?.Clear();
             Length = 0;
-            AllocatedLength = Data.BufferLimit();
+            AllocatedLength = Data?.BufferLimit() ?? 0;
         }
     }
 }

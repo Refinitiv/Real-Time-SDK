@@ -364,7 +364,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public bool CheckHasSetId()
 		{
-			return (Flags & FieldListFlags.HAS_SET_ID) > 0 ? true : false;
+			return (Flags & FieldListFlags.HAS_SET_ID) > 0;
 		}
 
 		/// <summary>
@@ -378,7 +378,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public bool CheckHasSetData()
 		{
-			return (Flags & FieldListFlags.HAS_SET_DATA) > 0 ? true : false;
+			return (Flags & FieldListFlags.HAS_SET_DATA) > 0;
 		}
 		/// <summary>
 		/// Applies the Information presence flag.<br />

@@ -73,7 +73,7 @@ namespace LSEG.Eta.Transports.Tests
             long writerCount = 0;
 
             var slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-            Locker locker = new WriteLocker(slimLock);
+            Locker locker = new SlimWriteLocker(slimLock);
 
             Action writerAction = new Action(() =>
             {
@@ -130,7 +130,7 @@ namespace LSEG.Eta.Transports.Tests
 
             var slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
-            Locker writeLocker = new WriteLocker(slimLock);
+            Locker writeLocker = new SlimWriteLocker(slimLock);
             Locker readLocker = new ReadLocker(slimLock);
 
             Action readerAction = new Action(() =>

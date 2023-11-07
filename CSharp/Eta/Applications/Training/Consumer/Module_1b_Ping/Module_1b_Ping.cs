@@ -83,7 +83,10 @@
  * Pressing the CTRL+C buttons terminates the program.
  */
 
+using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Linq;
 
 using LSEG.Eta.Transports;
 using LSEG.Eta.Common;

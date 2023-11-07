@@ -253,9 +253,9 @@ namespace LSEG.Eta.ValueAdd.Consumer
                 m_ReactorOptions.XmlTracing = true;
             }
 
-            if(!string.IsNullOrEmpty(m_ConsumerCmdLineParser.TokenURL))
+            if(!string.IsNullOrEmpty(m_ConsumerCmdLineParser.TokenURLV2))
             {
-                m_ReactorOptions.SetTokenServiceURL(m_ConsumerCmdLineParser.TokenURL);
+                m_ReactorOptions.SetTokenServiceURL(m_ConsumerCmdLineParser.TokenURLV2);
             }
 
             if (m_ConsumerCmdLineParser.EnableRestLogging)

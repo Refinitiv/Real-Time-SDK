@@ -1,3 +1,11 @@
+/*|-----------------------------------------------------------------------------
+ *|            This source code is provided under the Apache 2.0 license      --
+ *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
+ *|                See the project's LICENSE.md for details.                  --
+ *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|-----------------------------------------------------------------------------
+ */
+
 package com.refinitiv.eta.shared.provider;
 
 import java.util.ArrayList;
@@ -50,6 +58,9 @@ public class MarketPriceItems
     protected MarketPriceUpdate _marketPriceUpdate;
     protected EncodeIterator _encodeIter = CodecFactory.createEncodeIterator();
 
+    /**
+     * Instantiates a new market price items.
+     */
     public MarketPriceItems()
     {
         _marketPriceList = new ArrayList<MarketPriceItem>(MAX_MARKET_PRICE_ITEM_LIST_SIZE);
@@ -86,6 +97,9 @@ public class MarketPriceItems
 
     /**
      * Gets storage for a market price item from the list.
+     *
+     * @param itemName the item name
+     * @return the market price item
      */
     public MarketPriceItem get(String itemName)
     {
@@ -132,7 +146,12 @@ public class MarketPriceItems
     }
 
     /**
-     * Updates the item's data from the post we got
+     * Updates the item's data from the post we got.
+     *
+     * @param mpItem the mp item
+     * @param dIter the d iter
+     * @param error the error
+     * @return the int
      */
     public int updateFieldsFromPost(MarketPriceItem mpItem, DecodeIterator dIter, Error error)
     {

@@ -65,7 +65,7 @@ namespace LSEG.Eta.Common
         /// <param name="capacity">The capacity</param>
         public ByteBuffer(int capacity)
         {
-            _data = new byte[capacity];
+            _data = GC.AllocateArray<byte>(capacity, true);
             _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
             _pointer = (byte*)_handle.AddrOfPinnedObject();
             _isDataExternal = false;

@@ -7,6 +7,8 @@
  */
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace LSEG.Eta.ValueAdd.Common
 {
@@ -68,30 +70,33 @@ namespace LSEG.Eta.ValueAdd.Common
 		public VaDoubleLinkList()
 		{
 			Clear();
-		}
+        }
 
-		/// <summary>
-		/// Clears to default values.
-		/// </summary>
-		public void Clear()
+        /// <summary>
+        /// Clears to default values.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Clear()
 		{
 			_head = null;
 			_tail = null;
 			_count = 0;
 		}
 
-		/// <summary>
-		/// Returns the number of elements in the list.
-		/// </summary>
-		/// <returns>The number of element</returns>
-		public int Count() { return _count; }
+        /// <summary>
+        /// Returns the number of elements in the list.
+        /// </summary>
+        /// <returns>The number of element</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public int Count() { return _count; }
 
-		/// <summary>
-		/// Adds an element to the front of the list.
-		/// </summary>
-		/// <param name="elem">The element to add</param>
-		/// <param name="queueLink">The link for the element</param>
-		public void Push(T elem, ILink<T> queueLink)
+        /// <summary>
+        /// Adds an element to the front of the list.
+        /// </summary>
+        /// <param name="elem">The element to add</param>
+        /// <param name="queueLink">The link for the element</param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void PushBack(T elem, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
 			if (_tail != null)
@@ -111,12 +116,13 @@ namespace LSEG.Eta.ValueAdd.Common
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		/// <summary>
-		/// Adds an element to the back of the list
-		/// </summary>
-		/// <param name="elem">the element to add</param>
-		/// <param name="queueLink">The link for the element</param>
-		public void PushBack(T elem, ILink<T> queueLink)
+        /// <summary>
+        /// Adds an element to the back of the list
+        /// </summary>
+        /// <param name="elem">the element to add</param>
+        /// <param name="queueLink">The link for the element</param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Push(T elem, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
 			if (_head != null)
@@ -136,13 +142,14 @@ namespace LSEG.Eta.ValueAdd.Common
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		/// <summary>
-		/// Adds an element before the element in the list
-		/// </summary>
-		/// <param name="thisElement">The element to insert before</param>
-		/// <param name="newElement">The new element to be inserted to the list</param>
-		/// <param name="queueLink">The link for the element</param>
-		public void InsertBefore(T thisElement, T newElement, ILink<T> queueLink)
+        /// <summary>
+        /// Adds an element before the element in the list
+        /// </summary>
+        /// <param name="thisElement">The element to insert before</param>
+        /// <param name="newElement">The new element to be inserted to the list</param>
+        /// <param name="queueLink">The link for the element</param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void InsertBefore(T thisElement, T newElement, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
 			if (queueLink.GetPrev(thisElement) != null)
@@ -158,13 +165,14 @@ namespace LSEG.Eta.ValueAdd.Common
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		/// <summary>
-		/// Adds an element after the element in the list
-		/// </summary>
-		/// <param name="thisElement">The element to insert after</param>
-		/// <param name="newElement">The new element to be inserted to the list</param>
-		/// <param name="queueLink">The link for the element</param>
-		public void InsertAfter(T thisElement, T newElement, ILink<T> queueLink)
+        /// <summary>
+        /// Adds an element after the element in the list
+        /// </summary>
+        /// <param name="thisElement">The element to insert after</param>
+        /// <param name="newElement">The new element to be inserted to the list</param>
+        /// <param name="queueLink">The link for the element</param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void InsertAfter(T thisElement, T newElement, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
 			if (queueLink.GetNext(thisElement) != null)
@@ -180,30 +188,33 @@ namespace LSEG.Eta.ValueAdd.Common
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		/// <summary>
-		/// Returns the first elem in the list.
-		/// </summary>
-		/// <returns>The first element</returns>
-		public T? Peek()
+        /// <summary>
+        /// Returns the first elem in the list.
+        /// </summary>
+        /// <returns>The first element</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public T? Peek()
 		{
 			return _head;
 		}
 
-		/// <summary>
-		///  Returns the last elem in the list.
-		/// </summary>
-		/// <returns>the last element</returns>
-		public T? PeekTail()
+        /// <summary>
+        ///  Returns the last elem in the list.
+        /// </summary>
+        /// <returns>the last element</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public T? PeekTail()
 		{
 			return _tail;
 		}
 
-		/// <summary>
-		/// Removes and returns the first elem in the list.
-		/// </summary>
-		/// <param name="queueLink">The element's link</param>
-		/// <returns>The first element</returns>
-		public T? Pop(ILink<T> queueLink)
+        /// <summary>
+        /// Removes and returns the first elem in the list.
+        /// </summary>
+        /// <param name="queueLink">The element's link</param>
+        /// <returns>The first element</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public T? Pop(ILink<T> queueLink)
 		{
 			T? head = _head;
 			if (head != null)
@@ -211,12 +222,13 @@ namespace LSEG.Eta.ValueAdd.Common
 			return head;
 		}
 
-		/// <summary>
-		/// Starts to iterate the link
-		/// </summary>
-		/// <param name="queueLink">The link for the element</param>
-		/// <returns>The head element of the link</returns>
-		public T? Start(ILink<T> queueLink)
+        /// <summary>
+        /// Starts to iterate the link
+        /// </summary>
+        /// <param name="queueLink">The link for the element</param>
+        /// <returns>The head element of the link</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public T? Start(ILink<T> queueLink)
 		{
 			if (_head != null)
 				_iter = queueLink.GetNext(_head);
@@ -226,12 +238,13 @@ namespace LSEG.Eta.ValueAdd.Common
 			return _head;
 		}
 
-		/// <summary>
-		/// Iterates through the queue.
-		/// </summary>
-		/// <param name="queueLink">The link for the element</param>
-		/// <returns>The current element before moving next</returns>
-		public T? Forth(ILink<T> queueLink)
+        /// <summary>
+        /// Iterates through the queue.
+        /// </summary>
+        /// <param name="queueLink">The link for the element</param>
+        /// <returns>The current element before moving next</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public T? Forth(ILink<T> queueLink)
 		{
 			T? iter;
 
@@ -241,15 +254,19 @@ namespace LSEG.Eta.ValueAdd.Common
 			return iter;
 		}
 
-		/// <summary>
-		/// Removes an element from the list.
-		/// </summary>
-		/// <param name="elem">the element to remove</param>
-		/// <param name="queueLink">the element's link</param>
-		public void Remove(T elem, ILink<T> queueLink)
+        /// <summary>
+        /// Removes an element from the list.
+        /// </summary>
+        /// <param name="elem">the element to remove</param>
+        /// <param name="queueLink">the element's link</param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Remove(T elem, ILink<T> queueLink)
 		{
 			if (_iter != null && ReferenceEquals(elem,_iter))
 				_iter = queueLink.GetNext(elem);
+
+			if (elem != _head && queueLink.GetPrev(elem) == null && queueLink.GetNext(elem) == null) // element is not in the list
+				return;
 
 			if (DEBUG_LIST) VerifyList(queueLink);
 			if (queueLink.GetPrev(elem) != null)
@@ -275,12 +292,13 @@ namespace LSEG.Eta.ValueAdd.Common
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		/// <summary>
-		/// Appends to another list
-		/// </summary>
-		/// <param name="otherList">The list to append the link to</param>
-		/// <param name="queueLink">the element's link</param>
-		public void Append(VaDoubleLinkList<T> otherList, ILink<T> queueLink)
+        /// <summary>
+        /// Appends to another list
+        /// </summary>
+        /// <param name="otherList">The list to append the link to</param>
+        /// <param name="queueLink">the element's link</param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void Append(VaDoubleLinkList<T> otherList, ILink<T> queueLink)
 		{
 			if (DEBUG_LIST) VerifyList(queueLink);
 
@@ -309,7 +327,8 @@ namespace LSEG.Eta.ValueAdd.Common
 			if (DEBUG_LIST) VerifyList(queueLink);
 		}
 
-		void VerifyList(ILink<T> queueLink)
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        void VerifyList(ILink<T> queueLink)
 		{
 			int i = 0;
 			Debug.Assert(_count >= 0);
@@ -323,13 +342,14 @@ namespace LSEG.Eta.ValueAdd.Common
 			Debug.Assert(i == _count);
 		}
 
-		/// <summary>
-		/// Checks whether the element in the list.
-		/// </summary>
-		/// <param name="elem">the element</param>
-		/// <param name="queueLink">the element's link</param>
-		/// <returns><c>true</c> if an element is contained in the list</returns>
-		public bool Contains(T elem, ILink<T> queueLink)
+        /// <summary>
+        /// Checks whether the element in the list.
+        /// </summary>
+        /// <param name="elem">the element</param>
+        /// <param name="queueLink">the element's link</param>
+        /// <returns><c>true</c> if an element is contained in the list</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public bool Contains(T elem, ILink<T> queueLink)
 		{
 			for (T? link = _head; link != null; link = queueLink.GetNext(link))
 			{

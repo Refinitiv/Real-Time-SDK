@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmaConfig>
+
+<!-- ConsumerGroup provides set of detailed configurations to be used by named consumers				-->
+<!-- Application specifies which configuration to use by setting OmmConsumerConfig::consumerName()		-->
+<ConsumerGroup>
+	<!-- DefaultConsumer parameter defines which consumer configuration is used by OmmConsumer			-->
+	<!-- if application does not specify it through OmmConsumerConfig::consumerName()					-->
+	<!-- first consumer on the ConsumerList is a DefaultConsumer if this parameter is not specified		-->
+	<DefaultConsumer value="Consumer_5"/>
+	<ConsumerList>
+		<Consumer>
+			<!-- Channel is specified to provide RSSL_WEBSOCKET connection options	-->
+			<Name value="Consumer_5"/>
+			<ChannelSet value="Channel_1, Channel_2"/>
+			<Dictionary value="Dictionary_1"/>
+			<XmlTraceToStdout value="0"/>
+			<DefaultServiceID value="1"/>
+		</Consumer>
+	</ConsumerList>
+</ConsumerGroup>
+
+<ChannelGroup>
+	<ChannelList>
+		<Channel>
+			<Name value="Channel_1"/>
+
+			<!-- ChannelType possible values are:														-->
+			<!-- ChannelType::RSSL_SOCKET    - TCP IP connection type									-->
+			<!-- ChannelType::RSSL_HTTP      - Http tunnel connection type								-->
+			<!-- ChannelType::RSSL_ENCRYPTED - Https tunnel connection type								-->
+			<!-- ChannelType::RSSL_RELIABLE_MCAST - Reliable multicast connection type					-->
+			<ChannelType value="ChannelType::RSSL_SOCKET"/>
+
+			<!-- CompressionType is optional: defaulted to None											-->
+			<!-- possible values: None, ZLib, LZ4														-->
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+
+			<!-- ConnectionPingTimeout is optional: defaulted to 30000									-->
+			<ConnectionPingTimeout value="30000"/>
+
+			<!-- TcpNodelay is optional: defaulted to 1 												-->
+			<!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set)					-->
+			<TcpNodelay value="1"/>
+			<Host value="localhost"/>
+			<Port value="14002"/>
+		</Channel>
+		<Channel>
+			<Name value="Channel_2"/>
+			<ChannelType value="ChannelType::RSSL_ENCRYPTED"/>
+			<CompressionType value="CompressionType::None"/>
+			<GuaranteedOutputBuffers value="5000"/>
+			<Location value="us-east-1"/>
+			<EnableSessionManagement value="1"/>
+			<EncryptedProtocolType value="EncryptedProtocolType::RSSL_SOCKET"/>
+		</Channel>
+	</ChannelList>
+</ChannelGroup>
+
+<LoggerGroup>
+	<LoggerList>
+		<Logger>
+			<Name value="Logger_1"/>
+
+			<!-- LoggerType is optional:  defaulted to "File"											-->
+			<!-- possible values: Stdout, File															-->
+			<LoggerType value="LoggerType::Stdout"/>
+
+			<!-- LoggerSeverity is optional: defaulted to "Success"										-->
+			<!-- possible values: Verbose, Success, Warning, Error, NoLogMsg							-->
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_2"/>
+			<LoggerType value="LoggerType::File"/>
+			<!-- FileName is optional: defaulted to "emaLog_<process id>.log"							-->
+			<FileName value="emaLog"/>
+			<LoggerSeverity value="LoggerSeverity::Success"/>
+		</Logger>
+	</LoggerList>
+</LoggerGroup>
+
+
+<DictionaryGroup>
+
+	<DictionaryList>
+		<Dictionary>
+			<Name value="Dictionary_1"/>
+
+			<!-- dictionaryType is optional: defaulted to ChannelDictionary" -->
+			<!-- possible values: ChannelDictionary, FileDictionary -->
+			<!-- if dictionaryType is set to ChannelDictionary, file names are ignored -->
+			<DictionaryType value="DictionaryType::ChannelDictionary"/>
+		</Dictionary>
+	</DictionaryList>
+
+</DictionaryGroup>
+
+</EmaConfig>

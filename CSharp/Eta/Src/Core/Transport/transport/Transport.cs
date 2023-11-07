@@ -35,7 +35,7 @@ namespace LSEG.Eta.Transports
 
         private static ProtocolRegistry _protocolRegistry = ProtocolRegistry.Instance;
 
-        private static Assembly _assembly = Assembly.GetExecutingAssembly();
+        private static Assembly _assembly;
 
         private static readonly FileVersionInfo m_FileVersionInfo;
 
@@ -49,6 +49,7 @@ namespace LSEG.Eta.Transports
         {
             try
             {
+                _assembly = Assembly.GetExecutingAssembly();
                 m_FileVersionInfo = FileVersionInfo.GetVersionInfo(_assembly.Location);
             }
             catch (Exception) { }
@@ -103,9 +104,9 @@ namespace LSEG.Eta.Transports
                         Interlocked.Increment(ref _numInitCalls);
 
                         _globalLocking = initArgs.GlobalLocking;
-                        GlobalLocker = (_globalLocking)
-                            ? (Locker)new WriteLocker(_slimLock)
-                            : (Locker)new NoLocker();
+                        GlobalLocker = _globalLocking
+                            ? new MonitorWriteLocker(new object())
+                            : new NoLocker();
                         error = null;
                     }
                     else if (initArgs.GlobalLocking != _globalLocking)
@@ -329,11 +330,6 @@ namespace LSEG.Eta.Transports
         {
             return m_LibVersionInfo;
         }
-
-        /// <summary>
-        /// The library version
-        /// </summary>
-        internal static FileVersionInfo TransportLibrayVersion { get; } = FileVersionInfo.GetVersionInfo(_assembly.Location);
 
         /// <summary>
         /// Clears ETA Initialize Arguments

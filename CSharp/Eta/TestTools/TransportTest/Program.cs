@@ -2158,16 +2158,25 @@ namespace LSEG.Eta.Tools.TransportTest
 
             encryptionOptions.ServerCertificate = certificateFile;
             encryptionOptions.ServerPrivateKey = privateKeyFile;
-            encryptionOptions.EncryptionProtocolFlags = EncryptionProtocolFlags.ENC_TLSV1_2;
+            EncryptionProtocolFlags tlsVersion = GetEncryptionProtocolFlags();
+            encryptionOptions.EncryptionProtocolFlags = tlsVersion;
             return true;
         }
 
         private static bool FillClientEncryptedOptions(ConnectOptions clientOptions)
         {
             EncryptionOptions encryptionOptions = clientOptions.EncryptionOpts;
-            encryptionOptions.EncryptionProtocolFlags = EncryptionProtocolFlags.ENC_TLSV1_2;
+            encryptionOptions.EncryptionProtocolFlags = GetEncryptionProtocolFlags();
             encryptionOptions.EncryptedProtocol = ConnectionType.SOCKET;
             return true;
+        }
+
+        private static EncryptionProtocolFlags GetEncryptionProtocolFlags()
+        {
+#pragma warning disable CA1806 // Do not ignore method results
+            EncryptionProtocolFlagsExtension.TryParse(GetInput("Protocol(e.g. TlsV1.3 or TlsV1.2;TlsV1.3): "), out var protocol);
+#pragma warning restore CA1806 // Do not ignore method results
+            return protocol;
         }
     }
 }

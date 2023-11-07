@@ -31,7 +31,7 @@ namespace LSEG.Eta.Transports.Tests
             dictionary.Clear();
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadFieldDictionary(null, out error));
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadFieldDictionary("xyz", out error));
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/RDMFieldDictionary", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadFieldDictionary("../../../../Src/Tests/test_FieldDictionary", out error));
             Assert.Equal(15047, dictionary.NumberOfEntries);
             Assert.Equal(32767, dictionary.MaxFid);
             Assert.Equal(-32768, dictionary.MinFid);
@@ -111,7 +111,7 @@ namespace LSEG.Eta.Transports.Tests
             dictionary.Clear();
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadEnumTypeDictionary(null, out error));
             Assert.Equal(CodecReturnCode.FAILURE, dictionary.LoadEnumTypeDictionary("xyz", out error));
-            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadEnumTypeDictionary("../../../../Src/Tests/enumtype.def", out error));
+            Assert.Equal(CodecReturnCode.SUCCESS, dictionary.LoadEnumTypeDictionary("../../../../Src/Tests/test_enumtype.def", out error));
 
             // verify tags
             Assert.Equal("ENUMTYPE.001", dictionary.InfoEnumFilename.ToString());

@@ -257,7 +257,7 @@ namespace LSEG.Eta.Transports.Tests
             object result1 = null;
             object result2 = null;
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            Transport.Clear(); // 
+            Transport.Clear(); //
             Task taskA = new Task<TransportReturnCode>(
                 () =>
                 {
@@ -297,7 +297,7 @@ namespace LSEG.Eta.Transports.Tests
             object result1 = null;
             object result2 = null;
             var threadId = Thread.CurrentThread.ManagedThreadId;
-            Transport.Clear(); // 
+            Transport.Clear(); //
             Task taskA = new Task<TransportReturnCode>(
                 () =>
                 {
@@ -914,7 +914,7 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(expectedBuffer.Data.Limit + expectedBuffer2.Data.Limit + expectedBuffer3.Data.Limit, mockChannel.GetNetworkBuffer().Limit);
 
             TransportBuffer totalExpectedBuffers = new TransportBuffer(new Common.ByteBuffer(100), RipcDataMessage.HeaderSize, false);
-            totalExpectedBuffers.Data.Put(expectedBuffer.Data).Put(expectedBuffer2.Data).Put(expectedBuffer3.Data); 
+            totalExpectedBuffers.Data.Put(expectedBuffer.Data).Put(expectedBuffer2.Data).Put(expectedBuffer3.Data);
 
             Assert.True(totalExpectedBuffers.Data.Equals(mockChannel.GetNetworkBuffer()));
             Assert.Equal(TransportReturnCode.SUCCESS, channel.Close(out error));
@@ -1105,7 +1105,7 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal((int)SocketError.ConnectionReset, error.SysError);
             Assert.Equal("The connection was reset by the remote peer", error.Text);
             Assert.Equal(ChannelState.CLOSED, channel.State);
-          
+
         }
     }
 
@@ -1123,6 +1123,10 @@ namespace LSEG.Eta.Transports.Tests
     [Category("Transport")]
     public class TransportServerTests
     {
+        // certificates used by the Provider, can be found in the esdk-pkg repository
+        private const string CERTIFICATE_CRT = "certificate.test.crt";
+        private const string CERTIFICATE_KEY = "certificate.test.key";
+
         [Fact]
         public void ServerBindToAPortAndCloseTest()
         {
@@ -1571,13 +1575,18 @@ namespace LSEG.Eta.Transports.Tests
 
         public TransportServerTests()
         {
+            Assert.True(System.IO.File.Exists(CERTIFICATE_CRT),
+                "Certificate file should be copied from the esdk-pkg repository");
+            Assert.True(System.IO.File.Exists(CERTIFICATE_KEY),
+                "Certificate key file should be copied from the esdk-pkg repository");
+
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384);
             cipherSuites.Add(TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256);
         }
 
-        private void ServerEncryptionBindToAPortWithInvalid(string certificate, string privateKey)
+        private void ServerEncryptionBindToAPortWithInvalid(string certificate, string privateKey, EncryptionProtocolFlags protocol)
         {
             InitArgs initArgs = new InitArgs
             {
@@ -1596,7 +1605,7 @@ namespace LSEG.Eta.Transports.Tests
                 InterfaceName = "localhost",
                 BindEncryptionOpts =
                 {
-                    EncryptionProtocolFlags = EncryptionProtocolFlags.ENC_TLSV1_2,
+                    EncryptionProtocolFlags = protocol,
                     ServerCertificate = certificate,
                     ServerPrivateKey = privateKey,
                 }
@@ -1611,16 +1620,24 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(TransportReturnCode.SUCCESS, Transport.Uninitialize());
         }
 
-        [Fact]
-        public void ServerEncryptionBindToAPortWithInvalidCertTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerEncryptionBindToAPortWithInvalidCertTest(EncryptionProtocolFlags encryptionProtocol)
         {
-            ServerEncryptionBindToAPortWithInvalid("certificate.invalid.crt", "certificate.invalid.crt");
+            ServerEncryptionBindToAPortWithInvalid("certificate.invalid.crt", "certificate.invalid.crt", encryptionProtocol);
         }
 
-        [Fact]
-        public void ServerEncryptionBindToAPortWithOutSpecifyingCertTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerEncryptionBindToAPortWithOutSpecifyingCertTest(EncryptionProtocolFlags encryptionProtocol)
         {
-            ServerEncryptionBindToAPortWithInvalid(null, null);
+            ServerEncryptionBindToAPortWithInvalid(null, null, encryptionProtocol);
         }
 
 
@@ -1648,8 +1665,8 @@ namespace LSEG.Eta.Transports.Tests
                 BindEncryptionOpts =
                 {
                     EncryptionProtocolFlags = protocolFlags,
-                    ServerCertificate = "certificate.test.crt",
-                    ServerPrivateKey = "certificate.test.key"
+                    ServerCertificate = CERTIFICATE_CRT,
+                    ServerPrivateKey = CERTIFICATE_KEY
                 }
             };
 
@@ -1749,12 +1766,19 @@ namespace LSEG.Eta.Transports.Tests
         }
 
         [Fact]
+        public void ServerEncryptionAcceptChannelAndClose_TLSV1_3Protocol_Test()
+        {
+            ServerEncryptionAcceptChannelAndClose(EncryptionProtocolFlags.ENC_TLSV1_3);
+        }
+
+        [Fact]
         public void ServerEncryptionAcceptChannelAndClose_ConnectionMismatch_Test()
         {
             ServerEncryptionAcceptChannelAndClose(EncryptionProtocolFlags.ENC_NONE, false);
         }
 
-        private void ServerAndClientEncryptionRipcHandShake(ConnectionsVersions connectionsVersion, bool blocking = false, List<TlsCipherSuite> cipherSuites = null)
+        private void ServerAndClientEncryptionRipcHandShake(ConnectionsVersions connectionsVersion, EncryptionProtocolFlags protocol, 
+            bool blocking = false, List<TlsCipherSuite> cipherSuites = null)
         {
             bool expectedError = false;
 
@@ -1786,9 +1810,9 @@ namespace LSEG.Eta.Transports.Tests
 
                 BindEncryptionOpts =
                 {
-                    EncryptionProtocolFlags = EncryptionProtocolFlags.ENC_TLSV1_2,
-                    ServerCertificate = "certificate.test.crt",
-                    ServerPrivateKey = "certificate.test.key",
+                    EncryptionProtocolFlags = protocol,
+                    ServerCertificate = CERTIFICATE_CRT,
+                    ServerPrivateKey = CERTIFICATE_KEY,
                     TlsCipherSuites = cipherSuites
                 }
             };
@@ -1847,7 +1871,7 @@ namespace LSEG.Eta.Transports.Tests
 
                     EncryptionOpts =
                     {
-                        EncryptionProtocolFlags = EncryptionProtocolFlags.ENC_TLSV1_2,
+                        EncryptionProtocolFlags = protocol,
                         EncryptedProtocol = ConnectionType.SOCKET,
                         TlsCipherSuites = cipherSuites
                     }
@@ -1864,7 +1888,7 @@ namespace LSEG.Eta.Transports.Tests
 			/* Linux platform can generate this error for openssl version older than 1.1.1 */
 			Assert.StartsWith("Failed to create an encrypted connection to the remote endpoint. Reason:CipherSuitesPolicy is not supported on this platform.", error.Text);
                         expectedError = true;
-		    }	
+		    }
                     else
 		    {
                     	Assert.Null(error);
@@ -1985,22 +2009,23 @@ namespace LSEG.Eta.Transports.Tests
                         }
                     }
 
-                    channelArg.Socket.Poll(-1, SelectMode.SelectRead);
+                    if (!isClient)
+                        channelArg.Socket.Poll(-1, SelectMode.SelectRead);
 
                     initRet = channelArg.Init(inProg, out initError);
 
                     if (!expectedError)
                     {
-			 if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && initError != null)
-			{
-				/* Linux platform can generate this error for openssl version older than 1.1.1 */
-                         	Assert.StartsWith("Failed to create a client encrypted channel. Reason:CipherSuitesPolicy is not supported on this platform.", initError.Text);
-                         	expectedError = true;
-			}
-			else
-			{	
-                        	Assert.Null(initError);
-			}
+                        if( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && initError != null)
+                        {
+                            /* Linux platform can generate this error for openssl version older than 1.1.1 */
+                            Assert.StartsWith("Failed to create a client encrypted channel. Reason:CipherSuitesPolicy is not supported on this platform.", initError.Text);
+                            expectedError = true;
+                        }
+                        else
+                        {
+                            Assert.Null(initError);
+                        }
                     }
                     else
                     {
@@ -2070,100 +2095,162 @@ namespace LSEG.Eta.Transports.Tests
             Assert.Equal(TransportReturnCode.SUCCESS, Transport.Uninitialize());
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion14AckTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion14AckTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, protocol);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion13AckTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion13AckTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, protocol);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion12AckTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion12AckTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, protocol);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion11AckTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion11AckTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, protocol);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion14Ack_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion14Ack_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, true);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, protocol, true);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion13Ack_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion13Ack_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, true);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, protocol, true);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion12Ack_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion12Ack_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, true);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, protocol, true);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, true);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, protocol, true);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion14Ack_withCipherSuitesTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion14Ack_withCipherSuitesTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, false, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, protocol, false, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion13Ack_withCipherSuitesTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion13Ack_withCipherSuitesTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, false, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, protocol, false, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion12Ack_withCipherSuitesTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion12Ack_withCipherSuitesTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, false, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, protocol, false, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_withCipherSuitesTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_withCipherSuitesTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, false, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, protocol, false, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion14Ack_withCipherSuites_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion14Ack_withCipherSuites_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, true, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION14, protocol, true, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion13Ack_withCipherSuites_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion13Ack_withCipherSuites_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, true, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION13, protocol, true, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion12Ack_withCipherSuites_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+#if TEST_TLSV1_3
+    [InlineData(EncryptionProtocolFlags.ENC_TLSV1_3)]
+#endif
+        public void ServerAndClientEncryptionRipcHandShakeVersion12Ack_withCipherSuites_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, true, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION12, protocol, true, cipherSuites);
         }
 
-        [Fact]
-        public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_withCipherSuites_BlockingTest()
+        [Theory]
+        [InlineData(EncryptionProtocolFlags.ENC_TLSV1_2)]
+        [InlineData(EncryptionProtocolFlags.ENC_NONE)]
+        public void ServerAndClientEncryptionRipcHandShakeVersion11Ack_withCipherSuites_BlockingTest(EncryptionProtocolFlags protocol)
         {
-            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, true, cipherSuites);
+            ServerAndClientEncryptionRipcHandShake(ConnectionsVersions.VERSION11, protocol, true, cipherSuites);
         }
     }
     #endregion

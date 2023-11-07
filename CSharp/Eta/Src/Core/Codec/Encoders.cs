@@ -112,6 +112,34 @@ namespace LSEG.Eta.Codec
                 _encoders = encoders;
             }
 
+            /* A table of Array entry encoding types, for each valid combination of primitive type and item length.
+             * It is specifically for use with ArrayEntry.EncodeBlank().(note that Enum does not have types for itemLength 1 & 2 because types like ENUM_1 and ENUM_2 don't exist.
+             * They can't be encoded as blank though, so for purposes of this array this will work. */
+            internal static int[,] ArrayEntryBlankTypes = new int[DataTypes.RMTES_STRING+1, 13]
+            {
+             /*              0                        1                  2                  3                 4                  5                 6  7                     8                   9                     10 11                     12 */
+            /* (0) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* (1) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* (2) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* INT */      { DataTypes.INT           ,DataTypes.INT_1   ,DataTypes.INT_2   ,0                ,DataTypes.INT_4   ,0                ,0 ,0                    ,DataTypes.INT_8    ,0                    ,0 ,0                     ,0},
+            /* UINT */     { DataTypes.UINT          ,DataTypes.UINT_1  ,DataTypes.UINT_2  ,0                ,DataTypes.UINT_4  ,0                ,0 ,0                    ,DataTypes.UINT_8   ,0                    ,0 ,0                     ,0},
+            /* FLOAT */    { DataTypes.FLOAT         ,0                 ,0                 ,0                ,DataTypes.FLOAT_4 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* DOUBLE */   { DataTypes.DOUBLE        ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,DataTypes.DOUBLE_8 ,0                    ,0 ,0                     ,0},
+            /* (7) */      { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* REAL */     { DataTypes.REAL          ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* DATE */     { DataTypes.DATE          ,0                 ,0                 ,0                ,DataTypes.DATE_4  ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* TIME */     { DataTypes.TIME          ,0                 ,0                 ,DataTypes.TIME_3 ,0                 ,DataTypes.TIME_5 ,0 ,DataTypes.TIME_7     ,DataTypes.TIME_8   ,0                    ,0 ,0                     ,0},
+            /* DATETIME */ { DataTypes.DATETIME      ,0                 ,0                 ,0                ,0                 ,0                ,0 ,DataTypes.DATETIME_7 ,0                  ,DataTypes.DATETIME_9 ,0 ,DataTypes.DATETIME_11 ,DataTypes.DATETIME_12},
+            /* QOS */      { DataTypes.QOS           ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* STATE */    { DataTypes.STATE         ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* ENUM */     { DataTypes.ENUM          ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* (ARRAY) */  { 0                       ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* BUFFER */   { DataTypes.BUFFER        ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* ASCII */    { DataTypes.ASCII_STRING  ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* UTF8 */     { DataTypes.UTF8_STRING   ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0},
+            /* RMTES */    { DataTypes.RMTES_STRING  ,0                 ,0                 ,0                ,0                 ,0                ,0 ,0                    ,0                  ,0                    ,0 ,0                     ,0}
+            };
+
             public static bool ValidEncodeActions(int type)
             {
                 return _primitveDataTypesSet.Contains(type);
@@ -1856,7 +1884,7 @@ namespace LSEG.Eta.Codec
             CodecReturnCode retVal = CodecReturnCode.SUCCESS;
 
             /* ensure container type is valid */
-            if (!(ValidAggregateDataType(msg.ContainerType)))
+            if (!ValidAggregateDataType(msg.ContainerType))
             {
                 return CodecReturnCode.UNSUPPORTED_DATA_TYPE;
             }
@@ -1887,6 +1915,10 @@ namespace LSEG.Eta.Codec
 
             switch (msg.MsgClass)
             {
+                case MsgClasses.REQUEST:
+                    IRequestMsg requestMsg = (IRequestMsg)msg;
+                    retVal = EncodeRequestMsg(iter, requestMsg);
+                    break;
                 case MsgClasses.UPDATE:
                     IUpdateMsg updateMsg = (IUpdateMsg)msg;
                     retVal = EncodeUpdateMsg(iter, updateMsg);
@@ -1898,10 +1930,6 @@ namespace LSEG.Eta.Codec
                 case MsgClasses.POST:
                     IPostMsg postMsg = (IPostMsg)msg;
                     retVal = EncodePostMsg(iter, postMsg);
-                    break;
-                case MsgClasses.REQUEST:
-                    IRequestMsg requestMsg = (IRequestMsg)msg;
-                    retVal = EncodeRequestMsg(iter, requestMsg);
                     break;
                 case MsgClasses.CLOSE:
                     ICloseMsg closeMsg = (ICloseMsg)msg;
@@ -2342,7 +2370,7 @@ namespace LSEG.Eta.Codec
             }
 
             /* Store Qos */
-            if (msg.CheckHasQos())
+            if ((msg.Flags & RequestMsgFlags.HAS_QOS) > 0)
             {
                 if ((retVal = PrimitiveEncoder.EncodeQos(iter, msg.Qos)) < 0)
                 {
@@ -2351,7 +2379,7 @@ namespace LSEG.Eta.Codec
             }
 
             /* Store WorstQos */
-            if (msg.CheckHasWorstQos())
+            if ((msg.Flags & RequestMsgFlags.HAS_WORST_QOS) > 0)
             {
                 if ((retVal = PrimitiveEncoder.EncodeQos(iter, msg.WorstQos)) < 0)
                 {
@@ -2360,7 +2388,7 @@ namespace LSEG.Eta.Codec
             }
 
             int keyAndExtHeader = HAS_MSG_KEY;
-            if (msg.CheckHasExtendedHdr())
+            if ((msg.Flags & RequestMsgFlags.HAS_EXTENDED_HEADER) > 0)
             {
                 keyAndExtHeader = keyAndExtHeader + HAS_EXT_HEADER;
             }
@@ -2749,7 +2777,7 @@ namespace LSEG.Eta.Codec
                 /* save position for storing key size */
                 int lenPos = iter._curBufPos;
 
-                if ((retVal = EncodeKeyInternal(iter, (MsgKey)msg.MsgKey)) < 0)
+                if ((retVal = EncodeKeyInternal(iter, msg.MsgKey)) < 0)
                 {
                     return retVal;
                 }
@@ -4194,36 +4222,15 @@ namespace LSEG.Eta.Codec
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public static bool ValidAggregateDataType(int dataType)
 		{
-			bool retVal = false;
+            if (dataType == DataTypes.NO_DATA 
+                || dataType >= DataTypes.OPAQUE && dataType <= DataTypes.JSON
+                || dataType == 223
+                || dataType > DataTypes.MAX_RESERVED && dataType <= DataTypes.LAST)
+            {
+                return true;
+            }
 
-			switch (dataType)
-			{
-				case DataTypes.NO_DATA:
-				case DataTypes.OPAQUE:
-				case DataTypes.XML:
-				case DataTypes.FIELD_LIST:
-				case DataTypes.ELEMENT_LIST:
-				case DataTypes.ANSI_PAGE:
-				case DataTypes.FILTER_LIST:
-				case DataTypes.VECTOR:
-				case DataTypes.MAP:
-				case DataTypes.SERIES:
-				case 139:
-				case 140:
-				case DataTypes.MSG:
-				case DataTypes.JSON:
-				case 223:
-					retVal = true;
-					break;
-				default:
-					if (dataType > DataTypes.MAX_RESERVED && dataType <= DataTypes.LAST)
-					{
-						retVal = true;
-					}
-					break;
-			}
-
-			return retVal;
+            return false;
 		}
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -4949,7 +4956,7 @@ namespace LSEG.Eta.Codec
 				}
 
 				/* Store FieldId as Uint16 */
-				iter._writer.WriteShort(field.DataType);
+				iter._writer.WriteShort(field.FieldId);
 				iter._curBufPos = iter._writer.Position();
 
 				iter._writer._buffer.Write((byte)zero);
@@ -5458,10 +5465,12 @@ namespace LSEG.Eta.Codec
                 /* Blank */
                 if (array._itemLength > 0)
                 {
-                    if (array._primitiveType <= DataTypes.RMTES_STRING && array._itemLength <= 9)
+                    int arrayEntryBlankType;
+                    if (array._primitiveType <= DataTypes.RMTES_STRING && array._itemLength <= 9
+                        && ((arrayEntryBlankType = PrimitiveEncoder.ArrayEntryBlankTypes[array._primitiveType,array._itemLength]) != 0))
                     {
                         _levelInfo._encodingState = EncodeIteratorStates.SET_DATA;
-                        if ((ret = EncodeBlank(iter, array._primitiveType)) != CodecReturnCode.SUCCESS)
+                        if ((ret = EncodeBlank(iter, arrayEntryBlankType)) != CodecReturnCode.SUCCESS)
                         {
                             return ret;
                         }

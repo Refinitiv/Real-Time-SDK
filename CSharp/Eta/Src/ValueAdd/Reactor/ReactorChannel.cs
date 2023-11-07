@@ -15,7 +15,7 @@ using LSEG.Eta.Codec;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Common;
 using LSEG.Eta.ValueAdd.Rdm;
-
+using System.Runtime.CompilerServices;
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
@@ -39,6 +39,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         private ReactorRole? m_Role;
 
+        internal Watchlist? Watchlist { get; set; }
+
         /* Link for ReactorChannel queue */
         private ReactorChannel? _reactorChannelNext, _reactorChannelPrev;
 
@@ -57,9 +59,16 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         internal class ReactorChannelLink : LSEG.Eta.ValueAdd.Common.VaDoubleLinkList<ReactorChannel>.ILink<ReactorChannel>
         {
+            [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
             public ReactorChannel? GetPrev(ReactorChannel thisPrev) { return thisPrev._reactorChannelPrev; }
+            
+            [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
             public void SetPrev(ReactorChannel? thisPrev, ReactorChannel? thatPrev) { thisPrev!._reactorChannelPrev = thatPrev; }
+            
+            [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
             public ReactorChannel? GetNext(ReactorChannel thisNext) { return thisNext._reactorChannelNext; }
+            
+            [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
             public void SetNext(ReactorChannel? thisNext, ReactorChannel? thatNext) { thisNext!._reactorChannelNext = thatNext; }
         }
 
@@ -239,6 +248,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// </summary>
         /// <param name="errorInfo">error structure to be populated in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ReactorReturnCode Close(out ReactorErrorInfo? errorInfo)
         {
             errorInfo = null;
@@ -247,7 +257,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             if (Reactor is null)
                 return ReactorReturnCode.FAILURE;
 
-            Reactor.ReactorLock.EnterWriteLock();
+            Reactor.ReactorLock.Enter();
 
             try
             {
@@ -262,7 +272,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
             finally
             {
-                Reactor.ReactorLock.ExitWriteLock();
+                Reactor.ReactorLock.Exit();
             }
         }
 
@@ -311,6 +321,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <param name="info"><see cref="ReactorChannelInfo"/> structure to be populated with information</param>
         /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> is set in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> indicating sucess or failure.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ReactorReturnCode Info(ReactorChannelInfo info, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -359,6 +370,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <see cref="ReactorReturnCode.WRITE_CALL_AGAIN"/> if the buffer cannot be written at this time or
         /// <see cref="ReactorReturnCode.FAILURE"/> if submit failed (refer to errorInfo for additional information)
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ReactorReturnCode Submit(ITransportBuffer buffer, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -370,7 +382,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "submitOptions cannot be null.");
             }
 
-            Reactor.ReactorLock.EnterWriteLock();
+            Reactor.ReactorLock.Enter();
 
             try
             {
@@ -388,20 +400,21 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
             finally
             {
-                Reactor.ReactorLock.ExitWriteLock();
+                Reactor.ReactorLock.Exit();
             }
         }
 
         /// <summary>
         /// Sends a message to the channel.
         /// </summary>
-        /// <param name="msg">the Codec message to send</param>
+        /// <param name="msg">the Codec <see cref="Msg"/> to send</param>
         /// <param name="submitOptions">options for how to send the message</param>
         /// <param name="errorInfo">error structure to be populated in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode.SUCCESS"/> if submit succeeded,
         /// or <see cref="ReactorReturnCode.WRITE_CALL_AGAIN"/> if the message cannot be written at this time,
         /// or <see cref="ReactorReturnCode.NO_BUFFERS"/> if there are no more buffers to encode the message into,
         /// or <see cref="ReactorReturnCode.FAILURE"/> if submit failed (refer to errorInfo instance for additional information)</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ReactorReturnCode Submit(Msg msg, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -413,7 +426,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "submitOptions cannot be null.");
             }
 
-            Reactor.ReactorLock.EnterWriteLock();
+            Reactor.ReactorLock.Enter();
 
             try
             {
@@ -426,12 +439,34 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "ReactorChannel is closed, submit aborted.");
                 }
 
-                return Reactor.SubmitChannel(this, msg, submitOptions, out errorInfo);
+                if (Watchlist is null) // watchlist not enabled, submit normally
+                {
+                    return Reactor.SubmitChannel(this, msg, submitOptions, out errorInfo);
+                }
+                else // watchlist is enabled, submit via watchlist
+                {
+                    return Watchlist.SubmitMsg(msg, submitOptions, out errorInfo);
+                }
             }
             finally
             {
-                Reactor.ReactorLock.ExitWriteLock();
+                Reactor.ReactorLock.Exit();
             }
+        }
+
+        /// <summary>
+        /// Sends a message to the channel.
+        /// </summary>
+        /// <param name="msg">the Codec <see cref="IMsg"/> to send</param>
+        /// <param name="submitOptions">options for how to send the message</param>
+        /// <param name="errorInfo">error structure to be populated in the event of failure</param>
+        /// <returns><see cref="ReactorReturnCode.SUCCESS"/> if submit succeeded,
+        /// or <see cref="ReactorReturnCode.WRITE_CALL_AGAIN"/> if the message cannot be written at this time,
+        /// or <see cref="ReactorReturnCode.NO_BUFFERS"/> if there are no more buffers to encode the message into,
+        /// or <see cref="ReactorReturnCode.FAILURE"/> if submit failed (refer to errorInfo instance for additional information)</returns>
+        public ReactorReturnCode Submit(IMsg msg, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
+        {
+            return Submit((Msg)msg, submitOptions, out errorInfo);
         }
 
         /// <summary>
@@ -444,6 +479,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// or <see cref="ReactorReturnCode.WRITE_CALL_AGAIN"/> if the message cannot be written at this time,
         /// or <see cref="ReactorReturnCode.NO_BUFFERS"/> if there are no more buffers to encode the message into,
         /// or <see cref="ReactorReturnCode.FAILURE"/> if submit failed (refer to errorInfo instance for additional information)</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public ReactorReturnCode Submit(MsgBase rdmMsg, ReactorSubmitOptions submitOptions, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -455,7 +491,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "submitOptions cannot be null.");
             }
 
-            Reactor.ReactorLock.EnterWriteLock();
+            Reactor.ReactorLock.Enter();
 
             try
             {
@@ -468,11 +504,18 @@ namespace LSEG.Eta.ValueAdd.Reactor
                     return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "ReactorChannel is closed, submit aborted.");
                 }
 
-                return Reactor.SubmitChannel(this, rdmMsg, submitOptions, out errorInfo);
+                if (Watchlist is null) // watchlist not enabled, submit normally
+                {
+                    return Reactor.SubmitChannel(this, rdmMsg, submitOptions, out errorInfo);
+                }
+                else // watchlist is enabled, submit via watchlist
+                {
+                    return Watchlist.SubmitMsg(rdmMsg, submitOptions, out errorInfo);
+                }
             }
             finally
             {
-                Reactor.ReactorLock.ExitWriteLock();
+                Reactor.ReactorLock.Exit();
             }
         }
 
@@ -483,6 +526,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <param name="packedBuffer">indicates whether the buffer allows packing multiple messages</param>
         /// <param name="errorInfo">error structure to be populated in the event of failure</param>
         /// <returns>the buffer for writing the message or null, if an error occurred (errorInfo will be populated with information)</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public ITransportBuffer? GetBuffer(int size, bool packedBuffer, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -509,8 +553,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> structure filled with error information in case of failure</param>
         /// <returns>value greater than 0 indicating the number of bytes left in the buffer in case of success,
         /// <see cref="ReactorReturnCode"/> value indicating the status operation otherwise. </returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public ReactorReturnCode PackBuffer(ITransportBuffer buffer, out ReactorErrorInfo? errorInfo)
         {
+            errorInfo = null;
             if (Reactor == null)
             {
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE, "ReactorChannel.Submit", "Reactor cannot be null");
@@ -538,7 +584,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         error?.Text ?? "");
             }
 
-            errorInfo = null;
             return (ReactorReturnCode)transportReturnCode;
         }
 
@@ -548,8 +593,10 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <param name="buffer">the buffer to release</param>
         /// <param name="errorInfo"><see cref="ValueAdd.Reactor.ReactorErrorInfo"/> to be set in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> indicating success or failure</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public ReactorReturnCode ReleaseBuffer(ITransportBuffer buffer, out ReactorErrorInfo? errorInfo)
         {
+            errorInfo = null;
             if (buffer is null)
             {
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
@@ -572,7 +619,6 @@ namespace LSEG.Eta.ValueAdd.Reactor
                         error.Text);
             }
 
-            errorInfo = null;
             return ReactorReturnCode.SUCCESS;
         }
 
@@ -583,6 +629,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// <param name="value">value to change the option to</param>
         /// <param name="errorInfo">error structure to be populated in the event of failure</param>
         /// <returns><see cref="ReactorReturnCode"/> value indicating the status of the operation</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         public ReactorReturnCode IOCtl(IOCtlCode code, int value, out ReactorErrorInfo? errorInfo)
         {
             if (Reactor == null)
@@ -608,13 +655,15 @@ namespace LSEG.Eta.ValueAdd.Reactor
                 return Reactor.PopulateErrorInfo(out errorInfo, ReactorReturnCode.FAILURE,
                         "ReactorChannel.IOCtl",
                         $"Channel.IOCtl failed, error: {error?.Text}");
-            } else
+            }
+            else
             {
                 errorInfo = null;
                 return ReactorReturnCode.SUCCESS;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         internal IChannel? Reconnect(out Error? error)
         {
             m_ReconnectAttempts++;
@@ -655,6 +704,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return Reconnect(reactorConnectInfo, out error);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         internal IChannel? ReconnectRDP(out Error? error)
         {
             ReactorConnectInfo reactorConnectInfo = ConnectOptions!.ConnectionList[m_ListIndex];
@@ -688,12 +738,22 @@ namespace LSEG.Eta.ValueAdd.Reactor
             if(State == ReactorChannelState.RDP_RT_FAILED)
             {
                 State = ReactorChannelState.DOWN; /* Waiting to retry with another channel info in the list. */
+
+                error = new Error
+                {
+                    Text = ReactorErrorInfo.Error.Text,
+                    ErrorId = TransportReturnCode.FAILURE,
+
+                };
+
+                return null;
             }
 
             error = null;
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private IChannel? Reconnect(ReactorConnectInfo reactorConnectInfo, out Error error)
         {
             IncreaseRetryCountForCurrentChannel();
@@ -722,6 +782,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         internal void Clear()
         {
             State = ReactorChannelState.UNKNOWN;
@@ -746,12 +807,14 @@ namespace LSEG.Eta.ValueAdd.Reactor
             ServiceEndpointInfoList.Clear();
             RDMLoginRequestRDP = null;
             TokenSession = null;
+            Watchlist = null;
             ReadRet = TransportReturnCode.SUCCESS;
         }
 
         /// <summary>
         /// Returns this object back to the pool. 
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public override void ReturnToPool()
         {
             /* Releases user-specified object specified by users if any. */
@@ -766,33 +829,39 @@ namespace LSEG.Eta.ValueAdd.Reactor
             TokenSession = null;
             RDMLoginRequestRDP = null;
             TokenSession = null;
+            Watchlist = null;
             ReadRet = TransportReturnCode.SUCCESS;
 
             base.ReturnToPool();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void InitializationTimeout(int timeout)
         {
             m_InitializationTimeout = timeout;
             m_InitializationEndTimeMs = (timeout * 1000) + ReactorUtil.GetCurrentTimeMilliSecond();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal long InitializationTimeout()
         {
             return m_InitializationTimeout;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal long InitializationEndTimeMs()
         {
             return m_InitializationEndTimeMs;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal PingHandler GetPingHandler()
         {
             return m_PingHandler;
         }
 
         /* Stores connection options for reconnection. */
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void ReactorConnectOptions(ReactorConnectOptions reactorConnectOptions)
         {
             if (ConnectOptions is null)
@@ -812,6 +881,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /* Determines the time at which reconnection should be attempted for this channel. */
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void CalculateNextReconnectTime()
         {
             if (m_ReconnectDelay < ConnectOptions!.GetReconnectMaxDelay())
@@ -835,6 +905,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /* Resets info related to reconnection such as timers. Used when a channel is up. */
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void ResetReconnectTimers()
         {
             m_ReconnectAttempts = 0;
@@ -843,17 +914,20 @@ namespace LSEG.Eta.ValueAdd.Reactor
         }
 
         /* Returns whether this channel has reached its number of reconnect attempts. */
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal bool RecoveryAttemptLimitReached()
         {
             return (ConnectOptions!.GetReconnectAttemptLimit() != NO_RECONNECT_LIMIT &&
                     m_ReconnectAttempts >= ConnectOptions.GetReconnectAttemptLimit());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorConnectInfo GetReactorConnectInfo()
         {
             return ConnectOptions!.ConnectionList![m_ListIndex];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void SetChannel(IChannel? channel)
         {
             Channel = channel;
@@ -886,6 +960,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// </summary>
         internal bool FlushAgain { get; set; }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorRestConnectOptions GetRestConnectionOptions()
         {
             if(m_RestConnectOptions is null)
@@ -902,6 +977,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return m_RestConnectOptions;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal ReactorReturnCode ApplyServiceDiscoveryEndpoint(out ReactorErrorInfo? errorInfo)
         {
             ReactorConnectInfo reactorConnectInfo = ConnectOptions!.ConnectionList![m_ListIndex];
@@ -951,16 +1027,19 @@ namespace LSEG.Eta.ValueAdd.Reactor
             return ReactorReturnCode.SUCCESS;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal bool EnableSessionManagement()
         {
             return ConnectOptions!.ConnectionList![m_ListIndex].EnableSessionManagement;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal IReactorAuthTokenEventCallback? ReactorAuthTokenEventCallback()
         {
             return ConnectOptions!.ConnectionList![m_ListIndex].ReactorAuthTokenEventCallback;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void ApplyAccessToken()
         {
             /* Checks to ensure that the application specifies the Login request in the ConsumerRole as well */
@@ -974,6 +1053,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         bool RedoServiceDiscoveryForCurrentChannel()
         {
             if (ConnectOptions != null)
@@ -991,6 +1071,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         void IncreaseRetryCountForCurrentChannel()
         {
             if (ConnectOptions != null)
@@ -1003,6 +1084,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void ResetCurrentChannelRetryCount()
         {
             if (ConnectOptions != null)
