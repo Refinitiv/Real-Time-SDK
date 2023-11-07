@@ -31,4 +31,8 @@
     <ProjectReference Include="..\..\..\Eta\Src\ValueAdd\ValueAdd_NET6.0.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
 </Project>
