@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.12.4)
 # guarantee of a successful build if changed.
 
 project (rtsdk
-		VERSION 2.1.3.1
+		VERSION 2.1.3.0
 		LANGUAGES C CXX)
 
 set(rtsdk_CMAKE_DIR "${rtsdk_SOURCE_DIR}/CMake")
