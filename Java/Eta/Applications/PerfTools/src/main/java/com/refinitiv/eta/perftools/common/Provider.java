@@ -511,7 +511,7 @@ public class Provider
                 }
                 break;
             case PROVIDER_NONINTERACTIVE:
-                fileWriter.printf("  Image sent: %d\n" +
+                fileWriter.printf("  Images sent: %d\n" +
                         "  Updates sent: %d\n",
                         _refreshCount.getTotal(),
                         _updateCount.getTotal());
