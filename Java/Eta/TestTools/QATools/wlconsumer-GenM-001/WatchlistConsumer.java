@@ -71,6 +71,7 @@ import com.refinitiv.eta.valueadd.reactor.ReactorMsgEvent;
 import com.refinitiv.eta.valueadd.reactor.ReactorOptions;
 import com.refinitiv.eta.valueadd.reactor.ReactorReturnCodes;
 import com.refinitiv.eta.valueadd.reactor.ReactorSubmitOptions;
+import com.refinitiv.eta.valueadd.domainrep.rdm.login.*;
 // APIQA:
 import com.refinitiv.eta.codec.GenericMsg;
 import com.refinitiv.eta.valueadd.domainrep.rdm.directory.DirectoryRequest;
@@ -80,6 +81,7 @@ import com.refinitiv.eta.codec.Map;
 import com.refinitiv.eta.codec.MapEntry;
 import com.refinitiv.eta.codec.UInt;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 /**
  * <p>
  * This is a main class to run the ETA Value Add WatchlistConsumer application.
@@ -1023,6 +1025,20 @@ public class WatchlistConsumer implements ConsumerCallback
                     System.out.println(" UserName: " + loginStatus.userName().toString());
 
                 break;
+				
+			case RTT:
+				LoginRTT loginRTT = (LoginRTT) event.rdmLoginMsg();
+				System.out.printf("\nReceived login RTT message from Provider.\n");
+				System.out.printf("\tTicks: %du\n", NANOSECONDS.toMicros(loginRTT.ticks()));
+				if (loginRTT.checkHasRTLatency()) {
+					System.out.printf("\tLast Latency: %du\n", NANOSECONDS.toMicros(loginRTT.rtLatency()));
+				}
+				if (loginRTT.checkHasTCPRetrans()) {
+					System.out.printf("\tProvider side TCP Retransmissions: %du\n", loginRTT.tcpRetrans());
+				}
+				System.out.printf("RTT Response sent to provider by watchlist.\n\n");
+				break;
+				
             default:
                 System.out.println("Received Unhandled Login Msg Type: " + msgType);
                 break;
