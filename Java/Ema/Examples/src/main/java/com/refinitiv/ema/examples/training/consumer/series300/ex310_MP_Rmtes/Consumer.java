@@ -83,10 +83,15 @@ class AppClient implements OmmConsumerClient
 		// and apply the updates accordingly.
 		for (FieldEntry fieldEntry : fieldList)
 		{
-			if (fieldEntry.name().equals("BCAST_TEXT"))
+			if (fieldEntry.name().equals("HEADLINE1"))
 			{
 				System.out.print("Fid: " + fieldEntry.fieldId() + " Name = " + fieldEntry.name() + " DataType: " + DataType.asString(fieldEntry.load().dataType()) + " Value: ");
-				System.out.println((rmtesBuffer.apply(fieldEntry.rmtes())).toString());
+
+				if (Data.DataCode.BLANK == fieldEntry.code())
+					System.out.println(" blank");
+				else
+					System.out.println((rmtesBuffer.apply(fieldEntry.rmtes())).toString());
+
 			}
 		}
 	}
@@ -103,7 +108,7 @@ public class Consumer
 			
 			consumer = EmaFactory.createOmmConsumer(EmaFactory.createOmmConsumerConfig().operationModel(OperationModel.USER_DISPATCH).host("localhost:14002").username("user"));
 			
-			consumer.registerClient(EmaFactory.createReqMsg().serviceName("DIRECT_FEED").name("N2_UBMS"), appClient, 0);
+			consumer.registerClient(EmaFactory.createReqMsg().serviceName("DIRECT_FEED").name("NFCP_UBMS"), appClient, 0);
 
 			long startTime = System.currentTimeMillis();
 			while (startTime + 60000 > System.currentTimeMillis())
