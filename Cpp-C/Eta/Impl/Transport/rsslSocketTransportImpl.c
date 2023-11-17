@@ -6028,16 +6028,16 @@ static ripcSessInit ipcWaitClientKey(RsslSocketChannel *rsslSocketChannel, ripcS
 		}
 	}
 
-	hdrStart = rsslSocketChannel->inputBuffer->buffer + rsslSocketChannel->inputBufCursor;
+	hdrStart = rsslSocketChannel->inputBuffer->buffer;
 
 	if (rsslSocketChannel->dbgFlags & RSSL_DEBUG_IPC_DUMP_INIT)
 	{
-		ripcDumpInFuncImpl(__FUNCTION__, hdrStart,
+		ripcDumpInFuncImpl(__FUNCTION__, (hdrStart + rsslSocketChannel->inputBufCursor),
 			(RsslUInt32)(rsslSocketChannel->inputBuffer->length - rsslSocketChannel->inputBufCursor), rsslSocketChannel->stream,
 			rsslSocketChannel->protocolType);
 	}
 
-	_move_u16_swap(&length, hdrStart);
+	_move_u16_swap(&length, hdrStart + rsslSocketChannel->inputBufCursor);
 	rsslSocketChannel->inputBufCursor += 3;
 	rsslSocketChannel->inputBufCursor += rwfGet8(keyLen, (hdrStart + rsslSocketChannel->inputBufCursor));
 
