@@ -963,6 +963,23 @@ public class Reactor
 			ConnectOptions connectOptions = reactorChannel.getCurrentReactorConnectInfo().connectOptions();
 			connectOptions.channelReadLocking(true);
 			connectOptions.channelWriteLocking(true);
+			
+			// If warm standby enabled, set read/write locking for standby servers
+			if (reactorConnectOptions.reactorWarmStandbyGroupList() != null
+					&& reactorConnectOptions.reactorWarmStandbyGroupList().size() > 0)
+			{
+				for (int i = 0; i < reactorChannel.getReactorConnectOptions().reactorWarmStandbyGroupList()
+						.size(); i++)
+				{
+					ReactorWarmStandbyGroupImpl reactorWarmStandbyGroupImpl = (ReactorWarmStandbyGroupImpl) reactorChannel.getReactorConnectOptions()
+							.reactorWarmStandbyGroupList().get(i);
+					for (int j = 0; j < reactorWarmStandbyGroupImpl.standbyServerList().size(); j++)
+					{
+						reactorWarmStandbyGroupImpl.standbyServerList().get(i).reactorConnectInfo().connectOptions().channelReadLocking(true);
+						reactorWarmStandbyGroupImpl.standbyServerList().get(i).reactorConnectInfo().connectOptions().channelWriteLocking(true);					
+					}
+				}
+			}
 
 			// call Transport.connect to create a new Channel
 			Channel channel = Transport.connect(connectOptions, errorInfo.error());
