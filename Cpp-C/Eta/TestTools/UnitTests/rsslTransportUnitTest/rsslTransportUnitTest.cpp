@@ -1291,6 +1291,25 @@ public:
 			msgLengths[6] = 3000; msgLengths[7] = 3000; msgLengths[8] = 3000; msgLengths[9] = 3000;
 			msgLengths[10] = 2918; msgLengths[11] = 2500; msgLengths[12] = 3000; msgLengths[13] = 3000;
 		}
+		else if (configIndex == 2)  // RWF
+		{
+			msgLengths = new RsslUInt32[18];
+			nLen = 18;
+			msgLengths[0] = 1179; msgLengths[1] = 1250;
+			msgLengths[2] = 1250; msgLengths[3] = 1250; msgLengths[4] = 1250; msgLengths[5] = 1250;
+			msgLengths[6] = 1250; msgLengths[7] = 1250; msgLengths[8] = 1250; msgLengths[9] = 1250;
+			msgLengths[10] = 1250; msgLengths[11] = 1250; msgLengths[12] = 1250; msgLengths[13] = 1250;
+			msgLengths[14] = 1250; msgLengths[15] = 1257; msgLengths[16] = 1246; msgLengths[17] = 1247;
+		}
+		else if (configIndex == 3)  // RWF
+		{
+			msgLengths = new RsslUInt32[14];
+			nLen = 14;
+			msgLengths[0] = 1250; msgLengths[1] = 1250;
+			msgLengths[2] = 1250; msgLengths[3] = 1250; msgLengths[4] = 1250; msgLengths[5] = 1250;
+			msgLengths[6] = 1250; msgLengths[7] = 1250; msgLengths[8] = 1250; msgLengths[9] = 1250;
+			msgLengths[10] = 1250; msgLengths[11] = 1250; msgLengths[12] = 1250; msgLengths[13] = 1250;
+		}
 
 		if (nLen == 0 || msgLengths == NULL)
 		{
@@ -3261,12 +3280,111 @@ TEST_P(SystemTestsSendBuffersFixture, NonBlockingClientSendsMessagesAndFillFullI
 	ASSERT_FALSE(failTest) << "Test failed.";
 }
 
+TEST_P(SystemTestsSendBuffersFixture, BlockingServerSendsMessagesAndFillFullInternalBuffer)
+{
+	RsslThreadId serverWriteThread, clientReadThread;
+
+	const GLobalLockSystemTestParams& testParams = GetParam();
+
+	// Synchronization objects for step-by-step test
+	// i.e. after send several buffers the test waits for read is completed
+	// and only then sends a next chunk
+	RsslMutex* pReadWriteLock = &readwriteLock;
+	EventSignal* pReadWriteSignal = &eventSignalRW;
+
+	RsslError err;
+	int readCount = 0;
+	int readCountPrev = 0;
+	int msgWriteCount = (testParams.msgWriteCount != 0 ? testParams.msgWriteCount : MAX_MSG_WRITE_COUNT);
+
+	WriteChannelSeveralBufferTransport
+		serverWriteOpts(testParams.msgLength, msgWriteCount, testParams.configIndex, "SrvW", pReadWriteLock, pReadWriteSignal);
+
+	ReadChannel clientReadOpts;
+
+	startupServerAndConections(0, RSSL_TRUE,
+		testParams.maxFragmentSize,
+		testParams.connType, testParams.encryptedProtocol, testParams.wsProtocolType,
+		testParams.compressionType, testParams.compressionLevel, &connectionA);
+
+	clientReadOpts.pThreadId = &clientReadThread;
+	clientReadOpts.pChnl = connectionA.pClientChannel;
+	clientReadOpts.readCount = &msgsRead;
+	clientReadOpts.lock = &readLock;
+	//clientReadOpts.expectedReadCount = msgWriteCount;
+	clientReadOpts.lockReadWrite = pReadWriteLock;
+	clientReadOpts.signalForWrite = pReadWriteSignal;
+
+	serverWriteOpts.pThreadId = &serverWriteThread;
+	serverWriteOpts.pChnl = connectionA.pServerChannel;
+
+	RsslChannelInfo readChannelInfo;
+
+	ASSERT_EQ(rsslGetChannelInfo(connectionA.pServerChannel, &readChannelInfo, &err), RSSL_RET_SUCCESS) << "rsslGetChannelInfo returned error.";
+	serverWriteOpts.readChannelInfo = &readChannelInfo;
+
+	RSSL_THREAD_START(&clientReadThread, blockingReadThread, (void*)&clientReadOpts);
+
+	RSSL_THREAD_START(&serverWriteThread, blockingWriteSeveralBufferTransportThread, (void*)&serverWriteOpts);
+
+	do
+	{
+		time_sleep(50);
+		RSSL_MUTEX_LOCK(&readLock);
+		readCount = msgsRead;
+		RSSL_MUTEX_UNLOCK(&readLock);
+
+		EXPECT_FALSE( checkLongTimeNoRead(readCountPrev, readCount) ) << "Long time no read data. readCount: " << readCount;
+	} while (readCount < (msgWriteCount) && !failTest);
+
+	shutdownTest = true;
+	std::cout << "SystemTestsSendBuffersFixture  Loop finished. failTest: " << failTest << " readCount/writeCount: " << readCount << "/" << msgWriteCount << std::endl;
+
+	time_sleep(50);
+
+	std::cout << "SystemTestsSendBuffersFixture  Before Join Write-thread." << std::endl;
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&serverWriteThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(serverWriteThread);
+	}
+
+	std::cout << "SystemTestsSendBuffersFixture  Before rsslCloseChannel. Writer side." << std::endl;
+	rsslCloseChannel(connectionA.pServerChannel, &err);
+	std::cout << "SystemTestsSendBuffersFixture  Before rsslCloseChannel. Reader side." << std::endl;
+	rsslCloseChannel(connectionA.pClientChannel, &err);
+
+	std::cout << "SystemTestsSendBuffersFixture  Before Join Read-thread." << std::endl;
+	if (failTest)
+	{
+		RSSL_THREAD_KILL(&clientReadThread);
+	}
+	else
+	{
+		RSSL_THREAD_JOIN(clientReadThread);
+	}
+
+	ASSERT_FALSE(failTest) << "Test failed.";
+}
+
 INSTANTIATE_TEST_CASE_P(
 	WebSockJSONClients,
 	SystemTestsSendBuffersFixture,
 	::testing::Values(
 		GLobalLockSystemTestParams( 0, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 24, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE ),
 		GLobalLockSystemTestParams( 1, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 28, RSSL_CONN_TYPE_SOCKET, RSSL_JSON_PROTOCOL_TYPE )
+	)
+);
+
+INSTANTIATE_TEST_CASE_P(
+	WebSockRWFClients,
+	SystemTestsSendBuffersFixture,
+	::testing::Values(
+		GLobalLockSystemTestParams( 2, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 36, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE ),
+		GLobalLockSystemTestParams( 3, RSSL_CONN_TYPE_WEBSOCKET, 3000, 3000, 14, RSSL_CONN_TYPE_SOCKET, RSSL_RWF_PROTOCOL_TYPE )
 	)
 );
 
