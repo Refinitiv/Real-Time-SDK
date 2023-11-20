@@ -112,7 +112,10 @@ const EmaString& OmmOpaque::getString() const
 
 const Encoder& OmmOpaque::getEncoder() const
 {
-	return *static_cast<const Encoder*>( _pEncoder );
+	if (!_pEncoder)
+		_pEncoder = g_pool._ommOpaqueEncoderPool.getItem();
+
+	return *_pEncoder;
 }
 
 bool OmmOpaque::hasEncoder() const

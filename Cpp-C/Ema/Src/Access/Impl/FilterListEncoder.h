@@ -67,11 +67,17 @@ private :
 
 	void endEncodingEntry() const;
 
+	void verifyPayLoadCompleted( const Encoder&, const UInt8& );
+
 	RsslFilterList			_rsslFilterList;
 
 	RsslFilterEntry			_rsslFilterEntry;
 
+	DataType::DataTypeEnum	_emaLoadType;
+
 	bool					_containerInitialized;
+
+	bool*					_internalContainerCompleted;
 };
 
 

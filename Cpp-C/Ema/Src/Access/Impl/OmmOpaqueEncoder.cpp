@@ -13,6 +13,7 @@ using namespace refinitiv::ema::access;
 
 OmmOpaqueEncoder::OmmOpaqueEncoder()
 {
+	_containerComplete = true;
 }
 
 OmmOpaqueEncoder::~OmmOpaqueEncoder()

@@ -2086,3 +2086,138 @@ TEST(FilterListTests, testFilerListClear_Encode_Decode)
 		EXPECT_FALSE(true) << "Fails to encode and decode FilterList - exception not expected with text" << exp.getText().c_str();
 	}
 }
+
+TEST(FilterListTests, testFilterListAddNotCompletedContainer)
+{
+	try
+	{
+		FilterList filterList;
+		ElementList elementList;
+
+		filterList.add(1, FilterEntry::UpdateEnum, elementList);
+		filterList.complete();
+
+		EXPECT_FALSE(true) << "FilterList complete while ElementList is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList complete while ElementList is not completed  - exception expected";
+	}
+
+	try
+	{
+		FilterList filterList;
+		ElementList elementList;
+		filterList.add(1, FilterEntry::UpdateEnum, elementList);
+		elementList.addUInt("test", 64);
+		filterList.complete();
+
+		EXPECT_FALSE(true) << "FilterList complete while ElementList with data is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList complete while ElementList with data is not completed  - exception expected";
+	}
+
+	try
+	{
+		FilterList filterList;
+		ElementList elementList, elementList1;
+		filterList.add(1, FilterEntry::UpdateEnum, elementList);
+		filterList.add(2, FilterEntry::UpdateEnum, elementList1);
+
+		EXPECT_FALSE(true) << "FilterList add two not completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList add two not completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		FilterList filterList;
+		ElementList elementList, elementList1;
+		filterList.add(1, FilterEntry::UpdateEnum, elementList);
+		elementList.complete();
+		filterList.add(2, FilterEntry::UpdateEnum, elementList1);
+		filterList.complete();
+
+		EXPECT_FALSE(true) << "FilterList add first completed and second not completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList add first completed and second not completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		FilterList filterList;
+		GenericMsg genericMsg;
+
+		genericMsg.streamId(1);
+
+		filterList.add(1, FilterEntry::UpdateEnum, genericMsg);
+		filterList.complete();
+
+		EXPECT_TRUE(true) << "FilterList add not completed GenericMsg - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "FilterList add not completed GenericMsg - exception not expected";
+	}
+
+	try
+	{
+		FilterList filterList;
+		OmmOpaque opaque;
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		filterList.add(1, FilterEntry::SetEnum, opaque);
+		filterList.complete();
+
+		EXPECT_TRUE(true) << "FilterList add OmmOpaque - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "FilterList add OmmOpaque - exception not expected";
+	}
+
+	try
+	{
+		FilterList filtertList;
+		ElementList elementList;
+		OmmOpaque opaque;
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		filtertList.add(1, FilterEntry::UpdateEnum, opaque);
+		filtertList.add(1, FilterEntry::UpdateEnum, elementList);
+		filtertList.complete();
+
+		EXPECT_FALSE(true) << "FilterList add not completed ElementList after Opaque - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList add not completed ElementList after Opaque - exception expected";
+	}
+
+	try
+	{
+		FilterList filtertList;
+		ElementList elementList;
+		GenericMsg genericMsg;
+
+		filtertList.add(1, FilterEntry::UpdateEnum, genericMsg);
+		filtertList.add(1, FilterEntry::UpdateEnum, elementList);
+		filtertList.complete();
+
+		EXPECT_FALSE(true) << "FilterList add not completed ElementList after GenericMsg - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList add not completed ElementList after GenericMsg - exception expected";
+	}
+}

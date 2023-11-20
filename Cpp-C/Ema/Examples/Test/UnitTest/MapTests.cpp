@@ -7557,3 +7557,139 @@ TEST(MapTests, testMapEntryKeyUtf8WithNoPayload_Encode_Decode)
 	}
 }
 
+TEST(MapTests, testMapAddNotCompletedContainer)
+{
+	try
+	{
+		Map map;
+		FieldList fieldList;
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		map.complete();
+
+		EXPECT_FALSE(true) << "Map complete while FieldList is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map complete while FieldList is not completed  - exception expected";
+	}
+
+	try
+	{
+		Map map;
+		FieldList fieldList;
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		fieldList.addUInt(1, 64);
+		map.complete();
+
+		EXPECT_FALSE(true) << "Map complete while FieldList with data is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map complete while FieldList with data is not completed  - exception expected";
+	}
+
+	try
+	{
+		Map map;
+		FieldList fieldList;
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+
+		EXPECT_FALSE(true) << "Map add two not completed FieldList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map add two not completed FieldList - exception expected";
+	}
+
+	try
+	{
+		Map map;
+		FieldList fieldList, fieldList1;
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		fieldList.complete();
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList1);
+		map.complete();
+
+		EXPECT_FALSE(true) << "Map add first completed and second not completed FieldList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map add first completed and second not completed FieldList - exception expected";
+	}
+
+	try
+	{
+		Map map;
+		GenericMsg genericMsg;
+
+		genericMsg.streamId(1);
+
+		map.addKeyInt(1, MapEntry::AddEnum, genericMsg/*, permission*/);
+		map.complete();
+
+		EXPECT_TRUE(true) << "Map add not completed GenericMsg - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "Map add not completed GenericMsg - exception not expected";
+	}
+
+	try
+	{
+		Map filterList;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		filterList.addKeyInt(1, MapEntry::UpdateEnum, opaque);
+		filterList.complete();
+
+		EXPECT_TRUE(true) << "Map add OmmOpaque - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "Map add OmmOpaque - exception not expected";
+	}
+
+	try
+	{
+		Map map;
+		ElementList elementList;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		map.addKeyInt(1, MapEntry::UpdateEnum, opaque);
+		map.addKeyInt(1, MapEntry::UpdateEnum, elementList);
+		map.complete();
+
+		EXPECT_FALSE(true) << "Map add not completed ElementList after Opaque - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map add not completed ElementList after Opaque - exception expected";
+	}
+
+	try
+	{
+		Map map;
+		ElementList elementList;
+		GenericMsg genericMsg;
+
+		map.addKeyInt(1, MapEntry::UpdateEnum, genericMsg);
+		map.addKeyInt(1, MapEntry::UpdateEnum, elementList);
+		map.complete();
+
+		EXPECT_FALSE(true) << "Map add not completed ElementList after GenericMsg - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map add not completed ElementList after GenericMsg - exception expected";
+	}
+}
+

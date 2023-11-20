@@ -18,7 +18,9 @@ using namespace refinitiv::ema::access;
 FilterListEncoder::FilterListEncoder() :
  _rsslFilterList(),
  _rsslFilterEntry(),
- _containerInitialized( false )
+ _emaLoadType( DataType::NoDataEnum ),
+ _containerInitialized( false ),
+ _internalContainerCompleted( NULL )
 {
 }
 
@@ -33,7 +35,11 @@ void FilterListEncoder::clear()
 	rsslClearFilterList( &_rsslFilterList );
 	rsslClearFilterEntry( &_rsslFilterEntry );
 
+	_emaLoadType = DataType::NoDataEnum;
+
 	_containerInitialized = false;
+
+	_internalContainerCompleted = NULL;
 }
 
 void FilterListEncoder::initEncode( UInt8 dataType )
@@ -147,6 +153,29 @@ void FilterListEncoder::endEncodingEntry() const
 	}
 }
 
+void FilterListEncoder::verifyPayLoadCompleted(const Encoder& enc, const UInt8& rsslData )
+{
+	if ( _internalContainerCompleted )
+	{
+		if ( *_internalContainerCompleted == false )
+		{
+			EmaString temp( "Attemp to add new container to the FilterList while complete() was not called for previously added container: " );
+			temp.append( DataType( _emaLoadType ) );
+			_internalContainerCompleted = NULL;
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
+			return;
+		}
+	}
+
+	if ( rsslData == RSSL_DT_MSG	||
+		 rsslData == RSSL_DT_XML	||
+		 rsslData == RSSL_DT_OPAQUE	||
+		 rsslData == RSSL_DT_ANSI_PAGE )
+		_internalContainerCompleted = NULL;
+	else
+		_internalContainerCompleted = const_cast<Encoder&>(enc).isCompletePtr();
+}
+
 void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, const ComplexType& complexType, const EmaBuffer& permission )
 {
 	if ( _containerComplete )
@@ -157,26 +186,31 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 	}
 
 	const Encoder& enc = complexType.getEncoder();
-	 
-	UInt8 rsslDataType = enc.convertDataType( complexType.getDataType() );
+
+	_emaLoadType = complexType.getDataType();
+
+	UInt8 rsslLoadType = enc.convertDataType( _emaLoadType );
 
 	if ( !hasEncIterator() )
 	{
 		acquireEncIterator();
 
-		initEncode( rsslDataType );
+		initEncode(rsslLoadType);
 	}
 
 	if ( action == FilterEntry::ClearEnum )
 	{
 		RsslBuffer rsslBuffer;
 		rsslClearBuffer( &rsslBuffer );
-		addEncodedEntry( filterId, action, rsslDataType, permission, "add()", rsslBuffer );
+		addEncodedEntry( filterId, action, rsslLoadType, permission, "add()", rsslBuffer );
 	}
 	else if ( complexType.hasEncoder() && enc.ownsIterator() )
 	{
 		if ( enc.isComplete() )
-			addEncodedEntry( filterId, action, rsslDataType, permission, "add()", enc.getRsslBuffer() );
+		{
+			verifyPayLoadCompleted( enc, rsslLoadType );
+			addEncodedEntry(filterId, action, rsslLoadType, permission, "add()", enc.getRsslBuffer());
+		}
 		else
 		{
 			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
@@ -186,19 +220,20 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 	}
 	else if ( complexType.hasDecoder() )
 	{
-		addEncodedEntry( filterId, action, rsslDataType, permission, "add()", const_cast<ComplexType&>( complexType ).getDecoder().getRsslBuffer() );
+		addEncodedEntry( filterId, action, rsslLoadType, permission, "add()", const_cast<ComplexType&>( complexType ).getDecoder().getRsslBuffer() );
 	}
 	else
 	{
-		if ( rsslDataType == RSSL_DT_MSG )
+		if ( rsslLoadType == RSSL_DT_MSG )
 		{
 			EmaString temp( "Attempt to pass in an empty message while it is not supported." );
 			throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslLoadType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
-		startEncodingEntry( filterId, action, rsslDataType, permission, "add()" );
+		startEncodingEntry( filterId, action, rsslLoadType, permission, "add()" );
 	}
 }
 
@@ -211,23 +246,36 @@ void FilterListEncoder::add( UInt8 filterId, FilterEntry::FilterAction action, c
 		return;
 	}
 
-	UInt8 rsslDataType = RSSL_DT_NO_DATA;
+	UInt8 rsslLoadType = RSSL_DT_NO_DATA;
 
 	if (!hasEncIterator())
 	{
 		acquireEncIterator();
 
-		initEncode(rsslDataType);
+		initEncode(rsslLoadType);
 	}
 
 	RsslBuffer rsslBuffer;
 	rsslClearBuffer(&rsslBuffer);
-	addEncodedEntry(filterId, action, rsslDataType, permission, "add()", rsslBuffer);
+	addEncodedEntry(filterId, action, rsslLoadType, permission, "add()", rsslBuffer);
 }
 
 void FilterListEncoder::complete()
 {
 	if ( _containerComplete ) return;
+
+	if ( _internalContainerCompleted )
+	{
+		if ( *_internalContainerCompleted == false )
+		{
+			/*If an internal container is not completed. Internal container empty.*/
+			EmaString temp( "Attemp to complete FilterList while complete() was not called for internal container: " );
+			temp.append( DataType( _emaLoadType ) );
+			_internalContainerCompleted = NULL;
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
+			return;
+		}
+	}
 
 	if ( !hasEncIterator() )
 	{

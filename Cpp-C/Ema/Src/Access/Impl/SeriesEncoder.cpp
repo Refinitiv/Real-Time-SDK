@@ -18,8 +18,9 @@ using namespace refinitiv::ema::access;
 SeriesEncoder::SeriesEncoder() :
  _rsslSeries(),
  _rsslSeriesEntry(),
- _emaDataType( DataType::NoDataEnum ),
- _containerInitialized( false )
+ _emaLoadType( DataType::NoDataEnum ),
+ _containerInitialized( false ),
+ _internalContainerCompleted( NULL )
 {
 }
 
@@ -34,9 +35,11 @@ void SeriesEncoder::clear()
 	rsslClearSeries( &_rsslSeries );
 	rsslClearSeriesEntry( &_rsslSeriesEntry );
 
-	_emaDataType = DataType::NoDataEnum;
+	_emaLoadType = DataType::NoDataEnum;
 
 	_containerInitialized = false;
+
+	_internalContainerCompleted = NULL;
 }
 
 void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDataType )
@@ -44,14 +47,14 @@ void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 	if ( !_rsslSeries.containerType )
 	{
 		_rsslSeries.containerType = rsslDataType;
-		_emaDataType = emaDataType;
+		_emaLoadType = emaDataType;
 	}
 	else if ( _rsslSeries.containerType != rsslDataType )
 	{
 		EmaString temp( "Attempt to add an entry with a DataType different than summaryData's DataType. Passed in ComplexType has DataType of " );
 		temp += DataType( emaDataType ).toString();
 		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaDataType );
+		temp += DataType( _emaLoadType );
 		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
@@ -133,6 +136,28 @@ void SeriesEncoder::endEncodingEntry() const
 	}
 }
 
+void SeriesEncoder::verifyPayLoadCompleted(const Encoder& enc, const UInt8& rsslData )
+{
+	if (_internalContainerCompleted)
+	{
+		if (*_internalContainerCompleted == false)
+		{
+			EmaString temp("Attemp to add new container to the FieldList while complete() was not called for previously added container: ");
+			temp.append(rsslDataTypeToString(_rsslSeries.containerType));
+			_internalContainerCompleted = NULL;
+			throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+			return;
+		}
+	}
+	if ( rsslData == RSSL_DT_MSG ||
+		 rsslData == RSSL_DT_XML ||
+		 rsslData == RSSL_DT_OPAQUE ||
+		 rsslData == RSSL_DT_ANSI_PAGE )
+		_internalContainerCompleted = NULL;
+	else
+		_internalContainerCompleted = const_cast<Encoder&>(enc).isCompletePtr();
+}
+
 void SeriesEncoder::add( const ComplexType& complexType )
 {
 	if ( _containerComplete )
@@ -157,15 +182,18 @@ void SeriesEncoder::add( const ComplexType& complexType )
 		EmaString temp( "Attempt to add an entry with a different DataType. Passed in ComplexType has DataType of " );
 		temp += DataType( complexType.getDataType() ).toString();
 		temp += EmaString( " while the expected DataType is " );
-		temp += DataType( _emaDataType );
+		temp += DataType( _emaLoadType );
 		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
 
 	if ( complexType.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( "add()", enc.getRsslBuffer() );
+		if( enc.isComplete() )
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry("add()", enc.getRsslBuffer());
+		}
 		else
 		{
 			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
@@ -185,6 +213,8 @@ void SeriesEncoder::add( const ComplexType& complexType )
 			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
+
+		verifyPayLoadCompleted( enc, rsslDataType );
 
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( "add()" );
@@ -213,7 +243,7 @@ void SeriesEncoder::add()
 		EmaString temp("Attempt to add an entry with a different DataType. Encode DataType as ");
 		temp += DataType(DataType::NoDataEnum).toString();
 		temp += EmaString(" while the expected DataType is ");
-		temp += DataType(_emaDataType);
+		temp += DataType( _emaLoadType );
 		throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 		return;
 	}
@@ -227,11 +257,24 @@ void SeriesEncoder::complete()
 {
 	if ( _containerComplete ) return;
 
+	if ( _internalContainerCompleted )
+	{
+		if ( *_internalContainerCompleted == false )
+		{
+			/*If an internal container is not completed. Internal container empty.*/
+			EmaString temp( "Attemp to complete Series while complete() was not called for internal container: " );
+			temp.append( rsslDataTypeToString( _rsslSeries.containerType ) );
+			_internalContainerCompleted = NULL;
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
+			return;
+		}
+	}
+
 	if (!hasEncIterator())
 	{
 		acquireEncIterator();
 
-		initEncode(convertDataType(_emaDataType), _emaDataType);
+		initEncode(convertDataType( _emaLoadType ), _emaLoadType);
 	}
 
 	RsslRet retCode = rsslEncodeSeriesComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
@@ -297,8 +340,8 @@ void SeriesEncoder::summaryData( const ComplexType& data )
 			return;
 		}
 
-		_emaDataType = data.getDataType();
-		_rsslSeries.containerType = enc.convertDataType( _emaDataType );
+		_emaLoadType = data.getDataType();
+		_rsslSeries.containerType = enc.convertDataType( _emaLoadType );
 	}
 	else
 	{
