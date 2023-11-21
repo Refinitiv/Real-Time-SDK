@@ -944,7 +944,7 @@ public class ReactorChannel extends VaNode
      */
     public TransportBuffer getBuffer(int size, boolean packedBuffer, ReactorErrorInfo errorInfo)
     {
-        if (errorInfo == null || _reactor == null)
+        if (errorInfo == null || _reactor == null || channel() == null)
             return null;
 
         if(channel().protocolType() == Codec.JSON_PROTOCOL_TYPE && packedBuffer)
