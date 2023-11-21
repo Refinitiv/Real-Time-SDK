@@ -130,12 +130,12 @@ eclipse.classpath.file.whenMerged {
 }
 
 dependencies {
-    api group: 'org.json', name: 'json', version: '20230618'
+    api group: 'org.json', name: 'json', version: '20231013'
     api group: 'org.apache.httpcomponents', name: 'httpcore-nio', version: '4.4.16'
     api group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
-    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.7'
-    api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
-	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.1'
+    api group: 'org.slf4j', name: 'slf4j-jdk14', version: '2.0.9'
+    api group: 'org.slf4j', name: 'slf4j-api', version: '2.0.9'
+	api group: 'org.bitbucket.b_c', name: 'jose4j', version: '0.9.3'
 	
 	// Since eclipse does not distinguish between the testCompile and compile 
 	// we need to have this check for publishing to maven central to list the mockito
@@ -163,7 +163,7 @@ dependencies {
     testRuntimeOnly project(':Eta:Core').sourceSets.main.output
 
 	// needed for cobertura
-    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-api', version: '2.0.9'
 
 }
 
