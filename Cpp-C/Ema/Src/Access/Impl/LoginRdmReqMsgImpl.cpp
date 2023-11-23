@@ -152,7 +152,8 @@ LoginRdmReqMsgImpl::LoginRdmReqMsgImpl(const LoginRdmReqMsgImpl& reqMsg) :
 		_applicationName = _defaultApplicationName;
 	}
 
-	if (_username.length() != 0)
+	/* _rsslRdmLoginRequest.userName is already set when the reqMsg._authenticationToken is not empty */
+	if (_username.length() != 0 && reqMsg._authenticationToken.empty())
 	{
 		_rsslRdmLoginRequest.userName.data = (char*)_username.c_str();
 		_rsslRdmLoginRequest.userName.length = _username.length();
