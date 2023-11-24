@@ -65,6 +65,8 @@ static time_t debugInfoIntervalMS = 50;
 static time_t nextDebugTimeMS = 0;
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
+
 static RsslClientSessionInfo clientSessions[MAX_CLIENT_SESSIONS];
 
 static RsslVACacheInfo cacheInfo;
@@ -95,6 +97,8 @@ void exitWithUsage()
 	printf("\t-keyfile <required filename of the server private key file> -cert <required filname of the server certificate> -cipher <optional OpenSSL formatted list of ciphers>\n");
 	printf(" -libsslName specifies the name of libssl shared object\n");
 	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf(" -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n");
+	printf(" -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n");
 	printf(" -maxEventsInPool size of event pool\n");
 	printf(" -debugConn set 'connection' rector debug info level");
 	printf(" -debugEventQ set 'eventqueue' rector debug info level");
@@ -128,6 +132,22 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			RsslErrorInfo rsslErrorInfo;
 #endif
 			printf("Connection up!\n");
+
+			RsslChannelInfo rsslChannelInfo;
+			RsslError rsslError;
+			rsslGetChannelInfo(pReactorChannel->pRsslChannel, &rsslChannelInfo, &rsslError);
+			switch (rsslChannelInfo.encryptionProtocol)
+			{
+			case RSSL_ENC_TLSV1_2:
+				printf("Encryption protocol: TLSv1.2\n\n");
+				break;
+			case RSSL_ENC_TLSV1_3:
+				printf("Encryption protocol: TLSv1.3\n\n");
+				break;
+			default:
+				printf("Encryption protocol: unknown\n\n");
+			}
+
 			pClientSessionInfo->clientChannel = pReactorChannel;
 			printf("\nServer fd="SOCKET_PRINT_TYPE": New client on Channel fd="SOCKET_PRINT_TYPE"\n",
 					pReactorChannel->pRsslServer->socketId, pReactorChannel->socketId);
@@ -404,6 +424,14 @@ int main(int argc, char **argv)
 		{
 			sendJsonConvError = RSSL_TRUE;
 		}
+		else if (0 == strcmp("-spTLSv1.2", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_2;
+		}
+		else if (0 == strcmp("-spTLSv1.3", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_3;
+		}
 		else
 		{
 			printf("Error: Unrecognized option: %s\n\n", argv[iargs]);
@@ -526,6 +554,9 @@ int main(int argc, char **argv)
 	sopts.connectionType = connType;
 	sopts.encryptionOpts.serverCert = certFile;
 	sopts.encryptionOpts.serverPrivateKey = keyFile;
+
+	if (tlsProtocol != RSSL_ENC_NONE)
+		sopts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 
 	if (userSpecCipher == RSSL_TRUE)
 		sopts.encryptionOpts.cipherSuite = cipherSuite;

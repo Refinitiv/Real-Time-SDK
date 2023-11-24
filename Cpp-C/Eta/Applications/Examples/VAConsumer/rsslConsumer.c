@@ -131,6 +131,7 @@ static char restProxyPasswd[128];
 static char restProxyDomain[128];
 
 static char sslCAStore[255];
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
 /* default sub-protocol list */
 static const char *defaultProtocols = "tr_json2";
 
@@ -194,6 +195,8 @@ void printUsageAndExit(char *appName)
 			"\n -libcurlName specifies the name of the libcurl shared object"
 			"\n -libsslName specifies the name of libssl shared object"
 			"\n -libcryptName specifies the name of libcrypto shared object\n"
+			"\n -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n"
+			"\n -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n"
 			"\n -runtime adjusts the running time of the application.\n"
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
@@ -1351,6 +1354,16 @@ void parseCommandLine(int argc, char **argv)
 				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(restProxyDomain, sizeof(restProxyDomain), "%s", argv[i - 1]);
 			}
+			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_2;
+			}
+			else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_3;
+			}
 			else
 			{
 				printf("Unknown option: %s\n", argv[i]);
@@ -1461,6 +1474,8 @@ void parseCommandLine(int argc, char **argv)
 		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
 		pCommand->cInfo.rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
 		pCommand->cInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
+		if (tlsProtocol != RSSL_ENC_NONE)
+			pCommand->cInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 	}
 }
 
@@ -1568,6 +1583,21 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 #endif
 
 			printf("Connection up! Channel fd="SOCKET_PRINT_TYPE"\n\n", pReactorChannel->socketId);
+
+			RsslChannelInfo rsslChannelInfo;
+			RsslError rsslError;
+			rsslGetChannelInfo(pReactorChannel->pRsslChannel, &rsslChannelInfo, &rsslError);
+			switch (rsslChannelInfo.encryptionProtocol)
+			{
+			case RSSL_ENC_TLSV1_2:
+				printf("Encryption protocol: TLSv1.2\n\n");
+				break;
+			case RSSL_ENC_TLSV1_3:
+				printf("Encryption protocol: TLSv1.3\n\n");
+				break;
+			default:
+				printf("Encryption protocol: unknown\n\n");
+			}
 
 			/* Set file descriptor. */
 			FD_SET(pReactorChannel->socketId, &readFds);

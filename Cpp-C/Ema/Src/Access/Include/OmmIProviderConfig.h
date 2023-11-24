@@ -61,6 +61,15 @@ public :
 		ApiControlEnum			/*!< specifies API sends down directory refresh message based on the configuration */
 	};
 
+	/** @enum EncryptionProtocolTypes
+	*/
+	enum EncryptionProtocolTypes
+	{
+		ENC_NONE = 0x00,			/*!< @brief (0x00) No encryption. */
+		ENC_TLSV1_2 = 0x04,			/*!< @brief (0x04) Encryption using TLSv1.2 protocol */
+		ENC_TLSV1_3 = 0x08			/*!< @brief (0x08) Encryption using TLSv1.3 protocol */
+	};
+
 	///@name Constructor
 	//@{
 	/** Constructs OmmIProviderConfig
@@ -158,6 +167,15 @@ public :
 	*/
 	OmmIProviderConfig& libCurlName(const EmaString& libcurlName);
 
+	/** Specifies the cryptographic protocols to be used for an Encrypted connection on a Linux operating system,
+		of values TLSv1.2. The highest value of TLS will be selected by
+		the Rssl API first, then it will roll back if the encryption handshake fails.
+		The protocol defaults to TLSv1.2 and TLSv1.3.
+		Use OmmNiProviderConfig::EncryptionProtocolTypes flags to set allowed protocols.
+		@param[in] securityProtocol specifies a cryptopgraphic protocol.
+		@return reference to this object
+	*/
+	OmmIProviderConfig& securityProtocol(int securityProtocol);
 
 	/** Specifies the location of the server certificate file for encrypted providers.
 	@param[in] serverCert specifies the name of the server certificate file

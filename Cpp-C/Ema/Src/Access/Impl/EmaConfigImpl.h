@@ -1116,6 +1116,8 @@ public:
 
 	virtual void config(const Data&);
 
+	void securityProtocol(int);
+
 	void getLoggerName(const EmaString&, EmaString&) const;
 
 	OmmLoggerClient::Severity readXMLconfiguration(const EmaString&);
@@ -1182,6 +1184,11 @@ public:
 		_userSetShouldInitializeCPUIDlib = true;
 	}
 
+	const int getUserSpecifiedSecurityProtocol() const
+	{
+		return _securityProtocolSetViaFunctionCall;
+	}
+
 protected:
 
 	XMLnode*				_pEmaConfig;
@@ -1195,6 +1202,7 @@ protected:
 
 	bool					_userSetShouldInitializeCPUIDlib;
 	bool					_shouldInitializeCPUIDlib;
+	int						_securityProtocolSetViaFunctionCall;
 
 private:
 
@@ -1245,7 +1253,6 @@ public:
 
 	void proxyHostName(const EmaString&);
 	void proxyPort(const EmaString&);
-	void securityProtocol(int);
 	void proxyUserName(const EmaString&);
 	void proxyPasswd(const EmaString&);
 	void proxyDomain(const EmaString&);
@@ -1306,11 +1313,6 @@ public:
 	const EmaString& getUserSpecifiedProxyPort() const
 	{
 		return _proxyPortSetViaFunctionCall;
-	}
-
-	const int getUserSpecifiedSecurityProtocol() const
-	{
-		return _securityProtocolSetViaFunctionCall;
 	}
 
 	const EmaString& getUserSpecifiedObjectName()
@@ -1408,7 +1410,6 @@ protected:
 	EmaString				_proxyPasswdSetViaFunctionCall;
 	EmaString				_proxyDomainSetViaFunctionCall;
 	EmaString				_sslCAStoreSetViaFunctionCall;
-	int						_securityProtocolSetViaFunctionCall;
 
 	void addLoginReqMsg( RsslRequestMsg* );
 

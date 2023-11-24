@@ -86,6 +86,7 @@ static char proxyDomain[128];
 static RsslConnectionTypes connType = RSSL_CONN_TYPE_SOCKET;
 static RsslConnectionTypes encryptedConnType = RSSL_CONN_TYPE_INIT;
 static char sslCAStore[255];
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
 static RsslUInt32 pingTimeout;
 static time_t nextReceivePingTime = 0;
 static RsslBool receivedInfraMsg = RSSL_FALSE;
@@ -164,6 +165,7 @@ void printUsageAndExit(char *appName)
 	printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are SOCKET and HTTP(Windows only).\n");
 	printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
 	printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
+	printf(" -spTLSv1.3 Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n");
 	printf("\n -ph specifies the proxy host\n");
 	printf(" -pp specifies the proxy port\n");
 	printf(" -plogin specifies the proxy user name\n");
@@ -399,6 +401,16 @@ int main(int argc, char **argv)
 			{
 				i += 2;
 				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
+			}
+			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+			{
+				i += 1;
+				tlsProtocol |= RSSL_ENC_TLSV1_2;
+			}
+			else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+			{
+				i += 1;
+				tlsProtocol |= RSSL_ENC_TLSV1_3;
 			}
 			else if(strcmp("-hsmAddr", argv[i]) == 0)
 			{
@@ -919,6 +931,8 @@ static RsslChannel* connectToInfrastructure(RsslConnectionTypes connType,  RsslE
 	copts.proxyOpts.proxyDomain = proxyDomain;
 
 	copts.encryptionOpts.openSSLCAStore = sslCAStore;
+	if (tlsProtocol != RSSL_ENC_NONE)
+		copts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 
 	if (connType == RSSL_CONN_TYPE_WEBSOCKET)
 		copts.wsOpts.protocols = protocolList;

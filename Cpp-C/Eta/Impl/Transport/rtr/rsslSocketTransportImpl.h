@@ -50,20 +50,7 @@ extern "C" {
 /* Current number of bytes in the compression bitmap */
 #define RIPC_COMP_BITMAP_SIZE 1
 
-#define RIPC_SOCKET_TRANSPORT   0
-#define RIPC_OPENSSL_TRANSPORT  1
-#define RIPC_WININET_TRANSPORT  2
-#define RIPC_EXT_LINE_SOCKET_TRANSPORT 5
-#define RIPC_WEBSOCKET_TRANSPORT   7
-#define RIPC_MAX_TRANSPORTS     RIPC_WEBSOCKET_TRANSPORT + 1
-#define RIPC_MAX_SSL_PROTOCOLS  4		/* TLSv1, TLSv1.1, TLSv1.2 */
-
-typedef enum {
-	RIPC_SSL_TLS_V1 = 0,
-	RIPC_SSL_TLS_V1_1 = 1,
-	RIPC_SSL_TLS_V1_2 = 2,
-	RIPC_SSL_TLS = 3
-} ripcSSLProtocolIndex;
+#define RIPC_MAX_TRANSPORTS     (RSSL_CONN_TYPE_WEBSOCKET + 1)
 
 #define IPC_MUTEX_LOCK(session) \
 	{					\
@@ -152,10 +139,8 @@ typedef struct {
 
 typedef enum {
 	RIPC_PROTO_SSL_NONE = 0,
-	RIPC_PROTO_SSL_TLS_V1 = 0x1,
-	RIPC_PROTO_SSL_TLS_V1_1 = 0x2,
 	RIPC_PROTO_SSL_TLS_V1_2 = 0x4,
-	RIPC_PROTO_SSL_TLS = 0x8		// Used for OpenSSLv1.1.X
+	RIPC_PROTO_SSL_TLS_V1_3 = 0x8
 } ripcSSLProtocolFlags;
 
 
@@ -325,7 +310,7 @@ typedef struct {
 	RsslUInt32		maxCommonMsgSize; /* The maximum message size is accounted for JSON message over websocket which can be more than RIPC max message size(65535). */
 } RsslServerSocketChannel;
 
-#define RSSL_INIT_SERVER_SOCKET_Bind { 0, 0, 0, 0, 0, 0, 0, RSSL_COMP_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, RSSL_ENC_TLSV1_2, 0, 0 };
+#define RSSL_INIT_SERVER_SOCKET_Bind { 0, 0, 0, 0, 0, 0, 0, RSSL_COMP_NONE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3), 0, 0 };
 
 RTR_C_INLINE void rsslClearRsslServerSocketChannel(RsslServerSocketChannel *rsslServerSocketChannel)
 {
@@ -338,7 +323,7 @@ RTR_C_INLINE void rsslClearRsslServerSocketChannel(RsslServerSocketChannel *rssl
 	rsslServerSocketChannel->link1.next = nextlink1;
 	rsslServerSocketChannel->compressionSupported = RSSL_COMP_NONE;
 	rsslServerSocketChannel->protocolType = 0; // RIPC_RWF_PROTOCOL_TYPE;
-	rsslServerSocketChannel->encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
+	rsslServerSocketChannel->encryptionProtocolFlags = (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3);
 }
 
 RSSL_RSSL_SOCKET_IMPL_FAST(void) relRsslServerSocketChannel(RsslServerSocketChannel* rsslServerSocketChannel);
@@ -813,7 +798,7 @@ RsslRet ipcSetSocketChannelProtocolHdrFuncs(RsslSocketChannel * , RsslInt32 );
 RsslRet ipcSetProtocolHdrFuncs(RsslInt32 , ripcProtocolFuncs *);
 extern RsslRet ipcSetTransFunc(int, ripcTransportFuncs*);
 extern RsslRet ipcSetSSLFuncs(ripcSSLFuncs*);
-extern RsslRet ipcSetSSLTransFunc(int, ripcTransportFuncs*);
+extern RsslRet ipcSetSSLTransFunc(ripcTransportFuncs*);
 extern RsslRet ipcLoadOpenSSL(RsslError *error);
 
 extern ripcSSLApiFuncs* ipcGetOpenSSLAPIFuncs(RsslError* error);

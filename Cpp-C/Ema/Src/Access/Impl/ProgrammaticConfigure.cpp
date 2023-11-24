@@ -2250,11 +2250,6 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 				else if (fileCfgSocket)
 					socketChannelConfig->encryptedConnectionType = fileCfgSocket->encryptedConnectionType;
 
-				if (flags & SecurityProtocolEnum)
-					socketChannelConfig->securityProtocol = (int)encryptedSslProtocolVer;
-				else if (fileCfgSocket)
-					socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
-
 				if (flags & OpenSSLCAStoreEnum)
 					socketChannelConfig->sslCAStore = sslCAStore;
 				else if (fileCfgSocket)
@@ -2304,8 +2299,12 @@ void ProgrammaticConfigure::retrieveChannelInfo( const MapEntry& mapEntry, const
 					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
 						socketChannelConfig->serviceDiscoveryRetryCount = fileCfgSocket->serviceDiscoveryRetryCount;
 
+					if (flags & SecurityProtocolEnum)
+					{
+						socketChannelConfig->securityProtocol = (int)encryptedSslProtocolVer;
+					}
 					//need to copy other tunneling setting from function calls.
-					if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED)
+					else if (fileCfgSocket && fileCfgSocket->connectionType == RSSL_CONN_TYPE_ENCRYPTED )
 					{
 						socketChannelConfig->securityProtocol = fileCfgSocket->securityProtocol;
 					}
@@ -2711,7 +2710,8 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 	EmaString name, interfaceName, port, serverCert, serverPrivateKey, dhParams, cipherSuite, libSslName, libCryptoName, libCurlName, wsProtocols;
 	UInt16 serverType, compressionType;
 	UInt64 guaranteedOutputBuffers, compressionThreshold, connectionMinPingTimeout, connectionPingTimeout, numInputBuffers, sysSendBufSize, sysRecvBufSize, highWaterMark,
-		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket, directWrite;
+		tcpNodelay, initializationTimeout, maxFragmentSize, serverSharedSocket, directWrite,
+		securityProtocol;
 
 	UInt64 flags = 0;
 	UInt64 mcastFlags = 0;
@@ -2895,6 +2895,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 				directWrite = serverEntry.getUInt();
 				flags |= DirectWriteFlagEnum;
 			}
+			else if (serverEntry.getName() == "SecurityProtocol")
+			{
+				securityProtocol = serverEntry.getUInt();
+				flags |= SecurityProtocolFlagEnum;
+			}
 			break;
 		}
 	}
@@ -3030,6 +3035,11 @@ void ProgrammaticConfigure::retrieveServerInfo(const MapEntry& mapEntry, const E
 					pCurrentServerConfig->cipherSuite = cipherSuite;
 				else if (fileCfgSocket)
 					pCurrentServerConfig->cipherSuite = fileCfgSocket->cipherSuite;
+
+				if (flags & SecurityProtocolFlagEnum)
+					pCurrentServerConfig->securityProtocol = (int)securityProtocol;
+				else if (fileCfgSocket)
+					pCurrentServerConfig->securityProtocol = fileCfgSocket->securityProtocol;
 			}
 
 			if (websocketFlags & WebsocketProtocolEnum)

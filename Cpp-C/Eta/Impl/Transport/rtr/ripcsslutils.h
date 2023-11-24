@@ -87,15 +87,6 @@ void *ripcNewSSLSocket(void *server, RsslSocket fd, RsslInt32 *initComplete, voi
 /* creates and initializes new server structure */
 ripcSSLServer *ripcInitializeSSLServer(RsslServerSocketChannel* chnl, RsslError  *error);
 
-/* creates and initializes new client/session structure */
-ripcSSLSession *ripcInitializeSSLSession(RsslSocket fd, RsslInt32 SSLProtocolVersion, RsslSocketChannel* chnl, RsslError *error);
-
-/* connects session to a server */
-void *ripcSSLConnectTLSv1(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
-
-/* connects session to a server */
-void *ripcSSLConnectTLSv11(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
-
 /* connects session to a server */
 void *ripcSSLConnectTLSv12(RsslSocket fd, RsslInt32 *initComplete, void* userSpecPtr, RsslError *error);
 
@@ -133,9 +124,9 @@ RSSL_API RsslBool ripcCompareHostNameLen(char* host1, char* host2, unsigned int 
 
 RSSL_API RsslBool ripcVerifyCertHost(char* inputPattern, unsigned int patternLen, char* hostName, RsslError* err);
 
-OPENSSL_SSL_CTX* ripcSSLSetupCTXClient(ripcSSLProtocolFlags version, RsslSocketChannel* chnl, RsslError *error);
+OPENSSL_SSL_CTX* ripcSSLSetupCTXClient(OPENSSL_SSL_CTX *ctx, RsslSocketChannel* chnl, RsslError *error);
 
-OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(ripcSSLProtocolFlags version, RsslServerSocketChannel* chnl, RsslError *error);
+OPENSSL_SSL_CTX* ripcSSLSetupCTXServer(RsslServerSocketChannel* chnl, RsslError *error);
 
 RsslInt32 ripcGetCountInitializeSSLServer();
 

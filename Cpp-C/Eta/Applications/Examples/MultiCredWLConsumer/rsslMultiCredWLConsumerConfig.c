@@ -230,7 +230,15 @@ RsslRet parseJsonChannelInfo(cJSON* node, ConnectionInfoConfig* connectInfo)
 		connectInfo->connectionInfo.rsslConnectOptions.encryptionOpts.encryptedProtocol = (RsslUInt)cJSON_GetNumberValue(value);;
 	}
 
+	value = cJSON_GetObjectItem(node, "encryptionProtocolFlags");
+
+	if (value != NULL)
+	{
+		connectInfo->connectionInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = (RsslUInt32)cJSON_GetNumberValue(value);
+	}
+
 	value = cJSON_GetObjectItem(node, "SessionMgnt");
+
 	if (value != NULL)
 	{
 		if (cJSON_IsBool(value) == 0)

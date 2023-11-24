@@ -342,6 +342,15 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<RsslConnectionTypes>("ChannelGroup|ChannelList|Channel.Channel_12|EncryptedProtocolType", channelType);
 	EXPECT_TRUE(debugResult && channelType == RSSL_CONN_TYPE_WEBSOCKET) << "extracting EncryptedProtocolType from EmaConfig.xml";
 
+	// Checks ServerType == RSSL_CONN_TYPE_ENCRYPTED values from Server_13
+	serverType = RSSL_CONN_TYPE_INIT;
+	debugResult = config.get<RsslConnectionTypes>("ServerGroup|ServerList|Server.Server_13|ServerType", serverType);
+	EXPECT_TRUE(debugResult && serverType == RSSL_CONN_TYPE_ENCRYPTED) << "extracting ServerType from EmaConfig.xml";
+	// Checks Server:SecurityProtocol values from Server_13
+	uintValue = 0;
+	debugResult = config.get<UInt64>("ServerGroup|ServerList|Server.Server_13|SecurityProtocol", uintValue);
+	EXPECT_TRUE(debugResult && uintValue == 8) << "extracting Server_13|SecurityProtocol from EmaConfig.xml";
+
 	// Checks all values from Channel:DirectWrite
 	uintValue = 0;
 	debugResult = config.get<UInt64>("ChannelGroup|ChannelList|Channel.Channel_1|DirectWrite", uintValue);

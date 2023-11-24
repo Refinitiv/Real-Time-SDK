@@ -51,6 +51,7 @@ typedef struct
 {
 	RsslConnectionTypes	connectionType;					/* Type of RSSL transport to use. */
 	RsslConnectionTypes encryptedConnectionType;		/* Encrypted protocol when connectionType is RSSL_CONN_TYPE_ENCRYPTED */
+	RsslEncryptionProtocolTypes tlsProtocol;			/* Bitmap flag set defining the TLS version(s) to be used by this connection. See RsslEncryptionProtocolTypes */
 	char				interface[255];					/* Address of network interface to use. */
 
 	/* Socket configuration settings, when using a socket connection. */

@@ -20,6 +20,7 @@ void printHelp()
 		<< " -ppasswd Password on proxy server \n"
 		<< " -pdomain Proxy Domain \n"
 		<< " -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections \n"
+		<< " -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections \n"
 		<< " -libsslName name of the libssl.so shared library used with linux encrypted connections. \n"
 		<< " -libcryptoName name of the libcrypto.so shared library used with linux encrypted connections \n" << endl;
 }
@@ -61,6 +62,10 @@ int main( int argc, char* argv[] )
 			else if (strcmp(argv[i], "-spTLSv1.2") == 0)
 			{
 				securityProtocol |= OmmNiProviderConfig::ENC_TLSV1_2;
+			}
+			else if (strcmp(argv[i], "-spTLSv1.3") == 0)
+			{
+				securityProtocol |= OmmNiProviderConfig::ENC_TLSV1_3;
 			}
 			else if (strcmp(argv[i], "-libsslName") == 0)
 			{

@@ -121,6 +121,12 @@ OmmIProviderConfig& OmmIProviderConfig::libCurlName (const EmaString& libCurlNam
 	return *this;
 }
 
+OmmIProviderConfig& OmmIProviderConfig::securityProtocol(int securityProtocol)
+{
+	_pImpl->securityProtocol(securityProtocol);
+	return *this;
+}
+
 OmmIProviderConfig& OmmIProviderConfig::serverCert(const EmaString& serverCert)
 {
 	_pImpl->serverCert(serverCert);

@@ -47,7 +47,8 @@ EmaConfigBaseImpl::EmaConfigBaseImpl( const EmaString & path ) :
 	_instanceNodeName(),
 	_configSessionName(),
 	_userSetShouldInitializeCPUIDlib(false),
-	_shouldInitializeCPUIDlib(true)
+	_shouldInitializeCPUIDlib(true),
+	_securityProtocolSetViaFunctionCall(OmmConsumerConfig::ENC_NONE)
 {
 	createNameToValueHashTable();
 
@@ -69,6 +70,7 @@ void EmaConfigBaseImpl::clear()
 	_cpuApiThreadBind.clear();
 	_userSetShouldInitializeCPUIDlib = false;
 	_shouldInitializeCPUIDlib = true;
+	_securityProtocolSetViaFunctionCall = OmmConsumerConfig::ENC_NONE;
 }
 
 const XMLnode* EmaConfigBaseImpl::getNode(const EmaString& itemToRetrieve) const
@@ -788,6 +790,11 @@ void EmaConfigBaseImpl::setCpuApiThreadBind(const EmaString& cpuString)
 	_cpuApiThreadBind = cpuString;
 }
 
+void EmaConfigBaseImpl::securityProtocol(int securityProtocol)
+{
+	_securityProtocolSetViaFunctionCall = securityProtocol;
+}
+
 EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	EmaConfigBaseImpl( path ),
 	configFilePath(path),
@@ -800,7 +807,6 @@ EmaConfigImpl::EmaConfigImpl(const EmaString& path) :
 	_portSetViaFunctionCall(),
 	_proxyHostnameSetViaFunctionCall(),
 	_proxyPortSetViaFunctionCall(),
-	_securityProtocolSetViaFunctionCall(OmmConsumerConfig::ENC_NONE),
 	_proxyUserNameSetViaFunctionCall(),
 	_proxyPasswdSetViaFunctionCall(),
 	_proxyDomainSetViaFunctionCall(),
@@ -878,7 +884,6 @@ void EmaConfigImpl::clear()
 	_instanceNodeName.clear();
 	_proxyHostnameSetViaFunctionCall.clear();
 	_proxyPortSetViaFunctionCall.clear();
-	_securityProtocolSetViaFunctionCall = OmmConsumerConfig::ENC_NONE;
 	_proxyUserNameSetViaFunctionCall.clear();
 	_proxyPasswdSetViaFunctionCall.clear();
 	_proxyDomainSetViaFunctionCall.clear();
@@ -1263,11 +1268,6 @@ void EmaConfigImpl::proxyPort(const EmaString& proxyPort)
 		_proxyPortSetViaFunctionCall = proxyPort;
 	else
 		_proxyPortSetViaFunctionCall = "";
-}
-
-void EmaConfigImpl::securityProtocol(int securityProtocol)
-{
-	_securityProtocolSetViaFunctionCall = securityProtocol;
 }
 
 void EmaConfigImpl::proxyUserName(const EmaString& proxyUserName)

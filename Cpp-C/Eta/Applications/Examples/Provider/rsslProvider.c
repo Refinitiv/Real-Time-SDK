@@ -54,6 +54,8 @@ static char libsslName[255];
 static char libcryptoName[255];
 static char cookiesData[4096];
 
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
+
 static RsslBuffer cookieBuff = { 0 };
 static RsslConnectionTypes connType;
 static RsslInt32 timeToRun = 1200;
@@ -109,6 +111,8 @@ void exitWithUsage()
 	printf(" -httpCookie with ';' delineated list of cookies data\n");
 	printf(" -rtt if specified, support the round trip latency measurement\n");
 	printf(" -serverSharedSocket if specified, turn on server shared socket\n");
+	printf(" -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n");
+	printf(" -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n");
 #ifdef _WIN32
 		printf("\nPress Enter or Return key to exit application:");
 		getchar();
@@ -225,6 +229,14 @@ int main(int argc, char **argv)
 			++iargs; if (iargs == argc) exitWithUsage();
 			snprintf(cipherSuite, 128, "%s", argv[iargs]);
 			userSpecCipher = RSSL_TRUE;
+		}
+		else if (0 == strcmp("-spTLSv1.2", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_2;
+		}
+		else if (0 == strcmp("-spTLSv1.3", argv[iargs]))
+		{
+			tlsProtocol |= RSSL_ENC_TLSV1_3;
 		}
 		else if (strcmp("-jsonEnumExpand", argv[iargs]) == 0)
 		{
@@ -713,6 +725,9 @@ static RsslServer* bindRsslServer(char* portno, RsslError* error)
 
 	if (userSpecCipher == RSSL_TRUE)
 		sopts.encryptionOpts.cipherSuite = cipherSuite;
+
+	if (tlsProtocol != RSSL_ENC_NONE)
+		sopts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 
 	if ((srvr = rsslBind(&sopts, error)) != 0)
 	{

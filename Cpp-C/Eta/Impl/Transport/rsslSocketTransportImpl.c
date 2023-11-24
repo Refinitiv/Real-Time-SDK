@@ -160,8 +160,6 @@ static RsslInitializeExOpts  transOpts = RSSL_INIT_INITIALIZE_EX_OPTS;
 static ripcProtocolFuncs   protHdrFuncs[RIPC_MAX_TRANSPORTS];
 static ripcTransportFuncs   transFuncs[RIPC_MAX_TRANSPORTS];
 
-static ripcTransportFuncs 	encryptedSSLTransFuncs[RIPC_MAX_SSL_PROTOCOLS];
-
 static ripcSSLFuncs		SSLTransFuncs;
 
 static RsslUInt16		numInitCalls = 0;
@@ -378,88 +376,58 @@ RsslRet ipcSetTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
 	return(1);
 }
 
-RsslRet ipcSetSSLTransFunc(RsslInt32 type, ripcTransportFuncs *funcs)
+RsslRet ipcSetSSLTransFunc(ripcTransportFuncs *funcs)
 {
-	if (type >= RIPC_MAX_SSL_PROTOCOLS)
-		return(-1);
-
 	/* Each calling transport should have a definition for every
 	 * function pointer. 	 * */
-	encryptedSSLTransFuncs[type].bindSrvr = funcs->bindSrvr;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].bindSrvr = funcs->bindSrvr;
 
-	encryptedSSLTransFuncs[type].newSrvrConnection = funcs->newSrvrConnection;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].newSrvrConnection = funcs->newSrvrConnection;
 
-	encryptedSSLTransFuncs[type].connectSocket = funcs->connectSocket;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].connectSocket = funcs->connectSocket;
 
-	encryptedSSLTransFuncs[type].newClientConnection = funcs->newClientConnection;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].newClientConnection = funcs->newClientConnection;
 
-	encryptedSSLTransFuncs[type].initializeTransport = funcs->initializeTransport;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].initializeTransport = funcs->initializeTransport;
 
-	encryptedSSLTransFuncs[type].shutdownTransport = funcs->shutdownTransport;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].shutdownTransport = funcs->shutdownTransport;
 
-	encryptedSSLTransFuncs[type].readTransport = funcs->readTransport;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].readTransport = funcs->readTransport;
 
-	encryptedSSLTransFuncs[type].writeTransport = funcs->writeTransport;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].writeTransport = funcs->writeTransport;
 
-	encryptedSSLTransFuncs[type].writeVTransport = funcs->writeVTransport;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].writeVTransport = funcs->writeVTransport;
 
-	encryptedSSLTransFuncs[type].reconnectClient = funcs->reconnectClient;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].reconnectClient = funcs->reconnectClient;
 
-	encryptedSSLTransFuncs[type].acceptSocket = funcs->acceptSocket;
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].acceptSocket = funcs->acceptSocket;
 
 	/* If the calling function hasn't been assigned
 	 * its own, then the default ipc definition will be used
 	 * */
-	encryptedSSLTransFuncs[type].sessIoctl = (funcs->sessIoctl ? funcs->sessIoctl : transFuncs[RSSL_CONN_TYPE_SOCKET].sessIoctl);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].sessIoctl = (funcs->sessIoctl ? funcs->sessIoctl : transFuncs[RSSL_CONN_TYPE_SOCKET].sessIoctl);
 
-	encryptedSSLTransFuncs[type].getSockName = (funcs->getSockName ? funcs->getSockName : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockName);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].getSockName = (funcs->getSockName ? funcs->getSockName : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockName);
 
-	encryptedSSLTransFuncs[type].setSockOpts = (funcs->setSockOpts ? funcs->setSockOpts : transFuncs[RSSL_CONN_TYPE_SOCKET].setSockOpts);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].setSockOpts = (funcs->setSockOpts ? funcs->setSockOpts : transFuncs[RSSL_CONN_TYPE_SOCKET].setSockOpts);
 
-	encryptedSSLTransFuncs[type].getSockOpts = (funcs->getSockOpts ? funcs->getSockOpts : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockOpts);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].getSockOpts = (funcs->getSockOpts ? funcs->getSockOpts : transFuncs[RSSL_CONN_TYPE_SOCKET].getSockOpts);
 
-	encryptedSSLTransFuncs[type].connected = (funcs->connected ? funcs->connected : transFuncs[RSSL_CONN_TYPE_SOCKET].connected);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].connected = (funcs->connected ? funcs->connected : transFuncs[RSSL_CONN_TYPE_SOCKET].connected);
 
-	encryptedSSLTransFuncs[type].shutdownServer = (funcs->shutdownServer ? funcs->shutdownServer : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].shutdownServer = (funcs->shutdownServer ? funcs->shutdownServer : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownServer);
 
-	encryptedSSLTransFuncs[type].shutdownSrvrError = (funcs->shutdownSrvrError ? funcs->shutdownSrvrError : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownSrvrError);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].shutdownSrvrError = (funcs->shutdownSrvrError ? funcs->shutdownSrvrError : transFuncs[RSSL_CONN_TYPE_SOCKET].shutdownSrvrError);
 
-	encryptedSSLTransFuncs[type].uninitialize = (funcs->uninitialize ? funcs->uninitialize : transFuncs[RSSL_CONN_TYPE_SOCKET].uninitialize);
+	transFuncs[RSSL_CONN_TYPE_ENCRYPTED].uninitialize = (funcs->uninitialize ? funcs->uninitialize : transFuncs[RSSL_CONN_TYPE_SOCKET].uninitialize);
 
 	return(1);
 }
 
 RsslRet getSSLProtocolTransFuncs(RsslSocketChannel* rsslSocketChannel, ripcSSLProtocolFlags protocolBitmap)
 {
-	if (protocolBitmap == RIPC_PROTO_SSL_NONE)
-		return RSSL_RET_FAILURE;
-	if ((protocolBitmap & RIPC_PROTO_SSL_TLS) != 0)
-	{
-		/* Used for OpenSSLv1.1.X to undicate actual TLS_V1_2 */
-		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_2;
-		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS];
-		return RSSL_RET_SUCCESS;
-	}
-	if ((protocolBitmap & RIPC_PROTO_SSL_TLS_V1_2) != 0)
-	{
-        rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_2;
-		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS_V1_2];
-		return RSSL_RET_SUCCESS;
-	}
-	if ((protocolBitmap & RIPC_PROTO_SSL_TLS_V1_1) != 0)
-	{
-		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1_1;
-		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS_V1_1];
-		return RSSL_RET_SUCCESS;
-	}
-	if ((protocolBitmap & RIPC_PROTO_SSL_TLS_V1) != 0)
-	{
-		rsslSocketChannel->sslCurrentProtocol = RIPC_PROTO_SSL_TLS_V1;
-		rsslSocketChannel->transportFuncs = &encryptedSSLTransFuncs[RIPC_SSL_TLS_V1];
-		return RSSL_RET_SUCCESS;
-	}
-
-	return RSSL_RET_FAILURE;
+	rsslSocketChannel->transportFuncs = &transFuncs[RSSL_CONN_TYPE_ENCRYPTED];
+	return RSSL_RET_SUCCESS;
 }
 
 RsslRet ipcSetSSLFuncs(ripcSSLFuncs *funcs)
@@ -7675,14 +7643,14 @@ RsslRet rsslSocketBind(rsslServerImpl* rsslSrvrImpl, RsslBindOptions *opts, Rssl
 			return RSSL_RET_FAILURE;
 		}
 
-		rsslServerSocketChannel->encryptionProtocolFlags = opts->encryptionOpts.encryptionProtocolFlags | RIPC_PROTO_SSL_TLS;
+		rsslServerSocketChannel->encryptionProtocolFlags = opts->encryptionOpts.encryptionProtocolFlags;
 
 		rsslServerSocketChannel->encryptionProtocolFlags &= ripcGetSupportedProtocolFlags();
 		if (rsslServerSocketChannel->encryptionProtocolFlags == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-				"<%s:%d> Error: 0012 OpenSSL does not support any of the configured TLS versions.\n",
+				"<%s:%d> Error: 0012 OpenSSL does not support the specified TLS version.\n",
 				__FILE__, __LINE__);
 			return RSSL_RET_FAILURE;
 		}
@@ -8325,14 +8293,14 @@ RsslRet rsslSocketConnect(rsslChannelImpl* rsslChnlImpl, RsslConnectOptions *opt
 			return RSSL_RET_FAILURE;
 		}
 
-		rsslSocketChannel->sslProtocolBitmap = rsslSocketChannel->encryptionProtocolFlags | RIPC_PROTO_SSL_TLS;
+		rsslSocketChannel->sslProtocolBitmap = rsslSocketChannel->encryptionProtocolFlags;
 
 		rsslSocketChannel->sslProtocolBitmap &= ripcGetSupportedProtocolFlags();
 		if(rsslSocketChannel->sslProtocolBitmap == 0)
 		{
 			_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);
 			snprintf(error->text, MAX_RSSL_ERROR_TEXT,
-					"<%s:%d> Error: 0012 OpenSSL does not support any of the configured TLS versions.\n",
+					"<%s:%d> Error: 0012 OpenSSL does not support the specified TLS version.\n",
 					__FILE__, __LINE__);
 
 			return RSSL_RET_FAILURE;
@@ -11204,30 +11172,6 @@ RsslInt32 ipcInitialize(RsslInt32 numServers, RsslInt32 numClients, RsslInitiali
 			transFuncs[i].connected = 0;
 			transFuncs[i].shutdownServer = 0;
 			transFuncs[i].uninitialize = 0;
-		}
-
-		for (i = 0; i< RIPC_MAX_SSL_PROTOCOLS; i++)
-		{
-			encryptedSSLTransFuncs[i].bindSrvr = 0;
-			encryptedSSLTransFuncs[i].newSrvrConnection = 0;
-			encryptedSSLTransFuncs[i].connectSocket = 0;
-			encryptedSSLTransFuncs[i].newClientConnection = 0;
-			encryptedSSLTransFuncs[i].initializeTransport = 0;
-			encryptedSSLTransFuncs[i].shutdownTransport = 0;
-			encryptedSSLTransFuncs[i].readTransport = 0;
-			encryptedSSLTransFuncs[i].writeTransport = 0;
-			encryptedSSLTransFuncs[i].writeVTransport = 0;
-			encryptedSSLTransFuncs[i].reconnectClient = 0;
-			encryptedSSLTransFuncs[i].acceptSocket = 0;
-			encryptedSSLTransFuncs[i].shutdownSrvrError = 0;
-			encryptedSSLTransFuncs[i].sessIoctl = 0;
-
-			encryptedSSLTransFuncs[i].getSockName = 0;
-			encryptedSSLTransFuncs[i].setSockOpts = 0;
-			encryptedSSLTransFuncs[i].getSockOpts = 0;
-			encryptedSSLTransFuncs[i].connected = 0;
-			encryptedSSLTransFuncs[i].shutdownServer = 0;
-			encryptedSSLTransFuncs[i].uninitialize = 0;
 		}
 
 		ipcSetSockFuncs();

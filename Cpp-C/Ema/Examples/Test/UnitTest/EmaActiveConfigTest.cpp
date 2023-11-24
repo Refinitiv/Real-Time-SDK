@@ -112,7 +112,7 @@ void EmaActiveConfigTest::SocketChannelConfigTestDefaultValues(SocketChannelConf
 	EXPECT_EQ(socketChannelConfig.proxyConnectionTimeout, DEFAULT_PROXY_CONNECTION_TIMEOUT);
 
 	EXPECT_EQ(socketChannelConfig.encryptedConnectionType, RSSL_CONN_TYPE_INIT);
-	EXPECT_EQ(socketChannelConfig.securityProtocol, RSSL_ENC_TLSV1_2);
+	EXPECT_EQ(socketChannelConfig.securityProtocol, (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3));
 
 	EXPECT_EQ(socketChannelConfig.enableSessionMgnt, RSSL_FALSE);
 	EXPECT_TRUE(socketChannelConfig.location == DEFAULT_RDP_RT_LOCATION);
@@ -265,6 +265,8 @@ void EmaActiveConfigTest::SocketServerConfigTestDefaultValues(SocketServerConfig
 	EXPECT_EQ(socketServerConfig.maxFragmentSize, DEFAULT_MAX_FRAGMENT_SIZE);
 	EXPECT_EQ(socketServerConfig.wsProtocols, DEFAULT_WS_PROTOCLOS);
 
+	EXPECT_EQ(socketServerConfig.securityProtocol, (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3));
+
 	EXPECT_TRUE(socketServerConfig.libSslName.empty());
 	EXPECT_TRUE(socketServerConfig.libCryptoName.empty());
 	EXPECT_TRUE(socketServerConfig.libCurlName.empty());
@@ -295,6 +297,8 @@ TEST_F(EmaActiveConfigTest, SocketServerConfigTest)
 	socketServerConfig.serverPrivateKey = "liserverPrivateKeybSslName";
 	socketServerConfig.cipherSuite = "cipherSuite";
 	socketServerConfig.dhParams = "dhParams";
+
+	socketServerConfig.securityProtocol = RSSL_ENC_NONE;
 
 	// Tests clear method
 	socketServerConfig.clear();

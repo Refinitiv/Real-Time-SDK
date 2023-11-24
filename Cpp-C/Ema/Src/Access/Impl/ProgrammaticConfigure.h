@@ -81,8 +81,8 @@ public:
 		MaxFragmentSizeFlagEnum =		0x0200000,
 		ServerSharedSocketEnum =		0x0400000,
 		WebsocketProtocolEnum =			0x0800000,
-		DirectWriteFlagEnum =			0x1000000
-
+		DirectWriteFlagEnum =			0x1000000,
+		SecurityProtocolFlagEnum =		0x2000000
 	};
 
 	enum ClientEntryFlagEnum

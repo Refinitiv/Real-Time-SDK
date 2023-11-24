@@ -541,6 +541,21 @@
             <Port value="14002"/>
             <ServerSharedSocket value="1"/>
         </Server>
+        <Server>
+            <Name value="Server_13"/>
+            <ServerType value="ServerType::RSSL_ENCRYPTED"/>
+            <!-- CompressionType is optional: defaulted to None -->
+            <!-- possible values: None, ZLib, LZ4 -->
+            <CompressionType value="CompressionType::None"/>
+            <GuaranteedOutputBuffers value="5000"/>
+            <!-- ConnectionPingTimeout is optional: defaulted to 30000 -->
+            <ConnectionPingTimeout value="30000"/>
+            <!-- TcpNodelay is optional: defaulted to 1 -->
+            <!-- possible values: 1 (tcp_nodelay option set), 0 (tcp_nodelay not set) -->
+            <TcpNodelay value="1"/>
+            <Port value="14002"/>
+            <SecurityProtocol value="8"/>
+        </Server>
     </ServerList>
 </ServerGroup>
 
