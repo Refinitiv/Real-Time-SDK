@@ -30,7 +30,8 @@ typedef enum
 	RSSL_RCIMPL_ET_TOKEN_SESSION_MGNT = -7,	/* For handling token session */
 	RSSL_RCIMPL_ET_WARM_STANDBY = -8, /* For handling warm standby feature */
 	RSSL_RCIMPL_ET_LOGGING = -9,		/* Logging message event */
-	RSSL_RCIMPL_ET_LOGIN_RENEWAL = -10 /* RDM Login Msg credential renewal event */
+	RSSL_RCIMPL_ET_LOGIN_RENEWAL = -10, /* RDM Login Msg credential renewal event */
+	RSSL_RCIMPL_ET_REST_REQ_RESP = -11 /* REST request and response event for service discovery */
 } RsslReactorEventImplType;
 
 typedef struct
@@ -274,6 +275,20 @@ RTR_C_INLINE void rsslClearReactorLoggingEvent(RsslReactorLoggingEvent* pRestLog
 	pRestLoggingEvent->base.eventType = RSSL_RCIMPL_ET_LOGGING;
 }
 
+/* Rest request and response Event. This is used internally to send REST request/response between main and work threads. */
+typedef struct
+{
+	RsslReactorEventImplBase base;
+	RsslReactorExplicitServiceDiscoveryInfo* pExplicitSDInfo;
+	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl;
+} RsslReactorRestRequestResponseEvent;
+
+RTR_C_INLINE void rsslClearReactorRestRequestResponseEvent(RsslReactorRestRequestResponseEvent* pRestRequestResponseEvent)
+{
+	memset(pRestRequestResponseEvent, 0, sizeof(RsslReactorRestRequestResponseEvent));
+	pRestRequestResponseEvent->base.eventType = RSSL_RCIMPL_ET_REST_REQ_RESP;
+}
+
 typedef union 
 {
 	RsslReactorEventImplBase			base;
@@ -287,6 +302,7 @@ typedef union
 	RsslReactorTimerEvent				timerEvent;
 	RsslReactorLoggingEvent				restLoggingEvent;
 	RsslReactorLoginCredentialRenewalEvent loginRenewalEvent;
+	RsslReactorRestRequestResponseEvent restRequestResponseEvent;
 } RsslReactorEventImpl;
 
 RTR_C_INLINE void rsslClearReactorEventImpl(RsslReactorEventImpl *pEvent)

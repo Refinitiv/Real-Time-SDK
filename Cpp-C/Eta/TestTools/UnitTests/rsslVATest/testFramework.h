@@ -17,6 +17,8 @@
 
 extern RsslBuffer g_userName;
 extern RsslBuffer g_password;
+extern RsslBuffer g_clientId;
+extern RsslBuffer g_clientSecret;
 
 #ifdef __cplusplus
 extern "C" {

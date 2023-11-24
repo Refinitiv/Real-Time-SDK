@@ -1724,12 +1724,16 @@ struct ReactorServiceDiscoveryEndpointResult
 	RsslUInt32 Num_tcp_transport;
 	RsslUInt32 Num_websocket_transport;
 	RsslUInt32 HttpStatusCode;
+
+	RsslBool ReceivedResponse;
 };
 
 struct ReactorServiceDiscoveryEndpointError
 {
 	RsslUInt32 HttpStatusCode;
 	char* expectedText;
+
+	RsslBool ReceivedResponse;
 };
 
 void rsslClearReactorServiceDiscoveryEndpointResult(ReactorServiceDiscoveryEndpointResult *result)
@@ -1839,7 +1843,26 @@ RsslBool validateServiceDiscoveryEndpoints(RsslReactorServiceEndpointEvent *even
 	return RSSL_TRUE;
 }
 
-class ReactorQueryServiceDiscoveryTest : public ::testing::Test {
+class ReactorQueryServiceDiscoveryTestParameters
+{
+public:
+	RsslBool restBlocking;
+	RsslUInt8 oAuthVersion;
+
+	ReactorQueryServiceDiscoveryTestParameters(RsslBool blocking, RsslUInt8 version)
+	{
+		restBlocking = blocking;
+		oAuthVersion = version;
+	}
+
+	friend std::ostream& operator<<(std::ostream& out, const ReactorQueryServiceDiscoveryTestParameters& params)
+	{
+		out << "Rest blocking = " << params.restBlocking << std::endl;
+		return out;
+	}
+};
+
+class ReactorQueryServiceDiscoveryTest : public ::testing::TestWithParam<ReactorQueryServiceDiscoveryTestParameters> {
 public:
 
 	static void SetUpTestCase()
@@ -1861,54 +1884,128 @@ protected:
 		ASSERT_TRUE(rsslDestroyReactor(_pReactor, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 	}
 
+	void DispatchServiceDiscoveryEvent(ReactorQueryServiceDiscoveryTestParameters parameters,
+		ReactorServiceDiscoveryEndpointResult* pExpectedResult, ReactorServiceDiscoveryEndpointError* pExpectedError)
+	{
+		if (parameters.restBlocking == RSSL_FALSE)
+		{
+			RsslBool exit = RSSL_FALSE;
+			do
+			{
+				struct timeval 				selectTime;
+				RsslReactorDispatchOptions	dispatchOpts;
+				fd_set readFds, exceptFds;
+				int ret;
+
+				FD_ZERO(&readFds);
+				FD_ZERO(&exceptFds);
+				FD_SET(_pReactor->eventFd, &readFds);
+				FD_SET(_pReactor->eventFd, &exceptFds);
+
+
+				selectTime.tv_sec = 1; selectTime.tv_usec = 0;
+				ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
+
+				rsslClearReactorDispatchOptions(&dispatchOpts);
+				while ((ret = rsslReactorDispatch(_pReactor, &dispatchOpts, &rsslErrorInfo)) > RSSL_RET_SUCCESS)
+					;
+
+				exit = pExpectedResult != NULL ? pExpectedResult->ReceivedResponse : pExpectedError->ReceivedResponse;
+
+			} while (!exit);
+		}
+	}
+
 	RsslReactor *_pReactor;
 	RsslReactorServiceDiscoveryOptions _reactorServiceDiscoveryOpts;
 };
 
-TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_UserName_NotSpecified)
+INSTANTIATE_TEST_CASE_P(
+	TestingReactorQueryServiceDiscoveryTests,
+	ReactorQueryServiceDiscoveryTest,
+	::testing::Values(
+
+		ReactorQueryServiceDiscoveryTestParameters(RSSL_TRUE, 1),
+		ReactorQueryServiceDiscoveryTestParameters(RSSL_FALSE, 1),
+		ReactorQueryServiceDiscoveryTestParameters(RSSL_TRUE, 2),
+		ReactorQueryServiceDiscoveryTestParameters(RSSL_FALSE, 2)
+	));
+
+
+TEST_P(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_UserName_NotSpecified)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	rsslClearCreateReactorOptions(&mOpts);
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
+
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Password_NotSpecified)
+TEST_P(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Password_NotSpecified)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
+
 	rsslClearCreateReactorOptions(&mOpts);
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if(parameters.oAuthVersion == 1)
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+	else
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_ClientId_NotSpecified)
+TEST_P(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_ClientId_NotSpecified)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
+
 	rsslClearCreateReactorOptions(&mOpts);
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+	}
+
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Callback_NotSpecified)
+TEST_P(ReactorQueryServiceDiscoveryTest, RsslReactorServiceDiscoveryOptions_Callback_NotSpecified)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	rsslClearCreateReactorOptions(&mOpts);
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_STREQ("RsslReactorServiceDiscoveryOptions.pServiceEndpointEventCallback not provided.", rsslErrorInfo.rsslError.text);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointResult expectedResult;
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
@@ -1932,19 +2029,32 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
  	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -1964,20 +2074,32 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_RwfDataformat)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_RwfDataformat)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -1997,20 +2119,31 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_RwfDataformat)
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_RWF;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_WebsocketTransport)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_WebsocketTransport)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -2030,20 +2163,32 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_WebsocketTranspo
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_Tr_json2Dataformat)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_Tr_json2Dataformat)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -2063,20 +2208,32 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_Tr_json2Dataform
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_JSON2;
 
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_tokenScope_ClientSecret)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_tokenScope_ClientSecret)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -2092,27 +2249,49 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_tokenScope_Clie
 	expectedResult.Num_websocket_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
-	mOpts.userSpecPtr = &expectedResult;
-	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+	ReactorServiceDiscoveryEndpointError expectedError;
+	expectedError.expectedText = (char*)"Invalid client or client credentials";
+	expectedError.HttpStatusCode = 401;
+	expectedError.ReceivedResponse = RSSL_FALSE;
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+		mOpts.userSpecPtr = &expectedResult;
+		_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		mOpts.userSpecPtr = &expectedError;
+		_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
+	}
+
+	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+
 	_reactorServiceDiscoveryOpts.clientSecret.length = 5;
 	_reactorServiceDiscoveryOpts.clientSecret.data = const_cast<char*>("ABCDE");
 	_reactorServiceDiscoveryOpts.tokenScope.length = 5;
 	_reactorServiceDiscoveryOpts.tokenScope.data = const_cast<char*>("trapi.streaming.pricing.read");
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 
-	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
-
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	if (parameters.oAuthVersion == 1)
+		DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
+	else
+		DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_empty_tokenscope)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_empty_tokenscope)
 {
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -2132,9 +2311,18 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_empty_tokenscop
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.tokenScope.length = 0; 
 	_reactorServiceDiscoveryOpts.tokenScope.data = const_cast<char*>(""); /* the Reactor uses the default scope instead */
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
@@ -2142,13 +2330,17 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_empty_tokenscop
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombination_TCP_JSON2)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombination_TCP_JSON2)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointError expectedError;
 	expectedError.expectedText = (char*)"Operation found no data";
 	expectedError.HttpStatusCode = 404;
+	expectedError.ReceivedResponse = RSSL_FALSE;
 
 	rsslClearCreateReactorOptions(&mOpts);
 
@@ -2156,22 +2348,35 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombinat
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_JSON2;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombination_WEBSOCKET_RWF)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombination_WEBSOCKET_RWF)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointError expectedError;
 	expectedError.expectedText = (char*)"Operation found no data";
 	expectedError.HttpStatusCode = 404;
+	expectedError.ReceivedResponse = RSSL_FALSE;
 
 	rsslClearCreateReactorOptions(&mOpts);
 
@@ -2179,19 +2384,31 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombinat
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_RWF;
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTransportProtocol)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTransportProtocol)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointResult expectedResult;
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
@@ -2201,19 +2418,29 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTranspor
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.transport = (RsslReactorDiscoveryTransportProtocol)99;
 
-	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
+	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Invalid transport protocol type 99.");
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidDataformatProtocol)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidDataformatProtocol)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointResult expectedResult;
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
@@ -2223,22 +2450,33 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidDataform
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 	_reactorServiceDiscoveryOpts.dataFormat = (RsslReactorDiscoveryDataFormatProtocol)88;
 
-	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
+	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_INVALID_ARGUMENT);
 	ASSERT_STREQ(rsslErrorInfo.rsslError.text, "Invalid dataformat protocol type 88.");
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidClientID)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidClientID)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointError expectedError;
 	expectedError.expectedText = (char*)"clientId field is invalid";
 	expectedError.HttpStatusCode = 401;
+	expectedError.ReceivedResponse = RSSL_FALSE;
 	RsslBuffer clientId = { 17, (char*)"invalid_clientID" };
 
 	rsslClearCreateReactorOptions(&mOpts);
@@ -2247,49 +2485,105 @@ TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidClientID
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = clientId;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = clientId;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTokenServiceUrl)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTokenServiceUrl)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	rsslClearCreateReactorOptions(&mOpts);
 
-	mOpts.tokenServiceURL.data = (char *)"https://abc.edp.refinitiv.com/auth/oauth2/beta1/token/xx1";
-	mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
+	ReactorServiceDiscoveryEndpointError expectedError;
+	expectedError.expectedText = (char*)"Curl failed to perform the request with text: Couldn't resolve host name";
+	expectedError.HttpStatusCode = 0;
+	expectedError.ReceivedResponse = RSSL_FALSE;
+
+	mOpts.userSpecPtr = &expectedError;
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+		mOpts.tokenServiceURL.data = (char*)"https://abc.edp.refinitiv.com/auth/oauth2/beta1/token/xx1";
+		mOpts.tokenServiceURL.length = (RsslUInt32)strlen(mOpts.tokenServiceURL.data);
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+		mOpts.tokenServiceURL_V2.data = (char*)"https://abc.edp.refinitiv.com/auth/oauth2/beta1/token/xx1";
+		mOpts.tokenServiceURL_V2.length = (RsslUInt32)strlen(mOpts.tokenServiceURL_V2.data);
+	}
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
-	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_FAILURE);
+	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
+
+	RsslRet expectedRet = parameters.restBlocking ? -1 : 0;
+
+	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == expectedRet);
+
+	DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
 }
 
-TEST_F(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidServiceDiscoveryUrl)
+TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidServiceDiscoveryUrl)
 {
+	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	rsslClearCreateReactorOptions(&mOpts);
+
+	ReactorServiceDiscoveryEndpointError expectedError;
+	expectedError.expectedText = (char*)"Curl failed to perform the request with text: Couldn't resolve host name";
+	expectedError.HttpStatusCode = 0;
+	expectedError.ReceivedResponse = RSSL_FALSE;
 
 	mOpts.serviceDiscoveryURL.data = (char *)"https://abc.edp.refinitiv.com/streaming/pricing/xx1";
 	mOpts.serviceDiscoveryURL.length = (RsslUInt32)strlen(mOpts.serviceDiscoveryURL.data);
+	mOpts.userSpecPtr = &expectedError;
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
-	_reactorServiceDiscoveryOpts.userName = g_userName;
-	_reactorServiceDiscoveryOpts.password = g_password;
-	_reactorServiceDiscoveryOpts.clientId = g_userName;
+	_reactorServiceDiscoveryOpts.restBlocking = parameters.restBlocking;
+	if (parameters.oAuthVersion == 1)
+	{
+		_reactorServiceDiscoveryOpts.userName = g_userName;
+		_reactorServiceDiscoveryOpts.password = g_password;
+		_reactorServiceDiscoveryOpts.clientId = g_userName;
+	}
+	else
+	{
+		_reactorServiceDiscoveryOpts.clientId = g_clientId;
+		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
+	}
 
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
-	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_FAILURE);
+	RsslRet expectedRet = parameters.restBlocking ? -1 : 0;
+
+	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == expectedRet);
+
+	DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
 }
 
 static void copyMutRDMMsg(MutMsg *pMutMsg, RsslRDMMsg *pRDMMsg, RsslReactorChannel *pReactorChannel)
@@ -2609,6 +2903,8 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 
 	EXPECT_TRUE(validateServiceDiscoveryEndpoints(pServiceEndpointEvent, expectedResult));
 
+	expectedResult->ReceivedResponse = RSSL_TRUE;
+
 	return RSSL_RC_CRET_SUCCESS;
 }
 
@@ -2619,6 +2915,8 @@ RsslReactorCallbackRet serviceEndpointEventCallbackForError(RsslReactor *pReacto
 	EXPECT_TRUE(pServiceEndpointEvent->pErrorInfo->rsslError.rsslErrorId == RSSL_RET_FAILURE);
 	EXPECT_TRUE(strtok(pServiceEndpointEvent->pErrorInfo->rsslError.text, expectedError->expectedText) != NULL);
 	EXPECT_TRUE(pServiceEndpointEvent->statusCode == expectedError->HttpStatusCode);
+
+	expectedError->ReceivedResponse = RSSL_TRUE;
 
 	return RSSL_RC_CRET_SUCCESS;
 }

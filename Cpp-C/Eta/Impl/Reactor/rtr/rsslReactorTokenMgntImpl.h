@@ -21,6 +21,8 @@ extern "C" {
 
 typedef struct _RsslReactorOAuthCredentialRenewalImpl RsslReactorOAuthCredentialRenewalImpl;
 
+typedef struct _RsslReactorExplicitServiceDiscoveryInfo RsslReactorExplicitServiceDiscoveryInfo;
+
 /* RsslReactorChannelInfoImplState
 * - Represents states for token management and requesting service discovery */
 typedef enum
@@ -90,6 +92,8 @@ typedef struct
 	RsslReactorSessionMgmtVersion sessionVersion;
 	void*						userSpecPtr;
 
+	RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo; /* This is set when performing non-blocking explicit service discovery */
+
 } RsslReactorTokenSessionImpl;
 
 RTR_C_INLINE void rsslClearReactorTokenSessionImpl(RsslReactorTokenSessionImpl *pTokenSessionImpl)
@@ -99,23 +103,40 @@ RTR_C_INLINE void rsslClearReactorTokenSessionImpl(RsslReactorTokenSessionImpl *
 	RSSL_MUTEX_INIT(&pTokenSessionImpl->accessTokenMutex);
 }
 
-RTR_C_INLINE void rsslFreeReactorTokenSessionImpl(RsslReactorTokenSessionImpl *pTokenSessionImpl)
+RTR_C_INLINE void rsslFreeServiceDiscoveryOptions(RsslReactorServiceDiscoveryOptions* pOpts)
 {
-	free(pTokenSessionImpl->tokenInformationBuffer.data);
-	free(pTokenSessionImpl->rsslAccessTokenRespBuffer.data);
-	free(pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.data);
-	free(pTokenSessionImpl->rsslPostDataBodyBuf.data);
-	free(pTokenSessionImpl->userNameAndClientId.data);
-	free(pTokenSessionImpl->pOAuthCredential);
-	free(pTokenSessionImpl->sessionAuthUrl.data);
-	RSSL_MUTEX_DESTROY(&pTokenSessionImpl->accessTokenMutex);
+	if (pOpts->userName.data != NULL)
+		free(pOpts->userName.data);
 
-	rsslFreeConnectOpts(&pTokenSessionImpl->proxyConnectOpts);
-	free(pTokenSessionImpl->temporaryURLBuffer.data);
+	if (pOpts->password.data != NULL)
+		free(pOpts->password.data);
 
-	memset(pTokenSessionImpl, 0, sizeof(RsslReactorTokenSessionImpl));
+	if (pOpts->clientSecret.data != NULL)
+		free(pOpts->clientSecret.data);
 
-	free(pTokenSessionImpl);
+	if (pOpts->tokenScope.data != NULL)
+		free(pOpts->tokenScope.data);
+
+	if (pOpts->proxyHostName.data != NULL)
+		free(pOpts->proxyHostName.data);
+
+	if (pOpts->proxyPort.data != NULL)
+		free(pOpts->proxyPort.data);
+
+	if (pOpts->proxyUserName.data != NULL)
+		free(pOpts->proxyUserName.data);
+
+	if (pOpts->proxyPasswd.data != NULL)
+		free(pOpts->proxyPasswd.data);
+
+	if (pOpts->proxyDomain.data != NULL)
+		free(pOpts->proxyDomain.data);
+
+	if (pOpts->clientJWK.data != NULL)
+		free(pOpts->clientJWK.data);
+
+	if (pOpts->audience.data != NULL)
+		free(pOpts->audience.data);
 }
 
 /* RsslReactorOAuthCredentialRenewalImpl
@@ -177,6 +198,69 @@ RTR_C_INLINE void rsslClearReactorErrorInfoImpl(RsslReactorErrorInfoImpl *pError
 {
 	memset(&pErrorInfoImpl->rsslErrorInfo, 0, sizeof(RsslErrorInfo));
 	pErrorInfoImpl->referenceCount = 0;
+}
+
+typedef enum
+{
+	RSSL_RCIMPL_ET_REST_RESP_UNKNOWN = 0x00,
+	RSSL_RCIMPL_ET_REST_RESP_AUTH_SERVICE = 0x01
+} RsslReactorRestRequestType;
+
+/* This is used to keep the query service discovery options. */
+struct _RsslReactorExplicitServiceDiscoveryInfo
+{
+	RsslReactorRestRequestType restRequestType;
+	RsslRestRequestArgs* pRestRequestArgs;
+	RsslBuffer restRequestBuf;
+	RsslBuffer restResponseBuf;
+	RsslReactorServiceDiscoveryOptions serviceDiscoveryOptions;
+	int sessionMgntVersion; /* either RSSL_RC_SESSMGMT_V1 or RSSL_RC_SESSMGMT_V2 */
+	RsslReactor* pReactor;
+	RsslBuffer parseRespBuffer;
+	RsslUInt32 httpStatusCode;
+	RsslReactorTokenSessionImpl* pTokenSessionImpl;
+};
+
+RTR_C_INLINE void rsslClearReactorExplicitServiceDiscoveryInfo(RsslReactorExplicitServiceDiscoveryInfo* pServiceDiscoveryInfo)
+{
+	memset(pServiceDiscoveryInfo, 0, sizeof(RsslReactorExplicitServiceDiscoveryInfo));
+}
+
+RTR_C_INLINE void rsslFreeReactorExplicitServiceDiscoveryInfo(RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo)
+{
+	free(pExplicitServiceDiscoveryInfo->restRequestBuf.data);
+	free(pExplicitServiceDiscoveryInfo->restResponseBuf.data);
+	free(pExplicitServiceDiscoveryInfo->parseRespBuffer.data);
+
+	rsslFreeServiceDiscoveryOptions(&pExplicitServiceDiscoveryInfo->serviceDiscoveryOptions);
+
+	memset(pExplicitServiceDiscoveryInfo, 0, sizeof(pExplicitServiceDiscoveryInfo));
+
+	free(pExplicitServiceDiscoveryInfo);
+}
+
+RTR_C_INLINE void rsslFreeReactorTokenSessionImpl(RsslReactorTokenSessionImpl* pTokenSessionImpl)
+{
+	free(pTokenSessionImpl->tokenInformationBuffer.data);
+	free(pTokenSessionImpl->rsslAccessTokenRespBuffer.data);
+	free(pTokenSessionImpl->rsslServiceDiscoveryRespBuffer.data);
+	free(pTokenSessionImpl->rsslPostDataBodyBuf.data);
+	free(pTokenSessionImpl->userNameAndClientId.data);
+	free(pTokenSessionImpl->pOAuthCredential);
+	free(pTokenSessionImpl->sessionAuthUrl.data);
+	RSSL_MUTEX_DESTROY(&pTokenSessionImpl->accessTokenMutex);
+
+	rsslFreeConnectOpts(&pTokenSessionImpl->proxyConnectOpts);
+	free(pTokenSessionImpl->temporaryURLBuffer.data);
+
+	if (pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
+	{
+		rsslFreeReactorExplicitServiceDiscoveryInfo(pTokenSessionImpl->pExplicitServiceDiscoveryInfo);
+	}
+
+	memset(pTokenSessionImpl, 0, sizeof(RsslReactorTokenSessionImpl));
+
+	free(pTokenSessionImpl);
 }
 
 #ifdef __cplusplus

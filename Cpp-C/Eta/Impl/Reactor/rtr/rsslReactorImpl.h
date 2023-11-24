@@ -2273,6 +2273,8 @@ RsslRet _initReactorChannelDebugInfo(RsslReactorImpl *pReactorImpl, RsslReactorC
 
 void _cleanupReactorChannelDebugInfo(RsslReactorChannelImpl *pReactorChannel);
 
+void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs);
+
 #ifdef __cplusplus
 };
 #endif

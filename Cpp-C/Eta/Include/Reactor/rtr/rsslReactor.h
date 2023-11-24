@@ -504,6 +504,9 @@ typedef struct
 																			 *   Mandatory for V2 Client Credentials with JWT Logins. */
 	RsslBuffer								audience;						/*!< Specifies the audience claim for the JWT. Optional and only used for V2 Client Credentials with JWT Logins. 
 																			 *   The default value is: https://login.ciam.refinitiv.com/as/token.oauth2 */
+
+	RsslBool                                restBlocking;                   /*!< Specifies whether to send REST blocking for authentication and service discovery requests. 
+																			 *   The default value is TRUE.*/
 } RsslReactorServiceDiscoveryOptions;
 
 /**
@@ -516,6 +519,7 @@ RTR_C_INLINE void rsslClearReactorServiceDiscoveryOptions(RsslReactorServiceDisc
 	pOpts->tokenScope.data = (char *)"trapi.streaming.pricing.read";
 	pOpts->tokenScope.length = 28;
 	pOpts->takeExclusiveSignOnControl = RSSL_TRUE;
+	pOpts->restBlocking = RSSL_TRUE;
 }
 
 /**
