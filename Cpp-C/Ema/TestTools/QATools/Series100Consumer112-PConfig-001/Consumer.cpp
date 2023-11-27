@@ -97,8 +97,9 @@ void createProgramaticConfig(Map& configMap)
         elementList.complete();
 
         configMap.addKeyAscii("DictionaryGroup", MapEntry::AddEnum, elementList);
-        elementList.clear();
+
         configMap.complete();
+        elementList.clear();
 }
 //END APIQA
 
