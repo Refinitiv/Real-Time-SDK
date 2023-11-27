@@ -2347,3 +2347,141 @@ TEST(VectorTests, testVectorWithSummaryDataButNoEntry_Encode_Decode)
 		return;
 	}
 }
+
+TEST(VectorTests, testVectorAddNotCompletedContainer)
+{
+	try
+	{
+		Vector vector;
+		ElementList elementList;
+
+		vector.add(1, VectorEntry::InsertEnum, elementList);
+		vector.complete();
+
+		EXPECT_FALSE(true) << "Vector complete while ElementList is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Vector complete while ElementList is not completed  - exception expected";
+	}
+
+	try
+	{
+		Vector vector;
+		ElementList elementList;
+		vector.add(1, VectorEntry::InsertEnum, elementList);
+		elementList.addUInt("test", 64);
+		vector.complete();
+
+		EXPECT_FALSE(true) << "Vector complete while ElementList with data is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Vector complete while ElementList with data is not completed  - exception expected";
+	}
+
+	try
+	{
+		Vector vector;
+		ElementList elementList, elementList1;
+		vector.add(1, VectorEntry::InsertEnum, elementList);
+		vector.add(2, VectorEntry::InsertEnum, elementList1);
+
+		EXPECT_FALSE(true) << "Vector add two not completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Vector add two not completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		Vector vector;
+		ElementList elementList, elementList1;
+		vector.add(1, VectorEntry::InsertEnum, elementList);
+		elementList.complete();
+		vector.add(1, VectorEntry::InsertEnum, elementList1);
+		vector.complete();
+
+		EXPECT_FALSE(true) << "Vector add first completed and second not completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Vector add first completed and second not completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		Vector vector;
+		GenericMsg genericMsg;
+
+		genericMsg.streamId(1);
+
+		vector.add(1, VectorEntry::InsertEnum, genericMsg);
+		vector.complete();
+
+		EXPECT_TRUE(true) << "Vector add not completed GenericMsg - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "Vector add not completed GenericMsg - exception not expected";
+	}
+
+	try
+	{
+		Vector vector;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		vector.add(1, VectorEntry::InsertEnum, opaque);
+		vector.complete();
+
+		EXPECT_TRUE(true) << "Vector add OmmOpaque - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "Vector add OmmOpaque - exception not expected";
+	}
+
+	try
+	{
+		Vector vector;
+		ElementList elementList;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		vector.add(1, VectorEntry::InsertEnum, opaque);
+		vector.add(2, VectorEntry::InsertEnum, elementList);
+		vector.complete();
+
+		EXPECT_FALSE(true) << "Vector add not completed ElementList after Opaque - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Vector add not completed ElementList after Opaque - exception expected";
+	}
+
+	try
+	{
+		Vector vector;
+		ElementList elementList;
+		GenericMsg genericMsg;
+
+		vector.add(1, VectorEntry::InsertEnum, genericMsg);
+		vector.add(2, VectorEntry::InsertEnum, elementList);
+		vector.complete();
+
+		EXPECT_FALSE(true) << "Vector add not completed ElementList after GenericMsg - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Vector add not completed ElementList after GenericMsg - exception expected";
+	}
+}
+

@@ -7,6 +7,8 @@
  */
 
 using LSEG.Eta.ValueAdd.Common;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace LSEG.Eta.ValueAdd.Reactor
 {
@@ -15,6 +17,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private const int DEFAULT_POOL_LIMIT = -1;
 
         private VaPool m_ReactorChannelPool = new VaPool(true);
+        private VaPool m_WatchlistPool = new VaPool(true);
         private VaLimitedPool m_ReactorChannelEventPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorEventImplPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorMsgEventPool = new VaLimitedPool(true);
@@ -22,6 +25,7 @@ namespace LSEG.Eta.ValueAdd.Reactor
         private VaLimitedPool m_ReactorRDMDirectoryMsgEventPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorRDMDictionaryMsgEventPool = new VaLimitedPool(true);
         private VaLimitedPool m_ReactorServiceEndpointEvent = new VaLimitedPool(true);
+        private VaPool m_WlTimeoutTimerPool = new VaPool(false);
 
         /// <summary>
         /// Sets maximum number of events in m_ReactorChannelEventPool, if value is negative then amount of events is unlimited
@@ -137,16 +141,12 @@ namespace LSEG.Eta.ValueAdd.Reactor
 
         public ReactorMsgEvent CreateReactorMsgEventImpl()
         {
-            ReactorMsgEvent? reactorEventImpl = m_ReactorMsgEventPool.Poll() as ReactorMsgEvent;
+            ReactorMsgEvent? reactorEventImpl = (ReactorMsgEvent?)m_ReactorMsgEventPool.Poll();
 
-            if (reactorEventImpl is null)
+            if (reactorEventImpl == null)
             {
                 reactorEventImpl = new ReactorMsgEvent();
                 m_ReactorMsgEventPool.UpdatePool(reactorEventImpl);
-            }
-            else
-            {
-                reactorEventImpl.Clear();
             }
 
             return reactorEventImpl;
@@ -242,6 +242,67 @@ namespace LSEG.Eta.ValueAdd.Reactor
             }
 
             return serviceEndpointEvent;
+        }
+
+        public void InitWatchlistPool(int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                var watchlist = new Watchlist();
+                m_WatchlistPool.Add(watchlist);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public Watchlist CreateWatchlist(ReactorChannel reactorChannel, ConsumerRole consumerRole)
+        {
+            Watchlist? watchlist = (Watchlist?)m_WatchlistPool.Poll();
+            if (watchlist is null)
+            {
+                watchlist = new Watchlist(reactorChannel, consumerRole);
+                m_WatchlistPool.UpdatePool(watchlist);
+            }
+            else
+            {
+                watchlist.Init(reactorChannel, consumerRole);
+            }
+
+            int numObjectsToGrow = (int)consumerRole.WatchlistOptions.ItemCountHint - Watchlist.DEFAULT_INIT_WATCHLIST_ITEM_POOLS;
+            if (numObjectsToGrow > 0)
+            {
+                watchlist.GrowWatchlistObjectPools(numObjectsToGrow);
+            }
+            InitWlTimeoutTimerPool((int)consumerRole.WatchlistOptions.ItemCountHint + 10);
+            return watchlist;
+        }
+
+        
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public void InitWlTimeoutTimerPool(int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                var timer = new WlTimeoutTimer();
+                m_WlTimeoutTimerPool.Add(timer);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public WlTimeoutTimer CreateWlTimeoutTimer(WlTimeoutTimerGroup timerGroup, Action<WlTimeoutTimer> action)
+        {
+            WlTimeoutTimer? timer = (WlTimeoutTimer?)m_WlTimeoutTimerPool.Poll();
+            if (timer == null)
+            {
+                timer = new WlTimeoutTimer(timerGroup, action);
+                m_WlTimeoutTimerPool.UpdatePool(timer);
+            }
+            else
+            {               
+                timer.Init(timerGroup, action);
+            }
+
+            return timer;
         }
     }
 }

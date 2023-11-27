@@ -84,9 +84,12 @@
 *
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
+
 using LSEG.Eta.Common;
-using LSEG.Eta.Codec;
 using LSEG.Eta.Transports;
 
 using DateTime = System.DateTime;

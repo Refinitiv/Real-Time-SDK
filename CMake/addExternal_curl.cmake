@@ -2,20 +2,20 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|             Copyright (C) 2022 Refinitiv. All rights reserved.            --
+ *|             Copyright (C) 2023 Refinitiv. All rights reserved.            --
 #]=============================================================================]
 
 
 include(rcdevExternalUtils)
 
 if(NOT curl_url)
-	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_2_0/curl-8.2.0.tar.xz")
+	set(curl_url "https://github.com/curl/curl/releases/download/curl-8_4_0/curl-8.4.0.tar.xz")
 endif()
 if(NOT curl_hash)
-	set(curl_hash "MD5=79209ce29a6ae6f28e1bc0a7e38735b9")
+	set(curl_hash "MD5=8424597f247da68b6041dd7f9ca367fe")
 endif()
 if(NOT curl_version)
-	set(curl_version "8.2.0")
+	set(curl_version "8.4.0")
 endif()
 
 # If the option for using the system installed 
@@ -249,7 +249,14 @@ if ((NOT CURL_FOUND) OR
 		set_property(TARGET CURL::libcurl APPEND PROPERTY IMPORTED_LOCATION "${CURL_LIBRARY}")
 	endif()
 
-	rcdev_map_imported_ep_types(CURL::libcurl)
+	get_property(aliased_target TARGET CURL::libcurl PROPERTY ALIASED_TARGET)
+	if("${aliased_target}" STREQUAL "")
+		# is not an alias
+		rcdev_map_imported_ep_types(CURL::libcurl)
+	else()
+		# is an alias
+		rcdev_map_imported_ep_types(${aliased_target})
+	endif()
 
 	if( (DEFINED CURL_VERSION_STRING) AND
 		(CURL_VERSION_STRING VERSION_LESS "${curl_version}") )
@@ -267,7 +274,7 @@ if ((NOT CURL_FOUND) OR
 	endif()
 
 	rcdev_add_external_target(CURL::libcurl)
-		
+
 endif()
 
 DEBUG_PRINT(OpenSSL::SSL)

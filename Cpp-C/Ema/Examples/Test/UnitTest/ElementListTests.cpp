@@ -3481,3 +3481,139 @@ TEST(ElementListTests, testElementListClear_Encode_Decode)
 		EXPECT_FALSE(true) << "Fails to encode and decode ElementList - exception not expected with text" << exp.getText().c_str();
 	}
 }
+
+TEST(ElementListTests, testElementListAddNotCompletedContainer)
+{
+	try
+	{
+		ElementList list;
+		FieldList fieldList;
+		list.addFieldList("test", fieldList);
+		list.complete();
+
+		EXPECT_FALSE(true) << "ElementList complete while FieldList is not completed  - exception expected";
+	}
+	catch (const OmmException& )
+	{
+		EXPECT_TRUE(true) << "ElementList complete while FieldList is not completed  - exception expected";
+	}
+
+	try
+	{
+		ElementList list;
+		FieldList fieldList;
+		list.addFieldList("test", fieldList);
+		fieldList.addUInt(1, 64);
+		list.complete();
+
+		EXPECT_FALSE(true) << "ElementList complete while FieldList with data is not completed  - exception expected";
+	}
+	catch (const OmmException& )
+	{
+		EXPECT_TRUE(true) << "ElementList complete while FieldList with data is not completed  - exception expected";
+	}
+
+	try
+	{
+		ElementList list;
+		FieldList fieldList;
+		list.addFieldList("test", fieldList);
+		list.addFieldList("test1", fieldList);
+
+		EXPECT_FALSE(true) << "ElementList add two not completed FieldList - exception expected";
+	}
+	catch (const OmmException& )
+	{
+		EXPECT_TRUE(true) << "ElementList add two not completed FieldList - exception expected";
+	}
+
+	try
+	{
+		ElementList list;
+		FieldList fieldList, fieldList1;
+		list.addFieldList("test", fieldList);
+		fieldList.complete();
+		list.addFieldList("test1", fieldList1);
+		list.complete();
+
+		EXPECT_FALSE(true) << "ElementList add first completed and second not completed FieldList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "ElementList add first completed and second not completed FieldList - exception expected";
+	}
+
+	try
+	{
+		ElementList elementList;
+		GenericMsg genericMsg;
+
+		genericMsg.streamId(1);
+
+		elementList.addGenericMsg("test", genericMsg);
+		elementList.complete();
+
+		EXPECT_TRUE(true) << "ElementList add not completed GenericMsg - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "ElementList add not completed GenericMsg - exception not expected";
+	}
+
+	try
+	{
+		ElementList elementList;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		elementList.addOpaque("test", opaque);
+		elementList.complete();
+
+		EXPECT_TRUE(true) << "ElementList add OmmOpaque - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "ElementList add OmmOpaque - exception not expected";
+	}
+
+	try
+	{
+		ElementList elementList;
+		FieldList fieldList;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		elementList.addOpaque("test", opaque);
+		elementList.addFieldList("test1", fieldList);
+		elementList.complete();
+
+		EXPECT_FALSE(true) << "ElementList add not completed FieldList after Opaque - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "ElementList add not completed FieldList after Opaque - exception expected";
+	}
+
+	try
+	{
+		ElementList elementList;
+		FieldList fieldList;
+		GenericMsg genericMsg;
+
+		elementList.addGenericMsg("test", genericMsg);
+		elementList.addFieldList("test1", fieldList);
+		elementList.complete();
+
+		EXPECT_FALSE(true) << "ElementList add not completed FieldList after GenericMsg - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "ElementList add not completed FieldList after GenericMsg - exception expected";
+	}
+}

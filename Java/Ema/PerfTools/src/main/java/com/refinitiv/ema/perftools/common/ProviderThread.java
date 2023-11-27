@@ -183,6 +183,7 @@ public abstract class ProviderThread extends Thread {
                 refreshMsg.complete(true);
 
                 if (sendMsg(refreshMsg, itemInfo)) {
+                    providerThreadStats.itemRefreshCount().increment();
                     providerThreadStats.refreshCount().increment();
                     handleRefresh(itemInfo);
                 }

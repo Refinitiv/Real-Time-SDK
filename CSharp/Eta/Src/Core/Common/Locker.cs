@@ -79,13 +79,52 @@ namespace LSEG.Eta.Common
     /// <summary>
     /// Allows at most 1 Writer into C-S; no Readers.
     /// </summary>
-    sealed public class WriteLocker : Locker
+    sealed public class MonitorWriteLocker : Locker
     {
+        private object _lock;
+
+        /// <summary>
+        /// Constructor for monitor Locker
+        /// </summary>
+        /// <param name="lockObject">the object which monitor is captured</param>
+        public MonitorWriteLocker(object lockObject)
+        {
+            _lock = lockObject;
+        }
+
+        /// <summary>
+        /// Enter the critical section.
+        /// </summary>
+        public override void Enter()
+        {
+            Monitor.Enter(_lock);
+        }
+
+        /// <summary>
+        /// Leave the critical section.
+        /// </summary>
+        public override void Exit()
+        {
+            Monitor.Exit(_lock);
+        }
+
+        /// <summary>
+        /// Check wheter a thread has access to the critical section.
+        /// </summary>
+        public override bool Locked => Monitor.IsEntered(_lock);
+    }
+
+    /// <summary>
+    /// Locker class
+    /// </summary>
+    sealed public class SlimWriteLocker : Locker
+    {
+        private object _lock = new object();
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="slimLock">The <see cref="ReaderWriterLockSlim"/> for locking critical section.</param>
-        public WriteLocker(ReaderWriterLockSlim slimLock)
+        public SlimWriteLocker(ReaderWriterLockSlim slimLock)
         {
             _slimLock = slimLock;
         }

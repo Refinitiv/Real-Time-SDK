@@ -1,0 +1,3 @@
+# file,location
+ItemRequest.cs,Applications/WatchlistConsumer/ItemRequest.cs
+WatchlistConsumer.cs,Applications/WatchlistConsumer/WatchlistConsumer.cs

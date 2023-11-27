@@ -859,7 +859,7 @@ SocketChannelConfig::SocketChannelConfig(const EmaString& defaultHostName, const
 	proxyConnectionTimeout(DEFAULT_PROXY_CONNECTION_TIMEOUT),
 	sslCAStore(DEFAULT_SSL_CA_STORE),
 	encryptedConnectionType(RSSL_CONN_TYPE_INIT),
-	securityProtocol(RSSL_ENC_TLSV1_2),
+	securityProtocol(RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3),
 	enableSessionMgnt(RSSL_FALSE),
 	location(DEFAULT_RDP_RT_LOCATION),
 	serviceDiscoveryRetryCount(DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT),
@@ -887,7 +887,7 @@ void SocketChannelConfig::clear()
 	proxyDomain.clear();
 	proxyConnectionTimeout = DEFAULT_PROXY_CONNECTION_TIMEOUT;
 	sslCAStore = DEFAULT_SSL_CA_STORE;
-	securityProtocol = RSSL_ENC_TLSV1_2;
+	securityProtocol = (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3);
 	enableSessionMgnt = RSSL_FALSE;
 	location = DEFAULT_RDP_RT_LOCATION;
 	serviceDiscoveryRetryCount = DEFAULT_SERVICE_DISCOVERY_RETRY_COUNT;
@@ -932,7 +932,8 @@ defaultServiceName(defaultServiceName),
 tcpNodelay(DEFAULT_TCP_NODELAY),
 serverSharedSocket(DEFAULT_SERVER_SHAREDSOCKET),
 maxFragmentSize(DEFAULT_MAX_FRAGMENT_SIZE),
-wsProtocols(DEFAULT_WS_PROTOCLOS)
+wsProtocols(DEFAULT_WS_PROTOCLOS),
+securityProtocol(RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3)
 {
 }
 
@@ -958,6 +959,8 @@ void SocketServerConfig::clear()
 
 	maxFragmentSize = DEFAULT_MAX_FRAGMENT_SIZE;
 	wsProtocols = DEFAULT_WS_PROTOCLOS;
+
+	securityProtocol = (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3);
 }
 
 ServerConfig::ServerType SocketServerConfig::getType() const

@@ -1,8 +1,9 @@
 # Refinitiv Real-Time SDK -  CSharp using .NET Core Edition
+This is the Refinitiv Real-Time SDK. This SDK encompasses these Real-Time APIs writtent to .NET Core: Enterprise Message API (EMA) and the Enterprise Transport API (ETA).
 
-This is the Refinitiv Real-Time SDK. This SDK consists of the Enterprise Transport API (ETA) written to .NET Core. In this initial release of this flavor of API, ETA fully supports all OMM constructs and messages. Applications maybe written to core ETA or to ValueAdd/Reactor layer with both client and server side implementation. Please note that a client side watchlist implementation and the DACSLock library for use by server applications are forthcoming. The **Enterprise Message API (EMA)** layer is also forthcoming.
+The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EMA is designed to provide clients rapid development of applications, minimizing lines of code and providing a broad range of flexibility. It provides flexible configuration with default values to simplify use and deployment. EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist. 
 
-This API flavor complements the current offering with Java and C languages for RTSDK API. The transport layer API supports TCP/IP transport, buffer management (such as read, write), fragmentation, packing, compression, a codec to implement open message model (OMM). In addition, the value add layer handles adminitrative messages and implements a dispatching/callback mechanism to simplify the application. The public interfaces of ETA CSharp Edition should have a similar look and feel as Java or C Edition unless there is any language specific differences. 
+The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA, to ValueAdd/Reactor layer or to Watchlist layer.
 
 Copyright (C) 2022-2023 Refinitiv. All rights reserved.
 
@@ -24,6 +25,8 @@ External modules used by this version of RTSDK CSharp:
         Microsoft.IdentityModel.Tokens             6.23.1
         Microsoft.Netcore.Platforms                1.1.0
         Microsoft.Netcore.Targets                  1.1.0
+        NLog                                       5.2.2
+        NLog.Extensions.Logging                    5.3.2
         System.IdentityModel.Tokens.Jwt            6.23.1
         System.Runtime                             4.3.0
         System.Security.Cryptography.Cng           4.5.0 
@@ -48,7 +51,7 @@ External modules used by this version of RTSDK CSharp:
 
 ### Encryption Support
 
-This release supports encryption using TLS 1.2.  
+This release supports encryption using TLS 1.2 and TLS 1.3 (tested only on Linux).  
 
 ### Proxy Authentication Support
 - [Free Proxy](http://www.handcraftedsoftware.org/)
@@ -70,8 +73,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data. Conn
 
 This release has been tested with the following:
 
-- ADS 3.7.1
-- ADH 3.7.1
+- ADS 3.7.2
+- ADH 3.7.2
 - DACS 7.8
 
 # Documentation
@@ -80,7 +83,7 @@ Please refer to top level README.md and to CSharp/Eta/README.md to find more inf
 
 # Installation & Build
 
-Please refer to the Installation Guide for [ETA](Eta/Docs/RTSDK_CSharp_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
+Please refer to the [RTSDK Installation Guide](Eta/Docs/RTSDK_CSharp_Installation_Guide.pdf) for detailed instructions. In this section are some basic details.
 
 ## Install RTSDK
 
@@ -96,13 +99,13 @@ Use the provided solution (or `sln`) file to build in **Visual Studio**.
 
 **Using dotnet**
 
-The RRG package contains all required external dependencies in the CSharp/Eta/NuGetPackages directory. In an environment without internet access, you must add this directory as a nuget source and disable other nuget sources for a build to succeed. Here are some dotnet commands to do so:
+The RRG package contains all required external dependencies in the CSharp/NuGetPackages directory. In an environment without internet access, you must add this directory as a nuget source and disable other nuget sources for a build to succeed. Here are some dotnet commands to do so:
 
         To check existing NuGet sources:   
                dotnet nuget list source
 
         To add a new NuGet source:
-              dotnet nuget add source <full path to your RRG package/CSharp/Eta/NuGetPackages>.
+              dotnet nuget add source <full path to your RRG package/CSharp/NuGetPackages>.
 
         To disable certain NuGet sources:
               dotnet nuget disable source <specify a source show in the list>.
@@ -111,13 +114,13 @@ The RRG package contains all required external dependencies in the CSharp/Eta/Nu
 
 To build, navigate to `RTSDK/CSharp` and issue the appropriate dotnet command as follows to build libraries and/or examples:
 
-        dotnet build --configuration <Release|Debug> ETA_NET6.0.sln
+        dotnet build --configuration <Release|Debug> RTSDK_NET6.0.sln
 
         NOTE: 
-              - In a GitHub build, the command above builds libraries and places them into Eta/Libs and examples into Eta/Executables
-              - In RRG package, it builds only libraries and places them into a custom directory: Eta/Custom/Libs
+              - In a GitHub build, the command above builds libraries and places them into Eta/Libs or Ema/Libs and examples into Eta/Executables or Ema/Executables
+              - In RRG package, it builds only libraries and places them into custom directories: Eta/Custom/Libs, Ema/Custom/Libs
 
-        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> ETA_NET6.0.sln
+        GitHub Only, to build specific example: dotnet build -t:Consumer --configuration <Release|Debug> RTSDK_NET6.0.sln
 
 To build just libraries:
 
@@ -127,35 +130,38 @@ Building RTSDK using dotnet command lines is platform agnostic; i.e., it works t
         dotnet build --configuration Release Eta/Src/ValueAdd/ValueAdd_NET6.0.csproj
         dotnet build --configuration Release Eta/Src/Ansi/Ansi_NET6.0.csproj
         dotnet build --configuration Release Eta/Src/AnsiPage/AnsiPage_NET6.0.csproj
+        dotnet build --configuration Release Ema/Src/Core/EMA_Core_NET6.0.csproj
 
-        NOTE: In a GitHub build, this builds libraries and places them into Eta/Libs
-              In RRG package, this builds libraries and places them into a custom directory: Eta/Custom/Libs
+        NOTE: In a GitHub build, this builds libraries and places them into Eta/Libs or Ema/Libs
+              In RRG package, this builds libraries and places them into custom directories: Eta/Custom/Libs, Ema/Custom/Libs
 
-To build just examples: Each example may be built separately using the individual csproj files. Please note that the RRG package also contains a .sln file for each example. Sample command line to build examples:
+To build just examples: Each example may be built separately using the individual csproj files. Please note that the RRG package also contains a .sln file for each Eta example along with individual csproj files for each Ema example. Sample command lines to build examples:
 
         dotnet build --configuration Release Eta/Applications/Consumer/Consumer_NET6.0.csproj
         dotnet build --configuration Release Eta/Applications/Consumer/Consumer_NET6.0.sln
+        dotnet build --configuration Release Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/Cons100_NET6.0.csproj
 
-        NOTE: Both sln and csproj files build examples and places them into Eta/Executables. 
+        NOTE: The sln and/or csproj files build examples and places them into Eta/Executables or Ema/Executables
               Solution files exist only in RRG package
-              In RRG package, building examples via csproj or sln link to pre-built libraries located in Eta/Libs
-              In a GitHub build, each example expects libraries in Eta/Libs to exist
+              In RRG package, building examples via csproj or sln to link to pre-built libraries located in Eta/Libs and/or Ema/Libs
+              In a GitHub build, example builds expect libraries in Eta/Libs and/or Ema/Libs to exist
 
 ## Running Examples 
 
 Navigate to `RTSDK/CSharp` and issue the appropriate dotnet command to run various examples:
 
-        dotnet [runtime-options] [path-to-application] [arguments]
+        dotnet [runtime-options] [path-to-application-executable] [arguments]
 
-Sample command lines to run examples:
+Sample command lines to run examples using .dll:
 
         dotnet Eta/Applications/Consumer/bin/Debug/net6.0/Consumer.dll [arguments] 
         dotnet Eta/Applications/Training/Consumer/Module_1a_Connect/bin/Debug/net6.0/Module_1a_Connect.dll [arguments]
+        dotnet Ema/Examples/Training/Consumer/100_Series/100_MP_Streaming/obj/Release/net6.0/Cons100.dll 
 
 - Linux: Run executable:  ./Consumer [arguments]
 - Windows: Run executable:  Consumer.exe [arguments]
 
-NOTE: Specify -? as an argument to get a list of possible arguments
+NOTE: Specify -? as an argument to get a list of possible arguments where applicable or specify file/programmatic configuration for EMA examples.
 
 # Obtaining the Refinitiv Field Dictionaries
 
@@ -165,14 +171,15 @@ The Refinitiv `RDMFieldDictionary` and `enumtype.def` files are present in this 
 
 For ease of product use, Refinitiv maintains its RTSDK CSharp libraries on NuGet.
 
-You can download RTSDK libraries and dependencies from NuGet. Below is *sample* code to build applications.
+You can download RTSDK libraries and dependencies from NuGet. Choose the appropriate set of libraries depending on the layer of RTSDK to which application is being written. Below is *sample* code to build applications.
 
         <dependency>
                 <ItemGroup>
-                    <PackageReference Include="LSEG.Eta.Core" Version="3.0.3"/>
-                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.0.3"/>
-                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.0.3"/>
-                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.0.3"/>
+                    <PackageReference Include="LSEG.Eta.Core" Version="3.1.0"/>
+                    <PackageReference Include="LSEG.Eta.ValueAdd" Version="3.1.0"/>
+                    <PackageReference Include="LSEG.Eta.Ansi" Version="3.1.0"/>
+                    <PackageReference Include="LSEG.Eta.AnsiPage" Version="3.1.0"/>
+                    <PackageReference Include="LSEG.Ema.Core" Version="3.1.0"/>
                 </ItemGroup/>
         </dependency>
 
@@ -197,5 +204,5 @@ Please email a signed and scanned copy to sdkagreement@refinitiv.com.  If you re
 
 # Notes:
 - For more details on each API, please see the corresponding readme file in their top level directory.
-- This section contains APIs that are subject to proprietary and open source licenses. Please make sure to read the readme files within each API flavor directory for clarification.
+- This package/directory contains APIs that are subject to proprietary and open source licenses. Please make sure to read the readme files within each section for clarification.
 - Please make sure to review the LICENSE.md file.

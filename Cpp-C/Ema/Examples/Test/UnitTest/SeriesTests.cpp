@@ -2183,3 +2183,140 @@ TEST(SeriesTests, testSeriesWithSummaryDataButNoEntry_Encode_Decode)
 		return;
 	}
 }
+
+TEST(SeriesTests, testSeriesAddNotCompletedContainer)
+{
+	try
+	{
+		Series series;
+		ElementList elementList;
+
+		series.add(elementList);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series complete while ElementList is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series complete while ElementList is not completed  - exception expected";
+	}
+
+	try
+	{
+		Series series;
+		ElementList elementList;
+		series.add(elementList);
+		elementList.addUInt("test", 64);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series complete while ElementList with data is not completed  - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series complete while ElementList with data is not completed  - exception expected";
+	}
+
+	try
+	{
+		Series series;
+		ElementList elementList, elementList1;
+		series.add(elementList);
+		series.add(elementList1);
+
+		EXPECT_FALSE(true) << "Series add two not completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add two not completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		Series series;
+		ElementList elementList, elementList1;
+		series.add(elementList);
+		elementList.complete();
+		series.add(elementList1);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series add first completed and second not completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add first completed and second not completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		Series series;
+		GenericMsg genericMsg;
+
+		genericMsg.streamId(1);
+
+		series.add(genericMsg);
+		series.complete();
+
+		EXPECT_TRUE(true) << "Series add not completed GenericMsg - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "Series add not completed GenericMsg - exception not expected";
+	}
+
+	try
+	{
+		Series series;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		series.add(opaque);
+		series.complete();
+
+		EXPECT_TRUE(true) << "Series add OmmOpaque - exception not expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_FALSE(true) << "Series add OmmOpaque - exception not expected";
+	}
+
+	try
+	{
+		Series series;
+		ElementList elementList;
+		OmmOpaque opaque;
+
+		char* string = const_cast<char*>("OPQRST");
+		EmaBuffer buffer(string, 6);
+		opaque.set(buffer);
+
+		series.add(opaque);
+		series.add(elementList);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series add not completed ElementList after Opaque - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add not completed ElementList after Opaque - exception expected";
+	}
+
+	try
+	{
+		Series series;;
+		ElementList elementList;
+		GenericMsg genericMsg;
+
+		series.add(genericMsg);
+		series.add(elementList);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series add not completed ElementList after GenericMsg - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add not completed ElementList after GenericMsg - exception expected";
+	}
+}

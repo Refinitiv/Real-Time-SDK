@@ -11,6 +11,8 @@
 
 RsslBuffer g_userName;
 RsslBuffer g_password;
+RsslBuffer g_clientId; // For OAuth V2 only
+RsslBuffer g_clientSecret; // For OAuth V2 only
 
 int main(int argc, char* argv[])
 {
@@ -18,6 +20,8 @@ int main(int argc, char* argv[])
 
 	rsslClearBuffer(&g_userName);
 	rsslClearBuffer(&g_password);
+	rsslClearBuffer(&g_clientId);
+	rsslClearBuffer(&g_clientSecret);
 
 	for(; i < argc; i++)
 	{
@@ -33,6 +37,20 @@ int main(int argc, char* argv[])
 			i += 2;
 			g_password.data = argv[i - 1];
 			g_password.length = (RsslUInt32)strlen(g_password.data);
+		}
+
+		if ((i + 1 < argc) && (strcmp("-clientId", argv[i]) == 0))
+		{
+			i += 2;
+			g_clientId.data = argv[i - 1];
+			g_clientId.length = (RsslUInt32)strlen(g_clientId.data);
+		}
+
+		if ((i + 1 < argc) && (strcmp("-clientSecret", argv[i]) == 0))
+		{
+			i += 2;
+			g_clientSecret.data = argv[i - 1];
+			g_clientSecret.length = (RsslUInt32)strlen(g_clientSecret.data);
 		}
 	}
     

@@ -410,6 +410,10 @@ void initConsPerfConfig(int argc, char **argv)
 		{
 			++iargs; consPerfConfig.tlsProtocolFlags |= RSSL_ENC_TLSV1_2;
 		}
+		else if (strcmp("-spTLSv1.3", argv[iargs]) == 0)
+		{
+			++iargs; consPerfConfig.tlsProtocolFlags |= RSSL_ENC_TLSV1_3;
+		}
 		else if (strcmp("-tunnel", argv[iargs]) == 0)
 		{
 			++iargs; consPerfConfig.tunnelMessagingEnabled = RSSL_TRUE;
@@ -885,6 +889,7 @@ void exitWithUsage()
 			"\n"
 			"  -castore                              File location of the certificate authority store.\n"
 			"  -spTLSv1.2                            Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			"  -spTLSv1.3                            Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n"
 			"\n"
 			"  -tunnel                               Causes the consumer to open a tunnel stream that exchanges basic messages. Require using -reactor or -watchlist.\n"
 			"  -tunnelAuth                           Causes the consumer to enable authentication when opening tunnel streams.\n"

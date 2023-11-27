@@ -12,6 +12,7 @@ using namespace refinitiv::ema::access;
 
 OmmAnsiPageEncoder::OmmAnsiPageEncoder(void)
 {
+	_containerComplete = true;
 }
 
 OmmAnsiPageEncoder::~OmmAnsiPageEncoder(void)

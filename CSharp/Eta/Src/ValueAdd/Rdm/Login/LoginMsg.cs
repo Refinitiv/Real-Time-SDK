@@ -24,7 +24,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
     /// <seealso cref="LoginRequest"/>
     /// <seealso cref="LoginStatus"/>
     /// <seealso cref="LoginConsumerConnectionStatus"/>
-    sealed public class LoginMsg
+    sealed public class LoginMsg : IRdmMsg
     {
         private LoginClose? m_LoginClose;
         private LoginRefresh? m_LoginRefresh;
@@ -34,6 +34,11 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private LoginRTT? m_LoginRTT;
 
         private LoginMsgType m_LoginMsgType = LoginMsgType.UNKNOWN;
+
+        /// <summary>
+        /// The domain type of the message
+        /// </summary>
+        public Eta.Rdm.DomainType DomainType { get => Eta.Rdm.DomainType.LOGIN; }
 
         /// <summary>
         /// Login message type. These are defined per-message class basis for login messages.
@@ -136,6 +141,15 @@ namespace LSEG.Eta.ValueAdd.Rdm
         }
 
         /// <summary>
+        /// The Stream Id
+        /// </summary>
+        public int StreamId
+        {
+            get => GetMsg()!.StreamId;
+            set { GetMsg()!.StreamId = value; }
+        }
+
+        /// <summary>
         /// Returns the Login RDM message that this LoginMsg is set to with <see cref="LoginMsgType"/> .
         /// </summary>
         /// <returns>The RDM Message.</returns>
@@ -172,7 +186,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <returns>String containing the string representation.</returns>
         public override string ToString()
         {
-            return GetMsg()!.ToString() ?? String.Empty;
+            return GetMsg()?.ToString() ?? String.Empty;
         }
 
         /// <summary>
@@ -180,7 +194,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// </summary>
         public void Clear()
         {
-            GetMsg()!.Clear();
+            GetMsg()?.Clear();
         }
 
         /// <summary>
@@ -198,7 +212,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// LoginMsgType needs to be set prior to calling Decode.
         /// </summary>
         /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
-        /// <param name="msg">Decoded Msg object for this LoginClose message.</param>
+        /// <param name="msg">Decoded Msg object for this Login message.</param>
         /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
         public CodecReturnCode Decode(DecodeIterator decodeIter, Msg msg)
         {
@@ -213,13 +227,25 @@ namespace LSEG.Eta.ValueAdd.Rdm
                 case LoginMsgType.CLOSE:
                     return LoginClose!.Decode(decodeIter, msg);
                 case LoginMsgType.CONSUMER_CONNECTION_STATUS:
-                    return LoginStatus!.Decode(decodeIter, msg);
+                    return LoginConsumerConnectionStatus!.Decode(decodeIter, msg);
                 case LoginMsgType.RTT:
                     return LoginRTT!.Decode(decodeIter, msg);
                 default:
                     Debug.Assert (false); // not supported on this message class
                     return CodecReturnCode.FAILURE;
             }
+        }
+
+        /// <summary>
+        /// Decodes this Login RDM message using the provided <c>decodeIter</c> and the incoming <c>msg</c>.
+        /// LoginMsgType needs to be set prior to calling Decode.
+        /// </summary>
+        /// <param name="decodeIter">Decode iterator that has already decoded the initial message.</param>
+        /// <param name="msg">Decoded IMsg instance for this Login message.</param>
+        /// <returns><see cref="CodecReturnCode"/> indicating success or failure.</returns>
+        public CodecReturnCode Decode(DecodeIterator decodeIter, IMsg msg)
+        {
+            return GetMsg()!.Decode(decodeIter, (Msg)msg);
         }
     }
 }

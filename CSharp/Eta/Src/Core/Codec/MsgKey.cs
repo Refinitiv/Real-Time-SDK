@@ -82,7 +82,7 @@ namespace LSEG.Eta.Codec
 			destKey.AttribContainerType = AttribContainerType;
 			if ((copyFlags & CopyMsgFlags.KEY_NAME) > 0)
 			{
-				if ((ret = (_name).CopyWithOrWithoutByteBuffer(destKey.Name)) != CodecReturnCode.SUCCESS)
+				if ((ret = _name.CopyWithOrWithoutByteBuffer(destKey.Name)) != CodecReturnCode.SUCCESS)
 				{
 					return ret;
 				}
@@ -116,7 +116,7 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public bool CheckHasServiceId()
 		{
-			return (Flags & MsgKeyFlags.HAS_SERVICE_ID) > 0 ? true : false;
+			return (Flags & MsgKeyFlags.HAS_SERVICE_ID) > 0;
 		}
 
 		/// <summary>
@@ -355,7 +355,8 @@ namespace LSEG.Eta.Codec
 		/// </param>
 		/// <returns> returns <c>true</c> if keys match, <c>false</c> otherwise.
 		/// </returns>
-		public bool Equals(IMsgKey thatKey)
+		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public bool Equals(IMsgKey thatKey)
 		{
 			if (thatKey == null)
 			{
@@ -419,45 +420,42 @@ namespace LSEG.Eta.Codec
 		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
 		public override int GetHashCode()
 		{
-			int result = SEED;
-			result = PRIME * result + Flags;
-
-			if (CheckHasServiceId())
+			unchecked
 			{
-				result = PRIME * result + ServiceId;
-			}
+                int result = SEED;
 
-			if (CheckHasNameType())
-			{
-				result = PRIME * result + NameType;
-			}
+                if ((Flags & MsgKeyFlags.HAS_SERVICE_ID) > 0)
+                {
+                    result = PRIME * result + ServiceId;
+                }
 
-			if (CheckHasFilter())
-			{
-				int cc = (int)(Filter ^ ((long)((ulong)Filter >> 32)));
-				result = PRIME * result + cc;
-			}
+                if ((Flags & MsgKeyFlags.HAS_NAME_TYPE) > 0)
+                {
+                    result = PRIME * result + NameType;
+                }
 
-			if (CheckHasIdentifier())
-			{
-				result = PRIME * result + Identifier;
-			}
+                if ((Flags & MsgKeyFlags.HAS_FILTER) > 0)
+                {
+                    int cc = (int)(Filter ^ ((long)((ulong)Filter >> 32)));
+                    result = PRIME * result + cc;
+                }
 
-			if (CheckHasAttrib())
-			{
-				result = PRIME * result + AttribContainerType;
-			}
+                if ((Flags & MsgKeyFlags.HAS_IDENTIFIER) > 0)
+                {
+                    result = PRIME * result + Identifier;
+                }
 
-			if (CheckHasName())
-			{
-				result = result ^ _name.GetHashCode();
-			}
+                if ((Flags & MsgKeyFlags.HAS_NAME) > 0)
+                {
+                    result = result ^ _name.GetHashCode();
+                }
 
-			if (CheckHasAttrib())
-			{
-				result = result ^ _encodedAttrib.GetHashCode();
-			}
-			return result;
+                if ((Flags & MsgKeyFlags.HAS_ATTRIB) > 0)
+                {
+                    result = result ^ _encodedAttrib.GetHashCode();
+                }
+                return result;
+            }			
 		}
 
 		/// <summary>

@@ -150,7 +150,7 @@ public class ProviderStats {
      * @param timePassedSec     - time passed since last stats collection, used to calculate message rates.
      */
     public void collectStats(boolean writeStats, boolean displayStats, long currentRuntimeSec, long timePassedSec) {
-        long refreshCount, updateCount, requestCount, closeCount, postCount, statusCount, genMsgSentCount, genMsgRecvCount, latencyGenMsgSentCount, latencyGenMsgRecvCount, outOfBuffersCount, msgSentCount, bufferSentCount;
+        long refreshCount, itemRefreshCount, updateCount, requestCount, closeCount, postCount, statusCount, genMsgSentCount, genMsgRecvCount, latencyGenMsgSentCount, latencyGenMsgRecvCount, outOfBuffersCount, msgSentCount, bufferSentCount;
         double processCpuLoad = ResourceUsageStats.currentProcessCpuLoad();
         double memoryUsage = ResourceUsageStats.currentMemoryUsage();
         if (timePassedSec != 0) {
@@ -166,6 +166,7 @@ public class ProviderStats {
 
             requestCount = stats.requestCount().getChange();
             refreshCount = stats.refreshCount().getChange();
+            itemRefreshCount = stats.itemRefreshCount().getChange();
             updateCount = stats.updateCount().getChange();
             closeCount = stats.closeCount().getChange();
             postCount = stats.postCount().getChange();
@@ -218,6 +219,7 @@ public class ProviderStats {
             totalStats.requestCount().add(requestCount);
             totalStats.updateCount().add(updateCount);
             totalStats.refreshCount().add(refreshCount);
+            totalStats.itemRefreshCount().add(itemRefreshCount);
             totalStats.closeCount().add(closeCount);
             totalStats.postCount().add(postCount);
             totalStats.statusCount().add(statusCount);
@@ -247,7 +249,7 @@ public class ProviderStats {
                                 totalStats.refreshCount().getTotal()
                         );
                     } else {
-                        System.out.printf("  - Sent %d images (total: %d)\n", refreshCount, totalStats.refreshCount().getTotal());
+                        System.out.printf("  - Sent %d images (total: %d)\n", itemRefreshCount, totalStats.itemRefreshCount().getTotal());
                     }
                 }
 
@@ -365,10 +367,12 @@ public class ProviderStats {
                     }
                 }
 
-                fileWriter.printf("  Image requests received: %d\n", stats.requestCount().getTotal());
+                if (config instanceof IProviderPerfConfig)  {
+                    fileWriter.printf("  Image requests received: %d\n", totalStats.requestCount().getTotal());
+                }
 
-                if (providerThread instanceof NIProviderThread) {
-                    fileWriter.printf("  Images sent: %d\n", stats.refreshCount().getTotal());
+                if (config instanceof NIProviderPerfConfig) {
+                	fileWriter.printf("  Images sent: %d\n", totalStats.itemRefreshCount().getTotal());
                 }
 
                 if (config.updatesPerSec() > 0) {
@@ -441,7 +445,13 @@ public class ProviderStats {
                     ((statsTime - totalStats.firstGenMsgRecvTime()) / 1000000000.0));
         }
 
-        fileWriter.printf("  Image requests received: %d\n", totalStats.requestCount().getTotal());
+        if (config instanceof IProviderPerfConfig)  {
+            fileWriter.printf("  Image requests received: %d\n", totalStats.requestCount().getTotal());
+        }
+
+        if (config instanceof NIProviderPerfConfig) {
+        	fileWriter.printf("  Images sent: %d\n", totalStats.itemRefreshCount().getTotal());
+        }
 
         if (config.updatesPerSec() > 0) {
             fileWriter.printf("  Updates sent: %d\n", totalStats.updateCount().getTotal());

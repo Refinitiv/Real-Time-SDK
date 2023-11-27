@@ -535,7 +535,8 @@ typedef struct {
 
 typedef enum {
 	RSSL_ENC_NONE    = 0x00,			/*!< @brief (0x00) No encryption. */
-	RSSL_ENC_TLSV1_2 = 0x04				/*!< @brief (0x08) Encryption using TLSv1.2 protocol */
+	RSSL_ENC_TLSV1_2 = 0x04,			/*!< @brief (0x04) Encryption using TLSv1.2 protocol */
+	RSSL_ENC_TLSV1_3 = 0x08				/*!< @brief (0x08) Encryption using TLSv1.3 protocol */
 } RsslEncryptionProtocolTypes;
 
 /**
@@ -620,9 +621,9 @@ typedef struct {
 } RsslEncryptionOpts;
 
 #ifdef _WIN32
-#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_HTTP, NULL}
+#define RSSL_INIT_ENCRYPTION_OPTS { (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3), RSSL_CONN_TYPE_HTTP, NULL}
 #else
-#define RSSL_INIT_ENCRYPTION_OPTS { RSSL_ENC_TLSV1_2, RSSL_CONN_TYPE_SOCKET, NULL}
+#define RSSL_INIT_ENCRYPTION_OPTS { (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3), RSSL_CONN_TYPE_SOCKET, NULL}
 #endif
 
 
@@ -780,7 +781,7 @@ RTR_C_INLINE void rsslClearConnectOpts(RsslConnectOptions *opts)
 	opts->seqMulticastOpts.maxMsgSize = 3000;
 	opts->seqMulticastOpts.instanceId = 0;
 	opts->componentVersion = NULL;
-	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
+	opts->encryptionOpts.encryptionProtocolFlags = (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3);
 #ifdef _WIN32
 	opts->encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_HTTP;
 #else
@@ -946,7 +947,7 @@ typedef struct {
 } RsslBindEncryptionOpts;
 
 
-#define RSSL_INIT_BIND_ENCRYPTION_OPTS { RSSL_ENC_TLSV1_2, NULL, NULL, NULL, NULL}
+#define RSSL_INIT_BIND_ENCRYPTION_OPTS { (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3), NULL, NULL, NULL, NULL}
  
 /**
  * @brief RSSL Bind Options used in the rsslBind call.
@@ -1038,7 +1039,7 @@ RTR_C_INLINE void rsslClearBindOpts(RsslBindOptions *opts)
 	opts->wsOpts.cookies.numberOfCookies = 0;
 	opts->encryptionOpts.cipherSuite = NULL;
 	opts->encryptionOpts.dhParams = NULL;
-	opts->encryptionOpts.encryptionProtocolFlags = RSSL_ENC_TLSV1_2;
+	opts->encryptionOpts.encryptionProtocolFlags = (RSSL_ENC_TLSV1_2 | RSSL_ENC_TLSV1_3);
 	opts->encryptionOpts.serverCert = NULL;
 	opts->encryptionOpts.serverPrivateKey = NULL;
 }

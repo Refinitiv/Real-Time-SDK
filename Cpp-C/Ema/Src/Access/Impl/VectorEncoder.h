@@ -71,6 +71,8 @@ private :
 
 	void endEncodingEntry() const;
 
+	void verifyPayLoadCompleted( const Encoder&, const UInt8& );
+
 	RsslVector				_rsslVector;
 
 	RsslVectorEntry			_rsslVectorEntry;
@@ -78,6 +80,8 @@ private :
 	DataType::DataTypeEnum	_emaDataType;
 
 	bool					_containerInitialized;
+
+	bool*					_internalContainerCompleted;
 };
 
 

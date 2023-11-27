@@ -156,7 +156,7 @@ private :
 
 	mutable EmaString		_toString;
 	OmmOpaqueDecoder*		_pDecoder;
-	OmmOpaqueEncoder*		_pEncoder;
+	mutable OmmOpaqueEncoder*		_pEncoder;
 	UInt64					_space[18];
 };
 

@@ -89,6 +89,15 @@ static RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pEr
 /* Build the ReactorWorker's thread name by format <processName>-RWT.<numeric> */
 static RsslRet _reactorWorkerBuildName(RsslReactorWorker* pReactorWorker, rtr_atomic_val reactorIndex, RsslErrorInfo* pError);
 
+/* This is used by the rsslReactorQueryServiceDiscovery() method for the non-blocking mode for both V1 and V2 */
+static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* restresponse, RsslRestResponseEvent* event);
+
+static void rsslRestErrorCallbackForExplicitSD(RsslError* rsslError, RsslRestResponseEvent* event);
+
+static void rsslRestServiceDiscoveryResponseCallbackForExplicitSD(RsslRestResponse* restresponse, RsslRestResponseEvent* event);
+
+static RsslRet rsslAddTokenSessionFromExplicitSD(RsslReactorImpl* pReactorImpl, RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo, 
+	RsslErrorInfo* pError);
 
 RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOptions *pReactorOptions, rtr_atomic_val reactorIndex, RsslErrorInfo *pError)
 {
@@ -326,6 +335,7 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->reactorTokenManagement.tokenSessionList)))
 		{
 			RsslReactorTokenSessionImpl *pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, sessionLink, pLink);
+
 			rsslFreeReactorTokenSessionImpl(pTokenSession);
 		}
 
@@ -1845,6 +1855,207 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 									break;
 								}
+							case RSSL_RCIMPL_ET_REST_REQ_RESP:
+								{
+									RsslReactorRestRequestResponseEvent* pRestEvent = (RsslReactorRestRequestResponseEvent*)pEvent;
+									RsslRestRequestArgs* pRestRequestArgs = pRestEvent->pExplicitSDInfo->pRestRequestArgs;
+									RsslErrorInfo errorInfo;
+									RsslReactorErrorInfoImpl* pReactorErrorInfoImpl = NULL;
+									RsslRestHandle* pHandle = 0;
+
+									if (pRestRequestArgs != NULL) /* RSSL_RC_SESSMGMT_V1 doesn't have a request argument yet. */
+									{
+										pRestRequestArgs->pUserSpecPtr = pRestEvent->pExplicitSDInfo;
+									}
+
+									if (_reactorWorkerRegisterEventForRestClient(pReactorWorker, pReactorImpl) != RSSL_RET_SUCCESS)
+									{
+										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+									}
+									
+									if (pRestEvent->pExplicitSDInfo->restRequestType == RSSL_RCIMPL_ET_REST_RESP_AUTH_SERVICE)
+									{
+										/* Try to check whether there is an token session for the user */
+										if (pRestEvent->pExplicitSDInfo->sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
+										{
+											RsslHashLink* pHashLink = NULL;
+											RsslReactorTokenManagementImpl* pTokenManagementImpl = &pReactorImpl->reactorWorker.reactorTokenManagement;
+											RsslReactorTokenSessionImpl* pTokenSessionImpl = NULL;
+
+											RSSL_MUTEX_LOCK(&pTokenManagementImpl->tokenSessionMutex);
+
+											if (pTokenManagementImpl->sessionByNameAndClientIdHt.elementCount != 0)
+												pHashLink = rsslHashTableFind(&pTokenManagementImpl->sessionByNameAndClientIdHt, 
+													&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.userName, NULL);
+
+											if (pHashLink != 0)
+											{
+												pTokenSessionImpl = RSSL_HASH_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, hashLinkNameAndClientId, pHashLink);
+
+												/* Checks whether the token session stops sending token reissue requests. */
+												RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
+												if (pTokenSessionImpl->stopTokenRequest == 0)
+												{
+													/* Uses the access token from the token session if it is valid */
+													if (pTokenSessionImpl->tokenInformation.accessToken.data != 0 && pTokenSessionImpl->tokenInformation.accessToken.length != 0)
+													{
+														pRestEvent->pExplicitSDInfo->pTokenSessionImpl = pTokenSessionImpl;
+														
+														pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorImpl, &pReactorImpl->serviceDiscoveryURL,
+															pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.transport, pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.dataFormat,
+															&pRestEvent->pExplicitSDInfo->pTokenSessionImpl->tokenInformation.tokenType, &pRestEvent->pExplicitSDInfo->pTokenSessionImpl->tokenInformation.accessToken,
+															&pRestEvent->pExplicitSDInfo->restRequestBuf, pRestEvent->pExplicitSDInfo, &errorInfo);
+
+														if (pRestRequestArgs != NULL)
+														{
+															if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+																(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
+
+															pHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+																rsslRestServiceDiscoveryResponseCallbackForExplicitSD,
+																rsslRestErrorCallbackForExplicitSD,
+																&pRestEvent->pExplicitSDInfo->restResponseBuf, &errorInfo.rsslError);
+
+															free(pRestRequestArgs);
+														}
+														else
+														{
+															pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+															rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+															if (pReactorErrorInfoImpl)
+															{
+																rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+																	"%s", errorInfo.rsslError.text);
+															}
+														}
+													}
+													else
+													{
+														pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+														rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+
+														if (pReactorErrorInfoImpl)
+														{
+															rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+																"Failed to retrieve token information from the existing token session of the same user name.");
+														}
+													}
+												}
+
+												RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
+											}
+											else
+											{
+												pRestRequestArgs = _reactorCreateTokenRequestV1(pReactorImpl, &pReactorImpl->tokenServiceURLV1,
+													&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.userName, &pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.password, NULL,
+													&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.clientId, &pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.clientSecret,
+													&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.tokenScope, pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.takeExclusiveSignOnControl, 
+													&pRestEvent->pExplicitSDInfo->restRequestBuf, pRestEvent->pExplicitSDInfo, &errorInfo);
+
+												if (pRestRequestArgs != NULL)
+												{
+													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+														(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
+
+													if (rsslAddTokenSessionFromExplicitSD(pReactorImpl, pRestEvent->pExplicitSDInfo, &errorInfo) == RSSL_RET_SUCCESS)
+													{
+														/* Acquires the access token mutex to start sending authentication request. */
+														RSSL_MUTEX_LOCK(&pRestEvent->pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+														pHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+															rsslRestAuthTokenResponseCallbackForExplicitSD,
+															rsslRestErrorCallbackForExplicitSD,
+															&pRestEvent->pExplicitSDInfo->restResponseBuf, &errorInfo.rsslError);
+
+														if (pHandle == 0)
+														{
+															RSSL_MUTEX_UNLOCK(&pRestEvent->pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+														}
+													}
+													else
+													{
+														pHandle = 0; /* Indicate that there is an error */
+													}
+
+													free(pRestRequestArgs);
+												}
+												else
+												{
+													pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+													rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+													if (pReactorErrorInfoImpl)
+													{
+														rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+															"%s", errorInfo.rsslError.text);
+													}
+												}
+											}
+
+											RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+										}
+										else
+										{   /* This is the case for handling RSSL_RC_SESSMGMT_V2 */
+										 
+											if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+												(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
+
+											if (rsslAddTokenSessionFromExplicitSD(pReactorImpl, pRestEvent->pExplicitSDInfo, &errorInfo) == RSSL_RET_SUCCESS)
+											{
+												/* Acquires the access token mutex to start sending authentication request. */
+												RSSL_MUTEX_LOCK(&pRestEvent->pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+												pHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+													rsslRestAuthTokenResponseCallbackForExplicitSD,
+													rsslRestErrorCallbackForExplicitSD,
+													&pRestEvent->pExplicitSDInfo->restResponseBuf, &errorInfo.rsslError);
+
+												if (pHandle == 0)
+												{
+													RSSL_MUTEX_UNLOCK(&pRestEvent->pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+												}
+											}
+											else
+											{
+												pHandle = 0; /* Indicate that there is an error */
+											}
+
+											free(pRestRequestArgs);
+										}
+									}
+
+									if (pRestRequestArgs == NULL) /* Handle error cases */
+									{
+										RsslReactorRestRequestResponseEvent* pRestErrorEvent = (RsslReactorRestRequestResponseEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+										rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
+
+										pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+
+										if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+										{
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+										}
+									}
+								    else if (pHandle == 0)
+									{
+										pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+										rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+										if (pReactorErrorInfoImpl)
+										{
+											rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+												"%s", errorInfo.rsslError.text);
+										}
+
+										RsslReactorRestRequestResponseEvent* pRestErrorEvent = (RsslReactorRestRequestResponseEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+										rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
+
+										pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+
+										if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+										{
+											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+										}
+									}
+
+									break;
+								}
 							default:
 								{
 									rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown event type %d", pEvent->base.eventType);
@@ -2351,8 +2562,33 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					RsslRestRequestArgs *pRestRequestArgs;
 					RsslQueueLink* pLink = rsslQueueStart(&pTokenSession->reactorChannelList);
 
-					if(pLink != NULL)
+					if (pLink != NULL)
 						pReactorChannel = ((RsslReactorChannelImpl*)RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pChannelImpl);
+					else
+					{
+						pReactorChannel = NULL;
+
+						/* Remove and free the token session if there is channel associated with it yet for V1. */
+						if (pTokenSession->pExplicitServiceDiscoveryInfo && pTokenSession->sessionVersion == RSSL_RC_SESSMGMT_V1)
+						{
+							/* Checks to ensure that there is no channel that is waiting to register with the token session */
+							if (pTokenSession->numberOfWaitingChannels == 0 && pTokenSession->registeredByStandbyChannels == 0)
+							{
+								RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+
+								rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSession->hashLinkNameAndClientId);
+				
+								if (pTokenSession->sessionLink.next != NULL && pTokenSession->sessionLink.prev != NULL)
+									rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSession->sessionLink);
+
+								rsslFreeReactorTokenSessionImpl(pTokenSession);
+
+								RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+
+								continue;
+							}
+						}
+					}
 
 					// There's only one channel per token session in sessmgmt v2.  If the associated channel is connected, don't do a rerequest.
 					if (pTokenSession->sessionVersion == RSSL_RC_SESSMGMT_V2 && (pReactorChannel == NULL || pReactorChannel->channelSetupState != RSSL_RC_CHST_RECONNECTING))
@@ -4785,3 +5021,667 @@ RsslRet restResponseErrDump(RsslReactorImpl* pReactorImpl, RsslError* pErrorOutp
 
 	return ret;
 }
+
+static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* restresponse, RsslRestResponseEvent* event)
+{
+	RsslReactorExplicitServiceDiscoveryInfo* pExplicitSDInfo = (RsslReactorExplicitServiceDiscoveryInfo*)event->closure;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorImpl* pReactorImpl = (RsslReactorImpl*)pExplicitSDInfo->pReactor;
+	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslUInt32 statusCode;
+	RsslRestRequestArgs* pRestRequestArgs;
+	RsslReactorTokenSessionImpl* pTokenSession = pExplicitSDInfo->pTokenSessionImpl;
+	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl;
+
+	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+		(void)rsslRestResponseDump(pReactorImpl, restresponse, &rsslErrorInfo.rsslError);
+
+	/* Releases the old memory and points the buffer to the new location. */
+	if (restresponse->isMemReallocated)
+	{
+		free(event->userMemory->data);
+		(*event->userMemory) = restresponse->reallocatedMem;
+	}
+
+	/* Set the HTTP response status code for the channel */
+	statusCode = restresponse->statusCode;
+	pExplicitSDInfo->httpStatusCode = statusCode;
+
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+
+	switch (statusCode)
+	{
+		case 200: /* OK*/
+		{
+			RsslRestHandle* pRestHandle;
+
+			if (pTokenSession->rsslAccessTokenRespBuffer.length < restresponse->dataBody.length)
+			{
+				if (pTokenSession->rsslAccessTokenRespBuffer.data)
+				{
+					free(pTokenSession->rsslAccessTokenRespBuffer.data);
+				}
+
+				pTokenSession->rsslAccessTokenRespBuffer.length = restresponse->dataBody.length;
+				pTokenSession->rsslAccessTokenRespBuffer.data = (char*)malloc(pTokenSession->rsslAccessTokenRespBuffer.length);
+
+				if (pTokenSession->rsslAccessTokenRespBuffer.data == 0)
+				{
+					rsslClearBuffer(&pTokenSession->rsslAccessTokenRespBuffer);
+					RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+					goto HandleRequestFailure;
+				}
+			}
+
+			if (pExplicitSDInfo->sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
+			{
+				RsslInt tokenExpiresTime;
+
+				if (rsslRestParseAccessTokenV1(&restresponse->dataBody, &pTokenSession->tokenInformation.accessToken, &pTokenSession->tokenInformation.refreshToken,
+					&pTokenSession->tokenInformation.expiresIn, &pTokenSession->tokenInformation.tokenType,
+					&pTokenSession->tokenInformation.scope, &pTokenSession->rsslAccessTokenRespBuffer, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+				{
+					RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+					goto HandleRequestFailure;
+				}
+
+				tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pTokenSession->tokenInformation.expiresIn * 1000);
+				pTokenSession->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pTokenSession->tokenInformation.expiresIn * pReactorImpl->tokenReissueRatio) * 1000);
+				pTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_RECEIVED_AUTH_TOKEN;
+				RTR_ATOMIC_SET64(pTokenSession->tokenExpiresTime, tokenExpiresTime);
+				RTR_ATOMIC_SET(pTokenSession->sendTokenRequest, 1);
+
+				RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+			}
+			else
+			{
+				if (rsslRestParseAccessTokenV2(&restresponse->dataBody, &pTokenSession->tokenInformation.accessToken, &pTokenSession->tokenInformation.refreshToken,
+					&pTokenSession->tokenInformation.expiresIn, &pTokenSession->tokenInformation.tokenType,
+					&pTokenSession->tokenInformation.scope, &pTokenSession->rsslAccessTokenRespBuffer, &rsslErrorInfo.rsslError) != RSSL_RET_SUCCESS)
+				{
+					RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+					goto HandleRequestFailure;
+				}
+
+				RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+			}
+
+			/* Send a non-blocking request to the service discovery */
+			if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorImpl, &pReactorImpl->serviceDiscoveryURL,
+				pExplicitSDInfo->serviceDiscoveryOptions.transport, pExplicitSDInfo->serviceDiscoveryOptions.dataFormat, &pTokenSession->tokenInformation.tokenType,
+				&pTokenSession->tokenInformation.accessToken,
+				&pExplicitSDInfo->restRequestBuf, pExplicitSDInfo, &rsslErrorInfo)) == 0)
+			{
+				goto HandleRequestFailure;
+			}
+
+			_assignServiceDiscoveryOptionsToRequestArgs(&pExplicitSDInfo->serviceDiscoveryOptions,
+				&pReactorImpl->restProxyOptions, pRestRequestArgs);
+
+			if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+				(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
+
+			if ((pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+				rsslRestServiceDiscoveryResponseCallbackForExplicitSD,
+				rsslRestErrorCallbackForExplicitSD,
+				&pExplicitSDInfo->restResponseBuf, &rsslErrorInfo.rsslError)) == 0)
+			{
+				free(pRestRequestArgs);
+				goto HandleRequestFailure;
+			}
+
+			free(pRestRequestArgs);
+			
+			break;
+		}
+		case 301: /* Moved Permanently */
+		case 308: /* Permanent Redirect */
+		case 302: /* Found (Previously "Moved temporarily") */
+		case 307: /* Temporary Redirect (Request method is not allowed to be changed) */
+		{
+			RsslBuffer* tempUri = NULL;
+
+			tempUri = getHeaderValue(&restresponse->headers, &rssl_rest_location_header_text);
+
+			RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+
+			if (tempUri != NULL)
+			{
+				RsslRestRequestArgs* pRestRequestArgs;
+				RsslBuffer requestURL;
+
+				requestURL.data = (tempUri->data + 1);
+				requestURL.length = tempUri->length - 1;
+
+				if (pExplicitSDInfo->sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
+				{
+					pRestRequestArgs = _reactorCreateTokenRequestV1(pReactorImpl, &requestURL,
+						&pExplicitSDInfo->serviceDiscoveryOptions.userName, &pExplicitSDInfo->serviceDiscoveryOptions.password,
+						NULL, /* For specifying a new password */
+                        &pExplicitSDInfo->serviceDiscoveryOptions.clientId,
+						&pExplicitSDInfo->serviceDiscoveryOptions.clientSecret,
+						&pExplicitSDInfo->serviceDiscoveryOptions.tokenScope,
+						pExplicitSDInfo->serviceDiscoveryOptions.takeExclusiveSignOnControl,
+						&pExplicitSDInfo->restRequestBuf, pExplicitSDInfo, &rsslErrorInfo);
+				}
+				else
+				{
+					pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &requestURL,
+						&pExplicitSDInfo->serviceDiscoveryOptions.clientId, &pExplicitSDInfo->serviceDiscoveryOptions.clientSecret,
+						&pExplicitSDInfo->serviceDiscoveryOptions.clientJWK, &pExplicitSDInfo->serviceDiscoveryOptions.audience,
+						&pExplicitSDInfo->serviceDiscoveryOptions.tokenScope, &pExplicitSDInfo->restRequestBuf,
+						pExplicitSDInfo, &rsslErrorInfo);
+				}
+
+				if (pRestRequestArgs)
+				{
+					RsslRestHandle* pHandle = NULL;
+					_assignServiceDiscoveryOptionsToRequestArgs(&pExplicitSDInfo->serviceDiscoveryOptions,
+						&pReactorImpl->restProxyOptions, pRestRequestArgs);
+
+					if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+						(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
+
+					/* Acquires the access token mutex to start sending authentication request. */
+					RSSL_MUTEX_LOCK(&pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+					if ((pHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+						rsslRestAuthTokenResponseCallbackForExplicitSD, rsslRestErrorCallbackForExplicitSD,
+						&pExplicitSDInfo->restResponseBuf, &rsslErrorInfo.rsslError)) != 0)
+					{
+						/* Successfully sent the REST request */
+						free(pRestRequestArgs);
+
+						/* Unlock the access mutex whenever receives the response */
+						return;
+					}
+					else
+					{
+						RSSL_MUTEX_UNLOCK(&pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+						free(pRestRequestArgs);
+
+						goto HandleRequestFailure;
+					}
+				}
+				else
+				{
+					goto HandleRequestFailure;
+				}
+			}
+			else
+			{
+				rsslErrorInfo.rsslError.rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(rsslErrorInfo.rsslError.text, MAX_RSSL_ERROR_TEXT, "Failed to retrive a redirect token service URL.");
+				goto HandleRequestFailure;
+			}
+		}
+		default:
+		{
+			RSSL_MUTEX_UNLOCK(&pTokenSession->accessTokenMutex);
+			rsslErrorInfo.rsslError.rsslErrorId = RSSL_RET_FAILURE;
+			snprintf(rsslErrorInfo.rsslError.text, MAX_RSSL_ERROR_TEXT, "%s", restresponse->dataBody.data);
+			goto HandleRequestFailure;
+		}
+	}
+
+	return;
+
+HandleRequestFailure:
+
+	pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+	if (pReactorErrorInfoImpl)
+	{
+		rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"%s", rsslErrorInfo.rsslError.text);
+	}
+
+	RsslReactorRestRequestResponseEvent* pRestErrorEvent = (RsslReactorRestRequestResponseEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+	rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
+
+	pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+	pRestErrorEvent->pExplicitSDInfo = pExplicitSDInfo;
+
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+	{
+		_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+	}
+
+	return;
+}
+
+static void rsslRestErrorCallbackForExplicitSD(RsslError* rsslError, RsslRestResponseEvent* event)
+{
+	RsslReactorExplicitServiceDiscoveryInfo* pExplicitSDInfo = (RsslReactorExplicitServiceDiscoveryInfo*)event->closure;
+	RsslReactorImpl* pReactorImpl = (RsslReactorImpl*)pExplicitSDInfo->pReactor;
+	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl;
+
+	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+		(void)restResponseErrDump(pReactorImpl, rsslError);
+
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+
+	pExplicitSDInfo->httpStatusCode = 0;
+
+	RSSL_MUTEX_UNLOCK(&pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+
+	pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+	if (pReactorErrorInfoImpl)
+	{
+		rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"%s", rsslError->text);
+	}
+
+	RsslReactorRestRequestResponseEvent* pRestErrorEvent = (RsslReactorRestRequestResponseEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+	rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
+
+	pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+	pRestErrorEvent->pExplicitSDInfo = pExplicitSDInfo;
+
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+	{
+		_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+		return;
+	}
+}
+
+static void rsslRestServiceDiscoveryResponseCallbackForExplicitSD(RsslRestResponse* restresponse, RsslRestResponseEvent* event)
+{
+	RsslReactorExplicitServiceDiscoveryInfo* pExplicitSDInfo = (RsslReactorExplicitServiceDiscoveryInfo*)event->closure;
+	RsslErrorInfo rsslErrorInfo;
+	RsslReactorImpl* pReactorImpl = (RsslReactorImpl*)pExplicitSDInfo->pReactor;
+	RsslReactorWorker* pReactorWorker = &pReactorImpl->reactorWorker;
+	RsslUInt32 statusCode;
+	RsslRestRequestArgs* pRestRequestArgs;
+	RsslReactorTokenSessionImpl* pTokenSession = pExplicitSDInfo->pTokenSessionImpl;
+	RsslReactorErrorInfoImpl* pReactorErrorInfoImpl;
+
+	if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+		(void)rsslRestResponseDump(pReactorImpl, restresponse, &rsslErrorInfo.rsslError);
+
+	/* Releases the old memory and points the buffer to the new location. */
+	if (restresponse->isMemReallocated)
+	{
+		free(event->userMemory->data);
+		(*event->userMemory) = restresponse->reallocatedMem;
+	}
+
+	/* Set the HTTP response status code for the channel */
+	statusCode = restresponse->statusCode;
+	pExplicitSDInfo->httpStatusCode = statusCode;
+
+	/* Cleaning up the RsslRestHandle later by the ReactorWorker */
+	rsslQueueAddLinkToBack(&pReactorWorker->disposableRestHandles, &event->handle->queueLink);
+
+	switch (statusCode)
+	{
+		case 200: /* OK*/
+		{
+			if (pExplicitSDInfo->parseRespBuffer.length < restresponse->dataBody.length)
+			{
+				free(pExplicitSDInfo->parseRespBuffer.data);
+				pExplicitSDInfo->parseRespBuffer.length = restresponse->dataBody.length + 1;
+				pExplicitSDInfo->parseRespBuffer.data = (char*)malloc(pExplicitSDInfo->parseRespBuffer.length);
+
+				if (pExplicitSDInfo->parseRespBuffer.data == 0)
+				{
+					rsslClearBuffer(&pExplicitSDInfo->parseRespBuffer);
+					goto HandleRequestFailure;
+				}
+
+				memset(pExplicitSDInfo->parseRespBuffer.data, 0, pExplicitSDInfo->parseRespBuffer.length);
+
+			}
+
+			memcpy(pExplicitSDInfo->parseRespBuffer.data, restresponse->dataBody.data, restresponse->dataBody.length);
+
+			RsslReactorRestRequestResponseEvent* pEvent = (RsslReactorRestRequestResponseEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+			rsslClearReactorRestRequestResponseEvent(pEvent);
+
+			pEvent->pExplicitSDInfo = pExplicitSDInfo;
+
+			if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
+				== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+			{
+				_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+				return;
+			}
+
+			break;
+		}
+		case 301: /* Moved Permanently */
+		case 308: /* Permanent Redirect */
+		case 302: /* Found (Previously "Moved temporarily") */
+		case 307: /* Temporary Redirect (Request method is not allowed to be changed) */
+		{
+			RsslBuffer* tempUri = getHeaderValue(&restresponse->headers, &rssl_rest_location_header_text);
+
+			if (tempUri != NULL)
+			{
+				RsslBuffer requestURL;
+				RsslRestHandle* pRestHandle;
+
+				requestURL.data = (tempUri->data + 1);
+				requestURL.length = tempUri->length - 1;
+
+				if ((pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorImpl, &requestURL,
+					pExplicitSDInfo->serviceDiscoveryOptions.transport, RSSL_RD_DP_INIT, &pTokenSession->tokenInformation.tokenType,
+					&pTokenSession->tokenInformation.accessToken,
+					&pExplicitSDInfo->restRequestBuf, pExplicitSDInfo, &rsslErrorInfo)) == 0)
+				{
+					goto HandleRequestFailure;
+				}
+
+				_assignServiceDiscoveryOptionsToRequestArgs(&pExplicitSDInfo->serviceDiscoveryOptions,
+					&pReactorImpl->restProxyOptions, pRestRequestArgs);
+
+				if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
+					(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
+
+				if ((pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
+					rsslRestServiceDiscoveryResponseCallbackForExplicitSD,
+					rsslRestErrorCallbackForExplicitSD,
+					&pExplicitSDInfo->restResponseBuf, &rsslErrorInfo.rsslError)) == 0)
+				{
+					free(pRestRequestArgs);
+					goto HandleRequestFailure;
+				}
+
+				free(pRestRequestArgs);
+			}
+			else
+			{
+				rsslErrorInfo.rsslError.rsslErrorId = RSSL_RET_FAILURE;
+				snprintf(rsslErrorInfo.rsslError.text, MAX_RSSL_ERROR_TEXT, "Failed to retrive a redirect service discovery URL.");
+			}
+
+			break;
+		}
+		default:
+		{
+			rsslErrorInfo.rsslError.rsslErrorId = RSSL_RET_FAILURE;
+			snprintf(rsslErrorInfo.rsslError.text, MAX_RSSL_ERROR_TEXT, "%s", restresponse->dataBody.data);
+			goto HandleRequestFailure;
+		}
+	}
+
+	return;
+
+HandleRequestFailure:
+
+	pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+	rsslClearReactorErrorInfoImpl(pReactorErrorInfoImpl);
+	if (pReactorErrorInfoImpl)
+	{
+		rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"%s", rsslErrorInfo.rsslError.text);
+	}
+
+	RsslReactorRestRequestResponseEvent* pRestErrorEvent = (RsslReactorRestRequestResponseEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+	rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
+
+	pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+	pRestErrorEvent->pExplicitSDInfo = pExplicitSDInfo;
+
+	if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+	{
+		_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
+		return;
+	}
+}
+
+/* This function supports both OAuth V1 and V2 versions of session management */
+static RsslReactorOAuthCredential* rsslCreateOAuthCredentialFromExplicitSD(int sessionMgntVersion, RsslReactorServiceDiscoveryOptions* pServiceDiscoveryOptions)
+{
+	RsslReactorOAuthCredential* pOAuthCredentialOut;
+	RsslReactorOAuthCredential defaultOAuthCredential;
+	RsslBuffer dataBuffer;
+	char* pData;
+	char* pCurPos;
+	size_t msgSize = sizeof(RsslReactorOAuthCredential);
+	size_t clientIdLength = (pServiceDiscoveryOptions->clientId.length) ? pServiceDiscoveryOptions->clientId.length : 0;
+	size_t userNameLength = pServiceDiscoveryOptions->userName.length;
+	size_t dataLength = 0;
+	RsslBuffer tokenScope;
+	rsslClearReactorOAuthCredential(&defaultOAuthCredential);
+	tokenScope = pServiceDiscoveryOptions->tokenScope.length > 0 ? pServiceDiscoveryOptions->tokenScope : defaultOAuthCredential.tokenScope;
+	dataLength += tokenScope.length;
+	dataLength += clientIdLength;
+	
+	if (sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
+	{
+		dataLength += userNameLength;
+		dataLength += pServiceDiscoveryOptions->password.length;
+	}
+	else
+	{
+		dataLength += pServiceDiscoveryOptions->clientJWK.length;
+		dataLength += pServiceDiscoveryOptions->clientSecret.length;
+		dataLength += pServiceDiscoveryOptions->audience.length;
+	}
+
+	/* Returns the NULL as there is no OAth credential available */
+	if ( (sessionMgntVersion == RSSL_RC_SESSMGMT_V1 &&userNameLength == 0) ||
+		(sessionMgntVersion == RSSL_RC_SESSMGMT_V2 && clientIdLength == 0))
+	{
+		return NULL;
+	}
+
+	if ((pData = (char*)malloc(msgSize + dataLength)) == NULL)
+	{
+		return NULL;
+	}
+
+	memset(pData, 0, msgSize + dataLength);
+
+	pOAuthCredentialOut = (RsslReactorOAuthCredential*)pData;
+
+	/* Copies a reference to the callback if specified by users */
+	pOAuthCredentialOut->pOAuthCredentialEventCallback = NULL;
+	pOAuthCredentialOut->takeExclusiveSignOnControl = pServiceDiscoveryOptions->takeExclusiveSignOnControl;
+	pOAuthCredentialOut->userSpecPtr = NULL;
+
+	pCurPos = pData + msgSize;
+
+	rsslClearBuffer(&dataBuffer);
+	if (sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
+	{
+		dataBuffer = pServiceDiscoveryOptions->userName;
+
+		if (dataBuffer.length)
+		{
+			pOAuthCredentialOut->userName.length = dataBuffer.length;
+			pOAuthCredentialOut->userName.data = pCurPos;
+			memcpy(pOAuthCredentialOut->userName.data, dataBuffer.data, pOAuthCredentialOut->userName.length);
+			pCurPos += pOAuthCredentialOut->userName.length;
+		}
+	}
+
+	rsslClearBuffer(&dataBuffer);
+	dataBuffer = pServiceDiscoveryOptions->clientId;
+
+	if (dataBuffer.length)
+	{
+		pOAuthCredentialOut->clientId.length = dataBuffer.length;
+		pOAuthCredentialOut->clientId.data = pCurPos;
+		memcpy(pOAuthCredentialOut->clientId.data, dataBuffer.data, pOAuthCredentialOut->clientId.length);
+		pCurPos += pOAuthCredentialOut->clientId.length;
+	}
+
+
+	rsslClearBuffer(&dataBuffer);
+	if (sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
+	{
+		dataBuffer = pServiceDiscoveryOptions->password;
+
+		if (dataBuffer.length)
+		{
+			pOAuthCredentialOut->password.length = dataBuffer.length;
+			pOAuthCredentialOut->password.data = pCurPos;
+			memcpy(pOAuthCredentialOut->password.data, dataBuffer.data, pOAuthCredentialOut->password.length);
+			pCurPos += pOAuthCredentialOut->password.length;
+		}
+	}
+	else
+	{
+		if (pServiceDiscoveryOptions->clientSecret.length && pServiceDiscoveryOptions->clientSecret.data)
+		{
+			pOAuthCredentialOut->clientSecret.length = pServiceDiscoveryOptions->clientSecret.length;
+			pOAuthCredentialOut->clientSecret.data = pCurPos;
+			memcpy(pOAuthCredentialOut->clientSecret.data, pServiceDiscoveryOptions->clientSecret.data, pOAuthCredentialOut->clientSecret.length);
+			pCurPos += pOAuthCredentialOut->clientSecret.length;
+		}
+
+		if (pServiceDiscoveryOptions->clientJWK.length && pServiceDiscoveryOptions->clientJWK.data)
+		{
+			pOAuthCredentialOut->clientJWK.length = pServiceDiscoveryOptions->clientJWK.length;
+			pOAuthCredentialOut->clientJWK.data = pCurPos;
+			memcpy(pOAuthCredentialOut->clientJWK.data, pServiceDiscoveryOptions->clientJWK.data, pOAuthCredentialOut->clientJWK.length);
+			pCurPos += pOAuthCredentialOut->clientJWK.length;
+		}
+
+		if (pServiceDiscoveryOptions->audience.length && pServiceDiscoveryOptions->audience.data)
+		{
+			pOAuthCredentialOut->audience.length = pServiceDiscoveryOptions->audience.length;
+			pOAuthCredentialOut->audience.data = pCurPos;
+			memcpy(pOAuthCredentialOut->audience.data, pServiceDiscoveryOptions->audience.data, pOAuthCredentialOut->audience.length);
+			pCurPos += pOAuthCredentialOut->audience.length;
+		}
+	}
+
+	if (tokenScope.length && tokenScope.data)
+	{
+		pOAuthCredentialOut->tokenScope.length = tokenScope.length;
+		pOAuthCredentialOut->tokenScope.data = pCurPos;
+		memcpy(pOAuthCredentialOut->tokenScope.data, tokenScope.data, pOAuthCredentialOut->tokenScope.length);
+		pCurPos += pOAuthCredentialOut->tokenScope.length;
+	}
+
+	return pOAuthCredentialOut;
+}
+
+static RsslRet rsslAddTokenSessionFromExplicitSD(RsslReactorImpl* pReactorImpl, RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo, 
+	RsslErrorInfo *pError)
+{
+	RsslReactorTokenSessionImpl* pTokenSessionImpl = NULL;
+	RsslHashLink* pHashLink = NULL;
+	RsslReactorTokenManagementImpl* pTokenManagementImpl = &pReactorImpl->reactorWorker.reactorTokenManagement;
+	RsslBuffer sessionKey = RSSL_INIT_BUFFER;
+	RsslReactorOAuthCredential* pReactorOAuthCredential = NULL;
+
+	pReactorOAuthCredential = rsslCreateOAuthCredentialFromExplicitSD(pExplicitServiceDiscoveryInfo->sessionMgntVersion,
+		&pExplicitServiceDiscoveryInfo->serviceDiscoveryOptions);
+
+	if (pReactorOAuthCredential == NULL)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed to allocate memory for creating RsslReactorOAuthCredential.");
+
+		return RSSL_RET_FAILURE;
+	}
+
+	pTokenSessionImpl = (RsslReactorTokenSessionImpl*)malloc(sizeof(RsslReactorTokenSessionImpl));
+
+	if (pTokenSessionImpl == 0)
+	{
+		rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+			"Failed to allocate memory for creating RsslReactorTokenSessionImpl.");
+
+		free(pReactorOAuthCredential);
+		return RSSL_RET_FAILURE;
+	}
+
+	rsslClearReactorTokenSessionImpl(pTokenSessionImpl);
+	pTokenSessionImpl->pReactor = (RsslReactor*)pReactorImpl;
+	pTokenSessionImpl->reissueTokenAttemptLimit = pReactorImpl->reissueTokenAttemptLimit;
+	pTokenSessionImpl->sessionVersion = pExplicitServiceDiscoveryInfo->sessionMgntVersion;
+
+	if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
+	{
+		/* Copy the rsslReactor's token service URL if present.  If not, use the default location for V1 */
+		if (pReactorImpl->tokenServiceURLV1.data != 0 && pReactorImpl->tokenServiceURLV1.length != 0)
+		{
+			pTokenSessionImpl->sessionAuthUrl.length = pReactorImpl->tokenServiceURLBufferV1.length;
+			if (!(pTokenSessionImpl->sessionAuthUrl.data = (char*)malloc(pReactorImpl->tokenServiceURLBufferV1.length + 1)))
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for the token service URL.");
+
+				free(pReactorOAuthCredential);
+				free(pTokenSessionImpl);
+				return RSSL_RET_FAILURE;
+			}
+
+			memset(pTokenSessionImpl->sessionAuthUrl.data, 0, pReactorImpl->tokenServiceURLBufferV1.length + 1);
+			strncpy(pTokenSessionImpl->sessionAuthUrl.data, pReactorImpl->tokenServiceURLBufferV1.data, pTokenSessionImpl->sessionAuthUrl.length);
+		}
+		else
+		{
+			pTokenSessionImpl->sessionAuthUrl.length = rssl_rest_token_url_v1.length;
+			if (!(pTokenSessionImpl->sessionAuthUrl.data = (char*)malloc(rssl_rest_token_url_v1.length + 1)))
+			{
+				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to allocate memory for the token service URL.");
+
+				free(pReactorOAuthCredential);
+				free(pTokenSessionImpl);
+				return RSSL_RET_FAILURE;
+			}
+
+			memset(pTokenSessionImpl->sessionAuthUrl.data, 0, rssl_rest_token_url_v1.length + 1);
+			strncpy(pTokenSessionImpl->sessionAuthUrl.data, rssl_rest_token_url_v1.data, pTokenSessionImpl->sessionAuthUrl.length);
+		}
+
+		sessionKey.length = pExplicitServiceDiscoveryInfo->serviceDiscoveryOptions.userName.length;
+		sessionKey.data = (char*)malloc(sessionKey.length);
+		if (sessionKey.data == 0)
+		{
+			free(pReactorOAuthCredential);
+			free(pTokenSessionImpl->sessionAuthUrl.data);
+			free(pTokenSessionImpl);
+
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to allocate memory for creating session identifier.");
+
+			return RSSL_RET_FAILURE;
+		}
+
+		memcpy(sessionKey.data, pExplicitServiceDiscoveryInfo->serviceDiscoveryOptions.userName.data, sessionKey.length);
+
+		/* Allocates memory to store temporary URL redirect */
+		pTokenSessionImpl->temporaryURLBuffer.length = RSSL_REACTOR_DEFAULT_URL_LENGHT;
+		pTokenSessionImpl->temporaryURLBuffer.data = (char*)malloc(pTokenSessionImpl->temporaryURLBuffer.length);
+		if (pTokenSessionImpl->temporaryURLBuffer.data == 0)
+		{
+			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+				"Failed to allocate memory for storing temporary URL redirect.");
+
+			free(pReactorOAuthCredential);
+			free(pTokenSessionImpl->sessionAuthUrl.data);
+			free(sessionKey.data);
+			free(pTokenSessionImpl);
+
+			return RSSL_RET_FAILURE;
+		}
+
+		/* Copy the key for the HashTable */
+		pTokenSessionImpl->userNameAndClientId = sessionKey;
+
+		/* Inserted to the HashTable for searching the token sessions */
+		rsslHashTableInsertLink(&pTokenManagementImpl->sessionByNameAndClientIdHt, &pTokenSessionImpl->hashLinkNameAndClientId,
+			&pTokenSessionImpl->userNameAndClientId, NULL);
+
+		/* Inserted to the token session list for token renewal */
+		if (pTokenSessionImpl->sessionLink.next == 0 || pTokenSessionImpl->sessionLink.prev == 0)
+			rsslQueueAddLinkToBack(&pTokenManagementImpl->tokenSessionList, &pTokenSessionImpl->sessionLink);
+	}
+
+	/* Assigned the token session */
+	pTokenSessionImpl->pOAuthCredential = pReactorOAuthCredential;
+	pTokenSessionImpl->pExplicitServiceDiscoveryInfo = pExplicitServiceDiscoveryInfo;
+	pExplicitServiceDiscoveryInfo->pTokenSessionImpl = pTokenSessionImpl;
+
+	return RSSL_RET_SUCCESS;
+}
+

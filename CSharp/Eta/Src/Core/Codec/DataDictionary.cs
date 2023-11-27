@@ -248,7 +248,9 @@ namespace LSEG.Eta.Codec
 
 		internal string dictionaryString; // for toString method
 
-		private class RippleDefintion
+        internal static Encoding EncodingChars = Encoding.GetEncoding("iso-8859-1");
+
+        private class RippleDefintion
 		{
             public RippleDefintion(DataDictionary dd)
             {
@@ -356,7 +358,7 @@ namespace LSEG.Eta.Codec
 				}
 
 				_fieldDictFileLine = new char[(int)_fieldDictFile.Length];
-				_fileInput = new System.IO.StreamReader(_fieldDictFile);
+				_fileInput = new System.IO.StreamReader(_fieldDictFile, EncodingChars);
 				lengthRead = _fileInput.Read(_fieldDictFileLine, 0, _fieldDictFileLine.Length);
 				while (_lastPosition < lengthRead - 1)
 				{
@@ -407,7 +409,7 @@ namespace LSEG.Eta.Codec
 					fidNum = (Int16)Fid(_fieldDictFileLine);
 					if ((fidNum < MIN_FID) || (fidNum > MAX_FID))
 					{
-						SetError(out error, "Illegal fid number " + fidNum + " uniquetempvar.");
+						SetError(out error, "Illegal fid number " + fidNum + " (Line=" + lineNum + ").");
 						return CodecReturnCode.FAILURE;
 					}
 					newDictEntry._fid = fidNum;
@@ -602,7 +604,7 @@ namespace LSEG.Eta.Codec
 				}
 
 				_enumTypeDefFileLine = new char[(int)_enumTypeDefFile.Length];
-				_fileInput = new System.IO.StreamReader(_enumTypeDefFile);
+				_fileInput = new System.IO.StreamReader(_enumTypeDefFile, EncodingChars);
 				lengthRead = _fileInput.Read(_enumTypeDefFileLine, 0, _enumTypeDefFileLine.Length);
 				while (_lastPosition < lengthRead - 1)
 				{
@@ -2292,14 +2294,18 @@ namespace LSEG.Eta.Codec
 									return CodecReturnCode.FAILURE;
 								}
 
-								(_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.ToString());
-							}
+								(_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.Data(), arrEntry.EncodedData.Position, arrEntry.EncodedData.Length);
+                                var str = (_enumTypeArray[enumDisplayCount].Display).ToString(); /* Unreferenced to the original buffer position and keeps its display value as String object. */
+                                (_enumTypeArray[enumDisplayCount].Display).Data(str);
+                            }
 							else
 							{
 								_enumTypeArray[enumDisplayCount] = new EnumTypeImpl();
 
-								(_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.ToString());
-							}
+								(_enumTypeArray[enumDisplayCount].Display).Data(arrEntry.EncodedData.Data(), arrEntry.EncodedData.Position, arrEntry.EncodedData.Length);
+                                var str = (_enumTypeArray[enumDisplayCount].Display).ToString(); /* Unreferenced to the original buffer position and keeps its display value as String object. */
+                                (_enumTypeArray[enumDisplayCount].Display).Data(str);
+                            }
 						}
 
 						/* Make sure we didn't have more value elements than displays */
@@ -3707,7 +3713,7 @@ namespace LSEG.Eta.Codec
             {
                 if (lineNum > 0)
                 {
-                    SetError(out error, "Invalid rwfType for fid " + entry._fid + " uniquetempvar.");
+                    SetError(out error, "Invalid rwfType for fid " + entry._fid + " (Line=" + lineNum + ").");
                     return CodecReturnCode.FAILURE;
                 }
                 else
@@ -3723,7 +3729,7 @@ namespace LSEG.Eta.Codec
                 {
                     if (lineNum > 0)
                     {
-                        SetError(out error, "Duplicate definition for fid " + fidNum + " uniquetempvar.");
+                        SetError(out error, "Duplicate definition for fid " + fidNum + " (Line=" + lineNum + ").");
                     }
                     else
                     {

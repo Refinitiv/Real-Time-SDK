@@ -378,8 +378,8 @@ namespace LSEG.Eta.Transports
                 m_ServerSocket.Listen(1000);
 
                 ((SharedPool)m_SharedPool).SharedPoolLock = BindOptions.SharedPoolLock
-                         ? (Locker)new WriteLocker(new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion))
-                         : (Locker)new NoLocker();
+                         ? new MonitorWriteLocker(new object())
+                         : new NoLocker();
 
                 State = ChannelState.ACTIVE;
 

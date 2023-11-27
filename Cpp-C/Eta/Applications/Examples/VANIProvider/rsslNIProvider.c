@@ -92,6 +92,8 @@ static char libcurlName[255];
 
 static char sslCAStore[255];
 
+static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
+
 static RsslBool cacheCommandlineOption = RSSL_FALSE;
 RsslVACacheInfo cacheInfo;
 
@@ -133,6 +135,8 @@ void printUsageAndExit(char *appName)
 			" Options for establishing connection(s) and sending requests through a proxy server:\n"
 			"   [ -ph <proxy host> ] [ -pp <proxy port> ] [ -plogin <proxy username> ] [ -ppasswd <proxy password> ] [ -pdomain <proxy domain> ] \n"
 			"\n -castore specifies the filename or directory of the OpenSSL CA store\n"
+			"\n -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections\n"
+			"\n -spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections\n"
 			"\n -maxEventsInPool size of event pool\n"
 			, appName);
 	exit(-1);
@@ -185,6 +189,18 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 			i += 2;
 			snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
+		}
+		else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+		{
+			i++;
+			tlsProtocol |= RSSL_ENC_TLSV1_2;
+			pCommand->cOpts.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
+		}
+		else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+		{
+			i++;
+			tlsProtocol |= RSSL_ENC_TLSV1_3;
+			pCommand->cOpts.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 		}
 		else if(strcmp("-uname", argv[i]) == 0)
 		{

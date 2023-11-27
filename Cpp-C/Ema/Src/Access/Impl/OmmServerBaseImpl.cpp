@@ -469,6 +469,17 @@ ServerConfig* OmmServerBaseImpl::readServerConfig( EmaConfigServerImpl* pConfigS
 			}
 			else
 				pConfigServerImpl->get<EmaString>(serverNodeName + "CipherSuite", socketServerConfig->cipherSuite);
+
+			if (pConfigServerImpl->getUserSpecifiedSecurityProtocol() > 0)
+			{
+				socketServerConfig->securityProtocol = pConfigServerImpl->getUserSpecifiedSecurityProtocol();
+			}
+			else
+			{
+				UInt64 tempUInt = 0;
+				if ( pConfigServerImpl->get<UInt64>(serverNodeName + "SecurityProtocol", tempUInt) )
+					socketServerConfig->securityProtocol = (int)tempUInt;
+			}
 		}
 		/* Socket's a superset of Encrypted for servers */
 		case RSSL_CONN_TYPE_SOCKET:
@@ -1020,6 +1031,7 @@ void OmmServerBaseImpl::bindServerOptions(RsslBindOptions& bindOptions, const Em
 			bindOptions.encryptionOpts.serverPrivateKey = const_cast<char *>(socketServerConfig->serverPrivateKey.c_str());
 			bindOptions.encryptionOpts.dhParams = const_cast<char *>(socketServerConfig->dhParams.c_str());
 			bindOptions.encryptionOpts.cipherSuite = const_cast<char *>(socketServerConfig->cipherSuite.c_str());
+			bindOptions.encryptionOpts.encryptionProtocolFlags = (RsslUInt32)socketServerConfig->securityProtocol;
 			bindOptions.maxFragmentSize = (RsslUInt32)socketServerConfig->maxFragmentSize;
 
 		}

@@ -13,6 +13,7 @@ public class ProviderThreadStats {
     public static final long NOT_DEFINED = -1;
     private final CountStat requestCount;
     private final CountStat refreshCount;
+    private final CountStat itemRefreshCount;
     private final CountStat updateCount;
     private final CountStat closeCount;
     private final CountStat postCount;
@@ -43,6 +44,7 @@ public class ProviderThreadStats {
 
         this.requestCount = new CountStat();
         this.refreshCount = new CountStat();
+        this.itemRefreshCount = new CountStat();
         this.updateCount = new CountStat();
         this.closeCount = new CountStat();
         this.postCount = new CountStat();
@@ -202,6 +204,10 @@ public class ProviderThreadStats {
 
     public CountStat refreshCount() {
         return refreshCount;
+    }
+    
+    public CountStat itemRefreshCount() {
+        return itemRefreshCount;
     }
 
     public CountStat updateCount() {

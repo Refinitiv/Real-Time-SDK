@@ -462,10 +462,10 @@ namespace LSEG.Eta.Codec
 		{
 			int result = SEED;
 
-			result = PRIME * result * (_timeliness + 1);
-			result = PRIME * result * (_rate + 2);
-			result = PRIME * result * (_timeInfo + 3);
-			result = PRIME * result * (_rateInfo + 4);
+			result = PRIME * result ^ (_timeliness + 1);
+			result = PRIME * result ^ (_rate + 2);
+			result = PRIME * result ^ (_timeInfo + 3);
+			result = PRIME * result ^ (_rateInfo + 4);
 
 			return result;
 		}

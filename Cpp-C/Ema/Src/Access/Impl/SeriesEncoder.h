@@ -66,13 +66,17 @@ private :
 
 	void endEncodingEntry() const;
 
+	void verifyPayLoadCompleted( const Encoder&, const UInt8& );
+
 	RsslSeries				_rsslSeries;
 
 	RsslSeriesEntry			_rsslSeriesEntry;
 
-	DataType::DataTypeEnum	_emaDataType;
+	DataType::DataTypeEnum	_emaLoadType;
 
 	bool					_containerInitialized;
+
+	bool*					_internalContainerCompleted;
 };
 
 

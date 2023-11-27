@@ -26,7 +26,6 @@ namespace LSEG.Eta.ValueAdd.Rdm
         private Map m_Map = new Map();
         private MapEntry m_Entry = new MapEntry();
         private UInt tmpUInt = new UInt();
-        private long m_SeqNum = 0;
 
         /// <summary>
         /// StreamId for this message
@@ -34,12 +33,12 @@ namespace LSEG.Eta.ValueAdd.Rdm
         public override int StreamId { get => m_RefreshMsg.StreamId; set { m_RefreshMsg.StreamId = value; } }
 
         /// <summary>
-        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.SOURCE"/>.
+        /// Message Class for this message. This will be set to <see cref="MsgClasses.REFRESH"/>
         /// </summary>
         public override int MsgClass { get => m_RefreshMsg.MsgClass; }
 
         /// <summary>
-        /// Message Class for this message. This will be set to <see cref="MsgClasses.REFRESH"/>
+        /// DomainType for this message. This will be <see cref="Eta.Rdm.DomainType.SOURCE"/>.
         /// </summary>
         public override int DomainType { get => m_RefreshMsg.DomainType; }
 
@@ -94,15 +93,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// <summary>
         /// Sequence number of this message.
         /// </summary>
-        public long SequenceNumber 
-        { 
-            get => m_SeqNum; 
-            set 
-            { 
-                Debug.Assert(HasSequenceNumber); 
-                m_SeqNum = value; 
-            } 
-        }
+        public long SequenceNumber { get; set; }
         
         /// <summary>
         /// The current state of the stream. See <see cref="State"/>
@@ -144,11 +135,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
         /// (if not present, all services should be provided). Should match 
         /// the Consumer's request if possible.
         /// </summary>
-        public int ServiceId 
-        { 
-            get => m_RefreshMsg.MsgKey.ServiceId; 
-            set { Debug.Assert(HasServiceId); m_RefreshMsg.MsgKey.ServiceId = value; } 
-        }
+        public int ServiceId { get; set; }
 
         private Service? GetService(int serviceId)
         {
@@ -181,7 +168,7 @@ namespace LSEG.Eta.ValueAdd.Rdm
             m_RefreshMsg.ApplyHasMsgKey();
             m_RefreshMsg.MsgKey.ApplyHasFilter();
             m_RefreshMsg.ApplyRefreshComplete();
-            m_SeqNum = 0;
+            SequenceNumber = 0;
             m_ServiceList.Clear();         
         }
 
@@ -245,12 +232,13 @@ namespace LSEG.Eta.ValueAdd.Rdm
             if (HasSequenceNumber)
             {
                 m_RefreshMsg.ApplyHasSeqNum();
-                m_RefreshMsg.SeqNum = m_SeqNum;
+                m_RefreshMsg.SeqNum = SequenceNumber;
             }
             if (HasServiceId)
             {
                 m_RefreshMsg.ApplyHasMsgKey();
                 m_RefreshMsg.MsgKey.ApplyHasServiceId();
+                m_RefreshMsg.MsgKey.ServiceId = ServiceId;
             }
             if (Solicited)
             {

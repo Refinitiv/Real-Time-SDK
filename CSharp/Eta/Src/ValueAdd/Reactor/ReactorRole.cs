@@ -37,6 +37,8 @@ namespace LSEG.Eta.ValueAdd.Reactor
         /// </remarks>
         public IDefaultMsgCallback? DefaultMsgCallback { get; set; }
 
+        internal ReactorMsgEvent DefaultReactorMsgEvent = new ReactorMsgEvent();
+
         /// <summary>
         /// Create <see cref="ReactorRole"/>
         /// </summary>

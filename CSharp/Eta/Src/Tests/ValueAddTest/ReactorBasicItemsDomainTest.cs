@@ -38,8 +38,8 @@ public class ReactorBasicItemsDomainTest : IDisposable
     /// Capture output from tests
     private readonly ITestOutputHelper output;
 
-    private const string DICTIONARY_FILE_NAME = "../../../../Src/Tests/RDMFieldDictionary";
-    private const string ENUM_TYPE_FILE_NAME = "../../../../Src/Tests/enumtype.def";
+    private const string DICTIONARY_FILE_NAME = "../../../../Src/Tests/test_FieldDictionary";
+    private const string ENUM_TYPE_FILE_NAME = "../../../../Src/Tests/test_enumtype.def";
 
     private const string USER_NAME = "User's Name";
     private const string USER_PASSWORD = "Their password";

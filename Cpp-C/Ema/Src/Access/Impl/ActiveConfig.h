@@ -354,6 +354,8 @@ public:
 	UInt64			maxFragmentSize;
 	EmaString		wsProtocols;
 
+	int securityProtocol;
+
 private:
 
 	EmaString		defaultServiceName;

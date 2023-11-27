@@ -500,6 +500,36 @@ namespace CodecTestProject
 
         [Fact]
         [Category("Unit")]
+        public void CopyToUsedRsslBufferTest()
+        {
+            Buffer buf_size_10_1 = new Buffer();
+            Buffer buf_size_10_2 = new Buffer();
+            Buffer buf_size_5 = new Buffer();
+            Buffer buf_size_7 = new Buffer();
+
+            buf_size_10_1.Data(new ByteBuffer(10));
+            buf_size_10_2.Data(new ByteBuffer(10));
+            buf_size_5.Data(new ByteBuffer(5));
+            buf_size_7.Data(new ByteBuffer(7));
+
+            buf_size_10_1.Data().Put(new byte[] { (byte)'D', (byte)'D', (byte)'D', (byte)'D' });
+            buf_size_10_2.Data().Put(new byte[] { (byte)'A', (byte)'B' });
+            buf_size_5.Data().Put(new byte[] { (byte)'E', (byte)'F', (byte)'G', (byte)'H', (byte)'I' });
+            buf_size_7.Data().Put(new byte[] { (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'5', (byte)'6', (byte)'7' });
+
+            Assert.Equal(CodecReturnCode.SUCCESS, buf_size_10_2.Copy(buf_size_10_1));
+
+            Assert.Equal(buf_size_10_2.GetHashCode(), buf_size_10_1.GetHashCode());
+
+            Assert.Equal(CodecReturnCode.SUCCESS, buf_size_5.Copy(buf_size_10_1));
+
+            Assert.Equal(buf_size_5.GetHashCode(), buf_size_10_1.GetHashCode());
+
+            Assert.Equal(CodecReturnCode.BUFFER_TOO_SMALL, buf_size_7.Copy(buf_size_5));
+        }
+
+        [Fact]
+        [Category("Unit")]
         public void SetDataTest()
         {
             Buffer buf1 = new Buffer();

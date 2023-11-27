@@ -10,6 +10,7 @@ using LSEG.Eta.Transports;
 using LSEG.Eta.Common;
 using System.Collections.Generic;
 using System.Text;
+using System.Security.Authentication;
 
 namespace LSEG.Eta.Transports
 {
@@ -144,6 +145,13 @@ namespace LSEG.Eta.Transports
         public List<ComponentInfo> ComponentInfoList { get; internal set; }
 
         /// <summary>
+        /// Gets the encryption protocol type used to authenticate the the <see cref="ConnectionType.ENCRYPTED"/> connection type.
+        /// </summary>
+        /// <remarks>This property is valid only for the <see cref="ConnectionType.ENCRYPTED"/> connection type.</remarks>
+        /// <value>The negotiated protocol for the Channel; otherwise <see cref="SslProtocols.None"/></value>
+        public SslProtocols EncryptionProtocol { get; internal set; }
+
+        /// <summary>
         /// Clears ETA Channel Info.
         /// </summary>
         public void Clear()
@@ -161,6 +169,7 @@ namespace LSEG.Eta.Transports
             ClientIP = null;
             ClientHostname = null;
             ComponentInfoList = null;
+            EncryptionProtocol = SslProtocols.None;
         }
 
         /// <summary>
@@ -208,7 +217,8 @@ namespace LSEG.Eta.Transports
                 $"\tpriorityFlushStrategy: {PriorityFlushStrategy}\n" +
                 $"\tclientIP: {ClientIP}\n" +
                 $"\tclientHostName: {ClientHostname}\n" +
-                $"\tComponentInfo: {stringBuilder}";
+                $"\tComponentInfo: {stringBuilder}\n" +
+                $"\tEncryptionProtocol: {EncryptionProtocol}";
         }
 
         private StringBuilder stringBuilder;

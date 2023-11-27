@@ -20,9 +20,8 @@ using System.Collections.Generic;
 namespace LSEG.Eta.Internal
 {
     internal class SocketProtocol : ProtocolBase
-    {
-        static ReaderWriterLockSlim _slimLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        static WriteLocker _locker = new WriteLocker(_slimLock);
+    {       
+        static MonitorWriteLocker _locker = new MonitorWriteLocker(new object());
 
         internal static int DefaultSystemBufferSize = 65535;
 

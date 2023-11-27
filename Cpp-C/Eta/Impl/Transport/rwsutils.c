@@ -4672,9 +4672,17 @@ RsslInt32 rwsReadPrependTransportHdr(void* transport, char* buffer, int bufferLe
 	rwsFrameHdr_t           *frame = &wsSess->frameHdr;
 	int readSize;
 
-	rwflags |= RIPC_RW_WAITALL;
+	/* The flag RIPC_RW_WAITALL is effective for a blocking type connection only, see ipcRead.                              */
+	/* Set the RIPC_RW_WAITALL flag to read the only whole websocket fragment in the rwsReadTransportMsg method.            */
+	/* When we have several bytes (>1) inside the internal buffer (i.e. the header of the current fragment is available),   */
+	/*  rwsReadTransportMsg will only require reading that fragment.                                                        */
+	/* Do not set the RIPC_RW_WAITALL flag when requesting to read more data than a fragment, it will increase the latency. */
+	/* And even the low-level read method ipcRead can freeze because it will wait for new data                              */
+	/*  but the writer will not send it at all. */
+	if ((rwflags & RIPC_RW_BLOCKING) && frame->partial && (wsSess->actualInBuffLen - wsSess->inputReadCursor) > 1)
+		rwflags |= RIPC_RW_WAITALL;
 
-	/* Get the maximum read size to ensure that addtional websocket frames can be read into the remaining input buffer. */
+	/* Get the maximum read size to ensure that additional websocket frames can be read into the remaining input buffer. */
 	if ((readSize = calculateNextReadSize(rsslSocketChannel, 2)) == 0)
 	{
 		_rsslSetError(error, NULL, RSSL_RET_FAILURE, 0);

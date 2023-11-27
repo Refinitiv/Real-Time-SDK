@@ -81,6 +81,8 @@ void printUsageAndExit(int argc, char **argv)
 			" -ax          Specifies the Authentication Extended information.\n"
 			" -aid	       Specifies the Application ID.\n"
 			" -pl	       Specifies list of supported websocket sub-protocols, white space or ',' delineated.\n"
+			" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n"
+			" -spTLSv1.3 Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n"
 			"\n"
 			" Connection options for socket, http, and encrypted connection types:\n"
 			"   [ -h <Server Hostname> ] [ -p <Port> ]\n"
@@ -180,6 +182,8 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 
 	watchlistConsumerConfig.connectionType = RSSL_CONN_TYPE_SOCKET;
 	watchlistConsumerConfig.encryptedConnectionType = RSSL_CONN_TYPE_INIT;
+
+	watchlistConsumerConfig.tlsProtocol = RSSL_ENC_NONE;
 
 	/* Set defaults. */
 	snprintf(watchlistConsumerConfig.interface, 255, "%s", "");
@@ -306,6 +310,14 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		{
 			if (++i == argc) printUsageAndExit(argc, argv);
 			snprintf(watchlistConsumerConfig.sslCAStore, 255, "%s", argv[i]);
+		}
+		else if (strcmp("-spTLSv1.2", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.tlsProtocol |= RSSL_ENC_TLSV1_2;
+		}
+		else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+		{
+			watchlistConsumerConfig.tlsProtocol |= RSSL_ENC_TLSV1_3;
 		}
 		else if (0 == strcmp(argv[i], "-h"))
 		{

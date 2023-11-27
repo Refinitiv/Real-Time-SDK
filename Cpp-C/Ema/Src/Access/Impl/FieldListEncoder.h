@@ -165,11 +165,17 @@ private :
 
 	void endEncodingEntry() const;
 
+	void verifyPayLoadCompleted( const Encoder&, const UInt8& );
+
 	RsslFieldList			_rsslFieldList;
 
 	RsslFieldEntry			_rsslFieldEntry;
 
+	DataType::DataTypeEnum	_emaLoadType;
+
 	bool					_containerInitialized;
+
+	bool*					_internalContainerCompleted;
 };
 
 

@@ -23,7 +23,8 @@ MapEncoder::MapEncoder() :
  _emaLoadType( DataType::NoDataEnum ),
  _emaKeyType( DataType::BufferEnum ),
  _containerInitialized( false ),
- _keyTypeSet( false )
+ _keyTypeSet( false ),
+ _internalContainerCompleted( NULL )
 {
 }
 
@@ -45,6 +46,8 @@ void MapEncoder::clear()
 	_containerInitialized = false;
 
 	_keyTypeSet = false;
+
+	_internalContainerCompleted = NULL;
 }
 
 void MapEncoder::initEncode( RsslDataType rsslKeyDataType, UInt8 rsslContainerDataType, DataType::DataTypeEnum emaLoadType )
@@ -257,6 +260,28 @@ void MapEncoder::validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 
 	}
 }
 
+void MapEncoder::verifyPayLoadCompleted( const Encoder& enc, const UInt8& rsslData )
+{
+	if ( _internalContainerCompleted )
+	{
+		if ( *_internalContainerCompleted == false )
+		{
+			EmaString temp( "Attemp to add new container to the Map while complete() was not called for previously added container: " );
+			temp.append( DataType ( _emaLoadType) );
+			_internalContainerCompleted = NULL;
+			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
+			return;
+		}
+	}
+	if ( rsslData == RSSL_DT_MSG	||
+		 rsslData == RSSL_DT_XML	||
+		 rsslData == RSSL_DT_OPAQUE	||
+		 rsslData == RSSL_DT_ANSI_PAGE )
+		_internalContainerCompleted = NULL;
+	else
+		_internalContainerCompleted = const_cast<Encoder&>(enc).isCompletePtr();
+}
+
 void MapEncoder::keyFieldId( Int16 fieldId )
 {
 	if ( !_containerInitialized )
@@ -364,7 +389,10 @@ void MapEncoder::addKeyInt( Int64 key, MapEntry::MapAction action,
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
 		if ( enc.isComplete() )
-			addEncodedEntry( &key, action, value, permissionData, "addKeyInt()" );
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&key, action, value, permissionData, "addKeyInt()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -385,6 +413,7 @@ void MapEncoder::addKeyInt( Int64 key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &key, action, permissionData, "addKeyInt()" );
 	}
@@ -413,8 +442,11 @@ void MapEncoder::addKeyUInt( UInt64 key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &key, action, value, permissionData, "addKeyUInt()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&key, action, value, permissionData, "addKeyUInt()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -435,6 +467,7 @@ void MapEncoder::addKeyUInt( UInt64 key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &key, action, permissionData, "addKeyUInt()" );
 	}
@@ -467,8 +500,11 @@ void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeTyp
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &real, action, value, permissionData, "addKeyReal()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&real, action, value, permissionData, "addKeyReal()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -489,6 +525,7 @@ void MapEncoder::addKeyReal( Int64 mantissa, OmmReal::MagnitudeType magnitudeTyp
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType);
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &real, action, permissionData, "addKeyReal()" );
 	}
@@ -531,8 +568,11 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &real, action, value, permissionData, "addKeyRealFromDouble()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&real, action, value, permissionData, "addKeyRealFromDouble()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -553,6 +593,7 @@ void MapEncoder::addKeyRealFromDouble( double key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &real, action, permissionData, "addKeyRealFromDouble()" );
 	}
@@ -590,8 +631,11 @@ void MapEncoder::addKeyFloat( float key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &key, action, value, permissionData, "addKeyFloat()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&key, action, value, permissionData, "addKeyFloat()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -612,6 +656,7 @@ void MapEncoder::addKeyFloat( float key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &key, action, permissionData, "addKeyFloat()" );
 	}
@@ -639,8 +684,11 @@ void MapEncoder::addKeyDouble( double key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &key, action, value, permissionData, "addKeyDouble()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&key, action, value, permissionData, "addKeyDouble()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -661,6 +709,7 @@ void MapEncoder::addKeyDouble( double key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &key, action, permissionData, "addKeyDouble()" );
 	}
@@ -703,8 +752,11 @@ void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapA
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &date, action, value, permissionData, "addKeyDate()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&date, action, value, permissionData, "addKeyDate()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -725,6 +777,7 @@ void MapEncoder::addKeyDate( UInt16 year, UInt8 month, UInt8 day, MapEntry::MapA
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &date, action, permissionData, "addKeyDate()" );
 	}
@@ -789,8 +842,11 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &time, action, value, permissionData, "addKeyTime()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&time, action, value, permissionData, "addKeyTime()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -811,6 +867,7 @@ void MapEncoder::addKeyTime( UInt8 hour, UInt8 minute, UInt8 second, UInt16 mill
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &time, action, permissionData, "addKeyTime()" );
 	}
@@ -887,8 +944,11 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &dateTime, action, value, permissionData, "addKeyDateTime()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&dateTime, action, value, permissionData, "addKeyDateTime()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -909,6 +969,7 @@ void MapEncoder::addKeyDateTime( UInt16 year, UInt8 month, UInt8 day, UInt8 hour
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &dateTime, action, permissionData, "addKeyDateTime()" );
 	}
@@ -967,8 +1028,11 @@ void MapEncoder::addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction 
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &qos, action, value, permissionData, "addKeyQos()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&qos, action, value, permissionData, "addKeyQos()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -989,6 +1053,7 @@ void MapEncoder::addKeyQos( UInt32 timeliness, UInt32 rate, MapEntry::MapAction 
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &qos, action, permissionData, "addKeyQos()" );
 	}
@@ -1027,8 +1092,11 @@ void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataS
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &state, action, value, permissionData, "addKeyState()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&state, action, value, permissionData, "addKeyState()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -1049,6 +1117,7 @@ void MapEncoder::addKeyState( OmmState::StreamState streamState, OmmState::DataS
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &state, action, permissionData, "addKeyState()" );
 	}
@@ -1084,8 +1153,11 @@ void MapEncoder::addKeyEnum( UInt16 key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &key, action, value, permissionData, "addKeyEnum()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&key, action, value, permissionData, "addKeyEnum()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -1106,6 +1178,7 @@ void MapEncoder::addKeyEnum( UInt16 key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &key, action, permissionData, "addKeyEnum()" );
 	}
@@ -1137,8 +1210,11 @@ void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &buffer, action, value, permissionData, "addKeyBuffer()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&buffer, action, value, permissionData, "addKeyBuffer()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -1159,6 +1235,7 @@ void MapEncoder::addKeyBuffer( const EmaBuffer& key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &buffer, action, permissionData, "addKeyBuffer()" );
 	}
@@ -1195,8 +1272,11 @@ void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &buffer, action, value, permissionData, "addKeyAscii()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&buffer, action, value, permissionData, "addKeyAscii()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -1217,6 +1297,7 @@ void MapEncoder::addKeyAscii( const EmaString& key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &buffer, action, permissionData, "addKeyAscii()" );
 	}
@@ -1253,8 +1334,11 @@ void MapEncoder::addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &buffer, action, value, permissionData, "addKeyUtf8()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&buffer, action, value, permissionData, "addKeyUtf8()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -1275,6 +1359,7 @@ void MapEncoder::addKeyUtf8( const EmaBuffer& key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &buffer, action, permissionData, "addKeyUtf8()" );
 	}
@@ -1311,8 +1396,11 @@ void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 	}
 	else if ( value.hasEncoder() && enc.ownsIterator() )
 	{
-		if ( enc.isComplete() )
-			addEncodedEntry( &buffer, action, value, permissionData, "addKeyRmtes()" );
+		if (enc.isComplete())
+		{
+			verifyPayLoadCompleted( enc, rsslDataType );
+			addEncodedEntry(&buffer, action, value, permissionData, "addKeyRmtes()");
+		}
 		else
 		{
 			EmaString temp( "Attempt to add a ComplexType while complete() was not called on this ComplexType." );
@@ -1333,6 +1421,7 @@ void MapEncoder::addKeyRmtes( const EmaBuffer& key, MapEntry::MapAction action,
 			return;
 		}
 
+		verifyPayLoadCompleted( enc, rsslDataType );
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( &buffer, action, permissionData, "addKeyRmtes()" );
 	}
@@ -1360,6 +1449,19 @@ void MapEncoder::complete()
 
 		initEncode(_emaKeyType, convertDataType(_emaLoadType), _emaLoadType);
 	}
+
+    if ( _internalContainerCompleted )
+    {
+        if ( *_internalContainerCompleted == false )
+        {
+            /*If an internal container is not completed. Internal container empty.*/
+            EmaString temp( "Attemp to complete Map while complete() was not called for internal container: " );
+            temp.append( DataType( _emaLoadType ));
+            _internalContainerCompleted = NULL;
+            throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
+            return;
+        }
+    }
 
 	RsslRet retCode = rsslEncodeMapComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
 

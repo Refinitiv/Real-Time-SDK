@@ -6,10 +6,14 @@
  *|-----------------------------------------------------------------------------
  */
 
+using System;
+using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Threading;
+
 using LSEG.Eta.PerfTools.Common;
 using LSEG.Eta.Transports;
 using LSEG.Eta.ValueAdd.Reactor;
-using System.Net.Sockets;
 
 namespace LSEG.Eta.PerfTools.ProvPerf
 {
@@ -198,6 +202,16 @@ namespace LSEG.Eta.PerfTools.ProvPerf
             {
                 m_BindOptions.BindEncryptionOpts.ServerCertificate = ProviderPerfConfig.Cert;
                 m_BindOptions.BindEncryptionOpts.ServerPrivateKey = ProviderPerfConfig.KeyFile;
+
+                try
+                {
+                    m_BindOptions.BindEncryptionOpts.EncryptionProtocolFlags = ProviderPerfConfig.EncryptionProtocol.Value;
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Error: {ex.Message}.");
+                    System.Environment.Exit((int)TransportReturnCode.FAILURE);
+                }
             }
             m_BindOptions.MajorVersion = Codec.Codec.MajorVersion();
             m_BindOptions.MinorVersion = Codec.Codec.MajorVersion();

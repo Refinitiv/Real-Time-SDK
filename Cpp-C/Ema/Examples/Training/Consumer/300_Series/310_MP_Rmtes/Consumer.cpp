@@ -47,14 +47,24 @@ void AppClient::onStatusMsg( const StatusMsg& statusMsg, const OmmConsumerEvent&
 
 void AppClient::decode( const FieldList& fl )
 {
-	while ( fl.forth( "BCAST_TEXT" ) )
+	// In the below loop partial updates for the specific field of RMTES type are handled.
+	// Note that in case it is necessary to handle partial updates for multiple fields,
+	// the application has to cache each RMTES string in a separate RmtesBuffer
+	// (e.g., use a hashmap to track RmtesBuffer instances corresponding to specific FIDs)
+	// and apply the updates accordingly.
+	while ( fl.forth( "HEADLINE1" ) )
 	{
 		const FieldEntry& fe = fl.getEntry();
 
-		cout << "Name: " << fe.getName() << " Value: ";
+		cout << "Fid: " << fe.getFieldId() << " Name: " << fe.getName() << " DataType: " << DataType(fe.getLoadType()).toString() << " Value: ";
 
-		rmtesBuffer.apply( fe.getRmtes() );
-		cout << rmtesBuffer.toString() << endl;
+		if (fe.getCode() == Data::BlankEnum)
+			cout << " blank" << endl;
+		else
+		{
+			rmtesBuffer.apply(fe.getRmtes());
+			cout << rmtesBuffer.toString() << endl;
+		}
 	}
 }
 
@@ -69,7 +79,7 @@ int main()
 		AppClient client;
 		OmmConsumer consumer( OmmConsumerConfig().operationModel( OmmConsumerConfig::UserDispatchEnum ).username( "user" ) );
 		void* closure = (void*)1;
-		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "N2_UBMS" ), client, closure );
+		UInt64 handle = consumer.registerClient( ReqMsg().serviceName( "DIRECT_FEED" ).name( "NFCP_UBMS" ), client, closure );
 		unsigned long long startTime = getCurrentTime();
 		while ( startTime + 60000 > getCurrentTime() )
 			consumer.dispatch( 10 );		// calls to onRefreshMsg(), onUpdateMsg(), or onStatusMsg() execute on this thread

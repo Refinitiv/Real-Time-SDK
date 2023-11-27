@@ -59,7 +59,8 @@ public :
 	enum EncryptionProtocolTypes
 	{
 		ENC_NONE = 0x00,			/*!< (0x00) No encryption. */
-		ENC_TLSV1_2 = 0x04			/*!< (0x08) Encryption using TLSv1.2 protocol */
+		ENC_TLSV1_2 = 0x04,			/*!< (0x04) Encryption using TLSv1.2 protocol */
+		ENC_TLSV1_3 = 0x08			/*!< (0x08) Encryption using TLSv1.3 protocol */
 	};
 
 	/** @enum AdminControl
@@ -191,8 +192,8 @@ public :
 	/** Specifies the cryptographic protocols to be used for an Encrypted connection on a Linux operating system,
 		of values TLSv1.2. The highest value of TLS will be selected by
 		the Rssl API first, then it will roll back if the encryption handshake fails.
-		The protocol defaults to TLSv1.2.
-		Use OmmNiProviderConfig::EncryptedProtocolTypes flags to set allowed protocols.
+		The protocol defaults to TLSv1.2 and TLSv1.3.
+		Use OmmNiProviderConfig::EncryptionProtocolTypes flags to set allowed protocols.
 		@param[in] securityProtocol specifies a cryptopgraphic protocol.
 		@return reference to this object
 	*/

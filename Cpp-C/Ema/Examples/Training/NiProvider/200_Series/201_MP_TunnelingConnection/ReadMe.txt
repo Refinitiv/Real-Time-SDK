@@ -23,6 +23,7 @@ including:
 -ph Proxy host name
 -pp Proxy port number
 -spTLSv1.2 enable use of cryptographic protocol TLSv1.2 used with linux encrypted connections
+-spTLSv1.3 enable use of cryptographic protocol TLSv1.3 used with linux encrypted connections
 -libsslName name of the libssl.so shared library
 -libcryptoName name of the libcrypto.so shared library
 + Instantiates and modifies an OmmNiProviderConfig object:

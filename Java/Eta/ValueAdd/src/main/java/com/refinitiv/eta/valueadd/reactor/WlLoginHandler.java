@@ -934,15 +934,16 @@ class WlLoginHandler implements WlHandler
 					"WlLoginHandler.readGenericMsg", _watchlist.reactorChannel(),
 					null, msg, wlRequest,
 					errorInfo);
-		} else if (rttEnabled) {
-			submitMsg(wlRequest, msg, _submitOptions, errorInfo);
+		} else {
+			if(rttEnabled)
+				submitMsg(wlRequest, msg, _submitOptions, errorInfo);
+			
 			loginRTT.clear();
 			loginRTT.decode(dIter, msg);
 			return _watchlist.reactor().sendAndHandleLoginMsgCallback("WlLoginHandler.readGenericMsg",
 					_watchlist.reactorChannel(), null, msg, loginRTT, wlRequest,
 					errorInfo);
 		}
-		return ReactorReturnCodes.SUCCESS;
 	}
 
 	/* Reads an Ack message. */

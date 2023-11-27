@@ -12,6 +12,7 @@ using namespace refinitiv::ema::access;
 
 OmmXmlEncoder::OmmXmlEncoder()
 {
+	_containerComplete = true;
 }
 
 OmmXmlEncoder::~OmmXmlEncoder()

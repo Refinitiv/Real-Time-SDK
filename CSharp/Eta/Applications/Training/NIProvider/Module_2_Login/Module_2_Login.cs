@@ -172,6 +172,9 @@
 * Pressing the CTRL+C buttons terminates the program.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 
 using LSEG.Eta.Common;

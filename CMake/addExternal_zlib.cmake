@@ -23,7 +23,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION \"1.2.13\")
+set(VERSION \"1.3\")
 
 option(ASM686 \"Enable building i686 assembly implementation\")
 option(AMD64 \"Enable building amd64 assembly implementation\")
@@ -283,13 +283,13 @@ End of work around for WIN32 zlib library naming issue
 include(rcdevExternalUtils)
 
 if(NOT zlib_url)
-	set(zlib_url "https://www.zlib.net/fossils/zlib-1.2.13.tar.gz")
+	set(zlib_url "https://www.zlib.net/fossils/zlib-1.3.tar.gz")
 endif()
 if(NOT zlib_hash)
-	set(zlib_hash "SHA256=b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30")
+	set(zlib_hash "SHA256=ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e")
 endif()
 if(NOT zlib_version)
-	set(zlib_version "1.2.13")
+	set(zlib_version "1.3")
 endif()
 	
 # If the option for using the system installed 

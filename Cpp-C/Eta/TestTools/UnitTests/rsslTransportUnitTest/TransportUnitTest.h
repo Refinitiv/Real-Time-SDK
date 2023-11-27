@@ -261,4 +261,16 @@ private:
 	RsslMutex		lockEventSignal;
 };
 
+/* Handles received data and another events for running tests */
+class TestHandler {
+public:
+	/* Handles the data buffer */
+	/* pReadBuffer - pointer to the tested data buffer */
+	/* Return: true - the data was processed successfully */
+	/* false - when the test discovered the fail condition, the invoker should set Fail status */
+	/* pErrorText  - the char array for the error text when detected Fail */
+	/* szErrorText - the size of char array for the error text */
+	virtual bool handleDataBuffer(RsslBuffer* pReadBuffer, char* pErrorText, size_t szErrorText) = 0;
+};
+
 #endif  // _TRANSPORT_UNIT_TEST_H_

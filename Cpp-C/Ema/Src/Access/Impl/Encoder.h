@@ -48,6 +48,8 @@ public :
 
 	virtual bool isComplete() const;
 
+	virtual bool* isCompletePtr();
+
 protected :
 
 	friend class refinitiv::ema::rdm::DataDictionaryImpl;

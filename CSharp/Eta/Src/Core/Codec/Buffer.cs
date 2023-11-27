@@ -2,10 +2,11 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.              --
+ *|           Copyright (C) 2022-2023 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using LSEG.Eta.Common;
@@ -52,6 +53,8 @@ namespace LSEG.Eta.Codec
 
         internal bool _isBlank;
 
+        private Encoding m_Encoding;
+
         /// <summary>
         /// Creates <see cref="Buffer"/> with no data.
         /// must be called later for buffer to be useful.
@@ -59,6 +62,7 @@ namespace LSEG.Eta.Codec
         /// <seealso cref="Buffer"/>
         public Buffer()
         {
+            m_Encoding = Encoding.ASCII;
         }
 
         /// <summary>
@@ -70,7 +74,8 @@ namespace LSEG.Eta.Codec
 		/// <returns> <c>CodecReturnCode.SUCCESS</c> on success, or
 		///         <c>CodecReturnCode.INVALID_ARGUMENT</c> if data is <c>null</c>.
 		/// </returns>
-		public CodecReturnCode Data(ByteBuffer data)
+		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public CodecReturnCode Data(ByteBuffer data)
         {
             if (data != null)
             {
@@ -83,6 +88,7 @@ namespace LSEG.Eta.Codec
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void Data_internal(ByteBuffer data)
         {
             _data = data;
@@ -104,6 +110,7 @@ namespace LSEG.Eta.Codec
         ///         <c>CodecReturnCode.INVALID_ARGUMENT</c> if data is <c>null</c>, or if
         ///         position or length is outside of the data's capacity.
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public CodecReturnCode Data(ByteBuffer data, int position, int length)
         {
             if (data != null)
@@ -124,6 +131,7 @@ namespace LSEG.Eta.Codec
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal void Data_internal(ByteBuffer data, int position, int length)
         {
             _data = data;
@@ -146,6 +154,7 @@ namespace LSEG.Eta.Codec
         ///   <paramref name="destBuffer"/> is too small.
         /// </returns>
         /// <seealso cref="Buffer.Length"/>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public CodecReturnCode Copy(ByteBuffer destBuffer)
         {
             if (destBuffer is null)
@@ -173,11 +182,13 @@ namespace LSEG.Eta.Codec
             return CodecReturnCode.SUCCESS;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal CodecReturnCode Copy(byte[] destBuffer)
         {
             return Copy(destBuffer, 0);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         internal CodecReturnCode Copy(byte[] destBuffer, int destOffset)
         {
             int length = GetLength();
@@ -233,7 +244,8 @@ namespace LSEG.Eta.Codec
 		/// </returns>
 		/// <seealso cref="Buffer.Length"/>
 		/// <seealso cref="Buffer.Position"/>
-		public CodecReturnCode Copy(Buffer destBuffer)
+		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public CodecReturnCode Copy(Buffer destBuffer)
         {
             int length = GetLength();
             if (length != 0)
@@ -245,7 +257,7 @@ namespace LSEG.Eta.Codec
                         ByteBuffer destByteBuffer = destBuffer.Data();
                         if (destByteBuffer != null)
                         {
-                            if (length <= destBuffer.Length)
+                            if (length <= destBuffer.Capacity)
                             {
                                 destByteBuffer.WritePosition = destBuffer.Position;
 
@@ -299,7 +311,8 @@ namespace LSEG.Eta.Codec
                     ByteBuffer newByteBuffer = new ByteBuffer(Length);
                     buffer.Data(newByteBuffer);
                 }
-            } else if (_dataString != null)
+            }
+            else if (_dataString != null)
             {
                 buffer.Data_internal(_dataString);
                 return CodecReturnCode.SUCCESS;
@@ -307,6 +320,7 @@ namespace LSEG.Eta.Codec
             return Copy(buffer);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         private ByteBuffer Copy()
         {
             return ByteBuffer.Wrap(DataBytes());
@@ -371,7 +385,7 @@ namespace LSEG.Eta.Codec
 
         /// <summary>
         /// Converts the underlying buffer into a String. This should only be called
-        /// when the Buffer is known to contain ASCII data.This method creates
+        /// when the Buffer is known to contain ASCII data. This method creates
         /// garbage unless the underlying buffer is a String.
         /// </summary>
         /// <returns>The String representation</returns>
@@ -381,7 +395,7 @@ namespace LSEG.Eta.Codec
 
             if (_data != null)
             {
-                retStr = System.Text.Encoding.ASCII.GetString(DataBytes(), 0, _length);
+                retStr = m_Encoding.GetString(DataBytes(), 0, _length);
             }
             else if (!string.ReferenceEquals(_dataString, null))
             {
@@ -475,7 +489,8 @@ namespace LSEG.Eta.Codec
             else if (!string.IsNullOrEmpty(_dataString))
             {
                 bufferBytes = System.Text.Encoding.ASCII.GetBytes(_dataString.ToCharArray(), _position, _length);
-            } else
+            }
+            else
             {
                 bufferBytes = new byte[_length];
             }
@@ -573,16 +588,17 @@ namespace LSEG.Eta.Codec
 		/// </para>
         /// </remarks>
 		/// 
-		/// <param name="buffer"> The <c>Buffer</c> to compare with the current <c>Buffer</c>.
+		/// <param name="thatBuffer"> The <c>Buffer</c> to compare with the current <c>Buffer</c>.
 		/// </param>
 		/// <returns> <c>true</c> if <c>Buffers</c> are equal, otherwise <c>false</c>.
 		/// </returns>
-		public bool Equals(Buffer buffer)
+		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Buffer thatBuffer)
         {
-            if (buffer != null && buffer.Length == _length)
+            if (thatBuffer != null && thatBuffer.Length == GetLength())
             {
+                int thisLength = GetLength();
                 // determine the backing buffers, in order to perform the compare.
-                Buffer thatBuffer = (Buffer)buffer;
                 string thatString = thatBuffer.DataString();
                 if (!(thatString is null))
                 {
@@ -592,7 +608,7 @@ namespace LSEG.Eta.Codec
                         return _dataString.Equals(thatString); // both Strings
                     }
 
-                    return CompareByteBufferToString(_data, _position, _length, thatString);
+                    return CompareByteBufferToString(_data, _position, thisLength, thatString);
                 }
                 else
                 {
@@ -606,7 +622,7 @@ namespace LSEG.Eta.Codec
                     int thisPosition = _position;
                     int thatPosition = thatBuffer.Position;
                     ByteBuffer thatByteBuffer = thatBuffer.Data();
-                    for (int idx = 0; idx < _length; idx++)
+                    for (int idx = 0; idx < thisLength; idx++)
                     {
                         if (_data.Contents[thisPosition + idx] != thatByteBuffer.Contents[thatPosition + idx])
                         {
@@ -632,6 +648,7 @@ namespace LSEG.Eta.Codec
         /// <returns><c>true</c> if the specified <c>Object</c> is equal to the current <c>Object</c>;
         ///   otherwise, <c>false</c>.
         /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object other)
         {
             if (other == null)
@@ -648,39 +665,44 @@ namespace LSEG.Eta.Codec
         /// </summary>
         /// <returns>A hash code for the current <c>Object</c>.
         /// </returns>
-		public override int GetHashCode()
+		[MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode()
         {
-            int hashCode;
-
-            if (!string.ReferenceEquals(_dataString, null))
+            unchecked
             {
-                if (!_dataString.Equals(""))
+                int hashCode;
+
+                if (!string.ReferenceEquals(_dataString, null))
                 {
-                    hashCode = _dataString[0] + 31;
-                    int multiplier = 1;
-                    for (int i = 1; i < _dataString.Length; ++i)
+                    if (!_dataString.Equals(""))
                     {
-                        multiplier *= 31;
-                        hashCode += (_dataString[i] + 30) * multiplier;
+                        hashCode = _dataString[0] + 31;
+                        int multiplier = 1;
+                        for (int i = 1; i < _dataString.Length; ++i)
+                        {
+                            multiplier *= 31;
+                            hashCode += (_dataString[i] + 30) * multiplier;
+                        }
+                    }
+                    else
+                    {
+                        hashCode = _data.Contents[_position] + 31;
                     }
                 }
                 else
                 {
-                    hashCode = _data.Contents[_position] + 31;
+                    byte[] tmpByte = _data.Contents;
+                    hashCode = tmpByte[_position] ^ 31;
+                    int multiplier = 1;
+                    for (int i = _position + 1; i < _position + Length; i++)
+                    {
+                        multiplier *= 31;
+                        hashCode ^= (tmpByte[i] ^ 30) * multiplier;
+                    }
                 }
-            }
-            else
-            {
-                hashCode = _data.Contents[_position] + 31;
-                int multiplier = 1;
-                for (int i = _position + 1; i < _position + _length; ++i)
-                {
-                    multiplier *= 31;
-                    hashCode += (_data.Contents[i] + 30) * multiplier;
-                }
-            }
 
-            return hashCode;
+                return hashCode;
+            }           
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
@@ -930,6 +952,17 @@ namespace LSEG.Eta.Codec
             return all.ToString();
         }
 
-    }
+        /// <summary>
+        /// This is used internally to set a specific encoding name for the <see cref="ToString()"/>
+        /// <remarks>
+        /// This is used to override the default in order to encode non-ascii string.
+        /// </remarks>
+        /// </summary>
+        /// <param name="encoding">The character encoding</param>
+        internal Buffer(Encoding encoding)
+        {
+            m_Encoding = encoding;
+        }
 
+    }
 }

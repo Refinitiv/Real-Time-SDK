@@ -288,6 +288,11 @@ int main(int argc, char **argv)
 				i++;
 				tlsProtocol |= RSSL_ENC_TLSV1_2;
 			}
+			else if (strcmp("-spTLSv1.3", argv[i]) == 0)
+			{
+				i++;
+				tlsProtocol |= RSSL_ENC_TLSV1_3;
+			}
 			else if (strcmp("-castore", argv[i]) == 0)
 			{
 				i += 2;
@@ -507,6 +512,7 @@ int main(int argc, char **argv)
 				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are socket, websocket and http(Windows only).\n");
 				printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
 				printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
+				printf(" -spTLSv1.3 Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n");
 				printf("\n -ph specifies the proxy host\n");
 				printf(" -pp specifies the proxy port\n");
 				printf(" -plogin specifies the proxy user name\n");
@@ -695,6 +701,18 @@ int main(int argc, char **argv)
 										for (i = 0; i < chanInfo.componentInfoCount; i++)
 										{
 											printf("Connected to %s device.\n", chanInfo.componentInfo[i]->componentVersion.data);
+										}
+
+										switch (chanInfo.encryptionProtocol)
+										{
+										case RSSL_ENC_TLSV1_2:
+											printf("Encryption protocol: TLSv1.2\n\n");
+											break;
+										case RSSL_ENC_TLSV1_3:
+											printf("Encryption protocol: TLSv1.3\n\n");
+											break;
+										default:
+											printf("Encryption protocol: unknown\n\n");
 										}
 									}
 
@@ -1042,7 +1060,8 @@ static RsslChannel* connectToRsslServer(RsslConnectionTypes connType, RsslError*
 	copts.proxyOpts.proxyUserName = proxyUserName;
 	copts.proxyOpts.proxyPasswd = proxyPasswd;
 	copts.proxyOpts.proxyDomain = proxyDomain;
-	copts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
+	if (tlsProtocol != RSSL_ENC_NONE)
+		copts.encryptionOpts.encryptionProtocolFlags = tlsProtocol;
 	copts.encryptionOpts.openSSLCAStore = sslCAStore;
 	/* Set the JSON session on the user spec ptr so we can get this from the rsslChannel structure */
 	copts.userSpecPtr = &jsonSession;

@@ -380,6 +380,10 @@ int main(int argc, char **argv)
 		reactorConnectInfo.enableSessionManagement = watchlistConsumerConfig.enableSessionMgnt;
 		reactorConnectInfo.location = watchlistConsumerConfig.location;
 		reactorConnectInfo.rsslConnectOptions.encryptionOpts.openSSLCAStore = watchlistConsumerConfig.sslCAStore;
+		if (watchlistConsumerConfig.tlsProtocol != RSSL_ENC_NONE)
+		{
+			reactorConnectInfo.rsslConnectOptions.encryptionOpts.encryptionProtocolFlags = watchlistConsumerConfig.tlsProtocol;
+		}
 		if (watchlistConsumerConfig.connectionType == RSSL_CONN_TYPE_WEBSOCKET || watchlistConsumerConfig.encryptedConnectionType == RSSL_CONN_TYPE_WEBSOCKET)
 		{
 			reactorConnectInfo.rsslConnectOptions.wsOpts.protocols = watchlistConsumerConfig.protocolList;
@@ -1498,6 +1502,21 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				}
 			}
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
+
+			RsslChannelInfo rsslChannelInfo;
+			RsslError rsslError;
+			rsslGetChannelInfo(pReactorChannel->pRsslChannel, &rsslChannelInfo, &rsslError);
+			switch (rsslChannelInfo.encryptionProtocol)
+			{
+			case RSSL_ENC_TLSV1_2:
+				printf("Encryption protocol: TLSv1.2\n\n");
+				break;
+			case RSSL_ENC_TLSV1_3:
+				printf("Encryption protocol: TLSv1.3\n\n");
+				break;
+			default:
+				printf("Encryption protocol: unknown\n\n");
+			}
 
 			if (isXmlTracingEnabled() == RSSL_TRUE) 
 			{
