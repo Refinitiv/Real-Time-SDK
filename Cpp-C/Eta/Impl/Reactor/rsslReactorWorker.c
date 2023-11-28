@@ -980,6 +980,12 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 					return RSSL_RET_FAILURE;
 				}
 			}
+		}/* For V2, always update the access token from the current token session. */
+		else if(pReactorConnectInfoImpl->base.enableSessionManagement && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
+		{
+			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName = pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation.accessToken;
+			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
+			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
 		}
 	}
 
