@@ -2702,10 +2702,10 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					.addUInt("OpenWindow", 2)
 					.addUInt("LoadFactor", 3)
 				.complete())
-				.complete());
+				.complete())
 
 			//encode service2
-			serviceMap.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
+			.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
 				ElementList()
 				.addElementList("InfoFilter",
 					ElementList().addUInt("ServiceId", 4)
@@ -3192,10 +3192,10 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 						.addAscii("StatusText", "dacsDown")
 						.complete())
 					.complete())
-				.complete());
+				.complete())
 
 			//encode service2
-			serviceMap.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
+			.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
 				ElementList()
 				.addElementList("InfoFilter",
 					ElementList().addUInt("ServiceId", 4)
