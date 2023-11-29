@@ -47,6 +47,9 @@ class EmaBuffer;
 extern refinitiv::ema::access::EmaString g_userName;
 extern refinitiv::ema::access::EmaString g_password;
 
+extern refinitiv::ema::access::EmaString g_proxyHost;
+extern refinitiv::ema::access::EmaString g_proxyPort;
+
 void encodeFieldList( RsslBuffer& rsslBuf, refinitiv::ema::access::EmaString& inText );
 void encodeNonRWFData( RsslBuffer* rsslBuf, RsslBuffer* value );
 bool loadDictionaryFromFile( RsslDataDictionary* pDictionary );

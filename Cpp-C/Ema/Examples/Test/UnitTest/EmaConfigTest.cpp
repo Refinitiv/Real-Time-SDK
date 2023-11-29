@@ -1292,7 +1292,9 @@ TEST_F(EmaConfigTest, testLoadingConfigurationFromProgrammaticConfigForSessionMa
 		outermostMap.complete();
 
 		SCOPED_TRACE("Must load data dictionary files from current working location\n");
-		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap).username(g_userName).password(g_password).clientId(g_userName));
+		OmmConsumerImpl ommConsumerImpl(OmmConsumerConfig().config(outermostMap)
+			.username(g_userName).password(g_password).clientId(g_userName)
+			.tunnelingProxyHostName(g_proxyHost).tunnelingProxyPort(g_proxyPort));
 
 		OmmConsumerActiveConfig& activeConfig = static_cast<OmmConsumerActiveConfig&>(ommConsumerImpl.getActiveConfig());
 		bool found = ommConsumerImpl.getInstanceName().find("Consumer_1") >= 0 ? true : false;

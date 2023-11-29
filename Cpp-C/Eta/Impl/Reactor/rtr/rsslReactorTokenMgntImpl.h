@@ -48,7 +48,7 @@ typedef struct
 	RsslBuffer						rsslAccessTokenRespBuffer;
 	RsslBuffer						rsslServiceDiscoveryRespBuffer;
 	RsslBuffer						rsslPostDataBodyBuf;
-	RsslUInt32						httpStausCode; /* the latest HTTP status code */
+	RsslUInt32						httpStatusCode; /* the latest HTTP status code */
 	RsslReactorTokenSessionState	tokenSessionState;
 	RsslInt32						tokenMgntEventType; /* The value defined in RsslReactorTokenMgntEventType */
 	RsslReactorOAuthCredential		*pOAuthCredential; /* OAuth credential for this session */
@@ -72,6 +72,7 @@ typedef struct
 	RsslMutex						accessTokenMutex; /* This is used to synchronized for requesting the token information from application's thread */
 	rtr_atomic_val					requestingAccessToken;
 	RsslBool						initialized; /* This is used to indicate that the token session has success fully initialized in  rsslReactorConnect() */
+	RsslBool						isInitialChannelConnect; /* This is used to indicate that the token session is being initialized from rsslReactorConnect() */
 
 	/* Use the proxy information from RsslReactorChannel if any */
 	RsslConnectOptions				proxyConnectOpts; /* The proxy options */

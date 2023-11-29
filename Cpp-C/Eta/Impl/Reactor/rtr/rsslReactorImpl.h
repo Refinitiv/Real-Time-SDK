@@ -486,6 +486,8 @@ struct _RsslReactorChannelImpl
 	RsslInt32 reconnectAttemptCount;
 	RsslInt64 lastReconnectAttemptMs;
 
+	RsslBool isInitialChannelConnect;
+
 	RsslInt32 connectionListCount;
 	RsslInt32 connectionListIter;
 	RsslReactorConnectInfoImpl *connectionOptList;				/* List of connection objects */
@@ -496,7 +498,7 @@ struct _RsslReactorChannelImpl
 
 	/* Support session management and RDP service discovery. */
 	RsslBool				supportSessionMgnt; /* This indicates this ReactorChannel support session managment in one of its RsslReactorConnectInfo */
-	RsslUInt32				httpStausCode; /* the latest HTTP status code */
+	RsslUInt32				httpStatusCode; /* the latest HTTP status code */
 	RsslRestHandle			*pRestHandle; /* This is used to request the endpoints from RDP service discovery */
 
 	/* This is original login request information */
@@ -1945,6 +1947,8 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->tunnelDispatchEventQueued = RSSL_FALSE;
 
 	pReactorChannel->directWrite = RSSL_FALSE;
+
+	pReactorChannel->isInitialChannelConnect = RSSL_FALSE;
 
 	pReactorChannel->connectionListCount = 0;
 	pReactorChannel->connectionListIter = 0;
