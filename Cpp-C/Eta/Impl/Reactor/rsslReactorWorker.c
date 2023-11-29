@@ -993,9 +993,13 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 		}/* For V2, always update the access token from the current token session. */
 		else if(pReactorConnectInfoImpl->base.enableSessionManagement && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2)
 		{
-			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName = pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation.accessToken;
-			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
-			pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+			/* Update the login request only when users specified to send initial login request after the connection is recovered. */
+			if (pReactorChannel->channelRole.base.roleType == RSSL_RC_RT_OMM_CONSUMER && pReactorChannel->channelRole.ommConsumerRole.pLoginRequest)
+			{
+				pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userName = pReactorChannel->pCurrentTokenSession->pSessionImpl->tokenInformation.accessToken;
+				pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->flags |= RDM_LG_RQF_HAS_USERNAME_TYPE;
+				pReactorChannel->channelRole.ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
+			}
 		}
 	}
 
