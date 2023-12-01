@@ -3247,7 +3247,7 @@ void ProgrammaticConfigure::retrieveLogger( const Map& map, const EmaString& log
 												{
 													UInt16 loggerType = entry.getEnum();
 
-													if ( loggerType > 1 )
+													if ( loggerType > OmmLoggerClient::StderrEnum )
 													{
 														EmaString text( "Invalid LoggerType [" );
 														text.append( loggerType );

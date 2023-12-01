@@ -408,6 +408,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	debugResult = config.get<OmmLoggerClient::Severity>( "LoggerGroup|LoggerList|Logger.Logger_2|LoggerSeverity", loggerSeverity );
 	EXPECT_TRUE( debugResult && loggerSeverity == OmmLoggerClient::ErrorEnum) << "extracting LoggerSeverity from EmaConfig.xml";
 
+	// Checks all values from Logger_3
+	debugResult = config.get<OmmLoggerClient::LoggerType>("LoggerGroup|LoggerList|Logger.Logger_3|LoggerType", loggerType);
+	EXPECT_TRUE(debugResult && loggerType == OmmLoggerClient::StderrEnum) << "extracting LoggerType::StderrEnum from EmaConfig.xml";
+
 	// Checks all values from Dictionary_1
 	debugResult = config.get<EmaString>( "DictionaryGroup|DictionaryList|Dictionary|Name", retrievedValue );
 	EXPECT_TRUE( debugResult && retrievedValue == "Dictionary_1" ) << "extracting the first dictionary name from EmaConfig.xml";

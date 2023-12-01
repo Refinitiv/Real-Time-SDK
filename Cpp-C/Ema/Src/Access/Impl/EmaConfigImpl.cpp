@@ -607,6 +607,7 @@ ConfigElement* EmaConfigBaseImpl::convertEnum(const char* name, XMLnode* parent,
 		{
 			{ "File", OmmLoggerClient::FileEnum },
 			{ "Stdout", OmmLoggerClient::StdoutEnum },
+			{ "Stderr", OmmLoggerClient::StderrEnum },
 		};
 		for (int i = 0; i < sizeof converter / sizeof converter[0]; i++)
 			if (!strcmp(converter[i].configInput, enumValue))

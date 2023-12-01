@@ -139,6 +139,8 @@ OmmLoggerClient::OmmLoggerClient( LoggerType loggerType, bool includeDate, Sever
 {
 	if ( loggerType == OmmLoggerClient::FileEnum )
 		openLogFile( fileName, maxFileSize, maxFileNumber );
+	else if ( loggerType == OmmLoggerClient::StderrEnum )
+		_pOutput = stderr;
 	else
 		_pOutput = stdout;
 }
@@ -290,7 +292,7 @@ void OmmLoggerClient::closeLogFile()
 {
 	_printLock.lock();
 
-	if ( _pOutput && _pOutput != stdout )
+	if ( _pOutput && _pOutput != stdout && _pOutput != stderr )
 	{
 		if ( ! --clientFiles.openFiles[_clientFileIndex].clientCount )
 		{
@@ -365,7 +367,7 @@ void OmmLoggerClient::log( const EmaString& callbackClientName, Severity severit
 
 	_printLock.lock();
 
-	if ( _pOutput && _pOutput != stdout && clientFiles.openFiles[_clientFileIndex].maxFileSize > 0 )
+	if ( _pOutput && _pOutput != stdout && _pOutput != stderr && clientFiles.openFiles[_clientFileIndex].maxFileSize > 0 )
 	{
 		if (!clientFiles.openFiles[_clientFileIndex].ptr)
 		{

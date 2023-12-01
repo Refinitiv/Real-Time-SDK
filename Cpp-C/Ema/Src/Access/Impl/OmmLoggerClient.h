@@ -50,7 +50,8 @@ public :
 
 	enum LoggerType {
 		FileEnum = 0,
-		StdoutEnum
+		StdoutEnum,
+		StderrEnum
 	};
 
 	static OmmLoggerClient* create( LoggerType loggerType, bool includeDate, Severity severity, const EmaString& fileName, UInt32 maxFileSize, UInt32 maxFileNumber );

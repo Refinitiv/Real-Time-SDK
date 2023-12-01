@@ -594,7 +594,7 @@
 			<Name value="Logger_1"/>
 
 			<!-- LoggerType is optional:  defaulted to "File"											-->
-			<!-- possible values: Stdout, File															-->
+			<!-- possible values: Stdout, Stderr, File															-->
 			<LoggerType value="LoggerType::Stdout"/>
 
 			<!-- LoggerSeverity is optional: defaulted to "Success"										-->

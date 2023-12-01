@@ -824,7 +824,7 @@
 			<Name value="Logger_1"/>
 
 			<!-- loggerType is optional: defaulted to "Stdout" -->
-			<!-- possible values: Stdout, File -->
+			<!-- possible values: Stdout, Stderr, File -->
 			<LoggerType value="LoggerType::File"/>
 			<!-- fileName is optional: defaulted to "emaLog_<process id>.xml" -->
 			<FileName value="emaLog"/>
@@ -839,6 +839,10 @@
 			<Name value="Logger_2"/>
 			<LoggerType value="LoggerType::Stdout"/>
 			<LoggerSeverity value="LoggerSeverity::Error"/>
+		</Logger>
+		<Logger>
+			<Name value="Logger_3"/>
+			<LoggerType value="LoggerType::Stderr"/>
 		</Logger>
 	</LoggerList>
 </LoggerGroup>
