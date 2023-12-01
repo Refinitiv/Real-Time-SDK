@@ -659,6 +659,8 @@ Channel* ChannelCallbackClient::channelConfigToReactorConnectInfo(ChannelConfig*
 				reactorConnectInfo->rsslConnectOptions.wsOpts.protocols = (char*)(static_cast<SocketChannelConfig*>(activeChannelConfig)->wsProtocols.c_str());
 			}
 
+			reactorConnectInfo->enableSessionManagement = static_cast<SocketChannelConfig*>(activeChannelConfig)->enableSessionMgnt;
+
 			break;
 		}
 		case RSSL_CONN_TYPE_RELIABLE_MCAST:

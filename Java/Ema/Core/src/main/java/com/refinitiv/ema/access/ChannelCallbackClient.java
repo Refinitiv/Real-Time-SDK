@@ -792,14 +792,14 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				.append( "port " ).append( tempChannelCfg.serviceName ).append( OmmLoggerClient.CR )
 				.append( "CompressionType " ).append( compType ).append( OmmLoggerClient.CR )
 				.append( "tcpNodelay " ).append( ( tempChannelCfg.tcpNodelay ? "true" : "false" ) ).append( OmmLoggerClient.CR )
-				.append( "ObjectName " ).append( tempChannelCfg.objectName ).append( OmmLoggerClient.CR );
+				.append( "ObjectName " ).append( tempChannelCfg.objectName ).append( OmmLoggerClient.CR )
+				.append( "EnableSessionMgnt " ).append( ( tempChannelCfg.enableSessionMgnt ? "true" : "false" ) ).append( OmmLoggerClient.CR );
 				
 				// Provides additional logging information for encrypted connection.
 				if(channelCfg.rsslConnectionType == com.refinitiv.eta.transport.ConnectionTypes.ENCRYPTED)
 				{
 					EncryptedChannelConfig tempEncryptedChannelCfg = (EncryptedChannelConfig)channelCfg;
 					cfgParameters.append( "EncryptedProtocolType " ).append( tempEncryptedChannelCfg.encryptedProtocolType ).append( OmmLoggerClient.CR )
-					.append( "EnableSessionMgnt " ).append( ( tempEncryptedChannelCfg.enableSessionMgnt ? "true" : "false" ) ).append( OmmLoggerClient.CR )
 					.append( "Location " ).append( tempEncryptedChannelCfg.location ).append( OmmLoggerClient.CR );
 				}
 				break;
@@ -951,6 +951,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				}
 				reactorConnectInfo.connectOptions().tcpOpts().tcpNoDelay(((SocketChannelConfig) channelConfig).tcpNodelay);
 				socketProxyConfiguration(reactorConnectInfo.connectOptions(), (SocketChannelConfig) channelConfig);
+
+				reactorConnectInfo.enableSessionManagement(channelConfig.enableSessionMgnt);
 			}
 			break;
 		}
