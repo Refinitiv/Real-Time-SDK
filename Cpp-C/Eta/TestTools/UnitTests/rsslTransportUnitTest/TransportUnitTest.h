@@ -39,6 +39,7 @@ void constructTUServerConfig(
 	int configIndex,
 	TUServerConfig& serverConfig,
 	RsslBool blocking,
+	RsslUInt32 maxFragmentSize,
 	RsslConnectionTypes connType,
 	RsslCompTypes compressType,
 	RsslUInt32 compressLevel
@@ -53,10 +54,46 @@ const char* getPathServerKey();   // describes the path to Server key for creati
 const char* getPathServerCert();  // describes the path to Server certificate for creating a server on an encrypted connection
 const char* getOpenSSLCAStore();  // describes the path to the CAStore: certificate for creating a client on an encrypted connection
 
-class GLobalLockFragmentedTestParams {
-protected:
-	GLobalLockFragmentedTestParams() {};
+class GLobalLockPackedTestParams {
+public:
+	RsslConnectionTypes		connType;		// the connection type
+	RsslUInt32				msgLength;		// the specific value for length of each separated message
+	RsslUInt32				bufferLength;	// the required length of the buffer for packing separated messaged. Pay attention that bufferLength cannot exceed the maxFragmentSize.
+	RsslUInt32				maxFragmentSize;// the max fragment size before fragmentation, 0 - default. Pay attention that bufferLength cannot exceed the maxFragmentSize.
+	RsslUInt32				msgWriteCount;	// the count of writing messages in this test, 0 - default, MAX_MSG_WRITE_COUNT
+	RsslConnectionTypes		encryptedProtocol;
+	RsslUInt8				wsProtocolType;
 
+	GLobalLockPackedTestParams(
+		RsslConnectionTypes cnType, RsslUInt32 msgLen, RsslUInt32 bufLen, RsslUInt32 maxFragSize, RsslUInt32 msgCount,
+		RsslConnectionTypes encrProt, RsslUInt8 wsProt)
+		:
+		connType(cnType),
+		msgLength(msgLen),
+		bufferLength(bufLen),
+		maxFragmentSize(maxFragSize),
+		msgWriteCount(msgCount),
+		encryptedProtocol(encrProt),
+		wsProtocolType(wsProt)
+	{}
+
+	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
+	friend std::ostream& operator<<(std::ostream& out, const GLobalLockPackedTestParams& params)
+	{
+		out << "["
+			"connType:" << params.connType << ","
+			"msgLength:" << params.msgLength << ","
+			"bufferLength:" << params.bufferLength << ","
+			"maxFragmentSize:" << params.maxFragmentSize << ","
+			"msgWriteCount:" << params.msgWriteCount << ","
+			"encryptedProtocol:" << params.encryptedProtocol << ","
+			"wsProtocolType:" << (unsigned)params.wsProtocolType
+			<< "]";
+		return out;
+	}
+};
+
+class GLobalLockFragmentedTestParams {
 public:
 	RsslConnectionTypes		connType;		// the connection type
 	RsslUInt32				msgLength;		// the specific value for length of each separated message
@@ -80,7 +117,7 @@ public:
 		wsProtocolType(wsProt),
 		compressionType(compressType),
 		compressionLevel(compressLevel)
-	{};
+	{}
 
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
 	friend std::ostream& operator<<(std::ostream& out, const GLobalLockFragmentedTestParams& params)
@@ -101,7 +138,7 @@ public:
 
 class GLobalLockSystemTestParams {
 public:
-	int						configIndex;		// test buffer configuartion index
+	int						configIndex;		// test buffer configuration index
 
 	RsslConnectionTypes		connType;			// the connection type
 	RsslUInt32				msgLength;			// the specific value for length of each separated message
@@ -128,7 +165,7 @@ public:
 		wsProtocolType(wsProt),
 		compressionType(compressType),
 		compressionLevel(compressLevel)
-	{};
+	{}
 
 	/* Overload the << operator -- when tests fail, this will cause the parameters to printed in a readable fashion. */
 	friend std::ostream& operator<<(std::ostream& out, const GLobalLockSystemTestParams& params)
@@ -176,7 +213,7 @@ void constructTUClientConfig(
 /* Provides data structure for connection between Server and Client */
 class TUConnection {
 public:
-	TUConnection() : pServerChannel(NULL), pClientChannel(NULL), pServer(NULL) {};
+	TUConnection() : pServerChannel(NULL), pClientChannel(NULL), pServer(NULL) {}
 
 	RsslChannel*	pServerChannel;
 	RsslChannel*	pClientChannel;
