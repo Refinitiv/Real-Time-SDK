@@ -1343,17 +1343,19 @@ TEST_F(EmaConfigTest, testLoadingProgrammaticConfigForWarmStandby)
 		innerMap.addKeyAscii("Channel_1", MapEntry::AddEnum, ElementList()
 			.addEnum("ChannelType", 0)
 			.addAscii("Host", "localhost")
-			.addAscii("Port", "14002").complete())
+			.addAscii("Port", "14002").complete());
 
-		.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
+		innerMap.addKeyAscii("Channel_2", MapEntry::AddEnum, ElementList()
 			.addEnum("ChannelType", 0)
 			.addAscii("Host", "localhost")
-			.addAscii("Port", "15008").complete())
+			.addAscii("Port", "15008").complete());
 
-		.addKeyAscii("Channel_3", MapEntry::AddEnum, ElementList()
+		innerMap.addKeyAscii("Channel_3", MapEntry::AddEnum, ElementList()
 			.addEnum("ChannelType", 0)
 			.addAscii("Host", "localhost")
-			.addAscii("Port", "14008").complete()).complete();
+			.addAscii("Port", "14008").complete());
+
+		innerMap.complete();
 
 		elementList.clear();
 		elementList.addMap("ChannelList", innerMap);
@@ -1367,15 +1369,17 @@ TEST_F(EmaConfigTest, testLoadingProgrammaticConfigForWarmStandby)
 
 		innerMap.addKeyAscii("Server_Info_1", MapEntry::AddEnum, ElementList()
 			.addAscii("Channel", "Channel_1")
-			.addAscii("PerServiceNameSet", "Service_A, Service_B").complete())
+			.addAscii("PerServiceNameSet", "Service_A, Service_B").complete());
 
-		.addKeyAscii("Server_Info_2", MapEntry::AddEnum, ElementList()
+		innerMap.addKeyAscii("Server_Info_2", MapEntry::AddEnum, ElementList()
 			.addAscii("Channel", "Channel_2")
-			.addAscii("PerServiceNameSet", "Service_C, Service_D").complete())
+			.addAscii("PerServiceNameSet", "Service_C, Service_D").complete());
 
-		.addKeyAscii("Server_Info_3", MapEntry::AddEnum, ElementList()
+		innerMap.addKeyAscii("Server_Info_3", MapEntry::AddEnum, ElementList()
 			.addAscii("Channel", "Channel_3")
-			.addAscii("PerServiceNameSet", "Service_E, Service_F").complete()).complete();
+			.addAscii("PerServiceNameSet", "Service_E, Service_F").complete());
+
+		innerMap.complete();
 			
 		elementList.addMap("WarmStandbyServerInfoList", innerMap);
 
@@ -1390,13 +1394,15 @@ TEST_F(EmaConfigTest, testLoadingProgrammaticConfigForWarmStandby)
 			.addAscii("StartingActiveServer", "Server_Info_1")
 			.addAscii("StandbyServerSet", "Server_Info_2, Server_Info_3")
 			.addEnum("WarmStandbyMode", 1)
-			.complete())
+			.complete());
 
-		.addKeyAscii("WarmStandbyChannel_2", MapEntry::AddEnum, ElementList()
+		innerMap.addKeyAscii("WarmStandbyChannel_2", MapEntry::AddEnum, ElementList()
 			.addAscii("StartingActiveServer", "Server_Info_2")
 			.addAscii("StandbyServerSet", "Server_Info_1, Server_Info_3")
 			.addEnum("WarmStandbyMode", 2)
-			.complete()).complete();
+			.complete());
+
+		innerMap.complete();
 
 		elementList.addMap("WarmStandbyList", innerMap);
 
@@ -2704,10 +2710,10 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForIProv)
 					.addUInt("OpenWindow", 2)
 					.addUInt("LoadFactor", 3)
 				.complete())
-				.complete())
+				.complete());
 
 			//encode service2
-			.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
+			serviceMap.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
 				ElementList()
 				.addElementList("InfoFilter",
 					ElementList().addUInt("ServiceId", 4)
@@ -3194,10 +3200,10 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigForNiProv)
 						.addAscii("StatusText", "dacsDown")
 						.complete())
 					.complete())
-				.complete())
+				.complete());
 
 			//encode service2
-			.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
+			serviceMap.addKeyAscii("DIRECT_FEED1", MapEntry::AddEnum,
 				ElementList()
 				.addElementList("InfoFilter",
 					ElementList().addUInt("ServiceId", 4)

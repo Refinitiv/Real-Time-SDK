@@ -182,8 +182,6 @@ private :
 	void validateEntryKeyAndPayLoad(RsslDataType rsslKeyDataType, UInt8 rsslLoadDataType, DataType::DataTypeEnum emaLoadType,
 		const char* methodName);
 
-	void verifyPayLoadCompleted( const Encoder& enc, const UInt8& rsslData );
-
 	RsslMap					_rsslMap;
 
 	RsslMapEntry			_rsslMapEntry;
@@ -195,8 +193,6 @@ private :
 	bool					_keyTypeSet;
 
 	bool					_containerInitialized;
-
-	bool*					_internalContainerCompleted;
 };
 
 

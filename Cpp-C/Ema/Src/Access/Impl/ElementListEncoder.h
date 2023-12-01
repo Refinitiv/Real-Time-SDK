@@ -169,8 +169,6 @@ private :
 
 	void endEncodingEntry() const;
 
-	void verifyPayLoadCompleted( const Encoder&, const UInt8& );
-
 	RsslElementList				_rsslElementList;
 
 	RsslElementEntry			_rsslElementEntry;
@@ -178,8 +176,6 @@ private :
 	DataType::DataTypeEnum		_emaLoadType;
 
 	bool						_containerInitialized;
-
-	bool*						_internalContainerCompleted;
 };
 
 

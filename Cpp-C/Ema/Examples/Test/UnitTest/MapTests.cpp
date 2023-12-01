@@ -7621,43 +7621,121 @@ TEST(MapTests, testMapAddNotCompletedContainer)
 	try
 	{
 		Map map;
-		GenericMsg genericMsg;
-
-		genericMsg.streamId(1);
-
-		map.addKeyInt(1, MapEntry::AddEnum, genericMsg/*, permission*/);
+		FieldList fieldList, fieldList1;
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		fieldList1.complete();
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList1);
 		map.complete();
 
-		EXPECT_TRUE(true) << "Map add not completed GenericMsg - exception not expected";
+		EXPECT_FALSE(true) << "Map add first not completed and second completed FieldList - exception expected";
 	}
 	catch (const OmmException&)
 	{
-		EXPECT_FALSE(true) << "Map add not completed GenericMsg - exception not expected";
-	}
-
-	try
-	{
-		Map filterList;
-		OmmOpaque opaque;
-
-		char* string = const_cast<char*>("OPQRST");
-		EmaBuffer buffer(string, 6);
-		opaque.set(buffer);
-
-		filterList.addKeyInt(1, MapEntry::UpdateEnum, opaque);
-		filterList.complete();
-
-		EXPECT_TRUE(true) << "Map add OmmOpaque - exception not expected";
-	}
-	catch (const OmmException&)
-	{
-		EXPECT_FALSE(true) << "Map add OmmOpaque - exception not expected";
+		EXPECT_TRUE(true) << "Map add first not completed and second completed FieldList - exception expected";
 	}
 
 	try
 	{
 		Map map;
-		ElementList elementList;
+		FieldList fieldList, fieldList1;
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		fieldList.complete();
+		map.complete();
+		map.addKeyInt(1, MapEntry::AddEnum, fieldList1);
+
+		EXPECT_FALSE(true) << "Map add first completed then complete map and add some second FieldList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map add first completed then complete map and add some second FieldList - exception expected";
+	}
+
+	try
+	{
+		Map map;
+		FieldList fieldList;
+
+		fieldList.addInt(1, 2);
+		map.summaryData(fieldList);
+		map.complete();
+
+		EXPECT_FALSE(true) << "Map add uncompleted FieldList passed in summaryData - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Map add uncompleted FieldList passed in summaryData - exception expected";
+	}
+
+	try
+	{
+		Map map, map1;
+		FieldList fieldList;
+
+		fieldList.complete();
+		map1.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		map1.complete();
+		map.summaryData(map1);
+		map.complete();
+
+		EXPECT_TRUE(true) << "Map add completed map passed in summaryData with nested FieldList - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Map add completed map passed in summaryData with nested FieldList - exception not expected " << exp.getText();
+	}
+
+	try
+	{
+		Map map, map1;
+		FieldList fieldList;
+
+		fieldList.complete();
+		map1.addKeyInt(1, MapEntry::AddEnum, fieldList);
+		map1.complete();
+		map.addKeyInt(1, MapEntry::AddEnum, map1);
+		map.complete();
+
+		EXPECT_TRUE(true) << "Map add completed Map with nested FieldList - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Map add completed Map with nested FieldList - exception not expected " << exp.getText();
+	}
+
+	try
+	{
+		Map map;
+		map.addKeyInt(1, MapEntry::AddEnum, FieldList().addCodeInt(1).complete());
+		map.addKeyInt(1, MapEntry::AddEnum, FieldList().addCodeInt(2).complete());
+		map.complete();
+
+		EXPECT_TRUE(true) << "Map add two FieldList as a separate objects - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Map add two FieldList as a separate objects - exception not expected with text " << exp.getText();
+	}
+
+	try
+	{
+		Map map;
+		GenericMsg genericMsg;
+
+		genericMsg.streamId(1);
+
+		map.addKeyInt(1, MapEntry::AddEnum, genericMsg);
+		map.complete();
+
+		EXPECT_TRUE(true) << "Map add not completed GenericMsg - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Map add not completed GenericMsg - exception not expected with text " << exp.getText();
+	}
+
+	try
+	{
+		Map map;
 		OmmOpaque opaque;
 
 		char* string = const_cast<char*>("OPQRST");
@@ -7665,14 +7743,13 @@ TEST(MapTests, testMapAddNotCompletedContainer)
 		opaque.set(buffer);
 
 		map.addKeyInt(1, MapEntry::UpdateEnum, opaque);
-		map.addKeyInt(1, MapEntry::UpdateEnum, elementList);
 		map.complete();
 
-		EXPECT_FALSE(true) << "Map add not completed ElementList after Opaque - exception expected";
+		EXPECT_TRUE(true) << "Map add OmmOpaque - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_TRUE(true) << "Map add not completed ElementList after Opaque - exception expected";
+		EXPECT_FALSE(true) << "Map add OmmOpaque - exception not expected with text " << exp.getText();
 	}
 
 	try
@@ -7680,9 +7757,9 @@ TEST(MapTests, testMapAddNotCompletedContainer)
 		Map map;
 		ElementList elementList;
 		GenericMsg genericMsg;
-
+		
 		map.addKeyInt(1, MapEntry::UpdateEnum, genericMsg);
-		map.addKeyInt(1, MapEntry::UpdateEnum, elementList);
+		map.addKeyInt(2, MapEntry::UpdateEnum, elementList);
 		map.complete();
 
 		EXPECT_FALSE(true) << "Map add not completed ElementList after GenericMsg - exception expected";

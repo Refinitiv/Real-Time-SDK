@@ -2152,6 +2152,70 @@ TEST(FilterListTests, testFilterListAddNotCompletedContainer)
 	try
 	{
 		FilterList filterList;
+		ElementList elementList, elementList1;
+		filterList.add(1, FilterEntry::UpdateEnum, elementList);
+		elementList1.complete();
+		filterList.add(2, FilterEntry::UpdateEnum, elementList1);
+		filterList.complete();
+
+		EXPECT_FALSE(true) << "FilterList add first not completed and second completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList add first not completed and second completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		FilterList filterList;
+		ElementList elementList, elementList1;
+		filterList.add(1, FilterEntry::UpdateEnum, elementList);
+		elementList1.complete();
+		filterList.complete();
+		filterList.add(2, FilterEntry::UpdateEnum, elementList1);
+		filterList.complete();
+
+		EXPECT_FALSE(true) << "FilterList add first completed then complete FilterList and add second ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FilterList add first completed then complete FilterList and add second ElementLists - exception expected";
+	}
+
+	try
+	{
+		FilterList filterList, filterList1;
+		ElementList elementList;
+		filterList1.add(1, FilterEntry::UpdateEnum, elementList);
+		elementList.complete();
+		filterList1.complete();
+		filterList.add(2, FilterEntry::UpdateEnum, filterList1);
+		filterList.complete();
+
+		EXPECT_TRUE(true) << "FilterList add completed FilterList with nested ElementLists - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "FilterList add completed FilterList with nested ElementLists - exception not expected with text: " << exp.getText();
+	}
+
+	try
+	{
+		FilterList filterList;
+		filterList.add(1, FilterEntry::UpdateEnum, ElementList().addInt("test1", 1).complete());
+		filterList.add(2, FilterEntry::UpdateEnum, ElementList().addInt("test2", 2).complete());
+		filterList.complete();
+
+		EXPECT_TRUE(true) << "FilterList add two ElementList as a separate objects - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "FilterList add two ElementList as a separate objects - exception not expected with text: " << exp.getText();
+	}
+
+	try
+	{
+		FilterList filterList;
 		GenericMsg genericMsg;
 
 		genericMsg.streamId(1);
@@ -2161,9 +2225,9 @@ TEST(FilterListTests, testFilterListAddNotCompletedContainer)
 
 		EXPECT_TRUE(true) << "FilterList add not completed GenericMsg - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_FALSE(true) << "FilterList add not completed GenericMsg - exception not expected";
+		EXPECT_FALSE(true) << "FilterList add not completed GenericMsg - exception not expected with text: " << exp.getText();
 	}
 
 	try
@@ -2179,29 +2243,9 @@ TEST(FilterListTests, testFilterListAddNotCompletedContainer)
 
 		EXPECT_TRUE(true) << "FilterList add OmmOpaque - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_FALSE(true) << "FilterList add OmmOpaque - exception not expected";
-	}
-
-	try
-	{
-		FilterList filtertList;
-		ElementList elementList;
-		OmmOpaque opaque;
-		char* string = const_cast<char*>("OPQRST");
-		EmaBuffer buffer(string, 6);
-		opaque.set(buffer);
-
-		filtertList.add(1, FilterEntry::UpdateEnum, opaque);
-		filtertList.add(1, FilterEntry::UpdateEnum, elementList);
-		filtertList.complete();
-
-		EXPECT_FALSE(true) << "FilterList add not completed ElementList after Opaque - exception expected";
-	}
-	catch (const OmmException&)
-	{
-		EXPECT_TRUE(true) << "FilterList add not completed ElementList after Opaque - exception expected";
+		EXPECT_FALSE(true) << "FilterList add OmmOpaque - exception not expected with text: " << exp.getText();
 	}
 
 	try
@@ -2216,8 +2260,8 @@ TEST(FilterListTests, testFilterListAddNotCompletedContainer)
 
 		EXPECT_FALSE(true) << "FilterList add not completed ElementList after GenericMsg - exception expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_TRUE(true) << "FilterList add not completed ElementList after GenericMsg - exception expected";
+		EXPECT_TRUE(true) << "FilterList add not completed ElementList after GenericMsg - exception expected with text: " << exp.getText();
 	}
 }

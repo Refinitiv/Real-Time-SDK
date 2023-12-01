@@ -4401,6 +4401,70 @@ TEST(FieldListTests, testFieldListAddNotCompletedContainer)
 
 	try
 	{
+		FieldList fieldList;
+		ElementList elementList, elementList1;
+		fieldList.addElementList(1, elementList);
+		elementList1.complete();
+		fieldList.addElementList(2, elementList1);
+		fieldList.complete();
+
+		EXPECT_FALSE(true) << "FieldList add first not completed and second completed ElementList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FieldList add first not completed and second completed ElementList - exception expected";
+	}
+
+	try
+	{
+		FieldList fieldList;
+		ElementList elementList, elementList1;
+		fieldList.addElementList(1, elementList);
+		elementList.complete();
+		fieldList.complete();
+		fieldList.addElementList(2, elementList1);
+		fieldList.complete();
+
+		EXPECT_FALSE(true) << "FieldList add first completed then compleat map and add some second ElementList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "FieldList add first completed then compleat map and add some second ElementList - exception expected";
+	}
+
+	try
+	{
+		FieldList fieldList, fieldList1;
+		ElementList elementList;
+		fieldList1.addElementList(1, elementList);
+		elementList.complete();
+		fieldList1.complete();
+		fieldList.addFieldList(2, fieldList1);
+		fieldList.complete();
+
+		EXPECT_TRUE(true) << "FieldList add completed FieldList with nested ElementList - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "FieldList add completed FieldList with nested ElementList - exception not expected with test: "<< exp.getText();
+	}
+
+	try
+	{
+		FieldList fieldList;
+		fieldList.addElementList(1, ElementList().addInt("text1", 1).complete());
+		fieldList.addElementList(2, ElementList().addInt("text2", 2).complete());
+		fieldList.complete();
+
+		EXPECT_TRUE(true) << "FieldList add completed FieldList with nested ElementList - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "FieldList add completed FieldList with nested ElementList - exception not expected with test: " << exp.getText();
+	}
+
+	try
+	{
 		FieldList filedList;
 		GenericMsg genericMsg;
 
@@ -4411,9 +4475,9 @@ TEST(FieldListTests, testFieldListAddNotCompletedContainer)
 
 		EXPECT_TRUE(true) << "FieldList add not completed GenericMsg - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_FALSE(true) << "FieldList add not completed GenericMsg - exception not expected";
+		EXPECT_FALSE(true) << "FieldList add not completed GenericMsg - exception not expected with text: " << exp.getText();
 	}
 
 	try
@@ -4430,30 +4494,9 @@ TEST(FieldListTests, testFieldListAddNotCompletedContainer)
 
 		EXPECT_TRUE(true) << "ElementList add OmmOpaque - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_FALSE(true) << "ElementList add OmmOpaque - exception not expected";
-	}
-
-	try
-	{
-		FieldList fieldtList;
-		ElementList elementList;
-		OmmOpaque opaque;
-
-		char* string = const_cast<char*>("OPQRST");
-		EmaBuffer buffer(string, 6);
-		opaque.set(buffer);
-
-		fieldtList.addOpaque(1, opaque);
-		fieldtList.addElementList(1, elementList);
-		fieldtList.complete();
-
-		EXPECT_FALSE(true) << "ElementList add not completed ElementList after Opaque - exception expected";
-	}
-	catch (const OmmException&)
-	{
-		EXPECT_TRUE(true) << "ElementList add not completed ElementList after Opaque - exception expected";
+		EXPECT_FALSE(true) << "ElementList add OmmOpaque - exception not expected with text: " << exp.getText();
 	}
 
 	try

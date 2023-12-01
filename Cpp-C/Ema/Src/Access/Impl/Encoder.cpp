@@ -85,11 +85,6 @@ bool Encoder::isComplete() const
 	return _containerComplete;
 }
 
-bool* Encoder::isCompletePtr()
-{
-    return &_containerComplete;
-}
-
 bool Encoder::hasEncIterator() const
 {
 	return _pEncodeIter != 0 ? true : false;

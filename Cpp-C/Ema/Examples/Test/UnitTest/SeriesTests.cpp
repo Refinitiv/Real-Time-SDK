@@ -2249,6 +2249,105 @@ TEST(SeriesTests, testSeriesAddNotCompletedContainer)
 	try
 	{
 		Series series;
+		ElementList elementList, elementList1;
+		series.add(elementList);
+		elementList1.complete();
+		series.add(elementList1);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series add first not completed and second completed ElementLists - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add first not completed and second completed ElementLists - exception expected";
+	}
+
+	try
+	{
+		Series series;
+		ElementList elementList, elementList1;
+		series.add(elementList);
+		elementList.complete();
+		series.complete();
+		series.add(elementList1);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series add first completed ElementLists then complete Vector and add second ElementList - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add first completed ElementLists then complete Vector and add second ElementList - exception expected";
+	}
+
+	try
+	{
+		Series series;
+		FieldList fieldList;
+
+		fieldList.addInt(1, 2);
+		series.summaryData(fieldList);
+		series.complete();
+
+		EXPECT_FALSE(true) << "Series add uncompleted FieldList passed in summaryData - exception expected";
+	}
+	catch (const OmmException&)
+	{
+		EXPECT_TRUE(true) << "Series add uncompleted FieldList passed in summaryData - exception expected";
+	}
+
+	try
+	{
+		Series series, series1;
+		FieldList fieldList;
+
+		fieldList.complete();
+		series1.add(fieldList);
+		series1.complete();
+		series.summaryData(series1);
+		series.complete();
+
+		EXPECT_TRUE(true) << "Series add completed Series passed in summaryData with nested FieldList - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Series add completed Series passed in summaryData with nested FieldList - exception not expected " << exp.getText();
+	}
+
+	try
+	{
+		Series series, series1;
+		FieldList fieldList;
+
+		fieldList.complete();
+		series1.add(fieldList);
+		series1.complete();
+		series.add(series1);
+		series.complete();
+
+		EXPECT_TRUE(true) << "Series add completed Series with nested FieldList - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Series add completed Series with nested FieldList - exception not expected " << exp.getText();
+	}
+
+	try
+	{
+		Series series;
+		series.add(FieldList().addInt(1, 1).complete());
+		series.add(FieldList().addInt(2, 2).complete());
+		series.complete();
+
+		EXPECT_TRUE(true) << "Series add two FieldList as a separate object - exception not expected";
+	}
+	catch (const OmmException& exp)
+	{
+		EXPECT_FALSE(true) << "Series add two FieldList as a separate object - exception not expected with text " << exp.getText();
+	}
+
+	try
+	{
+		Series series;
 		GenericMsg genericMsg;
 
 		genericMsg.streamId(1);
@@ -2258,9 +2357,9 @@ TEST(SeriesTests, testSeriesAddNotCompletedContainer)
 
 		EXPECT_TRUE(true) << "Series add not completed GenericMsg - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_FALSE(true) << "Series add not completed GenericMsg - exception not expected";
+		EXPECT_FALSE(true) << "Series add not completed GenericMsg - exception not expected with text: " << exp.getText();
 	}
 
 	try
@@ -2277,30 +2376,9 @@ TEST(SeriesTests, testSeriesAddNotCompletedContainer)
 
 		EXPECT_TRUE(true) << "Series add OmmOpaque - exception not expected";
 	}
-	catch (const OmmException&)
+	catch (const OmmException& exp)
 	{
-		EXPECT_FALSE(true) << "Series add OmmOpaque - exception not expected";
-	}
-
-	try
-	{
-		Series series;
-		ElementList elementList;
-		OmmOpaque opaque;
-
-		char* string = const_cast<char*>("OPQRST");
-		EmaBuffer buffer(string, 6);
-		opaque.set(buffer);
-
-		series.add(opaque);
-		series.add(elementList);
-		series.complete();
-
-		EXPECT_FALSE(true) << "Series add not completed ElementList after Opaque - exception expected";
-	}
-	catch (const OmmException&)
-	{
-		EXPECT_TRUE(true) << "Series add not completed ElementList after Opaque - exception expected";
+		EXPECT_FALSE(true) << "Series add OmmOpaque - exception not expected with text: " << exp.getText();
 	}
 
 	try

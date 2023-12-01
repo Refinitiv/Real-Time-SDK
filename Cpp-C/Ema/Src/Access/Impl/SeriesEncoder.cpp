@@ -19,8 +19,7 @@ SeriesEncoder::SeriesEncoder() :
  _rsslSeries(),
  _rsslSeriesEntry(),
  _emaLoadType( DataType::NoDataEnum ),
- _containerInitialized( false ),
- _internalContainerCompleted( NULL )
+ _containerInitialized( false )
 {
 }
 
@@ -38,8 +37,6 @@ void SeriesEncoder::clear()
 	_emaLoadType = DataType::NoDataEnum;
 
 	_containerInitialized = false;
-
-	_internalContainerCompleted = NULL;
 }
 
 void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDataType )
@@ -82,6 +79,17 @@ void SeriesEncoder::initEncode( UInt8 rsslDataType, DataType::DataTypeEnum emaDa
 
 void SeriesEncoder::addEncodedEntry( const char* methodName, const RsslBuffer& rsslBuffer )
 {
+	RsslEncodingLevel *_levelInfo = &(_pEncodeIter->_rsslEncIter._levelInfo[_pEncodeIter->_rsslEncIter._encodingLevel]);
+
+	if (_levelInfo->_containerType != RSSL_DT_SERIES ||
+		_levelInfo->_encodingState != RSSL_EIS_ENTRIES)
+	{
+		EmaString temp("Attemp to add SeriesEntry while complete() was not called for passed in container: ");
+		temp.append(DataType(_emaLoadType));
+		throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
 	_rsslSeriesEntry.encData = rsslBuffer;
 
 	RsslRet retCode = rsslEncodeSeriesEntry( &_pEncodeIter->_rsslEncIter, &_rsslSeriesEntry );
@@ -103,6 +111,17 @@ void SeriesEncoder::addEncodedEntry( const char* methodName, const RsslBuffer& r
 
 void SeriesEncoder::startEncodingEntry( const char* methodName )
 {
+	RsslEncodingLevel *_levelInfo = &(_pEncodeIter->_rsslEncIter._levelInfo[_pEncodeIter->_rsslEncIter._encodingLevel]);
+
+	if (_levelInfo->_containerType != RSSL_DT_SERIES ||
+		_levelInfo->_encodingState != RSSL_EIS_ENTRIES)
+	{
+		EmaString temp("Attemp to add SeriesEntry while complete() was not called for passed in container: ");
+		temp.append(DataType(_emaLoadType));
+		throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
 	_rsslSeriesEntry.encData.data = 0;
 	_rsslSeriesEntry.encData.length = 0;
 
@@ -125,6 +144,19 @@ void SeriesEncoder::startEncodingEntry( const char* methodName )
 
 void SeriesEncoder::endEncodingEntry() const
 {
+	RsslEncodingLevel *_levelInfo = &(_pEncodeIter->_rsslEncIter._levelInfo[_pEncodeIter->_rsslEncIter._encodingLevel]);
+
+	if (_levelInfo->_containerType != RSSL_DT_SERIES ||
+		(_levelInfo->_encodingState != RSSL_EIS_ENTRY_INIT &&
+		 _levelInfo->_encodingState != RSSL_EIS_WAIT_COMPLETE))
+	{
+		/*If an internal container is not completed. Internal container empty.*/
+		EmaString temp("Attemp to complete Series while complete() was not called for passed in container: ");
+		temp.append(DataType(_emaLoadType));
+		throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
 	RsslRet retCode = rsslEncodeSeriesEntryComplete( &_pEncodeIter->_rsslEncIter, RSSL_TRUE );
 	/* Reallocate does not need here. The data is placed in already allocated memory */
 
@@ -134,28 +166,6 @@ void SeriesEncoder::endEncodingEntry() const
 		temp.append( rsslRetCodeToString( retCode ) ).append( "'. " );
 		throwIueException( temp, retCode );
 	}
-}
-
-void SeriesEncoder::verifyPayLoadCompleted(const Encoder& enc, const UInt8& rsslData )
-{
-	if (_internalContainerCompleted)
-	{
-		if (*_internalContainerCompleted == false)
-		{
-			EmaString temp("Attemp to add new container to the FieldList while complete() was not called for previously added container: ");
-			temp.append(rsslDataTypeToString(_rsslSeries.containerType));
-			_internalContainerCompleted = NULL;
-			throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
-			return;
-		}
-	}
-	if ( rsslData == RSSL_DT_MSG ||
-		 rsslData == RSSL_DT_XML ||
-		 rsslData == RSSL_DT_OPAQUE ||
-		 rsslData == RSSL_DT_ANSI_PAGE )
-		_internalContainerCompleted = NULL;
-	else
-		_internalContainerCompleted = const_cast<Encoder&>(enc).isCompletePtr();
 }
 
 void SeriesEncoder::add( const ComplexType& complexType )
@@ -189,11 +199,8 @@ void SeriesEncoder::add( const ComplexType& complexType )
 
 	if ( complexType.hasEncoder() && enc.ownsIterator() )
 	{
-		if( enc.isComplete() )
-		{
-			verifyPayLoadCompleted( enc, rsslDataType );
-			addEncodedEntry("add()", enc.getRsslBuffer());
-		}
+		if ( enc.isComplete() )
+			addEncodedEntry( "add()", enc.getRsslBuffer() );
 		else
 		{
 			EmaString temp( "Attempt to add() a ComplexType while complete() was not called on this ComplexType." );
@@ -213,8 +220,6 @@ void SeriesEncoder::add( const ComplexType& complexType )
 			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
 			return;
 		}
-
-		verifyPayLoadCompleted( enc, rsslDataType );
 
 		passEncIterator( const_cast<Encoder&>( enc ) );
 		startEncodingEntry( "add()" );
@@ -257,24 +262,25 @@ void SeriesEncoder::complete()
 {
 	if ( _containerComplete ) return;
 
-	if ( _internalContainerCompleted )
-	{
-		if ( *_internalContainerCompleted == false )
-		{
-			/*If an internal container is not completed. Internal container empty.*/
-			EmaString temp( "Attemp to complete Series while complete() was not called for internal container: " );
-			temp.append( rsslDataTypeToString( _rsslSeries.containerType ) );
-			_internalContainerCompleted = NULL;
-			throwIueException( temp, OmmInvalidUsageException::InvalidArgumentEnum );
-			return;
-		}
-	}
-
 	if (!hasEncIterator())
 	{
 		acquireEncIterator();
 
 		initEncode(convertDataType( _emaLoadType ), _emaLoadType);
+	}
+
+	RsslEncodingLevel *_levelInfo = &(_pEncodeIter->_rsslEncIter._levelInfo[_pEncodeIter->_rsslEncIter._encodingLevel]);
+
+	if (_levelInfo->_containerType != RSSL_DT_SERIES ||
+		(_levelInfo->_encodingState != RSSL_EIS_ENTRIES &&
+		 _levelInfo->_encodingState != RSSL_EIS_SET_DEFINITIONS &&
+		 _levelInfo->_encodingState != RSSL_EIS_WAIT_COMPLETE))
+	{
+		/*If an internal container is not completed. Internal container empty.*/
+		EmaString temp("Attemp to complete Series while complete() was not called for passed in container: ");
+		temp.append(DataType(_emaLoadType));
+		throwIueException(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
 	}
 
 	RsslRet retCode = rsslEncodeSeriesComplete( &(_pEncodeIter->_rsslEncIter), RSSL_TRUE );
