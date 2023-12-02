@@ -23,9 +23,6 @@ extern RsslBuffer g_clientSecret;
 extern RsslBuffer g_proxyHost;
 extern RsslBuffer g_proxyPort;
 
-extern RsslBuffer g_proxyHost;
-extern RsslBuffer g_proxyPort;
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -3194,7 +3194,10 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 
 	EXPECT_TRUE(pServiceEndpointEvent->pErrorInfo == 0);
 
-	EXPECT_TRUE(validateServiceDiscoveryEndpoints(pServiceEndpointEvent, expectedResult));
+	if (pServiceEndpointEvent->pErrorInfo == 0)
+	{
+		EXPECT_TRUE(validateServiceDiscoveryEndpoints(pServiceEndpointEvent, expectedResult));
+	}
 
 	expectedResult->ReceivedResponse = RSSL_TRUE;
 
