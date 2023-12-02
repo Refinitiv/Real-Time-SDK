@@ -29,14 +29,11 @@ Vector::Vector() :
 
 Vector::~Vector()
 {
-	if ( GlobalPool::isFinalState() )
-		return;
-
 	if ( _pEncoder )
-		g_pool._vectorEncoderPool.returnItem( _pEncoder );
+		g_pool.returnItem( _pEncoder );
 
 	if ( _pDecoder )
-		g_pool._vectorDecoderPool.returnItem( _pDecoder );
+		g_pool.returnItem( _pDecoder );
 }
 
 Vector& Vector::clear()
@@ -146,7 +143,7 @@ Decoder& Vector::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_summary._pDecoder = _entry._pDecoder = _pDecoder = g_pool._vectorDecoderPool.getItem();
+		_summary._pDecoder = _entry._pDecoder = _pDecoder = g_pool.getVectorDecoderItem();
 		_entry._pLoad = &_pDecoder->getLoad();
 	}
 
@@ -161,7 +158,7 @@ bool Vector::hasDecoder() const
 const Encoder& Vector::getEncoder() const
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	return *_pEncoder;
 }
@@ -197,7 +194,7 @@ Vector& Vector::add( UInt32 position, VectorEntry::VectorAction action,
 					const ComplexType& value, const EmaBuffer& permissionData )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	_pEncoder->add( position, action, value, permissionData );
 
@@ -208,7 +205,7 @@ Vector& Vector::add( UInt32 position, VectorEntry::VectorAction action,
 	const EmaBuffer& permissionData )
 {
 	if (!_pEncoder)
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	_pEncoder->add(position, action, permissionData);
 
@@ -218,7 +215,7 @@ Vector& Vector::add( UInt32 position, VectorEntry::VectorAction action,
 const Vector& Vector::complete()
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	_pEncoder->complete();
 
@@ -228,7 +225,7 @@ const Vector& Vector::complete()
 Vector& Vector::totalCountHint( UInt32 totalCountHint )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	_pEncoder->totalCountHint( totalCountHint );
 
@@ -238,7 +235,7 @@ Vector& Vector::totalCountHint( UInt32 totalCountHint )
 Vector& Vector::summaryData( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	_pEncoder->summaryData( data );
 
@@ -248,7 +245,7 @@ Vector& Vector::summaryData( const ComplexType& data )
 Vector& Vector::sortable( bool sortable )
 {
 	if (!_pEncoder)
-		_pEncoder = g_pool._vectorEncoderPool.getItem();
+		_pEncoder = g_pool.getVectorEncoderItem();
 
 	_pEncoder->sortable( sortable );
 

@@ -128,16 +128,15 @@ RefreshMsg::RefreshMsg(const RefreshMsg& other)
 
 RefreshMsg::~RefreshMsg()
 {
-	if ( _pEncoder && !GlobalPool::isFinalState() )
-		g_pool._refreshMsgEncoderPool.returnItem( static_cast<RefreshMsgEncoder*>( _pEncoder ) );
+	if ( _pEncoder )
+		g_pool.returnItem( static_cast<RefreshMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
 	{
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		if ( !GlobalPool::isFinalState() )
-			g_pool._refreshMsgDecoderPool.returnItem( static_cast<RefreshMsgDecoder*>( _pDecoder ) );
+		g_pool.returnItem( static_cast<RefreshMsgDecoder*>( _pDecoder ) );
 	}
 }
 
@@ -396,7 +395,7 @@ const EmaString& RefreshMsg::getServiceName() const
 Decoder& RefreshMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		setDecoder( g_pool._refreshMsgDecoderPool.getItem() );
+		setDecoder( g_pool.getRefreshMsgDecoderItem() );
 
 	return *_pDecoder;
 }
@@ -404,7 +403,7 @@ Decoder& RefreshMsg::getDecoder()
 RefreshMsg& RefreshMsg::streamId( Int32 streamId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->streamId( streamId );
 	return *this;
@@ -420,7 +419,7 @@ RefreshMsg& RefreshMsg::domainType( UInt16 domainType )
 	}
 
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->domainType( (UInt8)domainType );
 	return *this;
@@ -429,7 +428,7 @@ RefreshMsg& RefreshMsg::domainType( UInt16 domainType )
 RefreshMsg& RefreshMsg::name( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->name( name );
 	return *this;
@@ -438,7 +437,7 @@ RefreshMsg& RefreshMsg::name( const EmaString& name )
 RefreshMsg& RefreshMsg::nameType( UInt8 nameType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->nameType( nameType );
 	return *this;
@@ -447,7 +446,7 @@ RefreshMsg& RefreshMsg::nameType( UInt8 nameType )
 RefreshMsg& RefreshMsg::serviceName( const EmaString& serviceName )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->serviceName( serviceName );
 	return *this;
@@ -456,7 +455,7 @@ RefreshMsg& RefreshMsg::serviceName( const EmaString& serviceName )
 RefreshMsg& RefreshMsg::serviceId( UInt32 serviceId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->serviceId( serviceId );
 	return *this;
@@ -465,7 +464,7 @@ RefreshMsg& RefreshMsg::serviceId( UInt32 serviceId )
 RefreshMsg& RefreshMsg::id( Int32 id )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->identifier( id );
 	return *this;
@@ -474,7 +473,7 @@ RefreshMsg& RefreshMsg::id( Int32 id )
 RefreshMsg& RefreshMsg::filter( UInt32 filter )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->filter( filter );
 	return *this;
@@ -483,7 +482,7 @@ RefreshMsg& RefreshMsg::filter( UInt32 filter )
 RefreshMsg& RefreshMsg::qos( UInt32 timeliness, UInt32 rate )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->qos( timeliness, rate );
 	return *this;
@@ -493,7 +492,7 @@ RefreshMsg& RefreshMsg::state( OmmState::StreamState streamState, OmmState::Data
 						UInt8 statusCode, const EmaString& statusText )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->state( streamState, dataState, statusCode, statusText );
 	return *this;
@@ -502,7 +501,7 @@ RefreshMsg& RefreshMsg::state( OmmState::StreamState streamState, OmmState::Data
 RefreshMsg& RefreshMsg::seqNum( UInt32 seqNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->seqNum( seqNum );
 	return *this;
@@ -511,7 +510,7 @@ RefreshMsg& RefreshMsg::seqNum( UInt32 seqNum )
 RefreshMsg& RefreshMsg::partNum( UInt16 partNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->partNum( partNum );
 	return *this;
@@ -520,7 +519,7 @@ RefreshMsg& RefreshMsg::partNum( UInt16 partNum )
 RefreshMsg& RefreshMsg::itemGroup( const EmaBuffer& itemGroup )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->itemGroup( itemGroup );
 	return *this;
@@ -529,7 +528,7 @@ RefreshMsg& RefreshMsg::itemGroup( const EmaBuffer& itemGroup )
 RefreshMsg& RefreshMsg::permissionData( const EmaBuffer& permissionData )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->permissionData( permissionData );
 	return *this;
@@ -538,7 +537,7 @@ RefreshMsg& RefreshMsg::permissionData( const EmaBuffer& permissionData )
 RefreshMsg& RefreshMsg::publisherId( UInt32 userId, UInt32 userAddress )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->publisherId( userId, userAddress );
 	return *this;
@@ -547,7 +546,7 @@ RefreshMsg& RefreshMsg::publisherId( UInt32 userId, UInt32 userAddress )
 RefreshMsg& RefreshMsg::attrib( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->attrib( data );
 	return *this;
@@ -556,7 +555,7 @@ RefreshMsg& RefreshMsg::attrib( const ComplexType& data )
 RefreshMsg& RefreshMsg::payload( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	_pEncoder->payload( data );
 	return *this;
@@ -565,7 +564,7 @@ RefreshMsg& RefreshMsg::payload( const ComplexType& data )
 RefreshMsg& RefreshMsg::extendedHeader( const EmaBuffer& buffer )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->extendedHeader( buffer );
 	return *this;
@@ -574,7 +573,7 @@ RefreshMsg& RefreshMsg::extendedHeader( const EmaBuffer& buffer )
 RefreshMsg& RefreshMsg::solicited( bool solicited )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->solicited( solicited );
 	return *this;
@@ -583,7 +582,7 @@ RefreshMsg& RefreshMsg::solicited( bool solicited )
 RefreshMsg& RefreshMsg::doNotCache( bool doNotCache )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->doNotCache( doNotCache );
 	return *this;
@@ -592,7 +591,7 @@ RefreshMsg& RefreshMsg::doNotCache( bool doNotCache )
 RefreshMsg& RefreshMsg::clearCache( bool clearCache )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->clearCache( clearCache );
 	return *this;
@@ -601,7 +600,7 @@ RefreshMsg& RefreshMsg::clearCache( bool clearCache )
 RefreshMsg& RefreshMsg::complete( bool complete )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->complete( complete );
 	return *this;
@@ -610,7 +609,7 @@ RefreshMsg& RefreshMsg::complete( bool complete )
 RefreshMsg& RefreshMsg::privateStream( bool privateStream )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._refreshMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getRefreshMsgEncoderItem();
 
 	static_cast<RefreshMsgEncoder*>(_pEncoder)->privateStream( privateStream );
 	return *this;

@@ -36,22 +36,11 @@ VectorDecoder::VectorDecoder() :
 
 VectorDecoder::~VectorDecoder()
 {
-	if ( _atExit || GlobalPool::isFinalState() )
-	{
-		if ( _elementListSetDef ) 
-			delete _elementListSetDef;
+	if ( _elementListSetDef ) 
+		g_pool.returnItem( _elementListSetDef );
 
-		if ( _fieldListSetDef )
-			delete _fieldListSetDef;	
-	}
-	else
-	{
-		if ( _elementListSetDef ) 
-			g_pool._elementListSetDefPool.returnItem( _elementListSetDef );
-
-		if ( _fieldListSetDef )
-			g_pool._fieldListSetDefPool.returnItem( _fieldListSetDef );
-	}
+	if ( _fieldListSetDef )
+		g_pool.returnItem( _fieldListSetDef );
 
 	StaticDecoder::morph( &_load, DataType::NoDataEnum );
 	StaticDecoder::morph( &_summary, DataType::NoDataEnum );
@@ -120,12 +109,12 @@ void VectorDecoder::clone( const VectorDecoder& other )
 			switch ( _rsslVector.containerType )
 			{
 			case RSSL_DT_FIELD_LIST :
-				_fieldListSetDef = g_pool._fieldListSetDefPool.getItem();
+				_fieldListSetDef = g_pool.getFieldListSetDefItem();
 				rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
 				_localSetDefDb = _fieldListSetDef->getSetDefDb();
 				break;
 			case RSSL_DT_ELEMENT_LIST :
-				_elementListSetDef = g_pool._elementListSetDefPool.getItem();
+				_elementListSetDef = g_pool.getElementListSetDefItem();
 				rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
 				_localSetDefDb = _elementListSetDef->getSetDefDb();
 				break;
@@ -271,12 +260,12 @@ bool VectorDecoder::setRsslData( UInt8 majVer, UInt8 minVer, RsslBuffer* rsslBuf
 		switch ( _rsslVector.containerType )
 		{
 		case RSSL_DT_FIELD_LIST :
-			_fieldListSetDef = g_pool._fieldListSetDefPool.getItem();
+			_fieldListSetDef = g_pool.getFieldListSetDefItem();
 			rsslDecodeLocalFieldSetDefDb( &_decodeIter, _fieldListSetDef->getSetDefDb() );
 			_localSetDefDb = _fieldListSetDef->getSetDefDb();
 			break;
 		case RSSL_DT_ELEMENT_LIST :
-			_elementListSetDef = g_pool._elementListSetDefPool.getItem();
+			_elementListSetDef = g_pool.getElementListSetDefItem();
 			rsslDecodeLocalElementSetDefDb( &_decodeIter, _elementListSetDef->getSetDefDb() );
 			_localSetDefDb = _elementListSetDef->getSetDefDb();
 			break;

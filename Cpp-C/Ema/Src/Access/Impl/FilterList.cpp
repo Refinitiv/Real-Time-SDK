@@ -28,14 +28,11 @@ FilterList::FilterList() :
 
 FilterList::~FilterList()
 {
-	if ( GlobalPool::isFinalState() )
-		return;
-
 	if ( _pEncoder )
-		g_pool._filterListEncoderPool.returnItem( _pEncoder );
+		g_pool.returnItem( _pEncoder );
 
 	if ( _pDecoder )
-		g_pool._filterListDecoderPool.returnItem( _pDecoder );
+		g_pool.returnItem( _pDecoder );
 }
 
 FilterList& FilterList::clear()
@@ -129,7 +126,7 @@ Decoder& FilterList::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_pDecoder = g_pool._filterListDecoderPool.getItem();
+		_pDecoder = g_pool.getFilterListDecoderItem();
 		_entry._pDecoder = _pDecoder;
 		_entry._pLoad = &_pDecoder->getLoad();
 	}
@@ -167,7 +164,7 @@ const FilterEntry& FilterList::getEntry() const
 const Encoder& FilterList::getEncoder() const
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._filterListEncoderPool.getItem();
+		_pEncoder = g_pool.getFilterListEncoderItem();
 
 	return *_pEncoder;
 }
@@ -176,7 +173,7 @@ FilterList& FilterList::add( UInt8 filterId, FilterEntry::FilterAction action,
 							const ComplexType& value, const EmaBuffer& permissionData )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._filterListEncoderPool.getItem();
+		_pEncoder = g_pool.getFilterListEncoderItem();
 
 	_pEncoder->add( filterId, action, value, permissionData );
 
@@ -187,7 +184,7 @@ FilterList& FilterList::add( UInt8 filterId, FilterEntry::FilterAction action,
 	const EmaBuffer& permissionData )
 {
 	if (!_pEncoder)
-		_pEncoder = g_pool._filterListEncoderPool.getItem();
+		_pEncoder = g_pool.getFilterListEncoderItem();
 
 	_pEncoder->add( filterId, action, permissionData );
 
@@ -197,7 +194,7 @@ FilterList& FilterList::add( UInt8 filterId, FilterEntry::FilterAction action,
 const FilterList& FilterList::complete()
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._filterListEncoderPool.getItem();
+		_pEncoder = g_pool.getFilterListEncoderItem();
 
 	_pEncoder->complete();
 
@@ -207,7 +204,7 @@ const FilterList& FilterList::complete()
 FilterList& FilterList::totalCountHint( UInt32 totalCountHint )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._filterListEncoderPool.getItem();
+		_pEncoder = g_pool.getFilterListEncoderItem();
 
 	_pEncoder->totalCountHint( totalCountHint );
 

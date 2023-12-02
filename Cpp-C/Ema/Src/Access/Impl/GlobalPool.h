@@ -53,6 +53,19 @@ namespace ema {
 
 namespace access {
 
+#define DO_ITEM_FUNCS(item, pool)\
+item * get##item##Item()\
+{\
+	return pool.getItem();\
+}\
+void returnItem(item * pEncoder)\
+{\
+	if (_isFinalState)\
+		delete pEncoder;\
+	else\
+		pool.returnItem(pEncoder);\
+}
+
 class GlobalPool
 {
 public :
@@ -62,14 +75,52 @@ public :
 
 	// When the global pool is in final state
 	// then clients must stop all the operations with it
-	static bool isFinalState() {
-		return _isFinalState;
-	}
-
 	static void setFinalState() {
 		_isFinalState = true;
 	}
 
+	DO_ITEM_FUNCS(ElementListSetDef, _elementListSetDefPool)
+	DO_ITEM_FUNCS(FieldListSetDef, _fieldListSetDefPool)
+
+	DO_ITEM_FUNCS(EncodeIterator, _encodeIteratorPool)
+	DO_ITEM_FUNCS(OmmArrayEncoder, _arrayEncoderPool)
+	DO_ITEM_FUNCS(ElementListEncoder, _elementListEncoderPool)
+	DO_ITEM_FUNCS(FieldListEncoder, _fieldListEncoderPool)
+	DO_ITEM_FUNCS(MapEncoder, _mapEncoderPool)
+	DO_ITEM_FUNCS(VectorEncoder, _vectorEncoderPool)
+	DO_ITEM_FUNCS(SeriesEncoder, _seriesEncoderPool)
+	DO_ITEM_FUNCS(FilterListEncoder, _filterListEncoderPool)
+	DO_ITEM_FUNCS(OmmAnsiPageEncoder, _ommAnsiPageEncoderPool)
+	DO_ITEM_FUNCS(OmmOpaqueEncoder, _ommOpaqueEncoderPool)
+	DO_ITEM_FUNCS(OmmXmlEncoder, _ommXmlEncoderPool)
+
+	DO_ITEM_FUNCS(AckMsgEncoder, _ackMsgEncoderPool)
+	DO_ITEM_FUNCS(GenericMsgEncoder, _genericMsgEncoderPool)
+	DO_ITEM_FUNCS(PostMsgEncoder, _postMsgEncoderPool)
+	DO_ITEM_FUNCS(ReqMsgEncoder, _reqMsgEncoderPool)
+	DO_ITEM_FUNCS(RefreshMsgEncoder, _refreshMsgEncoderPool)
+	DO_ITEM_FUNCS(StatusMsgEncoder, _statusMsgEncoderPool)
+	DO_ITEM_FUNCS(UpdateMsgEncoder, _updateMsgEncoderPool)
+
+	DO_ITEM_FUNCS(OmmArrayDecoder, _arrayDecoderPool)
+	DO_ITEM_FUNCS(ElementListDecoder, _elementListDecoderPool)
+	DO_ITEM_FUNCS(FieldListDecoder, _fieldListDecoderPool)
+	DO_ITEM_FUNCS(FilterListDecoder, _filterListDecoderPool)
+	DO_ITEM_FUNCS(MapDecoder, _mapDecoderPool)
+	DO_ITEM_FUNCS(VectorDecoder, _vectorDecoderPool)
+	DO_ITEM_FUNCS(SeriesDecoder, _seriesDecoderPool)
+
+	DO_ITEM_FUNCS(AckMsgDecoder, _ackMsgDecoderPool)
+	DO_ITEM_FUNCS(GenericMsgDecoder, _genericMsgDecoderPool)
+	DO_ITEM_FUNCS(PostMsgDecoder, _postMsgDecoderPool)
+	DO_ITEM_FUNCS(ReqMsgDecoder, _reqMsgDecoderPool)
+	DO_ITEM_FUNCS(RefreshMsgDecoder, _refreshMsgDecoderPool)
+	DO_ITEM_FUNCS(StatusMsgDecoder, _statusMsgDecoderPool)
+	DO_ITEM_FUNCS(UpdateMsgDecoder, _updateMsgDecoderPool)
+
+private:
+
+	static bool					_isFinalState;  // indicates that the global pool is destroyed, clients must stop all operations with it
 
 	ElementListSetDefPool		_elementListSetDefPool;
 	FieldListSetDefPool			_fieldListSetDefPool;
@@ -85,7 +136,7 @@ public :
 	OmmAnsiPageEncoderPool		_ommAnsiPageEncoderPool;
 	OmmOpaqueEncoderPool		_ommOpaqueEncoderPool;
 	OmmXmlEncoderPool			_ommXmlEncoderPool;
-	
+
 	AckMsgEncoderPool			_ackMsgEncoderPool;
 	GenericMsgEncoderPool		_genericMsgEncoderPool;
 	PostMsgEncoderPool			_postMsgEncoderPool;
@@ -109,12 +160,9 @@ public :
 	RefreshMsgDecoderPool		_refreshMsgDecoderPool;
 	StatusMsgDecoderPool		_statusMsgDecoderPool;
 	UpdateMsgDecoderPool		_updateMsgDecoderPool;
-
-private:
-
-	static bool					_isFinalState;  // indicates that the global pool is destroyed, clients must stop all operations with it
-
 };
+
+#undef DO_ITEM_FUNCS
 
 }
 

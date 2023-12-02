@@ -30,14 +30,11 @@ ElementList::ElementList() :
 
 ElementList::~ElementList()
 {
-	if ( GlobalPool::isFinalState() )
-		return;
-
 	if ( _pEncoder )
-		g_pool._elementListEncoderPool.returnItem( _pEncoder );
+		g_pool.returnItem( _pEncoder );
 
 	if ( _pDecoder )
-		g_pool._elementListDecoderPool.returnItem( _pDecoder );
+		g_pool.returnItem( _pDecoder );
 }
 
 ElementList& ElementList::clear()
@@ -148,7 +145,7 @@ Decoder& ElementList::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_entry._pDecoder = _pDecoder = g_pool._elementListDecoderPool.getItem();
+		_entry._pDecoder = _pDecoder = g_pool.getElementListDecoderItem();
 		_entry._pLoad = _pDecoder->getLoadPtr();
 	}
 
@@ -175,7 +172,7 @@ const ElementEntry& ElementList::getEntry() const
 const Encoder& ElementList::getEncoder() const
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	return *_pEncoder;
 }
@@ -183,7 +180,7 @@ const Encoder& ElementList::getEncoder() const
 ElementList& ElementList::info( Int16 elmentListNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->info( elmentListNum );
 
@@ -193,7 +190,7 @@ ElementList& ElementList::info( Int16 elmentListNum )
 ElementList& ElementList::addInt( const EmaString& name, Int64 value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addInt( name, value );
 
@@ -203,7 +200,7 @@ ElementList& ElementList::addInt( const EmaString& name, Int64 value )
 ElementList& ElementList::addUInt( const EmaString& name, UInt64 value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addUInt( name, value );
 
@@ -213,7 +210,7 @@ ElementList& ElementList::addUInt( const EmaString& name, UInt64 value )
 ElementList& ElementList::addReal( const EmaString& name, Int64 mantissa, OmmReal::MagnitudeType magnitudeType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addReal( name, mantissa, magnitudeType );
 
@@ -224,7 +221,7 @@ ElementList& ElementList::addRealFromDouble( const EmaString& name, double value
 								OmmReal::MagnitudeType magnitudeType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addRealFromDouble( name, value, magnitudeType );
 
@@ -234,7 +231,7 @@ ElementList& ElementList::addRealFromDouble( const EmaString& name, double value
 ElementList& ElementList::addFloat( const EmaString& name, float value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addFloat( name, value );
 
@@ -244,7 +241,7 @@ ElementList& ElementList::addFloat( const EmaString& name, float value )
 ElementList& ElementList::addDouble( const EmaString& name, double value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addDouble( name, value );
 
@@ -254,7 +251,7 @@ ElementList& ElementList::addDouble( const EmaString& name, double value )
 ElementList& ElementList::addDate( const EmaString& name, UInt16 year, UInt8 month, UInt8 day )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addDate( name, year, month, day );
 
@@ -265,7 +262,7 @@ ElementList& ElementList::addTime( const EmaString& name, UInt8 hour, UInt8 minu
 								  UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addTime( name, hour, minute, second, millisecond, microsecond, nanosecond );
 
@@ -278,7 +275,7 @@ ElementList& ElementList::addDateTime( const EmaString& name,
 						UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addDateTime( name, year, month, day, hour, minute, second, millisecond, microsecond, nanosecond );
 
@@ -290,7 +287,7 @@ ElementList& ElementList::addQos( const EmaString& name,
 					UInt32 rate )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addQos( name, timeliness, rate );
 
@@ -304,7 +301,7 @@ ElementList& ElementList::addState( const EmaString& name,
 					const EmaString& statusText )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addState( name, streamState, dataState, statusCode, statusText );
 
@@ -314,7 +311,7 @@ ElementList& ElementList::addState( const EmaString& name,
 ElementList& ElementList::addEnum( const EmaString& name, UInt16 value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addEnum( name, value );
 
@@ -324,7 +321,7 @@ ElementList& ElementList::addEnum( const EmaString& name, UInt16 value )
 ElementList& ElementList::addBuffer( const EmaString& name, const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addBuffer( name, value );
 
@@ -334,7 +331,7 @@ ElementList& ElementList::addBuffer( const EmaString& name, const EmaBuffer& val
 ElementList& ElementList::addAscii( const EmaString& name, const EmaString& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addAscii( name, value );
 
@@ -344,7 +341,7 @@ ElementList& ElementList::addAscii( const EmaString& name, const EmaString& valu
 ElementList& ElementList::addUtf8( const EmaString& name, const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addUtf8( name, value );
 
@@ -354,7 +351,7 @@ ElementList& ElementList::addUtf8( const EmaString& name, const EmaBuffer& value
 ElementList& ElementList::addRmtes( const EmaString& name, const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addRmtes( name, value );
 
@@ -364,7 +361,7 @@ ElementList& ElementList::addRmtes( const EmaString& name, const EmaBuffer& valu
 ElementList& ElementList::addArray( const EmaString& name, const OmmArray& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addArray( name, value );
 
@@ -374,7 +371,7 @@ ElementList& ElementList::addArray( const EmaString& name, const OmmArray& value
 ElementList& ElementList::addElementList( const EmaString& name, const ElementList& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addElementList( name, value );
 
@@ -384,7 +381,7 @@ ElementList& ElementList::addElementList( const EmaString& name, const ElementLi
 ElementList& ElementList::addFieldList( const EmaString& name, const FieldList& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addFieldList( name, value );
 
@@ -394,7 +391,7 @@ ElementList& ElementList::addFieldList( const EmaString& name, const FieldList& 
 ElementList& ElementList::addReqMsg( const EmaString& name, const ReqMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addReqMsg( name, value );
 
@@ -404,7 +401,7 @@ ElementList& ElementList::addReqMsg( const EmaString& name, const ReqMsg& value 
 ElementList& ElementList::addRefreshMsg( const EmaString& name, const RefreshMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addRefreshMsg( name, value );
 
@@ -414,7 +411,7 @@ ElementList& ElementList::addRefreshMsg( const EmaString& name, const RefreshMsg
 ElementList& ElementList::addUpdateMsg( const EmaString& name, const UpdateMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addUpdateMsg( name, value );
 
@@ -424,7 +421,7 @@ ElementList& ElementList::addUpdateMsg( const EmaString& name, const UpdateMsg& 
 ElementList& ElementList::addStatusMsg( const EmaString& name, const StatusMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addStatusMsg( name, value );
 
@@ -434,7 +431,7 @@ ElementList& ElementList::addStatusMsg( const EmaString& name, const StatusMsg& 
 ElementList& ElementList::addPostMsg( const EmaString& name, const PostMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addPostMsg( name, value );
 
@@ -444,7 +441,7 @@ ElementList& ElementList::addPostMsg( const EmaString& name, const PostMsg& valu
 ElementList& ElementList::addAckMsg( const EmaString& name, const AckMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addAckMsg( name, value );
 
@@ -454,7 +451,7 @@ ElementList& ElementList::addAckMsg( const EmaString& name, const AckMsg& value 
 ElementList& ElementList::addGenericMsg( const EmaString& name, const GenericMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addGenericMsg( name, value );
 
@@ -464,7 +461,7 @@ ElementList& ElementList::addGenericMsg( const EmaString& name, const GenericMsg
 ElementList& ElementList::addMap( const EmaString& name, const Map& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addMap( name, value );
 
@@ -474,7 +471,7 @@ ElementList& ElementList::addMap( const EmaString& name, const Map& value )
 ElementList& ElementList::addVector( const EmaString& name, const Vector& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addVector( name, value );
 
@@ -484,7 +481,7 @@ ElementList& ElementList::addVector( const EmaString& name, const Vector& value 
 ElementList& ElementList::addSeries( const EmaString& name, const Series& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addSeries( name, value );
 
@@ -494,7 +491,7 @@ ElementList& ElementList::addSeries( const EmaString& name, const Series& value 
 ElementList& ElementList::addFilterList( const EmaString& name, const FilterList& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addFilterList( name, value );
 
@@ -504,7 +501,7 @@ ElementList& ElementList::addFilterList( const EmaString& name, const FilterList
 ElementList& ElementList::addOpaque( const EmaString& name, const OmmOpaque& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addOpaque( name, value );
 
@@ -514,7 +511,7 @@ ElementList& ElementList::addOpaque( const EmaString& name, const OmmOpaque& val
 ElementList& ElementList::addXml( const EmaString& name, const OmmXml& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addXml( name, value );
 
@@ -524,7 +521,7 @@ ElementList& ElementList::addXml( const EmaString& name, const OmmXml& value )
 ElementList& ElementList::addAnsiPage( const EmaString& name, const OmmAnsiPage& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addAnsiPage( name, value );
 
@@ -534,7 +531,7 @@ ElementList& ElementList::addAnsiPage( const EmaString& name, const OmmAnsiPage&
 ElementList& ElementList::addCodeInt( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeInt( name );
 
@@ -544,7 +541,7 @@ ElementList& ElementList::addCodeInt( const EmaString& name )
 ElementList& ElementList::addCodeUInt( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeUInt( name );
 
@@ -554,7 +551,7 @@ ElementList& ElementList::addCodeUInt( const EmaString& name )
 ElementList& ElementList::addCodeReal( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeReal( name );
 
@@ -564,7 +561,7 @@ ElementList& ElementList::addCodeReal( const EmaString& name )
 ElementList& ElementList::addCodeFloat( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeFloat( name );
 
@@ -574,7 +571,7 @@ ElementList& ElementList::addCodeFloat( const EmaString& name )
 ElementList& ElementList::addCodeDouble( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeDouble( name );
 
@@ -584,7 +581,7 @@ ElementList& ElementList::addCodeDouble( const EmaString& name )
 ElementList& ElementList::addCodeDate( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeDate( name );
 
@@ -594,7 +591,7 @@ ElementList& ElementList::addCodeDate( const EmaString& name )
 ElementList& ElementList::addCodeTime( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeTime( name );
 
@@ -604,7 +601,7 @@ ElementList& ElementList::addCodeTime( const EmaString& name )
 ElementList& ElementList::addCodeDateTime( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeDateTime( name );
 
@@ -614,7 +611,7 @@ ElementList& ElementList::addCodeDateTime( const EmaString& name )
 ElementList& ElementList::addCodeQos( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeQos( name );
 
@@ -624,7 +621,7 @@ ElementList& ElementList::addCodeQos( const EmaString& name )
 ElementList& ElementList::addCodeState( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeState( name );
 
@@ -634,7 +631,7 @@ ElementList& ElementList::addCodeState( const EmaString& name )
 ElementList& ElementList::addCodeEnum( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeEnum( name );
 
@@ -644,7 +641,7 @@ ElementList& ElementList::addCodeEnum( const EmaString& name )
 ElementList& ElementList::addCodeBuffer( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeBuffer( name );
 
@@ -654,7 +651,7 @@ ElementList& ElementList::addCodeBuffer( const EmaString& name )
 ElementList& ElementList::addCodeAscii( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeAscii( name );
 
@@ -664,7 +661,7 @@ ElementList& ElementList::addCodeAscii( const EmaString& name )
 ElementList& ElementList::addCodeUtf8( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeUtf8( name );
 
@@ -674,7 +671,7 @@ ElementList& ElementList::addCodeUtf8( const EmaString& name )
 ElementList& ElementList::addCodeRmtes( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->addCodeRmtes( name );
 
@@ -684,7 +681,7 @@ ElementList& ElementList::addCodeRmtes( const EmaString& name )
 ElementList& ElementList::add( const EmaString& name )
 {
 	if (!_pEncoder)
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->add( name );
 
@@ -694,7 +691,7 @@ ElementList& ElementList::add( const EmaString& name )
 const ElementList& ElementList::complete()
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._elementListEncoderPool.getItem();
+		_pEncoder = g_pool.getElementListEncoderItem();
 
 	_pEncoder->complete();
 

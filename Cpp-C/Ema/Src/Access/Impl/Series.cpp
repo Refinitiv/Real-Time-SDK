@@ -29,14 +29,11 @@ Series::Series() :
 
 Series::~Series()
 {
-	if ( GlobalPool::isFinalState() )
-		return;
-
 	if ( _pEncoder )
-		g_pool._seriesEncoderPool.returnItem( _pEncoder );
+		g_pool.returnItem( _pEncoder );
 
 	if ( _pDecoder )
-		g_pool._seriesDecoderPool.returnItem( _pDecoder );
+		g_pool.returnItem( _pDecoder );
 }
 
 Series& Series::clear()
@@ -131,7 +128,7 @@ Decoder& Series::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_summary._pDecoder = _entry._pDecoder = _pDecoder = g_pool._seriesDecoderPool.getItem();
+		_summary._pDecoder = _entry._pDecoder = _pDecoder = g_pool.getSeriesDecoderItem();
 		_entry._pLoad = &_pDecoder->getLoad();
 	}
 
@@ -146,7 +143,7 @@ bool Series::hasDecoder() const
 const Encoder& Series::getEncoder() const
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._seriesEncoderPool.getItem();
+		_pEncoder = g_pool.getSeriesEncoderItem();
 
 	return *_pEncoder;
 }
@@ -181,7 +178,7 @@ const SeriesEntry& Series::getEntry() const
 Series& Series::add( const ComplexType& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._seriesEncoderPool.getItem();
+		_pEncoder = g_pool.getSeriesEncoderItem();
 
 	_pEncoder->add( value );
 
@@ -191,7 +188,7 @@ Series& Series::add( const ComplexType& value )
 Series& Series::add()
 {
 	if (!_pEncoder)
-		_pEncoder = g_pool._seriesEncoderPool.getItem();
+		_pEncoder = g_pool.getSeriesEncoderItem();
 
 	_pEncoder->add();
 
@@ -201,7 +198,7 @@ Series& Series::add()
 const Series& Series::complete()
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._seriesEncoderPool.getItem();
+		_pEncoder = g_pool.getSeriesEncoderItem();
 
 	_pEncoder->complete();
 
@@ -211,7 +208,7 @@ const Series& Series::complete()
 Series& Series::totalCountHint( UInt32 totalCountHint )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._seriesEncoderPool.getItem();
+		_pEncoder = g_pool.getSeriesEncoderItem();
 
 	_pEncoder->totalCountHint( totalCountHint );
 
@@ -221,7 +218,7 @@ Series& Series::totalCountHint( UInt32 totalCountHint )
 Series& Series::summaryData( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._seriesEncoderPool.getItem();
+		_pEncoder = g_pool.getSeriesEncoderItem();
 
 	_pEncoder->summaryData( data );
 

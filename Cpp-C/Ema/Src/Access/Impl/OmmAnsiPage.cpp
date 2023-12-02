@@ -28,9 +28,7 @@ OmmAnsiPage::~OmmAnsiPage()
 
 	if ( _pEncoder )
 	{
-		if ( !GlobalPool::isFinalState() )
-			g_pool._ommAnsiPageEncoderPool.returnItem( _pEncoder );
-		_pEncoder = 0;
+		g_pool.returnItem( _pEncoder );
 	}
 }
 
@@ -70,7 +68,7 @@ OmmAnsiPage& OmmAnsiPage::clear()
 OmmAnsiPage& OmmAnsiPage::set( const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._ommAnsiPageEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmAnsiPageEncoderItem();
 
 	_pEncoder->set( value );
 
@@ -80,7 +78,7 @@ OmmAnsiPage& OmmAnsiPage::set( const EmaBuffer& value )
 OmmAnsiPage& OmmAnsiPage::set( const EmaString& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._ommAnsiPageEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmAnsiPageEncoderItem();
 
 	_pEncoder->set( value );
 

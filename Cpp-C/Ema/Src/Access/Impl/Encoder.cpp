@@ -27,7 +27,7 @@ void Encoder::acquireEncIterator( UInt32 allocatedSize )
 {
 	if ( !_pEncodeIter )
 	{
-		_pEncodeIter = g_pool._encodeIteratorPool.getItem();
+		_pEncodeIter = g_pool.getEncodeIteratorItem();
 	
 		_iteratorOwner = this;
 
@@ -39,8 +39,8 @@ void Encoder::releaseEncIterator()
 {
 	if ( _pEncodeIter )
 	{
-		if ( _iteratorOwner == this && !GlobalPool::isFinalState() )
-			g_pool._encodeIteratorPool.returnItem( _pEncodeIter );
+		if ( _iteratorOwner == this )
+			g_pool.returnItem( _pEncodeIter );
 	
 		_pEncodeIter = 0;
 		_iteratorOwner = 0;

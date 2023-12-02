@@ -116,16 +116,15 @@ UpdateMsg::UpdateMsg(const UpdateMsg& other)
 
 UpdateMsg::~UpdateMsg()
 {
-	if ( _pEncoder && !GlobalPool::isFinalState() )
-		g_pool._updateMsgEncoderPool.returnItem( static_cast<UpdateMsgEncoder*>( _pEncoder ) );
+	if ( _pEncoder )
+		g_pool.returnItem( static_cast<UpdateMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
 	{
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		if ( !GlobalPool::isFinalState() )
-			g_pool._updateMsgDecoderPool.returnItem( static_cast<UpdateMsgDecoder*>( _pDecoder) );
+		g_pool.returnItem( static_cast<UpdateMsgDecoder*>( _pDecoder) );
 	}
 }
 
@@ -355,7 +354,7 @@ const EmaString& UpdateMsg::getServiceName() const
 Decoder& UpdateMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		setDecoder( g_pool._updateMsgDecoderPool.getItem() );
+		setDecoder( g_pool.getUpdateMsgDecoderItem() );
 
 	return *_pDecoder;
 }
@@ -363,7 +362,7 @@ Decoder& UpdateMsg::getDecoder()
 UpdateMsg& UpdateMsg::streamId( Int32 streamId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->streamId( streamId );
 	return *this;
@@ -379,7 +378,7 @@ UpdateMsg& UpdateMsg::domainType( UInt16 domainType )
 	}
 
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->domainType( (UInt8)domainType );
 	return *this;
@@ -388,7 +387,7 @@ UpdateMsg& UpdateMsg::domainType( UInt16 domainType )
 UpdateMsg& UpdateMsg::name( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->name( name );
 	return *this;
@@ -397,7 +396,7 @@ UpdateMsg& UpdateMsg::name( const EmaString& name )
 UpdateMsg& UpdateMsg::nameType( UInt8 nameType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->nameType( nameType );
 	return *this;
@@ -406,7 +405,7 @@ UpdateMsg& UpdateMsg::nameType( UInt8 nameType )
 UpdateMsg& UpdateMsg::serviceName( const EmaString& serviceName )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->serviceName( serviceName );
 	return *this;
@@ -415,7 +414,7 @@ UpdateMsg& UpdateMsg::serviceName( const EmaString& serviceName )
 UpdateMsg& UpdateMsg::serviceId( UInt32 serviceId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->serviceId( serviceId );
 	return *this;
@@ -424,7 +423,7 @@ UpdateMsg& UpdateMsg::serviceId( UInt32 serviceId )
 UpdateMsg& UpdateMsg::id( Int32 id )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->identifier( id );
 	return *this;
@@ -433,7 +432,7 @@ UpdateMsg& UpdateMsg::id( Int32 id )
 UpdateMsg& UpdateMsg::filter( UInt32 filter )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->filter( filter );
 	return *this;
@@ -442,7 +441,7 @@ UpdateMsg& UpdateMsg::filter( UInt32 filter )
 UpdateMsg& UpdateMsg::updateTypeNum( UInt8 updateTypeNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->updateTypeNum( updateTypeNum );
 	return *this;
@@ -451,7 +450,7 @@ UpdateMsg& UpdateMsg::updateTypeNum( UInt8 updateTypeNum )
 UpdateMsg& UpdateMsg::seqNum( UInt32 seqNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->seqNum( seqNum );
 	return *this;
@@ -460,7 +459,7 @@ UpdateMsg& UpdateMsg::seqNum( UInt32 seqNum )
 UpdateMsg& UpdateMsg::permissionData( const EmaBuffer& permissionData )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->permissionData( permissionData );
 	return *this;
@@ -469,7 +468,7 @@ UpdateMsg& UpdateMsg::permissionData( const EmaBuffer& permissionData )
 UpdateMsg& UpdateMsg::conflated( UInt16 count, UInt16 time )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->conflated( count, time );
 	return *this;
@@ -478,7 +477,7 @@ UpdateMsg& UpdateMsg::conflated( UInt16 count, UInt16 time )
 UpdateMsg& UpdateMsg::publisherId( UInt32 userId, UInt32 userAddress )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->publisherId( userId, userAddress );
 	return *this;
@@ -487,7 +486,7 @@ UpdateMsg& UpdateMsg::publisherId( UInt32 userId, UInt32 userAddress )
 UpdateMsg& UpdateMsg::attrib( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->attrib( data );
 	return *this;
@@ -496,7 +495,7 @@ UpdateMsg& UpdateMsg::attrib( const ComplexType& data )
 UpdateMsg& UpdateMsg::payload( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	_pEncoder->payload( data );
 	return *this;
@@ -505,7 +504,7 @@ UpdateMsg& UpdateMsg::payload( const ComplexType& data )
 UpdateMsg& UpdateMsg::extendedHeader( const EmaBuffer& buffer )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->extendedHeader( buffer );
 	return *this;
@@ -514,7 +513,7 @@ UpdateMsg& UpdateMsg::extendedHeader( const EmaBuffer& buffer )
 UpdateMsg& UpdateMsg::doNotCache( bool doNotCache )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->doNotCache( doNotCache );
 	return *this;
@@ -523,7 +522,7 @@ UpdateMsg& UpdateMsg::doNotCache( bool doNotCache )
 UpdateMsg& UpdateMsg::doNotConflate( bool doNotConflate )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->doNotConflate( doNotConflate );
 	return *this;
@@ -532,7 +531,7 @@ UpdateMsg& UpdateMsg::doNotConflate( bool doNotConflate )
 UpdateMsg& UpdateMsg::doNotRipple( bool doNotRipple )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._updateMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getUpdateMsgEncoderItem();
 
 	static_cast<UpdateMsgEncoder*>(_pEncoder)->doNotRipple( doNotRipple );
 	return *this;

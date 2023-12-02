@@ -92,16 +92,15 @@ PostMsg::PostMsg(const PostMsg& other)
 
 PostMsg::~PostMsg()
 {
-	if ( _pEncoder && !GlobalPool::isFinalState() )
-		g_pool._postMsgEncoderPool.returnItem( static_cast<PostMsgEncoder*>( _pEncoder ) );
+	if ( _pEncoder )
+		g_pool.returnItem( static_cast<PostMsgEncoder*>( _pEncoder ) );
 
 	if ( _pDecoder )
 	{
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		if ( !GlobalPool::isFinalState() )
-			g_pool._postMsgDecoderPool.returnItem( static_cast<PostMsgDecoder*>( _pDecoder ) );
+		g_pool.returnItem( static_cast<PostMsgDecoder*>( _pDecoder ) );
 	}
 }
 
@@ -344,7 +343,7 @@ const EmaString& PostMsg::getServiceName() const
 Decoder& PostMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		setDecoder( g_pool._postMsgDecoderPool.getItem() );
+		setDecoder( g_pool.getPostMsgDecoderItem() );
 
 	return *_pDecoder;
 }
@@ -352,7 +351,7 @@ Decoder& PostMsg::getDecoder()
 PostMsg& PostMsg::streamId( Int32 id )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->streamId( id );
 	return *this;
@@ -368,7 +367,7 @@ PostMsg& PostMsg::domainType( UInt16 domainType )
 	}
 
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->domainType( (UInt8)domainType );
 	return *this;
@@ -377,7 +376,7 @@ PostMsg& PostMsg::domainType( UInt16 domainType )
 PostMsg& PostMsg::name( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->name( name );
 	return *this;
@@ -386,7 +385,7 @@ PostMsg& PostMsg::name( const EmaString& name )
 PostMsg& PostMsg::nameType( UInt8 nameType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->nameType( nameType );
 	return *this;
@@ -395,7 +394,7 @@ PostMsg& PostMsg::nameType( UInt8 nameType )
 PostMsg& PostMsg::serviceName( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->serviceName( name );
 	return *this;
@@ -404,7 +403,7 @@ PostMsg& PostMsg::serviceName( const EmaString& name )
 PostMsg& PostMsg::serviceId( UInt32 serviceId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->serviceId( serviceId );
 	return *this;
@@ -413,7 +412,7 @@ PostMsg& PostMsg::serviceId( UInt32 serviceId )
 PostMsg& PostMsg::id( Int32 id )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->identifier( id );
 	return *this;
@@ -422,7 +421,7 @@ PostMsg& PostMsg::id( Int32 id )
 PostMsg& PostMsg::filter( UInt32 filter )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->filter( filter );
 	return *this;
@@ -431,7 +430,7 @@ PostMsg& PostMsg::filter( UInt32 filter )
 PostMsg& PostMsg::seqNum( UInt32 seqNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->seqNum( seqNum );
 	return *this;
@@ -440,7 +439,7 @@ PostMsg& PostMsg::seqNum( UInt32 seqNum )
 PostMsg& PostMsg::postId( UInt32 postId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->postId( postId );
 	return *this;
@@ -449,7 +448,7 @@ PostMsg& PostMsg::postId( UInt32 postId )
 PostMsg& PostMsg::partNum( UInt16 partNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->partNum( partNum );
 	return *this;
@@ -458,7 +457,7 @@ PostMsg& PostMsg::partNum( UInt16 partNum )
 PostMsg& PostMsg::postUserRights( UInt16 postUserRights )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->postUserRights( postUserRights );
 	return *this;
@@ -467,7 +466,7 @@ PostMsg& PostMsg::postUserRights( UInt16 postUserRights )
 PostMsg& PostMsg::permissionData( const EmaBuffer& permissionData )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->permissionData( permissionData );
 	return *this;
@@ -476,7 +475,7 @@ PostMsg& PostMsg::permissionData( const EmaBuffer& permissionData )
 PostMsg& PostMsg::publisherId( UInt32 UserId, UInt32 UserAddress )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->publisherId( UserId, UserAddress );
 	return *this;
@@ -485,7 +484,7 @@ PostMsg& PostMsg::publisherId( UInt32 UserId, UInt32 UserAddress )
 PostMsg& PostMsg::attrib( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->attrib( data );
 	return *this;
@@ -494,7 +493,7 @@ PostMsg& PostMsg::attrib( const ComplexType& data )
 PostMsg& PostMsg::payload( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	_pEncoder->payload( data );
 	return *this;
@@ -503,7 +502,7 @@ PostMsg& PostMsg::payload( const ComplexType& data )
 PostMsg& PostMsg::extendedHeader( const EmaBuffer& Buffer )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->extendedHeader( Buffer );
 	return *this;
@@ -512,7 +511,7 @@ PostMsg& PostMsg::extendedHeader( const EmaBuffer& Buffer )
 PostMsg& PostMsg::solicitAck( bool ack )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->solicitAck( ack );
 	return *this;
@@ -521,7 +520,7 @@ PostMsg& PostMsg::solicitAck( bool ack )
 PostMsg& PostMsg::complete( bool complete )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._postMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getPostMsgEncoderItem();
 
 	static_cast<PostMsgEncoder*>(_pEncoder)->complete( complete );
 	return *this;

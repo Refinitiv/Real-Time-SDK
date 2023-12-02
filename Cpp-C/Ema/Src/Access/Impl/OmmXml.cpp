@@ -26,9 +26,9 @@ OmmXml::~OmmXml()
 {
 	_pDecoder->~OmmXmlDecoder();
 
-	if ( _pEncoder && !GlobalPool::isFinalState() )
+	if ( _pEncoder )
 	{
-		g_pool._ommXmlEncoderPool.returnItem( _pEncoder );
+		g_pool.returnItem( _pEncoder );
 	}
 }
 
@@ -86,7 +86,7 @@ const EmaBuffer& OmmXml::getBuffer() const
 OmmXml& OmmXml::set( const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._ommXmlEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmXmlEncoderItem();
 
 	_pEncoder->set( value );
 
@@ -96,7 +96,7 @@ OmmXml& OmmXml::set( const EmaBuffer& value )
 OmmXml& OmmXml::set( const EmaString& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._ommXmlEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmXmlEncoderItem();
 
 	_pEncoder->set( value );
 

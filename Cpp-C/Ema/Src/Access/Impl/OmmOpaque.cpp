@@ -37,9 +37,7 @@ OmmOpaque::~OmmOpaque()
 
 	if ( _pEncoder )
 	{
-		if ( !GlobalPool::isFinalState() )
-			g_pool._ommOpaqueEncoderPool.returnItem( _pEncoder );
-		_pEncoder = 0;
+		g_pool.returnItem( _pEncoder );
 	}
 }
 
@@ -88,7 +86,7 @@ bool OmmOpaque::hasDecoder() const
 OmmOpaque& OmmOpaque::set( const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._ommOpaqueEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmOpaqueEncoderItem();
 
 	_pEncoder->set( value );
 
@@ -98,7 +96,7 @@ OmmOpaque& OmmOpaque::set( const EmaBuffer& value )
 OmmOpaque& OmmOpaque::set( const EmaString& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._ommOpaqueEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmOpaqueEncoderItem();
 
 	_pEncoder->set( value );
 
@@ -113,7 +111,7 @@ const EmaString& OmmOpaque::getString() const
 const Encoder& OmmOpaque::getEncoder() const
 {
 	if (!_pEncoder)
-		_pEncoder = g_pool._ommOpaqueEncoderPool.getItem();
+		_pEncoder = g_pool.getOmmOpaqueEncoderItem();
 
 	return *_pEncoder;
 }

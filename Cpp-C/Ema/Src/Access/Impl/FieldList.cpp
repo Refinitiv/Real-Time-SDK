@@ -28,14 +28,11 @@ FieldList::FieldList() :
 
 FieldList::~FieldList()
 {
-	if ( GlobalPool::isFinalState() )
-		return;
-
 	if ( _pEncoder ) 
-		g_pool._fieldListEncoderPool.returnItem( _pEncoder );
+		g_pool.returnItem( _pEncoder );
 
 	if ( _pDecoder )
-		g_pool._fieldListDecoderPool.returnItem( _pDecoder );
+		g_pool.returnItem( _pDecoder );
 }
 
 FieldList& FieldList::clear()
@@ -165,7 +162,7 @@ Decoder& FieldList::getDecoder()
 {
 	if ( !_pDecoder )
 	{
-		_entry._pDecoder = _pDecoder = g_pool._fieldListDecoderPool.getItem();
+		_entry._pDecoder = _pDecoder = g_pool.getFieldListDecoderItem();
 		_entry._pLoad = _pDecoder->getLoadPtr();
 	}
 
@@ -192,7 +189,7 @@ const FieldEntry& FieldList::getEntry() const
 const Encoder& FieldList::getEncoder() const
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	return *_pEncoder;
 }
@@ -200,7 +197,7 @@ const Encoder& FieldList::getEncoder() const
 FieldList& FieldList::info( Int16 dictionaryId, Int16 fieldListNum )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->info( dictionaryId, fieldListNum );
 
@@ -210,7 +207,7 @@ FieldList& FieldList::info( Int16 dictionaryId, Int16 fieldListNum )
 FieldList& FieldList::addInt( Int16 fieldId, Int64 value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addInt( fieldId, value );
 
@@ -220,7 +217,7 @@ FieldList& FieldList::addInt( Int16 fieldId, Int64 value )
 FieldList& FieldList::addUInt( Int16 fieldId, UInt64 value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addUInt( fieldId, value );
 
@@ -230,7 +227,7 @@ FieldList& FieldList::addUInt( Int16 fieldId, UInt64 value )
 FieldList& FieldList::addReal( Int16 fieldId, Int64 mantissa, OmmReal::MagnitudeType magnitudeType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addReal( fieldId, mantissa, magnitudeType );
 
@@ -241,7 +238,7 @@ FieldList& FieldList::addRealFromDouble( Int16 fieldId, double value,
 								OmmReal::MagnitudeType magnitudeType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addRealFromDouble( fieldId, value, magnitudeType );
 
@@ -251,7 +248,7 @@ FieldList& FieldList::addRealFromDouble( Int16 fieldId, double value,
 FieldList& FieldList::addFloat( Int16 fieldId, float value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addFloat( fieldId, value );
 
@@ -261,7 +258,7 @@ FieldList& FieldList::addFloat( Int16 fieldId, float value )
 FieldList& FieldList::addDouble( Int16 fieldId, double value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addDouble( fieldId, value );
 
@@ -271,7 +268,7 @@ FieldList& FieldList::addDouble( Int16 fieldId, double value )
 FieldList& FieldList::addDate( Int16 fieldId, UInt16 year, UInt8 month, UInt8 day )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addDate( fieldId, year, month, day );
 
@@ -282,7 +279,7 @@ FieldList& FieldList::addTime( Int16 fieldId, UInt8 hour, UInt8 minute, UInt8 se
 							  UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addTime( fieldId, hour, minute, second, millisecond, microsecond, nanosecond );
 
@@ -295,7 +292,7 @@ FieldList& FieldList::addDateTime( Int16 fieldId,
 						UInt16 millisecond, UInt16 microsecond, UInt16 nanosecond )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addDateTime( fieldId, year, month, day, hour, minute, second, millisecond, microsecond, nanosecond );
 
@@ -307,7 +304,7 @@ FieldList& FieldList::addQos( Int16 fieldId,
 					UInt32 rate )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addQos( fieldId, timeliness, rate );
 
@@ -321,7 +318,7 @@ FieldList& FieldList::addState( Int16 fieldId,
 					const EmaString& statusText )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addState( fieldId, streamState, dataState, statusCode, statusText );
 
@@ -331,7 +328,7 @@ FieldList& FieldList::addState( Int16 fieldId,
 FieldList& FieldList::addEnum( Int16 fieldId, UInt16 value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addEnum( fieldId, value );
 
@@ -341,7 +338,7 @@ FieldList& FieldList::addEnum( Int16 fieldId, UInt16 value )
 FieldList& FieldList::addBuffer( Int16 fieldId, const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addBuffer( fieldId, value );
 
@@ -351,7 +348,7 @@ FieldList& FieldList::addBuffer( Int16 fieldId, const EmaBuffer& value )
 FieldList& FieldList::addAscii( Int16 fieldId, const EmaString& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addAscii( fieldId, value );
 
@@ -361,7 +358,7 @@ FieldList& FieldList::addAscii( Int16 fieldId, const EmaString& value )
 FieldList& FieldList::addUtf8( Int16 fieldId, const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addUtf8( fieldId, value );
 
@@ -371,7 +368,7 @@ FieldList& FieldList::addUtf8( Int16 fieldId, const EmaBuffer& value )
 FieldList& FieldList::addRmtes( Int16 fieldId, const EmaBuffer& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addRmtes( fieldId, value );
 
@@ -381,7 +378,7 @@ FieldList& FieldList::addRmtes( Int16 fieldId, const EmaBuffer& value )
 FieldList& FieldList::addArray( Int16 fieldId, const OmmArray& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addArray( fieldId, value );
 
@@ -391,7 +388,7 @@ FieldList& FieldList::addArray( Int16 fieldId, const OmmArray& value )
 FieldList& FieldList::addElementList( Int16 fieldId, const ElementList& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addElementList( fieldId, value );
 
@@ -401,7 +398,7 @@ FieldList& FieldList::addElementList( Int16 fieldId, const ElementList& value )
 FieldList& FieldList::addFieldList( Int16 fieldId, const FieldList& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addFieldList( fieldId, value );
 
@@ -411,7 +408,7 @@ FieldList& FieldList::addFieldList( Int16 fieldId, const FieldList& value )
 FieldList& FieldList::addReqMsg( Int16 fieldId, const ReqMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addReqMsg( fieldId, value );
 
@@ -421,7 +418,7 @@ FieldList& FieldList::addReqMsg( Int16 fieldId, const ReqMsg& value )
 FieldList& FieldList::addRefreshMsg( Int16 fieldId, const RefreshMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addRefreshMsg( fieldId, value );
 
@@ -431,7 +428,7 @@ FieldList& FieldList::addRefreshMsg( Int16 fieldId, const RefreshMsg& value )
 FieldList& FieldList::addUpdateMsg( Int16 fieldId, const UpdateMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addUpdateMsg( fieldId, value );
 
@@ -441,7 +438,7 @@ FieldList& FieldList::addUpdateMsg( Int16 fieldId, const UpdateMsg& value )
 FieldList& FieldList::addStatusMsg( Int16 fieldId, const StatusMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addStatusMsg( fieldId, value );
 
@@ -451,7 +448,7 @@ FieldList& FieldList::addStatusMsg( Int16 fieldId, const StatusMsg& value )
 FieldList& FieldList::addPostMsg( Int16 fieldId, const PostMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addPostMsg( fieldId, value );
 
@@ -461,7 +458,7 @@ FieldList& FieldList::addPostMsg( Int16 fieldId, const PostMsg& value )
 FieldList& FieldList::addAckMsg( Int16 fieldId, const AckMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addAckMsg( fieldId, value );
 
@@ -471,7 +468,7 @@ FieldList& FieldList::addAckMsg( Int16 fieldId, const AckMsg& value )
 FieldList& FieldList::addGenericMsg( Int16 fieldId, const GenericMsg& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addGenericMsg( fieldId, value );
 
@@ -481,7 +478,7 @@ FieldList& FieldList::addGenericMsg( Int16 fieldId, const GenericMsg& value )
 FieldList& FieldList::addMap( Int16 fieldId, const Map& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addMap( fieldId, value );
 
@@ -491,7 +488,7 @@ FieldList& FieldList::addMap( Int16 fieldId, const Map& value )
 FieldList& FieldList::addVector( Int16 fieldId, const Vector& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addVector( fieldId, value );
 
@@ -501,7 +498,7 @@ FieldList& FieldList::addVector( Int16 fieldId, const Vector& value )
 FieldList& FieldList::addSeries( Int16 fieldId, const Series& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addSeries( fieldId, value );
 
@@ -511,7 +508,7 @@ FieldList& FieldList::addSeries( Int16 fieldId, const Series& value )
 FieldList& FieldList::addFilterList( Int16 fieldId, const FilterList& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addFilterList( fieldId, value );
 
@@ -521,7 +518,7 @@ FieldList& FieldList::addFilterList( Int16 fieldId, const FilterList& value )
 FieldList& FieldList::addOpaque( Int16 fieldId, const OmmOpaque& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addOpaque( fieldId, value );
 
@@ -531,7 +528,7 @@ FieldList& FieldList::addOpaque( Int16 fieldId, const OmmOpaque& value )
 FieldList& FieldList::addXml( Int16 fieldId, const OmmXml& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addXml( fieldId, value );
 
@@ -541,7 +538,7 @@ FieldList& FieldList::addXml( Int16 fieldId, const OmmXml& value )
 FieldList& FieldList::addAnsiPage( Int16 fieldId, const OmmAnsiPage& value )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addAnsiPage( fieldId, value );
 
@@ -551,7 +548,7 @@ FieldList& FieldList::addAnsiPage( Int16 fieldId, const OmmAnsiPage& value )
 FieldList& FieldList::addCodeInt( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeInt( fieldId );
 
@@ -561,7 +558,7 @@ FieldList& FieldList::addCodeInt( Int16 fieldId )
 FieldList& FieldList::addCodeUInt( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeUInt( fieldId );
 
@@ -571,7 +568,7 @@ FieldList& FieldList::addCodeUInt( Int16 fieldId )
 FieldList& FieldList::addCodeReal( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeReal( fieldId );
 
@@ -581,7 +578,7 @@ FieldList& FieldList::addCodeReal( Int16 fieldId )
 FieldList& FieldList::addCodeFloat( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeFloat( fieldId );
 
@@ -591,7 +588,7 @@ FieldList& FieldList::addCodeFloat( Int16 fieldId )
 FieldList& FieldList::addCodeDouble( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeDouble( fieldId );
 
@@ -601,7 +598,7 @@ FieldList& FieldList::addCodeDouble( Int16 fieldId )
 FieldList& FieldList::addCodeDate( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeDate( fieldId );
 
@@ -611,7 +608,7 @@ FieldList& FieldList::addCodeDate( Int16 fieldId )
 FieldList& FieldList::addCodeTime( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeTime( fieldId );
 
@@ -621,7 +618,7 @@ FieldList& FieldList::addCodeTime( Int16 fieldId )
 FieldList& FieldList::addCodeDateTime( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeDateTime( fieldId );
 
@@ -631,7 +628,7 @@ FieldList& FieldList::addCodeDateTime( Int16 fieldId )
 FieldList& FieldList::addCodeQos( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeQos( fieldId );
 
@@ -641,7 +638,7 @@ FieldList& FieldList::addCodeQos( Int16 fieldId )
 FieldList& FieldList::addCodeState( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeState( fieldId );
 
@@ -651,7 +648,7 @@ FieldList& FieldList::addCodeState( Int16 fieldId )
 FieldList& FieldList::addCodeEnum( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeEnum( fieldId );
 
@@ -661,7 +658,7 @@ FieldList& FieldList::addCodeEnum( Int16 fieldId )
 FieldList& FieldList::addCodeBuffer( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeBuffer( fieldId );
 
@@ -671,7 +668,7 @@ FieldList& FieldList::addCodeBuffer( Int16 fieldId )
 FieldList& FieldList::addCodeAscii( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeAscii( fieldId );
 
@@ -681,7 +678,7 @@ FieldList& FieldList::addCodeAscii( Int16 fieldId )
 FieldList& FieldList::addCodeUtf8( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeUtf8( fieldId );
 
@@ -691,7 +688,7 @@ FieldList& FieldList::addCodeUtf8( Int16 fieldId )
 FieldList& FieldList::addCodeRmtes( Int16 fieldId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->addCodeRmtes( fieldId );
 
@@ -701,7 +698,7 @@ FieldList& FieldList::addCodeRmtes( Int16 fieldId )
 const FieldList& FieldList::complete()
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+		_pEncoder = g_pool.getFieldListEncoderItem();
 
 	_pEncoder->complete();
 

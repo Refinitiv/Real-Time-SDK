@@ -88,16 +88,15 @@ StatusMsg::StatusMsg(const StatusMsg& other)
 
 StatusMsg::~StatusMsg()
 {
-	if ( _pEncoder && !GlobalPool::isFinalState() )
-		g_pool._statusMsgEncoderPool.returnItem( static_cast<StatusMsgEncoder*>( _pEncoder ) );
+	if ( _pEncoder )
+		g_pool.returnItem( static_cast<StatusMsgEncoder*>( _pEncoder ) );
 
 	if (_pDecoder)
 	{
 		// Free memory from cloning the message if any
 		MsgDecoder::deallocateCopiedBuffer(this);
 
-		if ( !GlobalPool::isFinalState() )
-			g_pool._statusMsgDecoderPool.returnItem( static_cast<StatusMsgDecoder*>( _pDecoder ) );
+		g_pool.returnItem( static_cast<StatusMsgDecoder*>( _pDecoder ) );
 	}
 }
 
@@ -307,7 +306,7 @@ const EmaString& StatusMsg::getServiceName() const
 Decoder& StatusMsg::getDecoder()
 {
 	if ( !_pDecoder )
-		setDecoder( g_pool._statusMsgDecoderPool.getItem() );
+		setDecoder( g_pool.getStatusMsgDecoderItem() );
 
 	return *_pDecoder;
 }
@@ -315,7 +314,7 @@ Decoder& StatusMsg::getDecoder()
 StatusMsg& StatusMsg::streamId( Int32 streamId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->streamId( streamId );
 	return *this;
@@ -331,7 +330,7 @@ StatusMsg& StatusMsg::domainType( UInt16 domainType )
 	}
 
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->domainType( (UInt8)domainType );
 	return *this;
@@ -340,7 +339,7 @@ StatusMsg& StatusMsg::domainType( UInt16 domainType )
 StatusMsg& StatusMsg::name( const EmaString& name )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->name( name );
 	return *this;
@@ -349,7 +348,7 @@ StatusMsg& StatusMsg::name( const EmaString& name )
 StatusMsg& StatusMsg::nameType( UInt8 nameType )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->nameType( nameType );
 	return *this;
@@ -358,7 +357,7 @@ StatusMsg& StatusMsg::nameType( UInt8 nameType )
 StatusMsg& StatusMsg::serviceName( const EmaString& serviceName )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->serviceName( serviceName );
 	return *this;
@@ -367,7 +366,7 @@ StatusMsg& StatusMsg::serviceName( const EmaString& serviceName )
 StatusMsg& StatusMsg::serviceId( UInt32 serviceId )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->serviceId( serviceId );
 	return *this;
@@ -376,7 +375,7 @@ StatusMsg& StatusMsg::serviceId( UInt32 serviceId )
 StatusMsg& StatusMsg::id( Int32 id )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->identifier( id );
 	return *this;
@@ -385,7 +384,7 @@ StatusMsg& StatusMsg::id( Int32 id )
 StatusMsg& StatusMsg::filter( UInt32 filter )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->filter( filter );
 	return *this;
@@ -395,7 +394,7 @@ StatusMsg& StatusMsg::state( OmmState::StreamState streamState, OmmState::DataSt
 						UInt8 statusCode, const EmaString& statusText )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->state( streamState, dataState, statusCode, statusText );
 	return *this;
@@ -404,7 +403,7 @@ StatusMsg& StatusMsg::state( OmmState::StreamState streamState, OmmState::DataSt
 StatusMsg& StatusMsg::itemGroup( const EmaBuffer& itemGroup )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->itemGroup( itemGroup );
 	return *this;
@@ -413,7 +412,7 @@ StatusMsg& StatusMsg::itemGroup( const EmaBuffer& itemGroup )
 StatusMsg& StatusMsg::permissionData( const EmaBuffer& permissionData )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->permissionData( permissionData );
 	return *this;
@@ -422,7 +421,7 @@ StatusMsg& StatusMsg::permissionData( const EmaBuffer& permissionData )
 StatusMsg& StatusMsg::publisherId( UInt32 userId, UInt32 userAddress )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->publisherId( userId, userAddress );
 	return *this;
@@ -431,7 +430,7 @@ StatusMsg& StatusMsg::publisherId( UInt32 userId, UInt32 userAddress )
 StatusMsg& StatusMsg::attrib( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->attrib( data );
 	return *this;
@@ -440,7 +439,7 @@ StatusMsg& StatusMsg::attrib( const ComplexType& data )
 StatusMsg& StatusMsg::payload( const ComplexType& data )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	_pEncoder->payload( data );
 	return *this;
@@ -449,7 +448,7 @@ StatusMsg& StatusMsg::payload( const ComplexType& data )
 StatusMsg& StatusMsg::extendedHeader( const EmaBuffer& buffer )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->extendedHeader( buffer );
 	return *this;
@@ -458,7 +457,7 @@ StatusMsg& StatusMsg::extendedHeader( const EmaBuffer& buffer )
 StatusMsg& StatusMsg::clearCache( bool clearCache )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->clearCache( clearCache );
 	return *this;
@@ -467,7 +466,7 @@ StatusMsg& StatusMsg::clearCache( bool clearCache )
 StatusMsg& StatusMsg::privateStream( bool privateStream )
 {
 	if ( !_pEncoder )
-		_pEncoder = g_pool._statusMsgEncoderPool.getItem();
+		_pEncoder = g_pool.getStatusMsgEncoderItem();
 
 	static_cast<StatusMsgEncoder*>(_pEncoder)->privateStream( privateStream );
 	return *this;
