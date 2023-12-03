@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.59
-!tag Build_RDMD  4.20.59
-!tag DT_Version  23.81
-!tag Date        25-Sep-2023
+!tag RT_Version  4.20.60
+!tag Build_RDMD  4.20.60
+!tag DT_Version  23.91
+!tag Date        6-Nov-2023
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -8863,6 +8863,14 @@ CLS_A_EXID 13625
    1751        "QTR"   Qatar Exchange
    1752        "CNP"   Canal De Panama
    1753        "WSV"   The Federal Waterways and Shipping Administration (WSV)
+   1754        "ILB"   Inland Barging
+   1755        "ARX"   ARTEX MTF
+   1756        "BON"   Blue Ocean ATS (BOATS)
+   1757        "EUM"   MTS EU
+   1758        "MPX"   Montenegrin Power Exchange
+   1759        "PRN"   Petronet
+   1760        "EPT"   Energy Policy and Planning Office
+   1761        "UZS"   REPUBLICAN STOCK EXCHANGE (TOSHKENT)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19055,6 +19063,7 @@ MET_TYP25  13632
     223   "IntRDn  "   InterestRateRiskDown
     224   "IntR2Up "   InterestRate2RiskUp
     225   "IntR2Dn "   InterestRate2RiskDown
+    226   "Nof_ENTI"   Number of Entities
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23113,6 +23122,7 @@ CMD_TYPE   13618
    3091   "COPPANO "   Copper Anodes
    3092   "COPPCATH"   Copper Cathodes
    3093   "SCRPSTL "   Scrap Steel
+   3094   "SPSTEELP"   Specialty Steel Products
    4000   "ABSPLAST"   Acrylonitrile Butadiene Styrene
    4001   "ACRYLONI"   Acrylonitrile
    4002   "ALPHMETH"   Alpha-Methylstyrene (Commodity)

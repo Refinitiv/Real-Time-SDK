@@ -237,7 +237,7 @@ The Transport API provides a helpful script that will create soft links for the 
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.71 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.60_RealTimeDistributionSystem_23.91 for RWF and Marketfeed Record Templates
 
 # Security
 

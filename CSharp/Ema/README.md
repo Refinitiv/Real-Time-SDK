@@ -80,7 +80,7 @@ In addtion, HTML documentation is available in CSharp/Ema/Docs. For additional d
     EU ECCN: None
     Export Code: NL
     Security Compliance: Refinitiv Security Compliant
-    Template Version Supported: v4.20.59_RealTimeDistributionSystem_23.81 for RWF and Marketfeed Record Templates
+    Template Version Supported: v4.20.60_RealTimeDistributionSystem_23.91 for RWF and Marketfeed Record Templates
 
 # Security
 

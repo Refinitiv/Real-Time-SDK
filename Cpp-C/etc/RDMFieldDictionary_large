@@ -4,14 +4,14 @@
 ! Refinitiv. Refinitiv may update or remove this document
 ! at any time without notice.
 !
-!   Version	 4.20.59_RealTimeDistributionSystem_23.71		08/21/2023
-!	* Modified 08/21/2023 at Oak Brook:
-!     - This file is a based on RWF.DAT from RDMD V4.20.59.
+!   Version	 4.20.60_RealTimeDistributionSystem_23.91		11/06/2023
+!	* Modified 11/06/2023 at Oak Brook:
+!     - This file is a based on RWF.DAT from RDMD V4.20.60.
 !
 !   RDM Field Dictionary
 !   --------------------
 !
-!   Version: 4.20.59_RealTimeDistributionSystem
+!   Version: 4.20.60_RealTimeDistributionSystem
 !
 !   This file contains a complete list of acronyms used in Field Lists
 !   and, for each acronym, gives:
@@ -29,9 +29,9 @@
 !tag Filename  RWF.DAT
 !tag Desc      RDF-D RWF field set
 !tag Type      1
-!tag Version   4.20.59
-!tag Build     2
-!tag Date      31-Jul-2023
+!tag Version   4.20.60
+!tag Build     1
+!tag Date      16-Oct-2023
 !tag DictionaryId 1
 !
 !ACRONYM    DDE ACRONYM          FID  RIPPLES TO  FIELD TYPE     LENGTH  RWF TYPE   RWF LEN
@@ -9705,7 +9705,8 @@ NO_ASK_DIS "NUM ASK ORDER DISP"  3843  NULL        INTEGER            15  REAL64
 !
 NO_ASK_TOT "NUM ASK ORDS TOTAL"  3844  NULL        INTEGER            15  REAL64           9
 !
-! Total number of ask orders displayed (full depth)
+! The total number of Ask orders on the order book.  This field should only be used 
+! when the orderbook summary information is provided natively in the feed.
 !
 NO_BID_DIS "NUM BID ORDER DISP"  3845  NULL        INTEGER            15  REAL64           9
 !
@@ -9713,7 +9714,8 @@ NO_BID_DIS "NUM BID ORDER DISP"  3845  NULL        INTEGER            15  REAL64
 !
 NO_BID_TOT "NUM BID ORDS TOTAL"  3846  NULL        INTEGER            15  REAL64           9
 !
-! Total number of bid orders displayed (full depth)
+! The total number of Bid orders on the order book.  This field should only be used 
+! when the orderbook summary information is provided natively in the feed.
 !
 NUM_MKOASK "NUM MKT ORDER ASK"   3847  NULL        INTEGER            15  REAL64           9
 !
@@ -17831,11 +17833,13 @@ ASK_NDS_OR "ASK NON DISP ORDS"   6534  NULL        INTEGER            15   INT64
 !
 BID_SZ_TTL "BID SIZE TOTAL"      6535  NULL        INTEGER            15   INT64           8
 !
-! The total quantity of shares on the Bid Side MBP book
+! The total quantity of shares on the Bid Side of the order book.    This field should 
+! only be used when the orderbook summary information is provided natively in the feed.
 !
 ASK_SZ_TTL "ASK SIZE TOTAL"      6536  NULL        INTEGER            15   INT64           8
 !
-! The total quantity of shares on the Ask Side MBP book
+! The total quantity of shares on the Ask Side of the order book.    This field should 
+! only be used when the orderbook summary information is provided natively in the feed.
 !
 BID_SZ_DSP "BID SIZE DISPLAYED"  6537  NULL        INTEGER            15   INT64           8
 !
@@ -26573,7 +26577,10 @@ HSTCL2_TDT "SECOND CLS TRD DT"   9318  NULL        DATE               11  DATE  
 !
 ! Trade Execution date of the secondary close price as held in HST_CLOSE2.
 !
-PRE_DT208  "PRED DATE 208"       9319  NULL        DATE               11  DATE             4
+IV_UPDT_DT "IMP VOLT UPDATE DT"  9319  NULL        DATE               11  DATE             4
+!
+! Update date of Implied Volatility.
+!
 PRE_DT209  "PRED DATE 209"       9320  NULL        DATE               11  DATE             4
 !
 ! TBD
@@ -26885,7 +26892,10 @@ ADJ_CLS_DT "ADJUSTED CLS DATE"   9404  NULL        DATE               11  DATE  
 !
 ! Date associated with the field ADJUST_CLS (#1465)
 !
-PRE_DT294  "PRED DATE 294"       9405  NULL        DATE               11  DATE             4
+SRC2_ES_DT "SRC2 EGRESS DATE"    9405  NULL        DATE               11  DATE             4
+!
+! Publication date from the secondary source.
+!
 PRE_DT295  "PRED DATE 295"       9406  NULL        DATE               11  DATE             4
 PRE_DT296  "PRED DATE 296"       9407  NULL        DATE               11  DATE             4
 PRE_DT297  "PRED DATE 297"       9408  NULL        DATE               11  DATE             4
@@ -31823,11 +31833,11 @@ CBNK_TG_RT "CENBK TGT RATE"     11063  NULL        PRICE              17  REAL64
 !
 MIR_IMP_RT "IMP RATE MIR SHFT"  11064  NULL        PRICE              17  REAL64           9
 !
-! Implied rate of a minor rate shift.
+! The implied rate of a minor upward, downward, or no rate shift.
 !
 MAJ_IMP_RT "IMP RATE MAR SHFT"  11065  NULL        PRICE              17  REAL64           9
 !
-! Implied rate of a major rate shift.
+! The implied rate of a major upward, upward, or no rate shift.
 !
 HIGH_1_VOL "TODAY'S HIGH VOL"   11066  HIGH_2_VOL  PRICE              17  REAL64           9
 !
@@ -31950,15 +31960,15 @@ FR_SRREMPC "SUB REG HLD RM PCT" 11094  NULL        PRICE              17  REAL64
 !
 VAL_0000   "VALUE SNAP 0000"    11095  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0000 hour snap
+! Value of the 0000 hour snap.
 !
 VAL_0030   "VALUE SNAP 0030"    11096  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0030 hour snap
+! Value of the 0030 hour snap.
 !
 VAL_0100   "VALUE SNAP 0100"    11097  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0100 hour snap
+! Value of the 0100 hour snap.
 !
 VAL_0130   "VALUE SNAP 0130"    11098  NULL        PRICE              17  REAL64           9
 !
@@ -31966,183 +31976,192 @@ VAL_0130   "VALUE SNAP 0130"    11098  NULL        PRICE              17  REAL64
 !
 VAL_0200   "VALUE SNAP 0200"    11099  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0200 hour snap
+! Value of the 0200 hour snap.
 !
 VAL_0230   "VALUE SNAP 0230"    11100  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0230 hour snap
+! Value of the 0230 hour snap.
 !
 VAL_0300   "VALUE SNAP 0300"    11101  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0300 hour snap
+! Value of the 0300 hour snap.
 !
 VAL_0330   "VALUE SNAP 0330"    11102  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0330 hour snap
+! Value of the 0330 hour snap.
 !
 VAL_0400   "VALUE SNAP 0400"    11103  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0400 hour snap
+! Value of the 0400 hour snap.
 !
 VAL_0430   "VALUE SNAP 0430"    11104  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0430 hour snap
+! Value of the 0430 hour snap.
 !
 VAL_0500   "VALUE SNAP 0500"    11105  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0500 hour snap
+! Value of the 0500 hour snap.
 !
 VAL_0530   "VALUE SNAP 0530"    11106  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0530 hour snap
+! Value of the 0530 hour snap.
 !
 VAL_0600   "VALUE SNAP 0600"    11107  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0600 hour snap
+! Value of the 0600 hour snap.
 !
 VAL_0630   "VALUE SNAP 0630"    11108  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0630 hour snap
+! Value of the 0630 hour snap.
 !
 VAL_0700   "VALUE SNAP 0700"    11109  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0700 hour snap
+! Value of the 0700 hour snap.
 !
 VAL_0730   "VALUE SNAP 0730"    11110  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0730 hour snap
+! Value of the 0730 hour snap.
 !
 VAL_0800   "VALUE SNAP 0800"    11111  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0800 hour snap
+! Value of the 0800 hour snap.
 !
 VAL_0830   "VALUE SNAP 0830"    11112  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0830 hour snap
+! Value of the 0830 hour snap.
 !
 VAL_0900   "VALUE SNAP 0900"    11113  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0900 hour snap
+! Value of the 0900 hour snap.
 !
 VAL_0930   "VALUE SNAP 0930"    11114  NULL        PRICE              17  REAL64           9
 !
-! Value of the 0930 hour snap
+! Value of the 0930 hour snap.
 !
 VAL_1000   "VALUE SNAP 1000"    11115  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1000 hour snap
+! Value of the 1000 hour snap.
 !
 VAL_1030   "VALUE SNAP 1030"    11116  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1030 hour snap
+! Value of the 1030 hour snap.
 !
 VAL_1100   "VALUE SNAP 1100"    11117  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1100 hour snap
+! Value of the 1100 hour snap.
 !
 VAL_1130   "VALUE SNAP 1130"    11118  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1130 hour snap
+! Value of the 1130 hour snap.
 !
 VAL_1200   "VALUE SNAP 1200"    11119  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1200 hour snap
+! Value of the 1200 hour snap.
 !
 VAL_1230   "VALUE SNAP 1230"    11120  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1230 hour snap
+! Value of the 1230 hour snap.
 !
 VAL_1300   "VALUE SNAP 1300"    11121  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1300 hour snap
+! Value of the 1300 hour snap.
 !
 VAL_1330   "VALUE SNAP 1330"    11122  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1330 hour snap
+! Value of the 1330 hour snap.
 !
 VAL_1400   "VALUE SNAP 1400"    11123  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1400 hour snap
+! Value of the 1400 hour snap.
 !
 VAL_1430   "VALUE SNAP 1430"    11124  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1430 hour snap
+! Value of the 1430 hour snap.
 !
 VAL_1500   "VALUE SNAP 1500"    11125  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1500 hour snap
+! Value of the 1500 hour snap.
 !
 VAL_1530   "VALUE SNAP 1530"    11126  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1530 hour snap
+! Value of the 1530 hour snap.
 !
 VAL_1600   "VALUE SNAP 1600"    11127  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1600 hour snap
+! Value of the 1600 hour snap.
 !
 VAL_1630   "VALUE SNAP 1630"    11128  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1630 hour snap
+! Value of the 1630 hour snap.
 !
 VAL_1700   "VALUE SNAP 1700"    11129  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1700 hour snap
+! Value of the 1700 hour snap.
 !
 VAL_1730   "VALUE SNAP 1730"    11130  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1730 hour snap
+! Value of the 1730 hour snap.
 !
 VAL_1800   "VALUE SNAP 1800"    11131  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1800 hour snap
+! Value of the 1800 hour snap.
 !
 VAL_1830   "VALUE SNAP 1830"    11132  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1830 hour snap
+! Value of the 1830 hour snap.
 !
 VAL_1900   "VALUE SNAP 1900"    11133  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1900 hour snap
+! Value of the 1900 hour snap.
 !
 VAL_1930   "VALUE SNAP 1930"    11134  NULL        PRICE              17  REAL64           9
 !
-! Value of the 1930 hour snap
+! Value of the 1930 hour snap.
 !
 VAL_2000   "VALUE SNAP 2000"    11135  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2000 hour snap
+! Value of the 2000 hour snap.
 !
 VAL_2030   "VALUE SNAP 2030"    11136  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2030 hour snap
+! Value of the 2030 hour snap.
 !
 VAL_2100   "VALUE SNAP 2100"    11137  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2100 hour snap
+! Value of the 2100 hour snap.
 !
 VAL_2130   "VALUE SNAP 2130"    11138  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2130 hour snap
+! Value of the 2130 hour snap.
 !
 VAL_2200   "VALUE SNAP 2200"    11139  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2200 hour snap
+! Value of the 2200 hour snap.
 !
 VAL_2230   "VALUE SNAP 2230"    11140  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2230 hour snap
+! Value of the 2230 hour snap.
 !
 VAL_2300   "VALUE SNAP 2300"    11141  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2300 hour snap
+! Value of the 2300 hour snap.
 !
 VAL_2330   "VALUE SNAP 2330"    11142  NULL        PRICE              17  REAL64           9
 !
-! Value of the 2330 hour snap
+! Value of the 2330 hour snap.
 !
-PRERL2152  "PRED REAL 2152"     11143  NULL        PRICE              17  REAL64           9
-PRERL2153  "PRED REAL 2153"     11144  NULL        PRICE              17  REAL64           9
-PRERL2154  "PRED REAL 2154"     11145  NULL        PRICE              17  REAL64           9
+RTN_GP_1D  "1D GRS PRC RTN"     11143  NULL        PRICE              17  REAL64           9
+!
+! 1D Gross Price Return.
+!
+SESS_VWAP3 "SESS VWAP3"         11144  NULL        PRICE              17  REAL64           9
+!
+! Session VWAP for the third session.
+!
+DIV_ADJ    "DIV ADJUSTMENT"     11145  NULL        PRICE              17  REAL64           9
+!
+! Dividend adjustment.
+!
 PRERL2155  "PRED REAL 2155"     11146  NULL        PRICE              17  REAL64           9
 PRERL2156  "PRED REAL 2156"     11147  NULL        PRICE              17  REAL64           9
 PRERL2157  "PRED REAL 2157"     11148  NULL        PRICE              17  REAL64           9
@@ -39103,7 +39122,10 @@ ALT_CLS_NS "ALT CLS TM NS"      14708  NULL        INTEGER            15  TIME  
 !
 ! The timestamp associated with ALT_CLOSE.
 !
-PRE_279_NS "PRED TIME NS 279"   14709  NULL        INTEGER            15  TIME             8
+SRC2_ES_NS "SRC2 EGRESS TM NS"  14709  NULL        INTEGER            15  TIME             8
+!
+! Publication time from the secondary source.
+!
 PRE_280_NS "PRED TIME NS 280"   14710  NULL        INTEGER            15  TIME             8
 PRE_281_NS "PRED TIME NS 281"   14711  NULL        INTEGER            15  TIME             8
 PRE_282_NS "PRED TIME NS 282"   14712  NULL        INTEGER            15  TIME             8
@@ -39748,7 +39770,10 @@ MRGN_P_VAL "MRGN POS VAL"       15229  NULL        PRICE              17  REAL64
 !
 ! Total value of the outstanding margin buy positions.
 !
-PRE_LRL161 "PRED LRG REAL 161"  15230  NULL        PRICE              17  REAL64           9
+MTHLY_VAL  "TTL MONTHLY VALUE"  15230  NULL        PRICE              17  REAL64           9
+!
+! Monthly total trading value.
+!
 PRE_LRL162 "PRED LRG REAL 162"  15231  NULL        PRICE              17  REAL64           9
 PRE_LRL163 "PRED LRG REAL 163"  15232  NULL        PRICE              17  REAL64           9
 PRE_LRL164 "PRED LRG REAL 164"  15233  NULL        PRICE              17  REAL64           9
@@ -40193,6 +40218,10 @@ STRIPRLEG1 "STRIKE PRC LEG 1"   15468  NULL        ALPHANUMERIC       20  RMTES_
 STRIPRLEG2 "STRIKE PRC LEG 2"   15469  NULL        ALPHANUMERIC       20  RMTES_STRING    20
 !
 ! Strike price Leg 2
+!
+AFF_EMAIL  "AFFIRMED EMAIL"     15485  NULL        ALPHANUMERIC      256  RMTES_STRING   256
+!
+! Affirmed Email
 !
 FIX_PCTL1  "FIX PCTL 1"         29450  NULL        PRICE              17  REAL64           9
 !

@@ -9,10 +9,10 @@
 !
 !tag Filename    ENUMTYPE.001
 !tag Desc        IDN Marketstream enumerated tables
-!tag RT_Version  4.20.59
-!tag Build_RDMD  4.20.59
-!tag DT_Version  23.71
-!tag Date        21-Aug-2023
+!tag RT_Version  4.20.60
+!tag Build_RDMD  4.20.60
+!tag DT_Version  23.91
+!tag Date        6-Nov-2023
 !tag DictionaryId 1
 !
 ! This file contains all the enumerated types used by the head-end
@@ -620,18 +620,18 @@ SETT_CCY   13620
     998        "USS"   US dollar (same day)
     999        "XXX"   Code assigned for no currency transactions
    2000        "tst"   Test
-   2001        "AUc"   Australian cents ****
-   2002        "CAc"   Canadian cents ****
-   2003        "HKc"   Hong Kong cents ****
-   2004        "IEp"   Irish pence ****
-   2005        "MYc"   Malaysian cents ****
-   2006        "NZc"   New Zealand cents ****
-   2007        "SGc"   Singapore cents ****
-   2008        "GBp"   UK pence sterling ****
-   2009        "USc"   US cents ****
-   2010        "ZAc"   South African cents ****
-   2011        "ZWc"   Zimbabwe cents
-   2012        "EUc"   The Euro minor currency, the cent
+   2001        "AUc"   Australian Cent
+   2002        "CAc"   Canadian Cent
+   2003        "HKc"   Hong Kong Cent
+   2004        "IEp"   Irish Penny
+   2005        "MYc"   Malaysian Sen
+   2006        "NZc"   New Zealand Cent
+   2007        "SGc"   Singapore Cent
+   2008        "GBp"   British Penny
+   2009        "USc"   US Cent
+   2010        "ZAc"   South African Cent
+   2011        "ZWc"   Zimbabwe Cent
+   2012        "EUc"   Euro Cent
    2013        "NAc"   Namibian cent
    2014        "ILa"   Israeli Agora
    2015        "RUB"   Russian Rouble
@@ -4276,6 +4276,7 @@ CAN_COND    6585
   32765        "NEG"   Put through trade
   32766        "DRK"   Trade on Dark Book
   32767        "AOD"   Auction on Demand
+  32768        "DLT"   Delta Trade At Market
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -8336,7 +8337,7 @@ CLS_A_EXID 13625
    1225        "LPP"   London Platinum & Palladium Market (LPP)
    1226        "GCP"   ICAP FI
    1227        "TFA"   Tokyo Financial Exchange
-   1228        "ALX"   Alpha Exchange
+   1228        "ALX"   TMX ALPHA-X
    1229        "TXD"   DELAYED S&P/TSX INDICES
    1230        "UNL"   Unlisted
    1231        "OND"   NASDAQ OMX NORDIC DELAYED (DATAFEEDS ONLY)
@@ -8745,7 +8746,7 @@ CLS_A_EXID 13625
    1634        "BXI"   INDIA INTERNATIONAL EXCHANGE (IFSC) LTD
    1635        "CEE"   CHINA EMISSION EXCHANGE
    1636        "SIU"   SIGMA-X EU
-   1637        "NXI"   NSE IFSC Ltd
+   1637        "NXI"   NSE International Exchange (NSE IX)
    1638        "PSV"   PRICESTREAM
    1639        "ING"   National Institute of Statistics, Geography and Informatics (INEGI)
    1640        "GNG"   GINGA PETROLEUM
@@ -8857,6 +8858,19 @@ CLS_A_EXID 13625
    1746        "TSJ"   Trade Statistics of Japan.
    1747        "ALE"   Albanian Power Exchange
    1748        "CAX"   Container xChange
+   1749        "MMO"   MEMO LTD SKOPJE
+   1750        "ALD"   TMX ALPHA-DARK
+   1751        "QTR"   Qatar Exchange
+   1752        "CNP"   Canal De Panama
+   1753        "WSV"   The Federal Waterways and Shipping Administration (WSV)
+   1754        "ILB"   Inland Barging
+   1755        "ARX"   ARTEX MTF
+   1756        "BON"   Blue Ocean ATS (BOATS)
+   1757        "EUM"   MTS EU
+   1758        "MPX"   Montenegrin Power Exchange
+   1759        "PRN"   Petronet
+   1760        "EPT"   Energy Policy and Planning Office
+   1761        "UZS"   REPUBLICAN STOCK EXCHANGE (TOSHKENT)
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -17322,6 +17336,7 @@ ROUTE_INDX 12977
     102   "TD23    "   ME Gulf- Medi(Crude)
     103   " P6_82  "   Panamax Singapore round voyage via Atlantic
     104   "HTC     "   Handysize Time Charter Average
+    105   "TC23-TCE"   Clean ARA to UK-Cont
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -19044,6 +19059,11 @@ MET_TYP25  13632
     219   "WTRL19  "   Water Level at 19:00
     220   "$/T     "   US Dollars per Tonne
     221   "$/mmBTU "   US Dollars per Million British Thermal Units
+    222   "IntRUp  "   InterestRateRiskUp
+    223   "IntRDn  "   InterestRateRiskDown
+    224   "IntR2Up "   InterestRate2RiskUp
+    225   "IntR2Dn "   InterestRate2RiskDown
+    226   "Nof_ENTI"   Number of Entities
 !
 ! ACRONYM    FID
 ! -------    ---
@@ -23102,6 +23122,7 @@ CMD_TYPE   13618
    3091   "COPPANO "   Copper Anodes
    3092   "COPPCATH"   Copper Cathodes
    3093   "SCRPSTL "   Scrap Steel
+   3094   "SPSTEELP"   Specialty Steel Products
    4000   "ABSPLAST"   Acrylonitrile Butadiene Styrene
    4001   "ACRYLONI"   Acrylonitrile
    4002   "ALPHMETH"   Alpha-Methylstyrene (Commodity)
@@ -23306,6 +23327,8 @@ PRIMACT_TP 13621
      41   "CON FCST"   Consumption Forecast
      42   "VOL HC  "   Volume Headcount
      43   "AVG WGHT"   Avg Weight
+     44   "CRUSHVOL"   Crushings (volume)
+     45   "CRUSHCAP"   Crushings (Capacity Utilisation %)
 !
 ! ACRONYM    FID
 ! -------    ---
