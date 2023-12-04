@@ -142,11 +142,11 @@
 #define SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL	0x01  /*!< Indicates that host set though EMA interface function calls for RSSL_SOCKET connection type */
 #define SOCKET_SERVER_PORT_CONFIG_BY_FUNCTION_CALL	0x02  /*!< Indicates that server listen port set though EMA interface function call from server client*/
 #define PROXY_HOST_CONFIG_BY_FUNCTION_CALL 0x04  /*!< Indicates that tunneling proxy host set though EMA interface function calls */
-#define PROXY_PORT_CONFIG_BY_FUNCTION_CALL 0x08  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define PROXY_PORT_CONFIG_BY_FUNCTION_CALL 0x08  /*!< Indicates that tunneling proxy port set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 #define TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL 0x10  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
-#define PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL 0x20  /*!< Indicates that tunneling proxy host set though EMA interface function calls */
-#define PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 0x40  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
-#define PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 0x80  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL 0x20  /*!< Indicates that tunneling proxy user name set though EMA interface function calls */
+#define PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 0x40  /*!< Indicates that tunneling proxy password set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+#define PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 0x80  /*!< Indicates that tunneling proxy domain set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 
 namespace refinitiv {
 
@@ -565,6 +565,12 @@ public:
 	AdminReqMsg*			pRsslRdmFldRequestMsg;
 	AdminReqMsg*			pRsslEnumDefRequestMsg;
 	AdminRefreshMsg*		pDirectoryRefreshMsg;
+
+	EmaString				restProxyHostName;
+	EmaString				restProxyPort;
+	EmaString				restProxyUserName;
+	EmaString				restProxyPasswd;
+	EmaString				restProxyDomain;
 
 protected:
 

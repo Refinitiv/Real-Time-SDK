@@ -67,6 +67,8 @@
 			<JsonTokenIncrementSize value="999992"/>
 			<SendJsonConvError value="1"/>
 			<ShouldInitializeCPUIDlib value="0"/>
+			<RestProxyHostName value="restproxylocalhost"/>
+			<RestProxyPort value="9028"/>
 		</Consumer>
 		<Consumer>
 			<Name value="Consumer_3"/>

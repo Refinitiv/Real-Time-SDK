@@ -1282,6 +1282,13 @@ public:
 
 	void protocolList(const EmaString& protocolList);
 
+	void restProxyHostName(const EmaString&);
+	void restProxyPort(const EmaString&);
+	void restProxyUserName(const EmaString&);
+	void restProxyPasswd(const EmaString&);
+	void restProxyDomain(const EmaString&);
+
+
 	RsslRDMLoginRequest* getLoginReq();
 
 	RsslRequestMsg* getDirectoryReq();
@@ -1391,6 +1398,31 @@ public:
 		return ((void*)NULL);
 	}
 
+	const EmaString& getUserSpecifiedRestProxyHostname() const
+	{
+		return _restProxyHostnameSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedRestProxyPort() const
+	{
+		return _restProxyPortSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedRestProxyUserName() const
+	{
+		return _restProxyUserNameSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedRestProxyPasswd() const
+	{
+		return _restProxyPasswdSetViaFunctionCall;
+	}
+
+	const EmaString& getUserSpecifiedRestProxyDomain() const
+	{
+		return _restProxyDomainSetViaFunctionCall;
+	}
+
 protected:
 
 	LoginRdmReqMsgImpl			_loginRdmReqMsg;
@@ -1430,6 +1462,12 @@ protected:
 	EmaString		_tokenServiceUrlV2;
 	EmaString		_serviceDiscoveryUrl;
 	EmaString		_libcurlName;
+
+	EmaString		_restProxyHostnameSetViaFunctionCall;
+	EmaString		_restProxyPortSetViaFunctionCall;
+	EmaString		_restProxyUserNameSetViaFunctionCall;
+	EmaString		_restProxyPasswdSetViaFunctionCall;
+	EmaString		_restProxyDomainSetViaFunctionCall;
 
 	EmaVector < OmmOAuth2CredentialImpl* > _oAuth2Credentials;
 

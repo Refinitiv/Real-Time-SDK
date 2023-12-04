@@ -661,6 +661,12 @@ void EmaActiveConfigTest::ActiveConfigTestDefaultValues(ActiveConfig & activeCon
 	EXPECT_EQ(activeConfig.reissueTokenAttemptLimit, DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT);
 	EXPECT_EQ(activeConfig.reissueTokenAttemptInterval, DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL);
 	EXPECT_EQ(activeConfig.restRequestTimeOut, DEFAULT_REST_REQUEST_TIMEOUT);
+
+	EXPECT_TRUE(activeConfig.restProxyHostName.empty());
+	EXPECT_TRUE(activeConfig.restProxyPort.empty());
+	EXPECT_TRUE(activeConfig.restProxyUserName.empty());
+	EXPECT_TRUE(activeConfig.restProxyPasswd.empty());
+	EXPECT_TRUE(activeConfig.restProxyDomain.empty());
 }
 
 TEST_F(EmaActiveConfigTest, ActiveConfigTest)
@@ -772,6 +778,12 @@ TEST_F(EmaActiveConfigTest, ActiveConfigTest)
 	activeConfig.reissueTokenAttemptLimit = 57;
 	activeConfig.reissueTokenAttemptInterval = 57;
 	activeConfig.restRequestTimeOut = 57;
+
+	activeConfig.restProxyHostName = "non def restProxyHostName";
+	activeConfig.restProxyPort = "non def restProxyHostPort";
+	activeConfig.restProxyUserName = "non def restProxyUserName";
+	activeConfig.restProxyPasswd = "non def restProxyPasswd";
+	activeConfig.restProxyDomain = "non def restProxyDomain";
 
 	// Tests clear method
 	activeConfig.clear();

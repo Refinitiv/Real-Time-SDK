@@ -395,6 +395,42 @@ public :
         @return reference to this object.
     */
 	OmmConsumerConfig& dataDictionary(const refinitiv::ema::rdm::DataDictionary& dataDictionary, bool shouldCopyIntoAPI = false);
+
+	/** Specifies the address or host name of the proxy server for Rest requests: service discovery and auth token service.
+		@param[in] restProxyHostName specifies the address or host name of the proxy server for Rest requests.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& restProxyHostName(const EmaString& restProxyHostName);
+
+	/** Specifies the port number of the proxy server for Rest requests: service discovery and auth token service.
+		@param[in] restProxyPort specifies the port number of the proxy server for Rest requests.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& restProxyPort(const EmaString& restProxyPort);
+
+	/** Specifies the user name to authenticate to the proxy server for Rest requests. Needed for all authentication protocols.
+		@param[in] restProxyUserName specifies user name for the proxy server authentication for Rest requests.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& restProxyUserName(const EmaString& restProxyUserName);
+
+	/** Specifies the passwd to authenticate to the proxy server for Rest requests. Needed for all authentication protocols.
+		@param[in] restProxyPasswd specifies password for the proxy server authentication for Rest requests.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& restProxyPasswd(const EmaString& restProxyPasswd);
+
+	/** Specifies the domain of the user to authenticate to the proxy server for Rest requests: service discovery and auth token service.
+		Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols.
+
+		For Negotiate/Kerberos or for Kerberos authentication protocols, restProxyDomain
+		should be the same as the domain in the 'realms' and 'domain_realm' sections of
+		the Kerberos configuration file.
+
+		@param[in] restProxyDomain specifies the domain used for the proxy server authentication for Rest requests.
+		@return reference to this object
+	*/
+	OmmConsumerConfig& restProxyDomain(const EmaString& restProxyDomain);
 	//@}
 
 private :

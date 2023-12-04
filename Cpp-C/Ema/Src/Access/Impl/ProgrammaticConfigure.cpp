@@ -1074,6 +1074,14 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.restLogFileName = eentry.getAscii();
 												}
+												else if (eentry.getName() == "RestProxyHostName")
+												{
+													activeConfig.restProxyHostName = eentry.getAscii();
+												}
+												else if (eentry.getName() == "RestProxyPort")
+												{
+													activeConfig.restProxyPort = eentry.getAscii();
+												}
 												break;
 
 											case DataType::UIntEnum:

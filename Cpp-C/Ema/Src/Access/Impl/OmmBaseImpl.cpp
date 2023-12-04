@@ -860,6 +860,39 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 			_activeConfig.shouldInitializeCPUIDlib = tmp > 0 ? true : false;
 	}
 
+	if (pConfigImpl->getUserSpecifiedRestProxyHostname().length() > 0)
+	{
+		_activeConfig.restProxyHostName = pConfigImpl->getUserSpecifiedRestProxyHostname();
+	}
+	else
+	{
+		pConfigImpl->get<EmaString>(instanceNodeName + "RestProxyHostName", _activeConfig.restProxyHostName);
+	}
+
+	if (pConfigImpl->getUserSpecifiedRestProxyPort().length() > 0)
+	{
+		_activeConfig.restProxyPort = pConfigImpl->getUserSpecifiedRestProxyPort();
+	}
+	else
+	{
+		pConfigImpl->get<EmaString>(instanceNodeName + "RestProxyPort", _activeConfig.restProxyPort);
+	}
+
+	if (pConfigImpl->getUserSpecifiedRestProxyUserName().length() > 0)
+	{
+		_activeConfig.restProxyUserName = pConfigImpl->getUserSpecifiedRestProxyUserName();
+	}
+
+	if (pConfigImpl->getUserSpecifiedRestProxyPasswd().length() > 0)
+	{
+		_activeConfig.restProxyPasswd = pConfigImpl->getUserSpecifiedRestProxyPasswd();
+	}
+
+	if (pConfigImpl->getUserSpecifiedRestProxyDomain().length() > 0)
+	{
+		_activeConfig.restProxyDomain = pConfigImpl->getUserSpecifiedRestProxyDomain();
+	}
+
 	Int64 tmp1;
 	
 	if (pConfigImpl->get<Int64>(instanceNodeName + "MaxEventsInPool", tmp1))
@@ -2249,7 +2282,7 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 			reactorOpts.restLogOutputStream = fopen(_activeConfig.restLogFileName, "w");
 			if (!reactorOpts.restLogOutputStream)
 			{
-				EmaString temp("Failed to open spesified file: ");
+				EmaString temp("Failed to open specified file: ");
 				temp.append(_activeConfig.restLogFileName);
 				throwIueException(temp, OmmInvalidUsageException::InternalErrorEnum);
 			}
@@ -2265,6 +2298,31 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 		{
 			reactorOpts.cpuBindWorkerThread.length = configImpl->getCpuWorkerThreadBind().length();
 			reactorOpts.cpuBindWorkerThread.data = (char*)configImpl->getCpuWorkerThreadBind().c_str();
+		}
+
+		if ( !_activeConfig.restProxyHostName.empty() )
+		{
+			reactorOpts.restProxyOptions.proxyHostName = (char*)_activeConfig.restProxyHostName.c_str();
+		}
+
+		if ( !_activeConfig.restProxyPort.empty() )
+		{
+			reactorOpts.restProxyOptions.proxyPort = (char*)_activeConfig.restProxyPort.c_str();
+		}
+
+		if ( !_activeConfig.restProxyUserName.empty() )
+		{
+			reactorOpts.restProxyOptions.proxyUserName = (char*)_activeConfig.restProxyUserName.c_str();
+		}
+
+		if ( !_activeConfig.restProxyPasswd.empty() )
+		{
+			reactorOpts.restProxyOptions.proxyPasswd = (char*)_activeConfig.restProxyPasswd.c_str();
+		}
+
+		if ( !_activeConfig.restProxyDomain.empty() )
+		{
+			reactorOpts.restProxyOptions.proxyDomain = (char*)_activeConfig.restProxyDomain.c_str();
 		}
 
 		reactorOpts.userSpecPtr = ( void* )this;

@@ -128,6 +128,9 @@ Series100Consumer112-PConfig-001
     Alters consumer to specify programatic config for parameters related to EncryptedType connection: 
     Host,Port,ProxyHost,ProxyPort and ObjectName
 
+Module:  Series100Consumer113
+-----------------------------
+
 Series100Consumer113-ConsFunc-001
    Alters consumer added addition arguments -tokenServiceUrl and -serviceDiscoveryUrl to set config.tokenServiceUrl or config.serviceDiscoveryUrl. 
    
@@ -141,6 +144,13 @@ Series100Consumer113-RestLogCallback-001
    -restLogCallback: Enable REST logging callback.
    -restLogFilename: File name for printing the REST logging messages.
    ./Cons113 -username <> -password <> -clientId <> -restLogCallback -restLogFilename "filename.log"
+
+Series100Consumer113-RestProxy-001
+   Alters consumer to test proxy connection for Rest requests.
+   Added command line options for check "functional" way:
+   -restProxyHost, -restProxyPort, -restProxyUserName, -restProxyPasswd, -restProxyDomain.
+   Added command line options for check "programmatic" way:
+   -prestProxyHost, -prestProxyPort.
 
 Module:  Series100Consumer140
 -----------------------------

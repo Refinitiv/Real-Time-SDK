@@ -361,7 +361,12 @@ ActiveConfig::ActiveConfig( const EmaString& defaultServiceName ) :
 	dictionaryConfig(),
 	reissueTokenAttemptLimit(DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT),
 	reissueTokenAttemptInterval(DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL),
-	restRequestTimeOut(DEFAULT_REST_REQUEST_TIMEOUT)
+	restRequestTimeOut(DEFAULT_REST_REQUEST_TIMEOUT),
+	restProxyHostName(),
+	restProxyPort(),
+	restProxyUserName(),
+	restProxyPasswd(),
+	restProxyDomain()
 {
 }
 
@@ -388,7 +393,11 @@ EmaString ActiveConfig::configTrace()
 		.append("\n\t loginRequestTimeOut : ").append(loginRequestTimeOut)
 		.append("\n\t reissueTokenAttemptLimit : ").append(reissueTokenAttemptLimit)
 		.append("\n\t reissueTokenAttemptInterval : ").append(reissueTokenAttemptInterval)
-		.append("\n\t restRequestTimeOut : ").append(restRequestTimeOut);
+		.append("\n\t restRequestTimeOut : ").append(restRequestTimeOut)
+		.append("\n\t restProxyHostName : ").append(restProxyHostName)
+		.append("\n\t restProxyPort : ").append(restProxyPort)
+		.append("\n\t restProxyDomain : ").append(restProxyDomain);
+
 	return traceStr;
 }
 
@@ -461,6 +470,11 @@ void ActiveConfig::clear()
 	reissueTokenAttemptLimit = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 	reissueTokenAttemptInterval = DEFAULT_REISSUE_TOKEN_ATTEMP_INTERVAL;
 	restRequestTimeOut = DEFAULT_REST_REQUEST_TIMEOUT;
+	restProxyHostName.clear();
+	restProxyPort.clear();
+	restProxyUserName.clear();
+	restProxyPasswd.clear();
+	restProxyDomain.clear();
 
 	if ( pDirectoryRefreshMsg )
 		delete pDirectoryRefreshMsg;

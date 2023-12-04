@@ -211,6 +211,10 @@ TEST_F(EmaConfigTest, testLoadingConfigurationsFromFile)
 	EXPECT_TRUE(debugResult && uintValue == 999992) << "extracting JsonTokenIncrementSize from EmaConfig.xml";
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|ShouldInitializeCPUIDlib", uintValue);
 	EXPECT_TRUE(debugResult && uintValue == 0) << "extracting ShouldInitializeCPUIDlib from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|RestProxyHostName", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "restproxylocalhost") << "extracting RestProxyHostName name from EmaConfig.xml";
+	debugResult = config.get<EmaString>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|RestProxyPort", retrievedValue);
+	EXPECT_TRUE(debugResult && retrievedValue == "9028") << "extracting RestProxyPort name from EmaConfig.xml";
 
 	/*Check sendJsonConvError in Consumer group*/
 	debugResult = config.get<UInt64>("ConsumerGroup|ConsumerList|Consumer.Consumer_2|SendJsonConvError", uintValue);
@@ -534,6 +538,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
 			.addUInt("XmlTraceHex", 1)
+			.addAscii("RestProxyHostName", "restProxySrv1")
+			.addAscii("RestProxyPort", "39918")
 			.addUInt("MaxDispatchCountUserThread", 700).complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap);
@@ -637,6 +643,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfigHttp)
 		EXPECT_TRUE( activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE( activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 		EXPECT_TRUE( activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
+		EXPECT_TRUE( activeConfig.restProxyHostName == "restProxySrv1" ) << "restProxyHostName == \"restProxySrv1\"";
+		EXPECT_TRUE( activeConfig.restProxyPort == "39918" ) << "restProxyPort == \"39918\"";
 		EXPECT_TRUE( activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 8000) << "guaranteedOutputBuffers , 8000";
@@ -1086,6 +1094,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 			.addUInt("XmlTraceRead", 1)
 			.addUInt("XmlTracePing", 1)
 			.addUInt("XmlTraceHex", 1)
+			.addAscii("RestProxyHostName", "restProxySrv11")
+			.addAscii("RestProxyPort", "39919")
 			.addUInt("MsgKeyInUpdates", 1)
 			.addInt("ReconnectAttemptLimit", 10)
 			.addInt("ReconnectMinDelay", 4444)
@@ -1204,6 +1214,8 @@ TEST_F(EmaConfigTest, testLoadingCfgFromProgrammaticConfig)
 		EXPECT_TRUE(activeConfig.xmlTraceRead == 1) << "xmlTraceRead , 1";
 		EXPECT_TRUE(activeConfig.xmlTracePing == 1) << "xmlTracePing , 1";
 		EXPECT_TRUE(activeConfig.xmlTraceHex == 1) << "xmlTraceHex , 1";
+		EXPECT_TRUE(activeConfig.restProxyHostName == "restProxySrv11") << "restProxyHostName == \"restProxySrv11\"";
+		EXPECT_TRUE(activeConfig.restProxyPort == "39919") << "restProxyPort == \"39919\"";
 		EXPECT_TRUE(activeConfig.msgKeyInUpdates == 1) << "msgKeyInUpdates , 1";
 		EXPECT_TRUE(activeConfig.pipePort == 13650) << "pipePort , 13650";
 		EXPECT_TRUE(activeConfig.tokenReissueRatio == 0.55) << "tokenReissueRatio , 0.55";
@@ -1616,7 +1628,10 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addInt("PipePort", 9696)
 			.addDouble("TokenReissueRatio", 0.90)
 			.addInt("ReissueTokenAttemptLimit",20)
-			.addInt("ReissueTokenAttemptInterval", 15000).complete()).complete();
+			.addInt("ReissueTokenAttemptInterval", 15000)
+			.addAscii("RestProxyHostName", "restProxyNonLocalHost")
+			.addAscii("RestProxyPort", "9083")
+			.complete()).complete();
 
 		elementList.addMap("ConsumerList", innerMap).complete();
 		innerMap.clear();
@@ -1722,6 +1737,8 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( activeConfig.tokenReissueRatio == 0.90) << "tokenReissueRatio , 0.90";
 		EXPECT_TRUE( activeConfig.reissueTokenAttemptLimit == 20) << "reissueTokenAttemptLimit , 20";
 		EXPECT_TRUE( activeConfig.reissueTokenAttemptInterval == 15000) << "reissueTokenAttemptInterval , 15000";
+		EXPECT_TRUE( activeConfig.restProxyHostName == "restProxyNonLocalHost" ) << "restProxyHostName , \"restProxyNonLocalHost\"";
+		EXPECT_TRUE( activeConfig.restProxyPort == "9083" ) << "restProxyPort , \"9083\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->interfaceName == "localhost" ) << "interfaceName , \"localhost\"";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->compressionType == 2) << "compressionType , 2";
 		EXPECT_TRUE( activeConfig.configChannelSet[0]->guaranteedOutputBuffers == 7000) << "guaranteedOutputBuffers , 7000";
@@ -2257,6 +2274,8 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 					.addAscii("Channel", "Channel_6")
 					.addAscii("Logger", "Logger_1")
 					.addAscii("Dictionary", "Dictionary_1")
+					.addAscii("RestProxyHostName", "ProgrammaticRestProxyHostName")
+					.addAscii("RestProxyPort", "9898")
 					.complete())
 					.complete();
 			}
@@ -2345,10 +2364,16 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 			if (testCase == 0)
 			{
 				consumerConfig.config(outermostMap).host("localhostFC:14022");
+				consumerConfig.restProxyHostName("aaa.proxyrest.srv").restProxyPort("12099");
+				consumerConfig.restProxyUserName("uname.proxyrest").restProxyPasswd("upasswd");
+				consumerConfig.restProxyDomain("rest.proxy.domain");
 			}
 			else if (testCase == 1)
 			{
 				consumerConfig.config(outermostMap).tunnelingProxyHostName("proxyHost").tunnelingProxyPort("14032").tunnelingObjectName("objectName");
+				consumerConfig.restProxyHostName("bbb.proxyrest.srv").restProxyPort("12399");
+				consumerConfig.restProxyUserName("uname1.proxyrest").restProxyPasswd("upasswd1");
+				consumerConfig.restProxyDomain("rest.proxy1.domain");
 			}
 
 			OmmConsumerImpl ommConsumerImpl(consumerConfig, true);
@@ -2368,6 +2393,12 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyHostName == "proxyhost2") << "Proxy hostname , \"proxyhost2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyPort == "proxyport2") << "Proxy port , \"proxyport2\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->proxyConnectionTimeout == 22) << "proxyConnectionTimeout , 22";
+
+				EXPECT_TRUE(activeConfig.restProxyHostName == "aaa.proxyrest.srv") << "restProxyHostName " << activeConfig.restProxyHostName;
+				EXPECT_TRUE(activeConfig.restProxyPort == "12099") << "restProxyPort " << activeConfig.restProxyPort;
+				EXPECT_TRUE(activeConfig.restProxyUserName == "uname.proxyrest") << "restProxyUserName " << activeConfig.restProxyUserName;
+				EXPECT_TRUE(activeConfig.restProxyPasswd == "upasswd") << "restProxyPasswd " << activeConfig.restProxyPasswd;
+				EXPECT_TRUE(activeConfig.restProxyDomain == "rest.proxy.domain") << "restProxyDomain " << activeConfig.restProxyDomain;
 			}
 			else if (testCase == 1)
 			{
@@ -2381,6 +2412,12 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->hostName == "localhost") << "hostname , \"localhost\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->serviceName == "14009") << "serviceName , \"14009\"";
 				EXPECT_TRUE((static_cast<SocketChannelConfig*>(activeConfig.configChannelSet[0]))->tcpNodelay == 0) << "tcpNodelay , 0";
+
+				EXPECT_TRUE(activeConfig.restProxyHostName == "ProgrammaticRestProxyHostName") << "restProxyHostName " << activeConfig.restProxyHostName;
+				EXPECT_TRUE(activeConfig.restProxyPort == "9898") << "restProxyPort " << activeConfig.restProxyPort;
+				EXPECT_TRUE(activeConfig.restProxyUserName == "uname1.proxyrest") << "restProxyUserName " << activeConfig.restProxyUserName;
+				EXPECT_TRUE(activeConfig.restProxyPasswd == "upasswd1") << "restProxyPasswd " << activeConfig.restProxyPasswd;
+				EXPECT_TRUE(activeConfig.restProxyDomain == "rest.proxy1.domain") << "restProxyDomain " << activeConfig.restProxyDomain;
 			}
 
 			EXPECT_TRUE(activeConfig.loggerConfig.loggerName == "Logger_1") << "Logger name , \"Logger_1\"";
@@ -2389,7 +2426,7 @@ TEST_F(EmaConfigTest, testMergCfgBetweenFunctionCallAndFileAndProgrammatic)
 		catch (const OmmException& excp)
 		{
 			std::cout << "Caught unexpected exception!!!" << std::endl << excp << std::endl;
-			EXPECT_TRUE(false) << "Unexpected exception in testProgCfgChannelAfterChannelSet()";
+			EXPECT_TRUE(false) << "Unexpected exception in testMergCfgBetweenFunctionCallAndFileAndProgrammatic()";
 		}
 	}
 }

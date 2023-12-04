@@ -298,3 +298,33 @@ OmmConsumerConfig& OmmConsumerConfig::dataDictionary(const refinitiv::ema::rdm::
 	_pImpl->dataDictionary(dataDictionary, shouldCopyIntoAPI);
 	return *this;
 }
+
+OmmConsumerConfig& OmmConsumerConfig::restProxyHostName(const EmaString& restProxyHostName)
+{
+	_pImpl->restProxyHostName(restProxyHostName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::restProxyPort(const EmaString& restProxyPort)
+{
+	_pImpl->restProxyPort(restProxyPort);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::restProxyUserName(const EmaString& restProxyUserName)
+{
+	_pImpl->restProxyUserName(restProxyUserName);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::restProxyPasswd(const EmaString& restProxyPasswd)
+{
+	_pImpl->restProxyPasswd(restProxyPasswd);
+	return *this;
+}
+
+OmmConsumerConfig& OmmConsumerConfig::restProxyDomain(const EmaString& restProxyDomain)
+{
+	_pImpl->restProxyDomain(restProxyDomain);
+	return *this;
+}

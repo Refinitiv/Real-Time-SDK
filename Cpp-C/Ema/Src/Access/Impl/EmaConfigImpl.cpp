@@ -894,6 +894,11 @@ void EmaConfigImpl::clear()
 	_tokenServiceUrlV1.clear();
 	_tokenServiceUrlV2.clear();
 	_serviceDiscoveryUrl.clear();
+	_proxyHostnameSetViaFunctionCall.clear();
+	_proxyPortSetViaFunctionCall.clear();
+	_proxyUserNameSetViaFunctionCall.clear();
+	_proxyPasswdSetViaFunctionCall.clear();
+	_proxyDomainSetViaFunctionCall.clear();
 }
 
 void EmaConfigImpl::username( const EmaString& username )
@@ -1374,6 +1379,47 @@ void EmaConfigImpl::addLoginMsgCredential(const ReqMsg& reqMsg, const EmaString&
 
 	_LoginRequestMsgs.push_back(newCredential);
 }
+
+void EmaConfigImpl::restProxyHostName(const EmaString& restProxyHostName)
+{
+	if (restProxyHostName.length())
+		_restProxyHostnameSetViaFunctionCall = restProxyHostName;
+	else
+		_restProxyHostnameSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::restProxyPort(const EmaString& restProxyPort)
+{
+	if (restProxyPort.length())
+		_restProxyPortSetViaFunctionCall = restProxyPort;
+	else
+		_restProxyPortSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::restProxyUserName(const EmaString& restProxyUserName)
+{
+	if (restProxyUserName.length())
+		_restProxyUserNameSetViaFunctionCall = restProxyUserName;
+	else
+		_restProxyUserNameSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::restProxyPasswd(const EmaString& restProxyPasswd)
+{
+	if (restProxyPasswd.length())
+		_restProxyPasswdSetViaFunctionCall = restProxyPasswd;
+	else
+		_restProxyPasswdSetViaFunctionCall = "";
+}
+
+void EmaConfigImpl::restProxyDomain(const EmaString& restProxyDomain)
+{
+	if (restProxyDomain.length())
+		_restProxyDomainSetViaFunctionCall = restProxyDomain;
+	else
+		_restProxyDomainSetViaFunctionCall = "";
+}
+
 
 EmaConfigServerImpl::EmaConfigServerImpl( const EmaString & path ) :
 	EmaConfigBaseImpl( path ),

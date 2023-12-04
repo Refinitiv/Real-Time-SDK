@@ -45,6 +45,8 @@ refinitiv::ema::access::EmaString AsciiValues[] = {
 	"ProxyHost",
 	"ProxyPort",
 	"Rate",
+	"RestProxyHostName",
+	"RestProxyPort",
 	"RdmFieldDictionaryFileName",
 	"RdmFieldDictionaryItemName",
 	"RecvAddress",
