@@ -1655,6 +1655,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 			.addUInt("TcpNodelay", 1)
 			.addUInt("InitializationTimeout", 77) // Overried the 55 value defined in the config file
 			.addUInt("DirectWrite", 1)
+			.addUInt("EnableSessionManagement", 0) // Override the 1 value defined in the config file as the OAuth credential is required by the session mgnt.
 			.complete()).complete();
 
 		elementList.addMap("ChannelList", innerMap).complete();
@@ -1753,6 +1754,7 @@ TEST_F(EmaConfigTest, testMergingConfigBetweenFileAndProgrammaticConfig)
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->serviceName == "14002" ) << "SocketChannelConfig::serviceName , \"14002\"";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->tcpNodelay == 1) << "SocketChannelConfig::tcpNodelay , 1";
 		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->initializationTimeout == 77) << "SocketChannelConfig::initializationTimeout , 77";
+		EXPECT_TRUE( static_cast<SocketChannelConfig* >( activeConfig.configChannelSet[0] )->enableSessionMgnt == 0) << "SocketChannelConfig::enableSessionMgnt , 0";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerType == OmmLoggerClient::FileEnum) << "loggerType = OmmLoggerClient::FileEnum";
 		EXPECT_TRUE( activeConfig.loggerConfig.loggerFileName == "ConfigDB2_logFile" ) << "loggerFileName = \"ConfigDB2_logFile\"";
 		EXPECT_TRUE( activeConfig.loggerConfig.minLoggerSeverity == OmmLoggerClient::NoLogMsgEnum) << "minLoggerSeverity = OmmLoggerClient::NoLogMsgEnum";
