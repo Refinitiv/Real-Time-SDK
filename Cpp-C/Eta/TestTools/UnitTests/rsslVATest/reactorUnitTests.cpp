@@ -450,7 +450,7 @@ protected:
 		{
 			rsslClearReactorConnectInfo(&_reactorConnectInfo[i]);
 			_reactorConnectInfo[i].rsslConnectOptions.majorVersion = RSSL_RWF_MAJOR_VERSION;
-			_reactorConnectInfo[i].rsslConnectOptions.majorVersion = RSSL_RWF_MINOR_VERSION;
+			_reactorConnectInfo[i].rsslConnectOptions.minorVersion = RSSL_RWF_MINOR_VERSION;
 			_reactorConnectInfo[i].rsslConnectOptions.tcp_nodelay = RSSL_TRUE;
 			_reactorConnectInfo[i].rsslConnectOptions.encryptionOpts.encryptedProtocol = RSSL_CONN_TYPE_SOCKET;
 
