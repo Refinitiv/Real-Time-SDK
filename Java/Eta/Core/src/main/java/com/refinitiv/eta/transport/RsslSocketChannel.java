@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectableChannel;
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.refinitiv.eta.codec.Codec;
@@ -697,6 +698,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                 ((ChannelInfoImpl)info)._receivedComponentInfoList = _channelInfo._receivedComponentInfoList;
                 ((ChannelInfoImpl)info).clientIP(_channelInfo._clientIP);
                 ((ChannelInfoImpl)info).clientHostname(_channelInfo.clientHostname());
+                ((ChannelInfoImpl)info).securityProtocol(_channelInfo.securityProtocol());
             }
             else
             {
@@ -2856,6 +2858,7 @@ class RsslSocketChannel extends EtaNode implements Channel
         
         if(opts.connectionType() == ConnectionTypes.ENCRYPTED) {
         	_encryptionProtocol = opts.encryptionOptions().connectionType();
+            _channelInfo._securityProtocol = opts.encryptionOptions().SecurityProtocol();
         }
         
         wSocketOpts = opts.wSocketOpts();
@@ -3294,6 +3297,11 @@ class RsslSocketChannel extends EtaNode implements Channel
             s.append(_channelInfo._clientHostname);
             s.append("\n\tpingTimeout: ");
             s.append(_channelInfo._pingTimeout);
+            if (_channelInfo._securityProtocol != null && _channelInfo.securityProtocol().length() > 0)
+            {
+                s.append("\n\tsecurityProtocol: ");
+                s.append(_channelInfo._securityProtocol);
+            }
         }
         s.append("\n\tmajorVersion: ");
         s.append(_majorVersion);
@@ -3588,7 +3596,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                 _channelInfo._compressionType = _cachedConnectOptions.compressionType();
                 _channelInfo._guaranteedOutputBuffers = _cachedConnectOptions.guaranteedOutputBuffers();
                 _channelInfo._numInputBuffers = _cachedConnectOptions.numInputBuffers();
-
+                _channelInfo._securityProtocol = _scktChannel.getActiveTLSVersion();
                 _internalMaxFragmentSize = (int)getWsSession().getWebSocketOpts().maxMsgSize() + RIPC_HDR_SIZE + _WS_MAX_HEADER_LEN;
 
                 _appReadBuffer = new TransportBufferImpl(_internalMaxFragmentSize);
@@ -3631,7 +3639,7 @@ class RsslSocketChannel extends EtaNode implements Channel
                 /* allocate buffers to this channel */
                 growGuaranteedOutputBuffers(_server.bindOptions().guaranteedOutputBuffers());
                 _channelInfo._maxFragmentSize = bindOptionsImpl.jsonMaxFragmentSize() - RIPC_PACKED_HDR_SIZE;
-
+                _channelInfo._securityProtocol = _scktChannel.getActiveTLSVersion();
                 /* create read/write buffer pools */
                 createReadBuffers(_channelInfo._numInputBuffers);
 
@@ -3801,6 +3809,7 @@ class RsslSocketChannel extends EtaNode implements Channel
             _channelInfo._clientToServerPings = (((protocolOptions._serverSessionFlags & Ripc.SessionFlags.CLIENT_TO_SERVER_PING) == 1) ? true : false);
             _channelInfo._serverToClientPings = (((protocolOptions._serverSessionFlags & Ripc.SessionFlags.SERVER_TO_CLIENT_PING) == 2) ? true : false);
             _channelInfo._compressionType = protocolOptions._sessionCompType;
+            _channelInfo._securityProtocol = _scktChannel.getActiveTLSVersion();
             _sessionCompLevel = protocolOptions._sessionCompLevel;
             _sessionInDecompress = protocolOptions._sessionInDecompress;
             _sessionOutCompression = protocolOptions._sessionOutCompression;
@@ -4178,6 +4187,9 @@ class RsslSocketChannel extends EtaNode implements Channel
         /* received Component Version Information */
         _channelInfo._receivedComponentInfoList = protocolOptions._receivedComponentVersionList;
 
+        /* get TLS version of active connection */
+        _channelInfo._securityProtocol = _scktChannel.getActiveTLSVersion();
+        
         /* create read/write buffer pools */
         createReadBuffers(_channelInfo._numInputBuffers);
 

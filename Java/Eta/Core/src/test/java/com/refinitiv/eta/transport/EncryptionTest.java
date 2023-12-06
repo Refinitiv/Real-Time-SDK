@@ -321,6 +321,7 @@ public class EncryptionTest {
             connectOptions.encryptionOptions().TrustManagerAlgorithm("");
             connectOptions.encryptionOptions().KeyManagerAlgorithm("SunX509");
             connectOptions.encryptionOptions().SecurityProtocol("TLS");
+            connectOptions.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
             connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
             connectOptions.tunnelingInfo().tunnelingType("None");
             connectOptions.unifiedNetworkInfo().address("localhost");

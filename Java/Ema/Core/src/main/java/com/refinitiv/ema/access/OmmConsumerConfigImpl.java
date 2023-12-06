@@ -392,6 +392,13 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		encryptionCfg().SecurityProtocol = securityProtocol;
 		return this;
 	}
+	
+	@Override
+	public OmmConsumerConfig tunnelingSecurityProtocolVersions(String[] securityProtocolVersions)
+	{
+		encryptionCfg().SecurityProtocolVersions = securityProtocolVersions;
+		return this;
+	}
 
 	@Override
 	public OmmConsumerConfig tunnelingSecurityProvider(String securityProvider)

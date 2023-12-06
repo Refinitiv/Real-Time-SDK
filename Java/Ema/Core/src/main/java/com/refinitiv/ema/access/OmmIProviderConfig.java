@@ -162,6 +162,15 @@ public interface OmmIProviderConfig extends OmmProviderConfig
 	 */
 	public OmmIProviderConfig securityProtocol(String securityProtocol);
 	
+    /**
+	 * The Cryptographic protocol versions to be used. RTSDK default is {"1.3" , "1.2"} for the default protocol "TLS"
+	 * which will go to the latest one supported by the JDK version in use.
+	 *  
+	 * @param securityProtocolVersions specifies a cryptographic protocol versions list to use for the connection.
+	 * @return reference to this object
+	 */
+    public OmmIProviderConfig securityProtocolVersions(String[] securityProtocolVersions); 
+	
 	/**
 	 * Specifies the security provider type for the configured server.
 	 * This is optional, and the default behavior is set to "SunJSSE".

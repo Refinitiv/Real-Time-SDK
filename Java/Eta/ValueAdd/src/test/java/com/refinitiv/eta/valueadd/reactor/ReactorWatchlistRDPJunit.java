@@ -415,6 +415,7 @@ public class ReactorWatchlistRDPJunit
 
 			connectInfo.connectOptions().encryptionOptions().KeystoreType("JKS");
 			connectInfo.connectOptions().encryptionOptions().SecurityProtocol("TLS");
+			connectInfo.connectOptions().encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
 			connectInfo.connectOptions().encryptionOptions().SecurityProvider("SunJSSE");
 			connectInfo.connectOptions().encryptionOptions().KeyManagerAlgorithm("SunX509");
 			connectInfo.connectOptions().encryptionOptions().TrustManagerAlgorithm("PKIX");

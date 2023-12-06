@@ -20,6 +20,7 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	private String _keystorePasswd;
 	private String _keystoreType;
 	private String _securityProtocol;
+	private String[] _securityProtocolVersions;
 	private String _securityProvider;
 	private String _keyManagerAlgorithm;
 	private String _trustManagerAlgorithm;
@@ -57,6 +58,7 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 		_keystoreFile = null;
 		_keystorePasswd = null;
 		_securityProtocol = null;
+		_securityProtocolVersions = null;
 		_securityProvider = null;
 		_keyManagerAlgorithm = null;
 		_trustManagerAlgorithm = null;
@@ -257,6 +259,18 @@ class OmmIProviderConfigImpl extends EmaConfigServerImpl implements OmmIProvider
 	public String securityProtocol()
 	{
 		return _securityProtocol;
+	}
+	
+	@Override
+	public OmmIProviderConfig securityProtocolVersions(String[] securityProtocolVersions)
+	{
+		_securityProtocolVersions = securityProtocolVersions;
+		return this;
+	}
+	
+	public String[] securityProtocolVersions()
+	{
+		return _securityProtocolVersions;
 	}
 	
 	@Override

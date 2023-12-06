@@ -2036,7 +2036,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 		}
 
 		options.encryptionOptions().KeystoreType("JKS");
-		options.encryptionOptions().SecurityProtocol("TLS");
+		options.encryptionOptions().SecurityProtocol(consumerCmdLineParser.securityProtocol());
+		if (consumerCmdLineParser.securityProtocolVersions() != null && 
+				consumerCmdLineParser.securityProtocolVersions().length() > 0)
+		{
+			options.encryptionOptions().SecurityProtocolVersions(consumerCmdLineParser.securityProtocolVersions().split(","));
+		}
 		options.encryptionOptions().SecurityProvider("SunJSSE");
 		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		options.encryptionOptions().TrustManagerAlgorithm("PKIX");

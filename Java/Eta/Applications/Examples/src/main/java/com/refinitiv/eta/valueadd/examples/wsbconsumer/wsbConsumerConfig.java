@@ -663,6 +663,7 @@ public class wsbConsumerConfig
 		
 		options.encryptionOptions().KeystoreType("JKS");
 		options.encryptionOptions().SecurityProtocol("TLS");
+		options.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
 		options.encryptionOptions().SecurityProvider("SunJSSE");
 		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		options.encryptionOptions().TrustManagerAlgorithm("PKIX");

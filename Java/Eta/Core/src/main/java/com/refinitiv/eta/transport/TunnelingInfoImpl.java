@@ -1,5 +1,7 @@
 package com.refinitiv.eta.transport;
 
+import java.util.Arrays;
+
 class TunnelingInfoImpl implements TunnelingInfo
 {
     private String _tunnelingType;
@@ -12,6 +14,7 @@ class TunnelingInfoImpl implements TunnelingInfo
     private String _KeystorePasswd;
     private String _SecurityProtocol;
     private String _SecurityProvider;
+    private String[] _SecurityProtocolVersions;
     private String _KeyManagerAlgorithm;
     private String _TrustManagerAlgorithm;
     
@@ -20,6 +23,7 @@ class TunnelingInfoImpl implements TunnelingInfo
     private String _defaultObjectName = new String("");
     private String _defaultKeystoreType = new String("JKS");
     private String _defaultSecurityProtocol = new String("TLS");
+    private String[] _defaultSecurityProtocolVersions = {"1.3" , "1.2"};
     private String _defaultSecurityProvider = new String("SunJSSE");
     private String _defaultKeyManagerAlgorithm = new String("SunX509");
     private String _defaultTrustManagerAlgorithm = new String("PKIX");
@@ -34,6 +38,7 @@ class TunnelingInfoImpl implements TunnelingInfo
         // Sun JDK defaults
         _KeystoreType = _defaultKeystoreType;
         _SecurityProtocol = _defaultSecurityProtocol;
+        _SecurityProtocolVersions = _defaultSecurityProtocolVersions;
         _SecurityProvider = _defaultSecurityProvider;
         _KeyManagerAlgorithm = _defaultKeyManagerAlgorithm;
         _TrustManagerAlgorithm = _defaultTrustManagerAlgorithm;
@@ -83,6 +88,17 @@ class TunnelingInfoImpl implements TunnelingInfo
             destTunneling._SecurityProtocol = new String(_SecurityProtocol);
         else
             destTunneling._SecurityProtocol = null;
+        
+        if (_SecurityProtocolVersions != null)
+        {
+            destTunneling._SecurityProtocolVersions = new String[_SecurityProtocolVersions.length];	
+            for (int i = 0; i < _SecurityProtocolVersions.length; ++i)
+            {
+            	destTunneling._SecurityProtocolVersions[i] = new String(_SecurityProtocolVersions[i]);
+            }
+        }
+        else
+            destTunneling._SecurityProtocolVersions = null;
 
         if (_SecurityProvider != null)
             destTunneling._SecurityProvider = new String(_SecurityProvider);
@@ -113,6 +129,7 @@ class TunnelingInfoImpl implements TunnelingInfo
                "\t\t\tKeystoreFile: " + _KeystoreFile + "\n" + 
                "\t\t\tKeystorePasswd: " + _KeystorePasswd + "\n" + 
                "\t\t\tSecurityProtocol: " + _SecurityProtocol + "\n" + 
+               "\t\t\tSecurityProtocolVersions: " + Arrays.toString(_SecurityProtocolVersions) + "\n" + 
                "\t\t\tSecurityProvider: " + _SecurityProvider + "\n" + 
                "\t\t\tKeyManagerAlgorithm: " + _KeyManagerAlgorithm + "\n" + 
                "\t\t\tTrustManagerAlgorithm: " + _TrustManagerAlgorithm + "\n";
@@ -238,6 +255,20 @@ class TunnelingInfoImpl implements TunnelingInfo
     public String SecurityProtocol()
     {
         return _SecurityProtocol;
+    }
+    
+    @Override
+    public void SecurityProtocolVersions(String[] SecurityProtocolVersions)
+    {
+        assert (SecurityProtocolVersions != null) : "SecurityProtocolVersions must be non-null";
+
+        _SecurityProtocolVersions = SecurityProtocolVersions;
+    }
+
+    @Override
+    public String[] SecurityProtocolVersions()
+    {
+        return _SecurityProtocolVersions;
     }
 
     @Override

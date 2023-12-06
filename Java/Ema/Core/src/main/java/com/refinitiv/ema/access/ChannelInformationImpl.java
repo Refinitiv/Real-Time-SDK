@@ -26,7 +26,7 @@ class ChannelInformationImpl implements ChannelInformation
 	public ChannelInformationImpl(String componentInfo, String hostname, String ipAddress, int state,
 			int connectionType, int protocolType, int encryptedConnectionType, int majorVersion, int minorVersion, int pingTimeout,
 			int maxFragmentSize, int maxOutputBuffers, int guaranteedOutputBuffers, int numInputBuffers,
-			int sysSendBufSize, int sysRecvBufSize, int compressionType, int compressionThreshold) {
+			int sysSendBufSize, int sysRecvBufSize, int compressionType, int compressionThreshold, String securityProtocol) {
 		this._componentInfo = componentInfo;
 		this._hostname = hostname;
 		this._ipAddress = ipAddress;
@@ -45,6 +45,7 @@ class ChannelInformationImpl implements ChannelInformation
 		this._sysRecvBufSize = sysRecvBufSize;
 		this._compressionType = compressionType;
 		this._compressionThreshold = compressionThreshold;
+		this._securityProtocol = securityProtocol;
 	}
 
 	public ChannelInformationImpl(ReactorChannel channel) {
@@ -68,6 +69,7 @@ class ChannelInformationImpl implements ChannelInformation
 		_compressionType = 0;
 		_compressionThreshold = 0;
 		_encryptedConnectionType = -1;
+		_securityProtocol = null;
 	}
 
 	public void set(ReactorChannel reactorChannel) {
@@ -102,6 +104,7 @@ class ChannelInformationImpl implements ChannelInformation
 				_sysRecvBufSize = rci.channelInfo().sysRecvBufSize();
 				_compressionType = rci.channelInfo().compressionType();
 				_compressionThreshold = rci.channelInfo().compressionThreshold();
+				_securityProtocol = rci.channelInfo().securityProtocol();
 			}
 		}
 
@@ -197,6 +200,8 @@ class ChannelInformationImpl implements ChannelInformation
 		}
 		
 		_stringBuilder.append("\n\tcompression threshold: " + _compressionThreshold);
+		
+		_stringBuilder.append("\n\tsecurity protocol: " + _securityProtocol);
 		
 		return _stringBuilder.toString();
 	}
@@ -332,6 +337,7 @@ class ChannelInformationImpl implements ChannelInformation
 	private int _compressionType;
 	private int _compressionThreshold;
 	private int _encryptedConnectionType;
+	private String _securityProtocol;
 	
 	private StringBuilder _stringBuilder = new StringBuilder();
 	
@@ -423,5 +429,17 @@ class ChannelInformationImpl implements ChannelInformation
 	@Override
 	public void encryptedConnectionType(int encryptedConnectionType) {
 		_encryptedConnectionType = encryptedConnectionType;
+	}
+	
+	@Override
+	public String securityProtocol()
+	{
+		return _securityProtocol;
+	}
+	
+	@Override
+	public void securityProtocol(String securityProtocol)
+	{
+		_securityProtocol = securityProtocol;
 	}
 }

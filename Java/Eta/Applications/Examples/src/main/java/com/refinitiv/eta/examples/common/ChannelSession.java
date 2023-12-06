@@ -850,6 +850,10 @@ public class ChannelSession
             copts.encryptionOptions().KeystorePasswd(connectOptions.encryptionOptions().KeystorePasswd());
         }
         copts.encryptionOptions().SecurityProtocol(connectOptions.encryptionOptions().SecurityProtocol());
+        if (connectOptions.encryptionOptions().SecurityProtocolVersions() != null)
+        {
+        	copts.encryptionOptions().SecurityProtocolVersions(connectOptions.encryptionOptions().SecurityProtocolVersions());
+        }
         copts.encryptionOptions().SecurityProvider(connectOptions.encryptionOptions().SecurityProvider());
         copts.encryptionOptions().KeyManagerAlgorithm(connectOptions.encryptionOptions().KeyManagerAlgorithm());
         copts.encryptionOptions().TrustManagerAlgorithm(connectOptions.encryptionOptions().TrustManagerAlgorithm());

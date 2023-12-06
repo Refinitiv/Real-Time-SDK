@@ -13,6 +13,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -237,6 +238,8 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
         {
             System.out.println("keyfile: " + providerCmdLineParser.keyfile());
             System.out.println("keypasswd: " + providerCmdLineParser.keypasswd());
+            System.out.println("securityProtocol: " + providerCmdLineParser.securityProtocol());
+            System.out.println("securityProtocolVersions: " + Arrays.toString(providerCmdLineParser.securityProtocolVersions()));
         }
 
         // load dictionary
@@ -299,6 +302,8 @@ public class Provider implements ProviderCallback, TunnelStreamListenerCallback,
             bindOptions.connectionType(providerCmdLineParser.connectionType());
             bindOptions.encryptionOptions().keystoreFile(providerCmdLineParser.keyfile());
             bindOptions.encryptionOptions().keystorePasswd(providerCmdLineParser.keypasswd());
+            bindOptions.encryptionOptions().securityProtocol(providerCmdLineParser.securityProtocol());
+            bindOptions.encryptionOptions().securityProtocolVersions(providerCmdLineParser.securityProtocolVersions());
         }
         bindOptions.guaranteedOutputBuffers(1500);
         bindOptions.majorVersion(Codec.majorVersion());

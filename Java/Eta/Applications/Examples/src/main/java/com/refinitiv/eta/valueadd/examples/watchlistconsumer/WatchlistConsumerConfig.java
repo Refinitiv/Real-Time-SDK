@@ -63,6 +63,9 @@ public class WatchlistConsumerConfig
 	private String standbyPort;
 	private String warmStandbyMode;
 	private boolean enableWarmStandby;
+	
+	private String securityProtocol;
+	private String securityProtocolVersions;
 
 	class ItemInfo
 	{
@@ -331,6 +334,31 @@ public class WatchlistConsumerConfig
 				{
 					connectionArg.encryptedConnectionType(ConnectionTypes.HTTP);
 				}
+			}
+			
+			if (CommandLine.hasArg("spTLSv1.2") && CommandLine.hasArg("spTLSv1.3"))
+			{
+				// Enable both TLS 1.2 and 1.3
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.2,1.3";
+			}
+			else if (CommandLine.hasArg("spTLSv1.2"))
+			{
+				// Enable TLS 1.2
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.2";
+			}
+			else if (CommandLine.hasArg("spTLSv1.3"))
+			{
+				// Enable TLS 1.3
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.3";
+			}
+			else
+			{
+				// Default always sets both TLS versions 1.2 and 1.3.
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.2,1.3";
 			}
 
 			connectionArg.service(serviceName());
@@ -705,6 +733,16 @@ public class WatchlistConsumerConfig
 	{
 		return enableWarmStandby;
 	}
+	
+	String securityProtocol()
+	{
+		return securityProtocol;
+	}
+	
+	String securityProtocolVersions()
+	{
+		return securityProtocolVersions;
+	}
 
 	private void parseItems(List<String> itemNames, int domain, boolean isPrivateStream, boolean isSymbollistData, List<ItemArg> itemList)
 	{
@@ -792,6 +830,9 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("standbyHostName", "", "Specifies the hostname of the standby server in a Warm Standby environment.");
 		CommandLine.addOption("standbyPort", "", "Specifies the port of the standby server in a Warm Standby environment.");
 		CommandLine.addOption("warmStandbyMode", "", "Specifies the Warm Standby Connection Mode, set either to Login or Service.");
+		
+		CommandLine.addOption("spTLSv1.2", "Specifies for an encrypted connection to be able to use TLS 1.2. Default enables both TLS version 1.2 and 1.3.");
+		CommandLine.addOption("spTLSv1.3", "Specifies for an encrypted connection to be able to use TLS 1.3. Default enables both TLS version 1.2 qnd 1.3.");
 	}
 }
 

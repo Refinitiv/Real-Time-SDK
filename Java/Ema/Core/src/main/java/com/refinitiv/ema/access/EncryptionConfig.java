@@ -10,6 +10,7 @@ class EncryptionConfig
 	String				KeyStorePasswd;
 	String				SecurityProvider;
 	String 				SecurityProtocol;
+	String[]			SecurityProtocolVersions;
 	String				KeyManagerAlgorithm;
 	String				TrustManagerAlgorithm;
 
@@ -22,6 +23,7 @@ class EncryptionConfig
 		KeyStorePasswd = null;
 		SecurityProvider = null;
 		SecurityProtocol = null;
+		SecurityProtocolVersions = null;
 		KeyManagerAlgorithm = null;
 		TrustManagerAlgorithm = null;
 	}
@@ -34,6 +36,7 @@ class EncryptionConfig
 		KeyStorePasswd = source.KeyStorePasswd;
 		SecurityProvider = source.SecurityProvider;
 		SecurityProtocol = source.SecurityProtocol;
+		SecurityProtocolVersions = source.SecurityProtocolVersions;
 		KeyManagerAlgorithm = source.KeyManagerAlgorithm;
 		TrustManagerAlgorithm = source.TrustManagerAlgorithm;
 	}

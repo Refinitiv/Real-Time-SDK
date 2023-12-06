@@ -19,6 +19,7 @@ class ChannelInfoImpl implements ChannelInfo
     String _clientIP;
     String _clientHostname;
     MCastStats _multicastStats = new MCastStatsImpl();
+    String _securityProtocol;
 	
     /* Hold list of received Component Info during RIPC handshake */
     List<ComponentInfo> _receivedComponentInfoList;
@@ -66,7 +67,8 @@ class ChannelInfoImpl implements ChannelInfo
                "\tclientIP: " + _clientIP + "\n" + 
                "\tclientHostname: " + _clientHostname + "\n" +
                "\tmulticastStats: " + _multicastStats.toString() + "\n" + 
-               "\tComponentInfo: " + sb.toString();
+               "\tComponentInfo: " + sb.toString() + "\n" +
+               "\tsecurityProtocol: " + _securityProtocol;
     }
 
     public void maxFragmentSize(int maxFragmentSize)
@@ -216,6 +218,7 @@ class ChannelInfoImpl implements ChannelInfo
         _compressionThreshold = 0;
         _clientIP = null;
         _clientHostname = null;
+        _securityProtocol = null;
     }
 
     @Override
@@ -270,5 +273,15 @@ class ChannelInfoImpl implements ChannelInfo
         ComponentInfo ci = new ComponentInfoImpl();
         ci.componentVersion().data(compVersionStr);
         _receivedComponentInfoList.add(ci);
+    }
+    
+    public void securityProtocol(String securityProtocol)
+    {
+    	_securityProtocol = securityProtocol;
+    }
+    
+    public String securityProtocol()
+    {
+    	return _securityProtocol;
     }
 }

@@ -60,6 +60,8 @@ public class Consumer
 	    		+ "  -krbfile Proxy KRB file.\n" 
 	    		+ "  -keyfile keystore file for encryption.\n"
 	    		+ "  -keypasswd keystore password for encryption.\n"
+	    		+ "  -spTLSv1.2 Enable TLS 1.2 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
+	    		+ "  -spTLSv1.3 Enable TLS 1.3 security protocol. Default enables both TLS 1.2 and TLS 1.3 (optional). \n"
 	    		+ "\n");
 	}
 
@@ -68,6 +70,8 @@ public class Consumer
 		    try
 		    {
 		        int argsCount = 0;
+		        boolean tls12 = false;
+		        boolean tls13 = false;
 
 		        while (argsCount < args.length)
 		        {
@@ -79,7 +83,6 @@ public class Consumer
 	    			else if ("-keyfile".equals(args[argsCount]))
 	    			{
 	    				config.tunnelingKeyStoreFile(argsCount < (args.length-1) ? args[++argsCount] : null);
-	    				config.tunnelingSecurityProtocol("TLS");
 	    				++argsCount;				
 	    			}	
 	    			else if ("-keypasswd".equals(args[argsCount]))
@@ -117,12 +120,39 @@ public class Consumer
 	    				config.tunnelingCredentialKRB5ConfigFile(argsCount < (args.length-1) ? args[++argsCount] : null);
 	    				++argsCount;				
 	    			}	
+	    			else if ("-spTLSv1.2".equals(args[argsCount]))	   
+	    			{
+	    				tls12 = true;
+	    				++argsCount;
+	    			}
+	    			else if ("-spTLSv1.3".equals(args[argsCount]))
+	    			{
+	    				tls13 = true;
+	    				++argsCount;
+	    			}
 	    			else // unrecognized command line argument
 	    			{
 	    				printHelp();
 	    				return false;
 	    			}			
 	    		}
+		        
+		        // Set security protocol versions of TLS based on configured values, with default having TLS 1.2 and 1.3 enabled
+		        if ((tls12 && tls13) || (!tls12 && !tls13))
+		        {
+		        	config.tunnelingSecurityProtocol("TLS");
+		        	config.tunnelingSecurityProtocolVersions(new String[] {"1.2", "1.3"});
+		        }
+		        else if (tls12)
+		        {
+		        	config.tunnelingSecurityProtocol("TLS");
+		        	config.tunnelingSecurityProtocolVersions(new String[]{"1.2"});
+		        }
+		        else if (tls13)
+		        {
+		        	config.tunnelingSecurityProtocol("TLS");
+		        	config.tunnelingSecurityProtocolVersions(new String[]{"1.3"});
+		        }
 	        }
 	        catch (Exception e)
 	        {

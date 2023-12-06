@@ -30,6 +30,9 @@ class ProviderCmdLineParser implements CommandLineParser
 	private int debuggingLevels = ReactorDebuggerLevels.LEVEL_NONE;
 	private int debugInfoInterval = 50;
 	private boolean sendJsonConvError;
+	
+	private String securityProtocol = null;
+	private String[] securityProtocolVersions = null;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -37,6 +40,9 @@ class ProviderCmdLineParser implements CommandLineParser
 		try
 		{
 			int argsCount = 0;
+			
+			boolean tls13enable = false;
+			boolean tls12enable = false;
 
 			while (argsCount < args.length)
 			{
@@ -123,11 +129,37 @@ class ProviderCmdLineParser implements CommandLineParser
 					sendJsonConvError = true;
 					++argsCount;
 				}
+				else if ("-spTLSv1.2".equals(args[argsCount]))
+				{
+					tls12enable = true;
+					++argsCount;
+				}
+				else if ("-spTLSv1.3".equals(args[argsCount]))
+				{
+					tls13enable = true;
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
 					System.out.println("\nUnrecognized command line argument...\n");
 					return false;
 				}
+			}
+			
+			if ((tls12enable && tls13enable) || (!tls12enable && !tls13enable))
+			{
+				securityProtocol = "TLS";
+				securityProtocolVersions = new String[] {"1.2", "1.3"};
+			}
+			else if (tls12enable)
+			{
+				securityProtocol = "TLS";
+				securityProtocolVersions = new String[] {"1.2"};
+			}
+			else if (tls13enable)
+			{
+				securityProtocol = "TLS";
+				securityProtocolVersions = new String[] {"1.3"};
 			}
 		}
 		catch (Exception e)
@@ -160,7 +192,9 @@ class ProviderCmdLineParser implements CommandLineParser
 						   "\n -debugTunnelStream turn on debugging TunnelStream events" +
 						   "\n -debugAll turn on all debugging levels" +
 						   "\n -debugInfoInterval interval (in milliseconds) for printing out debugging info" +
-						   "\n -sendJsonConvError enable send json conversion error to consumer ");
+						   "\n -sendJsonConvError enable send json conversion error to consumer " +
+						   "\n -spTLSv1.2 specifies the application to use TLS version 1.2. Default enables both TLS 1.2 and 1.3." +
+						   "\n -spTLSv1.3 specifies the application to use TLS version 1.3. Default enables both TLS 1.2 and 1.3.");
 	}
 
 	String portNo()
@@ -234,5 +268,15 @@ class ProviderCmdLineParser implements CommandLineParser
 
 	public int getDebugInfoInterval() {
 		return debugInfoInterval;
+	}
+	
+	String securityProtocol()
+	{
+		return securityProtocol;
+	}
+	
+	String[] securityProtocolVersions()
+	{
+		return securityProtocolVersions;
 	}
 }

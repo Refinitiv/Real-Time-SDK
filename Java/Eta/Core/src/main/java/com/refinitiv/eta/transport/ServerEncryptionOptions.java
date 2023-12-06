@@ -47,18 +47,33 @@ public interface ServerEncryptionOptions {
     public String keystorePasswd();
 
     /**
-     * Cryptographic protocol used. Sun JDK default is TLS.
+     * Cryptographic protocol used. RTSDK default is set to TLS.
      *
      * @param securityProtocol the security protocol
      */
     public void securityProtocol(String securityProtocol);
 
     /**
-     * Cryptographic protocol used. Sun JDK default is TLS.
+     * Cryptographic protocol used. RTSDK default is set to TLS.
      * 
      * @return the SecurityProtocol
      */
     public String securityProtocol();
+    
+    /**
+     * Cryptographic protocol versions used. Array of Strings
+     * should designate what versions to use. RTSDK default is {"1.3", "1.2"}.
+     *
+     * @param securityProtocolVersions the array list of security protocol versions to use
+     */
+    public void securityProtocolVersions(String[] securityProtocolVersions);
+    
+    /**
+     * Cryptographic protocol versions used. RTSDK default is {"1.3", "1.2"}..
+     * 
+     * @return the securityProtocolVersions designated to use
+     */
+    public String[] securityProtocolVersions();
 
     /**
      * Java Cryptography Package provider.

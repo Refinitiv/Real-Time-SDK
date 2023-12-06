@@ -297,6 +297,13 @@ public interface ChannelInformation
 	 */
 	public int compressionThreshold();
 
+	/**
+	 * Gets the security protocol
+	 *
+	 * @return the security protocol used in the connection.
+	 */
+	public String securityProtocol();
+	
 	/** Sets host name
 	 *
 	 * @param hostname is the host name associated with the channel
@@ -426,4 +433,11 @@ public interface ChannelInformation
 	 * 
 	 */
 	public void compressionThreshold(int compressionThreshold);
+	
+	/** Specifies the security protocol
+	 * 
+	 * @param securityProtocol specifies security protocol
+	 * 
+	 */
+	public void securityProtocol(String securityProtocol);
 }

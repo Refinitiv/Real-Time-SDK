@@ -318,6 +318,13 @@ class OmmNiProviderConfigImpl extends EmaConfigImpl implements OmmNiProviderConf
 		encryptionCfg().SecurityProtocol = securityProtocol;
 		return this;
 	}
+	
+	@Override
+	public OmmNiProviderConfig tunnelingSecurityProtocolVersions(String[] securityProtocolVersions)
+	{
+		encryptionCfg().SecurityProtocolVersions = securityProtocolVersions;
+		return this;
+	}
 
 	@Override
 	public OmmNiProviderConfig tunnelingSecurityProvider(String securityProvider)

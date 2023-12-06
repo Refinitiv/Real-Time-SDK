@@ -98,6 +98,13 @@ public class EncryptedSocketHelper extends SocketHelper
             throw new IOException("Encryption engine is not set up, check configuration.");
     }
     
+    public String getActiveTLSVersion() throws IOException
+    {
+        if (_crypto == null)
+            throw new IOException("Encryption engine is not set up, check configuration.");
+        return _crypto.getActiveTLSVersion();
+    }
+    
     
     /* Assumption here is that the objects are both EncryptedSocketHelpers.  */
     @Override

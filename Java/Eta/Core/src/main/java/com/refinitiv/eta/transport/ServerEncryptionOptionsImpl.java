@@ -6,6 +6,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
     private String _KeystoreFile;
     private String _KeystorePasswd;
     private String _SecurityProtocol;
+    private String[] _SecurityProtocolVersions;
     private String _SecurityProvider;
     private String _KeyManagerAlgorithm;
     private String _TrustManagerAlgorithm;
@@ -14,6 +15,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
 
     public String _defaultKeystoreType = new String("JKS");
     public String _defaultSecurityProtocol = new String("TLS");
+    public static String[] _defaultSecurityProtocolVersions = {"1.3", "1.2"};
     public String _defaultSecurityProvider = new String("SunJSSE");
     public String _defaultKeyManagerAlgorithm = new String("SunX509");
     public String _defaultTrustManagerAlgorithm = new String("PKIX");
@@ -23,6 +25,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
         // Sun JDK defaults
         _KeystoreType = _defaultKeystoreType;
         _SecurityProtocol = _defaultSecurityProtocol;
+        _SecurityProtocolVersions = _defaultSecurityProtocolVersions;
         _SecurityProvider = _defaultSecurityProvider;
         _KeyManagerAlgorithm = _defaultKeyManagerAlgorithm;
         _TrustManagerAlgorithm = _defaultTrustManagerAlgorithm;
@@ -34,6 +37,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
         _KeystoreFile = null;
         _KeystorePasswd = null;
         _SecurityProtocol = _defaultSecurityProtocol;
+        _SecurityProtocolVersions = _defaultSecurityProtocolVersions;
         _SecurityProvider = _defaultSecurityProvider;
         _KeyManagerAlgorithm = _defaultKeyManagerAlgorithm;
         _TrustManagerAlgorithm = _defaultTrustManagerAlgorithm;
@@ -64,6 +68,11 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
         	destEncOpts._SecurityProtocol = new String(_SecurityProtocol);
         else
         	destEncOpts._SecurityProtocol = null;
+        
+        if (_SecurityProtocolVersions != null)
+        	destEncOpts._SecurityProtocolVersions = _SecurityProtocolVersions;
+        else
+        	destEncOpts._SecurityProtocolVersions = null;
 
         if (_SecurityProvider != null)
         	destEncOpts._SecurityProvider = new String(_SecurityProvider);
@@ -89,6 +98,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
                "\t\t\tKeystoreFile: " + _KeystoreFile + "\n" + 
                "\t\t\tKeystorePasswd: " + _KeystorePasswd + "\n" + 
                "\t\t\tSecurityProtocol: " + _SecurityProtocol + "\n" + 
+               "\t\t\tSecurityProtocolVersions: " + _SecurityProtocolVersions + "\n" + 
                "\t\t\tSecurityProvider: " + _SecurityProvider + "\n" + 
                "\t\t\tKeyManagerAlgorithm: " + _KeyManagerAlgorithm + "\n" + 
                "\t\t\tTrustManagerAlgorithm: " + _TrustManagerAlgorithm + "\n";
@@ -188,5 +198,15 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
     {
         return _TrustManagerAlgorithm;
     }
+    
+	@Override
+	public void securityProtocolVersions(String[] SecurityProtocolVersions) {
+		_SecurityProtocolVersions = SecurityProtocolVersions;
+	}
+
+	@Override
+	public String[] securityProtocolVersions() {
+		return _SecurityProtocolVersions;
+	}
 
 }

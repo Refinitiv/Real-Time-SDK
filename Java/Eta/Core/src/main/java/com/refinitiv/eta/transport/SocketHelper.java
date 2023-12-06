@@ -165,6 +165,12 @@ public class SocketHelper
         /* No-op here, used in encrypted case. */
         return true;
     }
+    
+    public String getActiveTLSVersion() throws IOException
+    {
+        /* Used in encrypted case. */
+        return "None";
+    }
 
     public long read(ByteBuffer[] dsts) throws IOException
     {

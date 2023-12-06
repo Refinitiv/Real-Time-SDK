@@ -162,4 +162,11 @@ public interface ChannelInfo
      * @return the multicastStats
      */
     public MCastStats multicastStats();
+    
+    /**
+     * The security protocol of the connection.
+     * 
+     * @return the securityProtocol
+     */
+    public String securityProtocol();  
 }

@@ -731,6 +731,16 @@ class OmmConsumerImpl extends OmmBaseImpl<OmmConsumerClient> implements OmmConsu
 					channelInformation.componentInfo("unavailable");
 				else {
 					channelInformation.componentInfo(rci.channelInfo().componentInfo().get(0).componentVersion().toString());
+
+				}
+				if (rci.channelInfo() == null ||
+					rci.channelInfo().securityProtocol() == null ||
+					rci.channelInfo().securityProtocol().isEmpty())
+				{
+					channelInformation.securityProtocol("unavailable");
+				}
+				else {
+					channelInformation.securityProtocol(rci.channelInfo().securityProtocol());
 				}
 			}
 			

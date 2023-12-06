@@ -287,8 +287,13 @@ public class Consumer implements ResponseCallback, HttpCallback
                     channelInfo.pingTimeout()
             );
             System.out.println( "  Client To Server Pings: " + channelInfo.clientToServerPings() +
-                    "\n  Server To Client Pings: " + channelInfo.serverToClientPings() +
-                    "\n");
+                    "\n  Server To Client Pings: " + channelInfo.serverToClientPings());
+            if (channelInfo.securityProtocol() != null && channelInfo.securityProtocol().length() > 0)
+            {
+                System.out.println( "  Security Protocol: " + channelInfo.securityProtocol() + "\n");
+            }
+            else
+            	System.out.print("\n");
             System.out.printf("  Connected component version: ");
 
             int count = channelInfo.componentInfo() == null ? 0 : channelInfo.componentInfo().size();
@@ -653,6 +658,33 @@ public class Consumer implements ResponseCallback, HttpCallback
 
         options.encryptionOptions().KeystoreFile(keyFile);
         options.encryptionOptions().KeystorePasswd(keyPasswd);
+        
+        boolean spTLSv12 = false;
+        boolean spTLSv13 = false;
+        if (CommandLine.hasArg("spTLSv1.2"))
+        {
+        	spTLSv12 = true;
+        }
+        if (CommandLine.hasArg("spTLSv1.3"))
+        {
+        	spTLSv13 = true;
+        }
+        // Set TLS versions based on what was selected. Default always has 1.2 and 1.3 enabled.
+        if ((spTLSv12 && spTLSv13) || (!spTLSv12 && !spTLSv13))
+        {
+        	options.encryptionOptions().SecurityProtocol("TLS");
+        	options.encryptionOptions().SecurityProtocolVersions(new String[]{"1.2","1.3"});
+        }
+        else if (spTLSv12)
+        {
+        	options.encryptionOptions().SecurityProtocol("TLS");
+        	options.encryptionOptions().SecurityProtocolVersions(new String[]{"1.2"});
+        }
+        else if (spTLSv13)
+        {
+        	options.encryptionOptions().SecurityProtocol("TLS");
+        	options.encryptionOptions().SecurityProtocolVersions(new String[]{"1.3"});
+        }
         channelSession.tunnelingConnectOptions(_tunnelingConnectOpts);
 
         // credentials
@@ -1399,6 +1431,8 @@ public class Consumer implements ResponseCallback, HttpCallback
         CommandLine.addOption("encryptedConnectionType", "", "Specifies the encrypted connection type that will be used by the consumer.  Possible values are 'Socket', or 'http'");
         CommandLine.addOption("pl", DEFAULT_WS_PROTOCOL, "Specifies the list of protocols supported by the application");
         CommandLine.addOption("jsonEnumExpand", false, "If specified, expand all enumerated values with a JSON protocol");
+        CommandLine.addOption("spTLSv1.2", "Specifies for the application to be able to use TLS version 1.2. Default enables both TLS versions 1.2 and 1.3.");
+        CommandLine.addOption("spTLSv1.3", "Specifies for the application to be able to use TLS version 1.3. Default enables both TLS versions 1.2 and 1.3.");
     }
 
     @Override

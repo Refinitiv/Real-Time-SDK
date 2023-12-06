@@ -65,21 +65,34 @@ public class CryptoHelperTest
 	}
 
 	@Test
-	public void shouldUseTLS1_2Version() throws IOException, ExecutionException, InterruptedException
+	public void canUseTLS1_2Version() throws IOException, ExecutionException, InterruptedException
 	{
+		String[] protocols = {"TLSv1.2"};
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
-		startServer(VALID_CERTIFICATE, null, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
+		startServer(VALID_CERTIFICATE, protocols, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
 		createCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
 		assertEquals("TLSv1.2", protocolFuture.get());
 	}
+	
+	@Test
+	public void shouldUseTLS1_3Version() throws IOException, ExecutionException, InterruptedException
+	{
+		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
+		startServer(VALID_CERTIFICATE, CryptoHelper.client_protocol_versions, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
+		createCryptoHelper(VALID_CERTIFICATE);
+		cryptoHelper.doHandshake();
+		writeLine(cryptoHelper);
+		assertEquals("TLSv1.3", protocolFuture.get());
+	}
 
 	@Test(expected = IOException.class)
 	public void shouldFailHandshakeIfServerDoesntSupportTLS1_2() throws IOException, ExecutionException, InterruptedException
 	{
+		String[] protocols = {"TLSv1.1"};
 		CompletableFuture<String> protocolFuture = new CompletableFuture<>();
-		startServer(VALID_CERTIFICATE, "TLSv1.1", socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
+		startServer(VALID_CERTIFICATE, protocols, socket -> protocolFuture.complete(((SSLSocket) socket).getSession().getProtocol()));
 		createCryptoHelper(VALID_CERTIFICATE);
 		cryptoHelper.doHandshake();
 		writeLine(cryptoHelper);
@@ -91,16 +104,16 @@ public class CryptoHelperTest
 		startServer(keystoreFile, null, null);
 	}
 	
-	private void startServer(String keystoreFile, String protocolVersion, Consumer<Socket> socketCallback) throws IOException
+	private void startServer(String keystoreFile, String[] protocolVersions, Consumer<Socket> socketCallback) throws IOException
 	{
 		SSLServerSocketFactory serverSocketFactory = initServerSSLContext(keystoreFile).getServerSocketFactory();
 		
 		serverSocket = (SSLServerSocket) serverSocketFactory.createServerSocket(PORT);
 
-		if(protocolVersion != null)
+		if(protocolVersions != null)
 		{
 			SSLParameters sslParameters = new SSLParameters();
-			sslParameters.setProtocols(new String[]{protocolVersion});
+			sslParameters.setProtocols(protocolVersions);
 			serverSocket.setSSLParameters(sslParameters);
 		}
 		
@@ -134,6 +147,7 @@ public class CryptoHelperTest
 		options.encryptionOptions().TrustManagerAlgorithm("");
 		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		options.encryptionOptions().SecurityProtocol("TLS");
+		options.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
 		options.encryptionOptions().SecurityProvider("SunJSSE");
 		options.unifiedNetworkInfo().address(LOCALHOST);
 		options.unifiedNetworkInfo().serviceName(Integer.toString(PORT));

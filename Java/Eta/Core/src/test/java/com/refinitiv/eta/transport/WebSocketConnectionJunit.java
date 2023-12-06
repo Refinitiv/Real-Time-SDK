@@ -197,6 +197,7 @@ public class WebSocketConnectionJunit {
             connectOptions.encryptionOptions().TrustManagerAlgorithm("");
             connectOptions.encryptionOptions().KeyManagerAlgorithm("SunX509");
             connectOptions.encryptionOptions().SecurityProtocol("TLS");
+    		connectOptions.encryptionOptions().SecurityProtocolVersions(new String[] {"1.3", "1.2"});
             connectOptions.encryptionOptions().SecurityProvider("SunJSSE");
             connectOptions.tunnelingInfo().tunnelingType("None");
 
@@ -207,6 +208,7 @@ public class WebSocketConnectionJunit {
             bindOptions.encryptionOptions().trustManagerAlgorithm("");
             bindOptions.encryptionOptions().keyManagerAlgorithm("SunX509");
             bindOptions.encryptionOptions().securityProtocol("TLS");
+    		bindOptions.encryptionOptions().securityProtocolVersions(new String[] {"1.3", "1.2"});
             bindOptions.encryptionOptions().securityProvider("SunJSSE");
         } else {
             /*Prepare client and server options for standard WebSocket connection*/

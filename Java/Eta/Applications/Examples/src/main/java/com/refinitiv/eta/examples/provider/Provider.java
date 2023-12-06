@@ -219,6 +219,26 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
             bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
             bindOptions.encryptionOptions().keystoreFile(CommandLine.value("keyfile"));
             bindOptions.encryptionOptions().keystorePasswd(CommandLine.value("keypasswd"));
+            if (CommandLine.hasArg("spTLSv1.2") && CommandLine.hasArg("spTLSv1.3"))
+            {
+            	bindOptions.encryptionOptions().securityProtocol("TLS");
+            	bindOptions.encryptionOptions().securityProtocolVersions(new String[] {"1.2","1.3"});
+            }
+            else if (CommandLine.hasArg("spTLSv1.2"))
+            {
+            	bindOptions.encryptionOptions().securityProtocol("TLS");
+            	bindOptions.encryptionOptions().securityProtocolVersions(new String[] {"1.2"});
+            }
+            else if (CommandLine.hasArg("spTLSv1.3"))
+            {
+            	bindOptions.encryptionOptions().securityProtocol("TLS");
+            	bindOptions.encryptionOptions().securityProtocolVersions(new String[] {"1.3"});
+            }
+            else
+            {
+            	bindOptions.encryptionOptions().securityProtocol("TLS");
+            	bindOptions.encryptionOptions().securityProtocolVersions(new String[] {"1.2","1.3"});
+            }
         }
         bindOptions.wSocketOpts().protocols(CommandLine.value("pl"));
 
@@ -298,7 +318,9 @@ public class Provider implements ReceivedMsgCallback, HttpCallback
         CommandLine.addOption("jsonEnumExpand", false, "if specified, expand all enumerated values with a JSON protocol");
         CommandLine.addOption("httpHdr", false, "if specified, http header will be accessible on the provider side through callback function");
         CommandLine.addOption("serverSharedSocket", false, "if specified, turn on server shared socket");
-    }
+        CommandLine.addOption("spTLSv1.2", "Specifies for the application to be able to use TLS version 1.2. Default enables both TLS versions 1.2 and 1.3.");
+        CommandLine.addOption("spTLSv1.3", "Specifies for the application to be able to use TLS version 1.3. Default enables both TLS versions 1.2 and 1.3.");
+        }
 
     /*
      * Handles the run-time for the Provider. Sends close status messages to

@@ -1481,7 +1481,8 @@ class OmmIProviderImpl extends OmmServerBaseImpl implements OmmProvider, Directo
 								reactorChannel.channel().state(), channel.connectionType(), channel.protocolType(), channel.encryptedConnectionType(), channel.majorVersion(),
 								channel.minorVersion(), channel.pingTimeout(), etaChannelInfo.maxFragmentSize(), etaChannelInfo.maxOutputBuffers(),
 								etaChannelInfo.guaranteedOutputBuffers(), etaChannelInfo.numInputBuffers(), etaChannelInfo.sysSendBufSize(),
-								etaChannelInfo.sysRecvBufSize(), etaChannelInfo.compressionType(), etaChannelInfo.compressionThreshold());
+								etaChannelInfo.sysRecvBufSize(), etaChannelInfo.compressionType(), etaChannelInfo.compressionThreshold(), 
+								etaChannelInfo.securityProtocol());
 				ci.add(tmp);
 			}
 		}

@@ -266,12 +266,21 @@ public interface OmmNiProviderConfig extends OmmProviderConfig
 	
     /**
 	 * Specifies the Cryptographic protocol to be used. Sun JDK default is TLS which will go the latest one
-	 * supported by JDK (currently is TLSv1.2).
+	 * supported by the JDK version in use.
 	 *  
 	 * @param securityProtocol specifies a cryptographic protocol for tunneling connection.
 	 * @return reference to this object
 	 */
     public OmmNiProviderConfig tunnelingSecurityProtocol(String securityProtocol); 
+    
+    /**
+	 * The Cryptographic protocol versions to be used. RTSDK default is {"1.3" , "1.2"} for the default protocol "TLS"
+	 * which will go to the latest one supported by the JDK version in use.
+	 *  
+	 * @param securityProtocolVersions specifies a cryptographic protocol versions list to use for tunneling connection.
+	 * @return reference to this object
+	 */
+    public OmmNiProviderConfig tunnelingSecurityProtocolVersions(String[] securityProtocolVersions); 
     
     /**
 	 * Specifies the Java Cryptography Package provider to be used. The Oracle JDK default is SunJSSE.

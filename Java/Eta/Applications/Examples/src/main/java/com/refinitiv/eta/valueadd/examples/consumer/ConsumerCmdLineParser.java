@@ -64,6 +64,10 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private boolean takeExclusiveSignOnControl = true;
 	private String protocolList = "tr_json2";
 	private boolean sendJsonConvError;
+	private String securityProtocol;
+	private String securityProtocolVersions;
+	private boolean spTLSv12enable = false;
+	private boolean spTLSv13enable = false;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -349,11 +353,38 @@ class ConsumerCmdLineParser implements CommandLineParser
 					sendJsonConvError = true;
 					++argsCount;
 				}
+				else if ("-spTLSv1.2".equals(args[argsCount]))
+				{
+					spTLSv12enable = true;
+					++argsCount;
+				}
+				else if ("-spTLSv1.3".equals(args[argsCount]))
+				{
+					spTLSv13enable = true;
+					++argsCount;
+				}
 				else // unrecognized command line argument
 				{
 					System.out.println("\nUnrecognized command line argument...\n");
 					return false;
 				}
+			}
+			
+			// Set TLS options (default sets both 1.2 and 1.3)
+			if ((spTLSv12enable && spTLSv13enable) || (!spTLSv12enable && !spTLSv13enable))
+			{
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.2,1.3";
+			}
+			else if (spTLSv12enable)
+			{
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.2";
+			}
+			else if (spTLSv13enable)
+			{
+				securityProtocol = "TLS";
+				securityProtocolVersions = "1.3";
 			}
 		}
 		catch (Exception e)
@@ -584,6 +615,16 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return sendJsonConvError;
 	}
 	
+	String securityProtocol()
+	{
+		return securityProtocol;
+	}
+	
+	String securityProtocolVersions()
+	{
+		return securityProtocolVersions;
+	}
+	
 	@Override
 	public void printUsage()
 	{
@@ -642,7 +683,9 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -ax Specifies the Authentication Extended information" +
 						   "\n -aid Specifies the Application ID" +
 						   "\n -rtt Enables rtt support by a consumer. If provider makes distribution of RTT messages, consumer will return back them. In another case, consumer will ignore them." +
-						   "\n -sendJsonConvError enable send json conversion error to provider ");
+						   "\n -sendJsonConvError enable send json conversion error to provider " +
+						   "\n -spTLSv1.2 specifies for an encrypted connection to be able to use TLS 1.2, default is 1.2 and 1.3 enabled" + 
+						   "\n -spTLSv1.3 specifies for an encrypted connection to be able to use TLS 1.3, default is 1.2 and 1.3 enabled" );
 	}
 }
 

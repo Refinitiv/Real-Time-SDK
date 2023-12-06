@@ -1093,6 +1093,7 @@ public class TransportJunit
         srcOpts.encryptionOptions().SecurityProvider("ED");
         srcOpts.encryptionOptions().KeyManagerAlgorithm("FAITH");
         srcOpts.encryptionOptions().TrustManagerAlgorithm("HEIDI");
+        srcOpts.encryptionOptions().SecurityProtocolVersions(new String[] {"INDIANA", "JACK"});
 
         /* Copy options */
         srcOpts.copy(destOpts);
@@ -1162,6 +1163,8 @@ public class TransportJunit
             assertTrue(testOpts.encryptionOptions().SecurityProvider().equals("ED"));
             assertTrue(testOpts.encryptionOptions().KeyManagerAlgorithm().equals("FAITH"));
             assertTrue(testOpts.encryptionOptions().TrustManagerAlgorithm().equals("HEIDI"));
+            assertTrue(testOpts.encryptionOptions().SecurityProtocolVersions()[0].equals("INDIANA"));
+            assertTrue(testOpts.encryptionOptions().SecurityProtocolVersions()[1].equals("JACK"));
         }
 
     }

@@ -2122,7 +2122,8 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 		}
 
 		options.encryptionOptions().KeystoreType("JKS");
-		options.encryptionOptions().SecurityProtocol("TLS");
+		options.encryptionOptions().SecurityProtocol(watchlistConsumerConfig.securityProtocol());
+		options.encryptionOptions().SecurityProtocolVersions(watchlistConsumerConfig.securityProtocolVersions().split(","));
 		options.encryptionOptions().SecurityProvider("SunJSSE");
 		options.encryptionOptions().KeyManagerAlgorithm("SunX509");
 		options.encryptionOptions().TrustManagerAlgorithm("PKIX");

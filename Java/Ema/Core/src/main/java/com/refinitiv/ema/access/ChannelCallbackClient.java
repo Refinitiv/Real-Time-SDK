@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.refinitiv.ema.access.OmmBaseImpl.OmmImplState;
@@ -800,6 +801,9 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				{
 					EncryptedChannelConfig tempEncryptedChannelCfg = (EncryptedChannelConfig)channelCfg;
 					cfgParameters.append( "EncryptedProtocolType " ).append( tempEncryptedChannelCfg.encryptedProtocolType ).append( OmmLoggerClient.CR )
+					.append( "SecurityProtocol " ).append( tempEncryptedChannelCfg.encryptionConfig.SecurityProtocol).append( OmmLoggerClient.CR )
+					.append( "SecurityProtocolVersions " ).append( Arrays.toString(tempEncryptedChannelCfg.encryptionConfig.SecurityProtocolVersions)).append( OmmLoggerClient.CR )
+					.append( "EnableSessionMgnt " ).append( ( tempEncryptedChannelCfg.enableSessionMgnt ? "true" : "false" ) ).append( OmmLoggerClient.CR )
 					.append( "Location " ).append( tempEncryptedChannelCfg.location ).append( OmmLoggerClient.CR );
 				}
 				break;
@@ -1368,7 +1372,7 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
             if ( channelConfig.httpProxyDomain != null)
             {
             	rsslOptions.credentialsInfo().HTTPproxyDomain(channelConfig.httpProxyDomain);		        		        		
-            }   
+            }
           
             if (channelConfig.httpProxyLocalHostName == null)
             {
@@ -1411,8 +1415,29 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 			    .append(" Channel name ").append( channelConfig.name ).append(OmmLoggerClient.CR)
 				.append("Instance Name ").append(_baseImpl.instanceName()).append(OmmLoggerClient.CR)
 				.append("with the following tunneling configurations:")
-				.append( OmmLoggerClient.CR ).append(rsslOptions.tunnelingInfo().toString()).append( OmmLoggerClient.CR )
-				.append(rsslOptions.credentialsInfo().toString()).append( OmmLoggerClient.CR );
+				.append( OmmLoggerClient.CR );
+			if (rsslOptions.tunnelingInfo().tunnelingType().equals("encrypted"))
+			{
+				tempTrace.append(rsslOptions.tunnelingInfo().toString()).append( OmmLoggerClient.CR );
+			}
+			else if (rsslOptions.tunnelingInfo().tunnelingType().equals("None"))
+			{
+				tempTrace.append(rsslOptions.encryptionOptions().toString());
+				
+				if (rsslOptions.tunnelingInfo().HTTPproxy())
+				{
+					tempTrace.append("\tHTTP Proxy").append( OmmLoggerClient.CR );
+					tempTrace.append("\t\tHTTPproxy: ").append("true").append( OmmLoggerClient.CR );
+					tempTrace.append("\t\tHTTPproxyHostName: " ).append(rsslOptions.tunnelingInfo().HTTPproxyHostName()).append( OmmLoggerClient.CR );
+					tempTrace.append("\t\tHTTPproxyPort: " ).append(rsslOptions.tunnelingInfo().HTTPproxyPort()).append( OmmLoggerClient.CR );
+				}
+			}
+			else
+			{
+				tempTrace.append(rsslOptions.tunnelingInfo().toString()).append( OmmLoggerClient.CR );
+			}
+			
+				tempTrace.append(rsslOptions.credentialsInfo().toString()).append( OmmLoggerClient.CR );
 			_baseImpl.loggerClient().trace(_baseImpl.formatLogMessage(CLIENT_NAME, tempTrace.toString(), Severity.TRACE));
 		}	
 	}
@@ -1501,6 +1526,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	    			 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.encryptionConfig.KeyStoreType);
 	    		if (channelConfig.encryptionConfig.SecurityProtocol != null)
 	    			 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.encryptionConfig.SecurityProtocol);
+	    		if (channelConfig.encryptionConfig.SecurityProtocolVersions != null)
+	    			 rsslOptions.tunnelingInfo().SecurityProtocolVersions(channelConfig.encryptionConfig.SecurityProtocolVersions);
 	    		if (channelConfig.encryptionConfig.SecurityProvider != null)
 	    			 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.encryptionConfig.SecurityProvider);
 	    		if (channelConfig.encryptionConfig.TrustManagerAlgorithm != null)
@@ -1518,6 +1545,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 	    			 rsslOptions.encryptionOptions().KeystoreType(channelConfig.encryptionConfig.KeyStoreType);
 	    		if (channelConfig.encryptionConfig.SecurityProtocol != null)
 	    			 rsslOptions.encryptionOptions().SecurityProtocol(channelConfig.encryptionConfig.SecurityProtocol);
+	    		if (channelConfig.encryptionConfig.SecurityProtocolVersions != null)
+	    			rsslOptions.encryptionOptions().SecurityProtocolVersions(channelConfig.encryptionConfig.SecurityProtocolVersions);
 	    		if (channelConfig.encryptionConfig.SecurityProvider != null)
 	    			 rsslOptions.encryptionOptions().SecurityProvider(channelConfig.encryptionConfig.SecurityProvider);
 	    		if (channelConfig.encryptionConfig.TrustManagerAlgorithm != null)
@@ -1553,6 +1582,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
 				 rsslOptions.tunnelingInfo().KeystoreType(channelConfig.KeyStoreType);
 			if (channelConfig.SecurityProtocol != null)
 				 rsslOptions.tunnelingInfo().SecurityProtocol(channelConfig.SecurityProtocol);
+			if (channelConfig.SecurityProtocolVersions != null)
+				 rsslOptions.tunnelingInfo().SecurityProtocolVersions(channelConfig.SecurityProtocolVersions);
 			if (channelConfig.SecurityProvider != null)
 				 rsslOptions.tunnelingInfo().SecurityProvider(channelConfig.SecurityProvider);
 			if (channelConfig.TrustManagerAlgorithm != null)
@@ -1570,6 +1601,8 @@ class ChannelCallbackClient<T> implements ReactorChannelEventCallback
    			     rsslOptions.encryptionOptions().KeystoreType(channelConfig.KeyStoreType);
 			if (channelConfig.SecurityProtocol != null)
   			     rsslOptions.encryptionOptions().SecurityProtocol(channelConfig.SecurityProtocol);
+			if (channelConfig.SecurityProtocolVersions != null)
+				rsslOptions.encryptionOptions().SecurityProtocolVersions(channelConfig.SecurityProtocolVersions);
 			if (channelConfig.SecurityProvider != null)
   			     rsslOptions.encryptionOptions().SecurityProvider(channelConfig.SecurityProvider);
 			if (channelConfig.TrustManagerAlgorithm != null)
