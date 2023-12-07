@@ -1,5 +1,7 @@
 package com.refinitiv.eta.transport;
 
+import java.util.Arrays;
+
 class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
 
     private String _KeystoreType;
@@ -70,7 +72,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
         	destEncOpts._SecurityProtocol = null;
         
         if (_SecurityProtocolVersions != null)
-        	destEncOpts._SecurityProtocolVersions = _SecurityProtocolVersions;
+        	destEncOpts._SecurityProtocolVersions = _SecurityProtocolVersions.clone();
         else
         	destEncOpts._SecurityProtocolVersions = null;
 
@@ -98,7 +100,7 @@ class ServerEncryptionOptionsImpl implements ServerEncryptionOptions {
                "\t\t\tKeystoreFile: " + _KeystoreFile + "\n" + 
                "\t\t\tKeystorePasswd: " + _KeystorePasswd + "\n" + 
                "\t\t\tSecurityProtocol: " + _SecurityProtocol + "\n" + 
-               "\t\t\tSecurityProtocolVersions: " + _SecurityProtocolVersions + "\n" + 
+               "\t\t\tSecurityProtocolVersions: " + Arrays.toString(_SecurityProtocolVersions) + "\n" + 
                "\t\t\tSecurityProvider: " + _SecurityProvider + "\n" + 
                "\t\t\tKeyManagerAlgorithm: " + _KeyManagerAlgorithm + "\n" + 
                "\t\t\tTrustManagerAlgorithm: " + _TrustManagerAlgorithm + "\n";

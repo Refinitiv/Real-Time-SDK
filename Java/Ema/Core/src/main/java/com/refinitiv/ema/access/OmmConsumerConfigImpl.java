@@ -446,4 +446,52 @@ class OmmConsumerConfigImpl extends EmaConfigImpl implements OmmConsumerConfig
 		return dataDictionary;
 	}
 	
+	@Override
+	public OmmConsumerConfig restProxyHostName(String restProxyHostName)
+	{
+		restProxyHostNameInt(restProxyHostName);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig restProxyPort(String restProxyPort)
+	{
+		restProxyPortInt(restProxyPort);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig restProxyUserName(String restProxyUserName)
+	{
+		restProxyUserNameInt(restProxyUserName);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig restProxyPasswd(String restProxyPasswd)
+	{
+		restProxyPasswdInt(restProxyPasswd);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig restProxyDomain(String restProxyDomain)
+	{
+		restProxyDomainInt(restProxyDomain);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig restProxyLocalHostName(String restProxyLocalHostName)
+	{
+		restProxyLocalHostNameInt(restProxyLocalHostName);
+		return this;
+	}
+	
+	@Override
+	public OmmConsumerConfig restProxyKrb5ConfigFile(String restProxyKrb5ConfigFile)
+	{
+		restProxyKrb5ConfigFileInt(restProxyKrb5ConfigFile);
+		return this;
+	}
 }

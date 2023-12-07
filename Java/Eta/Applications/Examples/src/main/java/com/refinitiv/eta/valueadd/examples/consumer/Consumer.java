@@ -372,6 +372,55 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			reactorOptions.tokenServiceURL_V2().data(consumerCmdLineParser.tokenURLV2());
 		}
 		
+		if(consumerCmdLineParser.restProxyHostName() != null && !consumerCmdLineParser.restProxyHostName().equals(""))
+		{
+			Buffer hostName = CodecFactory.createBuffer();
+			hostName.data(consumerCmdLineParser.restProxyHostName());
+			reactorOptions.restProxyOptions().proxyHostName(hostName);
+		}
+		
+		if(consumerCmdLineParser.restProxyPort() != null && !consumerCmdLineParser.restProxyPort().equals(""))
+		{
+			Buffer port = CodecFactory.createBuffer();
+			port.data(consumerCmdLineParser.restProxyPort());
+			reactorOptions.restProxyOptions().proxyPort(port);
+		}
+		
+		if(consumerCmdLineParser.restProxyUserName() != null && !consumerCmdLineParser.restProxyUserName().equals(""))
+		{
+			Buffer userName = CodecFactory.createBuffer();
+			userName.data(consumerCmdLineParser.restProxyUserName());
+			reactorOptions.restProxyOptions().proxyUserName(userName);
+		}
+		
+		if(consumerCmdLineParser.restProxyPasswd() != null && !consumerCmdLineParser.restProxyPasswd().equals(""))
+		{
+			Buffer passwd = CodecFactory.createBuffer();
+			passwd.data(consumerCmdLineParser.restProxyPasswd());
+			reactorOptions.restProxyOptions().proxyPassword(passwd);
+		}
+		
+		if(consumerCmdLineParser.restProxyDomain() != null && !consumerCmdLineParser.restProxyDomain().equals(""))
+		{
+			Buffer domain = CodecFactory.createBuffer();
+			domain.data(consumerCmdLineParser.restProxyDomain());
+			reactorOptions.restProxyOptions().proxyDomain(domain);
+		}
+		
+		if(consumerCmdLineParser.restProxyLocalHostName() != null && !consumerCmdLineParser.restProxyLocalHostName().equals(""))
+		{
+			Buffer localHostName = CodecFactory.createBuffer();
+			localHostName.data(consumerCmdLineParser.restProxyLocalHostName());
+			reactorOptions.restProxyOptions().proxyLocalHostName(localHostName);
+		}
+		
+		if(consumerCmdLineParser.restProxyKrb5ConfigFile() != null && !consumerCmdLineParser.restProxyKrb5ConfigFile().equals(""))
+		{
+			Buffer krb5ConfigFile = CodecFactory.createBuffer();
+			krb5ConfigFile.data(consumerCmdLineParser.restProxyKrb5ConfigFile());
+			reactorOptions.restProxyOptions().proxyKrb5ConfigFile(krb5ConfigFile);
+		}
+		
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)

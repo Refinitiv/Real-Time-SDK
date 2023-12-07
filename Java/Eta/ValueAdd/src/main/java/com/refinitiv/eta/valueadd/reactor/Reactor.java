@@ -1483,7 +1483,7 @@ public class Reactor
 		tokenSession.lock();
 
 		reactorChannel.state(State.EDP_RT);
-		tokenSession.setProxyInfo(reactorConnectInfo);
+		tokenSession.setProxyInfo(reactorConnectInfo, _reactorOptions.restProxyOptions());
 
 		try
 		{
@@ -1722,7 +1722,7 @@ public class Reactor
 				authOptions.audience(options.audience().toString());
 				authOptions.tokenScope(options.tokenScope().toString());
 
-				connOptions.applyServiceDiscoveryOptions(options);
+				connOptions.applyServiceDiscoveryOptions(options, _reactorOptions.restProxyOptions());
 
 				if (_restClient.getAuthAccessTokenInfo(authOptions, connOptions, authTokenInfo, true,
 						errorInfo) != ReactorReturnCodes.SUCCESS)

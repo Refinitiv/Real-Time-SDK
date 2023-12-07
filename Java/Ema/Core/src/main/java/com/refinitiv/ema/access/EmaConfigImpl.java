@@ -138,6 +138,14 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
     private Buffer								_tokenScope = CodecFactory.createBuffer();
     private Buffer 								_clientJwk = CodecFactory.createBuffer();
     private Buffer								_audience = CodecFactory.createBuffer();
+    
+    private Buffer								_restProxyHostName = CodecFactory.createBuffer();
+    private Buffer								_restProxyPort = CodecFactory.createBuffer();
+    private Buffer								_restProxyUserName = CodecFactory.createBuffer();
+    private Buffer								_restProxyPasswd = CodecFactory.createBuffer();
+    private Buffer								_restProxyDomain = CodecFactory.createBuffer();
+    private Buffer								_restProxyLocalHostName = CodecFactory.createBuffer();
+    private Buffer								_restProxyKrb5ConfigFile = CodecFactory.createBuffer();
 
 	EmaConfigImpl()
 	{
@@ -941,6 +949,76 @@ abstract class EmaConfigImpl extends EmaConfigBaseImpl
 	boolean takeExclusiveSignOnControl()
 	{
 		return _takeExclusiveSignOnControl;
+	}
+	
+	void restProxyHostNameInt(String restProxyHostName)
+	{
+		_restProxyHostName.data(restProxyHostName);
+	}
+	
+	Buffer restProxyHostName()
+	{
+		return _restProxyHostName;
+	}
+	
+	void restProxyPortInt(String restProxyPort)
+	{
+		_restProxyPort.data(restProxyPort);
+	}
+	
+	Buffer restProxyPort()
+	{
+		return _restProxyPort;
+	}
+	
+	void restProxyUserNameInt(String restProxyUserName)
+	{
+		_restProxyUserName.data(restProxyUserName);
+	}
+	
+	Buffer restProxyUserName()
+	{
+		return _restProxyUserName;
+	}
+	
+	void restProxyPasswdInt(String restProxyPasswd)
+	{
+		_restProxyPasswd.data(restProxyPasswd);
+	}
+	
+	Buffer restProxyPasswd()
+	{
+		return _restProxyPasswd;
+	}
+	
+	void restProxyDomainInt(String restProxyDomain)
+	{
+		_restProxyDomain.data(restProxyDomain);
+	}
+	
+	Buffer restProxyDomain()
+	{
+		return _restProxyDomain;
+	}
+	
+	void restProxyLocalHostNameInt(String restProxyLocalHostName)
+	{
+		_restProxyLocalHostName.data(restProxyLocalHostName);
+	}
+	
+	Buffer restProxyLocalHostName()
+	{
+		return _restProxyLocalHostName;
+	}
+	
+	void restProxyKrb5ConfigFileInt(String restProxyKrb5ConfigFile)
+	{
+		_restProxyKrb5ConfigFile.data(restProxyKrb5ConfigFile);
+	}
+	
+	Buffer restProxyKrb5ConfigFile()
+	{
+		return _restProxyKrb5ConfigFile;
 	}
 }
 

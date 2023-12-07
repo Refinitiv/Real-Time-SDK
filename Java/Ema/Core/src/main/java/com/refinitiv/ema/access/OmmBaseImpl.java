@@ -302,6 +302,24 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 			_rsslReactorOpts.restRequestTimeout(_activeConfig.restRequestTimeout);
 			_rsslReactorOpts.tokenReissueRatio(_activeConfig.tokenReissueRatio);
 
+			/* Configuration parameters for handling rest proxy and authentication */
+			Buffer restProxyHostName = CodecFactory.createBuffer();
+			restProxyHostName.data(_activeConfig.restProxyHostName);
+			_rsslReactorOpts.restProxyOptions().proxyHostName(restProxyHostName);
+			Buffer restProxyPort = CodecFactory.createBuffer();
+			restProxyPort.data(_activeConfig.restProxyPort);
+			_rsslReactorOpts.restProxyOptions().proxyPort(restProxyPort);
+			
+			if (config.restProxyHostName() != null && config.restProxyHostName().length() > 0)
+				_rsslReactorOpts.restProxyOptions().proxyHostName(config.restProxyHostName());
+			if (config.restProxyPort() != null && config.restProxyPort().length() > 0)
+				_rsslReactorOpts.restProxyOptions().proxyPort(config.restProxyPort());
+			_rsslReactorOpts.restProxyOptions().proxyUserName(config.restProxyUserName());
+			_rsslReactorOpts.restProxyOptions().proxyPassword(config.restProxyPasswd());
+			_rsslReactorOpts.restProxyOptions().proxyDomain(config.restProxyDomain());
+			_rsslReactorOpts.restProxyOptions().proxyLocalHostName(config.restProxyLocalHostName());
+			_rsslReactorOpts.restProxyOptions().proxyKrb5ConfigFile(config.restProxyKrb5ConfigFile());
+			
 			_rsslReactor = ReactorFactory.createReactor(_rsslReactorOpts, _rsslErrorInfo);
 			if (ReactorReturnCodes.SUCCESS != _rsslErrorInfo.code())
 			{
@@ -961,6 +979,14 @@ abstract class OmmBaseImpl<T> implements OmmCommonImpl, Runnable, TimeoutClient,
 
 			if ((ce = attributes.getPrimitiveValue(ConfigManager.SendJsonConvError)) != null) {
 				_activeConfig.sendJsonConvError = ce.intLongValue() > 0;
+			}
+			
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.RestProxyHostName)) != null) {
+				_activeConfig.restProxyHostName = ce.asciiValue();
+			}
+			
+			if ((ce = attributes.getPrimitiveValue(ConfigManager.RestProxyPort)) != null) {
+				_activeConfig.restProxyPort = ce.asciiValue();
 			}
 			
 			// WarmStandbyChannel

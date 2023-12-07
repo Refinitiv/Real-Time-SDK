@@ -76,6 +76,9 @@ public class JUnitTestConnect
 	public static final int EnableRtt = ConfigManager.EnableRtt;
 	public static final int SendJsonConvError = ConfigManager.SendJsonConvError;
 	
+	public static final int RestProxyHostName = ConfigManager.RestProxyHostName;
+	public static final int RestProxyPort = ConfigManager.RestProxyPort;
+	
 	// Consumer Parameters:
 	public static final int ConsumerDefaultConsumerName  = ConfigManager.DefaultConsumer; 	
 	public static final int ConsumerDictionaryRequestTimeOut  = ConfigManager.DictionaryRequestTimeOut; 
@@ -1101,6 +1104,19 @@ public class JUnitTestConnect
 		
 		ActiveConfig activeConfig = consImpl.activeConfig();
 		
+		if (type == ConfigGroupTypeConsumer)
+		{
+			switch (configParam)
+			{
+				case RestProxyHostName:
+					return activeConfig.restProxyHostName;
+				case RestProxyPort:
+					return activeConfig.restProxyPort;
+				default:
+					break;
+			}
+		}
+
 		if (type == ConfigGroupTypeWarmStandbyGroup)
 		{
 			WarmStandbyChannelConfig wsbConfig = null;
@@ -1190,14 +1206,22 @@ public class JUnitTestConnect
 		
 		if (type == ConfigGroupTypeConsumer)
 		{
-			if (configParam == ConsumerDefaultConsumerName)
-				return activeConfig.configuredName;
-			else if (configParam == EnableRtt) {
-				return String.valueOf(activeConfig.rsslRDMLoginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
+			switch (configParam)
+			{
+				case ConsumerDefaultConsumerName:
+					return activeConfig.configuredName;
+				case EnableRtt:
+					return String.valueOf(activeConfig.rsslRDMLoginRequest.attrib().checkHasSupportRoundTripLatencyMonitoring());
+				case RestProxyHostName:
+					return activeConfig.restProxyHostName;
+				case RestProxyPort:
+					return activeConfig.restProxyPort;
+				case XmlTraceFileName:
+					return activeConfig.xmlTraceFileName;
+				default:
+					break;			
 			}
-			else if (configParam == XmlTraceFileName){
-				return activeConfig.xmlTraceFileName;
-			}
+
 		}
 		else if (type == ConfigGroupTypeChannel)
 		{

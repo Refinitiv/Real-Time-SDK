@@ -518,7 +518,7 @@ public class EmaFileConfigJunitTests extends TestCase
 
 		OmmConsumerConfig testConfig = EmaFactory.createOmmConsumerConfig();
 
-		// Check default consumer name (Conusmer_2) and associated values
+		// Check default consumer name (Consumer_2) and associated values
 		System.out.println("Retrieving DefaultConsumer configuration values: (DefaultConsumer value=Consumer_2) ");
 
 		String defaultConsName = JUnitTestConnect.configGetConsumerName(testConfig);
@@ -583,7 +583,11 @@ public class EmaFileConfigJunitTests extends TestCase
 		TestUtilities.checkResult("ReissueTokenAttemptInterval == 7000", intValue == 7000);
 		double doubleValue = JUnitTestConnect.configDoubleIntValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.TokenReissueRatio);
 		TestUtilities.checkResult("TokenReissueRatio == 0.5", doubleValue == 0.5);
-
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestProxyHostName);
+		TestUtilities.checkResult("RestProxyHostName == restProxyNonLocalHost", stringValue.equals("restProxyNonLocalHost"));
+		stringValue = JUnitTestConnect.configGetStringValue(testConfig, defaultConsName, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestProxyPort);
+		TestUtilities.checkResult("RestProxyPort == 9083", stringValue.equals("9083"));
+		
 		// Check values of Consumer_1
 		System.out.println("\nRetrieving Consumer_1 configuration values ");
 
@@ -1090,6 +1094,8 @@ public class EmaFileConfigJunitTests extends TestCase
 			innerElementList.add(EmaFactory.createElementEntry().intValue("ReissueTokenAttemptInterval", 9000));
 			innerElementList.add(EmaFactory.createElementEntry().doubleValue("TokenReissueRatio", 0.9));
 			innerElementList.add(EmaFactory.createElementEntry().uintValue( "EnableRtt", 1 ));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("RestProxyHostName", "restProxyNonLocalHost"));
+			innerElementList.add(EmaFactory.createElementEntry().ascii("RestProxyPort", "9083"));
 			
 			innerMap.add(EmaFactory.createMapEntry().keyAscii( "Consumer_1", MapEntry.MapAction.ADD, innerElementList));
 			innerElementList.clear();
@@ -1232,7 +1238,10 @@ public class EmaFileConfigJunitTests extends TestCase
 			TestUtilities.checkResult("TunnelStreamMsgEventPoolLimit == 250", value == 250);
 			value = ((OmmConsumerImpl) cons).activeConfig().globalConfig.tunnelStreamStatusEventPoolLimit;
 			TestUtilities.checkResult("TunnelStreamStatusEventPoolLimit == 300", value == 300);
-			
+			String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestProxyHostName, -1);
+			TestUtilities.checkResult("RestProxyHostName == restProxyNonLocalHost", strValue.equals("restProxyNonLocalHost"));
+			strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeConsumer, JUnitTestConnect.RestProxyPort, -1);
+			TestUtilities.checkResult("RestProxyPort == 9083", strValue.equals("9083"));
 			
 			// Check values of Consumer_1
 			System.out.println("\nRetrieving Consumer_1 configuration values "); 
@@ -1251,7 +1260,7 @@ public class EmaFileConfigJunitTests extends TestCase
 			int channelConnType = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.ChannelType, 0);
 			TestUtilities.checkResult("channelConnType == ChannelType::RSSL_SOCKET", channelConnType == ChannelTypeSocket);
 		
-			String strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
+			strValue = JUnitTestConnect.activeConfigGetStringValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.InterfaceName, 0);
 			TestUtilities.checkResult("InterfaceName == localhost", strValue.contentEquals("localhost"));
 			
 			intValue = JUnitTestConnect.activeConfigGetIntLongValue(cons, JUnitTestConnect.ConfigGroupTypeChannel, JUnitTestConnect.CompressionType, 0);

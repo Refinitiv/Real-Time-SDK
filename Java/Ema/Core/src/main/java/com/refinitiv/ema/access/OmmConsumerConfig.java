@@ -388,4 +388,64 @@ public interface OmmConsumerConfig
 	 * @throws OmmInvalidUsageException if dataDictionary object instance does not contain entire dictionary information.
 	 */
 	public OmmConsumerConfig dataDictionary(DataDictionary dataDictionary, boolean shouldCopyIntoAPI);
+	
+    /** Specifies the address or host name of the proxy server for Rest requests: service discovery and auth token service.
+     * 
+     * @param restProxyHostName specifies the address or host name of the proxy server for Rest requests.
+     * @return reference to this object
+    */
+	public OmmConsumerConfig restProxyHostName(String restProxyHostName);
+	
+    /** Specifies the port of the proxy server for Rest requests: service discovery and auth token service.
+     * 
+     * @param restProxyPort specifies the port of the proxy server for Rest requests.
+     * @return reference to this object
+    */
+	public OmmConsumerConfig restProxyPort(String restProxyPort);
+	
+    /** Specifies the user name to authenticate to the proxy server for Rest requests. Needed for all authentication protocols.
+     * 
+     * @param restProxyUserName specifies user name for the proxy server authentication for Rest requests.
+     * @return reference to this object
+    */
+	public OmmConsumerConfig restProxyUserName(String restProxyUserName);
+	
+    /** Specifies the password to authenticate to the proxy server for Rest requests. Needed for all authentication protocols.
+     * 
+     * @param restProxyPasswd specifies password for the proxy server authentication for Rest requests.
+     * @return reference to this object
+    */
+	public OmmConsumerConfig restProxyPasswd(String restProxyPasswd);
+	
+    /** Specifies the domain of the user to authenticate to the proxy server for Rest requests: service discovery and auth token service.
+     * Needed for NTLM or for Negotiate/Kerberos or for Kerberos authentication protocols.
+     * 
+     * For Negotiate/Kerberos or for Kerberos authentication protocols, restProxyDomain
+     * should be the same as the domain in the 'realms' and 'domain_realm' sections of
+     * the Kerberos configuration file.
+     * 
+     * @param restProxyDomain specifies the domain used for the proxy server authentication for Rest requests.
+     * @return reference to this object
+    */
+	public OmmConsumerConfig restProxyDomain(String restProxyDomain);
+	
+    /** Specifies the local hostname of the client. Needed for NTLM authentication protocol only.
+     * 
+     * @param restProxyLocalHostName specifies local hostname needed for NTLM authentication protocol only.
+     * @return reference to this object
+    */
+	public OmmConsumerConfig restProxyLocalHostName(String restProxyLocalHostName);
+	
+	/**
+     * Specifies the complete path of the Kerberos5 configuration file (krb5.ini or krb5.conf, or custom file).
+     * Needed to Negotiate/Kerberos and Kerberos authentications for the proxy connection.
+     * 
+     * The default locations could be the following:
+     * Windows: c:\winnt\krb5.ini or c:\windows\krb5.ini
+     * Linux: /etc/krb5.conf
+     * Other Unix: /etc/krb5/krb5.conf
+     * 
+     * @param restProxyKrb5ConfigFile the proxy Kerberos5 Config File for the proxy connection.
+     */	
+	public OmmConsumerConfig restProxyKrb5ConfigFile(String restProxyKrb5ConfigFile);
 }

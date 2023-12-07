@@ -120,6 +120,9 @@ class ConfigManager
 	public static final int CloseChannelFromConverterFailure = 54;
 
 	public static final int SendJsonConvError = 55;
+	
+	public static final int RestProxyHostName = 56;
+	public static final int RestProxyPort = 57;
 
 	// Channel: Global
 	public static final int ChannelGroup = 100;
@@ -375,6 +378,8 @@ class ConfigManager
 		ConsumerTagDict.add("CatchUnknownJsonKeys", CatchUnknownJsonKeys);
 		ConsumerTagDict.add("CloseChannelFromConverterFailure", CloseChannelFromConverterFailure);
 		ConsumerTagDict.add("SendJsonConvError", SendJsonConvError);
+		ConsumerTagDict.add("RestProxyHostName", RestProxyHostName);
+		ConsumerTagDict.add("RestProxyPort", RestProxyPort);
 
 		ChannelTagDict.add( "ChannelGroup",ChannelGroup );
 		ChannelTagDict.add( "ChannelList",ChannelList );
@@ -747,7 +752,9 @@ class ConfigManager
 			"WarmStandbyMode",
 			"WarmStandbyServerName",
 			"WarmStandbyServerChannel",
-			"PerServiceNameSet"
+			"PerServiceNameSet",
+			"RestProxyHostName",
+			"RestProxyPort"
 	};
 	
 	public static String EnumeratedValues[] = {

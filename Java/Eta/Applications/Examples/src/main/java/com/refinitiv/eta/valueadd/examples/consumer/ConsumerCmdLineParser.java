@@ -68,6 +68,13 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String securityProtocolVersions;
 	private boolean spTLSv12enable = false;
 	private boolean spTLSv13enable = false;
+	private String restProxyHostName;
+	private String restProxyPort;
+	private String restProxyUserName;
+	private String restProxyPasswd;
+	private String restProxyDomain;
+	private String restProxyLocalHostName;
+	private String restProxyKrb5ConfigFile;
 
 	@Override
 	public boolean parseArgs(String[] args)
@@ -259,6 +266,48 @@ class ConsumerCmdLineParser implements CommandLineParser
 				{
 					enableProxy =  true;
 					++argsCount;
+				}
+				else if ("-restProxyHost".equals(args[argsCount]))
+				{
+					String restProxyHostName = args[++argsCount];
+					++argsCount;
+					this.restProxyHostName = restProxyHostName;
+				}
+				else if ("-restProxyPort".equals(args[argsCount]))
+				{
+					String restProxyPort = args[++argsCount];
+					++argsCount;
+					this.restProxyPort = restProxyPort;
+				}
+				else if ("-restProxyUserName".equals(args[argsCount]))
+				{
+					String restProxyUserName = args[++argsCount];
+					++argsCount;
+					this.restProxyUserName = restProxyUserName;
+				}
+				else if ("-restProxyPasswd".equals(args[argsCount]))
+				{
+					String restProxyPasswd = args[++argsCount];
+					++argsCount;
+					this.restProxyPasswd = restProxyPasswd;
+				}
+				else if ("-restProxyDomain".equals(args[argsCount]))
+				{
+					String restProxyDomain = args[++argsCount];
+					++argsCount;
+					this.restProxyDomain = restProxyDomain;
+				}
+				else if ("-restProxyLocalHostName".equals(args[argsCount]))
+				{
+					String restProxyLocalHostName = args[++argsCount];
+					++argsCount;
+					this.restProxyLocalHostName = restProxyLocalHostName;
+				}
+				else if ("-restProxyKrb5ConfigFile".equals(args[argsCount]))
+				{
+					String restProxyKrb5ConfigFile = args[++argsCount];
+					++argsCount;
+					this.restProxyKrb5ConfigFile = restProxyKrb5ConfigFile;
 				}
 				else if ("-ph".equals(args[argsCount]))
 				{
@@ -625,6 +674,41 @@ class ConsumerCmdLineParser implements CommandLineParser
 		return securityProtocolVersions;
 	}
 	
+	String restProxyHostName()
+	{
+		return restProxyHostName;
+	}
+	
+	String restProxyPort()
+	{
+		return restProxyPort;
+	}
+	
+	String restProxyUserName()
+	{
+		return restProxyUserName;
+	}
+	
+	String restProxyPasswd()
+	{
+		return restProxyPasswd;
+	}
+	
+	String restProxyDomain()
+	{
+		return restProxyDomain;
+	}
+	
+	String restProxyLocalHostName()
+	{
+		return restProxyLocalHostName;
+	}
+	
+	String restProxyKrb5ConfigFile()
+	{
+		return restProxyKrb5ConfigFile;
+	}
+	
 	@Override
 	public void printUsage()
 	{
@@ -657,6 +741,13 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -tokenURLV1 specifies the URL for the V1 token generator(optional)." +
 						   "\n -tokenURLV2 specifies the URL for the V2 token generator(optional)." +
 						   "\n -view specifies each request using a basic dynamic view\n" +
+						   "\n -restProxyHost specifies the REST proxy host name. Used for REST requests only for service discovery and authentication.\n" +
+						   "\n -restProxyPort specifies the REST proxy port. Used for REST requests only for service discovery and authentication.\n" +
+						   "\n -restProxyUserName specifies the REST proxy user name. Used for REST requests only for service discovery and authentication.\n" +
+						   "\n -restProxyPasswd specifies the REST proxy password. Used for REST requests only for service discovery and authentication.\n" +
+						   "\n -restProxyDomain specifies the REST proxy domain. Used for REST requests only for service discovery and authentication.\n" +
+						   "\n -restProxyLocalHostName specifies the REST proxy local host name. Used for REST requests only for service discovery and authentication.\n" +
+						   "\n -restProxyKrb5ConfigFile specifies the REST proxy kerberos5 config file. Used for REST requests only for service discovery and authentication.\n" +
 						   "\n -post specifies that the application should attempt to send post messages on the first requested Market Price item\n" +
 						   "\n -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n" +
 						   "\n -publisherInfo specifies that the application should add user provided publisher Id and publisher ipaddress when posting\n" +
@@ -665,7 +756,7 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -encryptedConnectionType specifies the encrypted connection type that the connection should use (possible values are: 'socket', 'http', 'websocket')\n" +
 						   "\n -proxy specifies that proxy is used for connectionType of http or encrypted\n" +
 						   "\n -ph specifies proxy server host name\n" +
-						   "\n -pp specifies roxy port number\n" +
+						   "\n -pp specifies proxy port number\n" +
 						   "\n -plogin specifies user name on proxy server\n" +
 						   "\n -ppasswd specifies password on proxy server\n" +
 						   "\n -pdomain specifies proxy server domain\n" +

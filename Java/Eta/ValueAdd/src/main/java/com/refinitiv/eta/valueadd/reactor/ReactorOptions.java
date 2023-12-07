@@ -59,6 +59,7 @@ public class ReactorOptions
     private double _tokenReissueRatio;
     private int _reissueTokenAttemptLimit;
     private int _reissueTokenAttemptInterval;
+    private ReactorRestProxyOptions _restProxyOptions = new ReactorRestProxyOptions();
 
     private ReactorDebuggerOptions _debuggerOptions = new ReactorDebuggerOptionsImpl();
 
@@ -514,6 +515,11 @@ public class ReactorOptions
         	options._tokenServiceURL_V2.copy(byteBuffer);
         	_tokenServiceURL_V2.data(byteBuffer);
         }
+        
+        if(options._restProxyOptions != null)
+        {
+        	options._restProxyOptions.copy(_restProxyOptions);
+        }
 
         options._debuggerOptions.copy(_debuggerOptions);
     }
@@ -542,5 +548,14 @@ public class ReactorOptions
         if (debuggerOptions != null) {
             debuggerOptions.copy(this._debuggerOptions);
         }
+    }
+    
+    /**
+     * Getter for the RestProxyOptions
+     * @return ReactorRestProxyOptions
+     */
+    public ReactorRestProxyOptions restProxyOptions()
+    {
+    	return _restProxyOptions;
     }
 }

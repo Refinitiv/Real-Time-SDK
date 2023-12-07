@@ -118,11 +118,11 @@ class ReactorTokenSession implements RestCallback
 		}
     }
     
-    void setProxyInfo(ReactorConnectInfo connectInfo)
+    void setProxyInfo(ReactorConnectInfo connectInfo, ReactorRestProxyOptions proxyOpts)
     {
     	if(!_setProxyInfo)
     	{
-    		_restConnectOptions.applyProxyInfo(connectInfo.connectOptions());
+    		_restConnectOptions.applyProxyInfo(connectInfo.connectOptions(), proxyOpts);
     		_setProxyInfo = true;
     	}
     }

@@ -91,11 +91,7 @@ class TunnelingInfoImpl implements TunnelingInfo
         
         if (_SecurityProtocolVersions != null)
         {
-            destTunneling._SecurityProtocolVersions = new String[_SecurityProtocolVersions.length];	
-            for (int i = 0; i < _SecurityProtocolVersions.length; ++i)
-            {
-            	destTunneling._SecurityProtocolVersions[i] = new String(_SecurityProtocolVersions[i]);
-            }
+            destTunneling._SecurityProtocolVersions = _SecurityProtocolVersions.clone();
         }
         else
             destTunneling._SecurityProtocolVersions = null;

@@ -645,6 +645,34 @@ public class WatchlistConsumerConfig
 		return CommandLine.value("pdomain");
 	}
 
+	String restProxyHost() {
+		return CommandLine.value("restProxyHost");
+	}
+	
+	String restProxyPort() {
+		return CommandLine.value("restProxyPort");
+	}
+	
+	String restProxyUserName() {
+		return CommandLine.value("restProxyUserName");
+	}
+	
+	String restProxyPasswd() {
+		return CommandLine.value("restProxyPasswd");
+	}
+	
+	String restProxyDomain() {
+		return CommandLine.value("restProxyDomain");
+	}
+	
+	String restProxyLocalHostName() {
+		return CommandLine.value("restProxyLocalHostName");
+	}
+	
+	String restProxyKrb5ConfigFile() {
+		return CommandLine.value("restProxyKrb5ConfigFile");
+	}
+
 	String krbFile()
 	{
 		return CommandLine.value("krbfile");
@@ -831,8 +859,16 @@ public class WatchlistConsumerConfig
 		CommandLine.addOption("standbyPort", "", "Specifies the port of the standby server in a Warm Standby environment.");
 		CommandLine.addOption("warmStandbyMode", "", "Specifies the Warm Standby Connection Mode, set either to Login or Service.");
 		
+		CommandLine.addOption("restProxyHost", "", "Specifies the hostname of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyPort", "", "Specifies the port of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyUserName", "", "Specifies the user name for the proxy server during rest protocol connections.");
+		CommandLine.addOption("restProxyPasswd", "", "Specifies the password for the proxy server during rest protocol connections.");
+		CommandLine.addOption("restProxyDomain", "", "Specifies the domain of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyLocalHostName", "", "Specifies the local hostname of the proxy server for rest protocol connections.");
+		CommandLine.addOption("restProxyKrb5ConfigFile", "", "Specifies the kerberos5 config file used for the proxy server for rest protocol connections.");
 		CommandLine.addOption("spTLSv1.2", "Specifies for an encrypted connection to be able to use TLS 1.2. Default enables both TLS version 1.2 and 1.3.");
 		CommandLine.addOption("spTLSv1.3", "Specifies for an encrypted connection to be able to use TLS 1.3. Default enables both TLS version 1.2 qnd 1.3.");
+
 	}
 }
 

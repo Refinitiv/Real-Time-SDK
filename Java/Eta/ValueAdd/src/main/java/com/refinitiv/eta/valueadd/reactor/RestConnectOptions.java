@@ -99,20 +99,50 @@ class RestConnectOptions {
 		return port;
 	}
 	
-	void applyServiceDiscoveryOptions(ReactorServiceDiscoveryOptions options)
+	void applyServiceDiscoveryOptions(ReactorServiceDiscoveryOptions options, ReactorRestProxyOptions restProxyOptions)
 	{
 		dataFormat(options.dataFormat());
 		transport(options.transport());
-		proxyHost(options.proxyHostName().toString());
-		proxyPort(RestConnectOptions.convertToPortNumber(options.proxyPort()));
-		proxyUserName(options.proxyUserName().toString());
-		proxyPassword(options.proxyPassword().toString());
-		proxyDomain(options.proxyDomain().toString());
-		proxyLocalHostName(options.proxyLocalHostName().toString());
-		proxyKRB5ConfigFile(options.proxyKRB5ConfigFile().toString());    
+		
+		if (restProxyOptions.proxyHostName() != null && restProxyOptions.proxyHostName().length() > 0 && 
+				restProxyOptions.proxyPort() != null && restProxyOptions.proxyPort().length() > 0)
+		{
+			proxyHost(restProxyOptions.proxyHostName().toString());
+			proxyPort(RestConnectOptions.convertToPortNumber(restProxyOptions.proxyPort()));
+			if (restProxyOptions.proxyUserName() != null && restProxyOptions.proxyUserName().length() > 0)
+			{
+				proxyUserName(restProxyOptions.proxyUserName().toString());
+			}
+			if (restProxyOptions.proxyPassword() != null && restProxyOptions.proxyPassword().length() > 0)
+			{
+				proxyPassword(restProxyOptions.proxyPassword().toString());
+			}
+			if (restProxyOptions.proxyDomain() != null && restProxyOptions.proxyDomain().length() > 0)
+			{
+				proxyDomain(restProxyOptions.proxyDomain().toString());
+			}
+			if (restProxyOptions.proxyLocalHostName() != null && restProxyOptions.proxyLocalHostName().length() > 0)
+			{
+				proxyLocalHostName(restProxyOptions.proxyLocalHostName().toString());
+			}
+			if (restProxyOptions.proxyKrb5ConfigFile() != null && restProxyOptions.proxyKrb5ConfigFile().length() > 0)
+			{
+				proxyKRB5ConfigFile(restProxyOptions.proxyKrb5ConfigFile().toString());
+			}
+		}
+		else
+		{
+			proxyHost(options.proxyHostName().toString());
+			proxyPort(RestConnectOptions.convertToPortNumber(options.proxyPort()));
+			proxyUserName(options.proxyUserName().toString());
+			proxyPassword(options.proxyPassword().toString());
+			proxyDomain(options.proxyDomain().toString());
+			proxyLocalHostName(options.proxyLocalHostName().toString());
+			proxyKRB5ConfigFile(options.proxyKRB5ConfigFile().toString());    
+		}
 	}
 	
-	void applyProxyInfo(ConnectOptions connectOptions)
+	void applyProxyInfo(ConnectOptions connectOptions, ReactorRestProxyOptions restProxyOptions)
 	{
 		if(connectOptions.tunnelingInfo() != null)
 		{
@@ -127,6 +157,33 @@ class RestConnectOptions {
 			proxyDomain(connectOptions.credentialsInfo().HTTPproxyDomain());
 			proxyLocalHostName(connectOptions.credentialsInfo().HTTPproxyLocalHostname());
 			proxyKRB5ConfigFile(connectOptions.credentialsInfo().HTTPproxyKRB5configFile());
+		}
+		
+		if (restProxyOptions.proxyHostName() != null && restProxyOptions.proxyHostName().length() > 0 && 
+				restProxyOptions.proxyPort() != null && restProxyOptions.proxyPort().length() > 0)
+		{
+			proxyHost(restProxyOptions.proxyHostName().toString());
+			proxyPort(RestConnectOptions.convertToPortNumber(restProxyOptions.proxyPort()));
+			if(restProxyOptions.proxyUserName() != null && restProxyOptions.proxyUserName().length() > 0)
+			{
+				proxyUserName(restProxyOptions.proxyUserName().toString());
+			}
+			if(restProxyOptions.proxyPassword() != null && restProxyOptions.proxyPassword().length() > 0)
+			{
+				proxyPassword(restProxyOptions.proxyPassword().toString());
+			}
+			if(restProxyOptions.proxyDomain() != null && restProxyOptions.proxyDomain().length() > 0)
+			{
+				proxyDomain(restProxyOptions.proxyDomain().toString());
+			}
+			if(restProxyOptions.proxyLocalHostName() != null && restProxyOptions.proxyLocalHostName().length() > 0)
+			{
+				proxyLocalHostName(restProxyOptions.proxyLocalHostName().toString());
+			}
+			if(restProxyOptions.proxyKrb5ConfigFile() != null && restProxyOptions.proxyKrb5ConfigFile().length() > 0)
+			{
+				proxyKRB5ConfigFile(restProxyOptions.proxyKrb5ConfigFile().toString());
+			}
 		}
 	}
 	

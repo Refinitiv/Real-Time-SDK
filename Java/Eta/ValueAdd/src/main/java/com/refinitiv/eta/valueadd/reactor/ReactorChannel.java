@@ -256,6 +256,37 @@ public class ReactorChannel extends VaNode
         _restConnectOptions.proxyLocalHostName(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyLocalHostname());
         _restConnectOptions.proxyKRB5ConfigFile(reactorConnectInfo.connectOptions().credentialsInfo().HTTPproxyKRB5configFile());
 
+        // Check if rest Proxy options exist and overwrite proxy options here if so
+        if (_reactor._reactorOptions.restProxyOptions() != null &&
+        		_reactor._reactorOptions.restProxyOptions().proxyHostName() != null && 
+        		_reactor._reactorOptions.restProxyOptions().proxyHostName().length() > 0 &&
+        		_reactor._reactorOptions.restProxyOptions().proxyPort() != null && 
+        		_reactor._reactorOptions.restProxyOptions().proxyPort().length() > 0)
+        {
+    		_restConnectOptions.proxyHost(_reactor._reactorOptions.restProxyOptions().proxyHostName().toString());
+    		_restConnectOptions.proxyPort(Integer.valueOf(_reactor._reactorOptions.restProxyOptions().proxyPort().toString()));
+        	if (_reactor._reactorOptions.restProxyOptions().proxyUserName() != null)
+        	{
+        		_restConnectOptions.proxyUserName(_reactor._reactorOptions.restProxyOptions().proxyUserName().toString());
+        	}
+        	if (_reactor._reactorOptions.restProxyOptions().proxyPassword() != null)
+        	{
+        		_restConnectOptions.proxyPassword(_reactor._reactorOptions.restProxyOptions().proxyPassword().toString());
+        	}
+        	if (_reactor._reactorOptions.restProxyOptions().proxyDomain() != null)
+        	{
+        		_restConnectOptions.proxyDomain(_reactor._reactorOptions.restProxyOptions().proxyDomain().toString());
+        	}
+        	if (_reactor._reactorOptions.restProxyOptions().proxyLocalHostName() != null)
+        	{
+        		_restConnectOptions.proxyLocalHostName(_reactor._reactorOptions.restProxyOptions().proxyLocalHostName().toString());
+        	}
+        	if (_reactor._reactorOptions.restProxyOptions().proxyKrb5ConfigFile() != null)
+        	{
+        		_restConnectOptions.proxyKRB5ConfigFile(_reactor._reactorOptions.restProxyOptions().proxyKrb5ConfigFile().toString());
+        	}
+        }
+        
         return _restConnectOptions;
     }
 

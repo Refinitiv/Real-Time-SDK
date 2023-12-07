@@ -183,6 +183,13 @@ wlconsumer-ConnRec-001: Alters WLConsumer to be able configure multiple provider
     "-maxDelay"  input that permits user to specify ReconnectMaxDelay
 Sample usage: -h2 localhost -p2 14025 -h3 localhost -p3 14026 -attempLimit -1 -numConnections 3 -minDelay 5000 -maxDelay 30000
 
+wlconsumer-RestProxy-001 Alters WLConsumer to have separate service discovery, channel, REST proxies. 
+    Command Line Arguments:
+    "-proxySDHost" proxy service discovery server host name
+    "-proxySDPort" proxy service discovery port number
+    "-ph" channel proxy host name
+    "-pp" channel proxy port number
+
 etajconsperf-Rto-001
     Performance tool with ability to connect to RTO. Requests one item by default; this item is the 1st one in the list specified in 350k.xml
     Alters ConsPerfConfig.java, ConsumerThread.java to connect to RTO, requires CLI credentials.

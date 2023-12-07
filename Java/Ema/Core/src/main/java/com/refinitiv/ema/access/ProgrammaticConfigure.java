@@ -1235,6 +1235,18 @@ class ProgrammaticConfigure
 													((ActiveConfig)activeConfig).tokenReissueRatio = eentry.doubleValue();						
 											}
 											break;
+										case DataTypes.ASCII:
+											if ( eentry.name().equals("RestProxyHostName"))
+											{
+												if(eentry.ascii().ascii().length() > 0)
+													((ActiveConfig)activeConfig).restProxyHostName = eentry.ascii().ascii();						
+											}
+											else if ( eentry.name().equals("RestProxyPort"))
+											{
+												if(eentry.ascii().ascii().length() > 0)
+													((ActiveConfig)activeConfig).restProxyPort = eentry.ascii().ascii();						
+											}
+											break;
 										default:
 											break;
 										}

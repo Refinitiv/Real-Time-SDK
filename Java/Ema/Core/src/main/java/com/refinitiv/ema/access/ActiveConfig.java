@@ -98,7 +98,9 @@ abstract class ActiveConfig extends BaseConfig
 	final static int TUNNELING_PROXY_HOST_CONFIG_BY_FUNCTION_CALL = 0x04;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 	final static int TUNNELING_PROXY_PORT_CONFIG_BY_FUNCTION_CALL = 0x08;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 	final static int TUNNELING_OBJNAME_CONFIG_BY_FUNCTION_CALL = 0x10;  /*!< Indicates that tunneling proxy host set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
-
+	final static int PROXY_USERNAME_CONFIG_BY_FUNCTION_CALL 	= 0x20; /*!< Indicates that tunneling proxy user name set though EMA interface function calls */
+	final static int PROXY_PASSWD_CONFIG_BY_FUNCTION_CALL 		= 0x40; /*!< Indicates that tunneling proxy password set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
+	final static int PROXY_DOMAIN_CONFIG_BY_FUNCTION_CALL 		= 0x80; /*!< Indicates that tunneling proxy domain set though EMA interface function calls for HTTP/ENCRYPTED connection type*/
 	
 	int						obeyOpenWindow;
 	int						postAckTimeout;
@@ -129,6 +131,8 @@ abstract class ActiveConfig extends BaseConfig
 	int						maxFragmentSize;
 	List<ChannelConfig>		configChannelSetForWSB;
 	List<WarmStandbyChannelConfig> configWarmStandbySet;
+	String					restProxyHostName;
+	String					restProxyPort;
 	
 	ActiveConfig(String defaultServiceName)
 	{
@@ -186,6 +190,9 @@ abstract class ActiveConfig extends BaseConfig
 		rsslDirectoryRequest = null;
 		rsslFldDictRequest = null;
 		rsslEnumDictRequest = null;
+		
+		restProxyHostName = null;
+		restProxyPort = null;
 	}
 	
 	StringBuilder configTrace()
@@ -209,7 +216,9 @@ abstract class ActiveConfig extends BaseConfig
 		.append("\n\t wsProtocols: ").append(wsProtocols)
 		.append("\n\t wsMaxMsgSize: ").append(wsMaxMsgSize)
 		.append("\n\t maxFragmentSize: ").append(maxFragmentSize)
-		.append("\n\t serviceDiscoveryRetryCount: ");
+		.append("\n\t serviceDiscoveryRetryCount: ")
+		.append("\n\t restProxyHostName: ").append(restProxyHostName)
+		.append("\n\t restProxyPort: ").append(restProxyPort);
 
 		return traceStr;
 	}

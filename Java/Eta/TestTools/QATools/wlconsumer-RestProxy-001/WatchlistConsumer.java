@@ -1712,17 +1712,17 @@ public class WatchlistConsumer implements ConsumerCallback, ReactorServiceEndpoi
 			reactorServiceDiscoveryOptions.audience().data(watchlistConsumerConfig.audience());
 			chnlInfo.consumerRole.reactorOAuthCredential(reactorOAuthCredential);
 		}
-
-		if (watchlistConsumerConfig.proxyHostname() != null && !watchlistConsumerConfig.proxyHostname().isEmpty())
+		//APIQA
+		if (watchlistConsumerConfig.proxySDHostname() != null && !watchlistConsumerConfig.proxySDHostname().isEmpty())
 		{
-			reactorServiceDiscoveryOptions.proxyHostName().data(watchlistConsumerConfig.proxyHostname());
+			reactorServiceDiscoveryOptions.proxyHostName().data(watchlistConsumerConfig.proxySDHostname());
 		}
 
-		if (watchlistConsumerConfig.proxyPort() != null && !watchlistConsumerConfig.proxyPort().isEmpty())
+		if (watchlistConsumerConfig.proxySDPort() != null && !watchlistConsumerConfig.proxySDPort().isEmpty())
 		{
-			reactorServiceDiscoveryOptions.proxyPort().data(watchlistConsumerConfig.proxyPort());
+			reactorServiceDiscoveryOptions.proxyPort().data(watchlistConsumerConfig.proxySDPort());
 		}
-
+		//END APIQA
 		if (watchlistConsumerConfig.proxyUsername() != null && !watchlistConsumerConfig.proxyUsername().isEmpty())
 		{
 			reactorServiceDiscoveryOptions.proxyUserName().data(watchlistConsumerConfig.proxyUsername());

@@ -78,7 +78,7 @@ class EncryptionOptionsImpl implements EncryptionOptions {
         	destEncOpts._SecurityProtocol = null;
         
         if (_SecurityProtocolVersions != null)
-        	destEncOpts._SecurityProtocolVersions = _SecurityProtocolVersions;
+        	destEncOpts._SecurityProtocolVersions = _SecurityProtocolVersions.clone();
         else
         	destEncOpts._SecurityProtocolVersions = null;
 

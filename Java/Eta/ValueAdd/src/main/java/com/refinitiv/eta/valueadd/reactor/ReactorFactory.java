@@ -963,4 +963,14 @@ public class ReactorFactory
     {
     	return new ReactorWarmStandbyGroupImpl();
     }
+
+    /**
+     * Creates {@link ReactorRestProxyOptions}
+     *
+     * @return the rest proxy options
+     * @see ReactorRestProxyOptions
+     */
+	public static ReactorRestProxyOptions createReactorRestProxyOptions() {
+		return new ReactorRestProxyOptions();
+	}
 }
