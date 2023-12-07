@@ -109,6 +109,8 @@ vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st
 
 vaconsumer-Jwt-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 JWT but can identify either same / diff credential.
 
+vaconsumer-sd-001: Alter VAConsumer to perform implicit service discovery. To perform implicit SD host and port need to be skipped. Arg ex: '-c : '
+
 Module:  Watchlist Consumer 
 ---------------------------
 
