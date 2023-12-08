@@ -2358,7 +2358,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 		{
 			pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, workerLink, pLink);
 
-			if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE)
+			if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE && _reactorHandlesWarmStandby(pReactorChannel) == RSSL_FALSE)
 				/* Attempt initial connect here */
 			{
 				RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
@@ -2396,7 +2396,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 				}
 			}
-			else if((pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastReconnectAttemptMs) >= pReactorChannel->reconnectDelay)
+			else if(pReactorChannel->isInitialChannelConnect == RSSL_TRUE ||
+					(pReactorWorker->lastRecordedTimeMs - pReactorChannel->lastReconnectAttemptMs) >= pReactorChannel->reconnectDelay)
 				/* Attempt to reconnect here */
 			{
 				RsslReactorConnectInfoImpl *pReactorConnectInfoImpl;
