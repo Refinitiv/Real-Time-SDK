@@ -446,6 +446,7 @@ public interface OmmConsumerConfig
      * Other Unix: /etc/krb5/krb5.conf
      * 
      * @param restProxyKrb5ConfigFile the proxy Kerberos5 Config File for the proxy connection.
+     * @return reference to this object
      */	
 	public OmmConsumerConfig restProxyKrb5ConfigFile(String restProxyKrb5ConfigFile);
 }

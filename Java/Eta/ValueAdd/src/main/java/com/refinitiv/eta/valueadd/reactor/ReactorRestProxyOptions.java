@@ -52,9 +52,8 @@ public class ReactorRestProxyOptions
 	/**
      * Copies data of this ReactorRestProxyOptions to the passed in destination parameter.
      * 
-     * @param destination ReactorRestProxyOptions to copy data into.
-     * @return {@link ReactorReturnCodes#SUCCESS} if the copy succeeded, 
-     * otherwise {@link ReactorReturnCodes#FAILURE}.
+     * @param dest ReactorRestProxyOptions to copy data into.
+     * @return {@link ReactorReturnCodes#SUCCESS} if the copy succeeded, otherwise {@link ReactorReturnCodes#FAILURE}.
      */	
 	public int copy(ReactorRestProxyOptions dest)
 	{
