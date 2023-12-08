@@ -1690,8 +1690,6 @@ class ProgrammaticConfigure
 				channelType = ConnectionTypes.SOCKET;
 				activeConfig.channelConfigSet.clear();
 			} else if (setByFnCalled > ActiveConfig.SOCKET_CONN_HOST_CONFIG_BY_FUNCTION_CALL) {
-				if (channelType == ConnectionTypes.SOCKET)
-					channelType = ConnectionTypes.ENCRYPTED;
 				activeConfig.channelConfigSet.clear();
 			}
 

@@ -579,6 +579,12 @@ Module:  Series400Consumer450
 Series400Consumer450-ConsFunc-001
 	Alters consumer to identify -tokenServiceUrl, -serviceDiscoveryUrl, -restRequestTimeout, -reissueTokenAttemptInterval, -reissueTokenAttemptLimit, -tokenReissueRatio
 
+Module:  Series400Consumer451
+-----------------------------
+Series400Consumer451-PConfig-001
+	Alters consumer to configure proxy settings in programmatic config: -progph (ProxyHost), -progpp (ProxyPort).
+	Also configure channel type connection in programmatic config: -progChannelType (encrypted or socket).
+
 Module:  Series400Consumer490
 -----------------------------
 Series400Consumer490-Dict-001
