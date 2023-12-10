@@ -9,22 +9,64 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.2.L1 aka EMA/ETA 3.7.2.L1 aka 3.7.2.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.L1 aka EMA/ETA 3.7.3.L1 aka 3.7.3.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes and minor enhancements
+In this release, support for TLS 1.3 is introduced along with updates to dependent libraries and fixes to customers issues. 
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [Case Number: 12767436] - [RTSDK-7622] - Memory leak fix in ETAC Reactor introduced with RTSDK-6136 
+- [Case Number: 12823235] - [RTSDK-7727] - Qualification with gcc 9.2.1
+- [GitHub #216] - [RTSDK-6808] - Enhancement: Consider making logging to stderr an option
+- [GitHub #240] - [RTSDK-7615] - Pooled objects leak during destruction
+- [GitHub #243 & #251] - [RTSDK-7598] - EMA SessionInfo doesn't have virtual destructor
+- [GitHub #256] - [RTSDK-8068] - Application crash when using warm standby and "Force Logout From DACS" is received
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.1.3.L1 (Dec 12, 2023)
+--------------------------------------------
+
+EMA C++ 3.7.3.L1 Issues Resolved
+--------------------------------
+- [RTSDK-6808] - Enhancement: Consider making logging to stderr an option [GitHub #216]
+- [RTSDK-7592] - EMA enhancement for ability to specify proxy separately for REST requests versus reactor channels
+- [RTSDK-7598] - EMA SessionInfo doesn't have virtual destructor [GitHub #243 & #251]
+- [RTSDK-7810] - Minor change to RMTES Cons310 example to request different item: NFCP_UBMS
+- [RTSDK-7944] - Increase to NumInputBuffers from 10 to 100
+- [RTSDK-8083] - Fix to auto/implicit Service Discovery (region is specified) when warm standby is enabled
+- [RTSDK-7960] - Fix to EMA login request to set AuthenticationToken
+
+ETA C 3.7.3.L1 Issues Resolved
+--------------------------------
+- [RTSDK-1762] - Added error checking in rsslRealignEncodeIterator() to ensure that the new buffer is larger the current encoding buffer size
+- [RTSDK-3323] - Enhancement to rsslVATest to accept proxy options
+- [RTSDK-3662] - Unit tests for WebSocket transport and other scenarios
+- [RTSDK-7533] - Support for non-blocking Token/Service Discovery where application receives RsslReactorChannelEvent via dispatch call
+- [RTSDK-7547] - Fix to nested containers (Map, Vector, etc) to require container to be completed
+- [RTSDK-7627] - Support for non-blocking application driven Service Discovery which requires a call to dispatch
+- [RTSDK-7884] - Fix to Websocket RWF transport cornor case
+- [RTSDK-7923] - Fix to blocking Websocket RWF connection
+- [RTSDK-8045] - Fix to ETA Reactor session management for V2 auth in login request sent upon reconnection to RTO
+- [RTSDK-8076] - Fix minor configuration typo in rsslVATest (unit test)
+
+Both ETA C and EMA C++ 3.7.3.L1 Issues Resolved
+-----------------------------------------------
+- [RTSDK-4281] - Support for TLS 1.3
+- [RTSDK-6143] - Update to supported Cipher Suites
+- [RTSDK-7615] - Pooled objects leak during destruction [GitHub #240] 
+- [RTSDK-7727] - Qualification with gcc 9.2.1 [Case Number: 12823235] 
+- [RTSDK-7766] - Update C/C++ Dependencies: cjson, curl, libxml2 & zlib
+- [RTSDK-8068] - Application crash when using warm standby and "Force Logout From DACS" is received [GitHub #256] 
+
+--------------------------------------------
 RTSDK C++/C Release 2.1.2.L1 (Sep 8, 2023)
 --------------------------------------------
+
+This is a maintenance release with fixes and minor enhancements
 
 ETA C 3.7.2.L1 Issues Resolved
 ------------------------------

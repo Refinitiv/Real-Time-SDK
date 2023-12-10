@@ -21,13 +21,13 @@ External modules used by this version of RTSDK C/C++:
      openSSL               1.1.1a
      openSSL               3.0.X  * 
      openSSL               3.1.X  ** 
-     cJSON                 1.7.15
-     curl                  8.2.0
+     cJSON                 1.7.16
+     curl                  8.4.0
      googletest            release-1.8.1
      l8w8jwt               2.2.0
-     libxml2               2.11.4
+     libxml2               2.11.5
      lz4                   1.9.4
-     zlib                  1.2.13
+     zlib                  1.3
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
 
 - Please note that curl and openSSL are dynamically loaded at runtime.  
@@ -69,7 +69,6 @@ Linux system libraries used by RTSDK C/C++:
 - Oracle Linux Server 7.X Release 64-bit
 - Red Hat Enterprise Server 7.X Release 64-bit
 - Red Hat Enterprise Server 8.X Release 64-bit
-- CentOS 7.X Release 64-bit
 - Ubuntu 20.04 Release 64-bit
 
 - TCP/IP networking support installed if using TCP Socket connection types
@@ -108,7 +107,6 @@ Notes:
 Platforms & Compilers:
 
      GCC compiler suite version 4.8.2 or higher for Oracle Linux 7.X, 64-bit, Native build
-     GCC compiler suite version 4.8.2 or higher for CentOS 7.0, 64-bit, qualification with OL7 library build
      GCC compiler suite version 8.3.1 or higher for Red Hat Enterprise Server 8.X, 64-bit, Native build
      Clang compiler version 9.0.1 for Linux 8 64-bit, qualification with RH8 library build 
      GCC compiler suite version 9.3.0 or higher for Ubuntu 20.04, 64-bit, qualification with RH8 library build
@@ -127,7 +125,6 @@ This release has been tested with the following on supported platform/OS combina
 
      OS                                           GCC Version     Use-Prebuilt Library     Use-Natively Build Library
      --------------------------------             ------------    --------------------     ----------------------------          
-     CentOS 7.0 64-bit                            GCC 4.8.2       OL7_64_GCC482            CENTOS7_64_GCC482
      Oracle Linux Server 7.7 64-bit               GCC 4.8.5       OL7_64_GCC482            OL7_64_GCC485
      Red Hat Enterprise Linux Server 7.7 64-bit   GCC 4.8.5       OL7_64_GCC482            RHEL7_64_GCC485
      Oracle Linux Server 7.7 64-bit               GCC 7.4.0       n/a                      OL7_64_GCC740
@@ -152,7 +149,9 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption using TLS 1.2.  
+This release supports encryption using TLS 1.2 and TLS 1.3.  
+
+NOTE: On windows TLS 1.3 is supported with OpenSSL.
 
 
 ### Interoperability
@@ -170,8 +169,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.7.1
-- ADH 3.7.1
+- ADS 3.7.2
+- ADH 3.7.2
 - DACS 7.8
 
 # Documentation
@@ -203,7 +202,7 @@ Refer to RTSDK C/C++ Installation Guide located in Cpp-C/Eta/Docs or Cpp-C/Ema/D
 
 **For Linux**:
 
-Note: For Linux builds with RedHat based distributions(RHEL, CentOS, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command (this will require root access to the machine):
+Note: For Linux builds with RedHat based distributions(RHEL, Oracle Linux), the CMake scripts require lsb_release to be installed.  For Red Hat Enterprise Linux and CentOS, this can be installed with the following command (this will require root access to the machine):
 
      yum install redhat-lsb-core
 

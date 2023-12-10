@@ -9,18 +9,44 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.2.L1 aka EMA/ETA 3.7.2.L1 aka 3.7.2.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK Java 2.1.3.L1 aka EMA/ETA 3.7.3.L1 aka 3.7.3.0
 ----------------------------------------------------------------------------------------
 
-This is a maintenance release with fixes
+In this release, support for TLS 1.3 is introduced along with updates to dependent jars due to vulnerabilities and fixes to customers issues.
 
 Customer Issues Resolved
 ----------------------------------------------------------------------------------------
-- [GitHub #223] - [RTSDK-7034] - ETAJ Concurrence issue in SelectableBiDirectionalQueue
+- [GitHub #247] - [RTSDK-7764] - Poor performance in EMAJ/ETAJ consumer unregister 
+- [GitHub #249] - [RTSDK-7524] - EMA RsslSocketChannel::fillGatheringByteArray infinite loop
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
+
+--------------------------------------------
+RTSDK Java Release 2.1.3.L1 (Dec 12, 2023)
+--------------------------------------------
+
+EMA Java 3.7.3.L1 Issues Resolved
+---------------------------------
+- [RTSDK-6733] - EmajNIProvPerf fixes for images sent to ADH in a performance test
+- [RTSDK-7810] - Minor change to RMTES Cons310 example to request different item: NFCP_UBMS
+- [RTSDK-7944] - Increase to NumInputBuffers from 10 to 100
+- [RTSDK-8058] - EMAJ ProgrammaticConfig issue: Cons451 does NOT send REST request when ChannelType::RSSL_SOCKET with proxy specified
+
+ETA Java 3.7.3.L1 Issues Resolved
+---------------------------------
+- [RTSDK-180] - Fixes to Performance Tool Guide to correct list of arguments to TransportPerf
+- [RTSDK-7604] - Fix to send Generic message on login message callback
+- [RTSDK-8073] - VAConsumer tool added to support implicit/auto service discovery
+
+Both ETA Java and EMA Java 3.7.3.L1 Issues Resolved
+---------------------------------------------------
+- [RTSDK-7343] - Support for TLS 1.3
+- [RTSDK-7524] - EMA RsslSocketChannel::fillGatheringByteArray infinite loop [GitHub #249]
+- [RTSDK-7593] - Enhancement to add ability to specify proxy separately for REST requests versus reactor channels
+- [RTSDK-7764] - Poor performance in EMAJ/ETAJ consumer unregister [GitHub #247]
+- [RTSDK-7780] - Update Java dependencies due to vulnerabilities: commons-configuration, commons-lang3, commons-text, commons-codec, httpcore, slf4j, jose4j 
 
 --------------------------------------------
 RTSDK Java Release 2.1.2.L1 (Sep 8, 2023)

@@ -72,9 +72,9 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
 
     Library Name            Package Version
     ------------            ----------------
-    ema-3.7.2.0.jar         ema3.7.2.L1
+    ema-3.7.3.0.jar         ema3.7.3.L1
 
-    NOTE: ema-3.7.2.0-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
+    NOTE: ema-3.7.3.0-test.jar containing test utilities is available and published to Maven Central. This may also be built using `gradlew packageTests`.
 
 # EMA Java Issues and Workarounds
  
@@ -97,10 +97,10 @@ In addtion, HTML documentation is available in Java/Ema/Docs. For addtional docu
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - Java Edition
-    Release Number: 3.7.2
+    Release Number: 3.7.3
     Load Number: 1
-    Load ID: ema3.7.2.L1.java
-        Supersedes: ema3.7.1.L1.java
+    Load ID: ema3.7.3.L1.java
+        Supersedes: ema3.7.2.L1.java
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

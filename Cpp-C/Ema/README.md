@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.7.2.L1
+    libema.lib                ema3.7.3.L1
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.7.2.L1
-    libema.dll                ema3.7.2.L1
+    libema.lib                ema3.7.3.L1
+    libema.dll                ema3.7.3.L1
 
 #### Linux
     
@@ -125,26 +125,26 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.7.2.L1
+    libema.a                    ema3.7.3.L1
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.7.2.L1          libema.so.17          ema3.7.2.L1
+    libema.so.3.7.3.L1          libema.so.18          ema3.7.3.L1
     
   
 # EMA C++ Issues and Workarounds
 
-- ESDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
+- RTSDK-421 need infinite timeout support for PostAckTimeout and RequestTimeout in EMA
 
-- ESDK-385 ChannelSet with two multicast channels userQLimit set incorrectly 
+- RTSDK-385 ChannelSet with two multicast channels userQLimit set incorrectly 
 
-- ESDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
+- RTSDK-395 NiProvider360 application uses 100% CPU when CTRL-C pressed while publishing data
 
 - RTSDK-5119 EMACPP NIProvPerf has a limitation of 50000 watchlist size. RFA CPP used message packing to push the typical watchlist size of 100000 to ADH. Message packing is unavailable with EMA CPP.
 
-- ESDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up, the dictionary will not be downloaded properly.
+- RTSDK-361 When overriding admin messages using addAdminMessage and if the service is down at start-up, the dictionary will not be downloaded properly.
 
 - EMA can not download dictionary from a Refinitiv Real-Time Distribution System over a Websocket connection using the tr_json2/rssl.json.v2 protocol. This is a limitation of the simplied JSON protocol.
 
@@ -158,12 +158,12 @@ This will create all necessary soft links for example makefiles to link. It is s
     I-COS Questionnaire: 6212
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
-    Release Number: 3.7.2
+    Release Number: 3.7.3
     Load Number: 1
-    Windows Load ID: ema3.7.2.L1.win
-        Supersedes: ema3.7.1.L1.win
-    Linux Load ID: ema3.7.2.L1.linux
-        Supersedes: ema3.7.1.L1.linux
+    Windows Load ID: ema3.7.3.L1.win
+        Supersedes: ema3.7.2.L1.win
+    Linux Load ID: ema3.7.3.L1.linux
+        Supersedes: ema3.7.2.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99

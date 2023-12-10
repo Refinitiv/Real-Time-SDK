@@ -17,22 +17,22 @@ External modules used by this version of RTSDK Java:
 
 	Dependency				Version
 	----------				-------
-	commons-codec			1.16
-	commons-configuration2	2.9.0
-	commons-collections4	4.4	
-	commons-lang3			3.13.0
-	commons-logging			1.2
-	commons-text		 	1.11.0
-	jackson-annotations	 	2.15.3
-	jackson-core	 		2.15.3  
-	jackson-databind 		2.15.3
+	commons-codec				1.16
+	commons-configuration2			2.9.0
+	commons-collections4			4.4	
+	commons-lang3				3.13.0
+	commons-logging				1.2
+	commons-text		 		1.11.0
+	jackson-annotations	 		2.15.3
+	jackson-core	 			2.15.3  
+	jackson-databind 			2.15.3
 	jose4j					0.9.3
 	junit					4.13.2
 	json					20231013
 	httpclient				4.5.14
-	httpclient-cache 		4.5.14
+	httpclient-cache 			4.5.14
 	httpcore				4.4.16
-	httpcore-nio	 		4.4.16
+	httpcore-nio	 			4.4.16
 	httpmime				4.5.14
 	lz4-java				1.8.0
 	mockito-all				1.10.19
@@ -89,7 +89,6 @@ Platforms:
 	Oracle Linux Server 7.X 64-bit
         Red Hat Enterprise Server 7.X Release 64-bit
         Red Hat Enterprise Server 8.X Release 64-bit
-        CentOS 7.X Release 64-bit Qualification
 	Ubuntu 20.04 64-bit Qualification
 
 #### Tested Versions
@@ -119,7 +118,7 @@ Authentication Schemes:
 
 #### Encryption Support
 
-This release supports encryption using TLS 1.2.  
+This release supports encryption using TLS 1.2 and TLS 1.3.  
 
 ##### Generating a keystore file
 The **keystore** file can contain custom private keys and public key certificates (including your server certificate) that are used in TLS handshake to establish an encrypted connection. By default, the API will automatically use the cacerts file as your keystore file. The **cacerts** file comes with your java installation. If you create your own keystore file, please follow industry [standard instructions](https://docs.oracle.com/cd/E19509-01/820-3503/ggfen/index.html) to do so. This custom keystore file must be specified an input into API to successfully connect to the encrypted server.
@@ -138,8 +137,8 @@ NOTE: Connectivity to RDF-Direct is supported for Level 1 and Level 2 data.
 
 This release has been tested with the following:
 
-- ADS 3.7.1
-- ADH 3.7.1
+- ADS 3.7.2
+- ADH 3.7.2
 - DACS 7.8
 
 # Documentation
@@ -220,40 +219,40 @@ You can download RTSDK libraries and dependencies from Maven Central using sever
 	<dependency>
 		<groupId>com.refinitiv.ema</groupId>
 		<artifactId>ema</artifactId>
-		<version>3.7.2.0</version>
+		<version>3.7.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta</groupId>
 		<artifactId>eta</artifactId>
-		<version>3.7.2.0</version>
+		<version>3.7.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd</groupId>
 		<artifactId>etaValueAdd</artifactId>
-		<version>3.7.2.0</version>
+		<version>3.7.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.valueadd.cache</groupId>
 		<artifactId>etaValueAddCache</artifactId>
-		<version>3.7.2.0</version>
+		<version>3.7.3.0</version>
 	</dependency>
 
 	<dependency>
 		<groupId>com.refinitiv.eta.ansi</groupId>
 		<artifactId>ansipage</artifactId>
-		<version>3.7.2.0</version>
+		<version>3.7.3.0</version>
 	</dependency>
 
 Gradle uses the following syntax to specify RTSDK dependencies:
 
-	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.2.0'
-	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.2.0'
-	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.2.0'
-	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.2.0'
-        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.2.0'
+	compile group: 'com.refinitiv.ema', name: 'ema', version: '3.7.3.0'
+	compile group: 'com.refinitiv.eta', name: 'eta', version: '3.7.3.0'
+	compile group: 'com.refinitiv.eta.valueadd', name: 'etaValueAdd', version: '3.7.3.0'
+	compile group: 'com.refinitiv.eta.valueadd.cache', name: 'etaValueAddCache', version: '3.7.3.0'
+        compile group: 'com.refinitiv.eta.ansi', name: 'ansipage', version: '3.7.3.0'
 
 # Developing 
 

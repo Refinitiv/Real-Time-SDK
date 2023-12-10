@@ -46,7 +46,6 @@ External modules used by this version of RTSDK CSharp:
         Oracle Linux Server 7.X 64-bit, .NET SDK 6.0.402
         Red Hat Enterprise Server 7.X Release 64-bit, .NET SDK 6.0.402
         Red Hat Enterprise Server 8.X Release 64-bit, .NET SDK 6.0.402
-        CentOS 7.X Release 64-bit, .NET SDK 6.0.402
         Ubuntu 20.04 64-bit, .NET SDK 6.0.402
 
 ### Encryption Support
