@@ -2514,7 +2514,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 						}
 
 						/* Closes this channel */
-						if (pReactorChannelImpl->reactorParentQueue != &pReactorImpl->closingChannels)
+						if (pReactorChannelImpl->isLoggedOutFromWSB && pReactorChannelImpl->reactorParentQueue != &pReactorImpl->closingChannels)
 						{
 							if (pReactorChannelImpl->reactorChannel.pRsslChannel && pReactorChannelImpl->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
 							{
