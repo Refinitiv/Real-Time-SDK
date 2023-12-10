@@ -1960,8 +1960,8 @@ static RsslRet wlProcessRemovedService(RsslWatchlistImpl *pWatchlistImpl,
 	{
 		RsslReactorWarmStandByHandlerImpl *pReactorWarmStandByHandlerImpl = pReactorChannelImpl->pWarmStandByHandlerImpl;
 		RsslReactorWarmStandbyGroupImpl *pReactorWarmStandByGroupImpl = &pReactorWarmStandByHandlerImpl->warmStandbyGroupList[pReactorWarmStandByHandlerImpl->currentWSyGroupIndex];
-		RsslWatchlistImpl *pWatchlistImpl;
-		RsslHashLink *pHashLink;
+		RsslWatchlistImpl* pWatchlistImplTemp;
+		RsslHashLink* pHashLink;
 
 		if (pReactorWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
 		{
@@ -1970,9 +1970,9 @@ static RsslRet wlProcessRemovedService(RsslWatchlistImpl *pWatchlistImpl,
 			{
 				if (isRsslChannelActive(pReactorWarmStandByHandlerImpl->pNextActiveReactorChannel))
 				{
-					pWatchlistImpl = (RsslWatchlistImpl*)pReactorWarmStandByHandlerImpl->pNextActiveReactorChannel->pWatchlist;
+					pWatchlistImplTemp = (RsslWatchlistImpl*)pReactorWarmStandByHandlerImpl->pNextActiveReactorChannel->pWatchlist;
 
-					pHashLink = rsslHashTableFind(&pWatchlistImpl->base.pServiceCache->_servicesById, &pWlService->pService->rdm.serviceId, NULL);
+					pHashLink = rsslHashTableFind(&pWatchlistImplTemp->base.pServiceCache->_servicesById, &pWlService->pService->rdm.serviceId, NULL);
 					if (!pHashLink) /* Don't have the service for next channel. */
 					{
 						msgEvent._flags = (WL_MEF_NOTIFY_STATUS | WL_MEF_SEND_CLOSED_RECOVER);
@@ -1987,8 +1987,8 @@ static RsslRet wlProcessRemovedService(RsslWatchlistImpl *pWatchlistImpl,
 		}
 		else
 		{
-			RsslReactorChannelImpl *pProcessReactorChannel = NULL;
-			RsslQueueLink *pLink;
+			RsslReactorChannelImpl* pProcessReactorChannel = NULL;
+			RsslQueueLink* pLink;
 			RsslBool hasChannelDown = RSSL_FALSE;
 			RsslBool hasService = RSSL_FALSE;
 
@@ -2008,9 +2008,9 @@ static RsslRet wlProcessRemovedService(RsslWatchlistImpl *pWatchlistImpl,
 							break;
 						}
 
-						pWatchlistImpl = (RsslWatchlistImpl*)pProcessReactorChannel->pWatchlist;
+						pWatchlistImplTemp = (RsslWatchlistImpl*)pProcessReactorChannel->pWatchlist;
 
-						pHashLink = rsslHashTableFind(&pWatchlistImpl->base.pServiceCache->_servicesById, &pWlService->pService->rdm.serviceId, NULL);
+						pHashLink = rsslHashTableFind(&pWatchlistImplTemp->base.pServiceCache->_servicesById, &pWlService->pService->rdm.serviceId, NULL);
 						if (pHashLink)
 						{
 							hasService = RSSL_TRUE;
@@ -2026,19 +2026,44 @@ static RsslRet wlProcessRemovedService(RsslWatchlistImpl *pWatchlistImpl,
 			}
 			RSSL_MUTEX_UNLOCK(&pReactorWarmStandByHandlerImpl->warmStandByHandlerMutex);
 		}
-	}
 
-	RSSL_QUEUE_FOR_EACH_LINK(&pWlService->openStreamList, pLink)
-	{
-		WlItemStream *pStream = RSSL_QUEUE_LINK_TO_OBJECT(WlItemStream, qlServiceStreams,
+		RSSL_QUEUE_FOR_EACH_LINK(&pWlService->openStreamList, pLink)
+		{
+			RsslUInt8 originalFlags = msgEvent._flags; /* Keeps the original flag values */
+
+			WlItemStream* pStream = RSSL_QUEUE_LINK_TO_OBJECT(WlItemStream, qlServiceStreams,
 				pLink);
 
-		statusMsg.msgBase.domainType = pStream->base.domainType;
-		if ((ret = wlFanoutItemMsgEvent(pWatchlistImpl, pStream, &msgEvent, 
-						pErrorInfo)) 
+			if (pStream->itemIsClosedForAllStandby)
+			{
+				msgEvent._flags = (WL_MEF_NOTIFY_STATUS | WL_MEF_SEND_CLOSED_RECOVER);
+				pStream->itemIsClosedForAllStandby = RSSL_FALSE;
+			}
+
+			statusMsg.msgBase.domainType = pStream->base.domainType;
+			if ((ret = wlFanoutItemMsgEvent(pWatchlistImpl, pStream, &msgEvent,
+				pErrorInfo))
 				!= RSSL_RET_SUCCESS)
-			return ret;
-		pWatchlistImpl->items.pCurrentFanoutStream = NULL;
+				return ret;
+			pWatchlistImpl->items.pCurrentFanoutStream = NULL;
+
+			msgEvent._flags = msgEvent._flags; /* Restore the status flags */
+		}
+	}
+	else
+	{
+		RSSL_QUEUE_FOR_EACH_LINK(&pWlService->openStreamList, pLink)
+		{
+			WlItemStream* pStream = RSSL_QUEUE_LINK_TO_OBJECT(WlItemStream, qlServiceStreams,
+				pLink);
+
+			statusMsg.msgBase.domainType = pStream->base.domainType;
+			if ((ret = wlFanoutItemMsgEvent(pWatchlistImpl, pStream, &msgEvent,
+				pErrorInfo))
+				!= RSSL_RET_SUCCESS)
+				return ret;
+			pWatchlistImpl->items.pCurrentFanoutStream = NULL;
+		}
 	}
 
 	return RSSL_RET_SUCCESS;
@@ -2057,6 +2082,7 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 	WlStream		*pStream;
 	RsslWatchlistMsgEvent msgEvent;
 	RsslWatchlistImpl *pWatchlistImpl = (RsslWatchlistImpl*)pWatchlist;
+	RsslReactorChannelImpl* pReactorChannelImpl = (RsslReactorChannelImpl*)pWatchlistImpl->base.watchlist.pUserSpec;
 
 	pWatchlistImpl->base.currentTime = currentTime;
 
@@ -2264,6 +2290,9 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 						wlDirectoryStreamClose(&pWatchlistImpl->base,
 								&pWatchlistImpl->directory, RSSL_FALSE);
 						wlDirectoryStreamDestroy(pDirectoryStream);
+
+						if(pWsOption != NULL)
+							pWsOption->pStream = 0;
 					}
 
 					/* Login stream was closed but is recoverable. In this case,
@@ -2311,6 +2340,9 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 						wlDirectoryStreamDestroy(pDirectoryStream);
 					}
 
+					if (pWsOption != NULL)
+						pWsOption->pStream = 0;
+
 					/* Fanout closed status to all item streams. */
 					rsslClearStatusMsg(&statusMsg);
 					statusMsg.msgBase.containerType = RSSL_DT_NO_DATA;
@@ -2339,6 +2371,173 @@ RsslRet rsslWatchlistReadMsg(RsslWatchlist *pWatchlist,
 								!= RSSL_RET_SUCCESS)
 							return ret;
 						pWatchlistImpl->items.pCurrentFanoutStream = NULL;
+
+						/* Closes items for all standby servers as the item is closed */
+						if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+						{
+							RsslReactorWarmStandByHandlerImpl* pWarmStandByHandlerImpl = pReactorChannelImpl->pWarmStandByHandlerImpl;
+							RsslReactorWarmStandbyGroupImpl* pWarmStandByGroupImpl = &pWarmStandByHandlerImpl->warmStandbyGroupList[pWarmStandByHandlerImpl->currentWSyGroupIndex];
+							RsslReactorChannelImpl* pProcessReactorChannel;
+							RsslCloseMsg rsslCloseMsg;
+							RsslQueueLink* pLink = NULL;
+							RsslErrorInfo errorInfo;
+							RsslBool isActiveServer = RSSL_FALSE;
+							RsslBool isFanoutChannelActive = RSSL_FALSE;
+							RsslWatchlistProcessMsgOptions processOpts;
+							rsslClearCloseMsg(&rsslCloseMsg);
+							rsslCloseMsg.msgBase.streamId = statusMsg.msgBase.streamId;
+
+							if (pWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+							{
+								isActiveServer = pReactorChannelImpl->isActiveServer;
+							}
+							else
+							{
+									isActiveServer = _isActiveServiceForWSBChannelByID(pWarmStandByGroupImpl, pReactorChannelImpl, 
+										pItemStream->streamAttributes.msgKey.serviceId);
+							}
+
+							/* Closes the item stream for all standby servers only */
+							RSSL_MUTEX_LOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+							RSSL_QUEUE_FOR_EACH_LINK(&pWarmStandByHandlerImpl->rsslChannelQueue, pLink)
+							{
+								isFanoutChannelActive = RSSL_FALSE;
+								pProcessReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, warmstandbyChannelLink, pLink);
+
+								if (pProcessReactorChannel != pReactorChannelImpl)
+								{
+									if (!isActiveServer)
+									{
+										if (pWarmStandByGroupImpl->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+										{
+											isFanoutChannelActive = pProcessReactorChannel->isActiveServer;
+										}
+										else
+										{
+											isFanoutChannelActive = _isActiveServiceForWSBChannelByID(pWarmStandByGroupImpl, pProcessReactorChannel, 
+													pItemStream->streamAttributes.msgKey.serviceId);
+										}
+
+										/* Don't close the item for the current active server as it can provide updates. */
+										if (isFanoutChannelActive)
+										{
+											RsslWatchlistImpl* pActiveSrvWatchlist = (RsslWatchlistImpl*)pProcessReactorChannel->pWatchlist;
+											WlItemStream* pItemStreamTemp = NULL;
+
+											if (pActiveSrvWatchlist)
+											{
+												pHashLink = rsslHashTableFind(&pActiveSrvWatchlist->base.streamsById,
+													(void*)&pItemStream->base.streamId, NULL);
+
+												pItemStreamTemp = (WlItemStream*)(pHashLink ? RSSL_HASH_LINK_TO_OBJECT(WlStream, base.hlStreamId, pHashLink)
+													: NULL);
+
+												if (pItemStreamTemp)
+												{
+													pItemStreamTemp->itemIsClosedForAllStandby = RSSL_TRUE;
+												}
+											}
+											continue;
+										}
+									}
+
+									rsslWatchlistClearProcessMsgOptions(&processOpts);
+									processOpts.pChannel = pProcessReactorChannel->reactorChannel.pRsslChannel;
+									processOpts.pRsslMsg = (RsslMsg*)&rsslCloseMsg;
+									processOpts.majorVersion = pProcessReactorChannel->reactorChannel.majorVersion;
+									processOpts.minorVersion = pProcessReactorChannel->reactorChannel.minorVersion;
+
+									_reactorSubmitWatchlistMsg(pProcessReactorChannel->pParentReactor, pProcessReactorChannel, &processOpts, &errorInfo);
+								}
+
+							}
+							RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+						}
+					}
+
+					if (_reactorHandlesWarmStandby(pReactorChannelImpl))
+					{
+						RsslReactorImpl* pReactorImpl = pReactorChannelImpl->pParentReactor;
+						RsslReactorWarmStanbyEvent* pReactorWarmStanbyEvent;
+						RsslReactorWarmStandbyGroupImpl* pWarmStandByGroup = &pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandbyGroupList[pReactorChannelImpl->pWarmStandByHandlerImpl->currentWSyGroupIndex];
+
+						if (pWarmStandByGroup->warmStandbyMode == RSSL_RWSB_MODE_LOGIN_BASED)
+						{
+							if (pReactorChannelImpl->isActiveServer)
+							{
+								RsslQueueLink* pLink;
+								RsslReactorChannelImpl* pNextReactorChannel = NULL;
+
+								RSSL_MUTEX_LOCK(&pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+								/* Submits to a channel that belongs to the warm standby feature and it is active */
+								RSSL_QUEUE_FOR_EACH_LINK(&pReactorChannelImpl->pWarmStandByHandlerImpl->rsslChannelQueue, pLink)
+								{
+									pNextReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, warmstandbyChannelLink, pLink);
+
+									if (pReactorChannelImpl != pNextReactorChannel && !pNextReactorChannel->isLoggedOutFromWSB && pNextReactorChannel->reactorChannel.pRsslChannel &&
+										pNextReactorChannel->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+									{
+										pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+										rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
+
+										pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVER;
+										pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+										pReactorChannelImpl->pWarmStandByHandlerImpl->pNextActiveReactorChannel = pNextReactorChannel;
+										if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pReactorWarmStanbyEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pErrorInfo))
+										{
+											RSSL_MUTEX_UNLOCK(&pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+											return RSSL_RET_FAILURE;
+										}
+
+										break;
+									}
+								}
+								RSSL_MUTEX_UNLOCK(&pReactorChannelImpl->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+
+								pReactorChannelImpl->isActiveServer = RSSL_FALSE;
+								pReactorChannelImpl->pWarmStandByHandlerImpl->pActiveReactorChannel = NULL;
+							}
+						}
+						else
+						{
+							pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+							rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
+
+							/* Per service based warm standby */
+							pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CHANGE_ACTIVE_TO_STANDBY_SERVICE_CHANNEL_DOWN;
+							pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+
+							if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pReactorWarmStanbyEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pErrorInfo))
+							{
+								return RSSL_RET_FAILURE;
+							}
+						}
+
+						/* Closes this channel */
+						if (pReactorChannelImpl->reactorParentQueue != &pReactorImpl->closingChannels)
+						{
+							if (pReactorChannelImpl->reactorChannel.pRsslChannel && pReactorChannelImpl->reactorChannel.pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+							{
+								pReactorChannelImpl->reconnectAttemptLimit = 0; /* Don't recover this channel */
+
+								/* Closes this channel */
+								RsslReactorWarmStanbyEvent* pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+								rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
+
+								pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CLOSE_RSSL_CHANEL_ONLY;
+								pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+								pReactorWarmStanbyEvent->pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(&pReactorImpl->reactorWorker);
+
+								if (pReactorWarmStanbyEvent->pReactorErrorInfoImpl)
+								{
+									rsslClearReactorErrorInfoImpl(pReactorWarmStanbyEvent->pReactorErrorInfoImpl);
+									rsslSetErrorInfo(&pReactorWarmStanbyEvent->pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Received login stream closed.");
+								}
+
+								if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pReactorWarmStanbyEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pErrorInfo))
+									return RSSL_RET_FAILURE;
+							}
+						}
 					}
 
 					if ((ret = wlServiceCacheClear(pWatchlistImpl->base.pServiceCache, RSSL_TRUE, pErrorInfo)) != RSSL_RET_SUCCESS)

@@ -57,6 +57,7 @@ static SimpleTunnelMsgHandler simpleTunnelMsgHandler;
 static void initTunnelStreamMessaging();
 RsslBool runTimeExpired = RSSL_FALSE;
 RsslSocket socketIdList[2] = { 0, 0 };
+RsslUInt32 socketIdListCount = 0;
 
 /* For UserAuthn authentication login reissue */
 static RsslUInt loginReissueTime; // represented by epoch time in seconds
@@ -528,10 +529,35 @@ int main(int argc, char **argv)
 	{
 		struct timeval 				selectTime;
 		RsslReactorDispatchOptions	dispatchOpts;
-		fd_set useReadFds = readFds, useExceptFds = exceptFds;
+		RsslUInt32					index;
+
+		FD_ZERO(&readFds);
+		FD_ZERO(&exceptFds);
+		FD_SET(pReactor->eventFd, &readFds);
+		FD_SET(pReactor->eventFd, &exceptFds);
+
+		if (pConsumerChannel)
+		{
+			if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_NORMAL)
+			{
+				if (pConsumerChannel->pRsslChannel && pConsumerChannel->pRsslChannel->state == RSSL_CH_STATE_ACTIVE)
+				{
+					FD_SET(pConsumerChannel->socketId, &readFds);
+					FD_SET(pConsumerChannel->socketId, &exceptFds);
+				}
+			}
+			else if (pConsumerChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
+			{
+				for (index = 0; index < socketIdListCount; index++)
+				{
+					FD_SET(socketIdList[index], &readFds);
+					FD_SET(socketIdList[index], &exceptFds);
+				}
+			}
+		}
 
 		selectTime.tv_sec = 1; selectTime.tv_usec = 0;
-		ret = select(FD_SETSIZE, &useReadFds, NULL, &useExceptFds, &selectTime);
+		ret = select(FD_SETSIZE, &readFds, NULL, &exceptFds, &selectTime);
 
 		if (ret < 0)
 		{
@@ -1497,9 +1523,9 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
-					FD_SET(socketIdList[index], &readFds);
-					FD_SET(socketIdList[index], &exceptFds);
 				}
+
+				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
 			printf("Channel "SOCKET_PRINT_TYPE" is up!\n\n", pReactorChannel->socketId);
 
@@ -1550,14 +1576,13 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			else if (pReactorChannel->reactorChannelType == RSSL_REACTOR_CHANNEL_TYPE_WARM_STANDBY)
 			{
 				RsslUInt32 index;
+
 				for (index = 0; index < pConsumerChannel->pWarmStandbyChInfo->socketIdCount; index++)
 				{
-					FD_CLR(socketIdList[index], &readFds);
-					FD_CLR(socketIdList[index], &exceptFds);
-					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &readFds);
-					FD_SET(pConsumerChannel->pWarmStandbyChInfo->socketIdList[index], &exceptFds);
 					socketIdList[index] = pConsumerChannel->pWarmStandbyChInfo->socketIdList[index];
 				}
+
+				socketIdListCount = pConsumerChannel->pWarmStandbyChInfo->socketIdCount;
 			}
 
 			return RSSL_RC_CRET_SUCCESS;

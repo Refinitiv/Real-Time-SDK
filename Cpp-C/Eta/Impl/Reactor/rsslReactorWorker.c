@@ -1323,7 +1323,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												}
 
 												/* Close RSSL channel if present. */
-												if (pReactorChannel->reactorChannel.pRsslChannel)
+												if (pReactorChannel->reactorChannel.pRsslChannel && !pReactorChannel->isRsslChannelClosed)
 												{
 													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 													{
@@ -1334,10 +1334,15 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 												if (pReactorChannel->pWarmStandByHandlerImpl)
 												{
+													RsslUInt32 currentCount = 0;
 													RSSL_MUTEX_LOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+													currentCount = pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue.count;
 													if (pReactorChannel->warmstandbyChannelLink.next != NULL && pReactorChannel->warmstandbyChannelLink.prev != NULL)
 													{
 														rsslQueueRemoveLink(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, &pReactorChannel->warmstandbyChannelLink);
+
+														if(currentCount > pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue.count)
+															pReactorChannel->pWarmStandByHandlerImpl->numOfLoginClosed--;
 													}
 													RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 
@@ -1423,6 +1428,38 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 												}
 
+												break;
+											}
+										case RSSL_RCIMPL_CET_CLOSE_RSSL_CHANNEL_ONLY:
+											{
+												RsslReactorChannelEventImpl* pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorChannel->eventQueue);
+												RsslRet ret;
+
+												if ((pReactorChannel->workerParentList != &pReactorWorker->inactiveChannels) && (pReactorChannel->reactorChannel.pRsslChannel != NULL))
+												{
+													/* Make sure descriptors are cleared */
+													if (rsslNotifierRemoveEvent(pReactorWorker->pNotifier, pReactorChannel->pWorkerNotifierEvent) < 0)
+													{
+														rsslSetErrorInfo(&pReactorWorker->workerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
+															"Failed to remove channel from notifier.");
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+												}
+
+												/* Close RSSL channel if present. */
+												if (pReactorChannel->reactorChannel.pRsslChannel)
+												{
+													if (!RSSL_ERROR_INFO_CHECK((ret = rsslCloseChannel(pReactorChannel->reactorChannel.pRsslChannel, &pReactorWorker->workerCerr.rsslError)) >= RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+													{
+														rsslSetErrorInfoLocation(&pReactorChannel->channelWorkerCerr, __FILE__, __LINE__);
+														return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
+													}
+												}
+
+												/* Remove channel from the active worker's list */
+												_reactorWorkerMoveChannel(&pReactorWorker->inactiveChannels, pReactorChannel);
+												pReactorChannel->isRsslChannelClosed = RSSL_TRUE;
+												
 												break;
 											}
 										default:

@@ -48,6 +48,7 @@ typedef enum
 	RSSL_RCIMPL_CET_DISPATCH_WL = -4,
 	RSSL_RCIMPL_CET_DISPATCH_TUNNEL_STREAM = -5,
 	RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL = -6,
+	RSSL_RCIMPL_CET_CLOSE_RSSL_CHANNEL_ONLY = -7
 } RsslReactorChannelEventImplType;
 
 typedef enum
@@ -241,7 +242,8 @@ typedef enum
 	RSSL_RCIMPL_WSBET_REMOVE_SERVER_FROM_WSB_GROUP = 0x40,
 	RSSL_RCIMPL_WSBET_CONNECT_TO_NEXT_STARTING_SERVER = 0x80,			/* currently not used */
 	RSSL_RCIMPL_WSBET_ACTIVE_SERVER_SERVICE_STATE_FROM_DOWN_TO_UP = 0x100,
-	RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL = 0x200
+	RSSL_RCIMPL_WSBET_MOVE_WSB_HANDLER_BACK_TO_POOL = 0x200,
+	RSSL_RCIMPL_WSBET_CLOSE_RSSL_CHANEL_ONLY = 0x400 /* Closes the RSSL channel only without removing ReactorChannel's resources */
 } RsslReactorWarmStandByEventType;
 
 typedef struct
@@ -298,6 +300,7 @@ typedef union
 	RsslReactorChannelPingEvent			pingEvent;
 	RsslReactorTokenMgntEvent			tokenMgntEvent;
 	RsslReactorTokenSessionEvent		tokenSessionEvent;
+	RsslReactorWarmStandByEventType     warmStandbyEvent;
 	RsslReactorStateEvent				reactorEvent;
 	RsslReactorTimerEvent				timerEvent;
 	RsslReactorLoggingEvent				restLoggingEvent;

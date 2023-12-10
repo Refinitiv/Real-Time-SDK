@@ -533,6 +533,11 @@ struct _RsslReactorChannelImpl
 	RsslBool						  isStartingServerConfig; /* This is used to indicate that this channel uses the starting server configuration. */
 	RsslInt64						  lastSubmitOptionsTime; /* Keeps the timestamp when handling the last submit options. */
 	RsslQueue						  *pWSRecoveryMsgList; /* Keeps a list of recovery status messages to notify application when this channel becomes active. */
+	RsslBool						  isLoggedInForWSB; /* This is used to indicate whether the user is successfully logged for this first time this Reactor channel as part of a WSB group. */
+	RsslBool						  removedSocketFromlist; /* This is used to indicate whether the socket is removed */
+	RsslBool						  isLoggedOutFromWSB; /* This is used to indicate that the user is logged out from the provider */
+	RsslBool						  isRsslChannelClosed; /* This is used to indicate whether RSSL channel is closed when the user is logged out by provider. */
+
 	RsslReactorChannelDebugInfo*      pChannelDebugInfo; /* Provides addtional debugging information for channel and tunnel stream. */
 
 	/* For multi-credentials */
@@ -603,6 +608,7 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslUInt32		priorityFlushOrder;
 	RsslUInt32		compressionThresHold;
 	RsslBool		directWrite;
+	RsslUInt32		numOfLoginClosed;
 };
 
 RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
@@ -1986,6 +1992,10 @@ RTR_C_INLINE void rsslResetReactorChannel(RsslReactorImpl *pReactorImpl, RsslRea
 	pReactorChannel->isStartingServerConfig = RSSL_FALSE;
 	pReactorChannel->lastSubmitOptionsTime = 0;
 	pReactorChannel->pWSRecoveryMsgList = NULL;
+	pReactorChannel->isLoggedInForWSB = RSSL_FALSE;
+	pReactorChannel->removedSocketFromlist = RSSL_FALSE;
+	pReactorChannel->isLoggedOutFromWSB = RSSL_FALSE;
+	pReactorChannel->isRsslChannelClosed = RSSL_FALSE;
 }
 
 /* Verify that the given RsslReactorChannel is valid for this RsslReactor */
@@ -2278,6 +2288,9 @@ RsslRet _initReactorChannelDebugInfo(RsslReactorImpl *pReactorImpl, RsslReactorC
 void _cleanupReactorChannelDebugInfo(RsslReactorChannelImpl *pReactorChannel);
 
 void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs);
+
+RsslRet _reactorSubmitWatchlistMsg(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel,
+			RsslWatchlistProcessMsgOptions *pOptions, RsslErrorInfo *pError);
 
 #ifdef __cplusplus
 };

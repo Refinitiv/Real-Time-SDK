@@ -355,6 +355,7 @@ RsslRet wlItemStreamInit(WlItemStream *pItemStream, WlStreamAttributes *pStreamA
 	pItemStream->nextPartNum = 0;
 	pItemStream->pRequestWithExtraInfo = NULL;
 	wlMsgReorderQueueInit(&pItemStream->bufferedMsgQueue);
+	pItemStream->itemIsClosedForAllStandby = RSSL_FALSE;
 
 	return RSSL_RET_SUCCESS;
 }

@@ -93,6 +93,7 @@ struct WlItemStream
 	WlMsgReorderQueue	bufferedMsgQueue;           /* Multicast message synch queue. */
 	WlItemRequest		*pRequestWithExtraInfo;		/* If present, use the extendedHeader and
 													 * encDataBody, if any, from this request. */
+	RsslBool			itemIsClosedForAllStandby; /* This is used by the active server whether the item is closed for all standby servers. */
 };
 
 /* Initializes an item stream. */
