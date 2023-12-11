@@ -6567,7 +6567,10 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						/* Sends the channel down event if this is the only channel */
 						RSSL_MUTEX_LOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
-						channelEvent.channelEventType = pWarmStandByHandlerImpl->rsslChannelQueue.count == pWarmStandByHandlerImpl->numOfLoginClosed ? RSSL_RC_CET_CHANNEL_DOWN : RSSL_RC_CET_FD_CHANGE;
+
+						RsslUInt32 channelCount = pWarmStandByHandlerImpl->rsslChannelQueue.count;
+						RsslBool sendChannelDown = (++pWarmStandByHandlerImpl->numOfChannelClosed >= channelCount) ? RSSL_TRUE : RSSL_FALSE;
+						channelEvent.channelEventType = sendChannelDown ? RSSL_RC_CET_CHANNEL_DOWN : RSSL_RC_CET_FD_CHANGE;
 						RSSL_MUTEX_UNLOCK(&pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 
 						if (pReactorWarmStanbyEvent->pReactorErrorInfoImpl)

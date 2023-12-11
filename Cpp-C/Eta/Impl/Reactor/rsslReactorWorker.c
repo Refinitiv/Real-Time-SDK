@@ -1334,20 +1334,10 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 												if (pReactorChannel->pWarmStandByHandlerImpl)
 												{
-													RsslUInt32 currentCount = 0;
 													RSSL_MUTEX_LOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
-													currentCount = pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue.count;
 													if (pReactorChannel->warmstandbyChannelLink.next != NULL && pReactorChannel->warmstandbyChannelLink.prev != NULL)
 													{
 														rsslQueueRemoveLink(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, &pReactorChannel->warmstandbyChannelLink);
-
-														if (currentCount > pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue.count)
-														{
-															if (pReactorChannel->isLoggedOutFromWSB)
-															{
-																pReactorChannel->pWarmStandByHandlerImpl->numOfLoginClosed--;
-															}
-														}
 													}
 													RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
 

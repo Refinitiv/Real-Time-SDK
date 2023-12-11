@@ -609,6 +609,7 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslUInt32		compressionThresHold;
 	RsslBool		directWrite;
 	RsslUInt32		numOfLoginClosed;
+	RsslUInt32		numOfChannelClosed;
 };
 
 RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
