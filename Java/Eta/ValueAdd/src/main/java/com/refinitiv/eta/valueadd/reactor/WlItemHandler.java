@@ -12,8 +12,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -83,10 +84,10 @@ class WlItemHandler implements WlHandler
     
     // used for requests that are submitted when directory stream is not up
     // two tables are required - one is indexed by service id and one is indexed by service name
-    HashMap<WlInteger,HashSet<WlRequest>> _pendingRequestByIdTable = new HashMap<WlInteger,HashSet<WlRequest>>();
-    HashMap<String,HashSet<WlRequest>> _pendingRequestByNameTable = new HashMap<String,HashSet<WlRequest>>();
+    LinkedHashMap<WlInteger,LinkedHashSet<WlRequest>> _pendingRequestByIdTable = new LinkedHashMap<WlInteger,LinkedHashSet<WlRequest>>();
+    LinkedHashMap<String,LinkedHashSet<WlRequest>> _pendingRequestByNameTable = new LinkedHashMap<String,LinkedHashSet<WlRequest>>();
     // pool of pending request lists (to avoid GC)
-    LinkedList<HashSet<WlRequest>> _pendingRequestListPool = new LinkedList<HashSet<WlRequest>>();
+    LinkedList<LinkedHashSet<WlRequest>> _pendingRequestListPool = new LinkedList<LinkedHashSet<WlRequest>>();
     
     ReactorErrorInfo _errorInfo = ReactorFactory.createReactorErrorInfo();
     ReactorSubmitOptions _submitOptions = ReactorFactory.createReactorSubmitOptions();
@@ -111,7 +112,7 @@ class WlItemHandler implements WlHandler
     LinkedList<StatusMsg> _statusMsgPool = new LinkedList<StatusMsg>();
     
     // List of StatusMsgs to send when dispatch is called
-    HashMap<WlInteger, StatusMsg> _statusMsgDispatchList = new HashMap<WlInteger, StatusMsg>();
+    LinkedHashMap<WlInteger, StatusMsg> _statusMsgDispatchList = new LinkedHashMap<WlInteger, StatusMsg>();
     
     // List of streams with pending messages to send
     LinkedList<WlStream> _pendingSendMsgList = new LinkedList<WlStream>();
@@ -123,7 +124,7 @@ class WlItemHandler implements WlHandler
     DictionaryMsg _rdmDictionaryMsg = DictionaryMsgFactory.createMsg();
 
     // in case of close recover, the streamId list of user streams 
-    HashSet<WlInteger> _userStreamIdListToRecover = new HashSet<WlInteger>();
+    LinkedHashSet<WlInteger> _userStreamIdListToRecover = new LinkedHashSet<WlInteger>();
   
 	// table that maps item provider request aggregation key to application
 	// requests for symbol list data stream
@@ -177,7 +178,7 @@ class WlItemHandler implements WlHandler
         _defaultQos.rate(QosRates.TICK_BY_TICK);
         _statusMsg.msgClass(MsgClasses.STATUS);
         _wlViewHandler = new WlViewHandler(watchlist);
-        _itemAggregationKeytoWlStreamTable = new HashMap<WlItemAggregationKey,WlStream>(_watchlist.role().watchlistOptions().itemCountHint() + 10, 1);
+        _itemAggregationKeytoWlStreamTable = new LinkedHashMap<WlItemAggregationKey,WlStream>(_watchlist.role().watchlistOptions().itemCountHint() + 10, 1);
     }
     
     @Override
@@ -1287,7 +1288,7 @@ class WlItemHandler implements WlHandler
         wlRequest.stream(null);
         
     	// retrieve pending request list for this service id/name if one exists
-    	HashSet<WlRequest> pendingRequestList = null;
+    	LinkedHashSet<WlRequest> pendingRequestList = null;
     	if (submitOptions.serviceName() != null)
     	{
     		pendingRequestList = _pendingRequestByNameTable.get(submitOptions.serviceName());
@@ -1310,7 +1311,7 @@ class WlItemHandler implements WlHandler
     		pendingRequestList = _pendingRequestListPool.poll();
     		if (pendingRequestList == null)
     		{
-    			pendingRequestList = new HashSet<WlRequest>();
+    			pendingRequestList = new LinkedHashSet<WlRequest>();
     		}
                 
     		// add pending request to list
@@ -1685,11 +1686,11 @@ class WlItemHandler implements WlHandler
         if (statusMsg != null)
         	_statusMsgPool.add(statusMsg);
 
-        Iterator<Map.Entry<WlInteger, HashSet<WlRequest>>> I = _pendingRequestByIdTable.entrySet().iterator();
+        Iterator<Map.Entry<WlInteger, LinkedHashSet<WlRequest>>> I = _pendingRequestByIdTable.entrySet().iterator();
         while (I.hasNext())
         {
-        	Map.Entry<WlInteger, HashSet<WlRequest>> entry = I.next();
-        	HashSet<WlRequest> pendingRequests = entry.getValue();
+        	Map.Entry<WlInteger, LinkedHashSet<WlRequest>> entry = I.next();
+        	LinkedHashSet<WlRequest> pendingRequests = entry.getValue();
         	pendingRequests.remove(wlRequest);
 
         	if (pendingRequests.isEmpty())
@@ -1701,11 +1702,11 @@ class WlItemHandler implements WlHandler
         }
         
         // remove from _pendingRequestByNameTable
-        Iterator<Map.Entry<String, HashSet<WlRequest>>> J = _pendingRequestByNameTable.entrySet().iterator();
+        Iterator<Map.Entry<String, LinkedHashSet<WlRequest>>> J = _pendingRequestByNameTable.entrySet().iterator();
         while (J.hasNext())
         {
-	        Map.Entry<String, HashSet<WlRequest>> entry = J.next();
-	        HashSet<WlRequest> pendingRequests = entry.getValue();
+	        Map.Entry<String, LinkedHashSet<WlRequest>> entry = J.next();
+	        LinkedHashSet<WlRequest> pendingRequests = entry.getValue();
         	pendingRequests.remove(wlRequest);
 
         	if (pendingRequests.isEmpty())
@@ -2534,18 +2535,18 @@ class WlItemHandler implements WlHandler
    	    	wlStream.numPausedRequestsCount(requestList.size());
    	   }
     	     	   	   
-   	   for (Map.Entry<String, HashSet<WlRequest>> entry : _pendingRequestByNameTable.entrySet())
+   	   for (Map.Entry<String, LinkedHashSet<WlRequest>> entry : _pendingRequestByNameTable.entrySet())
    	   {
-   		HashSet<WlRequest> pendingRequestList  = entry.getValue();
+   		LinkedHashSet<WlRequest> pendingRequestList  = entry.getValue();
    	   	   for (WlRequest usrRequest : pendingRequestList)
        	   { 
    	   		   usrRequest.requestMsg().applyPause();
        	   }
    	   }
    
-   	   for (Map.Entry<WlInteger, HashSet<WlRequest>> entry : _pendingRequestByIdTable.entrySet())
+   	   for (Map.Entry<WlInteger, LinkedHashSet<WlRequest>> entry : _pendingRequestByIdTable.entrySet())
    	   {
-   		HashSet<WlRequest> pendingRequestList  = entry.getValue();
+   		LinkedHashSet<WlRequest> pendingRequestList  = entry.getValue();
    	   	   for (WlRequest usrRequest : pendingRequestList)
        	   { 
    	   		   usrRequest.requestMsg().applyPause();
@@ -2571,18 +2572,18 @@ class WlItemHandler implements WlHandler
        	 	}
     	}
         	     	   	   
-    	for (Map.Entry<String, HashSet<WlRequest>> entry : _pendingRequestByNameTable.entrySet())
+    	for (Map.Entry<String, LinkedHashSet<WlRequest>> entry : _pendingRequestByNameTable.entrySet())
     	{
-    		HashSet<WlRequest> pendingRequestList  = entry.getValue();
+    		LinkedHashSet<WlRequest> pendingRequestList  = entry.getValue();
     		for (WlRequest usrRequest : pendingRequestList)
     		{ 
     			usrRequest.requestMsg().flags(usrRequest.requestMsg().flags() & ~RequestMsgFlags.PAUSE);
            	}
     	}
        
-    	for (Map.Entry<WlInteger, HashSet<WlRequest>> entry : _pendingRequestByIdTable.entrySet())
+    	for (Map.Entry<WlInteger, LinkedHashSet<WlRequest>> entry : _pendingRequestByIdTable.entrySet())
     	{
-    		HashSet<WlRequest> pendingRequestList  = entry.getValue();
+    		LinkedHashSet<WlRequest> pendingRequestList  = entry.getValue();
     		for (WlRequest usrRequest : pendingRequestList)
     		{ 
     			usrRequest.requestMsg().flags(usrRequest.requestMsg().flags() & ~RequestMsgFlags.PAUSE);
@@ -2604,7 +2605,7 @@ class WlItemHandler implements WlHandler
     int serviceAdded(WlService wlService)
     {
         int ret = ReactorReturnCodes.SUCCESS;
-        HashSet<WlRequest> pendingRequestList = null;
+        LinkedHashSet<WlRequest> pendingRequestList = null;
         
         // handle any pending requests
         // retrieve matching requests based on service id or service name
