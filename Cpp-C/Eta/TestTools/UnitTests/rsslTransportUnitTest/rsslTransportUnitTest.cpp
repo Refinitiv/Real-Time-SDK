@@ -7282,7 +7282,18 @@ int main(int argc, char* argv[])
 	// It will interfere with other tests that could run parallel.
 	if (::testing::GTEST_FLAG(filter).empty() || ::testing::GTEST_FLAG(filter)=="*")
 	{
-		::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
+		if (checkCertificateFiles() && checkClientCertificateFiles())
+		{
+			::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*";
+		}
+		else
+		{
+			std::cout << "The tests that check encrypted connection will be skipped." << std::endl
+				<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl
+				<< "Creation of client on an encrypted connection requires certificate-file \"" << getOpenSSLCAStore() << "\"." << std::endl;
+			::testing::GTEST_FLAG(filter) = "-ServerStartStopTests.*:*Encrypted*:*EncrWebSock*";
+		}
+
 	}
 	else
 	{
@@ -7308,7 +7319,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			std::cout << "The tests ServerSSLStartStop*Test will be skip." << std::endl
+			std::cout << "The tests ServerSSLStartStop*Test will be skipped." << std::endl
 				<< "Creation of server on an encrypted connection requires key-file \"" << getPathServerKey() << "\" and certificate-file \"" << getPathServerCert() << "\"." << std::endl;
 			::testing::GTEST_FLAG(filter) = "ServerStartStopTests.*:-ServerStartStopTests.ServerSSL*";
 		}
