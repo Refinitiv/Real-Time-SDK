@@ -1632,6 +1632,7 @@ RsslReactorCallbackRet channelEventCallback(RsslReactor *pReactor, RsslReactorCh
 			if (pConnEvent->pError)
 				printf("	Error text: %s\n\n", pConnEvent->pError->rsslError.text);
 
+			socketIdListCount = 0;
 			isConsumerChannelUp = RSSL_FALSE;
 			return RSSL_RC_CRET_SUCCESS;
 		}
