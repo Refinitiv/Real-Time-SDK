@@ -905,7 +905,7 @@ public class TransportMessageJunit
         return bindOptions;
     }
 
-    public BindOptions encryptedBindOptions(String portNumber)
+    public BindOptions encryptedBindOptions(String portNumber, String[] securityProtocolVersions)
     {
         BindOptions bindOptions = TransportFactory.createBindOptions();
         bindOptions.connectionType(ConnectionTypes.ENCRYPTED);
@@ -915,7 +915,6 @@ public class TransportMessageJunit
         bindOptions.encryptionOptions().trustManagerAlgorithm("");
         bindOptions.encryptionOptions().keyManagerAlgorithm("SunX509");
         bindOptions.encryptionOptions().securityProtocol("TLS");
-		String[] securityProtocolVersions = {"1.3", "1.2"};
 		bindOptions.encryptionOptions().securityProtocolVersions(securityProtocolVersions);
         bindOptions.encryptionOptions().securityProvider("SunJSSE");
         bindOptions.serviceName(portNumber);
@@ -1336,6 +1335,7 @@ public class TransportMessageJunit
         int expectedTotalBytes = -1;
         int expectedUncompressedBytes = -1;
         boolean encrypted = false;
+        String[] securityProtocolVersions = {"1.2", "1.3"};
 
 	private static int portNumber = 15200;
 	String PORT_NUMBER;
@@ -1947,6 +1947,7 @@ public class TransportMessageJunit
         args.blocking = true;
         args.compressionType = CompressionTypes.LZ4;
         args.compressionLevel = 6;
+        args.securityProtocolVersions = new String[] {"1.2"};
 
         int[] sizes = { 6140};
         args.messageSizes = sizes;
@@ -2018,6 +2019,7 @@ public class TransportMessageJunit
         args.compressionType = CompressionTypes.LZ4;
         args.compressionLevel = 6;
         args.encrypted = true;
+        args.securityProtocolVersions = new String[] {"1.2"};
 
         int[] sizes = { 6100, 6101, 6102, 6103, 6104, 6105, 6106, 6107, 6108, 6109, 6110};
         args.messageSizes = sizes;
@@ -2394,7 +2396,7 @@ public class TransportMessageJunit
         assertTrue("Cannot have client blocking and globalLocking=true with server using same JVM, globalLocking will deadlock.", (args.blocking && args.globalLocking) == false);
 
         // BindOptions
-        BindOptions bindOptions = args.encrypted ? encryptedBindOptions(args.PORT_NUMBER) : defaultBindOptions(args.PORT_NUMBER);
+        BindOptions bindOptions = args.encrypted ? encryptedBindOptions(args.PORT_NUMBER, args.securityProtocolVersions) : defaultBindOptions(args.PORT_NUMBER);
         bindOptions.compressionType(args.compressionType);
         if (args.compressionType > CompressionTypes.NONE)
             bindOptions.compressionLevel(args.compressionLevel);
