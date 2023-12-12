@@ -2337,6 +2337,7 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 		{
 			rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 				"Failed to copy proxy configuration parameters for the token session.");
+			RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 			return RSSL_RET_FAILURE;
 		}
 
@@ -2346,7 +2347,7 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 	RTR_ATOMIC_SET(pTokenSessionImpl->requestingAccessToken, 0);
 	RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 
-	if (queryConnectInfo)
+	if (*queryConnectInfo)
 	{
 		RsslReactorDiscoveryTransportProtocol transport = RSSL_RD_TP_INIT;
 
@@ -2368,7 +2369,6 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 					"Invalid encrypted protocol type(%d) for requesting RDP service discovery.",
 					pReactorConnectInfoImpl->base.rsslConnectOptions.encryptionOpts.encryptedProtocol);
 
-				RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 				return RSSL_RET_INVALID_ARGUMENT;
 			}
 
@@ -2379,7 +2379,6 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 				"Invalid connection type(%d) for requesting RDP service discovery.",
 				transport);
 
-			RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 			return RSSL_RET_INVALID_ARGUMENT;
 		}
 	}
