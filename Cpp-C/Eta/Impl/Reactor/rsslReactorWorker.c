@@ -1340,30 +1340,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														rsslQueueRemoveLink(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, &pReactorChannel->warmstandbyChannelLink);
 													}
 													RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
-
-													/* Clenaup recovery message*/
-													if(pReactorChannel->pWSRecoveryMsgList != NULL)
-													{
-														RsslReactorWSRecoveryMsgInfo* pWSRecoveryMsgInfo = NULL;
-
-														while ((pLink = rsslQueueRemoveFirstLink(pReactorChannel->pWSRecoveryMsgList)))
-														{
-															pWSRecoveryMsgInfo = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWSRecoveryMsgInfo, queueLink, pLink);
-
-															if (pWSRecoveryMsgInfo->msgKey.name.data)
-																free(pWSRecoveryMsgInfo->msgKey.name.data);
-
-															if (pWSRecoveryMsgInfo->serviceName.data)
-																free(pWSRecoveryMsgInfo->serviceName.data);
-
-															if (pWSRecoveryMsgInfo->rsslState.text.data)
-																free(pWSRecoveryMsgInfo->rsslState.text.data);
-
-															free(pWSRecoveryMsgInfo);
-														}
-
-														pReactorChannel->pWSRecoveryMsgList = NULL;
-													}
 												}
 
 												/* Unregister the channel for the token session */
@@ -1410,7 +1386,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												if (pReactorWarmStandbyHandlerImpl)
 												{
 													RsslReactorWarmStanbyEvent* pEvent = NULL;
-													_rsslFreeWarmStandbyHandler(pReactorWarmStandbyHandlerImpl, pReactorWarmStandbyHandlerImpl->warmStandbyGroupCount, RSSL_FALSE);
 													pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_INACTIVE;
 
 													pEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);

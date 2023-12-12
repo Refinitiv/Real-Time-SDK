@@ -121,6 +121,10 @@ static RsslRet _reactorDeepCopyServiceDiscoveryOptions(RsslProxyOpts* pReactorRe
 static RsslRet _reactorParseReactorServiceDiscoveryEvent(RsslUInt32 statusCode, RsslReactorImpl* pReactorImpl, RsslBuffer* pSDDataBody,
 	RsslReactorServiceEndpointEvent* pReactorServiceEndpointEvent, RsslReactorServiceEndpointEventCallback* pReactorServiceEndpointEventCallback,
 	RsslErrorInfo* pRsslErrorInfo);
+
+static RsslRet _reactorCloseWarmStandbyChannel(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel, RsslErrorInfo* pError);
+
+static void _reactorCleanupWSBRecoveryMsg(RsslReactorChannelImpl* pReactorChannel);
  
 /* Options for _reactorProcessMsg. */
 typedef struct
@@ -4577,53 +4581,32 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 		
 		if (_reactorHandlesWarmStandby(pReactorChannel))
 		{
-			RsslQueueLink* pLink = NULL;
-			RsslReactorChannelImpl* pClosingReactorChannel;
-			RsslReactorWarmStandByHandlerImpl* pReactorWarmStandbyHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
-
-			/* Channel is in the process of being closed. */
-			if (pReactorWarmStandbyHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_CLOSING || 
-				pReactorWarmStandbyHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_INACTIVE)
+			/* Checks whether this function is call in the dispatch method. Then create a event to close later */
+			if (pReactorImpl->inReactorFunction)
 			{
-				return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
-			}
-
-			pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CLOSING;
-
-			rsslQueueAddLinkToBack(&pReactorImpl->closingWarmstandbyChannel, &pReactorWarmStandbyHandlerImpl->reactorQueueLink);
-
-			RSSL_MUTEX_LOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
-			/* Submits to a channel that belongs to the warm standby feature and it is active */
-			RSSL_QUEUE_FOR_EACH_LINK(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, pLink)
-			{
-				pClosingReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, warmstandbyChannelLink, pLink);
-
-				if (pClosingReactorChannel)
+				RsslReactorWarmStanbyEvent* pReactorWarmStanbyEvent = (RsslReactorWarmStanbyEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
+				if (pReactorWarmStanbyEvent != NULL)
 				{
-					ret = _processingReactorChannelShutdown(pReactorImpl, pClosingReactorChannel, pError);
+					rsslClearReactorWarmStanbyEvent(pReactorWarmStanbyEvent);
 
-					if (ret != RSSL_RET_SUCCESS)
-						break;
+					pReactorWarmStanbyEvent->reactorWarmStandByEventType = RSSL_RCIMPL_WSBET_CLOSE_WARMSTANDBY_CHANNEL;
+					pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+
+					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pReactorWarmStanbyEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+						return RSSL_RET_FAILURE;
+				}
+				else
+				{
+					rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Failed to get event from the pool.");
+					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
 				}
 			}
-			RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
-
-			/* Sends an event to close the warm standby channel. */
+			else
 			{
-				RsslReactorChannelEventImpl* pEvent = NULL;
-
-				pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CLOSING;
-
-				pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
-
-				/* Send request to worker to close this channel */
-				rsslClearReactorChannelEventImpl(pEvent);
-				pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL;
-				pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
-				pEvent->channelEvent.pError = pError;
-
-				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+				if (_reactorCloseWarmStandbyChannel(pReactorImpl, pReactorChannel, pError) != RSSL_RET_SUCCESS)
+				{
 					return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+				}
 			}
 		}
 		else
@@ -5137,7 +5120,21 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 							break;
 						}
+						case RSSL_RCIMPL_CET_CLOSE_CHANNEL_ACK:
+						{
+							if (pReactorChannel->pWatchlist)
+							{
+								/* Cleanup recovery message for WSB channel if any */
+								_reactorCleanupWSBRecoveryMsg(pReactorChannel);
 
+								rsslWatchlistDestroy(pReactorChannel->pWatchlist);
+								pReactorChannel->pWatchlist = NULL;
+							}
+
+							_reactorMoveChannel(&pReactorImpl->channelPool, pReactorChannel);
+							--pReactorImpl->channelCount;
+							return RSSL_RC_CRET_SUCCESS;
+						}
 						default:
 							rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, 
 									__FILE__, __LINE__, "Unknown channel event type: %d", pConnEvent->channelEvent.channelEventType);
@@ -5159,6 +5156,9 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 						case RSSL_RCIMPL_CET_CLOSE_CHANNEL_ACK:
 							if (pReactorChannel->pWatchlist)
 							{
+								/* Cleanup recovery message for WSB channel if any */
+								_reactorCleanupWSBRecoveryMsg(pReactorChannel);
+
 								rsslWatchlistDestroy(pReactorChannel->pWatchlist);
 								pReactorChannel->pWatchlist = NULL;
 							}
@@ -6531,6 +6531,8 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						if(pReturnWarmStandByHandlerImpl != NULL)
 						{	
+							_rsslFreeWarmStandbyHandler(pReturnWarmStandByHandlerImpl, pReturnWarmStandByHandlerImpl->warmStandbyGroupCount, RSSL_FALSE);
+
 							/* Removes from the closing queue and returns warm standby handler back to pool to reuse. */
 							rsslQueueRemoveLink(&pReactorImpl->closingWarmstandbyChannel, &pReturnWarmStandByHandlerImpl->reactorQueueLink);
 
@@ -6541,7 +6543,6 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					}
 					case RSSL_RCIMPL_WSBET_CLOSE_RSSL_CHANEL_ONLY:
 					{
-						/* Channel is not currently trying to close. */
 						RsslReactorChannelEventImpl* pEvent = NULL;
 						RsslReactorChannel* pCallbackChannel;
 						RsslReactorChannelEvent channelEvent;
@@ -6614,6 +6615,19 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 						break;
 					}
+					case RSSL_RCIMPL_WSBET_CLOSE_WARMSTANDBY_CHANNEL:
+					{
+						if (pReactorChannelImpl == NULL)
+							break;
+
+						if (_reactorCloseWarmStandbyChannel(pReactorImpl, pReactorChannelImpl, pError) != RSSL_RET_SUCCESS)
+						{
+							return RSSL_RET_FAILURE;
+						}
+
+						break;
+					}
+
 					default:
 						rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Unknown warm standby event type: %d", pReactorWarmStanbyEvent->reactorWarmStandByEventType);
 						return RSSL_RET_FAILURE;
@@ -7638,7 +7652,7 @@ static RsslRet _reactorProcessMsg(RsslReactorImpl *pReactorImpl, RsslReactorChan
 								else
 								{
 									/* Handles source dirctory update for the delete action generated by watchlist when the channel down. */
-									if(isRsslChannelActive(pReactorChannel) == RSSL_FALSE)
+									if(!pReactorChannel->isLoggedOutFromWSB && isRsslChannelActive(pReactorChannel) == RSSL_FALSE)
 									{
 										RsslWatchlistImpl* pWatchlistImpl = (RsslWatchlistImpl*)pReactorChannel->pWatchlist;
 										_reactorWSDirectoryUpdateFromChannelDown(pReactorWarmStandByGroupImpl, pReactorChannel, pWatchlistImpl->base.pServiceCache);
@@ -15684,4 +15698,87 @@ MemoryAllocationFailed:
 		"Failed to allocate memory for querying service discovery.");
 
 	return RSSL_RET_FAILURE;
+}
+
+static RsslRet _reactorCloseWarmStandbyChannel(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel, RsslErrorInfo* pError)
+{
+	RsslRet ret;
+	RsslQueueLink* pLink = NULL;
+	RsslReactorChannelImpl* pClosingReactorChannel;
+	RsslReactorWarmStandByHandlerImpl* pReactorWarmStandbyHandlerImpl = pReactorChannel->pWarmStandByHandlerImpl;
+
+	/* Channel is in the process of being closed. */
+	if (pReactorWarmStandbyHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_CLOSING ||
+		pReactorWarmStandbyHandlerImpl->warmStandByHandlerState == RSSL_RWSB_STATE_INACTIVE)
+	{
+		return (reactorUnlockInterface(pReactorImpl), RSSL_RET_SUCCESS);
+	}
+
+	pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CLOSING;
+
+	rsslQueueAddLinkToBack(&pReactorImpl->closingWarmstandbyChannel, &pReactorWarmStandbyHandlerImpl->reactorQueueLink);
+
+	RSSL_MUTEX_LOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+	/* Submits to a channel that belongs to the warm standby feature and it is active */
+	RSSL_QUEUE_FOR_EACH_LINK(&pReactorChannel->pWarmStandByHandlerImpl->rsslChannelQueue, pLink)
+	{
+		pClosingReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorChannelImpl, warmstandbyChannelLink, pLink);
+
+		if (pClosingReactorChannel)
+		{
+			ret = _processingReactorChannelShutdown(pReactorImpl, pClosingReactorChannel, pError);
+
+			if (ret != RSSL_RET_SUCCESS)
+				break;
+		}
+	}
+	RSSL_MUTEX_UNLOCK(&pReactorChannel->pWarmStandByHandlerImpl->warmStandByHandlerMutex);
+
+	/* Sends an event to close the warm standby channel. */
+	{
+		RsslReactorChannelEventImpl* pEvent = NULL;
+
+		pReactorWarmStandbyHandlerImpl->warmStandByHandlerState = RSSL_RWSB_STATE_CLOSING;
+
+		pEvent = (RsslReactorChannelEventImpl*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
+
+		/* Send request to worker to close this channel */
+		rsslClearReactorChannelEventImpl(pEvent);
+		pEvent->channelEvent.channelEventType = (RsslReactorChannelEventType)RSSL_RCIMPL_CET_CLOSE_WARMSTANDBY_CHANNEL;
+		pEvent->channelEvent.pReactorChannel = (RsslReactorChannel*)pReactorChannel;
+		pEvent->channelEvent.pError = pError;
+
+		if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+			return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+	}
+
+	return RSSL_RET_SUCCESS;
+}
+
+static void _reactorCleanupWSBRecoveryMsg(RsslReactorChannelImpl* pReactorChannel)
+{
+	/* Clenaup recovery message*/
+	if (pReactorChannel->pWarmStandByHandlerImpl && pReactorChannel->pWSRecoveryMsgList != NULL)
+	{
+		RsslReactorWSRecoveryMsgInfo* pWSRecoveryMsgInfo = NULL;
+		RsslQueueLink* pLink;
+
+		while ((pLink = rsslQueueRemoveFirstLink(pReactorChannel->pWSRecoveryMsgList)))
+		{
+			pWSRecoveryMsgInfo = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorWSRecoveryMsgInfo, queueLink, pLink);
+
+			if (pWSRecoveryMsgInfo->msgKey.name.data)
+				free(pWSRecoveryMsgInfo->msgKey.name.data);
+
+			if (pWSRecoveryMsgInfo->serviceName.data)
+				free(pWSRecoveryMsgInfo->serviceName.data);
+
+			if (pWSRecoveryMsgInfo->rsslState.text.data)
+				free(pWSRecoveryMsgInfo->rsslState.text.data);
+
+			free(pWSRecoveryMsgInfo);
+		}
+
+		pReactorChannel->pWSRecoveryMsgList = NULL;
+	}
 }
