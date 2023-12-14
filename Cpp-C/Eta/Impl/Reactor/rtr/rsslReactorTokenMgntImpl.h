@@ -220,6 +220,7 @@ struct _RsslReactorExplicitServiceDiscoveryInfo
 	RsslBuffer parseRespBuffer;
 	RsslUInt32 httpStatusCode;
 	RsslReactorTokenSessionImpl* pTokenSessionImpl;
+	void* pUserSpec;
 };
 
 RTR_C_INLINE void rsslClearReactorExplicitServiceDiscoveryInfo(RsslReactorExplicitServiceDiscoveryInfo* pServiceDiscoveryInfo)

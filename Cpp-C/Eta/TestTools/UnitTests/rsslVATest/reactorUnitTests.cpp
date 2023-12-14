@@ -2323,6 +2323,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
 	}
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
@@ -2369,6 +2370,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
 	}
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
@@ -2414,6 +2416,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_RwfDataformat)
 	}
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_RWF;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
@@ -2460,6 +2463,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_WebsocketTranspo
 	}
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
@@ -2506,6 +2510,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_Tr_json2Dataform
 	}
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_JSON2;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	// Checking the service discovery response in the serviceEndpointEventCallback
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
@@ -2546,12 +2551,14 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_tokenScope_Clie
 		_reactorServiceDiscoveryOpts.password = g_password;
 		_reactorServiceDiscoveryOpts.clientId = g_userName;
 		mOpts.userSpecPtr = &expectedResult;
+		_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 		_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 	}
 	else
 	{
 		_reactorServiceDiscoveryOpts.clientId = g_clientId;
 		mOpts.userSpecPtr = &expectedError;
+		_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
 		_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 	}
 
@@ -2613,6 +2620,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_empty_tokenscop
 	_reactorServiceDiscoveryOpts.tokenScope.data = const_cast<char*>(""); /* the Reactor uses the default scope instead */
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -2650,6 +2658,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombinat
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_TCP;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_JSON2;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -2687,6 +2696,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidCombinat
 	_reactorServiceDiscoveryOpts.transport = RSSL_RD_TP_WEBSOCKET;
 	_reactorServiceDiscoveryOpts.dataFormat = RSSL_RD_DP_RWF;
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -2790,6 +2800,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidClientID
 		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
 	}
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
@@ -2829,6 +2840,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidTokenSer
 		mOpts.tokenServiceURL_V2.length = (RsslUInt32)strlen(mOpts.tokenServiceURL_V2.data);
 	}
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
@@ -2870,6 +2882,7 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsWith_InvalidServiceD
 		_reactorServiceDiscoveryOpts.clientSecret = g_clientSecret;
 	}
 
+	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
 	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForError;
 
 	RsslRet expectedRet = parameters.restBlocking ? -1 : 0;
@@ -3192,6 +3205,8 @@ RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslR
 {
 	ReactorServiceDiscoveryEndpointResult *expectedResult = (ReactorServiceDiscoveryEndpointResult *)pReactor->userSpecPtr;
 
+	EXPECT_TRUE(expectedResult == pServiceEndpointEvent->userSpecPtr);
+
 	EXPECT_TRUE(pServiceEndpointEvent->pErrorInfo == 0);
 
 	if (pServiceEndpointEvent->pErrorInfo == 0)
@@ -3208,6 +3223,7 @@ RsslReactorCallbackRet serviceEndpointEventCallbackForError(RsslReactor *pReacto
 {
 	ReactorServiceDiscoveryEndpointError* expectedError = (ReactorServiceDiscoveryEndpointError*)pReactor->userSpecPtr;
 
+	EXPECT_TRUE(expectedError == pServiceEndpointEvent->userSpecPtr);
 	EXPECT_TRUE(pServiceEndpointEvent->pErrorInfo->rsslError.rsslErrorId == RSSL_RET_FAILURE);
 	EXPECT_TRUE(strtok(pServiceEndpointEvent->pErrorInfo->rsslError.text, expectedError->expectedText) != NULL);
 	EXPECT_TRUE(pServiceEndpointEvent->statusCode == expectedError->HttpStatusCode);

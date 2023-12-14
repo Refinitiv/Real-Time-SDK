@@ -120,7 +120,7 @@ static RsslRet _reactorDeepCopyServiceDiscoveryOptions(RsslProxyOpts* pReactorRe
 
 static RsslRet _reactorParseReactorServiceDiscoveryEvent(RsslUInt32 statusCode, RsslReactorImpl* pReactorImpl, RsslBuffer* pSDDataBody,
 	RsslReactorServiceEndpointEvent* pReactorServiceEndpointEvent, RsslReactorServiceEndpointEventCallback* pReactorServiceEndpointEventCallback,
-	RsslErrorInfo* pRsslErrorInfo);
+	RsslErrorInfo* pRsslErrorInfo, void* pUserSpec);
 
 static RsslRet _reactorCloseWarmStandbyChannel(RsslReactorImpl* pReactorImpl, RsslReactorChannelImpl* pReactorChannel, RsslErrorInfo* pError);
 
@@ -1888,6 +1888,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 			rsslClearReactorExplicitServiceDiscoveryInfo(pRestEvent->pExplicitSDInfo);
 
+			pRestEvent->pExplicitSDInfo->pUserSpec = pOpts->userSpecPtr;
 			pRestEvent->pExplicitSDInfo->sessionMgntVersion = sessionVersion;
 			pRestEvent->pExplicitSDInfo->pReactor = pReactor;
 			pRestEvent->pExplicitSDInfo->pRestRequestArgs = NULL; /* Don't create a request argument yet */
@@ -2096,6 +2097,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 				rsslClearReactorExplicitServiceDiscoveryInfo(pRestEvent->pExplicitSDInfo);
 
+				pRestEvent->pExplicitSDInfo->pUserSpec = pOpts->userSpecPtr;
 				pRestEvent->pExplicitSDInfo->sessionMgntVersion = sessionVersion;
 				pRestEvent->pExplicitSDInfo->pReactor = pReactor;
 				pRestEvent->pExplicitSDInfo->pRestRequestArgs = pRestRequestArgs;
@@ -2186,9 +2188,8 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 			if (restResponse.statusCode == 200)
 			{
-				RsslReactorServiceEndpointEvent serviceDiscoveryEvent;
 				RsslRet rsslRet = _reactorParseReactorServiceDiscoveryEvent(restResponse.statusCode, pRsslReactorImpl, &restResponse.dataBody,
-					&serviceDiscoveryEvent, pOpts->pServiceEndpointEventCallback, &errorInfo);
+					&reactorServiceEndpointEvent, pOpts->pServiceEndpointEventCallback, &errorInfo, pOpts->userSpecPtr);
 
 				if (rsslRet == RSSL_RET_FAILURE)
 				{
@@ -6671,11 +6672,15 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 				RsslErrorInfo rsslErrorInfo;
 				RsslReactorServiceEndpointEvent serviceEndpointEvent;
 				RsslRet rsslRet = RSSL_RET_SUCCESS;
+
+				rsslClearReactorServiceEndpointEvent(&serviceEndpointEvent);
+
+				serviceEndpointEvent.userSpecPtr = pExplicitSDInfo->pUserSpec;
 					
 				if (restRequestResponseEvent->pReactorErrorInfoImpl == NULL)
 				{
 					rsslRet = _reactorParseReactorServiceDiscoveryEvent(pExplicitSDInfo->httpStatusCode, pReactorImpl, &pExplicitSDInfo->parseRespBuffer,
-						&serviceEndpointEvent, pExplicitSDInfo->serviceDiscoveryOptions.pServiceEndpointEventCallback, &rsslErrorInfo);
+						&serviceEndpointEvent, pExplicitSDInfo->serviceDiscoveryOptions.pServiceEndpointEventCallback, &rsslErrorInfo, pExplicitSDInfo->pUserSpec);
 
 					if (rsslRet == RSSL_RET_FAILURE)
 					{
@@ -15606,7 +15611,7 @@ MemoryAllocationFailure:
 
 static RsslRet _reactorParseReactorServiceDiscoveryEvent(RsslUInt32 statusCode, RsslReactorImpl* pReactorImpl, RsslBuffer* pSDDataBody,
 	RsslReactorServiceEndpointEvent* pReactorServiceEndpointEvent, RsslReactorServiceEndpointEventCallback* pReactorServiceEndpointEventCallback, 
-	RsslErrorInfo* pRsslErrorInfo)
+	RsslErrorInfo* pRsslErrorInfo, void* pUserSpec)
 {
 	RsslUInt32 idx;
 	RsslUInt32 neededBufferSize = pSDDataBody->length * 2;
@@ -15650,10 +15655,11 @@ static RsslRet _reactorParseReactorServiceDiscoveryEvent(RsslUInt32 statusCode, 
 
 	} while (rsslRet == RSSL_RET_BUFFER_TOO_SMALL);
 
+	rsslClearReactorServiceEndpointEvent(pReactorServiceEndpointEvent);
+	pReactorServiceEndpointEvent->userSpecPtr = pUserSpec;
+
 	if (rsslRet == RSSL_RET_SUCCESS)
 	{
-		rsslClearReactorServiceEndpointEvent(pReactorServiceEndpointEvent);
-
 		pReactorServiceEndpointEvent->statusCode = statusCode;
 		pReactorServiceEndpointEvent->serviceEndpointInfoCount = pReactorImpl->restServiceEndpointResp.serviceEndpointInfoCount;
 		pReactorServiceEndpointEvent->serviceEndpointInfoList = (RsslReactorServiceEndpointInfo*)malloc(pReactorServiceEndpointEvent->serviceEndpointInfoCount *
