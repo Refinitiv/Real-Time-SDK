@@ -4792,7 +4792,7 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 								/* Notify application */
 								_reactorSetInCallback(pReactorImpl, RSSL_TRUE);
-								cret = (*pReactorChannel->channelRole.ommConsumerRole.watchlistOptions.channelOpenCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &pConnEvent->channelEvent);
+								cret = (*pReactorChannel->channelRole.ommConsumerRole.watchlistOptions.channelOpenCallback)((RsslReactor*)pReactorImpl, pCallbackChannel, &rsslEvent.channelEventImpl.channelEvent);
 								_reactorSetInCallback(pReactorImpl, RSSL_FALSE);
 							}
 							break;
