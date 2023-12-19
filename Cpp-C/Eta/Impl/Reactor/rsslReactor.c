@@ -2746,6 +2746,9 @@ RSSL_VA_API RsslRet rsslReactorConnect(RsslReactor *pReactor, RsslReactorConnect
 						pCallbackChannel->minorVersion = pReactorChannel->reactorChannel.minorVersion;
 						pCallbackChannel->protocolType = pReactorChannel->reactorChannel.protocolType;
 						pCallbackChannel->userSpecPtr = pReactorChannel->reactorChannel.userSpecPtr;
+
+						/* Set to true to indicate that the RsslConsumerWatchlistOptions.channelOpenCallback is called back to application */
+						pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled = RSSL_TRUE;
 					}
 
 					rsslClearReactorChannelEventImpl(&rsslEvent.channelEventImpl);
@@ -4776,6 +4779,17 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 
 								if (_reactorHandlesWarmStandby(pReactorChannel))
 								{
+									if (pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled == RSSL_FALSE)
+									{
+										/* Set to true to indicate that the RsslConsumerWatchlistOptions.channelOpenCallback is called back to application */
+										pReactorChannel->pWarmStandByHandlerImpl->isChannelOpenCallbackCalled = RSSL_TRUE;
+									}
+									else
+									{
+										/* The RsslConsumerWatchlistOptions.channelOpenCallback must be called only once per WSB channel */
+										break;
+									}
+
 									pCallbackChannel = &pReactorChannel->pWarmStandByHandlerImpl->mainReactorChannelImpl.reactorChannel;
 									pCallbackChannel->pRsslChannel = pReactorChannel->reactorChannel.pRsslChannel;
 									pCallbackChannel->oldSocketId = pReactorChannel->reactorChannel.oldSocketId;

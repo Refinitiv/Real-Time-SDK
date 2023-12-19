@@ -610,6 +610,7 @@ struct _RsslReactorWarmStandByHandlerImpl
 	RsslBool		directWrite;
 	RsslUInt32		numOfLoginClosed;
 	RsslUInt32		numOfChannelClosed;
+	RsslBool		isChannelOpenCallbackCalled; /* This is used to indicate whether the RsslConsumerWatchlistOptions.channelOpenCallback is called only once per WSB channel */
 };
 
 RTR_C_INLINE void rsslClearReactorWarmStandByHandlerImpl(RsslReactorWarmStandByHandlerImpl* pReactorWarmStandByHandlerImpl)
