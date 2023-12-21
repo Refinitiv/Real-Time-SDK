@@ -143,6 +143,8 @@
 #include "Access/Include/OmmQos.h"
 #include "Access/Include/FieldEntry.h"
 
+#include "Access/Include/rsslTypes.h"
+
 namespace refinitiv {
 
 namespace ema {
@@ -573,6 +575,8 @@ public :
 		@return reference to this object
 	*/
 	FieldList& addRmtes( Int16 fieldId, const EmaBuffer& value );
+
+	FieldList& addRmtes( Int16 fieldId, const RsslBuffer& value );
 
 	/** Adds an OmmArray of OMM data to the FieldList.
 		@throw OmmInvalidUsageException if an error is detected (exception will specify the cause of the error)

@@ -223,7 +223,8 @@ const EmaBuffer& FieldEntry::getBuffer() const
 		temp += getDTypeAsString( (*_pLoad)->getDataType() );
 		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
 	}
-	else if ( (*_pLoad)->getCode() == Data::BlankEnum )
+	else
+	 if ( (*_pLoad)->getCode() == Data::BlankEnum )
 	{
 		EmaString temp( "Attempt to getBuffer() while entry data is blank." );
 		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
@@ -281,6 +282,40 @@ const RmtesBuffer& FieldEntry::getRmtes() const
 	}
 
 	return static_cast<const OmmRmtes&>( **_pLoad ).getRmtes();
+}
+
+const EmaBuffer& FieldEntry::getRmtesAsEmaBuffer() const
+{
+	if ( (*_pLoad)->getDataType() != DataType::RmtesEnum )
+	{
+		EmaString temp( "Attempt to getRmtes() while actual entry data type is " );
+		temp += getDTypeAsString( (*_pLoad)->getDataType() );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
+	}
+	else if ( (*_pLoad)->getCode() == Data::BlankEnum )
+	{
+		EmaString temp( "Attempt to getRmtes() while entry data is blank." );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
+	}
+
+	return static_cast<const OmmRmtes&>( **_pLoad ).getAsHex();
+}
+
+const RsslBuffer& FieldEntry::getRsslBuffer() const
+{
+	if ( (*_pLoad)->getDataType() != DataType::RmtesEnum )
+	{
+		EmaString temp( "Attempt to getRmtes() while actual entry data type is " );
+		temp += getDTypeAsString( (*_pLoad)->getDataType() );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
+	}
+	else if ( (*_pLoad)->getCode() == Data::BlankEnum )
+	{
+		EmaString temp( "Attempt to getRmtes() while entry data is blank." );
+		throwIueException( temp, OmmInvalidUsageException::InvalidOperationEnum );
+	}
+
+	return static_cast<const OmmRmtes&>( **_pLoad ).getRsslBuffer();
 }
 
 const EmaBuffer& FieldEntry::getUtf8() const

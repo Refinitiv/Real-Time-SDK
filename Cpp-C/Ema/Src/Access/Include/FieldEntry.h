@@ -53,12 +53,13 @@
 		FilterList,
 		OmmOpaque,
 		OmmXml,
+
 		OmmAnsiPage,
 		OmmError,
 		EmaBuffer,
 		EmaString
 */
-
+#include "Access/Include/rsslTypes.h"
 #include "Access/Include/Data.h"
 
 namespace refinitiv {
@@ -368,6 +369,10 @@ public :
 		@return RmtesBuffer
 	*/
 	const RmtesBuffer& getRmtes() const;
+
+	const EmaBuffer& getRmtesAsEmaBuffer() const;
+
+	const RsslBuffer& getRsslBuffer() const;
 
 	/** Returns current OMM data represented as an OmmArray.
 		@throw OmmInvalidUsageException if contained object is not OmmArray

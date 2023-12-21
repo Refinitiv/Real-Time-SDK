@@ -22,6 +22,8 @@ include(rtsdkAdditionalCompilerOptions)
 
 include(rtsdkAdditionalCompilerOptions)
 
+cmake_policy(SET CMP0079 NEW)
+
 
 if(BUILD_RTSDK-BINARYPACK)
 	include(addExternal_rtsdk-binarypack)

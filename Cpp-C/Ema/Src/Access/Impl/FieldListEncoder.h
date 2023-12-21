@@ -13,7 +13,7 @@
 #include "OmmReal.h"
 #include "EmaPool.h"
 #include "OmmState.h"
-#include "rtr/rsslFieldList.h"
+
 
 namespace refinitiv {
 
@@ -118,6 +118,8 @@ public :
 	void addUtf8( Int16 fieldId, const EmaBuffer& value );
 
 	void addRmtes( Int16 fieldId, const EmaBuffer& value );
+
+	void addRmtes( Int16 fieldId, const RsslBuffer& value );
 
 	void addArray( Int16 fieldId, const OmmArray& value );
 

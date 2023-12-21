@@ -29,7 +29,7 @@
 
 #include "Access/Include/EmaString.h"
 #include "Access/Include/OmmLoginCredentialConsumerClient.h"
-#include "DataDictionary.h"
+#include "Rdm/Include/DataDictionary.h"
 
 namespace refinitiv {
 

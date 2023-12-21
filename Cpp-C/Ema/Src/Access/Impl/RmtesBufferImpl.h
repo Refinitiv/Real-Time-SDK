@@ -38,6 +38,8 @@ public :
 
 	const EmaBufferU16& getAsUTF16();
 
+	const RsslBuffer& getRsslBuffer();
+
 	const EmaString& toString();
 
 	void apply( const RmtesBufferImpl& );

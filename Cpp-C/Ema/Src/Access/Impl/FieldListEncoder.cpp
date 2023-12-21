@@ -549,6 +549,24 @@ void FieldListEncoder::addRmtes( Int16 fieldId, const EmaBuffer& value )
 	addPrimitiveEntry( fieldId, RSSL_DT_RMTES_STRING, "addRmtes()", &buffer );
 }
 
+void FieldListEncoder::addRmtes( Int16 fieldId, const RsslBuffer& value )
+{
+	if ( rsslFieldListCheckHasStandardData( &_rsslFieldList ) == RSSL_FALSE )
+	{
+		rsslFieldListApplyHasStandardData( &_rsslFieldList );
+
+		acquireEncIterator();
+
+		initEncode();
+	}
+
+	RsslBuffer buffer;
+	buffer.data = value.data;
+	buffer.length = value.length;
+
+	addPrimitiveEntry( fieldId, RSSL_DT_RMTES_STRING, "addRmtes()", &buffer );
+}
+
 void FieldListEncoder::addArray( Int16 fieldId, const OmmArray& array )
 {
 	if ( rsslFieldListCheckHasStandardData( &_rsslFieldList ) == RSSL_FALSE )

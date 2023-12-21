@@ -34,6 +34,7 @@
 */
 
 #include "Access/Include/Common.h"
+#include "Access/Include/rsslTypes.h"
 
 
 
@@ -106,6 +107,8 @@ public :
 		@return EmaBufferU16 containing RMTES data converted to UTF16
 	*/
 	const EmaBufferU16& getAsUTF16() const;
+
+	const RsslBuffer& getRsslBuffer() const;
 
 	/** Returns a string representation of the class instance which is converted to UTF8.
 		@throw OmmMemoryExhaustionException if application runs out of memory

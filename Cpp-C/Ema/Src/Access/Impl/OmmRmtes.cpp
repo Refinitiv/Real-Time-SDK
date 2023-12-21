@@ -37,6 +37,12 @@ const RmtesBuffer& OmmRmtes::getRmtes() const
 	return _pDecoder->getRmtes();
 }
 
+const RsslBuffer& OmmRmtes::getRsslBuffer() const
+{
+	return _pDecoder->getRsslBuffer();
+}
+
+
 const EmaString& OmmRmtes::toString() const
 {
 	return _pDecoder->toString();

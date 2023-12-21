@@ -54,6 +54,11 @@ const EmaBufferU16& RmtesBuffer::getAsUTF16() const
 	return _pImpl->getAsUTF16();
 }
 
+const RsslBuffer& RmtesBuffer::getRsslBuffer() const
+{
+	return _pImpl->getRsslBuffer();
+}
+
 const EmaString& RmtesBuffer::toString() const
 {
 	return _pImpl->toString();

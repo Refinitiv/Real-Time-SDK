@@ -434,6 +434,13 @@ const EmaString& RmtesBufferImpl::toString()
 	return _toString.toString();
 }
 
+
+const RsslBuffer& RmtesBufferImpl::getRsslBuffer()
+{
+	return	_rsslBuffer;
+
+}
+
 void RmtesBufferImpl::apply( const RmtesBufferImpl& source )
 {
 	_rsslUTF8BufferSet = false;

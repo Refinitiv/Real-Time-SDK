@@ -38,6 +38,7 @@
 */
 
 #include "Access/Include/Data.h"
+#include "Access/Include/rsslTypes.h"
 
 namespace refinitiv {
 
@@ -79,6 +80,8 @@ public :
 	*/
 	const RmtesBuffer& getRmtes() const;
 	//@}
+	
+	const RsslBuffer& getRsslBuffer() const;
 
 private :
 

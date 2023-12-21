@@ -378,6 +378,16 @@ FieldList& FieldList::addRmtes( Int16 fieldId, const EmaBuffer& value )
 	return *this;
 }
 
+FieldList& FieldList::addRmtes( Int16 fieldId, const RsslBuffer& value )
+{
+	if ( !_pEncoder )
+		_pEncoder = g_pool._fieldListEncoderPool.getItem();
+
+	_pEncoder->addRmtes( fieldId, value );
+
+	return *this;
+}
+
 FieldList& FieldList::addArray( Int16 fieldId, const OmmArray& value )
 {
 	if ( !_pEncoder )
