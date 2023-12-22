@@ -614,12 +614,14 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 						&pTokenSessionImpl->pOAuthCredential->clientSecret,
 						&pTokenSessionImpl->pOAuthCredential->tokenScope,
 						pTokenSessionImpl->pOAuthCredential->takeExclusiveSignOnControl,
-						&pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pReactorWorker->workerCerr);
+						&pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pTokenSessionImpl->tokenSessionWorkerCerr);
 				}
 				else
 				{
 					pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pTokenSessionImpl->sessionAuthUrl, &pTokenSessionImpl->pOAuthCredential->clientId,
-						&pTokenSessionImpl->pOAuthCredential->clientSecret, &pTokenSessionImpl->pOAuthCredential->clientJWK, &pTokenSessionImpl->pOAuthCredential->audience, &pTokenSessionImpl->pOAuthCredential->tokenScope, &pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pReactorWorker->workerCerr);
+						&pTokenSessionImpl->pOAuthCredential->clientSecret, &pTokenSessionImpl->pOAuthCredential->clientJWK,
+						&pTokenSessionImpl->pOAuthCredential->audience, &pTokenSessionImpl->pOAuthCredential->tokenScope,
+						&pTokenSessionImpl->rsslPostDataBodyBuf, pTokenSessionImpl, &pTokenSessionImpl->tokenSessionWorkerCerr);
 				}
 
 				if (pRestRequestArgs)
@@ -658,7 +660,7 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 						free(pRestRequestArgs);
 
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pTokenSessionImpl->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 						{
 							return RSSL_RET_FAILURE;
 						}
@@ -667,7 +669,7 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 				else
 				{
 					RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
-					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+					if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pTokenSessionImpl->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 					{
 						return RSSL_RET_FAILURE;
 					}
@@ -2709,12 +2711,14 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									&pTokenSession->pOAuthCredential->clientSecret,
 									&pTokenSession->pOAuthCredential->tokenScope,
 									pTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
-									&pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
+									&pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pTokenSession->tokenSessionWorkerCerr);
 							}
 							else
 							{
 								pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pTokenSession->sessionAuthUrl, &pTokenSession->pOAuthCredential->clientId,
-									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->clientJWK, &pTokenSession->pOAuthCredential->audience, &pTokenSession->pOAuthCredential->tokenScope, &pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
+									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->clientJWK,
+									&pTokenSession->pOAuthCredential->audience, &pTokenSession->pOAuthCredential->tokenScope,
+									&pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pTokenSession->tokenSessionWorkerCerr);
 							}
 							
 
@@ -2746,7 +2750,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 									{
 										pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pChannelImpl;
 
-										if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+										if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 										{
 											return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 										}
@@ -2761,7 +2765,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								{
 									pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pChannelImpl;
 
-									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 									{
 										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 									}
@@ -2789,7 +2793,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								/* V2 does not have a refresh token concept, so request a new token from the token generator. */
 								pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pTokenSession->sessionAuthUrl, &pTokenSession->pOAuthCredential->clientId,
-									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->clientJWK, &pTokenSession->pOAuthCredential->audience, &pTokenSession->pOAuthCredential->tokenScope, &pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pReactorWorker->workerCerr);
+									&pTokenSession->pOAuthCredential->clientSecret, &pTokenSession->pOAuthCredential->clientJWK,
+									&pTokenSession->pOAuthCredential->audience, &pTokenSession->pOAuthCredential->tokenScope,
+									&pTokenSession->rsslPostDataBodyBuf, pTokenSession, &pTokenSession->tokenSessionWorkerCerr);
 							}
 							else
 							{
@@ -2835,7 +2841,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 								RSSL_QUEUE_FOR_EACH_LINK(&pTokenSession->reactorChannelList, pLink)
 								{
 									pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pChannelImpl;
-									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+									if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 									{
 										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 									}
@@ -2849,7 +2855,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							RSSL_QUEUE_FOR_EACH_LINK(&pTokenSession->reactorChannelList, pLink)
 							{
 								pReactorChannel = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenChannelInfo, tokenSessionLink, pLink)->pChannelImpl;
-								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+								if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 								{
 									free(pRestRequestArgs);
 									return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
@@ -4271,12 +4277,14 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							&pReactorTokenSession->pOAuthCredential->clientSecret,
 							&pReactorTokenSession->pOAuthCredential->tokenScope,
 							pReactorTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
-							&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
+							&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorTokenSession->tokenSessionWorkerCerr);
 					}
 					else
 					{
 						pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pReactorTokenSession->sessionAuthUrl, &pReactorTokenSession->pOAuthCredential->clientId,
-							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->clientJWK, &pReactorTokenSession->pOAuthCredential->audience, &pReactorTokenSession->pOAuthCredential->tokenScope, &pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
+							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->clientJWK,
+							&pReactorTokenSession->pOAuthCredential->audience, &pReactorTokenSession->pOAuthCredential->tokenScope,
+							&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorTokenSession->tokenSessionWorkerCerr);
 					}
 
 					if (pRestRequestArgs)
@@ -4312,7 +4320,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 							free(pRestRequestArgs);
 
-							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 							{
 								_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
 								return;
@@ -4322,7 +4330,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					else
 					{
 						RSSL_MUTEX_UNLOCK(&pReactorTokenSession->accessTokenMutex);
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 						{
 							_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
 							return;
@@ -4385,12 +4393,14 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 							&pReactorTokenSession->pOAuthCredential->clientSecret,
 							&pReactorTokenSession->pOAuthCredential->tokenScope,
 							pReactorTokenSession->pOAuthCredential->takeExclusiveSignOnControl,
-							&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
+							&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorTokenSession->tokenSessionWorkerCerr);
 					}
 					else
 					{
 						pRestRequestArgs = _reactorCreateTokenRequestV2(pReactorImpl, &pReactorTokenSession->sessionAuthUrl, &pReactorTokenSession->pOAuthCredential->clientId,
-							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->clientJWK, &pReactorTokenSession->pOAuthCredential->audience, &pReactorTokenSession->pOAuthCredential->tokenScope, &pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorWorker->workerCerr);
+							&pReactorTokenSession->pOAuthCredential->clientSecret, &pReactorTokenSession->pOAuthCredential->clientJWK,
+							&pReactorTokenSession->pOAuthCredential->audience, &pReactorTokenSession->pOAuthCredential->tokenScope,
+							&pReactorTokenSession->rsslPostDataBodyBuf, pReactorTokenSession, &pReactorTokenSession->tokenSessionWorkerCerr);
 					}
 					if (pRestRequestArgs)
 					{
@@ -4425,7 +4435,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 							free(pRestRequestArgs);
 
-							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+							if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 							{
 								_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
 								return;
@@ -4435,7 +4445,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					else
 					{
 						RSSL_MUTEX_UNLOCK(&pReactorTokenSession->accessTokenMutex);
-						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+						if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorImpl, pReactorChannel, &pReactorTokenSession->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 						{
 							_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
 							return;
