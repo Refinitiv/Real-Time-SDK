@@ -4596,7 +4596,11 @@ RSSL_VA_API RsslRet rsslReactorCloseChannel(RsslReactor *pReactor, RsslReactorCh
 					pReactorWarmStanbyEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannel;
 
 					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pReactorWarmStanbyEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
-						return RSSL_RET_FAILURE;
+					{
+						_reactorShutdown(pReactorImpl, pError);
+						_reactorSendShutdownEvent(pReactorImpl, pError);
+						return (reactorUnlockInterface(pReactorImpl), RSSL_RET_FAILURE);
+					}
 				}
 				else
 				{
