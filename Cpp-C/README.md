@@ -33,6 +33,7 @@ External modules used by this version of RTSDK C/C++:
 - Please note that curl and openSSL are dynamically loaded at runtime.  
 - Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available.  
 - Please note that the default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
+- Please note that openSSL 1.1.1 and higher are required for TLS 1.3
 - Check installation guide for details regarding including external dependencies for build 
    
 ### System Libraries Dependencies
