@@ -1514,6 +1514,8 @@ RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactor
 		RsslReactorSubmitMsgOptions submitMsgOpts;
 		RsslErrorInfo rsslErrorInfo;
 
+		printf("New auth token received, submitting Login reissue");
+
 		rsslClearReactorSubmitMsgOptions(&submitMsgOpts);
 
 		/* Update the access token */
@@ -1540,6 +1542,8 @@ RsslReactorCallbackRet oAuthCredentialEventCallback(RsslReactor *pReactor, RsslR
 	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
 	RsslReactorOAuthCredentialRenewal reactorOAuthCredentialRenewal;
 	RsslErrorInfo rsslError;
+
+	printf("Submitting OAuth credentials.\n");
 
 	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
 	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;

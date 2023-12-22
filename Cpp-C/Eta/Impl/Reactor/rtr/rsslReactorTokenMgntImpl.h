@@ -72,7 +72,6 @@ typedef struct
 	RsslMutex						accessTokenMutex; /* This is used to synchronized for requesting the token information from application's thread */
 	rtr_atomic_val					requestingAccessToken;
 	RsslBool						initialized; /* This is used to indicate that the token session has success fully initialized in  rsslReactorConnect() */
-	RsslBool						isInitialChannelConnect; /* This is used to indicate that the token session is being initialized from rsslReactorConnect() */
 
 	/* Use the proxy information from RsslReactorChannel if any */
 	RsslConnectOptions				proxyConnectOpts; /* The proxy options */
@@ -92,6 +91,8 @@ typedef struct
 
 	RsslReactorSessionMgmtVersion sessionVersion;
 	void*						userSpecPtr;
+
+	RsslBool					initialTokenRetrival;  /* Flag used to determine if it's the initial connection to make sure we don't call the user back unnecessarily and properly clean up any sensitive data once we have a token */
 
 	RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo; /* This is set when performing non-blocking explicit service discovery */
 

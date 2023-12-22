@@ -601,7 +601,7 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 				pTokenSessionImpl->copiedProxyOpts = RSSL_TRUE;
 			}
 
-			if (pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback == 0)
+			if (pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback == 0 || pTokenSessionImpl->initialTokenRetrival == RSSL_TRUE)
 			{
 				if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
 				{
@@ -629,11 +629,6 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 
 					if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 						(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pTokenSessionImpl->tokenSessionWorkerCerr.rsslError);
-
-					if (pReactorChannel->isInitialChannelConnect == RSSL_TRUE)
-					{
-						pTokenSessionImpl->isInitialChannelConnect = RSSL_TRUE;
-					}
 
 					if ((pTokenSessionImpl->pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 						rsslRestAuthTokenResponseCallback, rsslRestAuthTokenErrorCallback,
@@ -3983,6 +3978,14 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 			}
 
 			pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_RECEIVED_AUTH_TOKEN;
+			
+			// We've gotten a token, so we can now clear the session's sensitive data
+			if ((pReactorTokenSession->pOAuthCredential->pOAuthCredentialEventCallback != 0) && pReactorTokenSession->initialTokenRetrival == RSSL_TRUE)
+			{
+				_clearOAuthCredentialSensitiveData(pReactorTokenSession->pOAuthCredential);
+			}
+
+			pReactorTokenSession->initialTokenRetrival = RSSL_FALSE;
 
 			// Set the callback to the RsslReactorChannel for the current RsslReactorConnectInfo
 			RSSL_QUEUE_FOR_EACH_LINK(&pReactorTokenSession->reactorChannelList, pLink)
@@ -4256,7 +4259,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 				RSSL_MUTEX_UNLOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 
 				RSSL_MUTEX_LOCK(&pReactorTokenSession->accessTokenMutex);
-				if (pReactorTokenSession->pOAuthCredential->pOAuthCredentialEventCallback == 0)
+				if (pReactorTokenSession->pOAuthCredential->pOAuthCredentialEventCallback == 0 || pReactorTokenSession->initialTokenRetrival == RSSL_TRUE)
 				{
 					if (pReactorTokenSession->sessionVersion == RSSL_RC_SESSMGMT_V1)
 					{
@@ -4366,7 +4369,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 				RsslRestRequestArgs *pRestRequestArgs;
 
 				RSSL_MUTEX_LOCK(&pReactorTokenSession->accessTokenMutex);
-				if (pReactorTokenSession->pOAuthCredential->pOAuthCredentialEventCallback == 0)
+				if (pReactorTokenSession->pOAuthCredential->pOAuthCredentialEventCallback == 0 || pReactorTokenSession->initialTokenRetrival == RSSL_TRUE)
 				{
 					RsslBuffer requestURL;
 					requestURL.data = (tempUri->data + 1);
@@ -4495,6 +4498,8 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 
 			rsslSetErrorInfo(&pReactorTokenSession->tokenSessionWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+
+			_clearOAuthCredentialSensitiveData(pReactorTokenSession->pOAuthCredential);
 
 			handlingAuthRequestFailure(pReactorTokenSession, pReactorWorker);
 

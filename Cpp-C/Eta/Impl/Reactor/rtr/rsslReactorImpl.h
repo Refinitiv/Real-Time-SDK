@@ -2215,8 +2215,6 @@ RsslRestRequestArgs* _reactorCreateRequestArgsForServiceDiscovery(RsslReactorImp
 																RsslReactorDiscoveryDataFormatProtocol dataFormat, RsslBuffer *pTokenType, RsslBuffer *pAccessToken,
 																RsslBuffer *pArgsAndHeaderBuf, void *pUserSpecPtr, RsslErrorInfo* pError);
 
-RsslRet _reactorGetAccessTokenAndServiceDiscovery(RsslReactorChannelImpl* pReactorChannelImpl, RsslBool *queryConnectInfo, RsslErrorInfo* pError);
-
 RsslBuffer* getHeaderValue(RsslQueue *pHeaders, RsslBuffer* pHeaderName);
 
 void _cumulativeValue(RsslUInt* destination, RsslUInt32 value);
@@ -2255,6 +2253,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg);
 RsslUInt32 _reactorMsgEncodedSize(RsslMsg *pMsg);
 
 void _clearRoleSensitiveData(RsslReactorOMMConsumerRole* pRole);
+void _clearOAuthCredentialSensitiveData(RsslReactorOAuthCredential* pCredentials);
 
 /**
 * @brief Print out the given input argument to the output stream.
