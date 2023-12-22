@@ -3773,9 +3773,9 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 			pReactorConnectInfoImpl->reactorChannelInfoImplState = RSSL_RC_CHINFO_IMPL_ST_STOP_REQUESTING;
 
 			rsslSetErrorInfo(&pTokenSessionImpl->tokenSessionWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+				"Failed to query host name and port from the RDP service discovery. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
-			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pReactorChannel->channelWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
+			if (!RSSL_ERROR_INFO_CHECK(_reactorWorkerHandleChannelFailure(pReactorChannel->pParentReactor, pReactorChannel, &pTokenSessionImpl->tokenSessionWorkerCerr) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 			{
 				_reactorWorkerShutdown(pReactorChannel->pParentReactor, &pReactorWorker->workerCerr);
 				return;
@@ -3786,7 +3786,7 @@ static void rsslRestServiceDiscoveryResponseCallback(RsslRestResponse* restrespo
 		default:
 		{
 			rsslSetErrorInfo(&pReactorChannel->channelWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+				"Failed to query host name and port from the RDP service discovery. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
 			if (pReactorConnectInfoImpl->reactorChannelInfoImplState == RSSL_RC_CHINFO_IMPL_ST_QUERYING_SERVICE_DISOVERY)
 			{
@@ -4497,7 +4497,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 			pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_STOP_REQUESTING;
 
 			rsslSetErrorInfo(&pReactorTokenSession->tokenSessionWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+				"Failed to request authentication token information. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
 			_clearOAuthCredentialSensitiveData(pReactorTokenSession->pOAuthCredential);
 
@@ -4520,7 +4520,7 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 			pReactorTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_REQUEST_FAILURE;
 
 			rsslSetErrorInfo(&pReactorTokenSession->tokenSessionWorkerCerr, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+				"Failed to request authentication token information. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
 			handlingAuthRequestFailure(pReactorTokenSession, pReactorWorker);
 		}
@@ -4690,7 +4690,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallbackV1(RsslRestResponse* 
 
 			pReactorErrorInfoImpl->referenceCount++;
 			rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-				"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+				"Failed to request V1 authentication token information. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
 			pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
@@ -4805,7 +4805,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallbackV2(RsslRestResponse* 
 
 		pReactorErrorInfoImpl->referenceCount++;
 		rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+			"Failed to request V1 authentication token information. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
 		pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
