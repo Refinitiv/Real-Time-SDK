@@ -200,6 +200,8 @@ static RsslReactorCallbackRet loginMsgCallback(RsslReactor* pReactor, RsslReacto
 static RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorAuthTokenEvent *pAuthTokenEvent);
 static RsslReactorCallbackRet serviceEndpointEventCallback(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pServiceEndpointEvent);
 static RsslReactorCallbackRet serviceEndpointEventCallbackForError(RsslReactor *pReactor, RsslReactorServiceEndpointEvent *pServiceEndpointEvent);
+static RsslReactorCallbackRet serviceEndpointEventCallbackMultiUserSpec(RsslReactor* pReactor, RsslReactorServiceEndpointEvent* pServiceEndpointEvent);
+static RsslReactorCallbackRet serviceEndpointEventCallbackForErrorMultiUserSpec(RsslReactor* pReactor, RsslReactorServiceEndpointEvent* pServiceEndpointEvent);
 static RsslRet dispatchEvent(MyReactor *pMyReactor, RsslUInt32 timeoutMsec);
 
 void clearMyReactor(MyReactor *pMyReactor)
@@ -555,7 +557,7 @@ TEST_F(ReactorSessionMgntTest, UnauthorizedUser)
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.pError->rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.pError->rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_STREQ(pConsMon->mutMsg.channelEvent.pError->rsslError.text, "Received HTTP error 400 status code with data body : {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } .");
+	ASSERT_STREQ(pConsMon->mutMsg.channelEvent.pError->rsslError.text, "Failed to request authentication token information. Received HTTP error 400 status code with data body : {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } .");
 }
 
 TEST_F(ReactorSessionMgntTest, UnauthorizedUser_enableWatchlist)
@@ -609,7 +611,7 @@ TEST_F(ReactorSessionMgntTest, UnauthorizedUser_enableWatchlist)
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.pError->rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.pError->rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_STREQ(pConsMon->mutMsg.channelEvent.pError->rsslError.text, "Received HTTP error 400 status code with data body : {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } .");
+	ASSERT_STREQ(pConsMon->mutMsg.channelEvent.pError->rsslError.text, "Failed to request authentication token information. Received HTTP error 400 status code with data body : {\"error\":\"access_denied\"  ,\"error_description\":\"Invalid username or password.\" } .");
 }
 
 TEST_F(ReactorSessionMgntTest, NoOAuthCredentialForEnablingSessionMgnt)
@@ -980,7 +982,7 @@ TEST_F(ReactorSessionMgntTest, NoPasswordForEnablingSessionMgnt)
 
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.pError->rsslErrorInfoCode == RSSL_EIC_FAILURE);
 	ASSERT_TRUE(pConsMon->mutMsg.channelEvent.pError->rsslError.rsslErrorId == RSSL_RET_FAILURE);
-	ASSERT_STREQ(pConsMon->mutMsg.channelEvent.pError->rsslError.text, "Received HTTP error 401 status code with data body : {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid client or client credentials.\" }.");
+	ASSERT_STREQ(pConsMon->mutMsg.channelEvent.pError->rsslError.text, "Failed to request authentication token information. Received HTTP error 401 status code with data body : {\"error\":\"invalid_client\"  ,\"error_description\":\"Invalid client or client credentials.\" }.");
 }
 
 TEST_F(ReactorSessionMgntTest, UsingOmmNiProviderRoleForSessionMgnt)
@@ -2195,6 +2197,13 @@ protected:
 	RsslReactorServiceDiscoveryOptions _reactorServiceDiscoveryOpts;
 };
 
+class MultiUserSpec
+{
+public:
+	void* pSuccessResult;
+	void* pErrorResult;
+};
+
 INSTANTIATE_TEST_CASE_P(
 	TestingReactorQueryServiceDiscoveryTests,
 	ReactorQueryServiceDiscoveryTest,
@@ -2286,6 +2295,14 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 {
 	ReactorQueryServiceDiscoveryTestParameters parameters = GetParam();
 	ReactorServiceDiscoveryEndpointResult expectedResult;
+	ReactorServiceDiscoveryEndpointError expectedError;
+	MultiUserSpec multiUserSpec;
+
+	multiUserSpec.pErrorResult = &expectedError;
+
+	expectedError.expectedText = (char*)"Failed to retrieve token information from the existing token session of the same user name.";
+	expectedError.HttpStatusCode = 0;
+	expectedError.ReceivedResponse = RSSL_FALSE;
 
 	rsslClearReactorServiceDiscoveryEndpointResult(&expectedResult);
 	rsslClearCreateReactorOptions(&mOpts);
@@ -2304,7 +2321,9 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 	expectedResult.Num_websocket_transport = 12;
 	expectedResult.HttpStatusCode = 200;
 
-	mOpts.userSpecPtr = &expectedResult;
+	multiUserSpec.pSuccessResult = &expectedResult;
+
+	mOpts.userSpecPtr = &multiUserSpec;
 	_pReactor = rsslCreateReactor(&mOpts, &rsslErrorInfo);
 
 	rsslClearReactorServiceDiscoveryOptions(&_reactorServiceDiscoveryOpts);
@@ -2325,11 +2344,27 @@ TEST_P(ReactorQueryServiceDiscoveryTest, GetAllServiceEndpoints)
 
 	_reactorServiceDiscoveryOpts.userSpecPtr = &expectedResult;
 	// Checking the service discovery response in the serviceEndpointEventCallback
-	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallback;
+	_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackMultiUserSpec;
 
- 	ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+	if (parameters.oAuthVersion == 1 && parameters.restBlocking == RSSL_FALSE)
+	{
+		ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
 
-	DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
+		/* Send multiple requests with the same user name for V1 to generate the error as the access is being requested with the first request. */
+		_reactorServiceDiscoveryOpts.pServiceEndpointEventCallback = serviceEndpointEventCallbackForErrorMultiUserSpec;
+		_reactorServiceDiscoveryOpts.userSpecPtr = &expectedError;
+		ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+		DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
+
+		DispatchServiceDiscoveryEvent(parameters, NULL, &expectedError);
+	}
+	else
+	{
+		ASSERT_TRUE(rsslReactorQueryServiceDiscovery(_pReactor, &_reactorServiceDiscoveryOpts, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+		DispatchServiceDiscoveryEvent(parameters, &expectedResult, NULL);
+	}
 }
 
 TEST_P(ReactorQueryServiceDiscoveryTest, GetServiceEndpointsFor_TcpTransport)
@@ -3232,6 +3267,41 @@ RsslReactorCallbackRet serviceEndpointEventCallbackForError(RsslReactor *pReacto
 
 	return RSSL_RC_CRET_SUCCESS;
 }
+
+RsslReactorCallbackRet serviceEndpointEventCallbackMultiUserSpec(RsslReactor* pReactor, RsslReactorServiceEndpointEvent* pServiceEndpointEvent)
+{
+	MultiUserSpec* pMultiUserSpec = (MultiUserSpec*)pReactor->userSpecPtr;
+	ReactorServiceDiscoveryEndpointResult* expectedResult = (ReactorServiceDiscoveryEndpointResult*)pMultiUserSpec->pSuccessResult;
+
+	EXPECT_TRUE(expectedResult == pServiceEndpointEvent->userSpecPtr);
+
+	EXPECT_TRUE(pServiceEndpointEvent->pErrorInfo == 0);
+
+	if (pServiceEndpointEvent->pErrorInfo == 0)
+	{
+		EXPECT_TRUE(validateServiceDiscoveryEndpoints(pServiceEndpointEvent, expectedResult));
+	}
+
+	expectedResult->ReceivedResponse = RSSL_TRUE;
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
+RsslReactorCallbackRet serviceEndpointEventCallbackForErrorMultiUserSpec(RsslReactor* pReactor, RsslReactorServiceEndpointEvent* pServiceEndpointEvent)
+{
+	MultiUserSpec* pMultiUserSpec = (MultiUserSpec*)pReactor->userSpecPtr;
+	ReactorServiceDiscoveryEndpointError* expectedError = (ReactorServiceDiscoveryEndpointError*)pMultiUserSpec->pErrorResult;
+
+	EXPECT_TRUE(expectedError == pServiceEndpointEvent->userSpecPtr);
+	EXPECT_TRUE(pServiceEndpointEvent->pErrorInfo->rsslError.rsslErrorId == RSSL_RET_FAILURE);
+	EXPECT_TRUE(strcmp(pServiceEndpointEvent->pErrorInfo->rsslError.text, expectedError->expectedText) == 0);
+	EXPECT_TRUE(pServiceEndpointEvent->statusCode == expectedError->HttpStatusCode);
+
+	expectedError->ReceivedResponse = RSSL_TRUE;
+
+	return RSSL_RC_CRET_SUCCESS;
+}
+
 
 static RsslReactorCallbackRet loginMsgCallbackRaise(RsslReactor* pReactor, RsslReactorChannel* pReactorChannel, RsslRDMLoginMsgEvent *pInfo)
 {

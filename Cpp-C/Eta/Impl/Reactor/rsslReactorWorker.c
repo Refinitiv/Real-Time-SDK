@@ -2068,6 +2068,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 										rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
 
 										pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+										pRestErrorEvent->pExplicitSDInfo = pRestEvent->pExplicitSDInfo;
 
 										if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 										{
@@ -2088,6 +2089,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 										rsslClearReactorRestRequestResponseEvent(pRestErrorEvent);
 
 										pRestErrorEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
+										pRestErrorEvent->pExplicitSDInfo = pRestEvent->pExplicitSDInfo;
 
 										if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pRestErrorEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
 										{
@@ -2651,8 +2653,8 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						/* Remove and free the token session if there is channel associated with it yet for V1. */
 						if (pTokenSession->pExplicitServiceDiscoveryInfo && pTokenSession->sessionVersion == RSSL_RC_SESSMGMT_V1)
 						{
-							/* Checks to ensure that there is no channel that is waiting to register with the token session */
-							if (pTokenSession->numberOfWaitingChannels == 0 && pTokenSession->registeredByStandbyChannels == 0)
+							/* Checks to ensure that there is no channel that is waiting to register or added with the token session */
+							if (pTokenSession->reactorChannelList.count == 0 && pTokenSession->numberOfWaitingChannels == 0 && pTokenSession->registeredByStandbyChannels == 0)
 							{
 								RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 

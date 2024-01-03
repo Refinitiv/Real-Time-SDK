@@ -1909,7 +1909,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 				free(argumentAndHeaders.data);
 
-				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+				return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 			}
 
 			pRestEvent->pExplicitSDInfo->restRequestBuf = argumentAndHeaders;
@@ -2118,7 +2118,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 
 					free(argumentAndHeaders.data);
 
-					return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_SUCCESS);
+					return (reactorUnlockInterface(pRsslReactorImpl), RSSL_RET_FAILURE);
 				}
 
 				pRestEvent->pExplicitSDInfo->restRequestBuf = argumentAndHeaders;
@@ -6720,7 +6720,14 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 				if (pExplicitSDInfo->sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
 				{
 					/* Free RsslReactorExplicitServiceDiscoveryInfo if there is no token session associated with it. */
-					if (pExplicitSDInfo->pTokenSessionImpl->pExplicitServiceDiscoveryInfo != pExplicitSDInfo)
+					if (pExplicitSDInfo->pTokenSessionImpl)
+					{
+						if (pExplicitSDInfo->pTokenSessionImpl->pExplicitServiceDiscoveryInfo != pExplicitSDInfo)
+						{
+							rsslFreeReactorExplicitServiceDiscoveryInfo(pExplicitSDInfo);
+						}
+					}
+					else
 					{
 						rsslFreeReactorExplicitServiceDiscoveryInfo(pExplicitSDInfo);
 					}
@@ -6728,7 +6735,10 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 				else if (pExplicitSDInfo->sessionMgntVersion == RSSL_RC_SESSMGMT_V2)
 				{    /* For V2, free the token session is it is not shared with others.*/
 					RsslReactorTokenSessionImpl* pTokenSessionImpl = pExplicitSDInfo->pTokenSessionImpl;
-					rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
+					if (pTokenSessionImpl)
+					{
+						rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
+					}
 				}
 
 				return RSSL_RET_SUCCESS;
@@ -15014,9 +15024,6 @@ static RsslRet _reactorParseReactorServiceDiscoveryEvent(RsslUInt32 statusCode, 
 	{
 		rsslSetErrorInfo(pRsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
 			"Failed to parse service endpoint information from the RDP service discovery.");
-
-		pReactorServiceEndpointEvent->pErrorInfo = pRsslErrorInfo;
-		(*pReactorServiceEndpointEventCallback)((RsslReactor*)pReactorImpl, pReactorServiceEndpointEvent);
 
 		return RSSL_RET_FAILURE; /* Failed to parse the service discovery endpoints */
 	}
