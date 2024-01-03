@@ -10179,8 +10179,8 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 	{
 		dataLength += pOAuthCredentialRenewal->clientId.length + pOAuthCredentialRenewal->userName.length + pOAuthCredentialRenewal->tokenScope.length + pOAuthCredentialRenewal->clientSecret.length + pOAuthCredentialRenewal->clientJWK.length + pOAuthCredentialRenewal->audience.length;
 
-		/* Copy proxy configurations if specified by users */
-		dataLength += pOptions->proxyHostName.length + pOptions->proxyPort.length + pOptions->proxyUserName.length + pOptions->proxyPasswd.length + pOptions->proxyDomain.length;
+		/* Copy proxy configurations if specified by users. Add 1 for null termination for each value. */
+		dataLength += pOptions->proxyHostName.length + 1 + pOptions->proxyPort.length + 1 + pOptions->proxyUserName.length + 1 + pOptions->proxyPasswd.length + 1 + pOptions->proxyDomain.length + 1;
 
 		/* Creates temporary buffer for handling token response */
 		rsslAccessTokenRespBuffer.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
@@ -10314,7 +10314,7 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		pOAuthCredentialRenewalOutImpl->proxyDomain.length = pOptions->proxyDomain.length;
 		pOAuthCredentialRenewalOutImpl->proxyDomain.data = pCurPos;
 		memcpy(pOAuthCredentialRenewalOutImpl->proxyDomain.data, pOptions->proxyDomain.data, pOAuthCredentialRenewalOutImpl->proxyDomain.length);
-		pCurPos += pOAuthCredentialRenewalOutImpl->proxyDomain.length;
+		pCurPos += (pOAuthCredentialRenewalOutImpl->proxyDomain.length + 1);
 	}
 
 	if (!pTokenSessionImpl && (pOptions->proxyHostName.length && pOptions->proxyHostName.data))
@@ -10322,7 +10322,7 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		pOAuthCredentialRenewalOutImpl->proxyHostName.length = pOptions->proxyHostName.length;
 		pOAuthCredentialRenewalOutImpl->proxyHostName.data = pCurPos;
 		memcpy(pOAuthCredentialRenewalOutImpl->proxyHostName.data, pOptions->proxyHostName.data, pOAuthCredentialRenewalOutImpl->proxyHostName.length);
-		pCurPos += pOAuthCredentialRenewalOutImpl->proxyHostName.length;
+		pCurPos += (pOAuthCredentialRenewalOutImpl->proxyHostName.length + 1);
 	}
 
 	if (!pTokenSessionImpl && (pOptions->proxyPort.length && pOptions->proxyPort.data))
@@ -10330,7 +10330,7 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		pOAuthCredentialRenewalOutImpl->proxyPort.length = pOptions->proxyPort.length;
 		pOAuthCredentialRenewalOutImpl->proxyPort.data = pCurPos;
 		memcpy(pOAuthCredentialRenewalOutImpl->proxyPort.data, pOptions->proxyPort.data, pOAuthCredentialRenewalOutImpl->proxyPort.length);
-		pCurPos += pOAuthCredentialRenewalOutImpl->proxyPort.length;
+		pCurPos += (pOAuthCredentialRenewalOutImpl->proxyPort.length + 1);
 	}
 
 	if (!pTokenSessionImpl && (pOptions->proxyPasswd.length && pOptions->proxyPasswd.data))
@@ -10338,7 +10338,7 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		pOAuthCredentialRenewalOutImpl->proxyPasswd.length = pOptions->proxyPasswd.length;
 		pOAuthCredentialRenewalOutImpl->proxyPasswd.data = pCurPos;
 		memcpy(pOAuthCredentialRenewalOutImpl->proxyPasswd.data, pOptions->proxyPasswd.data, pOAuthCredentialRenewalOutImpl->proxyPasswd.length);
-		pCurPos += pOAuthCredentialRenewalOutImpl->proxyPasswd.length;
+		pCurPos += (pOAuthCredentialRenewalOutImpl->proxyPasswd.length + 1);
 	}
 
 	if (!pTokenSessionImpl && (pOptions->proxyUserName.length && pOptions->proxyUserName.data))
@@ -10346,7 +10346,7 @@ static RsslReactorOAuthCredentialRenewal* _reactorCopyRsslReactorOAuthCredential
 		pOAuthCredentialRenewalOutImpl->proxyUserName.length = pOptions->proxyUserName.length;
 		pOAuthCredentialRenewalOutImpl->proxyUserName.data = pCurPos;
 		memcpy(pOAuthCredentialRenewalOutImpl->proxyUserName.data, pOptions->proxyUserName.data, pOAuthCredentialRenewalOutImpl->proxyUserName.length);
-		pCurPos += pOAuthCredentialRenewalOutImpl->proxyUserName.length;
+		pCurPos += (pOAuthCredentialRenewalOutImpl->proxyUserName.length + 1);
 	}
 
 	pOAuthCredentialRenewalOut->takeExclusiveSignOnControl = pOAuthCredentialRenewal->takeExclusiveSignOnControl;
@@ -14775,66 +14775,66 @@ RsslRet _reactorDeepCopyServiceDiscoveryOptions(RsslProxyOpts* pReactorRestProxy
 		if (proxyOpts->proxyHostName && *proxyOpts->proxyHostName != '\0')
 		{
 			pDestOpts->proxyHostName.length = (RsslUInt32)strlen(proxyOpts->proxyHostName);
-			pDestOpts->proxyHostName.data = (char*)malloc(pDestOpts->proxyHostName.length);
+			pDestOpts->proxyHostName.data = (char*)malloc(pDestOpts->proxyHostName.length + 1);
 
 			if (pDestOpts->proxyHostName.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
-			strncpy(pDestOpts->proxyHostName.data, proxyOpts->proxyHostName, pDestOpts->proxyHostName.length);
+			strncpy(pDestOpts->proxyHostName.data, proxyOpts->proxyHostName, pDestOpts->proxyHostName.length + 1);
 		}
 
 		if (proxyOpts->proxyPort && *proxyOpts->proxyPort != '\0')
 		{
 			pDestOpts->proxyPort.length = (RsslUInt32)strlen(proxyOpts->proxyPort);
-			pDestOpts->proxyPort.data = (char*)malloc(pDestOpts->proxyPort.length);
+			pDestOpts->proxyPort.data = (char*)malloc(pDestOpts->proxyPort.length + 1);
 
 			if (pDestOpts->proxyPort.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
-			strncpy(pDestOpts->proxyPort.data, proxyOpts->proxyPort, pDestOpts->proxyPort.length);
+			strncpy(pDestOpts->proxyPort.data, proxyOpts->proxyPort, pDestOpts->proxyPort.length + 1);
 		}
 
 		if (proxyOpts->proxyUserName && *proxyOpts->proxyUserName != '\0')
 		{
 			pDestOpts->proxyUserName.length = (RsslUInt32)strlen(proxyOpts->proxyUserName);
-			pDestOpts->proxyUserName.data = (char*)malloc(pDestOpts->proxyUserName.length);
+			pDestOpts->proxyUserName.data = (char*)malloc(pDestOpts->proxyUserName.length + 1);
 
 			if (pDestOpts->proxyUserName.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
-			strncpy(pDestOpts->proxyUserName.data, proxyOpts->proxyUserName, pDestOpts->proxyUserName.length);
+			strncpy(pDestOpts->proxyUserName.data, proxyOpts->proxyUserName, pDestOpts->proxyUserName.length + 1);
 		}
 
 		if (proxyOpts->proxyPasswd && *proxyOpts->proxyPasswd != '\0')
 		{
 			pDestOpts->proxyPasswd.length = (RsslUInt32)strlen(proxyOpts->proxyPasswd);
-			pDestOpts->proxyPasswd.data = (char*)malloc(pDestOpts->proxyPasswd.length);
+			pDestOpts->proxyPasswd.data = (char*)malloc(pDestOpts->proxyPasswd.length + 1);
 
 			if (pDestOpts->proxyPasswd.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
-			strncpy(pDestOpts->proxyPasswd.data, proxyOpts->proxyPasswd, pDestOpts->proxyPasswd.length);
+			strncpy(pDestOpts->proxyPasswd.data, proxyOpts->proxyPasswd, pDestOpts->proxyPasswd.length + 1);
 		}
 
 		if (proxyOpts->proxyDomain && *proxyOpts->proxyDomain != '\0')
 		{
 			pDestOpts->proxyDomain.length = (RsslUInt32)strlen(proxyOpts->proxyDomain);
-			pDestOpts->proxyDomain.data = (char*)malloc(pDestOpts->proxyDomain.length);
+			pDestOpts->proxyDomain.data = (char*)malloc(pDestOpts->proxyDomain.length + 1);
 
 			if (pDestOpts->proxyDomain.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
-			strncpy(pDestOpts->proxyDomain.data, proxyOpts->proxyDomain, pDestOpts->proxyDomain.length);
+			strncpy(pDestOpts->proxyDomain.data, proxyOpts->proxyDomain, pDestOpts->proxyDomain.length + 1);
 		}
 	}
 	else
@@ -14842,65 +14842,70 @@ RsslRet _reactorDeepCopyServiceDiscoveryOptions(RsslProxyOpts* pReactorRestProxy
 		if (pOpts->proxyHostName.data != 0 && pOpts->proxyHostName.length > 0)
 		{
 			pDestOpts->proxyHostName.length = pOpts->proxyHostName.length;
-			pDestOpts->proxyHostName.data = (char*)malloc(pDestOpts->proxyHostName.length);
+			pDestOpts->proxyHostName.data = (char*)malloc(pDestOpts->proxyHostName.length + 1);
 
 			if (pDestOpts->proxyHostName.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
+			memset(pDestOpts->proxyHostName.data, 0, pDestOpts->proxyHostName.length + 1);
 			strncpy(pDestOpts->proxyHostName.data, pOpts->proxyHostName.data, pDestOpts->proxyHostName.length);
 		}
 
 		if (pOpts->proxyPort.data != 0 && pOpts->proxyPort.length > 0)
 		{
 			pDestOpts->proxyPort.length = pOpts->proxyPort.length;
-			pDestOpts->proxyPort.data = (char*)malloc(pDestOpts->proxyPort.length);
+			pDestOpts->proxyPort.data = (char*)malloc(pDestOpts->proxyPort.length + 1);
 
 			if (pDestOpts->proxyPort.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
+			memset(pDestOpts->proxyPort.data, 0, pDestOpts->proxyPort.length + 1);
 			strncpy(pDestOpts->proxyPort.data, pOpts->proxyPort.data, pDestOpts->proxyPort.length);
 		}
 
 		if (pOpts->proxyUserName.data != 0 && pOpts->proxyUserName.length > 0)
 		{
 			pDestOpts->proxyUserName.length = pOpts->proxyUserName.length;
-			pDestOpts->proxyUserName.data = (char*)malloc(pDestOpts->proxyUserName.length);
+			pDestOpts->proxyUserName.data = (char*)malloc(pDestOpts->proxyUserName.length + 1);
 
 			if (pDestOpts->proxyUserName.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
+			memset(pDestOpts->proxyUserName.data, 0, pDestOpts->proxyUserName.length + 1);
 			strncpy(pDestOpts->proxyUserName.data, pOpts->proxyUserName.data, pDestOpts->proxyUserName.length);
 		}
 
 		if (pOpts->proxyPasswd.data != 0 && pOpts->proxyPasswd.length > 0)
 		{
 			pDestOpts->proxyPasswd.length = pOpts->proxyPasswd.length;
-			pDestOpts->proxyPasswd.data = (char*)malloc(pDestOpts->proxyPasswd.length);
+			pDestOpts->proxyPasswd.data = (char*)malloc(pDestOpts->proxyPasswd.length + 1);
 
 			if (pDestOpts->proxyPasswd.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
+			memset(pDestOpts->proxyPasswd.data, 0, pDestOpts->proxyPasswd.length + 1);
 			strncpy(pDestOpts->proxyPasswd.data, pOpts->proxyPasswd.data, pDestOpts->proxyPasswd.length);
 		}
 
 		if (pOpts->proxyDomain.data != 0 && pOpts->proxyDomain.length > 0)
 		{
 			pDestOpts->proxyDomain.length = pOpts->proxyDomain.length;
-			pDestOpts->proxyDomain.data = (char*)malloc(pDestOpts->proxyDomain.length);
+			pDestOpts->proxyDomain.data = (char*)malloc(pDestOpts->proxyDomain.length + 1);
 
 			if (pDestOpts->proxyDomain.data == 0)
 			{
 				goto MemoryAllocationFailure;
 			}
 
+			memset(pDestOpts->proxyDomain.data, 0, pDestOpts->proxyDomain.length + 1);
 			strncpy(pDestOpts->proxyDomain.data, pOpts->proxyDomain.data, pDestOpts->proxyDomain.length);
 		}
 	}

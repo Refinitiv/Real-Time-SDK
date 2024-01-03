@@ -50,14 +50,14 @@ int main(int argc, char* argv[])
 			if (++i == argc)
 				break;
 			g_proxyHost.data = argv[i];
-			g_proxyHost.length = (RsslUInt32)strlen(g_proxyHost.data) + 1;
+			g_proxyHost.length = (RsslUInt32)strlen(g_proxyHost.data);
 		}
 		else if (0 == strcmp("-pp", argv[i]))
 		{
 			if (++i == argc)
 				break;
 			g_proxyPort.data = argv[i];
-			g_proxyPort.length = (RsslUInt32)strlen(g_proxyPort.data) + 1;
+			g_proxyPort.length = (RsslUInt32)strlen(g_proxyPort.data);
 		}
 		else if (0 == strcmp("-clientId", argv[i]))
 		{

@@ -113,6 +113,9 @@ RTR_C_INLINE void rsslFreeServiceDiscoveryOptions(RsslReactorServiceDiscoveryOpt
 	if (pOpts->password.data != NULL)
 		free(pOpts->password.data);
 
+	if (pOpts->clientId.data != NULL)
+		free(pOpts->clientId.data);
+
 	if (pOpts->clientSecret.data != NULL)
 		free(pOpts->clientSecret.data);
 

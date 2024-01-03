@@ -4817,7 +4817,7 @@ static void rsslRestAuthTokenResponseWithoutSessionCallbackV2(RsslRestResponse* 
 
 		pReactorErrorInfoImpl->referenceCount++;
 		rsslSetErrorInfo(&pReactorErrorInfoImpl->rsslErrorInfo, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__,
-			"Failed to request V1 authentication token information. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
+			"Failed to request V2 authentication token information. Received HTTP error %u status code with data body : %s.", restresponse->statusCode, restresponse->dataBody.data);
 
 		pEvent->pReactorErrorInfoImpl = pReactorErrorInfoImpl;
 
