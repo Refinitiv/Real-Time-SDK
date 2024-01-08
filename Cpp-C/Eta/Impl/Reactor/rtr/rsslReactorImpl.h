@@ -2041,6 +2041,7 @@ typedef struct
 	RsslQueue inactiveChannels;			/* Channels that have failed in some way */
 	RsslQueue reconnectingChannels;
 	RsslQueue disposableRestHandles; /* Rest handles that needs to be cleanup */
+	RsslQueue freeInvalidTokenSessions; /* This is used to free invalid token session which has been removed from SessionMgnt */
 
 	RsslNotifier *pNotifier; /* Notifier for workerQueue and channels */
 	RsslNotifierEvent *pQueueNotifierEvent;	/* Notification for workerQueue */

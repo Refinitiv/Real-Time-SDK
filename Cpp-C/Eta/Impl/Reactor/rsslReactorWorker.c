@@ -129,6 +129,7 @@ RsslRet _reactorWorkerStart(RsslReactorImpl *pReactorImpl, RsslCreateReactorOpti
 	rsslInitQueue(&pReactorImpl->reactorWorker.inactiveChannels);
 	rsslInitQueue(&pReactorImpl->reactorWorker.reconnectingChannels);
 	rsslInitQueue(&pReactorImpl->reactorWorker.disposableRestHandles);
+	rsslInitQueue(&pReactorImpl->reactorWorker.freeInvalidTokenSessions);
 
 	/* Initialize the error information pool for the session management */
 	rsslInitQueue(&pReactorImpl->reactorWorker.errorInfoPool);
@@ -339,6 +340,13 @@ void _reactorWorkerCleanupReactor(RsslReactorImpl *pReactorImpl)
 			rsslFreeReactorTokenSessionImpl(pTokenSession);
 		}
 
+		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->freeInvalidTokenSessions)))
+		{
+			RsslReactorTokenSessionImpl* pTokenSession = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, invalidSessionLink, pLink);;
+
+			rsslFreeReactorTokenSessionImpl(pTokenSession);
+		}
+
 		/* Cleaning up the HashTable for keeping track of token session */
 		RSSL_MUTEX_LOCK(&pReactorWorker->reactorTokenManagement.tokenSessionMutex);
 		rsslHashTableCleanup(&pReactorWorker->reactorTokenManagement.sessionByNameAndClientIdHt);
@@ -504,11 +512,17 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 			rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
 		}
 
-
 		if (pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
 			rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
 
-		rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
+		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->waitingForResponseOfExplicitSD > 0)
+		{
+			rsslQueueAddLinkToBack(&pReactorImpl->reactorWorker.freeInvalidTokenSessions, &pTokenSessionImpl->invalidSessionLink);
+		}
+		else
+		{
+			rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
+		}
 
 		RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 	}
@@ -1911,7 +1925,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 										return (_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr), RSSL_THREAD_RETURN());
 									}
 									
-									if (pRestEvent->pExplicitSDInfo->restRequestType == RSSL_RCIMPL_ET_REST_RESP_AUTH_SERVICE)
+									if (pRestEvent->pExplicitSDInfo->restRequestType == RSSL_RCIMPL_ET_REST_REQ_AUTH_SERVICE)
 									{
 										/* Try to check whether there is an token session for the user */
 										if (pRestEvent->pExplicitSDInfo->sessionMgntVersion == RSSL_RC_SESSMGMT_V1)
@@ -1938,6 +1952,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 													if (pTokenSessionImpl->tokenInformation.accessToken.data != 0 && pTokenSessionImpl->tokenInformation.accessToken.length != 0)
 													{
 														pRestEvent->pExplicitSDInfo->pTokenSessionImpl = pTokenSessionImpl;
+														RTR_ATOMIC_INCREMENT(pRestEvent->pExplicitSDInfo->pTokenSessionImpl->waitingForResponseOfExplicitSD);
 														
 														pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pReactorImpl, &pReactorImpl->serviceDiscoveryURL,
 															pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.transport, pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions.dataFormat,
@@ -1949,6 +1964,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 															if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 																(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
 
+															pRestEvent->pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_REQ_SERVICE_DISCOVERY;
 															pHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 																rsslRestServiceDiscoveryResponseCallbackForExplicitSD,
 																rsslRestErrorCallbackForExplicitSD,
@@ -2007,9 +2023,24 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 															rsslRestErrorCallbackForExplicitSD,
 															&pRestEvent->pExplicitSDInfo->restResponseBuf, &errorInfo.rsslError);
 
+														RTR_ATOMIC_INCREMENT(pRestEvent->pExplicitSDInfo->pTokenSessionImpl->waitingForResponseOfExplicitSD);
+
 														if (pHandle == 0)
 														{
 															RSSL_MUTEX_UNLOCK(&pRestEvent->pExplicitSDInfo->pTokenSessionImpl->accessTokenMutex);
+
+															/* Remove the newly created token session as it fails to send the request for V1 */
+															if (pRestEvent->pExplicitSDInfo->pTokenSessionImpl)
+															{
+																pTokenSessionImpl = pRestEvent->pExplicitSDInfo->pTokenSessionImpl;
+
+																rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
+
+																if (pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
+																	rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
+
+																rsslQueueAddLinkToBack(&pReactorWorker->freeInvalidTokenSessions, &pTokenSessionImpl->invalidSessionLink);
+															}
 														}
 													}
 													else
@@ -2653,22 +2684,28 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 						/* Remove and free the token session if there is channel associated with it yet for V1. */
 						if (pTokenSession->pExplicitServiceDiscoveryInfo && pTokenSession->sessionVersion == RSSL_RC_SESSMGMT_V1)
 						{
-							/* Checks to ensure that there is no channel that is waiting to register or added with the token session */
-							if (pTokenSession->reactorChannelList.count == 0 && pTokenSession->numberOfWaitingChannels == 0 && pTokenSession->registeredByStandbyChannels == 0)
+							RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+
+							/* Checks whether the token session has been assigned to the channel */
+							if (pTokenSession->pExplicitServiceDiscoveryInfo->assignedToChannel == 0)
 							{
-								RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+								/* Checks to ensure that there is no channel that is waiting to register or added with the token session */
+								if (pTokenSession->reactorChannelList.count == 0 && pTokenSession->numberOfWaitingChannels == 0 &&
+									pTokenSession->registeredByStandbyChannels == 0 && pTokenSession->waitingForResponseOfExplicitSD == 0)
+								{
+									rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSession->hashLinkNameAndClientId);
 
-								rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSession->hashLinkNameAndClientId);
-				
-								if (pTokenSession->sessionLink.next != NULL && pTokenSession->sessionLink.prev != NULL)
-									rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSession->sessionLink);
+									if (pTokenSession->sessionLink.next != NULL && pTokenSession->sessionLink.prev != NULL)
+										rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSession->sessionLink);
 
-								rsslFreeReactorTokenSessionImpl(pTokenSession);
+									rsslFreeReactorTokenSessionImpl(pTokenSession);
 
-								RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+									RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 
-								continue;
+									continue;
+								}
 							}
+							RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
 						}
 					}
 
@@ -2874,6 +2911,25 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 				pRestHandle = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHandle, queueLink, pLink);
 
 				rsslRestCloseHandle(pRestHandle, &pReactorWorker->workerCerr.rsslError);
+			}
+		}
+
+		/* Free inactive token sessions when it is no longer needed. */
+		if (pReactorWorker->freeInvalidTokenSessions.count != 0)
+		{
+			RSSL_QUEUE_FOR_EACH_LINK(&pReactorWorker->freeInvalidTokenSessions, pLink)
+			{
+				RsslReactorTokenSessionImpl* pTokenSessionImpl = RSSL_QUEUE_LINK_TO_OBJECT(RsslReactorTokenSessionImpl, invalidSessionLink, pLink);
+				if (pTokenSessionImpl)
+				{	/* Invalid token sessions is added to the freeInvalidTokenSessions queue only when there is no ReactorChannel for V1 OAuth associated with it. */
+					if (pTokenSessionImpl->waitingForResponseOfExplicitSD == 0)
+					{
+						if (pTokenSessionImpl->invalidSessionLink.next != NULL && pTokenSessionImpl->invalidSessionLink.prev != NULL)
+							rsslQueueRemoveLink(&pReactorWorker->freeInvalidTokenSessions, &pTokenSessionImpl->invalidSessionLink);
+
+						rsslFreeReactorTokenSessionImpl(pTokenSessionImpl);
+					}
+				}
 			}
 		}
 	}
@@ -5213,9 +5269,13 @@ static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* res
 					goto HandleRequestFailure;
 				}
 
+				/* Set the original expires in seconds for the password grant. */
+				pTokenSession->originalExpiresIn = pTokenSession->tokenInformation.expiresIn;
+
 				tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pTokenSession->tokenInformation.expiresIn * 1000);
 				pTokenSession->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pTokenSession->tokenInformation.expiresIn * pReactorImpl->tokenReissueRatio) * 1000);
 				pTokenSession->tokenSessionState = RSSL_RC_TOKEN_SESSION_IMPL_RECEIVED_AUTH_TOKEN;
+				pTokenSession->lastTokenUpdatedTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
 				RTR_ATOMIC_SET64(pTokenSession->tokenExpiresTime, tokenExpiresTime);
 				RTR_ATOMIC_SET(pTokenSession->sendTokenRequest, 1);
 
@@ -5249,6 +5309,7 @@ static void rsslRestAuthTokenResponseCallbackForExplicitSD(RsslRestResponse* res
 			if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 				(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
 
+			pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_REQ_SERVICE_DISCOVERY;
 			if ((pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 				rsslRestServiceDiscoveryResponseCallbackForExplicitSD,
 				rsslRestErrorCallbackForExplicitSD,
@@ -5374,6 +5435,26 @@ HandleRequestFailure:
 		_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
 	}
 
+	// Add to the inactive token session list for freeing it later when the token session is created by explicit service discovery
+	if (pExplicitSDInfo->pTokenSessionImpl)
+	{
+		RsslReactorTokenSessionImpl* pTokenSessionImpl = pExplicitSDInfo->pTokenSessionImpl;
+		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
+		{
+			RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+			if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0 && pTokenSessionImpl->registeredByStandbyChannels == 0)
+			{
+				rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
+
+				if (pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
+					rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
+
+				rsslQueueAddLinkToBack(&pReactorWorker->freeInvalidTokenSessions, &pTokenSessionImpl->invalidSessionLink);
+			}
+			RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+		}
+	}
+
 	return;
 }
 
@@ -5412,6 +5493,25 @@ static void rsslRestErrorCallbackForExplicitSD(RsslError* rsslError, RsslRestRes
 	{
 		_reactorWorkerShutdown(pReactorImpl, &pReactorWorker->workerCerr);
 		return;
+	}
+
+	if (pExplicitSDInfo->restRequestType == RSSL_RCIMPL_ET_REST_REQ_AUTH_SERVICE)
+	{
+		RsslReactorTokenSessionImpl* pTokenSessionImpl = pExplicitSDInfo->pTokenSessionImpl;
+		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
+		{
+			RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+			if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0 && pTokenSessionImpl->registeredByStandbyChannels == 0)
+			{
+				rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
+
+				if (pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
+					rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
+
+				rsslQueueAddLinkToBack(&pReactorWorker->freeInvalidTokenSessions, &pTokenSessionImpl->invalidSessionLink);
+			}
+			RSSL_MUTEX_UNLOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
+		}
 	}
 }
 
@@ -5508,6 +5608,7 @@ static void rsslRestServiceDiscoveryResponseCallbackForExplicitSD(RsslRestRespon
 				if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 					(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &rsslErrorInfo.rsslError);
 
+				pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_REQ_SERVICE_DISCOVERY;
 				if ((pRestHandle = rsslRestClientNonBlockingRequest(pReactorImpl->pRestClient, pRestRequestArgs,
 					rsslRestServiceDiscoveryResponseCallbackForExplicitSD,
 					rsslRestErrorCallbackForExplicitSD,

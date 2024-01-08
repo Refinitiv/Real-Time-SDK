@@ -1892,7 +1892,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 			pRestEvent->pExplicitSDInfo->sessionMgntVersion = sessionVersion;
 			pRestEvent->pExplicitSDInfo->pReactor = pReactor;
 			pRestEvent->pExplicitSDInfo->pRestRequestArgs = NULL; /* Don't create a request argument yet */
-			pRestEvent->pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_RESP_AUTH_SERVICE;
+			pRestEvent->pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_REQ_AUTH_SERVICE;
 			pRestEvent->pExplicitSDInfo->restResponseBuf.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
 			pRestEvent->pExplicitSDInfo->restResponseBuf.data = (char*)malloc(pRestEvent->pExplicitSDInfo->restResponseBuf.length);
 
@@ -2101,7 +2101,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 				pRestEvent->pExplicitSDInfo->sessionMgntVersion = sessionVersion;
 				pRestEvent->pExplicitSDInfo->pReactor = pReactor;
 				pRestEvent->pExplicitSDInfo->pRestRequestArgs = pRestRequestArgs;
-				pRestEvent->pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_RESP_AUTH_SERVICE;
+				pRestEvent->pExplicitSDInfo->restRequestType = RSSL_RCIMPL_ET_REST_REQ_AUTH_SERVICE;
 				pRestEvent->pExplicitSDInfo->restResponseBuf.length = RSSL_REST_INIT_TOKEN_BUFFER_SIZE;
 				pRestEvent->pExplicitSDInfo->restResponseBuf.data = (char*)malloc(pRestEvent->pExplicitSDInfo->restResponseBuf.length);
 
@@ -6722,6 +6722,8 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 					/* Free RsslReactorExplicitServiceDiscoveryInfo if there is no token session associated with it. */
 					if (pExplicitSDInfo->pTokenSessionImpl)
 					{
+						RTR_ATOMIC_DECREMENT(pExplicitSDInfo->pTokenSessionImpl->waitingForResponseOfExplicitSD);
+
 						if (pExplicitSDInfo->pTokenSessionImpl->pExplicitServiceDiscoveryInfo != pExplicitSDInfo)
 						{
 							rsslFreeReactorExplicitServiceDiscoveryInfo(pExplicitSDInfo);
@@ -10625,9 +10627,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 			{
 				return ret;
 			}
-			RTR_ATOMIC_SET(pTokenChannelList[i].hasBeenActivated, RSSL_FALSE);
 			pTokenChannelList[i].credentialArrayIndex = i;
-			RTR_ATOMIC_INCREMENT(pTokenChannelList[i].pSessionImpl->numberOfWaitingChannels);
 			pTokenChannelList[i].pChannelImpl = pReactorChannel;
 
 			/* If this isn't the current active channel's token session(or the current acive channel doesn't have session management on) and the token is V1, unlock the token management mutex */
@@ -10660,9 +10660,7 @@ RsslRet _reactorChannelGetTokenSessionList(RsslReactorChannelImpl* pReactorChann
 		{
 			return ret;
 		}
-		RTR_ATOMIC_SET(pTokenChannel->hasBeenActivated, RSSL_FALSE);
 		pTokenChannel->credentialArrayIndex = 0;
-		RTR_ATOMIC_INCREMENT(pTokenChannel->pSessionImpl->numberOfWaitingChannels);
 		pTokenChannel->pChannelImpl = pReactorChannel;
 
 		pReactorChannel->pCurrentTokenSession = pTokenChannel;
@@ -10765,11 +10763,17 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 					/* Clears sensitive information */
 					memset(pTokenSessionImpl->pOAuthCredential->password.data, 0, pTokenSessionImpl->pOAuthCredential->password.length);
 				}
+
+				RTR_ATOMIC_SET(pTokenSessionImpl->pExplicitServiceDiscoveryInfo->assignedToChannel, RSSL_TRUE);
 			}
 
 			if (errorOnV1Repeat)
 			{
 				rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_INVALID_ARGUMENT, __FILE__, __LINE__, "Cannot use the same oAuth V1 credentials multiple times in the credential list.");
+
+				if (setMutex == RSSL_TRUE)
+					RSSL_MUTEX_UNLOCK(&pTokenManagementImpl->tokenSessionMutex);
+
 				return RSSL_RET_INVALID_ARGUMENT;
 			}
 
@@ -10791,6 +10795,8 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 			}
 
 			pTokenChannelImpl->pSessionImpl = pTokenSessionImpl;
+			RTR_ATOMIC_SET(pTokenChannelImpl->hasBeenActivated, RSSL_FALSE);
+			RTR_ATOMIC_INCREMENT(pTokenSessionImpl->numberOfWaitingChannels);
 			pReactorChannel->currentConnectionOpts->lastTokenUpdatedTime = pTokenSessionImpl->lastTokenUpdatedTime;
 		}
 		else
@@ -10989,6 +10995,8 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 				pTokenSessionImpl->initialTokenRetrival = RSSL_TRUE;
 			}
 
+			RTR_ATOMIC_SET(pTokenChannelImpl->hasBeenActivated, RSSL_FALSE);
+			RTR_ATOMIC_INCREMENT(pTokenSessionImpl->numberOfWaitingChannels);
 		}
 	}
 	else // V2 login
@@ -11073,6 +11081,9 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 		{
 			pTokenSessionImpl->initialTokenRetrival = RSSL_TRUE;
 		}
+
+		RTR_ATOMIC_SET(pTokenChannelImpl->hasBeenActivated, RSSL_FALSE);
+		RTR_ATOMIC_INCREMENT(pTokenSessionImpl->numberOfWaitingChannels);
 	}
 
 	return RSSL_RET_SUCCESS;

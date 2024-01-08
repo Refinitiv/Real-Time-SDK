@@ -95,6 +95,8 @@ typedef struct
 	RsslBool					initialTokenRetrival;  /* Flag used to determine if it's the initial connection to make sure we don't call the user back unnecessarily and properly clean up any sensitive data once we have a token */
 
 	RsslReactorExplicitServiceDiscoveryInfo* pExplicitServiceDiscoveryInfo; /* This is set when performing non-blocking explicit service discovery */
+	rtr_atomic_val				waitingForResponseOfExplicitSD; /* Keeps number of explicit service discovery requests which still refers to this RsslReactorTokenSessionImpl */
+	RsslQueueLink				invalidSessionLink; /* Keeps in the RsslReactorWorker.freeInvalidTokenSessions for freeing it later when the token session is no longer needed. */
 
 } RsslReactorTokenSessionImpl;
 
@@ -207,8 +209,9 @@ RTR_C_INLINE void rsslClearReactorErrorInfoImpl(RsslReactorErrorInfoImpl *pError
 
 typedef enum
 {
-	RSSL_RCIMPL_ET_REST_RESP_UNKNOWN = 0x00,
-	RSSL_RCIMPL_ET_REST_RESP_AUTH_SERVICE = 0x01
+	RSSL_RCIMPL_ET_REST_REQ_UNKNOWN = 0x00,
+	RSSL_RCIMPL_ET_REST_REQ_AUTH_SERVICE = 0x01,
+	RSSL_RCIMPL_ET_REST_REQ_SERVICE_DISCOVERY = 0x02
 } RsslReactorRestRequestType;
 
 /* This is used to keep the query service discovery options. */
@@ -225,6 +228,7 @@ struct _RsslReactorExplicitServiceDiscoveryInfo
 	RsslUInt32 httpStatusCode;
 	RsslReactorTokenSessionImpl* pTokenSessionImpl;
 	void* pUserSpec;
+	rtr_atomic_val assignedToChannel; /* This is used to indicate whether the token session is assigned to ReactorChannel. */
 };
 
 RTR_C_INLINE void rsslClearReactorExplicitServiceDiscoveryInfo(RsslReactorExplicitServiceDiscoveryInfo* pServiceDiscoveryInfo)
