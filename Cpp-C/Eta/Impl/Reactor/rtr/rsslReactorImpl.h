@@ -2041,7 +2041,6 @@ typedef struct
 	RsslQueue inactiveChannels;			/* Channels that have failed in some way */
 	RsslQueue reconnectingChannels;
 	RsslQueue disposableRestHandles; /* Rest handles that needs to be cleanup */
-	RsslQueue freeInvalidTokenSessions; /* This is used to free invalid token session which has been removed from SessionMgnt */
 
 	RsslNotifier *pNotifier; /* Notifier for workerQueue and channels */
 	RsslNotifierEvent *pQueueNotifierEvent;	/* Notification for workerQueue */
@@ -2065,6 +2064,7 @@ typedef struct
 	char nameReactorWorker[MAX_THREADNAME_STRLEN]; /* Name of the reactor worker thread */
 	RsslBuffer cpuBindWorkerThread; /*!< Specifies Cpu core in string format (Cpu core id or P:X C:Y T:Z format) for the worker thread binding; if the value is not set, then there is no limit of the binding processor cores for the Reactor worker thread.> */
 	rtr_atomic_val threadStarted; /*!< Describes the starting process of the Reactor worker thread. see RsslReactorWorkerThreadStartingState > */
+	RsslQueue freeInvalidTokenSessions; /* This is used to free invalid token session which has been removed from SessionMgnt */
 } RsslReactorWorker;
 
 typedef enum
