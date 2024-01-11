@@ -1719,6 +1719,11 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 					&pOpts->userName, &pOpts->password, NULL, &pOpts->clientId, &pOpts->clientSecret, &pOpts->tokenScope,
 					pOpts->takeExclusiveSignOnControl, &argumentAndHeaders, NULL, pError);
 
+				if (pOpts->restBlocking == RSSL_TRUE)
+				{
+					pRsslReactorImpl->argumentsAndHeaders = argumentAndHeaders;
+				}
+
 				if (pRestRequestArgs)
 				{
 					_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
@@ -1933,6 +1938,11 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		pRestRequestArgs = _reactorCreateTokenRequestV2(pRsslReactorImpl, &tokenURL,
 			& pOpts->clientId, &pOpts->clientSecret, &pOpts->clientJWK, &audience, &pOpts->tokenScope, &argumentAndHeaders, NULL, pError);
 
+		if (pOpts->restBlocking == RSSL_TRUE)
+		{
+			pRsslReactorImpl->argumentsAndHeaders = argumentAndHeaders;
+		}
+
 		if (pRestRequestArgs)
 		{
 			_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
@@ -2145,6 +2155,11 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 	pRestRequestArgs = _reactorCreateRequestArgsForServiceDiscovery(pRsslReactorImpl, &pRsslReactorImpl->serviceDiscoveryURL,
 		pOpts->transport, pOpts->dataFormat, &tokenInformation.tokenType,
 		&tokenInformation.accessToken, &argumentAndHeaders, NULL, pError);
+
+	if (pOpts->restBlocking == RSSL_TRUE)
+	{
+		pRsslReactorImpl->argumentsAndHeaders = argumentAndHeaders;
+	}
 
 	/* Release the session lock after the token information is copied for the service discovery request. */
 	if (acquiredTokenSessionMutex)
