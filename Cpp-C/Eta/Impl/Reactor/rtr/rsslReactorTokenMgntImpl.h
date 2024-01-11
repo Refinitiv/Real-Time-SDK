@@ -83,7 +83,6 @@ typedef struct
 	RsslInt32					reissueTokenAttemptLimit; /* Keeping track of token renewal attempt */
 
 	rtr_atomic_val				numberOfWaitingChannels; /* Keeps the number of RsslReactorChannelImpl waiting to register to the RsslReactorTokenSessionImpl*/
-	rtr_atomic_val				registeredByStandbyChannels; /* Keeps number of RsslReactorChannelImpl registering by standby channesl to this RsslReactorTokenSessionImpl */
 
 	RsslBuffer					sessionAuthUrl;
 	RsslBuffer					temporaryURL; /* Used the memory location from the temporaryURLBuffer */

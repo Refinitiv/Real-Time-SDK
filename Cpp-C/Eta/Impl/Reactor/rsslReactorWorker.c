@@ -479,17 +479,10 @@ RsslRet _UnregisterTokenSession(RsslReactorTokenChannelInfo* pChannelInfo, RsslR
 	if (pChannelInfo->hasBeenActivated == RSSL_FALSE)
 		RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
 
-	/* Decreases the number of standby channels registered for this token session.*/
-	if (pChannelInfo->pChannelImpl->pWarmStandByHandlerImpl && pChannelInfo->pChannelImpl->isStartingServerConfig == RSSL_FALSE)
-	{
-		RTR_ATOMIC_DECREMENT(pTokenSessionImpl->registeredByStandbyChannels);
-	}
-
 	pChannelInfo->pSessionImpl = NULL;
 
 	/* Ensure that all channels has been removed and there is no others channel is waiting to add to the list of token session */
-	if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0 
-		&& pTokenSessionImpl->registeredByStandbyChannels == 0)
+	if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0)
 	{
 		/* Close the existing the REST request if any */
 		if (pTokenSessionImpl->pRestHandle)
@@ -659,7 +652,9 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 						/* Add the channel to the token session for V1, or V2 if there isn't any other channel in the token session's channel list */
 						if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 || (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2 && pTokenSessionImpl->reactorChannelList.count == 0))
 						{
-							rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+							if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+								rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+
 							if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
 							{
 								RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
@@ -708,7 +703,9 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 				/* Add the channel to the token session for V1, or V2 if there isn't any other channel in the token session's channel list */
 				if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 || (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2 && pTokenSessionImpl->reactorChannelList.count == 0))
 				{
-					rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+					if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+						rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+
 					if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
 					{
 						RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
@@ -734,7 +731,9 @@ RsslRet _reactorWorkerReconnectAfterCredentialUpdate(RsslReactorChannelImpl* pRe
 			/* Add the channel to the token session for V1, or V2 if there isn't any other channel in the token session's channel list */
 			if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 || (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V2 && pTokenSessionImpl->reactorChannelList.count == 0))
 			{
-				rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+				if (pReactorChannel->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannel->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+					rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannel->pCurrentTokenSession->tokenSessionLink);
+
 				if (pReactorChannel->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
 				{
 					RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
@@ -1858,15 +1857,14 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 										}
 										case RSSL_RCIMPL_TSET_REGISTER_CHANNEL_TO_SESSION:
 										{
-											rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannelImpl->pCurrentTokenSession->tokenSessionLink);
+											if (pReactorChannelImpl->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannelImpl->pCurrentTokenSession->tokenSessionLink.prev == NULL)
+												rsslQueueAddLinkToBack(&pTokenSessionImpl->reactorChannelList, &pReactorChannelImpl->pCurrentTokenSession->tokenSessionLink);
 
-											/* Keeps track number of standby channel registered for this token session.*/
-											if (pReactorChannelImpl->pWarmStandByHandlerImpl && pReactorChannelImpl->isStartingServerConfig == RSSL_FALSE)
+											if (pReactorChannelImpl->pCurrentTokenSession->hasBeenActivated == RSSL_FALSE)
 											{
-												RTR_ATOMIC_INCREMENT(pTokenSessionImpl->registeredByStandbyChannels);
+												RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
 											}
 
-											RTR_ATOMIC_DECREMENT(pTokenSessionImpl->numberOfWaitingChannels);
 											RTR_ATOMIC_SET(pReactorChannelImpl->pCurrentTokenSession->hasBeenActivated, RSSL_TRUE);
 											break;
 										}
@@ -1881,7 +1879,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 												pReactorChannelImpl->pCurrentTokenSession = NULL;
 											}
 
-											if (pTokenSessionImpl->reactorChannelList.count == 0)
+											if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0 && pTokenSessionImpl->waitingForResponseOfExplicitSD == 0)
 											{
 												if (pTokenSessionImpl->sessionLink.next != NULL && pTokenSessionImpl->sessionLink.prev != NULL)
 													rsslQueueRemoveLink(&pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
@@ -2691,7 +2689,7 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 							{
 								/* Checks to ensure that there is no channel that is waiting to register or added with the token session */
 								if (pTokenSession->reactorChannelList.count == 0 && pTokenSession->numberOfWaitingChannels == 0 &&
-									pTokenSession->registeredByStandbyChannels == 0 && pTokenSession->waitingForResponseOfExplicitSD == 0)
+									pTokenSession->waitingForResponseOfExplicitSD == 0)
 								{
 									rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSession->hashLinkNameAndClientId);
 
@@ -5442,7 +5440,7 @@ HandleRequestFailure:
 		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
 		{
 			RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
-			if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0 && pTokenSessionImpl->registeredByStandbyChannels == 0)
+			if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0)
 			{
 				rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
 
@@ -5501,7 +5499,7 @@ static void rsslRestErrorCallbackForExplicitSD(RsslError* rsslError, RsslRestRes
 		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
 		{
 			RSSL_MUTEX_LOCK(&(pReactorImpl->reactorWorker.reactorTokenManagement.tokenSessionMutex));
-			if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0 && pTokenSessionImpl->registeredByStandbyChannels == 0)
+			if (pTokenSessionImpl->reactorChannelList.count == 0 && pTokenSessionImpl->numberOfWaitingChannels == 0)
 			{
 				rsslHashTableRemoveLink(&(pReactorImpl->reactorWorker.reactorTokenManagement.sessionByNameAndClientIdHt), &pTokenSessionImpl->hashLinkNameAndClientId);
 

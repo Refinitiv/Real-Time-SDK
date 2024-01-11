@@ -2327,7 +2327,6 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 		}
 	}
 
-	RTR_ATOMIC_SET(pTokenSessionImpl->requestingAccessToken, 1);
 	RSSL_MUTEX_LOCK(&pTokenSessionImpl->accessTokenMutex);
 
 	if (pTokenSessionImpl->tokenInformation.accessToken.data != 0 && pTokenSessionImpl->stopTokenRequest == 0)
@@ -2340,9 +2339,28 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 			pReactorChannelRole->ommConsumerRole.pLoginRequest->flags &= (~RDM_LG_RQF_HAS_PASSWORD);
 			pReactorChannelRole->ommConsumerRole.pLoginRequest->userNameType = RDM_LOGIN_USER_AUTHN_TOKEN;
 		}
+
+		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
+		{
+			if (pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback)
+			{
+				/* Clears sensitive information */
+				memset(pTokenSessionImpl->pOAuthCredential->password.data, 0, pTokenSessionImpl->pOAuthCredential->password.length);
+			}
+		}
 	}
 	else
 	{
+		if (pTokenSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1 && pTokenSessionImpl->pExplicitServiceDiscoveryInfo)
+		{
+			// Set the initialTokenRetrival flag if the callback is set and there is a password configured
+			if (pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback
+				&& (pTokenSessionImpl->pOAuthCredential->password.data != NULL && pTokenSessionImpl->pOAuthCredential->password.length != 0))
+			{
+				pTokenSessionImpl->initialTokenRetrival = RSSL_TRUE;
+			}
+		}
+
 		(*queryAuthInfo) = RSSL_TRUE;
 	}
 
@@ -2360,7 +2378,6 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 		pTokenSessionImpl->copiedProxyOpts = RSSL_TRUE;
 	}
 
-	RTR_ATOMIC_SET(pTokenSessionImpl->requestingAccessToken, 0);
 	RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
 
 	if (*queryConnectInfo)
@@ -2396,6 +2413,25 @@ static RsslRet _reactorCheckAccessTokenAndServiceDiscovery(RsslReactorChannelImp
 				transport);
 
 			return RSSL_RET_INVALID_ARGUMENT;
+		}
+	}
+
+	if (*queryAuthInfo == RSSL_FALSE && *queryConnectInfo == RSSL_FALSE)
+	{
+		/* Send an event for the worker thread to add ReactorChannel to the token session */
+		RsslReactorTokenSessionEvent* pEvent = (RsslReactorTokenSessionEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorWorker.workerQueue);
+		rsslClearReactorTokenSessionEvent(pEvent);
+
+		pEvent->reactorTokenSessionEventType = RSSL_RCIMPL_TSET_REGISTER_CHANNEL_TO_SESSION;
+		pEvent->pReactorChannel = (RsslReactorChannel*)pReactorChannelImpl;
+		pEvent->pTokenSessionImpl = pReactorChannelImpl->pCurrentTokenSession->pSessionImpl;
+
+		if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorWorker.workerQueue, (RsslReactorEventImpl*)pEvent) == RSSL_RET_SUCCESS, RSSL_RET_FAILURE, pError))
+		{
+			_reactorShutdown(pReactorImpl, pError);
+			_reactorSendShutdownEvent(pReactorImpl, pError);
+			reactorUnlockInterface(pReactorImpl);
+			return RSSL_RET_FAILURE;
 		}
 	}
 
@@ -10774,11 +10810,9 @@ RsslRet _reactorChannelGetTokenSession(RsslReactorChannelImpl* pReactorChannel,
 				if (pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback == NULL && pOAuthCredential->pOAuthCredentialEventCallback)
 				{
 					pTokenSessionImpl->pOAuthCredential->pOAuthCredentialEventCallback = pOAuthCredential->pOAuthCredentialEventCallback;
-					
-					/* Clears sensitive information */
-					memset(pTokenSessionImpl->pOAuthCredential->password.data, 0, pTokenSessionImpl->pOAuthCredential->password.length);
 				}
 
+				pTokenSessionImpl->initialized = RSSL_TRUE;
 				RTR_ATOMIC_SET(pTokenSessionImpl->pExplicitServiceDiscoveryInfo->assignedToChannel, RSSL_TRUE);
 			}
 
