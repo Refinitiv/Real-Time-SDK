@@ -9,26 +9,31 @@ There are three types of RTSDK releases that append a letter directly followed b
 "E" releases (E-Loads) are emergency RTSDK releases that are uploaded to MyRefinitiv and Developer Community but not to GitHub. Also note that emergency releases may only be partial (i.e., Java or C++/C only).
 
 ----------------------------------------------------------------------------------------
-CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.L1 aka EMA/ETA 3.7.3.L1 aka 3.7.3.0
+CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.L2 aka EMA/ETA 3.7.3.L2 aka 3.7.3.1
 ----------------------------------------------------------------------------------------
 
-In this release, support for TLS 1.3 is introduced along with updates to dependent libraries and fixes to customers issues. 
-
-Customer Issues Resolved
-----------------------------------------------------------------------------------------
-- [Case Number: 12823235] - [RTSDK-7727] - Qualification with gcc 9.2.1
-- [GitHub #216] - [RTSDK-6808] - Enhancement: Consider making logging to stderr an option
-- [GitHub #240] - [RTSDK-7615] - Pooled objects leak during destruction
-- [GitHub #243 & #251] - [RTSDK-7598] - EMA SessionInfo doesn't have virtual destructor
-- [GitHub #256] - [RTSDK-8068] - Application crash when using warm standby and "Force Logout From DACS" is received
+In this release are critical fixes related to ETAC non-blocking service discovery feature.
 
 ----------------------------------------------------------------------------------------
 FULL CHANGELOG
 ----------------------------------------------------------------------------------------
 
 --------------------------------------------
+RTSDK C++/C Release 2.1.3.L2 (Jan 17, 2024)
+--------------------------------------------
+
+ETA C 3.7.3.L2 Issues Resolved
+--------------------------------
+- [RTSDK-8140] - Fixed invalid read issues from missing null termination for proxy host and port with nonon-blocking explicit service discovery 
+- [RTSDK-8142] - Fix to reactor crash when the worker thread fails to submit request for explicit service discovery
+- [RTSDK-8157] - Fix to reactor channel recovery when using non blocking service discovery and V1 auth;  also fix to invalid token sessions created by explicit service discovery
+- [RTSDK-8163] - ReactorChannel is not added to the token session in rsslReactorConnect() when using the existing token session and the endpoint is specified 
+
+--------------------------------------------
 RTSDK C++/C Release 2.1.3.L1 (Dec 22, 2023)
 --------------------------------------------
+
+In this release, support for TLS 1.3 is introduced along with updates to dependent libraries and fixes to customers issues. Addtionally, API supports non-blocking application driven or explict service discovery and non-blocking API-drive or implicit service discovery calls. The default behavior of implicit service discovery has been changed to use the non-blocking call.
 
 EMA C++ 3.7.3.L1 Issues Resolved
 --------------------------------

@@ -5,7 +5,7 @@ The **Enterprise Message API (EMA)** is an ease of use, open source, OMM API. EM
 
 The **Enterprise Transport API (ETA)** is an open source Refinitiv low-level Transport and OMM encoder/decoder API. It is used by the Refinitiv Real-Time Distribution Systems and Refinitiv Real-Time for the optimal distribution of OMM/RWF data and allows applications to achieve the highest performance, highest throughput, and lowest latency. ETA fully supports all OMM constructs and messages. Applications may be written to core ETA (RSSL), to ValueAdd/Reactor layer or to Watchlist layer.
 
-Copyright (C) 2019-2023 Refinitiv. All rights reserved.
+Copyright (C) 2019-2024 Refinitiv. All rights reserved.
 
 # New In This Release
 
@@ -30,10 +30,12 @@ External modules used by this version of RTSDK C/C++:
      zlib                  1.3
 \* Tested on supported Linux and Windows platforms; \*\* Tested on supported Windows platform 
 
-- Please note that curl and openSSL are dynamically loaded at runtime.  
+NOTES: 
+- curl and openSSL are dynamically loaded at runtime.  
 - Above mentioned version of openSSL was used in test. Please note that the RTSDK package does not build openSSL, and we recommend that all installed versions of openSSL are patched to the latest version available.  
-- Please note that the default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
-- Please note that openSSL 1.1.1 and higher are required for TLS 1.3
+- Default curl libraries and CMake build scripting provided in the RTSDK package are built against the default openSSL version provided by the Linux distribution (Oracle Linux 7, RedHat 8). If the application is using a different version of openSSL than the distribution, one must obtain a version of Curl that links against the same major and minor version of openSSL as the application and rebuild to ensure that one version of openSSL is used. For Windows, the RTSDK package Curl build, links against the Windows schannel library, and does not have the possibility of a version incompatability issue with openSSL.
+- openSSL 1.1.1 and higher are required for TLS 1.3
+- Cipher suite is configurable with TLS 1.2 and it is recommended that customers use best available ciphers. With TLS 1.3, cipher suite is not yet configurable; however, default ciphers are best available.
 - Check installation guide for details regarding including external dependencies for build 
    
 ### System Libraries Dependencies

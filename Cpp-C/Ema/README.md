@@ -4,7 +4,7 @@ The Enterprise Message API: This is an easy-to-use, performant, open source mess
 
 EMA is written on top of the Enterprise Transport API (ETA) utilizing the Value Added Reactor and Watchlist.  
 
-Copyright (C) 2018-2023 Refinitiv. All rights reserved.
+Copyright (C) 2018-2024 Refinitiv. All rights reserved.
   
 # EMA C++ Documentation
 
@@ -98,14 +98,14 @@ Shared library use is similar to static library use, however there are several k
 
     Library Name              Package Version
     ------------              ---------------
-    libema.lib                ema3.7.3.L1
+    libema.lib                ema3.7.3.L2
 
 ##### Shared Library Manifest
 
     Library Name              Package Version
     -------------             ---------------
-    libema.lib                ema3.7.3.L1
-    libema.dll                ema3.7.3.L1
+    libema.lib                ema3.7.3.L2
+    libema.dll                ema3.7.3.L2
 
 #### Linux
     
@@ -125,13 +125,13 @@ This will create all necessary soft links for example makefiles to link. It is s
 
     Library Name                Package Version  
     -------------               -------------- 
-    libema.a                    ema3.7.3.L1
+    libema.a                    ema3.7.3.L2
     
 ##### Shared Library Manifest
 
     Library Name                Binary Version       Package Version
     -------------               --------------       ----------------
-    libema.so.3.7.3.L1          libema.so.18          ema3.7.3.L1
+    libema.so.3.7.3.L2          libema.so.18          ema3.7.3.L1
     
   
 # EMA C++ Issues and Workarounds
@@ -159,11 +159,11 @@ This will create all necessary soft links for example makefiles to link. It is s
     Refinitiv Item Number: N/A
     Product Name: Enterprise Message API - C++ Edition
     Release Number: 3.7.3
-    Load Number: 1
-    Windows Load ID: ema3.7.3.L1.win
-        Supersedes: ema3.7.2.L1.win
-    Linux Load ID: ema3.7.3.L1.linux
-        Supersedes: ema3.7.2.L1.linux
+    Load Number: 2
+    Windows Load ID: ema3.7.3.L2.win
+        Supersedes: ema3.7.3.L1.win
+    Linux Load ID: ema3.7.3.L2.linux
+        Supersedes: ema3.7.3.L1.linux
     Release Status: RRG
     Release Type: RRG
     US ECCN: EAR99
