@@ -1621,9 +1621,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														/* Clears sensitive information */
 														rsslClearReactorOAuthCredentialRenewal(&pOAuthCredentialRenewalImpl->reactorOAuthCredentialRenewal);
 
-														/* Free the RsslReactorOAuthCredentialRenewalImpl if it does not belong to a token session */
-														_reactorWorkerFreeRsslReactorOAuthCredentialRenewal(pOAuthCredentialRenewalImpl);
-
 														rsslClearBuffer(&pTokenSessionImpl->temporaryURL);
 
 														RSSL_MUTEX_UNLOCK(&pTokenSessionImpl->accessTokenMutex);
@@ -1727,11 +1724,52 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 														}
 
 														/* Specify proxy configurations when there is no token session */
-														pRestRequestArgs->networkArgs.proxyArgs.proxyDomain = pOAuthCredentialRenewalImpl->proxyDomain;
-														pRestRequestArgs->networkArgs.proxyArgs.proxyHostName = pOAuthCredentialRenewalImpl->proxyHostName;
-														pRestRequestArgs->networkArgs.proxyArgs.proxyPassword = pOAuthCredentialRenewalImpl->proxyPasswd;
-														pRestRequestArgs->networkArgs.proxyArgs.proxyPort = pOAuthCredentialRenewalImpl->proxyPort;
-														pRestRequestArgs->networkArgs.proxyArgs.proxyUserName = pOAuthCredentialRenewalImpl->proxyUserName;
+														/* Select the set of the proxy options that will assign to pRestRequestArgs. */
+														/* When RsslCreateReactorOptions.restProxyOptions is specified we will use it, */
+														/* otherwise we will assign proxy settings from RsslReactorOAuthCredentialRenewalImpl. */
+														if (pReactorImpl->restProxyOptions.proxyHostName != 0 && *pReactorImpl->restProxyOptions.proxyHostName != '\0'
+															&& pReactorImpl->restProxyOptions.proxyPort != 0 && *pReactorImpl->restProxyOptions.proxyPort != '\0')
+														{
+															RsslProxyOpts* proxyOpts = &pReactorImpl->restProxyOptions;
+
+															if (proxyOpts->proxyHostName && *proxyOpts->proxyHostName != '\0')
+															{
+																pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.data = proxyOpts->proxyHostName;
+																pRestRequestArgs->networkArgs.proxyArgs.proxyHostName.length = (RsslUInt32)strlen(proxyOpts->proxyHostName);
+															}
+
+															if (proxyOpts->proxyPort && *proxyOpts->proxyPort != '\0')
+															{
+																pRestRequestArgs->networkArgs.proxyArgs.proxyPort.data = proxyOpts->proxyPort;
+																pRestRequestArgs->networkArgs.proxyArgs.proxyPort.length = (RsslUInt32)strlen(proxyOpts->proxyPort);
+															}
+
+															if (proxyOpts->proxyUserName && *proxyOpts->proxyUserName != '\0')
+															{
+																pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.data = proxyOpts->proxyUserName;
+																pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = (RsslUInt32)strlen(proxyOpts->proxyUserName);
+															}
+
+															if (proxyOpts->proxyPasswd && *proxyOpts->proxyPasswd != '\0')
+															{
+																pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.data = proxyOpts->proxyPasswd;
+																pRestRequestArgs->networkArgs.proxyArgs.proxyPassword.length = (RsslUInt32)strlen(proxyOpts->proxyPasswd);
+															}
+
+															if (proxyOpts->proxyDomain && *proxyOpts->proxyDomain != '\0')
+															{
+																pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.data = proxyOpts->proxyDomain;
+																pRestRequestArgs->networkArgs.proxyArgs.proxyDomain.length = (RsslUInt32)strlen(proxyOpts->proxyDomain);
+															}
+														}
+														else
+														{
+															pRestRequestArgs->networkArgs.proxyArgs.proxyDomain = pOAuthCredentialRenewalImpl->proxyDomain;
+															pRestRequestArgs->networkArgs.proxyArgs.proxyHostName = pOAuthCredentialRenewalImpl->proxyHostName;
+															pRestRequestArgs->networkArgs.proxyArgs.proxyPassword = pOAuthCredentialRenewalImpl->proxyPasswd;
+															pRestRequestArgs->networkArgs.proxyArgs.proxyPort = pOAuthCredentialRenewalImpl->proxyPort;
+															pRestRequestArgs->networkArgs.proxyArgs.proxyUserName = pOAuthCredentialRenewalImpl->proxyUserName;
+														}
 													}
 
 													if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
@@ -1758,9 +1796,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 													if (pRsslRestHandle == 0)
 													{
-														/* Free the RsslReactorOAuthCredentialRenewalImpl if it does not belong to a token session */
-														_reactorWorkerFreeRsslReactorOAuthCredentialRenewal(pOAuthCredentialRenewalImpl);
-
 														RsslReactorTokenMgntEvent* pEvent = (RsslReactorTokenMgntEvent*)rsslReactorEventQueueGetFromPool(&pReactorImpl->reactorEventQueue);
 														RsslReactorErrorInfoImpl* pReactorErrorInfoImpl = rsslReactorGetErrorInfoFromPool(pReactorWorker);
 

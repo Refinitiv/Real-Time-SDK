@@ -5401,6 +5401,16 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 								rsslReactorReturnErrorInfoToPool(pReactorTokenMgntEvent->pReactorErrorInfoImpl, &pReactorImpl->reactorWorker);
 							}
 
+							/* Send a request to free memory for RsslReactorOAuthCredentialRenewalImpl without a token session by the worker */
+							if (pTokenSession == 0)
+							{
+								if (_reactorSendCredentialRenewalRequest(pReactorImpl, NULL, pReactorTokenMgntEvent->pOAuthCredentialRenewal,
+									RSSL_RCIMPL_CRET_MEMORY_DEALLOCATION, pError) != RSSL_RET_SUCCESS)
+								{
+									return RSSL_RET_FAILURE;
+								}
+							}
+
 							if (cret != RSSL_RC_CRET_SUCCESS)
 							{
 								rsslSetErrorInfo(pError, RSSL_EIC_FAILURE, RSSL_RET_FAILURE, __FILE__, __LINE__, "Error return code %d from callback.", cret);

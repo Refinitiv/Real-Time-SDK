@@ -257,6 +257,7 @@ RTR_C_INLINE void rsslFreeReactorTokenSessionImpl(RsslReactorTokenSessionImpl* p
 	free(pTokenSessionImpl->userNameAndClientId.data);
 	free(pTokenSessionImpl->pOAuthCredential);
 	free(pTokenSessionImpl->sessionAuthUrl.data);
+	free(pTokenSessionImpl->pOAuthCredentialRenewalImpl);
 	RSSL_MUTEX_DESTROY(&pTokenSessionImpl->accessTokenMutex);
 
 	rsslFreeConnectOpts(&pTokenSessionImpl->proxyConnectOpts);
