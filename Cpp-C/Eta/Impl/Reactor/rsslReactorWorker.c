@@ -1834,27 +1834,6 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 									switch (pTokenSessionEvent->reactorTokenSessionEventType)
 									{
-										case RSSL_RCIMPL_TSET_ADD_TOKEN_SESSION_TO_LIST:
-										{
-											if(pTokenSessionImpl->sessionLink.next == 0 || pTokenSessionImpl->sessionLink.prev == 0)
-												rsslQueueAddLinkToBack(&pReactorWorker->reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
-											break;
-										}
-										case RSSL_RCIMPL_TSET_ADD_TOKEN_SESSION_TO_LIST | RSSL_RCIMPL_TSET_REGISTER_CHANNEL_TO_SESSION:
-										{
-											if (pTokenSessionImpl->sessionLink.next == 0 || pTokenSessionImpl->sessionLink.prev == 0)
-												rsslQueueAddLinkToBack(&pReactorWorker->reactorTokenManagement.tokenSessionList, &pTokenSessionImpl->sessionLink);
-
-											if (pTokenSessionImpl->sendTokenRequest == 0)
-											{
-												RsslInt tokenExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (pTokenSessionImpl->tokenInformation.expiresIn * 1000);
-												pTokenSessionImpl->nextExpiresTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec) + (RsslInt)(((double)pTokenSessionImpl->tokenInformation.expiresIn  * pReactorImpl->tokenReissueRatio) * 1000);
-												RTR_ATOMIC_SET64(pTokenSessionImpl->tokenExpiresTime, tokenExpiresTime);
-												RTR_ATOMIC_SET(pTokenSessionImpl->sendTokenRequest, 1);
-											}
-
-											/* Fall through to register the channel to the token session */
-										}
 										case RSSL_RCIMPL_TSET_REGISTER_CHANNEL_TO_SESSION:
 										{
 											if (pReactorChannelImpl->pCurrentTokenSession->tokenSessionLink.next == NULL && pReactorChannelImpl->pCurrentTokenSession->tokenSessionLink.prev == NULL)
@@ -2902,14 +2881,14 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 					}
 				}
 			}
+		}
 
-			/* Cleaning up the RsslRestHandles outside of the callback methods */
-			while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->disposableRestHandles)))
-			{
-				pRestHandle = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHandle, queueLink, pLink);
+		/* Cleaning up the RsslRestHandles outside of the callback methods */
+		while ((pLink = rsslQueueRemoveFirstLink(&pReactorWorker->disposableRestHandles)))
+		{
+			pRestHandle = RSSL_QUEUE_LINK_TO_OBJECT(RsslRestHandle, queueLink, pLink);
 
-				rsslRestCloseHandle(pRestHandle, &pReactorWorker->workerCerr.rsslError);
-			}
+			rsslRestCloseHandle(pRestHandle, &pReactorWorker->workerCerr.rsslError);
 		}
 
 		/* Free inactive token sessions when it is no longer needed. */
@@ -4035,6 +4014,10 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 				pReactorTokenSession->lastTokenUpdatedTime = getCurrentTimeMs(pReactorImpl->ticksPerMsec);
 				RTR_ATOMIC_SET64(pReactorTokenSession->tokenExpiresTime, tokenExpiresTime);
 				RTR_ATOMIC_SET(pReactorTokenSession->sendTokenRequest, 1);
+
+				/* Adds the token session to the session list if it hasn't been added.  */
+				if (pReactorTokenSession->sessionLink.next == 0 && pReactorTokenSession->sessionLink.prev == 0)
+					rsslQueueAddLinkToBack(&pReactorWorker->reactorTokenManagement.tokenSessionList, &pReactorTokenSession->sessionLink);
 
 				pReactorTokenSession->originalExpiresIn = pReactorTokenSession->tokenInformation.expiresIn;
 			}
