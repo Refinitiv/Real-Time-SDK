@@ -1,4 +1,4 @@
-
+This is the change log of the Refinitiv Real-Time SDK (RTSDK) for C++/C. RTSDK consists of Enterprise Message API (EMA) and Enterprise Transport API (ETA). This file contains history starting from version 1.2.0 which is when all components (EMA C++, EMA Java, ETA C, ETA Java) of RTSDK were fully open sourced. Note that RTSDK product version numbers start from 1.2.0 and EMA/ETA version numbers start from 3.2.0.
 
 Rebranding NOTE: Refinitiv Real-Time SDK was formerly known as Elektron SDK or ESDK. 
 
@@ -12,7 +12,8 @@ There are three types of RTSDK releases that append a letter directly followed b
 CURRENT RELEASE HIGHLIGHTS - RTSDK C/CPP 2.1.3.E1 aka EMA/ETA 3.7.3.E1 aka 3.7.3.1
 ----------------------------------------------------------------------------------------
 
-In this release are critical fixes related to ETAC non-blocking service discovery feature.
+In this release are critical fixes related to ETAC non-blocking service discovery feature. 
+IMPORTANT NOTE: This release supersedes 2.1.3.L1 due to the issues addressed.
 
 Customer Issues Resolved
 
@@ -28,12 +29,12 @@ RTSDK C++/C Release 2.1.3.E1 (Jan 19, 2024)
 
 ETA C 3.7.3.E1 Issues Resolved
 --------------------------------
+- [RTSDK-8115] - Fix to memory leak with token session [GitHub #259] 
 - [RTSDK-8140] - Fixed invalid read issues from missing null termination for proxy host and port with non-blocking explicit service discovery 
 - [RTSDK-8142] - Fix to reactor crash when the worker thread fails to submit request for explicit service discovery
 - [RTSDK-8157] - Fix to reactor channel recovery when using non blocking service discovery and V1 auth;  also fix to invalid token sessions created by explicit service discovery
 - [RTSDK-8163] - ReactorChannel is not added to the token session in rsslReactorConnect() when using the existing token session and the endpoint is specified 
 - [RTSDK-8182] - Fix to memory leak with REST handles when enabling session management feature to connect to RTO using V2 auth
-- [RTSDK-8115] - Fix to memory leak with token session [GitHub #259] 
 
 --------------------------------------------
 RTSDK C++/C Release 2.1.3.L1 (Dec 22, 2023)
