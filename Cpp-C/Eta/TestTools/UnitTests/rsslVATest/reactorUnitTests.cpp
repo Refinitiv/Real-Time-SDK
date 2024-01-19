@@ -1944,21 +1944,23 @@ TEST_F(ReactorSessionMgntTest, MultipleOpenAndCloseConnections_UsingOnly_RsslRMD
 	}
 }
 
-TEST_F(ReactorSessionMgntTest, SubmitInvalidUserCredentials_without_tokensession)
+TEST_F(ReactorSessionMgntTest, SubmitInvalidUserCredentials_without_tokensession_V1)
 {
 	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
 	RsslReactorOAuthCredentialRenewal credentialRenewal;
 
 	rsslClearCreateReactorOptions(&mOpts);
+
+	/* Specifies proxy host and port with the RsslCreateReactorOptions */
+	mOpts.restProxyOptions.proxyHostName = g_proxyHost.data;
+	mOpts.restProxyOptions.proxyPort = g_proxyPort.data;
+
 	initReactors(&mOpts, RSSL_TRUE);
 
 	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
 
 	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
 	renewalOptions.pAuthTokenEventCallback = authTokenEventCallback;
-
-	renewalOptions.proxyHostName = g_proxyHost;
-	renewalOptions.proxyPort = g_proxyPort;
 
 	rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
 	credentialRenewal.userName.data = const_cast<char*>("invalid");
@@ -1975,6 +1977,105 @@ TEST_F(ReactorSessionMgntTest, SubmitInvalidUserCredentials_without_tokensession
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 0);
 	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 1);
 	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength > 0);
+}
+
+TEST_F(ReactorSessionMgntTest, SubmitInvalidUserCredentials_without_tokensession_V2)
+{
+	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
+	RsslReactorOAuthCredentialRenewal credentialRenewal;
+
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
+
+	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+	renewalOptions.pAuthTokenEventCallback = authTokenEventCallback;
+
+	renewalOptions.proxyHostName = g_proxyHost;
+	renewalOptions.proxyPort = g_proxyPort;
+
+	rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
+	credentialRenewal.clientId.data = const_cast<char*>("invalid ID");
+	credentialRenewal.clientId.length = (RsslUInt32)strlen(credentialRenewal.clientId.data);
+	credentialRenewal.clientSecret.data = const_cast<char*>("invalid value");
+	credentialRenewal.clientSecret.length = (RsslUInt32)strlen(credentialRenewal.clientSecret.data);
+
+	ASSERT_TRUE(rsslReactorSubmitOAuthCredentialRenewal(pConsMon->pReactor, &renewalOptions, &credentialRenewal, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	dispatchEvent(pConsMon, 10000);
+
+	/* Check for token information from the callback */
+	ASSERT_TRUE(pConsMon->authEventStatusCode == 401);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 0);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 1);
+	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength > 0);
+}
+
+
+TEST_F(ReactorSessionMgntTest, SubmitUserCredentials_without_tokensession_V1)
+{
+	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
+	RsslReactorOAuthCredentialRenewal credentialRenewal;
+
+	rsslClearCreateReactorOptions(&mOpts);
+	initReactors(&mOpts, RSSL_TRUE);
+
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
+
+	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+	renewalOptions.pAuthTokenEventCallback = authTokenEventCallback;
+
+	renewalOptions.proxyHostName = g_proxyHost;
+	renewalOptions.proxyPort = g_proxyPort;
+
+	rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
+	credentialRenewal.userName = g_userName;
+	credentialRenewal.password = g_password;
+	credentialRenewal.clientId = g_userName;
+
+	ASSERT_TRUE(rsslReactorSubmitOAuthCredentialRenewal(pConsMon->pReactor, &renewalOptions, &credentialRenewal, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	dispatchEvent(pConsMon, 10000);
+
+	/* Check for token information from the callback */
+	ASSERT_TRUE(pConsMon->authEventStatusCode == 200);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
+	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength == 0);
+}
+
+TEST_F(ReactorSessionMgntTest, SubmitUserCredentials_without_tokensession_V2)
+{
+	RsslReactorOAuthCredentialRenewalOptions renewalOptions;
+	RsslReactorOAuthCredentialRenewal credentialRenewal;
+
+	rsslClearCreateReactorOptions(&mOpts);
+
+	/* Specifies proxy host and port with the RsslCreateReactorOptions */
+	mOpts.restProxyOptions.proxyHostName = g_proxyHost.data;
+	mOpts.restProxyOptions.proxyPort = g_proxyPort.data;
+
+	initReactors(&mOpts, RSSL_TRUE);
+
+	rsslClearReactorOAuthCredentialRenewalOptions(&renewalOptions);
+
+	renewalOptions.renewalMode = RSSL_ROC_RT_RENEW_TOKEN_WITH_PASSWORD;
+	renewalOptions.pAuthTokenEventCallback = authTokenEventCallback;
+
+	rsslClearReactorOAuthCredentialRenewal(&credentialRenewal);
+	credentialRenewal.clientId = g_clientId;
+	credentialRenewal.clientSecret = g_clientSecret;
+
+	ASSERT_TRUE(rsslReactorSubmitOAuthCredentialRenewal(pConsMon->pReactor, &renewalOptions, &credentialRenewal, &rsslErrorInfo) == RSSL_RET_SUCCESS);
+
+	dispatchEvent(pConsMon, 10000);
+
+	/* Check for token information from the callback */
+	ASSERT_TRUE(pConsMon->authEventStatusCode == 200);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoCount == 1);
+	ASSERT_TRUE(pConsMon->numOfAuthTokenInfoErrorCount == 0);
+	ASSERT_TRUE(pConsMon->authTokenInfoErrorTextLength == 0);
 }
 
 struct ReactorServiceDiscoveryEndpointResult
