@@ -5610,6 +5610,12 @@ static RsslRet _reactorDispatchEventFromQueue(RsslReactorImpl *pReactorImpl, Rss
 				RsslReactorChannelPingEvent *pReactorChannelPingEvent = (RsslReactorChannelPingEvent*)pEvent;
 				RsslReactorChannelImpl *pReactorChannel = (RsslReactorChannelImpl*)pReactorChannelPingEvent->pReactorChannel;
 
+				// If the channel is not in an active state, do not attempt to update stats.
+				if (pReactorChannel == NULL || pReactorChannel->reactorParentQueue != &pReactorImpl->activeChannels)
+				{
+					return RSSL_RET_SUCCESS;
+				}
+
 				_cumulativeValue(&pReactorChannel->pChannelStatistic->pingSent, (RsslUInt32)1);
 
 				return RSSL_RET_SUCCESS;
