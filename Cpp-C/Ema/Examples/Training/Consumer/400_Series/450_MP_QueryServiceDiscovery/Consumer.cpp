@@ -32,6 +32,9 @@ bool connectWebSocket = false;
 EmaString tokenUrlV1("https://api.refinitiv.com/auth/oauth2/v1/token");
 EmaString tokenUrlV2("https://api.refinitiv.com/auth/oauth2/v2/token");
 EmaString serviceDiscoveryUrl("https://api.refinitiv.com/streaming/pricing/v1/");
+EmaString libSslName;
+EmaString libCryptoName;
+EmaString libCurlName;
 
 void AppClient::onRefreshMsg( const RefreshMsg& refreshMsg, const OmmConsumerEvent& ) 
 {
@@ -171,6 +174,9 @@ void printHelp()
 		<< " -serviceDiscoveryURL URL for RDP service discovery to get global endpoints (optional)." << endl
 		<< " -itemName Request item name (optional)." << endl
 		<< " -websocket Use the WebSocket transport protocol (optional)" << endl
+		<< " -libsslName specifies the name of libssl shared library (optional)." << endl
+		<< " -libcryptoName specifies the name of libcrypto shared library (optional)." << endl
+		<< " -libcurlName specifies the name of libcurl shared library (optional)." << endl
 		<< "\nOptional parameters for establishing a connection and sending requests through a proxy server:" << endl
 		<< " -ph Proxy host name (optional)." << endl
 		<< " -pp Proxy port number (optional)." << endl
@@ -321,6 +327,18 @@ int main( int argc, char* argv[] )
 			{
 				if ( i < ( argc - 1 ) ) proxyDomain.set( argv[++i] );
 			}
+			else if (strcmp(argv[i], "-libsslName") == 0)
+			{
+				if ( i < ( argc - 1 ) ) libSslName.set( argv[++i] );
+			}
+			else if (strcmp(argv[i], "-libcryptoName") == 0)
+			{
+				if ( i < (argc - 1) ) libCryptoName.set( argv[++i] );
+			}
+			else if (strcmp(argv[i], "-libcurlName") == 0)
+			{
+				if ( i < ( argc - 1 ) ) libCurlName.set( argv[++i]);
+			}
 		}
 
 		if ( userName.length() == 0 || password.length() == 0 )
@@ -333,48 +351,61 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-		ServiceEndpointDiscoveryOption::TransportProtocol transportProtocol = ServiceEndpointDiscoveryOption::TcpEnum;
-		if (connectWebSocket)
-		{
-			transportProtocol = ServiceEndpointDiscoveryOption::WebsocketEnum;
-		}
+		// Query endpoints from RDP service discovery for the TCP or Websocket protocol
+		//ServiceEndpointDiscovery serviceDiscovery(tokenUrlV1, tokenUrlV2, serviceDiscoveryUrl);
+		ServiceEndpointDiscoveryConfig serviceEndpointDiscoveryConfig;
+		serviceEndpointDiscoveryConfig
+			.tokenServiceUrlV1(tokenUrlV1)
+			.tokenServiceUrlV2(tokenUrlV2)
+			.serviceDiscoveryUrl(serviceDiscoveryUrl)
+			.libSslName(libSslName)
+			.libCryptoName(libCryptoName)
+			.libCurlName(libCurlName);
+		ServiceEndpointDiscovery serviceDiscovery(serviceEndpointDiscoveryConfig);
 
-		// Query endpoints from RDP service discovery for the TCP protocol
-		ServiceEndpointDiscovery serviceDiscovery(tokenUrlV1, tokenUrlV2, serviceDiscoveryUrl);
+		ServiceEndpointDiscoveryOption serviceEndpointDiscoveryOption;
 
 		/* If this is a V1 password grant type login, set the username, password, and clientId on the OmmConsumerConfig object.  Otherwise, 
 		   set the clientId and clientSecret for a V2 client credential grant type. */
-		if (password.empty() == false)
+		if (!password.empty())
 		{
-			serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().username(userName).password(password)
-				.clientId(clientId).transport(transportProtocol).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
-				.proxyHostName(proxyHostName).proxyPort(proxyPort).proxyUserName(proxyUserName).proxyPassword(proxyPasswd)
-				.proxyDomain(proxyDomain), client);
+			serviceEndpointDiscoveryOption
+				.username(userName)
+				.password(password)
+				.clientId(clientId)
+				.takeExclusiveSignOnControl(takeExclusiveSignOnControl);
 		}
 		else
 		{
-			if (clientJWK.empty() == true)
+			if (clientJWK.empty())
 			{
-				serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().clientId(clientId).clientSecret(clientSecret)
-					.transport(transportProtocol).proxyHostName(proxyHostName).proxyPort(proxyPort)
-					.proxyUserName(proxyUserName).proxyPassword(proxyPasswd).proxyDomain(proxyDomain), client);
+				serviceEndpointDiscoveryOption
+					.clientId(clientId)
+					.clientSecret(clientSecret);
 			}
 			else
 			{
-				if (audience.empty() == true)
+				serviceEndpointDiscoveryOption
+					.clientId(clientId)
+					.clientJWK(clientJWK);
+
+				if (!audience.empty())
 				{
-					serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().clientId(clientId).clientJWK(clientJWK)
-						.transport(transportProtocol).proxyHostName(proxyHostName).proxyPort(proxyPort)
-						.proxyUserName(proxyUserName).proxyPassword(proxyPasswd).proxyDomain(proxyDomain), client);
-				}
-				else
-				{
-					serviceDiscovery.registerClient(ServiceEndpointDiscoveryOption().clientId(clientId).clientJWK(clientJWK).audience(audience)
-						.transport(transportProtocol).proxyHostName(proxyHostName).proxyPort(proxyPort)
-						.proxyUserName(proxyUserName).proxyPassword(proxyPasswd).proxyDomain(proxyDomain), client);
+					serviceEndpointDiscoveryOption
+						.audience(audience);
 				}
 			}
 		}
+
+		serviceEndpointDiscoveryOption
+			.transport(connectWebSocket ? ServiceEndpointDiscoveryOption::WebsocketEnum : ServiceEndpointDiscoveryOption::TcpEnum)
+			.proxyHostName(proxyHostName)
+			.proxyPort(proxyPort)
+			.proxyUserName(proxyUserName)
+			.proxyPassword(proxyPasswd)
+			.proxyDomain(proxyDomain);
+
+		serviceDiscovery.registerClient(serviceEndpointDiscoveryOption, client);
 
 		if ( !host.length() || !port.length() )
 		{
@@ -382,39 +413,45 @@ int main( int argc, char* argv[] )
 			return -1;
 		}
 
-		createProgramaticConfig( configDb );\
+		createProgramaticConfig( configDb );
+		config.consumerName("Consumer_1")
+			.config(configDb)
+			.tunnelingProxyHostName(proxyHostName)
+			.tunnelingProxyPort(proxyPort)
+			.proxyUserName(proxyUserName)
+			.proxyPasswd(proxyPasswd)
+			.proxyDomain(proxyDomain);
 		/* Set the configured credentials as above */
-		if (password.empty() != true)
+		if (!password.empty())
 		{
-			config.consumerName("Consumer_1").username(userName).password(password)
-				.clientId(clientId).config(configDb).takeExclusiveSignOnControl(takeExclusiveSignOnControl)
-				.tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
-				.proxyUserName(proxyUserName).proxyPasswd(proxyPasswd).proxyDomain(proxyDomain);
+			config
+				.username(userName)
+				.password(password)
+				.clientId(clientId)
+				.takeExclusiveSignOnControl(takeExclusiveSignOnControl);
 		}
 		else
 		{
-			if (clientJWK.empty() == true)
+			if (clientJWK.empty())
 			{
-				config.consumerName("Consumer_1").clientId(clientId).clientSecret(clientSecret)
-					.config(configDb).tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
-					.proxyUserName(proxyUserName).proxyPasswd(proxyPasswd).proxyDomain(proxyDomain);
+				config
+					.clientId(clientId)
+					.clientSecret(clientSecret);
 			}
 			else
 			{
-				config.consumerName("Consumer_1").clientId(clientId).clientJWK(clientJWK)
-					.config(configDb).tunnelingProxyHostName(proxyHostName).tunnelingProxyPort(proxyPort)
-					.proxyUserName(proxyUserName).proxyPasswd(proxyPasswd).proxyDomain(proxyDomain);
+				config
+					.clientId(clientId)
+					.clientJWK(clientJWK);
 
-				if (audience.empty() != true)
+				if (!audience.empty())
 				{
 					config.audience(audience);
 				}
 			}
 		}
-			
 
 		OmmConsumer consumer(config);
-
 
 		consumer.registerClient( ReqMsg().serviceName( "ELEKTRON_DD" ).name( itemName ), client );
 		sleep( 900000 );			// API calls onRefreshMsg(), onUpdateMsg(), or onStatusMsg()
