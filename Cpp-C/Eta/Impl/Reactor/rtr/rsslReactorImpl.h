@@ -126,6 +126,7 @@ typedef struct
 	RsslBool	userSetConnectionInfo; /* True when user specifies connectionInfo.unified fields address and serviceName. See RsslConnectionInfo */
 	RsslUInt32	reconnectEndpointAttemptCount; /* Attempts counter of connecting to the channel using this endpoint */
 	RsslBool startedSessionManagement; /* Indicates that this conenctionInfo has started session management */
+	RsslBool sendInitialAuthTokenInfo; /* This is used by V1 credential to ensure that the RsslReactorAuthTokenEventCallback is send for the initial access token.*/
 } RsslReactorConnectInfoImpl;
 
 RTR_C_INLINE void rsslClearReactorConnectInfoImpl(RsslReactorConnectInfoImpl* pReactorConnectInfoImpl)
