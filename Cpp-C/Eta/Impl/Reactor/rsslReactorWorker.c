@@ -1006,7 +1006,7 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 
 		if (pReactorConnectInfoImpl->base.enableSessionManagement && pReactorChannel->pCurrentTokenSession->pSessionImpl->sessionVersion == RSSL_RC_SESSMGMT_V1)
 		{
-			if (pReactorConnectInfoImpl->lastTokenUpdatedTime != pReactorChannel->pCurrentTokenSession->pSessionImpl->lastTokenUpdatedTime)
+			if (!pReactorConnectInfoImpl->sendInitialAuthTokenInfo || pReactorConnectInfoImpl->lastTokenUpdatedTime != pReactorChannel->pCurrentTokenSession->pSessionImpl->lastTokenUpdatedTime)
 			{
 				RsslReactorTokenMgntEvent* pEventTokenMgntEvent;
 				pReactorConnectInfoImpl->lastTokenUpdatedTime = pReactorChannel->pCurrentTokenSession->pSessionImpl->lastTokenUpdatedTime;
@@ -1019,6 +1019,9 @@ RsslRet _reactorWorkerProcessChannelUp(RsslReactorImpl *pReactorImpl, RsslReacto
 				pEventTokenMgntEvent->pReactorChannel = &pReactorChannel->reactorChannel;
 				pEventTokenMgntEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
 				pEventTokenMgntEvent->pTokenSessionImpl = pReactorChannel->pCurrentTokenSession->pSessionImpl;
+
+				/* This is used by V1 to indicate that the initial access token is sent. */
+				pReactorConnectInfoImpl->sendInitialAuthTokenInfo = RSSL_TRUE;
 
 				if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorChannel->eventQueue, (RsslReactorEventImpl*)pEventTokenMgntEvent)
 					== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
@@ -4086,6 +4089,9 @@ static void rsslRestAuthTokenResponseCallback(RsslRestResponse* restresponse, Rs
 					pEvent->pTokenSessionImpl = pReactorTokenSession;
 					pEvent->pReactorChannel = &pReactorChannel->reactorChannel;
 					pEvent->pAuthTokenEventCallback = pReactorConnectInfoImpl->base.pAuthTokenEventCallback;
+
+					/* This is used by V1 to indicate that the initial access token is sent. */
+					pReactorConnectInfoImpl->sendInitialAuthTokenInfo = RSSL_TRUE;
 
 					if (!RSSL_ERROR_INFO_CHECK(rsslReactorEventQueuePut(&pReactorImpl->reactorEventQueue, (RsslReactorEventImpl*)pEvent)
 						== RSSL_RET_SUCCESS, RSSL_RET_FAILURE, &pReactorWorker->workerCerr))
