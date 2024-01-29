@@ -1976,6 +1976,9 @@ RSSL_THREAD_DECLARE(runReactorWorker, pArg)
 
 														if (pRestRequestArgs != NULL)
 														{
+															_assignServiceDiscoveryOptionsToRequestArgs(&pRestEvent->pExplicitSDInfo->serviceDiscoveryOptions,
+																&pReactorImpl->restProxyOptions, pRestRequestArgs);
+
 															if (pReactorImpl->restEnableLog || pReactorImpl->restEnableLogViaCallback)
 																(void)rsslRestRequestDump(pReactorImpl, pRestRequestArgs, &pReactorWorker->workerCerr.rsslError);
 
