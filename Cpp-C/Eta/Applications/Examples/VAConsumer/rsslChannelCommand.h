@@ -141,6 +141,7 @@ typedef struct
 	/* service name found flag */
 	RsslBool serviceNameFound;
 	RsslBool reactorChannelReady;
+	RsslBool reactorChannelClosed;
 	RsslBool itemsRequested;
 	RsslBool isServiceReady;
 	RsslQos qos;
@@ -228,6 +229,7 @@ RTR_C_INLINE void initChannelCommand(ChannelCommand *pCommand)
 	pCommand->enumDictionaryStreamId = 0;
 	pCommand->serviceNameFound = RSSL_FALSE;
 	pCommand->reactorChannelReady = RSSL_FALSE;
+	pCommand->reactorChannelClosed = RSSL_FALSE;
 	pCommand->itemsRequested = RSSL_FALSE;
 	pCommand->isServiceReady = RSSL_FALSE;
 	pCommand->cacheInfo.useCache = RSSL_FALSE;
@@ -432,6 +434,7 @@ RTR_C_INLINE void clearChannelCommand(ChannelCommand *pCommand)
 	pCommand->shouldOnStreamPost = RSSL_FALSE;
 	pCommand->serviceNameFound = RSSL_FALSE;
 	pCommand->reactorChannelReady = RSSL_FALSE;
+	pCommand->reactorChannelClosed = RSSL_FALSE;
 	pCommand->itemsRequested = RSSL_FALSE;
 	pCommand->sendSymbolList = RSSL_FALSE;
 	pCommand->userSpecSymbolList = RSSL_FALSE;

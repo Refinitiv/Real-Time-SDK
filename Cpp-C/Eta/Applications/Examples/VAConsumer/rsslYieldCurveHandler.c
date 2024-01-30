@@ -1390,6 +1390,9 @@ RsslRet closeYieldCurveItemStreams(RsslReactor *pReactor, ChannelCommand *pComma
 	RsslInt32 batchCloseStreamId;
 	int i;
 
+	if (pCommand->reactorChannelClosed)
+		return RSSL_RET_SUCCESS;
+
 	RsslReactorChannel *pReactorChannel = pCommand->reactorChannel;
 	RsslRDMLoginRefresh* loginInfo = getLoginRefreshInfo(pCommand);
 

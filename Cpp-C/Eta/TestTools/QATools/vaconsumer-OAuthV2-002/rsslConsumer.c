@@ -1385,6 +1385,7 @@ void closeConnection(RsslReactor *pReactor, RsslReactorChannel *pChannel, Channe
 	}
 
 	pCommand->reactorChannelReady = RSSL_FALSE;
+	pCommand->reactorChannelClosed = RSSL_TRUE;
 }
 
 RsslReactorCallbackRet authTokenEventCallback(RsslReactor *pReactor, RsslReactorChannel *pReactorChannel, RsslReactorAuthTokenEvent *pAuthTokenEvent)
@@ -2088,6 +2089,23 @@ int main(int argc, char **argv)
 
 		if (!runTimeExpired)
 		{
+			RsslBool reactorChannelsClosed = RSSL_TRUE;
+
+			for (i = 0; i < channelCommandCount; ++i)
+			{
+				if (!chanCommands[i].reactorChannelClosed)
+				{
+					reactorChannelsClosed = RSSL_FALSE;
+					break;
+				}
+			}
+
+			if (reactorChannelsClosed)
+			{
+				printf("All reactor channels closed.\n\n");
+				cleanUpAndExit(-1);
+			}
+
 			for (i = 0; i < channelCommandCount; ++i)
 			{
 				sendItemRequests(pReactor, chanCommands[i].reactorChannel);

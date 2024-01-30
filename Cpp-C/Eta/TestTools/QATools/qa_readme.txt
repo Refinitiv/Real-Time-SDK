@@ -260,6 +260,10 @@ It allows sending and handling Generic messages before VAProvider sends a login 
 Sample usage: VAProvider -rtt -delaySendLoginRefresh 2
 VAConsumer -rtt; Consumer -rtt
 
+vaprovider-LoginReject-001:  Alters VAProvider to act like an RTO forced disconnect during RTO maintenance window on the number of main-loop cycles (added test option "-ni <count>").
+Sample usage: VAProvider -ni 5
+VAConsumer; Consumer
+
 vaprovider-TsFrag-001:  Alter VAProvider to validate incoming tunnel stream message content to have "1, 2, 3...255".  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-001.
 
 vaprovider-TsFrag-002:  Alter VAProvider to validate incoming tunnel stream message as a generic message with opaque buffer data body of "1, 2, 3....255" repeated.  If the content is as expected, this code change prints a "TEST PASSED".  This code change works in conjunction with vaconsumer-TsFrag-002.
