@@ -99,6 +99,8 @@ vaconsumer-OAuthV2-003: Alter VAConsumer to create 1 reactor, 6 connections, 1st
 
 vaconsumer-Jwt-001: Alter VAConsumer to create 1 reactor, 2 connections, both for OAuth V2 JWT but can identify either same / diff credential
 
+vaconsumer-ExplitSD-001: VAConsumer to create 1 reactor, 2 connections, both for V1 STS and option for -blockingExplicitSD 0 or 1, default is not doing explicit SD.
+
 vaconsumer-CpuBind-001: Alter VAConsumer to add command-line options for testing bind CPU API.
  Command line options.
 -mainThreadBindVer specifies the method of API call to bind main thread: 1 - use regular (default), 2 - use extended,
