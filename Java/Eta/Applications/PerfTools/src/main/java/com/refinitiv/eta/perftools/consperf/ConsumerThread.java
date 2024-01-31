@@ -431,6 +431,8 @@ public class ConsumerThread implements Runnable, ResponseCallback, ConsumerCallb
         	connectOptions.encryptionOptions().connectionType(_consPerfConfig.encryptedConnectionType());
         	connectOptions.encryptionOptions().KeystoreFile(_consPerfConfig.keyfile());
         	connectOptions.encryptionOptions().KeystorePasswd(_consPerfConfig.keypasswd());
+        	connectOptions.encryptionOptions().SecurityProtocol(_consPerfConfig.securityProtocol());
+        	connectOptions.encryptionOptions().SecurityProtocolVersions(_consPerfConfig.securityProtocolVersions());
         }
         
         if (!_consPerfConfig.useReactor() && !_consPerfConfig.useWatchlist()) // use ETA Channel for sending and receiving
