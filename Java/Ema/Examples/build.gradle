@@ -44,7 +44,7 @@ task copyDictionary{
 	doLast{
 		copy{
 			from '../../etc'
-			into './'
+			into '.'
 		}
 	}
 }
@@ -58,7 +58,7 @@ task copyEmaConfig{
 	doLast{
 		copy{
 			from '../EmaConfig.xml'
-			into './'
+			into '.'
 		}
 	}
 }
