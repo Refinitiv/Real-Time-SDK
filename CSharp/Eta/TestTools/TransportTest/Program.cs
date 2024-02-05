@@ -294,8 +294,8 @@ namespace LSEG.Eta.Tools.TransportTest
                         ConnectionType connType;
                         BindOptions sopts = new BindOptions();
 
-                        serviceName = GetInput("Enter port number: ");
-                        hostName = GetInput("Enter interface name: ");
+                        serviceName = GetInput("Port: ");
+                        hostName = GetInput("Interface name: ");
                         try
                         {
                             connType = (ConnectionType)int.Parse(GetInput("Connection Type (0: Socket 1: SSL): ")!);
@@ -442,7 +442,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter server ID to shutdown: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Server fd to shutdown: ")!);
                         }
                         catch (FormatException)
                         {
@@ -451,7 +451,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         srvr = GetServer(sessId);
                         if (srvr != null)
                         {
-                            Console.WriteLine($"Shutting down server with ID {sessId}");
+                            Console.WriteLine($"Shutting down server with fd {sessId}");
                             RemoveServer(srvr);
 
                             if (srvr.Close(out Error error) < TransportReturnCode.SUCCESS)
@@ -461,7 +461,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Server with ID " + sessId);
+                            Console.WriteLine("No Server with fd " + sessId);
                         }
                         break;
                     }
@@ -476,7 +476,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         {
                             try
                             {
-                                networkType = int.Parse(GetInput("Enter 1 for unified network: ")!);
+                                networkType = int.Parse(GetInput("1 for unified network: ")!);
                             }
                             catch (FormatException)
                             {
@@ -499,15 +499,15 @@ namespace LSEG.Eta.Tools.TransportTest
 
                         if (networkType == 1) // unified network
                         {
-                            serviceName = GetInput("Enter server name (port number): ");
+                            serviceName = GetInput("Port: ");
                             if (string.IsNullOrEmpty(serviceName))
                                 serviceName = "14002";
 
-                            hostName = GetInput("Enter host name: ");
+                            hostName = GetInput("Address: ");
                             if (string.IsNullOrEmpty(hostName))
                                 hostName = "localhost";
 
-                            interfaceName = GetInput("Enter interface name: ");
+                            interfaceName = GetInput("Interface name: ");
                         }
 
                         try
@@ -620,7 +620,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -647,7 +647,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -655,7 +655,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -666,7 +666,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         {
                             try
                             {
-                                maxMsgSize = int.Parse(GetInput("Enter fragmented data buffer size you want: ")!);
+                                maxMsgSize = int.Parse(GetInput("Fragmented data buffer size you want: ")!);
                             }
                             catch (FormatException)
                             {
@@ -754,7 +754,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -762,7 +762,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -773,7 +773,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         {
                             try
                             {
-                                maxMsgSize = int.Parse(GetInput("Enter output data buffer size you want: ")!);
+                                maxMsgSize = int.Parse(GetInput("Output data buffer size you want: ")!);
                             }
                             catch (FormatException)
                             {
@@ -791,7 +791,7 @@ namespace LSEG.Eta.Tools.TransportTest
                                 {
                                     try
                                     {
-                                        priority = int.Parse(GetInput("Enter priority of data (1 - High, 2 - Medium, 3 - Low): ")!);
+                                        priority = int.Parse(GetInput("Priority of data (1 - High, 2 - Medium, 3 - Low): ")!);
                                     }
                                     catch (FormatException)
                                     {
@@ -828,7 +828,7 @@ namespace LSEG.Eta.Tools.TransportTest
                                     if (dataType == 0) // key entry
                                     {
                                         Console.WriteLine("            1234567890123456789012345678901234567890123456789012345678901234567890\n");
-                                        String dataString = GetInput("Enter data: ")!;
+                                        String dataString = GetInput("Data: ")!;
                                         for (z = 0; z < dataString.Length; z++)
                                         {
                                             bb.Write((byte)dataString[z]);
@@ -904,7 +904,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -912,7 +912,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send ping on: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send ping on: ")!);
                         }
                         catch (FormatException)
                         {
@@ -934,7 +934,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -942,7 +942,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -962,7 +962,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -970,7 +970,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to shutdown: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to shutdown: ")!);
                         }
                         catch (FormatException)
                         {
@@ -979,13 +979,13 @@ namespace LSEG.Eta.Tools.TransportTest
                         channel = Session(sessId);
                         if (channel != null)
                         {
-                            Console.WriteLine("Shutting down session with ID " + sessId);
+                            Console.WriteLine("Shutting down session with fd " + sessId);
 
                             RemoveSession(channel);
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -993,7 +993,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter server ID: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Server fd: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1003,13 +1003,13 @@ namespace LSEG.Eta.Tools.TransportTest
                         srvr = GetServer(sessId);
                         if (srvr == null)
                         {
-                            Console.WriteLine("No Server with ID " + sessId);
+                            Console.WriteLine("No Server with fd " + sessId);
                             break;
                         }
 
                         try
                         {
-                            srvrIoctlOption = int.Parse(GetInput("Enter 1 to change the number of server shared pool buffers\n or 2 to reset the peak number of server shared pool buffers: ")!);
+                            srvrIoctlOption = int.Parse(GetInput("1 to change the number of server shared pool buffers\n or 2 to reset the peak number of server shared pool buffers: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1020,7 +1020,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         {
                             try
                             {
-                                value = int.Parse(GetInput("Enter new value for pool size: ")!);
+                                value = int.Parse(GetInput("New value for pool size: ")!);
                             }
                             catch (FormatException)
                             {
@@ -1030,7 +1030,7 @@ namespace LSEG.Eta.Tools.TransportTest
                             /* do server ioctl */
                             if (srvr.IOCtl(IOCtlCode.SERVER_NUM_POOL_BUFFERS, value, out Error error) < TransportReturnCode.SUCCESS)
                             {
-                                Console.WriteLine("\nServerIoctl() failed with ID " + sessId + " <" + error.Text + ">");
+                                Console.WriteLine("\nServerIoctl() failed with fd " + sessId + " <" + error.Text + ">");
                             }
                             else
                                 Console.WriteLine("\nServerIoctl() call successful\n");
@@ -1040,7 +1040,7 @@ namespace LSEG.Eta.Tools.TransportTest
                             ///* do server ioctl */
                             if (srvr.IOCtl(IOCtlCode.SERVER_PEAK_BUF_RESET, 1, out Error error) < TransportReturnCode.SUCCESS)
                             {
-                                Console.WriteLine($"\nServerIoctl() failed with ID {sessId} <{error.Text}>");
+                                Console.WriteLine($"\nServerIoctl() failed with fd {sessId} <{error.Text}>");
                             }
                             else
                                 Console.WriteLine($"\nServerIoctl() call successful\n");
@@ -1056,7 +1056,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1064,7 +1064,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         try
                         {
-                            code = (IOCtlCode)int.Parse(GetInput("Enter ioctl code: ")!);
+                            code = (IOCtlCode)int.Parse(GetInput("Ioctl code: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1072,13 +1072,13 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         if (code == IOCtlCode.PRIORITY_FLUSH_ORDER)
                         {
-                            flushOrder = GetInput("Enter flush order: ")!;
+                            flushOrder = GetInput("Flush order: ")!;
                         }
                         else
                         {
                             try
                             {
-                                value = int.Parse(GetInput("Enter value: ")!);
+                                value = int.Parse(GetInput("Value: ")!);
                             }
                             catch (FormatException)
                             {
@@ -1092,7 +1092,7 @@ namespace LSEG.Eta.Tools.TransportTest
                             {
                                 if (channel.IOCtl(code, flushOrder, out Error error) < TransportReturnCode.SUCCESS)
                                 {
-                                    Console.WriteLine("\nIoctl() failed with ID " + sessId + " <" + error.Text + ">");
+                                    Console.WriteLine("\nIoctl() failed with fd " + sessId + " <" + error.Text + ">");
                                 }
                                 else
                                 {
@@ -1103,7 +1103,7 @@ namespace LSEG.Eta.Tools.TransportTest
                             {
                                 if (channel.IOCtl(code, value, out Error error) < TransportReturnCode.SUCCESS)
                                 {
-                                    Console.WriteLine("\nIoctl() failed with ID " + sessId + " <" + error.Text + ">");
+                                    Console.WriteLine("\nIoctl() failed with fd " + sessId + " <" + error.Text + ">");
                                 }
                                 else
                                 {
@@ -1113,7 +1113,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -1121,7 +1121,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1133,7 +1133,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         {
                             if (channel.Info(Info, out Error error) < TransportReturnCode.SUCCESS)
                             {
-                                Console.WriteLine("\nGetChannelInfo failed with ID " + sessId + " <" + error.Text + ">");
+                                Console.WriteLine("\nGetChannelInfo failed with fd " + sessId + " <" + error.Text + ">");
                             }
                             else
                             {
@@ -1143,7 +1143,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -1151,7 +1151,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter server ID: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Server fd: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1161,12 +1161,12 @@ namespace LSEG.Eta.Tools.TransportTest
                         srvr = GetServer(sessId);
                         if (srvr == null)
                         {
-                            Console.WriteLine("No Server with ID " + sessId);
+                            Console.WriteLine("No Server with fd " + sessId);
                             break;
                         }
                         if (srvr.Info(srvrInfo, out Error error) < TransportReturnCode.SUCCESS)
                         {
-                            Console.WriteLine("\nGetServerInfo failed with ID " + sessId + " <" + error.Text + ">");
+                            Console.WriteLine("\nGetServerInfo failed with fd " + sessId + " <" + error.Text + ">");
                         }
                         else
                         {
@@ -1178,7 +1178,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1260,7 +1260,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -1269,7 +1269,7 @@ namespace LSEG.Eta.Tools.TransportTest
                     {
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1280,7 +1280,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         {
                             try
                             {
-                                maxBufferSize = int.Parse(GetInput("Enter random data buffer size you want: ")!);
+                                maxBufferSize = int.Parse(GetInput("Random data buffer size you want: ")!);
                             }
                             catch (FormatException)
                             {
@@ -1330,7 +1330,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
 
                         break;
@@ -1341,7 +1341,7 @@ namespace LSEG.Eta.Tools.TransportTest
 
                         try
                         {
-                            sessId = (IntPtr)int.Parse(GetInput("Enter session ID to send: ")!);
+                            sessId = (IntPtr)int.Parse(GetInput("Session fd to send: ")!);
                         }
                         catch (FormatException)
                         {
@@ -1423,7 +1423,7 @@ namespace LSEG.Eta.Tools.TransportTest
                         }
                         else
                         {
-                            Console.WriteLine("No Session with ID " + sessId);
+                            Console.WriteLine("No Session with fd " + sessId);
                         }
                         break;
                     }
@@ -1474,7 +1474,7 @@ namespace LSEG.Eta.Tools.TransportTest
                 serverList[server.Socket.Handle] = server;
             }
 
-            Console.WriteLine($"Added Server with ID: {server.Socket.Handle}");
+            Console.WriteLine($"Added Server with fd: {server.Socket.Handle}");
         }
 
         private void PopulateData(int dataFormat, ByteBuffer bb, int size)
@@ -1725,7 +1725,7 @@ namespace LSEG.Eta.Tools.TransportTest
                 sessionList[channel.Socket.Handle] = channel;
             }
 
-            Console.WriteLine($"Added Session with ID: {channel.Socket.Handle}");
+            Console.WriteLine($"Added session with fd: {channel.Socket.Handle}");
         }
 
         private void ReadFromSession(IChannel channel)
@@ -1781,7 +1781,7 @@ namespace LSEG.Eta.Tools.TransportTest
                                 break;
                             }
                         case TransportReturnCode.SUCCESS:
-                            Console.WriteLine("\nsessionAct " + channel.Socket.Handle);
+                            Console.WriteLine("\nsession with fd " + channel.Socket.Handle);
                             break;
 
                         default:
