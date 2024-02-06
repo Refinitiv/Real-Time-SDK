@@ -60,6 +60,8 @@ protected:
 
 	static FILE *summaryFile;
 	static EmaString	logText;
+
+	const char* securityProtocolString(int securityProtocol);
 };
 
 #endif // __ema_consPerf_h_

@@ -405,6 +405,16 @@ bool EmaCppConsPerf::initConsPerfConfig(int argc, char *argv[])
 			}
 			iargs++;
 		}
+		else if (strcmp("-spTLSv1.2", argv[iargs]) == 0)
+		{
+			++iargs;
+			consPerfConfig.securityProtocol |= OmmConsumerConfig::ENC_TLSV1_2;
+		}
+		else if (strcmp("-spTLSv1.3", argv[iargs]) == 0)
+		{
+			++iargs;
+			consPerfConfig.securityProtocol |= OmmConsumerConfig::ENC_TLSV1_3;
+		}
 		else
 		{
 			logText = "Invalid Config ";
@@ -603,7 +613,34 @@ void EmaCppConsPerf::exitWithUsage()
 	logText += "   -consumerName <name>                 Name of the Consumer component in config file EmaConfig.xml that will be used to configure connection.\n";
 	logText += "   -websocket <protocol>                Using websocket connection with specified tunnel protocol: \"rssl.json.v2\" or \"rssl.rwf\".\n";
 
+	logText += "   -spTLSv1.2                           Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection.\n";
+	logText += "   -spTLSv1.3                           Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection.\n";
+
 	AppUtil::logError(logText);
+}
+const char* EmaCppConsPerf::securityProtocolString(int securityProtocol)
+{
+	if (securityProtocol == OmmConsumerConfig::ENC_NONE)
+	{
+		return "NONE (default)";
+	}
+	else if ((OmmConsumerConfig::ENC_TLSV1_2 == (securityProtocol & OmmConsumerConfig::ENC_TLSV1_2))
+		&& (OmmConsumerConfig::ENC_TLSV1_3 == (securityProtocol & OmmConsumerConfig::ENC_TLSV1_3)))
+	{
+		return "TLSV1_2 & TLSV1_3";
+	}
+	else if ((OmmConsumerConfig::ENC_TLSV1_2 == (securityProtocol & OmmConsumerConfig::ENC_TLSV1_2)))
+	{
+		return "TLSV1_2";
+	}
+	else if ((OmmConsumerConfig::ENC_TLSV1_3 == (securityProtocol & OmmConsumerConfig::ENC_TLSV1_3)))
+	{
+		return "TLSV1_3";
+	}
+	else
+	{
+		return "unknown";
+	}
 }
 void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 {
@@ -649,7 +686,8 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 		"            Summary File: %s\n"
 		"              Stats File: %s\n"
 		"        Latency Log File: %s\n"
-		"               Tick Rate: %u\n",
+		"               Tick Rate: %u\n"
+		"       Security Protocol: %s\n",
 		consPerfConfig.serviceName.c_str(),
 		(consPerfConfig.useUserDispatch) ? "1" : "0",
 		consPerfConfig.mainThreadCpu.empty() ? "-1" : consPerfConfig.mainThreadCpu.c_str(),
@@ -670,7 +708,8 @@ void EmaCppConsPerf::printConsPerfConfig(FILE *file)
 		consPerfConfig.summaryFilename.c_str(),
 		consPerfConfig.statsFilename.c_str(),
 		consPerfConfig.logLatencyToFile ? consPerfConfig.latencyLogFilename.c_str() : "(none)",
-		consPerfConfig.ticksPerSec);
+		consPerfConfig.ticksPerSec,
+		securityProtocolString(consPerfConfig.securityProtocol));
 }
 void EmaCppConsPerf::printSummaryStatistics(FILE *file)
 {

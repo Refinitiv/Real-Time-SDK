@@ -336,6 +336,9 @@ void ConsumerThread::run()
 		if ( !workerThreadCpuId.empty() && !workerThreadCpuId.caseInsensitiveCompare("-1") )
 			consumerConfig.workerThreadBind(workerThreadCpuId);
 
+		if (pConsPerfCfg->securityProtocol != OmmConsumerConfig::ENC_NONE)
+			consumerConfig.tunnelingSecurityProtocol(pConsPerfCfg->securityProtocol);
+
 		//if (!pConsPerfCfg->useUserDispatch)
 		//	firstThreadSnapshot();
 
