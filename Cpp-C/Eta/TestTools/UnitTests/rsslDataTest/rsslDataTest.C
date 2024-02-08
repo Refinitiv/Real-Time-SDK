@@ -12171,7 +12171,7 @@ void checkDefaultsRsslDecodingLevel(const RsslDecodingLevel* pRsslDecodingLevel)
 	ASSERT_EQ(0, pRsslDecodingLevel->_containerType);
 }
 
-void checkDefaultsRsslEncodeIterator(const RsslEncodeIterator* pRsslEncodeIterator)
+void checkDefaultsRsslEncodeIterator(const RsslEncodeIterator* pRsslEncodeIterator, bool afterInit)
 {
 	unsigned i;
 
@@ -12184,16 +12184,19 @@ void checkDefaultsRsslEncodeIterator(const RsslEncodeIterator* pRsslEncodeIterat
 	ASSERT_EQ(RSSL_RWF_MINOR_VERSION, pRsslEncodeIterator->_minorVersion);
 	ASSERT_EQ(-1, pRsslEncodeIterator->_encodingLevel);
 
-	for (i = 0; i < RSSL_ITER_MAX_LEVELS; ++i)
+	if (afterInit)  // we initialize the member array of encoding levels only, not clean
 	{
-		checkDefaultsRsslEncodingLevel(&pRsslEncodeIterator->_levelInfo[i]);
+		for (i = 0; i < RSSL_ITER_MAX_LEVELS; ++i)
+		{
+			checkDefaultsRsslEncodingLevel(&pRsslEncodeIterator->_levelInfo[i]);
+		}
 	}
 
 	ASSERT_EQ(NULL, pRsslEncodeIterator->_pGlobalElemListSetDb);
 	ASSERT_EQ(NULL, pRsslEncodeIterator->_pGlobalFieldListSetDb);
 }
 
-void checkDefaultsRsslDecodeIterator(const RsslDecodeIterator* pRsslDecodeIterator)
+void checkDefaultsRsslDecodeIterator(const RsslDecodeIterator* pRsslDecodeIterator, bool afterInit)
 {
 	unsigned i;
 
@@ -12205,9 +12208,12 @@ void checkDefaultsRsslDecodeIterator(const RsslDecodeIterator* pRsslDecodeIterat
 	ASSERT_EQ(NULL, pRsslDecodeIterator->_curBufPtr);
 	ASSERT_EQ(NULL, pRsslDecodeIterator->_pBuffer);
 
-	for (i = 0; i < RSSL_ITER_MAX_LEVELS; ++i)
+	if (afterInit)  // we initialize the member array of decoding levels only, not clean
 	{
-		checkDefaultsRsslDecodingLevel(&pRsslDecodeIterator->_levelInfo[i]);
+		for (i = 0; i < RSSL_ITER_MAX_LEVELS; ++i)
+		{
+			checkDefaultsRsslDecodingLevel(&pRsslDecodeIterator->_levelInfo[i]);
+		}
 	}
 
 	ASSERT_EQ(NULL, pRsslDecodeIterator->_pGlobalElemListSetDb);
@@ -12230,19 +12236,44 @@ TEST(iteratorsInitialization, InitRsslDecodingLevel)
 	checkDefaultsRsslDecodingLevel(&rsslDecodingLevel);
 }
 
+#if defined(_WIN32) || (__cplusplus >= 201103L)
+TEST(iteratorsInitialization, InitRsslEncodingLevelInDirtyMem)
+{
+	char buf[1024];
+	RsslEncodingLevel* pRsslEncodingLevel = new(buf) RsslEncodingLevel();
+	memset(buf, 0xd2, sizeof(buf));
+
+	*pRsslEncodingLevel = RSSL_INIT_ENCODING_LEVEL;
+
+	// Tests default values
+	checkDefaultsRsslEncodingLevel(pRsslEncodingLevel);
+}
+
+TEST(iteratorsInitialization, InitRsslDecodingLevelInDirtyMem)
+{
+	char buf[1024];
+	RsslDecodingLevel* pRsslDecodingLevel = new (buf) RsslDecodingLevel();
+	memset(buf, 0xe3, sizeof(buf));
+
+	*pRsslDecodingLevel = RSSL_INIT_DECODING_LEVEL;
+
+	// Tests default values
+	checkDefaultsRsslDecodingLevel(pRsslDecodingLevel);
+}
+#endif
 TEST(iteratorsInitialization, InitRsslEncodeIterator)
 {
 	RsslEncodeIterator encIter = RSSL_INIT_ENCODE_ITERATOR;
 
 	// Tests default values
-	checkDefaultsRsslEncodeIterator(&encIter);
+	checkDefaultsRsslEncodeIterator(&encIter, true);
 
 	// Make some changes...
 	memset(&encIter, 0xd3, sizeof(RsslEncodeIterator));
 
 	// Tests clear method
 	rsslClearEncodeIterator(&encIter);
-	checkDefaultsRsslEncodeIterator(&encIter);
+	checkDefaultsRsslEncodeIterator(&encIter, false);
 }
 
 TEST(iteratorsInitialization, InitRsslDecodeIterator)
@@ -12250,16 +12281,59 @@ TEST(iteratorsInitialization, InitRsslDecodeIterator)
 	RsslDecodeIterator decIter = RSSL_INIT_DECODE_ITERATOR;
 
 	// Tests default values
-	checkDefaultsRsslDecodeIterator(&decIter);
+	checkDefaultsRsslDecodeIterator(&decIter, true);
 
 	// Make some changes...
 	memset(&decIter, 0xe4, sizeof(RsslDecodeIterator));
 
 	// Tests clear method
 	rsslClearDecodeIterator(&decIter);
-	checkDefaultsRsslDecodeIterator(&decIter);
+	checkDefaultsRsslDecodeIterator(&decIter, false);
 }
 
+#if defined(_WIN32) || (__cplusplus >= 201103L)
+TEST(iteratorsInitialization, InitRsslEncodeIteratorInDirtyMem)
+{
+	RsslEncodeIterator* pEncIter = new RsslEncodeIterator();
+	memset(pEncIter, 0xdb, sizeof(RsslEncodeIterator));
+	
+	*pEncIter = RSSL_INIT_ENCODE_ITERATOR;
+
+	// Tests default values
+	checkDefaultsRsslEncodeIterator(pEncIter, true);
+
+	// Make some changes...
+	memset(pEncIter, 0xa3, sizeof(RsslEncodeIterator));
+
+	// Tests clear method
+	rsslClearEncodeIterator(pEncIter);
+
+	checkDefaultsRsslEncodeIterator(pEncIter, false);
+
+	delete pEncIter;
+}
+
+TEST(iteratorsInitialization, InitRsslDecodeIteratorInDirtyMem)
+{
+	RsslDecodeIterator* pDecIter = new RsslDecodeIterator();
+	memset(pDecIter, 0xce, sizeof(RsslDecodeIterator));
+
+	*pDecIter = RSSL_INIT_DECODE_ITERATOR;
+
+	// Tests default values
+	checkDefaultsRsslDecodeIterator(pDecIter, true);
+
+	// Make some changes...
+	memset(pDecIter, 0xe4, sizeof(RsslDecodeIterator));
+
+	// Tests clear method
+	rsslClearDecodeIterator(pDecIter);
+
+	checkDefaultsRsslDecodeIterator(pDecIter, false);
+
+	delete pDecIter;
+}
+#endif
 
 const char
 	*argToString = "--to-string";
