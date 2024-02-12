@@ -515,28 +515,14 @@ typedef enum {
 	traceDump = 4
 } traceOperation;
 
-void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, RsslBuffer *buffer, RsslRet *retTrace, traceOperation op, RsslError *error)
+RsslRet _rsslTraceCheckFile(rsslChannelImpl *rsslChnlImpl, RsslError *error)
 {
-	RsslDecodeIterator dIter;
-	RsslMsg msg = RSSL_INIT_MSG;
-	RsslRet ret = RSSL_RET_SUCCESS;
-	char message[128];
-	RsslInt64 filePos = 0;
-	rsslBufferImpl *pRsslBufferImpl = (rsslBufferImpl *)buffer;
-
-	if (buffer == NULL)
-		return;
-
-	if (*retTrace == RSSL_RET_FAILURE)
-		return;
-	
-	(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
-	if(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
+	if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr != NULL)
 	{
-		filePos = ftell(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
-		if((filePos >= rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgMaxFileSize))
+		RsslInt64 filePos = ftell(rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr);
+		if ((filePos >= rsslChnlImpl->traceOptionsInfo.traceOptions.traceMsgMaxFileSize))
 		{
-			unsigned long long hour = 0 , min = 0, sec = 0, msec = 0;
+			unsigned long long hour = 0, min = 0, sec = 0, msec = 0;
 			char timeVal[TIME_STAMP_SIZE];
 			int numChars = 0;
 
@@ -560,11 +546,32 @@ void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, 
 
 				if (rsslChnlImpl->traceOptionsInfo.traceMsgFilePtr == NULL)
 				{
-					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> rsslTraceStartMsg() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
+					snprintf(error->text, MAX_RSSL_ERROR_TEXT, "<%s:%d> _rsslTraceCheckFile() Error: Unable to open file. fopen() failed\n", __FILE__, __LINE__);
+					return RSSL_RET_FAILURE;
 				}
 			}
 		}
 	}
+	return RSSL_RET_SUCCESS;
+}
+
+void _rsslTraceStartMsg(rsslChannelImpl *rsslChnlImpl, RsslUInt32 protocolType, RsslBuffer *buffer, RsslRet *retTrace, traceOperation op, RsslError *error)
+{
+	RsslDecodeIterator dIter;
+	RsslMsg msg = RSSL_INIT_MSG;
+	RsslRet ret = RSSL_RET_SUCCESS;
+	char message[128];
+	RsslInt64 filePos = 0;
+	rsslBufferImpl *pRsslBufferImpl = (rsslBufferImpl *)buffer;
+
+	if (buffer == NULL)
+		return;
+
+	if (*retTrace == RSSL_RET_FAILURE)
+		return;
+
+	(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+	_rsslTraceCheckFile(rsslChnlImpl, error);
 	
 	/* check if we got an FD change */
 	if (*retTrace == RSSL_RET_READ_FD_CHANGE)
@@ -1829,6 +1836,7 @@ RSSL_API RsslBuffer* rsslReadEx(RsslChannel *chnl, RsslReadInArgs *readInArgs, R
 
 				snprintf(message, sizeof(message), "Incoming Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
 				(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
+				_rsslTraceCheckFile(rsslChnlImpl, error);
 				_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
 
 				snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
@@ -2121,6 +2129,7 @@ RSSL_API RsslRet rsslPing(RsslChannel *chnl, RsslError *error)
 
 			(void) RSSL_MUTEX_LOCK(&rsslChnlImpl->traceMutex);
 			snprintf(message, sizeof(message), "Outgoing Ping (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
+			_rsslTraceCheckFile(rsslChnlImpl, error);
 			_rsslXMLDumpComment(rsslChnlImpl, message, RSSL_TRUE, RSSL_FALSE);
 
 			snprintf(message, sizeof(message), "End Message (Channel IPC descriptor = "SOCKET_PRINT_TYPE")", rsslChnlImpl->Channel.socketId);
