@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -20,6 +20,7 @@ public class ProviderThreadStats {
     private final CountStat statusCount;
     private final CountStat msgSentCount;
     private final CountStat outOfBuffersCount;
+    private final CountStat updatePackedMsgCount;
     private final TimeRecordQueue genMsgLatencyRecords;
     private long inactiveTime;
     private long firstGenMsgSentTime;
@@ -52,6 +53,7 @@ public class ProviderThreadStats {
         this.msgSentCount = new CountStat();
         this.outOfBuffersCount = new CountStat();
         this.genMsgLatencyRecords = new TimeRecordQueue();
+        this.updatePackedMsgCount = new CountStat();
     }
 
     /**
@@ -236,6 +238,10 @@ public class ProviderThreadStats {
 
     public TimeRecordQueue genMsgLatencyRecords() {
         return genMsgLatencyRecords;
+    }
+    
+    public CountStat updatePackedMsgCount() {
+        return updatePackedMsgCount;
     }
 
     /**

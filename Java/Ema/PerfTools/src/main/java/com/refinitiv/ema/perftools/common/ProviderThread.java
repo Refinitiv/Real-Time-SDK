@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -11,6 +11,7 @@ package com.refinitiv.ema.perftools.common;
 import com.refinitiv.ema.access.*;
 import com.refinitiv.ema.rdm.EmaRdm;
 
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.Condition;
@@ -53,6 +54,8 @@ public abstract class ProviderThread extends Thread {
     protected boolean shutdownAck;
     private ReentrantLock workerLock = new ReentrantLock();
     private Condition condition = workerLock.newCondition();
+    private HashMap<Long, PackedMsg> packedMsgHandleList = new HashMap<>();
+    private PackedMsg packedMsgPerHandle;
 
     public ProviderThread(BaseProviderPerfConfig baseConfig, XmlMsgData msgData) {
         this.baseConfig = baseConfig;
@@ -221,15 +224,82 @@ public abstract class ProviderThread extends Thread {
 
     protected abstract boolean sendMsg(Msg msg, ItemInfo itemInfo);
 
-    protected void submitMsg(Msg msg, Long handle) {
-        switch (msg.dataType()) {
+    protected void submitMsg(Msg msg, ItemInfo itemInfo) {
+    	Long itemHandle = itemInfo.itemHandle();
+    	if (baseConfig.messagePackingCount > 1)
+    	{
+    		if (!packedMsgHandleList.containsKey(itemHandle))
+    		{
+    			if (packedMsgPerHandle == null)
+    				packedMsgPerHandle = EmaFactory.createPackedMsg(provider);
+    			if (provider.providerRole() == OmmProviderConfig.ProviderRole.NON_INTERACTIVE)
+				{
+    				packedMsgPerHandle.initBuffer(baseConfig.messagePackingBufferSize);
+				}
+    			else if (provider.providerRole() == OmmProviderConfig.ProviderRole.INTERACTIVE)
+    			{
+        			packedMsgPerHandle.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+    			}
+    			packedMsgHandleList.put(itemHandle, packedMsgPerHandle);
+    		}
+            switch (msg.dataType()) {
             case DataType.DataTypes.REFRESH_MSG:
-                provider.submit(refreshMsg, handle);
+                provider.submit(refreshMsg, itemHandle);
+                break;
+    		// Handle packing for update messages only
+            case DataType.DataTypes.UPDATE_MSG:
+            	PackedMsg packedMsg = packedMsgHandleList.get(itemHandle);
+            	if (packedMsg == null)
+            		return;	// Channel not up
+            	try {
+            		packedMsg.addMsg(updateMsg, itemHandle);
+            		// Check if Packed Message is at packed message count
+            		if (packedMsg.packedMsgCount() == this.baseConfig.messagePackingCount)
+            		{
+            			provider.submit(packedMsg);
+            			this.providerThreadStats.updatePackedMsgCount().increment();
+                		packedMsg.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+            		}
+            	}
+            	catch (OmmInvalidUsageException excp)
+            	{
+            		if (excp.errorCode() == OmmInvalidUsageException.ErrorCode.PACKING_REMAINING_SIZE_TOO_SMALL)
+            		{
+            			if (packedMsg.packedMsgCount() > 0)
+                		{
+                			provider.submit(packedMsg);
+                			this.providerThreadStats.updatePackedMsgCount().increment();
+                			packedMsg.initBuffer(itemInfo.clientHandle(), baseConfig.messagePackingBufferSize);
+                		}
+                    	try {
+                    		packedMsg.addMsg(updateMsg, itemHandle);
+                    	}
+                    	catch (OmmInvalidUsageException excp2)
+                    	{
+                    		if (excp.errorCode() == OmmInvalidUsageException.ErrorCode.PACKING_REMAINING_SIZE_TOO_SMALL)
+                    		{
+                    			// This packet cannot fit into the buffer, even though the buffer is empty
+                    			provider.submit(updateMsg, itemHandle);
+                    			this.providerThreadStats.updatePackedMsgCount().increment();
+                    		}
+                    	}
+            		}
+            	}
+                break;
+            }
+    	}
+    	else // Packing is not enabled
+    	{
+            switch (msg.dataType()) {
+            case DataType.DataTypes.REFRESH_MSG:
+                provider.submit(refreshMsg, itemHandle);
                 break;
             case DataType.DataTypes.UPDATE_MSG:
-                provider.submit(updateMsg, handle);
+                provider.submit(updateMsg, itemHandle);
+                this.providerThreadStats.updatePackedMsgCount().add(1);
                 break;
-        }
+            }
+    	}
     }
 
     protected FieldList createMarketPricePayload(MarketPriceMsg msg, int timeFieldId, boolean setLatency) {

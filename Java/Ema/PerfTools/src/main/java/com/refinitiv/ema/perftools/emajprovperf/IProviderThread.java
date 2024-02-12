@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2022 Refinitiv. All rights reserved.         	  --
+ *|           Copyright (C) 2022,2024 Refinitiv. All rights reserved.         	  --
  *|-----------------------------------------------------------------------------
  */
 
@@ -151,7 +151,7 @@ public class IProviderThread extends ProviderThread {
     protected boolean sendMsg(Msg msg, ItemInfo itemInfo) {
         try {
             if (isActiveStream(itemInfo)) {
-                submitMsg(msg, itemInfo.itemHandle());
+                submitMsg(msg, itemInfo);
                 return true;
             }
         } catch (OmmInvalidUsageException e) {
@@ -224,11 +224,11 @@ public class IProviderThread extends ProviderThread {
     }
 
     @Override
-    protected void submitMsg(Msg msg, Long handle) {
+    protected void submitMsg(Msg msg, ItemInfo itemInfo) {
         if (msg.dataType() == DataType.DataTypes.GENERIC_MSG) {
-            this.provider.submit(genericMsg, handle);
+            this.provider.submit(genericMsg, itemInfo.itemHandle());
         } else {
-            super.submitMsg(msg, handle);
+            super.submitMsg(msg, itemInfo);
         }
     }
 

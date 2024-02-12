@@ -92,7 +92,7 @@ public class NIProviderThread extends ProviderThread {
     @Override
     protected boolean sendMsg(Msg msg, ItemInfo itemInfo) {
         try {
-            submitMsg(msg, itemInfo.itemHandle());
+            submitMsg(msg, itemInfo);
         } catch (OmmInvalidUsageException e) {
             if (e.errorCode() == OmmInvalidUsageException.ErrorCode.INVALID_ARGUMENT) {
                 return false;
