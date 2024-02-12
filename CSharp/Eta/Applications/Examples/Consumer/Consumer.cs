@@ -65,8 +65,6 @@ namespace LSEG.Eta.Example.Consumer
         private DecodeIterator dIter = new DecodeIterator();
         private Msg responseMsg = new Msg();
 
-        private readonly EncryptionProtocolCommandLineArg EncryptionProtocol = new();
-
         // private streams items are non-recoverable, it is not sent again after recovery
         private bool mppsRequestSent = false;
         private bool mbopsRequestSent = false;
@@ -394,16 +392,14 @@ namespace LSEG.Eta.Example.Consumer
                 channelSession.ConnectOptions.ConnectionType = ConnectionType.ENCRYPTED;
                 channelSession.ConnectOptions.EncryptionOpts.EncryptedProtocol = ConnectionType.SOCKET;
 
-                try
-                {
-                    channelSession.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = EncryptionProtocol.Value;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Error: {ex.Message}.");
-                    Console.Out.WriteLine("Consumer exits...");
-                    System.Environment.Exit((int)TransportReturnCode.FAILURE);
-                }
+                EncryptionProtocolFlags EncryptionProtocol = EncryptionProtocolFlags.ENC_NONE;
+                if (CommandLine.BoolValue("spTLSv1.2"))
+                    EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_2;
+                if (CommandLine.BoolValue("spTLSv1.3"))
+                    EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_3;
+
+                if (EncryptionProtocol != EncryptionProtocolFlags.ENC_NONE)
+                    channelSession.ConnectOptions.EncryptionOpts.EncryptionProtocolFlags = EncryptionProtocol;
             }
             CodecError codecError;
             dictionaryHandler.LoadDictionary(out codecError);
@@ -1035,6 +1031,9 @@ namespace LSEG.Eta.Example.Consumer
             CommandLine.AddOption("ax", "", "Specifies the Authentication Extended information.");
             CommandLine.AddOption("aid", "", "Specifies the Application ID.");
             CommandLine.AddOption("rtt", false, "Enables RTT feature.");
+
+            CommandLine.AddOption("spTLSv1.2", false, "Specifies that TLSv1.2 can be used for an encrypted connection");
+            CommandLine.AddOption("spTLSv1.3", false, "Specifies that TLSv1.3 can be used for an encrypted connection");
         }
 
         /// <summary>

@@ -120,8 +120,6 @@ namespace LSEG.Eta.Example.Provider
 
         public static readonly int CLIENT_SESSION_INIT_TIMEOUT = 30; // seconds
 
-        private static readonly EncryptionProtocolCommandLineArg EncryptionProtocol = new();
-
         public Provider()
         {
             m_ProviderSession = new ProviderSession();
@@ -189,15 +187,14 @@ namespace LSEG.Eta.Example.Provider
                 bindOptions.BindEncryptionOpts.ServerCertificate = CommandLine.Value("cert");
                 bindOptions.BindEncryptionOpts.ServerPrivateKey = CommandLine.Value("keyfile");
 
-                try
-                {
-                    bindOptions.BindEncryptionOpts.EncryptionProtocolFlags = EncryptionProtocol.Value;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Error: {ex.Message}.");
-                    System.Environment.Exit((int)TransportReturnCode.FAILURE);
-                }
+                EncryptionProtocolFlags EncryptionProtocol = EncryptionProtocolFlags.ENC_NONE;
+                if (CommandLine.BoolValue("spTLSv1.2"))
+                    EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_2;
+                if (CommandLine.BoolValue("spTLSv1.3"))
+                    EncryptionProtocol |= EncryptionProtocolFlags.ENC_TLSV1_3;
+
+                if (EncryptionProtocol != EncryptionProtocolFlags.ENC_NONE)
+                    bindOptions.BindEncryptionOpts.EncryptionProtocolFlags = EncryptionProtocol;
             }
 
             TransportReturnCode ret = m_ProviderSession.Init(false, out Error? error);
@@ -245,6 +242,8 @@ namespace LSEG.Eta.Example.Provider
             CommandLine.AddOption("c", defaultValue: null!, "Provider connection type.  Either \"socket\" or \"encrypted\"");
             CommandLine.AddOption("cert", defaultValue: null!, "The server certificate file");
             CommandLine.AddOption("keyfile", defaultValue: null!, "The server private key file");
+            CommandLine.AddOption("spTLSv1.2", false, "Specifies that TLSv1.2 can be used for an encrypted connection");
+            CommandLine.AddOption("spTLSv1.3", false, "Specifies that TLSv1.3 can be used for an encrypted connection");
         }
 
         private void HandleRuntime()
