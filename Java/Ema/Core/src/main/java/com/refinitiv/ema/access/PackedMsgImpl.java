@@ -50,9 +50,9 @@ class PackedMsgImpl implements PackedMsg {
 
 	// Retrieves the reactor channel and gets transportBuffer for niProvider applications
 	public PackedMsg initBuffer() {
+		clear();
 		maxSize = DEFAULT_MAX_SIZE;
 		remainingSize = maxSize;
-		clear();
 
 		if (iProviderImpl != null)
 		{
@@ -70,9 +70,9 @@ class PackedMsgImpl implements PackedMsg {
 	
 	// Retrieves the reactor channel and gets transportBuffer for niProvider applications
 	public PackedMsg initBuffer(int maxSize) {
+		clear();
 		this.maxSize = maxSize;
 		remainingSize = maxSize;
-		clear();
 		
 		if (iProviderImpl != null)
 		{
@@ -90,11 +90,11 @@ class PackedMsgImpl implements PackedMsg {
 	
 	// Sets the client handle associated with this PackedMsg for IProvider to retrieve the channel and transportBuffer
 	public PackedMsg initBuffer(long clientHandle) {
+		clear();
 		ClientSession clientSession;
 		this.clientHandle = clientHandle;
 		maxSize = DEFAULT_MAX_SIZE;
 		remainingSize = maxSize;
-		clear();
 
 		if (iProviderImpl != null)
 		{
@@ -116,11 +116,11 @@ class PackedMsgImpl implements PackedMsg {
 	
 	// Sets the client handle associated with this PackedMsg for IProvider to retrieve the channel and transportBuffer
 	public PackedMsg initBuffer(long clientHandle, int maxSize) {
+		clear();
 		ClientSession clientSession;
 		this.clientHandle = clientHandle;
 		this.maxSize = maxSize;
 		remainingSize = maxSize;
-		clear();
 
 		if (iProviderImpl != null)
 		{
@@ -312,6 +312,7 @@ class PackedMsgImpl implements PackedMsg {
 	}
 
 	public PackedMsg clear() {
+		remainingSize = 0;
 		packedMsgCount = 0;
 		releaseBuffer();
 		return this;
