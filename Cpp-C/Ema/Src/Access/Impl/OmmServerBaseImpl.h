@@ -271,6 +271,7 @@ private:
 	friend class MarketItemHandler;
 	friend class ClientSession;
 	friend class ItemCallbackClient;
+	friend class PackedMsgImpl;
 
 	OmmServerBaseImpl( const OmmServerBaseImpl& );
 	OmmServerBaseImpl& operator=( const OmmServerBaseImpl& );

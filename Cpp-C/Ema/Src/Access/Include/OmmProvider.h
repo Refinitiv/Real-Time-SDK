@@ -157,6 +157,7 @@ class ReqMsg;
 class StatusMsg;
 class UpdateMsg;
 class ChannelInformation;
+class PackedMsg;
 
 class EMA_ACCESS_API OmmProvider
 {
@@ -310,6 +311,14 @@ public :
 	*/	
 	void submit( const StatusMsg& statusMsg, UInt64 handle );
 
+	/**
+	   Sends a PackedMsg.
+	   @param[in] packedMsg specifies PackedMsg to be sent on the active channel
+	   @throws OmmInvalidUsageException if failed to submit packedMsg
+	   \remark This method is \ref ObjectLevelSafe
+	 */
+	void submit( const PackedMsg& packedMsg);
+
 	/** Relinquish application thread of control to receive callbacks via OmmProviderClient descendant.
 		\remark Requires OperationalModel to be set to UserDispatchEnum.
 		@param[in] time-out specifies time in microseconds to wait in dispatch() for a message to dispatch
@@ -317,6 +326,7 @@ public :
 		@throw OmmInvalidUsageException if OperationalModel is not set to UserDispatchEnum
 		\remark This method is \ref ObjectLevelSafe
 	*/
+
 	Int64 dispatch( Int64 timeOut = NoWaitEnum );
 
 	/** Relinquishes interest in an open item stream if item handle is passed in.
@@ -392,6 +402,8 @@ public :
 	//@}
 
 private :
+
+	friend class PackedMsgImpl;
 
 	OmmProviderImpl*	_pImpl;
 	OmmProviderConfig::ProviderRole _role;

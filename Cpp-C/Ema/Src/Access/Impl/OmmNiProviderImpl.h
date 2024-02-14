@@ -65,6 +65,8 @@ public :
 
 	void submit( const AckMsg&, UInt64 );
 
+	void submit( const PackedMsg& );
+
 	void loadDirectory();
 
 	void reLoadDirectory();
@@ -203,6 +205,10 @@ private :
 	EmaList<StreamId*>			 					_reusedProviderStreamIds;
 	Channel*										_activeChannel;
 	ItemWatchList									_itemWatchList;
+
+	OmmNiProviderImpl::StreamInfoPtr* getStreamInfo(UInt64 handle);
+
+	friend class PackedMsgImpl;
 };
 
 }

@@ -30,7 +30,9 @@ IProvPerfConfig::IProvPerfConfig() : PerfConfig((char*)defSummaryFilename.c_str(
 	measureEncode(false),
 	measureDecode(false),
 	loginPosition(""),
-	providerName("")
+	providerName(""),
+	packedMsgBufferSize(0),
+	numberMsgInPackedMsg(0)
 {
 }
 
@@ -72,4 +74,7 @@ void IProvPerfConfig::clearPerfConfig()
 	measureDecode = false;
 	loginPosition = "";
 	providerName = "";
+
+	packedMsgBufferSize = 0;
+	numberMsgInPackedMsg = 0;
 }

@@ -51,6 +51,8 @@ public:
 
 	void submit(const StatusMsg&, UInt64);
 
+	void submit(const PackedMsg&);
+
 	Int64 dispatch(Int64 timeOut = 0);
 
 	void unregister(UInt64);

@@ -97,6 +97,8 @@ private :
 	RsslBuffer& getRsslBuffer() const;
 
 	void endEncodingEntry() const;
+
+	friend class PackedMsgImpl;
 };
 
 }

@@ -56,7 +56,11 @@ void EmaCppIProvPerf::exitWithUsage()
 	logText += "  -latencyUpdateRate <updates/sec>     Latency update rate(can specify \"all\" to send latency in every update).\n";
 	logText += "  -genericMsgRate <genMsgs per second> GenMsg rate per second.\n";
 	logText += "  -genericMsgLatencyRate <genMsgs/sec> Latency genMsg rate(can specify \"all\" to send latency in every genMsg).\n";
+	logText += "  -packedMsgsRate <updates per second> PackedMsg rate per second.\n";
 	logText += "  -refreshBurstSize <count>            Number of refreshes to send in a burst(controls granularity of time-checking).\n\n";
+
+	logText += "  -packBufSize <byte>                  Size of buffer for PackedMsg.\n";
+	logText += "  -maxPackCount <count>                Amount of packed  Update Messages into PackedMsg.\n";
 
 	logText += "  -msgFile <file name>                 Name of the file that specifies the data content in messages.\n";
 	logText += "  -summaryFile <filename>              Name of file for logging summary info.\n";
@@ -191,6 +195,16 @@ bool EmaCppIProvPerf::initIProvPerfConfig(int argc, char* argv[])
 			else
 				provPerfConfig.latencyUpdatesPerSec = atoi(argv[iargs]);
 			++iargs;
+		}
+		else if (0 == strcmp("-maxPackCount", argv[iargs]))
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			provPerfConfig.numberMsgInPackedMsg = atoi(argv[iargs++]);
 		}
 		else if (strcmp("-genericMsgRate", argv[iargs]) == 0)
 		{
@@ -394,6 +408,16 @@ bool EmaCppIProvPerf::initIProvPerfConfig(int argc, char* argv[])
 			provPerfConfig.providerName = argv[iargs++];
 		}
 
+		else if (0 == strcmp("-packBufSize", argv[iargs]))
+		{
+			++iargs;
+			if (iargs == argc)
+			{
+				exitOnMissingArgument(argv, iargs - 1);
+				return false;
+			}
+			provPerfConfig.packedMsgBufferSize = atoi(argv[iargs++]);
+		}
 		else
 		{
 			logText = "Invalid Config ";
@@ -585,6 +609,13 @@ void EmaCppIProvPerf::printIProvPerfConfig(FILE* file)
 		provPerfConfig.latencyGenMsgsPerSec >= 0 ? provPerfConfig.latencyGenMsgsPerSec : provPerfConfig.genMsgsPerSec,
 		provPerfConfig.refreshBurstSize,
 		provPerfConfig.msgFilename.c_str());
+
+	if (provPerfConfig.numberMsgInPackedMsg)
+	{
+		fprintf(file,
+		"               Number In Packed Msg: %d\n",
+		provPerfConfig.numberMsgInPackedMsg);
+	}
 
 	fprintf(file,
 		"     Pre-Encoded Updates: %s\n"
@@ -795,6 +826,7 @@ bool EmaCppIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 cu
 {
 	UInt64 refreshMsgCount,
 		updateMsgCount,
+		packedMsgCount,
 		itemRequestCount,
 		closeMsgCount,
 		postMsgCount,
@@ -855,6 +887,7 @@ bool EmaCppIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 cu
 		// Collect counts.
 		refreshMsgCount = stats.refreshMsgCount.countStatGetChange();
 		updateMsgCount = stats.updateMsgCount.countStatGetChange();
+		packedMsgCount = stats.packedMsgCount.countStatGetChange();
 		itemRequestCount = stats.itemRequestCount.countStatGetChange();
 		closeMsgCount = stats.closeMsgCount.countStatGetChange();
 		postMsgCount = stats.postMsgCount.countStatGetChange();
@@ -894,6 +927,7 @@ bool EmaCppIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 cu
 		totalStats.genMsgRecvCount.countStatAdd(genMsgRecvCount);
 		totalStats.genMsgSentCount.countStatAdd(genMsgSentCount);
 		totalStats.latencyGenMsgSentCount.countStatAdd(latencyGenMsgSentCount);
+		totalStats.packedMsgCount.countStatAdd(packedMsgCount);
 
 		if (writeStats)
 		{
@@ -945,6 +979,8 @@ bool EmaCppIProvPerf::collectStats(bool writeStats, bool displayStats, UInt32 cu
 				stats.intervalGenMsgLatencyStats.printValueStatistics(stdout, "  GenMsgLat(usec)", "Msgs", false);
 				stats.intervalGenMsgLatencyStats.clearValueStatistics();
 			}
+			if (packedMsgCount)
+				printf("  Average update messages packed per message: %llu\n", updateMsgCount/packedMsgCount);
 
 			closeMsgCount = totalStats.closeMsgCount.countStatGetChange();
 			if (closeMsgCount > 0)
@@ -1113,6 +1149,11 @@ void EmaCppIProvPerf::providerPrintSummaryStats(FILE* file)
 	{
 		fprintf(file, "  Posts received: %llu\n", totalStats.postMsgCount.countStatGetTotal());
 		fprintf(file, "  Posts reflected: %llu\n", totalStats.postMsgCount.countStatGetTotal());
+	}
+
+	if (totalStats.packedMsgCount.countStatGetTotal())
+	{
+		fprintf(file, "  Packed msg send: %llu\n", totalStats.packedMsgCount.countStatGetTotal());
 	}
 
 	if (cpuUsageStats.count)

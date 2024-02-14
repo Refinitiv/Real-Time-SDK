@@ -53,6 +53,9 @@ public:
 
 	refinitiv::ema::access::EmaString		providerName;				/* Name of the IProvider component in EmaConfig.xml. See -providerName */
 
+	refinitiv::ema::access::Int32			packedMsgBufferSize;		/* Size of buffer for PackedMsg. Max size equal to max fragment size 6144 */
+
+	refinitiv::ema::access::Int32			numberMsgInPackedMsg;		/* Amount of packed  Update Messages into PackedMsg */
 private:
 	// Defaults
 	static refinitiv::ema::access::EmaString defSummaryFilename;

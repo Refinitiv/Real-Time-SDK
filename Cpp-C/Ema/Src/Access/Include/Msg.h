@@ -172,6 +172,7 @@ protected :
 	friend class TunnelStreamLoginReqMsgImpl;
 	friend class SubItem;
 	friend class MsgDecoder;
+	friend class PackedMsgImpl;
 
 	Msg();
 

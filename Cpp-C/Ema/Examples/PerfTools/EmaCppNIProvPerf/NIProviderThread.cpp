@@ -38,6 +38,8 @@ NIProviderThread::NIProviderThread(NIProvPerfConfig& config, PerfMessageData* pe
 		niProvPerfConfig(config), perfMessageData(perfData),
 		niProviderClient(NULL),
 		provider(NULL),
+		packedMsg(NULL),
+		packCountCurrent(0),
 #if defined(WIN32)
 		_handle(NULL), _threadId(0),
 #else
@@ -61,6 +63,10 @@ void NIProviderThread::clean()
 	if (provider != NULL)
 		delete provider;
 	provider = NULL;
+
+	if (packedMsg != NULL)
+		delete packedMsg;
+	packedMsg = NULL;
 
 	if (niProviderClient != NULL)
 		delete niProviderClient;
@@ -575,7 +581,10 @@ void NIProviderThread::sendUpdateMessages()
 			stats.messageEncodeTimeRecords.updateLatencyStats(measureEncodeStartTime, measureEncodeEndTime, 1000);
 		}
 
-		provider->submit(*pUpdateMsg, itemInfo->getHandle());
+		if (niProvPerfConfig.numberMsgInPackedMsg)
+			sendPackedMsg(pUpdateMsg, itemInfo);
+		else
+			provider->submit(*pUpdateMsg, itemInfo->getHandle());
 
 		stats.updateMsgCount.countStatIncr();
 
@@ -585,6 +594,36 @@ void NIProviderThread::sendUpdateMessages()
 	provThreadState.setCurrentUpdatesItem(itemInfo);
 
 	return;
+}
+
+void NIProviderThread::sendPackedMsg(const Msg* msg, ProvItemInfo* itemInfo)
+{
+	if (!itemInfo)
+		return;
+
+	if (packCountCurrent == 0)
+	{
+		if (packedMsg == NULL)
+			packedMsg = new PackedMsg(*provider);
+
+		if (!niProvPerfConfig.packedMsgBufferSize)
+			packedMsg->initBuffer();
+		else
+			packedMsg->initBuffer((UInt32)niProvPerfConfig.packedMsgBufferSize);
+	}
+
+	(void)packedMsg->addMsg(*msg, itemInfo->getHandle());
+	packCountCurrent++;
+
+	if (niProvPerfConfig.numberMsgInPackedMsg == packCountCurrent)
+	{
+		UInt64 clientHandle = itemInfo->getClientHandle();
+		
+		provider->submit(*packedMsg);
+		stats.packedMsgCount.countStatIncr();
+		packedMsg->clear();
+		packCountCurrent = 0;
+	}
 }
 
 void NIProviderThread::sendBurstMessages()
@@ -612,7 +651,8 @@ ProviderStats::ProviderStats(const ProviderStats& stats) :
 	closeMsgCount(stats.closeMsgCount),
 	statusCount(stats.statusCount),
 	intervalMsgEncodingStats(stats.intervalMsgEncodingStats),
-	inactiveTime(stats.inactiveTime)
+	inactiveTime(stats.inactiveTime),
+	packedMsgCount(stats.packedMsgCount)
 {}
 
 ProviderStats& ProviderStats::operator=(const ProviderStats& stats)
@@ -624,6 +664,7 @@ ProviderStats& ProviderStats::operator=(const ProviderStats& stats)
 	statusCount = stats.statusCount;
 	intervalMsgEncodingStats = stats.intervalMsgEncodingStats;
 	inactiveTime = stats.inactiveTime;
+	packedMsgCount = stats.packedMsgCount;
 
 	return *this;
 }

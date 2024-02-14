@@ -32,7 +32,9 @@ NIProvPerfConfig::NIProvPerfConfig() : PerfConfig((char*)defSummaryFilename.c_st
 	measureEncode(false),
 	measureDecode(false),
 	loginPosition(""),
-	providerName("")
+	providerName(""),
+	packedMsgBufferSize(0),
+	numberMsgInPackedMsg(0)
 {
 }
 
@@ -78,4 +80,7 @@ void NIProvPerfConfig::clearPerfConfig()
 	measureDecode = false;
 	loginPosition = "";
 	providerName = "";
+
+	packedMsgBufferSize = 0;
+	numberMsgInPackedMsg = 0;
 }

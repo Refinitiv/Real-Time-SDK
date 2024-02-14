@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the projects LICENSE.md for details.                  --
- *|          Copyright (C) 2019-2020 Refinitiv. All rights reserved.          --
+ *|          Copyright (C) 2023 Refinitiv. All rights reserved.          --
  *|-----------------------------------------------------------------------------
  */
 
@@ -23,6 +23,7 @@
 #include "DirectoryServiceStore.h"
 #include "ChannelInfoImpl.h"
 #include "OmmInvalidUsageException.h"
+#include "PackedMsgImpl.h"
 
 #include <limits.h>
 
@@ -1807,6 +1808,58 @@ void OmmNiProviderImpl::submit(const AckMsg&, UInt64)
 	handleIue("Non-interactive provider does not support submitting AckMsg.", OmmInvalidUsageException::InvalidOperationEnum);
 }
 
+void OmmNiProviderImpl::submit(const PackedMsg& packedMsg)
+{
+	_userLock.lock();
+
+	if (!_activeChannel)
+	{
+		_userLock.unlock();
+		EmaString temp("No active channel to send message.");
+		temp.append(CR);
+		handleIue(temp, OmmInvalidUsageException::NoActiveChannelEnum);
+		return;
+	}
+
+	PackedMsgImpl *packedMsgImpl = packedMsg._pImpl;
+	RsslBuffer *transportBuffer = packedMsgImpl->getTransportBuffer();
+	RsslReactorSubmitOptions submitOpts;
+	RsslErrorInfo rsslErrorInfo;
+	RsslRet ret = RSSL_RET_FAILURE;
+
+	if (transportBuffer == NULL)
+	{
+		_userLock.unlock();
+		EmaString temp("Attempt to submit PackedMsg with non init transport buffer");
+		handleIue(temp, OmmInvalidUsageException::InvalidArgumentEnum);
+		return;
+	}
+
+	rsslClearReactorSubmitOptions(&submitOpts);
+
+	transportBuffer->length = 0;
+
+	if (ret = rsslReactorSubmit(_activeChannel->getRsslReactor(), _activeChannel->getRsslChannel(), transportBuffer, &submitOpts, &rsslErrorInfo) < RSSL_RET_SUCCESS)
+	{
+		packedMsgImpl->clear();
+
+		EmaString temp("Internal error: rsslReactorSubmit() failed in OmmNiProviderImpl::submit( const PackedMsg& ).");
+		temp.append(CR).append(_activeChannel->toString()).append(CR)
+			.append("RsslChannel ").append(ptrToStringAsHex(rsslErrorInfo.rsslError.channel)).append(CR)
+			.append("Error Id ").append(rsslErrorInfo.rsslError.rsslErrorId).append(CR)
+			.append("Internal sysError ").append(rsslErrorInfo.rsslError.sysError).append(CR)
+			.append("Error Location ").append(rsslErrorInfo.errorLocation).append(CR)
+			.append("Error Text ").append(rsslErrorInfo.rsslError.text);
+		_userLock.unlock();
+		handleIue(temp, rsslErrorInfo.rsslError.rsslErrorId);
+		return;
+	}
+
+	packedMsgImpl->setTransportBuffer(NULL);
+
+	_userLock.unlock();
+}
+
 void OmmNiProviderImpl::setRsslReactorChannelRole( RsslReactorChannelRole& role)
 {
 	RsslReactorOMMNIProviderRole& niProviderRole = role.ommNIProviderRole;
@@ -2030,3 +2083,13 @@ void OmmNiProviderImpl::closeChannel(UInt64 clientHandle)
 	throwIueException("NIProvider applications do not support the closeChannel() method", OmmInvalidUsageException::InvalidOperationEnum);
 }
 
+OmmNiProviderImpl::StreamInfoPtr* OmmNiProviderImpl::getStreamInfo(UInt64 handle)
+{
+	_userLock.lock();
+
+	StreamInfoPtr* streamPtr =  const_cast<OmmNiProviderImpl::StreamInfoPtr*>(_handleToStreamInfo.find(handle));
+
+	_userLock.unlock();
+
+	return streamPtr;
+}

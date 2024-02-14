@@ -82,6 +82,7 @@
 #include "Access/Include/ReqMsg.h"
 #include "Access/Include/StatusMsg.h"
 #include "Access/Include/UpdateMsg.h"
+#include "Access/Include/PackedMsg.h"
 
 #include "Access/Include/OmmException.h"
 #include "Access/Include/OmmUnsupportedDomainTypeException.h"

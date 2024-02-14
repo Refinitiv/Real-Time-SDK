@@ -56,6 +56,10 @@ public:
 
 	refinitiv::ema::access::EmaString		providerName;				/* Name of the NiProvider component in EmaConfig.xml. See -providerName. */
 
+	refinitiv::ema::access::Int32			packedMsgBufferSize;		/* Amount of packed  Update Messages into PackedMsg */
+
+	refinitiv::ema::access::Int32			numberMsgInPackedMsg;		/* Amount of packed  Update Messages into PackedMsg */
+
 private:
 	// Defaults
 	static refinitiv::ema::access::EmaString defSummaryFilename;

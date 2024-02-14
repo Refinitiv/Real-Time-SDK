@@ -82,6 +82,9 @@ public:
 	ProvItemInfo* getCurrentUpdatesItem() const { return currentUpdatesItem; }
 	void setCurrentUpdatesItem(ProvItemInfo* item) { currentUpdatesItem = item; }
 
+	UInt32 getPackedPerTick() const { return packedPerTick; }
+	UInt32 getPackedPerTickRemainder() const { return packedPerTick; }
+
 private:
 	const NIProvPerfConfig& niProvConfig;
 
@@ -91,6 +94,10 @@ private:
 	UInt32	updatesPerTick;					/* Updates per tick */
 	UInt32	updatesPerTickRemainder;		/* Updates per tick (remainder) */
 	ProvItemInfo* currentUpdatesItem;		/* Current item in updates rotating list */
+
+	// Sending PackedMsg-es
+	UInt32	packedPerTick;					/* Packed per tick */
+	UInt32	packedPerTickRemainder;			/* Packed per tick (remainder) */
 
 };  // class ProviderThreadState
 
@@ -107,6 +114,7 @@ public:
 	CountStat				itemRequestCount;		/* Counts requests received. */
 	CountStat				closeMsgCount;			/* Counts closes received. */
 	CountStat				statusCount;			/* Number of item status messages received. */
+	CountStat				packedMsgCount;			/* Counts packed messages sent. */
 
 	ValueStatistics			intervalMsgEncodingStats;	/* Time of encoding message */
 
@@ -114,7 +122,6 @@ public:
 
 	LatencyCollection		messageEncodeTimeRecords;	/* List of time-records for measurement of encoding time */
 	LatencyCollection		messageDecodeTimeRecords;	/* Time spent decoding msgs. */
-
 };  // class ProviderStats
 
 
@@ -137,6 +144,7 @@ public:
 
 	void sendRefreshMessages();
 	void sendUpdateMessages();
+	void sendPackedMsg(const Msg* msg, ProvItemInfo* itemInfo);
 
 	bool isRunning() { return running; }
 	bool isStopped() { return stopThread; }
@@ -185,6 +193,9 @@ private:
 
 	NIProviderPerfClient* niProviderClient;
 	OmmProvider* provider;
+
+	PackedMsg* packedMsg;
+	Int32 packCountCurrent;
 
 	ProviderThreadState provThreadState;
 

@@ -170,6 +170,8 @@ else()
             Impl/OmmProviderErrorClient.cpp
             Impl/OmmProviderEvent.cpp
             Impl/OmmProviderImpl.cpp Impl/OmmProviderImpl.h
+            Impl/PackedMsg.cpp
+            Impl/PackedMsgImpl.cpp Impl/PackedMsgImpl.h
             Impl/OmmQos.cpp Impl/OmmQosDecoder.cpp Impl/OmmQosDecoder.h
             Impl/OmmReal.cpp Impl/OmmRealDecoder.cpp Impl/OmmRealDecoder.h
             Impl/OmmRmtes.cpp Impl/OmmRmtesDecoder.cpp Impl/OmmRmtesDecoder.h
@@ -331,6 +333,7 @@ else()
             Include/UpdateMsg.h
             Include/Vector.h
             Include/VectorEntry.h
+            Include/PackedMsg.h
             #Domain
             ../Domain/Login/Impl/LoginRefresh.cpp
             ../Domain/Login/Impl/LoginRefreshImpl.cpp

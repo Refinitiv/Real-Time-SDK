@@ -48,6 +48,8 @@ public :
 
 	virtual void submit(const StatusMsg&, UInt64) = 0;
 
+	virtual void submit(const PackedMsg&) = 0;
+
 	virtual Int64 dispatch(Int64 timeOut = 0) = 0;
 
 	virtual void unregister(UInt64) = 0;
