@@ -163,13 +163,19 @@ class PackedMsgImpl implements PackedMsg {
 		// If this reactorChannel has no channel set, our connection is not established anymore
 		if (reactorChannel.channel() == null)
 		{
-			String temp = "AddMsg() failed because connection is not established." ;
+			String temp = "addMsg() failed because connection is not established." ;
 			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.NO_ACTIVE_CHANNEL);
 		}
 		
 		if (handle == 0)
 		{
 			String temp = "Item handle must be set when calling addMsg()." ;
+			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
+		}
+		
+		if (transportBuffer == null)
+		{
+			String temp = "addMsg() failed because initBuffer() was not called." ;
 			throw ommIUExcept().message(temp, OmmInvalidUsageException.ErrorCode.INVALID_USAGE);
 		}
 		
