@@ -730,7 +730,7 @@ void watchlistConsumerConfigInit(int argc, char **argv)
 		}
 		else
 		{
-			printf("Config Error: Unknown option %s\n", argv[i]);
+			printf("Error: Unrecognized option: %s\n", argv[i]);
 			printUsageAndExit(argc, argv);
 		}
 	}

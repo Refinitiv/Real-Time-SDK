@@ -171,22 +171,22 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 		}
 		if (strcmp("-libsslName", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(libsslName, 255, "%s", argv[i - 1]);
 		}
 		else if (strcmp("-libcryptoName", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(libcryptoName, 255, "%s", argv[i - 1]);
 		}
 		else if (strcmp("-libcurlName", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(libcurlName, 255, "%s", argv[i - 1]);
 		}
 		else if (strcmp("-castore", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.encryptionOpts.openSSLCAStore = sslCAStore;
 		}
@@ -204,55 +204,55 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 		}
 		else if(strcmp("-uname", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(pCommand->username.data, MAX_BUFFER_LENGTH, "%s", argv[i-1]);
 			pCommand->username.length = (RsslUInt32)strlen(pCommand->username.data);
 		}
 		else if(strcmp("-at", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(pCommand->authenticationToken.data, MAX_AUTHN_LENGTH, "%s", argv[i-1]);
 			pCommand->authenticationToken.length = (RsslUInt32)strlen(pCommand->authenticationToken.data);
 		}
 		else if(strcmp("-ax", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(pCommand->authenticationExtended.data, MAX_AUTHN_LENGTH, "%s", argv[i-1]);
 			pCommand->authenticationExtended.length = (RsslUInt32)strlen(pCommand->authenticationExtended.data);
 		}
 		else if(strcmp("-aid", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(pCommand->applicationId.data, MAX_BUFFER_LENGTH, "%s", argv[i-1]);
 			pCommand->applicationId.length = (RsslUInt32)strlen(pCommand->applicationId.data);
 		}
 		else if (strcmp("-ph", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(proxyHost, sizeof(proxyHost), "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyHostName = proxyHost;
 		}
 		else if (strcmp("-pp", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(proxyPort, sizeof(proxyPort), "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyPort = proxyPort;
 		}
 		else if (strcmp("-plogin", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(proxyUserName, sizeof(proxyUserName), "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyUserName = proxyUserName;
 		}
 		else if (strcmp("-ppasswd", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(proxyPasswd, sizeof(proxyPasswd), "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyPasswd = proxyPasswd;
 		}
 		else if (strcmp("-pdomain", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			snprintf(proxyDomain, sizeof(proxyDomain), "%s", argv[i - 1]);
 			pCommand->cOpts.rsslConnectOptions.proxyOpts.proxyDomain = proxyDomain;
 		}
@@ -264,7 +264,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 		}
 		else if(strcmp("-maxEventsInPool", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			maxEventsInPool = atoi(argv[i-1]);
 		}
 		else if (strcmp("-tcp", argv[i]) == 0)
@@ -673,7 +673,7 @@ void handleConfig(int argc, char **argv, NIChannelCommand *pCommand)
 		}
 		else if(strcmp("-runtime", argv[i]) == 0)
 		{
-			i += 2;
+			i += 2; if (i > argc) printUsageAndExit(argv[0]);
 			timeToRun = atoi(argv[i-1]);
 		}
 		else if (strcmp("-cache", argv[i]) == 0)

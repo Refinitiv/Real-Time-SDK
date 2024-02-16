@@ -150,6 +150,53 @@ static RsslBool isLoginReissue;
 /* Json session */
 static RsslJsonSession jsonSession;
 
+/*
+ * Prints example usage and exits.
+ */
+
+void printUsageAndExit(char *appName)
+{
+	printf("Usage: %s or\n%s [-uname <LoginUsername>] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td] [-pl \"<sub-protocol list>\"] [-jsonEnumExpand] [-rtt]\n", appName, appName);
+	printf("\n -mp or -mpps For each occurance, requests item using Market Price domain. (-mpps for private stream)\n");
+	printf(" -mbo or -mbops For each occurance, requests item using Market By Order domain. (-mbops for private stream)\n");
+	printf(" -mbp or -mbpps For each occurance, requests item using Market By Price domain. (-mbpps for private stream)\n");
+	printf(" -yc or -ycps For each occurance, requests item using Yield Curve domain. (-ycps for private stream)\n");
+	printf("\n -view specifies each request using a basic dynamic view.\n");
+	printf(" -post specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream)\n");
+	printf(" -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n");
+	printf(" -snapshot specifies each request using non-streaming.\n");
+	printf("\n -sl requests symbol list using Symbol List domain. (symbol list name optional)\n");
+	printf("\n -td prints out additional transport details from rsslReadEx() and rsslWriteEx() function calls \n");
+	printf("\n -x provides an XML trace of messages.\n");
+	printf("\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n");
+	printf(" -ax Specifies the Authentication Extended information.\n");
+	printf(" -aid Specifies the Application ID.\n");
+	printf("\n -runtime adjusts the time the application runs.\n");
+	printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are socket, websocket and http(Windows only).\n");
+	printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
+	printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
+	printf(" -spTLSv1.3 Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n");
+	printf("\n -ph specifies the proxy host\n");
+	printf(" -pp specifies the proxy port\n");
+	printf(" -plogin specifies the proxy user name\n");
+	printf(" -ppasswod specifies the proxy password\n");
+	printf(" -pdomain specifies the proxy domain\n");
+	printf("\n -libcurlName specifies the name of the libcurl shared object\n");
+	printf(" -libsslName specifies the name of libssl shared object\n");
+	printf(" -libcryptoName specifies the name of libcrypto shared object\n");
+	printf(" -pl or -protocolList white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols);
+	printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
+	printf("\n -rtt If specified, the consumer connection will support the round trip time functionality in the login stream.\n");
+	printf(" -httpHdr If specified, http header will be accesible on the provider side\n");
+	printf(" -httpCookie with ';' delineated list of cookies data\n");
+#ifdef _WIN32
+	/* WINDOWS: wait for user to enter something before exiting  */
+	printf("\nPress Enter or Return key to exit application:");
+	getchar();
+#endif
+	exit(RSSL_RET_FAILURE);
+}
+
 int main(int argc, char **argv)
 {
 	struct timeval time_interval;
@@ -212,75 +259,75 @@ int main(int argc, char **argv)
 		{
 			if(strcmp("-libsslName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libsslName, 255, "%s", argv[i-1]);
 				initOpts.jitOpts.libsslName = libsslName;
 			}
 			else if(strcmp("-libcryptoName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libcryptoName, 255, "%s", argv[i-1]);
 				initOpts.jitOpts.libcryptoName = libcryptoName;
 			}
 			else if (strcmp("-libcurlName", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(libcurlName, 255, "%s", argv[i - 1]);
 				initOpts.jitOpts.libcurlName = libcurlName;
 			}
 			else if(strcmp("-uname", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setUsername(argv[i-1]);
 			}
 			else if(strcmp("-at", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setAuthenticationToken(argv[i-1]);
 			}
 			else if(strcmp("-ax", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setAuthenticationExtended(argv[i-1]);
 			}
 			else if(strcmp("-aid", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				setApplicationId(argv[i-1]);
 			}
 			else if(strcmp("-h", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(srvrHostname, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-p", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(srvrPortNo, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-ph", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyHostname, 128, "%s", argv[i-1]);
 			}
 			else if(strcmp("-pp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyPort, 128, "%s", argv[i-1]);
 			}
 			else if (strcmp("-plogin", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyUserName, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-ppasswd", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyPasswd, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-pdomain", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(proxyDomain, 128, "%s", argv[i - 1]);
 			}
 			else if (strcmp("-spTLSv1.2", argv[i]) == 0)
@@ -295,17 +342,17 @@ int main(int argc, char **argv)
 			}
 			else if (strcmp("-castore", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(sslCAStore, 255, "%s", argv[i - 1]);
 			}
 			else if(strcmp("-s", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(serviceName, 128, "%s", argv[i-1]);
 			}
 			else if ((strcmp("-protocolList", argv[i]) == 0) || (strcmp("-pl", argv[i]) == 0))
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(protocolList, 128, "%s", argv[i-1]);
 			}
 			else if (strcmp("-c", argv[i]) == 0)
@@ -344,14 +391,14 @@ int main(int argc, char **argv)
 			}
 			else if (strcmp("-yc", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in yield curve handler */
 				addYieldCurveItemName(argv[i-1], RSSL_FALSE);
 				ycItemReq = RSSL_TRUE;
 			}
 			else if(strcmp("-mp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market price handler */
 				addMarketPriceItemName(argv[i-1], RSSL_FALSE);	
 				mpItemReq = RSSL_TRUE;
@@ -359,14 +406,14 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-mbo", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market by order handler */
 				addMarketByOrderItemName(argv[i-1], RSSL_FALSE);
 				mboItemReq = RSSL_TRUE;
 			}
 			else if(strcmp("-mbp", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market by price handler */
 				addMarketByPriceItemName(argv[i-1], RSSL_FALSE);	
 				mbpItemReq = RSSL_TRUE;
@@ -435,7 +482,7 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-mpps", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market price handler */
 				addMarketPriceItemName(argv[i-1], RSSL_TRUE);	
 				mpItemReq = RSSL_TRUE;
@@ -443,21 +490,21 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-mbops", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market by order handler */
 				addMarketByOrderItemName(argv[i-1], RSSL_TRUE);
 				mboItemReq = RSSL_TRUE;
 			}
 			else if(strcmp("-mbpps", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in market by price handler */
 				addMarketByPriceItemName(argv[i-1], RSSL_TRUE);	
 				mbpItemReq = RSSL_TRUE;
 			}
 			else if (strcmp("-ycps", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				/* add item name in yield curve handler */
 				addYieldCurveItemName(argv[i-1], RSSL_TRUE);
 				ycItemReq = RSSL_TRUE;
@@ -474,7 +521,7 @@ int main(int argc, char **argv)
 			}
 			else if(strcmp("-runtime", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				timeToRun = atoi(argv[i-1]);
 			}
 			else if (strcmp("-httpHdr", argv[i]) == 0)
@@ -484,7 +531,7 @@ int main(int argc, char **argv)
 			}
 			else if (strcmp("-httpCookie", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				snprintf(cookiesData, 4096, "%s", argv[i-1]);
 				cookieBuff.data = cookiesData;
 				cookieBuff.length = (rtrUInt32)strlen(cookiesData);
@@ -492,50 +539,9 @@ int main(int argc, char **argv)
 			}
 			else
 			{
-				printf("Error: Unrecognized option: %s\n\n", argv[i]);
-				printf("Usage: %s or\n%s [-uname <LoginUsername>] [-h <SrvrHostname>] [-p <SrvrPortNo>] [-c <ConnType>] [-s <ServiceName>] [-view] [-post] [-offpost] [-snapshot] [-sl [<SymbolList Name>]] [-mp|-mpps <MarketPrice ItemName>] [-mbo|-mbops <MarketByOrder ItemName>] [-mbp|-mbpps <MarketByPrice ItemName>] [-runtime <seconds>] [-td] [-pl \"<sub-protocol list>\"] [-jsonEnumExpand] [-rtt]\n", argv[0], argv[0]);
-				printf("\n -mp or -mpps For each occurance, requests item using Market Price domain. (-mpps for private stream)\n");
-				printf(" -mbo or -mbops For each occurance, requests item using Market By Order domain. (-mbops for private stream)\n");
-				printf(" -mbp or -mbpps For each occurance, requests item using Market By Price domain. (-mbpps for private stream)\n");
-				printf(" -yc or -ycps For each occurance, requests item using Yield Curve domain. (-ycps for private stream)\n");
-				printf("\n -view specifies each request using a basic dynamic view.\n");
-				printf(" -post specifies that the application should attempt to send post messages on the first requested Market Price item (i.e., on-stream)\n");
-				printf(" -offpost specifies that the application should attempt to send post messages on the login stream (i.e., off-stream)\n");
-				printf(" -snapshot specifies each request using non-streaming.\n");
-				printf("\n -sl requests symbol list using Symbol List domain. (symbol list name optional)\n");
-				printf("\n -td prints out additional transport details from rsslReadEx() and rsslWriteEx() function calls \n");
-				printf("\n -x provides an XML trace of messages.\n");
-				printf("\n -at Specifies the Authentication Token. If this is present, the login user name type will be RDM_LOGIN_USER_AUTHN_TOKEN.\n");
-				printf(" -ax Specifies the Authentication Extended information.\n");
-				printf(" -aid Specifies the Application ID.\n");
-				printf("\n -runtime adjusts the time the application runs.\n");
-				printf("\n -ec if an ENCRYPTED type is selected, specifies the encrypted protocol type.  Accepted types are socket, websocket and http(Windows only).\n");
-				printf(" -castore specifies the filename or directory of the OpenSSL CA store\n");
-				printf(" -spTLSv1.2 Specifies that TLSv1.2 can be used for an OpenSSL-based encrypted connection\n");
-				printf(" -spTLSv1.3 Specifies that TLSv1.3 can be used for an OpenSSL-based encrypted connection\n");
-				printf("\n -ph specifies the proxy host\n");
-				printf(" -pp specifies the proxy port\n");
-				printf(" -plogin specifies the proxy user name\n");
-				printf(" -ppasswod specifies the proxy password\n");
-				printf(" -pdomain specifies the proxy domain\n");
-				printf("\n -libcurlName specifies the name of the libcurl shared object\n");
-				printf(" -libsslName specifies the name of libssl shared object\n");
-				printf(" -libcryptoName specifies the name of libcrypto shared object\n");
-				printf(" -pl or -protocolList white space or ',' delineated list of supported sub-protocols Default: '%s'\n", defaultProtocols);
-				printf(" -jsonEnumExpand If specified, expand all enumerated values with a JSON protocol.\n");
-				printf("\n -rtt If specified, the consumer connection will support the round trip time functionality in the login stream.\n");
-				printf(" -httpHdr If specified, http header will be accesible on the provider side\n");
-				printf(" -httpCookie with ';' delineated list of cookies data\n");
-#ifdef _WIN32
-				/* WINDOWS: wait for user to enter something before exiting  */
-				printf("\nPress Enter or Return key to exit application:");
-				getchar();
-#endif
-				exit(RSSL_RET_FAILURE);
-
+				printf("Error: Unrecognized option: %s\n", argv[i]);
+				printUsageAndExit(argv[0]);
 			}
-
-
 		}
 		
 		printf("Proxy host: %s\n", proxyHostname);

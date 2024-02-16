@@ -310,7 +310,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-clientSecret", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				clientSecret.length = snprintf(clientSecretBlock, sizeof(clientSecretBlock), "%s", argv[i - 1]);
 				clientSecret.data = clientSecretBlock;
 			}
@@ -340,25 +340,25 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-audience", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				audience.length = snprintf(audienceBlock, sizeof(audienceBlock), "%s", argv[i - 1]);
 				audience.data = audienceBlock;
 			}
 			else if (strcmp("-tokenURLV1", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenURLV1.length = snprintf(tokenURLNameV1, sizeof(tokenURLNameV1), "%s", argv[i - 1]);
 				tokenURLV1.data = tokenURLNameV1;
 			}
 			else if (strcmp("-tokenURLV2", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenURLV2.length = snprintf(tokenURLNameV2, sizeof(tokenURLNameV2), "%s", argv[i - 1]);
 				tokenURLV2.data = tokenURLNameV2;
 			}
 			else if (strcmp("-serviceDiscoveryURL", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				serviceDiscoveryURL.length = snprintf(serviceDiscoveryURLName, sizeof(serviceDiscoveryURLName), "%s", argv[i - 1]);
 				serviceDiscoveryURL.data = serviceDiscoveryURLName;
 			}
@@ -370,7 +370,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (strcmp("-tokenScope", argv[i]) == 0)
 			{
-				i += 2;
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
 				tokenScope.length = snprintf(tokenScopeName, sizeof(tokenScopeName), "%s", argv[i - 1]);
 				tokenScope.data = tokenScopeName;
 			}
@@ -1261,7 +1261,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else if (0 == strcmp("-debuginfoInterval", argv[i]))
 			{
-				i+=2;
+				i+=2; if (i > argc) printUsageAndExit(argv[0]);
 				reactorDebugLevel = (time_t)atoi(argv[i]);;
 			}
 			else if (strcmp("-tsServiceName", argv[i]) == 0)
@@ -1376,7 +1376,7 @@ void parseCommandLine(int argc, char **argv)
 			}
 			else
 			{
-				printf("Unknown option: %s\n", argv[i]);
+				printf("Error: Unrecognized option: %s\n", argv[i]);
 				printUsageAndExit(argv[0]);
 			}
 
