@@ -81,26 +81,27 @@ public class ConnectionArgsParser
 			if (args[argOffset+1].contains(":") && !args[argOffset+2].contains(":"))
 			{
 				String[] tokens = args[argOffset+1].split(":");
+				connectionArg = new ConnectionArg();
+				connectionArg.connectionType = ConnectionTypes.SOCKET;
+				if (!args[argOffset+2].startsWith("-"))
+				{
+					connectionArg.service = args[argOffset+2];
+					retCode = argOffset + 3;
+				}
+				else
+				{
+					retCode = argOffset + 2;
+				}
 				if (tokens.length == 2)
 				{
-					connectionArg = new ConnectionArg();
-					connectionArg.connectionType = ConnectionTypes.SOCKET;
-					if (!args[argOffset+2].startsWith("-"))
-					{
-    				    connectionArg.service = args[argOffset+2];
-    				    retCode = argOffset + 3;
-					}
-					else
-					{
-					    retCode = argOffset + 2;
-					}
 					connectionArg.hostname = tokens[0];
 					connectionArg.port = tokens[1];
 					connectionList.add(connectionArg);
 				}
-				else
-				{
-					return retCode;
+				else {
+					connectionArg.hostname = "";
+					connectionArg.port = "";
+					connectionList.add(connectionArg);
 				}
 			}
 			else

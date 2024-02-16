@@ -420,7 +420,12 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 			krb5ConfigFile.data(consumerCmdLineParser.restProxyKrb5ConfigFile());
 			reactorOptions.restProxyOptions().proxyKrb5ConfigFile(krb5ConfigFile);
 		}
-		
+
+		if (consumerCmdLineParser.serviceDiscoveryURL() != null && !consumerCmdLineParser.serviceDiscoveryURL().equals(""))
+		{
+			reactorOptions.serviceDiscoveryURL().data(consumerCmdLineParser.serviceDiscoveryURL());
+		}
+
 		// create reactor
 		reactor = ReactorFactory.createReactor(reactorOptions, errorInfo);
 		if (errorInfo.code() != ReactorReturnCodes.SUCCESS)
@@ -1695,10 +1700,18 @@ public class Consumer implements ConsumerCallback, ReactorAuthTokenEventCallback
 
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().userSpecObject(chnlInfo);
 		chnlInfo.connectOptions.connectionList().get(0).connectOptions().guaranteedOutputBuffers(1000);
+
+		if (consumerCmdLineParser.serviceDiscoveryLocation() != null && !consumerCmdLineParser.serviceDiscoveryLocation().equals(""))
+			chnlInfo.connectOptions.connectionList().get(0).location(consumerCmdLineParser.serviceDiscoveryLocation());
+
 		// add backup connection if specified
 		if (consumerCmdLineParser.backupHostname() != null && consumerCmdLineParser.backupPort() != null)
 		{
 			ReactorConnectInfo connectInfo = ReactorFactory.createReactorConnectInfo();
+
+			if (consumerCmdLineParser.serviceDiscoveryLocation() != null && !consumerCmdLineParser.serviceDiscoveryLocation().equals(""))
+				connectInfo.location(consumerCmdLineParser.serviceDiscoveryLocation());
+
 			chnlInfo.connectOptions.connectionList().add(connectInfo);
 			chnlInfo.connectOptions.connectionList().get(1).connectOptions().majorVersion(Codec.majorVersion());
 			chnlInfo.connectOptions.connectionList().get(1).connectOptions().minorVersion(Codec.minorVersion());

@@ -52,6 +52,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 	private String krbFile = "";
 	private String tokenURL_V1 = "";
 	private String tokenURL_V2 = "";
+	private String serviceDiscoveryURL  = "";
+	private String serviceDiscoveryLocation = "";
 	private String keystoreFile;
 	private String keystorePasswd;
 	private boolean cacheOption;
@@ -393,6 +395,16 @@ class ConsumerCmdLineParser implements CommandLineParser
 					tokenURL_V2 = argsCount < (args.length-1) ? args[++argsCount] : null;
 					++argsCount;
 				}
+				else if ("-serviceDiscoveryURL".equals(args[argsCount]))
+				{
+					serviceDiscoveryURL = argsCount < (args.length-1) ? args[++argsCount] : null;
+					++argsCount;
+				}
+				else if ("-location".equals(args[argsCount]))
+				{
+					serviceDiscoveryLocation = argsCount < (args.length-1) ? args[++argsCount] : null;
+					++argsCount;
+				}
 				else if ("-pl".equals(args[argsCount])) {
 					protocolList = args[++argsCount];
 					++argsCount;
@@ -499,7 +511,14 @@ class ConsumerCmdLineParser implements CommandLineParser
 	{
 		return tokenURL_V2;
 	}
-	
+	String serviceDiscoveryURL()
+	{
+		return serviceDiscoveryURL;
+	}
+	String serviceDiscoveryLocation()
+	{
+		return serviceDiscoveryLocation;
+	}
 	String tokenScope()
 	{
 		return tokenScope;
@@ -740,6 +759,8 @@ class ConsumerCmdLineParser implements CommandLineParser
 						   "\n -takeExclusiveSignOnControl <true/false> the exclusive sign on control to force sign-out for the same credentials. This is only used with V1 password credential logins(optional for V1 password credential logins).\n" +
 						   "\n -tokenURLV1 specifies the URL for the V1 token generator(optional)." +
 						   "\n -tokenURLV2 specifies the URL for the V2 token generator(optional)." +
+						   "\n -serviceDiscoveryURL specifies the RDP Service Discovery URL to override the default value.\n" +
+						   "\n -location specifies location/region when dogin service discovery.\n" +
 						   "\n -view specifies each request using a basic dynamic view\n" +
 						   "\n -restProxyHost specifies the REST proxy host name. Used for REST requests only for service discovery and authentication.\n" +
 						   "\n -restProxyPort specifies the REST proxy port. Used for REST requests only for service discovery and authentication.\n" +

@@ -112,6 +112,7 @@ RsslBuffer appId = RSSL_INIT_BUFFER;
 RsslBuffer tokenURLV1 = RSSL_INIT_BUFFER;
 RsslBuffer tokenURLV2 = RSSL_INIT_BUFFER;
 RsslBuffer serviceDiscoveryURL = RSSL_INIT_BUFFER;
+RsslBuffer serviceDiscoveryLocation = RSSL_INIT_BUFFER;
 RsslBuffer tokenScope = RSSL_INIT_BUFFER;
 RsslReactorChannelStatistic channelStatistics;
 
@@ -122,6 +123,7 @@ static char libcurlName[255];
 static char tokenURLNameV1[255];
 static char tokenURLNameV2[255];
 static char serviceDiscoveryURLName[255];
+static char serviceDiscoveryLocationName[255];
 static char tokenScopeName[255];
 
 static char restProxyHost[256];
@@ -129,6 +131,7 @@ static char restProxyPort[256];
 static char restProxyUserName[128];
 static char restProxyPasswd[128];
 static char restProxyDomain[128];
+
 
 static char sslCAStore[255];
 static RsslEncryptionProtocolTypes tlsProtocol = RSSL_ENC_NONE;
@@ -205,6 +208,7 @@ void printUsageAndExit(char *appName)
 			"\n -tokenURLV1 token generator URL V1\n"
 			"\n -tokenURLV2 token generator URL V2\n"
 			"\n -serviceDiscoveryURL Service Discovery URL\n"
+			"\n -location specifies location/region when dogin service discovery\n"
 			"\n -tokenScope Scope for the token. Used with both V1 and V2 tokens\n"
 			"\n -restProxyHost <proxy host> Proxy host name. Used for Rest requests only: service discovery, auth\n"
 			"\n -restProxyPort <proxy port> Proxy port. Used for Rest requests only: service discovery, auth\n"
@@ -357,6 +361,12 @@ void parseCommandLine(int argc, char **argv)
 				i += 2;
 				serviceDiscoveryURL.length = snprintf(serviceDiscoveryURLName, sizeof(serviceDiscoveryURLName), "%s", argv[i - 1]);
 				serviceDiscoveryURL.data = serviceDiscoveryURLName;
+			}
+			else if (strcmp("-location", argv[i]) == 0)
+			{
+				i += 2; if (i > argc) printUsageAndExit(argv[0]);
+				serviceDiscoveryLocation.length = snprintf(serviceDiscoveryLocationName, sizeof(serviceDiscoveryLocationName), "%s", argv[i - 1]);
+				serviceDiscoveryLocation.data = serviceDiscoveryLocationName;
 			}
 			else if (strcmp("-tokenScope", argv[i]) == 0)
 			{
@@ -2098,6 +2108,11 @@ int main(int argc, char **argv)
 		pOpts->reconnectAttemptLimit = -1;
 		pOpts->reconnectMaxDelay = 5000;
 		pOpts->reconnectMinDelay = 1000;
+
+		if (serviceDiscoveryLocation.length != 0)
+		{
+			pOpts->reactorConnectionList->location = serviceDiscoveryLocation;
+		}
 
 		/* Specify interests to get channel statistics */
 		if(statisticInterval > 0)
