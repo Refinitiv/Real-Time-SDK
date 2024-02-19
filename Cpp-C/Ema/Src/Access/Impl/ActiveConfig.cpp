@@ -168,6 +168,7 @@ BaseConfig::BaseConfig() :
 	xmlTraceFileName(DEFAULT_XML_TRACE_FILE_NAME),
 	enableRtt(DEFAULT_ENABLE_RTT),
 	restEnableLog(DEFAULT_REST_ENABLE_LOG),
+	restVerboseMode(DEFAULT_REST_VERBOSE_MODE),
 	restEnableLogViaCallback(DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK),
 	sendJsonConvError(DEFAULT_SEND_JSON_CONV_ERROR),
 	loggerConfig(),
@@ -216,6 +217,7 @@ void BaseConfig::clear()
 	xmlTraceFileName = DEFAULT_XML_TRACE_FILE_NAME;
 	enableRtt = DEFAULT_ENABLE_RTT;
 	restEnableLog = DEFAULT_REST_ENABLE_LOG;
+	restVerboseMode = DEFAULT_REST_VERBOSE_MODE;
 	restEnableLogViaCallback = DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK;
 	loggerConfig.clear();
 	catchUnhandledException = DEFAULT_HANDLE_EXCEPTION;
@@ -271,6 +273,7 @@ EmaString BaseConfig::configTrace()
 		.append("\n\t outputBufferSize : ").append(outputBufferSize)
 		.append("\n\t jsonTokenIncrementSize : ").append(jsonTokenIncrementSize)
 		.append("\n\t restEnableLog : ").append(restEnableLog)
+		.append("\n\t restVerboseMode : ").append(restVerboseMode)
 		.append("\n\t restLogFileName : ").append(restLogFileName)
 		.append("\n\t sendJsonConvError : ").append(sendJsonConvError)
 		.append("\n\t shouldInitializeCPUIDlib : ").append(shouldInitializeCPUIDlib);

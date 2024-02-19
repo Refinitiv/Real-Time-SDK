@@ -66,6 +66,7 @@ static RsslBool enableSessionMgnt = RSSL_FALSE;
 static RsslBool RTTSupport = RSSL_FALSE;
 static RsslBool takeExclusiveSignOnControl = RSSL_TRUE;
 static RsslBool restEnableLog = RSSL_FALSE;
+static RsslBool restVerboseMode = RSSL_FALSE;
 static RsslUInt restEnableLogViaCallback = 0U;  // 0: disabled, 1: enabled from the start, 2: enabled after initialization stage
 static RsslUInt32 reactorDebugLevel = RSSL_RC_DEBUG_LEVEL_NONE;
 static time_t debugInfoIntervalMS = 50;
@@ -203,6 +204,7 @@ void printUsageAndExit(char *appName)
 			"\n -runtime adjusts the running time of the application.\n"
 			"\n -maxEventsInPool size of event pool\n"
 			"\n -restEnableLog enable REST logging message\n"
+			"\n -restVerbose enable verbose REST logging message\n"
 			"\n -restLogFileName set REST logging output stream\n"
 			"\n -restEnableLogViaCallback <type> enable an alternative way to receive REST logging messages via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage.\n"
 			"\n -tokenURLV1 token generator URL V1\n"
@@ -486,6 +488,11 @@ void parseCommandLine(int argc, char **argv)
 			{
 				i++;
 				restEnableLog = RSSL_TRUE;
+			}
+			else if (strcmp("-restVerbose", argv[i]) == 0)
+			{
+				i++;
+				restVerboseMode = RSSL_TRUE;
 			}
 			else if (strcmp("-restEnableLogViaCallback", argv[i]) == 0)
 			{
@@ -2130,6 +2137,7 @@ int main(int argc, char **argv)
 	reactorOpts.debugLevel = reactorDebugLevel;
 
 	reactorOpts.restEnableLog = restEnableLog;
+	reactorOpts.restVerboseMode = restVerboseMode;
 
 	if (restLogFileName)
 		reactorOpts.restLogOutputStream = restLogFileName;

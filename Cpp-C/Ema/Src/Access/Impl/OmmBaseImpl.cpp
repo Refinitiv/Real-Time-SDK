@@ -1025,6 +1025,11 @@ void OmmBaseImpl::readConfig(EmaConfigImpl* pConfigImpl)
 		_activeConfig.restEnableLog = tmp > 0 ? true : false;
 	}
 
+	if (pConfigImpl->get<UInt64>(instanceNodeName + "RestVerboseMode", tmp))
+	{
+		_activeConfig.restVerboseMode = tmp > 0 ? true : false;
+	}
+
 
 	Int64 tempInt = DEFAULT_REISSUE_TOKEN_ATTEMP_LIMIT;
 	if (pConfigImpl->get<Int64>(instanceNodeName + "ReissueTokenAttemptLimit", tempInt))
@@ -2276,6 +2281,9 @@ void OmmBaseImpl::initialize( EmaConfigImpl* configImpl )
 
 		if (_activeConfig.restEnableLog != DEFAULT_REST_ENABLE_LOG)
 			reactorOpts.restEnableLog = _activeConfig.restEnableLog;
+
+		if (_activeConfig.restVerboseMode != DEFAULT_REST_VERBOSE_MODE)
+			reactorOpts.restVerboseMode = _activeConfig.restVerboseMode;
 
 		if (!_activeConfig.restLogFileName.empty())
 		{

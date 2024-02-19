@@ -1193,6 +1193,10 @@ void ProgrammaticConfigure::retrieveInstanceCommonConfig( const Map& map, const 
 												{
 													activeConfig.restEnableLog = eentry.getUInt() ? true : false;
 												}
+												else if (eentry.getName() == "RestVerboseMode")
+												{
+													activeConfig.restVerboseMode = eentry.getUInt() ? true : false;
+												}
 												else if (eentry.getName() == "RestEnableLogViaCallback")
 												{
 													activeConfig.restEnableLogViaCallback = eentry.getUInt() ? true : false;

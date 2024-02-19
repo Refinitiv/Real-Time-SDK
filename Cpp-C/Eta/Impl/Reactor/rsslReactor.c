@@ -757,6 +757,7 @@ RSSL_VA_API RsslReactor *rsslCreateReactor(RsslCreateReactorOptions *pReactorOpt
 	pReactorImpl->reissueTokenAttemptInterval = pReactorOpts->reissueTokenAttemptInterval;
 	pReactorImpl->restRequestTimeout = pReactorOpts->restRequestTimeOut;
 	pReactorImpl->restEnableLog = pReactorOpts->restEnableLog;
+	pReactorImpl->restVerboseMode = pReactorOpts->restVerboseMode;
 	if (pReactorOpts->restLogOutputStream)
 	{
 		if (pReactorOpts->restLogOutputStream == stdout)
@@ -1424,7 +1425,7 @@ RSSL_VA_API RsslRet rsslReactorCreateRestClient(RsslReactorImpl *pRsslReactorImp
 	return RSSL_RET_SUCCESS;
 }
 
-void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs)
+void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOptions* pOpts, RsslProxyOpts* pReactorRestProxyOpts, RsslBool restVerboseMode, RsslRestRequestArgs* pRestRequestArgs)
 {
 	/* Select the set of the proxy options that will assign to pRestRequestArgs. */
 	/* When pReactorRestProxyOpts (RsslCreateReactorOptions.restProxyOptions) is specified we will use it, */
@@ -1496,6 +1497,8 @@ void _assignServiceDiscoveryOptionsToRequestArgs(RsslReactorServiceDiscoveryOpti
 			pRestRequestArgs->networkArgs.proxyArgs.proxyUserName.length = pOpts->proxyUserName.length;
 		}
 	}
+
+	pRestRequestArgs->restVerboseMode = restVerboseMode;
 }
 
 RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, RsslReactorServiceDiscoveryOptions* pOpts, RsslErrorInfo *pError)
@@ -1727,7 +1730,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 				if (pRestRequestArgs)
 				{
 					_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
-						&pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
+						&pRsslReactorImpl->restProxyOptions, pRsslReactorImpl->restVerboseMode, pRestRequestArgs);
 
 					rsslRestRequestDump(pRsslReactorImpl, pRestRequestArgs, &errorInfo.rsslError);
 
@@ -1946,7 +1949,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 		if (pRestRequestArgs)
 		{
 			_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
-				&pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
+				&pRsslReactorImpl->restProxyOptions, pRsslReactorImpl->restVerboseMode, pRestRequestArgs);
 
 			if(pOpts->restBlocking == RSSL_TRUE) // Handles the REST blocking mode
 			{
@@ -2170,7 +2173,7 @@ RSSL_VA_API RsslRet rsslReactorQueryServiceDiscovery(RsslReactor *pReactor, Rssl
 	if (pRestRequestArgs)
 	{
 		_assignServiceDiscoveryOptionsToRequestArgs(pOpts,
-			&pRsslReactorImpl->restProxyOptions, pRestRequestArgs);
+			&pRsslReactorImpl->restProxyOptions, pRsslReactorImpl->restVerboseMode, pRestRequestArgs);
 
 		if (!pRsslReactorImpl->serviceDiscoveryRespBuffer.data)
 		{
@@ -12549,7 +12552,7 @@ RsslRet _reactorApplyServiceDiscoveryEndpoint(RsslConnectOptions* pConnOptions, 
 	return RSSL_RET_SUCCESS;
 }
 
-void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslRestRequestArgs* pRestRequestArgs)
+void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslProxyOpts* pReactorRestProxyOpts, RsslBool restVerboseMode, RsslRestRequestArgs* pRestRequestArgs)
 {
 	RsslProxyOpts* proxyOpts = NULL;
 
@@ -12601,6 +12604,8 @@ void _assignConnectionArgsToRequestArgs(RsslConnectOptions *pConnOptions, RsslPr
 		pRestRequestArgs->networkArgs.interfaceName.data = pConnOptions->connectionInfo.unified.interfaceName;
 		pRestRequestArgs->networkArgs.interfaceName.length = (RsslUInt32)strlen(pConnOptions->connectionInfo.unified.interfaceName);
 	}
+
+	pRestRequestArgs->restVerboseMode = restVerboseMode;
 }
 
 void _cumulativeValue(RsslUInt* destination, RsslUInt32 value)

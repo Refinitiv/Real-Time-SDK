@@ -521,6 +521,7 @@ void EmaActiveConfigTest::BaseConfigTestDefaultValues(BaseConfig & baseConfig)
 	EXPECT_EQ(baseConfig.outputBufferSize, DEFAULT_OUTPUT_BUFFER_SIZE);
 	EXPECT_EQ(baseConfig.jsonTokenIncrementSize, DEFAULT_JSON_TOKEN_INCREMENT_SIZE);
 	EXPECT_EQ(baseConfig.restEnableLog, DEFAULT_REST_ENABLE_LOG);
+	EXPECT_EQ(baseConfig.restVerboseMode, DEFAULT_REST_VERBOSE_MODE);
 	EXPECT_EQ(baseConfig.restEnableLogViaCallback, DEFAULT_REST_ENABLE_LOG_VIA_CALLBACK);
 	EXPECT_EQ(baseConfig.sendJsonConvError, DEFAULT_SEND_JSON_CONV_ERROR);
 	EXPECT_EQ(baseConfig.shouldInitializeCPUIDlib, DEFAULT_SHOULD_INIT_CPUID_LIB);
@@ -628,6 +629,7 @@ TEST_F(EmaActiveConfigTest, BaseConfigTest)
 	baseConfig.outputBufferSize = 23;
 	baseConfig.jsonTokenIncrementSize = 42;
 	baseConfig.restEnableLog = true;
+	baseConfig.restVerboseMode = true;
 	baseConfig.restEnableLogViaCallback = true;
 	baseConfig.sendJsonConvError = true;
 	baseConfig.shouldInitializeCPUIDlib = false;

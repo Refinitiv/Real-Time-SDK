@@ -66,6 +66,12 @@ public:
 	*/
 	ServiceEndpointDiscoveryConfig& restEnableLog(bool restEnableLog = false);
 
+	/** Specifies whether to enable or disable verbose REST logging. If set to true, verbose REST logging is enabled. Defaults to false.
+	@param[in] restVerboseMode if true, enables verbose REST logging.
+	@return reference to this object
+	*/
+	ServiceEndpointDiscoveryConfig& restVerboseMode(bool restVerboseMode = false);
+
 	/** Specifies a name to override the default for the openSSL libssl shared library. The RSSL API will attempt to dynamically load this library for encrypted connections.
 		@param[in] libsslName specifies a name of the openSSL libssl shared library.
 		@return reference to this object
@@ -99,6 +105,7 @@ private:
 	const EmaString* _serviceDiscoveryURL;// Defaults to empty
 	FILE* _restLogOutputStreamFile;		 // Defaults to NULL to send logs to stdout
 	bool _restEnableLog;			 // Defaults to false
+	bool _restVerboseMode;			 // Defaults to false
 
 	const EmaString* _libsslName;		// Defaults to empty
 	const EmaString* _libcryptoName;		// Defaults to empty

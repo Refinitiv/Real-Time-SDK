@@ -271,6 +271,8 @@ int main(int argc, char **argv)
 	{
 		reactorOpts.restEnableLog = watchlistConsumerConfig.restEnableLog;
 		reactorOpts.restLogOutputStream = watchlistConsumerConfig.restOutputStreamName;
+
+		reactorOpts.restVerboseMode = watchlistConsumerConfig.restVerboseMode;
 	}
 
 	if (watchlistConsumerConfig.restEnableLogViaCallback > 0)

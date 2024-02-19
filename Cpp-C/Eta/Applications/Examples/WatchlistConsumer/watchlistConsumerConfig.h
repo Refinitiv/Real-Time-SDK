@@ -135,6 +135,7 @@ typedef struct
 	RsslBool			takeExclusiveSignOnControl;		/* The exclusive sign on control to force sign-out for the same credentials.*/
 
 	RsslBool			restEnableLog;					/* Enable Rest request/response logging.*/
+	RsslBool			restVerboseMode;				/* Enable verbose Rest request/response logging.*/
 	FILE				*restOutputStreamName;			/* Set output stream for Rest request/response logging.*/
 	RsslUInt			restEnableLogViaCallback;		/* Enable Rest request/response logging via callback. 0 - disabled, 1 - enabled from the start, 2 - enabled after initialization stage. */
 
