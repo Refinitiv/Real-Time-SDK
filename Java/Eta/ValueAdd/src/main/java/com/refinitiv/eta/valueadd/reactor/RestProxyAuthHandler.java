@@ -2,7 +2,7 @@
  *|            This source code is provided under the Apache 2.0 license      --
  *|  and is provided AS IS with no warranty or guarantee of fit for purpose.  --
  *|                See the project's LICENSE.md for details.                  --
- *|           Copyright (C) 2019-2022 Refinitiv. All rights reserved.         --
+ *|           Copyright (C) 2019-2022,2024 Refinitiv. All rights reserved.         --
  *|-----------------------------------------------------------------------------
  */
 
@@ -174,7 +174,8 @@ class RestProxyAuthHandler
 	   	   	   	                RestReactor.populateErrorInfo(errorInfo,
 	   	   	                            ReactorReturnCodes.FAILURE,
 	   	   	                            "RestProxyAuthHandler.execute",
-	   	   	                            "Failed to request authentication token information. "
+	   	   	                            "Failed to request authentication token information with HTTP error "
+	   	   	                            + response.getStatusLine().getStatusCode() + ". "
 	   	   	                            + "Incorrect redirecting.");
 	
 	   	   	   	                return ReactorReturnCodes.FAILURE;
@@ -217,7 +218,8 @@ class RestProxyAuthHandler
 							RestReactor.populateErrorInfo(errorInfo,
 			                    ReactorReturnCodes.FAILURE,
 			                    "RestProxyAuthHandler.execute", 
-			                    "Failed to send HTTP request. Text: " 
+			                    "Failed to request authentication token information with HTTP error "
+			                    + response.getStatusLine().getStatusCode() + ". Text: " 
 			                    +  (Objects.nonNull(contentString) ? contentString : ""));
 							return ReactorReturnCodes.FAILURE;
 						}
@@ -337,7 +339,8 @@ class RestProxyAuthHandler
 					return RestReactor.populateErrorInfo(errorInfo,   				
 		                    ReactorReturnCodes.FAILURE,
 		                    "RestProxyAuthHandler.sendBasicAuthRequest", 
-		                    "Failed to send HTTP Request. Text: " 
+		                    "Failed to request authentication token information with HTTP error "
+		                    + response.getStatusLine().getStatusCode() + ". Text: "  
 		                    +  (Objects.nonNull(contentString) ? contentString : ""));
 		    	}
 		    	else
@@ -429,7 +432,8 @@ class RestProxyAuthHandler
 					return RestReactor.populateErrorInfo(errorInfo,   				
 			                ReactorReturnCodes.FAILURE,
 			                "RestProxyAuthHandler.sendNTLMRequest", 
-			                "Failed to send HTTP Request. Text: " 
+		                    "Failed to request authentication token information with HTTP error "
+		                    + response.getStatusLine().getStatusCode() + ". Text: " 
 			                +  (Objects.nonNull(contentString) ? contentString : ""));
 		    	}
 		    	else
@@ -480,7 +484,7 @@ class RestProxyAuthHandler
 				return RestReactor.populateErrorInfo(errorInfo,   				
 		                ReactorReturnCodes.FAILURE,
 		                "RestProxyAuthHandler.sendKerborosRequest", 
-		                "Failed to send HTTP Request. Text: " 
+		                "Failed to request authentication token information. Text: " 
 		                + e.getMessage());
 			}
 			else
@@ -536,7 +540,7 @@ class RestProxyAuthHandler
 							RestReactor.populateErrorInfo(errorInfo,   				
 					                ReactorReturnCodes.FAILURE,
 					                "RestProxyAuthHandler.sendKerborosRequest", 
-					                "Failed to send HTTP Request. Text: " 
+					                "Failed to request authentication token information. Text: " 
 					                + e.getMessage());
 						}
 						else
@@ -587,7 +591,8 @@ class RestProxyAuthHandler
 					return RestReactor.populateErrorInfo(errorInfo,   				
 			                ReactorReturnCodes.FAILURE,
 			                "RestProxyAuthHandler.sendKerborosRequest", 
-			                "Failed to send HTTP Request. Text: " 
+		                    "Failed to request authentication token information with HTTP error "
+		                    + response.getStatusLine().getStatusCode() + ". Text: " 
 			               +  (Objects.nonNull(contentString) ? contentString : ""));
 	        	}
 	        	else
